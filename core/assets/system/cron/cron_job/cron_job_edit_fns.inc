@@ -23,10 +23,9 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 	function Cron_Job_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-
 		$this->static_screens = Array(
 									'details' => Array(
-										'name'			=> 'View Jobs',
+										'name'			=> 'Details',
 										'force_unlock'	=> true,
 									),
 								);
