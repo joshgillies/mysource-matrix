@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.as,v 1.16 2003/10/29 00:34:22 dwong Exp $
+* $Id: asset.as,v 1.17 2003/10/30 03:07:27 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -19,34 +19,21 @@ function Asset()
 	// We need to define our own instance of this here for the broadcasting,
 	// because we are inialising the ASBroadcaster on the prototype
 	this._listeners = new Array(); 
-
 }
 
 // Set ourselves up as a broadcaster
 ASBroadcaster.initialize(Asset.prototype);
 
-
-// all the ones we care about
-/* 
-define('SQ_STATUS_ARCHIVED',           1); // asset is archived
-define('SQ_STATUS_UNDER_CONSTRUCTION', 2); // asset is under construction
-define('SQ_STATUS_PENDING_APPROVAL',   4); // asset is currently in workflow
-define('SQ_STATUS_APPROVED',           8); // asset is approved waiting to go live from under construction
-define('SQ_STATUS_LIVE',              16); // asset is live
-define('SQ_STATUS_LIVE_APPROVAL',     32); // asset is up for review
-define('SQ_STATUS_EDITING',           64); // asset is currently safe editing
-define('SQ_STATUS_EDITING_APPROVAL', 128); // asset is currently in workflow from safe edit
-define('SQ_STATUS_EDITING_APPROVED', 256); // asset is approved waiting to go live from safe edit
-
-define('SQ_SC_STATUS_NOT_LIVE',      15); // short hand for SQ_STATUS_ARCHIVED | SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_APPROVED
-define('SQ_SC_STATUS_CAN_APPROVE',   66); // short hand for SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_EDITING
-define('SQ_SC_STATUS_PENDING',      164); // short hand for SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_EDITING_APPROVAL | SQ_STATUS_LIVE_APPROVAL
-define('SQ_SC_STATUS_ALL_APPROVED', 136); // short hand for SQ_STATUS_APPROVED | SQ_STATUS_EDITING_APPROVED
-define('SQ_SC_STATUS_SAFE_EDITING', 448); // short hand for SQ_STATUS_EDITING | SQ_STATUS_EDITING_APPROVAL | SQ_STATUS_EDITING_APPROVED
-*/
-Asset.prototype.UNDER_CONSTRUCTION_STATUS = 2 | 4 | 8 | 64 | 128 | 256;
-Asset.prototype.LIVE_STATUS = 16 | 32;
-
+Asset.prototype.STATUSES = Array();
+Asset.prototype.STATUSES[1]		= 'archived';
+Asset.prototype.STATUSES[2]		= 'under_construction';
+Asset.prototype.STATUSES[4]		= 'pending_approval';
+Asset.prototype.STATUSES[8]		= 'approved';
+Asset.prototype.STATUSES[16]	= 'live';
+Asset.prototype.STATUSES[32]	= 'live_approval';
+Asset.prototype.STATUSES[64]	= 'editing';
+Asset.prototype.STATUSES[128]	= 'editing_approval';
+Asset.prototype.STATUSES[256]	= 'editing_approved';
 
 
 Asset.prototype.toString = function()
@@ -60,6 +47,7 @@ Asset.prototype.toString = function()
 			", Paths: [" + this.paths + "]" +
 			", Links: [" + this.links + "]";
 }
+
 
 Asset.prototype.setInfo = function(assetid, type_code, name, accessible, status, url, paths, links)
 {

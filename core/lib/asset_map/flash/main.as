@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: main.as,v 1.50 2003/10/16 02:18:07 dwong Exp $
+* $Id: main.as,v 1.51 2003/10/30 03:07:29 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,12 +104,44 @@ _root.LIST_ITEM_POS_INCREMENT  = 20;
 _root.LIST_ITEM_END_BRANCH_GAP = 5;  
 // the colours for the background of a list item
 _root.LIST_ITEM_BG_COLOURS = {
-							normal:					{colour: 0xCCCCCC, alpha: 100},   // alpha = 0 -> transparent
-							live:					{colour: 0xCCFF66, alpha: 100}, 
-							under_construction:		{colour: 0xBBDDFF, alpha: 100},
-							error:					{colour: 0xFF9999, alpha: 100},
-							selected:				{colour: 0x406080, alpha: 100}
-							};  
+	archived:			{
+		normal:			0xA59687,
+		selected:		0x655240
+	},
+	under_construction: {
+		normal:			0x78C7EB,
+		selected:		0x00A0E2
+	}, 
+	pending_approval:	{
+		normal:			0xAF9CC5,
+		selected:		0x432C5F
+	},
+	approved:			{
+		normal:			0xF4D425,
+		selected:		0xEBB600
+	},
+	live:				{
+		normal:			0xB1DC1B,
+		selected:		0x92B41A
+	},
+	live_approval:		{
+		normal:			0xAF9CC5,
+		selected:		0x432C5F
+	},
+	editing:			{
+		normal:			0xF25C86,
+		selected:		0xB73E61
+	},
+	editing_approval:	{
+		normal:			0xCCCCCC,
+		selected:		0x666666
+	},
+	editing_approved:	{
+		normal:			0xFF9A00,
+		selected:		0xC96606
+	}
+}
+
 // the colours for the background of a mail box message
 _root.MAIL_MSG_BG_COLOURS = {
 							normal:   {colour: 0xFFFFFF, alpha: 100},   // alpha = 0 -> transparent
@@ -158,9 +190,9 @@ _root.progress_bar.init(_root.header.spinner, _root.header.loadingText);
 // Now attach the Tabs
 _root.attachMovie("mcTabsID", "tabs", 2);
 
-_root.tabs.addTab("mcTabContentAreaTreeID",		"tree",		"Tree",		"mc_tree_tab_icon");
+_root.tabs.addTab("mcTabContentAreaTreeID",		"tree",		"Tree",			"mc_tree_tab_icon");
 _root.tabs.addTab("mcTabContentAreaMailBoxID",	"mail",		"Messages",		"mc_messages_tab_icon");
-_root.tabs.addTab("mcTabContentAreaLogMsgsID",	"log",		"Log",		"mc_log_tab_icon");
+_root.tabs.addTab("mcTabContentAreaLogMsgsID",	"log",		"Log",			"mc_log_tab_icon");
 // Initialise stage resize listener	
 _root.stage_resize = new StageResize();
 

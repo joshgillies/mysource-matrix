@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemClass.as,v 1.32 2003/10/29 00:34:24 dwong Exp $
+* $Id: mcListItemClass.as,v 1.33 2003/10/30 03:07:29 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -13,6 +13,7 @@
 // Create the Class
 function mcListItemClass()
 {
+	trace("mcListItemClass.(constructor)()");
 	this.parent_item_name = "";
 	this.lineage_path = Array();
 	
@@ -45,13 +46,6 @@ function mcListItemClass()
 	// set the text field up
 	this.text_field.text = "";
 	this.text_field.autoSize = "left";
-
-	// selected and normal text formats
-	this.normalTextFormat = new TextFormat();
-	this.normalTextFormat.color = 0x000000;
-
-	this.selectedTextFormat = new TextFormat();
-	this.selectedTextFormat.color = 0xffffff;
 
 	// background alpha
 	this.bg_alpha = 0;
@@ -86,15 +80,23 @@ mcListItemClass.prototype.getParentAssetid = function()
 */
 mcListItemClass.prototype.setLink = function(link) 
 {
-//	trace (this + "::mcListItemClass.setLink(" + link.linkid + " type=" + link.link_type + ")");
+	trace (this + "::mcListItemClass.setLink(" + link + ")");
 //	trace("asset id: " + this.assetid);
 	this.linkid = link.linkid;
 	this.link_type = link.link_type;
+	
+	trace("setting text format");
 	this.text_field.text = this.getText();
+	var textformat = this.text_field.getTextFormat();
+	textformat.color = (this.selected) ? (0xffffff) : (0x000000);
+	this.text_field.setTextFormat(textformat);
+
+
 }//end setLink()
 
 mcListItemClass.prototype.setAsset = function(asset, parent_item_name) 
 {
+	trace(this + "::mcListItemClass.setAsset(" + asset.assetid + ", " + parent_item_name + ")");
 	var parentItem = this._parent[parent_item_name];
 	
 	if (parentItem != undefined) {
@@ -120,6 +122,12 @@ mcListItemClass.prototype.setAsset = function(asset, parent_item_name)
 	this.text_field.text	= this.getText();
 	this.asset_status		= asset.status;
 
+	trace("setting text format");
+
+	var textformat = this.text_field.getTextFormat();
+	textformat.color = (this.selected) ? (0xffffff) : (0x000000);
+	this.text_field.setTextFormat(textformat);
+
 	if (asset.paths.length == 0) {
 		if (asset.url != '') {
 			this.preview_url		= asset.url;
@@ -138,16 +146,7 @@ mcListItemClass.prototype.setAsset = function(asset, parent_item_name)
 	
 	this.move_button.setIcon("mc_asset_type_" + asset.type_code + "_icon");
 
-	if (asset.status & Asset.LIVE_STATUS)
-		this.state = 'live';
-	else if (asset.status & Asset.UNDER_CONSTRUCTION_STATUS)
-		this.state = 'under_construction';
-
-	if (!this._accessible) {
-		this.state = 'error';
-	}
-
-	this.base_colour = _root.LIST_ITEM_BG_COLOURS[this.state].colour;
+	this.state = Asset.STATUSES[asset.status];
 
 	if (asset.accessible && asset.links.length > 0) {
 		this.setKidState((this.expanded()) ? "minus" : "plus");
@@ -158,8 +157,18 @@ mcListItemClass.prototype.setAsset = function(asset, parent_item_name)
 	this.refresh();
 }//end setAsset()
 
+mcListItemClass.prototype.getBgColour = function()
+{
+	if (!this.selected)
+		return _root.LIST_ITEM_BG_COLOURS[this.state].normal;
+	else
+		return _root.LIST_ITEM_BG_COLOURS[this.state].selected;
+}
+
 mcListItemClass.prototype.getText = function()
 {
+	trace (this + "::mcListItemClass.getText()");
+	trace (this.asset.assetid + ":" + this.linkid);
 	var text = this.asset.name;
 	if (this.link_type == 2)
 		text += "*";
@@ -303,10 +312,12 @@ mcListItemClass.prototype.select = function()
 	if (!this._active)
 		return;
 	this.selected = true;
+	
+	// change text
+	var textformat = this.text_field.getTextFormat();
+	textformat.color = 0xffffff;
+	this.text_field.setTextFormat(textformat);
 
-	this.text_field.setTextFormat(this.selectedTextFormat);
-
-	this.base_colour = adjust_brightness (_root.LIST_ITEM_BG_COLOURS[this.state].colour, 0.8);
 	this._drawBg();
 }
 
@@ -319,8 +330,11 @@ mcListItemClass.prototype.unselect = function()
 		return;
 	this.selected = false;
 
-	this.text_field.setTextFormat(this.normalTextFormat);
-	this.base_colour = _root.LIST_ITEM_BG_COLOURS[this.state].colour;
+	// change text
+	var textformat = this.text_field.getTextFormat();
+	textformat.color = 0x000000;
+	this.text_field.setTextFormat(textformat);
+
 	this._drawBg();
 }
 
@@ -338,10 +352,14 @@ mcListItemClass.prototype.setActive = function(active)
 	this._active = active;
 
 	var text_format = this.text_field.getTextFormat();
-	text_format.color = (this._active) ? 0x000000 : 0x999999;
+	if (!this._active) {
+		text_format.color = 0x999999;
+	} else {
+		text_format.color = (this.selected) ?  0xffffff : 0x000000;
+	}
 	this.text_field.setTextFormat(text_format); 
 
-}// end setActive()
+}//end setActive()
 
 
 /**
@@ -357,7 +375,7 @@ mcListItemClass.prototype.onPress = function()
 		this.actions_bar_interval = setInterval(this, "showActionsBar", 100);
 	}
 	return true;
-}// end onPress()
+}//end onPress()
 
 /**
 * Called when this item has been pressed
@@ -382,7 +400,7 @@ mcListItemClass.prototype.onRelease = function()
 	}
 	super.onRelease();
 	return true;
-}// end onRelease()
+}//end onRelease()
 
 /**
 * Called when this item has been pressed and then the mouse was released somewhere else
@@ -418,9 +436,9 @@ mcListItemClass.prototype.refresh = function()
 	this.text_field._y = 0;
 	this.text_field._y = ( this._height - this.text_field._height ) / 2;
 
-//	this.kids_button._y = (this._height - this.kids_button._y) / 2;
-//	this.move_button._y = (this._height - this.move_button._y) / 2;
-//	this.text_field._y = (this._height - this.text_field._y) / 2;
+	this.kids_button._y = (this._height - this.kids_button._height) / 2;
+	this.move_button._y = (this._height - this.move_button._height) / 2;
+	this.text_field._y = (this._height - this.text_field._height) / 2;
 
 	this._drawBg();
 
@@ -441,7 +459,7 @@ mcListItemClass.prototype._drawBg = function(alpha)
 	var bottom = _root.LIST_ITEM_POS_INCREMENT - 2;
 	this.clear();
 
-	this.beginFill(this.base_colour, this.bg_alpha);
+	this.beginFill(this.getBgColour(), this.bg_alpha);
 
 	this.lineStyle();
 	this.moveTo(left, top);
@@ -451,7 +469,7 @@ mcListItemClass.prototype._drawBg = function(alpha)
 	this.lineTo(left, top);
 	this.endFill();
 
-}// end _drawBg()
+}//end _drawBg()
 
 Object.registerClass("mcListItemID", mcListItemClass);
 

@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListContainerClass.as,v 1.39 2003/10/27 22:39:55 dwong Exp $
+* $Id: mcListContainerClass.as,v 1.40 2003/10/30 03:07:29 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,17 +116,17 @@ mcListContainerClass.prototype.showActionsBar = function()
 		var actions = new Array();
 		var labels  = new Array();
 
-		// add preview option
-		if (this.list.selected_item.preview_url != undefined) {
-			actions.push('preview');
-			labels.push('Preview');
-		}
-
 		for(var i = 0; i < asset_type.edit_screens.length; i++) {
 			actions.push(asset_type.edit_screens[i].code_name);
 			labels.push(asset_type.edit_screens[i].name);
 		}// end for
 		
+		// add preview option if url exists for it
+		if (this.list.selected_item.preview_url != undefined) {
+			actions.push('preview');
+			labels.push('Preview');
+		}
+
 		this.actions_bar.show(actions, labels, this._xmouse - 5, this._ymouse - 5);
 	}
 	this.onPress();

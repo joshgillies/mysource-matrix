@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemContainerClass.as,v 1.25 2003/10/28 04:21:47 dwong Exp $
+* $Id: mcListItemContainerClass.as,v 1.26 2003/10/30 03:07:29 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -461,7 +461,6 @@ mcListItemContainerClass.prototype.refresh = function(start_i)
 */
 mcListItemContainerClass.prototype.refreshDisplay = function(start_i)
 {
-
 	if (start_i == undefined || start_i < 0) start_i = 0;
 
 	// now cycle through every item from the parent down and reset their positions
@@ -617,8 +616,6 @@ mcListItemContainerClass.prototype.selectItem = function(item)
 {
 	// if we in any action we don't want to select anything
 	if (this.action != "") return false;
-
-	if (this.selected_item == item) return true;
 
 	if (this.selected_item != null) {
 		this.unselectItem();
