@@ -47,6 +47,28 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			echo 'You have no messages';
 		} else {
 			?>
+			<script type="text/javascript" language="Javascript">
+				function showMessageBody(body, from) {
+					var iframe = document.getElementById('sq_message_body');
+					if (iframe == null) return;
+					var doc = iframe.contentWindow.document;
+					doc.open();
+					var html = "<html>\n";
+					html += "<head>\n";
+					html += "<link rel=\"stylesheet\" href=\"<?php echo $o->filesPath('css/edit.css')?>\" type=\"text/css\">";
+					html += "</head>\n";
+					html += "<body bgcolor=#FFFFFF>\n";
+					if (from != '' || body != '') {
+						html += "<p class=\"sq-backend-message-item\"><b>From:</b> " + from + "</p><p class=\"sq-backend-message-item\">" + body + "</span>";
+					}
+					html += "</body>\n";
+					html += "</html>";
+					doc.write(html);
+					doc.close();
+				}
+				setTimeout("showMessageBody('', '')", 20);
+			</script>
+
 			<table border="0" cellspacing="1" cellpadding="3" width="100%" bgcolor="#DDDDDD">
 			<tr>
 				<td class="sq-backend-message-header">From</td>
@@ -65,7 +87,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<?php echo $data['from_name'];?>
 					</td>
 					<td class="sq-backend-message-item">
-						<?php echo $data['subject'];?>
+						<a class="sq-backend-message-item" href="#" onClick="Javascript: showMessageBody('<?php echo str_replace("'","\'",str_replace('"', '&quot;', $data['body'])) ?>', '<?php echo str_replace("'","\'",str_replace('"', '&quot;', $data['from_name'])) ?>'); return false;"><?php echo $data['subject'];?></a>
 					</td>
 					<td class="sq-backend-message-item" style="white-space: nowrap;">
 						<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
@@ -81,17 +103,14 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					</td>
 				</tr>
 				<tr>
-					<td class="sq-backend-message-item" colspan="6">
-						<?php echo $data['body'];?>
-					</td>
-				</tr>
-				<tr>
 					<td colspan="6"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
 				</tr>
 				<?php
 			}
 			?>
 			</table>
+			<p>
+			<iframe src="" id="sq_message_body" width="100%" height="200" frameborder="1" />
 			<?php
 		}
 
