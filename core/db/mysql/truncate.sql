@@ -6,6 +6,7 @@ TRUNCATE sq_asset_link_tree;
 TRUNCATE sq_asset_lookup;
 TRUNCATE sq_asset_path;
 TRUNCATE sq_asset_permission;
+TRUNCATE sq_asset_lock;
 TRUNCATE sq_asset_type;
 TRUNCATE sq_asset_type_inherited;
 TRUNCATE sq_asset_url;

@@ -137,6 +137,16 @@ CREATE TABLE sq_asset_permission (
 );
 
 
+DROP TABLE IF EXISTS sq_asset_lock;
+CREATE TABLE sq_asset_lock (
+  assetid        INT      UNSIGNED NOT NULL,
+  source_asset   INT      UNSIGNED NOT NULL,
+  userid         INT      UNSIGNED NOT NULL,
+  expires        DATETIME          NOT NULL,
+  PRIMARY KEY  (assetid)
+);
+
+
 DROP TABLE IF EXISTS sq_asset_workflow;
 CREATE TABLE sq_asset_workflow (
   assetid    INT      UNSIGNED NOT NULL,
