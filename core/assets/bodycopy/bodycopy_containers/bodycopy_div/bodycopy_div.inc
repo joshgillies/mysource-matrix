@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.5 2004/05/26 06:54:52 gsherwood Exp $
+* $Id: bodycopy_div.inc,v 1.6 2004/09/01 15:26:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,7 +68,7 @@ class Bodycopy_Div extends Bodycopy_Container
 		$name = trim($this->attr('name'));
 
 		if ($name == '') {
-			trigger_error('Unable to create a BodyCopy DIV with a blank name', E_USER_WARNING);
+			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
 		}
 

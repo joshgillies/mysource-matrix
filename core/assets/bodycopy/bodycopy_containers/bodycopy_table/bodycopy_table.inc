@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.5 2004/05/28 04:54:48 lwright Exp $
+* $Id: bodycopy_table.inc,v 1.6 2004/09/01 15:26:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,7 +69,7 @@ class Bodycopy_Table extends Bodycopy_Container
 		$name = trim($this->attr('name'));
 
 		if ($name == '') {
-			trigger_error('Unable to create a BodyCopy Table with a blank name', E_USER_WARNING);
+			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
 		}
 
