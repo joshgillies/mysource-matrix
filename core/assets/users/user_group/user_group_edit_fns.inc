@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.9 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: user_group_edit_fns.inc,v 1.10 2004/01/15 14:42:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -383,6 +383,10 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 
 		foreach ($preferences as $type_code => $pref_vars) {
 			$o->openSection($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'name').' Preferences');
+				$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
+				require_once $path;
+				$pref_name = $type_code.'_Prefs';
+				$prefs = new $pref_name($pref_file_path);
 				foreach ($pref_vars as $var_name => $var_data) {
 					$o->openField($var_data['name']);
 						if (isset($custom_preferences[$type_code][$var_name])) {
@@ -393,11 +397,6 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 								echo ' <b>Revert to global preference</b>';
 							}
 							echo '</p>';
-
-							$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
-							require_once $path;
-							$pref_name = $type_code.'_Prefs';
-							$prefs = new $pref_name($pref_file_path);
 							$prefs->paintBackend($o, $write_access, $var_name);
 						} else {
 							echo '<p>This preference is currently not customised. The global preference setting is currently being used for this user group.';
@@ -450,12 +449,12 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		if (is_file($pref_file_path)) {
 			include $pref_file_path;
 			foreach ($preferences as $type_code => $pref_vars) {
+				$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
+				require_once $path;
+				$pref_name = $type_code.'_Prefs';
+				$prefs = new $pref_name();
 				foreach ($pref_vars as $var_name => $var_data) {
 					if (!isset($_POST[$prefix.'_revert'][$type_code][$var_name])) {
-						$path = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'dir').'/'.$type_code.'_prefs.inc';
-						require_once $path;
-						$pref_name = $type_code.'_Prefs';
-						$prefs = new $pref_name();
 						if ($prefs->processBackend($o, true, $var_name)) {
 							$new_preferences[$type_code][$var_name] = $prefs->pref_vars[$var_name];
 						}
