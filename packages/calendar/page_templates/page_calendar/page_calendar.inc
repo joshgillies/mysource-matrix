@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.5 2004/08/05 00:01:23 lwright Exp $
+* $Id: page_calendar.inc,v 1.6 2004/08/05 00:22:10 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -150,7 +150,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		
 		// base sql query FOR SINGLE EVENTS (holy crap... O_O')
-		$sql = 'select a.name, a.assetid, v.custom_value as start_date, v1.custom_value as end_date from ((('.SQ_TABLE_RUNNING_PREFIX.'asset a join '.SQ_TABLE_PREFIX.'asset_attribute atr on a.type_code = atr.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr1 on a.type_code = atr1.type_code) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v on atr.attributeid = v.attributeid and a.assetid = v.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v1 on atr1.attributeid = v1.attributeid and a.assetid = v1.assetid where atr.name = '.$db->quote('start_date').' and atr1.name = '.$db->quote('end_date').' and a.type_code = '.$db->quote('calendar_event_single').' and ((substring(v.custom_value from 1 for 10) = '.$db->quote($this->_buildDate($year,$month,$day)).' and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 10) <= '.$db->quote($this->_buildDate($year,$month,$day)).' and substring(v1.custom_value from 1 for 10) >= '.$db->quote($this->_buildDate($year,$month,$day));
+		$sql = 'select a.name, a.assetid, v.custom_value as start_date, v1.custom_value as end_date from ((('.SQ_TABLE_RUNNING_PREFIX.'asset a join '.SQ_TABLE_PREFIX.'asset_attribute atr on a.type_code = atr.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr1 on a.type_code = atr1.type_code) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v on atr.attributeid = v.attributeid and a.assetid = v.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v1 on atr1.attributeid = v1.attributeid and a.assetid = v1.assetid where atr.name = '.$db->quote('start_date').' and atr1.name = '.$db->quote('end_date').' and a.type_code = '.$db->quote('calendar_event_single').' and ((substring(v.custom_value from 1 for 10) = '.$db->quote($this->_buildDate($year,$month,$day)).' and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 10) <= '.$db->quote($this->_buildDate($year,$month,$day)).' and substring(v1.custom_value from 1 for 10) >= '.$db->quote($this->_buildDate($year,$month,$day)).'))';
 		
 		$result = $db->getAll($sql);
 		
