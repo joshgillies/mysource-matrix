@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.26 2004/07/15 06:56:05 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.27 2004/07/15 07:00:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1236,7 +1236,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				}
 				$rule['comparison_question_id'] = $_POST[$rule_prefix.'_cq_id']['assetid'];
 				$rule['value'] = '';
-			} else if (!empty($_POST[$rule_prefix.'_value']) || ($_POST[$rule_prefix.'_value'] === 0)) {
+			} else if (isset($_POST[$rule_prefix.'_value'])) {
 				// static value only specified - set c.q. ID to a duck
 				$rule['comparison_question_id'] = 0;
 				$rule['value'] = $_POST[$rule_prefix.'_value'];
