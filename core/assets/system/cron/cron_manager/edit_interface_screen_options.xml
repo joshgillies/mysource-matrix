@@ -11,7 +11,7 @@
 		<field attribute="refresh_time">
 			<display_name>Refresh Time</display_name>
 			<note>%description%</note>
-			<int width="5" />
+			<int width="10" />
 		</field>
 		<field attribute="warn_after_num_run_checks">
 			<display_name>Warn After&lt;br&gt;Blocked Runs</display_name>
