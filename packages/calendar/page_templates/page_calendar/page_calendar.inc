@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.104 2004/10/17 22:57:50 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.105 2004/10/18 23:30:39 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.104 $ - 1.0
+* @version $Revision: 1.105 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -218,6 +218,24 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end create()
 
 
+	/******
+	*
+	*/
+	function attr($name)
+	{
+		if ($name == 'types') {
+			$type_codes = array_flip(array_merge($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_single'), 'calendar_event_single', $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_recurring'), 'calendar_event_recurring'));
+			foreach($type_codes as $key => $val) {
+				$type_codes[$key] = 1;
+			}
+			return $type_codes;
+		} else {
+			return parent::attr($name);
+		}		
+			
+	}//end attr()
+	
+	
 	/**
 	* Return the available keywords in the Page Contents Bodycopy for this asset
 	*
@@ -1802,6 +1820,9 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$res =& expand_event_list($res, $date, $date, $this->attr('day_starts_at'), $this->attr('day_ends_at'));
 		process_exceptions($res);
+
+		$compare_start_ts = create_function('$a, $b', 'if ($a[\'start_date_ts\'] < $b[\'start_date_ts\']) return -1; else return 1;');
+		uasort($res, $compare_start_ts);
 		
 		return $res;
 
