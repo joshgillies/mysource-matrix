@@ -61,6 +61,43 @@ class Metadata_Manager extends MySource_Object
 
 
 	/**
+	* Get an array of assetIDs that have the passed schemaID applied or denied on them
+	*
+	* @param int		$schemaid	the ID of the schema to get assets for
+	* @param boolean	$access		type of access : null = all, true = applied, false = denied
+	*
+	* @access public
+	* @return array( schemaid => access[1|0] )
+	*/
+	function getSchemaAssets($schemaid, $access=null)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = '  SELECT DISTINCT assetid, access
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_metadata ';
+		$where = 'schemaid = '.$db->quote($schemaid);
+		if (!is_null($access)) $where .= ' AND access = '.$db->quote((($access) ? '1' : '0'));
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		$result = $db->getAll($sql.$where);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		$assets = Array();
+		foreach ($result as $data) {
+			if (is_null($access)) $assets[$data['assetid']] = $data['access'];
+			else $assets[] = $data['assetid'];
+		}
+
+		return $assets;
+
+	}//end getSchemaAssets()
+
+
+
+	/**
 	* Apply a schema to or Deny from, an asset
 	*
 	* @param int		$assetid	the ID of the asset to set the schema on
