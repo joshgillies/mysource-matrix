@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.53 2005/01/25 01:19:11 lwright Exp $
+* $Id: step_03.php,v 1.54 2005/01/28 04:18:02 gsherwood Exp $
 *
 */
 
@@ -26,25 +26,24 @@
 /**
 * Install Step 3
 *
-* Installs packages into the matrix system. You can optionally specify what 
-* packages and assets to run the script for in the following manner
+* Installs packages into the MySource system. You can optionally specify what 
+* packages and assets to run the script for in the following manner:
 *
-* 	php step_03.php /system/root --package=packagename[-assettype,assettype,assettype]
+*    php step_03.php /system/root --package=packagename[-assettype,assettype,assettype]
 *
 * You may specify several --package= entries. If the packagename is followed by
 * a hyphen, entries after the hyphen will be taken to be asset types.
 *
-* 	php step_03.php /system/root --package=core-page,page_standard
+*    php step_03.php /system/root --package=core-page,page_standard
 * 
-* Would only update the page and page_standard assets within the core package.
+* would only update the page and page_standard assets within the core package
 * 
-* 	php step_03.php /system/root --package=core --package=cms
+*    php step_03.php /system/root --package=core --package=cms
 * 
-* Would update all the asset types for core and cms only. 
-* 
+* would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -71,7 +70,7 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 }
 
 
-// Only use console stuff if we're running from the command line.
+// only use console stuff if we're running from the command line
 if ((php_sapi_name() == 'cli')) {
 	require_once 'Console/Getopt.php';
 
@@ -89,13 +88,13 @@ if ((php_sapi_name() == 'cli')) {
 }
 
 
-// Dont set SQ_INSTALL flag before this include because we want
+// dont set SQ_INSTALL flag before this include because we want
 // a complete load now that the database has been created
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 // get the list of functions used during install
 require_once $SYSTEM_ROOT.'/install/install.inc';
 
-// Firstly let's check that we are OK for the version
+// firstly let's check that we are OK for the version
 if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
 }
@@ -108,9 +107,9 @@ if (!regenerate_configs()) {
 	trigger_error('Config Generation Failed', E_USER_ERROR);
 }
 
-// Check if the $packageList variable has been defined at all.
+// check if the $packageList variable has been defined at all
 if (!isset($package_list)) {
-	$package_list = Array();	//'cms'=>Array('content_type_raw_html')
+	$package_list = Array();
 }
 
 uninstall_asset_types();
@@ -131,7 +130,7 @@ if (is_array($deferred)) {
 install_authentication_types();
 generate_global_preferences();
 install_event_listeners();
-// need to run the install packages twice
+// need to run the install packages twice for the search manager (this needs fixing)
 install_packages($package_list);
 cache_asset_types();
 
@@ -140,9 +139,12 @@ unset($GLOBALS['SQ_INSTALL']);
 
 /**
 * Gets a list of supplied package options from the command line arguments given
+*
+* Returns an array in the format needed for package_list
 * 
-* @param		Array	$options	The options as retrieved from Console::getopts
-* @return 		Array				An array in the format needed for the package_list 
+* @param array	$options	the options as retrieved from Console::getopts
+*
+* @return array
 * @access public
 */
 function get_console_list($options)
@@ -150,7 +152,7 @@ function get_console_list($options)
 	$list = Array();
 	
 	foreach ($options as $option) {
-		// If nothing set, skip this entry.
+		// if nothing set, skip this entry
 		if (!isset($option[0]) || !isset($option[1])) continue;
 		
 		if ($option[0] != '--package') continue;
@@ -167,6 +169,8 @@ function get_console_list($options)
 	}
 	
 	return $list;
-	
-}
+
+}//end get_console_list()
+
+
 ?>
