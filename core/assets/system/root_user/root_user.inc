@@ -55,9 +55,6 @@ class Root_User extends System_User
 		}
 		
 		$this->setAttrValue('username',   'root');
-		$this->setAttrValue('password',   'root');
-		$this->setAttrValue('first_name', 'Root');
-		$this->setAttrValue('last_name',  'User');
 
 		$ret_val = parent::create($link);
 		unset($this->_tmp[__CLASS__.'_in_create']);
@@ -121,7 +118,6 @@ class Root_User extends System_User
 	*/
 	function setAttrValue($name, $value)
 	{
-
 		if ($name == 'username' && empty($this->_tmp[__CLASS__.'_in_create'])) {
 			trigger_error('You are not able to alter the username for the root user', E_USER_WARNING);
 			return false;
