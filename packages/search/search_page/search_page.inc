@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.21 2003/12/30 04:43:17 gsherwood Exp $
+* $Id: search_page.inc,v 1.22 2004/01/22 00:33:52 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $ - 1.0
+* @version $Revision: 1.22 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -617,8 +617,8 @@ class Search_Page extends Page
 				" AND alt2.linkid = al2.linkid "			.	// all links with those treeids
 				" AND ai.assetid  = al2.minorid \n"			.	// and the indexing data for those assets
 				" AND a.assetid   = ai.assetid \n"			.	// and the asset data for those assets       
-				" AND ap.assetid  = ai.assetid \n"			.       // and the permission data for those assets
-				" AND a.status  >= ".SQ_STATUS_LIVE." \n";              	// and only assets that are live
+				" AND ap.assetid  = ai.assetid \n"			. // and the permission data for those assets
+				" AND a.status  >= ".SQ_STATUS_LIVE." \n";          // and only assets that are live
 
 			$userid_cond = '';
 			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
@@ -640,7 +640,6 @@ class Search_Page extends Page
 			
 			switch($field['type']) {
 				case 'include_all':
-
 					$field_asset_scores = null;
 					foreach ($words as $word) {
 						$sql = $start_sql . "AND (ai.value LIKE '$word')\n";
@@ -684,7 +683,7 @@ class Search_Page extends Page
 					$field_asset_scores = null;
 					foreach ($words as $word) {
 						$sql = $start_sql . "AND (ai.type = 'text'
-							AND ai.component = 'metadata:". (int)$field['params']['metadata_field'] . "'
+							AND ai.component = 'metadata:". (int)$field['params']['metadata_field']['assetid'] . "'
 							AND (ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."'))\n";
 						$sql .= "GROUP BY ai.assetid";
 
@@ -715,6 +714,7 @@ class Search_Page extends Page
 		}
 
 		$results = $this->_climbToAssetTypes($total_asset_scores, array('file', 'page'));
+
 		return $results;
 
 	}//end processSearch()

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.8 2003/12/28 21:28:37 gsherwood Exp $
+* $Id: search_page_edit_fns.inc,v 1.9 2004/01/22 00:33:52 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@
 *     Edit functions for search page
 *
 * @author  Dominic WOng <dwong@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -279,9 +279,10 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	{
 		switch ($fieldData['type']) {
 			case 'metadata':
-				$metadata_field =& $fieldData['params']['metadata_field'];
-				if (!isset($metadata_field)) {
-					$metadata_field = '0';
+				if (!isset($fieldData['params']['metadata_field']['assetid'])) {
+					$metadata_field = 0;
+				} else {
+					$metadata_field = $fieldData['params']['metadata_field']['assetid'];
 				}
 				if ($asset->writeAccess('attributes')) {
 					asset_finder($fieldPrefix. '[params][metadata_field]', $metadata_field, Array('metadata_field' => 'D'));
