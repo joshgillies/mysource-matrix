@@ -16,6 +16,13 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 class Design_Area_Edit_Fns extends Asset_Edit_Fns
 {
 
+
+	function Design_Area_Edit_Fns()
+	{
+		$this->_tmp['SQ_SYSTEM_SHORT_NAME'] = str_replace(' ', '', SQ_SYSTEM_SHORT_NAME);
+	}
+
+
 	/**
 	* Echo's the Design Areas id name
 	*
@@ -68,7 +75,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		// replace any image roots with a print operation for the image prefix
 		$e = '/(((src)|(background))=")files\\/([^"]*)(")/i';
-		$file_contents = preg_replace($e, '\\1<'.SQ_SYSTEM_SHORT_NAME.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\5\' />\\6', $file_contents);
+		$file_contents = preg_replace($e, '\\1<'.$this->_tmp['SQ_SYSTEM_SHORT_NAME'].'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\5\' />\\6', $file_contents);
 
 		//// DEAL WITH STYLESHEETS ////
 
@@ -87,7 +94,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		// replace any image roots with a print operation for the image prefix
 		$e = '/(<link[^>]*href=")files\\/([^"]*)(")/i';
-		$file_contents = preg_replace($e, '\\1<'.SQ_SYSTEM_SHORT_NAME.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\2\' />\\3', $file_contents);
+		$file_contents = preg_replace($e, '\\1<'.$this->_tmp['SQ_SYSTEM_SHORT_NAME'].'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\2\' />\\3', $file_contents);
 
 
 
@@ -99,8 +106,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		// Lets make all occurances of the open cnd close tags the
 		// same case as the constant just to make it easier to parse
-		$file_contents = preg_replace('/<'.SQ_SYSTEM_SHORT_NAME.'/i', '<'.SQ_SYSTEM_SHORT_NAME, $file_contents);
-		$file_contents = preg_replace('/<\\/'.SQ_SYSTEM_SHORT_NAME.'/i', '</'.SQ_SYSTEM_SHORT_NAME, $file_contents);
+		$file_contents = preg_replace('/<'.$this->_tmp['SQ_SYSTEM_SHORT_NAME'].'/i', '<'.$this->_tmp['SQ_SYSTEM_SHORT_NAME'], $file_contents);
+		$file_contents = preg_replace('/<\\/'.$this->_tmp['SQ_SYSTEM_SHORT_NAME'].'/i', '</'.$this->_tmp['SQ_SYSTEM_SHORT_NAME'], $file_contents);
 
 		// create the super array from the tags
 		$cur_pos    = 0;
@@ -175,8 +182,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					// else we're missing a terminate tag, so die screaming
 					} else {
 
-						$die_str  = 'There is a missing &lt;/'.SQ_SYSTEM_SHORT_NAME.'&gt; tag for this tag :';
-						$die_str .= "<br/>&lt;".SQ_SYSTEM_SHORT_NAME;
+						$die_str  = 'There is a missing &lt;/'.$this->_tmp['SQ_SYSTEM_SHORT_NAME'].'&gt; tag for this tag :';
+						$die_str .= "<br/>&lt;".$this->_tmp['SQ_SYSTEM_SHORT_NAME'];
 
 						$die_str .= (empty($tag['operation'])) ? '' : '_'.$tag['operation'];
 
@@ -227,9 +234,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function _tagToParse(&$file_contents, &$cur_pos)
 	{
 		// get the next terminate and open tag locations
-		$next_open_pos      = strpos($file_contents, '<'.SQ_SYSTEM_SHORT_NAME,  $cur_pos);
+		$next_open_pos      = strpos($file_contents, '<'.$this->_tmp['SQ_SYSTEM_SHORT_NAME'],  $cur_pos);
 		$next_open_tag      = ($next_open_pos !== false);
-		$next_terminate_pos = strpos($file_contents, '</'.SQ_SYSTEM_SHORT_NAME, $cur_pos);
+		$next_terminate_pos = strpos($file_contents, '</'.$this->_tmp['SQ_SYSTEM_SHORT_NAME'], $cur_pos);
 
 		// if there is a terminate tag
 		if ($next_terminate_pos !== false) {
@@ -266,7 +273,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _parseOpenTag(&$file_contents, &$cur_pos)
 	{
-		$cur_pos += strlen('<'.SQ_SYSTEM_SHORT_NAME);
+		$cur_pos += strlen('<'.$this->_tmp['SQ_SYSTEM_SHORT_NAME']);
 
 		$in_quote     = '';
 		$escape_slash = false;
@@ -381,9 +388,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _parseTerminateTag(&$file_contents, &$cur_pos)
 	{
-
-
-		$cur_pos += strlen('</'.SQ_SYSTEM_SHORT_NAME);
+		$cur_pos += strlen('</'.$this->_tmp['SQ_SYSTEM_SHORT_NAME']);
 		// go to the next close bracket
 		$cur_pos = strpos($file_contents, '>', $cur_pos);
 		// go to char after it
@@ -654,7 +659,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$text = '';
 		$vars = $this->_getSetableVars($asset);
 		foreach($vars as $name => $data) {
-			$text .= '<'.SQ_SYSTEM_SHORT_NAME.'_SET name="'.$name.'"';
+			$text .= '<'.$this->_tmp['SQ_SYSTEM_SHORT_NAME'].'_SET name="'.$name.'"';
 
 			// if this is this a var reference ?
 			if (!empty($asset->vars['var_references']['value'][$name])) {
@@ -671,7 +676,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					$text .= $data['contents'];
 					break;
 				case 'TAG' : 
-					$text .= '<'.SQ_SYSTEM_SHORT_NAME.'_'.strtoupper($data['operation']);
+					$text .= '<'.$this->_tmp['SQ_SYSTEM_SHORT_NAME'].'_'.strtoupper($data['operation']);
 					foreach($data['attributes'] as $k => $v) $text .= ' '.$k.'="'.htmlentities($v).'"';
 					$text .= ' />';
 					break;
