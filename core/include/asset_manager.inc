@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.179 2004/02/17 00:00:28 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.180 2004/02/27 05:27:28 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -870,6 +870,381 @@ class Asset_Manager extends MySource_Object
 	}//end getTypeAssetids()
 
 
+//--        CLONING        --//
+
+
+	/**
+	* Create the shell of a clone without cloning any of the source's components
+	*
+	* The only child assets that are cloned are the ones that are <i>DEPENDANTLY</i> linked to this asset.
+	* <i>NO OTHER</i> linked assets are cloned.
+	*
+	* @param object Asset	&$source			the source asset that we are creating a clone of	
+	* @param Array			&$link				information used to create the initial link,
+	* <PRE>
+	* Array ('asset'      => [ref major asset to create link under],
+	*        'link_type'  => SQ_LINK_?,
+	*        'value'      => [link value],
+	*        'sort_order' => [link sort order],
+	*        'dependant'  => [0|1],
+	*        'exclusive'  => [0|1]
+	*        )
+	* </PRE>
+	* @param Array			&$clone_map			a map for that can be used for re-indexing data held in
+	*												assets of the form Array([old asset id] => [new asset id])
+	*
+	* @return mixed reference to the new object or NULL if an error occured
+	* @access private
+	*/
+	function &_cloneAsset(&$source, &$link, &$clone_map)
+	{
+		if (!empty($link)) {
+			// make sure the initial link information is passed in
+			if (!isset($link['asset']))     trigger_error('Cant create asset without an asset to link to', E_USER_ERROR);
+			if (!isset($link['link_type'])) trigger_error('Cant create asset without a link type', E_USER_ERROR);
+		}
+
+		$null = null; // needed because we return by reference
+		if (!$source->id) return $null;
+
+		$lock = $this->getLockInfo($source->id, 'all');
+		if (empty($lock)) {
+			trigger_error('You need to acquire an "all" lock on this asset before it can be cloned', E_USER_WARNING);
+			return $null;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
+		$assetid = $db->nextId('sq_sequence_asset');
+		if (DB::isError($assetid)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
+		}
+
+		$now    = time();
+		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		// version number starts at 0.0.0 again because the clone is a brand new asset
+		$initial_version = '0.0.0';
+
+		$values = Array('assetid'        => $assetid,
+						'version'        => $initial_version,
+						'type_code'      => $source->type(),
+						'name'           => $source->name.' - clone',
+						'short_name'     => $source->short_name.' - clone',
+						'status'         => SQ_STATUS_UNDER_CONSTRUCTION,
+						'created'        => ts_iso8601($now),
+						'created_userid' => $userid,
+						'updated'        => ts_iso8601($now),
+						'updated_userid' => $userid
+						);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $null;
+		}
+
+		$clone = &$this->getAsset($assetid, $source->type());
+		if (is_null($clone)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $null;
+		}
+
+		// Lock the new clone in the same chain as we are locked
+		if (!$this->acquireLock($clone->id, 'all', $source->id)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $null;
+		}
+
+		if (!empty($link)) {
+			// create the initial link
+			if (!isset($link['value']))      $link['value']      = '';
+			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
+			if (!isset($link['dependant']))  $link['dependant']  = 0;
+			if (!isset($link['exclusive']))  $link['exclusive']  = 0;
+
+			// OK what we are going to do is make sure that the new parents lock is
+			// in the same chain as our current lock
+			$parent_lock = $this->getLockInfo($link['asset']->id, 'links');
+			if (empty($parent_lock) || $parent_lock['source_assetid'] != $lock['links']['source_assetid']) {
+
+				if (!empty($parent_lock)) {
+					if (!$this->releaseLock($link['asset']->id, 'links')) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return $null;
+					}
+				}
+			
+				if (!$this->acquireLock($link['asset']->id, 'links', $lock['links']['source_assetid'])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return $null;
+				}
+			}
+
+			$linkid = $link['asset']->createLink($clone, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
+			if(empty($linkid)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return $null;
+			}
+
+		}// end if !empty(link)
+
+		// we do not want to clone any assets that are type_3 or type_notice linked to the asset we are
+		// cloning. Instead, we will just link them up to the cloner's orginial link counter parts
+		$orig_links = $this->getLinks($source->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', true, 'major', null, false, null);
+		foreach ($orig_links as $orig_link) {
+			$asset = &$this->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
+			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['dependant'], $link['exclusive']);
+			
+			if (!$linkid) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+		}//end foreach
+
+		// if we got this far all is well,
+		// so add to the map and return the clone
+		$clone_map[$source->id] = $clone->id;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return $clone;
+
+	}//end &_cloneAsset()
+
+
+	/**
+	* Creats a clone of an asset and clones the required components of the source asset
+	*
+	* if $clone_dependants is set the true, the dependants of the source asset will be cloned, 
+	* and the specified components will be cloned to them as well.
+	*
+	* @param object Asset	&$source			the source asset that we are creating a clone of	
+	* @param Array			&$link				information used to create the initial link,
+	* <PRE>
+	* Array ('asset'      => [ref major asset to create link under],
+	*        'link_type'  => SQ_LINK_?,
+	*        'value'      => [link value],
+	*        'sort_order' => [link sort order],
+	*        'dependant'  => [0|1],
+	*        'exclusive'  => [0|1]
+	*        )
+	* </PRE>
+	* @param Array			&$clone_map			a map for that can be used for re-indexing data held in
+	*												assets of the form Array([old asset id] => [new asset id])
+	* @param array			$components	the wanted components to clone, 
+	* <PRE>
+	* Array(
+	*     'attributes',
+	*     'metadata_shemas',
+	*     'metadata',
+	*     'workflow',
+	*     'permissions',
+	*     'data'              // data directory
+	* );
+	* </PRE>
+	* or alternately
+	* <PRE>
+	* Array('all');
+	* </PRE>
+	* @param boolean		$clone_dependants	if TRUE the dependants of the source asset will be cloned 
+	*												and will have their sources components cloned
+	*
+	* @return &object Asset the clone of the source
+	* @access public
+	*/
+	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=true) {
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!$clone = &$this->_cloneAsset(&$source, &$link, &$clone_map)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $null;
+		}
+		
+		if (!$this->cloneComponents(&$source, &$clone, $components)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $null;
+		}
+
+		// OK now that we are linked up let's our dependants
+		if ($clone_dependants) {
+			$dependant_links = $this->getLinks($source->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+
+			if (!empty($dependant_links)) {
+				$create_link = Array('asset'      => &$clone,
+									 'link_type'  => null,
+									 'value'      => null,
+									 'sort_order' => -1,
+									 'dependant'  => '1',
+									 'exclusive'  => '0');
+
+				foreach ($dependant_links as $data) {
+					// If this asset has already been cloned in this duplication run
+					// then just link it to the new clone of ourselves
+					if (isset($clone_map[$data['minorid']])) {
+
+						$cloned_child = &$this->getAsset($clone_map[$data['minorid']], $data['minor_type_code']);
+						if (is_null($cloned_child)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return $null;
+						}// end if
+
+						$linkid = $clone->createLink($cloned_child, $data['link_type'], $data['value'], $data['sort_order'], '1', $data['exclusive']);
+						if (!$linkid) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return $null;
+						}// end if
+
+					// otherwise clone and link
+					} else {
+						$child = &$this->getAsset($data['minorid'], $data['minor_type_code']);
+						if (is_null($child)) continue;
+						$create_link['link_type']	= $data['link_type'];
+						$create_link['value']		= $data['value'];
+						$create_link['sort_order']	= $data['sort_order'];
+						$create_link['exclusive']	= $data['exclusive'];
+						
+						$cloned_child = &$this->_cloneAsset($child, $create_link, $clone_map);
+
+						if (is_null($cloned_child)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return $null;
+						}
+						$this->cloneComponents($child, $cloned_child, $components);
+
+					}// end if
+				}// end foreach
+			}// end if empty
+		}// end if clone dependants
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return $clone;
+	
+	}//end cloneAsset()
+
+
+	/**
+	* Takes a clone shell and clones the sources required components to the clone shell
+	*
+	* @param &object Asset	$source		the source asset
+	* @param &object Asset	$clone		the clone shell
+	* @param array			$components	the wanted components to clone eg.
+	*                       Array(
+	*                           'attributes',
+	*                           'metadata_shemas',
+	*                           'metadata',
+	*                           'workflow',
+	*                           'permissions',
+	*                           'data'              // data directory
+	*                       );
+	*                       or alternately
+	*                       Array('all');
+	*
+	* @return boolean
+	* @access public
+	*/
+	function cloneComponents(&$source, &$clone, $components)
+	{
+		if (!is_array($components) || empty($components)) return false;
+		if (is_null($source) || is_null($clone)) return false;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		  //////////////////
+		 /// ATTRIBUTES ///
+		//////////////////
+
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+			// Now we set all the attributes
+			foreach ($source->vars as $name => $data) {
+				if (!$clone->setAttrValue($name, $data['value'])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+			$clone->saveAttributes();
+		}//end if attributes
+
+		  ///////////////////
+		 /// PERMISSIONS ///
+		///////////////////
+
+		if (in_array('permissions', $components) || in_array('all', $components)) {
+			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
+				$set_perms = $this->getPermission($source->id, $perm, null, false, false, true);
+				foreach ($set_perms as $userid => $access) {
+					if (!$this->setPermission($clone->id, $userid, $perm, $access)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+				}
+			}//end foreach
+		}//end if permissions
+
+		  ////////////////
+		 /// METADATA ///
+		////////////////
+
+		if (in_array('metadata_schemas', $components) || in_array('all', $components)) {
+			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			// apply the schemas and metadata from the cloner to the clonee
+			$schemas = $mm->getSchemas($source->id);
+			foreach ($schemas as $schemaid => $access) {
+				if (!$mm->setSchema($clone->id, $schemaid, $access)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+				if (in_array('metadata', $components) || in_array('all', $components)) {
+					$metadata = $mm->getSchemaMetadata($source->id, $schemaid);
+					if (!empty($metadata)) {
+						if (!$mm->setSchemaMetadata($clone->id, $schemaid, $metadata)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return false;
+						}
+					}
+				}
+			}//end foreach
+		}//end if metadata
+
+		  ////////////////
+		 /// WORKFLOW ///
+		////////////////
+
+		if (in_array('workflow', $components) || in_array('all', $components)) {
+			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$schemas = $wfm->getSchemas($source->id);
+			foreach ($schemas as $schemaid => $access) {
+				if (!$wfm->setSchema($clone->id, $schemaid, $access)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}//end foreach
+		}//end if workflow
+
+		  ////////////////
+		 /// DATA DIR ///
+		////////////////
+
+		if (in_array('data', $components) || in_array('all', $components)) {
+			// OK if we got this far let's copy the directory (if it exists)
+			if (is_dir($source->data_path)) {
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				if (!copy_directory($source->data_path, $clone->data_path)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+		}//end if data
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end clone()
+
+
 //--        LOCKING        --//
 
 
@@ -1419,6 +1794,81 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getLinks()
+
+
+	/**
+	* Returns all child links that the passed asset has
+	*
+	* @param string		$assetid	the assetid of the asset to find the child links
+	* @param integer	$link_type	the type of links to get
+	*
+	* @access public
+	* @return Array()
+	*/
+	function getAllChildLinks($assetid, $link_type=0)
+	{
+		if (!isset($this->_tmp['child_links'][$assetid])) {
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$where = 'l.minorid = '.$db->quote($assetid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$sql = 'SELECT t.treeid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					'.$where.' LIMIT 1';
+
+			$treeid = $db->getOne($sql);
+			if (DB::isError($treeid)) {
+				trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
+			}
+
+			$current_level = strlen($treeid) / SQ_CONF_ASSET_TREE_SIZE;
+
+			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
+					  AND t.treeid > '.$db->quote($treeid);
+
+			// only do a link comparison if they have specified a link type
+			if ($link_type != 0) $where .=  ' AND (l.link_type & '.$db->quote($link_type).') > 0';
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$sql = 'SELECT SUBSTRING(t.treeid FROM '.$db->quote(strlen($treeid) + 1).') as treeid,
+							(CHARACTER_LENGTH(t.treeid) / '.SQ_CONF_ASSET_TREE_SIZE.') '.(($current_level) ? ' - '.$current_level : '').' as level,
+							l.linkid, a.assetid, a.short_name, a.type_code, l.link_type, l.sort_order, l.value, l.dependant
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
+						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid
+					'.$where.'
+					ORDER BY t.treeid';
+
+			$child_links = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+			if (DB::isError($child_links)) {
+				trigger_error($child_links->getMessage().'<br/>'.$child_links->getUserInfo(), E_USER_ERROR);
+			}
+
+			// OK, what we are going to do is set up the effective dependant treeid for each tree link
+			for (reset($child_links); null !== ($treeid = key($child_links)); next($child_links)) {
+				if ($child_links[$treeid]['dependant']) {
+					$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
+					if ($parent_treeid == '') {
+						$child_links[$treeid]['dependant_treeid'] = '';
+					} else {
+						$child_links[$treeid]['dependant_treeid'] = $child_links[$parent_treeid]['dependant_treeid'];
+					}
+				} else {
+					$child_links[$treeid]['dependant_treeid'] = $treeid;
+				}
+			}// end for
+
+			$this->_tmp['child_links'][$assetid] = $child_links;
+
+		}// end if
+
+		return $this->_tmp['child_links'][$assetid];
+
+	}//end getAllChildLinks()
 
 
 	/**
