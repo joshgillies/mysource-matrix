@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_config.inc,v 1.13 2003/10/17 01:32:28 brobertson Exp $
+* $Id: system_config.inc,v 1.14 2003/10/20 01:18:33 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -156,7 +156,7 @@ class System_Config extends Config
 					// and insert the pear path just after that, otherwise just right at the front of the
 					// include path
 					echo "\$inc_dir = ini_get('include_path');\n";
-					echo "\$inc_dir = (substr(\$inc_dir, 0, 2) == '.".$sep."') ? '.".$sep.$value.$sep."'.substr(\$inc_dir, 2) : '".$value.$sep."'.\$inc_dir;\n";
+					echo "\$inc_dir = (substr(\$inc_dir, 0, 2) == '.".$sep."') ? '.".$sep."'.SQ_CONF_PEAR_PATH.'".$sep."'.substr(\$inc_dir, 2) : SQ_CONF_PEAR_PATH.'".$sep."'.\$inc_dir;\n";
 					echo "ini_set('include_path', \$inc_dir);\n\n";
 				}
 				return true;
