@@ -25,8 +25,9 @@ class Form_Submission extends Asset
 	function Form_Submission($assetid=0) 
 	{
 		$this->_ser_attrs = true;
-		$this->Asset($assetid);
-	}
+		return $this->Asset($assetid);
+	
+	} // end  Form_Submission()
 
 
 	/**
@@ -52,77 +53,7 @@ class Form_Submission extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
-	}//end create()
-
-
-	/**
-	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
-	*
-	* @return int
-	* @access public
-	* @see Asset::creatLink();
-	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
-	{
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-
-	}// end createLink()
-
-
-	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return mixed TRUE or error msg string
-	* @access public
-	*/
-	function canDeleteLink($linkid)
-	{
-		return parent::canDeleteLink($linkid);
-	
-	}//end canDeleteLink()
-
-
-	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @see Asset::_getAllowLinks()
-	* @access private
-	*/
-	function _getAllowedLinks()
-	{
-		$page_links = parent::_getAllowedLinks();
-		return $page_links;
-
-	}//end _getAllowedLinks()
-
-
-	/**
-	* Prints out the backend interface for the asset
-	*
-	* @param object Backend_Outputter $o
-	*
-	* @access public
-	*/
-	function paintBackend(&$o)
-	{
-		parent::paintBackend($o);
-
-	}// end paintBackend()
-
-
-	/**
-	* Called by the design to print the body of this asset
-	* it's up to the kids to override
-	*
-	* @access public
-	*/
-	function printBody()
-	{
-	
-	}// end printBody()
+	} // end create()
 
 
 	/**
@@ -159,7 +90,8 @@ class Form_Submission extends Asset
 			return $a['answers'][$id]['name'];
 		}
 		return false;
-	}
+
+	} // end getName()
 
 
 	/**
@@ -185,7 +117,7 @@ class Form_Submission extends Asset
 
 		return true;
 	
-	}// end setAnswer()
+	} // end setAnswer()
 
 
 	/**
@@ -199,13 +131,14 @@ class Form_Submission extends Asset
 	function setError($error)
 	{
 		$a = $this->attr('attributes');
-		if (!$a['is_error']) $a['is_error'] = true;
-		if (!is_array($a['errors'])) $a['errors'] = Array();
+		if (!isset($a['is_error'])) $a['is_error'] = true;
+		if (!isset($a['errors'])) $a['errors'] = Array();
 		$a['errors'][] = $error;
 		
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
 		}
+		
 		return true;
 	
 	}// end setError()
@@ -222,7 +155,7 @@ class Form_Submission extends Asset
 		$a = $this->attr('attributes');
 		return $a['errors'];
 	
-	}// end getErrors()
+	} // end getErrors()
 
 
 	/**
@@ -240,9 +173,10 @@ class Form_Submission extends Asset
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
 		}
+
 		return true;
 	
-	}// end flushErrors()
+	} // end flushErrors()
 
 
 	/**
@@ -258,20 +192,19 @@ class Form_Submission extends Asset
 	
 	}//end isError()
 
+
 	/**
 	* returns the answers for question in the form:
 	* 
+	* @access public
+	* @return Array()
 	*/
 	function getAnswers()
 	{
 		$a = $this->attr('attributes');
 		return $a['answers'];
-	}
 
-	function generateSummary()
-	{
-		
-	}
+	} // getAnswers()
 
 
 	/**
@@ -305,16 +238,27 @@ class Form_Submission extends Asset
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
 		}
+		$this->saveAttributes();
 
 		return true;
-	}
 
+	} // end setSummary()
+
+
+	/**
+	* returns an Array with summary information
+	*
+	* @access public
+	* @return Array()
+	*/
 	function getSummary()
 	{
 		$a = $this->attr('attributes');
 		if (!$a) return false;
+	
 		return $a['summary'];
-	}
+	
+	} // end getSummary()
 
-}//end class
+} // end class
 ?>
