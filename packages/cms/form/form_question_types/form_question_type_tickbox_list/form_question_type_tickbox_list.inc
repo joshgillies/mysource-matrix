@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.30 2004/12/03 15:37:19 brobertson Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.30.2.1 2004/12/10 04:59:24 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.30.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -102,13 +102,13 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		$name  = $this->id;
 
 		$html  = '';
-		$html .= "<table>\n";
-		$html .= ($hor) ? "<tr>\n" : '';
+		$html .= "<table>";
+		$html .= ($hor) ? "<tr>" : '';
 
 		$defaults = $this->getValue();
 		if (!is_array($defaults)) $defaults = Array($defaults);
 		foreach ($options as $key => $value) {
-			$html .= ($hor) ? "<td nowrap=\"nowrap\">\n" : "<tr><td>\n";
+			$html .= ($hor) ? "<td nowrap=\"nowrap\">\n" : "<tr><td>";
 			$html .= '<input type="'.$type.'" ';
 			$html .= 'name="'.$this->id.(($multiple) ? '[]' : '').'" ';
 			$html .= 'id="'.$this->id.'_'.$key.'"';
@@ -120,10 +120,10 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 
 			$html .= $extras.' />';
 			$html .= '&nbsp;<label for="'.$this->id.'_'.$key.'">'.$value.'</label>';
-			$html .= ($hor) ? "</td>\n" : "</td></tr>";
+			$html .= ($hor) ? "</td>" : "</td></tr>";
 		}
 
-		$html .= ($hor) ? "</tr>\n" : '';
+		$html .= ($hor) ? "</tr>" : '';
 		$html .= '</table>';
 
 		return $html;
