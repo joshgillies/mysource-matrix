@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.26 2004/03/02 04:21:19 mmcintyre Exp $
+* $Id: cron_manager.inc,v 1.27 2004/05/13 00:52:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 */
 class Cron_Manager extends Asset
 {
+
 	/**
 	* @var string suffix to data dir where the error log should be stored when we are run()ning
 	*/
@@ -53,7 +54,8 @@ class Cron_Manager extends Asset
 	function Cron_Manager($assetid=0)
 	{
 		$this->Asset($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
@@ -99,6 +101,7 @@ class Cron_Manager extends Asset
 	function _getName($short_name=false)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
+
 	}//end _getName();
 
 
@@ -106,6 +109,7 @@ class Cron_Manager extends Asset
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
 	*/
 	function _getAllowedLinks()
@@ -135,7 +139,7 @@ class Cron_Manager extends Asset
 
 
 	/**
-	* returns FALSE always because we don't want to be able to clone a cron manager
+	* Return FALSE always because we don't want to be able to clone a cron manager
 	*
 	* @return boolean
 	* @access public
@@ -267,7 +271,7 @@ class Cron_Manager extends Asset
 		}
 		return $success;
 
-	}// end addJob()
+	}//end addJob()
 
 
 	/**
@@ -290,7 +294,7 @@ class Cron_Manager extends Asset
 
 		return $this->deleteLink($link['linkid']);
 
-	}// end removeJob()
+	}//end removeJob()
 
 
 	/**
@@ -317,7 +321,7 @@ class Cron_Manager extends Asset
 
 		return $jobs;
 
-	}// end getJobs()
+	}//end getJobs()
 
 
 	/**
@@ -329,7 +333,8 @@ class Cron_Manager extends Asset
 	function timeOfNextRun()
 	{
 		return max((int) $this->attr('last_run'), (int) $this->attr('epoch')) + (int) $this->attr('refresh_time');
-	}// end timeOfNextRun()
+
+	}//end timeOfNextRun()
 
 
 	/**
@@ -355,7 +360,7 @@ class Cron_Manager extends Asset
 		}
 		return $refresh_time.' seconds';
 
-	}// end timeOfNextRun()
+	}//end timeOfNextRun()
 
 
 	/**
@@ -606,7 +611,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		ini_set('error_log',  $old_error_log);
 		restore_error_handler();
 
-	}// end run()
+	}//end run()
 
 
 	/**
@@ -797,11 +802,11 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		if (!empty($ignore_jobs)) {
 			for($i = 0; $i < count($ignore_jobs); $i++) $ignore_jobs[$i] = $db->quote($ignore_jobs[$i]);
 			$where .= ' AND a.assetid NOT IN ('.implode(',', $ignore_jobs).')';
-		}// endif
+		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
-		$sql = 'SELECT l.linkid, a.assetid, a.type_code, av.custom_value as when
+		$sql = 'SELECT l.linkid, a.assetid, a.type_code
 				FROM sq_asset_link l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av ON a.assetid = av.assetid
@@ -831,7 +836,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 		return $result;
 
-	}// end getJobsToRun()
+	}//end getJobsToRun()
 
 
 	/**
@@ -850,7 +855,8 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		$b_ts = Cron_Job::getNextRun($b['when'], $GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS']);
 		if ($a_ts == $b_ts) return 0;
 		return ($a_ts < $b_ts) ? -1 : 1;
-	}// end getJobsToRunCmp()
+
+	}//end getJobsToRunCmp()
 
 
 	/**
