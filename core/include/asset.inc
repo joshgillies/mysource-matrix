@@ -419,8 +419,7 @@ class Asset extends Resolve_Object
 					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 					$body = 'User "'.$user->name.'" has approved '.$this->type().' "'.$this->name.'" to go live.';
-					$to_list = $this->getPermission(SQ_PERMISSION_ADMIN, true, true, true);
-					foreach ($to_list as $userid) $ms->sendMessage($userid, 0, 'Asset Changes Approved', $body);
+					$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN)), 0, 'Asset Changes Approved', $body);
 
 					if ($wfm->state == 'complete') {
 						// all workflows are done so we
@@ -429,7 +428,7 @@ class Asset extends Resolve_Object
 
 						// send an internal message
 						$body = 'The workflow process for '.$this->type().' "'.$this->name.'" has been completed. "'.$this->name.'" is now live.';
-						foreach ($to_list as $userid) $ms->sendMessage($userid, 0, 'Workflow Completed', $body);
+						$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN)), 0, 'Workflow Completed', $body);
 					}
 
 				} else {
@@ -453,9 +452,8 @@ class Asset extends Resolve_Object
 							// send an internal message
 							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-							$to_list = $this->getPermission(SQ_PERMISSION_ADMIN, true, true, true);
 							$body = 'User "'.$user->name.'" has requested '.$this->type().' "'.$this->name.'" to go live from Under Construction.';
-							foreach ($to_list as $userid) $ms->sendMessage($userid, 0, 'Workflow Started', $body);
+							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN)), 0, 'Workflow Started', $body);
 						}
 
 					} else if ($this->status == SQ_STATUS_EDITING) {
@@ -476,9 +474,8 @@ class Asset extends Resolve_Object
 							// send an internal message
 							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-							$to_list = $this->getPermission(SQ_PERMISSION_ADMIN, true, true, true);
 							$body = 'User "'.$user->name.'" has requested '.$this->type().' "'.$this->name.'" to go live from Safe Editing.';
-							foreach ($to_list as $userid) $ms->sendMessage($userid, 0, 'Workflow Started', $body);
+							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN)), 0, 'Workflow Started', $body);
 						}
 					}
 				}
@@ -522,8 +519,7 @@ class Asset extends Resolve_Object
 						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 						$body = 'User "'.$user->name.'" has rejected the changes made to '.$this->type().' "'.$this->name.'". The status of "'.$this->name.'" has reverted to '.$this->getStatusDescription();
-						$to_list = $this->getPermission(SQ_PERMISSION_ADMIN, true, true, true);
-						foreach ($to_list as $userid) $ms->sendMessage($userid, 0, 'Asset Changes Rejected', $body);
+						$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN)), 0, 'Asset Changes Rejected', $body);
 					}
 				}
 				break;
@@ -3060,7 +3056,7 @@ class Asset extends Resolve_Object
 	function getEditFns()
 	{
 		$class_name = $this->type().'_edit_fns';
-		require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getInfo($this->type(), 'dir').'/'.$class_name.'.inc';
+		require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'dir').'/'.$class_name.'.inc';
 		return new $class_name();
 	}// end getEditFns()
 
