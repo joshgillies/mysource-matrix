@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.21 2004/12/15 05:33:29 gsherwood Exp $
+* $Id: cron_job_future_status.inc,v 1.22 2005/03/31 02:21:16 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -275,7 +275,7 @@ class Cron_Job_Future_Status extends Cron_Job
 			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
 			if (empty($status_errors)) {
 				// all OK, and we can be removed because we have done our one off task
-				$msg = 'Altered Status of "'.$asset->name.'" (#'.$asset->id.') from "'.$descs[$old_status].'" to "'.$descs[$asset->status].'"';
+				$msg = 'Altered Status of "'.$asset->name.'" (#'.$asset->id.') from "'.$this->statusName($old_status).'" to "'.$this->statusName($asset->status).'"';
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 			} else {
 				// process failed
