@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.58 2004/11/26 02:56:03 tbarrett Exp $
+* $Id: mysource.inc,v 1.59 2004/12/01 04:35:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -602,7 +602,7 @@ class MySource
 	* @param string	$asset_type	limit results to preferences defined by this asset type (leave NULL to get all prefs)
 	* @param string	$pref		limit result to a particular preference var (leave NULL for all prefs forthe asset type)
 	*
-	* @return mixed array | string
+	* @return mixed array | string | false if no file exists
 	* @access public
 	*/
 	function getUserPrefs($asset_type=null, $pref=null, $value_only=true)
@@ -629,8 +629,12 @@ class MySource
 					}
 				} else {
 					if ($included_global) continue;
-					include SQ_DATA_PATH.'/private/conf/preferences.inc';
-					$included_global = true;
+					if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
+						include SQ_DATA_PATH.'/private/conf/preferences.inc';
+						$included_global = true;
+					} else {
+						return false;
+					}
 				}
 
 				if (is_null($pref_1)) $pref_1 = $preferences;
@@ -644,8 +648,12 @@ class MySource
 				}
 			}
 		} else {
-			include SQ_DATA_PATH.'/private/conf/preferences.inc';
-			$pref_1 = $preferences;
+			if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) {
+				include SQ_DATA_PATH.'/private/conf/preferences.inc';
+				$pref_1 = $preferences;
+			} else {
+				return false;
+			}
 		}
 
 		$prefs = $pref_1;
