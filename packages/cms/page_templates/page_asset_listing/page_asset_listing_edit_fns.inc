@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.15 2005/02/03 15:57:25 brobertson Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.16 2005/02/04 11:57:23 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -673,10 +673,9 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 		$types = array_diff($types, $asset->attr('types'));
-		asort($types);
 
-		$uc_types = Array('' => '');
-		foreach ($types as $type) $uc_types[$type] = ucwords(str_replace('_',' ', $type));
+		$uc_types = Array('' => '') + $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
+		asort($uc_types);
 		combo_box($prefix.'_new_type', $uc_types, false, '');
 
 	}//end paintAddAssetType()
