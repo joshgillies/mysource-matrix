@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.2 2004/07/28 06:55:23 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.3 2004/07/29 02:17:36 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -110,7 +110,9 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			if (isset($_REQUEST[$prefix . $component . '_time_enabled'])) {
 				// interpret AM/PM values and covert to 24hr time
 				if ($_REQUEST[$prefix . $component . '_is_pm']) {
-					$_REQUEST[$prefix . $component . '_hours'] += 12;
+					if ($_REQUEST[$prefix . $component . '_hours'] != 12) {
+						$_REQUEST[$prefix . $component . '_hours'] += 12;
+					}
 				} else {
 					if ($_REQUEST[$prefix . $component . '_hours'] == 12) {
 						$_REQUEST[$prefix . $component . '_hours'] = 0;
@@ -118,7 +120,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				}
 				$_REQUEST[$prefix . $component . '_hours'] = (int)$_REQUEST[$prefix . $component . '_hours'];
 				if (($_REQUEST[$prefix . $component . '_hours'] < 0) || ($_REQUEST[$prefix . $component . '_hours'] > 23)) {
-					trigger_error('You entered an invalid hour', E_USER_WARNING);
+					trigger_error('You entered an invalid hour: ' . $_REQUEST[$prefix . $component . '_hours'], E_USER_WARNING);
 					return false;
 				}
 				$_REQUEST[$prefix . $component . '_minutes'] = (int)$_REQUEST[$prefix . $component . '_minutes'];
