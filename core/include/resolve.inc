@@ -29,6 +29,13 @@ class Resolve {
 	var $user;
 
 	/**
+	* Array of system messages
+	*
+	* @var Array(string)
+	*/
+	var $_msgs;
+
+	/**
 	* this is the DB object
 	*
 	* @var object DB
@@ -52,47 +59,50 @@ class Resolve {
 	*/
 	function start() {
 
-		# initialise the asset manager as we are going to need it pretty much everywhere
+		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
 
-		# If there is a userid in the session then someone is logged in,
-		# but make sure that the person is coming from the same machine as they logged in on
-		# so get a reference to them
+#		error_log("PATH : ".$_SERVER['REQUEST_URI'].", SESSION : ".array_contents($_SESSION).", COOKIE : ".array_contents($_COOKIE));
+
+		// If there is a userid in the session then someone is logged in,
+		// but make sure that the person is coming from the same machine as they logged in on
+		// so get a reference to them
 		if(!empty($_SESSION['userid']) && $_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR']) {
-			$this->user = &$this->getObject($_SESSION['userid']);
+			$this->user = &$this->am->getAsset($_SESSION['userid']);
 		} else {
 			$_SESSION['userid'] = 0;
 			$this->user = null;
-		}#end if
+		}//end if
 
-		if (!empty($_REQUEST['SQ_ACTION'])) {
+		if (!empty($_GET['SQ_ACTION'])) {
 			$this->_processGlobalActions();
-		}#end if
+		}//end if
 
 		if (SQ_IN_BACKEND) {
-			if (true || $this->user) {
+			if ($this->user) {
 				include_once(SQ_INCLUDE_PATH.'/backend.inc');
 				$backend = new Backend();
 				$backend->paint();
 			} else {
-				$this->print_login();
+				include SQ_INCLUDE_PATH.'/login.inc';
+				print_login('Login', 'You need to login before you can access the backend');
 			}
 
-		# we are on the frontend
+		// we are on the frontend
 		} else {
 
-		#	require_once SQ_INCLUDE_PATH.'/frontend.inc';
-		#	$GLOBALS['SQ_FRONTEND'] = new Backend();
-		#	$GLOBALS['SQ_FRONTEND']->paint();
+		//	require_once SQ_INCLUDE_PATH.'/frontend.inc';
+		//	$GLOBALS['SQ_FRONTEND'] = new Backend();
+		//	$GLOBALS['SQ_FRONTEND']->paint();
 			echo "FRONT END";
 
-		}#end if
+		}//end if
 
 		if (is_object($this->_db)) {
 			$this->_db->disconnect();
 		}
 
-	}#end start()
+	}//end start()
 
 
 	/*
@@ -102,39 +112,39 @@ class Resolve {
 	*/
 	function _processGlobalActions() {
 
-		switch($_REQUEST['SQ_ACTION']) {
+		switch($_GET['SQ_ACTION']) {
 			case 'login' :
-				if ($this->login_key() == $_POST['login_key']) {
-					$user = new User();
-					if ($user->login($_POST['login_username'], $_POST['login_password'])) {
-						$_SESSION['userid'] = $user->get_userid();
+				if ($this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
+					$this->am->includeAsset('user');
+					if ($userid = User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD'])) {
+						$user = &$this->am->getAsset($userid);
+						$_SESSION['userid']      = $userid;
 						$_SESSION['remote_addr'] = $_SERVER['REMOTE_ADDR'];
-						# generate a new login key so that when they try and login next
-						# they have to re-enter the details
-						$this->gen_login_key();
+						// generate a new login key so that when they try and login next
+						// they have to re-enter the details
+						$this->generateLoginKey();
 
 						$this->user = &$user;
-						$this->register_object($this->user);
 						break;
 
-					}#end if
-				# incorrect login key
+					}//end if
+				// incorrect login key
 				} else {
-					$this->outputter->add_message(SQ_MSG_ERROR, 'Login Key incorrect');
-				}#end if
+					$this->addMessage('Login Key incorrect');
+				}//end if
 
-				# deliberalty don't have a break here so it the
-				# login fails we make sure that we're logged out
+				// deliberalty don't have a break here so it the
+				// login fails we make sure that we're logged out
 			case 'logout' :
 				$_SESSION['userid'] = 0;
 				$this->user = null;
 			break;
-		}#end switch
+		}//end switch
 
-		# just so it isn't being used anywhere else
-		$_REQUEST['SQ_ACTION'] = '';
+		// just so it isn't being used anywhere else
+		$_GET['SQ_ACTION'] = '';
 
-	}#end _processGlobalActions()
+	}//end _processGlobalActions()
 
 
 	/*
@@ -148,7 +158,7 @@ class Resolve {
 			if (DB::isError($this->_db)) {
 				trigger_error($this->_db->getMessage(), E_USER_ERROR);
 			}
-			# make sure all results are assoc arrays
+			// make sure all results are assoc arrays
 			$this->_db->setFetchMode(DB_FETCHMODE_ASSOC);
 		}
 		return $this->_db;
@@ -161,7 +171,7 @@ class Resolve {
 	*/
 	function currentUser($user) {
 		return ($this->user && $this->user->id == $user->id);
-	}#end currentUser()
+	}//end currentUser()
 
 	/*
 	* returns the userid of the current user, or zero if none present (ie frontend)
@@ -170,20 +180,45 @@ class Resolve {
 	*/
 	function currentUserId() {
 		return ($this->user) ? $this->user->id : 0;
-	}#end currentUserId()
+	}//end currentUserId()
 
+	/*
+	* generates a new login key and returns it
+	*
+	* @access public
+	*/
+	function generateLoginKey() {
+		include_once SQ_LIB_PATH.'/general/general.inc';
+		return $_SESSION['SQ_LOGIN_KEY'] = random_password(20);
+	}
 
-	 ############################################################
-	# generates a new login key
-	function gen_login_key() {
-		$_SESSION['login_key'] = random_password(20);
-	}#end gen_login_key()
+	/*
+	* returns the current login key
+	*
+	* @access public
+	*/
+	function loginKey() {
+		return $_SESSION['SQ_LOGIN_KEY'];
+	}
 
-	 ############################################################
-	# generates a new login key
-	function login_key() {
-		return $_SESSION['login_key'];
-	}#end login_key()
+	/*
+	* Add a system message
+	*
+	* @access public
+	*/
+	function addMessage($msg) {
+		$this->_msgs[] = $msg;
+	}
 
-}#end class
+	/*
+	* returns the system messages
+	*
+	* @return Array(string)
+	* @access public
+	*/
+	function messages() {
+		return $this->_msgs;
+	}
+
+}//end class
 ?>
