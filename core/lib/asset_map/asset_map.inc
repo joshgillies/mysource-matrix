@@ -688,7 +688,7 @@ class Asset_Map
 		$from = time() - (8 * 3600); // 8 hours ago
 		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), Array(SQ_MSG_UNREAD, SQ_MSG_READ), $from, null, 'short_name');
 
-		error_log(array_contents($messages));
+#		error_log(array_contents($messages));
 
 		$output = new XML_Tree();
 		$root = &$output->addRoot('mail');
