@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.138 2004/12/29 21:50:13 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.139 2004/12/30 01:25:22 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.138 $
+* @version $Revision: 1.139 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1049,7 +1049,10 @@ class Page_Calendar extends Page_Asset_Listing
 					$event_class = $root_nodes[$event['root_node']]['class_name'];
 					$onclick_code = $show_event_links ? ' onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
 					$cursor_code = $show_event_links ? ' cursor: pointer; cursor: hand' : '';
-					$current_mouse_up_down_code = (($event['type_code'] != 'calendar_event_recurring') && (!isset($event['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\');"';
+					$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
+					if (!empty($mousedown_code) && (($event['type_code'] == 'calendar_event_recurring') || (isset($event['expanded'])))) {
+						$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\');"';
+					}
 					$current_mouse_over_out_code = '';
 					if (isset($event['description']) && !empty($event['description'])) {
 						echo '<div id="event_'.$assetid.'_description" class="popup">'.$event['description'].'</div>';
@@ -1057,11 +1060,12 @@ class Page_Calendar extends Page_Asset_Listing
 					}
 					echo '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; width: '.($width-2).'px;'.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
 					
-					// only show links if we want click-through and drag-n-drop is not enabled
-					// otherwise the click-through is facilitated by javascript only
+					// if drag-n-drop is enabled, click-through-to-event-view is supported
+					// via javascript only, because otherwise the link elements cause trouble
+					// with the dragging
 					$label = $event['name'];
-					if ($show_event_links && empty($current_mouse_over_out_code)) {
-						$label = '<a class="event '.$event_class.'"  href="'.$event_href.'">'.$label.'</a>';
+					if ($show_event_links && empty($mousedown_code)) {
+						$label = '<a class="event '.$event_class.'" href="'.$event_href.'">'.$label.'</a>';
 					} else {
 						$label = '<span class="event '.$event_class.'">'.$label.'</span>';
 					}
@@ -1136,16 +1140,19 @@ class Page_Calendar extends Page_Asset_Listing
 	function _getTimedTableCellContents(&$events, $show_event_links, &$root_nodes, $cell_ts, $partition_time, $cell_height, $event_width, &$layout_map, $mousedown_code, $mouseup_code)
 	{
 		if (empty($events)) return '';
+		$time_label = sprintf('%02d:%02d', (int)($cell_ts / 60), $cell_ts % 60);
+
+		// get events in order
 		$cmp_func = create_function('$a, $b', 'return ($b[\'end_date_ts\'] - $b[\'start_date_ts\']) - ($a[\'end_date_ts\'] - $a[\'start_date_ts\']);');
 		uasort($events, $cmp_func);
 		$res = '';
-		$time_label = sprintf('%02d:%02d', (int)($cell_ts / 60), $cell_ts % 60);
 
 		foreach ($events as $assetid => $details) {
 
 			$real_assetid = current(explode(':', $assetid));
-			$event_href = $show_event_links ? $this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$real_assetid : '';
+			$event_href = $this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$real_assetid;
 
+			// get horizontal position of div
 			reset($layout_map);
 			$dont_overdo_it = 0;
 			while (($dont_overdo_it < 20) && (key($layout_map) != $time_label)) {
@@ -1158,8 +1165,8 @@ class Page_Calendar extends Page_Asset_Listing
 				$layout_map[key($layout_map)][$horizontal_index] = 1;
 				next($layout_map);
 			}
-
 			$event_left_margin = ($event_width * $horizontal_index);
+
 			// get top position of div
 			$event_ts = $details['start_date_minutes'] + (60 * $details['start_date_hours']);
 			$end_ts = $details['end_date_minutes'] + (60 * $details['end_date_hours']);
@@ -1176,7 +1183,6 @@ class Page_Calendar extends Page_Asset_Listing
 			$root_node_treeids = get_treeids($root_nodes);
 			$event_class = '';
 			uasort($root_node_treeids, create_function('$a,$b', 'return strlen($b)-strlen($a);'));
-
 			foreach ($root_node_treeids as $root_node_assetid => $root_node_treeid) {
 				if (substr($details['treeid'], 0, strlen($root_node_treeid)) === $root_node_treeid) {
 					// if this root node has a formatting style, use it and shove off
@@ -1187,27 +1193,31 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			}
 
-			// other layout things
-			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-bottom: 0px; border-left: 0px; border-right: 0px; padding-top: 0px; background-color: transparent;';
-			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
+			// mouse action handlers
 			$onclick_code = $show_event_links ? 'onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
-			$inner_width = $event_width - 4;
-			$current_mouse_up_down_code = (($details['type_code'] != 'calendar_event_recurring') && (!isset($details['trimmed'])) && (!isset($details['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\')"';
+			$current_mouse_up_down_code = $mousedown_code.' '.$mouseup_code;
+			if (!empty($mousedown_code) && (($details['type_code'] == 'calendar_event_recurring') || (isset($details['expanded'])))) {
+				$current_mouse_up_down_code = 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\');"';
+			}
 			$current_mouse_over_out_code = '';
 			if (isset($details['description']) && !empty($details['description'])) {				
 				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')"  onmouseout="stopTrailingPopup()"';
 			}
 
+			// other special CSS for cursors and zero-length events
+			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-bottom: 0px; border-left: 0px; border-right: 0px; padding-top: 0px; background-color: transparent;';
+			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
+			
+			// showtime!
 			$res .= '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' class="'.$event_class.' event" style="float: left; position: absolute; width: '.($event_width-3).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
-
-			$res .= '<div class="eventText" style="z-index: 30; position: absolute; width: '.$inner_width.'px; border: none;  background-color: transparent">';
+			$res .= '<div class="eventText" style="z-index: 30; position: absolute; width: '.($event_width-4).'px; border: none;  background-color: transparent">';
 	
 			// if drag-n-drop is enabled, click-through-to-event-view is supported
 			// via javascript only, because otherwise the link elements cause trouble
 			// with the dragging
 			$label = $details['name'];
-			if ($show_event_links && empty($current_mouse_up_down_code)) {
+			if ($show_event_links && empty($mousedown_code)) {
 				$label = '<a class="event '.$event_class.'" href="'.$event_href.'">'.$label.'</a>';
 			} else {
 				$label = '<span class="event '.$event_class.'">'.$label.'</span>';
@@ -1215,7 +1225,6 @@ class Page_Calendar extends Page_Asset_Listing
 			$res .= $label;
 
 			$res .= '</div></div>';
-			$event_left_margin += $event_width;
 
 		}
 		return $res;
@@ -1284,8 +1293,9 @@ class Page_Calendar extends Page_Asset_Listing
 				 }
 			}
 			function sq_cal_redirect(url) {
-				if (!moved) {
+				if ((typeof moved == "undefined") || !moved) {
 					document.location.href = url;
+					formSubmitted = true;
 				} else {
 					log("moved, not redirecting to "+url);
 				}
@@ -1371,8 +1381,8 @@ class Page_Calendar extends Page_Asset_Listing
 						old_time = source_comps[1];
 						new_date = target_comps[0];
 						new_time = target_comps[1];
-						old_loc = (source_comps.length == 3) ?  source_comps[2] : null;
-						new_loc = (target_comps.length == 3) ?  target_comps[2] : null;
+						old_loc = (source_comps.length == 3) ?  source_comps[2] : '';
+						new_loc = (target_comps.length == 3) ?  target_comps[2] : '';
 
 						// can't drag in or out of the 'other' column
 						if (Boolean(old_time == 'allday') != Boolean(new_time == 'allday')) {
@@ -1385,8 +1395,7 @@ class Page_Calendar extends Page_Asset_Listing
 							statusBarMsg('Events cannot be dragged in or out of the "other" column');
 							return false;
 						}
-						
-						var locationName = (new_loc != null) ? columnNames[String(new_loc)] + ' on ' : '';
+						var locationName = (new_loc != '') ? columnNames[String(new_loc)] + ' on ' : '';
 						return confirm('Move this event to ' + locationName + new_date 
 							+ ((new_time != 'allday') ? (' at ' + new_time) : '') + '?');
 

@@ -39,6 +39,7 @@
   /* The element it was originally linked under */
   var originalParent = null;
 
+  /* Whether the event has moved since we started dragging */
   var moved = false;
 
   

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.22 2004/12/14 00:02:40 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.23 2004/12/30 01:25:22 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -89,8 +89,8 @@
 		</field>
 		<field attribute="enable_description_popups">
 			<display_name>Enable Description Popups</display_name>
-			<note>If you set this to true, the description of an event will appear as a popup when you move the mouse pointer over the event in month, week or day view</note>
-			<boolean />
+			<note>If you set this to 'yes', the description of an event will appear as a popup when you move the mouse pointer over the event in month, week or day view</note>
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 
@@ -194,8 +194,8 @@
 		</field>
 		<field attribute="enable_event_dragging">
 			<display_name>Enable Drag-and-Drop editing of Single Events</display_name>
-			<note>Note:  Due to an unavoidable restriction in Internet Explorer, clicking on an event's name to drag it (rather than clicking elsewhere in its box) will not work perfectly if Single Event View is enabled for this calendar page.  This does not affect other browsers.</note>
-			<boolean />
+			<note></note>
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 
