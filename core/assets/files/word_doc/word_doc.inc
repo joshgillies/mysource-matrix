@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.2 2004/09/08 07:20:34 amiller Exp $
+* $Id: word_doc.inc,v 1.3 2004/09/08 08:32:01 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

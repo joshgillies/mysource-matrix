@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.4 2004/09/08 07:20:19 amiller Exp $
+* $Id: system_config_edit_interface.inc,v 1.5 2004/09/08 08:32:01 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

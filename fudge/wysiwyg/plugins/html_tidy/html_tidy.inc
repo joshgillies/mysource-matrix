@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.19 2004/09/08 07:23:17 amiller Exp $
+* $Id: html_tidy.inc,v 1.20 2004/09/08 08:32:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
