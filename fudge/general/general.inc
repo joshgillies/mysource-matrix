@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.23 2004/08/06 06:20:32 gsherwood Exp $
+* $Id: general.inc,v 1.24 2004/08/11 01:04:12 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -101,12 +101,12 @@ function stripslashes_array(&$array, $strip_keys=false)
 */
 function htmlentities_array(&$array, $encode_keys=false)
 {
-	if(is_string($array)) return htmlentities($array);
+	if (is_string($array)) return htmlentities($array);
 	$keys_to_replace = Array();
 	foreach($array as $key => $value) {
 		if (is_string($value)) {
 			$array[$key] = htmlentities($value);
-		} elseif (is_array($value)) {
+		} else if (is_array($value)) {
 			htmlentities_array($array[$key], $encode_keys);
 		}
 
