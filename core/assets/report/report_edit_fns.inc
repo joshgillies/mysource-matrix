@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.7 2005/03/21 02:51:54 arailean Exp $
+* $Id: report_edit_fns.inc,v 1.8 2005/03/21 02:54:35 arailean Exp $
 *
 */
 
@@ -28,10 +28,10 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Report_Edit_Fns
 *
 * Purpose
-*
+*	Base Edit Interface for all reports
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
