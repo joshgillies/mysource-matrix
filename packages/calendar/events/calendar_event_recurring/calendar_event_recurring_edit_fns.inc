@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.5 2004/07/27 02:30:09 tbarrett Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.6 2004/07/27 02:37:37 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../event/calendar_event_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -186,7 +186,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 					  <br /><input type="radio" <?php echo ((($freq{0}=='M') && (strlen($freq) != 3)) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_Mx" value="Mx">Every <input type="text" size="2" value="<?php echo substr($freq, 3); ?>" name="<?php echo $prefix ?>_num_months" onfocus="checkBox('<?php echo $prefix?>_frequency_type_Mx');" /> months
 					</td>
 					<td style="width: 60ex">
-					  <input type="radio" <?php echo ((!$freq || (substr($freq, 0, 3) == 'MFN')) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MFN" />On the <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_month_date_ord"></a>&nbsp;day of the month <span id="<?php echo $prefix; ?>_month_date_warning" style="display: none">(when it exists)</span><br />
+					  <input type="radio" <?php echo ((($freq{0} != 'M') || (substr($freq, 0, 3) == 'MFN')) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MFN" />On the <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_month_date_ord"></a>&nbsp;day of the month <span id="<?php echo $prefix; ?>_month_date_warning" style="display: none">(when it exists)</span><br />
 					  
 					  <input type="radio" <?php echo ((substr($freq, 0, 3) == 'MFW') ? 'checked="checked" ' : ''); ?>name="<?php echo $prefix; ?>_monthly_type" value="MFW" />On the <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_month_week_ord"></a>&nbsp;<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_week_day_2"></a>&nbsp;of the month <span id="<?php echo $prefix; ?>_month_week_warning" style="display: none">(when it exists)</span><br />
 					  
