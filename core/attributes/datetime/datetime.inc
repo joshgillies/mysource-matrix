@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.21 2004/09/14 00:26:26 gsherwood Exp $
+* $Id: datetime.inc,v 1.22 2004/11/01 05:08:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -249,7 +249,6 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 							$calendar->paint($prefix, $prefix.'_cal_picker', true);
 						}
 					?>
-					<span id="<?php echo $prefix; ?>_cal_picker"></span>
 					<br /><br /><i>Select a single date using the boxes above</i>
 				</div>
 				<div id="<?php echo $prefix; ?>_period_field" style="display: <?php echo ($using_single_date) ? 'none' : 'block'; ?>;">
