@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_config.inc,v 1.10 2003/10/07 07:25:33 dwong Exp $
+* $Id: system_config.inc,v 1.11 2003/10/10 03:51:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -371,14 +371,14 @@ class System_Config extends Config
 
 			$o->openField('Log Errors');
 			if($have_lock && $is_root) {
-				combo_box('config[SQ_CONF_LOG_ERRORS]', Array(true => 'Yes', false => 'No'), false, SQ_CONF_LOG_ERRORS);
+				combo_box('config[SQ_CONF_LOG_ERRORS]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_LOG_ERRORS);
 			} else {
 				echo (SQ_CONF_LOG_ERRORS) ? 'Yes' : 'No';
 			}
 
 			$o->openField('Hide Errors on the Frontend');
 			if($have_lock && $is_root) {
-				combo_box('config[SQ_CONF_ERRORS_HIDE_FRONTEND]', Array(true => 'Yes', false => 'No'), false, SQ_CONF_ERRORS_HIDE_FRONTEND);
+				combo_box('config[SQ_CONF_ERRORS_HIDE_FRONTEND]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_ERRORS_HIDE_FRONTEND);
 			} else {
 				echo (SQ_CONF_ERRORS_HIDE_FRONTEND) ? 'Yes' : 'No';
 			}
