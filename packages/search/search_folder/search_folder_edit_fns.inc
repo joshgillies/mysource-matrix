@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.3 2004/07/06 07:18:48 gsherwood Exp $
+* $Id: search_folder_edit_fns.inc,v 1.4 2004/08/09 10:30:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class Search_Folder_Edit_Fns extends Bridge_Edit_Fns
 		
 		$this->static_screens = Array(	'details'		=> Array(
 															'name'			=> 'Details',
-															'force_unlock'	=> true,
+															'force_unlock'	=> false,
 															'lock_type'		=> 'attributes',
 																),
 										'permissions'	=> Array(
