@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.14 2004/05/28 10:29:58 brobertson Exp $
+* $Id: datetime_field.inc,v 1.15 2004/06/09 13:05:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,6 +66,15 @@ class DateTime_Field {
 	* 							['h' => '[s|t]',]
 	* 							['i' => '[s|t]',]
 	* 							['s' => '[s|t]',]
+	* 						),
+	*	// any extra html attributes to put in the input/select tag
+	* 	'extras'			=> Array(
+	* 							['d' => '...',]
+	* 							['m' => '...',]
+	* 							['y' => '...',]
+	* 							['h' => '...',]
+	* 							['i' => '...',]
+	* 							['s' => '...',]
 	* 						),
 	*	// datetime elements to allow a null element for
 	* 	'null'			=> Array(['d'],['m'],['y'],['h'],['i'],['s']),
@@ -189,7 +198,7 @@ class DateTime_Field {
 	* @access public
 	* @return void
 	*/
-	function inputBox($u='', $prefix='', &$value, $allow_null=false)
+	function inputBox($u, $prefix, &$value, $allow_null=false)
 	{
 		$input_style = &$this->getParam('style');
 		$extras = &$this->getParam('extras');
@@ -340,7 +349,7 @@ class DateTime_Field {
 	* @access public
 	* @return string
 	*/
-	function getUnit($unit='',$value='')
+	function getUnit($unit, $value='')
 	{
 		if(!strlen($value)) $value = $this->value;
 		
@@ -671,12 +680,10 @@ class DateTime_Field {
 	/**
 	* Prints fields for inputting the min value
 	*
-	* @param string	$prefix		field prefix for the HTML form
-	*
 	* @access public
 	* @return string
 	*/
-	function printMinField($prefix='') 
+	function printMinField() 
 	{
 		$p = array(
 			'min'       => '0000-01-01 00:00:00',
@@ -695,12 +702,10 @@ class DateTime_Field {
 	/**
 	* Processing the min value
 	*
-	* @param string	$prefix		field prefix for the HTML form
-	*
 	* @access public
 	* @return string
 	*/
-	function processMinField($prefix='') 
+	function processMinField() 
 	{
 		$p = array(
 			'min'       => '0000-01-01 00:00:00',
@@ -718,12 +723,10 @@ class DateTime_Field {
 	/**
 	* Prints fields for inputting the max value
 	*
-	* @param string	$prefix		field prefix for the HTML form
-	*
 	* @access public
 	* @return string
 	*/
-	function printMaxField($prefix='') 
+	function printMaxField() 
 	{
 		$p = array(
 			'min'       => '0000-01-01 00:00:00',
@@ -742,12 +745,10 @@ class DateTime_Field {
 	/**
 	* Processing the max value
 	*
-	* @param string	$prefix		field prefix for the HTML form
-	*
 	* @access public
 	* @return string
 	*/
-	function processMaxField($prefix='') 
+	function processMaxField() 
 	{
 		$p = array(
 			'min'       => '0000-01-01 00:00:00',
