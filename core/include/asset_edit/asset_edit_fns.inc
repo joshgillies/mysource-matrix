@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_fns.inc,v 1.29 2003/10/30 23:47:13 dwong Exp $
+* $Id: asset_edit_fns.inc,v 1.30 2003/10/30 23:57:55 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,7 +57,7 @@ class Asset_Edit_Fns extends MySource_Object
 													),
 								'linking'			=> Array(
 														'name'			=> 'Linking',
-														'force_unlock'	=> false,
+														'force_unlock'	=> true,
 														'lock_type'		=> 'links',
 													),
 								'settings'			=> Array(

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: init.inc,v 1.53 2003/10/30 23:47:13 dwong Exp $
+* $Id: init.inc,v 1.54 2003/10/30 23:54:21 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,8 +32,6 @@ define('SQ_INIT_OB_LEVEL', ob_get_level());
 // Are we running from the command line ?
 define('SQ_PHP_CLI', (php_sapi_name() == 'cli'));
 
-// default debug log file location - for bom and echo_error
-define('SQ_DEBUG_LOG_FILE', '/home/dwong/resolve/data/private/logs/debug.log');
 
 /*
 * Set the current version of the system core

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_manager.inc,v 1.17 2003/10/30 23:47:13 dwong Exp $
+* $Id: metadata_manager.inc,v 1.18 2003/10/30 23:54:21 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -391,47 +391,43 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function getMetadataKeyData($assetid, $schemaids)
 	{
-		if (empty($schemaids))
-			return Array();
+		// get the default values
+		$keydata = Array();
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$asset =& $am->getAsset($assetid);
+		foreach ($schemaids as $schemaid) {
+			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
+			$metadata = $this->getSchemaMetadata($assetid, $schemaid);
 
-		$field_names		=& $this->_tmp['schema_field_names'];
-		$field_weightings	=& $this->_tmp['schema_field_weightings'];
+			foreach ($sectionids as $sectionid) {
+				$section =& $am->getAsset($sectionid);
 
-		if (!isset($field_names) || !isset($field_weightings)) {
-			$field_names = Array();
-			$field_weightings = Array();
-			// retrieve fields needed
-			foreach ($schemaids as $schemaid) {
-				$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
-				$metadata = $this->getSchemaMetadata($assetid, $schemaid);
+				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
+				foreach ($fieldids as $fieldid) {
+					$field =& $am->getAsset($fieldid);
 
-				foreach ($sectionids as $sectionid) {
-					$section =& $am->getAsset($sectionid);
+					if (isset($metadata['sections'][$section->name]['fields'][$field->name]['value'])) {
+						$value = $metadata['sections'][$section->name]['fields'][$field->name]['value'];
+					} else {
+						$value = $field->attr('default');
+					}
 
-					$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
-					foreach ($fieldids as $fieldid) {
-						$field =& $am->getAsset($fieldid);
-						$field_names[$field->id] = $field->name;
-						$field_weightings[$field->id] = $field->attr('weighting');
+					$keywords = retrieve_keywords_replacements($value);
+
+					$replacements = $this->generateKeywordReplacements($asset, $keywords, false);
+					foreach ($keywords as $keyword => $replacement) {
+						$replacements[$keyword] = strtolower($replacement);
+					}
+					$value = replace_keywords($value, $replacements);
+
+					$word_counts = get_word_counts($value);
+					foreach ($word_counts as $word => $count) {
+						$asset->buildKeyData($keydata, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count);
 					}
 				}
 			}
 		}
 
-		$metadata_values = $this->getMetadataFieldValues($assetid, $field_names);
-		$keydata = Array();
-		$asset =& $am->getAsset($assetid);
-
-		foreach ($field_names as $fieldid => $field_name) {
-			$value =& $metadata_values[$field_name];
-			$weighting =& $field_weightings[$fieldid];
-
-			$word_counts = get_word_counts($value);
-			foreach ($word_counts as $word => $count) {
-				$asset->buildKeyData($keydata, $word, 'text', 'metadata:' . $fieldid, $weighting * $count);
-			}
-		}
 		return $keydata;
 
 	}//end getMetadataKeyData()
