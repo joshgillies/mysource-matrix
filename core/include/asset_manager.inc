@@ -222,7 +222,7 @@ class Asset_Manager extends Resolve_Object
 	function getParentList($type_code) {
 
 		if (!isset($this->_asset_types[$type_code])) {
-			trigger_error('Asset "'.$type_code.'" is not installed on the system', E_USER_WARNING);
+			trigger_error('Asset Type "'.$type_code.'" is not installed on the system', E_USER_WARNING);
 			return Array();
 		}
 
@@ -320,8 +320,44 @@ class Asset_Manager extends Resolve_Object
 
 		switch($_GET['am_section']) {
 			case 'add_asset' :
-				pre_echo("ADD ASSET");
-				pre_echo($_GET);
+				$parent = &$this->getAsset($_GET['parent_assetid']);
+				if (is_null($parent)) {
+					trigger_error('Parent Asset #'.$_GET['parent_assetid'].' not found', E_USER_WARNING);
+				} else {
+
+					// make sure that we are allowed to link this type to the parent
+					if (($err_msg = $parent->canLinkToType($_GET['type_code'], $_GET['link_type'])) !== true) {
+						trigger_error($err_msg, E_USER_WARNING);
+					} else {
+
+						$o->addFormActionGetVar('parent_assetid', $_GET['parent_assetid']);
+						$o->addFormActionGetVar('pos',            $_GET['pos']);
+						$o->addFormActionGetVar('type_code',      $_GET['type_code']);
+						$o->addFormActionGetVar('link_type',      $_GET['link_type']);
+
+						$o->addHiddenField('am_form_submitted', '1');
+
+						$this->includeAsset($_GET['type_code']);
+						$asset = new $_GET['type_code']();
+
+						// if the form has been submitted then, process it
+						// and if that is successfull, then create the link to the parent asset
+						if (!empty($_POST['am_form_submitted']) && $asset->processBackend()) {
+							$o->addMessage(SQ_BO_MSG_NOTICE, 'New '.$this->_asset_types[$_GET['type_code']]['name'].' "'.$asset->name.'" created');
+							$this->registerAsset($asset);
+							if ($parent->createLink($asset, $_GET['link_type'], '', $_GET['pos'])) {
+								$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" successfully linked to "'.$parent->name.'"');
+							} else {
+								$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" was not able to be linked to "'.$parent->name.'", it can be found in the trash folder');
+							}
+
+						} else {
+							$asset->printBackend($backend);
+
+						}// end if
+					}//end if
+				}// end if
+
 			break;
 
 			case 'am' :

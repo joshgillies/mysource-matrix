@@ -129,24 +129,24 @@ class Backend extends Resolve_Object
 		$this->out->openRaw();
 
 	?>
-		<table width="100%" bgcolor="#212E61" cellpadding="0" border="0" cellspacing="0">
+		<table width="100%" cellpadding="0" border="0" cellspacing="0">
 			<tr>
-				<td>
+				<td class="sq-backend-header-cell">
 					<table cellpadding="0" border="0" cellspacing="0">
 						<tr>
 					<?
 						$this->_printHeaderItem('Resolve', $this->getBackendUrl('main').'&backend_section=mysource', 'swish');
-						$this->_printHeaderItem('Config', $this->getBackendUrl('main').'&backend_section=config', 'config');
+						$this->_printHeaderItem('Config',  $this->getBackendUrl('main').'&backend_section=config',   'config');
 					?>
 						</tr>
 					</table>
 				</td>
-				<td>&nbsp;</td>
-				<td align="right">
+				<td class="sq-backend-header-cell">&nbsp;</td>
+				<td class="sq-backend-header-cell" align="right">
 					<table cellpadding="0" border="0" cellspacing="0">
 						<tr>
 							<td align="right" valign="bottom" nowrap>
-								<div class="sq-backend-smallprint" style="font-size:10px; color:#ffffff"><b><?='$SESSION->user->name()'?></b></div>
+								<div class="sq-backend-smallprint" style="font-size:10px; color:#ffffff"><b><?='$SESSION->user->name'?></b></div>
 								<div class="sq-backend-fineprint"  style="color:#ffffff"><?=date('d M Y H:i')?></div>
 							</td>
 							<td valign="middle" align="center"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="5" height="2" border="0"></td>
@@ -157,13 +157,13 @@ class Backend extends Resolve_Object
 				</td>
 			</tr>
 			<tr>
-				<td bgcolor="#259EC5" colspan="3"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="1" height="1"></td>
+				<td style="background-color: #259EC5" colspan="3"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="1" height="1"></td>
 			</tr>
 			<tr>
-				<td bgcolor="#212E61" colspan="3"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="1" height="1"></td>
+				<td style="background-color: #212E61" colspan="3"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="1" height="1"></td>
 			</tr>
 			<tr>
-				<td bgcolor="#ffffff" colspan="3"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="1" height="1"></td>
+				<td style="background-color: #ffffff" colspan="3"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="1" height="1"></td>
 			</tr>
 		</table>
 	<?
@@ -181,7 +181,10 @@ class Backend extends Resolve_Object
 	* @access private
 	*/
 	function _printHeaderItem($label, $url, $icon) {
-		?><td nowrap><a target="main" href="<?=$url?>"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="10" height="2" border="0"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/icons/<?=$icon?>.gif" width="20" height="20" border="0"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="3" height="2" border="0"></a></td><td><a target="main" href="<?=$url?>" class="sq-backend-smallprint" style="font-weight: bold; text-decoration: none; color: #ffffff"><?=$label?></a></td><?
+		?> 
+		<td nowrap class="sq-backend-header-cell"><a target="main" href="<?=$url?>"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="10" height="2" border="0" /><img src="<?=SQ_WWW_LIB_DIR?>/web/images/icons/<?=$icon?>.gif" width="20" height="20" border="0" /><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="3" height="2" border="0" /></a></td>
+		<td nowrap class="sq-backend-header-item"><a target="main" href="<?=$url?>" class="sq-backend-header-item"><?=$label?></a></td>
+		<?
 	}
 
 
@@ -194,10 +197,10 @@ class Backend extends Resolve_Object
 	{
 		$this->out->openRaw();
 
-	?>
-		<table width="100%" cellpadding="2" cellspacing="0" border="0" bgcolor="#7A92AD">
-			<tr><td bgcolor="#212E61"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="1" height="1"></td></tr>	
-			<tr><td align="right"><b><a href="<?=SQ_RESOLVE_URL?>" class="sq-backend-smallprint" target="_blank"><?=SQ_RESOLVE_LONG_NAME?></a></b></td></tr>
+	?> 
+		<table width="100%" cellpadding="2" cellspacing="0" border="0">
+			<tr><td style="background-color: #212E61;"><img src="<?=SQ_WWW_LIB_DIR?>/web/images/blank.gif" width="1" height="1" /></td></tr>	
+			<tr><td style="background-color: #7A92AD; text-align: right;"><b><a href="<?=SQ_RESOLVE_URL?>" class="sq-backend-smallprint" target="_blank"><?=SQ_RESOLVE_LONG_NAME?></a></b></td></tr>
 		</table>
 	<?
 

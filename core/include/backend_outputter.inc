@@ -2,18 +2,15 @@
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-/*
-# FYI notices, saying take notice novice users
-define('SQ_MSG_INFORMATION', 0);
-# just normal messages, eg update confirmations
-define('SQ_MSG_NOTICE',      1);
-# warnings, you entered something a bit a-miss and the system fixed it up for you
-define('SQ_MSG_WARNING',     2);
-# something is just plain wrong, fix immediately
-define('SQ_MSG_ERROR',       3);
-# something is completely fucked, print out and die
-define('SQ_MSG_FATAL_ERROR', 4);
-*/
+// FYI notices, saying 'take notice' novice users
+define('SQ_BO_MSG_INFORMATION', 0);
+// just normal messages, eg update confirmations
+define('SQ_BO_MSG_NOTICE',      1);
+// warnings, you entered something a bit a-miss and the system fixed it up for you
+define('SQ_BO_MSG_WARNING',     2);
+// something is just plain wrong, fix immediately
+define('SQ_BO_MSG_ERROR',       3);
+
 
 /**
 * Backend_Outputter
@@ -29,13 +26,9 @@ define('SQ_MSG_FATAL_ERROR', 4);
 
 class Backend_Outputter 
 {
-/*
+
 	# any messages to be displayed to the user
-	var $_messages = Array( SQ_MSG_ERROR		=> Array(),
-							SQ_MSG_WARNING		=> Array(),
-							SQ_MSG_NOTICE		=> Array(),
-							SQ_MSG_INFORMATION	=> Array());
-*/
+	var $_messages = Array();
 
 	# an link to redirect to when we print, any messages will be carried over to the next page
 	var $_redirect = '';
@@ -93,10 +86,7 @@ class Backend_Outputter
 	{
 
 		# if there are some messages from the previous page we had better add them in
-		# the main.php is a bit of a hack but that's to do with the bloody todo list being
-		# in it's own fucking frame, the calendar.php would pick the msgs up and they would
-		# never be seen
-		if (!empty($_SESSION['backend_outputter_msgs']) && basename($_SERVER['PHP_SELF']) == 'main.php' ) {
+		if (!empty($_SESSION['backend_outputter_msgs'])) {
 			$this->_messages = $_SESSION['backend_outputter_msgs'];
 			$_SESSION['backend_outputter_msgs'] = Array();
 		}#end if
@@ -187,26 +177,16 @@ class Backend_Outputter
 		$this->_sub_heading_icon = $icon;
 	}#end setSubHeading()
 
-/*
 	 ############################################
 	# add a message to be displayed to the user
-	function addMessage($type, $msg, $file='', $line='') 
+	function addMessage($type, $msg) 
 	{
 		$msg = trim($msg);
-		if ($file && $line) $msg .= '<br>File: '.$file.', Line: '.$line;
-
-		# if fatal error, die
-		if ($type == SQ_MSG_FATAL_ERROR) {
-			echo '<div style="background-color: white; color: red; font-size: 14pt; font-weight: bold;">'.$msg.'</div>';
-			die();
-		}
-
 		# if the type is valid and there is a message
-		if(isset($this->_messages[$type]) && strlen($msg)) {
-			$this->_messages[$type][] = $msg;
+		if(strlen($msg)) {
+			$this->_messages[] = Array('type' => $type, 'msg' => $msg);
 		}
 	}#end addMessage()
-*/
 	
 	 ############################################
 	# add a stylesheet file to the page
@@ -391,14 +371,17 @@ class Backend_Outputter
 	{
 		if ($this->_raw_opened)     $this->closeRaw();
 		if ($this->_section_opened) $this->closeSection();
-		$this->_paintHeader();
 
-		# if there is a redirect then there is not point painting the contents
-		if (!$this->_redirect) {
+		if ($this->_redirect) {
+			// save the messages so the come through on the next page
+			$_SESSION['backend_outputter_msgs'] = $this->_messages;
+			header('Location: '.$this->_redirect);
+
+		} else {
+			$this->_paintHeader();
 			$this->_paintContents();
-		}
-	
-		$this->_paintFooter();
+			$this->_paintFooter();
+		}// end if
 		
 	}#end paint();
 
@@ -483,18 +466,6 @@ class Backend_Outputter
 					preload_image('<?=$file?>');
 				<?
 				}#end foreach
-
-
-				if ($this->_redirect) {
-					# save the messages so the come through on the next page
-					$_SESSION['backend_outputter_msgs'] = $this->_messages;
-				?>
-
-					top.main_frame.location = '<?=$this->_redirect?>';
-				<?
-
-				}#end if
-
 			?>
 
 			// -->
@@ -525,10 +496,16 @@ class Backend_Outputter
 //			$this->_paintRow($this->_heading, 'page-heading');
 //		}
 //
+
+		if (count($this->_messages)) {
+			pre_echo("MESSAGES : ");
+			pre_echo($this->_messages);
+		}
+
 		if($this->_heading) {
 		?>
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
-				<tr bgcolor="#ffffff">
+				<tr>
 					<td class="sq-backend-heading">
 					<? if ($this->_heading_icon) { ?>
 						<img src="<?=$this->filesPath('/images/icons/'.$this->_heading_icon.'.gif');?>" width="20" height="20" border="0" align="left" alt="<?=$this->_heading?>" />
@@ -560,11 +537,11 @@ class Backend_Outputter
 				<a name="section_<?=$i?>"></a>
 				<table width="100%" cellpadding="3" cellspacing="0" border="0">
 					<tr>
-						<td bgcolor="#b1bdcd" class="sq-backend-data" colspan="2">
+						<td class="sq-backend-sectionheading" colspan="2">
 							<? if ($this->_contents[$i]['icon']) { ?>
 								<img src="<?=$this->filesPath('images/icons/'.$this->_contents[$i]['icon'].'.gif')?>" width="20" height="20" border="0" alt="<?=$this->_contents[$i]['heading']?>" align="left" />
 							<? } ?>
-							<span class="sq-backend-sectionheading"><?=$this->_contents[$i]['heading']?></span>
+							<span ><?=$this->_contents[$i]['heading']?></span>
 						</td>
 					</tr>
 			<?
@@ -574,15 +551,24 @@ class Backend_Outputter
 						case 'new_line' :
 						?>
 							<tr>
-								<td bgcolor="#f0f0f0" valign="top" class="sq-backend-field" colspan="2">
+								<td nowrap valign="top" class="sq-backend-field" colspan="2">
 									<a name="field_<?=$i.'_'.$j;?>"></a>
-									<div class="sq-backend-field"><?=$field['name']?></div>
-									<table cellpadding="5" cellspacing="0" border="0"><tr><td width="5"><img src="<?=$this->filesPath('images/blank.gif')?>" width="5" height="1"/></td><td width="100%">
-								<?
-									echo $field['contents'];
-									if ($field['note']) $this->note($field['note']);
-								?>
-									</td></tr></table>
+									<?=$field['name']?>
+								</td>
+							</tr>
+							<tr>
+								<td valign="top" class="sq-backend-data" colspan="2">
+									<table cellpadding="5" cellspacing="0" border="0">
+										<tr>
+											<td width="5"><img src="<?=$this->filesPath('images/blank.gif')?>" width="5" height="1"/></td>
+											<td width="100%">
+											<?
+												echo $field['contents'];
+												if ($field['note']) $this->note($field['note']);
+											?>
+											</td>
+										</tr>
+									</table>
 								</td>
 							</tr>
 						<?
@@ -591,11 +577,11 @@ class Backend_Outputter
 						default :
 						?>
 							<tr>
-								<td nowrap bgcolor="#f0f0f0" valign="top" class="sq-backend-field">
+								<td nowrap valign="top" class="sq-backend-field">
 									<a name="field_<?=$i.'_'.$j;?>"></a>
 									<?=$field['name']?>
 								</td>
-								<td width="100%" bgcolor="#f0f0f0" valign="top" class="sq-backend-data">
+								<td width="100%" valign="top" class="sq-backend-data">
 								<?
 									echo $field['contents'];
 									if ($field['note']) $this->note($field['note']);
@@ -607,10 +593,15 @@ class Backend_Outputter
 
 				}#end for
 
-			?>
-					<tr><td bgcolor="#F0F0F0" colspan="2"><br></td></tr>
+				// if this ain't the last section, add a spacer
+				if ($i < count($this->_contents) - 1) {
+				?> 
+					<tr><td class="sq-backend-field" colspan="2">&nbsp;</td></tr>
+				<?
+				}// end if
+			?>	
 				</table>
-				<table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#F0F0F0" background="<?=$this->filesPath('images/section_dots.gif');?>"><tr><td width="100%"><img src="<?=$this->filesPath('images/blank.gif');?>" width="1" height="1"></td></tr></table>
+				<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?=$this->filesPath('images/section_dots.gif');?>"><img src="<?=$this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table>
 			<?
 
 			}#end if
@@ -698,6 +689,16 @@ class Backend_Outputter
 	{
 		echo '<div class="sq-backend-smallprint">'.$str.'</div>';
 	}#end note()
+
+	/**
+	* Creates a standardised commit button
+	*
+	* @access public
+	*/
+	function commitButton($value='Commit') {
+		$this->openField('', 'commit');
+		$this->submit_button('commit', $value);
+	}
 
 
 	/**
