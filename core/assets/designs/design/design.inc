@@ -195,7 +195,7 @@ class Design extends Design_Area
 					Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL; ?>
 				   Developed by Squiz  - http://www.squiz.net
 				  © Copyright <?php echo date(\'Y\') ?>. All rights reserved.
-				  Page generated: <?php $time = getdate(); echo $time[\'mday\'], \' \', $time[\'month\'], \' \', $time[\'year\']; ?>
+				  Page generated: <?php echo date(\'d F Y\'); ?>
 				-->
 				<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/web/js/general.js"></script>
 				<link rel="stylesheet" type="text/css"  href="<?php echo sq_web_path(\'lib\'); ?>/web/css/general.css"></script>
