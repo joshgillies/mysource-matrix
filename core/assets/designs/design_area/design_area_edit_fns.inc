@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_edit_fns.inc,v 1.26 2003/10/14 05:07:56 brobertson Exp $
+* $Id: design_area_edit_fns.inc,v 1.27 2003/11/10 03:04:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -123,12 +123,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$file_contents = preg_replace($e, '\\1\\2\\3<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\4\' />\\5', $file_contents);
 
 
-
 		// lets just make sure they aren't trying to be tricky and do some processing we don't know about
-		// if there are issues with this, then maybe some regular expressions could be used, but for now
-		// LEAVE THIS ALONE, DO NOT TOUCH - BCR
-		$file_contents = str_replace('<'.'?', '&lt;?', $file_contents);
-		$file_contents = str_replace('?'.'>', '?&gt;', $file_contents);
+		$file_contents = preg_replace('|\<\?(?!xml)(.+?)(?=\?\>)|', '&lt;?\\2?&gt;', $file_contents);
 
 		// Lets make all occurances of the open cnd close tags the
 		// same case as the constant just to make it easier to parse
