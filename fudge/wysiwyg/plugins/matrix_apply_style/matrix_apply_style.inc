@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.4 2003/12/16 13:36:58 brobertson Exp $
+* $Id: matrix_apply_style.inc,v 1.5 2004/11/10 02:43:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,7 +75,7 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin {
 					$stylesheet = preg_replace('%[\r\n]+%',' ',file_to_string($stylesheet_src));
 					
 					$matches = Array();
-					preg_match_all("%[\s]+([^\{]+)\{[^\}]+\}%", $stylesheet, $matches);
+					preg_match_all("%\s*([^\{]+)\{[^\}]+\}%", $stylesheet, $matches);
 					$class_strings = $matches[1];
 
 					// $class_strings is now a list of all the class and their variations
