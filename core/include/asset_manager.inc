@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.164.2.3 2004/03/02 18:29:12 brobertson Exp $
+* $Id: asset_manager.inc,v 1.164.2.4 2004/03/03 19:35:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1516,7 +1516,7 @@ class Asset_Manager extends MySource_Object
 	* @return Array
 	* @access public
 	*/
-	function getLinkById($linkid, $assetid=0, $side_of_link='major')
+	function getLinkById($linkid, $assetid='', $side_of_link='major')
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor')
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
@@ -2303,13 +2303,13 @@ class Asset_Manager extends MySource_Object
 	*											of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
-	* @param int			$ignore_linkid		ignore the link represented by this link
+	* @param string			$ignore_linkid		ignore the link represented by this link
 	*											id when returning the count
 	*
 	* @return int
 	* @access public
 	*/
-	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid=0)
+	function countLinks($assetid, $side_of_link='major', $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid='')
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor')
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
@@ -2526,7 +2526,6 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$sql .= $where.' LIMIT 1';
-
 			$existing_treeid = $db->getOne($sql);
 			if (DB::isError($existing_treeid)) {
 				trigger_error($existing_treeid->getMessage().'<br/>'.$existing_treeid->getUserInfo(), E_USER_WARNING);
@@ -2574,7 +2573,7 @@ class Asset_Manager extends MySource_Object
 			$where = 'ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
 					  AND ct.treeid > '.$db->quote($existing_treeid).'
 					  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
-					  AND ct.linkid = 0';
+					  AND ct.linkid = '.$db->quote('');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
 			$sql .= $where.' LIMIT 1';
 
@@ -2879,14 +2878,14 @@ class Asset_Manager extends MySource_Object
 	* @param object Asset	$major			the major asset that we are linking to
 	* @param string			$type_code		the type code that we want to check
 	* @param string			$link_type		the type of link to check
-	* @param int			$ignore_linkid	if it gets down to the checking of the cardinality,
+	* @param string			$ignore_linkid	if it gets down to the checking of the cardinality,
 	*										ignore the link represented by this link id
 	* @param int			$exclusive		the exclusive status of the link
 	*
 	* @return mixed TRUE or error message string
 	* @access public
 	*/
-	function canLinkToType(&$major, $type_code, $link_type, $ignore_linkid=0, $exclusive=0)
+	function canLinkToType(&$major, $type_code, $link_type, $ignore_linkid='', $exclusive=0)
 	{
 		// get the minor assets parents and add it's type to the front of the indexed array
 		$types = $this->getTypeAncestors($type_code);
@@ -3078,10 +3077,10 @@ class Asset_Manager extends MySource_Object
 			}
 
 			// We are going to set the treeid nodes that this link is associated
-			// with to zero so that we can find it as a gap when we createLink() later on
+			// with to a blank string so that we can find it as a gap when we createLink() later on
 			$where = 'linkid = '.$db->quote($linkid);
-			$values = Array('linkid' => $db->quote('0'),
-							'num_immediate_kids' => $db->quote('0')
+			$values = Array('linkid' => $db->quote(''),
+							'num_immediate_kids' => $db->quote(0)
 							);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link_tree', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -4414,7 +4413,7 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			if (!empty($type_code)) $where .= ' AND ';
 
-		}// end if assetid == 1
+		}// end if asset is root folder
 
 		if (!empty($type_code)) {
 
