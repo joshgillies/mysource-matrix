@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_management.inc,v 1.44 2003/10/21 08:03:14 brobertson Exp $
+* $Id: asset_management.inc,v 1.45 2003/11/10 02:59:18 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -324,6 +324,19 @@ class Asset_Management extends MySource_Object
 		return Array();
 
 	}//end _getFileList()
+
+
+	/**
+	* returns a list of events that this asset is listening for
+	* 
+	* @access public
+	* @return Array(mixed)
+	*/
+	function getEventList()
+	{
+		return Array();
+
+	} // end _getEventList()
 
 
 	/**
