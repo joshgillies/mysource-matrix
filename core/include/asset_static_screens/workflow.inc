@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.12 2004/12/06 14:38:12 brobertson Exp $
+* $Id: workflow.inc,v 1.13 2004/12/23 22:42:07 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -483,7 +483,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						$o->openField('Workflow Status');
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) ob_start();
 
-							echo 'Worklfow is not currently running for this asset';
+							echo 'Workflow is not currently running for this asset';
 
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
