@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.4 2004/05/19 23:18:14 lwright Exp $
+* $Id: email_format.inc,v 1.5 2004/05/19 23:19:47 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -127,7 +127,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 									<table>
 										<tr>
 											<td width="100%" align="left">
-												<a href="Javascript: emailFormatSwitchEditingMode('<? echo $prefix; ?>');"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png", "16", "16", "");</script></a>
+												<a href="Javascript: emailFormatSwitchEditingMode('<?php echo $prefix; ?>');"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib')?>/web/images/icons/edit_mode.png", "16", "16", "");</script></a>
 											</td>
 											<td align="right" nowrap="nowrap">
 												<span id="<?php echo $prefix; ?>_format_mode">Text Email Version</span>
@@ -267,7 +267,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				<td align="right" valign="top"><b>To</b></td>
 				<td valign="top">
 					<?php text_box($prefix.'_new_to', '', 50); ?>
-					[ <a href="#" onclick="Javascript: emailFormatAddAddress('<? echo $prefix ?>', 'to'); return false;">add</a> ]<br/>
+					[ <a href="#" onclick="Javascript: emailFormatAddAddress('<?php echo $prefix ?>', 'to'); return false;">add</a> ]<br/>
 					<div id="<?php echo $prefix; ?>_current_to"><?php echo $current_to_string; ?></div>
 					<span style="display:none;"><?php text_box($prefix.'_to', $current_to, 5); ?></span>
 				</td>
