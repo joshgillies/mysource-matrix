@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.19 2004/10/25 06:55:55 mnyeholt Exp $
+* $Id: install.inc,v 1.20 2004/10/25 23:36:55 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -270,15 +270,15 @@ function uninstall_packages()
 * @return boolean
 * @access public
 */
-function install_core($packageList=Array())
+function install_core($package_list=Array())
 {
 	// If there's some packages defined in the array, make sure the Core 
 	// is one of them, otherwise break out.
 	
 	$assets = Array();
 	
-	if (count($packageList) > 0) {
-		if (!isset($packageList['core'])) {
+	if (count($package_list) > 0) {
+		if (!isset($package_list['core'])) {
 			// Make sure to include the system asset config, otherwise other
 			// packages that add system assets can get all messed up because 
 			// the system assets haven't been defined.
@@ -296,7 +296,7 @@ function install_core($packageList=Array())
 			return true;
 		}
 		else {
-			$assets = $packageList['core'];
+			$assets = $package_list['core'];
 			// If it wasn't an array at the core index, just make it empty
 			if (!is_array($assets)) {
 				$assets = Array();
@@ -361,25 +361,25 @@ function install_core($packageList=Array())
 * @return boolean
 * @access public
 */
-function install_packages($packageList=Array())
+function install_packages($package_list=Array())
 {
 	// right now that we have sorted all that out we can install the packages
 	$d = dir(SQ_PACKAGES_PATH);
 	
 	// Do we only install named packages?
-	$limitPackages = count($packageList);
+	$limit_packages = count($package_list);
 	while (false !== ($entry = $d->read())) {
 		if ($entry == '.' || $entry == '..') continue;
 		// if this is a directory, process it
 		if ($entry != 'CVS' && is_dir(SQ_PACKAGES_PATH.'/'.$entry)) {
 			// If the package isn't in the packages array, then just skip it.
 			$assets = Array();
-			if ($limitPackages) {
-				if (!isset($packageList[$entry])) {
+			if ($limit_packages) {
+				if (!isset($package_list[$entry])) {
 					echo "\nSkipping package $entry \n";
 					continue;
 				}
-				$assets = $packageList[$entry];
+				$assets = $package_list[$entry];
 				// If it wasn't an array at the core index, just quit.
 				if (!is_array($assets)) {
 					$assets = Array();
@@ -403,12 +403,12 @@ function install_packages($packageList=Array())
 * @return void
 * @access public
 */
-function install_package($package, $packageAssets=Array())
+function install_package($package, $package_assets=Array())
 {
 	require_once SQ_PACKAGES_PATH.'/'.$package.'/package_manager_'.$package.'.inc';
 	$class = 'package_manager_'.$package;
 	$pm = new $class();
-	$result = $pm->updatePackageDetails($packageAssets);
+	$result = $pm->updatePackageDetails($package_assets);
 	
 	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 	$message_body = strtoupper($package)." PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED");
@@ -418,7 +418,6 @@ function install_package($package, $packageAssets=Array())
 	if (!$result) exit(1);
 	$result = $pm->installSystemAssets();
 	if ($result != 0) {	// 0 indicates success, but no system assets were created - suppress in this case
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$message_body = strtoupper($package)." SYSTEM ASSET CREATION ".(($result == -1) ? "FAILED" : (": ".$result." NEW ASSETS CREATED"));
 		$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
 		$message->send();
