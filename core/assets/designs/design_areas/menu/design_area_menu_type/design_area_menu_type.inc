@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.43 2004/03/30 10:30:18 brobertson Exp $
+* $Id: design_area_menu_type.inc,v 1.44 2004/04/06 01:14:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,7 +39,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 class Design_Area_Menu_Type extends Design_Area
 {
 
-	/*
+	
+	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()
@@ -150,6 +151,7 @@ class Design_Area_Menu_Type extends Design_Area
 	/**
 	* Returns an array of Array(id_name => Array(var)) for all var references that are needed by this design area
 	*
+	* @return array
 	* @access public
 	*/
 	function getVarReferences()
