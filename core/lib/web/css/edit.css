@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.45 2005/02/09 01:01:19 gsherwood Exp $
+* $Id: edit.css,v 1.46 2005/02/22 23:19:58 arailean Exp $
 *
 */
 
@@ -117,7 +117,7 @@ td.sq-backend-nav-history {
 	font-size:			11px;
 	font-weight:		normal;
 	padding:			5px;
-	background:			#E6FFCC;
+	background: #f5f5f5;
 	border:				1px dotted black;
 }
 
