@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.155 2003/11/26 00:51:09 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.156 2003/12/03 23:11:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -588,7 +588,12 @@ class Asset_Manager extends MySource_Object
 			$null = null; // do this because of return by reference
 			return $null;
 		}
-		if (!isset($this->_assets[$assetid]) || !is_object($this->_assets[$assetid])) {
+
+		if (!isset($this->_assets[$assetid]) || !is_object($this->_assets[$assetid]['object'])) {
+
+			$this->_assets[$assetid] = Array();
+			$this->_assets[$assetid]['object'] = null;
+			$this->_assets[$assetid]['count']  = 0;
 
 			if (empty($type_code)) {
 				$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($assetid);
@@ -596,25 +601,24 @@ class Asset_Manager extends MySource_Object
 				$type_code = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where);
 				if (DB::isError($type_code) || empty($type_code)) {
 					if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
-					$this->_assets[$assetid] = null; // do this because of return by reference
-					return $this->_assets[$assetid];
+					return $this->_assets[$assetid]['object'];
 				}
 			}//end if
 
 			if (!isset($this->_asset_types[$type_code])) {
 				if (!$mute_errors) trigger_error('Asset Type "'.$type_code.'" is not installed on this system', E_USER_WARNING);
-				$this->_assets[$assetid] = null;
 			} else {
 				$this->includeAsset($type_code);
-				$this->_assets[$assetid] = new $type_code($assetid);
+				$this->_assets[$assetid]['object'] = new $type_code($assetid);
 				// make sure of the asset is correct
-				if (empty($this->_assets[$assetid]->id)) $this->_assets[$assetid] = null;
+				if (empty($this->_assets[$assetid]['object']->id)) $this->_assets[$assetid]['object'] = null;
 
 			}//end if
 
 		}//end if
 
-		return $this->_assets[$assetid];
+		$this->_assets[$assetid]['count']++;
+		return $this->_assets[$assetid]['object'];
 
 	}//end getAsset()
 
@@ -631,11 +635,12 @@ class Asset_Manager extends MySource_Object
 	*/
 	function rememberAsset(&$obj)
 	{
-		// wrong class or no id, fuck off
+		// wrong class or no id, cya
 		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) return;
 
 		if (isset($this->_assets[$obj->id])) unset($this->_assets[$obj->id]);
-		$this->_assets[$obj->id] = &$obj;
+		$this->_assets[$obj->id]['object'] = &$obj;
+		$this->_assets[$obj->id]['count']  = 1;
 
 	}//end rememberAsset();
 
@@ -651,9 +656,12 @@ class Asset_Manager extends MySource_Object
 	*/
 	function forgetAsset(&$obj)
 	{
-		// wrong class or no id, fuck off
+		// wrong class or no id, cya
 		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) return;
-		if (isset($this->_assets[$obj->id])) unset($this->_assets[$obj->id]);
+		if (isset($this->_assets[$obj->id])) {
+			if ($this->_assets[$obj->id]['count'] > 1) $this->_assets[$obj->id]['count']--;
+			else unset($this->_assets[$obj->id]);
+		}
 
 	}//end forgetAsset();
 
@@ -2829,7 +2837,7 @@ class Asset_Manager extends MySource_Object
 
 		if ($link_type_changed) {
 
-			// We need to make sure that we aren't going to have to be fucking
+			// We need to make sure that we aren't going to have to be stuffing
 			// about with tree to get the update working
 			// so because the tree only contains significant links if the
 			// significant state has changed... barf

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.12 2003/11/26 00:50:59 gsherwood Exp $
+* $Id: cron_job_edit_fns.inc,v 1.13 2003/12/03 23:11:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -85,6 +85,8 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 
 		$cron_mgr_edit_fns = $cron_mgr->getEditFns();
 		$hours_mins = $cron_mgr_edit_fns->getWhenBoxHoursMins($cron_mgr, $one_off);
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 
 		$when_str = $asset->attr('when');
 		$when_arr = Cron_Job::getWhenArr($when_str);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.14 2003/11/26 00:51:00 gsherwood Exp $
+* $Id: cron_job_future_status.inc,v 1.15 2003/12/03 23:11:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -321,6 +321,8 @@ class Cron_Job_Future_Status extends Cron_Job
 
 		// get all active future status jobs
 		$all_jobs = &$cron_mgr->getJobs(__CLASS__, false);
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 
 		$dates = Array();
 		for($i = 0, $total = count($all_jobs); $i < $total; $i++) {

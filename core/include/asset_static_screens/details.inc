@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.1 2003/12/02 04:43:25 gsherwood Exp $
+* $Id: details.inc,v 1.2 2003/12/03 23:11:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,6 +99,8 @@ function paintDetails(&$owner, &$o, &$ei)
 
 				case 'future_status' :
 
+					$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 					$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 					if (!empty($fs_jobs)) {
@@ -146,8 +148,6 @@ function paintDetails(&$owner, &$o, &$ei)
 						$fs = new Cron_Job_Future_Status();
 						$edit_fns = $fs->getEditFns();
 						$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
-
-						$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 						?>
 						<div class="">
 							The Cron Manager runs every <?php echo $cron_mgr->readableRefreshTime(); ?>.<br>
@@ -155,7 +155,10 @@ function paintDetails(&$owner, &$o, &$ei)
 						</div>
 						<?php
 						$print_commit_button = true;
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 					}
+
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 
 				break;
 			}
