@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.288 2005/03/21 06:14:12 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.289 2005/03/22 06:38:44 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.288 $
+* @version $Revision: 1.289 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -50,6 +50,13 @@ class Asset_Manager extends MySource_Object
 	* @var Array(Asset)
 	*/
 	var $_assets = Array();
+
+	/**
+	* This array holds the list of system assets in the format Array(name -> id,...)
+	*
+	* @var Array(string=>int)
+	*/
+	var $_system_assetids = Array();
 
 	/**
 	* This array holds the references to loaded attributes
@@ -916,8 +923,7 @@ class Asset_Manager extends MySource_Object
 			return false;
 		}
 
-		static $system_assets = null;
-		if (is_null($system_assets)) {
+		if (empty($this->_system_assetids)) {
 			require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
 			$sys_asset_cfg = new System_Asset_Config();
 			// include the system asset config file
@@ -927,15 +933,37 @@ class Asset_Manager extends MySource_Object
 			} else {
 				require $sys_asset_cfg->config_file;
 			}
+
+			$this->_system_assetids = $system_assets;
 		}
-		if (isset($system_assets[$name])) {
-			return $system_assets[$name];
+
+
+		if (isset($this->_system_assetids[$name])) {
+			return $this->_system_assetids[$name];
 		} else {
 			trigger_error('System asset name "'.$name.'" not installed or not known', E_USER_WARNING);
 			return false;
 		}
 
 	}//end getSystemAssetid()
+
+
+	/**
+	* Returns true if given asset type is already registered as a system asset
+	*
+	* During install, the output of this function should not be cached as it can change when new
+	* asset types are installed
+	*
+	* @param string	$asset_type	typecode of asset in question
+	*
+	* @return bool
+	* @access public
+	*/
+	function isSystemAssetType($asset_type)
+	{
+		return isset($this->_system_assetids[$asset_type]);
+
+	}//end isSystemAssetType()
 
 
 	/**
@@ -1191,7 +1219,9 @@ class Asset_Manager extends MySource_Object
 		}
 
 		return empty($contents) ? false : $contents;
-	}
+
+	}//end getEditableContents()
+
 
 	/**
 	* Set the editable content of the specified asset
@@ -1210,7 +1240,8 @@ class Asset_Manager extends MySource_Object
 		$asset->setContent($content);
 
 		return true;
-	}
+
+	}//end setEditableContents()
 
 
 //--        CLONING        --//
