@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.29 2004/09/01 01:31:50 arailean Exp $
+* $Id: datetime.inc,v 1.30 2004/09/14 06:26:31 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -401,7 +401,7 @@ function increment_iso_by_days($iso, $days_to_add=1)
 function increment_iso_by_months($iso, $months_to_add=1) 
 {
 	list($year,$month) = explode('-', $iso);
-	increment_month($year, $month, $months_to_add);
+	increment_month($month, $year, $months_to_add);
 	return sprintf('%04d-%02d', $year, $month);
 	
 }//end increment_iso_by_months()
