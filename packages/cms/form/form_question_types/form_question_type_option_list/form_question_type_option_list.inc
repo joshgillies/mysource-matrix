@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list.inc,v 1.3 2004/04/29 05:19:45 lwright Exp $
+* $Id: form_question_type_option_list.inc,v 1.4 2004/05/06 04:46:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,5 +54,36 @@ class Form_Question_Type_Option_List extends Form_Question_Type_Tickbox_List
 	}//end Form_Question_Type_Option_List()
 
 
+	/**
+	* generates the html for this question to display it in the frontend
+	*
+	* @access public
+	* @return string
+	*/
+	function getAnswer()
+	{
+		// generate some php for the value, which can be used for both
+		// auto-answer and returning to saved forms
+		
+		$html = $this->listBox($this->getOptions(), false, $this->attr('horizontal'), $this->attr('extra'));
+		return $html;
+
+	}//end getAnswer()
+
+
+	/**
+	* returns an array of the types of rules 
+	*
+	* Returned array is 'short name' => 'full name'
+	*
+	* @access public
+	* @return Array(string => string)
+	*/
+	function getAllowedRules() {
+		return Array('comparison');
+	
+	}//end getAllowedRules()
+	
+	
 }//end class
 ?>
