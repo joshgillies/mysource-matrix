@@ -111,19 +111,6 @@ function easy_filesize($size)
 
 
 /**
-* Takes a timestamp and returns a human-friendly date/time string
-*
-* @param string	$then	the timestamp to convert
-*
-* @return string
-* @access public
-*/
-function readable_datetime($then='') {
-	return date('d M Y H:i', $then);
-}
-
-
-/**
 * Same as increment_name(), but preserves a filename extension
 * 
 * @param string	$name	the original name of the file
@@ -348,12 +335,11 @@ function copy_directory($path, $new_path)
 */
 function copy_file($from, $to)
 {
-	$to_path = substr($to, 0, strrpos($to, '/'));
-	if (!create_directory($to_path)) return false;
+	if (!create_directory(dirname($to))) return false;
 
 	if (!copy($from, $to)) return false;
 	return true;
-}// end create_directory()
+}// end copy_file()
 
 
 /**
@@ -370,7 +356,7 @@ function move_file($from, $to)
 	if (!copy_file($from, $to)) return false;
 	if (!unlink($from)) return false;
 	return true;
-}// end create_directory()
+}// end move_file()
 
 
 ?>

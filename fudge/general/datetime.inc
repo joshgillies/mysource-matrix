@@ -196,4 +196,16 @@ function easy_time_total($secs=0, $full_format=false)
 }//end easy_time_total()
 
 
+/**
+* Takes a timestamp and returns a human-friendly date/time string
+*
+* @param string	$then	the timestamp to convert
+*
+* @return string
+* @access public
+*/
+function readable_datetime($then='') {
+	return date('d M Y H:i', $then);
+}
+
 ?>
