@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.7 2005/01/20 13:07:31 brobertson Exp $
+* $Id: content_type.inc,v 1.8 2005/03/16 05:09:31 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,6 +117,37 @@ class Content_Type extends Asset
 		return empty($html);
 
 	}//end isEmpty()
+
+
+	/**
+	* Returns the editable content of this asset
+	*
+	* @return String
+	* @access public
+	*/
+	function getContent()
+	{
+		return trim($this->attr('html'));
+
+	}//end getContent()
+
+
+	/**
+	* Sets the editable content of this asset
+	*
+	* @param String
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setContent($content)
+	{
+		$this->setAttrValue('html', $content);
+		$this->saveAttributes();
+
+		return true;
+
+	}//end setContent()
 
 
 }//end class
