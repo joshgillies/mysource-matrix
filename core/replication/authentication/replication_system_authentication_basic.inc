@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication_basic.inc,v 1.1.2.11 2004/02/21 16:15:05 brobertson Exp $
+* $Id: replication_system_authentication_basic.inc,v 1.1.2.12 2004/02/26 15:08:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,14 +113,6 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 			return false;
 		}
 
-		if (SQ_REPLICATION_IS_MASTER) {
-			$our_phrase   = $this->master_to_slave_phrase;
-			$their_phrase = $this->slave_to_master_phrase;
-		} else {
-			$our_phrase   = $this->slave_to_master_phrase;
-			$their_phrase = $this->master_to_slave_phrase;
-		}
-
 		// now because we initiated the connection the other end will be the one challenging us 
 		// with the authentication, so we wait for them
 		if ($initiator) {
@@ -199,7 +191,6 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : '.$err_msg, E_USER_WARNING);
 			return false;
 		}
-
 		if (!$transport->readVar($data=null,$headers=null)) {
 			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Read Error', E_USER_WARNING);
 			return false;
