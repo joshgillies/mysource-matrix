@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.62 2004/02/27 05:36:56 mmcintyre Exp $
+* $Id: design_edit_fns.inc,v 1.63 2004/03/29 06:27:03 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -571,9 +571,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$da->setVarReferenceValues($da_ref_values);
 		}// end foreach
 
+		// we are checking to see if there is a global $ASSET_LINEAGE here
+		// because we need other assets to be able to modify the lineage, for
+		// instance 404 pages.
+
 		$pre_str = '<?php
+		global $ASSET_LINEAGE;
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
-		$ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
+		
+		if (!isset($ASSET_LINEAGE) || empty($ASSET_LINEAGE)) $ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
 		?>';
 
 		$str = '';
