@@ -28,14 +28,14 @@ include(dirname(__FILE__)."/header.php");
 
 	function popup_save(f) {
 		var data = new Object();
-		data["width"]			= owner.element_value(f.width);
-		data["height"]			= owner.element_value(f.height);
-		data["bgcolor"]			= owner.element_value(f.bgcolor);
-		data["background"]		= owner.element_value(f.background);
-		data["align"]			= owner.element_value(f.align);
-		data["border"]			= owner.element_value(f.border);
-		data["cellspacing"]		= owner.element_value(f.cellspacing);
-		data["cellpadding"]		= owner.element_value(f.cellpadding);
+		data["width"]			= owner.form_element_value(f.width);
+		data["height"]			= owner.form_element_value(f.height);
+		data["bgcolor"]			= owner.form_element_value(f.bgcolor);
+		data["background"]		= owner.form_element_value(f.background);
+		data["align"]			= owner.form_element_value(f.align);
+		data["border"]			= owner.form_element_value(f.border);
+		data["cellspacing"]		= owner.form_element_value(f.cellspacing);
+		data["cellpadding"]		= owner.form_element_value(f.cellpadding);
 		owner.bodycopy_save_table_properties(data);
 	}
 

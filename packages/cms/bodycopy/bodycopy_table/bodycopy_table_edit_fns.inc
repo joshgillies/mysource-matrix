@@ -368,7 +368,6 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-
 		// update the rows
 		$rows_updated = false;
 		$rows = $asset->attr('rows');

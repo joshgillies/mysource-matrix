@@ -19,8 +19,8 @@ include(dirname(__FILE__)."/header.php");
 
 	function save_props(f) {
 		var data = new Object();
-		data["height"]  = owner.element_value(f.height);
-		data["bgcolor"] = owner.element_value(f.bgcolor);
+		data["height"]  = owner.form_element_value(f.height);
+		data["bgcolor"] = owner.form_element_value(f.bgcolor);
 		owner.bodycopy_save_table_row_properties(data);
 	}
 </script>

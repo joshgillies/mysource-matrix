@@ -507,10 +507,12 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		
 		// do some thing for the first time we print a bodycopy on this page
 		if (empty($_BODYCOPY['update_initialised'])) {
-			$bodycopy_action = $_POST['bodycopy_action'];
-			$bodycopy_name  = (empty($_POST['bodycopy_name']))  ? Array() : gpc_stripslashes($_POST['bodycopy_name']);
-			$bodycopy_data  = (empty($_POST['bodycopy_data']))  ? Array() : gpc_stripslashes($_POST['bodycopy_data']);
-			$bodycopy_saved = (empty($_POST['bodycopy_saved'])) ? Array() : gpc_stripslashes($_POST['bodycopy_saved']);
+			$bodycopy_action = (empty($_POST['bodycopy_action'])) ? ''      : gpc_stripslashes($_POST['bodycopy_action']);
+			$bodycopy_name   = (empty($_POST['bodycopy_name']))   ? ''      : gpc_stripslashes($_POST['bodycopy_name']);
+			$bodycopy_data   = (empty($_POST['bodycopy_data']))   ? Array() : gpc_stripslashes($_POST['bodycopy_data']);
+			$bodycopy_saved  = (empty($_POST['bodycopy_saved']))  ? Array() : gpc_stripslashes($_POST['bodycopy_saved']);
+	
+			if (empty($bodycopy_data) && empty($bodycopy_saved)) return false;
 
 			// if there is some bodycopy data deserialise it into the arrays
 			// so that everything else can use it
@@ -527,7 +529,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$_BODYCOPY['update_initialised'] = true;
 		}
 
-		# get all the tables linked to this bodycopy
+		// get all the tables linked to this bodycopy
 		$tables = $asset->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
 
 		foreach ($tables as $table_data) {
@@ -537,7 +539,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// only update if we are the bodycopy that submitted the form
-		if ($bodycopy_name == $prefix || count($bodycopy_saved[$prefix])) {
+		if ($bodycopy_name == $prefix || isset($bodycopy_saved[$prefix])) {
 
 			// update the tables
 			if ($bodycopy_name == $prefix) {

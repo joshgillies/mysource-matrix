@@ -21,7 +21,6 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	function BodyCopy_Table_Cell()
 	{
 		parent::Resolve_Object();
-		// nothing to see here
 	}
 
 
@@ -60,7 +59,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	{
 		$full_type = 'content_type_'.$type;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($full_type);
-		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_UNITE, 'dependant' => 1);
+		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_EXCLUSIVE, 'dependant' => 1);
 		$content_type = new $full_type();
 		$this->attributes['linkid'] = $content_type->create($content_link, 'Row '.($rowid+1).' Cell '.($cellid+1));
 		if (!$this->attributes['linkid']) return false;

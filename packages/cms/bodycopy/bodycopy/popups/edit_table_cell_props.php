@@ -42,14 +42,14 @@ include(dirname(__FILE__)."/header.php");
 	function save_props(f) {
 
 		var data = new Object();
-		data["width"]    = owner.element_value(f.width);
-		data["height"]   = owner.element_value(f.height);
-		data["colspan"]  = owner.element_value(f.colspan);
-		data["bgcolor"]  = owner.element_value(f.bgcolor);
-		data["align"]    = owner.element_value(f.align);
-		data["valign"]   = owner.element_value(f.valign);
-		data["nowrap"]   = owner.element_value(f.nowrap);
-		data["type"]     = owner.element_value(f.type);
+		data["width"]    = owner.form_element_value(f.width);
+		data["height"]   = owner.form_element_value(f.height);
+		data["colspan"]  = owner.form_element_value(f.colspan);
+		data["bgcolor"]  = owner.form_element_value(f.bgcolor);
+		data["align"]    = owner.form_element_value(f.align);
+		data["valign"]   = owner.form_element_value(f.valign);
+		data["nowrap"]   = owner.form_element_value(f.nowrap);
+		data["type"]     = owner.form_element_value(f.type);
 		owner.bodycopy_save_table_cell_properties(data);
 	}
 </script>

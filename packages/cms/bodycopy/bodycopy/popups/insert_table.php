@@ -10,14 +10,14 @@ include(dirname(__FILE__)."/header.php");
 
 	function popup_save(f) {
 		var data = new Object();
-		data["width"]   = owner.element_value(f.width);
-		data["bgcolor"] = owner.element_value(f.bgcolor);
-		owner.bodycopy_save_insert_table(owner.element_value(f.cols), owner.element_value(f.rows), data);
+		data["width"]   = owner.form_element_value(f.width);
+		data["bgcolor"] = owner.form_element_value(f.bgcolor);
+		owner.bodycopy_save_insert_table(owner.form_element_value(f.cols), owner.form_element_value(f.rows), data);
 	}
 
 	function set_pos_int(field, input_default) {
 
-		var num = parseInt(owner.element_value(field));
+		var num = parseInt(owner.form_element_value(field));
 		if (isNaN(num) || num < 0) {
 			alert("Please enter a positive number\n");
 			field.value = input_default;
