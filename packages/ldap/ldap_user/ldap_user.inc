@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.8 2004/12/06 14:43:14 brobertson Exp $
+* $Id: ldap_user.inc,v 1.9 2005/02/28 03:41:52 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -56,6 +56,9 @@ class Ldap_User extends Backend_User
 	*/
 	function Ldap_User($ldapid=0, $data=Array())
 	{
+		$this->_ser_attrs = true;
+		$this->_loadVars();
+
 		if (!$ldapid || empty($data)) return;
 		$ldap = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
 		if (is_null($ldap)) return;
