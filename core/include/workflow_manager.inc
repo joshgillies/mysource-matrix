@@ -121,13 +121,6 @@ class Workflow_Manager extends Resolve_Object
 		if ($and_inherited) {
 			// now lets do the inherited workflows
 			$users = $this->_asset->getPermission(SQ_PERMISSION_WORKFLOW, false, true, true, false, false);
-pre_echo($users);
-#			$users    = $this->_asset->getPermission(SQ_PERMISSION_WORKFLOW, false);
-#			$inherits = $this->_asset->getInheritedPermission(SQ_PERMISSION_WORKFLOW, array_keys($users));
-#			$revokes  = $this->_asset->getRevokedPermission(SQ_PERMISSION_WORKFLOW);
-#			$revokes = array_keys($revokes);
-#
-#			$inherited = array_keys($users) + array_keys($inherits);
 
 			foreach ($users as $assetid) {
 				if ($assetid == $this->_asset->id) continue;
@@ -596,7 +589,7 @@ pre_echo($users);
 						return false;
 					}
 
-					if (!$this->_asset->setPermission($this->_asset->id, SQ_PERMISSION_WORKFLOW)) {
+					if (!$this->_asset->setPermission($this->_asset->id, SQ_PERMISSION_WORKFLOW, '1')) {
 						trigger_error('Failed saving workflow for "'.$this->_asset->name.'", could not grant workflow permission', E_USER_WARNING);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
