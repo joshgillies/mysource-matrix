@@ -176,7 +176,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". The lock is due to expire in '.$expires_in.'</p>';
 
 				if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
-					submit_button('release_lock', 'Release Lock');
+					submit_button('sq_manual_release_lock', 'Release Lock');
 				}
 				
 				// does the current user has a high
@@ -190,7 +190,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				}
 			} else if ($full_write_access) {
 				$write_access = false;
-				submit_button('aquire_lock', 'Aquire Lock');
+				submit_button('sq_aquire_lock', 'Aquire Lock');
 			} else {
 				echo 'You do not have access to edit "'.$owner->name.'".';
 			}
