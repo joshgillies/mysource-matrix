@@ -368,7 +368,10 @@ class Design extends Design_Area
 		foreach($customisation_links as $link) {
 			$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
 			if (is_null($customisation)) continue;
-			$customisation->updateFromParent($this);
+			if ($customisation->acquireLock()) {
+				$customisation->updateFromParent($this);
+				$customisation->releaseLock();
+			}
 		}// end foreach
 
 	}// end _updateCustomisations()
