@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.3 2005/02/21 10:34:17 brobertson Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.4 2005/03/03 12:12:06 brobertson Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,7 +74,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			echo 'There are no types defined';
 			return false;
 		}
-
+		$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
 		?>
 		<table class="sq-backend-table">
 			<tr>
@@ -94,7 +94,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				<tr>
 					<td class="sq-backend-table-cell">
 						<?php
-						echo ucwords(str_replace('_',' ', $type));
+						echo $type_names[$type];
 						?>
 					</td>
 					<td class="sq-backend-table-cell">
@@ -190,11 +190,10 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 		$types = array_diff($types, $asset->attr('types'));
-		asort($types);
 
-		$uc_types = Array('' => '');
-		foreach ($types as $type) $uc_types[$type] = ucwords(str_replace('_',' ', $type));
-		combo_box($prefix.'_new_type', $uc_types, false, '');
+		$type_options = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($types, 'name');
+		asort($type_options);
+		combo_box($prefix.'_new_type', $type_options, false, '');
 
 	}//end paintAddAssetType()
 	
@@ -652,17 +651,18 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 					if ($value == 'default_format') continue;
 	
 					$info = Array($minorid => 'contents');
-					$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info)
+					$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
+					$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($value, 'name');
 					?>
 					<tr>
 						<td class="sq-backend-table-cell" style="width: 200px;">
 							<?php
-							echo ucwords(str_replace('_',' ', $value));
+							echo $type_name;
 							?>
 						</td>
 						<td class="sq-backend-table-cell">
 							<?php
-							echo '<a href="'.$href[$minorid].'">'.ucwords(str_replace('_',' ', $value)).' Format</a>';
+							echo '<a href="'.$href[$minorid].'">'.$type_name.' Format</a>';
 							?>
 						</td>
 						<?php
@@ -690,7 +690,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			$new_format_options = Array('' => '');
 			foreach ($types as $type => $inherit) {
 				if (in_array($type, $formats)) continue;
-				$new_format_options[$type] = ucwords(str_replace('_',' ', $type));
+				$new_format_options[$type] = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type, 'name');
 			}
 			if (count($new_format_options) > 1) {
 				echo '<p><b>New Type Format: <b>';
@@ -754,7 +754,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 				$copy_link = Array('asset' => &$folder, 'value' => $new_type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 	
 				$bodycopy = new Bodycopy();
-				$bodycopy->setAttrValue('name', ucwords(str_replace('_',' ', $new_type)).' Format');
+				$bodycopy->setAttrValue('name', $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_type, 'name').' Format');
 	
 				if (!$bodycopy->create($copy_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
