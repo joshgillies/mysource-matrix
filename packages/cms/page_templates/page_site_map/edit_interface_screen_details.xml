@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.8 2004/01/19 06:00:20 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8.6.1 2005/03/10 17:22:43 mkeehan Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -69,6 +69,11 @@
 			<display_name>Print Asset Icons</display_name>
 			<note />
 			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="show_type_2">
+			<display_name>Show Type_2 Links</display_name>
+			<note />
+			<boolean true_text="yes" false_text="No" />
 		</field>
 		<field>
 			<display_name>Exclude List</display_name>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.12.6.1 2005/01/19 23:52:13 gsherwood Exp $
+* $Id: page_site_map.inc,v 1.12.6.2 2005/03/10 17:22:43 mkeehan Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,7 +140,7 @@ class Page_Site_Map extends Page
 
 			$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : null;
 
-			$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')));
+			$page_data =   $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')), $this->attr('show_type_2') ? SQ_SC_LINK_BACKEND_NAV : SQ_SC_LINK_FRONTEND_NAV);
 
 			$assetids = Array();
 

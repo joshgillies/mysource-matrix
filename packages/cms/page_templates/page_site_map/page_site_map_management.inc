@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_management.inc,v 1.7 2004/09/08 01:23:37 gsherwood Exp $
+* $Id: page_site_map_management.inc,v 1.7.6.1 2005/03/10 17:22:43 mkeehan Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,6 +84,14 @@ class Page_Site_Map_Management extends Asset_Management
 												'default'	=> Array(),
 												),
 							'icons'		=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'boolean',
+												'default'	=> false,
+												'parameters' => Array(
+													'allow_empty' => false
+													),
+												),
+							'show_type_2'	=> Array (
 												'added'		=> '0.0.1',
 												'type'		=> 'boolean',
 												'default'	=> false,
