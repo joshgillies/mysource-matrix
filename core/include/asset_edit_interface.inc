@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.209 2004/04/27 14:30:40 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.210 2004/05/06 01:38:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -490,14 +490,29 @@ class Asset_Edit_Interface extends MySource_Object
 		// get the asset tree lineage
 		$asset_path = Array();
 		if (isset($_REQUEST['sq_asset_path'])) {
-			// asset map sends comma-separated assetids indicating the path (use preg_split to remove any empty elements)
-			$asset_path = preg_split('|,|', $_REQUEST['sq_asset_path'], -1, PREG_SPLIT_NO_EMPTY);
+			// asset map sends comma-separated assetids indicating the path
+			$matches = preg_split('|,([0-9]+:?),?|', ($_REQUEST['sq_asset_path']), 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+			for (reset($matches); null !== ($k = key($matches)); next($matches)) {
+				// the first match is always fine
+				if ($k == 0) {
+					$asset_path[] = $matches[$k];
+					continue;
+				}
+
+				// if a match ends with the shadow id seperator, the next match
+				// is actually part of this match
+				if (substr($matches[$k], -1) == ':') {
+					$asset_path[] = $matches[$k].$matches[$k+1];
+					next($matches);
+					continue;
+				}
+		
+				$asset_path[] = $matches[$k];
+			}
 		} else {
 			if (SQ_IN_LIMBO) {
 				$url_lineage = $GLOBALS['SQ_SYSTEM']->am->getLineageFromURL();
-				foreach($url_lineage as $asset_info) {
-					$asset_path[] = $asset_info['assetid'];
-				}
+				foreach($url_lineage as $asset_info) $asset_path[] = $asset_info['assetid'];
 			} else {
 				// asset map didn't send one (e.g initial matrix loading)
 				// pretend it did by making a singleton set of the owner
@@ -509,6 +524,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		$preview_url = '';
 		$closest_parentid = $owner->id;
+
 		foreach ($asset_path as $assetid) {
 			if ($assetid != $owner->id) $ancestor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			else $ancestor = &$owner;
