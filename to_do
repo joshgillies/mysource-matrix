@@ -11,6 +11,7 @@
 +----------------------------------------------------------------------------------------+
 
   - Flash Asset Tree
+    - Get flash to check for need to refresh - ie when someone else updates a page
 
   - Attribute Types
     - In Asset have a diff update case for diff types of attr
