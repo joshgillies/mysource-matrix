@@ -17,10 +17,13 @@
 error_reporting(E_ALL);
 set_magic_quotes_runtime(0);
 
-// We need this so that our error handler won't kill itself attempting to try and remove 
+// We need this so that our error handler won't kill itself attempting to try and remove
 // all existing buffers, especially important when Zend Performance Suite is installed because
 // it adds another OB level
 define('SQ_INIT_OB_LEVEL', ob_get_level());
+
+// Are we running from the command line ?
+define('SQ_PHP_CLI', (php_sapi_name() == 'cli'));
 
 
 /*
@@ -66,7 +69,7 @@ if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
 
 // the current output type for the system, can be changed during run-time (eg to XML)
 // main use is so that the error_reporter doesn't barf in HTML to something expecting XML
-if (!isset($GLOBALS['SQ_OUTPUT_TYPE'])) $GLOBALS['SQ_OUTPUT_TYPE'] = 'html';
+if (!isset($GLOBALS['SQ_OUTPUT_TYPE'])) $GLOBALS['SQ_OUTPUT_TYPE'] = (SQ_PHP_CLI) ? 'text' : 'html';
 
 // we are not installing anything
 $GLOBALS['SQ_INSTALL'] = false;
