@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.5 2003/11/26 00:51:30 gsherwood Exp $
+* $Id: page_site_map.inc,v 1.6 2003/11/26 01:06:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,7 +79,6 @@ class Page_Site_Map extends Page
 	}//end create()
 
 
-
 	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
@@ -88,12 +87,12 @@ class Page_Site_Map extends Page
 	* @return boolean
 	*/
 	function printBody()
-	{		
+	{
 		// firstly, get the sites that this page belongs to
 		$site_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
 		if (empty($site_info)) return false;
 
-		$siteid = $site_info['assetid']; 
+		$siteid = $site_info['assetid'];
 		$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : null;
 
 		$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')));
@@ -105,12 +104,12 @@ class Page_Site_Map extends Page
 			$assetids = array_merge($assetids, array_keys($data));
 		}
 		global $SQ_SITE_MAP_ASSET_URLS;
-		
+
 		$SQ_SITE_MAP_ASSET_URLS = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetids);
 
 		?>
 		<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/js/edit.js' ?>"></script>
-		
+
 		<?php
 		// figure out the columns for the site map
 		$num_columns = ($this->attr('columns') > 0) ? $this->attr('columns') : 1;
@@ -123,7 +122,7 @@ class Page_Site_Map extends Page
 		?>
 		<table cellpadding="0" cellspacing="0" border="0">
 			 <tr>
-			
+
 			<?php
 			foreach ($chunks as $chunk) {
 				?><td valign="top"><?php
@@ -139,12 +138,12 @@ class Page_Site_Map extends Page
 			</tr>
 		</table>
 		<?php
-		
-	}// end printBody()
+
+	}//end printBody()
 
 
 	/**
-	* recursively prints a tree of the passed in data
+	* Recursively prints a tree of the passed in data
 	*
 	* @param &Array		$page_data		the data to print in a tree structure
 	* @param integer	$parent			the parent that we are currently at
@@ -171,7 +170,7 @@ class Page_Site_Map extends Page
 				$image2 = (!$top_level || !$stalks) ? 'blank.gif' : 'tree/branch.gif';
 
 				$bg = ($end) ? '' : 'background="'.sq_web_path('lib').'/web/images/'.$image1.'"';
-			
+
 				$url = ($generating) ? '<'.'?php echo $SQ_SITE_MAP_ASSET_URLS[$data[\'assetid\']] ?'.'>' : $SQ_SITE_MAP_ASSET_URLS[$data['assetid']];
 			?>
 				<tr>
@@ -205,7 +204,9 @@ class Page_Site_Map extends Page
 
 		return true;
 
-	}// end _printAssetTypeList()
+	}//end _printAssetTypeList()
+
 
 }//end class
+
 ?>
