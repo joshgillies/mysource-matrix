@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.3 2004/11/29 02:10:21 gsherwood Exp $
+* $Id: rollback_management.php,v 1.3.2.1 2004/12/13 00:31:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -289,20 +289,37 @@ function get_rollback_table_names()
 {
 	global $SYSTEM_ROOT;
 	$table_names = Array();
+	
+	$packages_installed = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+	
+	if (empty($packages_installed)) return Array();
 
-	if (!file_exists($SYSTEM_ROOT.'/core/db/tables.xml')) {
-		trigger_error('tables.xml does not exist', E_USER_ERROR);
-	}
+	foreach ($packages_installed as $package_array) {
+		if ($package_array['code_name'] == '__core__') {
+			$table_file = SQ_CORE_PACKAGE_PATH.'/tables.xml';
+		} else {
+			$table_file = SQ_PACKAGES_PATH.'/'.$package_array['code_name'].'/tables.xml';
+		}
+		
+		if (!file_exists($table_file)) continue;
+	
+		$tree = new XML_Tree($table_file);
+		$root = &$tree->getTreeFromFile();
+		
+		if ($root->name != 'schema' || $root->children[0]->name != 'tables') {
+			trigger_error('Invalid table schema for file "'.$table_file.'"', E_USER_ERROR);
+		}
 
-	$tree = new XML_Tree($SYSTEM_ROOT.'/core/db/tables.xml');
-	$root = &$tree->getTreeFromFile();
+		$table_root = $root->children[0];
 
-	for ($i = 0; $i < count($root->children); $i++) {
-		if ($root->children[$i]->attributes['require_rollback']) {
-			$table_name = $root->children[$i]->attributes['name'];
-			array_push($table_names, $table_name);
+		for ($i = 0; $i < count($table_root->children); $i++) {
+			if ($table_root->children[$i]->attributes['require_rollback']) {
+				$table_name = $table_root->children[$i]->attributes['name'];
+				array_push($table_names, $table_name);
+			}
 		}
 	}
+
 	return $table_names;
 
 }//end get_rollback_table_names()
