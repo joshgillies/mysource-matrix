@@ -46,7 +46,7 @@ class Trash_Folder extends Folder
 
 		$this->_in_create = true;
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT count(*) FROM sq_asset WHERE type_code = '.$db->quote($this->type());
 		$exists = $db->getOne($sql);
@@ -97,7 +97,7 @@ class Trash_Folder extends Folder
 		if ($linkid >= 0) return Array();
 
 		$assetid = abs($linkid);
-		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($assetid);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) return Array();
 
 		return Array(
@@ -136,7 +136,7 @@ class Trash_Folder extends Folder
 
 		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// get all assets that have no EXCLUSIVE or UNITE links to any parents
 		$sql = 'SELECT a.assetid as minorid, a.type_code
@@ -202,7 +202,7 @@ class Trash_Folder extends Folder
 
 		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// get all assets that have no EXCLUSIVE or UNITE links to any parents
 		$sql = 'SELECT COUNT(*)
@@ -313,7 +313,7 @@ class Trash_Folder extends Folder
 		}
 
 		$assetid = abs($linkid);
-		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($assetid);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Linked asset could not be found, unable to delete link', E_USER_WARNING);
 			return false;

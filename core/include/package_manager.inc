@@ -106,7 +106,7 @@ class Package_Manager extends Resolve_Object
 			return false;
 		}
 
-		$am = &$GLOBALS['SQ_RESOLVE']->am;
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		for(reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
 
@@ -161,7 +161,7 @@ class Package_Manager extends Resolve_Object
 		pre_echo('Install Order:');
 		pre_echo($install_order);
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		// open the transaction
 #		$db->query('BEGIN');
 
@@ -307,7 +307,7 @@ class Package_Manager extends Resolve_Object
 
 				// if this type is inheritted from an existing type, then all OK
 				// but not if this type is in this package
-				if (($parent == 'asset' || $GLOBALS['SQ_RESOLVE']->am->installed($parent)) && !in_array($parent, $asset_types)) {
+				if (($parent == 'asset' || $GLOBALS['SQ_SYSTEM']->am->installed($parent)) && !in_array($parent, $asset_types)) {
 #					pre_echo('Asset Installed');
 					$install_order[] = $type_code;
 					$remove = true;
@@ -419,7 +419,7 @@ class Package_Manager extends Resolve_Object
 			$ok = false;
 			switch($req['@type']) {
 				case 'package' :
-					$installed_version = $GLOBALS['SQ_RESOLVE']->db->getOne('SELECT version FROM sq_package WHERE code_name = '.$GLOBALS['SQ_RESOLVE']->db->quote($req['code']['value']));
+					$installed_version = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT version FROM sq_package WHERE code_name = '.$GLOBALS['SQ_SYSTEM']->db->quote($req['code']['value']));
 					if (DB::isError($installed_version)) trigger_error($installed_version->getMessage().'<br/>'.$installed_version->getUserInfo(), E_USER_ERROR);
 
 					if ($installed_version) {
@@ -428,8 +428,8 @@ class Package_Manager extends Resolve_Object
 					break;
 
 				case 'asset' :
-					if ($GLOBALS['SQ_RESOLVE']->am->installed($req['code']['value'])) {
-						$ok = version_compare($GLOBALS['SQ_RESOLVE']->am->getInfo($req['code']['value'], 'version'), $req['version']['value'], '>=');
+					if ($GLOBALS['SQ_SYSTEM']->am->installed($req['code']['value'])) {
+						$ok = version_compare($GLOBALS['SQ_SYSTEM']->am->getInfo($req['code']['value'], 'version'), $req['version']['value'], '>=');
 					}
 					// if the test failed, but this asset is in this package, check it's version from that
 					if (!$ok && isset($this->assets[$req['code']['value']])) {
@@ -440,7 +440,7 @@ class Package_Manager extends Resolve_Object
 				case 'system' :
 					switch($req['code']['value']) {
 						case 'Resolve' :
-							$ok = version_compare(SQ_RESOLVE_VERSION, $req['version']['value'], '>=');
+							$ok = version_compare(SQ_SYSTEM_VERSION, $req['version']['value'], '>=');
 							break;
 						case 'PHP' :
 							$ok = version_compare(PHP_VERSION, $req['version']['value'], '>=');
@@ -502,7 +502,7 @@ class Package_Manager extends Resolve_Object
 
 		// if we are inheriting from something else then go find it from the installed list
 		if ($this->assets[$type_code]['parent_type'] != 'asset') {
-			$new_arr = $GLOBALS['SQ_RESOLVE']->am->getParentList($this->assets[$type_code]['parent_type']);
+			$new_arr = $GLOBALS['SQ_SYSTEM']->am->getParentList($this->assets[$type_code]['parent_type']);
 			foreach($new_arr as $type_code) $arr[] = $type_code;
 		} else {
 			$arr[] = 'asset';

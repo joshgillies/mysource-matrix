@@ -48,7 +48,7 @@ class Asset_Manager extends Resolve_Object
 	{
 		$this->_asset_types = Array();
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT type_code, version, name, instantiable, system_only, parent_type, dir, customisation
 				FROM sq_asset_type';
 		$result = $db->query($sql);
@@ -72,7 +72,7 @@ class Asset_Manager extends Resolve_Object
 	function refreshAssetType($type_code)
 	{
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT type_code, version, name, instantiable, system_only, parent_type, dir, customisation
 				FROM sq_asset_type
 				WHERE type_code = '.$db->quote($type_code);
@@ -158,7 +158,7 @@ class Asset_Manager extends Resolve_Object
 		// get it from the DB
 		if ($field && !isset($this->_asset_types[$type_code][$field])) {
 
-			$db = &$GLOBALS['SQ_RESOLVE']->db;
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT '.$field.'
 					FROM sq_asset_type
 					WHERE type_code = '.$db->quote($type_code);
@@ -190,7 +190,7 @@ class Asset_Manager extends Resolve_Object
 
 		$type_codes = Array();
 		if ($ignore_system_only) {
-			$db = &$GLOBALS['SQ_RESOLVE']->db;
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT type_code
 					FROM sq_asset_type
 					WHERE system_only != 1';
@@ -296,7 +296,7 @@ class Asset_Manager extends Resolve_Object
 		if (!isset($this->_assets[$assetid]) || !is_object($this->_assets[$assetid])) {
 
 			if (empty($type_code)) {
-				$type_code = $GLOBALS['SQ_RESOLVE']->db->getOne('SELECT type_code FROM sq_asset WHERE assetid = '.$GLOBALS['SQ_RESOLVE']->db->quote($assetid));
+				$type_code = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT type_code FROM sq_asset WHERE assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($assetid));
 				if (empty($type_code)) {
 					if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
 					return null;
@@ -635,7 +635,7 @@ class Asset_Manager extends Resolve_Object
 		$url = preg_replace('/\/+$/', '', $url);
 		if ($protocol != 'https') $protocol = 'http';
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sections = explode('/', $url);
 		$option  = '';

@@ -53,15 +53,15 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		$this->_type_code = $type_code;
 
-		$asset_dir = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_RESOLVE']->am->getInfo($this->_type_code, 'dir');
+		$asset_dir = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getInfo($this->_type_code, 'dir');
 		$class_name = $this->_type_code.'_edit_fns';
 		include_once $asset_dir.'/'.$class_name.'.inc';
 		$this->_edit_fns = new $class_name();
 
 		$this->_dirs = Array($asset_dir);
-		$parents = $GLOBALS['SQ_RESOLVE']->am->getParentList($this->_type_code, false);
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParentList($this->_type_code, false);
 		foreach($parents as $parent_type) {
-			$this->_dirs[] = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_RESOLVE']->am->getInfo($parent_type, 'dir');
+			$this->_dirs[] = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getInfo($parent_type, 'dir');
 		}
 
 		// add the default for Asset

@@ -102,7 +102,7 @@ class Backend extends Resolve_Object
 	?>
 		<html>
 			<head>
-			<title><?php echo SQ_RESOLVE_LONG_NAME; ?> Backend</title>
+			<title><?php echo SQ_SYSTEM_LONG_NAME; ?> Backend</title>
 				<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 			</head>
 			<frameset rows="27,*,22" border="0" frameborder="0" framespacing="0">
@@ -136,7 +136,7 @@ class Backend extends Resolve_Object
 					<table cellpadding="0" border="0" cellspacing="0">
 						<tr>
 					<?php
-						$this->_printHeaderItem(SQ_RESOLVE_SHORT_NAME, $this->getBackendUrl('main').'&backend_section=', 'swish');
+						$this->_printHeaderItem(SQ_SYSTEM_SHORT_NAME, $this->getBackendUrl('main').'&backend_section=', 'swish');
 						$this->_printHeaderItem('Config',  $this->getBackendUrl('main').'&backend_section=config',   'config');
 					?>
 						</tr>
@@ -201,7 +201,7 @@ class Backend extends Resolve_Object
 	?> 
 		<table width="100%" cellpadding="2" cellspacing="0" border="0">
 			<tr><td style="background-color: #212E61;"><img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/blank.gif" width="1" height="1" /></td></tr>	
-			<tr><td style="background-color: #7A92AD; text-align: right;"><b><a href="<?php echo SQ_RESOLVE_URL;?>" class="sq-backend-smallprint" target="_blank"><?php echo SQ_RESOLVE_LONG_NAME;?></a></b></td></tr>
+			<tr><td style="background-color: #7A92AD; text-align: right;"><b><a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-smallprint" target="_blank"><?php echo SQ_SYSTEM_LONG_NAME;?></a></b></td></tr>
 		</table>
 	<?php
 
@@ -250,7 +250,7 @@ class Backend extends Resolve_Object
 			break;
 
 			case 'am' :
-				$GLOBALS['SQ_RESOLVE']->am->printBackend($this);
+				$GLOBALS['SQ_SYSTEM']->am->printBackend($this);
 			break;
 
 			default :

@@ -106,9 +106,9 @@ class Site extends Folder
 		if (!isset($this->_tmp['urls_info'])) {
 			$sql = 'SELECT urlid, url, http, https
 					FROM sq_asset_url
-					WHERE assetid = '.$GLOBALS['SQ_RESOLVE']->db->quote($this->id);
+					WHERE assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
 
-			$result = $GLOBALS['SQ_RESOLVE']->db->getAssoc($sql, true, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, true, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				$this->_tmp['urls_info'] = Array();
@@ -134,7 +134,7 @@ class Site extends Folder
 	function saveWebURLs($save_urls) 
 	{
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$db->query('BEGIN');
 
 		$processed_urlids = Array();
@@ -158,7 +158,7 @@ class Site extends Folder
 
 			// We don't have it ? does anyone else
 			if (!$found) {
-				$asset = &$GLOBALS['SQ_RESOLVE']->am->getAssetFromURL($save_urls[$save_urlid]['url'], '', true, true);
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($save_urls[$save_urlid]['url'], '', true, true);
 				if (!is_null($asset)) {
 					trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" is already in use by "'.$asset->name.'"', E_USER_WARNING);
 					continue;
@@ -246,7 +246,7 @@ class Site extends Folder
 	function _updateWebURLs() 
 	{
 		$urls = $this->getSiteURLs();
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// Remove all the old URLs
 		$sql = 'DELETE FROM sq_asset_url_lookup
@@ -273,7 +273,7 @@ class Site extends Folder
 		// recusively call the kids update
 		$kids = $this->getLinks(SQ_LINK_NAV, '', 'S', 'major');
 		for($i = 0; $i < count($kids); $i++) {
-			$kid = &$GLOBALS['SQ_RESOLVE']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
+			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;
 			if (!$kid->_updateWebURLs()) return false;
 		}// end for kids

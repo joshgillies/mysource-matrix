@@ -16,7 +16,7 @@ function print_login($heading, $message) {
 	</head>
 	<body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" bgcolor="#ffffff" onLoad="javascript: document.login_prompt.elements['SQ_LOGIN_USERNAME'].focus();">
 	<form action="<?php echo $_SERVER['PHP_SELF'].$qry_string ; ?>" name="login_prompt" method="post" onSubmit="javascript: return (this.elements['SQ_LOGIN_USERNAME'].value.length > 0 && this.elements['SQ_LOGIN_PASSWORD'].value.length > 1);">
-	<input type="hidden" name="SQ_LOGIN_KEY"      value="<?php echo $GLOBALS['SQ_RESOLVE']->generateLoginKey(); ?>">
+	<input type="hidden" name="SQ_LOGIN_KEY"      value="<?php echo $GLOBALS['SQ_SYSTEM']->generateLoginKey(); ?>">
 	<input type="hidden" name="SQ_LOGIN_REFERER"  value="<?php echo $referer; ?>">
 	<?php
 
@@ -42,7 +42,7 @@ function print_login($heading, $message) {
 		<tr>
 			<td>
 				<table cellpadding="3" cellspacing="0" border="0" width="100%">
-				<?php if ($msgs = $GLOBALS['SQ_RESOLVE']->messages()) { ?>
+				<?php if ($msgs = $GLOBALS['SQ_SYSTEM']->messages()) { ?>
 					<tr>
 						<td valign="top" class="sq-backend-warning">
 							<?php echo implode("<br/>", $msgs); ?>
@@ -51,8 +51,8 @@ function print_login($heading, $message) {
 				<?php } ?>
 					<tr>
 						<td valign="top" class="sq-backend-sectionheading" style="font-weight: bold;">
-					<?php if ($GLOBALS['SQ_RESOLVE']->currentUserId()) { ?>
-							Currently logged in as: <?php echo $GLOBALS['SQ_RESOLVE']->user->name; ?>
+					<?php if ($GLOBALS['SQ_SYSTEM']->currentUserId()) { ?>
+							Currently logged in as: <?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?>
 					<?php } else { ?>
 							Not currently logged in.
 					<?php } ?>

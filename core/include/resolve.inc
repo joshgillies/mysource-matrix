@@ -50,7 +50,7 @@ class Resolve
 	*/
 	function Resolve()
 	{
-		session_name('SQ_RESOLVE_SESSION');
+		session_name('SQ_SYSTEM_SESSION');
 		session_save_path(SQ_SYSTEM_ROOT.'/cache');
 		session_start();
 

@@ -52,8 +52,8 @@ class Custom_Asset_Type extends Resolve_Object
 	function Custom_Asset_Type($type_code='') 
 	{
 		$this->Resolve_Object();
-		$this->_am = &$GLOBALS['SQ_RESOLVE']->am;
-		$this->_db = &$GLOBALS['SQ_RESOLVE']->db;
+		$this->_am = &$GLOBALS['SQ_SYSTEM']->am;
+		$this->_db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$this->_inc_path = preg_replace('/^' .str_replace('/', '\\/', SQ_SYSTEM_ROOT).'\//', '', SQ_DATA_PATH.'/custom_asset_types');
 
@@ -148,7 +148,7 @@ class Custom_Asset_Type extends Resolve_Object
 
 		if (!$this->id) return;
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		# Right, now we need to get any values that this asset has customised
 		$this->vars = Array();

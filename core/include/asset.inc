@@ -80,7 +80,7 @@ class Asset extends Resolve_Object
 	function create()
 	{
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
 		$assetid = $db->nextId('sq_sequence_asset');
@@ -88,7 +88,7 @@ class Asset extends Resolve_Object
 
 		$name   = ucwords(str_replace('_', ' ', $this->type())).' #'.$assetid;
 		$now    = time();
-		$userid = $GLOBALS['SQ_RESOLVE']->currentUserId();
+		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 		$sql = 'INSERT INTO sq_asset
 				(assetid, type_code, name, last_updated, last_userid)
@@ -125,7 +125,7 @@ class Asset extends Resolve_Object
 	function load($assetid)
 	{
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// OK, the first thing to do is check we actually exist :)
 
@@ -174,18 +174,18 @@ class Asset extends Resolve_Object
 			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
 					FROM (sq_asset a INNER JOIN sq_asset_attribute atr ON a.type_code = atr.type_code)
 					  LEFT OUTER JOIN sq_asset_attribute_value v ON atr.attributeid = v.attributeid AND a.assetid = v.assetid
-					WHERE a.assetid   = '.$GLOBALS['SQ_RESOLVE']->db->quote($this->id);
+					WHERE a.assetid   = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
 		// else just load all defaults
 		} else {
 			$sql = 'SELECT atr.name, atr.attributeid, atr.type, atr.default_value AS value
 					FROM sq_asset_attribute atr
-					WHERE atr.type_code   = '.$GLOBALS['SQ_RESOLVE']->db->quote($this->type());
+					WHERE atr.type_code   = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 
 		}// end if
 
 #		pre_echo($sql);
 
-		$this->vars = $GLOBALS['SQ_RESOLVE']->db->getAssoc($sql, false, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br/>'.$this->vars->getUserInfo(), E_USER_ERROR);
 
 	}//end _loadVars()
@@ -199,10 +199,10 @@ class Asset extends Resolve_Object
 	{
 
 		$now    = time();
-		$userid = $GLOBALS['SQ_RESOLVE']->currentUserId();
+		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$name   = $this->_getName();
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'UPDATE sq_asset
 				SET name         = '.$db->quote($name).',
 					last_updated = '.$db->quote(ts_iso8601($now)).',
@@ -246,7 +246,7 @@ class Asset extends Resolve_Object
 	function getParentList() 
 	{
 
-		return $GLOBALS['SQ_RESOLVE']->am->getParentList($this->type());
+		return $GLOBALS['SQ_SYSTEM']->am->getParentList($this->type());
 
 	}//end getParentList()
 
@@ -262,7 +262,7 @@ class Asset extends Resolve_Object
 	function getLink($linkid)
 	{
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT linkid, majorid, minorid, link_type, value, sort_order, last_updated, last_userid
 				FROM sq_asset_link
 				WHERE majorid = '.$db->quote($this->id).'
@@ -317,7 +317,7 @@ class Asset extends Resolve_Object
 
 			$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
-			$db = &$GLOBALS['SQ_RESOLVE']->db;
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, a.type_code, l.sort_order
 					FROM sq_asset_link l, sq_asset a
 					WHERE l.'.$other_side.'id   = a.assetid 
@@ -411,7 +411,7 @@ class Asset extends Resolve_Object
 		$party = ($major) ? 'major' : 'minor';
 
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		if (empty($asset_type)) {
 			$sql = 'SELECT COUNT(*)
 					FROM sq_asset_link l
@@ -497,7 +497,7 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// if this link is a nav link, then we need to make sure that this
 		// minor asset doesn't already have an exclusive link from anything
@@ -516,7 +516,7 @@ class Asset extends Resolve_Object
 			}
 
 			if ($majorid) {
-				$major = &$GLOBALS['SQ_RESOLVE']->am->getAsset($majorid);
+				$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
 				trigger_error('Asset "'.$minor->name.'" (Asset #'.$minor->id.') cannot be linked to "'.$this->name.'" (Asset #'.$this->id.') it is exclusively linked to Asset #'.$majorid.' ("'.$major->name.'")', E_USER_WARNING);
 				return false;
 			}
@@ -549,7 +549,7 @@ class Asset extends Resolve_Object
 				(linkid, majorid, minorid, link_type, value, sort_order, last_updated, last_userid)
 				VALUES
 				('.$db->quote($linkid).', '.$db->quote($this->id).', '.$db->quote($minor->id).', '.$db->quote($link_type).', '
-				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(ts_iso8601(time())).', '.$db->quote($GLOBALS['SQ_RESOLVE']->currentUserId()).')';
+				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(ts_iso8601(time())).', '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).')';
 
 		error_log($sql);
 
@@ -595,7 +595,7 @@ class Asset extends Resolve_Object
 
 
 		// get the minor assets parents and add it's type to the front of the indexed array
-		$types = $GLOBALS['SQ_RESOLVE']->am->getParentList($type_code);
+		$types = $GLOBALS['SQ_SYSTEM']->am->getParentList($type_code);
 		array_unshift($types, $type_code);
 
 		$allowed_links = $this->_getAllowedLinks();
@@ -679,7 +679,7 @@ class Asset extends Resolve_Object
 			return true;
 		}
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// open the transaction
 		$db->query('BEGIN');
@@ -698,7 +698,7 @@ class Asset extends Resolve_Object
 
 		$sql = 'UPDATE sq_asset_link
 				SET sort_order   = '.$db->quote($sort_order).',
-				    last_userid  = '.$db->quote($GLOBALS['SQ_RESOLVE']->currentUserId()).',
+				    last_userid  = '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).',
 				    last_updated = '.$db->quote(ts_iso8601(time())).'
 				WHERE linkid    = '.$db->quote($linkid).'
 				  AND majorid   = '.$db->quote($this->id);
@@ -766,7 +766,7 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// open the transaction
 		$db->query('BEGIN');
@@ -828,7 +828,7 @@ class Asset extends Resolve_Object
 		trigger_error('Validate value of attribute in setAttrValue()', E_USER_WARNING);
 
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// open the transaction
 		$db->query('BEGIN');
@@ -1004,7 +1004,7 @@ class Asset extends Resolve_Object
 	function getWebPaths() 
 	{
 		if (!isset($this->_tmp['paths'])) {
-			$db = &$GLOBALS['SQ_RESOLVE']->db;
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT path
 					FROM sq_asset_path
 					WHERE assetid = '.$db->quote($this->id);
@@ -1033,7 +1033,7 @@ class Asset extends Resolve_Object
 	*/
 	function saveWebPaths($paths) 
 	{
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$db->query('BEGIN');
 
 		$current_paths = $this->getWebPaths();
@@ -1060,7 +1060,7 @@ class Asset extends Resolve_Object
 			$siblingids = Array();
 			$parents = $this->getLinks(SQ_LINK_NAV, '', 'S', 'minor');
 			for($i = 0; $i < count($parents); $i++) {
-				$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
+				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
 				// get all the nav siblings
 				$parent_kids = $parent->getLinks(SQ_LINK_NAV, '', 'S', 'major');
@@ -1126,10 +1126,10 @@ class Asset extends Resolve_Object
 		unset($this->_tmp['urls']);
 
 		if ($this->_updateWebURLs()) {
-			$GLOBALS['SQ_RESOLVE']->db->query('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
 			return true;
 		} else {
-			$GLOBALS['SQ_RESOLVE']->db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
 			return false;
 		}
 
@@ -1146,7 +1146,7 @@ class Asset extends Resolve_Object
 	function getWebURLs($inc_urlid=false) 
 	{
 		if (!isset($this->_tmp['urls'])) {
-			$db = &$GLOBALS['SQ_RESOLVE']->db;
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT url, root_urlid
 					FROM sq_asset_url_lookup
 					WHERE assetid = '.$db->quote($this->id);
@@ -1178,12 +1178,12 @@ class Asset extends Resolve_Object
 	*/
 	function updateWebURLs() 
 	{
-		$GLOBALS['SQ_RESOLVE']->db->query('BEGIN');
+		$GLOBALS['SQ_SYSTEM']->db->query('BEGIN');
 		if ($this->_updateWebURLs()) {
-			$GLOBALS['SQ_RESOLVE']->db->query('COMMIT');
+			$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
 			return true;
 		} else {
-			$GLOBALS['SQ_RESOLVE']->db->query('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
 			return false;
 		}
 	}// end updateWebURLs
@@ -1200,7 +1200,7 @@ class Asset extends Resolve_Object
 	{
 
 		$paths = $this->getWebPaths();
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		unset($this->_tmp['urls']);
 
@@ -1218,7 +1218,7 @@ class Asset extends Resolve_Object
 
 			$parents = $this->getLinks(SQ_LINK_NAV, '', 'S', 'minor');
 			for($i = 0; $i < count($parents); $i++) {
-				$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
+				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
 
 				$parent_urls = $parent->getWebURLs(true);
@@ -1243,7 +1243,7 @@ class Asset extends Resolve_Object
 
 		$kids = $this->getLinks(SQ_LINK_NAV, '', 'S', 'major');
 		for($i = 0; $i < count($kids); $i++) {
-			$kid = &$GLOBALS['SQ_RESOLVE']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
+			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;
 
 			if (!$kid->_updateWebURLs()) {

@@ -68,7 +68,7 @@ class Asset_Attribute extends Resolve_Object
 	{
 		$this->Resolve_Object();
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT attributeid, name, type, parameters, default_value
 				FROM sq_asset_attribute

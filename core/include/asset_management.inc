@@ -55,8 +55,8 @@ class Asset_Management extends Resolve_Object
 	function Asset_Management(&$pm)
 	{
 		$this->_pm = &$pm;
-		$this->_am = &$GLOBALS['SQ_RESOLVE']->am;
-		$this->_db = &$GLOBALS['SQ_RESOLVE']->db;
+		$this->_am = &$GLOBALS['SQ_SYSTEM']->am;
+		$this->_db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$this->vars = Array();
 
@@ -226,7 +226,7 @@ class Asset_Management extends Resolve_Object
 			// if it ain't in this package, it's has to be installed, get the info from the asset manager
 			if (is_null($info)) {
 				$tmp = $info['editing_options'];
-				$info = @$GLOBALS['SQ_RESOLVE']->am->getInfo($type_code, 'editing_options');
+				$info = @$GLOBALS['SQ_SYSTEM']->am->getInfo($type_code, 'editing_options');
 				if (is_null($info)) return null;
 			}
 			foreach($info as $k => $v) $editing_options[$k] = $v;

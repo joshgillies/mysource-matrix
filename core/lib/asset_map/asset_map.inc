@@ -246,7 +246,7 @@ class Asset_Map
 	function _addAssetToXML(&$root, $assetid, $load_new_links=false, $current_kids=Array()) 
 	{
 
-		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($assetid, '', true);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
 
 		if (is_null($asset)) {
 			$this->_error('Asset #'.$assetid.' not found');
@@ -299,7 +299,7 @@ class Asset_Map
 			$top_level = &$root->addChild('item', '', Array('text' => $name, 'value'  => ''));
 			switch($name) {
 				case 'add' :
-					$hier = $GLOBALS['SQ_RESOLVE']->am->getAssetTypeHierarchy('', true);
+					$hier = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeHierarchy('', true);
 					$this->_recurseAddMenu($top_level, $hier);
 					break;
 
@@ -324,7 +324,7 @@ class Asset_Map
 	function _recurseAddMenu(&$parent_node, $heir)
 	{
 		for (reset($heir); null !== ($type_code = key($heir)); next($heir)) {
-			$inst     = $GLOBALS['SQ_RESOLVE']->am->getInfo($type_code, 'instantiable');
+			$inst     = $GLOBALS['SQ_SYSTEM']->am->getInfo($type_code, 'instantiable');
 			$has_kids = count($heir[$type_code]['subs']);
 			// no point, if you can't create an instance and there are no kids
 			if (!$inst && !$has_kids) continue;
@@ -369,7 +369,7 @@ class Asset_Map
 					return;
 				}
 
-				$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($attr['parent_assetid'], '', true);
+				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($attr['parent_assetid'], '', true);
 				if (is_null($parent)) {
 					$this->_error('Parent Asset #'.$attr['parent_assetid'].' not found');
 					return;
@@ -445,7 +445,7 @@ class Asset_Map
 	function _moveAsset(&$input) 
 	{
 
-		$old_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['from_parent_assetid']);
+		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('Unable to Move Asset, existing parent (Asset #"'.$link['majorid'].'") not found');
 			return;
@@ -472,14 +472,14 @@ class Asset_Map
 
 		} else {
 
-			$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($link['minorid']);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 			if (is_null($asset)) {
 				$this->_error('Unable to Move Asset, asset to be moved (Asset #"'.$link['minorid'].'") not found');
 				return;
 			}
 
 
-			$new_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['to_parent_assetid']);
+			$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 			if (is_null($new_parent)) {
 				$this->_error('Unable to Move Asset, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
 				return;
@@ -513,7 +513,7 @@ class Asset_Map
 	function _newLink(&$input) 
 	{
 
-		$old_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['from_parent_assetid']);
+		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
 		if (is_null($old_parent)) {
 			$this->_error('Unable to Create New Link, existing parent (Asset #"'.$link['majorid'].'") not found');
 			return;
@@ -525,13 +525,13 @@ class Asset_Map
 			return;
 		}
 
-		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($link['minorid']);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 		if (is_null($asset)) {
 			$this->_error('Unable to Create New Link, asset to be moved (Asset #"'.$link['minorid'].'") not found');
 			return;
 		}
 
-		$new_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['to_parent_assetid']);
+		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
 		if (is_null($new_parent)) {
 			$this->_error('Unable to Create New Link, new parent (Asset #"'.$input->root->attributes['to_parent_assetid'].'") not found');
 			return;

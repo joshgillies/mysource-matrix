@@ -19,10 +19,10 @@ define('SQ_INIT_OB_LEVEL', ob_get_level());
 * We mustn't forget to update this (until someone
 * comes up with an automated method)
 */
-define('SQ_RESOLVE_VERSION',	'0.1.0');
-define('SQ_RESOLVE_SHORT_NAME',	'Resolve');
-define('SQ_RESOLVE_LONG_NAME',	'Squiz Resolve v'.SQ_RESOLVE_VERSION);
-define('SQ_RESOLVE_URL',		'http://www.squiz.net/');
+define('SQ_SYSTEM_VERSION',	'0.1.0');
+define('SQ_SYSTEM_SHORT_NAME',	'Resolve');
+define('SQ_SYSTEM_LONG_NAME',	'Squiz Resolve v'.SQ_SYSTEM_VERSION);
+define('SQ_SYSTEM_URL',		'http://www.squiz.net/');
 
 define('SQ_REQUIRED_PHP_VERSION',   '4.3.0');
 
@@ -72,7 +72,7 @@ set_error_handler('sq_error_handler');
 
 // Now that we've got error reporting lets generate a few errors!
 if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
-	trigger_error('<i>'.SQ_RESOLVE_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.phpversion().'.', E_USER_ERROR);
+	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.phpversion().'.', E_USER_ERROR);
 }
 
 /*
@@ -86,6 +86,6 @@ define('SQ_LINK_ANY',       7); // what all the others add up to
 
 // Create the system object
 require_once SQ_INCLUDE_PATH.'/resolve.inc';
-$GLOBALS['SQ_RESOLVE'] = new Resolve();
+$GLOBALS['SQ_SYSTEM'] = new Resolve();
 
 ?>

@@ -3,10 +3,10 @@
 ini_set('memory_limit', '8M');
 require_once '../include/init.inc';
 
-$GLOBALS['SQ_RESOLVE']->start();
-//$GLOBALS['SQ_RESOLVE']->am = new Asset_Manager();
+$GLOBALS['SQ_SYSTEM']->start();
+//$GLOBALS['SQ_SYSTEM']->am = new Asset_Manager();
 //
-//$folder = &$GLOBALS['SQ_RESOLVE']->am->getAsset(4);
+//$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset(4);
 ////$links = $root_folder->getLinks(SQ_LINK_UNITE | SQ_LINK_EXCLUSIVE, '', 'S');
 ////pre_echo($links);
 //
@@ -14,7 +14,7 @@ $GLOBALS['SQ_RESOLVE']->start();
 
 /*
  /// RESET SORT ORDERS ///
-$db = &$GLOBALS['SQ_RESOLVE']->db;
+$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 $sql = 'SELECT majorid, minorid
 		FROM sq_asset_link
@@ -40,23 +40,23 @@ foreach($all as $data) {
  
 
 /*
-$trash_folder = &$GLOBALS['SQ_RESOLVE']->am->getAsset(3);
+$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset(3);
 $links = $trash_folder->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', 'S');
 
 pre_echo('------------------------------------------------------------------------');
 pre_echo($links);
 */
 /*
-$GLOBALS['SQ_RESOLVE']->am->includeAsset('folder');
-$GLOBALS['SQ_RESOLVE']->am->includeAsset('user');
-$root_folder = &$GLOBALS['SQ_RESOLVE']->am->getAsset(1);
+$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+$GLOBALS['SQ_SYSTEM']->am->includeAsset('user');
+$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset(1);
 
 for ($i = 0; $i < 5; $i++) {
 
 	// Now just create some useful folders 
 	$folder = new Folder();
 	$folder->create('Folder '.$i);
-	$GLOBALS['SQ_RESOLVE']->am->registerAsset($folder);
+	$GLOBALS['SQ_SYSTEM']->am->registerAsset($folder);
 	$root_folder->createLink($folder, SQ_LINK_UNITE);
 
 
@@ -65,7 +65,7 @@ for ($i = 0; $i < 5; $i++) {
 		// Now just create some useful folders 
 		$user = new User();
 		$user->create('user_'.$i.'_'.$j, 'blah', 'User '.$i, 'Number '.$j);
-		$GLOBALS['SQ_RESOLVE']->am->registerAsset($user);
+		$GLOBALS['SQ_SYSTEM']->am->registerAsset($user);
 		$folder->createLink($user, SQ_LINK_UNITE);
 
 	}// end for
@@ -84,14 +84,14 @@ $result = $pm->updatePackageDetails();
 $pm = new Package_Manager('cms');
 $result = $pm->updatePackageDetails();
 
-$GLOBALS['SQ_RESOLVE']->am->includeAsset('user');
+$GLOBALS['SQ_SYSTEM']->am->includeAsset('user');
 $user = new User();
 $assetid = $user->create('root', 'root', 'bcr', 'Root', 'User');
 pre_echo('Asset Id : '.$assetid);
 */
 
 /*
-$root_folder = &$GLOBALS['SQ_RESOLVE']->am->getAsset(1);
+$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset(1);
 pre_echo($root_folder->attr('name'));
 
 $links = $root_folder->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, 'folder');
@@ -103,7 +103,7 @@ pre_echo($links);
 */
 
 
-#$site = &$GLOBALS['SQ_RESOLVE']->getObject(1);
+#$site = &$GLOBALS['SQ_SYSTEM']->getObject(1);
 
 #pre_echo($site);
 /*
@@ -113,7 +113,7 @@ $result = $pm->updatePackageDetails();
 pre_echo("Result : ".gettype($result));
 pre_echo($result);
 */
-#$am = &$GLOBALS['SQ_RESOLVE']->getAssetManager();
+#$am = &$GLOBALS['SQ_SYSTEM']->getAssetManager();
 #$am->includeAsset('page');
 #pre_echo($am->getParentList('page'));
 

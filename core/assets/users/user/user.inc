@@ -113,7 +113,7 @@ class User extends Asset
 	function find($username, $password) {
 		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
 
-		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT a.assetid
 				FROM sq_asset a, sq_asset_attribute at, sq_asset_attribute_value av
@@ -135,7 +135,7 @@ class User extends Asset
 
 		if (!$result) return 0;
 
-		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($result);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result);
 		if (is_null($asset) || !$asset->comparePassword($password)) {
 			return 0;
 		}
