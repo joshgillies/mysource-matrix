@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_customisation_edit_fns.inc,v 1.15 2003/09/26 05:26:25 brobertson Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.16 2003/10/08 00:50:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -193,7 +193,6 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	*/
 	function _updateDesignAreaLink(&$asset, $data)
 	{
-
 		$da_links = $asset->getDesignAreaLink();
 		foreach($da_links as $da_link) {
 			$id_name = $da_link['value'];

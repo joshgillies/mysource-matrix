@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: designs_folder.inc,v 1.12 2003/09/26 05:26:27 brobertson Exp $
+* $Id: designs_folder.inc,v 1.13 2003/10/08 00:51:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -169,6 +169,7 @@ class Designs_Folder extends Folder
 	{
 		trigger_error('You cannot delete anything from the designs folder', E_USER_WARNING);
 		return false;
+
 	}// end deleteLink()
 
 
