@@ -226,11 +226,11 @@ class Bodycopy extends Asset
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 			// get all the tables linked to this bodycopy
-			$tables = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
+			$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_table');
 
 			// paint each table
 			foreach ($tables as $table_data) {
-				$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
+				$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
 				$table->printBody($table);
 			}
 		}
@@ -265,9 +265,9 @@ class Bodycopy extends Asset
 	function isEmpty()
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$tables = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
+		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_table');
 		foreach ($tables as $table_data) {
-			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
+			$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
 			if (!$table->isEmpty()) {
 				return false;
 			}

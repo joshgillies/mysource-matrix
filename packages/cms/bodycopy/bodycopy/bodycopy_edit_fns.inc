@@ -80,12 +80,12 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
 		// get all the tables linked to this bodycopy
-		$tables = $asset->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
+		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_table');
 		
 		// paint each table
 		$i = 0;
 		foreach ($tables as $table_data) {
-			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
+			$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
 			$table_edit = $table->getEditFns();
 			$table_edit->paint($table);
 		}
@@ -108,11 +108,11 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
 		// get all the tables linked to this bodycopy
-		$tables = $asset->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
+		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_table');
 
 		if (!$asset->writeAccess()) {
 			foreach ($tables as $table_data) {
-				$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
+				$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
 				if ($table->useSystemVersion()) {
 					$table->printBody();
 				} else {
@@ -385,7 +385,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			if (count($tables)) {
 				$i = 0;
 				foreach ($tables as $table_data) {
-					$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
+					$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
 					$table_edit = $table->getEditFns();
 					$table_edit->paintBackendJsData($table, $prefix, $i);
 				}
@@ -445,7 +445,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		// for each table, print it's editing interface
 		$i = 0;
 		foreach ($tables as $table_data) {
-			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
+			$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
 			$table_edit = $table->getEditFns();
 		?> 
 			<tr>
@@ -545,11 +545,11 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// get all the tables linked to this bodycopy
-		$tables = $asset->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
+		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_table');
 
 		// process each of the tables
 		foreach ($tables as $table_data) {
-			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
+			$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
 			$table_edit = $table->getEditFns();
 			if ($table_edit->processTable($table, $o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)) {
 				if ($table->saveAttributes()) $updated = true;
@@ -599,7 +599,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// get all the tables linked to this bodycopy
-		$tables = $asset->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
+		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_table');
 		$num_tables = count($tables);
 
 		$tableid = intval($tableid);
@@ -637,7 +637,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// get all the tables linked to this bodycopy
-		$tables = $asset->getLinks(SQ_LINK_TYPE_2, 'bodycopy_table');
+		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_table');
 		foreach ($tables as $table_data) {
 			if ($table_data['minorid'] == $tableid) {
 				// found the table to delete

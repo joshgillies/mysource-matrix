@@ -88,8 +88,8 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	*/
 	function updateContentType(&$table, $new_rowid, $new_cellid)
 	{
-		$link = $table->getLinkById($this->attributes['linkid']);
-		if (!$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'])) return false;
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
+		if (!$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'])) return false;
 		if (!$content_type->setAttrValue('name', 'Row '.($new_rowid+1).' Cell '.($new_cellid+1))) return false;
 		if (!$content_type->saveAttributes()) return false;
 		return true;
@@ -165,9 +165,9 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 			}
 		}
 		echo ">\n";
-		$link = $table->getLinkById($this->attributes['linkid']);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (!empty($link)) {
-			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		} else {
 			$content_type = null;
 		}
@@ -256,9 +256,9 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		$updated = false;
 
 		// update the contentType
-		$link = $table->getLinkById($this->attributes['linkid']);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (empty($link)) return false;
-		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		$content_edit = $content_type->getEditFns();
 		$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 		if ($content_edit->processBackend(Array(), $content_type, $content_prefix)) $updated = true;
@@ -286,9 +286,9 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		if (empty($new_type)) return false;
 
 		// get the contentType
-		$link = $table->getLinkById($this->attributes['linkid']);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (empty($link)) return false;
-		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
 		// if the new type is the same as the current, change nothing
 		$current_type = get_class($content_type);

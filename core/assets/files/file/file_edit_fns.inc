@@ -123,11 +123,11 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		// make sure the new web path is not already is use
 		if ($asset->name != $name) {
-			$parents = $asset->getLinks(SQ_SC_LINK_SIGNIFICANT, '', null, 'minor');
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', null, 'minor');
 			for($i = 0; $i < count($parents); $i++) {
-				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
+				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
-				$bad_paths = $parent->_webPathsInUse(Array($name), $asset->id);
+				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, Array($name), $asset->id);
 				if (!empty($bad_paths)) {
 					trigger_error('Failed updating web path, file not uploaded. Path already exists?', E_USER_WARNING);
 					return false;
@@ -229,9 +229,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	function paintThumbnail(&$asset, &$o, $prefix)
 	{
 		// get the current thumbnail if there is one
-		$thumb_link = $asset->getLink(SQ_LINK_TYPE_3, 'thumbnail', true, 'thumbnail');
+		$thumb_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_3, 'thumbnail', true, 'thumbnail');
 		if (!empty($thumb_link)) {
-			$thumb = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thumb_link['minorid'], '', true);
+			$thumb = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thumb_link['minorid'], $thumb_link['minor_type_code'], true);
 			$existing = $thumb->_getExistingFile();
 			if (!empty($existing)) {
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
@@ -284,7 +284,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		if (isset($_POST[$prefix.'_delete_thumbnail'])) {
 			// they want to remove the thumbnail
-			$thumb_link = $asset->getLink(SQ_LINK_TYPE_3, 'thumbnail', true, 'thumbnail');
+			$thumb_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_3, 'thumbnail', true, 'thumbnail');
 			if (!$asset->deleteLink($thumb_link['linkid'])) return false;
 		}
 
@@ -296,7 +296,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		}
 		
 		// get the current thumbnail if there is one
-		$thumb_link = $asset->getLink(SQ_LINK_TYPE_3, 'thumbnail', true, 'thumbnail');
+		$thumb_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_3, 'thumbnail', true, 'thumbnail');
 		
 		// return if they are trying to set the thumb to the current thumb
 		if ($thumb_link['minorid'] == $thumb->id) return true;

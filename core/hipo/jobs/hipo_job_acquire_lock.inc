@@ -96,7 +96,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 		// we will be acquiring locks on
 		$dep_assets = Array();
-		$dep_assets = array_merge(Array($asset->id), $asset->getDependantChildren());
+		$dep_assets = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id));
 		$this->_running_vars['todo_assetids'] = $dep_assets;
 		$this->_running_vars['done_assetids'] = Array();
 

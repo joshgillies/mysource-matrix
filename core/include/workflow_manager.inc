@@ -124,7 +124,7 @@ class Workflow_Manager extends Resolve_Object
 			// now lets do the inherited workflows
 			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 			
-			$parents = $this->_asset->getParents();
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->_asset->id);
 			$above_me = $parents;
 			for($i = 0; $i < count($above_me); $i++) $above_me[$i] = $db->quote($above_me[$i]);
 			$in_cond = 'IN ('.implode(', ', $above_me).')';

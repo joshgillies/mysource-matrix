@@ -43,8 +43,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// get links to the bodycopies of this section
-		$main_copy_link = $asset->getLink(SQ_LINK_TYPE_2, 'bodycopy', false, 'main_bodycopy');
-		$looping_copy_link = $asset->getLink(SQ_LINK_TYPE_2, 'bodycopy', false, 'looping_bodycopy');
+		$main_copy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'main_bodycopy');
+		$looping_copy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'looping_bodycopy');
 
 		// we want the content screen of the bodycopies
 		$info = Array(
@@ -230,8 +230,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// get links to the bodycopies of this section
-		$main_copy_link    = $asset->getLink(SQ_LINK_TYPE_2, 'bodycopy', false, 'main_bodycopy');
-		$looping_copy_link = $asset->getLink(SQ_LINK_TYPE_2, 'bodycopy', false, 'looping_bodycopy');
+		$main_copy_link    = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'main_bodycopy');
+		$looping_copy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'looping_bodycopy');
 
 		// if there is no bodycopy, we will assume that we are trying to generate the 
 		// content file at form creation time, so just return true (it will get generated later)
@@ -239,8 +239,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		if (empty($looping_copy_link)) return true;
 
 		// get the bodycopy assets
-		$main_copy    = &$am->getAsset($main_copy_link['minorid'], $main_copy_link['type_code']);
-		$looping_copy = &$am->getAsset($looping_copy_link['minorid'], $looping_copy_link['type_code']);
+		$main_copy    = &$am->getAsset($main_copy_link['minorid'], $main_copy_link['minor_type_code']);
+		$looping_copy = &$am->getAsset($looping_copy_link['minorid'], $looping_copy_link['minor_type_code']);
 
 		// contents to be written to the generated file
 		$output = ''; 

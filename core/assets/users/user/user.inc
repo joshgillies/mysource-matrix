@@ -293,14 +293,14 @@ class User extends Asset
 				break;
 			case 'workspace' :
 				// get the workspace attached to us
-				$workspace_data = $this->getLink(SQ_LINK_TYPE_2, 'workspace', true, null, 'major', '1');
-				$workspace = &$GLOBALS['SQ_SYSTEM']->am->getAsset($workspace_data['minorid'], $workspace_data['type_code']);
+				$workspace_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'workspace', true, null, 'major', '1');
+				$workspace = &$GLOBALS['SQ_SYSTEM']->am->getAsset($workspace_data['minorid'], $workspace_data['minor_type_code']);
 				$workspace->printBody();
 				break;
 			case 'messages'  :
 				// get the inbox attached to us
-				$inbox_data = $this->getLink(SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
-				$inbox = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_data['minorid'], $inbox_data['type_code']);
+				$inbox_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
+				$inbox = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_data['minorid'], $inbox_data['minor_type_code']);
 				$inbox->printBody();
 				break;
 			default :

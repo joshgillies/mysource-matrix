@@ -76,7 +76,7 @@ class Design_Area_Nest_Content extends Design_Area
 	function _getNestAssetInfo($field)
 	{
 		if (!isset($this->_tmp['nest_assetid'])) {
-			$this->_tmp['nest_assetid'] = $this->getLink(SQ_LINK_NOTICE, '', true, 'nest_content_asset');
+			$this->_tmp['nest_assetid'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'nest_content_asset');
 		}
 		return (empty($this->_tmp['nest_assetid'])) ? null : $this->_tmp['nest_assetid'][$field];
 	}//end _getNestAssetInfo()

@@ -52,7 +52,7 @@ class Bodycopy_Table extends Asset
 
 		// save the current notice links
 		$replace_assetids = Array();
-		$notice_links = $this->getLinks(SQ_LINK_NOTICE);
+		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
 		foreach ($notice_links as $link) $replace_assetids[] = $link['minorid'];
 
 		// save the links we currently use (./?a=xx)
@@ -189,7 +189,7 @@ class Bodycopy_Table extends Asset
 	*/
 	function deleteLink($linkid)
 	{
-		$link = $this->getLinkById($linkid);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (!parent::deleteLink($linkid)) return false;
 			
 		// link has been deleted, check urls to see if this link
@@ -207,7 +207,7 @@ class Bodycopy_Table extends Asset
 
 		if (in_array($link['minorid'], $replace_assetids)) {
 			// we were using this asset... thanks very much... I'm telling...
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 
@@ -247,7 +247,7 @@ class Bodycopy_Table extends Asset
 		}
 
 		$old_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($old_assetid, $this->type());
-		$our_links = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, 'content_type', false);
+		$our_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, 'content_type', false);
 		
 		if (is_null($old_asset) || empty($our_links)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -259,7 +259,7 @@ class Bodycopy_Table extends Asset
 			// now print the cell contents
 			for($j = 0; $j < count($rows[$i]['cells']); $j++) {
 				$old_linkid = $rows[$i]['cells'][$j]->attributes['linkid'];
-				$old_link = $old_asset->getLinkById($old_linkid);
+				$old_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($old_linkid, $old_asset->id);
 				if (empty($old_link)) continue;
 
 				if (isset($map[$old_link['minorid']])) {
@@ -314,7 +314,7 @@ class Bodycopy_Table extends Asset
 		// going to try and use to work out file urls, link hrefs etc
 		$sq_asset_url_list = Array();
 		
-		$notice_links = $this->getLinks(SQ_LINK_NOTICE);
+		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
 		$get_href_ids = Array();
 		foreach ($notice_links as $link) $get_href_ids[] = $link['minorid'];
 		
@@ -378,9 +378,9 @@ class Bodycopy_Table extends Asset
 	function isEmpty()
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$content_types = $this->getLinks(SQ_LINK_TYPE_2, 'content_type', false);
+		$content_types = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'content_type', false);
 		foreach ($content_types as $type) {
-			$ct = &$am->getAsset($type['minorid'], $type['type_code']);
+			$ct = &$am->getAsset($type['minorid'], $type['minor_type_code']);
 			if (!$ct->isEmpty()) {
 				return false;
 			}

@@ -142,8 +142,8 @@ class Form_Section extends Asset
 	{
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
-		$main_bodycopy_link = $this->getLink(SQ_LINK_TYPE_2, 'main_bodycopy');
-		$looping_bodycopy_link = $this->getLink(SQ_LINK_TYPE_2, 'looping_bodycopy');
+		$main_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'main_bodycopy');
+		$looping_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'looping_bodycopy');
 
 		if ($main_bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the main bodycopy and the custom form';
 
@@ -179,10 +179,10 @@ class Form_Section extends Asset
 	function fileRegeneration()
 	{
 		// get all the links of this guy's form parents
-		$links = $this->getLinks(SQ_LINK_TYPE_2, 'form', false, 'minor');
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form', false, 'minor');
 		
 		foreach ($links as $l) {
-			$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($l['majorid'], $l['type_code']);
+			$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($l['majorid'], $l['major_type_code']);
 			if (is_null($form)) continue;
 			if (!$form->fileRegeneration()) {
 				unset($form);
@@ -226,7 +226,7 @@ class Form_Section extends Asset
 	{
 		if (empty($this->tmp['question_links'])) {
 			$this->tmp['question_links'] = Array();
-			$this->tmp['question_links'] = $this->getLinks(SQ_LINK_TYPE_2, 'form_question', false);
+			$this->tmp['question_links'] = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_question', false);
 		}
 		return (!empty($this->tmp['question_links'])) ? $this->tmp['question_links'] : Array();
 	
@@ -264,7 +264,7 @@ class Form_Section extends Asset
 
 		$l = $links[$order - 1];
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		if ($a = &$am->getAsset($l['minorid'], $l['type_code'])) {
+		if ($a = &$am->getAsset($l['minorid'], $l['minor_type_code'])) {
 			return $a;
 		}
 		return false;
@@ -286,7 +286,7 @@ class Form_Section extends Asset
 		$questions = Array();
 
 		foreach ($question_links as $link) {
-			$questions[$link['sort_order']] = &$am->getAsset($link['minorid'], $link['type_code']);
+			$questions[$link['sort_order']] = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 		}
 		return (!empty($questions)) ? $questions : Array();
 
@@ -342,7 +342,7 @@ class Form_Section extends Asset
 
 		$links = $this->getQuestionLinks();
 		foreach ($links as $link) {
-			$question = &$am->getAsset($link['minorid'], $link['type_code']);
+			$question = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 			// tell the question the name and id of this section
 			$question->setSection($this->attr('name'), $this->id);
 			$question->processForm($submission);

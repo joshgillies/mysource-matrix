@@ -98,7 +98,7 @@ class Page_Custom_Form extends Page
 	{
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
-		$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
 		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the standard page';
 
 		return parent::canDeleteLink($linkid);
@@ -131,7 +131,7 @@ class Page_Custom_Form extends Page
 	{
 		if (isset($_GET['sq_from_frontend'])) {
 			// get the bodycopy attached to us
-			$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
+			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
 			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
 			if (is_null($bodycopy)) {
 				trigger_error('Could not locate the bodycopy for standard page "'.$this->name.'"', E_USER_ERROR);
@@ -153,8 +153,8 @@ class Page_Custom_Form extends Page
 	*/
 	function printBody()
 	{
-		$form_link = $this->getLink(SQ_LINK_TYPE_2, 'form_email', true, '', 'major');
-		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['type_code']);
+		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form_email', true, '', 'major');
+		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['minor_type_code']);
 
 		if (is_null($form)) {
 			trigger_error('Could not locate the form asset for Custom Form "'.$this->name.'"', E_USER_ERROR);

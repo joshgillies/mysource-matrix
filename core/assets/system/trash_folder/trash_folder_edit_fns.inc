@@ -243,14 +243,14 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 			// but if there are not, then we need to check how many internal links
 			// there are before deciding if we should delete the asset or not
 			if (!count($outside_links)) {
-				$num_other_links = $asset->countLinks('minor', SQ_SC_LINK_SIGNIFICANT, '', true, $link_info['linkid']);
+				$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', true, $link_info['linkid']);
 			}
 
 			if ($num_other_links || count($outside_links)) {
 				// this asset has more than one link,
 				// or has another link outside of the trash
 				// so just delete the link
-				$link = $asset->getLinkById($link_info['linkid'], 'minor');
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($link_info['linkid'], $asset->id, 'minor');
 				
 				if (empty($link['majorid'])) {
 					// if the link does not exists it was probably deleted
@@ -259,7 +259,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 					continue;
 				}
 
-				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
+				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 
 				if (!$parent->deleteLink($link_info['linkid'])) {
 					trigger_error('Purge aborted, unable to delete link '.$link_info['linkid'].' between "'.$parent->name.'" and "'.$asset->name.'"', E_USER_WARNING);

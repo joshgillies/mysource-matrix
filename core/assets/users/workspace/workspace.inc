@@ -37,8 +37,8 @@ class Workspace extends Folder
 	*/
 	function &_getUser()
 	{
-		$link = $this->getLink(SQ_LINK_TYPE_2, 'user', false, '', 'minor', '1');
-		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user', false, '', 'minor', '1');
+		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 		return $user;
 
 	}//end _getUser()

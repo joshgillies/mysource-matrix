@@ -65,7 +65,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				}
 
 				// make sure that we are allowed to link this type to the parent
-				if (($err_msg = $parent->canLinkToType($_GET['type_code'], $_GET['link_type'])) !== true) {
+				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $_GET['type_code'], $_GET['link_type'])) !== true) {
 					trigger_error($err_msg, E_USER_WARNING);
 					break;
 				}
@@ -92,7 +92,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 					$success = $asset->processBackend($this->backend->out, $link);
 
 					if ($success) {
-						$o->addMessage(SQ_BO_MSG_NOTICE, 'New '.$this->am->_asset_types[$_GET['type_code']]['name'].' "'.$asset->name.'" created');
+						$o->addMessage(SQ_BO_MSG_NOTICE, 'New '.$this->am->getTypeInfo($_GET['type_code'], 'name').' "'.$asset->name.'" created');
 						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" was successfully linked to "'.$parent->name.'"');
 						$this->am->rememberAsset($asset);
 						$o->addFormActionGetVar('am_section', 'edit_asset');
@@ -980,8 +980,8 @@ speed_check('FINISHED');
 		if (isset($_GET['delete_linkid'])) {
 			// they have confirmed their intention to delete this asset
 			$asset = &$this->am->getAsset($_GET['delete_assetid']);
-			$link = $asset->getLinkById($_GET['delete_linkid'], 'minor');
-			$parent = &$this->am->getAsset($link['majorid'], $link['type_code']);
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($_GET['delete_linkid'], $asset->id, 'minor');
+			$parent = &$this->am->getAsset($link['majorid'], $link['major_type_code']);
 			$this->am->acquireLock($parent->id);
 			$parent->deleteLink($link['linkid']);
 			$this->am->releaseLock($parent->id);

@@ -242,7 +242,7 @@ class File extends Asset
 		$name = array_shift($valid_names);
 
 		// make sure the new web path is not already is use
-		$bad_paths = $link['asset']->_webPathsInUse(Array($name));
+		$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
 		if (!empty($bad_paths)) {
 			trigger_error('Unable to create file with name "'.$name.'", web path already exists?', E_USER_WARNING);
 			return false;
@@ -361,9 +361,9 @@ class File extends Asset
 			return false;
 		}
 
-		$parents = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', null, 'minor');
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', null, 'minor');
 		for($i = 0; $i < count($parents); $i++) {
-			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
+			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 			if (is_null($parent)) continue;
 
 			$parent_urls = $parent->getLookups();

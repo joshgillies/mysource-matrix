@@ -253,7 +253,7 @@ class Asset extends Resolve_Object
 
 			// get the link so we can find out if it was dependant (cant rely on the info passed in
 			// because other assets may have changed what happens in createLink)
-			$new_link = $this->getLinkById($linkid, 'minor');
+			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 
 			// set permission on this asset that the parent has
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
@@ -556,7 +556,7 @@ class Asset extends Resolve_Object
 
 			// OK now that we are linked up let's our dependants
 			if ($dupe_dependants) {
-				$dependant_links = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+				$dependant_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 
 				if (!empty($dependant_links)) {
 					$create_link = Array('asset'      => &$dupe,
@@ -571,7 +571,7 @@ class Asset extends Resolve_Object
 						// then just link it to the new duplicate of ourselves
 						if (isset($dupe_map[$data['minorid']])) {
 
-							$duped_child = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dupe_map[$data['minorid']], $data['type_code']);
+							$duped_child = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dupe_map[$data['minorid']], $data['minor_type_code']);
 							if (is_null($duped_child)) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 								return $null;
@@ -585,7 +585,7 @@ class Asset extends Resolve_Object
 
 						// otherwise duplicate and link
 						} else {
-							$child = &$am->getAsset($data['minorid'], $data['type_code']);
+							$child = &$am->getAsset($data['minorid'], $data['minor_type_code']);
 							if (is_null($child)) continue;
 							$create_link['link_type']	= $data['link_type'];
 							$create_link['value']		= $data['value'];
@@ -655,7 +655,7 @@ class Asset extends Resolve_Object
 		}
 
 		// check that the trash link is the only significant link left
-		$links = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'minor');
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor');
 		if (count($links) != 1) {
 			trigger_error('Cannot delete asset, asset must only be linked in the trash', E_USER_WARNING);
 			return false;
@@ -665,9 +665,9 @@ class Asset extends Resolve_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// say to other assets: 'Delete me bitch cause I'm outa here'
-		$links = $this->getLinks(SQ_SC_LINK_ALL, '', true, 'minor');
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', true, 'minor');
 		foreach ($links as $link) {
-			$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
+			$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 			$major->deleteLink($link['linkid']);
 		}
 
@@ -1138,11 +1138,11 @@ class Asset extends Resolve_Object
 			// if we are dependant minor assets, we can only change
 			// our status to a status higher than or equal to all
 			// the statii of our parents
-			$dependant_parents = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'minor', null, 1);
+			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor', null, 1);
 			if (!empty($dependant_parents)) {
 				$am = &$GLOBALS['SQ_SYSTEM']->am;
 				foreach ($dependant_parents as $link) {
-					$asset = &$am->getAsset($link['majorid']);
+					$asset = &$am->getAsset($link['majorid'], $link['major_type_code']);
 					if ($asset->status > $new_status) {
 						// we dont want to rollback, but we dont
 						// want to change our status for real
@@ -1281,11 +1281,11 @@ class Asset extends Resolve_Object
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		// try and acquire locks on our dependants
-		$dependant_links = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+		$dependant_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 		if (!empty($dependant_links)) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach ($dependant_links as $link) {
-				$asset = &$am->getAsset($link['minorid'], $link['type_code']);
+				$asset = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (!$asset->remapAssetids($map)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
@@ -1344,13 +1344,13 @@ class Asset extends Resolve_Object
 		//// FIRST we need to check that all our links are allowed for the new type ////
 
 		// if there any children links
-		if ($num_links = $this->countLinks('major')) {
+		if ($num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major')) {
 
-			$links = $this->getLinks(SQ_SC_LINK_ALL);
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL);
 			foreach($links as $link) {
-				if ($tmp->canLinkToType($link['type_code'], $link['link_type'], 0, $link['exclusive']) !== true) {
+				if ($GLOBALS['SQ_SYSTEM']->am->canLinkToType($tmp, $link['minor_type_code'], $link['link_type'], 0, $link['exclusive']) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'",<br>"'.$link['type_code'].'" assets are not allowed to be "'.link_type_name($link['link_type']).'" linked to "'.$new_type_code.'" assets.', E_USER_WARNING);
+					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'",<br>"'.$link['minor_type_code'].'" assets are not allowed to be "'.link_type_name($link['link_type']).'" linked to "'.$new_type_code.'" assets.', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -1359,13 +1359,13 @@ class Asset extends Resolve_Object
 		}// end if child links
 
 		// if there any parent links
-		if ($num_links = $this->countLinks('minor')) {
+		if ($num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'minor')) {
 
-			$links = $this->getLinks(SQ_SC_LINK_ALL, '', true, 'minor');
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', true, 'minor');
 			foreach($links as $link) {
-				$parent = &$am->getAsset($link['majorid'], $link['type_code']);
+				$parent = &$am->getAsset($link['majorid'], $link['major_type_code']);
 				if (is_null($parent)) continue;
-				if (($err_msg = $parent->canLinkToType($new_type_code, $link['link_type'], $link['linkid'])) !== true) {
+				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'])) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'", "'.$parent->name.'" (Asset # '.$parent->id.') cannot be linked to the new Asset - ('.$err_msg.')', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1521,325 +1521,6 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Returns information for a link that this asset is the major asset in
-	*
-	* @param int			$link_type			integer that should be a single integer of
-	*											the SQ_LINK_* constants
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding an asset that
-	*											is just a $type_code or potentially an inherited type
-	*											or $type_code and any of it's sub-classes
-	* @param string			$value				the value that is associated with this link
-	* @param string			$side_of_link		Which side of the link this (the current) asset
-	*											is on ('major' or 'minor')
-	* @param boolean		$exclusive			The exclusive status for the link must be
-	*											this (if not null)
-	*
-	* @return Array()
-	* @access public
-	*/
-	function getLink($link_type, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
-	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
-
-		if (!$this->id) return Array();
-
-		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						a.type_code, l.sort_order, l.dependant, l.exclusive
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.'.$other_side.'id  = a.assetid
-				';
-		$where = 'l.'.$side_of_link.'id = '.$db->quote($this->id).'
-				  AND l.link_type = '.$db->quote($link_type);
-		if (!is_null($exclusive)) $where .= ' AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
-
-		if ($type_code) {
-
-			$type_code_cond = '';
-			if (is_array($type_code)) {
-				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
-				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
-			} else {
-				$type_code_cond = '= '.$db->quote($type_code);
-			}
-
-			if ($strict_type_code) {
-				$where .= ' AND a.type_code '.$type_code_cond;
-			} else {
-				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$where .= ' AND a.type_code IN (~SQ0~)';
-				$subs = Array( 'SELECT type_code
-								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-								WHERE inherited_type_code '.$type_code_cond );
-				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($where))
-					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
-			}
-		}
-
-		if (!is_null($value)) $where .= '  AND l.value = '.$db->quote($value);
-
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-
-		$sql .= $where.' ORDER BY l.sort_order';
-
-		$result = $db->getRow($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			return Array();
-		}
-
-		return $result;
-
-	}//end getLink()
-
-
-	/**
-	* Returns the link information for a specific link that this asset is the major asset in
-	*
-	* @param int	$linkid
-	* @param string	$side_of_link	Which side of the link this (the current)
-	*								asset is on ('major' or 'minor')
-	* @param bool	$ignore_this	if true we don't care whether this link is ours or not
-	*
-	* @return Array
-	* @access public
-	*/
-	function getLinkById($linkid, $side_of_link='major', $ignore_this=false)
-	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
-
-		if (!$this->id) return Array();
-
-		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$where = 'l.linkid = '.$db->quote($linkid).'
-				  AND l.'.$other_side.'id = a.assetid';
-		if (!$ignore_this) $where .= ' AND l.'.$side_of_link.'id = '.$db->quote($this->id);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-
-		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						a.type_code, l.sort_order, l.dependant, l.exclusive
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset a '.$where;
-
-		$result = $db->getRow($sql);
-		if (DB::isError($result))
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
-		return $result;
-
-	}//end getLinkById()
-
-
-	/**
-	* Returns information for a link or links that is/are between this asset and the passed
-	*
-	*
-	* @param object Asset	$asset				the asset to find a link to/from (major/minor)
-	* @param int			$link_type			integer that should be a single integer of
-	*											the SQ_LINK_* constants
-	* @param string			$value				the value that is associated with this link
-	* @param string			$side_of_link		Which side of the link this (the current) asset
-	*											is on ('major' or 'minor')
-	* @param boolean		$force_array		force the results to return and array of links
-	*											even if there is only one link
-	*
-	* @return Array()	array of link info if only one link and force_array=false,
-	*                   array of arrays of link info otherwise
-	* @access public
-	*/
-	function getLinkByAsset(&$asset, $link_type=null, $value=null, $side_of_link='major', $force_array=false)
-	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
-
-		if (!$this->id) return Array();
-
-		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						a.type_code, l.sort_order, l.dependant, l.exclusive
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.'.$other_side.'id  = a.assetid
-				';
-
-		$where = 'l.'.$side_of_link.'id = '.$db->quote($this->id).'
-				  AND l.'.$other_side.'id  = '.$db->quote($asset->id);
-		if (!is_null($link_type)) $where .= '  AND l.link_type = '.$db->quote($link_type);
-		if (!is_null($value))     $where .= '  AND l.value = '.$db->quote($value);
-
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-
-		$sql .= $where.'
-				ORDER BY l.sort_order';
-
-		$result = $db->getAll($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			return Array();
-		}
-
-		if (!$force_array && count($result) == 1) return $result[0];
-		else return $result;
-
-	}//end getLinkByAsset()
-
-
-	/**
-	* Return all links that this asset has to other assets
-	*
-	* @param int			$link_types			integer that can be the product of bitwise operations
-	*											on the SQ_LINK_* constants
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	* @param string			$side_of_link		Which side of the link this (the current) asset
-	*											is on ('major' or 'minor')
-	* @param string			$value				The value for all the links must equal this (if not null)
-	* @param boolean		$dependant			The dependant status for all the links must be
-	*											this (if not null)
-	* @param boolean		$exclusive			The exclusive status for all the links must be
-	*											this (if not null)
-	*
-	* @return Array()
-	* @access public
-	*/
-	function getLinks($link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null)
-	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
-
-		if (!$this->id) return Array();
-
-		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$where = 'l.'.$other_side.'id = a.assetid
-				  AND l.'.$side_of_link.'id = '.$db->quote($this->id).'
-				  AND (l.link_type & '.$db->quote($link_types).') > 0 ';
-		if (!is_null($value))		$where .= ' AND l.value     = '.$db->quote($value);
-		if (!is_null($dependant))	$where .= ' AND l.dependant = '.$db->quote(($dependant) ? '1' : '0');
-		if (!is_null($exclusive))	$where .= ' AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
-
-		if (!empty($type_code)) {
-
-			$type_code_cond = '';
-			if (is_array($type_code)) {
-				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
-				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
-			} else {
-				$type_code_cond = '= '.$db->quote($type_code);
-			}
-
-			if ($strict_type_code) {
-				$where .= ' AND a.type_code '.$type_code_cond;
-			} else {
-				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$where .= ' AND a.type_code IN (~SQ0~)';
-				$subs = Array( 'SELECT type_code
-								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-								WHERE inherited_type_code '.$type_code_cond );
-				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($where))
-					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
-			}
-		}// end if
-
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-
-		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						a.type_code, l.sort_order, l.dependant, l.exclusive
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset a '.
-				$where.' ORDER BY l.sort_order, a.type_code';
-
-		$result = $db->getAll($sql);
-		if (DB::isError($result))
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
-		return $result;
-
-	}//end getLinks()
-
-
-	/**
-	* Get all asset IDs that are above the asset in the various trees in which it exists
-	*
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	*
-	* @return array(int)
-	* @access public
-	*/
-	function getParents($type_code='', $strict_type_code=true)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);
-
-	}//end getParents()
-
-
-	/**
-	* Get all asset IDs that are below the asset in the various trees in which it exists
-	*
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	*
-	* @return array(int)
-	* @access public
-	*/
-	function getChildren($type_code='', $strict_type_code=true)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, $type_code, $strict_type_code);
-
-	}//end getChildren()
-
-
-	/**
-	* Get all dependant children of an asset in the various tress in which it exists
-	*
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	*
-	* @return array(int)
-	* @access public
-	*/
-	function getDependantChildren($type_code='', $strict_type_code=true)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($this->id, $type_code, $strict_type_code);
-
-	}//end getChildren()
-
-
-	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	* In the form
 	*
@@ -1864,252 +1545,6 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Returns the number of links that this asset has as either a major or minor party,
-	* can be restricted by either link type and/or asset type code
-	*
-	* @param string			$side_of_link		Which side of the link this (the current) asset
-	*											is on ('major' or 'minor')
-	* @param int			$link_types			integer that can be the product of bitwise operations
-	*											on the SQ_LINK_* constants
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	* @param int			$ignore_linkid		ignore the link represented by this link
-	*											id when returning the count
-	*
-	* @return int
-	* @access public
-	*/
-	function countLinks($side_of_link, $link_types=0, $type_code='', $strict_type_code=true, $ignore_linkid=0)
-	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
-
-		if (!$this->id) return 0;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$extra_table = '';
-		$where = 'l.'.$side_of_link.'id = '.$db->quote($this->id);
-		if ($link_types) {
-			$where .= ' AND (link_type & '.$db->quote($link_types).') > 0';
-		}
-		if ($type_code) {
-			$extra_table .= ', '.SQ_TABLE_RUNNING_PREFIX.'asset a';
-			$where .= ' AND l.minorid = a.assetid ';
-			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-
-			$type_code_cond = '';
-			if (is_array($type_code)) {
-				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
-				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
-			} else {
-				$type_code_cond = '= '.$db->quote($type_code);
-			}
-
-			if ($strict_type_code) {
-				$where .= ' AND a.type_code '.$type_code_cond;
-			} else {
-				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$where .= ' AND a.type_code IN (~SQ0~)';
-				$subs = Array( 'SELECT type_code
-								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-								WHERE inherited_type_code '.$type_code_cond );
-				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($sql))
-					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
-			}// end if
-		}// end if
-		if ($ignore_linkid) {
-			$where .= ' AND l.linkid <> '.$db->quote($ignore_linkid);
-		}
-
-
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$sql = 'SELECT COUNT(*)
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l'.$extra_table.' '.$where;
-		$result = $db->getOne($sql);
-
-		if (DB::isError($result))
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
-		return $result;
-
-	}//end countLinks()
-
-
-	/**
-	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
-	*
-	* @param object Asset	$minor		the minor asset that we are linking to
-	* @param string			$link_type	the type of link this is
-	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
-	*
-	* @return mixed TRUE or error message string
-	* @access public
-	*/
-	function canCreateLink(&$minor, $link_type, $exclusive)
-	{
-		if (!$this->id) return false;
-
-		// if you dont have write access to this asset you cant create any links
-		if (!$GLOBALS['SQ_INSTALL'] && !$this->writeAccess(Array(), true, false)) {
-			return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied (no write access to "'.$this->name.'")';
-		}
-
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
-		if (!is_a($minor, 'Asset')) {
-			return 'Minor is not an asset';
-		}
-
-		// check if we are allowed to link to these type of assets
-		if (($err_msg = $this->canLinkToType($minor->type(), $link_type, 0, $exclusive)) !== true) {
-			return $err_msg;
-		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// check for web path conflicts with the new parents children
-		if ($link_type & SQ_SC_LINK_WEB_PATHS) {
-			$paths = $minor->getWebPaths();
-			$bad_paths = $this->_webPathsInUse($paths, $minor->id);
-			if (!empty($bad_paths)) {
-				return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), path(s) "'.implode('", "', $bad_paths).'" already in use by one of the siblings of "'.$this->name.'"';
-			}
-		}
-
-		// if this link is a significant link, then we need to make sure that this
-		// minor asset doesn't already have an exclusive link from anything
-		// and that we aren't moving under ourselves
-		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
-			//// Check for exclusive ////
-			$sql = 'SELECT majorid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link ';
-			$where = 'minorid       = '.$db->quote($minor->id).'
-					  AND exclusive = '.$db->quote('1');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$sql .= $where;
-
-			$majorid = $db->getOne($sql);
-			if (DB::isError($majorid)) {
-				trigger_error($majorid->getMessage().'<br/>'.$majorid->getUserInfo(), E_USER_WARNING);
-				return 'Database Error';
-			}
-
-			if ($majorid) {
-				$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($majorid);
-				return 'Asset "'.$minor->name.'" (Asset #'.$minor->id.') cannot be linked to "'.$this->name.'" (Asset #'.$this->id.') it is exclusively linked to Asset #'.$majorid.' ("'.$major->name.'")';
-			}
-
-			//// Check we aren't moving the minor asset under itself ////
-			// get all the links where the minor asset is a parent
-			// and check to see if our id is under it
-
-			// so much for SQL standards...
-			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : '(pt.treeid || '.$db->quote('%').')';
-			$where = 'ct.treeid LIKE '.$concat.'
-					  AND ct.treeid >= pt.treeid
-					  AND pt.linkid IN (~SQ0~)
-					  AND cl.minorid = '.$db->quote($this->id);
-
-			$sub_where = 'minorid = '.$db->quote($minor->id);
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where);
-			$subs = Array('SELECT linkid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link '.$sub_where);
-
-			$where = db_extras_subquery($db, $where, $subs);
-			if (DB::isError($where)) {
-				trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_WARNING);
-				return 'Database Error';
-			}
-
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
-
-			$sql = 'SELECT COUNT(DISTINCT ct.linkid)
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt,
-						'.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl ON ct.linkid = cl.linkid '.$where;
-			$moving_under = $db->getOne($sql);
-			if (DB::isError($moving_under)) {
-				trigger_error($moving_under->getMessage().'<br/>'.$moving_under->getUserInfo(), E_USER_WARNING);
-				return 'Database Error';
-			} else if ($moving_under) {
-				return 'You are not allowed to move asset "'.$minor->name.'" (ID : #'.$minor->id.') under  "'.$this->name.'" (ID : #'.$this->id.') because this will cause the asset to be nested under itself';
-			}// end if
-		}// end if
-
-		return true;
-
-	}// end canCreateLink()
-
-
-	/**
-	* Checks whether a link of a certain type can be made to this asset
-	* Returns TRUE if link allowed and a string containing the error if it is not
-	*
-	* @param string $type_code		the type code that we want to check
-	* @param string $link_type		the type of link to check
-	* @param int	$ignore_linkid	if it gets down to the checking of the cardinality,
-	*								ignore the link represented by this link id
-	* @param int	$exclusive		the exclusive status of the link
-	*
-	* @return mixed TRUE or error message string
-	* @access public
-	*/
-	function canLinkToType($type_code, $link_type, $ignore_linkid=0, $exclusive=0)
-	{
-		// get the minor assets parents and add it's type to the front of the indexed array
-		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
-		array_unshift($types, $type_code);
-
-		$allowed_links = $this->_getAllowedLinks();
-
-		// we will be ascending up the parent tree from the current asset type.
-		// that way the major asset can have specific cardinality for different assets types
-		// EG, assets => 'M', user => '1' -> this means that many assets can be linked to this asset
-		//     and only one user, but because 'user' is an 'asset' we need to check for any 'user' references
-		//     before we check for any 'asset' references
-		$type = '';
-		for($i = 0; $i < count($types); $i++) {
-			$type = $types[$i];
-			if (!empty($allowed_links[$link_type][$type])) break;
-		}
-
-		if (empty($allowed_links[$link_type][$type])) {
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			return 'Assets of Type "'.$type_code.'" cannot be "'.link_type_name($link_type).'" linked to a "'.$this->type().'"';
-		}
-
-		if (!($link_type & SQ_SC_LINK_SIGNIFICANT) && $exclusive) {
-			return 'In order for a link to be exclusive it must also be a significant link';
-		}
-
-		if (!$exclusive && !empty($allowed_links[$link_type][$type]['exclusive'])) {
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			return 'Assets of Type "'.$type_code.'" must be "'.link_type_name($link_type).'" exclusivly linked to a "'.$this->type().'"';
-		}
-
-		//// Now we need to check that the cardinality is kept valid ////
-
-		// if we are only allowed up to a certain number of these links
-		if ($allowed_links[$link_type][$type]['card'] != 'M') {
-			$num_curr_links = $this->countLinks('major', $link_type, $type, true, $ignore_linkid);
-			//  and we already have our quota of links, bugger off
-			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
-				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-				return 'Assets of Type "'.$this->type().'" can only have '.((int) $allowed_links[$link_type][$type]['card']).' "'.link_type_name($link_type).'" link to a "'.$type.'"';
-			}
-		}//end if
-
-		// if we get this far all is OK
-		return true;
-
-	}// canLinkToType()
-
-
-	/**
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
 	*
@@ -2125,347 +1560,32 @@ class Asset extends Resolve_Object
 	*
 	* @return int
 	* @access public
+	* @see Asset_Manager::createLink()
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
 		if (!$this->id) return 0;
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
-		if (!is_a($minor, 'Asset')) {
-			trigger_error('Minor is not an asset, unable to create link', E_USER_WARNING);
-			return 0;
-		}
-
-		$link_type = (int) $link_type;
-
-		if (!($link_type & SQ_SC_LINK_SIGNIFICANT) && $dependant) {
-			trigger_error('In order for a link to be dependant it must also be a significant link', E_USER_WARNING);
-			return 0;
-		}
-
-		// First, we should check that we don't already have a link of this type
-		$current_links = $this->getLinks($link_type, $minor->type());
-		$num_curr_links = count($current_links);
-		for($i = 0; $i < $num_curr_links; $i++) {
-			// it already exists, so we don't need to do anything
-			if ($current_links[$i]['minorid'] == $minor->id && $current_links[$i]['value'] == $value) {
-				// if we are trashing the asset and it is already in the trash, just
-				// pretend that we created the link
-				$trash = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-				if ($trash->id == $this->id) return true;
-
-				trigger_error('Link Already Exists', E_USER_WARNING);
-				return $current_links[$i]['linkid'];
-			}
-		}//end for
-
-
-		// check if we are allowed to link to these type of assets
-		if (($err_msg = $this->canCreateLink($minor, $link_type, $exclusive)) !== true) {
-			trigger_error($err_msg, E_USER_WARNING);
-			return 0;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// make sure the sort order is in a valid range
-		$sql   = 'SELECT COUNT(*) as count, MAX(sort_order) as max
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link ';
-		$where = 'majorid = '.$db->quote($this->id);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-		$row = $db->getRow($sql.$where);
-		if (DB::isError($row)) {
-			trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return 0;
-		}
-
-		$max = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
-		if (is_null($sort_order) || (int) $sort_order > (int) $max || (int) $sort_order < 0) $sort_order = (int) $max;
-
-		// sequences are cool, see the PEAR::DB docs for more info
-		$linkid = $db->nextId('sq_sequence_asset_link');
-		if (DB::isError($linkid)) {
-			trigger_error($linkid->getMessage().'<br/>'.$linkid->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return 0;
-		}
-
-		// if this is a significant link, then do stuff with the tree
-		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			//// UPDATE THE TREE TABLE ////
-
-			// Get one of the treeids that we have
-			$sql   = 'SELECT t.treeid
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
-					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid ';
-			$where = 'l.minorid = '.$db->quote($this->id);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql .= $where.' LIMIT 1';
-
-			$existing_treeid = $db->getOne($sql);
-			if (DB::isError($existing_treeid)) {
-				trigger_error($existing_treeid->getMessage().'<br/>'.$existing_treeid->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-
-			// if we aren't linked anywhere we can't be linked to, sorry
-			// NOTE: exception to rule is root folder
-			if ((string) $existing_treeid == '' && $this->id != 1) {
-				trigger_error('Unable to create link, Asset "'.$this->name.'" (Asset #'.$this->id.') is not linked to anything itself', E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-
-			// OK, what we are going to get a treeid and then do a "INSERT INTO ... SELECT FROM"
-			// into the tree table of all the links that are under the minor asset
-			$sql   = 'SELECT t.treeid, t.num_immediate_kids
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
-					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid ';
-			$where = 'l.minorid = '.$db->quote($minor->id);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql .= $where.' LIMIT 1';
-
-			$minor_tree = $db->getRow($sql);
-			if (DB::isError($minor_tree)) {
-				trigger_error($minor_tree->getMessage().'<br/>'.$minor_tree->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-
-			$existing_treeid = (string) $existing_treeid;
-			if (empty($minor_tree)) {
-				$minor_tree = Array('treeid' => '', 'num_immediate_kids' => 0);
-			} else {
-				$minor_tree['treeid'] = (string) $minor_tree['treeid'];
-				$minor_tree['num_immediate_kids'] = (int) $minor_tree['num_immediate_kids'];
-			}
-
-			// when links are deleted their entries in the tree table are set to have a linkid of zero
-			// (see deleteLink()) so we can attempt to find unused treeid's that are forming gaps
-			$sql   = 'SELECT ct.treeid
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ';
-			$where = 'ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
-					  AND ct.treeid > '.$db->quote($existing_treeid).'
-					  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
-					  AND ct.linkid = 0';
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-			$sql .= $where.' LIMIT 1';
-
-			$free_childid = $db->getOne($sql);
-			if (DB::isError($free_childid)) {
-				trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-
-			// No free children ? generate one from the max value
-			if ((string) $free_childid == '') {
-				$sql   = 'SELECT MAX(ct.treeid) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ';
-				$where = 'ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
-						  AND ct.treeid > '.$db->quote($existing_treeid).'
-						  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE);
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-
-				$free_childid = $db->getOne($sql.$where);
-				if (DB::isError($free_childid)) {
-					trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return 0;
-				}
-
-				// No max ? we must be the first
-				if ((string) $free_childid == '') {
-					if (($free_childid = asset_link_treeid_convert(0, true)) === false) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return 0;
-					}
-
-				// we found a max so increment it
-				} else {
-					// get only the child part
-					$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
-
-					if (($child_num    = asset_link_treeid_convert($free_childid, false)) === false) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return 0;
-					}
-					if (($free_childid = asset_link_treeid_convert($child_num + 1, true)) === false)  {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return 0;
-					}
-				}// end if
-
-			// else there was a free entry
-			} else {
-
-				// get only the child part
-				$free_childid = substr($free_childid, -1 * SQ_CONF_ASSET_TREE_SIZE);
-
-				// remove the current zeroed entries in the tree table,
-				// as we will be inserting over the top of them
-
-				// because the root folder is not a minor party in any links we have
-				// to something special for it
-				$where_cond = '';
-				if ($this->id == 1) {
-					$where_cond = 'treeid = '.$db->quote($free_childid);
-				} else {
-					$where_cond = 'treeid IN (~SQ0~)';
-
-					$concat = ($db->phptype == 'mysql')
-								? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
-								: 't.treeid || '.$db->quote($free_childid);
-					$sub_where = 'l.minorid = '.$db->quote($this->id);
-					$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
-					$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
-					$subs = Array(' SELECT '.$concat.'
-									FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid '.$sub_where);
-					$where_cond = db_extras_subquery($db, $where_cond, $subs);
-					if (DB::isError($where_cond)) {
-						trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return 0;
-					}
-
-				}
-
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link_tree', $where_cond)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return 0;
-				}
-
-			}// end if
-
-			// if we don't have any existing tree entries then
-			// we are the root folder, so do a simple insert
-			if ((string) $existing_treeid == '') {
-				$values = Array('treeid'             => $free_childid,
-								'linkid'             => $linkid,
-								'num_immediate_kids' => $minor_tree['num_immediate_kids']
-								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link_tree', $values)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return 0;
-				}
-
-			// we have existing tree entries, do a insert..select to create entries for them all
-			} else {
-				// so much for SQL standards...
-				$concat = ($db->phptype == 'mysql')
-							? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
-							: '(t.treeid || '.$db->quote($free_childid).')';
-
-				$where = 'l.minorid = '.$db->quote($this->id);
-				// note that we dont prep this query for rollback because its getting run
-				// by the rollback query functions already
-				$select_from = SQ_TABLE_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_PREFIX.'asset_link l ON t.linkid = l.linkid';
-				$values = Array('treeid'             => $concat,
-								'linkid'             => $db->quote($linkid),
-								'num_immediate_kids' => $db->quote($minor_tree['num_immediate_kids'])
-								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_link_tree', $select_from, $values, $where)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return 0;
-				}
-			}// end if
-
-			// Update the parents to tell them that they are have one kid more
-			$where_cond = 'treeid IN (~SQ0~)';
-			$sub_where = 't.linkid = '.$db->quote($linkid);
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
-			$subs = Array(' SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
-							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t '.$sub_where);
-
-			$where_cond = db_extras_subquery($db, $where_cond, $subs);
-			if (DB::isError($where_cond)) {
-				trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-
-			$values = Array('num_immediate_kids' => 'num_immediate_kids + 1');
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link_tree', $values, $where_cond)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-
-			// if this minor has already been linked so do a select into
-			if ($minor_tree['treeid'] != '') {
-
-				// so much for SQL standards...
-				$concat = ($db->phptype == 'mysql')
-							? 'CONCAT(pt.treeid, '.$db->quote($free_childid).', SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).'))'
-							: 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')';
-
-				$where = 'pl.minorid = '.$db->quote($this->id).'
-						  AND ct.treeid LIKE '.$db->quote($minor_tree['treeid'].'%').'
-						  AND ct.treeid > '.$db->quote($minor_tree['treeid']);
-				// note that we dont prep this query for rollback because its getting run
-				// by the rollback query functions already
-				$select_from = SQ_TABLE_PREFIX.'asset_link_tree pt INNER JOIN '.SQ_TABLE_PREFIX.'asset_link pl ON pt.linkid = pl.linkid,
-								'.SQ_TABLE_PREFIX.'asset_link_tree ct';
-				$values = Array('treeid'             => $concat,
-								'linkid'             => 'ct.linkid',
-								'num_immediate_kids' => 'ct.num_immediate_kids'
-								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_link_tree', $select_from, $values, $where)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return 0;
-				}
-
-			}// end if
-
-		}// end if significant link
-
-		// move the sort_order for all the other assets up one
-		$where_cond = ' majorid         = '.$db->quote($this->id).'
-						AND sort_order >= '.$db->quote($sort_order);
-		$values = Array('sort_order' => 'sort_order + 1');
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $values, $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return 0;
-		}
-
-		// and finally insert the link
-		$values = Array('linkid'         => $linkid,
-						'majorid'        => $this->id,
-						'minorid'        => $minor->id,
-						'link_type'      => $link_type,
-						'value'          => $value,
-						'sort_order'     => $sort_order,
-						'dependant'      => (($dependant) ? '1' : '0'),
-						'exclusive'      => (($exclusive) ? '1' : '0'),
-						'updated'        => ts_iso8601(time()),
-						'updated_userid' => $GLOBALS['SQ_SYSTEM']->currentUserId()
-						);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link', $values)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return 0;
-		}
-
-		// tell, the asset it has updated
-		if (!$this->_linksUpdated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return 0;
-		}
-		if (!$minor->_linksUpdated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return 0;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $this->id, 'linkid' => $linkid));
-
-		return $linkid;
+		return $GLOBALS['SQ_SYSTEM']->am->createAssetLink($this, $minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 
 	}//end createLink()
+
+
+	/**
+	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
+	*
+	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param string			$link_type	the type of link this is
+	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
+	*
+	* @return mixed TRUE or error message string
+	* @access public
+	*/
+	function canCreateLink(&$minor, $link_type, $exclusive)
+	{
+		if (!$this->id) return 0;
+		return $GLOBALS['SQ_SYSTEM']->am->canCreateLink($this, $minor, $link_type, $exclusive);
+
+	}// end canCreateLink()
 
 
 	/**
@@ -2490,299 +1610,18 @@ class Asset extends Resolve_Object
 	*
 	* @return boolean
 	* @access public
+	* @see Asset_Manager::deleteLink()
 	*/
 	function deleteLink($linkid)
 	{
-		// first, we should try and find the link
-		$link = $this->getLinkById($linkid);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			trigger_error('Unable cannot delete link, Link #'.$linkid.' does not exist', E_USER_NOTICE);
 			return false;
-		}
-
-		// if you dont have write access to this asset you cant delete any links
-		if (!$this->writeAccess(Array(), false)) {
-			trigger_error('Cannot delete link, permission denied', E_USER_WARNING);
-			return false;
-		}
-
-		// check if we are allowed to delete this link
-		if (($err_msg = $this->canDeleteLink($linkid)) !== true) {
-			trigger_error($err_msg, E_USER_WARNING);
-			return 0;
-		}
-
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
-		if (is_null($minor)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// if this is a significant link
-		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
-
-			$num_other_links = $minor->countLinks('minor', SQ_SC_LINK_SIGNIFICANT, '', true, $linkid);
-
-			// we create a new link to the trash if this is the last significant link
-			// being deleted and if we are not purging the trash
-			if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
-				// some assets may not be able to have their last significant link
-				// deleted, so lets check first before going ahead
-				if (!$minor->canDelete()) {
-					trigger_error($minor->name.' can not have its last significant link removed' , E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-
-				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-				if (is_null($trash_folder)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-
-				// this asset is destined for the trash, so we need to set its permissions to
-				// whatever it is inheriting right now so it keeps them while in the trash
-				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
-				foreach ($perms as $perm) {
-					$all_permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($minor->id, $perm, null, false, true, false, true);
-					foreach($all_permissions as $userid => $data) {
-						if (empty($data)) continue;
-						foreach($data as $assetid => $access) {
-							if($assetid == $minor->id) continue;
-							// we are deliberatly not checking for the return value here
-							// because if for some reason the permission can't be set that is really just
-							// bad luck
-							@$GLOBALS['SQ_SYSTEM']->am->setPermission($minor->id, $userid, $perm, $access);
-						}
-					}
-				}
-
-				if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-
-			//// UPDATE THE TREE ////
-
-			// Update the parents to tell them that they are going to be one kid less
-			$where_cond_string = 'treeid in (~SQ0~)';
-			$sub_where = 't.linkid = '.$db->quote($linkid);
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
-			$subs = Array(' SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
-							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t '.$sub_where);
-
-			$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
-			if (DB::isError($where_cond)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($sql->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-
-			// add a rollback entry for the tree
-			$values = Array('num_immediate_kids' => 'num_immediate_kids - 1');
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link_tree', $values, $where_cond)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			// We can delete all the links under these nodes because it will be a clean start
-			// when we insert into the gap's we create below
-			$where_cond_string = 'treeid in (~SQ0~)';
-			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
-			$sub_where = 'pt.linkid = '.$db->quote($linkid).'
-						  AND ct.treeid LIKE '.$concat.'
-						  AND ct.treeid > pt.treeid';
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'pt');
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ct');
-			$subs = Array('SELECT ct.treeid
-							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt, '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct
-							'.$sub_where);
-
-			$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
-			if (DB::isError($where_cond)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link_tree', $where_cond)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			// We are going to set the treeid nodes that this link is associated
-			// with to zero so that we can find it as a gap when we createLink() later on
-			$where = 'linkid = '.$db->quote($linkid);
-			$values = Array('linkid' => $db->quote('0'),
-							'num_immediate_kids' => $db->quote('0')
-							);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link_tree', $values, $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-		}// end if significant link
-
-		// move 'em up, higher
-		$where_cond = ' majorid        = '.$db->quote($this->id).'
-						AND sort_order > '.$db->quote($link['sort_order']);
-		$values = Array('sort_order' => 'sort_order - 1');
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $values, $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		$where_cond = ' linkid  = '.$db->quote($linkid).'
-						AND majorid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// tell, the asset it has updated
-		if (!$this->_linksUpdated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-		if (!$minor->_linksUpdated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return 0;
-		}
-
-		// if this is a web path link, then we need to inform the asset to update it's lookups
-		if ($link['link_type'] & SQ_SC_LINK_WEB_PATHS) {
-			if (!$minor->updateLookups()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $this->id, 'linkid' => $linkid));
-
-		return true;
-
-	}//end deleteLink()
-
-
-	/**
-	* Move a link to a new parent
-	*
-	* @param int	$linkid			the link id of the link to move
-	* @param int	$to_parentid	the asset id of the new parent asset
-	* @param int	$link_type		the type of the new link
-	* @param int	$to_parent_pos	the position under the new parent
-	*
-	* @return boolean
-	* @access public
-	*/
-	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
-	{
-		// first, we should try and find the link
-		$link = $this->getLinkById($linkid);
-		if (empty($link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to move link', E_USER_WARNING);
-			return false;
-		}
-
-		// now check that the new parent exists
-		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($to_parentid);
-		if (!$new_parent->id) {
-			trigger_error('Unable to Move Asset, new parent (Asset #"'.$to_parentid.'") not found', E_USER_WARNING);
-			return false;
-		}
-
-		// cant link to the new parent if it is in the trash
-		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($new_parent->id, true)) {
-			trigger_error('Unable to Move Asset, new parent (Asset #"'.$new_parent->id.'") is in the trash');
-			return;
-		}
-
-		// if you dont have write access to this asset you cant delete any links
-		if (!$this->writeAccess(Array(), false)) {
-			trigger_error('Unable to Move Asset, permission denied to old parent "'.$this->name.'"', E_USER_WARNING);
-			return false;
-		}
-
-		// if you dont have write access to the new parent asset you cant create any links
-		if (!$new_parent->writeAccess(Array(), false)) {
-			trigger_error('Unable to Move Asset, permission denied to new parent "'.$new_parent->name.'"', E_USER_WARNING);
-			return false;
-		}
-
-		// this is the asset we are moving
-		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
-		if (!$minor->id) {
-			trigger_error('Unable to Move Asset, minor (Asset #"'.$link['minorid'].'") not found', E_USER_WARNING);
-			return false;
-		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_parent->id)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_parent->id);
-		if (!$new_linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// Now let's try and delete the old link
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-		$deleted = $this->deleteLink($linkid);
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
-		if (!$deleted) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		return true;
-
-	}//end moveLink()
-
-
-	/**
-	* Move a link from one position in the assets links order to another
-	*
-	* @param int	$linkid		the link id of the link to move about
-	* @param int	$sort_order	the position in the links list that this link should take,
-	*							if less than zero places at end of list
-	*
-	* @return boolean
-	* @access public
-	*/
-	function moveLinkPos($linkid, $sort_order=-1)
-	{
-		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		if ($this->_updateLink($linkid, null, null, $sort_order) && $this->_linksUpdated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
 		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid);
 		}
-
-	}//end moveLinkPos()
+	}//end deleteLink()
 
 
 	/**
@@ -2797,149 +1636,9 @@ class Asset extends Resolve_Object
 	function _linksUpdated()
 	{
 		if (!$this->_updated()) return false;
-		unset($this->_tmp['dependant_links']);
 		return true;
 
 	}//end _linksUpdated()
-
-
-	/**
-	* Update the details of an existing link
-	*
-	* If any of the detail vars are NULL they are not updated.<br/>
-	* <b>NOTE:</b> No transaction stuff is put around the SQL calls in the fn. That sould be done externally.
-	*
-	* @param int	$linkid		the link id of the link to update
-	* @param int	$link_type
-	* @param string $value
-	* @param int	$sort_order	the position in the links list that this link should take,
-	*							if less than zero places at end of list
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _updateLink($linkid, $link_type=null, $value=null, $sort_order=null)
-	{
-		// First, we should try and find the link
-		$link = $this->getLinkById($linkid);
-		if (empty($link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to update link', E_USER_WARNING);
-			return false;
-		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$set_clauses = Array();
-
-		$link_type_changed	= (!is_null($link_type)		&& $link['link_type']	!= $link_type	);
-		$value_changed		= (!is_null($value)			&& $link['value']		!= $value		);
-		$sort_order_changed	= (!is_null($sort_order)	&& $link['sort_order']	!= $sort_order	);
-
-		$link_type  = (int) $link_type;
-		$sort_order = (int) $sort_order;
-
-		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset((int) $link['minorid']);
-
-		if ($link_type_changed) {
-
-			// We need to make sure that we aren't going to have to be fucking
-			// about with tree to get the update working
-			// so because the tree only contains significant links if the
-			// significant state has changed... barf
-			$current_is_sig = (bool) ((int) $link['link_type'] & SQ_SC_LINK_SIGNIFICANT);
-			$new_is_sig     = (bool) ($link_type & SQ_SC_LINK_SIGNIFICANT);
-			if ($current_is_sig !== $new_is_sig) {
-				trigger_error('Unable to update link #'.$linkid.' , you cannot change a link from being a significant link to a non-significant link or vice versa', E_USER_WARNING);
-				return false;
-			}
-
-			if (($err_msg = $this->canLinkToType($minor->type(), $link_type)) !== true) {
-				trigger_error('Unable to update link #'.$linkid.' ('.$err_msg.')', E_USER_WARNING);
-				return false;
-			}
-
-			// check for web path conflicts with the new parents children
-			// if the old link is not a web path link but the new one is
-			if (!($link['link_type'] & SQ_SC_LINK_WEB_PATHS) && ($link_type & SQ_SC_LINK_WEB_PATHS)) {
-				$paths = $minor->getWebPaths();
-				$bad_paths = $this->_webPathsInUse($paths, $minor->id);
-				if (!empty($bad_paths)) {
-					trigger_error('Cannot update link #'.$linkid.', path(s) "'.implode('", "', $bad_paths).'" already in use by one of the siblings of "'.$this->name.'"', U_USER_WARNING);
-					return false;
-				}
-			}
-
-			$set_clauses['link_type'] = $db->quote($link_type);
-
-		}// end if link_type_changed
-
-		if ($value_changed) $set_clauses['value'] = $db->quote($value);
-
-		if ($sort_order_changed) {
-			$where = 'majorid = '.$db->quote($this->id);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$sql = 'SELECT COUNT(*) AS count, MAX(sort_order) AS max
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link '.$where;
-			$row = $db->getRow($sql);
-			if (DB::isError($row)) {
-				trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-			$max = ($row['count'] > 0) ? (int) $row['max'] : 0;
-			if ($sort_order > $max || $sort_order < 0) $sort_order = $max;
-
-			$set_clauses['sort_order'] = $db->quote($sort_order);
-		}
-
-		// dickhead check
-		if (empty($set_clauses)) return true;
-
-		$set_clauses['updated_userid']  = $db->quote($GLOBALS['SQ_SYSTEM']->currentUserId());
-		$set_clauses['updated'] = $db->quote(ts_iso8601(time()));
-		$where = '  linkid      = '.$db->quote($linkid).'
-					AND majorid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $set_clauses, $where)) {
-			return false;
-		}
-
-		if ($link_type_changed) {
-			// if this is a web path link or if the old link type was,
-			// then we need to inform the asset to update it's lookups
-			if (($link_type & SQ_SC_LINK_WEB_PATHS) || ((int) $link['link_type'] & SQ_SC_LINK_WEB_PATHS)) {
-				if (!$minor->updateLookups()) {
-					return false;
-				}
-			}
-		}
-
-		if ($sort_order_changed) {
-			// move 'em up, higher
-			if ($link['sort_order'] > $sort_order) {
-				$where = '  majorid = '.$db->quote($this->id).'
-							AND linkid <> '.$db->quote($linkid).'
-							AND sort_order >= '.$db->quote($sort_order).'
-							AND sort_order <= '.$db->quote($link['sort_order']);
-				$values = Array('sort_order' => 'sort_order + 1');
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $values, $where)) {
-					return false;
-				}
-
-			} else {
-				$where = '  majorid = '.$db->quote($this->id).'
-							AND linkid <> '.$db->quote($linkid).'
-							AND sort_order >= '.$db->quote($link['sort_order']).'
-							AND sort_order <= '.$db->quote($sort_order);
-				$values = Array('sort_order' => 'sort_order - 1');
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $values, $where)) {
-					return false;
-				}
-			}
-
-		}// end if sort order changed
-
-		return $minor->_updated();
-
-	}//end _updateLink()
 
 
 //--        ATTRIBUTES        --//
@@ -3436,7 +2135,7 @@ class Asset extends Resolve_Object
 			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
 
 			// use the current user and their groups
-			$assetids = $GLOBALS['SQ_SYSTEM']->user->getParents(Array('user', 'user_group'), false);
+			$assetids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false);
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		}
 
@@ -3745,11 +2444,11 @@ class Asset extends Resolve_Object
 			// now we need to check that none of our parents have
 			// any nav kids that are also using this path name
 			$siblingids = Array();
-			$parents = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
 			for($i = 0; $i < count($parents); $i++) {
-				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
+				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
-				$bad_paths = $parent->_webPathsInUse($inserts, $this->id);
+				$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($parent, $inserts, $this->id);
 				if (!empty($bad_paths)) {
 					trigger_error('Path(s) "'.implode('", "', $bad_paths).'" already in use by one of the siblings of "'.$parent->name.'"', E_USER_WARNING);
 					return false;
@@ -3793,69 +2492,6 @@ class Asset extends Resolve_Object
 		}
 
 	}// end saveWebPaths()
-
-
-	/**
-	* Returns an array of the passed web paths that are currently in use by any of our siblings
-	*
-	* @param array		$paths					array of web paths to check
-	* @param int		$ignore_assetid			ignore this assetid when checking
-	* @param boolean	$return_alternatives	return all paths but replace the bad paths
-	*											with a valid alternative
-	*
-	* @return array(string)
-	* @access protected
-	*/
-	function _webPathsInUse($paths=Array(), $ignore_assetid=0, $return_alternatives=false)
-	{
-		if (empty($paths)) return Array();
-		$return_paths = Array();
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// get all our nav siblings
-		$siblingids = Array();
-		$my_kids = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'major');
-		for($j = 0; $j < count($my_kids); $j++) {
-			if ($my_kids[$j]['minorid'] == $ignore_assetid) continue;
-			$siblingids[] = $db->quote($my_kids[$j]['minorid']);
-		}
-
-		$sibling_paths = Array();
-
-		if (count($siblingids)) {
-			$where = 'assetid IN ('.implode(',', $siblingids).')';
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$sql = 'SELECT path FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_path '.$where;
-
-			$sibling_paths = $db->getCol($sql);
-			if (DB::isError($sibling_paths)) {
-				trigger_error($sibling_paths->getMessage().'<br/>'.$sibling_paths->getUserInfo(), E_USER_ERROR);
-				return false;
-			}
-		}
-
-		foreach ($paths as $path) {
-			if (in_array($path, $sibling_paths)) {
-				if ($return_alternatives) {
-					// find a good path to use
-					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-					$new_path = $path;
-					while (in_array($new_path, $sibling_paths)) {
-						// increment the path using numerials
-						$new_path = increment_filename($new_path);
-					}
-					$path = $new_path;
-				}
-				$return_paths[] = $path;
-			} else if ($return_alternatives) {
-				$return_paths[] = $path;
-			}
-		}
-
-		return $return_paths;
-
-	}//end _webPathsInUse()
 
 
 //--        LOOKUPS        --//
@@ -3926,18 +2562,18 @@ class Asset extends Resolve_Object
 		// if we have paths then do some url inserting
 		if (count($paths)) {
 
-			$design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false, 'frontend_design');
+			$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design', false, 'frontend_design');
 			$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
-			$login_design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false, 'login_design');
+			$login_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design', false, 'login_design');
 			$login_designid = (is_null($login_design_link)) ? 0 : $login_design_link['minorid'];
-			$parents = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
+			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
 
 			$done_urls    = Array();
 			$done_parents = Array();
 
 			for($i = 0; $i < count($parents); $i++) {
 				if (in_array($parents[$i]['majorid'], $done_parents)) continue;
-				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
+				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
 				if (is_null($parent)) continue;
 
 				$parent_urls = $parent->getLookups();

@@ -99,7 +99,7 @@ class Page_Standard extends Page
 	{
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
-		$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
 		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the standard page';
 
 		return parent::canDeleteLink($linkid);
@@ -133,7 +133,7 @@ class Page_Standard extends Page
 	{
 		if (isset($_GET['sq_from_frontend'])) {
 			// get the bodycopy attached to us
-			$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
+			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
 			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
 			if (is_null($bodycopy)) {
 				trigger_error('Could not locate the bodycopy for standard page "'.$this->name.'"', E_USER_ERROR);
@@ -158,10 +158,10 @@ class Page_Standard extends Page
 	{
 		// get the bodycopy attached to us
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$bodycopy_data = $this->getLink(SQ_LINK_TYPE_2, 'bodycopy', true, null, 'major', '1');
+		$bodycopy_data = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, null, 'major', '1');
 		if (empty($bodycopy_data)) return;
 
-		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['type_code']);
+		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
 		$bodycopy->printBody();
 
 	}// end printBody()

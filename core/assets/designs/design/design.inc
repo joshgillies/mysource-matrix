@@ -71,7 +71,7 @@ class Design extends Design_Area
 		$initial_path = strtolower($this->name);
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $link['asset']->_webPathsInUse($valid_paths, $this->id, true);
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
 		if (!$this->saveWebPaths($good_paths)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
@@ -169,13 +169,13 @@ class Design extends Design_Area
 
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-			$customisation_links = &$this->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 			foreach($customisation_links as $link) {
-				$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
+				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 
 				$file_link_ids = Array();
-				$file_links = $customisation->getLinks(SQ_LINK_TYPE_2, 'file', false);
+				$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($customisation->id, SQ_LINK_TYPE_2, 'file', false);
 				foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
 				$file_link_info = $am->getAssetInfo(array_unique($file_link_ids));
 
@@ -215,27 +215,27 @@ class Design extends Design_Area
 	function deleteLink($linkid)
 	{
 		// first, we should try and find the link
-		$delete_link = $this->getLinkById($linkid);
+		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
 			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
 			return false;
 		}
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['type_code']);
+		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
 		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
 		if (is_a($minor, 'file')) {
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$customisation_links = &$this->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 			foreach($customisation_links as $link) {
-				$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
+				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 
 				$file_link_ids = Array();
-				$file_links = $customisation->getLinks(SQ_LINK_TYPE_3, 'file', false);
+				$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($customisation->id, SQ_LINK_TYPE_3, 'file', false);
 
 				foreach ($file_links as $link) {
 					if ($link['minorid'] == $delete_link['minorid']) {
@@ -277,9 +277,9 @@ class Design extends Design_Area
 	function getDesignAreaLink($id_name='')
 	{
 		if ($id_name) {
-			return @$this->getLink(SQ_LINK_TYPE_3, 'design_area', false, $id_name);
+			return @$GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design_area', false, $id_name);
 		} else {
-			return @$this->getLinks(SQ_LINK_TYPE_3, 'design_area', false);
+			return @$GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design_area', false);
 		}
 
 	}//end getDesignAreaLink()
@@ -301,7 +301,7 @@ class Design extends Design_Area
 			if (empty($link)) {
 				$this->_tmp['design_areas'][$id_name] = null;
 			} else {
-				$this->_tmp['design_areas'][$id_name] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+				$this->_tmp['design_areas'][$id_name] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			}
 		}
 		return $this->_tmp['design_areas'][$id_name];
@@ -366,10 +366,10 @@ class Design extends Design_Area
 	*/
 	function _updateCustomisations()
 	{
-		$customisation_links = &$this->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+		$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		foreach($customisation_links as $link) {
-			$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
+			$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($customisation)) continue;
 			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($customisation->id)) {
 				$customisation->updateFromParent($this);
@@ -482,7 +482,7 @@ class Design extends Design_Area
 	{
 		// generate an array of all the URLs we are going to need for the files in this design
 		$file_link_ids = Array();
-		$file_links = $this->getLinks(SQ_LINK_TYPE_2, 'file', false);
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'file', false);
 		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
 
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
@@ -532,10 +532,10 @@ class Design extends Design_Area
 		$edit_fns->createDesignFile($this);
 
 		if ($do_customisations) {
-			$customisation_links = &$this->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach($customisation_links as $link) {
-				$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
+				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 				$customisation->generateDesignFile(true);
 			}// end foreach

@@ -254,9 +254,9 @@ class Site extends Folder
 			return false;
 		}
 
-		$design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false, 'frontend_design');
+		$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design', false, 'frontend_design');
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
-		$login_design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false, 'login_design');
+		$login_design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design', false, 'login_design');
 		$login_designid = (is_null($login_design_link)) ? 0 : $login_design_link['minorid'];
 
 		$urls = $this->getSiteURLs();
@@ -348,7 +348,7 @@ class Site extends Folder
 			case 'index' :
 			case 'not_found' :
 			case 'forbidden' :
-				return $this->getLink(SQ_LINK_TYPE_3, '', true, $page);
+				return $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, '', true, $page);
 				break;
 
 			default :
@@ -376,7 +376,7 @@ class Site extends Folder
 			return $null;
 		}
 
-		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
 	}//end getSpecialPage()
 

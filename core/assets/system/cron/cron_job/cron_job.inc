@@ -243,9 +243,9 @@ class Cron_Job extends Asset
 	{
 		$null = null; // because we need to return by ref
 
-		$link = $this->getLink(SQ_LINK_NOTICE, 'user', false, 'running as');
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'user', false, 'running as');
 		if (empty($link)) return $null;
-		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
 	}// end getRunningUser()
 

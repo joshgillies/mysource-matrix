@@ -42,9 +42,9 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	function paintInlineEditInterface(&$asset, &$o, $values, $write_access)
 	{
 		$o->openSection($asset->name);
-		$current_links = $asset->getLinks(SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
 		foreach ($current_links as $link) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
 			if (!isset($values['sections'][$section->name])) $values['sections'][$section->name] = Array();
@@ -70,9 +70,9 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	{
 		$new_values[$asset->name] = Array();
 		$new_values[$asset->name]['sections'] = Array();
-		$current_links = $asset->getLinks(SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
 		foreach ($current_links as $link) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
 			if (!$edit_fns->processInlineEditInterface($section, $new_values[$asset->name]['sections'])) return false;
@@ -95,9 +95,9 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateMetadata(&$asset, $values, &$keywords)
 	{
-		$current_links = $asset->getLinks(SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
 		foreach ($current_links as $link) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($section)) continue;
 			$edit_fns = $section->getEditFns();
 			if (!$edit_fns->generateMetadata($section, $values['sections'][$section->name], $keywords)) return false;

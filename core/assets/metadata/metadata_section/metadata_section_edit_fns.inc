@@ -49,7 +49,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 		}
 		$o->closeField();
 
-		$current_links = $asset->getLinks(SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true, true);
 		if (!empty($current_links)) {
 			$o->openField('Current');
 			$assetids = Array();
@@ -96,7 +96,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 
 		$updated = false;
 
-		$current_links = $asset->getLinks(SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true, true);
 		$assetids = Array();
 		foreach ($current_links as $link) $assetids[$link['minorid']] = $link['linkid'];
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
@@ -139,9 +139,9 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	function paintInlineEditInterface(&$asset, &$o, $values, $write_access)
 	{
 		$o->openSection($asset->name);
-		$current_links = $asset->getLinks(SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
 		foreach ($current_links as $link) {
-			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
 			$edit_fns = $field->getEditFns();
 			if (!isset($values['fields'][$field->name])) $values['fields'][$field->name] = Array();
@@ -167,9 +167,9 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	{
 		$new_values[$asset->name] = Array();
 		$new_values[$asset->name]['fields'] = Array();
-		$current_links = $asset->getLinks(SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
 		foreach ($current_links as $link) {
-			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
 			$edit_fns = $field->getEditFns();
 			if (!$edit_fns->processInlineEditInterface($field, $new_values[$asset->name]['fields'])) return false;
@@ -193,9 +193,9 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	function generateMetadata(&$asset, $values, &$keywords)
 	{
 		echo "<!-- $asset->name //-->\n";
-		$current_links = $asset->getLinks(SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
 		foreach ($current_links as $link) {
-			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
 			$edit_fns = $field->getEditFns();
 			if (!isset($values['fields'][$field->name])) $values['fields'][$field->name] = Array();

@@ -129,9 +129,9 @@ class Login_Design extends Design
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 
-		$file_links = $this->getLinks(SQ_LINK_TYPE_2, 'file', false);
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'file', false);
 		foreach ($file_links as $link) {
-			$file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+			$file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($file->id)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;

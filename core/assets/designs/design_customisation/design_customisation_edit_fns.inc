@@ -62,7 +62,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			$parents_link = $parent_design->getDesignAreaLink($id_name);
 			if (is_null($parents_link)) continue;
 
-			$data[$id_name] = Array($parents_link['minorid'], $parents_link['type_code']);
+			$data[$id_name] = Array($parents_link['minorid'], $parents_link['minor_type_code']);
 
 		}// end foreach
 
@@ -119,7 +119,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		foreach($_POST[$prefix.'_customise'] as $id_name) {
 			$link = $asset->getDesignAreaLink($id_name);
 			if (is_null($link)) continue;
-			$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'], false);
+			$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], false);
 			if (is_null($da)) continue;
 
 			// First let's duplicate the DA, ignoring the directory with the files
@@ -157,7 +157,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		// if we already have a file with the same name TYPE_3 linked to us,
 		// delete this link so we link up this new file
 		$existing_ids = Array();
-		$existing = $asset->getLinks(SQ_LINK_TYPE_3, 'file', false);
+		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, 'file', false);
 		foreach ($existing as $link) $existing_ids[$link['minorid']] = $link['linkid'];
 		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
 		foreach ($existing_info as $existing_info) {
@@ -205,9 +205,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		}// end foreach
 
-		$customisation_links = &$asset->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+		$customisation_links = &$GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 		foreach($customisation_links as $customisation_link) {
-			$customisation = &$GLOBALS['SQ_SYSTEM']->am->getAsset($customisation_link['minorid'], $customisation_link['type_code']);
+			$customisation = &$GLOBALS['SQ_SYSTEM']->am->getAsset($customisation_link['minorid'], $customisation_link['minor_type_code']);
 			if (is_null($customisation)) continue;
 
 			if (!$this->_updateDesignAreaLink($customisation, $data)) return false;
@@ -246,7 +246,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		uasort($links, Array(get_class($this), 'linkCompare'));
 		$current_type = '';
 		foreach($links as $link) {
-			$da = &$am->getAsset($link['minorid'], $link['type_code']);
+			$da = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($da)) continue;
 		?>
 			<tr>
@@ -300,8 +300,8 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
     function linkCompare($a, $b)
     {
 		// if they don't match, return the value
-        if ($c = strcmp($a['type_code'], $b['type_code'])) return $c;
-		// otherwis the types are equal, so compare by id_name
+        if ($c = strcmp($a['minor_type_code'], $b['minor_type_code'])) return $c;
+		// otherwise the types are equal, so compare by id_name
 		return strcmp(strtolower($a['value']), strtolower($b['value']));
     }
 

@@ -1128,7 +1128,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						$o->openSection($display_name);
 						$o->openField('Current');
 
-						$design_link = $owner->getLink(SQ_LINK_TYPE_3, 'design', false, $design_name);
+						$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_TYPE_3, 'design', false, $design_name);
 						$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
 
 						if (!$owner->writeAccess()) {
@@ -1301,7 +1301,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			if (isset($_POST[$prefix.'_designs'])) {
 				foreach ($_POST[$prefix.'_designs'] as $design_name => $new_designid) {
 					
-					$design_link = $owner->getLink(SQ_LINK_TYPE_3, 'design', false, $design_name);
+					$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_TYPE_3, 'design', false, $design_name);
 					$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
 
 					// if they are the same then there is nothing to do.
@@ -1441,7 +1441,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		}// end foreach $perms
 
 		if ($admin_access) {
-			$kiddies = $owner->getChildren();
+			$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 			if (count($kiddies)) {
 				$o->openSection('Cascade Permission Changes?');
 					$o->openField('Note');
@@ -1722,7 +1722,7 @@ class Asset_Edit_Interface extends Resolve_Object
 										echo ((in_array($asset->id, $cond_data['published_by'])) ? 'Yes' : '&nbsp;');
 									} else {
 										if ($cond_logic_num) $user_count = $cond_logic_num;
-										else $user_count = count($asset->getChildren(Array('user'), false));
+										else $user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
 										echo count($cond_data['published_by']).' of '.$user_count;
 									}
 								}
@@ -2132,7 +2132,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$o->closeSection();
 
 		if ($admin_access) {
-			$kiddies = $owner->getChildren();
+			$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 			if (count($kiddies)) {
 				$o->openSection('Cascade Options');
 					$o->openField('Note');
@@ -2476,10 +2476,10 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks_at=Array())
 	{
-		$dependant_links = $asset->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+		$dependant_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 		$num_kids = count($dependant_links);
 		for ($i = 0; $i < $num_kids; $i++) {
-			$dep_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_links[$i]['minorid']);
+			$dep_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dependant_links[$i]['minorid'], $dependant_links[$i]['minor_type_code']);
 			$end = ($i == $num_kids - 1);
 			$stalk = 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
 			$bg = ($end) ? '' : $stalk;
@@ -2547,7 +2547,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				</td>
 			</tr>
 			<?php
-			$child_deps = $dep_asset->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+			$child_deps = $GLOBALS['SQ_SYSTEM']->am->getLinks($dep_asset->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 
 			if (!empty($bg)) $new_print_stalks_at[] = $levels;
 
@@ -2598,7 +2598,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetids = Array();
-		$asset_links = $owner->getLinks(SQ_SC_LINK_ALL, '', true, 'minor');
+		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', true, 'minor');
 		$editable_link_types = Array(SQ_LINK_TYPE_1 => link_type_name(SQ_LINK_TYPE_1),
 									 SQ_LINK_TYPE_2 => link_type_name(SQ_LINK_TYPE_2)
 									);
@@ -2726,7 +2726,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$prefix = $owner->getPrefix();
 
 		$done_something = false;
-		$asset_links = $owner->getLinks(SQ_SC_LINK_ALL, '', true, 'minor');
+		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_SC_LINK_ALL, '', true, 'minor');
 
 		foreach ($asset_links as $link) {
 			if (!isset($_POST[$prefix.'_link_type'][$link['linkid']])) continue;

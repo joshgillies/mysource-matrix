@@ -216,7 +216,7 @@ class Form extends Asset
 	{
 		if (empty($this->tmp['section_links'])) {
 			$this->tmp['section_links'] = Array();
-			$this->tmp['section_links'] = $this->getLinks(SQ_LINK_TYPE_2, 'form_section', true, 'major', '', '1', '1');
+			$this->tmp['section_links'] = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_section', true, 'major', '', '1', '1');
 		}
 		return (!empty($this->tmp['section_links'])) ? $this->tmp['section_links'] : Array();
 
@@ -237,7 +237,7 @@ class Form extends Asset
 		$links = $this->getSectionLinks();
 		$l = $links[$order - 1];
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		if ($a = &$am->getAsset($l['minorid'], $l['type_code'])) {
+		if ($a = &$am->getAsset($l['minorid'], $l['minor_type_code'])) {
 			return $a;
 		}
 		return false;
@@ -280,7 +280,7 @@ class Form extends Asset
 		$section_links = &$this->getSectionLinks();
 		$sections = Array();
 		foreach ($section_links as $link) {
-			$sections[$link['sort_order']] = &$am->getAsset($link['minorid'], $link['type_code']);
+			$sections[$link['sort_order']] = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 		}
 		return (!empty($sections)) ? $sections : Array();
 
@@ -670,16 +670,16 @@ class Form extends Asset
 		if (!$name) return false;
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-		$folder_link = $this->getLink(SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
+		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
 		if (empty($folder_link)) return false;
 		
-		$folder = &$am->getAsset($folder_link['minorid'], $folder_link['type_code']); 
+		$folder = &$am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']); 
 		if (is_null($folder)) return false;
 
-		$bodycopy_link = $folder->getLink(SQ_LINK_TYPE_2, 'bodycopy', true, $name);
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $name);
 		if (empty($bodycopy_link)) return false;
 
-		$bodycopy = &$am->getAsset($bodycopy_link['minorid'], $bodycopy_link['type_code']);
+		$bodycopy = &$am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		
 		return ($bodycopy) ? $bodycopy : false;
 	
@@ -729,7 +729,7 @@ class Form extends Asset
 		// now that we have finished with it
 
 		if (!$this->attr('log_submissions')) {
-			$link = $this->active_submission->getLink(SQ_LINK_TYPE_3, 'form', false, '', 'minor');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->active_submission->id, SQ_LINK_TYPE_3, 'form', false, '', 'minor');
 			$this->deleteLink($link['linkid']);
 		}
 

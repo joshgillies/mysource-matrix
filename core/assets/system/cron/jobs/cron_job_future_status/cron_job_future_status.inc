@@ -233,10 +233,10 @@ class Cron_Job_Future_Status extends Cron_Job
 	{
 		$null = null; // because we need to return by ref
 
-		$link = $this->getLink(SQ_LINK_NOTICE, 'asset', false, 'updating');
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, 'updating');
 		if (empty($link)) return $null;
 
-		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
 	}// end getAssetToUpdate()
 
@@ -306,7 +306,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		$dates = Array();
 		for($i = 0, $total = count($all_jobs); $i < $total; $i++) {
 			
-			$link = $all_jobs[$i]->getLink(SQ_LINK_NOTICE, 'asset', false, 'updating');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($all_jobs[$i]->id, SQ_LINK_NOTICE, 'asset', false, 'updating');
 			if (!empty($link) && $link['minorid'] == $asset->id) {
 				$dates[$i] = $all_jobs[$i]->attr('when');
 			}

@@ -252,7 +252,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			return;
 		}
 
-		$pages = $asset->getLinks(SQ_SC_LINK_BACKEND_NAV, '', false);
+		$pages = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', false);
 
 		if (!count($pages)) {
 			echo '<i>There are no Pages that are children of this site.</i>';
@@ -262,7 +262,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		$contents = Array('' => '');
 		foreach($pages as $info) {
-			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($info['minorid'], $info['type_code'], true);
+			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($info['minorid'], $info['minor_type_code'], true);
 			if (is_null($page)) continue;
 			$contents[$page->id] = $page->name;
 		}

@@ -192,7 +192,7 @@ class Design_Area_Menu_Type extends Design_Area
 	function getSubMenuLink()
 	{
 		if (!isset($this->_tmp['sub_menu_link'])) {
-			$this->_tmp['sub_menu_link'] = $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu');
+			$this->_tmp['sub_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu');
 		}
 		return $this->_tmp['sub_menu_link'];
 
@@ -212,7 +212,7 @@ class Design_Area_Menu_Type extends Design_Area
 			$null = null;
 			return $null;
 		} else {
-			return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'], true);
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], true);
 		}
 
 	}//end getSubMenu()
@@ -227,13 +227,13 @@ class Design_Area_Menu_Type extends Design_Area
 	function &getParentMenu()
 	{
 		if (!isset($this->_tmp['parent_menu_link'])) {
-			$this->_tmp['parent_menu_link'] = $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu', 'minor');
+			$this->_tmp['parent_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu', 'minor');
 		}
 		if (empty($this->_tmp['parent_menu_link'])) {
 			$null = null;
 			return $null;
 		} else {
-			return $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['parent_menu_link']['majorid'], $this->_tmp['parent_menu_link']['type_code'], true);
+			return $GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['parent_menu_link']['majorid'], $this->_tmp['parent_menu_link']['major_type_code'], true);
 		}
 
 	}//end getParentMenu()
@@ -356,7 +356,7 @@ class Design_Area_Menu_Type extends Design_Area
 						if ($GLOBALS[\'SQ_SYSTEM\']->userRoot() || $GLOBALS[\'SQ_SYSTEM\']->userSystemAdmin()) {
 							$USERIDS_COND = \'\';
 						} else {
-							$userids = $GLOBALS[\'SQ_SYSTEM\']->user->getParents(\'user_group\', false);
+							$userids = $GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', false);
 							array_push($userids, 0, (int) $GLOBALS[\'SQ_SYSTEM\']->user->id);
 							$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
 						}

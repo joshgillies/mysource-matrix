@@ -144,10 +144,10 @@ class Form_Question extends Asset
 	{
 		if (!parent::_updated()) return false;
 
-		$link = $this->getLinks(SQ_LINK_TYPE_2, 'form_section', true, 'minor');
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form_section', true, 'minor');
 		
 		if (!empty($link[0])) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link[0]['majorid'], $link[0]['type_code']);
+			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link[0]['majorid'], $link[0]['major_type_code']);
 			if (is_null($section)) return false;
 			return $section->fileRegeneration();
 		}
@@ -233,7 +233,7 @@ class Form_Question extends Asset
 	{
 		if (empty($this->tmp['rule_links'])) {
 			$this->tmp['rule_links'] = Array();
-			$this->tmp['rule_links'] = $this->getLinks(SQ_LINK_TYPE_3, 'form_question_rule', false, 'major');	
+			$this->tmp['rule_links'] = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'form_question_rule', false, 'major');	
 		}
 		return $this->tmp['rule_links'];
 	
@@ -253,7 +253,7 @@ class Form_Question extends Asset
 		$rules = Array();
 		
 		foreach ($links as $link) {
-			$rules[] = &$am->getAsset($link['minorid'], $link['type_code']);
+			$rules[] = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 		}
 		return $rules;
 	
@@ -270,7 +270,7 @@ class Form_Question extends Asset
 	{
 		if (empty($this->tmp['form_ids'])) {
 			$this->tmp['form_ids'] = Array();
-			$this->tmp['form_ids'] = $this->getParents('form', false);
+			$this->tmp['form_ids'] = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'form', false);
 		}
 		return (!empty($this->tmp['form_ids'])) ? $this->tmp['form_ids'] : Array();
 

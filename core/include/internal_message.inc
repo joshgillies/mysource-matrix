@@ -285,7 +285,7 @@ class Internal_Message extends Resolve_Object
 		foreach ($to_types as $assetid => $types) {
 			if (in_array('user_group', $types)) {
 				$group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if ($group->id) $send_to = array_merge($send_to, $group->getChildren(Array('user'), false));
+				if ($group->id) $send_to = array_merge($send_to, $GLOBALS['SQ_SYSTEM']->am->getChildren($group->id, Array('user'), false));
 			} else {
 				$send_to[] = $assetid;
 			}

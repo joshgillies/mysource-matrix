@@ -102,7 +102,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 			// we will be affecting out list of permission changes on
 			$child_assets = Array();
-			$child_assets = array_merge(Array($asset->id), $asset->getChildren());
+			$child_assets = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id));
 			$this->_running_vars['todo_assetids'] = $child_assets;
 		}
 

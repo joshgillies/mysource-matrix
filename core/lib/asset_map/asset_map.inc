@@ -37,11 +37,11 @@ class Asset_Map
 	{
 		$backend->out->addJsInclude(sq_web_path('lib').'/asset_map/flashExternalCall.js');
 
-		$inbox_link = $GLOBALS['SQ_SYSTEM']->user->getLink(SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
+		$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($GLOBALS['SQ_SYSTEM']->user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
 		if (empty($inbox_link)) {
 			$inbox_url = &$GLOBALS['SQ_SYSTEM']->user->getBackendHref();
 		} else {
-			$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['type_code']);
+			$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
 			$inbox_url = $inbox_asset->getBackendHref('mail');
 		}
 		
@@ -406,7 +406,7 @@ class Asset_Map
 
 		if ($asset->readAccess()) {
 			// we only want links that appear in the backend
-			$links = $asset->getLinks(SQ_SC_LINK_BACKEND_NAV, '', null);
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', null);
 			if (count($links)) {
 				for($j = 0; $j < count($links); $j++) {
 					$kid_node = &$asset_node->addChild('child', '', Array('linkid' => $links[$j]['linkid'], 'minorid' => $links[$j]['minorid'], 'link_type' => $links[$j]['link_type']));
@@ -541,7 +541,7 @@ class Asset_Map
 				$error_message = '';
 				$link_types = Array(SQ_LINK_TYPE_1, SQ_LINK_TYPE_2);
 				foreach ($link_types as $link_type) {
-					if (($error_message = $parent->canLinkToType($attr['type_code'], $link_type)) === true) {
+					if (($error_message = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $attr['type_code'], $link_type)) === true) {
 						// use this type
 						$use_link_type = $link_type;
 						break;
@@ -603,7 +603,7 @@ class Asset_Map
 			return;
 		}
 
-		$link = $old_parent->getLinkById($input->root->attributes['linkid']);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($input->root->attributes['linkid'], $old_parent->id);
 		if (empty($link)) {
 			$this->_error('Unable to Move Asset, Link #"'.$input->root->attributes['linkid'].'") not found');
 			return;
@@ -615,7 +615,7 @@ class Asset_Map
 		if ($old_parent->id == $input->root->attributes['to_parent_assetid']) {
 
 			// Let's just move the link
-			if (!$old_parent->moveLinkPos($link['linkid'], $input->root->attributes['to_parent_pos'])) {
+			if (!$GLOBALS['SQ_SYSTEM']->moveLinkPos($link['linkid'], $input->root->attributes['to_parent_pos'])) {
 				return;
 			}
 
@@ -623,7 +623,7 @@ class Asset_Map
 
 		} else {
 
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($asset)) {
 				$this->_error('Unable to Move Asset, asset to be moved (Asset #"'.$link['minorid'].'") not found');
 				return;
@@ -639,7 +639,7 @@ class Asset_Map
 			// are deleting so we can warn of side effects
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			if ($new_parent->id == $trash_folder->id) {
-				$num_other_links = $asset->countLinks('minor', SQ_SC_LINK_SIGNIFICANT, '', true, $link['linkid']);
+				$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', true, $link['linkid']);
 				if (!$num_other_links) {
 					$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=delete_asset&assetid='.$asset->id.'&linkid='.$link['linkid'];
 					$output = new XML_Tree();
@@ -650,7 +650,7 @@ class Asset_Map
 			}
 
 			// Now let's move the link
-			$moved = $old_parent->moveLink($link['linkid'], $new_parent->id, $link['link_type'], $input->root->attributes['to_parent_pos']);
+			$moved = $GLOBALS['SQ_SYSTEM']->moveLink($link['linkid'], $new_parent->id, $link['link_type'], $input->root->attributes['to_parent_pos']);
 			if (!$moved) return;
 
 			// if our new parent has permission set, do the popup thang to ask the user if
@@ -694,7 +694,7 @@ class Asset_Map
 			return;
 		}
 
-		$link = $old_parent->getLinkById($input->root->attributes['linkid']);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($input->root->attributes['linkid'], $old_parent->id);
 		if (empty($link)) {
 			$this->_error('Unable to Duplicate Asset, Link #"'.$input->root->attributes['linkid'].'") not found');
 			return;
@@ -702,7 +702,7 @@ class Asset_Map
 
 		$linkid = null;
 
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($asset)) {
 			$this->_error('Unable to Duplicate Asset, asset to be duplicated (Asset #"'.$link['minorid'].'") not found');
 			return;
@@ -739,13 +739,13 @@ class Asset_Map
 			return;
 		}
 
-		$link = $old_parent->getLinkById($input->root->attributes['linkid']);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($input->root->attributes['linkid'], $old_parent->id);
 		if (empty($link)) {
 			$this->_error('Unable to Create New Link, existing Link #"'.$input->root->attributes['linkid'].'") not found');
 			return;
 		}
 
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($asset)) {
 			$this->_error('Unable to Create New Link, asset to be moved (Asset #"'.$link['minorid'].'") not found');
 			return;

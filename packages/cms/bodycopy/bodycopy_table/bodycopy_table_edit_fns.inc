@@ -583,7 +583,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		ob_end_clean();
 
 		$existing_links = Array();
-		$notice_links = $asset->getLinks(SQ_LINK_NOTICE);
+		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE);
 		foreach ($notice_links as $link_data) $existing_links[] = $link_data['minorid'];
 
 		$e = '/\\.\\/\\?a=([0-9]+)/';

@@ -252,7 +252,7 @@ class Cron_Manager extends Asset
 			return false;
 		}
 
-		$link = $this->getLinkByAsset($job);
+		$link = $this->getLinkByAsset($job->id);
 		if (empty($link)) return false;
 
 		return $this->deleteLink($link['linkid']);
@@ -274,10 +274,10 @@ class Cron_Manager extends Asset
 	*/
 	function getJobs($type_code='cron_job', $strict_type_code=true)
 	{
-		$links = $this->getLinks(SQ_LINK_TYPE_3, $type_code, $strict_type_code, 'major', null, null, true);
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, $type_code, $strict_type_code, 'major', null, null, true);
 		$jobs = Array();
 		foreach($links as $link) {
-			$job = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+			$job = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($job)) continue;
 			$jobs[] = &$job;
 		}// end foreach

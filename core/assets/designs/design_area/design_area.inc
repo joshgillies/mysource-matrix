@@ -105,10 +105,10 @@ class Design_Area extends Asset
 	*/
 	function &getDesigns()
 	{
-		$links = $this->getLinks(SQ_LINK_TYPE_3, 'design', false, 'minor');
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design', false, 'minor');
 		$designs = Array();
 		foreach($links as $link) {
-			$designs[] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code'], true);
+			$designs[] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code'], true);
 		}
 		return $designs;
 

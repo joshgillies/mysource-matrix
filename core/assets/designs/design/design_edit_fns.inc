@@ -794,7 +794,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// Now create the links to our design areas
 		$da_links = $asset->getDesignAreaLink();
 		foreach($da_links as $link) {
-			$da = &$am->getAsset($link['minorid'], $link['type_code'], true);
+			$da = &$am->getAsset($link['minorid'], $link['minor_type_code'], true);
 			if (is_null($da)) continue;
 			if (!$dupe->createLink($da, SQ_LINK_TYPE_3, $link['value'], null, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -806,7 +806,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$initial_path = strtolower($new_name);
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $asset->_webPathsInUse($valid_paths, $dupe->id, true);
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $dupe->id, true);
 		if (!$dupe->saveWebPaths($good_paths)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -814,9 +814,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		// link up all the files from this design to the customisation
 		$file_link_ids = Array();
-		$file_links = $asset->getLinks(SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
 		foreach ($file_links as $link) {
-			$minor = &$am->getAsset($link['minorid']);
+			$minor = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (!$dupe->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
 				trigger_error('Failed creating file link to customisation', E_USER_WARNING);
 				$am->forgetAsset($minor);
@@ -850,11 +850,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintCurrentCustomisations(&$asset, &$o, $prefix)
 	{
-		$customisation_links = &$asset->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+		$customisation_links = &$GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 		if ($customisation_links) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach($customisation_links as $link) {
-				$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
+				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($customisation)) continue;
 				echo '# ', $customisation->id, '&nbsp;&nbsp;<a href="', $customisation->getBackendHref(), '">', $customisation->name, '</a><br>';
 

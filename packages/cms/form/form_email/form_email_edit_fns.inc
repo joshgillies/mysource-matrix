@@ -32,7 +32,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
 		// get all the questions of this form
-		$qids = $asset->getChildren('form_question', false);
+		$qids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'form_question', false);
 		if (empty($qids)) return false;
 		
 		$asset_info = $am->getAssetInfo($qids);
