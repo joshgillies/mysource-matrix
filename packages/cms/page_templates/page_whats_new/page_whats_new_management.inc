@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_management.inc,v 1.8 2005/02/11 05:43:56 tbarrett Exp $
-*
+* $Id: page_whats_new_management.inc,v 1.9 2005/02/13 23:20:51 lwright Exp $
+* $Name: not supported by cvs2svn $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -82,12 +82,12 @@ class Page_Whats_New_Management extends Asset_Management
 					'type'		=> 'serialise',
 					'default'	=> Array(),
 					),
-
+				
 		);
-
-
+		
+		
 	}//end constructor
-
+	
 	/**
 	* Return an array with information about the events that the what new asset is listening for
 	*
@@ -99,8 +99,8 @@ class Page_Whats_New_Management extends Asset_Management
 		return Array(
 				Array(
 					'event_name'                 => 'requestKeywords',
-					'broadcast_type_code'        => 'content_type',
-					'broadcast_strict_type_code' => false,
+					'broadcast_type_code'        => 'content_type_wysiwyg',
+					'broadcast_strict_type_code' => true,
 					'options'	=> Array(
 						'side_of_link' => 'major',
 						'indirect'     => true,

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.10 2005/02/11 00:48:55 lwright Exp $
+* $Id: search_folder.inc,v 1.11 2005/02/13 23:20:54 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -131,12 +131,6 @@ class Search_Folder extends Asset
 				$search_info['search_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
 			} else {
 				if (!is_array($type_code)) $type_code = Array($type_code);
-				
-				// handle new search manager 'inherited types' rules
-				$type_code = array_flip($type_code);
-				foreach($type_code as $this_type_code => $value) {
-					$type_code[$this_type_code] = true;
-				}
 				$search_info['search_types'] = $type_code;
 			}
 			// if we have not selected to search any types, we are going to return no results
