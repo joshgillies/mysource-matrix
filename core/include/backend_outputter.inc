@@ -182,10 +182,12 @@ class Backend_Outputter
 	*/
 	function setSubHeading($heading, $icon='') 
 	{
+		trigger_error('Sub Heading not outputting, fix in _paintHeader()', E_USER_WARNING);
 		$this->_sub_heading = trim($heading);
 		$this->_sub_heading_icon = $icon;
 	}#end setSubHeading()
 
+/*
 	 ############################################
 	# add a message to be displayed to the user
 	function addMessage($type, $msg, $file='', $line='') 
@@ -195,7 +197,7 @@ class Backend_Outputter
 
 		# if fatal error, die
 		if ($type == SQ_MSG_FATAL_ERROR) {
-			?><div style="background-color: white; color: red; font-size: 14pt; font-weight: bold;"><?=$msg?></div><?
+			echo '<div style="background-color: white; color: red; font-size: 14pt; font-weight: bold;">'.$msg.'</div>';
 			die();
 		}
 
@@ -204,6 +206,7 @@ class Backend_Outputter
 			$this->_messages[$type][] = $msg;
 		}
 	}#end addMessage()
+*/
 	
 	 ############################################
 	# add a stylesheet file to the page
@@ -251,27 +254,6 @@ class Backend_Outputter
 	}#end showCrumming()
 
 	 ############################################
-	# add a table to the contents of the page
-	function addTable($table) 
-	{
-		$this->add_content($table->getAsString(true));
-	}#end addTable()
-
-	 #################################################
-	# adds a heading into the contents of the page
-	function addAnchor($name) 
-	{
-		$this->add_content('<a name="'.$name.'"></a>');
-	}#end addAnchor()
-
-	 #################################################
-	# adds a heading into the contents of the page
-	function addInlineHeading($heading) 
-	{
-		$this->add_content('<div class="page-heading">'.$heading.'</div>');
-	}#end addInlineHeading()
-
-	 ############################################
 	# adds a preload image
 	function addPreloadImg($file) 
 	{
@@ -283,7 +265,6 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	
 	function openRaw() 
 	{
 		if ($this->_section_opened) $this->closeSection();
@@ -296,10 +277,13 @@ class Backend_Outputter
 		ob_start();
 		$this->_raw_opened = true;
 
-	}#end openRaw()
+	}//end openRaw()
 
-	 #############################################
-	# closes a raw output section
+	/**
+	* Closes a raw output section
+	*
+	* @access public
+	*/
 	function closeRaw() 
 	{
 		if (!$this->_raw_opened) return;
@@ -307,7 +291,7 @@ class Backend_Outputter
 		ob_end_clean();
 		$this->_raw_opened = false;
 		
-	}#end closeRaw()
+	}//end closeRaw()
 
 
 	/**
