@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.81 2005/03/04 00:48:57 mnyeholt Exp $
+* $Id: mysource.inc,v 1.82 2005/03/07 20:34:31 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 */
 class MySource
@@ -595,7 +595,12 @@ class MySource
 	function generateLoginKey()
 	{
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
-		return $_SESSION['SQ_LOGIN_KEY'] = random_password(20);
+		static $generated = false;
+		if (!$generated) {
+			$_SESSION['SQ_LOGIN_KEY'] = random_password(20);
+			$generated = true;
+		}
+		return $_SESSION['SQ_LOGIN_KEY'];
 
 	}//end generateLoginKey()
 
