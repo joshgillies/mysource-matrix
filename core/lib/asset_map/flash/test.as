@@ -5,7 +5,13 @@ function testOnClick1(component)
 { 
 //	_root.asset_manager.reloadAssets([1]);
 //	_root.asset_manager.reloadAsset(3);
-	_root.dialog_box.show("TEst, Test", "Lorem 'ipsum dolor' sit \"amet\", consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.  Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. ");
+//	_root.dialog_box.show("TEst, Test", "Lorem 'ipsum dolor' sit \"amet\", consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.  Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. ");
+	trace("       HEIGHT : " + _root.msgs_bar._height);
+	trace("OC BTN HEIGHT : " + _root.msgs_bar.open_close_button._height);
+	trace("       WIDTH : " + _root.msgs_bar._width);
+	trace("OC BTN WIDTH : " + _root.msgs_bar.open_close_button._width);
+
+	trace("OC BTN POS   : " + _root.msgs_bar.open_close_button._x + ", " + _root.msgs_bar.open_close_button._y);
 
 }
 

@@ -20,8 +20,7 @@ Stage.align = "TL";
 #include "mcListContainerClass.as"
 #include "mcPlusMinus.as"
 #include "mcListItemClass.as"
-#include "mcActionsBarButtonClass.as"
-#include "mcActionsBarClass.as"
+#include "mcMsgsBarClass.as"
 #include "mcOptionsBoxClass.as"
 #include "mcDialogBoxClass.as"
 #include "mcProgressBarClass.as"
@@ -30,8 +29,8 @@ Stage.align = "TL";
  // CONSTANTS                                     //
 ///////////////////////////////////////////////////
 
-// the height of the actions bar at the bottom of the screen
-_root.ACTIONS_BAR_HEIGHT = 130;
+// the height of the messages bar at the bottom of the screen
+_root.MSG_BAR_HEIGHT = 130;
 
 // this indent needs to set to the offset of the text box in a list item
 // from the LHS of a list items background
@@ -85,12 +84,12 @@ _root.asset_manager = new AssetManager();
 _root.attachMovie("mcMenuContainerID", "menu_container", 2);
 // Now the list container
 _root.attachMovie("mcListContainerID", "list_container", 1);
-// Now the actions bar
-_root.attachMovie("mcActionsBarID", "actions_bar", 3);
+// Now the messagess bar
+_root.attachMovie("mcMsgsBarID", "msgs_bar", 3);
 
 // Now the dialog options box
 _root.attachMovie("mcOptionsBoxID", "options_box", 22);
 
 
-// Call resize to setup intial sizes of things
-_root.stageResizeListener.onResize();
+// Initialise stage resize listener
+_root.state_resize = new StageResize();
