@@ -23,7 +23,7 @@ _root.LIST_ITEM_END_BRANCH_GAP = 10;
   ///////////////////////////////////////////////////
  // ALL INITIALISATION STUFF                      //
 ///////////////////////////////////////////////////
-server_exec_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=site_map_request&";
+server_exec_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=asset_map_request";
 
 // Initialise any pop-ups
 _root.progress_bar._visible = false;
