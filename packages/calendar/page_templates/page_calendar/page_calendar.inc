@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.42 2004/09/02 00:23:37 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.43 2004/09/02 00:49:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.42 $ - 1.0
+* @version $Revision: 1.43 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2127,7 +2127,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$start_date_stamp = floor(strtotime($iso.' 12:00:00 GMT')/86400);
 		$end_date_stamp = $start_date_stamp + $period - 1; 
 		
-		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' and '.$db->quote($end_date_stamp).') OR (cd.end_date_ds BETWEEN '.$db->quote($start_date_stamp).' and '.$db->quote($end_date_stamp).')';
+		$date_sql = '(cd.start_date_ds BETWEEN '.$db->quote($start_date_stamp).' and '.$db->quote($end_date_stamp).') OR (cd.start_date_ds < '.$db->quote($start_date_stamp).' AND cd.end_date_ds >= '.$db->quote($end_date_stamp).')';
 		
 		// base sql query FOR SINGLE EVENTS
 		$sql = $this->_buildSingleEventQuery($trees).' and ('.$date_sql.')';
