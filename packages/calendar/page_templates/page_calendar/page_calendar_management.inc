@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.9 2004/08/20 06:56:49 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.10 2004/08/23 00:56:54 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $ - 1.0
+* @version $Revision: 1.10 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -124,7 +124,7 @@ class Page_Calendar_Management extends Asset_Management
 		$this->vars['table_column_width'] = Array(
 													'added'			=> '0.1',
 													'type'			=> 'float',
-													'default'		=> '8.0',
+													'default'		=> '15.0',
 													'description'   => 'The width of each column in the day and week display tables, in \'ex\'es',
 													'parameters'	=> Array('decimal_places' => 2)
 												   );	
