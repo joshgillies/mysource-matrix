@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.1 2004/05/28 01:24:35 gsherwood Exp $
+* $Id: hipo_job_uninstall_patch.inc,v 1.2 2004/06/07 05:16:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -111,6 +111,19 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 												'process_function' => 'processInstallFiles',
 												),
 						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'skip_step'		=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Running Installation Script',
+						'function_call'		=> Array(
+												'paint_function'   => 'paintPleaseWait',
+												'process_function' => 'processInstallScript',
+												),
+						'running_mode'	=> 'web',
 						'auto_step'		=> true,
 						'skip_step'		=> false,
 						'percent_done'	=> 0,
@@ -607,6 +620,35 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		return true;
 	
 	}//end processDatabaseUpdates()
+
+
+	/**
+	* Run step 3 of the install if required
+	*
+	* We dont die on errors because it's a bit too late for that
+	*
+	* @param	array	&$step_data		the step data for this job
+	* @param	string	$prefix			prefix to be used with this job
+	*
+	* @access public
+	* @return boolean
+	*/
+	function processInstallScript(&$step_data, $prefix)
+	{
+		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
+
+		if ($patch_info['run_script'] === '1') {
+			$_GET['SYSTEM_ROOT'] = SQ_SYSTEM_ROOT;
+			ob_start();
+				include SQ_SYSTEM_ROOT.'/install/step_03.php';
+			ob_end_clean();
+		}
+
+		$step_data['percent_done'] = 100;
+		$step_data['complete']     = true;
+		return true;
+
+	}//end processInstallScript()
 
 
 	/**
