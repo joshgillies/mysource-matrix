@@ -2022,14 +2022,17 @@ class Asset_Edit_Interface extends Resolve_Object
 	/**
 	* Paints an asset dependancy tree with stalks and dependant info
 	*
-	* @param object	Asset				$owner	the asset whose interface we are painting
-	* @param object	Asset				$owner	the asset whose dependants we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
+	* @param object	Asset				$owner			the asset whose interface we are painting
+	* @param object	Asset				$owner			the asset whose dependants we are painting
+	* @param object	Backend_Outputter	$o				the outputter class
+	* @param int						$levels			how many levels down are we
+	* @param int						$depth			how far deep are we in
+	* @param boolean					$last_bg		was the last entry printed an end stalk?
 	*
 	* @return void
 	* @access public
 	*/
-	function _recursePaintDependants(&$owner, &$asset, &$o, $depth=1, $start_stalk_at=0)
+	function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $depth=0, $last_bg=false)
 	{
 		$dependant_links = $asset->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 		$num_kids = count($dependant_links);
@@ -2068,9 +2071,9 @@ class Asset_Edit_Interface extends Resolve_Object
 					<table cellpadding="0" cellspacing="0" border="0">
 						<tr>
 							<?php
-							for ($x = 0; $x < $depth; $x++) {
+							for ($x = 0; $x < $levels; $x++) {
 								$stalk_bg = '';
-								if ($start_stalk_at && $x >= $start_stalk_at) $stalk_bg = $stalk;
+								if ($depth && $x >= $depth) $stalk_bg = $stalk;
 								?>
 								<td class="sq-backend-data" <?php echo $stalk_bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="20" height="1" alt="blank" /></td>
 								<?php
@@ -2098,11 +2101,22 @@ class Asset_Edit_Interface extends Resolve_Object
 			</tr>
 			<?php
 			$child_deps = $dep_asset->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+
+			$new_depth = $depth;
+			if (empty($bg)) {
+				$new_depth = 0;
+			} else if ($last_bg) {
+				$new_depth = $levels;
+			} else if (!$depth) {
+				$new_depth = 1;
+			}
+
 			if (!empty($child_deps)) {
-				$this->_recursePaintDependants($owner, $dep_asset, $o, ($depth+1), ((!empty($bg)) ? $depth : 0));
+				$this->_recursePaintDependants($owner, $dep_asset, $o, ($levels+1), $new_depth, empty($bg));
 			}
 		}
-	}
+
+	}//end _recursePaintDependants
 
 
 	/**
