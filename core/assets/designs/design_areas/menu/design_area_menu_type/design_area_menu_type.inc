@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.40 2004/02/24 04:46:20 gsherwood Exp $
+* $Id: design_area_menu_type.inc,v 1.41 2004/02/25 00:34:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,6 +104,9 @@ class Design_Area_Menu_Type extends Design_Area
 				break;
 				case 'current';
 					$value = -1;
+				break;
+				case 'children';
+					$value = -2;
 				break;
 				default :
 					$value = (int) $value;
@@ -486,7 +489,7 @@ class Design_Area_Menu_Type extends Design_Area
 		$level = (int) $this->attr('level');
 		if ($level < 0) {
 			echo '
-			$'.$this->attr('id_name').'_level = (count($ASSET_LINEAGE) -1) + '.(-1 * ($level + 1)).';';
+			$'.$this->attr('id_name').'_level = (count($ASSET_LINEAGE) -2) + '.(-1 * ($level + 1)).';';
 		} else {
 			echo '
 			$'.$this->attr('id_name').'_level = '.$level.';';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_management.inc,v 1.14 2004/02/24 04:46:20 gsherwood Exp $
+* $Id: design_area_menu_type_management.inc,v 1.15 2004/02/25 00:34:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,7 +50,7 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'int',
 								'default'		=> 0,
-								'description'	=> 'The level in the heirarchy that we want to print, (-1 is the current level, zero is the top level, 1 is the first sub level, and so on. Also, "top" is a readable version for "0", "sub" is a readable version for "1", and "current" is a readble version for "-1")',
+								'description'	=> 'The level in the heirarchy that we want to print, (-1 is the children, -2 is the current level, zero is the top level, 1 is the first sub level, and so on. Also, "top" is a readable version for "0", "sub" is a readable version for "1", "current" is a readble version for "-1", and "children" is a readble version for "-2")',
 							),
 							'settings' => Array(
 								'added'			=> '0.0.1',
