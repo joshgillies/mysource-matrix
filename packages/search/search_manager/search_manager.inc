@@ -18,10 +18,10 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.23.2.1 2004/10/06 00:52:46 gsherwood Exp $
+* $Id: search_manager.inc,v 1.23.2.2 2004/10/25 06:37:08 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
-
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
 * Search_Manager
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.23.2.1 $ - 0.1
+* @version $Revision: 1.23.2.2 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
