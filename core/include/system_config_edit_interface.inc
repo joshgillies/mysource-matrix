@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.7 2004/12/03 15:33:23 brobertson Exp $
+* $Id: system_config_edit_interface.inc,v 1.7.2.1 2004/12/06 03:22:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -245,7 +245,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			$o->closeSection();
 		}
 
-		if ($have_lock) $o->commitButton('Commit', true);
+		if ($have_lock) $o->commitButton('', true);
 
 	}//end paintUserPrefs()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.48 2004/11/29 05:09:14 arailean Exp $
+* $Id: hipo_herder.inc,v 1.48.2.1 2004/12/06 03:22:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.48.2.1 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -975,7 +975,7 @@ class HIPO_Herder extends MySource_Object
 		$o->closeSection();
 
 		if ($have_lock) {
-			$o->commitButton('Commit', true);
+			$o->commitButton('', true);
 		}
 
 	}//end paintBackend()
