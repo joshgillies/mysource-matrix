@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.23 2003/12/17 04:55:51 mmcintyre Exp $
+* $Id: html_form.js,v 1.24 2004/01/05 06:07:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -532,7 +532,8 @@ function asset_finder_done(assetid, label, url)
 */
 function asset_finder_clear_btn_press(name, safe_name)
 {
-	set_hidden_field(name, 0);
+	set_hidden_field(name + '[assetid]', 0);
+	set_hidden_field(name + '[url]', '');
 	set_text_field(safe_name + '_label', '');
 
 }// end asset_finder_clear_btn_press()
@@ -548,7 +549,7 @@ function asset_finder_clear_btn_press(name, safe_name)
 */
 function asset_finder_reset_btn_press(name, safe_name, assetid, label)
 {
-	set_hidden_field(name, assetid);
+	set_hidden_field(name + '[assetid]', assetid);
 	set_text_field(safe_name + '_label', label);
 
 }// end asset_finder_reset_btn_press()
