@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: wysiwyg.inc,v 1.22 2003/10/16 01:06:39 gsherwood Exp $
+* $Id: wysiwyg.inc,v 1.23 2003/11/04 05:33:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -538,6 +538,7 @@ class wysiwyg {
 									return false;
 								};
 								a.title = el.style.cssText;
+								// NOTE: Using appendChild here causes IE to clear its undo/redo queue
 								a.appendChild(document.createTextNode(txt));
 								this._statusBarTree.appendChild(a);
 								if (i != 0) {

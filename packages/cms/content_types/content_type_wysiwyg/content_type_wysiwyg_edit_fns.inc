@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.28 2003/11/03 01:22:29 gsherwood Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.29 2003/11/04 05:33:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
 		$wysiwyg->set_body_type('div');
 		$wysiwyg->set_init_onload(false);
-		$wysiwyg->set_show_status_bar(true);
+		$wysiwyg->set_show_status_bar(false);
 		$wysiwyg->set_width('100%');
 		$wysiwyg->set_height('100%');
 		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'(\?a=[0-9]+)', './$1');
