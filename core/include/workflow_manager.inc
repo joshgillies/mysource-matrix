@@ -25,7 +25,7 @@ class Workflow_Manager extends Resolve_Object
 	*
 	* @var array
 	*/
-	var $_steps = Array();
+	var $steps = Array();
 
 	/**
 	* The current state of this workflow
@@ -66,6 +66,10 @@ class Workflow_Manager extends Resolve_Object
 	/**
 	* Constructor
 	*
+	* @param object Asset	&$asset			the asset to manage
+	* @param boolean		$and_direct		load the direct workflow for the asset
+	* @param boolean		$and_inherited	load all inherited workflows for the asset
+	* @param boolean		$and_running	load all running workflows for the asset
 	*/
 	function Workflow_Manager(&$asset, $and_direct=true, $and_inherited=true, $and_running=true)
 	{
@@ -84,6 +88,15 @@ class Workflow_Manager extends Resolve_Object
 	}//end constructor
 
 
+	/**
+	* Loads the workflow steps for this asset into the manager
+	* Also optionally loads all inherited workflows into the manager as well
+	*
+	* @param boolean	$and_inherited	load inherited workflow objects as well
+	*
+	* @return boolean
+	* @access public
+	*/
 	function load($and_inherited)
 	{
 		// get the direct workflow if it has been set
@@ -102,7 +115,7 @@ class Workflow_Manager extends Resolve_Object
 			$this->state = 'new';
 		} else {
 			$this->state = 'idle';
-			$this->_steps = unserialize($direct);
+			$this->steps = unserialize($direct);
 		}
 
 		if ($and_inherited) {
@@ -122,9 +135,15 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		return true;
-	}
+	}//end load()
 
 
+	/**
+	* Loads currently running workflow steps into the manager
+	*
+	* @return boolean
+	* @access public
+	*/
 	function loadRunning()
 	{
 		// lets take a look in the workflow table to see
@@ -161,6 +180,14 @@ class Workflow_Manager extends Resolve_Object
 	}//end loadRunning()
 
 
+	/**
+	* Goes through the passed running workflow and sets what step we are up to
+	*
+	* @param int	$workflowid	the workflow we are working out the current step for
+	*
+	* @return void
+	* @access private
+	*/
 	function _loadCurrentStep($workflowid)
 	{
 		// if there are no current workflows running, how can someone publish?
@@ -242,9 +269,19 @@ class Workflow_Manager extends Resolve_Object
 		}
 		
 		if ($continue) $workflow['current_step'] = 0;
-	}
+	}//end _loadCurrentStep()
 
 
+	/**
+	* Returns an array of all users who can publish one of the running workflows
+	* Note that the publishers are based on the current step in the workflow
+	* so the users returned are only users who will affect the workflow at this point
+	*
+	* @param boolean	$group	group the return value by workflowid
+	*
+	* @return array(int)
+	* @access public
+	*/
 	function whoCanPublish($group=false)
 	{
 		// if there are no current workflows running, we are not waiting for anyone
@@ -265,9 +302,19 @@ class Workflow_Manager extends Resolve_Object
 
 		if (!$group) $can_publish = array_unique($can_publish);
 		return $can_publish;
-	}
+	}//end whoCanPublish()
 
 
+	/**
+	* Returns an array of all users who can publish the passed running workflow
+	* Note that the publishers are based on the current step in the workflow
+	* so the users returned are only users who will affect the workflow at this point
+	*
+	* @param int	$workflowid	the id of the running workflow to find publishers for
+	*
+	* @return array(int)
+	* @access private
+	*/
 	function _whoCanPublishWorkflow($workflowid)
 	{
 		// if this workflow is not running, we are not waiting for anyone
@@ -320,9 +367,17 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		return array_unique($can_publish);
-	}
+	}//end _whoCanPublishWorkflow()
 
 
+	/**
+	* Changes the workflows to indicate that a user has approved the asset
+	*
+	* @param int	$publisher	the id of the user who has approved
+	*
+	* @return boolean
+	* @access public
+	*/
 	function recordPublish($publisher)
 	{
 		// if there are no current workflows running, how can someone publish?
@@ -380,10 +435,15 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		return $updated;
+	}//end recordPublish()
 
-	}
 
-
+	/**
+	* Starts the workflow by writing out all workflows to the running table
+	*
+	* @return boolean
+	* @access public
+	*/
 	function start()
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -391,11 +451,11 @@ class Workflow_Manager extends Resolve_Object
 		$workflows_todo = Array();
 		if (!empty($this->_inherited_workflows)) {
 			foreach ($this->_inherited_workflows as $assetid => $workflow) {
-				if (empty($workflow->_steps)) continue;
-				$workflows_todo[$assetid] = $workflow->_steps;
+				if (empty($workflow->steps)) continue;
+				$workflows_todo[$assetid] = $workflow->steps;
 			}
 		}
-		$workflows_todo[$this->_asset->id] = $this->_steps;
+		$workflows_todo[$this->_asset->id] = $this->steps;
 
 		if (empty($workflows_todo)) return false;
 
@@ -413,12 +473,20 @@ class Workflow_Manager extends Resolve_Object
 				return false;
 			}
 		}
-	}
+
+		return true;
+	}//end start()
 
 
+	/**
+	* Writes the current state of this workflow to the database
+	*
+	* @return boolean
+	* @access public
+	*/
 	function save()
 	{
-		$steps = serialize($this->_steps);
+		$steps = serialize($this->steps);
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		switch ($this->state) {
@@ -433,8 +501,6 @@ class Workflow_Manager extends Resolve_Object
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 					return false;
 				}
-
-				return true;
 				break;
 			case 'idle' :
 				// updating an existing direct workflow
@@ -447,8 +513,6 @@ class Workflow_Manager extends Resolve_Object
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 					return false;
 				}
-
-				return true;
 				break;
 			case 'running' :
 				// updating existing running workflows
@@ -493,10 +557,21 @@ class Workflow_Manager extends Resolve_Object
 					return false;
 				}
 				break;
+			default :
+				return false;
+				break;
 		}
-	}
+
+		return true;
+	}//end save()
 
 
+	/**
+	* Cancels all currently running workflows
+	*
+	* @return boolean
+	* @access public
+	*/
 	function cancel()
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -511,52 +586,77 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		return true;
-	}
+	}//end cancel()
 
 
+	/**
+	* Adds a step to the direct workflow for the asset being managed
+	* Returns the new stepid
+	*
+	* @return int
+	* @access public
+	*/
 	function addStep()
 	{
-		$stepid = count($this->_steps) + 1;
+		$stepid = count($this->steps) + 1;
 
-		$this->_steps[$stepid] = Array();
-		$this->_steps[$stepid]['logic'] = '>= 1';
-		$this->_steps[$stepid]['conditions'] = Array();
+		$this->steps[$stepid] = Array();
+		$this->steps[$stepid]['logic'] = '>= 1';
+		$this->steps[$stepid]['conditions'] = Array();
 
 		return $stepid;
-	}
+	}//end addStep()
 
 
+	/**
+	* Deletes a step from the direct workflow for the asset being managed
+	*
+	* @param int	$stepid	the id of the step to delete
+	*
+	* @return boolean
+	* @access public
+	*/
 	function deleteStep($stepid)
 	{
 		$stepid = (int)$stepid;
 		if (!$stepid) return false;
 
-		if (!isset($this->_steps[$stepid])) {
+		if (!isset($this->steps[$stepid])) {
 			trigger_error("Cannot delete workflow step, step $stepid does not exist", E_USER_WARNING);
 			return false;
 		}
 
-		unset($this->_steps[$stepid]);
+		unset($this->steps[$stepid]);
 
 		// move all the other steps up one position
 		$new_steps = Array();
-		foreach ($this->_steps as $step => $step_data) {
+		foreach ($this->steps as $step => $step_data) {
 			if ($step < $stepid) $new_stepid = $step;
 			else $new_stepid = $step -1;
 			$new_steps[$new_stepid] = $step_data;
 		}
-		$this->_steps = $new_steps;
+		$this->steps = $new_steps;
 
 		return true;
-	}
+	}//end deleteStep()
 
 
+	/**
+	* Sets how many conditions need to be completed before this step is complete
+	*
+	* @param int	$stepid		the id of the step to set the logic for
+	* @param string	$logic		the logic string (from $this->_valid_step_logic)
+	* @param int	$logic_num	how many conditions need to be approved
+	*
+	* @return boolean
+	* @access public
+	*/
 	function setStepLogic($stepid, $logic='>=', $logic_num=1)
 	{
 		$stepid = (int)$stepid;
 		if (!$stepid) return false;
 
-		if (!isset($this->_steps[$stepid])) {
+		if (!isset($this->steps[$stepid])) {
 			trigger_error("Cannot edit step logic, step $stepid does not exist", E_USER_WARNING);
 			return false;
 		}
@@ -575,18 +675,29 @@ class Workflow_Manager extends Resolve_Object
 
 		// work out the logic expression
 		$logic = $logic.(($logic_num) ? " $logic_num" : '');
-		$this->_steps[$stepid]['logic'] = $logic;
+		$this->steps[$stepid]['logic'] = $logic;
 
 		return true;
-	}
+	}//end setStepLogic()
 
 
+	/**
+	* Adds a condition to the passed step
+	*
+	* @param int	$stepid		the id of the step the condition is in
+	* @param int	$publisher	the id of the publisher / condition
+	* @param string	$logic		the logic string (from $this->_valid_cond_logic)
+	* @param int	$logic_num	how many users in a group need to approve
+	*
+	* @return boolean
+	* @access public
+	*/
 	function addCondition($stepid, $publisher, $logic='>=', $logic_num=1)
 	{
 		$stepid = (int)$stepid;
 		if (!$stepid) return false;
 
-		if (!isset($this->_steps[$stepid])) {
+		if (!isset($this->steps[$stepid])) {
 			trigger_error("Cannot add step condition, step $stepid does not exist", E_USER_WARNING);
 			return false;
 		}
@@ -598,7 +709,7 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		$publisher = (int)$publisher;
-		if (isset($this->_steps[$stepid]['conditions'][$publisher])) {
+		if (isset($this->steps[$stepid]['conditions'][$publisher])) {
 			trigger_error("Cannot add step condition, publisher $publisher is already set in step $stepid", E_USER_WARNING);
 			return false;
 		}
@@ -606,18 +717,29 @@ class Workflow_Manager extends Resolve_Object
 		// work out the logic expression
 		$logic_num = (int)$logic_num;
 		$require = $logic.(($logic_num) ? " $logic_num" : '');
-		$this->_steps[$stepid]['conditions'][$publisher] = Array('require' => $require, 'published_by' => Array());
+		$this->steps[$stepid]['conditions'][$publisher] = Array('require' => $require, 'published_by' => Array());
 	
 		return true;
-	}
+	}//end addCondition()
 
 
+	/**
+	* Sets how many users need to approve before the condition is complete
+	*
+	* @param int	$stepid		the id of the step the condition is in
+	* @param int	$publisher	the id of the publisher / condition
+	* @param string	$logic		the logic string (from $this->_valid_cond_logic)
+	* @param int	$logic_num	how many users in a group need to approve
+	*
+	* @return boolean
+	* @access public
+	*/
 	function setConditionLogic($stepid, $publisher, $logic='>=', $logic_num=1)
 	{
 		$stepid = (int)$stepid;
 		if (!$stepid) return false;
 
-		if (!isset($this->_steps[$stepid])) {
+		if (!isset($this->steps[$stepid])) {
 			trigger_error("Cannot edit step condition logic, step $stepid does not exist", E_USER_WARNING);
 			return false;
 		}
@@ -629,7 +751,7 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		$publisher = (int)$publisher;
-		if (!isset($this->_steps[$stepid]['conditions'][$publisher])) {
+		if (!isset($this->steps[$stepid]['conditions'][$publisher])) {
 			trigger_error("Cannot edit step condition logic, publisher $publisher is not set in step $stepid", E_USER_WARNING);
 			return false;
 		}
@@ -642,32 +764,41 @@ class Workflow_Manager extends Resolve_Object
 
 		// work out the logic expression
 		$require = $logic.(($logic_num) ? " $logic_num" : '');
-		$this->_steps[$stepid]['conditions'][$publisher]['require'] = $require;
+		$this->steps[$stepid]['conditions'][$publisher]['require'] = $require;
 	
 		return true;
-	}
+	}//end setConditionLogic()
 
 
+	/**
+	* Deletes a condition from the passed step
+	*
+	* @param int	$stepid		the id of the step the condition is in
+	* @param int	$publisher	the id of the publisher / condition
+	*
+	* @return boolean
+	* @access public
+	*/
 	function deleteCondition($stepid, $publisher)
 	{
 		$stepid = (int)$stepid;
 		if (!$stepid) return false;
 
-		if (!isset($this->_steps[$stepid])) {
+		if (!isset($this->steps[$stepid])) {
 			trigger_error("Cannot delete step condition, step $stepid does not exist", E_USER_WARNING);
 			return false;
 		}
 
 		$publisher = (int)$publisher;
-		if (!isset($this->_steps[$stepid]['conditions'][$publisher])) {
+		if (!isset($this->steps[$stepid]['conditions'][$publisher])) {
 			trigger_error("Cannot delete step condition, publisher $publisher does not exist in step $stepid", E_USER_WARNING);
 			return false;
 		}
 
-		unset($this->_steps[$stepid]['conditions'][$publisher]);
+		unset($this->steps[$stepid]['conditions'][$publisher]);
 	
 		return true;
-	}
+	}//end deleteCondition()
 
 
 }//end class

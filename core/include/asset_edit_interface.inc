@@ -1003,7 +1003,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 		//// now print the direct workflow for this asset ////
-		foreach ($wfm->_steps as $stepid => $step_data) {
+		foreach ($wfm->steps as $stepid => $step_data) {
 			$o->openSection("Step $stepid");
 			
 			if ($write_access) {

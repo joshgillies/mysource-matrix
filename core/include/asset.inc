@@ -2137,7 +2137,7 @@ class Asset extends Resolve_Object
 	* Revokes an inherited permission
 	*
 	* @param int	$assetid	the id of the user or user_group to stop inheriting the permission for
-	* @param string	$permission	the permission code you are stopping (R, W, A)
+	* @param string	$permission	the permission code you are stopping
 	*
 	* @return boolean
 	* @access public
@@ -2189,7 +2189,7 @@ class Asset extends Resolve_Object
 	* Reinstates a revoked permission
 	*
 	* @param int	$assetid	the id of the user or user_group to reinstate the permission for
-	* @param string	$permission	the permission code you are reinstating (R, W, A)
+	* @param string	$permission	the permission code you are reinstating
 	*
 	* @return boolean
 	* @access public
