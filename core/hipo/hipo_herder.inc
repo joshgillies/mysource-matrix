@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.57 2005/03/20 23:33:31 arailean Exp $
+* $Id: hipo_herder.inc,v 1.58 2005/03/23 22:57:15 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -107,8 +107,7 @@ class HIPO_Herder extends MySource_Object
 			$hipo_vars = $db->getRow($sql);
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
 
-			if (DB::isError($hipo_vars)) {
-				trigger_error($hipo_vars->getMessage().'<br/>'.$hipo_vars->getUserInfo(), E_USER_WARNING);
+			if (!assert_valid_db_result($hipo_vars)) {
 				$null = null;
 				return $null;
 			}
@@ -637,9 +636,7 @@ class HIPO_Herder extends MySource_Object
 				  AND running = 0';
 		$queued_jobs = $db->getAll($sql);
 
-		if (DB::isError($queued_jobs)) {
-			trigger_error($queued_jobs->getMessage().'<br/>'.$queued_jobs->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if (!assert_valid_db_result($queued_jobs)) {
 			return '';
 		}
 
@@ -678,9 +675,7 @@ class HIPO_Herder extends MySource_Object
 				WHERE code_name IN ('.implode(', ',$job_codes).')';
 
 		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if (!assert_valid_db_result($result)) {
 			return '';
 		}
 
@@ -861,9 +856,7 @@ class HIPO_Herder extends MySource_Object
 
 			$result = $db->query($sql);
 			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			} else {
+			if (assert_valid_db_result($result)) {
 				while (DB_OK === $result->fetchInto($row)) {
 					$source_code_name = ($row['source_code_name'] == $row['code_name']) ? '' : $row['source_code_name'];
 					if (!isset($source_jobs[$source_code_name])) {

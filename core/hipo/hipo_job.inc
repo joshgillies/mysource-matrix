@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.60 2005/03/23 02:58:25 arailean Exp $
+* $Id: hipo_job.inc,v 1.61 2005/03/23 22:57:15 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -433,9 +433,7 @@ class HIPO_Job extends MySource_Object
 				FROM '.SQ_TABLE_PREFIX.'hipo_job
 				WHERE code_name = '.$db->quote($code_name);
 		$existing = $db->getRow($sql);
-		if (DB::isError($existing)) {
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			trigger_error($existing->getMessage().'<br/>'.$existing->getUserInfo(), E_USER_WARNING);
+		if (!assert_valid_db_result($existing)) {
 			return '';
 		}
 
@@ -462,8 +460,7 @@ class HIPO_Job extends MySource_Object
 						)';
 		$result = $db->query($sql);
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		if (!assert_valid_db_result($result)) {
 			return '';
 		}
 
@@ -579,7 +576,7 @@ class HIPO_Job extends MySource_Object
 
 		$result = $db->getRow($sql);
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($result);
 
 		if (empty($result)) return false;
 
@@ -684,7 +681,7 @@ class HIPO_Job extends MySource_Object
 		}
 		$result = $db->query($sql);
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		assert_valid_db_result($result);
 
 		$this->last_updated = $now;
 
@@ -1158,11 +1155,18 @@ class HIPO_Job extends MySource_Object
 		} else if (!empty($step_data['hipo_job'])) {
 
 			$fn = $step_data['hipo_job']['init_details_function'];
+
 			// First let's get the info needed to create this
-			$this->$fn($job_type='', $running_vars=Array(), $options=Array());
+			$this->$fn($job_type='', $running_vars=Array(), $options=Array(), $hipo_vars=Array());
 			if (empty($job_type)) return false;
 
-			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
+			if (empty($hipo_vars)) {
+				require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
+			}
+			else {
+				require_once $hipo_vars['job_dir'].'/'.$job_type.'.inc';
+			}
+
 			$init_hipo = new $job_type();
 
 			$init_hipo->setRunningVars($running_vars);

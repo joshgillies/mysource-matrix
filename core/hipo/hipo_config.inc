@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.24 2005/03/21 06:15:33 gsherwood Exp $
+* $Id: hipo_config.inc,v 1.25 2005/03/23 22:57:15 ndvries Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -44,9 +44,10 @@ class HIPO_Config extends Config
 	* @var Array()
 	*/
 	var $config_vars = Array(
-		'SQ_HIPO_USE_SERVER'					=> Array('editable' => 1, 'default' => false),
-		'SQ_HIPO_TOTAL_THRESHOLD'				=> Array('editable' => 1, 'default' => 80),
-	);
+							 'SQ_HIPO_USE_SERVER'      => Array('editable' => 1, 'default' => false),
+							 'SQ_HIPO_TOTAL_THRESHOLD' => Array('editable' => 1, 'default' => 80),
+							 );
+
 
 	/**
 	* Constructor
@@ -124,7 +125,7 @@ class HIPO_Config extends Config
 			// first we save as normal, but we won't have the jobs config vars in there
 			// (no need to backup either because the file doesn't exist)
 			if (!parent::save($vars, false)) return false;
-			// then we load all jobs configs (which can happen now that there is a 
+			// then we load all jobs configs (which can happen now that there is a
 			// config file that they can require) and save again to put them in the file
 			$this->_loadJobConfigVars();
 			return parent::save($vars, false);
@@ -150,7 +151,7 @@ class HIPO_Config extends Config
 
 
 	/**
-	* Does the current user have writeAccess() to this config ? 
+	* Does the current user have writeAccess() to this config ?
 	*
 	* @return boolean
 	* @access public
@@ -169,7 +170,7 @@ class HIPO_Config extends Config
 	/**
 	* Paints the interface for our config options.
 	*
-	* If you (as a sub-class) put your config vars so that when they are submitted appear in 
+	* If you (as a sub-class) put your config vars so that when they are submitted appear in
 	* $_POST[get_class($this)] then you probably won't need to override processBackend()
 	*
 	* @param object Backend_Outputter	&$o			reference to the backend outputter

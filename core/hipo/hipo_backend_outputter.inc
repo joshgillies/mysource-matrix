@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.8 2005/01/20 13:10:34 brobertson Exp $
+* $Id: hipo_backend_outputter.inc,v 1.9 2005/03/23 22:57:15 ndvries Exp $
 *
 */
 
@@ -30,11 +30,11 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *
 * Purpose
 *
-*    similar to the standard backend outputter, but colour scheme modified to 
+*    similar to the standard backend outputter, but colour scheme modified to
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.6 2005/03/16 22:59:59 ndvries Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.7 2005/03/23 22:57:15 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -54,19 +54,19 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-					Array(
-						'name'             => 'Acquiring Locks',
-						'function_call'    => Array(
-												'process_function' => 'processLocking',
-												),
-						'running_mode'     => 'server',
-						'auto_step'        => true,
-						'allow_cancel'     => true,
-						'percent_done'     => 0,
-						'complete'         => false,
-						'message'          => '',
-					),
-				);
+						Array(
+							  'name'          => 'Acquiring Locks',
+							  'function_call' => Array(
+													   'process_function' => 'processLocking',
+													   ),
+							  'running_mode'  => 'server',
+							  'auto_step'     => true,
+							  'allow_cancel'  => true,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						);
 
 
 	/**
@@ -118,8 +118,8 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	function getConfigVars()
 	{
 		return Array(
-			'SQ_HIPO_ACQUIRE_LOCK_THRESHOLD' => Array('editable' => 1, 'default' => 1),
-		);
+					 'SQ_HIPO_ACQUIRE_LOCK_THRESHOLD' => Array('editable' => 1, 'default' => 1),
+					 );
 
 	}//end getConfigVars()
 
@@ -165,10 +165,11 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 				$vars['lock_types'] = Array();
 				foreach ($vars['lock_type'] as $lock_type) {
 					foreach ($vars['assetids'] as $assetid) {
-						if (!isset($vars['lock_types'][$assetid]))
+						if (!isset($vars['lock_types'][$assetid])) {
 							$vars['lock_types'][$assetid] = $GLOBALS['SQ_SYSTEM']->am->getLockTypes($assetid, $lock_type);
-						else
+						} else {
 							$vars['lock_types'][$assetid] = array_merge($vars['lock_types'][$assetid], $GLOBALS['SQ_SYSTEM']->am->getLockTypes($assetid, $lock_type));
+						}
 						$vars['lock_types'][$assetid] = array_unique($vars['lock_types'][$assetid]);
 					}
 
