@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.72 2004/12/09 04:29:08 tbarrett Exp $
+* $Id: html_form.inc,v 1.73 2005/01/13 22:04:35 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -584,21 +584,6 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 			return false;
 		}
 	}//end dest exists
-
-	/**
-	******* Have left this out for now - BCR *******
-
-	// if this filename already exists and we aren't to overwrite, rename it
-	if (file_exists($dest . '/' . $name) && !$overwrite) {
-		while (file_exists($dest . '/' . $name)) {
-			$pos = strrpos($name, '.');
-			if (!$pos) $pos = strlen($name);
-			$name = increment_name(substr($name,0,$pos)).(substr($name,$pos));
-			$thefile_name = $name;
-		}
-		$this->addMessage(SQ_MSG_NOTICE, 'File name already exists. File renamed to '.$name);
-	}
-	*/
 
 	// Move file over
 	if (!move_uploaded_file($info['tmp_name'], $dest)) {
