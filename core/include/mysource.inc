@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.32 2004/01/16 00:48:01 mmcintyre Exp $
+* $Id: mysource.inc,v 1.33 2004/01/16 03:13:10 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -177,7 +177,7 @@ class MySource
 
 			// process rollback view mode global actions here so setting the rollback vars below
 			if (!empty($_REQUEST['SQ_ACTION']) && strpos($_REQUEST['SQ_ACTION'], 'rollback_view') === 0) {
-					$this->_processGlobalActions();
+				$this->_processGlobalActions();
 			}
 
 			// check if we are in rollback view mode
