@@ -34,23 +34,33 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			if ($element['_type'] != 'TAG' || $element['operation'] != 'declare') continue;
 
 			// if there is a name and it's not the the same type as the current design area
-			if (empty($element['attributes']['name']) || empty($element['attributes']['value']) || empty($element['attributes']['type'])) {
-				trigger_error('All declared variables need to have a name, a value and a type', E_USER_WARNING);
+			if (empty($element['attributes']['name']) || empty($element['attributes']['type'])) {
+				trigger_error('All declared variables need to have a name and a type', E_USER_WARNING);
 				continue;
 			}//end if
 
-			if (!isset($element['attributes']['description'])) $element['attributes']['description'] = '';
-
-			if (empty($GLOBALS[__CLASS__.__FUNCTION__])) {
-				trigger_error('NEED TO MAKE SURE THAT THE TYPE IS VALID HERE', E_USER_NOTICE);
-				$GLOBALS[__CLASS__.__FUNCTION__] = 1;
-			}
+			if (!isset($element['attributes']['value']))		$element['attributes']['value'] = '';
+			if (!isset($element['attributes']['description']))	$element['attributes']['description'] = '';
 
 			$name = preg_replace('/[^a-z0-9_]/i', '_', $element['attributes']['name']);
-
 			if ($name != $element['attributes']['name']) {
 				trigger_error('Declared Variable "'.$element['attributes']['name'].'" in "'.$asset->attr('id_name').'" contained illegal characters and has been changed to "'.$name.'"', E_USER_WARNING);
 			}
+
+			// make sure this is a valid attribute type
+			if (!$GLOBALS['SQ_SYSTEM']->am->validAttributeType($element['attributes']['type'])) {
+				trigger_error('Declared Variable "'.$name.'" in "'.$asset->attr('id_name').'" is specified as unknown in Attribute Type "'.$element['attributes']['type'].'"', E_USER_WARNING);
+				return false;
+			}// end if
+			
+			// check that the value is valid
+			require_once(SQ_ATTRIBUTES_PATH.'/'.$element['attributes']['type'].'/'.$element['attributes']['type'].'.inc');
+			$class = 'Asset_Attribute_'.$element['attributes']['type'];
+			$attr = new $class();
+			if (!$attr->validateValue($element['attributes']['value'])) {
+				trigger_error('Declared Variable "'.$name.'" in "'.$asset->attr('id_name').'" has an invalid value "'.$element['attributes']['value'].'" for an "'.$element['attributes']['type'].'" attribute type', E_USER_WARNING);
+				return false;
+			}// end if
 
 			$declared_vars[$name] = Array(
 											'type'        => $element['attributes']['type'],
@@ -58,6 +68,8 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 											'description' => $element['attributes']['description'],
 											);
 		}// end foreach
+
+		pre_echo($declared_vars);
 
 		// now make sure we save our changes
 		return $asset->setAttrValue('declared_vars', $declared_vars);
