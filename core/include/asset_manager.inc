@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.183 2004/03/01 17:11:02 brobertson Exp $
+* $Id: asset_manager.inc,v 1.184 2004/03/01 18:11:42 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2636,7 +2636,7 @@ class Asset_Manager extends MySource_Object
 
 			// if we aren't linked anywhere we can't be linked to, sorry
 			// NOTE: exception to rule is root folder
-			if ((string) $existing_treeid == '' && $major->id != 1) {
+			if ((string) $existing_treeid == '' && get_class($major) != 'root_folder') {
 				trigger_error('Unable to create link, Asset "'.$major->name.'" (Asset #'.$major->id.') is not linked to anything itself', E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
