@@ -784,10 +784,10 @@ class Asset_Manager extends Resolve_Object
 				return $this->getAsset(4, 'root_user');
 			case 'designs_folder' :
 				return $this->getAsset(7, 'designs_folder');
-			case 'login_design' :
-				return $this->getAsset(8, 'login_design');
 			case 'cron_manager' :
-				return $this->getAsset(10, 'cron_manager');
+				return $this->getAsset(8, 'cron_manager');
+			case 'login_design' :
+				return $this->getAsset(9, 'login_design');
 			default :
 				trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);
 		}
