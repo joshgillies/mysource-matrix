@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.19 2004/09/26 23:56:57 gsherwood Exp $
+* $Id: asset_status_editing.inc,v 1.20 2004/10/06 01:00:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    EDITING -> LIVE             if the user has write access (cancel safe edit)
 *    EDITING -> EDITING_APPROVED if no workflow and user is an admin OR
 *                                there is workflow but current user's approval will complete
-*                                the workflow
+*                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
@@ -104,12 +104,23 @@ class Asset_Status_Editing extends Asset_Status
 					$statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
 				}
 			} else {
-				// so we have workflows, but none of them are running
-				// so lets see what will happen if this user approves
-				// to determine if they can live edit
+				// so we have workflows, but none of them are running so lets see what will happen 
+				// if this user approves to determine if they can live edit
 				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
-				if ($wf_complete) $statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
-				else $statii[SQ_STATUS_EDITING_APPROVAL] = 'Apply for Approval';
+
+				// we also need to check what if all the required metadata fields are completed
+				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				if ($mm->allowsMetadata($this->owner->id)) {
+					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
+	
+					if ($wf_complete && $m_complete) $statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
+					else $statii[SQ_STATUS_EDITING_APPROVAL] = 'Apply for Approval';
+				} else {
+					// this asset needs to allow both statuses because it cant check metadata requirements
+					// due to it not allowing metadata
+					$statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
+					$statii[SQ_STATUS_EDITING_APPROVAL] = 'Apply for Approval';
+				}
 			}
 		}//end if workflow running
 
