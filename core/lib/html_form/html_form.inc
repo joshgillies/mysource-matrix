@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.54 2004/03/18 03:42:18 gsherwood Exp $
+* $Id: html_form.inc,v 1.55 2004/05/03 05:42:20 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -636,7 +636,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	}// end foreach
 
 	$label = '';
-	$assetid = (int) $assetid;
+	//$assetid = (int) $assetid;
 	if ($assetid) {
 		$asset = &$am->getAsset($assetid);
 		if (is_null($asset)) $assetid = 0;
