@@ -109,9 +109,12 @@ class Workflow_Manager extends Resolve_Object
 			// now lets do the inherited workflows
 			$users    = $this->_asset->getPermission(SQ_PERMISSION_WORKFLOW, false);
 			$inherits = $this->_asset->getInheritedPermission(SQ_PERMISSION_WORKFLOW, array_keys($users));
+			$revokes  = $this->_asset->getRevokedPermission(SQ_PERMISSION_WORKFLOW);
+			$revokes = array_keys($revokes);
 			$inherited = $inherits + $users;
 			if (isset($inherited[0])) {
 				foreach ($inherited[0] as $assetid) {
+					if (!empty($revokes) && in_array($assetid, $revokes)) continue;
 					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					$this->_inherited_workflows[$assetid] =& new Workflow_Manager($asset, true, false, false);
 				}
@@ -491,6 +494,23 @@ class Workflow_Manager extends Resolve_Object
 				}
 				break;
 		}
+	}
+
+
+	function cancel()
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'DELETE FROM sq_asset_running_workflow
+				WHERE workflowid LIKE '.$db->quote($this->_asset->id.'~%');
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		return true;
 	}
 
 
