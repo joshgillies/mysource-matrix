@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_manager_edit_fns.inc,v 1.4 2003/10/15 11:05:15 brobertson Exp $
+* $Id: search_manager_edit_fns.inc,v 1.5 2003/10/17 01:34:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -16,7 +16,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,7 +47,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-		$o->setHeading("Asset Attribute Relevance Weighting");
+		$o->setHeading('Asset Attribute Relevance Weighting');
 
 		$typeHierarchy = $am->getAssetTypeHierarchy();
 
