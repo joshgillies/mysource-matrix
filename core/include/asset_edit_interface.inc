@@ -147,7 +147,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		// make sure that we have the screen for next time
 		$o->addFormActionGetVar('asset_ei_screen', $active_screen);
 
-		$o->setHeading($this->_screens[$active_screen]['name'], $this->_screens[$active_screen]['icon']);
+		$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getInfo($this->_type_code, 'name').' - '.$this->_screens[$active_screen]['name'], $this->_screens[$active_screen]['icon']);
 
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
@@ -166,45 +166,65 @@ class Asset_Edit_Interface extends Resolve_Object
 			if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
 
 			$o->openSection($section->attributes['name']);
-			// Loop over the fields
-			for($j = 0; $j < count($section->children); $j++) {
-				$field = &$section->children[$j];
-				// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-				if ($field->name != 'field'  || ($creating && !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']]))) continue;
 
-				if ($field->children[0]->name != 'display_name') {
-					trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
-					continue;
+			if (!($num_fields = count($section->children))) continue;
+			if ($section->children[0]->name == 'function_call') {
+
+				$paint_node = &$section->children[0]->children[0];
+
+				if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
+					$o->openField('');
+					echo 'Function not found for painting section "', $section->attributes['name'], '"';
+				} else {
+					$this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix);
 				}
 
-				$o->openField($field->children[0]->content);
+			// they must just be normal fields
+			} else {
 
-				if (!empty($field->attributes['attribute'])) {
-					$attr = &$owner->getAttribute($field->attributes['attribute']);
-					if (is_null($attr)) continue;
-					if (!$attr->setEditParams($field->children[2])) continue;
-					$attr->paint($prefix);
+				// Loop over the fields
+				for($j = 0; $j < $num_fields; $j++) {
+					$field = &$section->children[$j];
+					// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+					if ($field->name != 'field'  || ($creating && !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']]))) continue;
 
-				} else if ($field->children[2]->name == 'function_call') {
-
-					$paint_node = &$field->children[2]->children[0];
-
-					if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
-						echo 'Function not found for painting';
-					} else {
-						$this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix);
+					if ($field->children[0]->name != 'display_name') {
+						trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
+						continue;
 					}
 
-				}// end if
+					if (!isset($field->attributes['format'])) $field->attributes['format'] = '';
+					$o->openField($field->children[0]->content, $field->attributes['format']);
 
-				if ($field->children[1]->name == 'note' && $field->children[1]->content) {
-					$o->note($field->children[1]->content);
-				}
+					if (!empty($field->attributes['attribute'])) {
+						$attr = &$owner->getAttribute($field->attributes['attribute']);
+						if (is_null($attr)) continue;
+						if (!$attr->setEditParams($field->children[2])) continue;
+						$attr->paint($prefix);
 
-			}// end for
+					} else if ($field->children[2]->name == 'function_call') {
+
+						$paint_node = &$field->children[2]->children[0];
+
+						if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
+							echo 'Function not found for painting';
+						} else {
+							$this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix);
+						}
+
+					}// end if
+
+					if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+						$o->note($field->children[1]->content);
+					}
+
+				}// end for fields
+
+			}// end if section uses function call
 
 		}// end for
 
+		$o->openSection();
 		$o->commitButton('Commit');
 
 	}// end paint();
@@ -268,37 +288,56 @@ class Asset_Edit_Interface extends Resolve_Object
 			// if this ain't a section, or if we are printing the create interface and this section is not included in that, ignore it
 			if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
 
-			// Loop over the fields
-			for($j = 0; $j < count($section->children); $j++) {
-				$field = &$section->children[$j];
-				// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
-				if ($field->name != 'field'  || ($creating && !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']]))) continue;
+			if (!($num_fields = count($section->children))) continue;
+			if ($section->children[0]->name == 'function_call') {
 
-				if (!empty($field->attributes['attribute'])) {
-					$attr = &$owner->getAttribute($field->attributes['attribute']);
-					if (is_null($attr)) continue;
-					if (!$attr->setEditParams($field->children[2])) continue;
+				$process_node = &$section->children[0]->children[1];
 
-					$attr->process($prefix);
-					$processed[] = $attr->name;
+				// if there is nothing declared there is nothing for us to do
+				if (empty($process_node->attributes['name'])) {
+					continue;
+				// There is something declared but the bloody thing doesn't exist - inform the Idiot
+				} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
+					trigger_error('Function not found for processing section "'.$section->attributes['name'].'"', E_USER_WARNING);
+				} else {
+					$this->_edit_fns->{$process_node->attributes['name']}($owner, $prefix);
+				}
 
-				} else if ($field->children[2]->name == 'function_call') {
+			// they must just be normal fields
+			} else {
+				// Loop over the fields
+				for($j = 0; $j < $num_fields; $j++) {
+					$field = &$section->children[$j];
+					// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
+					if ($field->name != 'field'  || ($creating && !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']]))) continue;
 
-					$process_node = &$field->children[2]->children[1];
+					if (!empty($field->attributes['attribute'])) {
+						$attr = &$owner->getAttribute($field->attributes['attribute']);
+						if (is_null($attr)) continue;
+						if (!$attr->setEditParams($field->children[2])) continue;
 
-					// if there is nothing declared there is nothing for use to do
-					if (empty($process_node->attributes['name'])) {
-						continue;
-					// There is something declared but the bloody thing doesn't exist - inform the Idiot
-					} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
-						trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[0]->content.'"', E_USER_WARNING);
-					} else {
-						$this->_edit_fns->{$process_node->attributes['name']}($owner, $prefix);
-					}
+						$attr->process($prefix);
+						if ($attr->processed) $processed[] = $attr->name;
 
-				}// end if
+					} else if ($field->children[2]->name == 'function_call') {
 
-			}// end for
+						$process_node = &$field->children[2]->children[1];
+
+						// if there is nothing declared there is nothing for use to do
+						if (empty($process_node->attributes['name'])) {
+							continue;
+						// There is something declared but the bloody thing doesn't exist - inform the Idiot
+						} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
+							trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[0]->content.'"', E_USER_WARNING);
+						} else {
+							$this->_edit_fns->{$process_node->attributes['name']}($owner, $prefix);
+						}
+
+					}// end if
+
+				}// end for fields
+
+			}// end if section funcion call
 
 		}// end for
 
