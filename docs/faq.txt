@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: faq.txt,v 1.20 2004/09/10 01:31:06 gsherwood Exp $
+* $Id: faq.txt,v 1.21 2004/09/15 09:27:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -166,28 +166,30 @@ A. There are several steps :
   Basically if there is a difference then you will most likely have to reset everyone's passwords
   ########################################################################################################################
 
-  1. Create a backup with backup.sh in the current root directory, just in case :)
+  1.  Goto the HIPO Herder int the backend and delete all HIPO Jobs from the current system.
 
-  2. Copy everything under the system root from the old area to the new area
+  2. Create a backup with backup.sh in the current root directory, just in case :)
 
-  3. Create the new database, if applicable, and copy the existing data to it
+  3. Copy everything under the system root from the old area to the new area
 
-  4. Edit the [NEW SYSTEM ROOT]/data/private/conf/main.inc, alter :
+  4. Create the new database, if applicable, and copy the existing data to it
+
+  5. Edit the [NEW SYSTEM ROOT]/data/private/conf/main.inc, alter :
        - SQ_CONF_DB_DSN and SQ_CONF_DB2_DSN if the database has changed
        - SQ_CONF_PEAR_PATH if this has changed
        - SQ_CONF_SYSTEM_ROOT_URLS if any root urls have changed
 
-  5. Run [NEW SYSTEM ROOT]/scripts/system_move_update.php to update all the file version information
+  6. Run [NEW SYSTEM ROOT]/scripts/system_move_update.php to update all the file version information
 
-  6. If you are running the HIPO Jobs through the Squiz Server, then you will need to update the server config, 
+  7. If you are running the HIPO Jobs through the Squiz Server, then you will need to update the server config, 
      and get that re-read by the server. You may also need to edit [NEW SYSTEM ROOT]/data/private/conf/squiz_server.inc
      if any of these settings have changed
 
-  7. If the Cron Jobs are running then the crontab entry will need to be edited/added for the new system root.
+  8. If the Cron Jobs are running then the crontab entry will need to be edited/added for the new system root.
      ****NOTE**** - You will need to reset the Epoch of the Cron Manager to the time that this new crontab 
                     entry will be first run.
 
-  8. WYSIWYG & HTML Tidy - If moving to a new server, then you will need to make sure that the HTML Tidy is
+  9. WYSIWYG & HTML Tidy - If moving to a new server, then you will need to make sure that the HTML Tidy is
      installed on the server and the WYSIWYG plugin is pointing to the correct place
 
 That should be it, have fun
