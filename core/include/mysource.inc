@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.92 2005/03/24 05:16:48 arailean Exp $
+* $Id: mysource.inc,v 1.93 2005/03/29 06:45:27 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1062,7 +1062,7 @@ class MySource
 	function &getTriggerManager()
 	{
 		$am = &$this->am;
-		if (!isset($this->trigger_manager) || ($am->installed('trigger_manager') && get_class($this->trigger_manager) != 'trigger_manager')) {
+		if ((!isset($this->trigger_manager) || ($am->installed('trigger_manager') && !is_a($this->trigger_manager,'trigger_manager'))) && $am->isSystemAssetType('trigger_manager')) {
 			$this->trigger_manager = &$am->getSystemAsset('trigger_manager');
 		}
 
