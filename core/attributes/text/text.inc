@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.29 2004/09/10 07:10:23 gsherwood Exp $
+* $Id: text.inc,v 1.30 2004/10/19 04:33:01 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <text width="40" height="4" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -75,7 +75,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;">Width</td>	
+				<td class="sq-backend-section-heading" style="width: 100px;">Width</td>
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) text_box($prefix.'_'.$this->name.'_width', $this->_edit_params['width']);
@@ -120,7 +120,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 		$values = Array();
 		$values['width']  = $this->_edit_params['width'];
 		$values['height'] = $this->_edit_params['height'];
-		
+
 		return $values;
 
 	}//end processEditParams()
