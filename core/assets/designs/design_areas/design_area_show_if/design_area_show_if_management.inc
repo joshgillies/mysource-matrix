@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if_management.inc,v 1.1 2004/11/10 02:44:42 amiller Exp $
+* $Id: design_area_show_if_management.inc,v 1.1.2.1 2005/01/11 04:36:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,34 +48,40 @@ class Design_Area_Show_If_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'condition' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'text',
-								'default'		=> '',
-								'description'	=> 'The condition to be evaluated.',
-								'parameters' 	=> Array(
-															'allow_empty' => false
-														),
-							),
-							'then_contents' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'serialise',
-								'default'		=> Array(),
-								'description'	=> 'The contents displayed when the condition is true',
-								'parameters' 	=> Array(
-															'allow_empty' => false
-														),
-							),
-							'else_contents' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'serialise',
-								'default'		=> Array(),
-								'description'	=> 'The contents displayed when the condition is false',
-								'parameters' 	=> Array(
-															'allow_empty' => false
-														),
-							),
-						);
+							'condition'      => Array(
+													  'added'       => '0.1',
+													  'type'        => 'text',
+													  'default'     => '',
+													  'description' => 'The condition to be evaluated.',
+													  'parameters'  => Array(
+																			 'allow_empty' => false
+																			 ),
+													  ),
+							'condition_data' => Array(
+													  'added'       => '0.2',
+													  'type'        => 'serialise',
+													  'default'     => Array(),
+													  'description' => 'Data passed to the condition to help in evaluation',
+													  ),
+							'then_contents'  => Array(
+													  'added'       => '0.1',
+													  'type'        => 'serialise',
+													  'default'     => Array(),
+													  'description' => 'The contents displayed when the condition is true',
+													  'parameters'  => Array(
+																			 'allow_empty' => false
+																			 ),
+													  ),
+							'else_contents'  => Array(
+													  'added'       => '0.1',
+													  'type'        => 'serialise',
+													  'default'     => Array(),
+													  'description' => 'The contents displayed when the condition is false',
+													  'parameters'  => Array(
+																			 'allow_empty' => false
+																			 ),
+													  ),
+							);
 
 	}//end Design_Area_Body_Management()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if.inc,v 1.4 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_area_show_if.inc,v 1.4.2.1 2005/01/11 04:36:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,12 +32,41 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Avi Miller <Avi Miller@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.4.2.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Show_If extends Design_Area
 {
+
+
+	/**
+	* Queue the setting of the value of an attribute
+	*
+	* This function sets the value of the attribute locally, but does not database updating.
+	* The change is queued awaiting the call of saveAttributes()
+	*
+	* @param string		$name	the name of the attribute
+	* @param string		$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	* @see asset:setAttrValue()
+	*/
+	function setAttrValue($name, $value)
+	{
+		if (substr($name, 0, 10) == 'condition_') {
+			// this is some condition data we need to save and pass to the
+			//  condition asset's evaluate() function
+			$data_key = substr($name, 10);
+
+			$condition_data = $this->attr('condition_data');
+			$condition_data[$data_key] = $value;
+			return parent::setAttrValue('condition_data', $condition_data);
+		}
+		return parent::setAttrValue($name, $value);
+
+	}//end setAttrValue()
 
 
 	/*
@@ -54,11 +83,22 @@ class Design_Area_Show_If extends Design_Area
 		$then = $this->attr('then_contents');
 		$else = $this->attr('else_contents');
 
-		echo '<','?php
-			$GLOBALS[\'SQ_SYSTEM\']->am->includeAsset(\'condition_'.$condition.'\');
-			if (condition_'.$condition.'::evaluate($ASSET)) {
-		';
+		echo '<','?php';
 		
+		$condition_data = $this->attr('condition_data');
+		if (!empty($condition_data)) {
+			
+		}
+
+		$id_name = $this->attr('id_name');
+		echo '
+		$'.$id_name.'_condition_data = '.var_export($condition_data, true).';';
+		
+		echo '
+			$GLOBALS[\'SQ_SYSTEM\']->am->includeAsset(\'condition_'.$condition.'\');
+			if (condition_'.$condition.'::evaluate($ASSET, $'.$id_name.'_condition_data)) {
+		';
+
 		$then_contents = '';
 		$else_contents = '';
 
@@ -68,10 +108,10 @@ class Design_Area_Show_If extends Design_Area
 				$then_contents .= $element['contents'];
 				continue;
 			}
-			
+
 			ob_start();
-			if (!$edit_fns->_outputElement($element, $asset, $design)) return false;
-			$then_contents .= ob_get_contents();
+				if (!$edit_fns->_outputElement($element, $asset, $design)) return false;
+				$then_contents .= ob_get_contents();
 			ob_end_clean();
 		}
 
@@ -81,39 +121,40 @@ class Design_Area_Show_If extends Design_Area
 				$else_contents .= $element['contents'];
 				continue;
 			}
-			
+
 			ob_start();
-			if (!$edit_fns->_outputElement($element, $asset, $design)) return false;
-			$else_contents .= ob_get_contents();
+				if (!$edit_fns->_outputElement($element, $asset, $design)) return false;
+				$else_contents .= ob_get_contents();
 			ob_end_clean();
 		}
-		
+
 
 		// the multiple echo statements are required to get content to print at line 1,
 		// character 1 of the potential output (i.e. the DocType). Otherwise, it may get
-		// ignored		
+		// ignored
 		if (!empty($then_contents)) {
 			echo '?', '>'."\n";
 			echo $then_contents;
-			echo '<', '?php ; '."\n"; 
+			echo '<', '?php ; '."\n";
 		} else {
-			echo 'echo \'\';'."\n"; 
+			echo 'echo \'\';'."\n";
 		}
-		
+
 		echo '} else {'."\n";
 
 		if (!empty($else_contents)) {
 			echo '?', '>'."\n";
 			echo $else_contents;
-			echo '<', '?php ; '; 
+			echo '<', '?php ; ';
 		} else {
-			echo 'echo \'\';'; 
+			echo 'echo \'\';';
 		}
 
 		echo '}	?','>';
 		return true;
 
 	}//end printArea()
+
 
 }//end class
 
