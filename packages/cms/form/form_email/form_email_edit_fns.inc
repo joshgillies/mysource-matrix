@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.45 2005/02/25 13:35:02 mkeehan Exp $
+* $Id: form_email_edit_fns.inc,v 1.46 2005/02/28 09:40:22 mkeehan Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -312,8 +312,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$o->openField('Format');
 
 		$options = Array('' => '------- Please Select -------',
-						 'csv' => 'Comma Separated Values (CSV)',
-						 'csv_nhr' => 'Comma Separated Values (CSV) - No Header Row',
+						 'csv' => 'Delimited List',
+						 'csv_nhr' => 'Delimited List - No Header Row',
 						 'xml' => 'XML Format');
 		
 		
