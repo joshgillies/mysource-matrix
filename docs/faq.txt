@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: faq.txt,v 1.18 2004/02/24 03:01:13 gsherwood Exp $
+* $Id: faq.txt,v 1.19 2004/04/14 06:20:35 ramato Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -133,7 +133,7 @@ A. There are several steps :
   ########################################################################################################################
   If you are moving the system from one server to another then there is one check that you need to do first.
   Run this command on both the old and the new servers :
-       php -r 'var_export(get_defined_constants());' | grep -i CRYPT_
+       php -r 'var_export(get_defined_constants());' | grep \'CRYPT_
 
   Output should be something like this :
       'CRYPT_SALT_LENGTH' => 12,
