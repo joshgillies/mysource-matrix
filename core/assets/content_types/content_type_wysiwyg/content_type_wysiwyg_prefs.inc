@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.2 2004/06/18 11:37:05 brobertson Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.3 2004/10/28 01:19:07 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,6 +48,11 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 										'description'	=> 'This preference allows you to select which features of the WYSIWYG editor you would like make available while editing',
 										'default'		=> 'all',
 										'protected'		=> false),
+
+		'SQ_THESAURUS' => Array (		'name' => 'Thesaurus',
+										'description' => 'Which thesaurus asset you want to use when editing content, for example to provide keyword expansions',
+										'default' => 0,
+										'protected' => false),
 	);
 
 
@@ -153,6 +158,22 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			if (is_null($pref)) $o->closeField();
 		}
 
+		if (is_null($pref) || $pref == 'SQ_THESAURUS') {
+			if (is_null($pref)) $o->openField('Thesaurus');
+			if ($have_lock && $is_admin) {
+				asset_finder('prefs[SQ_THESAURUS]', $this->pref_vars['SQ_THESAURUS']['default'], Array('thesaurus'=>'A'));
+				echo '<br /><i>The thesaurus asset used by the Matrix Expand Keywords plugin</i>';
+			} else {
+				if (!$this->pref_vars['SQ_THESAURUS']['default']) {
+					echo '(none selected)';
+				} else {
+					$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->pref_vars['SQ_THESAURUS']['default']));
+					$info = current($info);
+					echo $info['name'].' (#'.$info['assetid'].')';
+				}
+			}
+		}
+
 		return true;
 
 	}//end paintBackend()
@@ -209,6 +230,13 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 			}
 		}
 
+		// THESAURUS
+		if (is_null($pref) || $pref == 'SQ_THESAURUS') {
+			if (isset($_POST['prefs']['SQ_THESAURUS'])) {
+				$this->pref_vars['SQ_THESAURUS']['default'] = $_POST['prefs']['SQ_THESAURUS']['assetid'];
+			}
+		}
+	
 		return true;
 
 	}//end processBackend()
