@@ -20,7 +20,7 @@ class Root_Folder_Edit_Fns extends Folder_Edit_Fns
 	* Constructor
 	*
 	*/
-	function Root_Folder_Edit_Fns() 
+	function Root_Folder_Edit_Fns()
 	{
 		$this->Folder_Edit_Fns();
 	}

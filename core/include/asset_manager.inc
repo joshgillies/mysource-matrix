@@ -37,7 +37,8 @@ class Asset_Manager extends Resolve_Object
 	{
 		$this->Resolve_Object();
 		if (!$GLOBALS['SQ_INSTALL']) $this->_loadAssetTypes();
-	}
+
+	}//end constructor
 
 
 	/**
@@ -60,7 +61,9 @@ class Asset_Manager extends Resolve_Object
 		}//end while
 
 		$result->free();
-	}
+
+	}//end _loadAssetTypes()
+
 
 	/**
 	* Refreshes the passed asset types data in the assets array
@@ -136,8 +139,10 @@ class Asset_Manager extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function installed($type_code) {
+	function installed($type_code)
+	{
 		return isset($this->_asset_types[$type_code]);
+
 	}//end installed()
 
 
@@ -150,6 +155,7 @@ class Asset_Manager extends Resolve_Object
 	function getTypeList()
 	{
 		return array_keys($this->_asset_types);
+
 	}//end getTypeList()
 
 
@@ -164,7 +170,6 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function getTypeInfo($type_code, $field='')
 	{
-
 		if (!isset($this->_asset_types[$type_code])) {
 			trigger_error('Asset "'.$type_code.'" is not installed on the system', E_USER_WARNING);
 			return ($field) ? null : Array();
@@ -202,7 +207,6 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function getAssetTypeHierarchy($base_type_code='', $allowed_access=false)
 	{
-
 		if (empty($base_type_code)) $base_type_code = 'asset';
 
 		$type_codes = Array();
@@ -242,7 +246,8 @@ class Asset_Manager extends Resolve_Object
 								);
 		}
 		return $arr;
-	}
+
+	}//end _recurseGetAssetTypeHierarchy()
 
 
 	/**
@@ -300,6 +305,7 @@ class Asset_Manager extends Resolve_Object
 		}
 
 		return $result;
+
 	}//end getAssetTypeInfo()
 
 
@@ -363,6 +369,7 @@ class Asset_Manager extends Resolve_Object
 		}
 
 		return $return_result;
+
 	}//end getAssetInfo()
 
 
@@ -380,6 +387,7 @@ class Asset_Manager extends Resolve_Object
 		if (!is_file($file)) return false;
 		require_once($file);
 		return class_exists('Asset_Attribute_'.$attr_type);
+
 	}// end _validateAttributeType()
 
 
@@ -392,7 +400,6 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function includeAsset($type_code)
 	{
-
 		if (!isset($this->_asset_types[$type_code])) {
 			trigger_error('Asset "'.$type_code.'" is not installed on the system, unable to include it\'s Source File', E_USER_ERROR);
 		}
@@ -429,7 +436,9 @@ class Asset_Manager extends Resolve_Object
 			return Array();
 		}
 		return $result;
+
 	}//end getTypeAncestors()
+
 
 	/**
 	* Returns an array of all assets types that are descendants for the passed asset
@@ -455,6 +464,7 @@ class Asset_Manager extends Resolve_Object
 			return Array();
 		}
 		return $result;
+
 	}//end getTypeDescendants()
 
 
@@ -607,8 +617,9 @@ class Asset_Manager extends Resolve_Object
 	function assetInTrash($assetid, $exclusively=false)
 	{
 		$trash = &$this->getSystemAsset('trash_folder');
+
 		// if we are being asked "Is the trash in the trash"
-		// lets so "Are you kidding?"
+		// lets say "Are you kidding?"
 		if ($assetid == $trash->id) return false;
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -834,7 +845,6 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function &getAssetFromURL($protocol=null, $url=null, $exact_match=true, $mute_errors=false)
 	{
-
 		if (is_null($url)) $url = current_url(false, true);
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
@@ -936,7 +946,6 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function getLineageFromURL($protocol=null, $url=null, $name_type='name')
 	{
-
 		if (is_null($url)) $url = current_url(false);
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
@@ -1016,6 +1025,7 @@ class Asset_Manager extends Resolve_Object
 		require_once SQ_INCLUDE_PATH.'/asset_manager_edit_fns.inc';
 		$edit_fns =& new Asset_Manager_Edit_Fns($this, $backend);
 		$edit_fns->paintBackend();
+
 	}//end paintBackend()
 
 
@@ -1191,4 +1201,5 @@ class Asset_Manager extends Resolve_Object
 	} // end getAssetBackendHref()
 
 }//end class
+
 ?>

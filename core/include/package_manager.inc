@@ -105,7 +105,6 @@ class Package_Manager extends Resolve_Object
 	*/
 	function checkPackageDetails()
 	{
-
 		if (!$this->package) {
 			trigger_error('Package is not available for install or upgrade on this system', E_USER_WARNING);
 			return false;
@@ -148,7 +147,6 @@ class Package_Manager extends Resolve_Object
 	*/
 	function updatePackageDetails()
 	{
-
 		if (!$this->package) {
 			trigger_error('Package is not available for install or upgrade on this system', E_USER_WARNING);
 			return;
@@ -250,7 +248,9 @@ class Package_Manager extends Resolve_Object
 	function _loadPackageAssets()
 	{
 		$this->_recurseLoadPackageAssets($this->assets, $this->_full_path, $this->_base_path);
-	}
+
+	}//end _loadPackageAssets()
+
 
 	function _recurseLoadPackageAssets(&$assets, $full_path, $base_path)
 	{
@@ -294,7 +294,6 @@ class Package_Manager extends Resolve_Object
 	*/
 	function _getInstallOrder()
 	{
-
 		$asset_types = array_keys($this->assets);
 		$install_order = Array();
 
@@ -359,7 +358,7 @@ class Package_Manager extends Resolve_Object
 
 
 	/**
-	* Generates a segment of an XML document for the Asset_Map.inc to use to send to the 
+	* Generates a segment of an XML document for the Asset_Map.inc to use to send to the
 	* flash
 	*
 	* @access private
@@ -421,7 +420,7 @@ class Package_Manager extends Resolve_Object
 	*
 	* @param string		$file				the code name for the asset that you want to check
 	* @param boolean	$need_feedback
-	* @param array		$ignore_assets		if the requirement is an asset, but is in this list, 
+	* @param array		$ignore_assets		if the requirement is an asset, but is in this list,
 	*										the requirement is considered to have passed
 	*
 	* @return mixed
@@ -429,7 +428,6 @@ class Package_Manager extends Resolve_Object
 	*/
 	function checkRequirementsFromFile($file, $need_feedback=false)
 	{
-
 		$xml_array = new XML_Array(Asset_Management::getAssetArrayPaths());
 		$info = $xml_array->getArrayFromFile($file);
 		if (PEAR::isError($info)) {
@@ -497,7 +495,6 @@ class Package_Manager extends Resolve_Object
 
 			}//end if
 
-
 		}//end for
 
 		// if we got this far everything is OK
@@ -516,11 +513,9 @@ class Package_Manager extends Resolve_Object
 	*/
 	function getTypeAncestors($type_code)
 	{
-
 		if (!isset($this->assets[$type_code])) {
 			trigger_error('Asset "'.$type_code.'" does not exist in the <b>'.$this->package.'</b> package', E_USER_ERROR);
 			return Array();
-
 		}
 
 		$arr = Array();
@@ -556,7 +551,6 @@ class Package_Manager extends Resolve_Object
 	*/
 	function getTypeInfo($type_code, $field='')
 	{
-
 		if (!isset($this->assets[$type_code])) {
 			trigger_error('Asset "'.$type_code.'" does not exist in the <b>'.$this->package.'</b> package', E_USER_WARNING);
 			return ($field) ? null : Array();
@@ -567,4 +561,5 @@ class Package_Manager extends Resolve_Object
 	}//end getTypeInfo()
 
 }//end class
+
 ?>

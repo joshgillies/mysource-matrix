@@ -60,7 +60,8 @@ class Asset_Management extends Resolve_Object
 		$this->_db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$this->vars = Array();
-	}
+
+	}//end constructor
 
 
 	/**
@@ -105,20 +106,20 @@ class Asset_Management extends Resolve_Object
 	* @access private
 	*/
 	function _updateFiles() {
-		
+
 		# get a list of files to copy
 		$file_list = $this->_getFileList();
 		if (empty($file_list)) return true;
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		
+
 		$to_dir_path = SQ_DATA_PATH.'/public/asset_types/'.$this->getAssetType();
 		$from_dir_path = SQ_SYSTEM_ROOT.'/'.$this->_pm->getTypeInfo($this->getAssetType(),'dir');
-		
+
 		# create the directory to store these files if it doesnt exist
 		# NOTE: The create_direcotyr function of file_system.inc handles this for us
 		create_directory($to_dir_path);
-		
+
 		# for each file, copy it over
 		for (reset($file_list); null !== ($k = key($file_list)); next($file_list)) {
 			$file = $file_list[$k];
@@ -131,18 +132,18 @@ class Asset_Management extends Resolve_Object
 		}
 
 		return true;
-	}
+
+	}//end _updateFiles()
 
 
 	/**
 	* Install's this asset
 	*
-	* @return boolean 
+	* @return boolean
 	* @access public
 	*/
 	function _install()
 	{
-
 		$type_code   = $this->getAssetType();
 
 		// get how deep we are in the heirarchy
@@ -188,7 +189,6 @@ class Asset_Management extends Resolve_Object
 	*/
 	function _upgrade($current_version)
 	{
-
 		// get how deep we are in the heirarchy
 		$level = count($this->_pm->getTypeAncestors($this->getAssetType()));
 		$info = $this->_pm->getTypeInfo($this->getAssetType());
@@ -235,6 +235,7 @@ class Asset_Management extends Resolve_Object
 
 	}//end upgrade()
 
+
 	/**
 	* Returns all the variable names that are available for this asset type
 	* - any inherited vars and those defined in this management class
@@ -244,7 +245,6 @@ class Asset_Management extends Resolve_Object
 	*/
 	function _getAllVars()
 	{
-
 		$sql = 'SELECT DISTINCT atr.name
 				FROM sq_asset_type_inherited i, sq_asset_attribute atr
 				WHERE i.type_code = '.$this->_db->quote($this->getAssetType()).'
@@ -265,9 +265,11 @@ class Asset_Management extends Resolve_Object
 	* @return Array(string)
 	* @access private
 	*/
-	function _getFileList() {
+	function _getFileList()
+	{
 		return Array();
-	}
+
+	}//end _getFileList()
 
 
 	/**
@@ -280,7 +282,6 @@ class Asset_Management extends Resolve_Object
 	*/
 	function _addAttribute($name)
 	{
-
 		$type_code = $this->getAssetType();
 
 		$attr_info = Array();
@@ -333,7 +334,7 @@ class Asset_Management extends Resolve_Object
 			}
 
 			$attr_info['description'] = empty($this->vars[$name]['description']) ? '' : $this->vars[$name]['description'];
-			
+
 
 		// else one of our parents has defined the an attribute of this type before
 		// so we are really just overriding the default value for this asset type
@@ -347,7 +348,7 @@ class Asset_Management extends Resolve_Object
 			// was set by (the default_type_code). From these values we can se-up the attribute correctly
 
 			// Find the parents with an attribute of this name
-			$sql = 'SELECT	atr.type_code, atr.owning_type_code, atr.type, atr.parameters_value, 
+			$sql = 'SELECT	atr.type_code, atr.owning_type_code, atr.type, atr.parameters_value,
 							atr.parameters_type_code, atr.default_type_code, atr.default_value, atr.description
 					FROM sq_asset_type_inherited i, sq_asset_attribute atr, sq_asset_type at
 					WHERE i.type_code = '.$this->_db->quote($type_code).'
@@ -444,7 +445,6 @@ class Asset_Management extends Resolve_Object
 
 		return true;
 
-
 	}//end _addAttribute()
 
 
@@ -459,7 +459,6 @@ class Asset_Management extends Resolve_Object
 	*/
 	function _updateAttribute($name, $current_version)
 	{
-
 		$type_code = $this->getAssetType();
 
 		// if they have defined an update fn for this, then we don't need to do anything
@@ -584,7 +583,7 @@ class Asset_Management extends Resolve_Object
 		}// end if
 
 		$description = empty($this->vars[$name]['description']) ? '' : $this->vars[$name]['description'];
-		
+
 		// update all the attributes that we own
 		$sql = 'UPDATE sq_asset_attribute
 				SET type        = '.$this->_db->quote($this->vars[$name]['type']).',
@@ -684,7 +683,7 @@ class Asset_Management extends Resolve_Object
 	/**
 	* Checks an attributes default value to make sure that it is valid
 	* Accepts the $default by reference so that it can be changed if need be
-	* 
+	*
 	*
 	* @param mixed	$default		the proposed default value
 	* @param string	$attr_type		the type of asset represented by the id
@@ -717,7 +716,6 @@ class Asset_Management extends Resolve_Object
 	*/
 	function getAssetInfo($file)
 	{
-
 		// OK, now because this can be called without the need to have an instance of the class
 		// we need to store our tmp stuff in a global array
 		if (!isset($GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'])) $GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'] = Array();
@@ -763,7 +761,8 @@ class Asset_Management extends Resolve_Object
 	function getAssetArrayPaths()
 	{
 		return Array('asset_info/requirements/requirement');
-	}
+
+	}//end getAssetArrayPaths()
 
 }//end class
 ?>

@@ -2417,7 +2417,6 @@ class Asset extends Resolve_Object
 								'linkid'             => $linkid,
 								'num_immediate_kids' => $minor_tree['num_immediate_kids']
 								);
-
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link_tree', $values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
@@ -4435,7 +4434,8 @@ class Asset extends Resolve_Object
 						$values = Array('url'        => $new_url,
 										'assetid'    => $this->id,
 										'root_urlid' => $parent_urls[$j]['root_urlid'],
-										'designid'   => (($designid) ? $designid : $parent_urls[$j]['designid']));
+										'designid'   => (($designid) ? $designid : $parent_urls[$j]['designid'])
+										);
 						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 							return false;
 						}
