@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport.inc,v 1.1.2.7 2004/02/14 21:39:29 brobertson Exp $
+* $Id: replication_system_transport.inc,v 1.1.2.8 2004/02/21 14:46:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -362,6 +362,69 @@ class Replication_System_Transport extends MySource_Object
 		return false;
 
 	}// end readFile()
+
+
+	/**
+	* Sends out some data (like a command) and waits for a response from the other end
+	* This is basically a combination of a write and read with all the checks
+	*
+	* @param mixed		$send_data			the data to write
+	* @param mixed		&$receive_data		the retrieved variable will be placed in this var
+	* @param Array		&$receive_headers	the headers that were retrieved will be place in this var
+	*
+	* @return mixed		true on success, string err msg on error
+	* @access public
+	*/
+	function sendAndReceiveVar($send_data, &$receive_data, &$receive_headers)
+	{
+		if (!$this->writeVar($send_data)) {
+			return 'Data Write Error', E_USER_WARNING);
+		}
+		if (!$this->readVar($receive_data, $receive_headers)) {
+			return 'Data Read Error';
+		}
+		return false;
+
+	}// end sendAndReceiveVar()
+
+
+	/**
+	* Reads some expected data (like a command) and if it matches what it was expecting sends
+	* the data down the pipe
+	* This is basically a combination of a read, check and then write with all the checks
+	*
+	* @param mixed		$expected_data		scalar variable to which the retrieved variable will be compared against
+	* @param mixed		$send_data			this var will be sent if the received data and expected data match
+	* @param boolean	$strict_comparison	whether we want a strict var comparison between the received data and the expected data
+	*
+	* @return mixed		true on success, string err msg on error
+	* @access public
+	*/
+	function receiveAndSendVar($expected_data, $send_data, $strict_comparison=true)
+	{
+		if (!$this->writeVar($send_data)) {
+			return 'Data Write Error', E_USER_WARNING);
+		}
+		if (!$this->readVar($receive_data, $receive_headers)) {
+			return 'Data Read Error';
+		}
+
+		if (!$this->readVar($data=null,$headers=null)) {
+			return 'Data Read Error';
+		}
+
+		$ok = ($strict_comparison) ? ($data !== $expected_data) : ($data != $expected_data);
+		if (!$ok){
+			return 'Expecting '.var_export($expected_data, true).' - Received '.var_export($data, true), E_USER_WARNING);
+		} 
+		
+		if (!$transport->writeVar($send_data)) {
+			return 'Data Write Error';
+		}
+
+		return true;
+
+	}// end receiveAndSendVar()
 
 
 }//end class
