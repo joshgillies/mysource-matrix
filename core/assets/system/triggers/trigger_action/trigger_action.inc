@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action.inc,v 1.1 2005/02/17 06:33:58 rhoward Exp $
+* $Id: trigger_action.inc,v 1.2 2005/03/01 00:25:30 arailean Exp $
 *
 */
 
@@ -29,9 +29,9 @@
 * Parent Action that all trigger actions extend.
 *
 *
-* @author	Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @author   Andrei Railean <arailean@squiz.net>
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,8 +41,8 @@ class Trigger_Action extends Asset
 	/**
 	* Execute this action - needs to be overridden by the actions themselves.
 	*
-	* @param array(string=>mixed)	$settings	the stored settings for this action
-	* @param array(string=>mixed)	&$state	the state that describes the asset the action is executing on
+	* @param array(string=>mixed)   $settings   the stored settings for this action
+	* @param array(string=>mixed)   &$state the state that describes the asset the action is executing on
 	*
 	* @return boolean
 	* @access public
@@ -57,13 +57,14 @@ class Trigger_Action extends Asset
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
-	* @param Array 		$settings  settings that this action saves in processInterface()
-	* @param string 	$prefix    unique prefix
+	* @param Array(string=>mixed)   $settings      settings that this condition saves in processInterface()
+	* @param string                 $prefix        unique prefix
+	* @param boolean                $write_access  determines whether the interface is editable
 	*
 	* @access public
 	* @return boolean
 	*/
-	function getInterface($settings, $prefix)
+	function getInterface($settings, $prefix, $write_access=false)
 	{
 		// create HTML
 		// populate HTML with settings
@@ -93,8 +94,8 @@ class Trigger_Action extends Asset
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param Array			$settings		a container for any data the action might want to save
-	* @param array			$request_data	array of data corresponding to this action as specified by the $prefix in getInterface.
+	* @param Array          $settings       a container for any data the action might want to save
+	* @param array          $request_data   array of data corresponding to this action as specified by the $prefix in getInterface.
 	*
 	* @access public
 	* @return boolean
@@ -120,18 +121,17 @@ class Trigger_Action extends Asset
 	function getLocks($settings, &$state)
 	{
 		/* Sample lock list:
-		$locks = Array(
-			'assetid'	=> Array(
-				'attributes',
-				'links
-			)
-		);
+		$locks = Array('assetid'   => Array('attributes',
+											'links
+											)
+					   );
 		*/
 
 		// no locks needed
 		return Array();
 
 	}//end getLocks()
+
 
 }//end class
 

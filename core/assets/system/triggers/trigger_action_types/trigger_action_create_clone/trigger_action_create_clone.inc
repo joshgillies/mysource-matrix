@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.4 2005/02/28 01:22:46 rhoward Exp $
+* $Id: trigger_action_create_clone.inc,v 1.5 2005/03/01 00:25:30 arailean Exp $
 *
 */
 
@@ -31,9 +31,9 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * A trigger action that creates a clone of the firing asset
 *
 *
-* @author	Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @author   Andrei Railean <arailean@squiz.net>
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,17 +47,17 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	* The settings used by this action are in the form:
 	* <PRE>
 	* Array(
-	* 		'assetid'             => int,    // the assetid to link to
-	* 		'link_type'           => int,    // the type of link, eg. type_1, type_2, type_3 or notice
-	* 		'disallow_duplicates' => int,    // if '1', then a new clone will not be created if an asset with the same name and link_type to the target exists.
-	* 		'value'               => string, // optional, the value associated with a link
-	* 		'is_dependant'        => int,    // optional, whether the link is dependant
-	* 		'is_exclusive'        => int,    // optional, whether the link is exclusive
-	* 		);
+	*       'assetid'             => int,    // the assetid to link to
+	*       'link_type'           => int,    // the type of link, eg. type_1, type_2, type_3 or notice
+	*       'disallow_duplicates' => int,    // if '1', then a new clone will not be created if an asset with the same name and link_type to the target exists.
+	*       'value'               => string, // optional, the value associated with a link
+	*       'is_dependant'        => int,    // optional, whether the link is dependant
+	*       'is_exclusive'        => int,    // optional, whether the link is exclusive
+	*       );
 	* </PRE>
 	*
-	* @param array(string => mixed)	$settings	the stored settings for this action
-	* @param array(string => mixed)	&$state		the state that describes the asset the action is executing on
+	* @param array(string => mixed) $settings   the stored settings for this action
+	* @param array(string => mixed) &$state     the state that describes the asset the action is executing on
 	*
 	* @return boolean
 	* @access public
@@ -140,13 +140,14 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
-	* @param array(string = >mixed)	$settings	settings that this condition saves in processInterface()
-	* @param string					$prefix		unique prefix
+	* @param Array(string=>mixed)   $settings      settings that this condition saves in processInterface()
+	* @param string                 $prefix        unique prefix
+	* @param boolean                $write_access  determines whether the interface is editable
 	*
 	* @access public
 	* @return boolean
 	*/
-	function getInterface($settings, $prefix)
+	function getInterface($settings, $prefix, $write_access=false)
 	{
 		// check settings, set defaults if necessary
 		$selected_assetid    = array_get_index($settings, 'assetid', 0);
@@ -161,27 +162,44 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 			$selected_assetid = 0;
 		}
 
-		$link_type_list	= get_link_type_names();
+		$link_type_list = get_link_type_names();
 		unset($link_type_list[SQ_LINK_NOTICE]);
+
+		if (!$write_access) {
+			$form_element_extras = 'disabled="disabled"';
+		} else {
+			$form_element_extras = '';
+		}
 
 		ob_start();
 			echo 'Create a clone of the asset, and link it as child of:';
-			asset_finder($prefix.'[assetid]', $selected_assetid);
+			if ($write_access) {
+				asset_finder($prefix.'[assetid]', $selected_assetid);
+			} else {
+				if ($selected_assetid) {
+					$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
+					text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+				} else {
+					text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+				}
+			}
 			echo ' using a ';
-			combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type);
+			combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type, null, $form_element_extras);
 			echo 'link.<br /><br />';
 
 			?>
 			<b>Optional items for Advanced users:</b><br />
-			Use this value as the link value: <?php text_box($prefix.'[value]', $value); ?> and link the child
+			Use this value as the link value:
 			<?php
+			text_box($prefix.'[value]', $value, '', '', false, $form_element_extras);
+			echo ' and link the child';
 			$is_dependant_list = Array(0 => 'Non-dependantly', 1 => 'Dependantly');
-			combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant);
+			combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant, null, $form_element_extras);
 			echo ' and ';
 			$is_exclusive_list = Array(0 => 'Non-exclusively', 1 => 'Exclusively');
-			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive);
-			echo 'to the parent.<br />';
-			check_box($prefix.'[disallow_duplicates]', '1', $disallow_duplicates);
+			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive, null, $form_element_extras);
+			echo ' to the parent.<br />';
+			check_box($prefix.'[disallow_duplicates]', '1', $disallow_duplicates, null, $form_element_extras);
 			echo ' Do not create if a clone with the same name and link type exists.';
 		return ob_get_clean();
 
@@ -191,16 +209,16 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	/**
 	* Handle the conversion of interface to settings together with settings it is expected to populate the hash object
 	*
-	* @param array(string = >mixed)	$settings		a container for any data the action might want to save
-	* @param string					$request_data	array of data corresponding to this action as specified
-	*												by the $prefix in getInterface.
+	* @param array(string = >mixed) $settings       a container for any data the action might want to save
+	* @param string                 $request_data   array of data corresponding to this action as specified
+	*                                               by the $prefix in getInterface.
 	*
 	* @access public
 	* @return boolean
 	*/
 	function processInterface(&$settings, $request_data)
 	{
-		$link_type_list	= get_link_type_names();
+		$link_type_list = get_link_type_names();
 
 		// make sure the assetid isn't blank
 		if (empty($request_data['assetid']['assetid'])) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location_management.inc,v 1.1 2005/02/17 06:34:42 rhoward Exp $
+* $Id: trigger_condition_tree_location_management.inc,v 1.2 2005/03/01 00:25:31 arailean Exp $
 *
 */
 
@@ -29,9 +29,9 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @see Asset_Management
 *
-* @author	Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @author   Andrei Railean <arailean@squiz.net>
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

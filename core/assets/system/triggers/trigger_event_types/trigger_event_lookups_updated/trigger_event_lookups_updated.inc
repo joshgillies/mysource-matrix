@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event_lookups_updated.inc,v 1.1 2005/02/18 00:06:00 arailean Exp $
+* $Id: trigger_event_lookups_updated.inc,v 1.2 2005/03/01 00:25:31 arailean Exp $
 *
 */
 
@@ -29,9 +29,9 @@
 * Fired after asset's lookups have been updated
 *
 *
-* @author	Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @author   Andrei Railean <arailean@squiz.net>
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

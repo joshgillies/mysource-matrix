@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_status.inc,v 1.1 2005/02/17 06:34:41 rhoward Exp $
+* $Id: trigger_condition_status.inc,v 1.2 2005/03/01 00:25:31 arailean Exp $
 *
 */
 
@@ -30,9 +30,9 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * Checks whether an asset has a certain status set
 *
 *
-* @author	Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @author   Andrei Railean <arailean@squiz.net>
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,20 +42,21 @@ class Trigger_Condition_Status extends Trigger_Condition
 	/**
 	* Evaluate this condition
 	*
-	* @param array(string=>mixed)	$settings	the stored settings for this condition
-	* @param array(string=>mixed)	&$state		the state that describes the asset the condition is executing on
+	* The settings used by this condition are in the form:
+	* <PRE>
+	* Array(
+	*       'status' => int      // the status of the asset to match
+	*       );
+	* </PRE>
+	*
+	* @param array(string=>mixed)   $settings   the stored settings for this condition
+	* @param array(string=>mixed)   &$state     the state that describes the asset the condition is executing on
 	*
 	* @return boolean
 	* @access public
 	*/
 	function evaluate($settings, &$state)
 	{
-		/* settings used by this condition:
-		$settings = Array(
-			'status'		=> int	// the status of the asset to match
-		);
-		*/
-
 		// grab the data we need to check the condition, if it's not already cached
 		// note that new state is modified and new data is available to other conditions
 		if (empty($state['asset'])) {
@@ -85,13 +86,14 @@ class Trigger_Condition_Status extends Trigger_Condition
 	/**
 	* Get the HTML editing interface for this condition. Returns the string instead of printing it
 	*
-	* @param Array 		$settings  settings that this condition save in processInterface()
-	* @param string 	$prefix    unique prefix
+	* @param Array      $settings  settings that this condition save in processInterface()
+	* @param string     $prefix    unique prefix
+	* @param boolean    $write_access   write access flag
 	*
 	* @access public
 	* @return boolean
 	*/
-	function getInterface($settings, $prefix)
+	function getInterface($settings, $prefix, $write_access=false)
 	{
 		if (empty($settings['status'])) {
 			// set to default
@@ -102,13 +104,17 @@ class Trigger_Condition_Status extends Trigger_Condition
 
 		$status_list = &trigger_condition_status::_getStatusList();
 
+		if (!$write_access) {
+			$form_element_extras = 'disabled="disabled"';
+		} else {
+			$form_element_extras = '';
+		}
+
 		// capture anything printed
 		ob_start();
 
-		?>
-		Asset has the current status of:
-		<?php
-		combo_box($prefix.'[status]', $status_list, false, $selected_status);
+		echo "Asset has the current status of:";
+		combo_box($prefix.'[status]', $status_list, false, $selected_status, null, $form_element_extras);
 
 		return ob_get_clean();
 
@@ -120,9 +126,9 @@ class Trigger_Condition_Status extends Trigger_Condition
 	* together with settings it is expected to populate the hash object
 	* Consult the hash object to see the list of setter functions
 	*
-	* @param Array			$settings		a container for any data the condition might want to save
-	* @param object Hash	$hash			hash object that takes data that helps to speed up trigger firing
-	* @param array			$request_data	array of data corresponding to this condition as specified by the $prefix in the getInterface.
+	* @param Array          $settings       a container for any data the condition might want to save
+	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
+	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
 	* @access public
 	* @return boolean
@@ -162,6 +168,7 @@ class Trigger_Condition_Status extends Trigger_Condition
 		return $status;
 
 	}//end _getStatusList()
+
 
 }//end class
 

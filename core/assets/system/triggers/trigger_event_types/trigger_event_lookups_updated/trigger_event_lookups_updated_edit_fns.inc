@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event_lookups_updated_edit_fns.inc,v 1.1 2005/02/18 00:06:00 arailean Exp $
+* $Id: trigger_event_lookups_updated_edit_fns.inc,v 1.2 2005/03/01 00:25:31 arailean Exp $
 *
 */
 
@@ -27,8 +27,8 @@
 * Trigger_Event_Lookups_Updated_Edit_Fns
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

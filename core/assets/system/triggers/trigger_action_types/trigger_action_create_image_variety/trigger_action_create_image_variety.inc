@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_image_variety.inc,v 1.1 2005/02/17 06:34:07 rhoward Exp $
+* $Id: trigger_action_create_image_variety.inc,v 1.2 2005/03/01 00:25:31 arailean Exp $
 *
 */
 
@@ -30,34 +30,36 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * A trigger action that creates an image variety
 *
 *
-* @author	Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @author   Andrei Railean <arailean@squiz.net>
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Action_Create_Image_Variety extends Trigger_Action
 {
 
+
 	/**
 	* Execute this action
 	*
-	* @param array(string=>mixed)	$settings	the stored settings for this action
-	* @param array(string=>mixed)	&$state	the state that describes the asset the action is executing on
+	* The settings used by this action are in the form:
+	* <PRE>
+	* Array(
+	*       'name'      => string,  // name of the image variety
+	*       'width'     => int,     // may be zero, see action description
+	*       'height'    => int      // may be zero, see action description
+	*       );
+	* </PRE>
+	*
+	* @param array(string=>mixed)   $settings   the stored settings for this action
+	* @param array(string=>mixed)   &$state the state that describes the asset the action is executing on
 	*
 	* @return boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
-		/* settings used by this action:
-		$settings = Array(
-			'name'		=> string,	// name of the image variety
-			'width'		=> int,		// may be zero, see action description
-			'height'	=> int		// may be zero, see action description
-		);
-		*/
-
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// check settings, state
@@ -120,13 +122,14 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
-	* @param Array 		$settings  settings that this condition saves in processInterface()
-	* @param string 	$prefix    unique prefix
+	* @param Array(string=>mixed)   $settings      settings that this condition saves in processInterface()
+	* @param string                 $prefix        unique prefix
+	* @param boolean                $write_access  determines whether the interface is editable
 	*
 	* @access public
 	* @return boolean
 	*/
-	function getInterface($settings, $prefix)
+	function getInterface($settings, $prefix, $write_access=false)
 	{
 		// set defaults
 		$settings['name'] = array_get_index($settings, 'name', '');
@@ -136,15 +139,19 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 		// capture anything printed
 		ob_start();
 
-		?>
-		Create an Image Variety with the name: <?php text_box($prefix.'[name]', $settings['name']); ?><br />
-		and size it to: (width)
-		<?php
-		int_text_box($prefix.'[width]', $settings['width'], false);
-		?>
-		by (height)
-		<?php
-		int_text_box($prefix.'[height]', $settings['height'], false);
+		if (!$write_access) {
+			$form_element_extras = 'disabled="disabled"';
+		} else {
+			$form_element_extras = '';
+		}
+
+		echo 'Create an Image Variety with the name: ';
+		text_box($prefix.'[name]', $settings['name'], '', '', false, $form_element_extras);
+		echo '<br />';
+		echo 'and size it to: (width)';
+		int_text_box($prefix.'[width]', $settings['width'], false, '', '', false, $form_element_extras);
+		echo 'by (height) ';
+		int_text_box($prefix.'[height]', $settings['height'], false, '', '', false, $form_element_extras);
 
 		return ob_get_clean();
 
@@ -155,8 +162,8 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param Array			$settings		a container for any data the action might want to save
-	* @param string			$request_data	array of data corresponding to this action as specified by the $prefix in getInterface.
+	* @param Array          $settings       a container for any data the action might want to save
+	* @param string         $request_data   array of data corresponding to this action as specified by the $prefix in getInterface.
 	*
 	* @access public
 	* @return boolean
@@ -173,7 +180,7 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 			return false;
 		} else {
 			// at least one dimension must be greater than zero
-			if 	( !( ($request_data['width'] > 0 && $request_data['height'] >= 0) || ($request_data['width'] >= 0 && $request_data['height'] > 0) ) ) {
+			if  ( !( ($request_data['width'] > 0 && $request_data['height'] >= 0) || ($request_data['width'] >= 0 && $request_data['height'] > 0) ) ) {
 				// both zero or less.
 				return false;
 			}
@@ -198,13 +205,10 @@ class Trigger_Action_Create_Image_Variety extends Trigger_Action
 	function getLocks($settings, &$state)
 	{
 		// get 'all' locks on the firing asset
-		return Array(
-			$state['assetid']	=> Array(
-				'all'
-			)
-		);
+		return Array($state['assetid'] => Array('all'));
 
 	}//end getLocks()
+
 
 }//end class
 

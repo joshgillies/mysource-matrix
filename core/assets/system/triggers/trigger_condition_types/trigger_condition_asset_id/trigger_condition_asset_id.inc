@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_id.inc,v 1.2 2005/02/23 05:12:06 gsherwood Exp $
+* $Id: trigger_condition_asset_id.inc,v 1.3 2005/03/01 00:25:31 arailean Exp $
 *
 */
 
@@ -29,9 +29,9 @@
 * Parent Condition that all trigger conditions extend.
 *
 *
-* @author	Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @author   Andrei Railean <arailean@squiz.net>
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,20 +41,21 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 	/**
 	* Evaluate this condition
 	*
-	* @param array(string=>mixed)	$settings	the stored settings for this condition
-	* @param array(string=>mixed)	&$state		the state that describes the asset the condition is executing on
+	* The settings used by this condition are in the form:
+	* <PRE>
+	* Array(
+	*       'assetid'       => int  // the assetid of the asset to match
+	*       );
+	* </PRE>
+	*
+	* @param array(string=>mixed)   $settings   the stored settings for this condition
+	* @param array(string=>mixed)   &$state     the state that describes the asset the condition is executing on
 	*
 	* @return boolean
 	* @access public
 	*/
 	function evaluate($settings, &$state)
 	{
-		/* settings used by this condition:
-		$settings = Array(
-			'assetid'		=> int	// the assetid of the asset to match
-		);
-		*/
-
 		// grab the data we need to check the condition, if it's not already cached
 		// note that new state is modified and new data is available to other conditions
 		if (!isset($state['assetid'])) {
@@ -79,13 +80,14 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 	/**
 	* Get the HTML editing interface for this condition. Returns the string instead of printing it
 	*
-	* @param Array 		$settings  settings that this condition save in processInterface()
-	* @param string 	$prefix    unique prefix
+	* @param Array      $settings  settings that this condition save in processInterface()
+	* @param string     $prefix    unique prefix
+	* @param boolean    $write_access   write access flag
 	*
 	* @access public
 	* @return boolean
 	*/
-	function getInterface($settings, $prefix)
+	function getInterface($settings, $prefix, $write_access=false)
 	{
 		$selected_assetid = array_get_index($settings, 'assetid', 0);
 
@@ -94,15 +96,25 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 			$selected_assetid = 0;
 		}
 
+		if (!$write_access) {
+			$form_element_extras = 'disabled="disabled"';
+		} else {
+			$form_element_extras = '';
+		}
+
 		ob_start();
+		echo 'Asset ID is ';
+		if ($write_access) {
+			asset_finder($prefix.'[assetid]', $selected_assetid);
+		} else {
+			if ($selected_assetid) {
+				$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
+				text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+			} else {
+				text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+			}
+		}
 
-		// create asset-finder
-		?>
-		Asset ID is
-		<?php
-		asset_finder($prefix.'[assetid]', $selected_assetid);
-
-		// return the string
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -113,9 +125,9 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 	* together with settings it is expected to populate the hash object
 	* Consult the hash object to see the list of setter functions
 	*
-	* @param Array			$settings		a container for any data the condition might want to save
-	* @param object Hash	$hash			hash object that takes data that helps to speed up trigger firing
-	* @param array			$request_data	array of data corresponding to this condition as specified by the $prefix in the getInterface.
+	* @param Array          $settings       a container for any data the condition might want to save
+	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
+	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
 	* @access public
 	* @return boolean

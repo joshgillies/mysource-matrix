@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.2 2005/02/23 05:12:06 gsherwood Exp $
+* $Id: trigger_action_set_design.inc,v 1.3 2005/03/01 00:25:31 arailean Exp $
 *
 */
 
@@ -31,9 +31,9 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * A trigger action that sets the default design of an asset
 *
 *
-* @author	Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @author   Andrei Railean <arailean@squiz.net>
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,20 +43,21 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	/**
 	* Execute this action
 	*
-	* @param array(string=>mixed)	$settings	the stored settings for this action
-	* @param array(string=>mixed)	&$state	the state that describes the asset the action is executing on
+	* The settings used by this action are in the form:
+	* <PRE>
+	* Array(
+	*       'assetid' => int        // the assetid of the design that will be applied to the asset stored in $state
+	*       );
+	* </PRE>
+	*
+	* @param array(string=>mixed)   $settings   the stored settings for this action
+	* @param array(string=>mixed)   &$state the state that describes the asset the action is executing on
 	*
 	* @return boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
-		/* settings used by this action:
-		$settings = Array(
-			'assetid'		=> int		// the assetid of the design that will be applied to the asset stored in $state
-		);
-		*/
-
 		// check settings, state
 		if (empty($settings['assetid'])) {
 			// if no settings, fail
@@ -133,13 +134,14 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
-	* @param Array 		$settings  settings that this condition saves in processInterface()
-	* @param string 	$prefix    unique prefix
+	* @param Array(string=>mixed)   $settings      settings that this condition saves in processInterface()
+	* @param string                 $prefix        unique prefix
+	* @param boolean                $write_access  determines whether the interface is editable
 	*
 	* @access public
 	* @return boolean
 	*/
-	function getInterface($settings, $prefix)
+	function getInterface($settings, $prefix, $write_access=false)
 	{
 		if (empty($settings['assetid'])) {
 			// set to default
@@ -153,19 +155,29 @@ class Trigger_Action_Set_Design extends Trigger_Action
 			$selected_assetid = 0;
 		}
 
+		if (!$write_access) {
+			$form_element_extras = 'disabled="disabled"';
+		} else {
+			$form_element_extras = '';
+		}
+
 		// capture anything printed
 		ob_start();
 
 		?>
 		Set the asset's design to:
 		<?php
-		asset_finder(
-			$prefix.'[assetid]',
-			$selected_assetid,
-			Array(
-				'design' => 'D'
-			)
-		);
+		if ($write_access) {
+			asset_finder($prefix.'[assetid]', $selected_assetid, Array('design' => 'D'));
+		} else {
+			if ($selected_assetid) {
+				$selected_assetname = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($selected_assetid), Array(), true, 'name');
+				text_box($prefix.'[assetid]', $selected_assetname[$selected_assetid].' (#'.$selected_assetid.')', '', '', false, $form_element_extras);
+			} else {
+				text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
+			}
+		}
+
 
 		return ob_get_clean();
 
@@ -176,8 +188,8 @@ class Trigger_Action_Set_Design extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param Array			$settings		a container for any data the action might want to save
-	* @param string			$request_data	array of data corresponding to this action as specified by the $prefix in getInterface.
+	* @param Array          $settings       a container for any data the action might want to save
+	* @param string         $request_data   array of data corresponding to this action as specified by the $prefix in getInterface.
 	*
 	* @access public
 	* @return boolean
@@ -194,6 +206,7 @@ class Trigger_Action_Set_Design extends Trigger_Action
 		return true;
 
 	}//end processInterface()
+
 
 }//end class
 

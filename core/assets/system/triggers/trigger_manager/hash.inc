@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hash.inc,v 1.2 2005/02/21 21:37:26 arailean Exp $
+* $Id: hash.inc,v 1.3 2005/03/01 00:25:31 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Hash
@@ -80,8 +80,8 @@ class Hash
 	/**
 	* Internal function for setting the value of a hash field
 	*
-	* @param string	$name	variable to modify
-	* @param mixed	$value	value that the variable will be set to
+	* @param string $name   variable to modify
+	* @param mixed  $value  value that the variable will be set to
 	*
 	* @access private
 	* @return void
@@ -106,7 +106,7 @@ class Hash
 	/**
 	* Sets the Event field
 	*
-	* @param string	$event	the name of the event that was fired
+	* @param string $event  the name of the event that was fired
 	*
 	* @access public
 	* @return void
@@ -121,7 +121,7 @@ class Hash
 	/**
 	* Sets the AssetID field
 	*
-	* @param string	$assetid	the id of the asset
+	* @param string $assetid    the id of the asset
 	*
 	* @access public
 	* @return void
@@ -136,8 +136,8 @@ class Hash
 	/**
 	* Sets the Asset Type field
 	*
-	* @param string		$asset_type		the type of the asset
-	* @param boolean	$descendants	whether the hash will include the type's descendants, or just the passed asset type
+	* @param string     $asset_type     the type of the asset
+	* @param boolean    $descendants    whether the hash will include the type's descendants, or just the passed asset type
 	*
 	* @access public
 	* @return void
@@ -170,8 +170,8 @@ class Hash
 	/**
 	* Sets the Asset Type field
 	*
-	* @param string		$asset_type		the raw link tree id of the asset (see asset_manager::getRawTreeIdByAsset)
-	* @param string		$propagation	'01' or '00'. Determines whether the we are checking for assets underneath a tree node, or just for an individual asset
+	* @param string     $asset_type     the raw link tree id of the asset (see asset_manager::getRawTreeIdByAsset)
+	* @param string     $propagation    '01' or '00'. Determines whether the we are checking for assets underneath a tree node, or just for an individual asset
 	*
 	* @access public
 	* @return void
@@ -187,7 +187,7 @@ class Hash
 	/**
 	* Sets the Trigger ID field
 	*
-	* @param string		$trigger_id		the ID of the trigger
+	* @param string     $trigger_id     the ID of the trigger
 	*
 	* @access public
 	* @return void
@@ -202,8 +202,8 @@ class Hash
 	/**
 	* Sets either the parent or child ID field of the Linked asset
 	*
-	* @param string		$linked_id		the ID of the linked asset
-	* @param boolean	$is_major		whether the linked asset is a parent or a child
+	* @param string     $linked_id      the ID of the linked asset
+	* @param boolean    $is_major       whether the linked asset is a parent or a child
 	*
 	* @access public
 	* @return void
@@ -222,8 +222,8 @@ class Hash
 	/**
 	* Sets either the parent or child Type field of the Linked asset
 	*
-	* @param string		$linked_type	the type_code of the linked asset
-	* @param boolean	$is_major		whether the linked asset is a parent or a child
+	* @param string     $linked_type    the type_code of the linked asset
+	* @param boolean    $is_major       whether the linked asset is a parent or a child
 	*
 	* @access public
 	* @return void
@@ -242,7 +242,7 @@ class Hash
 	/**
 	* Sets the Active field
 	*
-	* @param string		$active		'1' or '0'. Determines whether the trigger is enabled
+	* @param string     $active     '1' or '0'. Determines whether the trigger is enabled
 	*
 	* @access public
 	* @return void
@@ -267,14 +267,14 @@ class Hash
 
 		// define the defaults
 		$state_hash_defaults = Array(
-			'event'				=> '',
-			'assetid'			=> '',
-			'asset_type'		=> '',
-			'treeid'			=> '',
-			'tree_propagate'	=> SQ_TRIG_TREE_NO_PROPAGATE,
-			'triggerid'			=> '',
-			'active'			=> SQ_TRIG_STATUS_DEFAULT,
-		);
+									'event'             => '',
+									'assetid'           => '',
+									'asset_type'        => '',
+									'treeid'            => '',
+									'tree_propagate'    => SQ_TRIG_TREE_NO_PROPAGATE,
+									'triggerid'         => '',
+									'active'            => SQ_TRIG_STATUS_DEFAULT,
+									);
 
 		// make sure every field has data, and that no fields are null
 		foreach ($state_hash_defaults as $defaults_id => $defaults_data) {
@@ -301,10 +301,10 @@ class Hash
 	*
 	* NOTE: Can only create combinations for arrays two levels deep
 	*
-	* @param Array(mixed)	$state_hash		The hash to flatten
+	* @param Array(mixed)   $state_hash     The hash to flatten
 	*
 	* @access private
-	* @return Array(mixed)	$state_hash		The flattened state_hash
+	* @return Array(mixed)  $state_hash     The flattened state_hash
 	*/
 	function _createCombinations($source)
 	{

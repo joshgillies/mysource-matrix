@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_edit_fns.inc,v 1.1 2005/02/17 06:33:58 rhoward Exp $
+* $Id: trigger_action_edit_fns.inc,v 1.2 2005/03/01 00:25:30 arailean Exp $
 *
 */
 
@@ -30,8 +30,8 @@
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

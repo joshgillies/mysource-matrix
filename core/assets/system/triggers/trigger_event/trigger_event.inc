@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_event.inc,v 1.2 2005/02/21 06:06:34 arailean Exp $
+* $Id: trigger_event.inc,v 1.3 2005/03/01 00:25:31 arailean Exp $
 *
 */
 
@@ -29,9 +29,9 @@
 * Parent Event that all trigger events extend.
 *
 *
-* @author	Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @author   Andrei Railean <arailean@squiz.net>
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,7 +51,7 @@ class Trigger_Event extends Asset
 	/**
 	* Sets the broadcaster of the event to the passed asset
 	*
-	* @param object Asset	&$asset	the broadcaster
+	* @param object Asset   &$asset the broadcaster
 	*
 	* @access public
 	* @return void

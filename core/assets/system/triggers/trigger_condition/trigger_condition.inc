@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition.inc,v 1.2 2005/02/21 06:06:34 arailean Exp $
+* $Id: trigger_condition.inc,v 1.3 2005/03/01 00:25:31 arailean Exp $
 *
 */
 
@@ -29,9 +29,9 @@
 * Parent Condition that all trigger conditions extend.
 *
 *
-* @author	Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @author   Andrei Railean <arailean@squiz.net>
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -41,8 +41,8 @@ class Trigger_Condition extends Asset
 	/**
 	* Evaluate this condition - needs to be overridden by the conditions themselves.
 	*
-	* @param array(string=>mixed)	$settings	the stored settings for this condition
-	* @param array(string=>mixed)	&$state		the state that describes the asset the condition is executing on
+	* @param array(string=>mixed)   $settings   the stored settings for this condition
+	* @param array(string=>mixed)   &$state     the state that describes the asset the condition is executing on
 	*
 	* @return boolean
 	* @access public
@@ -57,13 +57,14 @@ class Trigger_Condition extends Asset
 	/**
 	* Get the HTML editing interface for this condition. Returns the string instead of printing it
 	*
-	* @param Array 		$settings  settings that this condition save in processInterface()
-	* @param string 	$prefix    unique prefix
+	* @param Array      $settings  settings that this condition save in processInterface()
+	* @param string     $prefix    unique prefix
+	* @param boolean    $write_access   write access flag
 	*
 	* @access public
 	* @return boolean
 	*/
-	function getInterface($settings, $prefix)
+	function getInterface($settings, $prefix, $write_access=false)
 	{
 		// create HTML
 		// populate HTML with settings
@@ -94,9 +95,9 @@ class Trigger_Condition extends Asset
 	* together with settings it is expected to populate the hash object
 	* Consult the hash object to see the list of setter functions
 	*
-	* @param Array			$settings		a container for any data the condition might want to save
-	* @param object Hash	$hash			hash object that takes data that helps to speed up trigger firing
-	* @param array			$request_data	array of data corresponding to this condition as specified by the $prefix in the getInterface.
+	* @param Array          $settings       a container for any data the condition might want to save
+	* @param object Hash    $hash           hash object that takes data that helps to speed up trigger firing
+	* @param array          $request_data   array of data corresponding to this condition as specified by the $prefix in the getInterface.
 	*
 	* @access public
 	* @return boolean
@@ -126,6 +127,7 @@ class Trigger_Condition extends Asset
 		return false;
 
 	}//end allowMultiple()
+
 
 }//end class
 
