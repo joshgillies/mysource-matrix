@@ -662,6 +662,11 @@ class Asset_Edit_Interface extends Resolve_Object
 				return;
 			}
 
+			if (empty($root->children)) {
+				$o->OpenSection('There are no settings for "'.$owner->name.'"');
+				$o->closeSection();
+			}
+
 			for($i = 0; $i < count($root->children); $i++) {
 				$section = &$root->children[$i];
 
