@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.47 2004/09/03 06:41:22 lwright Exp $
+* $Id: page_calendar.inc,v 1.48 2004/09/03 06:53:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.47 $ - 1.0
+* @version $Revision: 1.48 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1451,7 +1451,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter($first_occur, $event_start_date, $event['frequency'], $event['period'], $event_last_day);
 			$i = 0;
 			
-			while (($next_occur !== false) && ($next_occur <= $last_day)) {				
+			while (($next_occur !== false) && ($next_occur <= $last_day)) {
 				$next_occur_ds = round(iso8601_ts($next_occur) / 86400);
 				// days between occurrences
 				$difference = $next_occur_ds - $event['start_date_ds'];
