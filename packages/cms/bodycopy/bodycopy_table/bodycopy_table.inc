@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_table.inc,v 1.42 2003/10/10 06:49:27 brobertson Exp $
+* $Id: bodycopy_table.inc,v 1.43 2003/10/21 00:43:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,7 +89,6 @@ class Bodycopy_Table extends Asset
 			$this->id = 0;
 			return false;
 		}
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
