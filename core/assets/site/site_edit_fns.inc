@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.43 2004/05/21 02:00:23 gsherwood Exp $
+* $Id: site_edit_fns.inc,v 1.44 2004/06/09 13:10:55 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -301,7 +301,6 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		// if there is a current link, we need to delete it
 		if (!empty($link)) {
 			if (!$asset->deleteLink($link['linkid'])) {
-				bam('could not delete link');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}// end if
