@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.9 2004/12/06 14:38:12 brobertson Exp $
+* $Id: metadata.inc,v 1.10 2004/12/21 15:24:36 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -173,10 +173,10 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) ob_start();
 
+						$values = $mm->getMetadata($owner->id);
 						foreach ($schemas as $schemaid) {
 							$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 							if (is_null($schema)) continue;
-							$values = $mm->getSchemaMetadata($owner->id, $schema->id);
 							$edit_fns = $schema->getEditFns();
 							$edit_fns->paintInlineValueInterface($schema, $o, $values, $write_access);
 						}
@@ -238,6 +238,7 @@ function processMetadata(&$owner, &$o, $ei)
 			$edit_fns = $schema->getEditFns();
 			$edit_fns->processInlineValueInterface($schema, $new_values);
 		}
+
 		if (!$mm->setMetadata($owner->id, $new_values)) return false;
 	}
 	return $mm->generateContentFile($owner->id);

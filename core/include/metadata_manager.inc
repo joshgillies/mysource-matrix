@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.55 2004/12/06 14:38:12 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.56 2004/12/21 15:24:36 brobertson Exp $
 *
 */
 
+require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 /**
 * Metadata_Manager
@@ -30,11 +31,9 @@
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.55 $
+* @version $Revision: 1.56 $
 * @package MySource_Matrix
 */
-require_once SQ_FUDGE_PATH.'/general/text.inc';
-
 class Metadata_Manager extends MySource_Object
 {
 
@@ -67,12 +66,13 @@ class Metadata_Manager extends MySource_Object
 		$schemas = $this->getSchemas($asset->id, true);
 		if (empty($schemas)) return true;
 
+		$values = $this->getMetadata($asset->id);
+
 		foreach ($schemas as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) continue;
 			if (!is_a($schema, 'metadata_schema')) continue;
 			$edit_fns = $schema->getEditFns();
-			$values = $this->getSchemaMetadata($asset->id, $schema->id, true);
 			if (!$edit_fns->requiredFieldsComplete($schema, $values)) return false;
 		}
 
@@ -196,7 +196,6 @@ class Metadata_Manager extends MySource_Object
 		// add the schema to the database
 		$values = Array('assetid'  => $asset->id,
 						'schemaid' => $schemaid,
-						'metadata' => '',
 						'granted'  => (($granted) ? '1' : '0')
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_metadata', $values)) {
@@ -299,23 +298,24 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Get an array of metatata fields IDs for a metadata schema
 	*
-	* @param string $schemaid	the schema whos fields we are getting
+	* @param string|Array() $schemaids		single schemaid or an array of schema ids whose fields we are getting
 	*
-	* @return array
+	* @return array	Array(assetid => type_code)
 	* @access public
+	* @see Asset_Manager::getChildren()
 	*/
-	function getMetadataFields($schemaid)
+	function getMetadataFields($schemaids)
 	{
-		$fields_array = Array();
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
-
-		foreach ($sectionids as $sectionid => $section_type) {
-			$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
-			$fields_array = array_merge($fields_array, array_keys($fieldids));
+		if (!is_array($schemaids)) {
+			return $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'metadata_field', false);
+		} else {
+			$fieldids = Array();
+			foreach ($schemaids as $schemaid) {
+				$field_children = $GLOBALS['SQ_SYSTEM']->am->getChildren($schemaid, 'metadata_field', false);
+				foreach ($field_children as $fieldid => $field_type) $fieldids[$fieldid] = $field_type;
+			}
+			return $fieldids;
 		}
-
-		return $fields_array;
 
 	}//end getMetadataFields()
 
@@ -327,19 +327,18 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Get the metadata values set for an asset on a particular schema
 	*
-	* The arry returned may have some fields missing. If there is no field value it
+	* The array returned may have some fields missing. If there is no field value it
 	* means that the field is using the default value (whatever that happens to be
 	* at the time). This cuts down on storage and allows defaults to change over time
 	* without updating metadata values.
 	*
 	* @param string		$assetid		the ID of the asset to get metadata for
-	* @param string		$schemaid		the ID of the schema to get metadata for
-	* @param boolean	$allow_defaults	if this asset doesnt have metadata, should we return default values?
+	* @param string		$schemaid		optional ID of the schema to only the get metadata for
 	*
 	* @access public
 	* @return array
 	*/
-	function getSchemaMetadata($assetid, $schemaid, $allow_defaults=false)
+	function getMetadata($assetid, $schemaid=0)
 	{
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
@@ -347,47 +346,49 @@ class Metadata_Manager extends MySource_Object
 			return false;
 		}
 
-		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-		if (is_null($schema)) {
-			trigger_error('Failed getting metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
-			return false;
-		}
-
-		if (!is_a($schema, 'metadata_schema')) {
-			trigger_error('Failed getting metadata, "'.$schema->name.'" (Asset #'.$schemaid.') is not a metadata schema', E_USER_WARNING);
-			return false;
-		}
-
 		// check that the schema we are getting metadata for is actually set
 		$schemas = $this->getSchemas($assetid, true);
-		if (!in_array($schemaid, $schemas)) return Array();
+		if ($schemaid) {
+			if (!in_array($schemaid, $schemas)) return Array();
+			// restrict to just the one schema
+			$schemas = Array($schemaid);
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = '  SELECT metadata
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata ';
-		$where = 'assetid = '.$db->quote($asset->id).'
-					AND schemaid = '.$db->quote($schemaid).'
-					AND granted = 1';
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		// And to think I didn't like it when this generating query got pulled out of the Asset_Manager::getChildren() :)
+		// Instead of doing any thinking...let them do it all for us and use it in our query
+		$sql = '  SELECT DISTINCT mv.fieldid, a.name, mv.value
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_value mv 
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON mv.fieldid = a.assetid';
+		$where = '	mv.assetid = '.$db->quote($asset->id).'
+				AND (';
 
-		$metadata = $db->getOne($sql.$where);
-		if (DB::isError($metadata)) {
-			trigger_error($metadata->getMessage().'<br />'.$metadata->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
+		foreach($schemas as $schemaid) {
+			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			if (is_null($schema)) {
+				trigger_error('Failed getting metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+				return false;
+			}
+			$where .= '
+						mv.fieldid IN (
+						'.implode(' ', $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($schema, 'metadata_field', false, null, null, false)).'
+						) OR ';
 
-		$metadata = unserialize($metadata);
-		if (!is_array($metadata)) $metadata = Array();
+		}// end foreach
 
-		if (empty($metadata) && $allow_defaults) {
-			// no metadata is stored in the database, so get the default values
-			$metadata = $this->getMetadataDefaultValues($schemaid);
-		}
+		$where = trim($where, ' OR ').'
+					)';
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'mv');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+		$metadata = $db->getAssoc($sql.$where);
+		assert_valid_db_result($metadata);
 
 		return $metadata;
 
-	}//end getSchemaMetadata()
+	}//end getMetadata()
 
 
 	/**
@@ -398,18 +399,34 @@ class Metadata_Manager extends MySource_Object
 	* @access public
 	* @return array
 	*/
-	function getMetadataDefaultValues($schemaid)
+	function getSchemaDefaultValues($schemaid)
 	{
-		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$schema = &$am->getAsset($schemaid);
 		if (is_null($schema)) {
 			trigger_error('Failed getting default metadata, schema #'.$schemaid.' does not exist', E_USER_WARNING);
 			return Array();
 		}
 
-		$edit_fns = $schema->getEditFns();
-		return $edit_fns->getMetadataDefaultValues($schema);
+		$fields = $this->getMetadataFields($schema->id);
+		$default_values = Array();
+		foreach($fields as $fieldid => $type_code) {
+			$field = &$am->getAsset($fieldid, $type_code);
+			if (is_null($field)) {
+				trigger_error('Failed getting metadata field, field #'.$schemaid.' does not exist', E_USER_WARNING);
+				continue;
+			}
 
-	}//end getMetadataDefaultValues()
+			$default_values[$field->id] = Array(
+											'name'	=> $field->name,
+											'value' => $field->getDefaultValue(),
+										);
+
+		}// end for
+
+		return $default_values;
+
+	}//end getSchemaDefaultValues()
 
 
 	/**
@@ -417,19 +434,21 @@ class Metadata_Manager extends MySource_Object
 	*
 	* If the passed fields array is empty, all field values will be returned
 	*
-	* @param string			$assetid	the ID of the asset to get field values for
-	* @param array(string)	$fields		an array of field names
+	* @param string			$assetid		the ID of the asset to get field values for
+	* @param array(string)	$field_names	an array of field names
 	*
 	* @access public
 	* @return array(field => value)
 	*/
-	function getMetadataFieldValues($assetid, $fields=Array())
+	function getMetadataFieldValues($assetid, $field_names=Array())
 	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		
 		// the array of field values we are going to return
 		$field_values = Array();
-		foreach ($fields as $name) $field_values[$name] = '';
 
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = &$am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed generating keyword replacements, Asset #'.$assetid.' does not exist', E_USER_WARNING);
 			return $field_values;
@@ -438,8 +457,11 @@ class Metadata_Manager extends MySource_Object
 		$schemas = $this->getSchemas($asset->id, true);
 		if (empty($schemas)) return $field_values;
 
+		// get the values without any replacements or special processing
+		$values = $this->getMetadata($asset->id);
+
 		foreach ($schemas as $schemaid) {
-			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			$schema = &$am->getAsset($schemaid);
 			if (is_null($schema)) {
 				trigger_error('Failed generating keyword replacements, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
 				return $field_values;
@@ -450,19 +472,30 @@ class Metadata_Manager extends MySource_Object
 				return $field_values;
 			}
 
-			$values = $this->getSchemaMetadata($asset->id, $schema->id);
-			// if they didnt supply specific fields, they want the lot
-			if (empty($fields)) {
-				if (isset($values['sections'])) {
-					foreach ($values['sections'] as $section_name => $section_fields) {
-						foreach ($section_fields['fields'] as $field_name => $default) $field_values[$field_name] = '';
-					}
-				}
+			// Get all the fields that are in this schema (optionally restricted to the passed named fields)
+			$sql_parts = $am->generateGetChildrenQuery($schema, 'metadata_field', false);
+			// if they only want specific fields, then restrict the search to those
+			if (!empty($field_names)) {
+				$sql_parts['where'] .= ' AND a.name IN ('.$db->quote($field_names[0]);
+				for($i = 1; $i < count($field_names); $i++) $sql_parts['where'] .= ', '.$db->quote($field_names[$i]);
+				$sql_parts['where'] .= ')';
 			}
 
-			$edit_fns = $schema->getEditFns();
-			$edit_fns->getMetadataFieldValues($asset, $schema, $values, $field_values);
-		}
+			$fields = $db->getAssoc(implode(' ', $sql_parts));
+			assert_valid_db_result($fields);
+
+			foreach($fields as $fieldid => $type_code) {
+				$field = &$am->getAsset($fieldid, $type_code);
+				if (is_null($field)) {
+					trigger_error('Failed getting metadata field, field #'.$schemaid.' does not exist', E_USER_WARNING);
+					continue;
+				}
+
+				$field_values[$field->id] = $field->getMetadataValue($asset, (isset($values[$field->id]) ? $values[$field->id]['value'] : null));
+
+			}// end for
+
+		}// end schema
 
 		return $field_values;
 
@@ -480,6 +513,8 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function setMetadata($assetid, $metadata)
 	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed setting metadata, Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -491,68 +526,83 @@ class Metadata_Manager extends MySource_Object
 			return false;
 		}
 
-		$schemaids = $this->getSchemas($asset->id, true);
-		if (empty($schemaids)) return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		// find all the fields...for two reasons.
+		// 1. make sure they are editable
+		// 2. we need to do some cleanup incase there has been a change in the fields that are available for this asset
+		$quoted_fieldids = Array();
+		foreach (array_keys($metadata) as $fieldid) {
 
-		foreach ($schemaids as $schemaid) {
-			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-			if (!isset($metadata[$schema->name])) continue;
-			if (false === ($this->setSchemaMetadata($assetid, $schemaid, $metadata[$schema->name]))) return false;
+			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($fieldid);
+			if (is_null($field) || !$field->attr('editable')) {
+				unset($metadata[$fieldid]);
+				continue;
+			}
+			$quoted_fieldids[] = $db->quote($fieldid);
+
+		}//end foreach
+
+		// Remove any old values...it's just easier than having to screw about with old fields and new fields, different assetids for the same name etc
+		$where = '	assetid = '.$db->quote($asset->id);
+		if (!empty($quoted_fieldids)) $where .= ' AND fieldid NOT IN ('.implode(',', $quoted_fieldids).')';
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_metadata_value', $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
 		}
 
+		if (!empty($quoted_fieldids)) {
+			// Find any fields that have existing entries...so we know what to update and what to insert
+			$sql = 'SELECT fieldid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_value
+					';
+			$where = '	assetid = '.$db->quote($asset->id).'
+					AND fieldid IN ('.implode(',', $quoted_fieldids).')';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$updates = $db->getCol($sql.$where);
+			assert_valid_db_result($updates);
+
+			for (reset($metadata); NULL !== ($fieldid = key($metadata)); next($metadata)) {
+
+				// we need to insert
+				if (!in_array($fieldid, $updates)) { 
+
+					$values = Array('assetid'	=> $asset->id,
+									'fieldid'	=> $fieldid,
+									'value'		=> $metadata[$fieldid]['value'],
+									);
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_metadata_value', $values)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+
+				// we are updating 
+				} else {
+
+					$values = Array(
+									'value'		=> $db->quote($metadata[$fieldid]['value']),
+									);
+					$where = '	assetid = '.$db->quote($asset->id).'
+							AND fieldid = '.$db->quote($fieldid);
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_metadata_value', $values, $where)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+
+				}//end if
+
+			}//end for
+
+		}// end if
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $assetid, 'schemaids' => $schemaids));
+		$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $assetid));
 
 		return true;
 
 	}//end setMetadata()
-
-
-	/**
-	* sets metadata for an asset that is specific to a schema
-	*
-	* @param string	$assetid	the assetid to apply the schema for
-	* @param string	$schemaid	the id of the schema to apply the metadata to
-	* @param array		$metadata	the metadata values to set
-	*
-	* @return boolean
-	* @access public
-	*/
-	function setSchemaMetadata($assetid, $schemaid, $metadata)
-	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-
-		if (is_null($schema)) {
-			trigger_error('Failed setting metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		if (!is_a($schema, 'metadata_schema')) {
-			trigger_error('Failed setting metadata, "'.$schema->name.'" (Asset #'.$schemaid.') is not a metadata schema', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		$values = Array('metadata' => $db->quote(serialize($metadata)));
-		$where = 'assetid = '.$db->quote($asset->id).'
-					AND schemaid = '.$db->quote($schema->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_metadata', $values, $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		return true;
-
-	}//end setSchemaMetadata()
-
 
 
 //--        (RE)GENERATE METADATA        --//
@@ -587,8 +637,9 @@ class Metadata_Manager extends MySource_Object
 		// an array of keyword replacements that we are going to have to write some PHP code to produce
 		$keywords = Array();
 
-		// an array to hold the complete DB metadata if we are regenerating
-		$db_metadata = Array();
+		// get the values without any replacements or special processing
+		// Also used if we are regenerating
+		$metadata = $this->getMetadata($asset->id);
 
 		ob_start();
 		foreach ($schemas as $schemaid) {
@@ -603,26 +654,25 @@ class Metadata_Manager extends MySource_Object
 				return false;
 			}
 
-			$values = Array();
-			$values = $this->getSchemaMetadata($asset->id, $schema->id);
 			$edit_fns = $schema->getEditFns();
-			$edit_fns->generateMetadata($schema, $values, $tag_values, $keywords);
-			if ($regenerate) $db_metadata[$schema->name] = $values;
+			$edit_fns->generateMetadata($schema, $metadata, $tag_values, $keywords);
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($schema);
 		}
 
-		$metadata = ob_get_contents();
+		$metadata_str = ob_get_contents();
 		ob_end_clean();
 
 		ob_start();
 			echo '<'.'?php'."\n";
-
 			if (!empty($keywords)) {
 				require_once SQ_FUDGE_PATH.'/general/text.inc';
 				echo '$metadata_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.');'."\n\n";
+				echo '/* 1 */', "\n";
 				$replacements = $this->generateKeywordReplacements($asset, $keywords);
+				echo '/* 2 */', "\n";
 				$tag_values = replace_keywords($tag_values, $replacements);
+				echo '/* 3 */', "\n";
 				echo "\n\n";
 			}
 
@@ -661,23 +711,23 @@ class Metadata_Manager extends MySource_Object
 			}
 
 			echo '?'.'>';
-			$php = ob_get_contents();
+			$php_str = ob_get_contents();
 		ob_end_clean();
 
 		$metadata_matches = Array();
-		preg_match_all('|\$metadata_values\[\'([^\]]+)\'\]|', $metadata, $metadata_matches);
+		preg_match_all('|\$metadata_values\[\'([^\]]+)\'\]|', $metadata_str, $metadata_matches);
 		foreach ($metadata_matches[1] as $field_name) {
-			$metadata = preg_replace('|\$metadata_values\[\''.$field_name.'\'\]|', '$metadata_values_'.$tag_nested_index[$field_name].'[\''.$field_name.'\']', $metadata);
+			$metadata_str = preg_replace('|\$metadata_values\[\''.$field_name.'\'\]|', '$metadata_values_'.$tag_nested_index[$field_name].'[\''.$field_name.'\']', $metadata_str);
 		}
 
-		$metadata = $php."\n\n".$metadata;
+		$metadata_str = $php_str."\n\n".$metadata_str;
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		create_directory($asset->data_path);
-		if (!string_to_file($metadata, $asset->data_path.'/metadata.php')) return false;
+		if (!create_directory($asset->data_path)) return false;
+		if (!string_to_file($metadata_str, $asset->data_path.'/metadata.php')) return false;
 
 		if (!$regenerate) return true;
-		else return $this->setMetadata($assetid, $db_metadata);
+		else return $this->setMetadata($assetid, $metadata);
 
 	}//end generateContentFile()
 
@@ -710,7 +760,7 @@ class Metadata_Manager extends MySource_Object
 		foreach ($keywords as $keyword) {
 
 			if ($generating) {
-				$metadata_replacements[$keyword] = '$metadata_replacements[\''.$keyword.'\']';
+				$metadata_replacements[$keyword] = '$metadata_replacements['.var_export($keyword, 1).']';
 			} else {
 				ob_start();
 			}
@@ -720,15 +770,15 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_name'       :
 				case 'asset_short_name' :
 				case 'asset_version'    :
-					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_asset->'.substr($keyword,6).';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->'.substr($keyword,6).';'."\n";
 				break;
 
 				case 'asset_url' :
-					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_asset->getURL();'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->getURL();'."\n";
 				break;
 
 				case 'asset_href' :
-					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_asset->getHref();'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_asset->getHref();'."\n";
 				break;
 
 				case 'asset_thumbnail' :
@@ -736,28 +786,28 @@ class Metadata_Manager extends MySource_Object
 					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink($metadata_asset->id, SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
 					echo 'if (!empty($link)) {'."\n";
 					echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
-					echo '$metadata_replacements[\''.$keyword.'\'] = $thumbnail->printImageTag($metadata_asset->name, true);'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = $thumbnail->printImageTag($metadata_asset->name, true);'."\n";
 					echo '} else {'."\n";
-					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
 					echo '}'."\n";
 					echo '} else {'."\n";
-					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
 					echo '}'."\n";
 				break;
 
 				case 'asset_created' :
 				case 'asset_updated' :
-					echo '$metadata_replacements[\''.$keyword.'\'] = date(\'Y-m-d H:i:s\', $metadata_asset->'.substr($keyword,6).');'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d H:i:s\', $metadata_asset->'.substr($keyword,6).');'."\n";
 				break;
 
 				case 'asset_created_short' :
 				case 'asset_updated_short' :
-					echo '$metadata_replacements[\''.$keyword.'\'] = date(\'Y-m-d\', $metadata_asset->'.substr($keyword,6,7).');'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d\', $metadata_asset->'.substr($keyword,6,7).');'."\n";
 				break;
 
 				case 'asset_created_readable' :
 				case 'asset_updated_readable' :
-					echo '$metadata_replacements[\''.$keyword.'\'] = date(\'d M Y g:ia\', $metadata_asset->'.substr($keyword,6,7).');'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'d M Y g:ia\', $metadata_asset->'.substr($keyword,6,7).');'."\n";
 				break;
 
 				case 'asset_created_by_name' :
@@ -767,9 +817,9 @@ class Metadata_Manager extends MySource_Object
 					if (!empty($asset_info)) {
 					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid);'."\n}\n}\n";
 					echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
-					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_'.substr($keyword,6,7).'_by_user->name;'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.substr($keyword,6,7).'_by_user->name;'."\n";
 					echo '} else {'."\n";
-					echo '$metadata_replacements[\''.$keyword.'\'] = \'System\';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'System\';'."\n";
 					echo '}'."\n";
 				break;
 
@@ -784,9 +834,9 @@ class Metadata_Manager extends MySource_Object
 					if (!empty($asset_info)) {
 					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid,\'\', true);'."\n}\n}\n";
 					echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
-					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_'.substr($keyword,6,7).'_by_user->attr(\''.substr($keyword,17).'\');'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.substr($keyword,6,7).'_by_user->attr(\''.substr($keyword,17).'\');'."\n";
 					echo '} else {'."\n";
-					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
 					echo '}'."\n";
 
 				break;
@@ -794,28 +844,28 @@ class Metadata_Manager extends MySource_Object
 				// can't handle 'last published' stuff in the same way as created/updated because
 				// there is a chance that it has never been published
 				case 'asset_published' :
-					echo '$metadata_replacements[\''.$keyword.'\'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Y-m-d H:i:s\', $metadata_asset->published);'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Y-m-d H:i:s\', $metadata_asset->published);'."\n";
 				break;
 
 				case 'asset_published_short' :
-					echo '$metadata_replacements[\''.$keyword.'\'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Y-m-d\', $metadata_asset->published);'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Y-m-d\', $metadata_asset->published);'."\n";
 				break;
 
 				case 'asset_published_readable' :
-					echo '$metadata_replacements[\''.$keyword.'\'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'d M Y g:ia\', $metadata_asset->published);'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'d M Y g:ia\', $metadata_asset->published);'."\n";
 				break;
 
 				case 'asset_published_by_name' :
 					echo 'if (is_null($metadata_asset->published_userid)) {'."\n";
-					echo '$metadata_replacements[\''.$keyword.'\'] = \'Never Published\';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'Never Published\';'."\n";
 					echo '} else { if (!isset($metadata_published_by_user)) {
 					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->published_userid));
 					if (!empty($asset_info)) {
 					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n}\n";
 					echo 'if (!empty($metadata_published_by_user)) { ';
-					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_published_by_user->name;'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->name;'."\n";
 					echo '} else {'."\n";
-					echo '$metadata_replacements[\''.$keyword.'\'] = \'System\';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'System\';'."\n";
 					echo '}}'."\n";
 				break;
 
@@ -823,15 +873,15 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_published_by_last_name'  :
 				case 'asset_published_by_email'      :
 					echo 'if (is_null($metadata_asset->published_userid)) {'."\n";
-					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
 					echo '} else { if (!isset($metadata_published_by_user)) {
 					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->published_userid));
 					if (!empty($asset_info)) {
 					$metadata_published_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->published_userid);'."\n}\n}\n";
 					echo 'if (!empty($metadata_published_by_user)) { ';
-					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_published_by_user->attr(\''.substr($keyword,19).'\');'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_published_by_user->attr(\''.substr($keyword,19).'\');'."\n";
 					echo '} else {'."\n";
-					echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'\';'."\n";
 					echo '}}'."\n";
 
 				break;
@@ -849,14 +899,14 @@ class Metadata_Manager extends MySource_Object
 					echo '	$metadata_'.$perm_type.'_perm_names .= $user->name.\', \';'."\n";
 					echo '}'."\n";
 					echo '$metadata_'.$perm_type.'_perm_names = trim($metadata_'.$perm_type.'_perm_names, \', \');'."\n";
-					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_'.$perm_type.'_perm_names;'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$perm_type.'_perm_names;'."\n";
 				break;
 
 				case 'system_name'   :
 				case 'system_owner'  :
 				case 'default_email' :
 				case 'tech_email'    :
-					echo '$metadata_replacements[\''.$keyword.'\'] = SQ_CONF_'.strtoupper($keyword).';'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = SQ_CONF_'.strtoupper($keyword).';'."\n";
 				break;
 
 				default :
@@ -870,9 +920,10 @@ class Metadata_Manager extends MySource_Object
 					} else {
 
 						// searching for special date format keywords
+						$original = $keyword;
 						$keyword = substr($keyword, 6);
-						$key = substr($keyword, 0, strpos($keyword, '_'));
-						$extras = substr($keyword, strpos($keyword, '_') +1);
+						$key     = substr($keyword, 0, strpos($keyword, '_'));
+						$extras  = substr($keyword, strpos($keyword, '_') +1);
 
 						if (strpos($extras, '_') === false) {
 							$format = $extras;
@@ -889,10 +940,10 @@ class Metadata_Manager extends MySource_Object
 								if (empty($offset)) $date = '$metadata_asset->'.$key;
 								else $date = 'strtotime(\''.$offset.'\', $metadata_asset->'.$key.')';
 
-								echo '$metadata_replacements[\'asset_'.$key.'\'] = date(\''.$format.'\', '.$date.');'."\n";
+								echo '$metadata_replacements[\''.$original.'\'] = date(\''.$format.'\', '.$date.');'."\n";
 							break;
 							default:
-								echo '$metadata_replacements[\'asset_'.$key.'\'] = \'\';'."\n";
+								echo '$metadata_replacements[\''.$original.'\'] = \'\';'."\n";
 							break;
 						}
 
@@ -905,6 +956,7 @@ class Metadata_Manager extends MySource_Object
 
 			if (!$generating) {
 				eval(ob_get_contents());
+				$s = ob_get_contents();
 				ob_end_clean();
 			}
 		}
@@ -940,9 +992,15 @@ class Metadata_Manager extends MySource_Object
 	function purgeMetadata($assetid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$where_cond = 'assetid='.$db->quote($assetid);
+		$where_cond = 'assetid = '.$db->quote($assetid);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_metadata', $where_cond) || !$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_metadata_value', $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
-		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_metadata', $where_cond);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
 
 	}//end purgeMetadata()
 

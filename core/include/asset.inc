@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.340 2004/12/16 22:04:13 gsherwood Exp $
+* $Id: asset.inc,v 1.341 2004/12/21 15:24:36 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.340 $
+* @version $Revision: 1.341 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1572,23 +1572,28 @@ class Asset extends MySource_Object
 
 		if (in_array('metadata_schemas', $components) || in_array('all', $components)) {
 			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			// apply the schemas and metadata from the cloner to the clonee
+			// apply the schemas from the cloner to the clonee
 			$schemas = $mm->getSchemas($this->id);
+			$metadata = Array();
 			foreach ($schemas as $schemaid => $granted) {
 				if (!$mm->setSchema($clone->id, $schemaid, $granted)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
-				if (in_array('metadata', $components) || in_array('all', $components)) {
-					$metadata = $mm->getSchemaMetadata($this->id, $schemaid);
-					if (!empty($metadata)) {
-						if (!$mm->setSchemaMetadata($clone->id, $schemaid, $metadata)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return false;
-						}
+			}//end foreach
+
+			// apply the actual metadata from the cloner to the clonee
+			if (in_array('metadata', $components) || in_array('all', $components)) {
+				$metadata = $mm->getMetadata($this->id);
+				if (!empty($metadata)) {
+					if (!$mm->setMetadata($clone->id, $metadata)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
 					}
 				}
-			}//end foreach
+			}
+
+
 		}//end if metadata
 
 
@@ -3509,9 +3514,7 @@ class Asset extends MySource_Object
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
 		// index metadata
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$schemaids = $mm->getSchemas($this->id, true);
-		$keydata   = $sm->getMetadataKeyData($this->id, $schemaids);
+		$keydata = $sm->getMetadataKeyData($this->id);
 
 		// index attributes
 		$weightings = $this->getWeightings();
