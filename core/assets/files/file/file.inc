@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.77 2005/01/06 16:45:31 brobertson Exp $
+* $Id: file.inc,v 1.78 2005/01/07 06:21:18 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -435,8 +435,8 @@ class File extends Asset
 	*/
 	function updateLookups()
 	{
-		if (!$this->effectiveUnrestricted() || ($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
-			// this file is either in a safe edit or restricted
+		if (!$this->attr('allow_unrestricted') || !$this->effectiveUnrestricted() || ($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
+			// this file is either in a safe edit, restricted, or doesnt want to be unrestricted
 			// so we dont worry about __data paths
 			return parent::updateLookups();
 		}
@@ -690,6 +690,15 @@ class File extends Asset
 			}//end if not uploading a file
 
 		}//end if we are changing the filename
+		
+		if (isset($this->_tmp['vars_set']['allow_unrestricted'])) {
+			// the unrestricted setting is being changed, so we may need to update lookups
+			if ($this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$vars = Array('assetids' => Array($this->id));
+				$hh->queueHipo('hipo_job_update_lookups', $vars);
+			}
+		}
 
 		return parent::saveAttributes($dont_run_updated);
 
