@@ -12,7 +12,7 @@ $GLOBALS['SQ_RESOLVE']->start();
 
 /*
  /// RESET SORT ORDERS ///
-$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 $sql = 'SELECT majorid, minorid
 		FROM sq_asset_link
