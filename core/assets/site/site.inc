@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.50 2003/12/03 04:52:47 gsherwood Exp $
+* $Id: site.inc,v 1.51 2003/12/19 04:02:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -388,6 +388,30 @@ class Site extends Folder
 		return true;
 
 	}// end updateLookups()
+
+
+	/**
+	* Return a human readable description of the passed link
+	*
+	* @param int	$linkid	the link ID of the link to describe
+	*
+	* @return string
+	* @access public
+	*/
+	function describeLink($linkid)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		switch (strtolower($link['value'])) {
+			case 'index' :
+				return 'The index page for the site';
+			break;
+
+			default :
+				return parent::describeLink($linkid);
+			break;
+		}
+
+	}//end describeLink()
 
 
 	/**
