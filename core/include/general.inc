@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.51 2004/08/09 09:05:07 brobertson Exp $
+* $Id: general.inc,v 1.52 2004/09/01 01:25:02 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -518,6 +518,34 @@ function ts_iso8601($timestamp)
 	return date('Y-m-d H:i:s',$timestamp);
 
 }//end ts_iso8601()
+
+
+/**
+* Returns the value of an element of the array specified by index
+*
+* If the value is not set, retruns the supplied default or null
+* Does not cause any PHP Notices
+*
+* @param array	$array		array of values
+* @param string	$index		index at which the desired value resides
+* @param mixed	$default	default value if supplied
+*
+* @return mixed|false
+* @access public
+*/
+function array_get_index($array, $index, $default=null)
+{
+	if (!is_array($array)) return $default;
+
+	if (isset($array[$index])) {
+		$value = $array[$index];
+	} else {
+		$value = $default;
+	}
+
+	return $value;
+
+}//end array_get_index()
 
 
 ?>
