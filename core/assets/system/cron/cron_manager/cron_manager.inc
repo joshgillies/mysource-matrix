@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.33 2004/12/03 15:29:23 brobertson Exp $
+* $Id: cron_manager.inc,v 1.33.2.1 2005/02/15 23:27:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -785,7 +785,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		$one_off = preg_replace('/%[ABCD]%/', 'OO=', $build_up['one_off']['all']);
 
 		$sql   = 'SELECT l.linkid, a.assetid, a.type_code
-				  FROM sq_asset_link l
+				  FROM sq_ast_lnk l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val av ON a.assetid = av.assetid
 						INNER JOIN '.SQ_TABLE_PREFIX.'ast_attr at ON av.attrid = at.attrid ';
