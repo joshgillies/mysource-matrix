@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.42 2004/06/25 04:30:02 lwright Exp $
+* $Id: hipo_herder.inc,v 1.43 2004/06/25 07:02:12 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -309,7 +309,14 @@ class HIPO_Herder extends MySource_Object
 			}//end send_abort()
 		</script>
 		<?php
-	
+
+		if ($auto_step) {
+			if ($delay) {
+				$o->addOnLoad('ON_LOAD_TIME_OUT = setTimeout("next_page();", 2000);');
+			} else {
+				$o->addOnLoad('ON_LOAD_TIME_OUT = setTimeout("next_page();", 100);');
+			}
+		}
 
 		?>
 		<table border="0" cellspacing="0" cellpadding="0" width="500">
@@ -400,17 +407,8 @@ class HIPO_Herder extends MySource_Object
 				</td>
 			</tr>
 		</table>
-		<script language="JavaScript" type="text/javascript"><!--
 		<?php
-		if ($auto_step) {
-			if ($delay) {
-				?>ON_LOAD_TIME_OUT = setTimeout("next_page();", 2000);<?php
-			} else {
-				?>next_page();<?php
-			}
-		}
-		?>
-		// --></script><?php
+
 		$o->closeRaw();
 		$o->paint();
 
