@@ -348,7 +348,7 @@ class ServerSubmitterThread extends Thread
 				return;
 			}
 			if (confirmLine == null) {
-				ms.showError("No redirect found");
+				ms.showError("No confirm line found");
 				ms.finish(null);
 				return;
 			}
