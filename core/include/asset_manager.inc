@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.256 2004/12/23 05:35:58 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.257 2004/12/23 05:40:40 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.256 $
+* @version $Revision: 1.257 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4713,6 +4713,6 @@ class Asset_Manager extends MySource_Object
 	}//end generateGetChildrenQuery()
 
 
-}//end class
+}//end class 
 
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.343 2004/12/23 05:35:58 tbarrett Exp $
+* $Id: asset.inc,v 1.344 2004/12/23 05:40:40 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.343 $
+* @version $Revision: 1.344 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3689,6 +3689,6 @@ class Asset extends MySource_Object
 
 	}//end getWeightings()
 
-}//end class
+}//end class 
 
 ?>
