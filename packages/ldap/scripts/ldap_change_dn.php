@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_change_dn.php,v 1.3 2004/12/06 14:43:14 brobertson Exp $
+* $Id: ldap_change_dn.php,v 1.4 2005/04/05 01:22:01 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Alter the database to reflect that the DN of a user has changed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage ldap
 */
@@ -102,7 +102,7 @@ $db =& $GLOBALS['SQ_SYSTEM']->db;
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 	printActionName('Changing asset permissions');
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_permission
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_perm
 				SET userid = '.$db->quote($new_dn).'
 				WHERE userid = '.$db->quote($old_dn);
 		$result = $db->query($sql);
@@ -110,7 +110,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	printActionStatus('OK');
 
 	printActionName('Changing asset permissions (rollback)');
-		$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.'asset_permission
+		$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.'ast_perm
 				SET userid = '.$db->quote($new_dn).'
 				WHERE userid = '.$db->quote($old_dn);
 		$result = $db->query($sql);
@@ -118,27 +118,13 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	printActionStatus('OK');
 
 	printActionName('Changing internal messages');
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'internal_message
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'internal_msg
 				SET userto = '.$db->quote($new_dn).'
 				WHERE userto = '.$db->quote($old_dn);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'internal_message
-				SET userfrom = '.$db->quote($new_dn).'
-				WHERE userfrom = '.$db->quote($old_dn);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-	printActionStatus('OK');
-
-	printActionName('Changing internal messages (rollback)');
-		$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.'internal_message
-				SET userto = '.$db->quote($new_dn).'
-				WHERE userto = '.$db->quote($old_dn);
-		$result = $db->query($sql);
-		assert_valid_db_result($result);
-
-		$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.'internal_message
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'internal_msg
 				SET userfrom = '.$db->quote($new_dn).'
 				WHERE userfrom = '.$db->quote($old_dn);
 		$result = $db->query($sql);
@@ -146,7 +132,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	printActionStatus('OK');
 
 	printActionName('Changing screen access');
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_editing_access
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_edit_access
 				SET userid = '.$db->quote($new_dn).'
 				WHERE userid = '.$db->quote($old_dn);
 		$result = $db->query($sql);
@@ -154,7 +140,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	printActionStatus('OK');
 
 	printActionName('Changing screen access (rollback)');
-		$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.'asset_editing_access
+		$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.'ast_edit_access
 				SET userid = '.$db->quote($new_dn).'
 				WHERE userid = '.$db->quote($old_dn);
 		$result = $db->query($sql);
