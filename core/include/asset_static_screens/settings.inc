@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.3 2004/01/16 11:45:56 brobertson Exp $
+* $Id: settings.inc,v 1.4 2004/03/17 05:15:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -298,29 +298,6 @@ function paintSettings(&$owner, &$o, &$ei)
 							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
 						}
 
-						$o->openField('Current');
-
-						if (!$owner->writeAccess('links')) {
-							$created = true;
-							echo '<i>';
-							if (!$designid) {
-								echo 'None';
-							} else {
-								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
-								echo $design->name.' (Id : #'.$design->id.')';
-							}
-							echo '</i>';
-
-						} else {
-							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'));
-						}
-
-
-						if ($system_design && isset($system_designs[$design_name])) {
-							$o->note($system_designs[$design_name]);
-						}
-
-						$o->closeField();
 						if (!$new_user_design) {
 
 							$effective_designs = Array();
@@ -330,7 +307,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							}
 
 
-							$o->openField('Effective');
+							$o->openField('Current');
 
 							if (!empty($effective_designs)) {
 								?>
@@ -359,6 +336,31 @@ function paintSettings(&$owner, &$o, &$ei)
 
 							$o->closeField();
 						}// endif
+						
+						$o->openField('New ?');
+
+						if (!$owner->writeAccess('links')) {
+							$created = true;
+							echo '<i>';
+							if (!$designid) {
+								echo 'None';
+							} else {
+								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
+								echo $design->name.' (Id : #'.$design->id.')';
+							}
+							echo '</i>';
+
+						} else {
+							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'));
+						}
+
+
+						if ($system_design && isset($system_designs[$design_name])) {
+							$o->note($system_designs[$design_name]);
+						}
+
+						$o->closeField();
+						
 						$o->closeSection();
 
 					}// end foreach
