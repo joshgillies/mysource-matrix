@@ -134,7 +134,7 @@ class User extends Asset
 
 		if (!$result) return 0;
 
-		$asset = $GLOBALS['SQ_RESOLVE']->am->getAsset($result);
+		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($result);
 		if (is_null($asset) || !$asset->comparePassword($password)) {
 			return 0;
 		}
