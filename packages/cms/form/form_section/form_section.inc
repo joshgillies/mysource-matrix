@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.22 2004/07/07 01:05:29 lwright Exp $
+* $Id: form_section.inc,v 1.23 2004/08/18 23:40:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -124,6 +124,52 @@ class Form_Section extends Bridge
 		}
 
 	}//end getAsset()
+	
+	
+	/**
+	* Used by asset map to return a asset map-style link array
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapLinks()
+	{
+		$old_links = $this->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV, 'asset', false, 'major', 'sort_order');
+		$links = Array();
+		while (!empty($old_links)) {
+			array_push($links, array_shift($old_links));
+		}
+
+		foreach(array_keys($links) as $i) {
+
+			$link =& $links[$i];
+
+			// mould it all to the asset map's liking
+			$link['url'] = '';
+			$link['path'] = '';
+			$link['num_immediate_kids'] = 0;
+			$link['accessible'] = 1;
+
+			$link['assetid'] = $link['minorid'];
+			$link['type_code'] = $link['minor_type_code'];
+
+			$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['assetid']);
+			$link['short_name'] = $link_asset->short_name;
+			$link['name'] = $link_asset->name;
+			$link['status'] = $link_asset->status;
+
+			unset($link['minor_type_code']);
+			unset($link['majorid']);
+			unset($link['minorid']);
+			unset($link['value']);
+			unset($link['dependant']);
+			unset($link['exclusive']);
+
+		}
+
+		return $links;
+
+	}//end getAssetMapLinks()
 	
 	
 	/**
