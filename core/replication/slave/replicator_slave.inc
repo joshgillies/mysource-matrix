@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator_slave.inc,v 1.1.2.1 2004/02/14 12:39:14 brobertson Exp $
+* $Id: replicator_slave.inc,v 1.1.2.2 2004/02/14 21:17:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -78,7 +78,7 @@ class Replicator_Slave extends Replicator
 			trigger_error('Unable to create Replication Remote System "'.$this->id.'" : unable to create Master Remote Replication System', E_USER_WARNING);
 			return false;
 		}
-		
+
 		return parent::initialise();
 
 	}// end initialise()
@@ -123,7 +123,7 @@ class Replicator_Slave extends Replicator
 
 		$title_lines = Array();
 
-		
+
 		$title = SQ_SYSTEM_LONG_NAME.' System Replicator';
 		$title_lines[] = '+-'.str_repeat('-', strlen($title)).'-+';
 		$title_lines[] = '| '.$title.' |';
@@ -139,7 +139,7 @@ class Replicator_Slave extends Replicator
 					$this->runPrintUsage($cmd);
 					return 1;
 				}
-			
+
 				if ($this->initialise($_SERVER['argv'][2], $_SERVER['argv'][3])) {
 					echo 'Slave Replication System Initialised.'."\n";
 					echo 'You may now edit this system configuration file for the Master System : '."\n";
@@ -227,40 +227,68 @@ class Replicator_Slave extends Replicator
 
 	}// end runPrintUsage()
 
+
 	/**
 	* The Replicate fn, called from the Squiz Server Process Object
+	* Basically if this is called it means that the Master Server initated a connection to us.
+	* So once we authenticate that it is the master server, we essentially say "what do you want?"
 	*
-	* @param string		$systemid		the systemid of the system that we are replicating with
+	* @param string		$systemid		the systemid of the system that we are replicating with (because we are the slave this will always be zero)
 	* @param resource	$client_fd		the client socket resource
-	* 
+	*
 	* @return void
 	* @access public
 	*/
 	function replicate($systemid, $client_fd)
 	{
-		if(SQ_REPLICATION_IS_MASTER) {
-			$this->_log('This System is NOT designated as a Slave System, why are we using a '.__CLASS__.' object', 'error');
+		// now I don't know why this is but without the sleep I was getting 'Connection reset by peer' errors
+		sleep(1);
+
+		// now because of the nature of server rep and it never really being seen we are
+		// going to force the issue with logging errors and set the error log file
+		$old_log_errors = ini_set('log_errors', 1);
+
+		$this->_setErrorHandler();
+
+		if (SQ_REPLICATION_IS_MASTER) {
 			trigger_error('This System is NOT designated as a Slave System, why are we using a '.__CLASS__.' object', E_USER_WARNING);
+			$this->_restoreErrorHandler();
 			return;
 		}
 
-		// now because of the nature of server rep and it never really being seen we are 
-		// going to force the issue with logging errors and set the error log file
-		$old_log_errors = ini_set('log_errors', 1);
-		$old_error_log  = ini_set('error_log', $this->_log_dir.'/error.log');
-				
-		$this->_log("I AM A SLAVE, CHECK '$systemid' IS OUR MASTER", 'debug');
-		// make sure we think we are talking to the right server
-		if ($systemid != SQ_REPLICATION_MASTER_REPLICATION_SYSTEMID) {
-			trigger_error('System called "'.$systemid.'" attempted to replicate with us, but it is not our master server', E_USER_WARNING);
-		} else {
-			$this->_log("CHECK '$systemid' IS OUR MASTER, DO THE STUFF", 'debug');
-//			replicateSlave($client_fd, true);
-#function replicateSlave($client_fd, $received_connection);
+		$ms = &$this->getMasterSystem();
+		if (is_null($ms)) {
+			trigger_error('Unable to get the Remote Master System', E_USER_WARNING);
+			$this->_restoreErrorHandler();
+			return;
 		}
 
+		// make sure we think we are talking to the right server
+		if ($systemid != $ms->id) {
+			trigger_error('System called "'.$systemid.'" attempted to replicate with us, but it is not our master server', E_USER_WARNING);
+			$this->_restoreErrorHandler();
+			return;
+		}
+
+		$ms->transport->setSocketFd($client_fd);
+
+		$this->_log("AUTHENTICATE WITH MASTER SERVER", 'debug');
+
+		if (!$ms->auth->authenticate($ms->transport, false)) {
+			trigger_error('Unable to authenticate Master Server', E_USER_WARNING);
+			$ms->transport->removeSocketFd(true);
+			$this->_restoreErrorHandler();
+			return;
+		}
+
+		$this->_log("AUTHENTICATEd!!!!!!!!", 'debug');
+
+
+		$this->_log("ASK 'What do you want ?'", 'debug');
+
+		$ms->transport->removeSocketFd(true);
 		ini_set('log_errors', $old_log_errors);
-		ini_set('error_log', $old_error_log);
+		$this->_restoreErrorHandler();
 
 	}// end replicate()
 
