@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: get_design_area_setable_attrs.php,v 1.2 2003/12/15 15:22:36 brobertson Exp $
+* $Id: get_design_area_setable_attrs.php,v 1.3 2003/12/16 18:23:31 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -114,7 +114,7 @@ foreach($design_areas as $type_code) {
 	$da = new $type_code();
 	$edit_fns = $da->getEditFns();
 
-	$setable_vars = $edit_fns->_getSetableVars($da);
+	$setable_vars = $edit_fns->getSetableVars($da);
 
 	#pre_echo($type_code.' : '.print_r($setable_vars, 1));
 
