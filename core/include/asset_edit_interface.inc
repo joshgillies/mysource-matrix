@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.172 2003/10/30 04:32:15 mmcintyre Exp $
+* $Id: asset_edit_interface.inc,v 1.173 2003/10/30 04:39:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -154,24 +154,10 @@ class Asset_Edit_Interface extends MySource_Object
 		// if there are no screens or static screens, piss off
 		if (!count($this->_screens) && empty($this->_edit_fns->static_screens)) return;
 
-		$current_location = $o->getCurrentLocation();
-		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
 
-		// add all the screens to the combo, but only if we aren't creating the object
-		if (!$creating) {
-			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
-				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
-			}
-		}
-
-		// add static screens for the asset if not creating
-		if (!$creating) {
-			foreach ($this->_edit_fns->static_screens as $code_name => $data) {
-				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
-				$o->addStaticScreen($url, $data['name']);
-			}
-		}
-
+		  /////////////////////
+		 //  ACTIVE SCREEN  //
+		/////////////////////
 		$create_sections = Array();
 		if (empty($_GET['asset_ei_screen'])) {
 			if (isset($_GET['sq_from_frontend']) && !empty($this->_default_screen)) {
@@ -184,17 +170,13 @@ class Asset_Edit_Interface extends MySource_Object
 			$active_screen = $_GET['asset_ei_screen'];
 		}
 
-		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
-
-		// if we are creating open the create file to see which fields we are supposed to print out
-		if ($creating) {
-			list($create_sections, $active_screen) = $this->_getCreateSections(true);
-			if (!count($create_sections)) return;
-		}
-
 		// make sure that we have the screen for next time
 		$o->addFormActionGetVar('asset_ei_screen', $active_screen);
 
+
+		  ///////////////////////////////
+		 //  LOCKING AND PERMISSIONS  //
+		///////////////////////////////
 		// do we have write access?
 		$full_write_access = $owner->writeAccess('');
 
@@ -399,17 +381,18 @@ class Asset_Edit_Interface extends MySource_Object
 		 //  PREVIEW URL  //
 		///////////////////
 		// get the asset tree lineage
-//bam($_GET);
 		if (isset($_GET['sq_asset_path'])) {
 			// flash sends comma-separated assetids indicating the path
-			$asset_path = split(",", ($_GET['sq_asset_path']));
+			$asset_path = split(',', ($_GET['sq_asset_path']));
 		} else {
 			// flash didn't send one (e.g initial matrix loading) - pretend it did by making a singleton set of the owner
 			$asset_path = Array($owner->id);
 		}
-//bam($asset_path);
-//$o->addFormActionGetVar('sq_asset_path', implode(',', $asset_path));
+
+		$o->addFormActionGetVar('sq_asset_path', implode(',', $asset_path), true);
+
 		$preview_url = '';
+		$closest_parentid = $owner->id;
 		foreach ($asset_path as $assetid) {
 			if ($assetid != $owner->id) $ancestor =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			else $ancestor =& $owner;
@@ -419,18 +402,18 @@ class Asset_Edit_Interface extends MySource_Object
 				break;
 			}
 
+			$paths = $ancestor->getWebPaths();
+			if (!empty($paths)) $closest_parentid = $assetid;
+
 			if ($preview_url == '') {
 				// we need a base url
 				$url = $ancestor->getUrl();
-				if ($url == '') {
-					// no url defined, so the owner can't have a valid preview url from this tree
-					break;
-				} else {
+				if (!empty($url)) {
 					$preview_url = $ancestor->getUrl();
+					$closest_parentid = $assetid;
 				}
 			} else {
 				// we have a base url, but we need the appropriate paths
-				$paths = $ancestor->getWebPaths();
 				if (empty($paths)) {
 					// no path defined from here onwards - just use what we've got so far
 					break;
@@ -440,7 +423,6 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 		}
 		$o->addHiddenField('sq_preview_url', $preview_url);
-
 
 		  //////////////////////////
 		 //  Navigation History  //
@@ -489,13 +471,38 @@ class Asset_Edit_Interface extends MySource_Object
 
 		$o->setHeading($page_heading, '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code).'", "16", "16", "");</script>');
 
-		$closest_parentid = array_pop($asset_path);
 		if ($closest_parentid != $owner->id) {
 			$closest_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($closest_parentid);
 			if (!is_null($closest_parent)) {
 				$o->setSubHeading('Currently editing '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name').' "'.$closest_parent->name.'"');
 			}
 		}
+
+
+		  ///////////////////
+		 //  SCREEN MENU  //
+		///////////////////
+		$current_location = $o->getCurrentLocation();
+		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
+
+		// add all the screens to the combo, but only if we aren't creating the object
+		if (!$creating) {
+			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
+				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
+			}
+
+			// add static screens for the asset
+			foreach ($this->_edit_fns->static_screens as $code_name => $data) {
+				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
+				$o->addStaticScreen($url, $data['name']);
+			}
+		} else {
+			// if we are creating open the create file to see which fields we are supposed to print out
+			list($create_sections, $active_screen) = $this->_getCreateSections(true);
+			if (!count($create_sections)) return;
+		}
+
+		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
 
 
 		if ($file) {
