@@ -89,6 +89,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		$root = &$output->addRoot('error', $msg);
 		header("Content-Type: text/xml");
 		$output->dump();
+		exit(); // we need to always exit for XML otherwise we are likely to end up with XML parse errors at the other end
 
 	} else {
 
