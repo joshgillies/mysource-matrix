@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.40 2004/06/08 02:37:57 gsherwood Exp $
+* $Id: file_edit_fns.inc,v 1.41 2004/06/28 16:16:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -165,7 +165,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			// a new file with a new name means we need to remove the old
 			// one from the repository (NOTE that this doesnt actually 'remove' the
 			// files from the repository - just marks the branch as complete)
-			if (!$fv->remove($existing['path'], '', false)) {
+			$result = $fv->remove($existing['path'], '', false);
+			if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
 				trigger_error('Failed removing file from repository', E_USER_WARNING);
 				return false;
 			}

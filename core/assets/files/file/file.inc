@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.62 2004/06/24 07:03:43 gsherwood Exp $
+* $Id: file.inc,v 1.63 2004/06/28 16:16:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -656,7 +656,8 @@ class File extends Asset
 
 				// we are renaming the file, so we need to remove the old name from
 				// the repository and add the new one in
-				if (!$fv->remove($data_path.'/'.$old_filename, '', false)) {
+				$result = $fv->remove($data_path.'/'.$old_filename, '', false);
+				if ($result != FUDGE_FV_OK && $result != FUDGE_FV_NOT_CHECKED_OUT) {
 					trigger_error('Failed removing file from repository', E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
