@@ -1582,7 +1582,7 @@ class Asset extends Resolve_Object
 	*/
 	function canCreateLink(&$minor, $link_type, $exclusive)
 	{
-		if (!$this->id) return 0;
+		if (!$this->id) return 'Asset Not Created';
 		return $GLOBALS['SQ_SYSTEM']->am->canCreateLink($this, $minor, $link_type, $exclusive);
 
 	}// end canCreateLink()
@@ -1598,7 +1598,8 @@ class Asset extends Resolve_Object
 	*/
 	function canDeleteLink($linkid)
 	{
-		return true;
+		if (!$this->id) return 'Asset Not Created';
+		return $GLOBALS['SQ_SYSTEM']->am->canDeleteLink($this, $linkid);
 
 	}//end canDeleteLink()
 
@@ -1630,15 +1631,16 @@ class Asset extends Resolve_Object
 	* Called whenever any type of link is changed. Allows caching of objects, links and other stuff
 	* to occur but not cause integrity issues during script execution.
 	*
+	* ONLY TO BE CALLED FROM THE ASSET MANAGER
+	*
 	* @return boolean
-	* @access private
+	* @access protected
 	*/
-	function _linksUpdated()
+	function linksUpdated()
 	{
-		if (!$this->_updated()) return false;
-		return true;
+		return $this->_updated();
 
-	}//end _linksUpdated()
+	}//end linksUpdated()
 
 
 //--        ATTRIBUTES        --//

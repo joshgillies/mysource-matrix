@@ -1920,11 +1920,11 @@ pre_echo($sql);
 		}
 
 		// tell, the asset it has updated
-		if (!$major->_linksUpdated()) {
+		if (!$major->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
-		if (!$minor->_linksUpdated()) {
+		if (!$minor->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
@@ -1984,21 +1984,22 @@ pre_echo($sql);
 		// and that we aren't moving under ourselves
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 			//// Check for exclusive ////
-			$sql = 'SELECT majorid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link ';
+			$sql = 'SELECT majorid 
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link ';
 			$where = 'minorid       = '.$db->quote($minor->id).'
 					  AND exclusive = '.$db->quote('1');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql .= $where;
 
-			$majorid = $db->getOne($sql);
-			if (DB::isError($majorid)) {
-				trigger_error($majorid->getMessage().'<br/>'.$majorid->getUserInfo(), E_USER_WARNING);
+			$current_majorid = $db->getOne($sql);
+			if (DB::isError($current_majorid)) {
+				trigger_error($current_majorid->getMessage().'<br/>'.$current_majorid->getUserInfo(), E_USER_WARNING);
 				return 'Database Error';
 			}
 
-			if ($majorid) {
-				$major = &$this->getAsset($majorid);
-				return 'Asset "'.$minor->name.'" (Asset #'.$minor->id.') cannot be linked to "'.$major->name.'" (Asset #'.$major->id.') it is exclusively linked to Asset #'.$majorid.' ("'.$major->name.'")';
+			if ($current_majorid) {
+				$current_major = &$this->getAsset($current_majorid);
+				return 'Asset "'.$minor->name.'" (Asset #'.$minor->id.') cannot be linked to "'.$major->name.'" (Asset #'.$major->id.') it is exclusively linked to Asset #'.$current_majorid.' ("'.$current_major->name.'")';
 			}
 
 			//// Check we aren't moving the minor asset under itself ////
@@ -2125,16 +2126,16 @@ pre_echo($sql);
 			return false;
 		}
 
-		// if you dont have write access to this asset you cant delete any links
-		if (!$this->writeAccess(Array(), false)) {
-			trigger_error('Cannot delete link, permission denied', E_USER_WARNING);
+		$major = &$this->getAsset($link['majorid'], $link['major_type_code']);
+		$minor = &$this->getAsset($link['minorid'], $link['minor_type_code']);
+		if (is_null($major) || is_null($minor)) {
 			return false;
 		}
 
 		// check if we are allowed to delete this link
-		if (($err_msg = $this->canDeleteLink($linkid)) !== true) {
+		if (($err_msg = $major->canDeleteLink($linkid)) !== true) {
 			trigger_error($err_msg, E_USER_WARNING);
-			return 0;
+			return false;
 		}
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -2257,7 +2258,7 @@ pre_echo($sql);
 		}// end if significant link
 
 		// move 'em up, higher
-		$where_cond = ' majorid        = '.$db->quote($this->id).'
+		$where_cond = ' majorid        = '.$db->quote($major->id).'
 						AND sort_order > '.$db->quote($link['sort_order']);
 		$values = Array('sort_order' => 'sort_order - 1');
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $values, $where_cond)) {
@@ -2266,18 +2267,18 @@ pre_echo($sql);
 		}
 
 		$where_cond = ' linkid  = '.$db->quote($linkid).'
-						AND majorid = '.$db->quote($this->id);
+						AND majorid = '.$db->quote($major->id);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// tell, the asset it has updated
-		if (!$this->_linksUpdated()) {
+		if (!$major->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		if (!$minor->_linksUpdated()) {
+		if (!$minor->linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
@@ -2291,13 +2292,34 @@ pre_echo($sql);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $this->id, 'linkid' => $linkid));
+		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $major->id, 'linkid' => $linkid));
 
 		return true;
 
 	}//end deleteLink()
 
 
+	/**
+	* Determine if we can delete the passed link
+	*
+	* @param object Asset	$major	the major asset that we are linking to
+	* @param int			$linkid	the link id of the link to remove
+	*
+	* @return mixed TRUE or error msg string
+	* @access public
+	*/
+	function canDeleteLink(&$major, $linkid)
+	{
+		// if you dont have write access to the parent, you can't delete any links
+		if (!$major->writeAccess(Array(), false)) {
+			return 'Cannot delete link, permission denied';
+		}
+
+		return true;
+
+	}//end canDeleteLink()
+
+	
 	/**
 	* Move a link to a new parent
 	*
@@ -2318,9 +2340,14 @@ pre_echo($sql);
 			return false;
 		}
 
+		$old_parent = &$this->getAsset($link['majorid'], $link['major_type_code']);
+		if (is_null($old_parent)) {
+			return false;
+		}
+
 		// now check that the new parent exists
 		$new_parent = &$this->getAsset($to_parentid);
-		if (!$new_parent->id) {
+		if (is_null($new_parent)) {
 			trigger_error('Unable to Move Asset, new parent (Asset #"'.$to_parentid.'") not found', E_USER_WARNING);
 			return false;
 		}
@@ -2332,8 +2359,8 @@ pre_echo($sql);
 		}
 
 		// if you dont have write access to this asset you cant delete any links
-		if (!$this->writeAccess(Array(), false)) {
-			trigger_error('Unable to Move Asset, permission denied to old parent "'.$this->name.'"', E_USER_WARNING);
+		if (!$old_parent->writeAccess(Array(), false)) {
+			trigger_error('Unable to Move Asset, permission denied to old parent "'.$old_parent->name.'"', E_USER_WARNING);
 			return false;
 		}
 
@@ -2367,12 +2394,12 @@ pre_echo($sql);
 		}
 
 		// Now let's try and delete the old link
-		if (!$this->acquireLock($this->id)) {
+		if (!$this->acquireLock($old_parent->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 		$deleted = $this->deleteLink($linkid);
-		$this->releaseLock($this->id);
+		$this->releaseLock($old_parent->id);
 		if (!$deleted) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -2397,15 +2424,7 @@ pre_echo($sql);
 	*/
 	function moveLinkPos($linkid, $sort_order=-1)
 	{
-		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		if ($this->_updateLink($linkid, null, null, $sort_order) && $this->_linksUpdated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		return $this->_updateLink($linkid, null, null, $sort_order);
 
 	}//end moveLinkPos()
 
@@ -2549,6 +2568,17 @@ pre_echo($sql);
 			}
 
 		}// end if sort order changed
+
+		// tell, the asset it has updated
+		if (!$major->linksUpdated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		if (!$minor->linksUpdated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
