@@ -2,6 +2,7 @@
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 /**
 * Form
@@ -17,7 +18,16 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 class Form extends Asset
 {
 
+	/**
+	* the active submission object
+	* @var object 
+	*/
 	var $active_submission = null;
+
+	/**
+	* the active section object
+	* @var object 
+	*/
 	var $active_section = null;
 
 
@@ -31,7 +41,8 @@ class Form extends Asset
 	{
 		$this->_ser_attrs = true;
 		$this->Asset($assetid);
-	}
+	
+	} // end Form()
 
 
 	/**
@@ -110,21 +121,6 @@ class Form extends Asset
 
 
 	/**
-	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
-	*
-	* @return int
-	* @access public
-	* @see Asset::creatLink();
-	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
-	{
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-
-	}// end createLink()
-
-
-	/**
 	* gets called when things change (new links, delete links etc)
 	*
 	* @see Asset::_updated
@@ -134,25 +130,10 @@ class Form extends Asset
 	*/
 	function _updated()
 	{
-		parent::_updated();
+		if (!parent::_updated()) return false;
 		return $this->fileRegeneration();
 	
 	} // end _updated()
-
-
-	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return mixed TRUE or error msg string
-	* @access public
-	*/
-	function canDeleteLink($linkid)
-	{
-		return parent::canDeleteLink($linkid);
-	
-	}//end canDeleteLink()
 
 
 	/**
@@ -170,7 +151,7 @@ class Form extends Asset
 		$page_links[SQ_LINK_TYPE_3]['form_submission'] = Array('card' => 'M', 'exclusive' => true);
 		return $page_links;
 
-	}//end _getAllowedLinks()
+	} // end _getAllowedLinks()
 
 
 	/**
@@ -188,20 +169,6 @@ class Form extends Asset
 			return $edit->generateStandardContentFile($this);
 		}
 	} // end fileRegeneration()
-
-
-	/**
-	* Prints out the backend interface for the asset
-	*
-	* @param object Backend_Outputter $o
-	*
-	* @access public
-	*/
-	function paintBackend(&$o)
-	{
-		parent::paintBackend($o);
-
-	}// end paintBackend()
 
 
 	/**
@@ -241,7 +208,8 @@ class Form extends Asset
 			return $a;
 		}
 		return false;
-	}
+	
+	} // end getSectionByOrder()
 
 
 	/**
@@ -282,7 +250,7 @@ class Form extends Asset
 		foreach ($section_links as $link) {
 			$sections[$link['sort_order']] = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 		}
-		return (!empty($sections)) ? $sections : Array();
+		return $sections;
 
 	} // end getSections()
 
@@ -297,7 +265,7 @@ class Form extends Asset
 	*/
 	function getSectionCount()
 	{
-		return count($this->getSectionLinks());
+		return $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major', SQ_LINK_TYPE_2, 'form_section', true);
 
 	} // end getSectionCount()
 
@@ -315,6 +283,7 @@ class Form extends Asset
 	function setFormCookie($id, $days=0)
 	{
 		return setcookie('SQ_FORM_'.$this->getPrefix(), $id, time() + 60 * 60 * 24 * $days);
+
 	} // end setFormCookie() 
 
 
@@ -326,7 +295,6 @@ class Form extends Asset
 	*/
 	function printBody()
 	{
-		speed_check();
 		$prefix = $this->getPrefix(); 
 		$submission = '';
 
@@ -348,7 +316,6 @@ class Form extends Asset
 			$this->printStandard();
 		}
 		echo "</form>\n";
-		speed_check();
 
 	} // end printBody()
 
@@ -403,7 +370,8 @@ class Form extends Asset
 			}
 		}
 		return true;
-	}
+
+	} // end printSummary()
 
 
 	/**
@@ -503,6 +471,10 @@ class Form extends Asset
 	/**
 	* saves the current stage that we are up to in a wizard
 	*
+	* @param string $stage the stage to save
+	* 
+	* @access public
+	* @return boolean
 	*/
 	function saveStage($stage)
 	{
@@ -514,6 +486,8 @@ class Form extends Asset
 	/**
 	* includes the content file for this form
 	*
+	* @access public
+	* @return boolean
 	*/
 	function includeContentFile()
 	{
@@ -522,6 +496,7 @@ class Form extends Asset
 			if (!$edit->generateWizardContentFile($this)) return false;
 		}
 		include($this->data_path.'/content_file.php');
+
 		return true;
 
 	} // end includeContentFile()
@@ -550,6 +525,7 @@ class Form extends Asset
 			return false;
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return $submission;
 
 	} // end createSubmission()
@@ -621,9 +597,7 @@ class Form extends Asset
 			$text = $type;
 		} 
 	
-		($type == 'back') 
-			? $extras = 'var s = document.'.$this->getPrefix().'.section; s.value -= 2;'
-			: $extras = '';
+		$extras = ($type == 'back') ? 'var s = document.'.$this->getPrefix().'.section; s.value -= 2;' : '';
 		
 		ob_start();
 		submit_button($this->getPrefix().'_'.$type, $text, $extras);
@@ -667,7 +641,8 @@ class Form extends Asset
 	*/
 	function &getBodycopy($name='')
 	{
-		if (!$name) return false;
+		$null = null;
+		if (!$name) return $null;
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
@@ -687,7 +662,10 @@ class Form extends Asset
 
 
 	/**
-	*
+	* prints the validatin bodycopy
+	* 
+	* @access public
+	* @return boolean
 	*/
 	function validateForm()
 	{
@@ -836,7 +814,8 @@ class Form extends Asset
 			return $this->active_submission->getAnswer($i[$info]['id']);
 		}
 		return false;
-	}
+	
+	} // end getSpecialInformation()
 
 
 	/**
@@ -878,7 +857,6 @@ class Form extends Asset
 	} // end setSpecialInformation()
 
 
-
 	/**
 	* returns the section index for a section
 	*
@@ -916,83 +894,17 @@ class Form extends Asset
 			
 			// lowercase Roman Numerals
 			case '4': 
-				return strtolower($this->IntToRoman($order)).'.';
+				return strtolower(int_to_roman($order)).'.';
 			break;
 			
 			// uppercase Roman Numerals
 			case '5': 
-				return $this->IntToRoman($order).'.';
+				return int_to_roman($order).'.';
 			break;
 
 		} // end switch
 
 	} // end getSectionIndex()
-
-
-	/**
-	* returns a roman digit corespondance for a integer
-	*
-	* @see Form::intToRoman()
-	*
-	* @param int		$dig	the digit to process
-	* @param string		$one	the one unit string
-	* @param string		$five	the five unit string
-	* @param string		$ten	the ten unit string
-	*
-	* @access public
-	* @return string
-	*/
-	function romanDigit($dig, $one, $five, $ten) 
-	{ 
-		switch($dig) { 
-			case 0: return ""; 
-			case 1: return "$one"; 
-			case 2: return "$one$one"; 
-			case 3: return "$one$one$one"; 
-			case 4: return "$one$five"; 
-			case 5: return "$five"; 
-			case 6: return "$five$one"; 
-			case 7: return "$five$one$one"; 
-			case 8: return "$five$one$one$one"; 
-			case 9: return "$one$ten"; 
-		} 
-	} // end romanDigit()
-
-
-	/**
-	* converts a integer into it's roman numeral representation
-	*
-	* @param int $num the number to convert
-	*
-	* @access public
-	* @return string
-	*/
-	function intToRoman($num) 
-	{ 
-
-		$m = $num / 1000; 
-		$c = ($num % 1000) / 100; 
-		$x = ($num % 100) / 10; 
-		$i = $num % 10; 
-
-		return( 
-			 $this->romanDigit($m, 'M', '', '') 
-			.$this->romanDigit($c, 'C', 'D', 'M') 
-			.$this->romanDigit($x, 'X', 'L', 'C') 
-			.$this->romanDigit($i, 'I', 'V', 'X') 
-		); 
-
-	} // end intToRoman()
-
-	function setAutoAnswer()
-	{
-		
-	}
-
-	function getAutoAnswer()
-	{
-
-	}
 
 } // end class
 ?>
