@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTreeComm.java,v 1.2 2005/03/06 22:57:43 mmcintyre Exp $
+ * $Id: MatrixTreeComm.java,v 1.3 2005/03/07 01:12:22 mmcintyre Exp $
  * $Name: not supported by cvs2svn $
  */
 
@@ -51,34 +51,12 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 	 * @param evt the event
 	 */
 	public void requestForNewLink(final NewLinkEvent evt) {
-		
-		final String[] assetids = new String[] { evt.getParentNode().getAsset().getId() };
-		AssetRefreshWorker worker = new AssetRefreshWorker(assetids, true) {
-			public Object construct() {
-				try {
-					Boolean refresh = createLink(
-						evt.getType(), 
-						evt.getSourceNodes(),
-						evt.getParentNode(), 
-						evt.getIndex()
-					);
-					if (refresh == Boolean.TRUE) {
-						String parentid = evt.getParentNode().getAsset().getId();
-						return AssetManager.makeRefreshRequest(assetids);
-					}
-					
-				} catch (IOException ioe) {
-					return ioe;
-				}
-				return null;
-			}
-			public void finished() {
-				// if we need to refresh the parent, call super to do so
-				if (get() != null)
-					super.finished();
-			}
-		};
-		worker.start();
+		createLink(
+			evt.getType(),
+			evt.getSourceNodes(),
+			evt.getParentNode(),
+			evt.getIndex()
+		);
 	}
 	
 	/**
@@ -128,6 +106,55 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 		}
 	}
 	
+	/**
+	 * Creates a link in the matrix system and updates the new parent where 
+	 * appropriate. The new parent will only updated if nodes have been moved
+	 * on the same branch. The updating of the GUI is swing thread safe.
+	 * @param linkType the type of link to create
+	 * @param children the children to move
+	 * @param parent the parent to move the children under
+	 * @param index the index where the childre will be placed
+	 * @see NewLinkEvent.LINK_TYPE_MOVE
+	 * @see NewLinkEvent.LINK_TYPE_NEW_LINK
+	 * @see NewLinkEvent.LINK_TYPE_CLONE
+	 */
+	public static void createLink(
+			final String linkType,
+			final MatrixTreeNode[] children,
+			final MatrixTreeNode parent,
+			final int index) {
+				
+		final String[] assetids = new String[] { parent.getAsset().getId() };
+		AssetRefreshWorker worker = new AssetRefreshWorker(assetids, true) {
+			public Object construct() {
+				try {
+					Boolean refresh = doLinkRequest(
+						linkType,
+						children,
+						parent,
+						index
+					);
+					if (refresh == Boolean.TRUE) {
+						String parentid = parent.getAsset().getId();
+						return AssetManager.makeRefreshRequest(assetids);
+					}
+					
+				} catch (IOException ioe) {
+					return ioe;
+				}
+				return null;
+			}
+			public void finished() {
+				// if we need to refresh the parent, call super to do so
+				if (get() != null)
+					super.finished();
+				else
+					MatrixStatusBar.setStatusAndClear("Success!", 1000);
+			}
+		};
+		worker.start();
+	}
+	
 	// }}}
 	// {{{ Private Methods
 	
@@ -147,7 +174,7 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 	 * @param children the children affected by this link
 	 * @param index the index we are linking to
 	 */
-	private String generateCreateLinkXML(
+	private static String generateCreateLinkXML(
 		String linkType,
 		String toParentId,
 		MatrixTreeNode[] children,
@@ -182,7 +209,7 @@ public class MatrixTreeComm implements NewLinkListener, NewAssetListener {
 	 * @return Returns Boolean.TRUE if the parent requires refreshing, 
 	 * Boolean.FALSE otherwise
 	 */
-	private Boolean createLink(
+	private static Boolean doLinkRequest(
 			String linkType,
 			MatrixTreeNode[] children,
 			MatrixTreeNode parent,
