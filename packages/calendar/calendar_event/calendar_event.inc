@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.34 2004/11/18 23:09:50 gsherwood Exp $
+* $Id: calendar_event.inc,v 1.34.2.1 2004/12/23 06:01:22 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.34 $ - 1.0
+* @version $Revision: 1.34.2.1 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -198,24 +198,43 @@ class Calendar_Event extends Asset
 
 		$keywords['event_duration'] = Array('value'=>$total_time);
 		$keywords['edit_link'] = Array('value'=>($this->writeAccess('') ? '<a href="./_edit?limbo_assetid='.$this->id.'">Edit</a>' : ''));
+		$keywords['delete_link'] = Array('value'=>$this->_getDeleteLink());
 
 		if ($descriptions) {
 			$keywords['event_start_datetime']['description'] = 'Event start date/time';
 			$keywords['event_end_datetime']['description'] = 'Event end date/time';
-			
+
 			$keywords['event_start_time_12h']['description'] = 'Start time (12 hour)';
 			$keywords['event_end_time_12h']['description'] = 'End time (12 hour)';
-			
+
 			$keywords['event_start_time_24h']['description'] = 'Start time (24 hour)';
 			$keywords['event_end_time_24h']['description'] = 'End time (24 hour)';
 
 			$keywords['event_datetime_summary']['description'] = 'Friendly description of event dates and times';
 			$keywords['event_duration']['description'] = 'Duration of the Event';
-			$keywords['edit_link']['description'] = 'Link to edit this event in Limbo';
+			$keywords['edit_link']['description'] = 'Link to edit this event in Limbo (if user has permission)';
+			$keywords['delete_link']['description'] = 'Link to delete this event altogether (if user has permission)';
 		}
 		return $keywords;
 
 	}//end getAssetKeywords()
+
+	
+	/**
+	* Get the link that users can click to delete this event
+	*
+	* @return string	The HTML link
+	* @access private
+	*/
+	function _getDeleteLink()
+	{
+		if (true === ($msg = $GLOBALS['SQ_SYSTEM']->am->couldTrashAsset($this->id))) {
+			return '<a href="?SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=delete&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'" onclick="return confirm(\'Are you sure you want to delete this event altogether?\');">Delete</a>';
+		} else {
+			return '';
+		}
+
+	}//end _getDeleteLink()
 
 
 	/**
@@ -618,6 +637,10 @@ class Calendar_Event extends Asset
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 			break;
 
+			case 'delete':
+				$GLOBALS['SQ_SYSTEM']->am->trashAsset($this->id);
+			break;
+			
 			default:
 				trigger_error($action_name.' is an unknown action for this type of event', E_USER_WARNING);	
 				return '';
