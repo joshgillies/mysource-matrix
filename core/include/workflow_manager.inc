@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_manager.inc,v 1.33 2003/10/10 06:49:25 brobertson Exp $
+* $Id: workflow_manager.inc,v 1.34 2003/10/15 01:32:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -231,11 +231,11 @@ class Workflow_Manager extends MySource_Object
 	{
 		$assetid = (int) $assetid;
 
-		if (!isset($this->_tmp['schema_workflows'][$assetid])) {
+		if (!isset($this->_tmp['schema_workflows'][$assetid]) || is_null($schemaid)) {
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = '  SELECT schemaid, workflow
+			$sql = 'SELECT schemaid, workflow
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow ';
 			$where = 'assetid = '.$db->quote($assetid).'
 						AND access = 1';
