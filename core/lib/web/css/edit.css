@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.39 2004/08/12 03:52:21 gsherwood Exp $
+* $Id: edit.css,v 1.40 2004/08/17 03:30:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -230,7 +230,7 @@ td.sq-backend-table-header {
 }
 
 td.sq-backend-table-cell-alt {
-	background-color:	#F4F4EB;
+	background-color:	#D1E6FC;
 }
 
 td.sq-backend-table-cell a:link, td.sq-backend-table-cell a:hover, td.sq-backend-table-cell a:visited,
@@ -241,6 +241,22 @@ td.sq-backend-table-cell-alt a:link, td.sq-backend-table-cell-alt a:hover, td.sq
 
 td.sq-backend-table-cell a:hover, td.sq-backend-table-cell-alt a:hover {
 	text-decoration:	underline;
+}
+
+
+
+/* BACKEND FIELDSET STYLES */
+
+legend, .sq-backend-legend {
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight: 		bold;
+	color:				#333333;
+	font-size:			11px;
+}
+
+fieldset {
+	background-color:	#EEEEEE;
+	border:				1px solid #CCCCCC;
 }
 
 
