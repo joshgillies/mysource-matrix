@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.85.2.1 2004/10/07 06:29:59 lwright Exp $
+* $Id: backend_outputter.inc,v 1.85.2.2 2004/11/23 04:19:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1010,9 +1010,9 @@ class Backend_Outputter
 
 
 				function page_on_unload() {
-
-					parent.frames['sq_sidenav'].asset_finder_onunload();
-
+					if (parent.frames['sq_sidenav'] && window.self.name == 'sq_main') {
+						parent.frames['sq_sidenav'].asset_finder_onunload();
+					}
 				}//end page_on_load()
 
 
