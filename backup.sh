@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.8 2004/11/25 11:54:05 brobertson Exp $
+#* $Id: backup.sh,v 1.9 2004/11/25 11:55:31 brobertson Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
@@ -84,34 +84,13 @@ set | grep "^DB_"
 dumpfile=${SYSTEM_ROOT}/matrix-`date +%Y-%m-%d_%H-%M`.dump
 
 case "${DB_PHPTYPE}" in 
-	"mysql")
-		args="";
-		if [ "${DB_USERNAME}" != "" ]; then
-			args="${args} -u ${DB_USERNAME}";
-		fi
-		if [ "${DB_PASSWORD}" != "" ]; then
-			args="${args} -p ${DB_PASSWORD}";
-		fi
-		if [ "${DB_HOSTSPEC}" != "" ]; then
-			args="${args} -h ${DB_HOSTSPEC}";
-		fi
-		if [ "${DB_PORT}" != "" ]; then
-			args="${args} -P ${DB_PORT}";
-		fi
-		mysqldump ${args} "${DB_DATABASE}" > ${dumpfile}
-		if [ $? -gt 0 ]; then
-			echo "Unable to create dumpfile ${dumpfile}."
-			echo "Aborting."
-			exit 4
-		fi
-	;;
-
 	"pgsql")
 		args="";
 		if [ "${DB_USERNAME}" != "" ]; then
 			args="${args} -U ${DB_USERNAME}";
 		fi
 		if [ "${DB_PASSWORD}" != "" ]; then
+			echo "I can't pass the password automatically because the psql command only supports prompting.";
 			args="${args} -W";
 		fi
 		if [ "${DB_HOSTSPEC}" != "" ]; then
