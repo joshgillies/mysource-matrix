@@ -59,7 +59,7 @@ class Package_Manager extends Resolve_Object
 	{
 		$this->Resolve_Object();
 	
-		#OK, if this is the "core" assets then we just need to fiddle with the path
+		// OK, if this is the "core" package then we just need to fiddle with the path
 		$this->_base_path = ($package == '__core__') ? 'core/assets' : 'packages/'.$package;
 		$this->_full_path = SQ_SYSTEM_ROOT.'/'.$this->_base_path;
 
@@ -88,7 +88,7 @@ class Package_Manager extends Resolve_Object
 			return;
 		}
 
-	}#end constructor
+	}//end constructor
 
 	/*
 	* Checks to see if the installation/upgrade of this package is able to go ahead.
@@ -109,28 +109,28 @@ class Package_Manager extends Resolve_Object
 
 			if (!isset($install_reqs[$type_code])) $install_reqs[$type_code] = Array();
 
-			# make sure all requirements are met
+			// make sure all requirements are met
 			$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/asset.xml';
 			list($result, $req) = $this->checkRequirementsFromFile($file, true);
 
 			if (!$result) {
 				trigger_error('Asset "'.$type_code.'" fails the <b>'.$req['type'].'</b> requirement for <b>'.$req['code'].' v'.$req['version'].'</b><br>As specified by '.$file, E_USER_WARNING);
 				return false;
-			}#endif
+			}//endif
 
-			# OK, let's check that this asset is of an available type, 
-			# or that the type is in this package that we are checking
+			// OK, let's check that this asset is of an available type, 
+			// or that the type is in this package that we are checking
 			$parent_type = $this->assets[$type_code]['parent_type'];
 			if ($parent_type != 'asset' && !$am->installed($parent_type) && !isset($this->assets[$parent_type])) {
 				trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"<br>As specified by '.$file, E_USER_WARNING);
 				return false;
-			}#endif
+			}//endif
 
-		}#end for
+		}//end for
 
 		return true;
 
-	}#end checkPackageDetails()
+	}//end checkPackageDetails()
 
 	/*
 	* Installs/Updates the passed package in the system
@@ -158,7 +158,7 @@ class Package_Manager extends Resolve_Object
 		pre_echo($install_order);
 
 		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
-		# open the transaction
+		// open the transaction
 		$db->query('BEGIN');
 
 		$exists = $db->getOne('SELECT code_name FROM sq_package WHERE code_name = '.$db->quote($this->package));
@@ -176,54 +176,48 @@ class Package_Manager extends Resolve_Object
 					VALUES
 					('.$db->quote($this->package).', '.$db->quote($this->info['version']).',
 					'.$db->quote($this->info['name']).','.$db->quote($this->info['description']).')';
-		}#end if
+		}//end if
 
-//		pre_echo($sql);
+#		pre_echo($sql);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
-			# Abort Transaction
+			// Abort Transaction
 			$db->query('ROLLBACK');
-// Remove
-trigger_error('ROLLBACK', E_USER_WARNING);
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
 			return;
 		}
 
 		foreach($install_order as $type_code) {
 
-//			pre_echo('Updating : '.$type_code);
-			# now we simply call the management class for this object
+#			pre_echo('Updating : '.$type_code);
+			// now we simply call the management class for this object
 			$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$type_code.'_management.inc';
 			@include_once($file);
 			$class = $type_code.'_management';
-			# make sure the class exists
+			// make sure the class exists
 			if (class_exists($class)) {
-				# now just create an instance of it, and run update()
+				// now just create an instance of it, and run update()
 				$management = new $class($this);
 				if (!$management->update()) {
-					# Abort Transaction
+					// Abort Transaction
 					$db->query('ROLLBACK');
-// Remove
-trigger_error('ROLLBACK', E_USER_WARNING);
 					return false;
 				}
 
 			} else {
 				trigger_error('Asset "'.$type_code.'" does not have a management class defined for it in '.$file, E_USER_WARNING);
-				# Abort Transaction
+				// Abort Transaction
 				$db->query('ROLLBACK');
-// Remove
-trigger_error('ROLLBACK', E_USER_WARNING);
 				return false;
 			}
 
-		}#end for
+		}//end for
 
-		# Commit the transaction if we got this far
+		// Commit the transaction if we got this far
 		$db->query('COMMIT');
 		return true;
 
-	}#end updatePackageDetails()
+	}//end updatePackageDetails()
 	
 	/*
 	* Recursivly searches through the passed package's directory for asset.xml files
@@ -242,11 +236,11 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 		while (false !== ($entry = $d->read())) {
 			if ($entry == '.' || $entry == '..') continue;
 
-			# if this is a directory, recursivly search it
+			// if this is a directory, recursivly search it
 			if (is_dir($full_path.'/'.$entry)) {
 				$this->_recurseLoadPackageAssets($assets, $full_path.'/'.$entry, $base_path.'/'.$entry);
 
-			# if we have an asset process it
+			// if we have an asset process it
 			} elseif ($entry == 'asset.xml') {
 
 				$info = Asset_Management::getAssetInfo($full_path.'/asset.xml');
@@ -262,11 +256,11 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 
 				$assets[$info['type_code']] = $info;
 
-			}#end if
-		}#end while
+			}//end if
+		}//end while
 		$d->close();
 
-	}#end _recurseLoadPackageAssets()
+	}//end _recurseLoadPackageAssets()
 
 
 	/*
@@ -283,7 +277,7 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 
 		while(count($asset_types)) {
 
-//			pre_echo('---- Start While : '.$x.'----');
+#			pre_echo('---- Start While : '.$x.'----');
 
 			$last_count = count($asset_types);
 
@@ -292,33 +286,33 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 				$type_code = $asset_types[$i];
 				$parent    = $this->assets[$type_code]['parent_type'];
 
-//				pre_echo('---- Start For : '.$i.', '.$type_code.', '.$parent.' ----');
-//				pre_echo($asset_types);
-//				pre_echo($install_order);
+#				pre_echo('---- Start For : '.$i.', '.$type_code.', '.$parent.' ----');
+#				pre_echo($asset_types);
+#				pre_echo($install_order);
 
 				$remove = false;
 
-				# if this type is inheritted from an existing type, then all OK
-				# but not if this type is in this package
+				// if this type is inheritted from an existing type, then all OK
+				// but not if this type is in this package
 				if (($parent == 'asset' || $GLOBALS['SQ_RESOLVE']->am->installed($parent)) && !in_array($parent, $asset_types)) {
-//					pre_echo('Asset Installed');
+#					pre_echo('Asset Installed');
 					$install_order[] = $type_code;
 					$remove = true;
 
-				# if this type is inheriting from a type that will be installed before it, then all OK
+				// if this type is inheriting from a type that will be installed before it, then all OK
 				} elseif (in_array($parent, $install_order)) {
-//					pre_echo('Asset to be installed before');
+#					pre_echo('Asset to be installed before');
 					$install_order[] = $type_code;
 					$remove = true;
 
 				
-				# if this type is not inheriting from a type that is yet to be dealt with, then 
-				# the type is in heriting from something that doesn't exist
+				// if this type is not inheriting from a type that is yet to be dealt with, then 
+				// the type is in heriting from something that doesn't exist
 				} elseif (!in_array($parent, $asset_types)) {
 					trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent.'"', E_USER_WARNING);
 					$remove = true;
 				}
-				# else we do nothing with the asset_type 
+				// else we do nothing with the asset_type 
 
 				if ($remove) {
 					unset($asset_types[$i]);
@@ -326,7 +320,7 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 					$i--;
 				}
 
-			}#end for
+			}//end for
 
 			if ($last_count == count($asset_types)) {
 				trigger_error('There seems to be the possibility of recursive inheriting for this <b>'.$this->package.'</b> package.<br>The install order for these assets could not be established: <b>'.implode(', ', $asset_types).'</b>', E_USER_WARNING);
@@ -334,11 +328,11 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 			}
 
 
-		}#end while
+		}//end while
 
 		return $install_order;
 
-	}#end _getInstallOrder()
+	}//end _getInstallOrder()
 
 	/*
 	* checks the requirements of the passed asset.xml file
@@ -360,7 +354,7 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 			return ($need_feedback) ? Array(false, null) : false;
 		}
 
-		# if there are no requirements, return true
+		// if there are no requirements, return true
 		if (!isset($info['requirements']['requirement']) || !is_array($info['requirements']['requirement'])) {
 			return ($need_feedback) ? Array(true, null) : true;
 		}
@@ -384,7 +378,7 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 					if ($GLOBALS['SQ_RESOLVE']->am->installed($req['code']['value'])) { 
 						$ok = version_compare($GLOBALS['SQ_RESOLVE']->am->getInfo($req['code']['value'], 'version'), $req['version']['value'], '>=');
 					}
-					# if the test failed, but this asset is in this package, check it's version from that
+					// if the test failed, but this asset is in this package, check it's version from that
 					if (!$ok && isset($this->assets[$req['code']['value']])) {
 						$ok = version_compare($this->assets[$req['code']['value']]['version'], $req['version']['value'], '>=');
 					}
@@ -401,9 +395,9 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 					}
 					break;
 
-			}#end switch
+			}//end switch
 
-			# this requirement failed
+			// this requirement failed
 			if (!$ok) {
 
 				if ($need_feedback) {
@@ -417,17 +411,17 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 				} else {
 					return false;
 
-				}#end if
+				}//end if
 
-			}#end if
+			}//end if
 
 
-		}#end for
+		}//end for
 
-		# if we got this far everything is OK
+		// if we got this far everything is OK
 		return ($need_feedback) ? Array(true, null) : true;
 
-	}#end checkRequirementsFromFile()
+	}//end checkRequirementsFromFile()
 
 	/*
 	* Returns an array of all assets types that are parents for the passed asset
@@ -452,7 +446,7 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 			$arr[]     = $type_code;
 		}
 
-		# if we are inheriting from something else then go find it from the installed list
+		// if we are inheriting from something else then go find it from the installed list
 		if ($this->assets[$type_code]['parent_type'] != 'asset') {
 			$new_arr = $GLOBALS['SQ_RESOLVE']->am->getParentList($this->assets[$type_code]['parent_type']);
 			foreach($new_arr as $type_code) $arr[] = $type_code;
@@ -460,11 +454,11 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 			$arr[] = 'asset';
 		}
 
-//		pre_echo($arr);
+#		pre_echo($arr);
 
 		return $arr;
 
-	}#end getParentList()
+	}//end getParentList()
 
 
 	/*
@@ -485,7 +479,7 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 
 		return ($field) ? $this->assets[$type_code][$field] : $this->assets[$type_code];
 
-	}#end getInfo()
+	}//end getInfo()
 
-}#end class
+}//end class
 ?>

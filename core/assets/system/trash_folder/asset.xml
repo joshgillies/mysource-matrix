@@ -16,4 +16,7 @@
 			<version>0.1</version>
 		</requirement>
 	</requirements>
+	<editing_options>
+		<option action="details"></option>
+	</editing_options>
 </asset_info>

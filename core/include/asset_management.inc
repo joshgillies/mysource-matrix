@@ -68,14 +68,14 @@ class Asset_Management extends Resolve_Object
 	*/
 	function update() {
 
-		# if the asset manager knows about it it is installed, so upgrade...
+		// if the asset manager knows about it it is installed, so upgrade...
 		if ($this->_am->installed($this->getAssetType())) {
 			return $this->_upgrade($this->_am->getInfo($this->getAssetType(), 'version'));
 		} else {
 			return $this->_install();
 		}
 
-	}#end update()
+	}//end update()
 
 	/**
 	* Install
@@ -87,31 +87,33 @@ class Asset_Management extends Resolve_Object
 
 		$type_code = preg_replace('/[^a-z_]/i', '', $this->getAssetType());
 
-		# get how deep we are in the heirarchy
+		// get how deep we are in the heirarchy
 		$level = count($this->_pm->getParentList($type_code));
-
 		$info = $this->_pm->getInfo($type_code);
+		$editing_options = $this->_getEditingOptions();
+		if (is_null($editing_options)) return false;
+
 		$sql = 'INSERT INTO sq_asset_type
-				(type_code, version, name, description, instantiable, system_only, parent_type, level, dir, customisation)
+				(type_code, version, name, description, instantiable, system_only, parent_type, level, dir, customisation, editing_options)
 				VALUES
 				('.$this->_db->quote($type_code).', '.$this->_db->quote($info['version']).', 
 				'.$this->_db->quote($info['name']).', '.$this->_db->quote($info['description']).',
 				'.$this->_db->quote($info['instantiable']).', '.$this->_db->quote($info['system_only']).', 
 				'.$this->_db->quote($info['parent_type']).', '.$this->_db->quote($level).', 
-				'.$this->_db->quote($info['dir']).', 0)';
-//		pre_echo($sql);
+				'.$this->_db->quote($info['dir']).', 0, '.$this->_db->quote(serialize($editing_options)).')';
+#		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
-		# now inform the asset manager that this asset is available for use
+		// now inform the asset manager that this asset is available for use
 		$this->_am->refreshAssetType($type_code);
 
 		return $this->_updateVars();
 
-	}#end install()
+	}//end install()
 
 
 	/**
@@ -121,34 +123,37 @@ class Asset_Management extends Resolve_Object
 	*/
 	function _upgrade($current_version) {
 
-		# get how deep we are in the heirarchy
+		// get how deep we are in the heirarchy
 		$level = count($this->_pm->getParentList($this->getAssetType()));
-
 		$info = $this->_pm->getInfo($this->getAssetType());
+		$editing_options = $this->_getEditingOptions();
+		if (is_null($editing_options)) return false;
+
 		$sql = 'UPDATE sq_asset_type
-				SET version = '.$this->_db->quote($info['version']).',
-					name    = '.$this->_db->quote($info['name']).',
-					description  = '.$this->_db->quote($info['description']).',
-					instantiable = '.$this->_db->quote($info['instantiable']).',
-					system_only  = '.$this->_db->quote($info['system_only']).',
-					parent_type  = '.$this->_db->quote($info['parent_type']).',
-					level   = '.$this->_db->quote($level).',
-					dir     = '.$this->_db->quote($info['dir']).'
+				SET version         = '.$this->_db->quote($info['version']).',
+					name            = '.$this->_db->quote($info['name']).',
+					description     = '.$this->_db->quote($info['description']).',
+					instantiable    = '.$this->_db->quote($info['instantiable']).',
+					system_only     = '.$this->_db->quote($info['system_only']).',
+					parent_type     = '.$this->_db->quote($info['parent_type']).',
+					level           = '.$this->_db->quote($level).',
+					dir             = '.$this->_db->quote($info['dir']).',
+					editing_options = '.$this->_db->quote(serialize($editing_options)).'
 				WHERE type_code = '.$this->_db->quote($this->getAssetType());
 
-//		pre_echo($sql);
+		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
-		# now inform the asset manager that this asset is available for use
+		// now inform the asset manager that this asset is available for use
 		$this->_am->refreshAssetType($this->getAssetType());
 
 		return $this->_updateVars();
 
-	}#end upgrade()
+	}//end upgrade()
 
 	/*
 	* Returns the asset type that this management class is working for
@@ -160,8 +165,44 @@ class Asset_Management extends Resolve_Object
 		$class = get_class($this);
 		return substr($class, 0, strlen($class) - 11);
 
-	}#end getAssetType()
+	}//end getAssetType()
 
+	/*
+	* Returns an array of editing options for this asset type
+	*
+	* @return Array
+	* @access private
+	*/
+	function _getEditingOptions() {
+
+		$parents = $this->_pm->getParentList($this->getAssetType());
+		// add this type to the front
+		array_unshift($parents, $this->getAssetType());
+
+		// remove "asset"
+		array_pop($parents);
+
+		$editing_options = Array();
+
+		while(NULL !== ($type_code = array_pop($parents))) {
+			$info = @$this->_pm->getInfo($type_code, 'editing_options');
+			// if it ain't in this package, it's has to be installed, get the info from the asset manager
+			if (is_null($info)) {
+				$tmp = $info['editing_options'];
+				$info = @$GLOBALS['SQ_RESOLVE']->am->getInfo($type_code, 'editing_options');
+				if (is_null($info)) return null;
+			}
+			foreach($info as $k => $v) $editing_options[$k] = $v;
+		}
+
+		foreach($editing_options as $k => $v) {
+			if (empty($v)) unset($editing_options[$k]);
+		}
+
+		return $editing_options;
+
+
+	}//end _getEditingOptions()
 
 	/*
 	* Adds the passed attribute to this asset's list
@@ -174,21 +215,21 @@ class Asset_Management extends Resolve_Object
 				FROM sq_asset_attribute
 				WHERE type_code = '.$this->_db->quote($this->getAssetType());
 		
-		$current_vars = $this->_db->getAssoc($sql, false, array(), DB_FETCHMODE_ASSOC); # need all this because of DB API
+		$current_vars = $this->_db->getAssoc($sql, false, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 
 		pre_echo('Current Vars:');
 		pre_echo($current_vars);
 
 		for(reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
 
-			# if this var was never added to this asset, then we are setting the default
-			# for something further upstream
+			// if this var was never added to this asset, then we are setting the default
+			// for something further upstream
 			if (empty($this->vars[$name]['added'])) {
 				if (!$this->_addSetDefault($name, $this->vars[$name]['default'])){
 					return false;
 				}
-			# if this var was never added to this asset, then we are setting the default
-			# for something further upstream
+			// if this var was never added to this asset, then we are setting the default
+			// for something further upstream
 			} elseif (empty($current_vars[$name])) {
 				if (!$this->_addAttribute($name)){
 					return false;
@@ -197,13 +238,13 @@ class Asset_Management extends Resolve_Object
 				if (!$this->_updateAttribute($name)){
 					return false;
 				}
-			}#end if
+			}//end if
 
-		}#end for
+		}//end for
 
 		return true;
 
-	}#end _updateVars()
+	}//end _updateVars()
 
 
 	/*
@@ -218,17 +259,17 @@ class Asset_Management extends Resolve_Object
 
 		$type_code = $this->getAssetType();
 
-		# the first this to do is checks to see if the passed attribute name is used by any 
-		# of this asset types parents or of its children - we don't want name clashes :)
+		// the first this to do is checks to see if the passed attribute name is used by any 
+		// of this asset types parents or of its children - we don't want name clashes :)
 
-		# Check Parent's
+		// Check Parent's
 		$sql = 'SELECT a.type_code
 				FROM sq_asset_type_inherited i, sq_asset_attribute a
 				WHERE i.type_code = '.$this->_db->quote($type_code).'
 				  AND i.inherited_type_code = a.type_code
 				  AND a.name = '.$this->_db->quote($name);
 
-//		pre_echo($sql);
+#		pre_echo($sql);
 
 		$parents = $this->_db->getCol($sql);
 		if (DB::isError($parents)) {
@@ -240,13 +281,13 @@ class Asset_Management extends Resolve_Object
 			return false;
 		}
 
-		# Check Children
+		// Check Children
 		$sql = 'SELECT a.type_code
 				FROM sq_asset_type_inherited i, sq_asset_attribute a
 				WHERE i.inherited_type_code = '.$this->_db->quote($type_code).'
 				  AND i.type_code = a.type_code
 				  AND a.name = '.$this->_db->quote($name);
-//		pre_echo($sql);
+#		pre_echo($sql);
 
 		$children = $this->_db->getCol($sql);
 		if (DB::isError($children)) {
@@ -264,7 +305,7 @@ class Asset_Management extends Resolve_Object
 
 		$attributeid = $this->_db->nextid('sq_sequence_asset_attribute');
 
-		# OK, all seems fine, let's add the bloody thing
+		// OK, all seems fine, let's add the bloody thing
 		$sql = 'INSERT INTO sq_asset_attribute 
 				(attributeid, type_code, name, type)
 				VALUES
@@ -279,7 +320,7 @@ class Asset_Management extends Resolve_Object
 
 		return $this->_setAttributeDefault($name, $this->vars[$name]['default']);
 
-	}#end _addAttribute()
+	}//end _addAttribute()
 
 
 	/*
@@ -304,13 +345,13 @@ class Asset_Management extends Resolve_Object
 
 		} else {
 
-			# OK, all seems fine, let's add the bloody thing
+			// OK, all seems fine, let's add the bloody thing
 			$sql = 'UPDATE sq_asset_attribute 
 					SET type = '.$this->_db->quote($this->vars[$name]['type']).'
 					WHERE type_code = '.$this->_db->quote($type_code).'
 					  AND name = '.$this->_db->quote($name);
 
-//			pre_echo($sql);
+#			pre_echo($sql);
 			$result = $this->_db->query($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
@@ -321,7 +362,7 @@ class Asset_Management extends Resolve_Object
 
 		}
 
-	}#end _updateAttribute()
+	}//end _updateAttribute()
 
 	/*
 	* Set's the attributes default to the 
@@ -340,21 +381,21 @@ class Asset_Management extends Resolve_Object
 				WHERE a.type_code = '.$this->_db->quote($type_code).'
 				  AND a.name = '.$this->_db->quote($name);
 
-//		pre_echo($sql);
+#		pre_echo($sql);
 		$attributeid = $this->_db->getOne($sql);
 		if (DB::isError($attributeid)) {
 			trigger_error($attributeid->getMessage().'<br>'.$attributeid->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 		if (empty($attributeid)) {
-			# see if they are in one of our parents
+			// see if they are in one of our parents
 			$sql = 'SELECT a.attributeid
 					FROM sq_asset_type_inherited i, sq_asset_attribute a
 					WHERE i.type_code = '.$this->_db->quote($type_code).'
 					  AND i.inherited_type_code = a.type_code
 					  AND a.name = '.$this->_db->quote($name);
 
-//			pre_echo($sql);
+#			pre_echo($sql);
 			$attributeid = $this->_db->getOne($sql);
 			if (DB::isError($attributeid)) {
 				trigger_error($attributeid->getMessage().'<br>'.$attributeid->getUserInfo(), E_USER_WARNING);
@@ -366,39 +407,39 @@ class Asset_Management extends Resolve_Object
 				return false;
 			}
 
-		}#end if
+		}//end if
 
 
 
-		# delete previous entry, if any
+		// delete previous entry, if any
 		$sql = 'DELETE FROM sq_asset_attribute_default
 				WHERE attributeid = '.$this->_db->quote($attributeid).'
 				  AND type_code   = '.$this->_db->quote($type_code);
-//		pre_echo($sql);
+#		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
-		# now insert new entry
+		// now insert new entry
 		$sql = 'INSERT INTO sq_asset_attribute_default
 				(attributeid, type_code, value)
 				VALUES
 				('.$this->_db->quote($attributeid).', '.$this->_db->quote($type_code).', '.$this->_db->quote($value).')';
 
-//		pre_echo($sql);
+#		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
-//		pre_echo('RETURN TRUE');
+#		pre_echo('RETURN TRUE');
 
 		return true;
 
-	}#end _setAttributeDefault()
+	}//end _setAttributeDefault()
 
 
 	/*
@@ -408,13 +449,14 @@ class Asset_Management extends Resolve_Object
 	* 
 	* @param string $file  the asset.xml file path
 	*
+	* @return Array
 	* @access public
 	*/
 	function getAssetInfo($file)
 	{
 
-		# OK, now because this can be called without the need to have an instance of the class
-		# we need to store our tmp stuff in a global array
+		// OK, now because this can be called without the need to have an instance of the class
+		// we need to store our tmp stuff in a global array
 		if (!isset($GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'])) $GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'] = Array();
 
 		if (!isset($GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file])) {
@@ -429,35 +471,44 @@ class Asset_Management extends Resolve_Object
 
 			$xml_array->close();
 
+			$editing_options = Array();
+			if (isset($info['editing_options']['option']) && is_array($info['editing_options']['option'])) {
+				for($i = 0; $i < count($info['editing_options']['option']); $i++) {
+					$opt = &$info['editing_options']['option'][$i];
+					$editing_options[$opt['@action']] = (empty($opt['value'])) ? '' : $opt['value'];
+				}// end for
+			}// endif
+
 			$GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file] = Array(
-																	'type_code'    => strtolower($info['type_code']['value']),
-																	'package'      => $info['package']['value'],
-																	'name'         => $info['name']['value'],
-																	'version'      => $info['version']['value'],
-																	'description'  => $info['description']['value'],
-																	'instantiable' => ($info['instantiable']['value'] == 'yes') ? 1 : 0,
-																	'system_only'  => ($info['system_only']['value']  == 'yes') ? 1 : 0,
-																	'parent_type'  => $info['parent_type']['value']
+																	'type_code'       => strtolower($info['type_code']['value']),
+																	'package'         => $info['package']['value'],
+																	'name'            => $info['name']['value'],
+																	'version'         => $info['version']['value'],
+																	'description'     => $info['description']['value'],
+																	'instantiable'    => ($info['instantiable']['value'] == 'yes') ? 1 : 0,
+																	'system_only'     => ($info['system_only']['value']  == 'yes') ? 1 : 0,
+																	'parent_type'     => $info['parent_type']['value'],
+																	'editing_options' => $editing_options
 																);
 
-		}#end if
+		}//end if
 		
 		return $GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file];
 
-	}#end getAssetInfo()
+	}//end getAssetInfo()
 
 	/*
 	* Used by the XML_Array()
 	* 
 	* @see XML_Array::XML_Array()
 	*
+	* @return Array
 	* @access public
 	*/
 	function getAssetArrayPaths()
 	{
-		return Array('asset_info/requirements/requirement');
+		return Array('asset_info/requirements/requirement', 'asset_info/editing_options/option');
 	}
 
-
-}#end class
+}//end class
 ?>

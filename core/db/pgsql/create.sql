@@ -38,16 +38,17 @@ CREATE TABLE sq_asset_link (
 
 DROP TABLE sq_asset_type;
 CREATE TABLE sq_asset_type (
-  type_code     VARCHAR(100) NOT NULL DEFAULT '',
-  version       VARCHAR(10)  NOT NULL DEFAULT '0.0.1',
-  name          VARCHAR(100) NOT NULL DEFAULT '',
-  description   VARCHAR(255) NOT NULL DEFAULT '',
-  instantiable  CHAR(1)      NOT NULL DEFAULT '0',
-  system_only   CHAR(1)      NOT NULL DEFAULT '1',
-  parent_type   VARCHAR(100) NOT NULL DEFAULT 'asset',
-  level         SMALLINT     NOT NULL,
-  dir           VARCHAR(255) NOT NULL DEFAULT 'asset',
-  customisation CHAR(1)      NOT NULL DEFAULT '0',
+  type_code       VARCHAR(100) NOT NULL DEFAULT '',
+  version         VARCHAR(10)  NOT NULL DEFAULT '0.0.1',
+  name            VARCHAR(100) NOT NULL DEFAULT '',
+  description     VARCHAR(255) NOT NULL DEFAULT '',
+  instantiable    CHAR(1)      NOT NULL DEFAULT '0',
+  system_only     CHAR(1)      NOT NULL DEFAULT '1',
+  parent_type     VARCHAR(100) NOT NULL DEFAULT 'asset',
+  level           SMALLINT     NOT NULL,
+  dir             VARCHAR(255) NOT NULL DEFAULT 'asset',
+  customisation   CHAR(1)      NOT NULL DEFAULT '0',
+  editing_options TEXT         NOT NULL DEFAULT '',
   PRIMARY KEY(type_code)
 );
 

@@ -150,6 +150,21 @@ class Asset_Manager extends Resolve_Object
 			return ($field) ? null : Array();
 		}
 
+		// because we don't get the load all the information about a type, if we don't know about a field
+		// get it from the DB
+		if ($field && !isset($this->_asset_types[$type_code][$field])) {
+
+			$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+			$sql = 'SELECT '.$field.'
+					FROM sq_asset_type
+					WHERE type_code = '.$db->quote($type_code);
+			$result = $db->getOne($sql);
+			if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+
+			$this->_asset_types[$type_code][$field] = ($field == 'editing_options') ? unserialize($result) : $result;
+
+		}// end if
+
 		return ($field) ? $this->_asset_types[$type_code][$field] : $this->_asset_types[$type_code];
 
 	}//end getInfo()
@@ -276,7 +291,7 @@ class Asset_Manager extends Resolve_Object
 
 			if (empty($type_code)) {
 				if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
-				$this->_assets[$assetid] = null;
+				return null;
 			} else {
 
 				if (!isset($this->_asset_types[$type_code])) {
