@@ -422,8 +422,8 @@ pre_echo($sql);
 		$result = $db->getCol('SELECT inherited_type_code
 								FROM sq_asset_type_inherited
 								WHERE type_code = '.$db->quote($type_code).'
-								  AND inherited_type_code != '.$db->quote($type_code).'
-								'.(($include_asset) ? '' : ' AND inherited_type_code != '.$db->quote('asset'))
+								  AND inherited_type_code <> '.$db->quote($type_code).'
+								'.(($include_asset) ? '' : ' AND inherited_type_code <> '.$db->quote('asset'))
 								);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -451,7 +451,7 @@ pre_echo($sql);
 		$result = $db->getCol('SELECT type_code
 								FROM sq_asset_type_inherited
 								WHERE inherited_type_code = '.$db->quote($type_code).'
-								  AND type_code != '.$db->quote($type_code)
+								  AND type_code <> '.$db->quote($type_code)
 								);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);

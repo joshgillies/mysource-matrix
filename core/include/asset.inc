@@ -2183,12 +2183,12 @@ class Asset extends Resolve_Object
 			}// end if
 		}// end if
 		if ($ignore_linkid) {
-			$extra_where .= ' AND l.linkid != '.$db->quote($ignore_linkid);
+			$extra_where .= ' AND l.linkid <> '.$db->quote($ignore_linkid);
 		}
 
 		$sql = 'SELECT COUNT(*)
 				FROM sq_asset_link l'.$extra_table.'
-				WHERE l.'.$side_of_link.'id   = '.$db->quote($this->id).$extra_where;
+				WHERE l.'.$side_of_link.'id = '.$db->quote($this->id).$extra_where;
 		$result = $db->getOne($sql);
 
 		if (DB::isError($result))
@@ -3234,7 +3234,7 @@ class Asset extends Resolve_Object
 				$sql = 'UPDATE sq_asset_link
 						SET sort_order = sort_order + 1
 						WHERE majorid = '.$db->quote($this->id).'
-						  AND linkid != '.$db->quote($linkid).'
+						  AND linkid <> '.$db->quote($linkid).'
 						  AND sort_order >= '.$db->quote($sort_order).'
 						  AND sort_order <= '.$db->quote($link['sort_order']);
 
@@ -3242,7 +3242,7 @@ class Asset extends Resolve_Object
 				$sql = 'UPDATE sq_asset_link
 						SET sort_order = sort_order - 1
 						WHERE majorid = '.$db->quote($this->id).'
-						  AND linkid != '.$db->quote($linkid).'
+						  AND linkid <> '.$db->quote($linkid).'
 						  AND sort_order >= '.$db->quote($link['sort_order']).'
 						  AND sort_order <= '.$db->quote($sort_order);
 			}
