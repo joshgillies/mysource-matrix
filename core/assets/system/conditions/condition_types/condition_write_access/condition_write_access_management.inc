@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_write_access_management.inc,v 1.1 2004/11/10 02:41:55 amiller Exp $
+* $Id: condition_write_access_management.inc,v 1.2 2004/11/10 23:33:54 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,7 +42,7 @@ class Condition_Write_Access_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Condition_Logged_In_Management(&$pm)
+	function Condition_Write_Access_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 
