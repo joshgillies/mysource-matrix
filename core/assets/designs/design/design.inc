@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.80 2005/02/08 06:13:47 amiller Exp $
+* $Id: design.inc,v 1.81 2005/02/21 19:21:05 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -626,7 +626,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 				$default = (empty($args['default'])) ? '' : $args['default'];
 
-				echo '<', '?php echo ', $this->_escapeVar('($GLOBALS[\'SQ_SYSTEM\']->currentUserId() && !is_a($GLOBALS[\'SQ_SYSTEM\']->user, \'public_user\')) ? $GLOBALS[\'SQ_SYSTEM\']->user->'.$attr.' : '.var_export($default, true), $args), '; ?', '>';
+				echo '<', '?php echo ', $this->_escapeVar('(!$GLOBALS[\'SQ_SYSTEM\']->userPublic()) ? $GLOBALS[\'SQ_SYSTEM\']->user->'.$attr.' : '.var_export($default, true), $args), '; ?', '>';
 			break;
 
 			case 'file_path' :

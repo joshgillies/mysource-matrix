@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.59 2005/01/20 13:07:32 brobertson Exp $
+* $Id: design_area_menu_type.inc,v 1.60 2005/02/21 19:21:05 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -392,18 +392,13 @@ class Design_Area_Menu_Type extends Design_Area
 
 				if (is_null($USERIDS_COND)) {
 					// if they are logged in add their parents to the list
-					if ($GLOBALS[\'SQ_SYSTEM\']->currentUserId()) {
-						if ($GLOBALS[\'SQ_SYSTEM\']->userRoot() || $GLOBALS[\'SQ_SYSTEM\']->userSystemAdmin()) {
-							$USERIDS_COND = \'\';
-						} else {
-							$userids = array_keys($GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', false));
-							array_push($userids, 0, $GLOBALS[\'SQ_SYSTEM\']->user->id);
-							for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
-							$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
-						}
+					if ($GLOBALS[\'SQ_SYSTEM\']->userRoot() || $GLOBALS[\'SQ_SYSTEM\']->userSystemAdmin()) {
+						$USERIDS_COND = \'\';
 					} else {
-						// public users
-						$USERIDS_COND = \'AND p.userid = 0\';
+						$userids = array_keys($GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', false));
+						array_push($userids, 0, $GLOBALS[\'SQ_SYSTEM\']->user->id);
+						for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
+						$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
 					}
 
 					if (!empty($USERIDS_COND)) {

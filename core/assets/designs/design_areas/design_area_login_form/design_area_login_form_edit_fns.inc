@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form_edit_fns.inc,v 1.11 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_login_form_edit_fns.inc,v 1.12 2005/02/21 19:21:05 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -146,7 +146,7 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 				if (!empty($GLOBALS[\'SQ_LOGIN_FORM\'])) {
 					$'.$asset->attr('id_name').'_paint_login = ($GLOBALS[\'SQ_LOGIN_FORM\'][\'paint\'] == \'login\');
 				} else {
-					$'.$asset->attr('id_name').'_paint_login = !$GLOBALS[\'SQ_SYSTEM\']->currentUserId();
+					$'.$asset->attr('id_name').'_paint_login = $GLOBALS[\'SQ_SYSTEM\']->userPublic();
 				}
 				if (', ((empty($login_contents)) ? '!' : ''), '$'.$asset->attr('id_name').'_paint_login) {
 				?', '>';
