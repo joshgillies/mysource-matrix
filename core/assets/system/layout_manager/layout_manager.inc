@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.1 2003/12/02 03:33:47 mmcintyre Exp $
+* $Id: layout_manager.inc,v 1.2 2003/12/03 04:53:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $ - 0.1
+* @version $Revision: 1.2 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -135,9 +135,21 @@ class Layout_Manager extends Asset
 		$null = null; // for returning a reference
 		if ($type_code == '') return $null;
 		$layouts = $this->attr('layouts');
-	
-		// no layouts for this type_code
-		if (!in_array($type_code, array_keys($layouts)))return $null;
+
+		// if there are no layouts directly applied for this type code will
+		// will check the type ancestors to look for one
+		if (!isset($layouts[$type_code])) {
+			$orig_type_code = $type_code;
+			$ancestors = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, false);
+			foreach ($ancestors as $type) {
+				if (isset($layouts[$type])) {
+					$type_code = $type;
+					break;
+				}
+			}
+			if ($type_code == $orig_type_code) return $null;
+		}
+
 		// no layouts defined for this type_code's screens
 		if (empty($layouts[$type_code])) return $null;
 
