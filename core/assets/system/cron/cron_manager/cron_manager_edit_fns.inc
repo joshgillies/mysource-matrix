@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.18 2005/02/28 02:42:39 tbarrett Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.19 2005/03/23 02:58:25 arailean Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -47,16 +48,20 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 
-		$this->static_screens = Array('details'     => Array('name' => 'View Jobs',
-													   'force_unlock' => true
-													),
-									  'permissions' => Array('name' => 'Permissions',
-													   'force_unlock' => true,
-													  ),
-									  'logs'        => Array('name' => 'Logs',
-													   'force_unlock' => true,
-													  ),
-									);
+		$this->static_screens = Array(
+									  'details'     => Array(
+															 'name'         => 'View Jobs',
+															 'force_unlock' => true,
+															 ),
+									  'permissions' => Array(
+															 'name'         => 'Permissions',
+															 'force_unlock' => true,
+															 ),
+									  'logs'        => Array(
+															 'name'         => 'Logs',
+															 'force_unlock' => true,
+															 ),
+									  );
 
 	}//end constructor
 
@@ -75,9 +80,9 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		$repeating = !$one_off; // for easier reading
 
 		$options = Array(
-					'mins'		=> Array(),
-					'hours'		=> Array(),
-				);
+						 'mins'  => Array(),
+						 'hours' => Array(),
+						 );
 
 		$one_hour = 60 * 60;
 		$one_day  = 24 * $one_hour;
@@ -89,9 +94,13 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		$epoch_date    = getdate($cron_mgr->attr('epoch'));
 
 		// how often in an hour do we refresh
-		if ($refresh_mins == 0)			$num_refreshes = 60;
-		else if ($refresh_mins >= 60)	$num_refreshes = 1;
-		else							$num_refreshes = floor(60 / $refresh_mins);
+		if ($refresh_mins == 0){
+			$num_refreshes = 60;
+		} else if ($refresh_mins >= 60){
+			$num_refreshes = 1;
+		} else {
+			$num_refreshes = floor(60 / $refresh_mins);
+		}
 
 		for ($i = $epoch_date['minutes']; $i < $epoch_date['minutes'] + 60; $i+= (60 / $num_refreshes)) {
 			$num = ($i >= 60) ? $i - 60 : $i;
@@ -101,9 +110,14 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 		// how often in an day do we refresh
-		if ($refresh_hours == 0)		$num_refreshes = 24;
-		else if ($refresh_hours >= 24)	$num_refreshes = 1;
-		else							$num_refreshes = floor(24 / $refresh_hours);
+		if ($refresh_hours == 0) {
+			$num_refreshes = 24;
+		} else if ($refresh_hours >= 24) {
+			$num_refreshes = 1;
+		} else {
+			$num_refreshes = floor(24 / $refresh_hours);
+		}
+
 		for ($i = $epoch_date['hours']; $i < $epoch_date['hours'] + 24; $i+= (24 / $num_refreshes)) {
 			$num = ($i >= 24) ? $i - 24 : $i;
 			$options['hours'][] = str_pad($num, 2, '0', STR_PAD_LEFT);
@@ -136,14 +150,14 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		} else {
 
 			$whens = Array(
-						'OO' => Array(),
-						'ET' => Array(),
-						'HR' => Array(),
-						'DL' => Array(),
-						'WK' => Array(),
-						'MT' => Array(),
-						'YR' => Array(),
-					);
+						   'OO' => Array(),
+						   'ET' => Array(),
+						   'HR' => Array(),
+						   'DL' => Array(),
+						   'WK' => Array(),
+						   'MT' => Array(),
+						   'YR' => Array(),
+						   );
 
 			for ($i = 0, $total = count($jobs); $i < $total; $i++) {
 				$w = $jobs[$i]->attr('when');
@@ -279,30 +293,30 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		$epoch_date = getdate((int) $asset->attr('epoch'));
 
 		$value_arr = Array(
-					'y' => $epoch_date['year'],
-					'm' => $epoch_date['mon'],
-					'd' => $epoch_date['mday'],
-					'h' => $epoch_date['hours'],
-					'i' => $epoch_date['minutes'],
-					's' => $epoch_date['seconds'],
-				);
+						   'y' => $epoch_date['year'],
+						   'm' => $epoch_date['mon'],
+						   'd' => $epoch_date['mday'],
+						   'h' => $epoch_date['hours'],
+						   'i' => $epoch_date['minutes'],
+						   's' => $epoch_date['seconds'],
+						   );
 
 		$date = getdate();
 		$parameters = Array(
-			'min'			=> '2003-01-01 00:00:00',
-			'max'			=> ($date['year'] + 1).'-12-31 23:59:59',
-			'allow_circa'	=> '0',
-			'print_format'	=> 'd/m/Y H:i:s',
-			'show'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
-			'style'			=> Array(
-								'y' => 's',
-								'm' => 's',
-								'd' => 's',
-								'h' => 's',
-								'i' => 's',
-								's' => 's',
-							),
-		);
+							'min'          => '2003-01-01 00:00:00',
+							'max'          => ($date['year'] + 1).'-12-31 23:59:59',
+							'allow_circa'  => '0',
+							'print_format' => 'd/m/Y H:i:s',
+							'show'         => Array('y', 'm', 'd', 'h', 'i', 's'),
+							'style'        => Array(
+													'y' => 's',
+													'm' => 's',
+													'd' => 's',
+													'h' => 's',
+													'i' => 's',
+													's' => 's',
+													),
+							);
 
 		$value = '';
 		$field = new DateTime_Field($prefix.'_epoch', $value, $parameters);
@@ -415,7 +429,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 									<li class="sq-backend-data">An existing cron manager instance is currently running an extremely long running job.</li>
 									<li class="sq-backend-data">Some thing has caused the cron manager to exit uncleanly when it was running and the lock wasn't able to be removed.</li>
 								</ol>
-								Check the cron error log (in [DATA DIR]/<?php echo $asset->error_log_path; ?>) for any information
+								Check the cron error log (in <?php echo '"'.SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION.'"'; ?>) for any information
 								<p class="sq-backend-data">
 								To remove the lock flag for the cron manager enter the 25 character string you see
 								below into the box supplied, then press the Commit button
@@ -486,6 +500,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		return false;
 
 	}//end processDeadLockStatus()
+
 
 }//end class
 ?>

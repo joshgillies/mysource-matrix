@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.59 2005/03/17 06:15:21 ndvries Exp $
+* $Id: hipo_job.inc,v 1.60 2005/03/23 02:58:25 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.59 $
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -87,27 +87,27 @@ class HIPO_Job extends MySource_Object
 	* @var array()
 	*/
 	var $_hipo_vars = Array(
-						'current_step'		=> 0,
-						'percent_done'		=> 0,
-						'initialise_mode'	=> '',		// the mode that this job was initialised() in,
-														// used to decide what to do when we are completed
-						'running_mode'		=> '',		// the mode that is currently doing the processing
-						'aborted'			=> false,	// whether we have been aborted or not
-						'server_taskid'		=> '',		// id the HIPO server gave the task when it went
-														// into running_mode='server'
-						'message'			=> '',
-						'job_dir'			=> '',		// the directory where the jobs include file is located
-						'errors'			=> Array(),
-					);
+							'current_step'    => 0,
+							'percent_done'    => 0,
+							'initialise_mode' => '',      // the mode that this job was initialised() in,
+															// used to decide what to do when we are completed
+							'running_mode'    => '',      // the mode that is currently doing the processing
+							'aborted'         => false,   // whether we have been aborted or not
+							'server_taskid'   => '',      // id the HIPO server gave the task when it went
+															// into running_mode='server'
+							'message'         => '',
+							'job_dir'         => '',      // the directory where the jobs include file is located
+							'errors'          => Array(),
+							);
 
 	/**
 	* Some global options that affect how the HIPO does things
 	* @var array()
 	*/
 	var $_options = Array(
-						'on_complete_url'	=> '',
-						'auto_complete'		=> true,
-					);
+						  'on_complete_url' => '',
+						  'auto_complete'   => true,
+						  );
 
 	/**
 	* Array that stores any running variables that any of the processing functions use
@@ -296,7 +296,7 @@ class HIPO_Job extends MySource_Object
 		}
 		$this->_hipo_vars[$name] = $value;
 
-	}//end setHipoVars()
+	}//end setHipoVar()
 
 
 	/**
@@ -315,7 +315,7 @@ class HIPO_Job extends MySource_Object
 		}
 		return $this->_hipo_vars[$name];
 
-	}//end getHipoVars()
+	}//end getHipoVar()
 
 
 	/**
@@ -333,10 +333,10 @@ class HIPO_Job extends MySource_Object
 	{
 		$error = trim($error);
 		if (!empty($error)) $this->_hipo_vars['errors'][] = Array(
-																'time'    => time(),
-																'message' => $error,
-																'warning' => $warning,
-																);
+																  'time'    => time(),
+																  'message' => $error,
+																  'warning' => $warning,
+																  );
 
 	}//end _addError()
 
@@ -792,10 +792,10 @@ class HIPO_Job extends MySource_Object
 				return $this->_options['auto_complete'];
 			}
 
-		} elseif (!empty($this->_steps[$step]['function_call'])) {
+		} else if (!empty($this->_steps[$step]['function_call'])) {
 			return $this->_steps[$step]['auto_step'];
 
-		} elseif (!empty($this->_steps[$step]['hipo_job'])) {
+		} else if (!empty($this->_steps[$step]['hipo_job'])) {
 
 			$sub_job = &$this->_getSubJob();
 			// if we are processing a sub job, it's it's decision whether to auto step or not
@@ -981,7 +981,7 @@ class HIPO_Job extends MySource_Object
 			}
 
 		// if we are using the server
-		} elseif (SQ_HIPO_USE_SERVER) {
+		} else if (SQ_HIPO_USE_SERVER) {
 
 			switch ($this->_steps[$step]['running_mode']) {
 				// We are currently running in a web script, but this step utilises server processing
@@ -991,10 +991,10 @@ class HIPO_Job extends MySource_Object
 					require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
 
 					$data = Array(
-								'command'			=> 'start',
-								'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
-								'source_code_name'	=> $this->source_code_name,
-							);
+								  'command'          => 'start',
+								  'userid'           => $GLOBALS['SQ_SYSTEM']->currentUserId(),
+								  'source_code_name' => $this->source_code_name,
+								  );
 
 					$ret_val = false;
 					$client = new Squiz_Server_Client_MySource3();
@@ -1032,7 +1032,7 @@ class HIPO_Job extends MySource_Object
 				case 'web' :
 					// if we have reached a new step, that uses a different running mode to ourselves, then change our running mode
 					// pre_echo(__FUNCTION__."::".__LINE__.">>>>>>>>>>>>>>>>> RESET RUNNING MODE TO web <<<<<<<<<<<<<<<<<<<");
-					error_log("The Squiz Server reset the running mode to WEB for User ID #".$GLOBALS['SQ_SYSTEM']->currentUserId()." and Job ".$this->source_code_name);
+					$GLOBALS['SQ_SYSTEM']->logErrorMessage("The Squiz Server reset the running mode to WEB for User ID #".$GLOBALS['SQ_SYSTEM']->currentUserId()." and Job ".$this->source_code_name);
 					return $this->setRunningMode('web');
 				break;
 
@@ -1070,7 +1070,7 @@ class HIPO_Job extends MySource_Object
 			$fn = $step_data['function_call']['process_function'];
 			$process_ok = $this->$fn($step_data, $prefix);
 
-		} elseif (!empty($step_data['hipo_job'])) {
+		} else if (!empty($step_data['hipo_job'])) {
 			if (empty($step_data['hipo_job']['code_name']) || empty($step_data['hipo_job']['job_type'])) {
 				$fn = $step_data['hipo_job']['init_details_function'];
 				// First let's get the info needed to create this
@@ -1155,7 +1155,7 @@ class HIPO_Job extends MySource_Object
 			}
 			return true;
 
-		} elseif (!empty($step_data['hipo_job'])) {
+		} else if (!empty($step_data['hipo_job'])) {
 
 			$fn = $step_data['hipo_job']['init_details_function'];
 			// First let's get the info needed to create this
@@ -1226,11 +1226,11 @@ class HIPO_Job extends MySource_Object
 			require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
 
 			$data = Array(
-						'command'			=> 'abort',
-						'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
-						'source_code_name'	=> $this->source_code_name,
-						'taskid'			=> $this->_hipo_vars['server_taskid'],
-					);
+						  'command'          => 'abort',
+						  'userid'           => $GLOBALS['SQ_SYSTEM']->currentUserId(),
+						  'source_code_name' => $this->source_code_name,
+						  'taskid'           => $this->_hipo_vars['server_taskid'],
+						  );
 
 			$ret_val = false;
 			$client = new Squiz_Server_Client_MySource3();
@@ -1438,37 +1438,27 @@ class HIPO_Job extends MySource_Object
 		if (error_reporting() || $terminate) {
 
 			// Strip out the file path begining
-			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_file);
-			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_msg);
+			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_file);
+			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_msg);
 
 			$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 
 			// send a report to the system error log
 			if (ini_get('log_errors')) {
-				$err_name = '';
-				switch ($err_no) {
-					case E_USER_ERROR	: $err_name = SQ_SYSTEM_SHORT_NAME.' Error';	break;
-					case E_USER_WARNING	: $err_name = SQ_SYSTEM_SHORT_NAME.' Warning';	break;
-					case E_USER_NOTICE	: $err_name = SQ_SYSTEM_SHORT_NAME.' Notice';	break;
-					case E_ERROR		: $err_name = 'PHP Error';						break;
-					case E_WARNING		: $err_name = 'PHP Warning';					break;
-					case E_NOTICE		: $err_name = 'PHP Notice';						break;
-					default				: $err_name = 'Unknown Error Type - '.$err_no;
-				}
-
-				$log_msg = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$text_msg;
-				$log_msg = str_replace('[SYSTEM_ROOT]', '', $log_msg);
-				error_log($log_msg);
+				$GLOBALS['SQ_SYSTEM']->logErrorMessage($text_msg, $err_no, $err_file, $err_line);
 			}
 
 			$msg = $text_msg;
-			if (SQ_CONF_DEBUG & 1) $log_msg .= ' ('.$err_file.':'.$err_line.')';
-			$msg = str_replace('[SYSTEM_ROOT]', '', $msg);
+			if (SQ_CONF_DEBUG & 1) {
+				$text_msg .= ' ('.$err_file.':'.$err_line.')';
+			}
+			$msg = str_replace(SQ_CONF_ROOT_IDENTIFIER, '', $msg);
 			$this->_addError($msg, !$terminate);
 
 		}//end error_reporting
 
 	}//end _errorHandler()
+
 
 }//end class
 ?>

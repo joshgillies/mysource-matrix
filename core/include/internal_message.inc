@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.43 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: internal_message.inc,v 1.44 2005/03/23 02:58:25 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -159,6 +159,8 @@ class Internal_Message extends MySource_Object
 		// lets work out what action should be conducted on this type of message
 		// ie. should it logged, mailed etc
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$lm = &$GLOBALS['SQ_SYSTEM']->getLogManager();
+
 		foreach (Array('log_to_file', 'log_to_db', 'send_mail') as $main_type_code) {
 			if (!isset($ms->_tmp['message_type_logs'][$main_type_code][$this->type])) {
 				$def_name_w = 'SQ_MS_'.strtoupper($main_type_code).'_WHITE_LIST';
@@ -230,17 +232,10 @@ class Internal_Message extends MySource_Object
 		 // LOG MESSAGES TO LOG FILE //
 		//////////////////////////////
 		if ($log_to_file) {
-
-			if (!$fp = fopen (SQ_DATA_PATH.'/private/logs/system.log', 'a')) {
-				trigger_error('Unable to open log file for writing ['.SQ_DATA_PATH.'/private/logs/system.log'.']', E_USER_WARNING);
-			}
-
 			$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?>(.*?)</SQ_MSG_LINK>|', '\\1', $this->body);
-			$log_line = '['.$this->sent.'] ['.$this->from.':'.$from_name.'] ['.$this->type.' - '.$param_string.'] ('.$this->subject.') - '.str_replace("\n", '<newline/>', $log_body)."\n";
+			$log_line = '['.$this->type.' - '.$param_string.'] ('.$this->subject.') - '.$log_body;
 
-			if (!fwrite($fp, $log_line)) {
-				trigger_error('Unable to write log to file ['.SQ_DATA_PATH.'/private/logs/system.log'.']', E_USER_WARNING);
-			}
+			$GLOBALS['SQ_SYSTEM']->logSystemMessage($log_line);
 
 		}//end if logging message to file
 

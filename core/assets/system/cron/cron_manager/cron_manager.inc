@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.44 2005/03/21 06:19:55 gsherwood Exp $
+* $Id: cron_manager.inc,v 1.45 2005/03/23 02:58:25 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,7 +42,7 @@ class Cron_Manager extends Asset
 	/**
 	* @var string suffix to data dir where the error log should be stored when we are run()ning
 	*/
-	var $error_log_path = 'private/logs/cron_errors.log';
+	var $error_log_file_name = 'cron_errors';
 
 
 	/**
@@ -114,11 +114,12 @@ class Cron_Manager extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
+		return Array(
+					 SQ_LINK_TYPE_1 => Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
 					 SQ_LINK_TYPE_2 => Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
 					 SQ_LINK_TYPE_3 => Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
-					 SQ_LINK_NOTICE => Array()
-					);
+					 SQ_LINK_NOTICE => Array(),
+					 );
 
 	}//end _getAllowedLinks()
 
@@ -378,7 +379,7 @@ class Cron_Manager extends Asset
 	{
 		$start_time = time();
 		$old_log_errors = ini_set('log_errors', '1');
-		$old_error_log  = ini_set('error_log',  SQ_DATA_PATH.'/'.$this->error_log_path);
+		$old_error_log  = ini_set('error_log',  SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION);
 		set_error_handler(Array(&$this, '_errorHandler'));
 
 		if (!empty($GLOBALS['SQ_SYSTEM']->tm) && $GLOBALS['SQ_SYSTEM']->tm->inTransaction('db')) {
@@ -407,7 +408,7 @@ class Cron_Manager extends Asset
 				$msg->body	  = 'The cron manager for the system "'.SQ_CONF_SYSTEM_NAME.'" has attempted to run '.$this->attr('warn_after_num_run_checks').' times, but has not been able to for one of two reasons' ."\n"
 								.'1) An existing cron manager is currently running an extremely long running job.'."\n"
 								.'2) Some thing has caused the cron manager to exit uncleanly and the lock wasn\'t able to be removed.'."\n"
-								.'Check the cron error log (in [DATA DIR]/'.$this->error_log_path.') for any information'."\n"
+								.'Check the cron error log (in "'.SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION.'") for any information'."\n"
 								."\n"
 								.'(System Root Urls : '.str_replace("\n", ',', SQ_CONF_SYSTEM_ROOT_URLS).')'."\n";
 
@@ -682,20 +683,20 @@ class Cron_Manager extends Asset
 		$build_up = Array();
 
 		$build_up['hour'] = Array(
-			'bridge' => '(COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%59').' OR
-						 (COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%C%00').' AND '.$db->quote('%D%'.$end_f['minutes']),
-			'all'    => '(COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%'.$end_f['minutes']),
-		);
+								  'bridge' => '(COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%59').' OR
+											   (COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%C%00').' AND '.$db->quote('%D%'.$end_f['minutes']),
+								  'all'    => '(COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%'.$end_f['minutes']),
+								  );
 
 
 		$build_up['day'] = Array(
-			'bridge' => str_replace(Array('%A%', '%B%', '%C%', '%D%'),
-									Array('%A%'.$start_f['hours'].':', '%B%23:', '%C%00:', '%D%'.$end_f['hours'].':'),
-									$build_up['hour']['bridge']),
-			'all'    => str_replace(Array('%A%', '%B%'),
-									Array('%A%'.$start_f['hours'].':', '%B%'.$end_f['hours'].':'),
-									$build_up['hour']['all']),
-		);
+								 'bridge' => str_replace(Array('%A%', '%B%', '%C%', '%D%'),
+														 Array('%A%'.$start_f['hours'].':', '%B%23:', '%C%00:', '%D%'.$end_f['hours'].':'),
+														 $build_up['hour']['bridge']),
+								 'all'    => str_replace(Array('%A%', '%B%'),
+														 Array('%A%'.$start_f['hours'].':', '%B%'.$end_f['hours'].':'),
+														 $build_up['hour']['all']),
+								 );
 
 		$build_up['week'] = Array(
 			'bridge' => str_replace(Array('%A%', '%B%', '%C%', '%D%'),
@@ -843,26 +844,15 @@ class Cron_Manager extends Asset
 		if (error_reporting() || $terminate) {
 
 			// Strip out the file path begining
-			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_file);
-			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_msg);
+			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_file);
+			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_msg);
 
-			$err_name = '';
-			switch ($err_no) {
-				case E_USER_ERROR	: $err_name = SQ_SYSTEM_SHORT_NAME.' Error';	break;
-				case E_USER_WARNING	: $err_name = SQ_SYSTEM_SHORT_NAME.' Warning';	break;
-				case E_USER_NOTICE	: $err_name = SQ_SYSTEM_SHORT_NAME.' Notice';	break;
-				case E_ERROR		: $err_name = 'PHP Error';						break;
-				case E_WARNING		: $err_name = 'PHP Warning';					break;
-				case E_NOTICE		: $err_name = 'PHP Notice';						break;
-				default				: $err_name = 'Unknown Error Type - '.$err_no;
-			}//end switch
+			$err_name = get_error_name($err_no);
 
 			// send a report to the system error log
 			if (ini_get('log_errors')) {
 				$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
-				$log_msg  = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$text_msg;
-				$log_msg  = str_replace('[SYSTEM_ROOT]', '', $log_msg);
-				error_log($log_msg);
+				$GLOBALS['SQ_SYSTEM']->logErrorMessage($text_msg, $err_no, $err_file, $err_line, $this->error_log_file_name);
 			}
 
 			// if they haven't put tags in the err msg assume it to be plain text
@@ -900,7 +890,7 @@ class Cron_Manager extends Asset
 			$msg = $ms->newMessage();
 			$msg->subject = 'TERMINATION of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 			$msg->body	  = 'The cron manager for the system "'.SQ_CONF_SYSTEM_NAME.'" fatally triggered an error, terminating the cron manager\'s run.'."\n"
-							.'Check the cron error log (in [DATA DIR]/'.$this->error_log_path.') for any information'."\n"
+							.'Check the cron error log (in "'.SQ_LOG_PATH.'/'.$this->error_log_file_name.SQ_CONF_LOG_EXTENSION.'") for any information'."\n"
 							."\n"
 							.'(System Root Urls : '.str_replace("\n", ',', SQ_CONF_SYSTEM_ROOT_URLS).')'."\n";
 

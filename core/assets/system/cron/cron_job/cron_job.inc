@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.25 2005/03/21 06:20:17 gsherwood Exp $
+* $Id: cron_job.inc,v 1.26 2005/03/23 02:58:25 arailean Exp $
 *
 */
 
@@ -36,15 +36,18 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 * Cron_Job
 *
 * Purpose
+*	Base class that all the cron jobs extend. Cron manager executes cron jobs at required times.
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Cron_Job extends Asset
 {
+
+
 	/**
 	* Constructor
 	*
@@ -90,11 +93,12 @@ class Cron_Job extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
+		return Array(
+					 SQ_LINK_TYPE_1 => Array(),
 					 SQ_LINK_TYPE_2 => Array(),
 					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array('user' => Array('card' => 1))
-					);
+					 SQ_LINK_NOTICE => Array('user' => Array('card' => 1)),
+					 );
 
 	}//end _getAllowedLinks()
 
@@ -193,20 +197,20 @@ class Cron_Job extends Asset
 			// then we need to make sure that it is happening on or before the
 			// next time that the cron job is getting run
 			if ($this->attr('type') == 'one_off') {
-			
+
 				$when_str = $value;
 
 				$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 				if (is_null($cron_mgr)) return false;
-				
+
 				// is there a duration set? if so, recalculate the when time
 				if (strpos($when_str, '!')) {
 					// user chose a duration instead of a fixed date, so lets work out what that is
 					$now = time();
 					$duration = substr($value, strpos($value, '!') + 2);
 					$period = substr($value, strpos($value, '!') + 1, 1);
-					
-					switch($period) {
+
+					switch ($period) {
 						case 'd':
 							$then = $now + $duration*86400;
 						break;
@@ -220,9 +224,9 @@ class Cron_Job extends Asset
 							$then = strtotime('+'.$duration.' years');
 						break;
 					}//end switch
-					
+
 					$when_str = 'OO=';
-					
+
 					foreach (Array('year' => 'Y', 'month' => 'm', 'day' => 'd', 'hour' => 'H', 'minute' => 'i') as $field => $format_string) {
 						$fields[$field] = date($format_string, $then);
 						switch ($field) {
@@ -247,11 +251,11 @@ class Cron_Job extends Asset
 								$when_str .= $fields[$field];
 							break;
 						}// end switch
-					
+
 					}//end foreach
-				
+
 				}//end if
-				
+
 				$when = Cron_Job::getWhenArr($when_str);
 
 				$when_ts = mktime($when['hour'], $when['minute'], 0, $when['month'], $when['day'], $when['year']);
@@ -261,9 +265,9 @@ class Cron_Job extends Asset
 					trigger_error('You cannot set a One Off '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' to be run before the next job run is scheduled (which is at '.easy_datetime($cron_mgr->timeOfNextRun()).')', E_USER_WARNING);
 					return false;
 				}//end if
-				
+
 				$value = $when_str;
-				
+
 			}//end if
 
 		}//end if
@@ -405,7 +409,7 @@ class Cron_Job extends Asset
 				break;
 
 			case 'ET' :
-				$ret_val .= 'every time the cron manager runs';
+				$ret_val = 'Every time the cron manager runs';
 				break;
 
 		}//end switch
@@ -425,7 +429,7 @@ class Cron_Job extends Asset
 	function getWhenArr($when_str)
 	{
 		$when_arr = Array('type' => '', 'year' => '', 'month' => '', 'day' => '', 'hour' => '', 'minute' => '', 'duration' => '', 'period' => '');
-		
+
 		if ($when_str) {
 			if (strpos($when_str, '!')) {
 				$when_arr['type'] = substr($when_str, 0, 2);
@@ -470,10 +474,10 @@ class Cron_Job extends Asset
 					case 'DU' :
 						$when_arr['duration'] = substr($when_str, $offset);
 						break;
-	
+
 				}//end switch
-				
-			}//end if 
+
+			}//end if
 
 		}//end if
 
@@ -565,7 +569,7 @@ class Cron_Job extends Asset
 			$msg->body    .= 'Failed';
 
 		// Exec successful and completed
-		} elseif ($exec_result & SQ_CRON_JOB_COMPLETED) {
+		} else if ($exec_result & SQ_CRON_JOB_COMPLETED) {
 			$msg->subject .= 'Success';
 			$msg->body    .= 'Completed Successfully';
 
@@ -576,7 +580,7 @@ class Cron_Job extends Asset
 			}
 
 		// Exec successful and but still more to do
-		} elseif ($exec_result & SQ_CRON_JOB_NOT_COMPLETE) {
+		} else if ($exec_result & SQ_CRON_JOB_NOT_COMPLETE) {
 			$msg->subject .= 'Success';
 			$msg->body    .= 'Successful, but there is still more work to do';
 
@@ -636,30 +640,20 @@ class Cron_Job extends Asset
 		if (error_reporting() || $terminate) {
 
 			// Strip out the file path begining
-			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_file);
-			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_msg);
+			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_file);
+			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_msg);
 
-			$err_name = '';
-			switch ($err_no) {
-				case E_USER_ERROR	: $err_name = SQ_SYSTEM_SHORT_NAME.' Error';	break;
-				case E_USER_WARNING	: $err_name = SQ_SYSTEM_SHORT_NAME.' Warning';	break;
-				case E_USER_NOTICE	: $err_name = SQ_SYSTEM_SHORT_NAME.' Notice';	break;
-				case E_ERROR		: $err_name = 'PHP Error';						break;
-				case E_WARNING		: $err_name = 'PHP Warning';					break;
-				case E_NOTICE		: $err_name = 'PHP Notice';						break;
-				default				: $err_name = 'Unknown Error Type - '.$err_no;
-			}//end switch
+			$err_name = get_error_name($err_no);
+
+			$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 
 			// send a report to the system error log
 			if (ini_get('log_errors')) {
-				$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
-				$log_msg  = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$text_msg;
-				$log_msg  = str_replace('[SYSTEM_ROOT]', '', $log_msg);
-				error_log($log_msg);
+				$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+				$GLOBALS['SQ_SYSTEM']->logErrorMessage($err_msg, $err_no, $err_file, $err_line, $cron_mgr->error_log_file_name);
 			}
 
 			// if they haven't put tags in the err msg assume it to be plain text
-			$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 			$lines = explode("\n", $err_msg);
 			$len = 7 + strlen($err_file);
 			$len = max($len, 7 + strlen($err_line));

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.48 2005/03/21 06:25:31 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.49 2005/03/23 02:58:26 arailean Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.48 $
+* @version $Revision: 1.49 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,22 +68,23 @@ class Page_Asset_Builder extends Page
 	* @var array(keyword => name)
 	*/
 	var $_available_keywords = Array(
-								'login_invite' => 'Login Invite',
-								'login_form' => 'Login Form',
-								'login_error' => 'Login Error Message',
-								'create_invite' => 'Create Asset Invite',
-								'create_form' => 'Create Asset Form',
-								'create_error' => 'Create Asset Error Message',
-								);
+									 'login_invite'  => 'Login Invite',
+									 'login_form'    => 'Login Form',
+									 'login_error'   => 'Login Error Message',
+									 'create_invite' => 'Create Asset Invite',
+									 'create_form'   => 'Create Asset Form',
+									 'create_error'  => 'Create Asset Error Message',
+									 );
 
 	/**
 	* An array of bodycopies that need to be created
 	* @var Array()
 	*/
-	var $_bodycopies = Array('Not Logged In' => 'not_logged_in',
+	var $_bodycopies = Array(
+							 'Not Logged In' => 'not_logged_in',
 							 'Created'       => 'created',
 							 'Logged In'     => 'logged_in',
-							);
+							 );
 
 	/**
 	* The default state the system should be in if the user is logged in
@@ -269,7 +270,7 @@ class Page_Asset_Builder extends Page
 			$parameter_map = &$this->getAttribute('parameter_map');
 			if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != null) {
 				hidden_field('ASSET_BUILDER_ADDITIONAL_LOCATIONS', $additional_locs);
-			} elseif (isset($_POST['ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
+			} else if (isset($_POST['ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
 				hidden_field('ASSET_BUILDER_ADDITIONAL_LOCATIONS', $_POST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']);
 			}
 			$this->_printContents();
@@ -380,10 +381,11 @@ class Page_Asset_Builder extends Page
 					}
 
 					// start the transaction to create the asset
-					$link = Array('asset'		=> &$parent,
-								  'link_type'	=> $create_locations[$create_parentid],
-								  'value'		=> '',
-								  'sort_order'	=> -1,
+					$link = Array(
+								  'asset'      => &$parent,
+								  'link_type'  => $create_locations[$create_parentid],
+								  'value'      => '',
+								  'sort_order' => -1,
 								  );
 
 					$this->_modifyCreateLink($link);
@@ -489,7 +491,7 @@ class Page_Asset_Builder extends Page
 						$all_selected_locations[(int)$_POST[$code_name]] = (int)$details['link_type'];
 					}
 				}
-			} elseif (!$details['allow_empty']) {
+			} else if (!$details['allow_empty']) {
 				trigger_error('You must select an option from the '.$set_name.' field', E_USER_WARNING);
 				return false;
 			}
@@ -964,27 +966,14 @@ class Page_Asset_Builder extends Page
 		if (error_reporting() || $terminate) {
 
 			// Strip out the file path begining
-			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_file);
-			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_msg);
+			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_file);
+			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_msg);
 
 			$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 
 			// send a report to the system error log
 			if (ini_get('log_errors')) {
-				$err_name = '';
-				switch ($err_no) {
-					case E_USER_ERROR	: $err_name = SQ_SYSTEM_SHORT_NAME.' Error';	break;
-					case E_USER_WARNING	: $err_name = SQ_SYSTEM_SHORT_NAME.' Warning';	break;
-					case E_USER_NOTICE	: $err_name = SQ_SYSTEM_SHORT_NAME.' Notice';	break;
-					case E_ERROR		: $err_name = 'PHP Error';						break;
-					case E_WARNING		: $err_name = 'PHP Warning';					break;
-					case E_NOTICE		: $err_name = 'PHP Notice';						break;
-					default				: $err_name = 'Unknown Error Type - '.$err_no;
-				}
-
-				$log_msg = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$text_msg;
-				$log_msg = str_replace('[SYSTEM_ROOT]', '', $log_msg);
-				error_log($log_msg);
+				$GLOBALS['SQ_SYSTEM']->logErrorMessage($text_msg, $err_no, $err_file, $err_line);
 			}
 
 			$this->_errors[] = $text_msg;
@@ -1039,6 +1028,6 @@ class Page_Asset_Builder extends Page
 
 	}//end getSelectableLocationKeywords()
 
-	
+
 }//end class
 ?>
