@@ -95,7 +95,6 @@
 	var newCell = getDestCell(movingElt);
 	var oldCell = movingElt.parentNode;
 	var oldBrother = movingElt.nextSibling;
-	log('New cell is '+newCell.id+'; Old cell was '+originalParent.id);
 	if (newCell == originalParent) {
 		result = 'no_move';
 		movingElt.style.left = '';

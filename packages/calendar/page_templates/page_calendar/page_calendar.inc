@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.137 2004/12/29 05:37:53 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.138 2004/12/29 21:50:13 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.137 $
+* @version $Revision: 1.138 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -968,7 +968,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$click_to_add_ab = $this->attr('asset_builder_page');
 
 		$mousedown_code = $dragging_enabled ? 'onmousedown="'.($popups_enabled ? 'stopTrailingPopup(); ' : '').'startDragging(this)"' : '';
-		$mouseup_code = $dragging_enabled ? 'onmouseup="stopDragging(); formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)}"' : '';
+		$mouseup_code = $dragging_enabled ? 'onmouseup="stopDragging(); formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)"' : '';
 		?>
 		<style>
 			table#day tr td.sq-time-cell, table#week tr td.sq-time-cell {
