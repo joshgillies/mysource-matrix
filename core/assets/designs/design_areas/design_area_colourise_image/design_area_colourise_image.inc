@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image.inc,v 1.18 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_colourise_image.inc,v 1.19 2005/03/08 02:30:28 rhoward Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,7 +109,7 @@ class Design_Area_Colourise_Image extends Design_Area
 
 		// else print out a full tag
 		} else {
-			echo '<img src="<', '?php echo $DATA_PATH; ?', '>/', $image, '" ', $this->attr('extra'), '>';
+			echo '<img src="<', '?php echo $DATA_PATH; ?', '>/', $image, '" ', $this->attr('extra'), ' />';
 		}
 
 		return true;
