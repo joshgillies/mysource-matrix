@@ -105,6 +105,7 @@ class format_font extends wysiwyg_plugin {
 		case "fontsize":
 		case "formatblock":
 			if (!text) {
+				if (!doc) break;
 				var value = ("" + doc.queryCommandValue(cmd)).toLowerCase();
 				if (!value) {
 					// FIXME: what do we do here?
