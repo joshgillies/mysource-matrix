@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_archived.inc,v 1.8 2003/11/26 00:51:11 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_status_archived.inc,v 1.9 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    ARCHIVED -> UNDER_CONSTRUCTION if user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Asset_Status_Archived extends Asset_Status

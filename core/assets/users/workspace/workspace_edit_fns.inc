@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace_edit_fns.inc,v 1.8 2004/12/17 04:18:06 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: workspace_edit_fns.inc,v 1.9 2005/01/20 13:07:39 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

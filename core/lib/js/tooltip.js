@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tooltip.js,v 1.4 2004/10/21 04:41:55 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: tooltip.js,v 1.5 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 /**

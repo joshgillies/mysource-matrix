@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: password.inc,v 1.19 2004/09/10 07:10:23 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: password.inc,v 1.20 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 *    <password width="8" min_length="6" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage attributes
 */

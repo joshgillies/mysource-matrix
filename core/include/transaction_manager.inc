@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.11 2004/09/27 23:43:40 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: transaction_manager.inc,v 1.12 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@
 *    Also to handle nested transaction calls
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 class Transaction_Manager extends MySource_Object

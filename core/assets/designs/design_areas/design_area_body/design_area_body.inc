@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.16 2005/01/11 03:47:06 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_body.inc,v 1.17 2005/01/20 13:07:31 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

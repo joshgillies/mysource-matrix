@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.53 2004/11/29 05:09:14 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_job.inc,v 1.54 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */

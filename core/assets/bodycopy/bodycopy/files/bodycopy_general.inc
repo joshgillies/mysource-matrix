@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_general.inc,v 1.7 2004/09/15 08:10:34 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: bodycopy_general.inc,v 1.8 2005/01/20 13:07:31 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';

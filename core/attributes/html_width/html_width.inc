@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_width.inc,v 1.5 2004/09/10 07:10:23 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: html_width.inc,v 1.6 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <html_width />
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage attributes
 */

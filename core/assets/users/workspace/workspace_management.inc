@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace_management.inc,v 1.11 2004/11/18 05:06:22 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: workspace_management.inc,v 1.12 2005/01/20 13:07:39 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

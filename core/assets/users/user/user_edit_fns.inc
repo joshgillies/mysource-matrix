@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_edit_fns.inc,v 1.10 2003/11/27 03:03:26 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: user_edit_fns.inc,v 1.11 2005/01/20 13:07:39 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

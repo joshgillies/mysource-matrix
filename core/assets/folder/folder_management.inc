@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: folder_management.inc,v 1.10 2003/11/26 00:50:58 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: folder_management.inc,v 1.11 2005/01/20 13:07:34 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

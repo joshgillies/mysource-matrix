@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_edit_fns.inc,v 1.1 2004/08/19 05:42:41 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: cache_manager_edit_fns.inc,v 1.2 2005/01/20 13:07:36 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackag __core__
 */

@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: header.php,v 1.4 2004/11/26 04:24:44 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: header.php,v 1.5 2005/01/20 13:07:31 brobertson Exp $
+*
 */
 
 /**
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: prefs.inc,v 1.2 2004/06/18 13:17:55 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: prefs.inc,v 1.3 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@
 *    Looks after the creation and editing of the user preference files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Prefs extends MySource_Object

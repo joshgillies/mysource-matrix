@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.23 2004/10/07 01:53:59 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit.js,v 1.24 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 // if the browser is IE, regiter the onkeydown event

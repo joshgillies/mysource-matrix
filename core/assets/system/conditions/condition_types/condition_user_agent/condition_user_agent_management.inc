@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_agent_management.inc,v 1.1 2005/01/11 03:45:23 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: condition_user_agent_management.inc,v 1.2 2005/01/20 13:07:37 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.17 2005/01/06 12:27:05 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: config.inc,v 1.18 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@
 *    Looks after the creation of the config files that are in PHP code
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 class Config extends MySource_Object

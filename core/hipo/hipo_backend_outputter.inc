@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.7 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_backend_outputter.inc,v 1.8 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 *    suite hipo jobs
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 class Hipo_Backend_Outputter extends Backend_Outputter

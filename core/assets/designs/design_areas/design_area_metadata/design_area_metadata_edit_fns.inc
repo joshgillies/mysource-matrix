@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_metadata_edit_fns.inc,v 1.6 2004/02/23 04:40:55 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_metadata_edit_fns.inc,v 1.7 2005/01/20 13:07:32 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

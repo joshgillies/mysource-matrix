@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour_picker.js,v 1.5 2004/05/17 13:42:16 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: colour_picker.js,v 1.6 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 var colour_fields = new Array();

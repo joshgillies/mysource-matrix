@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section.inc,v 1.12 2004/12/21 16:55:46 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_section.inc,v 1.13 2005/01/20 13:07:35 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

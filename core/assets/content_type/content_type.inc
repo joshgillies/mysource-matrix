@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.6 2004/12/14 23:07:25 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: content_type.inc,v 1.7 2005/01/20 13:07:31 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

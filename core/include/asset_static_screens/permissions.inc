@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.10 2005/01/13 22:08:23 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: permissions.inc,v 1.11 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 

@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.31 2004/12/16 07:00:51 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: html_form.js,v 1.32 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 /*

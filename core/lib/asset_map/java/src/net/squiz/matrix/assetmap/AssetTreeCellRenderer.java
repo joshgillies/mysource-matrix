@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetTreeCellRenderer.java,v 1.2 2004/06/30 04:12:33 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: AssetTreeCellRenderer.java,v 1.3 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 package net.squiz.matrix.assetmap;

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text.inc,v 1.1 2004/02/03 03:27:42 diarandine Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_field_text.inc,v 1.2 2005/01/20 13:07:35 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

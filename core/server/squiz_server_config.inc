@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_config.inc,v 1.8 2004/12/06 03:14:01 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: squiz_server_config.inc,v 1.9 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the squiz server config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class Squiz_Server_Config extends Config

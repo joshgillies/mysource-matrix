@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_fns.inc,v 1.6 2004/12/03 15:29:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_asset_fns.inc,v 1.7 2005/01/20 13:07:36 brobertson Exp $
+*
 */
 
 /**
@@ -28,7 +28,7 @@
 * but this is not to be
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

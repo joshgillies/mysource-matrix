@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layer_handler.js,v 1.4 2003/11/26 00:51:13 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: layer_handler.js,v 1.5 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 /*

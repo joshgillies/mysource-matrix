@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.5 2005/01/13 22:07:06 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: history.inc,v 1.6 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * History Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 

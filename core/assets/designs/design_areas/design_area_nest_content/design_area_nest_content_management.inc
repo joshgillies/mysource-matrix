@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_management.inc,v 1.6 2003/12/15 19:10:00 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_nest_content_management.inc,v 1.7 2005/01/20 13:07:32 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

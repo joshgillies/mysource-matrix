@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.5 2004/09/26 23:14:59 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: Asset.java,v 1.6 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 package net.squiz.matrix.assetmap;

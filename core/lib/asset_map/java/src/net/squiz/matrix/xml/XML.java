@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: XML.java,v 1.1 2004/06/30 05:27:49 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: XML.java,v 1.2 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 package net.squiz.matrix.xml;

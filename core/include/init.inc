@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.75 2004/11/24 01:40:14 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: init.inc,v 1.76 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 /**
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 */
 

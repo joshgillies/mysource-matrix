@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_management.inc,v 1.4 2004/02/18 18:19:16 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: bodycopy_table_management.inc,v 1.5 2005/01/20 13:07:31 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Bodycopy_Container_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

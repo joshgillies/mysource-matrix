@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.17 2005/01/16 23:05:34 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: cron_job_edit_fns.inc,v 1.18 2005/01/20 13:07:37 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

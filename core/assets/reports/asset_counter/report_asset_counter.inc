@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter.inc,v 1.2 2004/10/26 01:29:15 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: report_asset_counter.inc,v 1.3 2005/01/20 13:07:36 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

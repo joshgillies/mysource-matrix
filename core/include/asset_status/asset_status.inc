@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status.inc,v 1.12 2003/11/26 00:51:11 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_status.inc,v 1.13 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *    Provide a generic framework for status objects
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Asset_Status extends MySource_Object

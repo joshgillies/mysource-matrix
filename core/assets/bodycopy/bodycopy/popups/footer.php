@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: footer.php,v 1.3 2004/02/18 18:19:16 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: footer.php,v 1.4 2005/01/20 13:07:31 brobertson Exp $
+*
 */
 
 /**
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approval.inc,v 1.10 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_status_editing_approval.inc,v 1.11 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_pending_approval.inc';
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status_pending_approval.inc';
 *                                         there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing_Approval extends Asset_Status_Pending_Approval

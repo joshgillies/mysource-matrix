@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder_edit_fns.inc,v 1.31 2004/06/25 07:00:46 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: trash_folder_edit_fns.inc,v 1.32 2005/01/20 13:07:38 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

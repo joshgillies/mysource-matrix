@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.7 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadataSchemas.inc,v 1.8 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal.inc,v 1.13 2004/01/30 04:43:57 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_menu_normal.inc,v 1.14 2005/01/20 13:07:32 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.26 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: boolean.inc,v 1.27 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <boolean true_text="true" false_text="false" empty_text="maybe" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage attributes
 */

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login.inc,v 1.13 2004/09/28 03:46:55 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: login.inc,v 1.14 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 /**
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 ?>

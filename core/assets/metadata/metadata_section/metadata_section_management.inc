@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_management.inc,v 1.7 2004/09/08 01:25:14 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_section_management.inc,v 1.8 2005/01/20 13:07:35 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

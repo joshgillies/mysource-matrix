@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.2 2004/12/21 17:30:09 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_field_date.inc,v 1.3 2005/01/20 13:07:34 brobertson Exp $
+*
 */
 
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

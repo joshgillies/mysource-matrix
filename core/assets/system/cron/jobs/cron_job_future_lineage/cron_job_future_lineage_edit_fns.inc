@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.10 2004/12/03 15:29:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.11 2005/01/20 13:07:37 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

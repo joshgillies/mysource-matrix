@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button_edit_fns.inc,v 1.14 2003/12/17 04:28:36 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_constant_button_edit_fns.inc,v 1.15 2005/01/20 13:07:32 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map_help.php,v 1.5 2004/02/02 06:22:28 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_map_help.php,v 1.6 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 /**
 * Help file for the Asset Map
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 

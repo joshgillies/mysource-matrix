@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata_edit_fns.inc,v 1.4 2004/10/25 01:31:17 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: report_incomplete_metadata_edit_fns.inc,v 1.5 2005/01/20 13:07:36 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard_management.inc,v 1.2 2004/06/29 15:33:29 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_standard_management.inc,v 1.3 2005/01/20 13:07:36 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

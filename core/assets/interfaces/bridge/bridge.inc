@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge.inc,v 1.1 2005/01/17 17:36:11 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: bridge.inc,v 1.2 2005/01/20 13:07:34 brobertson Exp $
+*
 */
 
 /**
@@ -29,7 +29,7 @@
 *    Provides an interface bridging between the MySource system some other external system
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

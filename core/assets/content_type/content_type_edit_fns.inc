@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.5 2004/12/09 03:08:11 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: content_type_edit_fns.inc,v 1.6 2005/01/20 13:07:31 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

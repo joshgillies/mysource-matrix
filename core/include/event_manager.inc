@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.14 2004/11/18 04:39:52 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: event_manager.inc,v 1.15 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 
@@ -64,7 +64,7 @@
 * </PRE>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class Event_Manager extends MySource_Object

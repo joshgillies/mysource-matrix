@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.349 2005/01/18 11:29:41 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset.inc,v 1.350 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.349 $
+* @version $Revision: 1.350 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object

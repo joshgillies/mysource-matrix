@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.9 2004/12/01 05:59:04 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: bodycopy_div.inc,v 1.10 2005/01/20 13:07:31 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_container.inc';
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

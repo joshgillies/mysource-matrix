@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_tables.js,v 1.8 2004/11/26 04:24:44 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: bodycopy_edit_tables.js,v 1.9 2005/01/20 13:07:31 brobertson Exp $
+*
 */
 
 function bodycopy_insert_table(bodycopy_name, tableid, before) {

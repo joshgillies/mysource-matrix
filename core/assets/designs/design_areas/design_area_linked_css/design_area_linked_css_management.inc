@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css_management.inc,v 1.3 2004/09/08 03:59:59 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_linked_css_management.inc,v 1.4 2005/01/20 13:07:32 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

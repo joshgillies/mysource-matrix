@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.inc,v 1.4 2004/09/16 02:24:22 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: js_calendar.inc,v 1.5 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *     An object to init and paint the JS calendar
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage lib
 */

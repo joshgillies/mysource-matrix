@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ComplexAssetTree.java,v 1.2 2004/09/02 01:05:21 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: ComplexAssetTree.java,v 1.3 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 package net.squiz.matrix.complexassetmap;

@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_management.inc,v 1.2 2004/02/18 18:19:16 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: layout_management.inc,v 1.3 2005/01/20 13:07:34 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

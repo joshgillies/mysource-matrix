@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.13 2005/01/14 00:51:03 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: user_group.inc,v 1.14 2005/01/20 13:07:39 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

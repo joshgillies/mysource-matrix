@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.15 2004/12/14 23:07:44 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: wysiwyg.inc,v 1.16 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/wysiwyg/wysiwyg.inc';
 *    <wysiwyg style="div" width="100%" height="300" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 * @subpackage attributes
 */

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.30 2004/10/19 04:33:01 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: text.inc,v 1.31 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <text width="40" height="4" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 * @subpackage attributes
 */

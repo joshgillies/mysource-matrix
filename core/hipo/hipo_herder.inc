@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.50 2004/12/06 03:13:39 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_herder.inc,v 1.51 2005/01/20 13:10:34 brobertson Exp $
+*
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */

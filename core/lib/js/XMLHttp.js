@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: XMLHttp.js,v 1.2 2005/01/13 04:00:50 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: XMLHttp.js,v 1.3 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 

@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.11 2004/11/26 04:24:44 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_div_props.php,v 1.12 2005/01/20 13:07:31 brobertson Exp $
+*
 */
 
 /**
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: index.php,v 1.19 2004/11/18 01:01:22 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: index.php,v 1.20 2005/01/20 13:10:35 brobertson Exp $
+*
 */
 
 /**
@@ -28,7 +28,7 @@
 * The one file through which everything runs
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 */
 
