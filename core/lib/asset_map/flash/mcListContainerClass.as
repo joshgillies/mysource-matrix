@@ -315,45 +315,57 @@ mcListContainerClass.prototype._recurseHideKids = function(parent_assetid, paren
 /**
 * Event fired by asset manager
 *
-* @param int			assetid
-* @param object Asset	new_asset	The new version of the asset
-* @param object Asset	old_asset	The old version of the asset
+* @param int			assetids
+* @param object Asset	new_assets	The new version of the assets
+* @param object Asset	old_assets	The old version of the assets
 *
 * @access public
 */
-mcListContainerClass.prototype.onAssetReload = function(assetid, new_asset, old_asset) 
+mcListContainerClass.prototype.onAssetsReload = function(assetids, new_assets, old_assets) 
 {
 
-	trace("RELOAD ASSET ID : " + assetid);
-	var deletes = old_asset.links.diff(new_asset.links);
-	var inserts = new_asset.links.diff(old_asset.links);
+	trace("RELOAD ASSET ID : " + assetids);
 
-	// if it's the root folder
-	if (assetid == 1) {
-		this._reloadAssetListItem(assetid, this.item_prefix, -1, true, deletes, inserts, new_asset.links);
+	for(var j = 0; j < assetids.length; j++) {
 
-	// else it's just a normal asset
-	} else {
+		var assetid = assetids[j];
 
-		for(var i = 0; i < this.asset_list_items[assetid].length; i++) {
-			var item_name = this.asset_list_items[assetid][i];
-			// we need to the get the pos this way because the this[item_name].pos will be out 
-			// of wack until we call the refresh below
-			var pos  = 0; // outside for scope reasons
-			for(; pos < this.items_order.length; pos++) {
-				if (this.items_order[pos].name == item_name) break;
-			}
-			if (pos >= this.items_order.length) continue; // we didn't find it
+		var deletes = old_assets[assetid].links.diff(new_assets[assetid].links);
+		var inserts = new_assets[assetid].links.diff(old_assets[assetid].links);
 
-			trace("Reload List Item : " + item_name + ", expanded : " + this[item_name].expanded());
+		// if it's the root folder
+		if (assetid == 1) {
+			this._reloadAssetListItem(assetid, this.item_prefix, -1, true, deletes, inserts, new_assets[assetid].links);
 
-			this._reloadAssetListItem(assetid, item_name, pos, this[item_name].expanded(), deletes, inserts, new_asset.links);
+		// else it's just a normal asset
+		} else {
 
-		}// end for
+			for(var i = 0; i < this.asset_list_items[assetid].length; i++) {
+				var item_name = this.asset_list_items[assetid][i];
+				// we need to the get the pos this way because the this[item_name].pos will be out 
+				// of wack until we call the refresh below
+				var pos  = 0; // outside for scope reasons
+				for(; pos < this.items_order.length; pos++) {
+					if (this.items_order[pos].name == item_name) break;
+				}
+				if (pos >= this.items_order.length) continue; // we didn't find it
 
-	}// end if
+				trace("Reload List Item : " + item_name + ", expanded : " + this[item_name].expanded());
 
-	this.refreshList();
+				this._reloadAssetListItem(assetid, item_name, pos, this[item_name].expanded(), deletes, inserts, new_assets[assetid].links);
+
+			}// end for
+
+		}// end if
+
+	}// end for
+
+
+	// OK to make sure that every thing is in the correct order we hide everything
+	// but DON'T refresh, then we show every thing again will all expanded assets 
+	// being displayed
+	this.hideKids(1, this.item_prefix, true);
+	this.showKids(1, this.item_prefix);
 
 	// Now if there has been a asset move and we know where to select, then do so
 	if (this.tmp.move_asset.new_select_name != undefined) {
@@ -395,26 +407,6 @@ mcListContainerClass.prototype._reloadAssetListItem = function(assetid, item_nam
 			var kid_name = item_name + "_" + inserts[j];
 			this._createItem(item_name, kid_name, inserts[j]);
 			this._insertItem(pos + 1, kid_name, false);
-
-		}// end for
-
-
-		// Now we need to make sure that these kids are all in the right order
-		for(var j = 0; j < all_kids.length; j++) {
-			var kid_name = item_name + "_" + all_kids[j];
-			var new_kid_pos = pos + 1 + j;
-
-			for(var x = new_kid_pos; x <= pos + all_kids.length; x++) {
-				if (this.items_order[x].name == kid_name) {
-					this.items_order[x].end_branch = (j == all_kids.length - 1);
-					if (x != new_kid_pos) {
-						var tmp = this.items_order[new_kid_pos];
-						this.items_order[new_kid_pos] = this.items_order[x];
-						this.items_order[x] = tmp;
-					}
-					break;
-				}
-			}// end for
 
 		}// end for
 
