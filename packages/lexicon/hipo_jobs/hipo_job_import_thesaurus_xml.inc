@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_import_thesaurus_xml.inc,v 1.3 2005/02/22 06:51:09 ndvries Exp $
+* $Id: hipo_job_import_thesaurus_xml.inc,v 1.4 2005/02/22 06:58:40 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    thesaurus_id	-	the ID of the thesaurus that is being added to
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -570,7 +570,7 @@ class HIPO_Job_Import_Thesaurus_XML extends HIPO_Job
 	*/
 	function getLockAssetDetails(&$job_type, &$running_vars, &$options)
 	{
-		$job_type = 'hipo_job_acquire_lock';
+		$job_type = 'hipo_job_acquire_locks';
 
 		$options['auto_complete'] = true;
 
