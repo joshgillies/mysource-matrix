@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.60 2004/10/18 23:03:44 lwright Exp $
+* $Id: form.inc,v 1.61 2004/11/02 22:27:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -179,9 +179,11 @@ class Form extends Bridge
 								);
 			}
 
-			if (!is_null($sort_by)) {
-				uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"];'));
+			if (is_null($sort_by)) {
+				$sort_by = 'sort_order';
 			}
+			
+			uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] < $b["'.$sort_by.'"];'));
 
 			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
 
@@ -410,7 +412,7 @@ class Form extends Bridge
 
 		return $result;
 
-	}//end getQuestionAssets
+	}//end getQuestionAssets()
 
 
 	/**
