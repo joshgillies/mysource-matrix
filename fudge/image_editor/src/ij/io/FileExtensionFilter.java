@@ -43,6 +43,7 @@ public class FileExtensionFilter extends javax.swing.filechooser.FileFilter
 	
 	public boolean accept(File f) 
 	{
+		if (f.isDirectory()) return true;
 		String extension = f.getPath();
 		extension = extension.substring(extension.lastIndexOf(".")+1).toLowerCase();
 		for (int i=0; i < _extensions.length; i++) {
