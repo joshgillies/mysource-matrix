@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.76 2004/06/22 01:22:56 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.77 2004/08/05 03:43:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -159,11 +159,9 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 					// try to acquire a lock on this asset?
 					if (!empty($_POST['sq_lock_acquire']) && !empty($_POST['sq_lock_type'])) {
-						//// START HIPO PROCESSING ////
 						$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 						$vars = Array('assetid' => $asset->id, 'lock_type' => $_POST['sq_lock_type'], 'forceably_acquire' => (bool) $_POST['sq_lock_acquire_by_force']);
 						$hh->queueHipo('hipo_job_acquire_lock', $vars);
-						////  END HIPO PROCESSING  ////
 						$do_process_backend = false;
 					}
 

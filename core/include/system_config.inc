@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.37 2004/07/16 13:57:14 brobertson Exp $
+* $Id: system_config.inc,v 1.38 2004/08/05 03:43:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,12 +81,10 @@ class System_Config extends Config
 		'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
 		'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
 
-		// mnyeholt - Log file now set by installer.
-		'SQ_CONF_LOG_FILE'					=> Array('editable' => 1, 'default' => ''),
 		// Error Settings
+		'SQ_CONF_LOG_FILE'					=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
 		'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
-		
 
 		// Internationalisation Settings
 		'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
@@ -94,7 +92,6 @@ class System_Config extends Config
 		
 		// Allow IP to fluctuate ?
 		'SQ_CONF_ALLOW_IP_CHANGE'			=> Array('editable' => 1, 'default' => '0'),
-
 	);
 
 
@@ -139,7 +136,7 @@ class System_Config extends Config
 			$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 			$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
-			// if we dont have access, piss off
+			// if we dont have access, go away
 			if (!$is_admin) {
 				trigger_error('You need to be either the Root User or a System Administrator to save the '.$this->name, E_USER_WARNING);
 				return false;
@@ -198,7 +195,7 @@ class System_Config extends Config
 					echo "ini_set('include_path', \$inc_dir);\n\n";
 				}
 				return true;
-				break;
+			break;
 
 			case 'SQ_CONF_LOG_ERRORS' :
 				if (!parent::_paintConfigVar($var_name, $value)) return false;
@@ -208,8 +205,8 @@ class System_Config extends Config
 					echo "ini_set('log_errors', '1');\n";
 				}
 				return true;
-				break;
-			
+			break;
+
 			case 'SQ_CONF_LOG_FILE' :
 				if (!parent::_paintConfigVar($var_name, $value)) return false;
 				// if the value isn't empty, set the php error_log to the set value
@@ -229,19 +226,19 @@ class System_Config extends Config
 				}
 
 				return true;
-				break;
+			break;
 
 			case 'SQ_CONF_SYSTEM_ROOT_URLS' :
 				$lines = explode("\n", $value);
 				$value = '';
 				foreach($lines as $line) if (trim($line) != '') $value .= trim($line)."\n";
 				return parent::_paintConfigVar($var_name, trim($value));
-				break;
+			break;
 
 			default :
 				return parent::_paintConfigVar($var_name, $value);
 
-		}// end switch
+		}//end switch
 
 	}//end _paintConfigVar()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.18 2004/07/23 07:09:59 mmcintyre Exp $
+* $Id: image_edit_fns.inc,v 1.19 2004/08/05 03:42:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 */
 class Image_Edit_Fns extends File_Edit_Fns
 {
+
 
 	/**
 	* Get a formatted string of extensions (eg 1,2,3 and 4)
@@ -104,7 +105,6 @@ class Image_Edit_Fns extends File_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			file_upload($prefix);
-
 			?><br/><span style="font-size: 7pt"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
 		}
 
@@ -142,5 +142,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 
 	}//end processFileUpload()
 
+
 }//end class
+
 ?>
