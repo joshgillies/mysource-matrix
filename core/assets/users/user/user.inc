@@ -61,7 +61,7 @@ class User extends Asset
 			// create a workspace
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('workspace');
 			$workspace = new Workspace();
-			if (!$workspace->create($user_link)) return false;
+			if (!$workspace->create($user_link, 'Workspace')) return false;
 
 			return true;
 
@@ -183,7 +183,50 @@ class User extends Asset
 
 		return array($result['assetid'], $result['type_code']);
 
-	}//end find();
+	}//end find()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @access public
+	*/
+	function printBody()
+	{
+		// print navigation
+		$url = $_SERVER['PHP_SELF'].'?user_screen=';
+		?>
+		<a href="<?php echo $url?>view">View your details</a></br>
+		<a href="<?php echo $url?>edit">Edit your details</a></br>
+		<a href="<?php echo $url?>workspace">View your workspace</a></br>
+		<a href="<?php echo $url?>messages">Check your messages</a></br>
+		<?php
+
+		// print the contents of the screen
+		$user_screen = (isset($_REQUEST['user_screen'])) ? $_REQUEST['user_screen'] : '';
+		switch ($_REQUEST['user_screen']) {
+			case 'edit'      :
+				bam('EDIT DETAILS');
+				break;
+			case 'workspace' :
+				// get the workspace attached to us
+				$workspace_data = $this->getLink(SQ_LINK_EXCLUSIVE, 'workspace');
+				$workspace = $GLOBALS['SQ_SYSTEM']->am->getAsset($workspace_data['minorid'], $workspace_data['type_code']);
+				$workspace->printBody();
+				break;
+			case 'messages'  :
+				// get the inbox attached to us
+				$inbox_data = $this->getLink(SQ_LINK_EXCLUSIVE, 'inbox');
+				$inbox = $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_data['minorid'], $inbox_data['type_code']);
+				$inbox->printBody();
+				break;
+			default :
+				bam('VIEW DETAILS');
+				break;
+		}
+
+		
+	}// end printBody()
 
 
 	/**
