@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.329 2004/10/11 07:15:28 arailean Exp $
+* $Id: asset.inc,v 1.330 2004/11/08 00:01:17 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -682,6 +682,20 @@ class Asset extends MySource_Object
 		// delete any permissions we have assigned to us or are assigned to
 		$where_cond = 'assetid = '.$db->quote($this->id). 'OR userid = '.$db->quote($this->id);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission', $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// delete any metadata values this asset might have
+		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		if (!$mm->purgeMetadata($this->id)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// delete any workflow values that this asset might have
+		$wm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		if (!$wm->purgeWorkflow($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
