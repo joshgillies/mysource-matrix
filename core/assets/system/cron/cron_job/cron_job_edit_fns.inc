@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.16 2005/01/09 22:00:49 arailean Exp $
+* $Id: cron_job_edit_fns.inc,v 1.17 2005/01/16 23:05:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -174,7 +174,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				);
 
 				foreach ($units as $php_unit => $js_unit) {
-					echo 'TIME_UNITS[\''.$js_unit.'\'] = \''.date($php_unit, $next_run).'\';';
+					echo 'TIME_UNITS[\''.$js_unit.'\'] = \''.str_pad(date($php_unit, $next_run), 2, '0', STR_PAD_LEFT).'\';';
 				}
 				?>
 
