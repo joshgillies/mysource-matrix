@@ -56,7 +56,7 @@ class Root_Folder extends Folder
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$this->setAttrValue('name', '/');
+		$this->setAttrValue('name', 'Root Folder');
 		$ret_val = parent::create($link);
 		if ($ret_val) {
 			if ($this->id != 1) {
@@ -117,6 +117,21 @@ class Root_Folder extends Folder
 		return $ret_val;
 
 	}//end create()
+
+
+	/**
+	* Returns name of the asset
+	*
+	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	*
+	* @see Asset::_getName()
+	* @access public
+	*/
+	function _getName($short_name=false)
+	{
+		return ($short_name) ? '/' : 'Root Folder';
+
+	}//end _getName();
 
 
 	/**
