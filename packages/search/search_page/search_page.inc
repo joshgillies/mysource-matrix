@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.41 2004/06/18 02:02:24 lwright Exp $
+* $Id: search_page.inc,v 1.42 2004/06/18 03:41:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.41 $ - 1.0
+* @version $Revision: 1.42 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -666,6 +666,18 @@ class Search_Page extends Page
 
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$replaces = $mm->generateKeywordReplacements($asset, $keywords, false);
+		
+		$metadata_keywords = Array();
+		foreach ($keywords as $key) {
+			if (substr($key, 0, 15) == 'asset_metadata_') $metadata_keywords[$key] = substr($key, 15);
+		}
+		if (!empty($metadata_keywords)) {
+			$metadata_values = $mm->getMetadataFieldValues($assetid, array_values($metadata_keywords));
+			foreach ($metadata_keywords as $key => $field) {
+				if (isset($metadata_values[$field])) $replaces[$key] = $metadata_values[$field];
+			}
+		}
+
 		$asset_keywords = $asset->getAssetKeywords();
 		foreach ($asset_keywords as $key => $data) {
 			if (in_array($key, $keywords)) $replaces[$key] = $data['value'];
