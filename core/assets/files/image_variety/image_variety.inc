@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.4 2005/01/19 12:40:33 brobertson Exp $
+* $Id: image_variety.inc,v 1.5 2005/01/19 16:22:46 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -532,41 +532,6 @@ class Image_Variety extends Asset
 
 
 	/**
-	* Get an array of some useful data about the existing uploaded file
-	*
-	* @return array(string)
-	* @access private
-	*/
-	function getExistingFile()
-	{
-		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		if (is_null($image)) return Array();
-
-		$ext = get_file_type($image->name);
-		$filename = $this->name.'.'.$ext;
-		$old_name = $this->attr('name');
-
-		// we are going to temporarily set the name of this image
-		// variety to have an extension, so it can be found by the File
-		// asset's getExistingFile() function
-		$this->vars['name']['value'] = $filename;
-
-		$info = Image::getExistingFile();
-		if (!empty($info['path'])) {
-			$size = getimagesize($info['path']);
-			$info['width']  = $size[0];
-			$info['height'] = $size[1];
-		}
-
-		// change the name back to what it was
-		$this->vars['name']['value'] = $old_name;
-
-		return $info;
-
-	}//end getExistingFile()
-
-
-	/**
 	* Prints out the backend interface for the asset
 	*
 	* @param object Backend_Outputter	&$o
@@ -582,10 +547,14 @@ class Image_Variety extends Asset
 				if (is_null($image)) exit();
 
 				include_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
+
+				$filename = $this->data_path.'/'.$this->attr('filename');
+				$size = getimagesize($filename);
+
 				$ouput = Array();
 				$output['alt']    = $image->attr('alt');
-				$output['width']  = $this->attr('width');
-				$output['height'] = $this->attr('height');
+				$output['width']  = $size[0];
+				$output['height'] = $size[1];
 				echo var_serialise($output);
 				exit();
 			default :
