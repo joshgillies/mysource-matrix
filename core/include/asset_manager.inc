@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.259 2005/01/13 22:19:27 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.260 2005/01/14 15:13:42 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.259 $
+* @version $Revision: 1.260 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4043,6 +4043,7 @@ class Asset_Manager extends MySource_Object
 			$asset = &$this->getAsset($real_assetid);
 			if (!method_exists($asset, 'getLineageFromURL')) {
 				trigger_error('Shadow asset handler "'.$asset->name.'" can not get lineages from URLs', E_USER_WARNING);
+				return Array();
 			}
 			$bridge_lineage = $asset->getLineageFromURL($id_parts[1], $protocol, $url);
 			
