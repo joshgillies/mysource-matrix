@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.74 2004/12/19 23:06:58 lwright Exp $
+* $Id: form.inc,v 1.75 2004/12/21 01:09:03 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -787,6 +787,27 @@ class Form extends Bridge
 
 		ob_start();
 		echo '<form name="'.$prefix.'" enctype="multipart/form-data" action="'.$_SERVER['PHP_SELF'].'" method="POST" '.$clientside.'>';
+		if ($this->attr('use_client_side')) {
+			?><script language="JavaScript">
+			function beforeSubmit_<?php echo $this->getPrefix() ?>(form) {
+				var submission_errors = new Array();
+				i = 0;
+					<?php
+					echo $this->generateJSCode();
+				?>
+					if (submission_errors.length > 0) {
+					var errors_list = "The following errors must be corrected before the form can be submitted:\n";
+					for(x in submission_errors) {
+						errors_list += submission_errors[x] + "\n";
+					}
+					alert(errors_list);
+					return false;
+				}
+				return true;
+			}
+			</script>
+		<?php
+		}
 
 		$this->printStandard();
 		echo '</form>';
