@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.53 2005/01/24 21:52:54 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.54 2005/02/03 04:14:13 amiller Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -722,13 +722,13 @@ class Page_Asset_Listing extends Page
 		if (count($asset_list) == 1) return $asset_list;
 
 		$asset_ids = array_keys($asset_list);
-		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_ids, $type_code);
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_ids);
 		
 		foreach ($asset_ids as $asset_id) $sort_assets[$asset_id] = strtolower($asset_info[$asset_id][$sort_by]);
 		(!$this->attr('reverse_sort')) ? asort($sort_assets) : arsort($sort_assets);
 
 		$sorted_assets = array_keys($sort_assets);
-		foreach($sorted_assets as $asset) $assets_to_list[$asset] = $asset_info[$asset]['minor_type_code'];
+		foreach($sorted_assets as $asset) $assets_to_list[$asset] = $asset_info[$asset]['type_code'];
 		
 		return $assets_to_list;
 
