@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.62 2004/11/05 00:08:41 lwright Exp $
+* $Id: form.inc,v 1.63 2004/11/09 04:13:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -892,7 +892,6 @@ class Form extends Bridge
 		if (!is_null($this->active_submission)) {
 			// let this section know what the current submission and errors arrays are
 			$posted_section->active_submission =& $this->active_submission;
-			$posted_section->submission_errors =& $this->submission_errors;
 		}
 
 		return $posted_section->processForm();
@@ -1037,7 +1036,7 @@ class Form extends Bridge
 		$questions = &$this->getQuestions();
 		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$key);
-			$question->submission_errors =& $this->submission_errors;
+			$question->active_submission =& $this->active_submission;
 			$question->processForm();
 		}
 
@@ -1046,15 +1045,13 @@ class Form extends Bridge
 			$section =& $sections[$key];
 			// there is still no problem with the section sharing the form's active submission
 			$section->active_submission =& $this->active_submission;
-			$section->submission_errors =& $this->submission_errors;
 			$section->processForm();
 		}
 
 		// check to see if there is an error with the form
-		$status = empty($this->submission_errors);
-		$this->_tmp['is_error'] = !$status;
+		$this->_tmp['is_error'] = $this->active_submission->isError();
 
-		return $status;
+		return !$this->_tmp['is_error'];
 
 	}//end processForm()
 
@@ -1127,7 +1124,12 @@ class Form extends Bridge
 	function printErrors()
 	{
 		if (isset($this->active_submission)) {
-			$this->active_submission->printErrors();
+			$errors = $this->active_submission->getErrors();
+			?><ul><?php
+			foreach($errors as $error) {
+				?><li><?php echo $error ?></li><?php
+			}
+			?></ul><?php
 		}
 		return true;
 
