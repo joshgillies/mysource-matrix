@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication_basic.inc,v 1.1.2.4 2004/02/14 20:42:38 brobertson Exp $
+* $Id: replication_system_authentication_basic.inc,v 1.1.2.5 2004/02/14 20:46:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,6 +92,7 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 		if (isset($params['slave_to_master_phrase'])) $this->slave_to_master_phrase = $params['slave_to_master_phrase'];
 		if (isset($params['master_to_slave_phrase'])) $this->master_to_slave_phrase = $params['master_to_slave_phrase'];
 		if (isset($params['ip_address']))             $this->ip_address             = $params['ip_address'];
+		return true;
 	
 	}//end loadParams()
 
