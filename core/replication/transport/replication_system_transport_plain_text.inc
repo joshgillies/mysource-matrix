@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport_plain_text.inc,v 1.1.2.5 2004/02/26 15:48:04 brobertson Exp $
+* $Id: replication_system_transport_plain_text.inc,v 1.1.2.6 2004/02/27 16:38:36 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -187,6 +187,39 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 
 
 	/**
+	* Read either a variable or file from the socket (useful when expecting a file, but can handle an error code/msg var)
+	* To check what type is returned, check $headers['type'] it will be 'variable' or 'file'
+	*
+	* @param mixed		&$data		if this is a var then the data read from the socket, 
+	*								if a file then the location of the file on the local filesystem
+	* @param Array		&$headers	the headers that were retrieved will be place in this var
+	*
+	* @return boolean	indicating success
+	* @access public
+	* @abstract
+	*/
+	function read(&$data, &$headers)
+	{
+		// first thing to do is get the headers
+		$headers = $this->_readHeaders();
+		if ($headers === false) return false;
+
+		switch($headers['type']) {
+			case 'variable' :
+				return $this->_readVarContents($data, $headers);
+				break;
+			case 'file' :
+				return $this->_readVarContents($data, $headers);
+				break;
+			default : 
+				trigger_error('Error reading from '.$this->getPeerInfo().' : Unknown data type "'.$headers['type'].'"', E_USER_WARNING);
+				return false;
+		}
+
+	}// end read()
+
+
+	/**
 	* Read a variable from the socket
 	*
 	* @param mixed		&$data		the retrieved variable will be placed in this var
@@ -206,6 +239,23 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 			return false;
 		}
 
+		return $this->_readVarContents($data, $headers);
+
+	}// end readVar()
+
+
+	/**
+	* Perform the actual reading of the contents of a variable from the socket
+	*
+	* @param mixed		&$data		the retrieved variable will be placed in this var
+	* @param Array		&$headers	the headers that were retrieved will be place in this var
+	*
+	* @return boolean	indicating success
+	* @access private
+	* @see read(), readVar()
+	*/
+	function _readVarContents(&$data, &$headers)
+	{
 		$contents = $this->_readFromSocket($headers['length'], PHP_BINARY_READ);
 		if ($contents === false) return false;
 
@@ -221,7 +271,7 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 
 		return true;
 
-	}// end readVar()
+	}// end _readVarContents()
 
 
 	/**
@@ -244,6 +294,23 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 			return false;
 		}
 
+		return $this->_readFileContents($filename, $headers);
+
+	}// end readFile()
+
+
+	/**
+	* Perform the actual reading a file from the socket and put it in the data dir
+	*
+	* @param string		&$filename	the location of the file on the local file system will be place in this var
+	* @param Array		&$headers	the headers that were retrieved will be place in this var
+	*
+	* @return boolean	indicating success
+	* @access public
+	* @see read(), readFile()
+	*/
+	function _readFileContents(&$filename, &$headers)
+	{
 		if (!isset($headers['filename'])) {
 			trigger_error('Error reading file from '.$this->getPeerInfo().' : No filename header', E_USER_WARNING);
 			return false;
@@ -313,7 +380,7 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 
 		return true;
 
-	}// end readFile()
+	}// end _readFileContents()
 
 
 }//end class

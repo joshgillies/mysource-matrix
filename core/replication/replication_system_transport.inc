@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport.inc,v 1.1.2.13 2004/02/26 16:40:15 brobertson Exp $
+* $Id: replication_system_transport.inc,v 1.1.2.14 2004/02/27 16:38:35 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -344,6 +344,25 @@ class Replication_System_Transport extends MySource_Object
 		return false;
 
 	}// end writeFile()
+
+
+	/**
+	* Read either a variable or file from the socket (useful when expecting a file, but can handle an error code/msg var)
+	* To check what type is returned, check $headers['type'] it will be 'variable' or 'file'
+	*
+	* @param mixed		&$data		if this is a var then the data read from the socket, 
+	*								if a file then the location of the file on the local filesystem
+	* @param Array		&$headers	the headers that were retrieved will be place in this var
+	*
+	* @return boolean	indicating success
+	* @access public
+	* @abstract
+	*/
+	function read(&$data, &$headers)
+	{
+		return false;
+
+	}// end read()
 
 
 	/**
