@@ -19,9 +19,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_management.inc,v 1.3 2003/11/26 00:51:32 gsherwood Exp $
+* $Id: design_area_searchbox_management.inc,v 1.4 2004/02/10 16:34:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
+
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Design_Area_SearchBox_Management
@@ -29,13 +31,10 @@
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-
-require_once SQ_INCLUDE_PATH.'/asset_management.inc';
-
 class Design_Area_SearchBox_Management extends Asset_Management
 {
 	/**
