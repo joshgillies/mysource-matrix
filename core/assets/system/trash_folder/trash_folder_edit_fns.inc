@@ -20,7 +20,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	* An array of tab code names and their display names
 	* @var Array()
 	*/
-	var $static_screens = Array('details' => Array('name' => 'Details',
+	var $static_screens = Array('details' => Array('name' => 'Purge Trash',
 												   'force_unlock' => true
 												   )
 								);
