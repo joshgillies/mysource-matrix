@@ -804,6 +804,18 @@ class Asset_Edit_Interface extends Resolve_Object
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner, true, false, true);
 
+		$inheriting_workflows = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($wfm->getRunningInheriting()));
+		if (!empty($inheriting_workflows)) {
+			$o->openSection('Running Workflows Downstream');
+			$o->openField('Note');
+			echo 'Any changes you make to the workflow will not affect the currently running workflows for the following assets:<ul>';
+			foreach ($inheriting_workflows as $assetid) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				echo '<li class="sq-form-field">'.$asset->name.'</li>';
+			}
+			echo '</ul>';
+		}
+
 		$write_access = false;
 		if ($wfm->state == 'running') {
 			// cant edit workflow when workflow

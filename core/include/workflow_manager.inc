@@ -103,7 +103,7 @@ class Workflow_Manager extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT workflow FROM sq_asset_workflow
-					WHERE assetid = '.$db->quote($this->_asset->id);
+				WHERE assetid = '.$db->quote($this->_asset->id);
 
 		$direct = $db->getOne($sql);
 		if (DB::isError($direct)) {
@@ -484,6 +484,36 @@ class Workflow_Manager extends Resolve_Object
 
 		return $new_state;
 	}//end testPublish()
+
+
+	/**
+	* Returns an array of ids of assets that have currently running workflows based on this workflow
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getRunningInheriting()
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		
+		$sql = 'SELECT workflowid FROM sq_asset_running_workflow
+				WHERE workflowid LIKE '.$db->quote('%~'.$this->_asset->id);
+
+		$result = $db->getCol($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		$return_result = Array();
+		foreach ($result as $id) {
+			list($assetid, $me) = explode('~', $id);
+			if ($assetid == $me) continue;
+			$return_result[] = $assetid;
+		}
+
+		return array_unique($return_result);
+	}//end getRunningInheriting()
 
 
 	/**
