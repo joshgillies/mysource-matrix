@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: general.inc,v 1.37 2003/09/26 05:26:31 brobertson Exp $
+* $Id: general.inc,v 1.38 2003/10/01 09:45:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -267,7 +267,7 @@ function sq_web_path($path='base')
 
 		case 'root_url'  : 
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
-			$current_url = strip_url(current_url());
+			$current_url = strip_url(current_url(false, true));
 			// if we are in the backend strip the suffix
 			if (SQ_IN_BACKEND) $current_url = preg_replace('/\\/'.SQ_CONF_BACKEND_SUFFIX.'$/', '', $current_url);
 			$tmp = $root_urls[0];
