@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_anchor.php,v 1.1 2004/04/07 22:58:25 lwright Exp $
+* $Id: insert_anchor.php,v 1.2 2004/04/07 23:25:37 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,6 @@
 * @package MySource_Matrix
 */
 
-error_reporting(E_ALL);
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
