@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.66 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: general.inc,v 1.67 2005/03/21 06:03:22 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 */
 
@@ -83,31 +83,37 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			case E_USER_ERROR:
 				$err_name = SQ_SYSTEM_SHORT_NAME.' Error';
 				$bg_colour = '#993333';
-				break;
+			break;
+
 			case E_USER_WARNING:
 				$err_name = SQ_SYSTEM_SHORT_NAME.' Warning';
 				$bg_colour = '#DBA53B';
-				break;
+			break;
+
 			case E_USER_NOTICE:
 				$err_name = SQ_SYSTEM_SHORT_NAME.' Notice';
 				$bg_colour = '#17AA92';
-				break;
+			break;
+
 			case E_ERROR:
 				$err_name = 'PHP Error';
 				$bg_colour = '#0066CC';
-				break;
+			break;
+
 			case E_WARNING:
 				$err_name = 'PHP Warning';
 				$bg_colour = '#0066CC';
-				break;
+			break;
+
 			case E_NOTICE:
 				$err_name = 'PHP Notice';
 				$bg_colour = '#0066CC';
-				break;
+			break;
+
 			default:
 				$err_name = 'Unknown Error Type - '.$err_no;
 				$bg_colour = '#FF0000';
-
+			break;
 		}//end switch
 
 
