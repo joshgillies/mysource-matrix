@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.27 2004/11/05 00:39:46 dbaranovskiy Exp $
+* $Id: html_tidy.inc,v 1.28 2004/11/05 01:07:11 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -182,7 +182,7 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 							switch (i) {
 								case 0	: {
 									reg = new RegExp("<\/?font ?[^>]*>", "gi");
-									rep = "$1";
+									rep = "";
 									break;
 								}
 								case 1	: {
@@ -220,7 +220,7 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 									break;
 								}
 								case 7	: {
-									reg = new RegExp("<p[^>]*>(&nbsp;| |\n|\t|<(.*?)>)?<\/p>", "gi");
+									reg = new RegExp("<p[^>]*>(&nbsp;| |\n|\t|<([^<>]*?)>)?<\/p>", "gi");
 									rep = "";
 									break;
 								}
