@@ -18,8 +18,16 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_row.php,v 1.5 2003/11/26 00:51:23 gsherwood Exp $
+* $Id: edit_row.php,v 1.6 2004/01/16 11:17:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
+*/
+
+/**
+* Row Edit Popup for the WYSIWYG
+*
+* @author  Greg Sherwood <gsherwood@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../wysiwyg_plugin.inc';

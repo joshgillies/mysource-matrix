@@ -18,8 +18,16 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.15 2004/01/16 01:06:48 gsherwood Exp $
+* $Id: insert_image.php,v 1.16 2004/01/16 11:17:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
+*/
+
+/**
+* Insert Image Popup for the WYSIWYG
+*
+* @author  Greg Sherwood <gsherwood@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';

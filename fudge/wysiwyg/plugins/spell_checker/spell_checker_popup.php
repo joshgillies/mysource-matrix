@@ -18,8 +18,16 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker_popup.php,v 1.4 2003/11/26 00:51:23 gsherwood Exp $
+* $Id: spell_checker_popup.php,v 1.5 2004/01/16 11:17:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
+*/
+
+/**
+* Spell Checker Popup for the WYSIWYG
+*
+* @author  Marc McIntyre <mmcintyre@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
 */
 
 require_once dirname(__FILE__).'/../../wysiwyg_plugin.inc';

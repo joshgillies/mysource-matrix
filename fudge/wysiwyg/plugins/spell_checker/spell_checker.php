@@ -18,8 +18,16 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.php,v 1.6 2003/11/26 00:51:23 gsherwood Exp $
+* $Id: spell_checker.php,v 1.7 2004/01/16 11:17:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
+*/
+
+/**
+* Spell Checker Popup for the WYSIWYG
+*
+* @author  Marc McIntyre <mmcintyre@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
 */
 
 header("Content-type: text/html; charset: utf-8");

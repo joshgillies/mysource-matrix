@@ -18,9 +18,18 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.11 2004/01/16 01:06:48 gsherwood Exp $
+* $Id: embed_movie.php,v 1.12 2004/01/16 11:17:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
+
+/**
+* Embed Movie Popup for the WYSIWYG
+*
+* @author  Greg Sherwood <gsherwood@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
+*/
+
 
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';

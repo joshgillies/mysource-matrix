@@ -18,10 +18,17 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_tables_pgsql.inc,v 1.4 2003/11/26 00:51:18 gsherwood Exp $
+* $Id: db_tables_pgsql.inc,v 1.5 2004/01/16 11:17:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
+/**
+* File Versioning Database Tables for PostgresSQL
+*
+* @author  Blair Robertson <brobertson@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
+*/
 
 $tables = Array(
 '
