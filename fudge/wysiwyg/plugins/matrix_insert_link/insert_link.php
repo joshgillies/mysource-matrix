@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.28 2005/01/15 18:40:18 brobertson Exp $
+* $Id: insert_link.php,v 1.29 2005/01/19 16:35:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -147,7 +147,7 @@ if (!isset($_GET['new_window'])) {
 					if (assetid != '') {
 						// shadow asset
 						if (assetid.search(/:/) != -1) {
-							f.url_link.value = './?a=' + assetid + '!';
+							f.url_link.value = './?a=' + assetid + '$';
 						} else {
 							f.url_link.value = './?a=' + assetid;
 						}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.21 2005/01/15 18:40:18 brobertson Exp $
+* $Id: matrix_insert_image.inc,v 1.22 2005/01/19 16:35:48 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using an image asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -120,9 +120,11 @@ class matrix_insert_image extends wysiwyg_plugin
 					border = (!image_tag.border) ? "0" : image_tag.border;
 
 					imageid = editor.make_relative_hrefs(url);
-					e = '.*\\?a=([0-9]+)((:[^!]*)!)?';
+					alert(url);
+					e = '.*\\?a=([0-9]+)((:[^$]*)\\$)?';
 					re = new RegExp(e, "gi");
 					imageid = imageid.replace(re, "$1$3");
+					alert('image id : ' + imageid);
 				}
 
 				var in_popup = '0';
@@ -140,7 +142,7 @@ class matrix_insert_image extends wysiwyg_plugin
 					var url = './?a=' + param["f_imageid"];
 					// shadow asset .. needs terminating exclamation mark
 					if (param["f_imageid"].search(/:/) != -1) {
-						url += '!';
+						url += '$';
 					}
 
 					var html = '<img src="' + url + '"';
