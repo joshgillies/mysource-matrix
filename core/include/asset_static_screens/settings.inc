@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.5 2004/03/17 05:30:01 gsherwood Exp $
+* $Id: settings.inc,v 1.6 2004/03/17 10:22:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -293,7 +293,7 @@ function paintSettings(&$owner, &$o, &$ei)
 						$o->openSection($display_name);
 
 						if ($new_user_design) {
-							$o->openField('Name');
+							$o->openField('Design Code');
 							text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 						} else {
 							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
