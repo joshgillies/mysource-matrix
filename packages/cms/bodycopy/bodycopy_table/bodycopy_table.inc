@@ -227,15 +227,25 @@ class Bodycopy_Table extends Asset
 	*/
 	function remapAssetids($map)
 	{
-		if (!parent::remapAssetids($map)) return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		if (!parent::remapAssetids($map)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
 		$old_assetid = array_search($this->id, $map);
-		if ($old_assetid === FALSE) return true;
+		if ($old_assetid === FALSE) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		}
 
 		$old_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($old_assetid, $this->type());
 		$our_links = $this->getLinks(SQ_LINK_SIGNIFICANT, 'content_type', false);
 		
-		if (is_null($old_asset) || empty($our_links)) return true;
+		if (is_null($old_asset) || empty($our_links)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		}
 		$rows = $this->attr('rows');
 
 		for($i = 0; $i < count($rows); $i++) {
@@ -259,7 +269,13 @@ class Bodycopy_Table extends Asset
 			}// end for
 		}// end for
 
-		return $this->setAttrValue('rows', $rows);
+		if ($this->setAttrValue('rows', $rows)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return true;
+		}
 
 	}// end remapAssetids()
 
