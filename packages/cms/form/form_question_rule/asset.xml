@@ -5,7 +5,7 @@
 	<package>cms</package>
 	<type_code>Form_Question_Rule</type_code>
 	<version>0.1</version>
-	<name>Question Rule</name>
+	<name>Form Question Rule</name>
 	<description>Rule for Questions</description>
 	<instantiable>no</instantiable>
 	<allowed_access>system</allowed_access>

@@ -5,7 +5,7 @@
 	<package>cms</package>
 	<type_code>form_question_rule_type_email</type_code>
 	<version>0.1</version>
-	<name>Question Rule - Valid Email Address</name>
+	<name>Form Question Rule - Valid Email Address</name>
 	<description>Valid Email</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

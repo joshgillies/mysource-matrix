@@ -5,7 +5,7 @@
 	<package>cms</package>
 	<type_code>form_question_rule_type_regexp</type_code>
 	<version>0.1</version>
-	<name>Question Rule - Regular Expression</name>
+	<name>Form Question Rule - Regular Expression</name>
 	<description>Regular Expression</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
