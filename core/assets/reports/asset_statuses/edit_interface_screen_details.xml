@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2005/02/16 06:02:14 dbaranovskiy Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2005/03/08 05:31:45 tbarrett Exp $
 *
 */
 -->
@@ -41,7 +41,7 @@
 		<field attribute="search_status">
 			<display_name>Current Status</display_name>
 			<note />
-			<selection style="list"  height="1" />
+			<selection style="list" height="1" />
 		</field>
 		<field>
 			<display_name>Last Status Change</display_name>

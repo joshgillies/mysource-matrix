@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.3 2005/02/20 22:50:23 tbarrett Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.4 2005/03/08 05:31:45 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,18 +104,28 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
 		
+		if (empty($result)) {
+			$step_data['percent_done'] = 100;
+			$step_data['complete']     = true;
+			$job->_addError('No assets were found matching your criteria', true);
+			return false;
+		}
 		// find the users' names
-		$assetids = Array();
+		$userids = Array();
 		foreach ($result as $r) {
-			$userids[] = $r['status_changed_userid'];
+			if (!empty($r['status_changed_userid']) && (false === strpos($r['status_changed_userid'], ':'))) {
+				$userids[] = $r['status_changed_userid'];
+			}
 		}
 		$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userids, Array(), false, 'name');
 		foreach ($result as $i => $r) {
 			if (isset($names[$r['status_changed_userid']])) {
-				$result[$i]['user_name'] = $names[$r['status_changed_userid']];
-			} else {
+				$result[$i]['user_name'] = array_get_index($names, $r['status_changed_userid'], 'Unknown');
+			} else if (!empty($r['status_changed_userid'])) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($r['status_changed_userid']);
 				$result[$i]['user_name'] = $asset->name;
+			} else {
+				$result[$i]['user_name'] = 'Unknown';
 			}
 		}
 

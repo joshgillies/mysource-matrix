@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_management.inc,v 1.3 2005/02/18 05:29:08 dbaranovskiy Exp $
+* $Id: report_asset_statuses_management.inc,v 1.4 2005/03/08 05:31:46 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,7 @@ class Report_Asset_Statuses_Management extends Asset_Management
 							'search_status' => Array(
 								'added'       => '0.1',
 								'type'        => 'selection',
-								'default'     => '',
+								'default'     => SQ_STATUS_LIVE,
 								'description' => 'The statuses we are interested in',
 								'parameters'  => Array(
 									'options'  => get_status_names(),
