@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.1 2004/05/27 23:41:59 gsherwood Exp $
+* $Id: assertions.inc,v 1.2 2004/05/28 06:39:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -402,7 +402,11 @@ function assert_valid_assetid($assetid, $msg='', $silent=false, $fatal=true)
 	if (is_int($assetid) || is_string($assetid)) {
 		if (!empty($assetid)) {
 			$int_assetid = (int) $assetid;
-			if ($int_assetid == $assetid) {
+
+			// must compare the converted int as string values because a non-numeric string will
+			// convert to int(0) which compares TRUE with said non-numeric string - therefore it will
+			// be assumed as int! This cast will make it string('0') which compares as FALSE
+			if ((string)$int_assetid == $assetid) {
 				// assetid is a standard integer
 				$valid = true;
 			} else {
