@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.63 2004/09/08 00:03:11 lwright Exp $
+* $Id: html_form.inc,v 1.63.4.1 2004/12/06 01:32:46 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -683,13 +683,16 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	<?php
 
 	text_box($safe_name.'_label', $label, 30, 0, false, 'class="sq-form-asset-finder" onfocus="javascript: this.tmp = this.value;" onblur="javascript: this.value = this.tmp;"');
-	normal_button($safe_name.'_change_btn', 'Change', $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
-	
-	if (in_array('clear', $buttons)) {
-		normal_button($safe_name.'_clear_btn', 'Clear', $map_frame.'.asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
-	}
-	if (in_array('reset', $buttons)) {
-		normal_button($safe_name.'_reset_btn', 'Reset', $map_frame.'.asset_finder_reset_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
+
+	if (!SQ_IN_LIMBO) {
+		normal_button($safe_name.'_change_btn', 'Change', $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
+		
+		if (in_array('clear', $buttons)) {
+			normal_button($safe_name.'_clear_btn', 'Clear', $map_frame.'.asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
+		}
+		if (in_array('reset', $buttons)) {
+			normal_button($safe_name.'_reset_btn', 'Reset', $map_frame.'.asset_finder_reset_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
+		}
 	}
 
 }//end asset_finder()
