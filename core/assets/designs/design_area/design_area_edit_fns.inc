@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.37 2004/04/08 10:19:47 brobertson Exp $
+* $Id: design_area_edit_fns.inc,v 1.38 2004/05/03 02:39:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -85,59 +85,13 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// lets just make sure that they are all UNIX new lines
 		$file_contents = str_replace(Array("\r\n", "\r"), "\n", $file_contents);
 
-		 /////////////////////////////////////////////////////////////////////
-		// Before we send this contents off to be parsed lets do some cleanup
-		// and adjustment of it so that it works.
-		// Using the supplied image root go through all the
-		// images, scripts and stylesheets and replace their image root with a
-		// tag to print their URL
-
-		//// DEAL WITH SCRIPTS AND IMAGES ////
-
-		// let's make sure that all the src are in the form src="[what ever]"
-		$e = '/((src)|(background))=([^"\'>[:space:]]+)/i';
-		$file_contents = preg_replace($e, '\\1="\\4"', $file_contents);
-
-		$e = '/((src)|(background))=\'([^\']*)\'/i';
-		$file_contents = preg_replace($e, '\\1="\\4"', $file_contents);
-
-		// OK, so now every src tag has is contained in double quotes
-
-		// replace any './[folder/filename]' with '[folder/filename]'
-		$e = '/(((src)|(background))=")\\.\\//i';
-		$file_contents = preg_replace($e, '\\1', $file_contents);
-
 		// replace any image roots with a print operation for the image prefix
-		$e = '/(((src)|(background))=")files\\/([^"]*)(")/i';
-		$file_contents = preg_replace($e, '\\1<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\5\' />\\6', $file_contents);
-
-		//// DEAL WITH STYLESHEETS ////
-
-		// let's make sure that all the src are in the form <link ... href="[what ever]" ...>
-		$e = '/(<link[^>]*href)=([^"\'>[:space:]]+)([^>]*)/i';
-		$file_contents = preg_replace($e, '\\1="\\2"\\3', $file_contents);
-
-		$e = '/(<link[^>]*href)=\'([^\']*)\'([^>]*)/i';
-		$file_contents = preg_replace($e, '\\1="\\2"\\3', $file_contents);
-
-		// OK, so now every link tag has is contained in double quotes
+		$e = '|mysource_files\/([a-zA-Z0-9\._]+)|i';
+		$file_contents = preg_replace($e, '<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\1\' />', $file_contents);
 
 		// replace any './[folder/filename]' with '[folder/filename]'
 		$e = '/(<link[^>]*href=")\\.\\//i';
 		$file_contents = preg_replace($e, '\\1', $file_contents);
-
-		// replace any image roots with a print operation for the image prefix
-		$e = '/(<link[^>]*href=")files\\/([^"]*)(")/i';
-		$file_contents = preg_replace($e, '\\1<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\2\' />\\3', $file_contents);
-
-		// replace any imported stylesheet links with a print operation for the image prefix
-		$e = '/(@import[\s]*url\()files\\/([^\)]*)(\)[^;]*;)/i';
-		$file_contents = preg_replace($e, '\\1<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\2\' />\\3', $file_contents);
-
-		// replace any style background urls with a print operation for the image prefix
-		$e = '/([A-za-z\-]+)([\s]*:[\s]*url\()files\\/([^\)]*)(\)[^;]*;)/i';
-		$file_contents = preg_replace($e, '\\1\\2<'.$this->tag_name.'_PRINT id_name=\'__global__\' var=\'file_path\' filename=\'\\3\' />\\4', $file_contents);
-
 
 		// lets just make sure they aren't trying to be tricky and do some processing we don't know about
 		$file_contents = preg_replace('|\<\?(?!xml)(.+?)(?=\?\>)\?\>|', '&lt;?\\1?&gt;', $file_contents);
@@ -152,9 +106,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$cur_pos    = 0;
 		$nest_level = 0;
 		$contents = $this->_parseStringContents($file_contents, $cur_pos, $nest_level);
-		if (!is_null($contents)) {
-			$this->_parserCleanupContents($contents);
-		}
+		if (!is_null($contents)) $this->_parserCleanupContents($contents);
 
 		return $contents;
 
@@ -593,7 +545,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _removeFileRoot($str)
 	{
-		return preg_replace('/^(\\.\\/)?files\/(.*)/i', '\\2', $str);
+		return preg_replace('/^(\\.\\/)?mysource_files\/(.*)/i', '\\2', $str);
 
 	}//end _removeFileRoot()
 
