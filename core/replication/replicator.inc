@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator.inc,v 1.1.2.3 2004/02/13 17:18:58 brobertson Exp $
+* $Id: replicator.inc,v 1.1.2.4 2004/02/13 18:29:11 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -251,6 +251,21 @@ class Replicator extends MySource_Object
 	{
 		return true;
 	}// end processBackend()
+
+
+	/**
+	* The Replicate fn, called from the Squiz Server Process Object
+	*
+	* @param string		$systemid		the systemid of the system that we are replicating with
+	* @param resource	$client_fd		the client socket resource
+	* 
+	* @return void
+	* @access public
+	* @abstract
+	*/
+	function replicate($systemid, $client_fd)
+	{
+	}// end replicate()
 
 }//end class
 
