@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.143 2003/10/17 05:52:16 brobertson Exp $
+* $Id: asset_manager.inc,v 1.144 2003/10/17 05:55:44 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -598,7 +598,6 @@ class Asset_Manager extends MySource_Object
 	{
 		static $system_assets = null;
 		if (is_null($system_assets)) {
-			pre_echo("REQUIRE >>>");
 			// include the main system config file
 			require SQ_DATA_PATH.'/private/conf/system_assets.inc';
 		}
