@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.22 2004/06/10 11:13:10 brobertson Exp $
+* $Id: selection.inc,v 1.23 2004/06/25 16:10:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -369,6 +369,25 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		return get_word_counts(strtolower($this->value));
 
 	}//end getKeyData()
+
+
+	/**
+	* Retrieve a list of indexable values from this attribute
+	*
+	* The return value not only contains the indexable values, but also the number of
+	* times they occur in this attributes value
+	*
+	* @return array(string => int)
+	* @access public
+	*/
+	function getValueArray()
+	{
+		$value = $this->_str2ar($this->value);
+		$value_arr = Array();
+		foreach($value as $k) $value_arr[$k] = $this->_params['options'][$k];
+		return $value_arr;
+
+	}//end getValueArray()
 
 
 }//end class
