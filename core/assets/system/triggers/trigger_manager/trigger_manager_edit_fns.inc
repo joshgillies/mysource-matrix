@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.11 2005/03/30 04:54:54 arailean Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.12 2005/04/06 04:12:52 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -858,7 +858,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 									  );
 
 			if (!$status) {
-				trigger_error("Settings for Condition number $i ($type) could not be saved. Please make sure the input is complete.", E_USER_WARNING);
+				trigger_error("Settings for Condition number $i ($type) could not be saved. Please make sure the input is complete.", E_USER_NOTICE);
 			}
 			$i++;
 		}
@@ -916,7 +916,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 									  );
 
 			if (!$status) {
-				trigger_error("Settings for Action number $i ($type) could not be saved. Please make sure the input is complete.", E_USER_WARNING);
+				trigger_error("Settings for Action number $i ($type) could not be saved. Please make sure the input is complete.", E_USER_NOTICE);
 			}
 			$i++;
 		}
