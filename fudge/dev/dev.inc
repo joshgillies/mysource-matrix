@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: dev.inc,v 1.7 2003/09/26 05:26:36 brobertson Exp $
+* $Id: dev.inc,v 1.8 2003/09/29 23:04:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -177,7 +177,7 @@ function speed_check($str="")
 	if($SPEED_CHECK_LAST_HIT) {
 		$elapsed = $BAM - $SPEED_CHECK_LAST_HIT;
 		$SPEED_CHECK_TOTAL += $elapsed;
-		echo("<br><table cellpadding=0 cellspacing=0 border=0 bgcolor=#ffff88><tr><td><p style=\"color:red;font-weight:bold;font-family:sans-serif;font-size:13px;\">".sprintf("%.5f&nbsp;/&nbsp;%.5f",$elapsed,$SPEED_CHECK_TOTAL)."&nbsp;&nbsp;$str</td></tr></table><br>");
+		echo("<table cellpadding=0 cellspacing=0 border=0 bgcolor=\"#ffff88\"><tr><td><p style=\"color:red;font-weight:bold;font-family:sans-serif;font-size:13px;\">".sprintf("%.5f&nbsp;/&nbsp;%.5f",$elapsed,$SPEED_CHECK_TOTAL)."&nbsp;&nbsp;$str</p></td></tr></table>");
 	}
 	list($msec, $sec) = explode(" ",microtime());
 	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec); #initialize
