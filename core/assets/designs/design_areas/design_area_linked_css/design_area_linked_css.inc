@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.2 2004/08/30 09:22:52 amiller Exp $
+* $Id: design_area_linked_css.inc,v 1.3 2004/09/02 06:39:29 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -152,7 +152,7 @@ class Design_Area_Linked_Css extends Design_Area
 		
 		switch ($tag_type) {
 			case 'link_tag' :
-				echo '<link rel="stylesheet" type="text/css" href="', '<', '?php echo $linked_'.$this->attr('id_name').'_url; ?', ' />"';
+				echo '<link rel="stylesheet" type="text/css" href="', '<', '?php echo $linked_'.$this->attr('id_name').'_url; ?', '>', '" />';
 				echo ' media="', $media, '">
 				';
 				break;
