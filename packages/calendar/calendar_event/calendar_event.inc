@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.34.2.2 2004/12/30 03:20:52 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: calendar_event.inc,v 1.34.2.3 2004/12/30 05:57:33 tbarrett Exp $
+*
 */
 
 
@@ -32,12 +32,12 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 * Calendar_Event
 *
 * Purpose
-*     
+*
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.34.2.2 $ - 1.0
+* @version $Revision: 1.34.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -55,9 +55,9 @@ class Calendar_Event extends Asset
 	{
 		$this->Asset($assetid);
 
-	}//end Calendar_Event()
+	}//end constructor
 
- 
+
 	/**
 	* Create this asset
 	*
@@ -67,7 +67,7 @@ class Calendar_Event extends Asset
 	* @access public
 	* @see Asset::create()
 	*/
-	function create(&$link) 
+	function create(&$link)
 	{
 		// should not be able to create an event with a blank name
 		$name = $this->attr('name');
@@ -75,12 +75,12 @@ class Calendar_Event extends Asset
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
 		}
-		
+
 		return parent::create($link);
 
 	}//end create()
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -113,23 +113,23 @@ class Calendar_Event extends Asset
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		// asset id becomes a where condition
 		$where = ' assetid = '.$db->quote($this->id);
-		
+
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('cal_date_val', $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		
+
 		if (!parent::delete($release_lock)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-		
+
 	}//end delete()
 
 
@@ -145,10 +145,10 @@ class Calendar_Event extends Asset
 	function _getName($short_name=false)
 	{
 		return $this->attr('name');
-	
+
 	}//end _getName()
-	
-	
+
+
 	/**
 	* Return the keywords with their replacements
 	*
@@ -174,9 +174,6 @@ class Calendar_Event extends Asset
 		// get rid of the raw attribute values which will just make a mess
 		unset($keywords['asset_attribute_start_date']);
 		unset($keywords['asset_attribute_end_date']);
-		unset($keywords['asset_name']);
-		unset($keywords['asset_short_name']);
-		unset($keywords['asset_thumbnail']);
 		$keywords['event_name'] = $keywords['asset_attribute_name'];
 		unset($keywords['asset_attribute_name']);
 
@@ -257,13 +254,13 @@ class Calendar_Event extends Asset
 		$end_has_time   = $this->getEndTime();
 		$start_has_date = $this->getStartDate();
 		$end_has_date   = $this->getEndDate();
-		
+
 		// All events must have a starting date at least!
 		if (!$start_has_date) {
 			trigger_error('Calendar Events must at least have a start date', E_USER_WARNING);
 			return false;
 		}
-		
+
 		// cannot have End Date being like '---------- 11:00:00'
 		if (!$end_has_date && $end_has_time) {
 			trigger_error('If the \'End Date\' includes a time component it must also include a date', E_USER_WARNING);
@@ -318,18 +315,18 @@ class Calendar_Event extends Asset
 			trigger_error('If the time component of \'End Date\' is specified it must specify at least hour and minute', E_USER_WARNING);
 			return false;
 		}
-		
+
 		// cache all the calendar data into another table so the queries for the calendar
 		// page go super-mega-hyperturbo (but only if already created)
 		if (!empty($this->id) && !$dont_run_updated) {
 			if (!$this->cacheCalendarData()) return false;
 		}
-		
+
 		// all sweet, so it seems
 		return parent::saveAttributes($dont_run_updated);
 
 	}//end saveAttributes()
-	
+
 
 	/**
 	* Takes a clone shell and clones the sources required components to the clone shell
@@ -353,22 +350,22 @@ class Calendar_Event extends Asset
 	function cloneComponents(&$clone, $components)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;			
+			return false;
 		}
-		
+
 		if (in_array('all', $components) || in_array('attributes', $components)) {
 			if (!$clone->cacheCalendarData(false)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 		}
-		
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-		
+
 	}//end cloneComponents()
 
 
@@ -379,11 +376,11 @@ class Calendar_Event extends Asset
 	* 				yyyy-mm-dd) or boolean FALSE if the date component is empty
 	* @access public
 	*/
-	function getStartDate() 
+	function getStartDate()
 	{
 		$res = substr($this->attr('start_date'), 0, 10);
 		return ($res == '----------') ? false : $res;
-		
+
 	}//end getStartDate()
 
 
@@ -394,14 +391,14 @@ class Calendar_Event extends Asset
 	* 				yyyy-mm-dd) or boolean FALSE if the date component is empty
 	* @access public
 	*/
-	function getEndDate() 
+	function getEndDate()
 	{
 		$res = substr($this->attr('end_date'), 0, 10);
 		return ($res == '----------') ? false : $res;
-		
+
 	}//end getEndDate()
 
-	
+
 	/**
 	* Get the time component of the Start Date attribute
 	*
@@ -409,11 +406,11 @@ class Calendar_Event extends Asset
 					or boolean FALSE if the time component is empty (--:--:--)
 	* @access public
 	*/
-	function getStartTime() 
+	function getStartTime()
 	{
 		$res = substr($this->attr('start_date'), 11, 5);
 		return ($res == '--:--') ? false : $res;
-		
+
 	}//end getStartTime()
 
 
@@ -424,13 +421,13 @@ class Calendar_Event extends Asset
 					or boolean FALSE if the time component is empty (--:--:--)
 	* @access public
 	*/
-	function getEndTime() 
+	function getEndTime()
 	{
 		$res = substr($this->attr('end_date'), 11, 5);
 		return ($res == '--:--') ? false : $res;
-		
+
 	}//end getEndTime()
-	
+
 
 	/**
 	* Returns the duration between the start and end dates, if they are set
@@ -487,11 +484,11 @@ class Calendar_Event extends Asset
 	* @return string the start date and time if appropriate, in friendly format
 	* @access public
 	*/
-	function getFriendlyStart() 
+	function getFriendlyStart()
 	{
 		if ($this->getStartTime() !== false) {
 			return readable_datetime(iso8601_ts($this->attr('start_date')));
-		} else { 
+		} else {
 			return date('jS M Y', iso8601_ts($this->attr('start_date')));
 		}
 
@@ -504,7 +501,7 @@ class Calendar_Event extends Asset
 	* @return string the end date and time if appropriate, in friendly format
 	* @access public
 	*/
-	function getFriendlyEnd() 
+	function getFriendlyEnd()
 	{
 		if ($this->getEndTime() !== false) {
 			return readable_datetime(iso8601_ts($this->attr('end_date')));
@@ -519,7 +516,7 @@ class Calendar_Event extends Asset
 
 	/**
 	* Get the start and end details in friendly format
-	* 
+	*
 	* If date components of Start Date and End Date attributes are the same, the date is not repeated,
 	* and the times are shown in abbreviated format (see example returns below).
 	*
@@ -610,13 +607,24 @@ class Calendar_Event extends Asset
 	*
 	* @return string	HTML to show as the result of this action
 	* @access public
-	*/	
-	function processEventAction($action_name) 
+	*/
+	function processEventAction($action_name)
 	{
 		switch ($action_name) {
 			case 'move':
+				if (isset($_REQUEST['SQ_CALENDAR_OLD_LOC']) && !empty($_REQUEST['SQ_CALENDAR_OLD_LOC'])) {
+					$old_link = &$GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($_REQUEST['SQ_CALENDAR_OLD_LOC'], $this->id);
+					if (empty($old_link)) {
+						trigger_error('Cannot find old link, cannot move event', E_USER_WARNING);
+						return '';
+					}
+					if (!$GLOBALS['SQ_SYSTEM']->am->moveLink($old_link['linkid'], $_REQUEST['SQ_CALENDAR_NEW_LOC'], $old_link['link_type'], -1)) {
+						trigger_error('Cannot move link, cannot move event', E_USER_WARNING);
+						return '';
+					}
+				}
 				if (!isset($_REQUEST['SQ_CALENDAR_DATE'])) {
-					trigger_error($action_name.' is an unknown action for this type of event', E_USER_WARNING);	
+					trigger_error('Cannot move event: new date not specified', E_USER_WARNING);
 					return '';
 				}
 				$duration = $this->getDuration();
@@ -640,14 +648,14 @@ class Calendar_Event extends Asset
 			case 'delete':
 				$GLOBALS['SQ_SYSTEM']->am->trashAsset($this->id);
 			break;
-			
+
 			default:
-				trigger_error($action_name.' is an unknown action for this type of event', E_USER_WARNING);	
+				trigger_error($action_name.' is an unknown action for this type of event', E_USER_WARNING);
 				return '';
 			break;
 		}
 
-	}//end processEventAction()	
+	}//end processEventAction()
 
 
 	/**
@@ -662,11 +670,11 @@ class Calendar_Event extends Asset
 	function cacheCalendarData($updating=true)
 	{
 		$db = $GLOBALS['SQ_SYSTEM']->db;
-	
+
 		$date_values = Array();
 		foreach (Array('start_date', 'end_date') as $date_comp) {
 			$iso = $this->attr($date_comp);
-						
+
 			if (iso8601_time_component($iso) === false) {
 				if (($date_comp == 'end_date') && (iso8601_date_component($iso) !== false)) {
 					$iso = substr($iso,0,10).' 24:00:00';
@@ -676,20 +684,20 @@ class Calendar_Event extends Asset
 				// use the getDate() niceness
 				$iso = substr($iso,0,16).':00';
 			}
-			
+
 			// we have the best, now get the rest
 			$date_values += get_date_components($iso, $date_comp.'_');
 		}
-		
+
 		// frequency field => blank for standard events, overridden in recurring
 		$date_values['frequency'] = '';
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-	
+
 		if (!$updating) {
 			// set the asset ids
 			$date_values['assetid'] = $this->id;
-		
+
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('cal_date_val', $date_values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -697,22 +705,22 @@ class Calendar_Event extends Asset
 		} else {
 			// now quote everything except null values
 			foreach (array_keys($date_values) as $key) {
-				$date_values[$key] = (is_null($date_values[$key]) ? 'null' : 	$db->quote($date_values[$key]));						
+				$date_values[$key] = (is_null($date_values[$key]) ? 'null' : 	$db->quote($date_values[$key]));
 			}
-		
+
 			// asset id becomes a where condition
 			$where = ' assetid = '.$db->quote($this->id);
-		
+
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('cal_date_val', $date_values, $where)) {
-				trigger_error('Unable to cache calendar data for '.ucwords(str_replace('_', ' ', $this->type())).' asset "'.$this->attr('name').'" (# '.$this->id.')', E_USER_WARNING);				
+				trigger_error('Unable to cache calendar data for '.ucwords(str_replace('_', ' ', $this->type())).' asset "'.$this->attr('name').'" (# '.$this->id.')', E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-			
+
 	}//end cacheCalendarData()
 
 
