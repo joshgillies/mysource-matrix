@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.45 2004/12/23 22:19:45 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.46 2005/01/13 22:30:06 gsherwood Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -672,8 +672,7 @@ class Page_Asset_Builder extends Page
 					}
 				}
 				if (!in_array($assetid, $valid_parents)) {
-					$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($assetid);
-					$matches = array_intersect($GLOBALS['SQ_SYSTEM']->am->getParents($assetid), $valid_parents);
+					$matches = array_intersect(array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($assetid)), $valid_parents);
 					if (empty($matches)) unset($res[$assetid]);
 				}
 			}

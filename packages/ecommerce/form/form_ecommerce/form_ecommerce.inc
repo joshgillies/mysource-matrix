@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.10 2004/12/06 14:42:21 brobertson Exp $
+* $Id: form_ecommerce.inc,v 1.11 2005/01/13 22:27:12 gsherwood Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -348,7 +348,7 @@ class Form_Ecommerce extends Form_Email
 
 			// get own url. because the form cannot print itself, we have
 			// to determine the url of the parent page
-			$parents         = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'page_custom_form_ecommerce', false);
+			$parents = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'page_custom_form_ecommerce', false));
 			$parent_page_id  = array_pop($parents);
 			$parent_page     = $GLOBALS['SQ_SYSTEM']->am->getAsset($parent_page_id);
 			$parent_page_url = $parent_page->getURL();

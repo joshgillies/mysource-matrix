@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.13 2004/12/06 14:40:32 brobertson Exp $
+* $Id: calendar_event_modification.inc,v 1.14 2005/01/13 22:26:48 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -167,7 +167,7 @@ class Calendar_Event_Modification extends Calendar_Event
 			if (!$dont_run_updated) {
 
 				// get the parent recurring event asset
-				$recurring_event_ids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false);
+				$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false));
 				if (empty($recurring_event_ids)) {
 					trigger_error('Recurring Event Modifications can only be created underneath recurring events', E_USER_ERROR);
 					return false;
@@ -200,6 +200,7 @@ class Calendar_Event_Modification extends Calendar_Event
 				<td><?php
 				// get the parent recurring event asset
 				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false)) {
+					$recurring_events = array_keys($recurring_events);
 					$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
 					echo '<a href="'.$root_url.'?a='.$recurring_events[0].'">'.$recurring_event->attr('name').'</a>';
 				}?></td>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.75 2004/12/21 01:09:03 lwright Exp $
+* $Id: form.inc,v 1.76 2005/01/13 22:30:06 gsherwood Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -326,7 +326,7 @@ class Form extends Bridge
 	function getParents($assetid, $type_code='', $strict_type_code=true)
 	{
 		// there are no links away from the shadow asset (ie:questions)
-		if (!is_numeric($assetid)) return Array($this->id);
+		if (!is_numeric($assetid)) return Array($this->id => $this->type());
 
 		$parents = Array();
 		if (!is_array($type_code)) $type_code = Array($type_code);
@@ -1484,7 +1484,7 @@ class Form extends Bridge
 
 		$bodycopies = Array();
 		foreach ($bodycopy_links as $link_info) {
-			if (in_array($link_info['minorid'], $parents)) {
+			if (isset($parents[$link_info['minorid']])) {
 				$bodycopies[] = $link_info['value'];
 			}
 		}

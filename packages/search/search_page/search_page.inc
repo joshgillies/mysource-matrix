@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.72 2004/12/20 23:27:27 tbarrett Exp $
+* $Id: search_page.inc,v 1.73 2005/01/13 22:28:14 gsherwood Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1454,7 +1454,7 @@ class Search_Page extends Page
 					$replacement = '';
 					$first = true;
 					$found_root = false;
-					$parent_asset_ids = $am->getParents($asset->id);
+					$parent_asset_ids = array_keys($am->getParents($asset->id));
 
 					// searching for the root asset
 					$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
@@ -1845,7 +1845,7 @@ class Search_Page extends Page
 
 		$bodycopies = Array();
 		foreach ($bodycopy_links as $link_info) {
-			if (in_array($link_info['minorid'], $parents)) {
+			if (isset($parents[$link_info['minorid']])) {
 				$bodycopies[] = $link_info['value'];
 			}
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single.inc,v 1.9 2005/01/06 04:39:54 tbarrett Exp $
+* $Id: calendar_event_single.inc,v 1.10 2005/01/13 22:26:48 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -104,6 +104,7 @@ class Calendar_Event_Single extends Calendar_Event
 				<td><b>Replaces cancellation</b></td>
 				<td><?php
 					// get the parent recurring event asset
+					$recurring_events = array_keys($recurring_events);
 					$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
 					if (isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
 						$cancellation_href = replace_query_string_vars(Array('SQ_CALENDAR_EVENT_ID' => $recurring_events[0], 'SQ_CALENDAR_EVENT_ACTION' => null));

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.14 2005/01/06 04:39:54 tbarrett Exp $
+* $Id: calendar_event_cancellation.inc,v 1.15 2005/01/13 22:26:48 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -239,7 +239,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		$res = '';
 		switch ($action_name) {
 			case 'addreplacement':
-				$parent_assetids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring');
+				$parent_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring'));
 				$parent_object = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetids[0]);
 
 				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=addreplacement2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><table cellpadding="4" border="0">';
@@ -306,7 +306,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			if (!$dont_run_updated) {
 
 				// get the parent recurring event asset
-				$recurring_event_ids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false);
+				$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false));
 				if (empty($recurring_event_ids)) {
 					trigger_error('Recurring Event Cancellations can only be created underneath recurring events', E_USER_ERROR);
 					return false;
@@ -344,6 +344,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 				<td><?php
 				// get the parent recurring event asset
 				if ($recurring_events = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false)) {
+					$recurring_events = array_keys($recurring_events);
 					$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_events[0]);
 					echo '<a href="'.$root_url.'?a='.$recurring_events[0].'">'.$recurring_event->attr('name').'</a>';
 				}?></td>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation_edit_fns.inc,v 1.7 2004/12/06 17:31:33 brobertson Exp $
+* $Id: calendar_event_cancellation_edit_fns.inc,v 1.8 2005/01/13 22:26:48 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -108,7 +108,7 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 	{
 		$modified_event_asset = null;
 		if ($asset->id) {
-			$recurring_event_ids = $GLOBALS['SQ_SYSTEM']->am->getParents($asset->id, 'calendar_event_recurring', false);
+			$recurring_event_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id, 'calendar_event_recurring', false));
 			if (!empty($recurring_event_ids)) {
 				$modified_event_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
 			}
