@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.280 2004/03/02 04:11:38 mmcintyre Exp $
+* $Id: asset.inc,v 1.281 2004/03/03 23:50:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3304,7 +3304,7 @@ class Asset extends MySource_Object
 		$weightings = $this->getWeightings();
 
 		// supply name
-		$value = $this->name;
+		$value = strtolower($this->name);
 		foreach (get_word_counts($value) as $word => $count) {
 			$this->buildKeyData($keydata, $word, 'text', 'attr:'.$this->type().':__name__', $count * $weightings['__name__']['weighting']);
 		}
