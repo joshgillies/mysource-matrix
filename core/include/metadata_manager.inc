@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.72 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.73 2005/04/05 05:58:41 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -700,7 +700,9 @@ class Metadata_Manager extends MySource_Object
 			foreach ($nested_tag_values as $i => $values) {
 				echo '$metadata_values_'.$i.' = Array(';
 				foreach ($values as $n => $v) {
-					$v = addslashes($v);
+					$v = stripslashes($v);
+					$v = preg_replace('%\'%', '\\\'', $v);
+					$v = preg_replace('%\"%', '&quot;', $v);
 					$v = preg_replace('|(\$metadata_replacements\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
 					$v = preg_replace('|(\$metadata_values[^\[]+\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
 					echo "'$n' => '$v',\n";
