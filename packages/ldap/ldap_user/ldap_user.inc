@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.3 2004/06/21 13:01:12 brobertson Exp $
+* $Id: ldap_user.inc,v 1.4 2004/08/18 00:49:33 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -184,6 +184,20 @@ class Ldap_User extends Backend_User
 		<?php
 
 	}//end printBody()
+
+
+	/**
+	* Returns null as LDAP users do not have a workspace
+	*
+	* @return &object
+	* @access public
+	*/
+	function &getWorkspace()
+	{
+		$null = null;
+		return $null;
+
+	}//end getWorkspace()
 
 
 	/**
