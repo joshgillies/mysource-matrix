@@ -2655,14 +2655,14 @@ class Asset extends Resolve_Object
 				}
 
 				// this asset is destined for the trash, so we need to set its permissions to
-				// whatever it is inheriting right now so it keeps the while in the trash
+				// whatever it is inheriting right now so it keeps them while in the trash
 				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
 				foreach ($perms as $perm) {
 					$all_permissions = $minor->getPermission($perm, null, false, true, false, true);
 					foreach($all_permissions as $userid => $data) {
 						if (empty($data)) continue;
-						$accesses = array_unique($data);
-						foreach($accesses as $access) {
+						foreach($data as $assetid => $access) {
+							if($assetid == $minor->id) continue;
 							if (!$minor->setPermission($userid, $perm, $access)) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 								return false;
