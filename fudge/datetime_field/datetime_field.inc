@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.22 2004/09/30 03:03:40 tbarrett Exp $
+* $Id: datetime_field.inc,v 1.23 2004/10/06 02:12:46 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -472,8 +472,8 @@ class DateTime_Field {
 			if (($new_l = strlen($value)) != $l) {
 				$c = true;
 			}
-			if (!preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2} ([0-9\-]{2}\:?){3}( [01]?)?$/",$value)) { // Correct format?
-				if (preg_match("/^[0-9]{4}$/",$value)) { // Just a year?
+			if (!preg_match("/^\-?[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2} ([0-9\-]{2}\:?){3}( [01]?)?$/",$value)) { // Correct format?
+				if (preg_match("/^\-?[0-9]{4}$/",$value)) { // Just a year?
 					$value .= '------ --:--:--';
 				} else if (preg_match("/^[0-9]+$/",$value)) { // Timestamp?
 					$value = date('Y-m-d H:i:s',$value);
@@ -491,7 +491,7 @@ class DateTime_Field {
 						}
 						$v['y'] = $matches[3];
 						if (strlen($v['y']) <= 2) $v['y'] += (($v['y']<20)?2000:1900);
-					} else if (preg_match("/([0-9]{2,4})[\-\/]([0-9]{1,2})[\-\/]([0-9]{1,2})([^0-9].*|)$/",$value,$matches) && ($matches[0] == $value)) {
+					} else if (preg_match("/\-?([0-9]{2,4})[\-\/]([0-9]{1,2})[\-\/]([0-9]{1,2})([^0-9].*|)$/",$value,$matches) && ($matches[0] == $value)) {
 						// Probably a ISO 8601 / ISO 9075 [SQL92/99] date ("yyyy-mm-dd")
 						$v['d'] = $matches[3];
 						$v['m'] = $matches[2];
@@ -586,9 +586,9 @@ class DateTime_Field {
 		}
 
 		// DO CIRCA STUFF HERE ON DOWN
-		$validate_day_month = $value['y'] > 1901 && $value['y'] < 2038 && $value['m'] >= 0 && $value['d'] >= 0; // PHP limit
+		$validate_day_month = $value['y'] >= 1970 && $value['y'] < 2038 && $value['m'] >= 0 && $value['d'] >= 0; // PHP limit
 		$value = $this->unitsArrayToStr($value);
-
+		
 		// ensures valid
 		if ($validate_day_month) {
 			$timestamp = mktime(
