@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.22 2004/02/26 02:58:32 diarandine Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.23 2004/03/24 06:26:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,7 +64,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	function paintNewSection(&$asset, &$o, $prefix)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		echo 'Create a new section called ';
+		echo 'Section Name ';
 		text_box($prefix.'_new_section', '', 20);
 		return true;
 
@@ -424,24 +424,18 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			
 			$schema_name = strtolower($asset -> attr('name')); // getting schema name
 
-			if ($schema_name == "agls") {
-
+			if ($schema_name == 'agls') {
 				$asset -> setAttrValue('namespace', 'xmlns:agls');
 				$asset -> setAttrValue('nsurl', 'http://www.naa.gov.au/recordkeeping/gov_online/agls/1.2');
-
-			} elseif ($schema_name == "dc") {
-
+			} elseif ($schema_name == 'dc') {
 				$asset -> setAttrValue('namespace', 'xmlns:dc');
 				$asset -> setAttrValue('nsurl', 'http://purl.org/dc/elements/1.1/');
-
-			} elseif ($schema_name == "edna") { 
-				
+			} elseif ($schema_name == 'edna') { 
 				$asset -> setAttrValue('namespace', 'xmlns:edna');
 				$asset -> setAttrValue('nsurl', 'http://www.edna.edu.au/metadata/v1.1');
-
 			}
 
-		} // end if isset
+		}
 
 		return true;
 
