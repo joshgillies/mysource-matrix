@@ -5,9 +5,9 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-* $Revision: 1.7 $
+* $Revision: 1.8 $
 * $Author: brobertson $
-* $Date: 2003/05/30 04:53:47 $
+* $Date: 2003/05/30 07:00:25 $
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
@@ -434,7 +434,6 @@ function asset_finder_start(name, type_codes_xml)
 	}
 
 	ASSET_FINDER_FIELD_NAME = name;
-	alert(type_codes_xml);
 	if (top.sidenav && top.sidenav.asset_finder) {
 		top.sidenav.asset_finder(asset_finder_done, type_codes_xml);
 	} else {
@@ -454,7 +453,6 @@ function asset_finder_start(name, type_codes_xml)
 function asset_finder_done(assetid, label) 
 {
 	if (ASSET_FINDER_FIELD_NAME == null) return;
-	alert('HTML FORM asset_finder_done(' + assetid + ', ' + name + ')');
 	// if we get a zero they cancelled, do nothing
 	if (assetid != 0) {
 		set_hidden_field(ASSET_FINDER_FIELD_NAME, assetid);

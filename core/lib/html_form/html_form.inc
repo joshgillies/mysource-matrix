@@ -542,8 +542,6 @@ function asset_finder($name, $assetid=0, $type_codes=Array())
 		else $label = $asset->short_name.' (Id : #'.$asset->id.')';
 	}
 
-	pre_echo($xml_type_codes->get());
-
 	hidden_field($name, $assetid);
 	$safe_name = preg_replace('/[^a-z0-9_]/i', '_', $name);
 	text_box($safe_name.'_label', $label, 30, 0, 'style="border-style: none; border-width: 0px;" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
