@@ -237,9 +237,9 @@ function make2digits(num) {
 
 function fieldGroupBlurred(oldField) {
 	if ((currentField === null) || (oldField === null)) return true;
-	suffixes = Array('year','month','day','hours','minutes','is_pm');
-	for (i=0; i < suffixes.length; i++) {
-		if ((splitPoint = oldField.id.indexOf(suffixes[i])) != -1) {
+	fieldGroupSuffixes = Array('year','month','day','hours','minutes','is_pm');
+	for (i=0; i < fieldGroupSuffixes.length; i++) {
+		if ((splitPoint = oldField.id.indexOf(fieldGroupSuffixes[i])) != -1) {
 			baseName = oldField.id.substring(0, splitPoint-1);
 			break;
 		}
