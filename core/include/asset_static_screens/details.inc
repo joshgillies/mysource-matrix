@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.11 2004/12/29 00:30:30 tbarrett Exp $
+* $Id: details.inc,v 1.12 2005/01/05 04:33:43 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -178,7 +178,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					}//end if
 
 					if ($owner->writeAccess()) {
-						$o->openField('Add New Future Statuses', 'new_line');
+						$o->openField('Add New Future Status', 'new_line');
 							$cron_epoc = (int)$cron_mgr->attr('epoch');
 							$cron_refresh = (int)$cron_mgr->attr('refresh_time');
 							if ($cron_epoc > 0 && $cron_refresh > 0) {
