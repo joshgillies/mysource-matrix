@@ -1462,8 +1462,8 @@ class Asset_Edit_Interface extends Resolve_Object
 		$sql = 'SELECT cl.minorid, pt.treeid, a.name
 				FROM sq_asset_link cl INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
 					 sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid 
-					 INNER JOIN sq_asset a ON a.assetid = pl.minorid ';
-		$sql .= 'WHERE cl.minorid IN ('.implode(', ', array_keys($assetids)).')
+					 INNER JOIN sq_asset a ON a.assetid = pl.minorid
+				WHERE cl.minorid IN ('.implode(', ', array_keys($assetids)).')
 				  AND ct.treeid LIKE '.$concat.'
 				  AND pt.treeid < ct.treeid';
 
@@ -1479,7 +1479,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$done_something = false;
 		foreach ($asset_links as $link) {
 			$majorid = $link['majorid'];
-			
+
 			// dont even pretend that the root folder is going to
 			// care that it is linking to this asset!!
 			if ($majorid == 1) continue;
@@ -1494,24 +1494,23 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			$asset_lineage = $lineage_prefix;
 			$last_treeid = '';
-			
 			foreach ($assetids[$majorid] as $tree_data) {
-				if ($tree_data[0] < $last_treeid) {
-					// starting a new lineage
-					$asset_lineage .= $lineage_suffix;
-					echo $asset_lineage;
-					$asset_lineage = $lineage_prefix;
+				if (!empty($last_treeid) && 
+					(empty($tree_data[0]) || strpos($tree_data[0], $last_treeid) !== 0)) {
+					// completed a lineage
+					break;
 				}
-				if ($tree_data[1] == '/') continue;
 				$last_treeid = $tree_data[0];
+				if ($tree_data[1] == '/') continue;
 				$asset_lineage .= $tree_data[1].' > ';
 			}
 			$asset_lineage .= $lineage_suffix;
 			$done_something = true;
 			
 			if ($can_edit) {
+				echo '[&nbsp;';
 				combo_box($prefix.'_link_type['.$link['linkid'].']', $editable_link_types, false, $link['link_type']);
-				echo '&nbsp;';
+				echo '&nbsp;]&nbsp;';
 			}
 			echo $asset_lineage;
 
