@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.28.2.1 2004/11/16 23:05:44 gsherwood Exp $
+* $Id: messaging_service.inc,v 1.28.2.1.2.1 2004/12/07 22:02:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -431,6 +431,16 @@ class Messaging_Service extends MySource_Object
 						$result[$i]['from_name'] = $shadow->$get_user_name;
 						$result[$i]['type_code'] = $shadow->type();
 					}
+				}
+				
+				// if we couldnt find the name of the user, set a default
+				if (empty($result[$i]['from_name'])) {
+					$result[$i]['from_name'] = 'Unknown User';
+				}
+	
+				// if we couldnt find the type code user, set a default
+				if (empty($result[$i]['type_code'])) {
+					$result[$i]['type_code'] = 'user';
 				}
 			}
 		}
