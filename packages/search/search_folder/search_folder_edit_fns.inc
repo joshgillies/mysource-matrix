@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.6 2005/01/17 18:44:39 brobertson Exp $
+* $Id: search_folder_edit_fns.inc,v 1.7 2005/01/26 09:37:35 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -209,7 +209,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		$current = (isset($settings['logic'])) ? $settings['logic'] : 'all';
 
 		if ($write_access) {
-			combo_box($prefix.'_logic', Array('all' => 'Results include all terms', 'or' => 'Results include any terms'), false, $current);
+			combo_box($prefix.'_logic', Array('and' => 'Results include all terms', 'or' => 'Results include any terms'), false, $current);
 		} else {
 			if ($current == 'or') echo 'Results include any terms';
 			else echo 'Results include all terms';
