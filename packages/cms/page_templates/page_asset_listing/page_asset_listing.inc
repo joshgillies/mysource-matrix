@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.51 2005/01/20 23:20:25 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.52 2005/01/20 23:27:40 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -826,9 +826,6 @@ class Page_Asset_Listing extends Page
 	*/
 	function printAssetList($todo)
 	{
-		$wanted_types = $this->attr('types');
-		if (empty($wanted_types)) return;
-
 		$this->_tmp['formats']        = Array();
 		$this->_tmp['default_format'] = '';
 		$this->_tmp['is_default']     = Array();
@@ -911,7 +908,6 @@ class Page_Asset_Listing extends Page
 			echo '</table>';
 		} else {
 			foreach ($todo as $assetid => $type_code) {
-				if (!isset($wanted_types[$type_code])) continue;
 				$this->_printAsset($assetid, $type_code, $list_position);
 				$list_position++;
 			}
