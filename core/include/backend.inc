@@ -355,33 +355,7 @@ class Backend extends Resolve_Object
 			break;
 
 			default :
-
-				$this->out->openRaw();
-				echo "NOT DONE, slacker";
-				?>
-					<br/>
-					<input type="button" value="click me" onCLick="javascript: var assetid = prompt('Enter the assetid', ''); if (assetid != null) {top.sidenav.reload_asset(assetid);}">
-					<script language="javascript">
-						function msg_test() {
-
-							top.sidenav.add_messages("<?xml version=\"1.0\"?>\n<messages>\n  <message type=\"ERROR\">New Folder &quot;acasdeqwef&quot; created</message>\n  <message type=\"WARNING\">&quot;acasdeqwef&quot; successfully linked to &quot;Root Folder #1&quot;</message>\n</messages>\n");
-							return;
-							var type = prompt('Enter the message type', 'error'); 
-							var msg = prompt('Enter the message', ''); 
-							if (msg == null) return;
-
-							var xml = '<messages>';
-							xml += '<message type="' + type + '">'   + msg + '</message>';
-//							xml += '<message type="warning">' + msg + '</message>';
-//							xml += '<message type="notice">'  + msg + '</message>';
-							xml += '</messages>';
-
-							top.sidenav.add_messages(xml);
-						}
-					</script>
-					<input type="button" value="SEND MSG" onCLick="javascript: msg_test();">
-				<?php
-				$this->out->closeRaw();
+				$GLOBALS['SQ_SYSTEM']->am->paintBackend($this); // tmp entry
 
 		}//end switch
 

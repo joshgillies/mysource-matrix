@@ -1030,8 +1030,8 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
 				<td class="sq-backend-data">
 			<?php
-				submit_button('create_button', 'Create Custom Asset', 'return create_custom();');
-				submit_button('edit_button', '- - - - - - - - - - - - -', 'if (this.value.substr(0, 4) == \'Edit\') { set_hidden_field(\'am_action\', \'edit\'); return true; } else { return false };');
+				//submit_button('create_button', 'Create Custom Asset', 'return create_custom();');
+				//submit_button('edit_button', '- - - - - - - - - - - - -', 'if (this.value.substr(0, 4) == \'Edit\') { set_hidden_field(\'am_action\', \'edit\'); return true; } else { return false };');
 			?>
 				</td>
 			</tr>
@@ -1058,8 +1058,12 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 			<tr>
 				<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
 				<td class="sq-backend-data">
-					<?php radio_button('am_type_code', $type_code, false, 'asset_checked(\''.addslashes($this->_asset_types[$type_code]['name']).'\', '.(($this->_asset_types[$type_code]['customisation']) ? 'true' : 'false').');'); ?>
-					<span class="sq-backend-<?php echo ($this->_asset_types[$type_code]['customisation']) ? 'custom-' : ''?>asset"><?php echo $this->_asset_types[$type_code]['name'].' ('.$type_code.')';?></span>
+				<?php /*
+					<  ?php radio_button('am_type_code', $type_code, false, 'asset_checked(\''.addslashes($this->_asset_types[$type_code]['name']).'\', '.(($this->_asset_types[$type_code]['customisation']) ? 'true' : 'false').');'); ?  >
+					<span class="sq-backend-<  ?php echo ($this->_asset_types[$type_code]['customisation']) ? 'custom-' : ''?  >asset"><  ?php echo $this->_asset_types[$type_code]['name'].' ('.$type_code.')';?  ></span>
+					*/
+				?>
+					&nbsp;&nbsp;<?php echo $this->_asset_types[$type_code]['name'].' ('.$type_code.')';?>
 				</td>
 			</tr>
 		<?php
