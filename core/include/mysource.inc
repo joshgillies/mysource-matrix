@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.9 2003/10/07 07:03:11 dwong Exp $
+* $Id: mysource.inc,v 1.10 2003/10/08 04:14:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -305,7 +305,8 @@ class MySource
 	{
 		switch($_GET['SQ_ACTION']) {
 			case 'login' :
-				if ($this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
+				if (isset($_POST['SQ_LOGIN_KEY']) && isset($_POST['SQ_LOGIN_USERNAME']) && 
+					isset($_POST['SQ_LOGIN_PASSWORD']) && $this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
 					$this->am->includeAsset('user');
 					$user = &User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD']);
 					if (!is_null($user)) {
