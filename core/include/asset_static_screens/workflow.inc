@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.5.2.3 2004/11/04 01:08:05 gsherwood Exp $
+* $Id: workflow.inc,v 1.5.2.3.2.1 2004/12/23 22:40:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -483,7 +483,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						$o->openField('Workflow Status');
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) ob_start();
 							
-							echo 'Worklfow is not currently running for this asset';
+							echo 'Workflow is not currently running for this asset';
 							
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
