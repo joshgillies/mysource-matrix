@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.9 2004/08/31 11:33:51 brobertson Exp $
+* $Id: edit_div_props.php,v 1.10 2004/10/21 04:38:51 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,6 +68,8 @@ include(dirname(__FILE__)."/header.php");
 			}
 		}
 
+		if (typeof data["content_type"] == 'undefined' && typeof available_types['content_type_wysiwyg'] != 'undefined')
+			data["content_type"] = 'content_type_wysiwyg';
 		owner.highlight_combo_value(f.content_type, data["content_type"]);
 		f.disable_keywords.checked = (data["disable_keywords"] == "1");
 
@@ -167,4 +169,4 @@ if (owner.bodycopy_current_edit["can_delete"] == false) { document.getElementByI
 </table>
 </form>
 
-<?php include(dirname(__FILE__)."/footer.php"); ?> 
+<?php include(dirname(__FILE__)."/footer.php"); ?>
