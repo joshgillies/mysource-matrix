@@ -14,6 +14,7 @@ $SYSTEM_ROOT = '';
 if (isset($_SERVER['argv'])) {
 	if (isset($_SERVER['argv'][1])) $SYSTEM_ROOT = $_SERVER['argv'][1];
 	$err_msg = "You need to supply the path to the Resolve System as the first argument\n";
+	$GLOBALS['SQ_OUTPUT_TYPE'] = 'text';
 
 } else { 
 	if (isset($_GET['SYSTEM_ROOT'])) $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
@@ -29,7 +30,6 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	exit(1);
 }
 
-$GLOBALS['SQ_OUTPUT_TYPE'] = 'text';
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 $GLOBALS['SQ_SYSTEM']->am = new Asset_Manager();
 
@@ -56,6 +56,11 @@ pre_echo("CORE PACKAGE DONE");
 $root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset(1, 'root_folder', true);
 // if there is no root folder assume that this section hasn't been run
 if (is_null($root_folder)) {
+
+	require_once SQ_FUDGE_PATH.'/file_versioning/file_versioning.inc';
+	if (!File_Versioning::initRepository(SQ_DATA_PATH.'/file_repository', $GLOBALS['SQ_SYSTEM']->db)) {
+		trigger_error('Unable to initialise File Versioning Repository', E_USER_ERROR);
+	}
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_folder');
 	$root_folder = new Root_Folder();
@@ -90,7 +95,7 @@ if (is_null($root_folder)) {
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
 	$root_user = new Root_User();
 	$user_link = Array('asset' => &$system_group, 'link_type' => SQ_LINK_TYPE_1);
-	$root_user->setAttrValue('email', 'root@'.$_SERVER['HTTP_HOST']);
+	$root_user->setAttrValue('email', 'root@'.(($_SERVER['argv']) ? $_SERVER['HOSTNAME'] : $_SERVER['HTTP_HOST']));
 	if (!$root_user->create($user_link)) die('ROOT USER NOT CREATED');
 	pre_echo('Root User Asset Id : '.$root_user->id);
 	if ($root_user->id != 4) {
@@ -142,6 +147,7 @@ if (is_null($root_folder)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			}
 		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 	}
 	
 	// From here on in, the user needs to be logged in to create assets and links
