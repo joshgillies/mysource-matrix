@@ -195,7 +195,7 @@ class Resolve
 		if (!$user->id) return false;
 		if (get_class($user) == 'root_user' && $user->id == 4) return true;
 		return false;
-	}
+	}//end userRoot()
 
 
 	/**
@@ -211,14 +211,14 @@ class Resolve
 		if (empty($user)) $user =& $this->user;
 		if (!$user->id) return false;
 		if (get_class($user) != 'system_user') return false;
-		
+
 		// now make sure that the user is in the system administrators group
 		$sys_admin_group = &$this->am->getSystemAsset('system_user_group');
 		$sys_admins = $sys_admin_group->getLinks(SQ_LINK_UNITE, 'system_user');
-		foreach ($sys_admins as $data) if ($data['minorid'] == $this->user->id) return true;
+		foreach ($sys_admins as $data) if ($data['minorid'] == $user->id) return true;
 
 		return false;
-	}
+	}//end userSystemAdmin()
 
 	
 	/**
@@ -239,7 +239,7 @@ class Resolve
 		$obj_index = count($GLOBALS['SQ_EVENT_LISTENER_OBJECTS']) -1;
 		foreach ($events as $event) $GLOBALS['SQ_EVENT_LISTENERS'][trim($event)][$obj_index] = true;
 		return true;
-	}
+	}//end addEventListener()
 
 
 	/**
@@ -262,7 +262,7 @@ class Resolve
 			$object->$function_name($event_data);
 		}
 		return true;
-	}
+	}//end broadcastEvent()
 
 
 	/**
@@ -279,7 +279,7 @@ class Resolve
 			$this->ms = new Messaging_Service();
 		}
 		return $this->ms;
-	}
+	}//end getMessagingService()
 
 
 	/**
