@@ -2,6 +2,7 @@
 // Create the Class
 function mcListItemClass()
 {
+	this.parent_item_name = "";
 	this.assetid   = "";
 	this.type_code = "";
 	this.item_text = "";
@@ -20,11 +21,12 @@ function mcListItemClass()
 // Make is inherit from MovieClip
 mcListItemClass.prototype = new MovieClip();
 
-mcListItemClass.prototype.setInfo = function(asset) 
+mcListItemClass.prototype.setInfo = function(parent_item_name, asset) 
 {
 //	trace('Set Assetid   : ' + asset.assetid);
 //	trace('Set type_code : ' + asset.type_code);
 //	trace('Set Text      : ' + asset.name);
+	this.parent_item_name = parent_item_name;
 	this.assetid   = asset.assetid;
 	this.type_code = asset.type_code;
 	this.item_text = this._name + ' ' + asset.name;

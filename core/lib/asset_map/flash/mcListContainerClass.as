@@ -13,19 +13,20 @@ function mcListContainerClass()
 {
 	// holds all the assets that have been referenced in this container
 	this.assets      = new Object();
-	// holds all the names of the list items in the vertical order that they appear in the list
+	// holds some information all the list items in the vertical order that they appear in the list
 	// eg li_2_1_3 would be the mean this element exists here
 	this.items_order = new Array();
 	this.num_items = 0;
 
+	// if an attr starts with this then it's a list item
+	this.item_prefix = "li";
+
 	// reference to the currently selected item
 	this.selected_item = null;
 
-	// the current action for the container and any items
-	this.action = '';
-
-	// the index in the items_order array that the indicator is currently pointing on top of
-	this.move_indicator_pos = new Object();
+	// some current settings/flags
+	this.move_indicator_on = false;
+	this.action      = '';
 
 	// Create the Plus Minus Button
 	this.attachMovie("mcMoveIndicatorID", "move_indicator", -1);
@@ -79,7 +80,7 @@ mcListContainerClass.prototype.showKids = function(parent_assetid)
 		trace(xml);
 
 		// start the loading process, if it returns true loading was initiated
-		_root.server_exec.exec(xml, this, "loadKids", "assets", "Loading Children");
+		_root.server_exec.exec(xml, this, "loadKids", "assets", "Loading Assets");
 		this.tmp.parent_assetid = parent_assetid;
 	}
 	
@@ -96,19 +97,19 @@ mcListContainerClass.prototype.loadKids = function(xml)
 
 	// get a reference to the parent item
 	var parent_assetid = this.tmp.parent_assetid;
-	var parent_name = (this.selected_item == null) ? 'li' : this.selected_item._name;
+	var parent_name = (this.selected_item == null) ? this.item_prefix : this.selected_item._name;
 
 	children = xml.firstChild.childNodes;
 	for (var i = 0; i < children.length; i++) {
 		// get a reference to the child node
-		var assetNode = children[i];
-		if (assetNode.nodeName.toLowerCase() == "child") {
+		var asset_node = children[i];
+		if (asset_node.nodeName.toLowerCase() == "child") {
 
-			var assetid = assetNode.attributes.assetid;
+			var assetid = asset_node.attributes.assetid;
 			this.assets[assetid] = new Asset(assetid, 
-											 assetNode.attributes.type_code, 
-											 assetNode.firstChild.nodeValue, 
-											 assetNode.attributes.has_kids);
+											 asset_node.attributes.type_code, 
+											 asset_node.firstChild.nodeValue, 
+											 asset_node.attributes.has_kids);
 
 			this.num_items++;
 
@@ -118,7 +119,7 @@ mcListContainerClass.prototype.loadKids = function(xml)
 			this.attachMovie("mcListItemID", item_name, this.num_items);
 			this[item_name]._visible = false;
 
-			this[item_name].setInfo(this.assets[assetid]);
+			this[item_name].setInfo(parent_name, this.assets[assetid]);
 			this[item_name].setIndent(indent);
 
 			this.assets[parent_assetid].kids.push(assetid);
@@ -144,7 +145,7 @@ mcListContainerClass.prototype._displayKids = function(parent_assetid)
 	// see if we can find this parent in the list
 	var parent_i = (this.selected_item == null) ? -1 : this.selected_item.pos;
 
-	this._recurseDisplayKids(parent_assetid, ((this.selected_item == null) ? 'li' : this.selected_item._name), parent_i);
+	this._recurseDisplayKids(parent_assetid, ((this.selected_item == null) ? this.item_prefix : this.selected_item._name), parent_i);
 
 	// Because we only want to change the collapse sign for the top level
 	if (this.selected_item != null) {
@@ -357,8 +358,56 @@ mcListContainerClass.prototype.getItemPos = function(x, y, bleed_gaps)
 
 }// end getItemPos()
 
+
+/**
+* Returns the assetid and the position in it's kids array that a pos in the items_order array refers to
+*
+* @param int		pos 
+* @param boolean	[in_gap] default=false, if pos is over a branch gap below the it's indicated pos
+*
+* @return Object
+* @access public
+*/
+mcListContainerClass.prototype.posToAssetInfo = function(pos, in_gap) 
+{
+
+	trace('Items Order : ' + this.items_order[pos].name);
+	trace('Parent  : ' + this[this.items_order[pos].name].parent_item_name);
+
+
+	var pos_item = this[this.items_order[pos].name];
+
+	var parent_assetid  = (pos_item.parent_item_name == this.item_prefix) ? 1 : this[pos_item.parent_item_name].assetid;
+	var asset = this.assets[assetid];
+
+	// Get the relative index from the kids array
+	var relative_pos = 0;
+	// if we are in the gap (and this pos is an end branch)
+	// then our pos is the length of the kids array
+	if (in_gap && this.items_order[pos].end_branch) {
+		relative_pos = this.assets[parent_assetid].kids.length;
+
+	} else {
+		for(var j = 0; j < this.assets[parent_assetid].kids.length; j++) {
+			if (this.assets[parent_assetid].kids[j] == pos_item.assetid) {
+				relative_pos = j;
+				break;
+			}
+
+		}// end for
+
+	}// end if
+
+	trace('Parent Assetid : ' + parent_assetid);
+	trace('Relative Pos   : ' + relative_pos);
+
+}// end posToAssetInfo()
+
+
 mcListContainerClass.prototype.onPress = function() 
 {
+
+	if (this.move_indicator_on) return;
 
 	switch(this.action) {
 		case 'move' : 
@@ -382,10 +431,12 @@ mcListContainerClass.prototype.onPress = function()
 mcListContainerClass.prototype.onRelease = function() 
 {
 
+	if (this.move_indicator_on) {
+		this.endMoveIndicator();
+		return;
+	}
+
 	switch(this.action) {
-		case 'move' : 
-			this.itemEndMove();
-		break;
 
 		default :
 			// if there is nothing selected then there is nothing for us to do
@@ -451,42 +502,71 @@ mcListContainerClass.prototype.itemRelease = function()
 
 mcListContainerClass.prototype.itemStartMove = function() 
 {
+	if (this.action != '') return false;
 
-	trace("Start Item Move");
-	this.action = 'move';
-
-	// move to top of layers
-	this.move_indicator.swapDepths(this.items_order.length);
-	this.selected_item.move_button.gotoAndStop("btn_down");
-
-	// reset the move indicator info
-	this.move_indicator_pos = {pos: -1, in_gap: false};
+	if (this.startMoveIndicator('itemEndMove')) {
+		trace("Start Item Move");
+		this.action = 'move';
+		// move to top of layers
+		this.selected_item.move_button.gotoAndStop("btn_down");
+	}
 
 }// end itemStartMove()
 
-mcListContainerClass.prototype.itemEndMove = function() 
+mcListContainerClass.prototype.itemEndMove = function(pos, in_gap) 
 {
 	if (this.action != 'move') return;
 
 	trace("End Item Move");
 
 	// if we actually moved
-	if (this.move_indicator_pos.pos != this.selected_item.pos && this.move_indicator_pos.pos != this.selected_item.pos + 1) {
+	if (pos != this.selected_item.pos && pos != this.selected_item.pos + 1) {
 
-		trace("Move to Pos : " + this.move_indicator_pos.pos + ", in gap : " + this.move_indicator_pos.in_gap);
+		trace("Move to Pos : " + pos + ", in gap : " + in_gap);
 
 	}// end if
 
 	this.selected_item.move_button.gotoAndStop("btn_up");
 
-	// clear the drag indicator info
-	this.move_indicator_pos = {pos: -1, in_gap: false};
-	this.move_indicator._visible = false;
-	this.move_indicator.swapDepths(-1);
-
 	this.action = '';
 
 }// end itemEndMove()
+
+
+mcListContainerClass.prototype.startMoveIndicator = function(on_end_fn) 
+{
+	if (this.move_indicator_on) return false;
+	this.move_indicator_on = true;
+
+	this.tmp.move_indicator = {on_end_fn: on_end_fn, pos: -1, in_gap: false};
+	// move to top of layers
+	this.move_indicator.swapDepths(this.items_order.length);
+
+	// Hide the Menu so they can't do anything from there while using the move indicator
+	_root.menu_container.hide();
+
+	return true;
+
+}// end startMoveIndicator()
+
+mcListContainerClass.prototype.endMoveIndicator = function() 
+{
+	if (!this.move_indicator_on) return;
+
+	// call back to the end fn for whoever called us
+	this[this.tmp.move_indicator.on_end_fn](this.tmp.move_indicator.pos, this.tmp.move_indicator.in_gap);
+
+	// clear the move indicator
+	this.move_indicator._visible = false;
+	this.move_indicator.swapDepths(-1);
+
+	// Re-Show the menus
+	_root.menu_container.show();
+
+	this.move_indicator_on = false;
+
+}// end endMoveIndicator()
+
 
 mcListContainerClass.prototype.onMouseMove = function() 
 {
@@ -501,7 +581,7 @@ mcListContainerClass.prototype.onMouseMove = function()
 		if (pos.pos > this.items_order.length) pos.pos = this.items_order.length;
 		else if (pos.pos < 0) pos.pos = 0;
 
-		if (pos.pos != this.move_indicator_pos.pos || pos.in_gap != this.move_indicator_pos.in_gap) {
+		if (pos.pos != this.tmp.move_indicator.pos || pos.in_gap != this.tmp.move_indicator.in_gap) {
 			
 			// if we are past the end of the list then we are really at the last pos, in the gap
 			if (pos.pos == this.items_order.length) {
@@ -516,13 +596,67 @@ mcListContainerClass.prototype.onMouseMove = function()
 			this.move_indicator._x  = this[item_name]._x;
 			this.move_indicator._y  = this[item_name]._y + incr;
 			this.move_indicator._visible = true;
-			this.move_indicator_pos = pos;
+			this.tmp.move_indicator.pos    = pos.pos;
+			this.tmp.move_indicator.in_gap = pos.in_gap;
 
 		}// endif
 
 	}// end if action
 
 }// end onMouseMove()
+
+
+/**
+* Executes and manages actions related to the tree, 
+* actions mainly from the menu
+*
+* @param string action	the action to perform
+* @param string info	additional information needed for action
+*
+*/
+mcListContainerClass.prototype.execAction = function(action, info) 
+{
+
+	switch(action) {
+		case "add" :
+			trace('Add ' + info);
+			if (this.startMoveIndicator("execActionAddAsset")) {
+				this.action = "add_asset";
+				this.tmp.exec_action = {type_code: info};
+			} else {
+				_root.showDialog("Unable to aquire the Move Indicator");
+			}
+
+		break;
+
+		default:
+			_root.showDialog("List Action Error", "Unknown action '" + action + "'");
+
+	}// end switch
+
+}// end execAction()
+
+
+/**
+* Attempt to add the asset
+*
+* @param int		pos	the	position in the item_order array that the move indicator came to it's final rest
+* @param boolean	in_gap	whether the indicator finished up in the gap at the end of the list
+*
+*/
+mcListContainerClass.prototype.execActionAddAsset = function(pos, in_gap) 
+{
+
+	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to pos " + pos + ". In Gap ? " + in_gap);
+	var info = this.posToAssetInfo(pos, in_gap);
+
+
+
+
+
+	this.action = '';
+
+}// end execActionAddAsset()
 
 
 Object.registerClass("mcListContainerID", mcListContainerClass);

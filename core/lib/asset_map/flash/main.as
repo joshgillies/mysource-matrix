@@ -20,69 +20,6 @@ _root.LIST_ITEM_POS_INCREMENT  = 20;
 // the vertical gap between the last item in a branch and the next item in it's parent's branch
 _root.LIST_ITEM_END_BRANCH_GAP = 10;  
 
-
-function MENU_OPTIONS() {
-
-	var arr = 
-	[
-		{text: "Add",
-		 value: "add",
-		 kids:	[
-					{text: "Folder",
-					 value: "folder",
-					 kids: []
-					},
-				
-					{text: "User",
-					 value: "user",
-					 kids: []
-					},
-					{text: "CMS",
-					 value: "cms",
-					 kids: [
-								{text: "Standard Page",
-								 value: "page",
-								 kids: []
-								},
-							
-								{text: "template",
-								 value: "user",
-								 kids: []
-								},
-								{text: "Page Template",
-								 value: "page_template",
-								 kids: []
-								}
-							
-							]
-
-					}
-				
-				]
-		}
-	
-	];
-
-/*	for (var i in arr) { 
-		for (var j in arr[i]) { 
-			trace('arr['+i+']['+j+'] = ' + arr[i][j]);
-		}
-	}
-*/
-	return arr;
-
-}// end MENU_OPTIONS
-
-
-
-
-
-
-
-
-
-
-
   ///////////////////////////////////////////////////
  // ALL INITIALISATION STUFF                      //
 ///////////////////////////////////////////////////
@@ -103,17 +40,16 @@ server_exec = new serverExec(server_exec_path);
 
 
 
-/*
 // Now attach the menu
-_root.attachMovie("mcMenuContainerID", "menu_container", 1);
+_root.attachMovie("mcMenuContainerID", "menu_container", 2);
 trace(_root.menu_container instanceof MovieClip);
 _root.menu_container._x = 0;
 _root.menu_container._y = 0;
-_root.menu_container.create(_root.MENU_OPTIONS());
-*/
+_root.menu_container.create();
+
 
 // Now we just attach the list container and get it to sort everything out
-_root.attachMovie("mcListContainerID", "list_container", 2);
+_root.attachMovie("mcListContainerID", "list_container", 1);
 
 //Attach the container on to the "scroller"
 _root.scroller.setScrollContent(_root.list_container);

@@ -41,3 +41,23 @@ function hideDialog()
 	_root.pop_up = false;
 
 }
+
+
+/**
+* Takes an array and a value returns the first index
+* in the array that matches the passed value, 
+* returns null if not found
+*
+* @param Array arr	the array to search
+* @param mixed val	the value to match
+*
+* @return int
+*/
+function array_search(arr, val) {
+
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i] == val) return i;
+    }
+    return null;
+
+}// end array_search()
