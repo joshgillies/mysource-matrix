@@ -777,30 +777,24 @@ class Asset_Edit_Interface extends MySource_Object
 						if (!empty($fs_jobs)) {
 							$o->openField('Future Statuses', 'new_line');
 							?>
-							<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+							<table class="sq-backend-table">
 								<tr>
-									<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">
-										Status
-									</td>
-									<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">
-										When
-									</td>
-									<td bgcolor="#DDDDDD" align="center" class="sq-backend-field" style="font-weight: bold;">
-										Delete ?
-									</td>
+									<td class="sq-backend-table-header">Status</td>
+									<td class="sq-backend-table-header">When</td>
+									<td align="center" class="sq-backend-table-header">Delete ?</td>
 								</tr>
 							<?php
 
 							for($i = 0; $i < count($fs_jobs); $i++) {
 							?>
 								<tr>
-									<td class="sq-backend-data">
+									<td class="sq-backend-table-cell">
 										<?php echo $fs_jobs[$i]->statusName(); ?>
 									</td>
-									<td class="sq-backend-data">
+									<td class="sq-backend-table-cell">
 										<?php echo $fs_jobs[$i]->readableWhen(); ?>
 									</td>
-									<td align="center" class="sq-backend-data">
+									<td align="center" class="sq-backend-table-cell">
 								<?php
 									if ($fs_jobs[$i]->canDelete()) {
 										check_box($prefix.'_remove_fs[]', $fs_jobs[$i]->id);
@@ -1041,22 +1035,22 @@ class Asset_Edit_Interface extends MySource_Object
 						if (!empty($current_langs)) {
 							sort($current_langs);
 							?>
-							<table border="0">
+							<table class="sq-backend-table" style="width: 0%;">
 								<?php if ($owner->writeAccess()) {
 								?>
 								<tr>
-									<td bgcolor="#DDDDDD" class="sq-backend-data">&nbsp;</td>
-									<td bgcolor="#DDDDDD" class="sq-backend-data"><b>Delete ?</b></td>
+									<td class="sq-backend-table-header">&nbsp;</td>
+									<td class="sq-backend-table-header"><b>Delete ?</b></td>
 								</tr>
 								<?php } ?>
 							<?php
 							foreach ($current_langs as $lang_code) {
 								?>
 								<tr>
-									<td bgcolor="#F0F0F0" class="sq-backend-data"><?php echo $standards_lists_languages[$lang_code]; ?></td>
+									<td class="sq-backend-table-cell"><?php echo $standards_lists_languages[$lang_code]; ?></td>
 									<?php if ($owner->writeAccess()) {
 									?>
-									<td bgcolor="#F0F0F0" class="sq-backend-data" align="center"><?php check_box($prefix.'_rem_intl_language['.$lang_code.']'); ?></td>
+									<td class="sq-backend-table-cell" align="center"><?php check_box($prefix.'_rem_intl_language['.$lang_code.']'); ?></td>
 									<?php } ?>
 								</tr>
 								<?php
@@ -1228,10 +1222,10 @@ class Asset_Edit_Interface extends MySource_Object
 
 								if (!empty($effective_designs)) {
 									?>
-									<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+									<table class="sq-backend-table">
 										<tr>
-											<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">URL</td>
-											<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">Effective Design</td>
+											<td class="sq-backend-table-header">URL</td>
+											<td class="sq-backend-table-header">Effective Design</td>
 										</tr>
 									<?php
 									foreach ($effective_designs as $url => $designid) {
@@ -1239,8 +1233,8 @@ class Asset_Edit_Interface extends MySource_Object
 										if (is_null($design)) continue;										
 										?>
 										<tr>
-											<td class="sq-backend-data"><?php echo $url; ?></td>
-											<td class="sq-backend-data"><?php echo $design->name.' (Id : # '.$design->id.')'; ?></td>
+											<td class="sq-backend-table-cell"><?php echo $url; ?></td>
+											<td class="sq-backend-table-cell"><?php echo $design->name.' (Id : # '.$design->id.')'; ?></td>
 										</tr>
 										<?php
 									}
@@ -1460,14 +1454,14 @@ class Asset_Edit_Interface extends MySource_Object
 				$o->openField('&nbsp;');
 				foreach ($direct as $access => $userids) {
 				?>
-					<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+					<table class="sq-backend-table">
 						<tr>
-							<td bgcolor="#DDDDDD" class="sq-backend-data">
-								<span style="font-weight: bold; color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Granted') ?></span>
+							<td class="sq-backend-table-header">
+								<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Granted') ?></span>
 							</td>
 							<?php
 							if ($admin_access) {
-								?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data" style="font-weight: bold;">Delete ?</td><?php
+								?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td><?php
 							}
 							?>
 						</tr>
@@ -1479,14 +1473,14 @@ class Asset_Edit_Interface extends MySource_Object
 						}
 					?>
 						<tr>
-							<td bgcolor="#F0F0F0" class="sq-backend-data">
+							<td class="sq-backend-table-cell">
 						<?php
 							echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access');
 						?>
 							</td>
 						<?php
 							if ($admin_access) {
-								?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-backend-data"><?php
+								?><td align="center" width="100" class="sq-backend-table-cell"><?php
 								check_box($prefix.'_permissions['.$perm.'][delete]['.$userid.']');
 								?></td><?php
 							}
@@ -1752,11 +1746,11 @@ class Asset_Edit_Interface extends MySource_Object
 					$has_conds = false;
 					ob_start();
 					?>
-					<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+					<table class="sq-backend-table">
 						<tr>
-							<td bgcolor="#DDDDDD" class="sq-backend-data">&nbsp;</td>
-							<td bgcolor="#DDDDDD" class="sq-backend-data" width="270"><b>Group Logic</b></td>
-							<td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data"><b>Complete ?</b></td>
+							<td class="sq-backend-table-header">&nbsp;</td>
+							<td class="sq-backend-table-header" width="270"><b>Group Logic</b></td>
+							<td align="center" width="100" class="sq-backend-table-header"><b>Complete ?</b></td>
 						</tr>
 					<?php
 					foreach ($step_data['conditions'] as $pub => $cond_data) {
@@ -1764,8 +1758,8 @@ class Asset_Edit_Interface extends MySource_Object
 						if (!$asset->id) continue;
 						?>
 						<tr>
-							<td bgcolor="#F0F0F0" class="sq-backend-data"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
-							<td bgcolor="#F0F0F0" class="sq-backend-data">
+							<td class="sq-backend-table-cell"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
+							<td class="sq-backend-table-cell">
 						<?php
 						if (isset($wfm->_valid_cond_logic[$cond_data['logic']])) {
 							// a special type of logic statement
@@ -1789,7 +1783,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 						?></td>
 
-							<td bgcolor="#F0F0F0" align="center" class="sq-backend-data">
+							<td align="center" class="sq-backend-table-cell">
 							<?php
 								if (isset($cond_data['complete']) && $cond_data['complete']) {
 									echo '<span style="color:#008800"><b>Yes</b></span>';
@@ -1867,14 +1861,14 @@ class Asset_Edit_Interface extends MySource_Object
 			$o->openField('&nbsp;');
 			foreach ($direct as $access => $schemaids) {
 			?>
-				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+				<table class="sq-backend-table">
 					<tr>
-						<td bgcolor="#DDDDDD" class="sq-backend-data">
-							<span style="font-weight: bold; color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
+						<td class="sq-backend-table-header">
+							<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
 						</td>
 						<?php
 						if ($admin_access) {
-							?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data" style="font-weight: bold;">Delete ?</td><?php
+							?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td><?php
 						}
 						?>
 					</tr>
@@ -1886,14 +1880,14 @@ class Asset_Edit_Interface extends MySource_Object
 					}
 				?>
 					<tr>
-						<td bgcolor="#F0F0F0" class="sq-backend-data">
+						<td class="sq-backend-table-cell">
 						<?php
 						echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
 						?>
 						</td>
 						<?php
 						if ($admin_access) {
-							?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-backend-data"><?php
+							?><td align="center" width="100" class="sq-backend-table-cell"><?php
 							check_box($prefix.'_workflow[delete]['.$schemaid.']');
 							?></td><?php
 						}
@@ -2083,14 +2077,14 @@ class Asset_Edit_Interface extends MySource_Object
 			$o->openField('&nbsp;');
 			foreach ($direct as $access => $schemaids) {
 			?>
-				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+				<table class="sq-backend-table">
 					<tr>
-						<td bgcolor="#DDDDDD" class="sq-backend-data">
-							<span style="font-weight: bold; color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
+						<td class="sq-backend-table-header">
+							<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
 						</td>
 						<?php
 						if ($admin_access) {
-							?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data" style="font-weight: bold;">Delete ?</td><?php
+							?><td align="center" width="100" class="sq-backend-table-header">Delete ?</td><?php
 						}
 						?>
 					</tr>
@@ -2102,14 +2096,14 @@ class Asset_Edit_Interface extends MySource_Object
 					}
 				?>
 					<tr>
-						<td bgcolor="#F0F0F0" class="sq-backend-data">
+						<td class="sq-backend-table-cell">
 						<?php
 						echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
 						?>
 						</td>
 						<?php
 						if ($admin_access) {
-							?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-backend-data"><?php
+							?><td align="center" width="100" class="sq-backend-table-cell"><?php
 							check_box($prefix.'_metadata[delete]['.$schemaid.']');
 							?></td><?php
 						}
@@ -2788,12 +2782,12 @@ class Asset_Edit_Interface extends MySource_Object
 		hidden_field($prefix.'_rollback_version', '0');
 
 		?>
-		<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+		<table class="sq-backend-table">
 			<tr>
-				<td bgcolor="#DDDDDD" class="sq-backend-data"><b>Version Duration</b></td>
-				<td bgcolor="#DDDDDD" class="sq-backend-data"><b>Time Since Version</b></td>
-				<td bgcolor="#DDDDDD" class="sq-backend-data" align="center"><b>Version</b></td>
-				<td bgcolor="#DDDDDD" class="sq-backend-data" align="center"><b>View</b></td>
+				<td class="sq-backend-table-header">Version Duration</td>
+				<td class="sq-backend-table-header">Time Since Version</td>
+				<td class="sq-backend-table-header" align="center">Version</td>
+				<td class="sq-backend-table-header" align="center">View</td>
 			</tr>
 		<?php
 
@@ -2801,12 +2795,12 @@ class Asset_Edit_Interface extends MySource_Object
 			$from = $data['efrom'];
 			$to   = $data['eto'];
 
-			$bgcolour = '#F0F0F0';
+			$class = 'sq-backend-table-cell';
 			$show_view_btn = true;
 			if (SQ_ROLLBACK_VIEW) {
 				$rollback_from = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 				if ($rollback_from >= strtotime($from) && (empty($to) || strtotime($to) > $rollback_from)) {
-					$bgcolour = '#FFE5E8';
+					$class .= '-alt';
 					$show_view_btn = false;
 				}
 			}
@@ -2824,10 +2818,10 @@ class Asset_Edit_Interface extends MySource_Object
 
 			?>
 			<tr>
-				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-backend-data"><?php echo $from; ?> - <?php echo $to; ?></td>
-				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-backend-data"><?php echo $ago; ?></td>
-				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-backend-data" align="center"><?php echo $data['version']; ?></td>
-				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-backend-data" align="center">
+				<td class="<?php echo $class; ?>"><?php echo $from; ?> - <?php echo $to; ?></td>
+				<td class="<?php echo $class; ?>"><?php echo $ago; ?></td>
+				<td class="<?php echo $class; ?>" align="center"><?php echo $data['version']; ?></td>
+				<td class="<?php echo $class; ?>" align="center">
 				<?php
 					if ($show_view_btn) {
 						echo submit_button($prefix.'_rollback_mode', ' View ', 'this.form.'.$prefix.'_rollback_version.value = \''.$data['version'].'\'');

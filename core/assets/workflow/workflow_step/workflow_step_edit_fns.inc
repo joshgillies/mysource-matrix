@@ -63,13 +63,13 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($current_links)) {
 			$o->openField('Conditions');
 				?>
-				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+				<table class="sq-backend-table">
 					<tr>
-						<td bgcolor="#DDDDDD" class="sq-backend-smallprint">&nbsp;</td>
-						<td bgcolor="#DDDDDD" class="sq-backend-smallprint" width="270"><b>Group Logic</b></td>
+						<td class="sq-backend-table-header">&nbsp;</td>
+						<td class="sq-backend-table-header" width="270"><b>Group Logic</b></td>
 						<?php
 						if ($write_access) {
-							?><td bgcolor="#DDDDDD" align="center" width="70" class="sq-backend-smallprint"><b>Delete ?</b></td><?php
+							?><td align="center" width="70" class="sq-backend-table-header"><b>Delete ?</b></td><?php
 						}
 						?>
 					</tr>
@@ -81,7 +81,7 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 					echo '<tr>';
 					if (!$edit_fns->paintInlineOptionInterface($condition, $o)) return false;
 					if ($write_access) {
-						?><td bgcolor="#F0F0F0" align="center" class="sq-backend-data"><?php
+						?><td align="center" class="sq-backend-table-cell"><?php
 						check_box($prefix.'_delete_conditions['.$link_data['linkid'].']')
 						?></td><?php
 					}

@@ -51,13 +51,13 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 
 			$o->openField('Fields');
 				?>
-				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+				<table class="sq-backend-table">
 					<tr>
-						<td bgcolor="#DDDDDD" class="sq-backend-smallprint"><b>Field Name</b></td>
-						<td bgcolor="#DDDDDD" align="center" width="150" class="sq-backend-smallprint"><b>Edit Field</b></td>
+						<td class="sq-backend-table-header"><b>Field Name</b></td>
+						<td align="center" width="150" class="sq-backend-table-header"><b>Edit Field</b></td>
 						<?php
 						if ($write_access) {
-							?><td bgcolor="#DDDDDD" align="center" width="70" class="sq-backend-smallprint"><b>Delete ?</b></td><?php
+							?><td align="center" width="70" class="sq-backend-table-header"><b>Delete ?</b></td><?php
 						}
 						?>
 					</tr>
@@ -68,11 +68,11 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 					$edit_fns = $field->getEditFns();
 					?>
 					<tr>
-						<td bgcolor="#F0F0F0" align="left" class="sq-backend-data"><?php echo $field->name;?></td>
-						<td bgcolor="#F0F0F0" align="center" class="sq-backend-data">[ <a href="<?php echo $asset_href[$field->id];?>">Go To Edit Interface</a> ]</td>
+						<td align="left" class="sq-backend-table-cell"><?php echo $field->name;?></td>
+						<td align="center" class="sq-backend-table-cell">[ <a href="<?php echo $asset_href[$field->id];?>">Go To Edit Interface</a> ]</td>
 					<?php
 					if ($write_access) {
-						?><td bgcolor="#F0F0F0" align="center" class="sq-backend-data"><?php
+						?><td align="center" class="sq-backend-table-cell"><?php
 						check_box($prefix.'_delete_fields['.$link_data['linkid'].']')
 						?></td><?php
 					}

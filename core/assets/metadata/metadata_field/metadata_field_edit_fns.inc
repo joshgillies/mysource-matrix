@@ -56,7 +56,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			$num_per_row = 3;
 			$num_done = 0;
 			?>
-			<table border="0" cellspacing="3" cellpadding="3" bgcolor="#AAAAAA">
+			<table class="sq-backend-table">
 				<tr>
 					<?php
 					foreach ($current_vc as $vc_name => $vc_value) {
@@ -65,7 +65,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 							echo '</tr><tr>';
 						}
 
-						echo '<td width="150" valign="top" bgcolor="#F0F0F0" class="sq-backend-data">';
+						echo '<td width="150" valign="top" class="sq-backend-table-cell">';
 						if ($write_access) text_box($prefix.'_vc_name['.$vc_name.']', $vc_name, 30);
 						else echo '<b>'.$vc_name.'</b>';
 						echo '<br />';
@@ -81,7 +81,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 						$num_done++;
 					}
 					if ($num_done && $num_done != $num_per_row) {
-						for ($i = ($num_per_row - $num_done); $i > 0; $i--) echo'<td width="200" bgcolor="#F0F0F0">&nbsp;</td>';
+						for ($i = ($num_per_row - $num_done); $i > 0; $i--) echo'<td width="200" class="sq-backend-table-cell-alt">&nbsp;</td>';
 					}
 					?>
 				</tr>
@@ -198,7 +198,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 					$num_per_row = 3;
 					$num_done = 0;
 					?>
-					<table border="0" cellspacing="3" cellpadding="3" bgcolor="#AAAAAA">
+					<table class="sq-backend-table">
 						<tr>
 							<?php
 							foreach ($current_vc as $vc_name => $vc_value) {
@@ -211,7 +211,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 									echo '</tr><tr>';
 								}
 
-								echo '<td width="150" valign="top" bgcolor="#F0F0F0" class="sq-backend-data">';
+								echo '<td width="150" valign="top" class="sq-backend-table-cell">';
 								echo '<b>'.$vc_name.'</b>';
 								echo '<br />';
 								if ($write_access) text_area($prefix.'_vc_value['.$vc_name.']', $vc_value, 30, 4);
@@ -221,7 +221,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 								$num_done++;
 							}
 							if ($num_done && $num_done != $num_per_row) {
-								for ($i = ($num_per_row - $num_done); $i > 0; $i--) echo'<td width="200" bgcolor="#F0F0F0">&nbsp;</td>';
+								for ($i = ($num_per_row - $num_done); $i > 0; $i--) echo'<td width="200" class="sq-backend-table-cell-alt">&nbsp;</td>';
 							}
 							?>
 						</tr>

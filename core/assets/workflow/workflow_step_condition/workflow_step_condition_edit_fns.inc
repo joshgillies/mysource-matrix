@@ -51,8 +51,8 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		if (is_null($user)) return false;
 
 		?>
-		<td bgcolor="#F0F0F0" class="sq-backend-data"><?php echo '&nbsp;'.$user->name.' ['.$user->type()." : $user->id]";?></td>
-		<td bgcolor="#F0F0F0" class="sq-backend-data">
+		<td class="sq-backend-table-cell"><?php echo '&nbsp;'.$user->name.' ['.$user->type()." : $user->id]";?></td>
+		<td class="sq-backend-table-cell">
 			<?php
 			if (!$write_access) {
 				if (is_a($user, 'user')) {
