@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.9 2004/05/05 07:10:12 lwright Exp $
+* $Id: form_question_rule_type_email.inc,v 1.10 2004/05/06 00:33:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -119,6 +119,36 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 		}
 
 	}//end processForm()
+
+
+	/**
+	* writes JavaScript code for client side validation
+	* 
+	* @param object form_question	&$q_asset		reference to the question asset
+	* @param string					$operator		the operator being used to compare
+	*
+	* @access public
+	* @return boolean
+	*/
+	function generateJSCode(&$q_asset, $operator)
+	{
+		// this assumes the skeleton of a JS validation function has been created around this code
+		// with a 'form' variable defined (this should have been done when generating content file).
+		$code = 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
+
+		$op = ($operator == 1) ? '!' : '';
+
+		// regex code from fudge valid_email()
+		$regex_code = '/^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,4}$/';
+
+		$code .= 'if ('.$op.'answer.match('.$regex_code.')) {';	// START of js if
+		$error = $q_asset->name.' must '. (($operator) ? '' : 'not ') .'be an valid e-mail address';
+
+		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
+		$code .= '}';	// END of js if
+		return $code;
+
+	}//end generateJSCode()
 
 
 }//end class

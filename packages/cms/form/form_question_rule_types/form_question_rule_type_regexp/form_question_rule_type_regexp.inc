@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp.inc,v 1.7 2004/05/05 07:10:13 lwright Exp $
+* $Id: form_question_rule_type_regexp.inc,v 1.8 2004/05/06 00:33:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,10 +106,9 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	function processForm(&$q_asset, $operator, $comparison)
 	{
 		$answer   = $this->active_submission->getAnswer($questionid);
-		$value = $this->attr('value');
 
-		$value = str_replace('|', '\|', $value);
-		$pattern = "|".$value."|";
+		$comparison = str_replace('|', '\|', $comparison);
+		$pattern = "|".$comparison."|";
 		(preg_match($pattern, $answer)) ? $valid = 1 : $valid = 0; 
 
 		if ($valid == $operator) {
@@ -123,5 +122,37 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	}//end processForm()
 
 
+	/**
+	* writes JavaScript code for client side validation
+	* 
+	* @param object form_question	&$q_asset		reference to the question asset
+	* @param string					$operator		the operator being used to compare
+	* @param mixed					$comparison		value used to compare (no asset allowed here)
+	*
+	* @access public
+	* @return boolean
+	*/
+	function generateJSCode(&$q_asset, $operator, $comparison)
+	{
+		// this assumes the skeleton of a JS validation function has been created around this code
+		// with a 'form' variable defined (this should have been done when generating content file).
+		$code = 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
+
+		$op = ($operator == 1) ? '!' : '';
+
+		$comparison = str_replace('/', '\/', $comparison);
+		$regex_code = "/".$comparison."/";		// JavaScript regexp will only accept fwd slashes
+
+		// this is a form question - get its current value from the form then
+		$code .= 'if ('.$op.'answer.match('.$regex_code.')) {';	// START of js if
+		$error = $q_asset->name.' is not in the correct format';
+
+		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
+		$code .= '}';	// END of js if
+		return $code;
+
+	}//end generateJSCode()
+	
+	
 }//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_integer.inc,v 1.1 2004/05/05 07:10:13 lwright Exp $
+* $Id: form_question_rule_type_integer.inc,v 1.2 2004/05/06 00:33:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -123,5 +123,37 @@ class Form_Question_Rule_Type_Integer extends Form_Question_Rule
 	}//end processForm()
 
 
+	/**
+	* writes JavaScript code for client side validation
+	* 
+	* @param object form_question	&$q_asset		reference to the question asset
+	* @param string					$operator		the operator being used to compare
+	*
+	* @access public
+	* @return boolean
+	*/
+	function generateJSCode(&$q_asset, $operator)
+	{
+		// this assumes the skeleton of a JS validation function has been created around this code
+		// with a 'form' variable defined (this should have been done when generating content file).
+		$code = 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
+
+		$op = ($operator == 1) ? '!' : '';
+
+		$regex_code = '/^[-+]?\d+$/';		// allow digits, leading +/-, no dec pt!
+
+		$code .= 'answer.replace(/,/, ""); ';	// get rid of comma
+
+		// this is a form question - get its current value from the form then
+		$code .= 'if ('.$op.'answer.match('.$regex_code.')) {';	// START of js if
+		$error = $q_asset->name.' must '. (($operator) ? '' : 'not ') .'be an integer';
+
+		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
+		$code .= '}';	// END of js if
+		return $code;
+
+	}//end generateJSCode()
+	
+	
 }//end class
 ?>
