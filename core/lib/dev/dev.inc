@@ -17,9 +17,9 @@
 ## File: dev/dev.inc
 ## Desc: Functions designed to make life easier for a developer
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/dev/Attic/dev.inc,v $
-## $Revision: 1.2 $
+## $Revision: 1.3 $
 ## $Author: brobertson $
-## $Date: 2003/02/18 06:05:13 $
+## $Date: 2003/02/25 04:25:14 $
 #######################################################################
 
 #---------------------------------------------------------------------#
@@ -88,7 +88,7 @@ function pre_echo($x, $max_depth=0, $style='') {
 			if (!$max_depth) $max_depth = 10;
 			$x = array_contents($x, $max_depth); 
 		}
-		echo htmlspecialchars(ereg_replace("\t", str_repeat (" ", 4), $x)); 
+		echo htmlspecialchars(str_replace("\t", '    ', $x)); 
 	}#end if
 
 	
