@@ -206,8 +206,6 @@ class HIPO_Herder extends Resolve_Object
 		"        :   `----'   :          ",
 		"        : .  :'`:  . :          ",
 		"        `.:.'    `.:.'          ",
-		"   Powered by HIPO Technology   ",
-		"    ( packed with ::Fudge:: )   ",
 		);
 
 		$lines_done = floor(count($hipo) * $source_job->percentDone() / 100);
@@ -288,7 +286,10 @@ if (!empty($todo_hipo)) {
 	echo '<span style="color:#C0C0C0;">'.implode("\n", $todo_hipo)."</span>\n";
 }
 ?>
-</pre>
+<span style="color:#000000;">
+   Powered by HIPO Technology
+    ( packed with ::Fudge:: )
+</span></pre>
 								</td>
 							</tr>
 						</table>
