@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_tickbox_list_management.inc,v 1.3 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_question_type_tickbox_list_management.inc,v 1.4 2003/10/13 05:22:45 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,6 +57,11 @@ class Form_Question_Type_Tickbox_List_Management extends Asset_Management
 											0	=> 'no',
 										),
 								),
+							),
+							'extra'	 => Array(
+									'added'     => '0.0.1',
+									'type'      => 'text',  
+									'default'   => '',
 							),
 							'horizontal' => Array(
 									'added'		=> '0.0.1',
