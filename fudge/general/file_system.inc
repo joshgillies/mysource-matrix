@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: file_system.inc,v 1.15 2003/09/26 05:26:36 brobertson Exp $
+* $Id: file_system.inc,v 1.16 2003/09/30 02:23:59 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,7 @@
 * @return string
 * @access public
 */
-function get_file_type($filename) 
+function get_file_type($filename)
 {
 	return strtolower(  substr( strrchr($filename,'.') , 1)  );
 }
@@ -41,7 +41,7 @@ function get_file_type($filename)
 * @return string
 * @access public
 */
-function is_image($filename) 
+function is_image($filename)
 {
 
 	switch(get_file_type($filename)) {
@@ -60,23 +60,14 @@ function is_image($filename)
 /**
 * Reads a file into a string
 *
-* @param string $filename	the filename whose contents to return 
+* @param string $filename	the filename whose contents to return
 *
 * @return string
 * @access public
 */
-function file_to_string($filename) 
+function file_to_string($filename)
 {
-	if (!$f = fopen($filename, 'r')) {
-		trigger_error('Unable to open file for reading: '.$filename, E_USER_WARNING);
-		return false;
-	}
-	$s = '';
-	do {
-		$s .= fread($f, 4096);
-	} while (!feof($f));
-	fclose($f);
-	return $s;
+	return file_get_contents($filename);
 }// end file_to_string()
 
 
@@ -89,15 +80,32 @@ function file_to_string($filename)
 * @return boolean
 * @access public
 */
-function string_to_file($string, $filename) 
+function string_to_file($string, $filename)
 {
-	if (!$f = fopen($filename,'w')) {
-		trigger_error('Unable to open file for writing: '.$filename, E_USER_WARNING);
+	$tmp_filename = tempnam(dirname($filename), __FUNCTION__);
+	if (!$f = fopen($tmp_filename, 'w')) {
+		trigger_error('Unable to open temporary file ('.$tmp_filename.') for writing, unable to write '.$filename, E_USER_WARNING);
 		return false;
 	}
 	$s = fputs($f, $string);
 	fclose($f);
-	return true;
+	if ($s === false) {
+		trigger_error('Unable to write '.$filename, E_USER_WARNING);
+		unlink($tmp_filename);
+		return false;
+	}
+
+	$om = umask(0000);
+	chmod($tmp_filename, 0664);
+	umask($om);
+
+	if (rename($tmp_filename, $filename)) {
+		return true;
+	} else {
+		unlink($tmp_filename);
+		return false;
+	}
+
 }// end string_to_file()
 
 
@@ -109,19 +117,19 @@ function string_to_file($string, $filename)
 * @return string
 * @access public
 */
-function easy_filesize($size) 
+function easy_filesize($size)
 {
-	if ($size < 1500)			return $size.' bytes';
-	elseif ($size < 1500000)	return sprintf('%.1f kb', $size/1024.0);
-	elseif ($size < 1500000000)	return sprintf('%.1f mb',($size/1024.0)/1024.0);
-	else						return sprintf('%.1f gb',(($size/1024.0)/1024.0)/1024.0);
+	if		($size < 1500)			return $size.' bytes';
+	elseif	($size < 1500000)		return sprintf('%.1f kb', $size/1024.0);
+	elseif	($size < 1500000000)	return sprintf('%.1f mb',($size/1024.0)/1024.0);
+	else							return sprintf('%.1f gb',(($size/1024.0)/1024.0)/1024.0);
 
 }// end easy_filesize()
 
 
 /**
 * Same as increment_name(), but preserves a filename extension
-* 
+*
 * @param string	$name		the original name of the file
 * @param string $spacer		the char(s) to put between the end of the name and the numeral
 *
@@ -143,15 +151,15 @@ function increment_filename($name,$spacer='') {
 /**
 * Function to return an array of files in a directory.
 *
-* @param string	$dir		The directory you want to list files for. 
-*							If you pass in a filename, it will take the directory of that 
+* @param string	$dir		The directory you want to list files for.
+*							If you pass in a filename, it will take the directory of that
 *							file name and restrict the returned files to the type of file you passed in.
 * @param bool	$fullpath	whether to return the full path to the file or just the filenames themselves
 *
 * @returns array
 * @access public
 */
-function list_files($dir='', $fullpath=false) 
+function list_files($dir='', $fullpath=false)
 {
 	if (!$dir) return false;
 	if (is_dir($dir)) {
@@ -162,7 +170,7 @@ function list_files($dir='', $fullpath=false)
 	}
 
 	if (!is_dir($dir)) return Array();
-	
+
 	$files = array();
 	if ($handle = opendir($dir)) {
 		while (($file = readdir($handle)) !== false) {
@@ -212,14 +220,14 @@ function create_directory($path)
 
 
 /**
-* Recursively delete the contents of a directory without system calls 
+* Recursively delete the contents of a directory without system calls
 *
 * @param string	$path	the path to delete
 *
 * @return boolean
 * @access public
 */
-function delete_directory($path) 
+function delete_directory($path)
 {
 	$path  = ereg_replace('/$','',$path);
 	if (!is_dir($path)) {
@@ -243,14 +251,14 @@ function delete_directory($path)
 
 
 /**
-* Deletes all contents of a directory without system calls 
+* Deletes all contents of a directory without system calls
 *
 * @param string	$path	the directory whose contents to delete
 *
 * @return boolean
 * @access public
 */
-function clear_directory($path) 
+function clear_directory($path)
 {
 	$path  = ereg_replace('/$','',$path);
 	if (!is_dir($path)) {
@@ -287,7 +295,7 @@ function clear_directory($path)
 * @return boolean
 * @access public
 */
-function copy_directory($path, $new_path) 
+function copy_directory($path, $new_path)
 {
 	$path     = ereg_replace('/$','',$path);
 	$new_path = ereg_replace('/$','',$new_path);
