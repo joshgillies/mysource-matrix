@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.5 2004/03/02 04:21:19 mmcintyre Exp $
+* $Id: layout_manager.inc,v 1.6 2004/04/20 00:05:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,13 +31,14 @@
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $ - 0.1
+* @version $Revision: 1.6 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 
 class Layout_Manager extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -50,13 +51,13 @@ class Layout_Manager extends Asset
 		$this->_ser_attrs = true;
 		$this->Asset($assetid);
 
-	} // end constructor
+	}//end constructor
 
 
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
 	* @return mixed int or false
@@ -90,7 +91,7 @@ class Layout_Manager extends Asset
 	*
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access public
 	*/
 	function _getName($short_name=false)
@@ -114,7 +115,7 @@ class Layout_Manager extends Asset
 
 	
 	/**
-	* returns FALSE always because we don't want to be able to clone a layout manager
+	* Return FALSE always because we don't want to be able to clone a layout manager
 	*
 	* @return boolean
 	* @access public
@@ -138,8 +139,8 @@ class Layout_Manager extends Asset
 	*  );
 	* </PRE>
 	*
-	* @param string $type_code the type_code for which the layout is wanted
-	* @param string $screen the name of the screen for which the layout is defined for
+	* @param string 	$type_code	the type_code for which the layout is wanted
+	* @param string 	$screen		the name of the screen for which the layout is defined
 	*
 	* @return &object Layout $layout (or an array of layouts if no screen is specified). NULL on error
 	* @access public
@@ -152,8 +153,8 @@ class Layout_Manager extends Asset
 
 		// if there are no layouts directly applied for this type code will
 		// will check the type ancestors to look for one
-		if (!isset($layouts[$type_code])) {
-			if(null === ($type_code = $this->getAncestorLayoutTypeCode($type_code))) return $null;
+		if (!isset($layouts[$type_code]) || (!empty($screen) && !isset($layouts[$type_code][$screen]))) {
+			if(null === ($type_code = $this->getAncestorLayoutTypeCode($type_code, $screen))) return $null;
 		}
 
 		// no layouts defined for this type_code's screens
@@ -181,18 +182,21 @@ class Layout_Manager extends Asset
 	/**
 	* Returns the layout type code of ancestor for a given type code, or null if none exits
 	*
-	* @param string $type_code the type_code to find an ancestor type code for
+	* @param string		$type_code	the type_code to find an ancestor type code for
+	* @param string		$screen		the name of the screen for which the layout is defined
 	*
-	* @return string the type_code of the ancestor, or null if there is not one
+	* @return string the type_code of the ancestor, or NULL if there is not one
 	* @access public
 	*/
-	function getAncestorLayoutTypeCode($type_code) {
+	function getAncestorLayoutTypeCode($type_code, $screen='')
+	{
 		$layouts = $this->attr('layouts');
 		$ancestor_type_code = '';
 		
 		$ancestors = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, false);
 		foreach ($ancestors as $type) {
 			if (isset($layouts[$type])) {
+				if (!empty($screen) && !isset($layouts[$type][$screen])) continue; 
 				$ancestor_type_code = $type;
 				break;
 			}
