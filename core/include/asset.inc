@@ -3196,7 +3196,7 @@ class Asset extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function setPermission($userid, $permission, $access='1')
+	function setPermission($userid, $permission, $access)
 	{
 		$userid = (int) $userid;
 		$permission = (int) $permission;
@@ -3722,7 +3722,7 @@ class Asset extends Resolve_Object
 	* @param boolean	$and_greater	get effective permission (eg read access = read
 	*									or write or admin)
 	* @param boolean	$and_inherited	Whether to get inherited permissions as well
-	* @param string		$access			Type of Access : null = all, true = granted, false = denied
+	* @param boolean	$access			Type of Access : null = all, true = granted, false = denied
 	* @param boolean	$expand_groups	expand user groups so only user ids get returned (NOTE: only valid if $all_info is false)
 	* @param boolean	$all_info		when false fn just returns an array of userids for those that have permission.
 	*									When true fn returns all info about the permission in the form of 
@@ -3798,13 +3798,13 @@ class Asset extends Resolve_Object
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userid']);
 					if (!is_null($user)) {
 						if (is_a($user, 'user_group')) {
-							$return_result = array_merge($ret_val, $user->getChildren(Array('user'), false));
+							$ret_val = array_merge($ret_val, $user->getChildren(Array('user'), false));
 						} else {
-							$return_result[] = $user->id;
+							$ret_val[] = $user->id;
 						}
 					}// end if
 				} else {
-					$return_result[] = $data['userid'];
+					$ret_val[] = $data['userid'];
 				}// end if
 			}// end if all info
 
