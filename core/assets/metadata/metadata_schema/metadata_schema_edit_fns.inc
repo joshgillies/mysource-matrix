@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.7 2003/09/26 05:26:26 brobertson Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.8 2003/10/02 01:35:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -251,6 +251,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateMetadata(&$asset, $values, &$keywords)
 	{
+		echo "<!-- $asset->name //-->\n\n";
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
 		foreach ($current_links as $link) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
