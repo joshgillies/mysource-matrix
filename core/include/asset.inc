@@ -2313,7 +2313,7 @@ class Asset extends Resolve_Object
 		if ($allowed_links[$link_type][$type]['card'] != 'M') {
 			$num_curr_links = $this->countLinks('major', $link_type, $type, true, $ignore_linkid);
 			//  and we already have our quota of links, bugger off
-			if ($num_curr_links > (int) $allowed_links[$link_type][$type]['card']) {
+			if ($num_curr_links >= (int) $allowed_links[$link_type][$type]['card']) {
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 				return 'Assets of Type "'.$this->type().'" can only have '.((int) $allowed_links[$link_type][$type]['card']).' "'.link_type_name($link_type).'" link to a "'.$type.'"';
 			}
