@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.86 2005/02/24 01:22:18 gsherwood Exp $
+* $Id: file.inc,v 1.87 2005/02/24 21:54:44 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.86 $
+* @version $Revision: 1.87 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -273,6 +273,8 @@ class File extends Asset
 	*/
 	function create(&$link, $info=Array())
 	{
+		$this->_tmp['file_create_data'] = $info;
+
 		$name = trim($this->attr('name'));
 		if ($name == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
@@ -312,6 +314,39 @@ class File extends Asset
 		return parent::create($link);
 
 	}//end create()
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* File assets commit their uploaded file to the file system
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) return false;
+		
+		$edit = $this->getEditFns();
+		
+		// we need to fudge a few attributes to make sure we can
+		// process the file upload in the middle of creation
+		$this->_tmp['uploading_file'] = 1;
+		$prefix = $this->type().'_0';
+		$o = &$GLOBALS['SQ_SYSTEM']->backend->out;
+		$info = $this->_tmp['file_create_data'];
+
+		$ret_val = $edit->processFileChooser($this, $o, $prefix);
+		$ret_val |= $edit->processFileUpload($this, $o, $prefix, $info);
+
+		$this->saveAttributes();
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+		return $ret_val;
+
+	}//end _createAdditional()
 
 
 	/**
@@ -610,25 +645,7 @@ class File extends Asset
 				$prefix = $this->getPrefix();
 				$this->setAttrValue('name', 'temp');
 
-				$linkid = $this->create($link);
-
-				if ($linkid && $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
-					$edit = $this->getEditFns();
-					$this->_tmp['uploading_file'] = 1;
-					$ret_val = $edit->processFileChooser($this, $o, $prefix);
-					$ret_val |= $edit->processFileUpload($this, $o, $prefix);
-					$this->saveAttributes();
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
-
-					if ($ret_val) {
-						// fire the 'Asset Created' event
-						$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', $this);
-					}
-
-					return $ret_val;
-				}
-
-				return false;
+				return $this->create($link);
 			break;
 
 			default :

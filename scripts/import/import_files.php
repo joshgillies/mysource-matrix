@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files.php,v 1.5 2005/01/15 17:13:00 brobertson Exp $
+* $Id: import_files.php,v 1.6 2005/02/24 21:54:57 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 * be linked appropriately.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -98,12 +98,6 @@ foreach ($import_dirs as $import_dir) {
 			trigger_error('Failed to import '.$new_asset_type.' '.$filename, E_USER_WARNING);
 		} else {
 			bam('New '.$new_file->type().' asset created for file '.$filename.' - asset ID #'.$new_file->id);
-		}
-
-		// now that we have created the asset we need to import the file itself
-		$edit_fns = $new_file->getEditFns();
-		if (!$edit_fns->processFileUpload($new_file, $GLOBALS['SQ_SYSTEM']->backend->out, $new_file->getPrefix(), $temp_info)) {
-			trigger_error('Failed to import the file for '.$new_asset_type.' '.$filename, E_USER_WARNING);
 		}
 	}
 }

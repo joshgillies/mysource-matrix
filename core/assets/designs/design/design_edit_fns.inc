@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.78 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.79 2005/02/24 21:54:44 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.78 $
+* @version $Revision: 1.79 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -789,15 +789,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			// we already have a design file with the same name, so just upload over the top of it
 			$new_file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing_fileid);
-		}
 
-		$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'attributes');
-		$edit_fns = $new_file->getEditFns();
-		if ($edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info)) {
+			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'attributes');
+			$edit_fns = $new_file->getEditFns();
+			if ($edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info)) {
+				if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
+				return true;
+			}
 			if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
-			return true;
-		}
-		if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
+			}
 
 		return false;
 
