@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: InspectorNavigator.java,v 1.1 2005/02/18 05:21:40 mmcintyre Exp $
+* $Id: InspectorNavigator.java,v 1.2 2005/03/06 22:40:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,6 +30,7 @@ package net.squiz.matrix.inspector;
 
 import net.squiz.matrix.matrixtree.*;
 import net.squiz.matrix.core.*;
+import net.squiz.matrix.ui.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -47,7 +48,7 @@ class InspectorNavigator extends JPanel {
 
 	private JButton backBtn;
 	private JButton forwardBtn;
-	private JButton showPathBtn;
+	private ButtonMenu showPathBtn;
 	private InspectorGadget inspector;
 	private TreePath current;
 	private List backPath = new ArrayList();
@@ -106,7 +107,7 @@ class InspectorNavigator extends JPanel {
 		treePathObjects[k-1] = current.getPathComponent(k);
 		}
 
-		showPathBtn.setToolTipText(convertPathToLocation(new TreePath(treePathObjects)));
+		showPathBtn.setToolTipText(convertPathToString(new TreePath(treePathObjects)));
 	}
 
 	/**
@@ -137,9 +138,9 @@ class InspectorNavigator extends JPanel {
 
 		ActionListener btnListener = new ButtonActionListener();
 
-		backBtn     = createButton("back", btnListener, "Back");
-		forwardBtn  = createButton("forward", btnListener, "Forward");
-		showPathBtn = createButton("show_path", btnListener, "");
+		backBtn     = (JButton) createButton("back", btnListener, "Back", false);
+		forwardBtn  = (JButton) createButton("forward", btnListener, "Forward", false);
+		showPathBtn = (ButtonMenu) createButton("show_path", btnListener, "Show Path", true);
 
 		add(backBtn);
 		add(forwardBtn);
@@ -161,16 +162,22 @@ class InspectorNavigator extends JPanel {
 	 *
 	 * @return the newly created button
 	 */
-	private JButton createButton(
+	private AbstractButton createButton(
 			String iconName,
 			ActionListener listener,
-			String toolTipText) {
+			String toolTipText,
+			boolean buttonMenu) {
 
 		Icon icon = GUIUtilities.getAssetMapIcon(iconName + ".png");
 		Icon disabledIcon = GUIUtilities.getAssetMapIcon(iconName + "_disabled.png");
 		Icon pressedIcon = GUIUtilities.getAssetMapIcon(iconName + "_on.png");
 
-		JButton button = new JButton(icon);
+		AbstractButton button = null;
+		if (buttonMenu)
+			button = new ButtonMenu(icon, pressedIcon);
+		else 
+			button = new JButton(icon);
+
 		button.setDisabledIcon(disabledIcon);
 		button.setPressedIcon(pressedIcon);
 		button.setBorderPainted(false);
@@ -214,12 +221,13 @@ class InspectorNavigator extends JPanel {
 	/**
 	 * Creates a current path lineage.
 	 */
-	private String convertPathToLocation(TreePath path) {
-		Object[] nodes = path.getPath();
+	private String convertPathToString(TreePath path) {
+		return convertPathToString(path.getPath());
+	}
+	
+	private String convertPathToString(Object[] nodes) {
 		String pathStr = "";
 
-		// MM: start at one so that we dont have the root folder
-		// NdV: BUT WE WANT THE ROOT FOLDER!
 		for (int i = 0; i < nodes.length; i++) {
 			pathStr = pathStr + ((MatrixTreeNode) nodes[i]).getAsset().getName();
 			if (i != nodes.length - 1)
@@ -243,6 +251,8 @@ class InspectorNavigator extends JPanel {
 	 */
 	class ButtonActionListener implements ActionListener {
 
+		private boolean isVisible = false;
+		private JPopupMenu menu;
 		/**
 		 * Invoked when an action occurs.
 		 * @param e A semantic event which indicates that a component-defined
@@ -254,53 +264,57 @@ class InspectorNavigator extends JPanel {
 			if (source == backBtn) navigateBack();
 			else if (source == forwardBtn) navigateNext();
 			else if (source == showPathBtn) {
-
-				JPopupMenu menu = new JPopupMenu();
-
-				menu.add( 	new AbstractAction("My Matrix System") {
-								public void actionPerformed(ActionEvent e) {
-									inspector.populateInspector(inspector.getTree().getPathToRoot((MatrixTreeNode)AssetManager.getRootFolderNode()));
-									setBackPath(inspector.getTree().getPathToRoot((MatrixTreeNode)AssetManager.getRootFolderNode()));
-								}
-							});
-
-				//if (current.getPathCount() > 1) menu.addSeparator();
-
-				for (int i = 1; i < current.getPathCount(); i++) {
-					final TreePath path = inspector.getTree().getPathToRoot((MatrixTreeNode)current.getPathComponent(i));
-
-					Object[] treePathObjects = new Object[path.getPathCount() - 1];
-					for (int k = 1; k < path.getPathCount(); k++) {
-						treePathObjects[k-1] = path.getPathComponent(k);
-					}
-
-					String itemPath = convertPathToLocation(new TreePath(treePathObjects));
-
-					// MM: is there a good reason why we are using AbstractAction here?
-					// They are more expensive than ActionListeners and are generally only
-					// needed if you are going to reuse them in menus and Keystokes or you
-					// are going to make good use of the isEnabled() / setEnabled() accessor methods etc.
-					// Using an AbstractAction will still create a JMenuItem internally in JMenu anyway.
-					// it would probably be better to create a menuActionListener outside of the for loop
-					// @see http://beta.squiz.net/docs/java_sdk/docs/api/javax/swing/Action.html
-
-					menu.add( 	new AbstractAction(itemPath, ((MatrixTreeNode)path.getLastPathComponent()).getAsset().getType().getIcon()) {
-									public void actionPerformed(ActionEvent e) {
-										inspector.populateInspector(path);
-										setBackPath(path);
-									}
-								});
-
-				}
-				menu.show(InspectorNavigator.this, showPathBtn.getX() + 8, showPathBtn.getY() + showPathBtn.getHeight() + 1);
-
-				System.out.println("current is: " + current);
-				System.out.println("backPath is: " + backPath);
-				System.out.println("forwardPath is: " + forwardPath);
-				System.out.println("There are " + backPath.size() + " backPath items");
-				System.out.println("There are " + forwardPath.size() + " forwardPath items");
+				showPathBtn.setPopupMenu(getMenu());
 			}
 		}
+		
+		private JPopupMenu getMenu() {
+			JPopupMenu menu = new JPopupMenu();
+	
+			ActionListener matrixListener = new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					MatrixTreeNode rootNode 
+						= (MatrixTreeNode) AssetManager.getRootFolderNode();
+					TreePath rootPath = inspector.getTree().getPathToRoot(rootNode);
+					inspector.populateInspector(rootPath);
+					setBackPath(rootPath);
+				}
+			};
+			
+			JMenuItem matrixItem = new JMenuItem("My Matrix System");
+			matrixItem.addActionListener(matrixListener);
+			menu.add(matrixItem);
+			
+			if (current.getPathCount() > 1) menu.addSeparator();
+
+			for (int i = 1; i < current.getPathCount(); i++) {
+				final TreePath path = inspector.getTree().getPathToRoot(
+					(MatrixTreeNode) current.getPathComponent(i));
+
+				Object[] treePathObjects = new Object[path.getPathCount() - 1];
+				for (int k = 1; k < path.getPathCount(); k++)
+					treePathObjects[k - 1] = path.getPathComponent(k);
+
+				String pathStr = convertPathToString(treePathObjects);
+				ActionListener pathListener = new ActionListener() {
+					public void actionPerformed(ActionEvent evt) {
+						inspector.populateInspector(path);
+						setBackPath(path);
+					}
+				};
+				
+				MatrixTreeNode node = (MatrixTreeNode) path.getLastPathComponent();
+				Icon icon = node.getAsset().getType().getIcon();
+				JMenuItem pathItem = new JMenuItem(pathStr);
+				pathItem.addActionListener(pathListener);
+				pathItem.setIcon(icon);
+			
+				menu.add(pathItem);
+			}
+			
+			return menu;
+		}
+		
 	}//end class ButtonActionListener
 
 	//}}}
