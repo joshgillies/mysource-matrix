@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.18 2004/09/15 04:22:18 gsherwood Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.19 2004/11/02 03:34:00 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -121,7 +121,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 
 		if ($write_access) {
 			$o->openField('New Condition?');
-				asset_finder($prefix.'_new_condition', 0, Array('user' => 'D', 'user_group' => 'D'), 'sq_sidenav', 'null', Array('clear'));
+				asset_finder($prefix.'_new_condition', 0, Array('user' => 'D', 'user_group' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
 			$o->closeField();
 		}
 
@@ -156,7 +156,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$step_logic = trim($_POST[$prefix.'_logic']);
 		}
 		if (isset($_POST[$prefix.'_logic_num']) && $step_logic != 'all') {
-			$step_logic_num = (int) trim($_POST[$prefix.'_logic_num']); 
+			$step_logic_num = (int) trim($_POST[$prefix.'_logic_num']);
 		}
 		if (!$asset->setAttrValue('logic', $step_logic)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.12 2004/09/14 04:32:26 lwright Exp $
+* $Id: settings.inc,v 1.13 2004/11/02 03:33:11 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -180,7 +180,7 @@ function paintSettings(&$owner, &$o, &$ei)
 						normal_button($prefix.'_set_time_'.$date_type, 'now', 'setCurrentTime(\''.$prefix.'_date_'.$date_type.'\');');
 						echo '&nbsp;<b>by</b>&nbsp;';
 						asset_finder($prefix.'_date_'.$date_type.'_userid', $userid, Array('user' => 'D'));
-						
+
 					} else {
 						$print_note = false;
 						if ($date_field->isEmpty() && $date_type == 'published') {
@@ -380,7 +380,7 @@ function paintSettings(&$owner, &$o, &$ei)
 
 					// now add the blank one that they can customise
 					$our_designs['user_design::'] = 0;
-					
+
 					foreach($our_designs as $design_name => $designid) {
 
 						$matches = Array();
@@ -446,7 +446,7 @@ function paintSettings(&$owner, &$o, &$ei)
 
 							$o->closeField();
 						}// endif
-						
+
 						$o->openField(($designid) ? 'Change ?' : 'New ?');
 
 						if (!$owner->writeAccess('links')) {
@@ -463,7 +463,7 @@ function paintSettings(&$owner, &$o, &$ei)
 						} else {
 							$buttons = Array('clear');
 							if (!$new_user_design) $buttons[] = 'reset';
-							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'), 'sq_sidenav', 'null', $buttons);
+							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'), 'sq_sidenav', false, 'null', $buttons);
 						}
 
 
@@ -472,7 +472,7 @@ function paintSettings(&$owner, &$o, &$ei)
 						}
 
 						$o->closeField();
-						
+
 						$o->closeSection();
 
 					}// end foreach
@@ -528,7 +528,7 @@ function processSettings(&$owner, &$o, &$ei)
 
 		foreach (Array('created', 'published') as $date_type) {
 
-			// check to see if a user was selected for this particular date, 
+			// check to see if a user was selected for this particular date,
 			// otherwise use the current logged in user
 			if (isset($_POST[$prefix.'_date_'.$date_type.'_userid']['assetid']) && $_POST[$prefix.'_date_'.$date_type.'_userid']['assetid'] != 0) {
 				$userid = $_POST[$prefix.'_date_'.$date_type.'_userid']['assetid'];

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.8 2004/03/18 03:43:08 gsherwood Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.9 2004/11/02 03:32:23 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,7 +89,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 		$o->openField('New Link Parent');
 		if ($asset->writeAccess('links')) {
-			asset_finder($prefix.'_major_assetid', ((is_null($major)) ? 0 : $major->id), Array(), 'sq_sidenav', 'null', Array('clear'));
+			asset_finder($prefix.'_major_assetid', ((is_null($major)) ? 0 : $major->id), Array(), 'sq_sidenav', false, 'null', Array('clear'));
 		} else {
 			if (is_null($major)) {
 				echo '<a href="'.$major->getBackendHref().'">'.$major->name.' (#'.$major->id.')</a>';

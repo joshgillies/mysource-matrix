@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.6 2004/10/06 23:53:38 mmcintyre Exp $
+* $Id: workflow.inc,v 1.7 2004/11/02 03:33:39 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -131,7 +131,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
-	
+
 	$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$schemas = $wfm->getSchemas($owner->id);
 	$running_schemas = $wfm->getSchemas($owner->id, true, true);
@@ -145,7 +145,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 	}
 
 	for($i = 0; $i < count($root->children); $i++) {
-		
+
 		$section = &$root->children[$i];
 
 		// only do this if we are not painting a layout
@@ -167,13 +167,13 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 			$field = &$section->children[$j];
 
 			switch (strtolower($field->attributes['code'])) {
-				
+
 				///// WORKFLOW APPROVAL/REJECTION ////
 
 				case 'workflow_status_change' :
-				
+
 					if (!empty($running_schemas)) {
-						
+
 						$o->openField('Change Status?');
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_change'])) ob_start();
 
@@ -185,7 +185,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 								echo '<i>You cannot approve or reject changes at this time</i>';
 							}
 							?></span><?php
-								
+
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_change'])) {
 								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_status_change']] = ob_get_contents();
@@ -195,11 +195,11 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 					}
 
 				break;
-				
+
 				case 'workflow_log_message' :
-				
+
 					if (!empty($running_schemas)) {
-						
+
 						$o->openField('Log Message');
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_log_message'])) ob_start();
 
@@ -208,7 +208,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							<br/>You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.
 							<br/><a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow&sq_workflow_log_version=<?php echo substr($owner->version, 0, strrpos($owner->version, '.'));?>">Click here to view the workflow message log</a> - a list of system generated workflow messages as well as any comments made by other approvers.
 							<?php
-								
+
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_log_message'])) {
 								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_log_message']] = ob_get_contents();
@@ -218,11 +218,11 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 					}
 
 				break;
-				
+
 				case 'workflow_status_commit' :
-				
+
 					if (!empty($running_schemas)) {
-						
+
 						$o->openField('');
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_commit'])) ob_start();
 
@@ -237,20 +237,20 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 					}
 
 				break;
-				
+
 				///// WORKFLOW REPORT ////
 
 				case 'workflow_report' :
-				
+
 					if (!empty($running_schemas)) {
-						
+
 						$o->closeSection();
 						if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) ob_start();
-						
+
 						$schema_workflows = $wfm->getSchemaWorkflows($owner->id);
 						foreach ($schema_workflows as $schemaid => $workflow) {
 							if (!in_array($schemaid, $running_schemas)) continue;
-				
+
 							$schema_title = "Running Workflow - ".$workflow['schema_name'];
 							if (isset($workflow['complete']) && $workflow['complete']) {
 								$schema_title .= ' <span style="color:#008800">[Completed]</span>';
@@ -258,7 +258,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 								$schema_title .= ' <span style="color:#880000">[Not Completed]</span>';
 							}
 							$o->openSection($schema_title);
-				
+
 								$o->openField('Workflow Started');
 									echo $GLOBALS['SQ_SYSTEM']->datetime($workflow['started']);
 								$o->closeField();
@@ -266,7 +266,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 									require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 									echo easy_time_total(time() - $workflow['started'], true);
 								$o->closeField();
-					
+
 								foreach ($workflow['steps'] as $stepid => $step_data) {
 									$section_title = "Step $stepid - ".$step_data['step_name'];
 									if (!$workflow['current_step'] || $workflow['current_step'] > $stepid) {
@@ -274,9 +274,9 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 									} else {
 										$section_title .= ' <span style="color:#880000">[Not Completed]</span>';
 									}
-					
+
 									$o->openSection($section_title);
-					
+
 										if ($step_data['started']) {
 											$o->openField('Step Duration');
 												echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['started']);
@@ -292,7 +292,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 											}
 											echo '</i>)';
 										}
-					
+
 										$o->openField('Step Logic');
 											if (isset($wfm->_valid_cond_logic[$step_data['logic']])) {
 												// a special type of logic statement
@@ -306,13 +306,13 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 													$step_logic_num = '';
 												}
 											}
-					
+
 											echo '<i>'.$wfm->_valid_step_logic[$step_logic];
 											if ($step_logic_num) echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '')." must be met</i>";
 										$o->closeField();
-										
+
 										$o->openField('Conditions');
-							
+
 											$has_conds = false;
 											ob_start();
 											?>
@@ -343,16 +343,16 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 														$cond_logic_num = '';
 													}
 												}
-							
+
 												if (is_a($asset, 'user')) {
 													echo '&nbsp;';
 												} else {
 													echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
 													if ($cond_logic_num) echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '')." must approve</i>";
 												}
-							
+
 												?></td>
-							
+
 													<td align="center" class="sq-backend-table-cell">
 													<?php
 														if (isset($cond_data['complete']) && $cond_data['complete']) {
@@ -364,7 +364,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 															} else {
 																if ($cond_logic_num) $user_count = $cond_logic_num;
 																else $user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
-							
+
 																echo '<span style="color:#';
 																if (count($cond_data['published_by']) >= $user_count) echo '008800';
 																else echo '880000';
@@ -376,11 +376,11 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 													?>
 													</td>
 												</tr>
-							
+
 												<?php
 												$has_conds = true;
 											}
-							
+
 											if (!$has_conds) {
 												ob_end_clean();
 												echo 'None';
@@ -388,29 +388,29 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 												ob_end_flush();
 												?></table><?php
 											}
-											
+
 										$o->closeField();
-					
+
 									$o->closeSection();
-					
+
 								}// end foreach
-	
+
 								// if there is a keyword replacement for this, add it to the replacements
 								if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
 									$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_report']] = ob_get_contents();
 									ob_end_flush();
 								}
-							
+
 							$o->closeSection();
-				
+
 						}// end foreach
-							
+
 					} else {
 						$o->openField('');
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) ob_start();
-							
+
 							echo 'Worklfow is not currently running for this asset';
-							
+
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
 								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_report']] = ob_get_contents();
@@ -424,7 +424,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				///// METADATA WARNING ////
 
 				case 'workflow_metadata_warning' :
-				
+
 					// lets show some workflow warnings about metadata if we need to
 					if ($owner->status & SQ_SC_STATUS_PENDING) {
 						$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
@@ -433,12 +433,12 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							if (!$m_complete) {
 								$o->openField('');
 									if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) ob_start();
-									
+
 									?>
 									<p class="sq-backend-data"><span style="color:#880000"><b>WARNING:</b></span> "<?php echo $owner->name; ?>" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "<?php echo $owner->name; ?>" can become 'Approved' to go live.</p>
 									<p class="sq-backend-data">These metadata fields can be completed by any editor or administrator of "<?php echo $owner->name; ?>" by going to the <a href="<?php echo $owner->getBackendHref('metadata'); ?>">Metadata screen</a>.</p>
 									<?php
-									
+
 									// if there is a keyword replacement for this, add it to the replacements
 									if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) {
 										$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_metadata_warning']] = ob_get_contents();
@@ -454,17 +454,17 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				///// CURRENT WORKFLOW SCHEMAS ////
 
 				case 'workflow_schemas' :
-				
+
 					$direct = Array();
 					foreach($schemas as $schemaid => $access) {
 						if (!isset($direct[$access])) $direct[$access] = Array();
 						$direct[$access][] = $schemaid;
 					}
 					ksort($direct);
-					
+
 					$o->openField('');
 						if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) ob_start();
-						
+
 						if (empty($direct)) {
 							echo 'There are no workflow schemas applied to this asset';
 						} else {
@@ -511,7 +511,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							}//end foreach inherited
 
 						}// end if
-						
+
 						// if there is a keyword replacement for this, add it to the replacements
 						if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) {
 							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_schemas']] = ob_get_contents();
@@ -519,43 +519,43 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						}
 
 					$o->closeField();
-					
+
 				break;
-				
+
 				///// ADD NEW WORKFLOW SCHEMA ////
 
 				case 'workflow_add_schemas' :
-				
+
 					if ($admin_access && empty($running_schemas)) {
 						$o->openField('');
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_add_schemas'])) ob_start();
-							
+
 							$o->openField('New ?', 'new_line');
 								combo_box($prefix.'_workflow[new][access]', Array('' => '', '1' => 'Apply', '0' => 'Deny'), false, '');
 								echo ' Workflow schema ';
-								asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', 'null', Array('clear'));
+								asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
 							$o->closeField();
 
 							if (is_null($keywords) || isset($keywords['fields']['workflow_add_schemas'])) $print_commit_button = true;
-							
+
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_add_schemas'])) {
 								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_add_schemas']] = ob_get_contents();
 								ob_end_flush();
 							}
-	
+
 						$o->closeField();
 					}
-					
+
 				break;
-				
+
 				///// CASACADE OPTIONS ////
 
 				case 'workflow_cascade_options' :
-				
+
 					$o->openField('');
 						if (!is_null($keywords) && isset($keywords['fields']['workflow_cascade_options'])) ob_start();
-						
+
 						if ($admin_access && empty($running_schemas)) {
 							$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
 							if (count($kiddies)) {
@@ -575,14 +575,14 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						} else {
 							echo 'You do not have access to cascade workflow schemas for this asset';
 						}
-						
+
 						// if there is a keyword replacement for this, add it to the replacements
 						if (!is_null($keywords) && isset($keywords['fields']['workflow_cascade_options'])) {
 							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_cascade_options']] = ob_get_contents();
 							ob_end_flush();
 						}
 					$o->closeField();
-					
+
 				break;
 
 			}//end switch

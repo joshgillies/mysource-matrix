@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.4 2004/03/18 03:43:08 gsherwood Exp $
+* $Id: metadataSchemas.inc,v 1.5 2004/11/02 03:32:47 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -181,7 +181,7 @@ function paintMetadataSchemas(&$owner, &$o, &$ei)
 		$o->openField('New ?', 'new_line');
 			combo_box($prefix.'_metadata[new][access]', Array('' => '', '1' => 'Apply', '0' => 'Deny'), false, '');
 			echo ' Metadata schema ';
-			asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'), 'sq_sidenav', 'null', Array('clear'));
+			asset_finder($prefix.'_metadata[new][schemaid]', 0, Array('metadata_schema' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
 		$o->closeField();
 	}
 
