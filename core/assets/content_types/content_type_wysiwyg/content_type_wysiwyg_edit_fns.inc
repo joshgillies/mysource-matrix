@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.8 2004/06/18 03:24:15 lwright Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.9 2004/08/23 04:07:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -184,7 +184,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paintBackendIcons(&$asset, $prefix)
 	{
-		print_bodycopy_icon("Javascript: switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.");", 'Edit Contents', 'Switch between preview and edit mode', 'edit_mode');
+		print_bodycopy_icon("Javascript: switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.");", 'Edit Contents', 'Switch between preview and edit mode', 'edit_mode', '[Edit Contents]');
 
 	}//end paintBackendIcons()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: bodycopy_general.inc,v 1.2 2004/07/19 01:16:47 mnyeholt Exp $
+* $Id: bodycopy_general.inc,v 1.3 2004/08/23 04:07:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,12 +49,11 @@
 * @access  public
 * @returns void
 */
-function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='16', $height='16')
+function print_bodycopy_icon($href, $heading, $desc, $icon, $alt='', $extra='', $width='16', $height='16')
 {
 	?>
 	<a href="<?php echo $href?>" onmouseover="javascript: show_tooltip(event, '<?php echo addslashes(htmlspecialchars($heading))?>', '<?php echo addslashes(htmlspecialchars($desc))?>', null, 'bodycopyToolTipDiv'); return true;" onmouseout="javascript:hide_tooltip(); return true;" >
-	<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/<?php echo $icon?>.png", "<?php echo $width?>", "<?php echo $height?>", "");</script>
-	</a>
+	<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/<?php echo $icon?>.png", "<?php echo $width?>", "<?php echo $height; ?>", "<?php echo $alt; ?>");</script></a>
 	<?php
 
 }// end print_bodycopy_icon()

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.12 2004/08/19 05:18:43 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.13 2004/08/23 04:07:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -405,7 +405,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 									?>
 									<td>
 										<?php
-										print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container');
+										print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_before_{$i}.value; bodycopy_insert_container('$prefix', $i, true)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container', '[Insert]');
 										?>
 									</td>
 									<td class="sq-backend-data" valign="top">
@@ -454,7 +454,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 								?>
 								<td>
 									<?php
-									print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container');
+									print_bodycopy_icon("Javascript: document.main_form.{$prefix}_insert_container_type.value = document.main_form.{$prefix}_insert_container_type_after_{$i}.value; bodycopy_insert_container('$prefix', $i, false)", 'Insert Container', 'Select the type of container you want to create before clicking here', 'create_container', '[Insert]');
 									?>
 								</td>
 								<td class="sq-backend-data" valign="top">

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.93 2004/06/21 00:07:34 gsherwood Exp $
+* $Id: backend.inc,v 1.94 2004/08/23 04:07:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -520,7 +520,7 @@ class Backend extends MySource_Object
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle" height="99%">
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1">
-					<a class="sq-backend-header-item" style="text-decoration:none;" href="#" onclick="Javascript: reloadHeader(); return false;">
+					<a class="sq-backend-header-item" style="text-decoration: none;" href="#" onclick="Javascript: reloadHeader(); return false;">
 					Logged in as: <b><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?> - <?php echo date('d M Y g:i a', $now); ?></a></b>
 				</td>
 				<td align="right" width="100%">
@@ -598,6 +598,7 @@ class Backend extends MySource_Object
 
 					foreach($options as $option) {
 						?><a href="<?php echo $option['url'];?>"
+							 class="sq-backend-header-item"
 							 title="<?php echo htmlspecialchars($option['title']);?>"
 							 onMouseOver="window.status = '<?php echo htmlspecialchars($option['title']);?>'; return true;"
 							 onMouseOut = "window.status = ''; return true;" 
@@ -699,7 +700,7 @@ class Backend extends MySource_Object
 				<td valign="top"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/top.gif'); ?>" width="9" height="25" border="0" alt="" /></td>
 			</tr>
 			<tr height="100%">
-				<td valign="middle"><a href="#" onClick="Javascript: resizeFrame()"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/bar.gif'); ?>" width="9" height="72" border="0" alt="" /></a></td>
+				<td valign="middle"><a class="sq-backend-header-item" href="#" onClick="Javascript: resizeFrame()"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/bar.gif'); ?>" width="9" height="72" border="0" alt="<<" /></a></td>
 			</tr>
 		</table>
 		<script language="Javascript" type="text/javascript">

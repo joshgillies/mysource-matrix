@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.7 2004/08/04 00:40:10 mnyeholt Exp $
+* $Id: bodycopy_table_cell.inc,v 1.8 2004/08/23 04:07:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -259,7 +259,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 
 		// print out the edit buttons
 		
-		print_bodycopy_icon("Javascript: bodycopy_edit_table_cell_properties('$prefix', $tableid, $rowid, $cellid);", 'Edit Cell '.($cellid + 1).' - '.($rowid+1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'cell_properties');
+		print_bodycopy_icon("Javascript: bodycopy_edit_table_cell_properties('$prefix', $tableid, $rowid, $cellid);", 'Edit Cell '.($cellid + 1).' - '.($rowid+1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'cell_properties', '[Edit Cell Properties]');
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
 		if (!empty($link)) {

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.10 2004/08/04 00:41:43 mnyeholt Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.11 2004/08/23 04:07:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -456,7 +456,6 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 						
 					}
 				}
-				print_bodycopy_icon("Javascript: bodycopy_edit_table_properties('$prefix', $asset->id, ".(($asset->status & SQ_SC_STATUS_SAFE_EDITING) ? 'false' : 'true').");", 'Edit '.$asset->attr('name').'\'s Properties', (($popup_attribute_list) ? 'Current Properties :<br>'.$popup_attribute_list : ''), 'table_properties');
 			} else {
 				echo '&nbsp;';
 			}
@@ -473,22 +472,22 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		
 		if ($i==0) {
 			if (($x+$i) == 0 && $multiCol && $colReorder) {
-				print_bodycopy_icon("Javascript: bodycopy_edit_table_col_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Columns ?', '', 'reorder');
+				print_bodycopy_icon("Javascript: bodycopy_edit_table_col_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Columns ?', '', 'reorder', '[Redorder Columns]');
 				
 			}
 		
 			// if there's more than one row, and we're on the first row, let the col be deleted.
 			if ($multiRow) {
-				print_bodycopy_icon("Javascript: bodycopy_delete_table_col('$prefix', $asset->id, $x);", 'Delete Column '.($x + 1).' ?', '', 'delete');
+				print_bodycopy_icon("Javascript: bodycopy_delete_table_col('$prefix', $asset->id, $x);", 'Delete Column '.($x + 1).' ?', '', 'delete', '[Delete Column]');
 			}
 			
-			print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $x, false);", 'Insert New Column on Right', '', 'add');
+			print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $x, false);", 'Insert New Column on Right', '', 'add', '[Add Column >>]');
 		}
 		
 		?> </span> <?php
 			
 		if ($i==0) {
-			print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $x, true);", 'Insert New Column on Left', '', 'add');
+			print_bodycopy_icon("Javascript: bodycopy_insert_table_col('$prefix', $asset->id, $x, true);", 'Insert New Column on Left', '', 'add', '[<< Add Column]');
 		}
 		$cell->paintCell($asset, $prefix, $asset->id, $i, $x);
 		 
@@ -499,27 +498,27 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		<?php
 		if ($x == 0) {
 			?>
-			<td style="width: 20px;border-right: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>" >
+			<td style="width: 20px;border-right: 1px dashed #C0C0C0;" id="<?php echo $prefix.'_row_'.$asset->id.'_'.$i?>"  nowrap="nowrap">
 			<?php
 			if ($i == 0 && $multiRow) {
-				print_bodycopy_icon("Javascript: bodycopy_edit_table_row_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Rows ?', '', 'reorder');
+				print_bodycopy_icon("Javascript: bodycopy_edit_table_row_order('$prefix', $asset->id);", 'Reorder '.$asset->attr('name').'\'s Rows ?', '', 'reorder', '[Reorder Rows]');
 			}
 			echo '<br/>';
-			print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id,$i, true);", 'Insert a New Row Above', '', 'add');
+			print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id,$i, true);", 'Insert a New Row Above', '', 'add', '[^ Add Row]');
 			
 			echo '<br/>';
-			print_bodycopy_icon("Javascript: bodycopy_edit_table_row_properties('$prefix', $asset->id,$i);", 'Edit Row '.($i + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'row_properties');
+			print_bodycopy_icon("Javascript: bodycopy_edit_table_row_properties('$prefix', $asset->id,$i);", 'Edit Row '.($i + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'row_properties', '[Edit Row Properties]');
 			if ($multiRow > 1) {
 				echo '<br/>';
-				print_bodycopy_icon("Javascript: bodycopy_delete_table_row('$prefix', $asset->id, $i);", 'Delete Row '.($i + 1).' ?', '', 'delete');
+				print_bodycopy_icon("Javascript: bodycopy_delete_table_row('$prefix', $asset->id, $i);", 'Delete Row '.($i + 1).' ?', '', 'delete', '[Delete Row]');
 			}
 			echo '<br/>';
-			print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", 'Insert a New Row Below', '', 'add'); 
+			print_bodycopy_icon("Javascript: bodycopy_insert_table_row('$prefix', $asset->id, $i, false);", 'Insert a New Row Below', '', 'add', '[v Add Row]'); 
 			?>
 		</td>
 		<?php
 		}
-		// a cell paints its own <td> tag
+			// a cell paints its own <td> tag
 			$cell->paint($asset, $prefix);
 		?>
 		</tr>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.81 2004/07/26 02:36:05 lwright Exp $
+* $Id: backend_outputter.inc,v 1.82 2004/08/23 04:07:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1156,7 +1156,7 @@ class Backend_Outputter
 							<table border="0" cellspacing="0" cellpadding="0" width="100%">
 								<tr>
 									<td class="sq-backend-section-heading" width="100%"><?php echo $section['heading'];?></td>
-									<td><img src="<?php echo $this->filesPath('images/section_icon.gif');?>" width="27" height="21" /></td>
+									<td><img src="<?php echo $this->filesPath('images/section_icon.gif');?>" width="27" height="21" alt="" /></td>
 								</tr>
 							</table>
 						</td>
