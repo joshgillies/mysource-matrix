@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_manager.inc,v 1.15 2003/10/22 05:18:07 dwong Exp $
+* $Id: metadata_manager.inc,v 1.16 2003/10/24 04:10:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -386,8 +386,8 @@ class Metadata_Manager extends MySource_Object
 	* @param Array		&$metadata		The values for the metadata
 	* @param Array		&$schemaids		The schema IDs
 	* 
-	* @access private
 	* @return Array
+	* @access private
 	*/
 	function getMetadataKeyData($assetid, $schemaids)
 	{
@@ -405,10 +405,12 @@ class Metadata_Manager extends MySource_Object
 				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
 				foreach ($fieldids as $fieldid) {
 					$field =& $am->getAsset($fieldid);
-					$value = $metadata['sections'][$section->name]['fields'][$field->name]['value'];
 
-					if (!$value)
+					if (isset($metadata['sections'][$section->name]['fields'][$field->name]['value'])) {
+						$value = $metadata['sections'][$section->name]['fields'][$field->name]['value'];
+					} else {
 						$value = $field->attr('default');
+					}
 
 					$keywords = retrieve_keywords_replacements($value);
 
@@ -425,7 +427,9 @@ class Metadata_Manager extends MySource_Object
 				}
 			}
 		}
+
 		return $keydata;
+
 	}//end getMetadataKeyData()
 
 
