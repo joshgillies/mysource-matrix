@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2004/10/20 07:42:24 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2004/11/17 05:03:50 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -82,6 +82,22 @@
 			<display_name>Password</display_name>
 			<note />
 			<password width="25" height="1" />
+		</field>
+
+	</section>
+
+	<section name="Image Handling" write_access="write:attributes">
+
+		<field attribute="strip_images">
+			<display_name>Strip Images?</display_name>
+			<note>If you select "Yes", all images on the target page will be removed.</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+
+		<field attribute="tunnel_images">
+			<display_name>Tunnel Images?</display_name>
+			<note>By enabling this option, all the images will be tunneled through this remote content asset. This option is experimental. Only makes sense if Strip Images is set to "NO".</note>
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 
 	</section>

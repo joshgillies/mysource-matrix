@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.10 2004/11/03 05:06:53 arailean Exp $
+* $Id: page_remote_content.inc,v 1.11 2004/11/17 05:03:51 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -53,7 +53,7 @@ class Page_Remote_Content extends Page
 	{
 		$this->Page($assetid);
 
-	}//end constructor
+	}//end Page_Remote_Content()
 
 
 	/**
@@ -230,6 +230,69 @@ class Page_Remote_Content extends Page
 	}//end _process()
 
 
+
+	/**
+	* Replace image button with a regular HTML Submit button
+	*
+	* @param  string $input_string          full input tag
+	* @param  string $default_button_name   default name of the button to replace the image
+	*
+	* @access private
+	* @return string
+	*/
+	function _imageButtonReplace($input_string, $default_button_name='Submit Button')
+	{
+		$alt_pattern = <<<REGEX
+/(?:alt\s*=['" ]([^'"><]+)['" ])/i
+REGEX;
+
+		$type_pattern =<<<REGEX
+/(type\s*=['" ][^'"><]+['" ])/i
+REGEX;
+
+		if (preg_match($alt_pattern, $input_string, $matches)) {
+			$button_name = ucfirst($matches[1]);
+		} else {
+			$button_name = $default_button_name;
+		}
+
+		$type_replacement = ' type="Submit" value="'.$button_name.'" ';
+
+		$result = preg_replace($type_pattern, $type_replacement, $input_string);
+
+		return $result;
+	}//end _imageButtonReplace()
+
+
+	/**
+	* Strip an image
+	*
+	* Replaces an HTML image tag with its ALT tag or a default name
+	*
+	* @param  string $image_string          full image tag
+	* @param  string $default_image_name    default word to replace image with if Alt tag is not found
+	*
+	* @access private
+	* @return string
+	*/
+	function _imageStrip($image_string, $default_image_name='Image')
+	{
+
+		$alt_pattern = <<<REGEX
+/(?:alt\s*=['" ]([^'"><]+)['" ])/i
+REGEX;
+
+		if (preg_match($alt_pattern, $image_string, $matches)) {
+			$image_name = ucfirst($matches[1]);
+		} else {
+			$image_name = $default_image_name;
+		}
+
+		return "[$image_name]";
+
+	}//end _imageStrip()
+
+
 	/**
 	* Convert all the URLs of the target
 	*
@@ -253,6 +316,51 @@ class Page_Remote_Content extends Page
 		$matches      = Array();
 		$subjects     = Array();
 		$replacements = Array();
+
+		// first, we strip the images if necessary
+		if ($this->attr('strip_images')) {
+
+			// replace HTML images with their ALT tags
+			$image_pattern = <<<REGEX
+/(<(?:img)[^>]*?>)/i
+REGEX;
+
+			$content = preg_replace_callback(
+				$image_pattern,
+				create_function(
+					'$matches',
+					'return Page_Remote_Content::_imageStrip($matches[0]);'
+				),
+				$content
+			);
+
+			// remove HTML background images
+			$background_image_pattern = <<<REGEX
+/(background\s*=\s*['\"]?(?:\s)*[^'\" <>]+['\"]?)/i
+REGEX;
+			$content = preg_replace($background_image_pattern, "", $content);
+
+			// strip CSS backgrounds
+			$css_background_image_pattern = <<<REGEX
+/(background.*?)(url\(.*?\))/i
+REGEX;
+			$content = preg_replace($css_background_image_pattern, "\$1", $content);
+
+			// change Form Image buttons with regular buttons
+			$image_button_patterns =<<<REGEX
+/(<(?:input)[^>]*type=["' ]image["' ][^>]*?>)/i
+REGEX;
+
+			$content = preg_replace_callback(
+				$image_button_patterns,
+				create_function(
+					'$matches',
+					'return Page_Remote_Content::_imageButtonReplace($matches[0]);'
+				 ),
+				 $content
+			);
+
+		}
 
 		// patterns for the urls that ONLY need conversion to the absolute URL, not redirected to our page
 		// all of these urls ignore the absolute URLs that have http or https in them
