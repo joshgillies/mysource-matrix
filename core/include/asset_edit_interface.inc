@@ -645,7 +645,7 @@ class Asset_Edit_Interface extends Resolve_Object
 										if ($owner->adminAccess()) {
 										?>
 										<td align="center" width="100" class="sq-backend-data">
-											X
+											<?php check_box($prefix.'_remove_fs[]', $fs_jobs[$i]->id); ?>
 										</td>
 										<?php
 										}// end if
@@ -710,22 +710,38 @@ class Asset_Edit_Interface extends Resolve_Object
 		}
 
 		$future_status_processed = false;
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-		$fs = new Cron_Job_Future_Status();
-		$edit_fns = $fs->getEditFns();
-		if ($edit_fns->processOneLineBackend($fs, $o, $prefix.'_new_fs')) {
-			$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-			if (!is_null($cron_mgr)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user) && $fs->setAssetToUpdate($owner)) {
-					$fs->releaseLock();
-					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-					$future_status_processed = true;
-				} else {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (!is_null($cron_mgr)) {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
+
+			if (!empty($_POST[$prefix.'_remove_fs'])) {
+				$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
+				if (!empty($fs_jobs)) {
+					for($i = 0; $i < count($fs_jobs); $i++) {
+						if (in_array($fs_jobs[$i]->id, $_POST[$prefix.'_remove_fs'])) {
+							$cron_mgr->removeJob($fs_jobs[$i]);
+						}// end if
+					}// end for
+				}// end if
+			}// end if
+
+
+			$fs = new Cron_Job_Future_Status();
+			$edit_fns = $fs->getEditFns();
+			if ($edit_fns->processOneLineBackend($fs, $o, $prefix.'_new_fs')) {
+				if (!is_null($cron_mgr)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+					if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user) && $fs->setAssetToUpdate($owner)) {
+						$fs->releaseLock();
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+						$future_status_processed = true;
+					} else {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					}
 				}
-			}
-		}
+			}// end if
+
+		}//end if is null cron mgr
 
 		return ($status_processed || $future_status_processed);
 
