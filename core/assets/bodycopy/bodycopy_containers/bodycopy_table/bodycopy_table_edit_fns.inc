@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.16 2004/12/09 02:56:14 gsherwood Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.17 2005/04/01 07:04:50 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -481,7 +481,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			}
 
 			// if there's more than one row, and we're on the first row, let the col be deleted.
-			if ($multiRow) {
+			if ($multiCol) {
 				print_bodycopy_icon("Javascript: bodycopy_delete_table_col('$prefix', $asset->id, $x);", 'Delete Column '.($x + 1).' ?', '', 'delete', '[Delete Column]');
 			}
 
@@ -512,7 +512,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 
 			echo '<br/>';
 			print_bodycopy_icon("Javascript: bodycopy_edit_table_row_properties('$prefix', $asset->id,$i);", 'Edit Row '.($i + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'row_properties', '[Edit Row Properties]');
-			if ($multiRow > 1) {
+			if ($multiRow) {
 				echo '<br/>';
 				print_bodycopy_icon("Javascript: bodycopy_delete_table_row('$prefix', $asset->id, $i);", 'Delete Row '.($i + 1).' ?', '', 'delete', '[Delete Row]');
 			}
