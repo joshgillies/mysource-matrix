@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_page.inc,v 1.4 2003/10/14 05:36:21 dwong Exp $
+* $Id: search_page.inc,v 1.5 2003/10/15 01:18:30 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -23,17 +23,6 @@ require_once SQ_PACKAGES_PATH.'/cms/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
-/**
-* Search_Page
-*
-* Page template for searching.
-*
-*
-* @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
-* @package MySource_Matrix_Packages
-* @subpackage search
-*/
 class Search_Page extends Page
 {
 	/** 
@@ -168,32 +157,6 @@ class Search_Page extends Page
 		return $page_links;
 
 	}//end _getAllowedLinks()
-
-
-	/**
-	* Prints out the backend interface for the asset
-	*
-	* @param object Backend_Outputter $o
-	*
-	* @access public
-	*/
-	function paintBackend(&$o)
-	{
-		if (isset($_GET['sq_from_frontend'])) {
-			// get the bodycopy attached to us
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
-			if (is_null($bodycopy)) {
-				trigger_error('Could not locate the bodycopy for search page "'.$this->name.'"', E_USER_ERROR);
-				return false;
-			}
-			$o->addFormActionGetVar('assetid', $bodycopy->id);
-			$bodycopy->paintBackend($o);
-		} else {
-			parent::paintBackend($o);
-		}
-
-	}// end paintBackend()
 
 
 	/**
