@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.378 2005/03/21 06:13:04 gsherwood Exp $
+* $Id: asset.inc,v 1.379 2005/03/24 03:25:50 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.378 $
+* @version $Revision: 1.379 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -215,7 +215,6 @@ class Asset extends MySource_Object
 	* <ul>
 	*   <li>FALSE if the asset was not created</li>
 	*   <li>the ID of the newly created link if the asset and intital link were created</li>
-	*   <li>TRUE if the asset was created but $link was empty</li>
 	* </ul>
 	*
 	* @param array	&$link	information used to create the initial link<br/>
@@ -310,7 +309,7 @@ class Asset extends MySource_Object
 			// NOW normally this would require admin access but this is a very special case
 			$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) return $this->_abortCreate();
-	
+
 			// only set the permission if there is a userid to set it for - otherwise we are going
 			// to be setting public write access
 			if (!$GLOBALS['SQ_SYSTEM']->userPublic()) {
@@ -318,7 +317,7 @@ class Asset extends MySource_Object
 					return $this->_abortCreate();
 				}
 			}
-	
+
 			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 		}
 
@@ -356,7 +355,7 @@ class Asset extends MySource_Object
 				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, 'links')) {
 					return $this->_abortCreate();
 				}
-	
+
 				// if we are creating a dependant link, we need to make sure this new
 				// asset is locked in the same chain as the parent (ie, has the same source_assetid)
 				$source_assetid = 0;
@@ -379,7 +378,7 @@ class Asset extends MySource_Object
 				// cascade permissions, and schemas on this asset that the parent
 				// has if the parent is not the root folder
 				$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
-	
+
 				if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow'))) {
 					return $this->_abortCreate();
 				}
@@ -2554,7 +2553,11 @@ class Asset extends MySource_Object
 		}// end if
 
 		if (!isset($this->_tmp['vars_set'])) $this->_tmp['vars_set'] = Array();
-		$this->_tmp['vars_set'][$name]['old_value'] = $this->vars[$name]['value'];
+		if (is_scalar($this->vars[$name]['value'])) {
+			$this->_tmp['vars_set'][$name]['old_value'] = $this->vars[$name]['value'];
+		} else {
+			$this->_tmp['vars_set'][$name]['old_value'] = '__(old value)__';
+		}
 
 		$this->vars[$name]['value'] = $value;
 
@@ -2580,6 +2583,25 @@ class Asset extends MySource_Object
 		return $this->vars[$name]['value'];
 
 	}//end attr()
+
+
+	/**
+	* Get the value of an attribute by reference
+	*
+	* @param string	$name the name of the attribute whose value you want to get
+	*
+	* @return mixed
+	* @access public
+	*/
+	function &attrByRef($name)
+	{
+		if (!isset($this->vars[$name])) {
+			trigger_error('Attribute "'.$name.'" not found for Asset "'.$this->name.'" (# '.$this->id.')', E_USER_WARNING);
+			return null;
+		}
+		return $this->vars[$name]['value'];
+
+	}//end attrByRef()
 
 
 	/**
@@ -2652,9 +2674,9 @@ class Asset extends MySource_Object
 								  'asset_updated_short',
 								  'asset_created_readable',
 								  'asset_updated_readable',
-  								  'asset_created_iso8601',
+								  'asset_created_iso8601',
 								  'asset_updated_iso8601',
-  								  'asset_created_rfc2822',
+								  'asset_created_rfc2822',
 								  'asset_updated_rfc2822',
 								  'asset_created_by_name',
 								  'asset_updated_by_name',
@@ -2667,7 +2689,7 @@ class Asset extends MySource_Object
 								  'asset_status_changed',
 								  'asset_status_changed_short',
 								  'asset_status_changed_readable',
-  								  'asset_status_changed_iso8601',
+								  'asset_status_changed_iso8601',
 								  'asset_status_changed_rfc2822',
 								  'asset_status_changed_by_name',
 								  'asset_url',
