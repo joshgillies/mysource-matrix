@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.8 2005/01/20 13:10:34 brobertson Exp $
+* $Id: metadataSchemas.inc,v 1.9 2005/02/21 23:48:54 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -293,7 +293,7 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 
 	if (!empty($schema_vars)) {
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetid' => $owner->id, 'schema_changes' => $schema_vars);
+		$vars = Array('assets' => Array($owner->id => Array('type_code' => $owner->type())), 'schema_changes' => $schema_vars);
 		$hh->queueHipo('hipo_job_edit_metadata_schemas', $vars);
 	}
 

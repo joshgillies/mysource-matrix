@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.15 2005/02/01 11:27:43 brobertson Exp $
+* $Id: workflow.inc,v 1.16 2005/02/21 23:48:54 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -796,7 +796,7 @@ function processWorkflow(&$owner, &$o, &$ei)
 
 	if (!empty($schema_vars)) {
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetid' => $owner->id, 'schema_changes' => $schema_vars);
+		$vars = Array('assets' => Array($owner->id => Array('type_code' => $owner->type())), 'schema_changes' => $schema_vars);
 		$hh->queueHipo('hipo_job_edit_workflow_schemas', $vars);
 	}
 
