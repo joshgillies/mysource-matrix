@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.85 2004/09/20 07:50:17 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.86 2004/09/22 02:22:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.85 $ - 1.0
+* @version $Revision: 1.86 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
