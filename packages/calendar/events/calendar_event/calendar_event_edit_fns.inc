@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.5 2004/07/26 04:37:03 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.6 2004/07/26 04:40:17 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -145,7 +145,6 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 			function enableTimeField(name) {
-				alert("name is " + name);
 				document.getElementById(name+'Hours').disabled=0;
 				document.getElementById(name+'Minutes').disabled=0;
 				document.getElementById(name+'IsPm').disabled=0;
@@ -426,7 +425,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		
 		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>Minutes" id="<?php echo $prefix; ?>Minutes" size="2" maxlength="2" value="<?php echo date('i', $timestamp); ?>" onchange="validateMinutes(this); <?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> onfocus="this.select()" />
 		
-		<select class="sq-form-field" name="<?php echo $prefix; ?>IsPm" id="<?php echo $prefix; ?>AmPm" onchange="<?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> >
+		<select class="sq-form-field" name="<?php echo $prefix; ?>IsPm" id="<?php echo $prefix; ?>IsPm" onchange="<?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> >
 			<option value="0" <?php echo (date('a', $timestamp)=='am') ? ' selected="selected" ' : ''; ?>>am</option>
 			<option value="1" <?php echo (date('a', $timestamp)=='pm') ? ' selected="selected" ' : ''; ?>>pm</option>
 		</select>
