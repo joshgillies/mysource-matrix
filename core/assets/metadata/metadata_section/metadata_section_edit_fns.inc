@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.20 2004/09/17 06:43:51 gsherwood Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.21 2004/11/07 22:10:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -168,23 +168,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$new_field_type = trim($_POST[$prefix.'_field_type']);
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_field_type); 
+			$new_field =& new $new_field_type();
 
-			if ($new_field_type == 'metadata_field_text') { // add more type-checks here
-
-				$new_field =& new Metadata_Field_Text();
-
-			} elseif ($new_field_type == 'metadata_field_select') {
-
-				$new_field =& new Metadata_Field_Select();
-			
-			} elseif ($new_field_type == 'metadata_field_date') {
-
-				$new_field =& new Metadata_Field_Date();
-
-			} else {
-				$new_field =& new Metadata_Field_Text(); // default is standard Metadata Field Text
-			}
-			
 			$section_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'dependant' => 1, 'exclusive' => 1);
 			$new_field->setAttrValue('name', $new_field_name);
 			if ($new_field->create($section_link)) $updated = true;
@@ -293,11 +278,11 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function generateMetadata(&$asset, &$values, &$tag_values, &$keywords)
 	{
-		echo "<!-- $asset->name //-->\n";
-
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything
 		if (!$frontend_option) return true;
+
+		echo "<!-- $asset->name //-->\n";
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', false, 'major', null, true);
 		$valid_fields = Array();
