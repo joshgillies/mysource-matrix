@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.97 2004/10/07 01:53:53 lwright Exp $
+* $Id: backend.inc,v 1.98 2004/10/07 23:33:30 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -563,7 +563,7 @@ class Backend extends MySource_Object
 											);
 						}
 
-						if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
+						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 							$options[] = Array(
 											'url'    => $this->getBackendUrl('main').'&backend_section=hipo_herder',
 											'target' => 'sq_main',

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.45 2004/09/01 00:48:44 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.46 2004/10/07 23:34:01 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -728,10 +728,10 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function paintBackend(&$backend)
 	{
-		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$access = $GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin();
 
 		// if we dont have access, piss off
-		if (!$is_root) {
+		if (!$access) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>HIPO Herder</i>');
 			exit();
 		}
