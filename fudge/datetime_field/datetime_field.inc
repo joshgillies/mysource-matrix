@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.11 2004/02/03 03:27:43 diarandine Exp $
+* $Id: datetime_field.inc,v 1.12 2004/02/03 04:28:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -722,7 +722,7 @@ class DateTime_Field {
 				<td><b>Allow blank</b></td>
 				<?php
 					foreach($us as $k=>$v) {
-				?><td align=center><input type=checkbox name="<?echo $this->prefix; ?>_null[]" value=<?php echo $k; ?> <?php echo ((in_array($k,$n))?'checked':''); ?>></b>
+				?><td align=center><input type=checkbox name="<?php echo $this->prefix; ?>_null[]" value=<?php echo $k; ?> <?php echo ((in_array($k,$n))?'checked':''); ?>></b>
 				</td>
 			<?php } // end foreach
 			?>
@@ -745,7 +745,7 @@ class DateTime_Field {
 			<?php 
 				foreach($us as $k=>$v) { ?>
 				<td align=center>
-					<input type=radio name="<?php echo $this->prefix; ?>_style[<?=$k?>]" value=t <?php echo (($y[$k]=='t')?'checked':''); ?>></b>
+					<input type=radio name="<?php echo $this->prefix; ?>_style[<?php echo $k; ?>]" value=t <?php echo (($y[$k]=='t')?'checked':''); ?>></b>
 				</td>
 			<?php } ?>
 			</tr>
@@ -762,8 +762,9 @@ class DateTime_Field {
 
 		</table>
 
-		<?
-	} //end printEditOptions()
+		<?php
+
+	}//end printEditOptions()
 
 
 	/**
