@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.8 2004/12/06 14:38:12 brobertson Exp $
+* $Id: external_tools_config.inc,v 1.9 2005/01/06 12:34:47 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -100,22 +100,6 @@ class External_Tools_Config extends Config
 		return parent::save($vars, $backup_existing, $send_message);
 
 	}//end save()
-
-
-	/**
-	* Paint's out the code for the config file for the passed config
-	* This allows extra things to be added for special cases
-	*
-	* @param string $name	the config var name
-	* @param mixed  $value	the value that the config var has
-	*
-	* @return boolean	whether the value is valid or not
-	*/
-	function _paintConfigVar($var_name, $value)
-	{
-		return parent::_paintConfigVar($var_name, $value);
-
-	}//end _paintConfigVar()
 
 
 	/**
