@@ -268,11 +268,26 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
+		$old_name         = $this->name;
+		$old_short_name   = $this->short_name;
+		$old_last_updated = $this->last_updated;
+		$old_last_userid  = $this->last_userid;
+
 		$this->name         = $name;
 		$this->short_name   = $short_name;
 		$this->last_updated = $now;
 		$this->last_userid  = $userid;
 
+		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetUpdate', Array( 'assetid' => $this->id,
+																	'old_name' => $old_name,
+																	'new_name' => $this->name,
+																	'old_short_name' => $old_short_name,
+																	'new_short_name' => $this->short_name,
+																	'old_last_updated' => $this,
+																	'new_last_updated' => $this->last_updated,
+																	'old_last_userid' => $old_last_userid,
+																	'new_last_userid' => $this->last_userid
+																   ));
 		return true;
 
 	}//end _updated();
@@ -819,6 +834,7 @@ class Asset extends Resolve_Object
 			return 0;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $this->id, 'linkid' => $linkid));
 		return $linkid;
 
 	}//end createLink()
@@ -1112,6 +1128,7 @@ class Asset extends Resolve_Object
 
 		$db->query('COMMIT');
 
+		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $this->id, 'linkid' => $linkid));
 		return true;
 
 	}//end deleteLink()
@@ -1318,12 +1335,12 @@ class Asset extends Resolve_Object
 	*
 	* @access public
 	*/
-	function printBackend(&$backend)
+	function paintBackend(&$backend)
 	{
 		$backend->out->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
 		$ei = &$this->getEI();
 		$ei->paint($this, $backend->out, empty($this->id));
-	}// end printBackend()
+	}// end paintBackend()
 
 	/**
 	* processes a backend submission from this asset, returns true if all OK
