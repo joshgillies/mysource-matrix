@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.3 2005/02/07 17:30:08 brobertson Exp $
+* $Id: preview.inc,v 1.4 2005/02/16 13:39:44 brobertson Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -45,9 +45,16 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 function paintPreview(&$owner, &$o, &$ei)
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
-	$start_sql = 'SELECT l.url, l.http, l.https, d.name FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_design d ON l.url = d.url';
-	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($owner->id));
-	$url_data = $db->getAll($start_sql.' '.$where.' ORDER BY l.url');
+	$sql = 'SELECT l.url, l.http, l.https, lv.name
+			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+					LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url';
+
+	$where = 'assetid = '.$db->quote($owner->id).'
+			  AND name LIKE '.$db->quote('design::%');
+	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+	$url_data = $db->getAll($sql.' '.$where.' ORDER BY l.url');
+
 	assert_valid_db_result($url_data);
 
 	if (empty($url_data)) {
@@ -57,11 +64,13 @@ function paintPreview(&$owner, &$o, &$ei)
 		foreach ($parents as $parentid) {
 			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parentid, '', true);
 			if (is_null($parent)) continue;
-			
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($parent->id));
-			$parent_urls = $db->getAll($start_sql.' '.$where.' ORDER BY l.url');
+
+			$where = 'assetid = '.$db->quote($parent->id).'
+					  AND name LIKE '.$db->quote('design::%');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$parent_urls = $db->getAll($sql.' '.$where.' ORDER BY l.url');
 			assert_valid_db_result($parent_urls);
-			
+
 			$url_data = array_merge($url_data, $parent_urls);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($parent);
 		}
@@ -83,12 +92,13 @@ function paintPreview(&$owner, &$o, &$ei)
 
 			$url_pieces = parse_url($protocol.$url_info['url']);
 			if ($url_pieces['host'] != $current_url['host']) $contains_diff_domain = true;
-			
+
 			$design_name = $url_info['name'];
-			if (substr($design_name, 0, 11) == 'user_design') {
-				$design_name = substr($design_name, 13);
-				$preview_designs[$design_name] = ucwords(str_replace('_', ' ', $design_name));
-			} else if ($design_name == 'system_design::frontend') {
+
+			if (!preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches)) continue;
+			if ($matches[1] == 'user') {
+				$preview_designs[$matches[2]] = ucwords(str_replace('_', ' ', $matches[2]));
+			} else if ($design_name == 'design::system::frontend') {
 				$has_default_design = true;
 			}
 		}
@@ -146,8 +156,8 @@ function paintPreview(&$owner, &$o, &$ei)
 			$o->openRaw();
 				?>
 				<i>Press the Preview button after changing preview options.</i>
-				<?php 
-				if ($contains_diff_domain && !$owner->effectiveUnrestricted()) { 
+				<?php
+				if ($contains_diff_domain && !$owner->effectiveUnrestricted()) {
 					?>
 					<div class="sq-backend-warning">
 						<br>
@@ -155,8 +165,8 @@ function paintPreview(&$owner, &$o, &$ei)
 						You may need be presented with a Login screen if you choose a URL from a domain different to <b><?php echo $current_url['host']; ?></b>.<br>
 						Just enter your Username and Password to login as normal.
 					</div>
-					<?php 
-				} 
+					<?php
+				}
 			$o->closeRaw();
 			$o->openRaw();
 				?>

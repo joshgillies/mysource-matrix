@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.267 2005/02/15 12:03:21 brobertson Exp $
+* $Id: asset_manager.inc,v 1.268 2005/02/16 13:39:43 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.267 $
+* @version $Revision: 1.268 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -4136,23 +4136,23 @@ class Asset_Manager extends MySource_Object
 	* Return the design for the passed URL
 	*
 	* @param string		$url			the url to get the design for
-	* @param string		$design_name	the code for the design (eg. system_design::frontend)
+	* @param string		$design_name	the code for the design (eg. design::system::frontend)
 	*
 	* @return array(designid, type_code)
 	* @access public
 	*/
-	function getDesignFromURL($url, $design_name='system_design::frontend')
+	function getDesignFromURL($url, $design_name='design::system::frontend')
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT ld.designid, a.type_code
+		$sql = 'SELECT lv.value as designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_design ld ON l.url = ld.url
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON ld.designid = a.assetid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
 				';
-		$where ='ld.url = '.$db->quote($url).'
-				   AND ld.name = '.$db->quote($design_name);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ld');
+		$where ='lv.url = '.$db->quote($url).'
+				   AND lv.name = '.$db->quote($design_name);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql .= $where;

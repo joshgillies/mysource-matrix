@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.18 2005/01/20 13:10:35 brobertson Exp $
+* $Id: settings.inc,v 1.19 2005/02/16 13:39:44 brobertson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 
@@ -352,17 +352,17 @@ function paintSettings(&$owner, &$o, &$ei)
 
 				case 'designs' :
 					$system_designs = Array(
-											'system_design::frontend' => 'The Design that is to be used when displaying this asset on the frontend',
-											'system_design::login'    => 'The Design that is to be used whenever someone attempts to access this asset without permission',
+											'design::system::frontend' => 'The Design that is to be used when displaying this asset on the frontend',
+											'design::system::login'    => 'The Design that is to be used whenever someone attempts to access this asset without permission',
 										);
 					$our_designs = Array(
-											'system_design::frontend' => 0,
-											'system_design::login'    => 0,
+											'design::system::frontend' => 0,
+											'design::system::login'    => 0,
 										);
 
 					$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($owner->id, SQ_LINK_NOTICE, 'design', false);
 					foreach ($our_design_links as $link) {
-						if (preg_match('/^(system_design|user_design)::.*$/', $link['value'])) {
+						if (preg_match('/^design::(system|user)::.*$/', $link['value'])) {
 							$our_designs[$link['value']] = $link['minorid'];
 						}// end if
 					}// end foreach
@@ -379,12 +379,15 @@ function paintSettings(&$owner, &$o, &$ei)
 					}
 
 					// now add the blank one that they can customise
-					$our_designs['user_design::'] = 0;
+					$our_designs['design::user::'] = 0;
+
+pre_echo($our_designs);
 
 					foreach ($our_designs as $design_name => $designid) {
 
 						$matches = Array();
-						preg_match('/^(system|user)_design::(.*)$/', $design_name, $matches);
+						preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches);
+
 						$design_type     = $matches[1];
 						$design_code     = $matches[2];
 						$new_user_design = ($design_type == 'user' && $design_code == '' && !$designid);
@@ -645,7 +648,7 @@ function processSettings(&$owner, &$o, &$ei)
 
 			$new_designid = $design_data['designid']['assetid'];
 
-			if ($design_name == 'user_design::') {
+			if ($design_name == 'design::user::') {
 				if (empty($design_data['name'])) continue;
 				$old_designid = 0;
 				$design_name .= strtolower($design_data['name']);

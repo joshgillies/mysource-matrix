@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.359 2005/02/15 12:03:21 brobertson Exp $
+* $Id: asset.inc,v 1.360 2005/02/16 13:39:43 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.359 $
+* @version $Revision: 1.360 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2958,27 +2958,27 @@ class Asset extends MySource_Object
 
 		// Have they set a design name that they want to view ??
 		if (!empty($_GET['SQ_DESIGN_NAME'])) {
-			$design_name = 'user_design::'.$_GET['SQ_DESIGN_NAME'];
+			$design_name = 'design::user::'.$_GET['SQ_DESIGN_NAME'];
 		} elseif (!empty($_SESSION['SQ_DESIGN_NAME'])) {
-			$design_name = 'user_design::'.$_SESSION['SQ_DESIGN_NAME'];
+			$design_name = 'design::user::'.$_SESSION['SQ_DESIGN_NAME'];
 		} else {
-			$design_name = 'system_design::frontend';
+			$design_name = 'design::system::frontend';
 		}
 
 		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
 
 		// if no design was found, try and get the default frontend
 		// design if we were not already trying to get it
-		if (empty($result) && $design_name != 'system_design::frontend') {
-			$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'system_design::frontend');
+		if (empty($result) && $design_name != 'design::system::frontend') {
+			$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'design::system::frontend');
 		}
 
 		// if no design was found, try using the asset's URL from the DB
 		if (empty($result)) {
 			$url = strip_url($this->getUrl(), true);
 			$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
-			if (empty($result) && $design_name != 'system_design::frontend') {
-				$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'system_design::frontend');
+			if (empty($result) && $design_name != 'design::system::frontend') {
+				$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'design::system::frontend');
 			}
 		}
 
@@ -3359,12 +3359,14 @@ class Asset extends MySource_Object
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT l.url, ld.name, ld.designid
+			$sql = 'SELECT l.url, lv.name, lv.value as designid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_design ld ON l.url = ld.url
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
 					';
-			$where = 'l.assetid = '.$db->quote($this->id);
+			$where = 'l.assetid = '.$db->quote($this->id).'
+					  AND lv.name LIKE '.$db->quote('design::%');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 
 			$result = $db->query($sql.$where);
 			assert_valid_db_result($result);
@@ -3405,8 +3407,8 @@ class Asset extends MySource_Object
 
 		// Remove all the old URLs
 		$sql = 'SELECT url, http, https
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-				'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l');
+				FROM '.SQ_TABLE_PREFIX.'ast_lookup l
+				WHERE assetid = '.$db->quote($this->id);
 
 		$old_urls = $db->getAll($sql);
 		assert_valid_db_result($old_urls);
@@ -3415,9 +3417,9 @@ class Asset extends MySource_Object
 		foreach ($old_urls as $url_data) $current_urls[] = $db->quote($url_data['url']);
 
 		if (!empty($current_urls)) {
-			$where = 'url IN ('.implode(',', $current_urls).')';
-
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_design', $where)) {
+			$where = 'url IN ('.implode(',', $current_urls).')
+					  AND name LIKE '.$db->quote('design::%');
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_value', $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -3438,7 +3440,7 @@ class Asset extends MySource_Object
 			$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design', false);
 			$our_designs = Array();
 			foreach ($our_design_links as $link) {
-				if (preg_match('/^(system_design|user_design)::.*$/', $link['value'])) {
+				if (preg_match('/^design::(system|user)::.*$/', $link['value'])) {
 					$our_designs[$link['value']] = $link['minorid'];
 				}// end if
 			}// end foreach
@@ -3490,11 +3492,11 @@ class Asset extends MySource_Object
 							}
 						}
 						foreach ($designs as $name => $designid) {
-							$values = Array('url'      => $new_url,
-											'name'     => $name,
-											'designid' => $designid,
+							$values = Array('url'   => $new_url,
+											'name'  => $name,
+											'value' => $designid,
 											);
-							if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_design', $values)) {
+							if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_value', $values)) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 								return false;
 							}

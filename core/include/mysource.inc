@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.71 2005/02/07 14:48:33 brobertson Exp $
+* $Id: mysource.inc,v 1.72 2005/02/16 13:39:44 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix
 */
 class MySource
@@ -351,32 +351,21 @@ class MySource
 				}
 			}
 
-			$sql = 'SELECT ld.designid, a.type_code
-					FROM '.SQ_TABLE_PREFIX.'ast_lookup_design ld INNER JOIN '.SQ_TABLE_PREFIX.'ast a ON ld.designid = a.assetid
-					WHERE ld.url  = '.$db->quote(strip_url(current_url(false, true))).'
-					  AND ld.name = '.$db->quote('system_design::login');
-			$result = $db->getRow($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$design_info = $this->am->getDesignFromURL(strip_url(current_url(false, true)), 'design::system::login');
+
+			// we have found the design to use
+			if ($design_info) {
+				$design = &$this->am->getAsset($design_info['designid'], $design_info['type_code']);
+
+			// OK, use the system login form
 			} else {
-
-				// we have found the design to use
-				if ($result) {
-					$design = &$this->am->getAsset($result['designid'], $result['type_code']);
-					if (!is_null($design)) {
-						$design->paint($current_asset);
-						return;
-					}
-				}
-
-				// OK, use the system login form
 				$design = &$this->am->getSystemAsset('login_design');
-				if (!is_null($design)) {
-					$design->paint($current_asset);
-					return;
-				}
+			}
 
-			}//end if
+			if (!is_null($design)) {
+				$design->paint($current_asset);
+				return;
+			}
 
 		}//end if
 
