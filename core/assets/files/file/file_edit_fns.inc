@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.43 2004/11/24 05:00:29 tbarrett Exp $
+* $Id: file_edit_fns.inc,v 1.44 2004/11/29 02:14:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -78,6 +78,15 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 		$this->printExistingFileInfo($asset);
+		if ($asset->writeAccess('attributes')) {
+			$max_size = strtolower($GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE'));
+			if (substr($max_size, -1) == 'k') {
+				$max_size = $max_size * 1024;
+			} else if (substr($max_size, -1) == 'm') {
+				$max_size = $max_size * 1024 * 1024;
+			}
+			?><br/><span style="font-size: 10px;">You may only upload files no bigger than <?php echo strtoupper(easy_filesize($max_size)); ?></span><?php
+		}
 		return true;
 
 	}//end paintFileUpload()
@@ -89,7 +98,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* If you want to process an upload of a file that was not uploaded through PHP
 	* (possible because of FTP or it was in a tar archive), ensure you pass the information
 	* about the file in the $info array.
-	* The field required are:
+	* The fields required are:
 	*     name              => the filename without path (eg file.txt)
 	*     tmp_name          => the location of the file on the file system
 	*     non_uploaded_file => must equal TRUE
@@ -115,6 +124,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			// return on failed or no upload
 			if ($info === false || empty($info)) return false;
 		}
+		
+		if (!$asset->validFile($info)) return false;
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_names = make_valid_web_paths(Array($info['name']));
@@ -263,7 +274,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 		return false;
-	}	
+
+	}//end processFileChooser()
 
 
 	/**
@@ -301,7 +313,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		foreach (list_files(SQ_TEMP_PATH) as $filename) $options[$filename] = $filename;
 		return $options;
 
-	}
+	}//end getPreuploadOptions()
 
 
 	/**
@@ -339,12 +351,11 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($existing)) {
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			?>
-				<div>
+			<div>
 				<b><a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Current File</a></b><br/>
 				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
 				<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?>
-				</div>
-
+			</div>
 			<?php
 		}
 
@@ -352,4 +363,5 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 
 }//end class
+
 ?>

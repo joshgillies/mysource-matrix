@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.6 2004/11/18 05:08:04 gsherwood Exp $
+* $Id: word_doc.inc,v 1.7 2004/11/29 02:14:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,20 +64,19 @@ class Word_Doc extends File
 	/**
 	* Checks a file on the file system to see if it can be used as an image
 	*
-	* @param string	$file_path	the path of the file we are checking
+	* @param array	$info	an array of information about the uploaded file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function validFile($file_path)
+	function validFile($info)
 	{
-		if (!parent::validFile($file_path)) return false;
+		if (!parent::validFile($info)) return false;
 
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$ext = get_file_type($file_path);
+		$ext = get_file_type($info['name']);
 		if (!in_array($ext, $this->allowed_extensions)) {
-			$edit_fns = $this->getEditFns();
 			trigger_error('Uploaded file is not an MS Word document. Word doc files must be of type doc or dot', E_USER_WARNING);
 			return false;
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.23 2004/11/25 11:47:43 brobertson Exp $
+* $Id: image_edit_fns.inc,v 1.24 2004/11/29 02:14:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 class Image_Edit_Fns extends File_Edit_Fns
 {
 
+
 	/**
 	* Prints the interface for uploading a file
 	*
@@ -54,12 +55,14 @@ class Image_Edit_Fns extends File_Edit_Fns
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
 		parent::paintFileUpload($asset, $o, $prefix);
+		if ($asset->writeAccess('attributes')) {
+			?><br/><span style="font-size: 10px;">You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
+		}
 		if (!$asset->id) {
 			// we are in the create screen, so offer the editor too
+			echo '<p>';
 			normal_button($prefix.'_use_editor_button', 'Use Image Editor', 'this.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_hide_editor_button\').parentNode.parentNode.style.display=\'\';');
-		}
-		if ($asset->writeAccess('attributes')) {
-			?><br/><span style="font-size: 7pt"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><br /><?php
+			echo '</p>';
 		}
 		return true;
 	
@@ -79,14 +82,10 @@ class Image_Edit_Fns extends File_Edit_Fns
 	function paintCreateEditor(&$asset, &$o, $prefix)
 	{
 		if (!$asset->id) {
-			?>
-			<?php
 			// we are in the create screen, so we'll print
 			normal_button($prefix.'_hide_editor_button', 'Use Simple Upload', 'this.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_use_editor_button\').parentNode.parentNode.style.display=\'\';', 'style="margin-bottom: 5px"');
 			echo '<br />';
 			$this->_paintApplet($asset, $o, $prefix);
-			?>
-			<?php
 		}
 		return true;
 	
@@ -130,9 +129,9 @@ class Image_Edit_Fns extends File_Edit_Fns
 			$this->_paintApplet($asset, $o, $prefix);
 			return true;
 		} else {
-		?>
+			?>
 			<img src="<?php echo $GLOBALS['SQ_SYSTEM']->am->getRootURL().'?a='.$asset->id; ?>&t=<?php echo time(); ?>" />
-		<?php
+			<?php
 			return false;
 		}
 

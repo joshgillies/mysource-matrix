@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc_edit_fns.inc,v 1.2 2004/07/23 07:10:26 mmcintyre Exp $
+* $Id: word_doc_edit_fns.inc,v 1.3 2004/11/29 02:14:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,13 +84,10 @@ class Word_Doc_Edit_Fns extends File_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
+		parent::paintFileUpload($asset, $o, $prefix);
 		if ($asset->writeAccess('attributes')) {
-			file_upload($prefix);
-
-			?><br/><span style="font-size: 10px"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
+			?><br/><span style="font-size: 10px">You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
 		}
-
-		$this->printExistingFileInfo($asset);
 		return true;
 	
 	}//end paintFileUpload()
@@ -109,21 +106,11 @@ class Word_Doc_Edit_Fns extends File_Edit_Fns
 	*/
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
-		if (!$asset->writeAccess('attributes')) return false;
+		if (!parent::processFileUpload($asset, $o, $prefix, $info)) return false;
 
-		if (empty($info)) {
-			$info = get_file_upload_info($prefix);
-			// return on failed or no upload
-			if ($info === false || empty($info)) return false;
-		}
-
-		// check that the extension is allowed
-		if (!$asset->validFile($info['name'])) return false;
-
-		$retval = parent::processFileUpload($asset, $o, $prefix, $info);
-
-		$asset->informChanges();	// so the keywords can be built if the search manager is there
-		return $retval;
+		// so the keywords can be built if the search manager is there
+		$asset->informChanges();
+		return true;
 
 	}//end processFileUpload()
 

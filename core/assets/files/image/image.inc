@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.15 2004/07/23 07:09:33 mmcintyre Exp $
+* $Id: image.inc,v 1.16 2004/11/29 02:14:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,21 +62,21 @@ class Image extends File
 	/**
 	* Checks a file on the file system to see if it can be used as an image
 	*
-	* @param string	$file_path	the path of the file we are checking
+	* @param array	$info	an array of information about the uploaded file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function validFile($file_path)
+	function validFile($info)
 	{
-		if (!parent::validFile($file_path)) return false;
+		if (!parent::validFile($info)) return false;
 
 		// check that the extension is allowed
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		$ext = get_file_type($file_path);
+		$ext = get_file_type($info['name']);
 		if (!in_array($ext, $this->allowed_extensions)) {
 			$edit_fns = $this->getEditFns();
-			trigger_error('Uploaded file is not an image. Image files must be of type '.$edit_fns->_getExtensionString($this->allowed_extensions, 'or'), E_USER_WARNING);
+			trigger_error('Uploaded file is not an image. Image files must be of type '.$edit_fns->_getExtensionString($this->allowed_extensions, 'or').'. The uploaded file is of type "'.strtoupper($ext).'"', E_USER_WARNING);
 			return false;
 		}
 		return true;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_edit_fns.inc,v 1.18 2004/08/05 03:42:38 gsherwood Exp $
+* $Id: thumbnail_edit_fns.inc,v 1.19 2004/11/29 02:14:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 class Thumbnail_Edit_Fns extends Image_Edit_Fns
 {
 
+
 	/**
 	* Prints the interface for uploading a file
 	*
@@ -51,48 +52,16 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
+		File_Edit_Fns::paintFileUpload($asset, $o, $prefix);
 		if ($asset->writeAccess('attributes')) {
-			file_upload($prefix);
-
-			?>
-			<br/><span style="font-size: 7pt"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?>
-			<br/><b>Note:</b> Image size is restricted to a maximum of <?php echo $asset->max_width.' x '.$asset->max_height?> pixels</span>
-			<?php
+			?><br/><span style="font-size: 10px;">You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?><br/>
+			<span style="font-size: 10px;">Image size is restricted to a maximum of <?php echo $asset->max_width.' x '.$asset->max_height?> pixels</span><?php
 		}
 
 		$this->printExistingFileInfo($asset);
 		return true;
 
 	}//end paintFileUpload()
-
-
-	/**
-	* Processes the interface for uploading a file
-	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	* @param array(string)				$info	info about the uploaded file
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
-	{
-		if (!$asset->writeAccess('attributes')) return false;
-
-		if (empty($info)) {
-			$info = get_file_upload_info($prefix);
-			// return on failed or no upload
-			if ($info === false || empty($info)) return false;
-		}
-
-		// check that the image dimensions are not greater than our limits
-		if (!$asset->validFile($info['name'])) return false;
-
-		return parent::processFileUpload($asset, $o, $prefix, $info);
-
-	}//end processFileUpload()
 	
 	
 	/**

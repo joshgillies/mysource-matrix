@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.72 2004/11/24 05:00:29 tbarrett Exp $
+* $Id: file.inc,v 1.73 2004/11/29 02:14:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -273,7 +273,6 @@ class File extends Asset
 	function create(&$link, $info=Array())
 	{
 		$name = trim($this->attr('name'));
-
 		if ($name == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
@@ -289,6 +288,8 @@ class File extends Asset
 				return false;
 			}
 		}
+		
+		if (!$this->validFile($info)) return false;
 
 		// check that we are not going to have web path conflicts
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -741,13 +742,26 @@ class File extends Asset
 	/**
 	* Checks a file on the file system to see if it can be used as a file
 	*
-	* @param string	$file_path	the path of the file we are checking
+	* @param array	$info	an array of information about the uploaded file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function validFile($file_path)
+	function validFile($info)
 	{
+		// check the file size to ensure we are not violating any restrictions
+		$size = filesize($info['tmp_name']);
+		$max_size = strtolower($GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE'));
+		if (substr($max_size, -1) == 'k') {
+			$max_size = $max_size * 1024;
+		} else if (substr($max_size, -1) == 'm') {
+			$max_size = $max_size * 1024 * 1024;
+		}
+		if ($size > $max_size) {
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			trigger_error('File upload failed. File size was too large. The maximum file size is '.strtoupper(easy_filesize($max_size)).' but the uploaded file was '.strtoupper(easy_filesize($size)), E_USER_WARNING);
+			return false;
+		}
 		return true;
 
 	}//end validFile()
