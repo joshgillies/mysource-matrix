@@ -87,9 +87,6 @@ if (_root.url_frame == undefined) {
 if (_root.action_bar_path == undefined) {
 	_root.action_bar_path = "http://beta.squiz.net/blair/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%";
 }
-if (_root.duplicate_path == undefined) {
-	_root.duplicate_path = "http://beta.squiz.net/blair/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=duplicate&assetid=%assetid%&to_parent_assetid=%to_parent_assetid%&to_parent_pos=%to_parent_pos%";
-}
 if (_root.inbox_path == undefined) {
 	_root.inbox_path = "http://beta.squiz.net/blair/_edit/?SQ_BACKEND_PAGE=main&backend_section=am";
 }
