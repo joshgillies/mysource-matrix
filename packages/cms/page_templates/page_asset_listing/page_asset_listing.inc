@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.31 2004/08/24 23:16:08 tbarrett Exp $
+* $Id: page_asset_listing.inc,v 1.32 2004/08/26 01:51:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -244,11 +244,12 @@ class Page_Asset_Listing extends Page
 	*/
 	function &getFolder($type='type_formats')
 	{
+		$null = null;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, $type);
-		if (empty($link)) return null;
+		if (empty($link)) return $null;
 
 		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-		if (is_null($folder)) return null;
+		if (is_null($folder)) return $null;
 
 		return $folder;
 
