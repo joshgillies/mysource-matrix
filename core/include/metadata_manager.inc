@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.21 2003/12/29 01:00:58 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.22 2004/01/13 05:56:04 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -120,6 +120,33 @@ class Metadata_Manager extends MySource_Object
 
 	}//end getSchemaAssets()
 
+
+	/**
+	* This function returns an array of metatata fields IDs for a 
+	* metadata schema with supplied ID 
+	*
+	* @param int $schemaid	- ID of the schema which fields we need
+	*/
+	function getMetadataFields($schemaid)
+	{
+		$fields_array = Array(); // initializing array
+		$my_am = &$GLOBALS['SQ_SYSTEM'] -> am;
+		$sectionids = $my_am -> getChildren($schemaid, 'metadata_section', false);
+
+		foreach ($sectionids as $sectionid) {
+			
+			$section = $my_am -> getAsset($sectionid);
+			$fieldids = $my_am -> getChildren($sectionid, 'metadata_field', false);
+
+			foreach ($fieldids as $fieldid) {
+				array_push($fields_array, $fieldid);
+			}
+
+		} // end outer foreach
+
+		return $fields_array;
+	}
+	///////////////////////////////////////////////////
 
 
 	/**
@@ -365,7 +392,6 @@ class Metadata_Manager extends MySource_Object
 		return true;
 
 	}//end setMetadata()
-
 
 	/** 
 	* Indexes metadata for an asset
