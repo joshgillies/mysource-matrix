@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.5.2.1 2004/10/06 00:13:21 gsherwood Exp $
+* $Id: workflow.inc,v 1.5.2.2 2004/11/04 01:03:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -237,7 +237,84 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 					}
 
 				break;
-				
+
+				case 'workflow_logs' :
+
+					$o->openField('Workflow Logs');
+						if (!is_null($keywords) && isset($keywords['fields']['workflow_logs'])) ob_start();
+
+						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$logs = $ms->getLogs('asset.workflow', Array('assetid' => $owner->id));
+						$user_logs = $ms->getLogs('asset.workflow.userlog', Array('assetid' => $owner->id));
+						usort($logs, Array('Messaging_Service', 'sortMessages'));
+						usort($user_logs, Array('Messaging_Service', 'sortMessages'));
+						
+						if (!empty($user_logs) || !empty($logs)) {
+							?>
+							<table class="sq-backend-table">
+								<tr>
+									<td class="sq-backend-table-header" nowrap width="120">Log Time</td>
+									<td class="sq-backend-table-header" nowrap width="120">Logged By</td>
+									<td class="sq-backend-table-header" width="100%">Message</td>
+								</tr>
+								<?php
+								if (!empty($user_logs)) {
+									?>
+									<tr>
+										<td class="sq-backend-table-header" colspan="3">Most recent user log messages</td>
+									</tr>
+									<?php
+									for ($log_num = 0; $log_num < 4; $log_num++) {
+										if (!isset($user_logs[$log_num])) break;
+										$log_data = $user_logs[$log_num];
+										?>
+										<tr>
+											<td class="sq-backend-table-cell" nowrap><?php echo ts_iso8601($log_data['sent']); ?></td>
+											<td class="sq-backend-table-cell" nowrap><?php echo $log_data['from_name']; ?></td>
+											<td class="sq-backend-table-cell" width="100%"><?php echo $log_data['body']; ?></td>
+										</tr>
+										<?php
+									}
+								}//end if there are user workflow logs
+								
+								if (!empty($logs)) {
+									?>
+									<tr>
+										<td class="sq-backend-table-header" colspan="3">Most recent system workflow messages</td>
+									</tr>
+									<?php
+									for ($log_num = 0; $log_num < 4; $log_num++) {
+										if (!isset($logs[$log_num])) break;
+										$log_data = $logs[$log_num];
+										?>
+										<tr>
+											<td class="sq-backend-table-cell" nowrap><?php echo ts_iso8601($log_data['sent']); ?></td>
+											<td class="sq-backend-table-cell" nowrap><?php echo $log_data['from_name']; ?></td>
+											<td class="sq-backend-table-cell" width="100%"><b><?php echo $log_data['subject']; ?></b><br/><?php echo $log_data['body']; ?></td>
+										</tr>
+										<?php
+									}
+								}//end if there are system workflow logs
+								?>
+								<tr>
+									<td class="sq-backend-table-header" colspan="3" align="middle">
+										<a class="sq-backend-table-header" href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow">View all workflow logs</a>
+									</td>
+								</tr>
+							</table>
+							<?php
+
+						}//end if there are workflow logs
+
+						// if there is a keyword replacement for this, add it to the replacements
+						if (!is_null($keywords) && isset($keywords['fields']['workflow_logs'])) {
+							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_logs']] = ob_get_contents();
+							ob_end_flush();
+						}
+					$o->closeField();
+
+				break;
+
 				///// WORKFLOW REPORT ////
 
 				case 'workflow_report' :
@@ -406,7 +483,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						}// end foreach
 							
 					} else {
-						$o->openField('');
+						$o->openField('Workflow Status');
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) ob_start();
 							
 							echo 'Worklfow is not currently running for this asset';
@@ -424,21 +501,20 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 				///// METADATA WARNING ////
 
 				case 'workflow_metadata_warning' :
-				
+
 					// lets show some workflow warnings about metadata if we need to
 					if ($owner->status & SQ_SC_STATUS_PENDING) {
 						$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 						if ($mm->allowsMetadata($owner->id)) {
 							$m_complete = $mm->requiredFieldsComplete($owner->id);
 							if (!$m_complete) {
-								$o->openField('');
+								$o->openField('<span class="sq-backend-warning"><b>Warning</b></span>');
 									if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) ob_start();
-									
+
 									?>
-									<p class="sq-backend-data"><span style="color:#880000"><b>WARNING:</b></span> "<?php echo $owner->name; ?>" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "<?php echo $owner->name; ?>" can become 'Approved' to go live.</p>
-									<p class="sq-backend-data">These metadata fields can be completed by any editor or administrator of "<?php echo $owner->name; ?>" by going to the <a href="<?php echo $owner->getBackendHref('metadata'); ?>">Metadata screen</a>.</p>
+									<p class="sq-backend-data"><span class="sq-backend-warning"><b>"<?php echo $owner->name; ?>" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "<?php echo $owner->name; ?>" can become 'Approved' to go live.</b></span> These metadata fields can be completed by any editor or administrator of "<?php echo $owner->name; ?>" by going to the <a href="<?php echo $owner->getBackendHref('metadata'); ?>">Metadata screen</a>.</p>
 									<?php
-									
+
 									// if there is a keyword replacement for this, add it to the replacements
 									if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) {
 										$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_metadata_warning']] = ob_get_contents();
