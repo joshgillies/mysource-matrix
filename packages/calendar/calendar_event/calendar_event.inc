@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.31 2004/10/22 03:31:46 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.32 2004/11/16 04:21:12 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.31 $ - 1.0
+* @version $Revision: 1.32 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -208,7 +208,7 @@ class Calendar_Event extends Asset
 
 			$keywords['event_datetime_summary']['description'] = 'Friendly description of event dates and times';
 			$keywords['event_duration']['description'] = 'Duration of the Event';
-			$keywords['edit_link']['description'] = 'Link to edit this eveent in Limbo';
+			$keywords['edit_link']['description'] = 'Link to edit this event in Limbo';
 		}
 		return $keywords;
 
