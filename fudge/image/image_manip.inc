@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.13 2005/01/12 17:13:41 brobertson Exp $
+* $Id: image_manip.inc,v 1.1 2005/01/13 11:08:09 brobertson Exp $
 *
 */
 
@@ -26,16 +26,16 @@
 require_once dirname(__FILE__).'/../general/file_system.inc';
 
 /**
-* Image
+* Image_Manip
 *
 * Image manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.1 $
 * @package Fudge
 * @subpackage Image
 */
-class Image
+class Image_Manip
 {
 
 	/**
@@ -55,7 +55,7 @@ class Image
 	{
 		require_once dirname(__FILE__).'/../colour/colour.inc';
 
-		if (!($image = Image::fromFile($input))) {
+		if (!($image = Image_Manip::fromFile($input))) {
 			trigger_error('Unable to open image for recolourizing: '.$input);
 			return false;
 		}
@@ -75,17 +75,17 @@ class Image
 		for ($i = 0; $i < $palette_size; $i++) {
 			// because the image is greyscale each value for the R, G & B will be the same
 			// therefore to find the percentage white this index is we divide by 256
-			$colour = imagecolorsforindex ($image, $i);
+			$colour = imageColorsForIndex ($image, $i);
 			$fraction = (double) ($colour['red'] / 256);
 
 			$r = (int) (255 * ($ca_array['r'] + $diff['r'] * $fraction));
 			$g = (int) (255 * ($ca_array['g'] + $diff['g'] * $fraction));
 			$b = (int) (255 * ($ca_array['b'] + $diff['b'] * $fraction));
-			imagecolorset($image,$i, $r, $g, $b);
+			imageColorSet($image,$i, $r, $g, $b);
 		}
 
 		// Output result to file
-		$ret_val = Image::toFile($image, $output);
+		$ret_val = Image_Manip::toFile($image, $output);
 		imageDestroy($image);
 		return $ret_val;
 
@@ -109,7 +109,7 @@ class Image
 	{
 		require_once dirname(__FILE__).'/../colour/colour.inc';
 
-		if (!($image = Image::fromFile($input))) {
+		if (!($image = Image_Manip::fromFile($input))) {
 			trigger_error('Unable to open image for recolourizing: '.$input);
 			return false;
 		}
@@ -130,7 +130,7 @@ class Image
 		}
 
 		// Output result to file
-		$ret_val = Image::toFile($image, $output);
+		$ret_val = Image_Manip::toFile($image, $output);
 		imageDestroy($image);
 		return $ret_val;
 
@@ -152,20 +152,20 @@ class Image
 	function resize($input, $output, $w, $h)
 	{
 		// NOTE: $s_* = source image vars, $d_* = destination image vars
-		$s_img = Image::fromFile($input);
+		$s_img = Image_Manip::fromFile($input);
 
 		// can't use true colour for gif's
 		if (get_file_type($output) == 'gif') {
-			$d_img = ImageCreate($w, $h);
+			$d_img = imageCreate($w, $h);
 		} else {
-			$d_img = ImageCreateTrueColor($w, $h);
+			$d_img = imageCreateTrueColor($w, $h);
 		}
 
-		if (!ImageCopyResampled($d_img, $s_img, 0, 0, 0, 0, $w, $h, ImageSx($s_img), ImageSy($s_img))) {
+		if (!ImageCopyResampled($d_img, $s_img, 0, 0, 0, 0, $w, $h, imageSx($s_img), imageSy($s_img))) {
 			return false;
 		}
 
-		return Image::toFile($d_img, $output);
+		return Image_Manip::toFile($d_img, $output);
 
 	}//end resize()
 
@@ -183,16 +183,16 @@ class Image
 	{
 		switch (get_file_type($input)) {
 			case 'gif' :
-				if ($image = ImageCreateFromGif ($input)) return $image;
+				if ($image = imageCreateFromGif ($input)) return $image;
 				else trigger_error('Unable to open GIF : '.$input);
 				break;
 			case 'png' :
-				if ($image = ImageCreateFromPNG($input)) return $image;
+				if ($image = imageCreateFromPNG($input)) return $image;
 				else trigger_error('Unable to open PNG : '.$input);
 				break;
 			case 'jpg' :
 			case 'jpeg':
-				if ($image = ImageCreateFromJPEG($input)) return $image;
+				if ($image = imageCreateFromJPEG($input)) return $image;
 				else trigger_error('Unable to open JPEG : '.$input);
 				break;
 			default:
