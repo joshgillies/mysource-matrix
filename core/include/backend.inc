@@ -30,7 +30,6 @@ class Backend extends Resolve_Object
 	function Backend() 
 	{
 		$this->Resolve_Object();
-		$this->out = new Backend_Outputter();
 	}
 
 	/*
@@ -51,11 +50,15 @@ class Backend extends Resolve_Object
 	*/
 	function paint() {
 
-		if (!isset($_GET['SQ_BACKEND_PAGE']) || $_GET['SQ_BACKEND_PAGE'] == 'frames') {
+		if (empty($_GET['SQ_BACKEND_PAGE']) || $_GET['SQ_BACKEND_PAGE'] == 'frames') {
 			$this->_printFrames();
+		
+		} else if ($_GET['SQ_BACKEND_PAGE'] == 'site_map_request') {
+			$this->_printSiteMapXML();
 		
 		} else {
 
+			$this->out = new Backend_Outputter();
 			$this->out->addFormActionGetVar('SQ_BACKEND_PAGE', $_GET['SQ_BACKEND_PAGE']);
 
 			switch($_GET['SQ_BACKEND_PAGE']) {
@@ -220,6 +223,56 @@ class Backend extends Resolve_Object
 		$this->out->closeRaw();
 
 	}#end _printSideNav()
+
+
+	/*
+	* Prints out, in XML, the children for the parent asset id passed in the GET string
+	*
+	* @access private
+	*/
+	function _printSiteMapXML()
+	{
+sleep(5);
+		header("Content-Type: text/xml");
+		include_once 'XML/Tree.php';
+
+		$err_msg = '';
+
+		if ($_GET['parent_assetid']) {
+
+			$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($_GET['parent_assetid']);
+			if (!is_null($parent)) {
+				$tree = new XML_Tree();
+				$root = &$tree->addRoot('assets', '', Array('success' => 1));
+				// we only want EXCLUSIVE or UNITE links
+				$links = $parent->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE);
+				for(reset($links); NULL !== ($type_code = key($links)); next($links)) {
+					for($i = 0; $i < count($links[$type_code]); $i++) {
+						$child = &$GLOBALS['SQ_RESOLVE']->am->getAsset($links[$type_code][$i]['minorid']);
+						if (!is_null($child)) {
+							$attrs = Array('assetid' => $child->id, 
+											'type_code' => get_class($child), 											
+											'has_kids'  => (int) ($child->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE) > 0)
+											);
+							$child = &$root->addChild('child', '[Check Security] '.$child->name(), $attrs);
+						}
+					}
+				}
+
+				$tree->dump();
+				return;
+			}// end if
+		} else {
+			$err_msg = 'No Parent Asset Id passed';
+		}// end if
+
+		$tree = new XML_Tree();
+		$root = &$tree->addRoot('assets', $err_msg, Array('success' => 0));
+		$tree->dump();
+		return;
+
+
+	}//end _printSiteMapXML()
 
 	/*
 	* Print out the Main backend Page

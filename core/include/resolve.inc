@@ -104,10 +104,9 @@ class Resolve {
 
 		switch($_REQUEST['SQ_ACTION']) {
 			case 'login' :
-
-				if ($this->login_key() == $_REQUEST['login_key']) {
+				if ($this->login_key() == $_POST['login_key']) {
 					$user = new User();
-					if ($user->login($_REQUEST['login_username'], $_REQUEST['login_password'])) {
+					if ($user->login($_POST['login_username'], $_POST['login_password'])) {
 						$_SESSION['userid'] = $user->get_userid();
 						$_SESSION['remote_addr'] = $_SERVER['REMOTE_ADDR'];
 						# generate a new login key so that when they try and login next
@@ -127,7 +126,6 @@ class Resolve {
 				# deliberalty don't have a break here so it the
 				# login fails we make sure that we're logged out
 			case 'logout' :
-				$_REQUEST['SQ_ACTION'] = '';
 				$_SESSION['userid'] = 0;
 				$this->user = null;
 			break;

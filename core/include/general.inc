@@ -4,9 +4,9 @@
 ##############################################
 ##
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/include/general.inc,v $
-## $Revision: 1.1.1.1 $
+## $Revision: 1.2 $
 ## $Author: brobertson $
-## $Date: 2003/01/23 06:25:36 $
+## $Date: 2003/01/30 07:50:38 $
 #######################################################################
 
 #---------------------------------------------------------------------#
@@ -26,7 +26,8 @@
 * @returns void
 * @access public
 */
-function sq_error_handler($err_no, $err_msg, $err_file, $err_line) {
+function sq_error_handler($err_no, $err_msg, $err_file, $err_line) 
+{
 	# if the function had '@' prepended, do nothing
 	if (!error_reporting()) return;
 
@@ -162,5 +163,35 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line) {
 function superuser($blah='') { 
 	return true; 
 }
+
+
+
+/*
+* Takes an integer and returns an array of numbers representing the active
+* bits in the integer
+* eg. for 5 is 101 in binary
+*     and Array(0 => 1, 1 => 4); will be returned
+* 
+* @param int $num    the integer to use
+*
+* @return Array(int)
+*/
+function bit_elements($num) 
+{
+
+	$num = (int) $num; # make sure it's an int
+	$count = 1;
+	$elems = Array();
+	while($num) {
+		// if the first bit is set then this number is one of the elements
+		if ($num & 1) $elems[] = $count;
+		$count *= 2;
+		// we just keep shifting right until there aren't anymore numbers
+		$num = $num >> 1;
+	}
+
+	return $elems;
+
+}// end bit_elements()
 
 ?>

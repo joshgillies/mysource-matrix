@@ -191,70 +191,120 @@ class Asset extends Resolve_Object
 	/*
 	* Return all links to this asset 
 	*
-	* @param string $link_type    the type of link this is
-	* @param string $asset_type   the type of asset that is linked (eg 'Page', 'File', etc);
+	* @param int    $link_types  integer that can be the product of bitwise operations on the SQ_LINK_* constants
+	* @param string $asset_type  the type of asset that is linked (eg 'Page', 'File', etc);
 	*
-	* @return boolean
+	* @return Array()
 	* @access public
 	*/
-	function getLinks($link_type, $asset_type='') {
+	function getLinks($link_types, $asset_type='') {
 
-		# if we haven't got all the links yet or we have got the specific type of links
-		if (
-			(empty($asset_type) && empty($this->_tmp['links'][$link_type.'___GOT_ALL___'])) 
-				|| (!empty($asset_type) && !isset($this->_tmp['links'][$link_type][$asset_type]))
-			) {
+		$elem_types = bit_elements($link_types);
+		// OK, let's check what we already have cached, and only do a DB call for what we need
+		$search_link_types = 0;
+		foreach($elem_types as $link_type) {
+			# if we haven't got all the links yet or we have got the specific type of links
+			if (empty($this->_tmp['links'][$link_type.'___GOT_ALL___'])
+				|| ($asset_type && !isset($this->_tmp['links'][$link_type][$asset_type]))) {
+				$search_link_types |= $link_type;
+			}
+		}
+
+		if ($search_link_types) {
 
 			$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+			$sql = 'SELECT l.minorid, l.value, l.last_updated, l.last_userid, l.link_type, a.type_code
+					FROM sq_asset_link l, sq_asset a
+					WHERE l.minorid   = a.assetid 
+					  AND l.majorid   = '.$db->quote($this->id).'
+					  AND (link_type & '.$db->quote($search_link_types).') > 0 '
+					.(empty($asset_type) ? 'ORDER BY a.type_code' : ' AND a.type_code = '.$db->quote($asset_type));
 
+//			pre_echo($sql);
 
+			$result = $db->query($sql);
+			if (DB::isError($result)) 
+				trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+
+			$this->_tmp['links'][$link_type] = Array();
+			while (NULL !== ($row = $result->fetchRow())) {
+				$link_type = $row['link_type'];
+				$type_code = $row['type_code'];
+				if (!isset($this->_tmp['links'][$link_type][$type_code])) $this->_tmp['links'][$link_type][$type_code] = Array();
+
+				unset($row['link_type']);
+				unset($row['type_code']);
+				$this->_tmp['links'][$link_type][$type_code][] = $row;
+
+			}#end while
+			$result->free();
+
+			// a bit of integrity
 			if (empty($asset_type)) {
-				$sql = 'SELECT l.minorid, l.value, l.last_updated, l.last_userid, a.type_code
-						FROM sq_asset_link l, sq_asset a
-						WHERE l.minorid   = a.assetid 
-						  AND l.majorid   = '.$db->quote($this->id).'
-						  AND link_type   = '.$db->quote($link_type).'
-						ORDER BY a.type_code';
 
-//				pre_echo($sql);
-				$result = $db->query($sql);
-				if (DB::isError($result)) 
-					trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
-
-				$this->_tmp['links'][$link_type] = Array();
-				while (NULL !== ($row = $result->fetchRow())) {
-					$type_code = $row['type_code'];
-					if (!isset($this->_tmp['links'][$link_type][$type_code])) $this->_tmp['links'][$link_type][$type_code] = Array();
-
-					unset($row['type_code']);
-					$this->_tmp['links'][$link_type][$type_code][] = $row;
-
-				}#end while
-				$result->free();
-
-				$this->_tmp['links'][$link_type.'___GOT_ALL___'] = true;
-
+				foreach($elem_types as $link_type) $this->_tmp['links'][$link_type.'___GOT_ALL___'] = true;
 			} else {
-				$sql = 'SELECT l.minorid, l.value, l.last_updated, l.last_userid
-						FROM sq_asset_link l, sq_asset a
-						WHERE l.minorid   = a.assetid 
-						  AND l.majorid   = '.$db->quote($this->id).'
-						  AND link_type   = '.$db->quote($link_type).'
-						  AND a.type_code = '.$db->quote($asset_type);
-
-//				pre_echo($sql);
-				$this->_tmp['links'][$link_type][$asset_type] = $db->getAll($sql);
-				if (DB::isError($this->_tmp['links'][$link_type][$asset_type]))
-					trigger_error($this->_tmp['links'][$link_type][$asset_type]->getMessage().'<br>'.$this->_tmp['links'][$link_type][$asset_type]->getUserInfo(), E_USER_ERROR);
-
-			}#end if
+				foreach($elem_types as $link_type) {
+					if (!isset($this->_tmp['links'][$link_type][$asset_type])) {
+						// cause we are just need to set this to something, 
+						// no need to waste space with an array
+						$this->_tmp['links'][$link_type][$asset_type] = false;
+					}
+				}
+			}
 
 		}#end if
 
-		return empty($asset_type) ? $this->_tmp['links'][$link_type] : $this->_tmp['links'][$link_type][$asset_type];
+		$ret_arr = Array();
+		foreach($elem_types as $link_type) {
+			if (empty($asset_type) && !empty($this->_tmp['links'][$link_type])) {
+				$ret_arr = array_merge($ret_arr, $this->_tmp['links'][$link_type]);
+			} elseif (!empty($this->_tmp['links'][$link_type][$asset_type])) {
+				$ret_arr = array_merge($ret_arr, $this->_tmp['links'][$link_type][$asset_type]);
+			}
+		}
+
+		return $ret_arr;
 
 	}#end getLinks()
 
+
+	/*
+	* Returns the number of links from this asset
+	*
+	* @param int    $link_types  integer that can be the product of bitwise operations on the SQ_LINK_* constants
+	* @param string $asset_type  the type of asset that is linked (eg 'Page', 'File', etc);
+	*
+	* @return int
+	* @access public
+	*/
+	function countLinks($link_types, $asset_type='') {
+
+			$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+			if (empty($asset_type)) {
+				$sql = 'SELECT count(*)
+						FROM sq_asset_link l
+						WHERE l.majorid   = '.$db->quote($this->id).'
+						  AND (link_type & '.$db->quote($link_types).') > 0';
+			} else {
+				$sql = 'SELECT count(*)
+						FROM sq_asset_link l, sq_asset a
+						WHERE l.minorid   = a.assetid 
+						  AND l.majorid   = '.$db->quote($this->id).'
+						  AND (link_type & '.$db->quote($link_types).') > 0 
+						  AND a.type_code = '.$db->quote($asset_type);
+			}
+
+//			pre_echo($sql);
+
+			$result = $db->getOne($sql);
+			if (DB::isError($result)) 
+				trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+			
+			return $result;
+
+	}#end countLinks()
+	
 	/*
 	* Called when the links are changed for this asset so that the tmp cache can be cleared
 	*
@@ -342,11 +392,12 @@ class Asset extends Resolve_Object
 		# if this link is either an exclusive or a unite link, then we need to make sure that this
 		# minor asset doesn't already have an exclusive link from anything
 		if ($link_type & (SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE)) {
-			pre_echo('BCR: "Check For Exclusive"');
 			$sql = 'SELECT majorid
 					FROM sq_asset_link
 					WHERE minorid   = '.$db->quote($minor->id).'
 					  AND link_type = '.$db->quote(SQ_LINK_EXCLUSIVE);
+//			pre_echo($sql);
+
 
 			$majorid = $db->getOne($sql);
 			if (DB::isError($majorid)) {
@@ -367,7 +418,7 @@ class Asset extends Resolve_Object
 				VALUES
 				('.$db->quote($this->id).', '.$db->quote($minor->id).', '.$db->quote($link_type).', '.$db->quote($value).', NOW(), '.$db->quote($this->currentUserId()).')';
 
-//		pre_echo($sql);
+		pre_echo($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
