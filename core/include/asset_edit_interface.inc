@@ -145,12 +145,13 @@ class Asset_Edit_Interface extends Resolve_Object
 				// this asset is currently locked
 				// so display message to the user
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+				$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_asset']);
 
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 				$expires_in = easy_time_total(($lock['expires'] - time()), true);
 				if (!$expires_in) $expires = '1 second';
 
-				echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'". The lock is due to expire in '.$expires_in.'</p>';
+				echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". The lock is due to expire in '.$expires_in.'</p>';
 
 				if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
 					submit_button('release_lock', 'Release Lock');
@@ -1299,12 +1300,13 @@ class Asset_Edit_Interface extends Resolve_Object
 			if (!empty($lock)) {
 				// this asset is currently locked
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+				$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_asset']);
 
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 				$expires_in = easy_time_total(($lock['expires'] - time()));
 				if (!$expires_in) $expires = '1 second';
 
-				$lock_message = '<span style="color:red"><b>[LOCKED]</b></span> by "'.$user->name.'". Expires in '.$expires_in.'';
+				$lock_message = '<span style="color:red"><b>[LOCKED]</b></span> by "'.$user->name.'" at "'.$editing->name.'". Expires in '.$expires_in.'';
 			} else {
 				$lock_message = '<span style="color:green"><b>[UNLOCKED]</b></span>';
 			}
