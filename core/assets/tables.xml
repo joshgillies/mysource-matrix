@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.7 2005/02/16 13:28:48 brobertson Exp $
+* $Id: tables.xml,v 1.8 2005/02/16 23:10:05 dbaranovskiy Exp $
 *
 */
 -->
@@ -146,6 +146,18 @@
 					<description />
 				</column>
 				<column name="published_userid" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="status_changed" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="status_changed_userid" allow_null="1">
 					<type>VARCHAR(255)</type>
 					<type_variations />
 					<default />
@@ -488,9 +500,9 @@
 				<index>
 					<column name="assetid" />
 				</index>
-				<!-- 
+				<!--
 				  NOTE: This index fails for PostgreSQL 7.3 but works for 7.4
-				        No functionality difference, just performance.
+						No functionality difference, just performance.
 				-->
 				<index name="concat">
 					<column name="(assetid || '~' || attrid)" />
