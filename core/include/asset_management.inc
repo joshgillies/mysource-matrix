@@ -330,6 +330,8 @@ class Asset_Management extends Resolve_Object
 			} else {
 				$attr_info['parameters'] = Array();
 			}
+
+			$attr_info['description'] = empty($this->vars[$name]['description']) ? '' : $this->vars[$name]['description'];
 			
 
 		// else one of our parents has defined the an attribute of this type before
@@ -345,7 +347,7 @@ class Asset_Management extends Resolve_Object
 
 			// Find the parents with an attribute of this name
 			$sql = 'SELECT	atr.type_code, atr.owning_type_code, atr.type, atr.parameters_value, 
-							atr.parameters_type_code, atr.default_type_code, atr.default_value
+							atr.parameters_type_code, atr.default_type_code, atr.default_value, atr.description
 					FROM sq_asset_type_inherited i, sq_asset_attribute atr, sq_asset_type at
 					WHERE i.type_code = '.$this->_db->quote($type_code).'
 					  AND i.inherited_type_code = atr.type_code
@@ -362,6 +364,7 @@ class Asset_Management extends Resolve_Object
 
 			$attr_info['owning_type_code']  = $attr_owner['owning_type_code'];
 			$attr_info['type']              = $attr_owner['type'];
+			$attr_info['description']       = $attr_owner['description'];
 
 			// if we have set our own default value, then we are overriding the default
 			if (isset($this->vars[$name]['default'])) {
@@ -401,13 +404,21 @@ class Asset_Management extends Resolve_Object
 
 		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_NOTICE);
 
+		// check that the default value is valid
+		require_once(SQ_ATTRIBUTES_PATH.'/'.$attr_info['type'].'/'.$attr_info['type'].'.inc');
+		$func = '$default = Asset_Attribute_'.$attr_info['type'].'::validateValue($attr_info[\'default_value\']);';
+		eval ($func);
+		if ($default === false) {
+			// default value is not valid
+			trigger_error("Default value of attribute '$name' is not valid" , E_USER_WARNING);
+			$attr_info['default_value'] = '';
+		}
+
 		$attributeid = $this->_db->nextId('sq_sequence_asset_attribute');
 		if (DB::isError($attributeid)) {
 			trigger_error($attributeid->getMessage().'<br/>'.$attributeid->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
-
-		$attr_info['description'] = empty($this->vars[$name]['description']) ? '' : $this->vars[$name]['description'];
 
 		// OK, all seems fine, let's add the bloody thing
 		$sql = 'INSERT INTO sq_asset_attribute
