@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.61 2003/11/26 01:50:11 gsherwood Exp $
+* $Id: design.inc,v 1.62 2003/12/12 16:53:26 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -289,6 +289,33 @@ class Design extends Design_Area
 
 
 	/**
+	* Returns the file asset associated with this design that has the passed filename
+	*
+	* @param string	$filename	the name of the file to look for
+	*
+	* @return object File|NULL
+	* @access public
+	*/
+	function &getAssociatedFile($filename)
+	{
+		$file_link_ids = Array();
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
+		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
+
+		foreach($file_link_info as $file_info) {
+			if ($file_info['name'] == $filename) {
+				return $GLOBALS['SQ_SYSTEM']->am->getAsset($file_info['assetid'], $file_info['type_code']);
+			}
+		}
+
+		$null = null; //return by ref
+		return $null;
+
+	}//end getAssociatedFile()
+
+
+	/**
 	* Get all the stylesheets attached to this design
 	*
 	* @return Array
@@ -485,6 +512,7 @@ class Design extends Design_Area
 					switch($args['append_query_string']) {
 						case 'yes'  :
 						case 'true' :
+						case '1'    : 
 							$aqs = true;
 							break;
 
@@ -496,6 +524,7 @@ class Design extends Design_Area
 					switch($args['start_query_string']) {
 						case 'yes'  :
 						case 'true' :
+						case '1'    : 
 							$sqs = true;
 							break;
 
@@ -619,38 +648,6 @@ class Design extends Design_Area
 		}// end if
 
 	}//end generateDesignFile()
-
-
-	/**
-	* Returns the file system path to the uploaded file
-	*
-	* @param string	$filename	the filename to return the path to
-	*
-	* @return string
-	* @access public
-	*/
-	function filePath($filename)
-	{
-		return $this->data_path_public.'/files/'.$filename;
-
-	}//end filePath()
-
-
-	/**
-	* Returns the path that has to be appended to the sq_web_path('data') to
-	* get access to the file for this design
-	*
-	* @param string	$filename	the filename to return the path to
-	*
-	* @return string
-	* @access public
-	*/
-	function webFileSuffix($filename)
-	{
-		return 'assets/'.$this->type().'/'.$this->id.'/files/'.$filename;
-
-	}//end webFilesSuffix()
-
 
 }//end class
 
