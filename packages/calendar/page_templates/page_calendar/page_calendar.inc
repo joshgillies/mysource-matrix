@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.98 2004/10/08 07:19:01 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.99 2004/10/13 06:20:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.98 $ - 1.0
+* @version $Revision: 1.99 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -986,7 +986,7 @@ class Page_Calendar extends Page_Asset_Listing
 		?>
 		</table>
 		<?php
-
+			
 	}//end printTimedTable()
 
 
@@ -1018,10 +1018,11 @@ class Page_Calendar extends Page_Asset_Listing
 			while (($tom < 10) && (key($layout_map) != $time_label)) {  next($layout_map); $tom++;}
 			$horizontal_index = 0;
 			while (isset($layout_map[$time_label][$horizontal_index])) $horizontal_index++;
-			for ($i=0; $i < ceil((($details['end_date_ts'] - $details['start_date_ts']) / 60) / $partition_time); $i++) {
+			for ($i=0; $i < ceil(($details['end_date_minutes'] + $details['end_date_hours']*60 - $details['start_date_minutes']-$details['start_date_hours']*60) / $partition_time); $i++) {
 				$layout_map[key($layout_map)][$horizontal_index] = 1;
 				next($layout_map);
 			}
+			
 			$event_left_margin = $event_width * $horizontal_index + 0.05;
 			$assetid_bits = current(explode(':', $assetid));
 			// get top position of div
@@ -1035,8 +1036,20 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($event_height < 0) continue;
 
 			// get class to use for div
-			$event_class = $root_nodes[$details['root_node']]['class_name'];
+			$root_node_treeids = get_treeids($root_nodes);
+			$event_class = '';
+			uasort($root_node_treeids, create_function('$a,$b', 'return strlen($b)-strlen($a);'));
 
+			foreach($root_node_treeids as $root_node_assetid => $root_node_treeid) {
+				if (substr($details['treeid'], 0, strlen($root_node_treeid)) == $root_node_treeid) {				
+					// if this root node has a formatting style, use it and shove off
+					if ($root_nodes[$root_node_assetid]['class_name'] != '') {
+						$event_class = $root_nodes[$root_node_assetid]['class_name'];
+						break;
+					}
+				}
+			}
+			
 			// other layout things
 			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; border-left: 0px; border-right: 0px; height: 0px; padding-top: 0px; background-color: transparent;';
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
@@ -1278,6 +1291,7 @@ class Page_Calendar extends Page_Asset_Listing
 		list($start_time_h, $start_time_m) = explode(':',$start);
 		list($end_time_h, $end_time_m) = explode(':',$end);
 
+		//$root_node_treeid = get_treeids(Array($root_node['treeid'] => ''));
 		// turn these times into number of minutes since midnight
 		$start_time = $start_time_h * 60 + $start_time_m;
 		$end_time   = $end_time_h   * 60 + $end_time_m;
@@ -1297,8 +1311,8 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_end_section = (ceil(($event_end_time - $start_time) / $spacing) - 1);
 
 			for($i = $event_start_section; $i <= min($end_section, $event_end_section); $i++) {
-				if((!is_null($root_node)) && ($event['root_node'] != $root_node)) {
-					print '$$'; continue;
+				if ((!is_null($root_node)) && ($event['root_node'] != $root_node)) {
+					continue;
 				}
 				if (!isset($event_lists[$i])) $event_lists[$i] = 0;
 				$event_lists[$i]++;
@@ -1630,8 +1644,8 @@ class Page_Calendar extends Page_Asset_Listing
 
 		if (!$last_time) $last_time = $this->attr('day_ends_at');
 		$partition_keys = Array();
-		list($hour, $mins) = explode(':', $last_time);
-		$end_ts = $mins + (60 * $hour);
+		list($e_hour, $e_mins) = explode(':', $last_time);
+		$end_ts = $e_mins + (60 * $e_hour);
 		list($hour, $mins) = explode(':', $first_time);
 		$ts = $mins + (60 * $hour);
 		$start_ts = $ts;
@@ -1664,7 +1678,19 @@ class Page_Calendar extends Page_Asset_Listing
 						$res[$event_date]['all_day'][$id] = $details;
 					} else {
 						$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
-						if ($event_ts < $start_ts) continue;
+						$event_end_ts = $details['end_date_hours'] * 60 + $details['end_date_minutes'];
+						// start-of-table / end-of-table adjustments to tame events
+						// sitting partly outside the bounds of the table
+						if (($event_ts < $start_ts) && ($event_end_ts > $start_ts)) {
+							$event_ts = $start_ts;
+							$details['start_date_hours'] = $hour;
+							$details['start_date_minutes'] = $mins;
+						}
+						if (($event_ts < $end_ts) && ($event_end_ts > $end_ts)) {
+							$event_ts = $start_ts;
+							$details['end_date_hours'] = $e_hour;
+							$details['end_date_minutes'] = $e_mins;
+						}
 						foreach ($partition_keys as $partition_ts => $key) {
 							if (($event_ts - $partition_ts) < $time_partition) {
 								$res[$event_date][$key][$id] = $details;
@@ -1730,6 +1756,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$res =& expand_event_list($res, $date, $date, $this->attr('day_starts_at'), $this->attr('day_ends_at'));
 		process_exceptions($res);
+		
 		return $res;
 
 	}//end getDayEvents()
@@ -1763,7 +1790,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$res = $partitions;
 
 		$events = $this->getDayEvents($date);
-
+		
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 			if (($event_date == $date)) {
@@ -1771,7 +1798,19 @@ class Page_Calendar extends Page_Asset_Listing
 					$res['all_day'][$id] = $details;
 				} else {
 					$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
-					if ($event_ts < $start_ts) continue;
+					// start-of-table / end-of-table adjustments to make sure that those events
+					// partly outside the bounds of the table are (a) kept inside the table and
+					// (b) show on the table in the first place (in case of start time adjustment)
+					if (($event_ts < $start_ts) && ($event_end_ts > $start_ts)) {
+						$event_ts = $start_ts;
+						$details['start_date_hours'] = $hour;
+						$details['start_date_minutes'] = $mins;
+					}
+					if (($event_ts < $end_ts) && ($event_end_ts > $end_ts)) {
+						$event_ts = $start_ts;
+						$details['end_date_hours'] = $e_hour;
+						$details['end_date_minutes'] = $e_mins;
+					}
 					foreach ($partition_keys as $partition_ts => $key) {
 						if (($event_ts - $partition_ts) < $time_partition) {
 							$res[$key][$id] = $details;
@@ -1799,8 +1838,8 @@ class Page_Calendar extends Page_Asset_Listing
 		if (!$last_time) $last_time = $this->attr('day_ends_at');
 		if (!$root_nodes) $root_nodes = array_keys($this->attr('root_nodes'));
 		$partition_keys = Array();
-		list($hour, $mins) = explode(':', $last_time);
-		$end_ts = $mins + (60 * $hour);
+		list($e_hour, $e_mins) = explode(':', $last_time);
+		$end_ts = $e_mins + (60 * $e_hour);
 		list($hour, $mins) = explode(':', $first_time);
 		$ts = $mins + (60 * $hour);
 		$start_ts = $ts;
@@ -1814,8 +1853,10 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$events = &$this->getDayEvents($date);
 		$res = Array();
-
-		foreach ($this->attr('columnise_day_view_by_root_node') as $node_id) $res[$node_id] = $partitions;
+		
+		foreach ($this->attr('columnise_day_view_by_root_node') as $node_id) {
+			$res[$node_id] = $partitions;
+		}
 		
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
@@ -1825,7 +1866,20 @@ class Page_Calendar extends Page_Asset_Listing
 					$res[$col]['all_day'][$id] = $details;
 				} else {
 					$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
-					if ($event_ts < $start_ts) continue;
+					$event_end_ts = $details['end_date_hours'] * 60 + $details['end_date_minutes'];
+					// start-of-table / end-of-table adjustments to make sure that those events
+					// partly outside the bounds of the table are (a) kept inside the table and
+					// (b) show on the table in the first place (in case of start time adjustment)
+					if (($event_ts < $start_ts) && ($event_end_ts > $start_ts)) {
+						$event_ts = $start_ts;
+						$details['start_date_hours'] = $hour;
+						$details['start_date_minutes'] = $mins;
+					}
+					if (($event_ts < $end_ts) && ($event_end_ts > $end_ts)) {
+						$event_ts = $start_ts;
+						$details['end_date_hours'] = $e_hour;
+						$details['end_date_minutes'] = $e_mins;
+					}
 					foreach ($partition_keys as $partition_ts => $key) {
 						if (($event_ts - $partition_ts) < $time_partition) {
 							$res[$col][$key][$id] = $details;
@@ -1835,7 +1889,9 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			}
 		}
-		foreach ($res as $root_node => $null) $res[$root_node]['_overlap_'] = 1;
+		foreach ($res as $root_node => $null) {		
+			$res[$root_node]['_overlap_'] = $this->_countOverlappingEvents($events, $first_time, $last_time, $time_partition);
+		}
 		return $res;
 
 	}//end getDayEventsByRootNodeAndTime()

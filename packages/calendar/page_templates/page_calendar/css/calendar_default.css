@@ -50,14 +50,14 @@ div.popup {
 table#year { border: 1px solid #173e57; background-color: #f8f8f8; border-collapse: collapse; font-family: sans-serif  }
 
 /* Header cells */
-#year th  { border: 1px solid #c8c8c8; font-family: sans-serif}
+#year th  { border: 1px solid #c8c8c8; }
 #year th.monthLabel { background-color: #017ca5; color: white; font-weight: bold; }
 #year th.monthLabel a, #year td.monthLabel a:visited, #year td.monthLabel a:hover { color: white; font-weight: bold; text-decoration: none; }
 #year th.dayLabel { background-color: #41afe0; color: white}
 #year th.dayLabelWeekend { background-color: #93b0e6; }
 
 /* All data cells, including completely empty ones */
-#year td { text-align: center; border-top: 1px solid #d8d8d8; font-family: sans-serif; }
+#year td { text-align: center; border-top: 1px solid #d8d8d8; }
 
 /* Cells with dates */
 #year td.date { background-color: white; text-align: center; color: black}
@@ -83,14 +83,14 @@ table#year { border: 1px solid #173e57; background-color: #f8f8f8; border-collap
  */
 
 table#month { border: 1px solid #173e57; background-color: #f8f8f8; border-collapse: collapse  }
-#month th  { border: 1px solid #c8c8c8; font-family: sans-serif }
+#month th  { border: 1px solid #c8c8c8; }
 
 /* Header Cells */
 #month th.dayLabel { background-color: #41afe0; color: white}
 #month th.dayLabelWeekend { background-color: #93b0e6; }
 
 /* All data cells, including completely empty ones */
-#month td { padding-left: 2px; text-align: left; vertical-align: top; border: 1px solid #c0c0c0; font-family: sans-serif}
+#month td { padding-left: 2px; text-align: left; vertical-align: top; border: 1px solid #c0c0c0; }
 
 /* Cells with dates */
 #month td.date { background-color: white; }
@@ -116,7 +116,7 @@ table#month { border: 1px solid #173e57; background-color: #f8f8f8; border-colla
  */
 
 table#week { border: 1px solid #173e57; background-color: white; border-collapse: collapse }
-#week td, #week th  { border: 1px solid #c0c0c0; font-family: sans-serif}
+#week td, #week th  { border: 1px solid #c0c0c0; }
 #week td, #week th.timeLabel { vertical-align: top; padding: 0px;}
 
 /* header cells */
@@ -139,7 +139,7 @@ table#week { border: 1px solid #173e57; background-color: white; border-collapse
 **/
 
 table#day { border: 1px solid #173e57; background-color: white; border-collapse: collapse  }
-#day td, #day th  { border: 1px solid #c0c0c0; font-family: sans-serif }
+#day td, #day th  { border: 1px solid #c0c0c0; }
 #day td, #day th.timeLabel { vertical-align: top; }
 
 /* header cells */

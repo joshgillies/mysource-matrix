@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.17 2004/10/08 03:24:49 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.18 2004/10/13 06:20:22 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.17 $ - 1.0
+* @version $Revision: 1.18 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -265,7 +265,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				if (empty($status)) unset($view_options[$name]);
 			}
 			foreach ($view_options as $key => $val) $view_options[$key] = ucfirst($key).' View';
-			if (!in_array($selected_view, $view_options)) $selected_view = current($view_options);
+			if (!in_array($selected_view, array_keys($view_options))) $selected_view = current($view_options);
 			combo_box($prefix.'_initial_view', $view_options, 0, $selected_view, 0);
 		} else {
 			echo $selected_view;
