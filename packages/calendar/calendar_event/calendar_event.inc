@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.9 2004/08/16 06:45:34 lwright Exp $
+* $Id: calendar_event.inc,v 1.10 2004/08/20 01:21:32 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $ - 1.0
+* @version $Revision: 1.10 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -80,6 +80,40 @@ class Calendar_Event extends Asset
 		return $this->_cacheCalendarData(false);
 
 	}//end create()
+	
+	
+	/**
+	* Delete this asset from the trash
+	*
+	* Note that the asset <i>MUST</i> be in the trash to delete it <i>FROM</i> the trash.
+	*
+	* @param boolean	$release_lock	should we release the lock after deleting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function delete($release_lock=true)
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		// asset id becomes a where condition
+		$where = ' assetid = '.$db->quote($this->id);
+		
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('calendar_date_value', $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		
+		if (!parent::delete($release_lock)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+		
+	}//end delete()
 	
 	
 	/**
@@ -473,8 +507,6 @@ class Calendar_Event extends Asset
 	*
 	* @param boolean	$updating	are we updating (TRUE) or inserting a new record
 	* 								(FALSE - set only in create() call)
-	(set to false in the
-	*								create() call)
 	*
 	* @return boolean	indicating success
 	* @access private
@@ -485,22 +517,32 @@ class Calendar_Event extends Asset
 	
 		$date_values = Array();
 		foreach(Array('start_date', 'end_date') as $date_comp) {
-			$this->_splitAttributeDate($date_values, $date_comp, $this->attr($date_comp), $date_comp.'_');
-		}		
+			$iso = $this->attr($date_comp);
+			
+			if (iso8601_time_component($iso) === false) {
+				if ($date_comp == 'end_date') {				
+					$iso = ts_iso8601(iso8601_ts(substr($iso,0,10)) + 86400);
+					$iso = substr($iso,0,10).' 24:00:00';
+				}
+			} else {
+				// we know the seconds aren't going to be there, so zero them so we can
+				// use the getDate() niceness
+				$iso = substr($iso,0,16).':00';
+			}
+			
+			$this->_splitAttributeDate($date_values, $date_comp, $iso, $date_comp.'_');
+		}
 		
-		// frequency field => blank for standard events, OVERRIDEME in recurring
+		// frequency field => blank for standard events, overridden in recurring
 		$date_values['frequency'] = '';
 		
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	
-		// if updating attribute then we use
-		// rollbackUpdate('...', $date_values, $where)
 		if (!$updating) {
 			// set the asset ids
 			$date_values['assetid'] = $this->id;
 		
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('calendar_date_value', $date_values)) {
-				pre_echo('We didn\'t go through!');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -514,7 +556,6 @@ class Calendar_Event extends Asset
 			$where = ' assetid = '.$db->quote($this->id);
 		
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('calendar_date_value', $date_values, $where)) {
-				pre_echo('- Failure !!');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -541,8 +582,15 @@ class Calendar_Event extends Asset
 	{			
 		if ($this->vars[$attr]['type'] == 'datetime') {
 			
+			// we represent end-of-day as '24:00:00' as per ISO 8601, but strtotime()
+			// doesn't recognise it. Fudge a little by flagging it, getting *start* of
+			// day, then adding a day to the timestamp and setting hours to 24
+			if ($iso_24h = (iso8601_time_component($iso) == '24:00:00')) {
+				$iso = substr($iso,0,10).' 00:00:00';	// make it legit, fix it later
+			}
+			
 			// we can build most of our info from the getdate() function
-			if ($ts = strtotime($iso) != -1) {
+			if (($ts = strtotime($iso)) != -1) {
 				$this_date = getdate($ts);
 				$this_date['yday']++;	// to make it 1-based
 				
@@ -554,32 +602,52 @@ class Calendar_Event extends Asset
 				$this_date['ts'] = $this_date[0];
 				unset($this_date[0]);
 				
+				// add 'day-count stamp'
+				$this_date['ds'] = floor(strtotime(substr($iso,0,10).' 12:00:00 GMT') / 86400);
+				
+				// 24:00:00 ISO time
+				if ($iso_24h) {
+					$this_date['ts'] += 86400;
+					$this_date['hours'] = 24;
+				}
+				
 			} else {
-				// we have to do this manually
-				$this_date = Array();	
-				list($this_date['year'], $this_date['mon'], $this_date['mday'], $this_date['hours'], $this_date['minutes'], $this_date['seconds']) = sscanf($iso, '%4s-%2s-%2s %2s:%2s:%2s');	
-
-				pre_echo($this_date);							
+				// we have to do this manually..... great
+				$this_date = Array();
+				
+				list($this_date['year'], $this_date['mon'], $this_date['mday'], $this_date['hours'], $this_date['minutes'], $this_date['seconds']) = sscanf($iso, '%4s-%2s-%2s %2s:%2s:%2s');						
 			
 				// any dashed out sections should be nulled out instead
 				foreach(array_keys($this_date) as $iso_part) {
 					if ($this_date[$iso_part] == str_repeat('-', ($iso_part == 'year' ? 4 : 2))) $this_date[$iso_part] = null;
 				}
 			
-				// no timestamp
-				$this_date['ts'] = null;
-			
 				// forward day-of-year and weekday can only work with valid date
-				if ($date_only_ts = strtotime(substr($iso,0,10)) == -1) {
+				if (($date_only_ts = strtotime(substr($iso,0,10))) == -1) {
 					$this_date['wday'] = null;
 					$this_date['yday'] = null;
+					$this_date['ts'] = null;
+					$this_date['ds'] = null;
 				} else {
+					if (is_null($this_date['hours']) && (!is_null($this_date['minutes']) || !is_null($this_date['seconds']))) {
+						// hours null in the middle of the time - no valid time
+						$this_date['ts'] = null;
+					} elseif (is_null($this_date['minutes']) && !is_null($this_date['seconds']))  {
+						// minutes null in the middle of the time - no valid time
+						$this_date['ts'] = null;
+					} else {
+						// make a best guess on timestamp, setting all blanks to 0
+						$this_date['ts'] = strtotime(substr($iso,0,10).' '.str_replace('-','0',substr($iso,11)));
+					}
+					
+					// we can do these in any case
+					$this_date['ds'] = floor(strtotime(substr($iso,0,10).' 12:00:00 GMT') / 86400);
 					$this_date['wday'] = date('w', $date_only_ts);
 					$this_date['yday'] = date('z', $date_only_ts) + 1;
 				}
 				
 			}
-							
+			
 			// add 'month-stamp' column which can be used to easily check
 			// 'x monthly' stuff which can't be done easily with T/S alone
 			if (is_null($this_date['mon']) || is_null($this_date['year'])) {
@@ -607,7 +675,7 @@ class Calendar_Event extends Asset
 			
 			// now dump them into the array we were passed in the first place
 			foreach(array_keys($this_date) as $iso_part) {
-				$date_values[$prefix.$iso_part] = intval($this_date[$iso_part]);						
+				$date_values[$prefix.$iso_part] = is_null($this_date[$iso_part]) ? null : intval($this_date[$iso_part]);						
 			}
 		
 			return true;
@@ -617,6 +685,7 @@ class Calendar_Event extends Asset
 		}
 		
 	}//end _splitAttributeDate()
+	
 	
 }//end class
 
