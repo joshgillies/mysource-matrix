@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.72 2004/09/09 07:47:43 amiller Exp $
+* $Id: init.inc,v 1.73 2004/10/15 03:31:43 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 */
 
@@ -82,13 +82,13 @@ require_once SQ_DATA_PATH.'/private/conf/main.inc';
 
 // To be able to use symlinks without matrix tripping over the index.php, strip
 // it out of the PHP_SELF variable (pretend we're someone we're not). When
-// the symlinked directory gets redirected by the .htaccess file, it has 
+// the symlinked directory gets redirected by the .htaccess file, it has
 // the index.php appended to the url, which causes all sorts of problems for
-// the system as it expects php_self to be just a name, as it is normally 
+// the system as it expects php_self to be just a name, as it is normally
 // aliased to the index.php directly. This will
 // quite probably need to be changed to a function like get_real_self()
 
-// if there's a index.php/ that's not at the end (ie it has a trailing slash) in the 
+// if there's a index.php/ that's not at the end (ie it has a trailing slash) in the
 // php_self variable, remove it as it breaks everything (symlinks only).
 if (strrpos($_SERVER['PHP_SELF'], 'index.php/')) {
 	$_SERVER['PHP_SELF'] = str_replace('index.php/','', $_SERVER['PHP_SELF']);
