@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.17 2004/09/07 09:36:03 brobertson Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.18 2004/09/24 01:31:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -96,21 +96,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				// drop down plugin can access this information without another querey
 				// we can also limit the stylesheets that are available to it here if we want
 				$GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
-
-				// dont import the CSS files in LIMBO because we are already showing the design
-				if (!SQ_IN_LIMBO) {
-					$css_urls = $am->getAssetURL($GLOBALS['sq_bodycopy_cssids']);
-					?>
-					<style type="text/css">
-						/* import styles from the design for this asset */
-						<?php
-						foreach ($css_urls as $cssid => $css_url) {
-							?>@import url("<?php echo $css_url; ?>");<?php
-						}
-						?>
-					</style>
-					<?php
-				}
 
 				$am->forgetAsset($design);
 				unset($design);
