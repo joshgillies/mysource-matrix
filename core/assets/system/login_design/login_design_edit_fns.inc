@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: login_design_edit_fns.inc,v 1.3 2003/09/26 05:26:25 brobertson Exp $
+* $Id: login_design_edit_fns.inc,v 1.1 2003/10/16 04:17:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
