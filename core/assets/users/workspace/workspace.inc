@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 
 /**
 * Workspace
@@ -12,7 +12,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @version $Version$ - 1.0
 * @package Resolve::packages::__core__
 */
-class Workspace extends Asset
+class Workspace extends Folder
 {
 
 	/**
@@ -23,7 +23,7 @@ class Workspace extends Asset
 	*/
 	function Workspace($assetid=0)
 	{
-		$this->Asset($assetid);
+		$this->Folder($assetid);
 	}//end constructor
 
 
@@ -39,6 +39,17 @@ class Workspace extends Asset
 		$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
 		return $user;
 	}
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @access public
+	*/
+	function printBody()
+	{
+		bam('WORKSPACE printBody(): NOT DONE YET');
+	}// end printBody()
 
 
 	/**
