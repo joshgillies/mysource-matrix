@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.6 2003/11/26 00:51:00 gsherwood Exp $
+* $Id: cron_job_future_lineage.inc,v 1.7 2004/03/17 06:11:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 */
 class Cron_Job_Future_Lineage extends Cron_Job
 {
+	
+	
 	/**
 	* Constructor
 	*
@@ -48,7 +50,8 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	{
 		$this->_ser_attrs = true;
 		$this->Cron_Job($assetid);
-	}
+		
+	}//end constructor
 
 
 	/**
@@ -109,13 +112,13 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	{
 		$minor = &$this->getAssetInLink('minor');
 		if (is_null($minor)) {
-			return 'Asset-less Future Lineage Cron Job';
+			return 'Asset-less Future Linking Cron Job';
 
 		} elseif ($short_name) {
 			return 'FL for "'.$minor->short_name.'" (#'.$minor->id.')';
 
 		} else {
-			return 'Future Lineage for "'.$minor->name.'" (#'.$minor->id.')';
+			return 'Future Linking for "'.$minor->name.'" (#'.$minor->id.')';
 
 		}// end if
 
