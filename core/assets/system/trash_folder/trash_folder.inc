@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.50 2004/03/02 04:21:20 mmcintyre Exp $
+* $Id: trash_folder.inc,v 1.51 2004/06/07 05:31:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,12 +72,20 @@ class Trash_Folder extends Folder
 			}
 		}
 
-		if ($linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		} else {
+		if (!$linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
 		}
 
+		// set public read access in the DB so it comes up in the asset map
+		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, 0, SQ_PERMISSION_READ, true)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
 	}//end create()
