@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.23 2004/01/16 11:49:18 brobertson Exp $
+* $Id: system_config.inc,v 1.24 2004/02/10 15:44:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -125,7 +125,7 @@ class System_Config extends Config
 
 			// if we dont have access, piss off
 			if (!$is_admin) {
-				trigger_error('You need to be either the Root User or a System Administrator to save the System Config', E_USER_WARNING);
+				trigger_error('You need to be either the Root User or a System Administrator to save the '.$this->name, E_USER_WARNING);
 				return false;
 			}
 
