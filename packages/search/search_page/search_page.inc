@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.57 2004/09/15 23:36:02 gsherwood Exp $
+* $Id: search_page.inc,v 1.58 2004/09/22 00:31:23 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $ - 1.0
+* @version $Revision: 1.58 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1112,7 +1112,7 @@ class Search_Page extends Page
 		$keywords = $bodycopy->getKeywords();
 		$replaces = Array();
 
-		$current_result_page = array_get_index($_REQUEST, 'current_result_page', '1');
+		$current_result_page = array_get_index($_REQUEST, 'current_result_page', '0');
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('results_per_page'));
 
 		$total_pages = ceil(count($results) / $results_per_page);
