@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.10 2004/06/29 07:38:10 tbarrett Exp $
+* $Id: design_area_login_form.inc,v 1.11 2004/08/08 23:04:54 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,7 +58,7 @@ class Design_Area_Login_Form extends Design_Area
 			case 'form_close' :
 			case 'submit_button' :
 				if ($this->_tmp['painting_section'] != 'login' && $this->_tmp['painting_section'] != 'logout') {
-					trigger_error('The "'.$var.'" var can only be printed inside the login or logout sections of the login_form design area "'.$asset->attr('id_name').'"', E_USER_WARNING);
+					trigger_error('The "'.$var.'" var can only be printed inside the login or logout sections of the login_form design area "'.$this->attr('id_name').'"', E_USER_WARNING);
 					return false;
 				}
 				break;
@@ -67,7 +67,7 @@ class Design_Area_Login_Form extends Design_Area
 			case 'username_box' :
 			case 'password_box' :
 				if ($this->_tmp['painting_section'] != 'login') {
-					trigger_error('The "'.$var.'" var can only be printed inside the login section of the login_form design area "'.$asset->attr('id_name').'"', E_USER_WARNING);
+					trigger_error('The "'.$var.'" var can only be printed inside the login section of the login_form design area "'.$this->attr('id_name').'"', E_USER_WARNING);
 					return false;
 				}
 				break;
