@@ -167,7 +167,7 @@ class wysiwyg {
 						this._htmlArea = null;
 						this._textArea = textarea;
 						this._uniqueID = textarea;
-						this._mode = "wysiwyg";
+						this._editMode = "wysiwyg";
 						this._initialised = false;
 						this._tmp = Array();
 <?php $this->print_plugin_vars() ?>
@@ -204,73 +204,79 @@ class wysiwyg {
 					var tb_objects = new Object();
 					this._toolbarObjects = tb_objects;
 
-					// appends a new button to toolbar
-					function createButton(txt) {
-						// updates the state of a toolbar element
-						function setButtonStatus(id, newval) {
-							var oldval = this[id];
-							var el = this.element;
-							if (oldval != newval) {
-								switch (id) {
-									case "enabled":
+					// updates the state of a toolbar element
+					function setButtonStatus(id, newval) {
+						var oldval = this[id];
+						var el = this.element;
+						var buttonID = editor._uniqueID + "_" + this['name'];
+						buttonID = buttonID.toLowerCase();
+						var img = document.getElementById(buttonID);
+						if (oldval != newval) {
+							switch (id) {
+								case "enabled":
 									if (newval) {
 										HTMLArea._removeClass(el, "htmlarea-buttonDisabled");
+										if (img) { img.src = editor.imgURL("toolbar.gif"); }
 										el.disabled = false;
 									} else {
 										HTMLArea._addClass(el, "htmlarea-buttonDisabled");
+										if (img) { img.src = editor.imgURL("toolbar_disabled.gif"); }
 										el.disabled = true;
 									}
-									break;
-									case "active":
+								break;
+								case "active":
 									if (newval) {
 										HTMLArea._addClass(el, "htmlarea-buttonPressed");
 									} else {
 										HTMLArea._removeClass(el, "htmlarea-buttonPressed");
 									}
-									break;
-								}
-								this[id] = newval;
+								break;
 							}
-						};
+							this[id] = newval;
+						}
+					};
 
-						// this function will handle creation of combo boxes
-						function createSelect() {
-							var options = null;
-							var el = null;
-							var sel = null;
-							var cmd = null;
-							switch (txt) {
+					// this function will handle creation of combo boxes
+					function createSelect() {
+						var options = null;
+						var el = null;
+						var sel = null;
+						var cmd = null;
+						switch (txt) {
 <?php $this->print_plugin_create_select()?>
+						}
+						if (options) {
+							sel = document.createElement("select");
+							var obj = {
+								name: txt,     // field name
+								element: sel,   // the UI element (SELECT)
+								enabled: true, // is it enabled?
+								text: false,   // enabled in text mode?
+								cmd: cmd,      // command ID
+								state: setButtonStatus // for changing state
+							};
+							tb_objects[txt] = obj;
+							for (var i in options) {
+								var op = document.createElement("option");
+								op.appendChild(document.createTextNode(i));
+								op.value = options[i];
+								sel.appendChild(op);
 							}
-							if (options) {
-								sel = document.createElement("select");
-								var obj = {
-									name: txt,     // field name
-									element: sel,   // the UI element (SELECT)
-									enabled: true, // is it enabled?
-									text: false,   // enabled in text mode?
-									cmd: cmd,      // command ID
-									state: setButtonStatus // for changing state
-								};
-								tb_objects[txt] = obj;
-								for (var i in options) {
-									var op = document.createElement("option");
-									op.appendChild(document.createTextNode(i));
-									op.value = options[i];
-									sel.appendChild(op);
-								}
-								el = document.createElement("span");
-								el.style.position = "relative";
-								el.innerHTML += "<img src=\"" + editor.imgURL("blank.gif") + "\" width=" + sel.offsetWidth + " height=20 border=0>";
-								el.appendChild(sel);
-								el.style.top = -5;
+							el = document.createElement("span");
+							el.style.position = "relative";
+							el.innerHTML += "<img src=\"" + editor.imgURL("blank.gif") + "\" width=" + sel.offsetWidth + " height=20 border=0>";
+							el.appendChild(sel);
+							el.style.top = -5;
 
-								HTMLArea._addEvent(sel, "change", function () {
-									editor._comboSelected(sel, txt);
-								});
-							}
-							return el;
-						};
+							HTMLArea._addEvent(sel, "change", function () {
+								editor._comboSelected(sel, txt);
+							});
+						}
+						return el;
+					};
+
+					// appends a new button to toolbar
+					function createButton(txt) {
 						// the element that will be created
 						var el = null;
 						var btn = null;
@@ -302,12 +308,12 @@ class wysiwyg {
 							// let's just pretend we have a button object, and
 							// assign all the needed information to it.
 							var obj = {
-								name: txt,     // the button name (i.e. 'bold')
-								element: el,   // the UI element (DIV)
-								enabled: true, // is it enabled?
-								active: false, // is it pressed?
-								text: btn[2],  // enabled in text mode?
-								cmd: btn[0],   // the command ID
+								name: txt,             // the button name (i.e. 'bold')
+								element: el,           // the UI element (SPAN)
+								enabled: true,         // is it enabled?
+								active: false,         // is it pressed?
+								text: btn[2],          // enabled in text mode?
+								cmd: btn[0],           // the command ID
 								state: setButtonStatus // for changing state
 							};
 							tb_objects[txt] = obj;
@@ -342,11 +348,17 @@ class wysiwyg {
 								}
 							});
 
-							var buttonID = editor._uniqueID + "_" + btn[0];
-							el.innerHTML = "<img src=\"" + editor.imgURL("blank.gif") + "\" width=20 height=20 border=0>";
+							// Mozilla does like us setting the width and height of SPANs in the
+							// stylesheet (or at all actually) so we need to fill the SPAN with
+							// some dummy HTML to size it
+							if (HTMLArea.is_gecko) {
+								el.innerHTML = "<img src=\"" + editor.imgURL("blank.gif") + "\" width=18 height=20 border=0>";
+							}//end gecko smells!!
 
 							// output an image tag with the src of the toolbar image
 							// the image is loaded once and then the server is not hit again
+							var buttonID = editor._uniqueID + "_" + txt;
+							buttonID = buttonID.toLowerCase();
 							document.write("<img src=\"" + editor.imgURL("toolbar.gif") + "\" id=\"" + buttonID + "\">");
 							var img = document.getElementById(buttonID);
 
@@ -376,6 +388,9 @@ class wysiwyg {
 						return el;
 					};
 
+					// preload the disabled button image
+					document.write("<img src=\"" + editor.imgURL("toolbar_disabled.gif") + "\" id=\"toolbar_disabled\" style=\"visibility: hidden;\" width=\"1\" height=\"1\">");
+
 					for (var i in this.config.toolbar) {
 						var group = this.config.toolbar[i];
 						for (var j in group) {
@@ -387,7 +402,7 @@ class wysiwyg {
 				// updates enabled/disable/active state of the toolbar elements
 				HTMLArea.prototype.updateToolbar = function(allEnabled) {
 					var doc = this._doc;
-					var text = (this._mode == "textmode");
+					var text = (this._editMode == "textmode");
 					for (var i in this._toolbarObjects) {
 						var btn = this._toolbarObjects[i];
 						var cmd = btn.cmd;
@@ -510,7 +525,7 @@ class wysiwyg {
 				// retrieve the HTML
 				HTMLArea.prototype.getHTML = function() {
 					var retVal = '';
-					switch (this._mode) {
+					switch (this._editMode) {
 						case "textmode":
 							if (HTMLArea.is_gecko) {
 								var html = this._iframe.contentWindow.document.body.ownerDocument.createRange();
@@ -528,7 +543,7 @@ class wysiwyg {
 							}
 						break;
 						default:
-							alert("Mode <" + this._mode + "> not defined!");
+							alert("Mode <" + this._editMode + "> not defined!");
 							return false;
 					}
 					// let any plugins modify the returned HTML if they want to
