@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage.inc,v 1.5 2004/04/08 10:21:30 brobertson Exp $
+* $Id: design_area_asset_lineage.inc,v 1.6 2004/04/13 01:00:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,7 +39,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 class Design_Area_Asset_Lineage extends Design_Area
 {
 
-	/*
+
+	/**
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
 	* @param string	$var			the name of the var to print out
@@ -55,16 +56,16 @@ class Design_Area_Asset_Lineage extends Design_Area
 		switch($var) {
 			case 'assetid' :
 				echo '<', '?php echo $ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'assetid\']; ?', '>';
-				break;
+			break;
 
 			case 'asset_link' :
 				echo '<', '?php echo $ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'protocol\'].\'://\'.$ASSET_LINEAGE[$'.$this->attr('id_name').'_i][\'url\']; ?', '>';
-				break;
+			break;
 
 			case 'asset_short_name' :
 			case 'asset_name' :
 				echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$ASSET_LINEAGE[$'.$this->attr('id_name').'_i]['.var_export((string) substr($var, 6), true).']'.$value_suffix, $args), '; ?', '>';
-				break;
+			break;
 
 			default :
 				parent::printVar($var, $args);
@@ -75,4 +76,5 @@ class Design_Area_Asset_Lineage extends Design_Area
 
 
 }//end class
+
 ?>
