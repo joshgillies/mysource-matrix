@@ -262,11 +262,16 @@ class Backend_Outputter
 	/**
 	* Add a hidden field to the output
 	*
+	* @param string	$name	the name of the field
+	* @param string	$value	the value to store in the field
+	*
+	* @return void
 	* @access public
 	*/
 	function addHiddenField($name, $value='')
 	{
 		$this->_hidden_fields[$name] = $value;
+
 	}//end addHiddenField()
 
 
@@ -597,6 +602,7 @@ class Backend_Outputter
 			$this->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 			$this->_paintJsInclude(sq_web_path('lib').'/js/general.js');
 			$this->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
+			$this->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
 			foreach($this->_js_includes as $file) $this->_paintJsInclude($file);
 		?>
 			<script language="Javascript" type="text/javascript">
