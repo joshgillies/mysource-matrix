@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.178 2004/02/16 05:17:30 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.179 2004/02/17 00:00:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3579,6 +3579,7 @@ class Asset_Manager extends MySource_Object
 										'name'       => $index_page->name,
 										'short_name' => $index_page->short_name,
 										'type_code'  => $index_page->type(),
+										'link_type'  => SQ_LINK_TYPE_3,
 										'protocol'   => current_protocol(),
 										);
 				}// end if
