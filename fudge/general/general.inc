@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.20 2004/07/26 06:40:19 tbarrett Exp $
+* $Id: general.inc,v 1.21 2004/08/05 04:54:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -123,6 +123,24 @@ function htmlentities_array(&$array, $encode_keys=false)
 
 }//end htmlentities_array()
 
+
+/**
+* Searches an array for a value and removes one instance of it if found
+*
+* @param mixed	$v	the value to remove
+* @param Array	&$a	the array to search and remove from
+*
+* @return boolean	true if instance removed, false if not found
+* @access public
+*/
+function array_remove_element($v='', &$a) {
+	if (!is_array($a) || empty($a)) return false;
+	if(in_array($v,$a)) {
+		unset($a[array_search($v,$a)]);
+		return true;
+	}
+	
+}//end array_remove_element()
 
 
 /**
