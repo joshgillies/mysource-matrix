@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.85 2005/02/22 05:10:02 lwright Exp $
+* $Id: form.inc,v 1.86 2005/03/03 12:10:28 mkeehan Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1130,7 +1130,6 @@ class Form extends Asset
 	function processForm()
 	{
 		$this->active_submission->flushErrors();
-
 		$questions = $this->getQuestions();
 		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$key);
@@ -1568,11 +1567,11 @@ class Form extends Asset
 				}
 
 				foreach ($sections as $section) {
-					$keywords['section_title_'.$section->id] = 'Section Title: '.$q_name;
 					$questions = &$section->getQuestions();
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
+						$keywords['section_title_'.$section->id] = 'Section Title: '.$q_name;
 						$keywords['response_'.$section->id.'_q'.$q_id] = 'Response: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30);
 					}
 				}
