@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2004/03/22 04:57:34 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2004/07/06 04:59:52 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -72,7 +72,9 @@
 		</field>
 		<field attribute="group_by">
 			<display_name>List Format</display_name>
-			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.&lt;br/&gt;An A-Z listing displays assets grouped by the first letter of their name or short name, as defined by the 'Sort By' field.</note>
+			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.
+			&lt;br/&gt;An A-Z listing displays assets grouped by the first letter of their name or short name, as defined by the 'Sort By' field.
+			&lt;br/&gt;A Random listing displays one or more assets in random order.</note>
 			<selection style="list" />
 		</field>
 		<field attribute="prev_page_text">
@@ -105,7 +107,7 @@
 	<section name="Sorting" write_access="write:attributes">
 		<field attribute="sort_by">
 			<display_name>Sort By</display_name>
-			<note>&lt;b&gt;NOTE:&lt;/b&gt; If using the A-Z listing format, please select only 'Name' or 'Short Name' from the list. Selecting another value for force sorting by 'Name'.</note>
+			<note>&lt;b&gt;NOTE:&lt;/b&gt; If using the A-Z listing format, please select only 'Name' or 'Short Name' from the list. Selecting another value for force sorting by 'Name'. This field has no effect in Random listing mode.</note>
 			<selection style="list" />
 		</field>
 		<field attribute="reverse_sort">
@@ -115,7 +117,8 @@
 		</field>
 		<field attribute="num_per_page">
 			<display_name>Assets Per Page</display_name>
-			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.</note>
+			<note>Set to '0' (zero) to list all assets on the same page.&lt;br/&gt;&lt;b&gt;NOTE:&lt;/b&gt; This option is only valid when using the standard list format.
+			&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).</note>
 			<int width="5" />
 		</field>
 	</section>

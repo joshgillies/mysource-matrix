@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.6 2004/06/18 02:02:06 lwright Exp $
+* $Id: page_asset_listing_management.inc,v 1.7 2004/07/06 04:59:52 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,6 +89,7 @@ class Page_Asset_Listing_Management extends Asset_Management
 											'options' => Array(
 												'number'		=> 'Standard',
 												'letter'		=> 'A-Z listing',
+												'random'		=> 'Random',
 											),
 											'multiple' => false,
 										),

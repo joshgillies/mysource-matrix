@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.25 2004/06/24 07:03:19 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.26 2004/07/06 04:59:52 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -342,6 +342,11 @@ class Page_Asset_Listing extends Page
 					}
 					foreach ($links as $link_info) $children[$link_info['minorid']] = Array('type_code' => $link_info['minor_type_code'], 'first_letter' => $link_info['first_letter']);
 				break;
+				
+				case 'random' :
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, null);
+					foreach ($links as $link_info) $children[$link_info['minorid']] = $link_info['minor_type_code'];
+				break;
 			}//end switch
 
 		} else {
@@ -364,6 +369,10 @@ class Page_Asset_Listing extends Page
 						return;
 					}
 				break;
+				
+				case 'random' :
+					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, null);
+				break;
 			}//end switch
 
 		}//end if subs_only
@@ -371,7 +380,12 @@ class Page_Asset_Listing extends Page
 
 		// clean up after ourselves
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
-		if (empty($children)) return false;
+		
+		// if there are no children available, just print the page bodycopy
+		if (empty($children)) {
+			$format_bodycopy->printBody();
+			return;
+		}
 
 
 		  /////////////////////////////
@@ -388,6 +402,10 @@ class Page_Asset_Listing extends Page
 
 				case 'letter' :
 					$type_code =& $child_data['type_code'];
+				break;
+				
+				case 'random' :
+					$type_code =& $child_data;
 				break;
 
 				default :
@@ -443,6 +461,14 @@ class Page_Asset_Listing extends Page
 		}
 
 
+		// check to see that we have at least one child left to print,
+		// otherwise, just return the page bodycopy
+		if (count($children) == 0) {
+			$format_bodycopy->printBody();
+			return;
+		}
+
+		
 		  ////////////////////////////////////////////////////////////
 		 //  STUFF WE ARE GOING TO NEED TO MAKE THIS MAGIC HAPPEN  //
 		////////////////////////////////////////////////////////////
@@ -550,6 +576,29 @@ class Page_Asset_Listing extends Page
 
 				$todo = $todo[strtolower($result_page)];
 
+			break;
+			
+			case 'random' :
+				// random does things differently, as there is no pagination. But this is a good place
+				// to grab the random asset
+				if ($this->attr('num_per_page') <= 1)  {
+					// grab a single asset to display
+					$todo = Array();
+					$random_asset = array_rand($children);
+					$todo[$random_asset] = $children[$random_asset];
+				} else if ($this->attr('num_per_page') > count($children)) {
+					// if you try to use array_rand with a value higher than the number of elements
+					// in the array, it returns nothing. So, we check for that and return only the 
+					// maximum number of children available
+					$random_assets = array_rand($children, count($children));
+					foreach ($random_assets as $value) $todo[$value] = $children[$value];
+				} else {
+					// this will return a subset of the children, as defined by the num_per_page
+					// attribute. This occurs when the number is less than the total number of 
+					// children available.
+					$random_assets = array_rand($children, $this->attr('num_per_page'));
+					foreach ($random_assets as $value) $todo[$value] = $children[$value];
+				}
 			break;
 
 		}//end switch
