@@ -32,8 +32,11 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 	static $num_errors = 0;
 
-	// if the function didn't have an '@' prepended, print the error
-	if (error_reporting()) {
+	$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
+
+	// if the function didn't have an '@' prepended OR if we are about to terminate
+	// catch the error
+	if (error_reporting() || $terminate) {
 
 		$num_errors++;
 
@@ -85,12 +88,12 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 
 		// send a report to the system error log
-		if (SQ_CONF_ERRORS_LOG) {
-			$log_msg = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$err_msg."\n";
-			$log_msg = str_replace('[SYSTEM_ROOT]', '', $log_msg);
-			error_log($log_msg, 3, SQ_SYSTEM_ROOT.'/cache/error.log');
+		if (ini_get('log_errors')) {
+			$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+			$log_msg  = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$text_msg;
+			$log_msg  = str_replace('[SYSTEM_ROOT]', '', $log_msg);
+			error_log($log_msg);
 		}
-
 
 		// OK, because we want our errors to actually be displayed, kill any output buffering
 
@@ -224,7 +227,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 	}// end error_reporting
 
-	if ((E_USER_ERROR | E_ERROR) & $err_no) {
+	if ($terminate) {
 		exit(1);
 	}
 
