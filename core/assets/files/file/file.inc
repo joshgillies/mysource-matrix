@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.64 2004/06/28 22:38:57 gsherwood Exp $
+* $Id: file.inc,v 1.65 2004/07/09 01:41:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -471,12 +471,14 @@ class File extends Asset
 		// Basically what we are going to do here is find all our parents that are sites
 		// and take the system root urls that are closest to these site urls and tack on __data/... bit
 		$save_urls = Array();
-		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+		$root_urls = explode("\n", trim(SQ_CONF_SYSTEM_ROOT_URLS));
+
 		$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', false);
 		foreach ($site_parents as $assetid) {
 			$site = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($site)) continue;
 			$urls = $site->getSiteURLS();
+
 			foreach($urls as $urlid => $data) {
 
 				$root_url = '';
