@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.68 2005/01/25 00:27:27 lwright Exp $
+* $Id: mysource.inc,v 1.69 2005/01/26 09:23:18 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix
 */
 class MySource
@@ -186,7 +186,7 @@ class MySource
 
 			// check to see if the session key is the same as that used to login
 			if ($session_set && $this->getUniqueSessionKey() != $_GET['SESSION_KEY']) {
-				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms = &$this->getMessagingService();
 				$log_body = 'Possible attempt to steal session detected!';
 				$log = $ms->newMessage(Array(), 'Security Alert', $log_body, 'system.security.alert');
 				$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
@@ -439,7 +439,7 @@ class MySource
 					isset($_POST['SQ_LOGIN_PASSWORD']) && $this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
 
 					// get a list of all the installed authentication systems
-					$auth_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+					$auth_folder = &$this->am->getSystemAsset('authentication_folder');
 					if (is_null($auth_folder)) {
 						trigger_error('Unable to locate authentication system', E_USER_ERROR);
 						return;
@@ -449,7 +449,7 @@ class MySource
 					// try each auth system in order to see if we can load a user asset
 					$user = null;
 					foreach ($auth_systems as $systemid) {
-						$system = &$GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
+						$system = &$this->am->getAsset($systemid);
 						if (is_null($system)) continue;
 						$user = &$system->authenticateUser($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD']);
 						if (!is_null($user)) break;
@@ -462,7 +462,7 @@ class MySource
 							$_SESSION['remote_addr']    = $_SERVER['REMOTE_ADDR'];
 
 							// log a message so we know someone has logged in
-							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+							$ms = &$this->getMessagingService();
 							$log_body = 'User "'.$user->name.'" logged in';
 							$log = $ms->newMessage(Array(), 'User Logged In', $log_body, 'system.security.login');
 							$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
@@ -492,7 +492,7 @@ class MySource
 			case 'logout' :
 				if ($this->user) {
 					// log a message so we know someone has logged out
-					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$ms = &$this->getMessagingService();
 					$log_body = 'User "'.$this->user->name.'" logged out';
 					$log = $ms->newMessage(Array(), 'User Logged Out', $log_body, 'system.security.login');
 					$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
@@ -627,7 +627,7 @@ class MySource
 		if (!empty($groups)) {
 			$included_global = false;
 			foreach ($groups as $groupid => $type_code) {
-				$user_group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($groupid, $type_code);
+				$user_group = &$this->am->getAsset($groupid, $type_code);
 				if (is_null($user_group)) continue;
 				$file_path = $user_group->data_path.'/.preferences.inc';
 
@@ -798,12 +798,11 @@ class MySource
 	* @return string	userid or zero if not found for some reason
 	* @access public
 	*/
-	function getPublicUser()
+	function &getPublicUser()
 	{
-		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetidByName('public_user');
-		return $this->am->getAsset($public_userid);
+		return $this->am->getSystemAsset('public_user');
 
-	}//end getPublicUser()
+	}//end &getPublicUser()
 
 
 	/**
