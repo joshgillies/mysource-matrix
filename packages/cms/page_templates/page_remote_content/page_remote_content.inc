@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.15 2005/01/20 13:18:40 brobertson Exp $
+* $Id: page_remote_content.inc,v 1.16 2005/03/09 23:59:14 arailean Exp $
 *
 */
 
@@ -36,17 +36,22 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Remote_Content extends Page
 {
 
+
 	/**
-	* Print the processed page.
+	* Output the content
 	*
-	* NOTE: This function assumes that printFrontend has already performed the processing
+	* NOTE: If called directly, this function does not allow the output of binary
+	* data because usually the output has been started before the function is called.
+	* If binary output is required, printFrontend function should be used, or _tmp variable set.
+	*
+	* NOTE: No Output should be done after the call to _outputContent (in this function)
 	*
 	* @access public
 	* @return void
@@ -54,8 +59,20 @@ class Page_Remote_Content extends Page
 	function printBody()
 	{
 
-		// assume content is ready. output
-		echo array_get_index($this->_tmp, 'content', '');
+		// do not allow binary content, unless that decision has already been made elsewhere
+		$allow_binary = array_get_index($this->_tmp, 'allow_binary', false);
+
+		$success = $this->_process();
+		// if processing failed, display error
+		if (!$success) {
+			if ($this->attr('display_error')) {
+				echo $this->attr('error_message');
+			}
+
+		} else {
+			$this->_outputContent($allow_binary);
+		}
+
 		return true;
 
 	}//end printBody()
@@ -67,7 +84,7 @@ class Page_Remote_Content extends Page
 	* @access public
 	* @return boolean
 	*/
-	function outputBinaryContent()
+	function _outputBinaryContent()
 	{
 
 		// first print the headers
@@ -81,60 +98,76 @@ class Page_Remote_Content extends Page
 
 		return true;
 
-	}//end outputBinaryContent()
+	}//end _outputBinaryContent()
 
 
 	/**
-	* Main Controller
+	* Content outputter
+	*
+	* Assumes the processing has been performed and all the necessary
+	* variables have been set in the _tmp
+	* Prints to screen or outputs binary content
+	*
+	* @param boolean	$allow_binary	determines whether binary output is allowed
+	*
+	* @access public
+	* @return void
+	*/
+	function _outputContent($allow_binary=true)
+	{
+
+		$result = '';
+
+		$binary = $this->_tmp['binary'];
+		if ($binary && $allow_binary){
+			// binary types need special treatment
+			$type = $this->_tmp['type'];
+
+			// if content is an image and we are tunneling images, otput it as binary
+			if ((strpos($type,'image/')!==false) && $this->attr('tunnel_images')) {
+				if ($this->attr('strip_images')) {
+					$result = '[Image]';
+				} else {
+					$this->_outputBinaryContent();
+					return;
+				}
+			// media content is otput as binary if tunneling
+			} else if ((strpos($type,'application/')!==false) && $this->attr('tunnel_media')) {
+				$this->_outputBinaryContent();
+				return;
+
+			} else {
+				// otherwise display a message relating to binary content
+				$replacements['remote_url'] = $this->_tmp['url'];
+				$result = replace_keywords($this->attr('binary_message'), $replacements);
+			}
+
+		} else if ($binary && !$allow_binary){
+			$result = '[Binary Data]';
+
+		} else {
+			// textual content is ready for output
+			$result = $this->_tmp['content'];
+		}
+
+		echo $result;
+
+	}//end _outputContent()
+
+
+	/**
+	* Output this Asset to the Front end.
+	*
+	* Assumes that no output is being done before it is allowed to output, so
+	* outputting binaries is allowed. Relies on printBody to do the outputting.
 	*
 	* @access public
 	* @return void
 	*/
 	function printFrontend()
 	{
-
-		// do the processing (obtain remote content)
-		$success = $this->_process();
-
-		$result  = '';
-
-		// if processing fails, display error
-		if (!$success) {
-			if ($this->attr('display_error')) {
-				// if error message is enabled, display it
-				$result = $this->attr('error_message');
-			}
-		} else { // processing didn't fail. process based on mime type
-			$type = $this->_tmp['type'];
-
-			// textual content
-			if (strpos($type,'text/')!==false) {
-				$result = $this->processHtml();
-			} else { // binary content
-
-				// if content is an image and we are tunneling images, otput it as binary
-				if ((strpos($type,'image/')!==false) && $this->attr('tunnel_images')) {
-					if ($this->attr('strip_images')) {
-						$result = '[Image]';
-					} else {
-						$this->outputBinaryContent();
-						return true;
-					}
-				// media content is otput as binary if tunneling
-				} elseif ((strpos($type,'application/')!==false) && $this->attr('tunnel_media')) {
-					$this->outputBinaryContent();
-					return true;
-
-				} else { // otherwise display a message relating to binary content
-					$replacements['remote_url'] = $this->_tmp['url'];
-					$result = replace_keywords($this->attr('binary_message'), $replacements);
-				}
-			}
-		}
-
-		$this->_tmp['content'] = $result;
-
-		parent::printFrontend();
+		$this->_tmp['allow_binary'] = true;
+		return parent::printFrontend();
 
 	}//end printFrontend()
 
@@ -233,10 +266,10 @@ class Page_Remote_Content extends Page
 
 		// parameters for HTTP_Request. See Package for description.
 		$request_parameters = Array(
-			'timeout'			=> $this->attr('timeout'),
-			'allowRedirects'	=> $this->attr('allow_redirect'),
-			'maxRedirects'		=> 10,
-		);
+									'timeout'        => $this->attr('timeout'),
+									'allowRedirects' => $this->attr('allow_redirect'),
+									'maxRedirects'   => 10,
+									);
 
 		// set HTTP authentication
 		$user = $this->attr('username');
@@ -290,6 +323,14 @@ class Page_Remote_Content extends Page
 
 		$this->_tmp['headers'] = $HTTP_Request->getResponseHeader();
 		$this->_tmp['content'] = $HTTP_Request->getResponseBody();
+
+		// if content is not binary, it needs further processing
+		if (strpos($this->_tmp['type'],'text/') !== false) {
+			$this->_tmp['binary']  = false;
+			$this->_tmp['content'] = $this->processHtml();
+		} else {
+			$this->_tmp['binary']  = true;
+		}
 
 		unset($HTTP_Request);
 		return true;
