@@ -99,12 +99,8 @@ class Form_Email extends Form
 	*/
 	function canDeleteLink($linkid)
 	{
-		// the only reason why we would object to this link being
-		// deleted is if it is the bodycopy linked to us
-		$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the standard page';
-
 		return parent::canDeleteLink($linkid);
+	
 	}//end canDeleteLink()
 
 
@@ -167,33 +163,8 @@ class Form_Email extends Form
 		parent::finishForm();
 		$this->mailRecipients();
 		$this->mailReceipt();
+		$this->SendToFriends();
 	}
-
-
-	/**
-	* returns a summary about the answers in the form submission
-	*
-	* @param boolean	$html	return html formatted or not 
-	*
-	* @access public
-	* @return string $summary
-	*/
-	function getSummary($html = false)
-	{
-		$answers  = $this->active_submission->getAnswers();
-		$title = 'Form Answers';
-		$summary  = ($html) ? '<B>'.$title.'</B><BR />' : $title."\n\n";
-		$summary .= ($html) ? "<table>" : '';
-		
-		foreach ($answers as $answer) {
-			$summary .= ($html) ? '<tr><td>'.$answer['name'] .'</td>' : $answer['name']."\t\t";
-			$summary .= ($html) ? '<td>'.$answer['answer'] .'</td></tr>' : $answer['answer']."\n";
-		}
-		
-		$summary .= ($html) ? '</table>' : '';
-		return $summary;
-	}
-
 
 	/**
 	* returns form information (site name, site id, page name, page id, url, submission date)
@@ -218,10 +189,36 @@ class Form_Email extends Form
 		return $information;
 	}
 
+
+	/**
+	* mails a receipt to the user if a email special infomation field has been assigned
+	*
+	* @access public
+	* @return boolean
+	*/
 	function mailReceipt()
 	{
+		if (!$this->attr('receipt')) return false;
+		if (!$to_address = $this->getSpecialInformation('email')) return false;
 
-	}
+		$from_address = $this->attr('receipt_from_address');
+		$subject      = ($this->attr('receipt_subject')) ? $this->attr('receipt_subject') : 'Form Submission';
+		$allow_html   = ($this->attr('receipt_allow_html')) ? true : false;
+		$body         = $this->attr('receipt_body');
+	
+		if ($this->attr('receipt_send_answers')) {
+			ob_start();
+			$this->printSummary($allow_html);
+			$body .= ob_get_contents();
+			ob_end_clean();
+		}
+		$extras = ($allow_html) ? "\nContent-Type: text/html; charset=iso-8859-1" : '';
+		
+		mail($to_address, $subject, $body, 'From :'.$from_address.$extras);
+
+		return true;
+
+	} // end mailReceipt()
 
 
 	/**
@@ -251,8 +248,12 @@ class Form_Email extends Form
 
 		// check to see if we want to send the answers to the recipient
 		if ($this->attr('recipient_send_answers')) {
-			$body .= $this->getSummary($allow_html).$terminator.$terminator;
+			ob_start();
+			$this->printSummary($allow_html);
+			$body .= ob_get_contents();
+			ob_end_clean();
 		}
+		$body .= $terminator.$terminator;
 
 		// end the html
 		$body .= ($allow_html) ? "</body></table>" : '';
@@ -277,6 +278,34 @@ class Form_Email extends Form
 		
 		return true;
 	}
+
+
+	/**
+	* Sends a message to a friend if there is a special information field set up to do so
+	*
+	* @access public
+	* @return boolean
+	*/
+	function SendToFriends()
+	{
+		if ($friends = $this->getSpecialInformation('friend')) {
+			$message = $this->attr('staf_message');
+			$subject = ($this->attr('staf_subject')) ? $this->attr('staf_subject') : 'Message From a Friend';
+			$from_address = $this->attr('staf_from_address');
+
+			if (!$message) return false;
+
+			$friends = explode(',', $friends);
+
+			foreach ($friends as $friend) {
+				if (!$this->isValidEmail(trim($friend))) continue;
+				mail(trim($friend), $subject, $message, 'From: '.$from_address);
+			}
+			return true;
+		}
+		return false;
+	
+	} // end Send_To_Friends()
 
 
 	/**

@@ -1,5 +1,10 @@
 <contents>
 	<section name="Receipt Options">
+		<field attribute="receipt">
+			<display_name>Send Receipt</display_name>
+			<note>Defines if A Receipt is Sent to the User</note>
+			<selection style="list" />
+		</field>
 		<field attribute="receipt_from_address">
 			<display_name>From Address</display_name>
 			<note>Address that the receipt is from.</note>

@@ -26,6 +26,18 @@ class Form_Email_Management extends Asset_Management
 		$this->vars = Array(
 						/// Receipt screen ///
 							
+							'receipt'				=> Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'selection',
+													'default'	=> 0,
+													'parameters'	=> Array(	
+														'options'	=> Array(
+															1	=> 'yes',
+															0	=> 'no',
+														),
+												),
+									),
+
 							'receipt_from_address' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'text',
@@ -127,6 +139,31 @@ class Form_Email_Management extends Asset_Management
 														),
 												),
 									), // end recipient_send_answers
+
+								/// STAF (Send To A Friend) ///
+
+							'staf_from_address'	=> Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'text',
+													'default'	=> '',
+											),
+							'staf_subject'			=> Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'text',
+													'default'	=> '',
+											),
+							'staf_message'			=> Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'text',
+													'default'	=> '',
+											),
+
+							'selective_emails'		=> Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'serialise',
+													'default'	=> Array(),
+													'update_fn' => '',
+									),
 							);
 	}//end constructor
 
