@@ -22,14 +22,16 @@ CREATE TABLE sq_asset (
 
 DROP TABLE sq_asset_link;
 CREATE TABLE sq_asset_link (
-  majorid            INT    NOT NULL,
-  minorid            INT    NOT NULL,
-  link_type          INT    NOT NULL,
-  value              VARCHAR(255) NOT NULL,
-  sort_order         INT    NOT NULL DEFAULT 0,
-  last_updated       TIMESTAMP    NOT NULL,
-  last_userid        INT          NOT NULL,
-  PRIMARY KEY(majorid, minorid, link_type, value)
+  linkid        INT    NOT NULL,
+  majorid       INT    NOT NULL,
+  minorid       INT    NOT NULL,
+  link_type     INT    NOT NULL,
+  value         VARCHAR(255) NOT NULL,
+  sort_order    INT    NOT NULL DEFAULT 0,
+  last_updated  TIMESTAMP    NOT NULL,
+  last_userid   INT          NOT NULL,
+  PRIMARY KEY(linkid),
+  UNIQUE(majorid, minorid, link_type, value)
 );
 
 

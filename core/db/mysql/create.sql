@@ -23,6 +23,7 @@ CREATE TABLE sq_asset (
 
 DROP TABLE IF EXISTS sq_asset_link;
 CREATE TABLE sq_asset_link (
+  linkid        INT    UNSIGNED NOT NULL,
   majorid       INT    UNSIGNED NOT NULL,
   minorid       INT    UNSIGNED NOT NULL,
   link_type     INT    UNSIGNED NOT NULL,
@@ -30,7 +31,8 @@ CREATE TABLE sq_asset_link (
   sort_order    INT    UNSIGNED NOT NULL DEFAULT 0,
   last_updated  DATETIME     NOT NULL,
   last_userid   INT    UNSIGNED NOT NULL,
-  PRIMARY KEY(majorid, minorid, link_type, value)
+  PRIMARY KEY(linkid),
+  UNIQUE real_pk (majorid, minorid, link_type, value)
 );
 
 

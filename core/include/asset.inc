@@ -290,7 +290,7 @@ class Asset extends Resolve_Object
 		if ($search_link_types) {
 
 			$db = &$GLOBALS['SQ_RESOLVE']->getDb();
-			$sql = 'SELECT l.minorid, l.value, l.link_type, a.type_code, l.sort_order
+			$sql = 'SELECT l.linkid, l.minorid, l.value, l.link_type, a.type_code, l.sort_order
 					FROM sq_asset_link l, sq_asset a
 					WHERE l.minorid   = a.assetid 
 					  AND l.majorid   = '.$db->quote($this->id).'
@@ -492,24 +492,27 @@ class Asset extends Resolve_Object
 		}//end if
 
 
-		// if they want to append the link to the list
-		if ($sort_order < 0) {
-			$sql = 'SELECT COUNT(*) as count, MAX(sort_order) as max
-					FROM sq_asset_link
-					WHERE majorid = '.$db->quote($this->id);
-			$row = $db->getRow($sql);
-			if (DB::isError($row)) {
-				trigger_error($row->getMessage().'<br>'.$row->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-			$sort_order = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
-		}// endif
+		// make sure the sort order is in a valid range
+		$sql = 'SELECT COUNT(*) as count, MAX(sort_order) as max
+				FROM sq_asset_link
+				WHERE majorid = '.$db->quote($this->id);
+		$row = $db->getRow($sql);
+		if (DB::isError($row)) {
+			trigger_error($row->getMessage().'<br>'.$row->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
 
+		$max = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
+		if ($sort_order > $max || $sort_order < 0) $sort_order = $max;
+
+
+		// sequences are cool, see the PEAR::DB docs for more info
+		$link = $db->nextid('sq_sequence_asset_link');
 
 		$sql = 'INSERT INTO sq_asset_link
-				(majorid, minorid, link_type, value, sort_order, last_updated, last_userid)
+				(linkid, majorid, minorid, link_type, value, sort_order, last_updated, last_userid)
 				VALUES
-				('.$db->quote($this->id).', '.$db->quote($minor->id).', '.$db->quote($link_type).', '
+				('.$db->quote($linkid).', '.$db->quote($this->id).', '.$db->quote($minor->id).', '.$db->quote($link_type).', '
 				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(ts_iso8601(time())).', '.$db->quote($GLOBALS['SQ_RESOLVE']->currentUserId()).')';
 
 //		pre_echo($sql);
@@ -523,11 +526,9 @@ class Asset extends Resolve_Object
 		// move the sort_order for all the other assets up one
 		$sql = 'UPDATE sq_asset_link
 				SET sort_order = sort_order + 1
-				WHERE majorid    = '.$db->quote($this->id).'
+				WHERE majorid     = '.$db->quote($this->id).'
 				  AND sort_order >= '.$db->quote($sort_order).'
-				  AND NOT (minorid = '.$db->quote($minor->id).' 
-							AND link_type = '.$db->quote($link_type).'
-							AND value = '.$db->quote($value).')';
+				  AND linkid != '.$db->quote($linkid);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
@@ -619,21 +620,14 @@ class Asset extends Resolve_Object
 	/*
 	* Moves a link from one place in this assets links order to another position
 	*
-	* @param object Asset $minor  the minor asset that we are linking to
-	* @param string $link_type    the type of link this is
-	* @param string $value        the value that is to be associated with this link
-	* @param string $sort_order   the position in the links list that this link should take, if less than zero places at end of list
+	* @param int	$linkid		the link id of the link to move about
+	* @param string $sort_order	the position in the links list that this link should take, if less than zero places at end of list
 	*
 	* @return boolean
 	* @access public
 	*/
-	function moveLinkPos(&$minor, $link_type, $value='', $sort_order=-1) 
+	function moveLinkPos($linkid, $sort_order=-1) 
 	{
-
-		if (!is_a($minor, 'Asset')) {
-			trigger_error('Minor is not an asset, unable to create link', E_USER_WARNING);
-			return false;
-		}
 
 		// First, we should try and find the link
 		$current_links  = $this->getLinks($link_type, get_class($minor));
@@ -641,14 +635,13 @@ class Asset extends Resolve_Object
 		$num_curr_links = count($current_links);
 		$i = 0;
 		for(; $i < $num_curr_links; $i++) {
-			if ($current_links[$i]['minorid'] == $minor->id 
-					&& $current_links[$i]['value'] == $value) {
+			if ($current_links[$i]['linkid'] == $linkid) {
 				break;
 			}
 		}//end for
 
 		if ($i >= $num_curr_links) {
-			trigger_error('Existing Link not Found, unable to move link', E_USER_WARNING);
+			trigger_error('Existing Link #'.$linkid.' not found, unable to move link', E_USER_WARNING);
 			return false;
 		}
 
@@ -674,19 +667,14 @@ class Asset extends Resolve_Object
 			return false;
 		}
 		$max = ($row['count'] > 0) ? (int) $row['max'] : 0;
-
 		if ($sort_order > $max || $sort_order < 0) $sort_order = $max;
-
-		$sql = '';
 
 		$sql = 'UPDATE sq_asset_link
 				SET sort_order   = '.$db->quote($sort_order).',
 				    last_userid  = '.$db->quote($GLOBALS['SQ_RESOLVE']->currentUserId()).',
 				    last_updated = '.$db->quote(ts_iso8601(time())).'
-				WHERE majorid   = '.$db->quote($this->id).'
-				  AND minorid   = '.$db->quote($minor->id).'
-				  AND link_type = '.$db->quote($link_type).'
-				  AND value     = '.$db->quote($value);
+				WHERE linkid    = '.$db->quote($linkid).'
+				  AND majorid   = '.$db->quote($this->id);
 
 		error_log($sql);
 
@@ -697,12 +685,12 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-
 		// move 'em up, higher
 		if ($old_sort_order > $sort_order) {
 			$sql = 'UPDATE sq_asset_link
 					SET sort_order = sort_order + 1
 					WHERE majorid = '.$db->quote($this->id).'
+					  AND linkid != '.$db->quote($linkid).'
 					  AND sort_order >= '.$db->quote($sort_order).'
 					  AND sort_order <= '.$db->quote($old_sort_order);
 
@@ -710,13 +698,10 @@ class Asset extends Resolve_Object
 			$sql = 'UPDATE sq_asset_link
 					SET sort_order = sort_order - 1
 					WHERE majorid = '.$db->quote($this->id).'
+					  AND linkid != '.$db->quote($linkid).'
 					  AND sort_order >= '.$db->quote($old_sort_order).'
 					  AND sort_order <= '.$db->quote($sort_order);
 		}
-
-		$sql .= ' AND NOT (minorid = '.$db->quote($minor->id).'
-							AND link_type = '.$db->quote($link_type).'
-							AND value = '.$db->quote($value).')';
 
 		error_log($sql);
 
