@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.25 2004/08/06 02:15:20 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.26 2004/08/20 05:06:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -398,6 +398,8 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 
 		foreach($sort_order as $i => $assetid) {
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			// skip over if asset doesn't exist anymore
+			if (is_null($q)) continue;
 			
 			$output .= '<tr>';
 			$output .= '<td valign="top"';
