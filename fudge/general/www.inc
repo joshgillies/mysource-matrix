@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.10 2004/09/01 01:38:40 arailean Exp $
+* $Id: www.inc,v 1.11 2004/12/03 02:54:50 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package Fudge
 * @subpackage General
 */
@@ -51,32 +51,32 @@ function relative_href($from,$to)
 	$to_bits   = preg_split('/\\/+/', trim($to));
 
 	// Ensure the first element is the protocol
-	if(!preg_match('/^[A-Za-z]+:$/', $from_bits[0])) array_unshift($from_bits, 'http:');
-	if(!preg_match('/^[A-Za-z]+:$/', $to_bits[0]  )) array_unshift($to_bits,   'http:');
+	if (!preg_match('/^[A-Za-z]+:$/', $from_bits[0])) array_unshift($from_bits, 'http:');
+	if (!preg_match('/^[A-Za-z]+:$/', $to_bits[0]  )) array_unshift($to_bits,   'http:');
 	// Different protocols or domains? ABSOLUTE HREF!
-	if(strtolower($from_bits[0]) != strtolower($to_bits[0]) || strtolower($from_bits[1]) != strtolower($to_bits[1])) {
+	if (strtolower($from_bits[0]) != strtolower($to_bits[0]) || strtolower($from_bits[1]) != strtolower($to_bits[1])) {
 		$to_bits[0] .= '/';
 		return implode('/', $to_bits);
 	}
 
 	// Different first directories? Root path!
-	if(empty($from_bits[2]) || empty($to_bits[2]) || $from_bits[2] != $to_bits[2]) {
+	if (empty($from_bits[2]) || empty($to_bits[2]) || $from_bits[2] != $to_bits[2]) {
 		// Shift off protocol and domain
 		array_splice($to_bits,   0, 2);
 		return '/'.implode('/', $to_bits);
 	}
 
 	// Start from the second directory and find the place where the urls start to vary
-	$split_point = 3; 
-	while(!empty($from_bits[$split_point]) 
-			&& !empty($to_bits[$split_point]) 
+	$split_point = 3;
+	while (!empty($from_bits[$split_point])
+			&& !empty($to_bits[$split_point])
 			&& $from_bits[$split_point] == $to_bits[$split_point]) {
 		$split_point++;
 	}
 
 	$href = str_repeat('../', count($from_bits) - $split_point);
 	// Forward to the destination
-	for($i = $split_point - 1, $max = count($to_bits); $i < $max; $i++) {
+	for ($i = $split_point - 1, $max = count($to_bits); $i < $max; $i++) {
 		$href .= $to_bits[$i].'/';
 	}
 
@@ -84,7 +84,7 @@ function relative_href($from,$to)
 	if (substr($to, -1) == '/')	$href = preg_replace('/\\/+$/', '/', $href);
 	else						$href = preg_replace('/\\/$/', '', $href);
 
-	// No remove any bit where we go back a directory then forward again to the 
+	// No remove any bit where we go back a directory then forward again to the
 	// same last common directory
 	return str_replace('../'.$from_bits[$split_point - 1].'/', '', $href);
 
@@ -102,7 +102,7 @@ function relative_href($from,$to)
 function valid_email($e)
 {
 	return preg_match("|^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,4}$|",$e);
-	
+
 }//end valid_email()
 
 
@@ -135,7 +135,7 @@ function make_raw_post_data($data)
 }//end make_raw_post_data()
 
 
-/*
+/**
 * Convert POST or GET array into raw string recursive
 *
 * @param string $name	name of the variable
@@ -158,5 +158,25 @@ function recursive_make_raw_post_data($name, $data)
 
 }//end recursive_make_raw_post_data()
 
+
+/**
+* Undo the effect of htmlspecialchars
+*
+* @param string $string	string containing html special characters
+*
+* @access public
+* @return string
+*/
+function undo_htmlspecialchars($string)
+{
+	$string = str_replace('&amp;','&',$string);
+	$string = str_replace('&#039;',"'",$string);
+	$string = str_replace('&quot;','"',$string);
+	$string = str_replace('&lt;','<',$string);
+	$string = str_replace('&gt;','>',$string);
+
+	return $string;
+
+}//end undo_htmlspecialchars()
 
 ?>
