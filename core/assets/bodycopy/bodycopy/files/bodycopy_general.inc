@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_general.inc,v 1.5 2004/09/03 07:40:42 arailean Exp $
+* $Id: bodycopy_general.inc,v 1.6 2004/09/15 00:31:18 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 /**
 * bodycopy_general.inc
