@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.80 2005/01/19 04:26:33 lwright Exp $
+* $Id: form.inc,v 1.81 2005/01/19 10:42:34 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -299,7 +299,7 @@ class Form extends Asset
 
 		// now questions		
 		$entries = $this->getQuestions();
-		if ($type_code == Array()) {
+		if (empty($type_code)) {
 			foreach ($entries as $questionid => $data) {
 				$children[$this->id.':q'.$questionid] = $data['question_type_code'];
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.33 2005/01/19 04:26:34 lwright Exp $
+* $Id: form_section.inc,v 1.34 2005/01/19 10:42:34 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -258,7 +258,7 @@ class Form_Section extends Asset
 		$children = Array();
 
 		$entries = $this->getQuestions();
-		if ($type_code == Array()) {
+		if (empty($type_code)) {
 			foreach ($entries as $questionid => $data) {
 				$children[$this->id.':q'.$questionid] = $data['question_type_code'];
 			}
