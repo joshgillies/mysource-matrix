@@ -161,7 +161,21 @@ class Asset_Edit_Interface extends Resolve_Object
 			// or if they can lock it to edit it
 			$o->openSection('Locking / Editing');
 			$o->openField('&nbsp;');
+
 			$lock = $owner->getLockInfo();
+
+			// firstly, if the current user does not have access to
+			// live edit then they cant do anything
+			if ($owner->status == SQ_STATUS_LIVE && !$owner->liveEditAccess()) {
+				$write_access = false;
+				if (!empty($lock)) {
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+					if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+						echo '<b>NOTE: You currently have "'.$owner->name.'" locked for editing but you do not have access to live edit "'.$owner->name.'".</b>';
+					}
+				}
+			}
+
 			if (!empty($lock)) {
 				// this asset is currently locked
 				// so display message to the user
@@ -176,20 +190,26 @@ class Asset_Edit_Interface extends Resolve_Object
 
 				if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
 					submit_button('sq_manual_release_lock', 'Release Lock');
-				}
-				
-				// does the current user has a high
-				// enough level of access to forceably aquire the lock
-				$can_aquire_lock = $owner->canForceablyAquireLock();
-				
-				if ($can_aquire_lock) {
-					echo '<p class="sq-form-field">You can forceably aquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably aquired.</p>';
+				} else {
+					// does the current user has a high
+					// enough level of access to forceably aquire the lock
+					if ($owner->canForceablyAquireLock()) {
+						if ($owner->liveEditAccess()) {
+							echo '<p class="sq-form-field">You can forceably aquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably aquired.</p>';
 
-					submit_button('aquire_lock', 'Aquire Lock');
+							submit_button('aquire_lock', 'Aquire Lock');
+						} else {
+							echo '<p class="sq-form-field">You cannot forceably aquire this lock at this time due as you do not have access to live edit "'.$owner->name.'".</p>';
+						}
+					}
 				}
 			} else if ($full_write_access) {
 				$write_access = false;
-				submit_button('sq_aquire_lock', 'Aquire Lock');
+				if ($owner->liveEditAccess()) {
+					submit_button('sq_aquire_lock', 'Aquire Lock');
+				} else {
+					echo 'You cannot aquire a lock at this time as you do not have access to live edit "'.$owner->name.'".';
+				}
 			} else {
 				echo 'You do not have access to edit "'.$owner->name.'".';
 			}

@@ -3571,8 +3571,8 @@ class Asset extends Resolve_Object
 	/**
 	* Returns true if at least one of the passed assetids has read access to this asset
 	*
-	* @param array $assetids An array of user_group and/or user ids to check for read access
-	*						 If the array is empty, the current user will be checked
+	* @param array	$assetids	An array of user_group and/or user ids to check for read access
+	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
 	* @access public
@@ -3595,9 +3595,9 @@ class Asset extends Resolve_Object
 	/**
 	* Returns true if at least one of the passed assetids has write access to this asset
 	*
-	* @param array	$assetids	an array of user_group and/or user ids to check for write access
-	*							If the array is empty, the current user will be checked
-	* @param boolean $effective	effective access baed on locking and status
+	* @param array		$assetids	an array of user_group and/or user ids to check for write access
+	*								If the array is empty, the current user will be checked
+	* @param boolean	$effective	effective access baed on locking and status
 	*
 	* @return boolean
 	* @access public
@@ -3605,6 +3605,7 @@ class Asset extends Resolve_Object
 	function writeAccess($assetids=Array(), $effective=true)
 	{
 		if (!$this->id) return true;
+		if ($effective && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
 		return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids, $effective);
 	}//end writeAccess()
 
@@ -3612,9 +3613,9 @@ class Asset extends Resolve_Object
 	/**
 	* Returns true if at least one of the passed assetids has admin access to this asset
 	*
-	* @param array	$assetids	an array of user_group and/or user ids to check for write access
-	*							If the array is empty, the current user will be checked
-	* @param boolean $effective	effective access baed on locking and status
+	* @param array		$assetids	an array of user_group and/or user ids to check for write access
+	*								If the array is empty, the current user will be checked
+	* @param boolean	$effective	effective access baed on locking and status
 	*
 	* @return boolean
 	* @access public
@@ -3622,8 +3623,41 @@ class Asset extends Resolve_Object
 	function adminAccess($assetids=Array(), $effective=true)
 	{
 		if (!$this->id) return true;
+		if ($effective && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
 		return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids, $effective);
 	}//end adminAccess()
+
+
+	/**
+	* Returns true if the current user can live edit this asset
+	* Live edit means the asset is currently SQ_STATUS_LIVE but this
+	* user can edit the asset without going through a safe edit
+	* NOTE: will return false if asset is not currently live
+	*
+	* @return boolean
+	* @access public
+	*/
+	function liveEditAccess()
+	{
+		if (!$this->id) return true;
+		if ($this->status != SQ_STATUS_LIVE) return true;
+
+		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+		$wfm = new Workflow_Manager($this);
+
+		if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
+			// no workflow set for this asset at all, so anyone with admin
+			// access can live edit the asset
+			return $this->checkAccess(SQ_PERMISSION_ADMIN, Array(), true);
+		}
+
+		// if there is workflow defined for this asset, the current user
+		// must be the only concerned user to be able to live edit
+		$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
+		if ($status == 'complete') return $this->checkAccess(SQ_PERMISSION_WRITE, Array(), true);
+
+		return false;
+	}//end liveEditAccess()
 
 
 	/**
