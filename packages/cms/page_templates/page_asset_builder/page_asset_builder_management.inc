@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.7 2004/07/28 01:40:16 lwright Exp $
+* $Id: page_asset_builder_management.inc,v 1.8 2004/07/28 01:47:19 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -233,10 +233,20 @@ class Page_Asset_Builder_Management extends Asset_Management
 					return false;
 				}
 
-				$create_type = $asset->attr('create_type');
-				$create_type = Array($create_type => true);
+				$old_create_type = $asset->attr('create_type');
+				$create_type = Array($old_create_type => true);
 								
 				$asset->setAttrValue('create_type', $create_type);
+				
+				$create_locs = $asset->attr('create_location_rules');
+				$create_locs = Array($create_type => $create_locs);
+								
+				$asset->setAttrValue('create_location_rules', $create_locs);
+				
+				$required_fields = $asset->attr('required_fields');
+				$required_fields = Array($create_type => $required_fields);
+								
+				$asset->setAttrValue('required_fields', $required_fields);
 				if (!$asset->saveAttributes()) { 
 					trigger_error('Asset Builder Upgrade [from 0.2] Failed', E_USER_WARNING);
 					return false;
