@@ -4240,10 +4240,19 @@ class Asset extends Resolve_Object
 	{
 		$valid_paths = Array();
 		foreach($paths as $path) {
+			// get rid of paths that are the same as the backend suffix
+			if ($path == SQ_CONF_BACKEND_SUFFIX) {
+				trigger_error('Cannot set web path to "'.$path.'", this is reserved for backend access', E_USER_WARNING);
+				continue;
+			}
+
+			// no spaces in web paths
 			$path = preg_replace('/\\s+/', '_', $path);
+			
 			// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 			$path = preg_replace('/[^a-zA-Z0-9\-$_@.&!*(),]/', '',  $path);
 			$path = trim($path);
+			
 			// ignore blanks
 			if ($path && !in_array($path, $valid_paths)) $valid_paths[] = $path;
 		}
