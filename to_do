@@ -73,6 +73,10 @@
   - CVS Passwd Manager
   - Equivalent of 'diff' on assets
 
+  - Giving Assets "Purposes" where assets have an original file (.doc, .pdf, image) 
+    and can be given another "purpose". eg, have orig img at high resolution, but 
+    create smaller imgs from it for other purposes. Or have .doc and have it 
+    exported to pdf for certain purposes
 
 
 
@@ -102,9 +106,4 @@ eg you could have a titlebar that you include but it's colour scheme is set by e
 
 
 Base Package Installation of Pear, see http://pear.php.net/manual/en/faq.flat-structure.php
-
-Giving Assets "Purposes" where assets have an original file (.doc, .pdf, image) 
-and can be given another "purpose". eg, have orig img at high resolution, but 
-create smaller imgs from it for other purposes. Or have .doc and have it 
-exported to pdf for certain purposes
 
