@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file_management.inc,v 1.1 2004/07/09 01:53:42 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: pdf_file_management.inc,v 1.2 2005/01/17 18:06:37 brobertson Exp $
+*
 */
 
 

@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.10 2004/11/21 22:52:11 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_map.js,v 1.11 2005/01/17 18:10:48 brobertson Exp $
+*
 */
 
 

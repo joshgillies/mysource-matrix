@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_management.inc,v 1.9 2005/01/17 17:55:13 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: image_management.inc,v 1.10 2005/01/17 18:06:37 brobertson Exp $
+*
 */
 
 

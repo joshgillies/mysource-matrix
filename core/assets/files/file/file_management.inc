@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_management.inc,v 1.8 2005/01/07 06:21:18 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: file_management.inc,v 1.9 2005/01/17 18:06:37 brobertson Exp $
+*
 */
 
 

@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: flashExternalCall.js,v 1.14 2004/01/12 23:57:43 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: flashExternalCall.js,v 1.15 2005/01/17 18:10:48 brobertson Exp $
+*
 */
 
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc_management.inc,v 1.1 2004/07/09 01:54:28 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: word_doc_management.inc,v 1.2 2005/01/17 18:06:37 brobertson Exp $
+*
 */
 
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_management.inc,v 1.3 2004/01/22 02:50:01 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: content_type_wysiwyg_management.inc,v 1.4 2005/01/17 18:10:55 brobertson Exp $
+*
 */
 
 

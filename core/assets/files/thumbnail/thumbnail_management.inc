@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_management.inc,v 1.6 2003/11/26 00:50:57 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: thumbnail_management.inc,v 1.7 2005/01/17 18:06:37 brobertson Exp $
+*
 */
 
 

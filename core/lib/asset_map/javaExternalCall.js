@@ -17,8 +17,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: javaExternalCall.js,v 1.1 2004/01/13 01:02:33 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: javaExternalCall.js,v 1.2 2005/01/17 18:10:48 brobertson Exp $
+*
 */
 
 

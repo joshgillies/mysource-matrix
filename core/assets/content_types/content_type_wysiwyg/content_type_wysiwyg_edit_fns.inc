@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.14 2004/12/09 02:56:14 gsherwood Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.15 2005/01/17 18:10:55 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,7 +94,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$keywords = Array();
 			$keyword_vars = Array('keywords' => &$keywords);
+
 			$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
+
 
 			$wysiwyg->open_group();
 				if ($iap || in_array('format_text', $ap)) $wysiwyg->add_plugin('format_text');
