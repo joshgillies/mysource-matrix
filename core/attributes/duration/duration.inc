@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: duration.inc,v 1.1 2005/02/18 05:27:13 dbaranovskiy Exp $
+* $Id: duration.inc,v 1.2 2005/03/14 01:24:54 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
 * @author	Tom Barrett			<tbarrett@squiz.net>
 *
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -93,8 +93,8 @@ class Asset_Attribute_Duration extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=false)
 	{
-		$biggest_units	= array_get_index($this->_params, 'biggest_units', $this->units['days']);
-		$smallest_units	= array_get_index($this->_params, 'smallest_units', $this->units['minutes']);
+		$biggest_units	= array_get_index($this->_edit_params, 'biggest_units', $this->units['days']);
+		$smallest_units	= array_get_index($this->_edit_params, 'smallest_units', $this->units['minutes']);
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$remaining_value = $this->value;
@@ -102,10 +102,12 @@ class Asset_Attribute_Duration extends Asset_Attribute
 			if ($current_units >= $smallest_units && $current_units <= $biggest_units) {
 				$current_value = (int) ($remaining_value / $current_units);
 				$remaining_value -= $current_value * $current_units;
-				if ($current_units == $smallest_units) {
-					echo ' and ';
-				} elseif ($current_units != $biggest_units) {
-					echo ', ';
+				if ($smallest_units != $biggest_units) {
+					if ($current_units == $smallest_units) {
+						echo ' and ';
+					} elseif ($current_units != $biggest_units) {
+						echo ', ';
+					}
 				}
 				if ($read_only) {
 					echo ' '.$current_value.' '.$current_name;
@@ -128,8 +130,8 @@ class Asset_Attribute_Duration extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		$biggest_units	= array_get_index($this->_params, 'biggest_units', $this->units['days']);
-		$smallest_units	= array_get_index($this->_params, 'smallest_units', $this->units['minutes']);
+		$biggest_units	= array_get_index($this->_edit_params, 'biggest_units', $this->units['days']);
+		$smallest_units	= array_get_index($this->_edit_params, 'smallest_units', $this->units['minutes']);
 
 		if (!isset($_REQUEST[$prefix.'_'.array_search($biggest_units, $this->units)])) return false;
 
