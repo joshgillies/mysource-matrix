@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.4 2004/03/18 03:43:08 gsherwood Exp $
+* $Id: workflow.inc,v 1.5 2004/04/22 04:00:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -115,298 +115,492 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 *
 * @access public
 */
-function paintWorkflow(&$owner, &$o, &$ei)
+/**
+* Paint the interface for managing metadata values
+*
+* @param object	Asset					$owner		the asset whose interface we are painting
+* @param object	Backend_Outputter		$o			the outputter class
+* @param object	Asset_Edit_Interface	&$ei		the edit interface
+*
+* @access public
+* @return boolean
+*/
+function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 {
-	$prefix = $owner->getPrefix();
+	if(!($file = $ei->_findFile('static_screen_workflow'))) return false;
 
+	$prefix = $owner->getPrefix();
+	$print_commit_button = false;
+	
 	$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 	$schemas = $wfm->getSchemas($owner->id);
 	$running_schemas = $wfm->getSchemas($owner->id, true, true);
+	$admin_access = $owner->adminAccess('workflow');
 
-	// print any currently running workflows
-	if (!empty($running_schemas)) {
-		// cant edit workflow when workflow is currently running
-		$admin_access = false;
+	$input = new XML_Tree($file);
+	$root  = &$input->getTreeFromFile();
+	if (PEAR::isError($root)) {
+		trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+		return false;
+	}
 
-		$o->openSection('Workflow for this asset is currently in progress');
-			$o->openField('Change Status?');
-				$available_statii = _paintStatusChange($owner, $o, $prefix);
-				?><span class="sq-backend-fineprint"><?php
-				if (!empty($available_statii)) {
-					echo '<br/>Change the status to approve or reject the changes made to this asset';
-				} else {
-					echo '<i>You cannot approve or reject changes at this time</i>';
-				}
-				?></span><?php
-			$o->closeField();
-			if (!empty($available_statii)) {
-				$o->openField('Log Message');
-					text_area($prefix.'_workflow_new_log_message', '', 60, 6);
-					echo '&nbsp;';
-					normal_button($prefix.'_workflow_status_update', 'Commit', 'submit_form()');
-					?>
-					<br/>You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.
-					<br/><a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow&sq_workflow_log_version=<?php echo substr($owner->version, 0, strrpos($owner->version, '.'));?>">Click here to view the workflow message log</a> - a list of system generated workflow messages as well as any comments made by other approvers.
-					<?php
-				$o->closeField();
-			}
+	for($i = 0; $i < count($root->children); $i++) {
+		
+		$section = &$root->children[$i];
 
-		$o->closeSection();
+		// only do this if we are not painting a layout
+		if (is_null($keywords)) {
+			// if we are in limbo and this section is not to be printed in limbo - dont print it
+			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
+		}
 
-		$schema_workflows = $wfm->getSchemaWorkflows($owner->id);
-		foreach ($schema_workflows as $schemaid => $workflow) {
-			if (!in_array($schemaid, $running_schemas)) continue;
+		$section_access = $ei->_getAccess($owner, $section);
+		if (!($section_access & SQ_EI_READ)) continue;
 
-			$schema_title = "Running Workflow - ".$workflow['schema_name'];
-			if (isset($workflow['complete']) && $workflow['complete']) {
-				$schema_title .= ' <span style="color:#008800">[Completed]</span>';
-			} else {
-				$schema_title .= ' <span style="color:#880000">[Not Completed]</span>';
-			}
-			$o->openSection($schema_title);
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) ob_start();
 
-			$o->openField('Workflow Started');
-				echo $GLOBALS['SQ_SYSTEM']->datetime($workflow['started']);
-			$o->closeField();
-			$o->openField('Time Running');
-				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				echo easy_time_total(time() - $workflow['started'], true);
-			$o->closeField();
+		$o->openSection($section->attributes['name']);
 
-			foreach ($workflow['steps'] as $stepid => $step_data) {
-				$section_title = "Step $stepid - ".$step_data['step_name'];
-				if (!$workflow['current_step'] || $workflow['current_step'] > $stepid) {
-					$section_title .= ' <span style="color:#008800">[Completed]</span>';
-				} else {
-					$section_title .= ' <span style="color:#880000">[Not Completed]</span>';
-				}
+		if (!($num_fields = count($section->children))) continue;
 
-				$o->openSection($section_title);
+		for($j = 0; $j < $num_fields; $j++) {
+			$field = &$section->children[$j];
 
-				if ($step_data['started']) {
-					$o->openField('Step Duration');
-						echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['started']);
-						echo ' - ';
-					if ($step_data['completed']) echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['completed']);
-					else echo '??';
-					echo ' (<i>';
-					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-					if ($step_data['completed']) {
-						echo easy_time_total($step_data['completed'] - $step_data['started'], true);
-					} else {
-						echo easy_time_total(time() - $step_data['started'], true);
+			switch (strtolower($field->attributes['code'])) {
+				
+				///// WORKFLOW APPROVAL/REJECTION ////
+
+				case 'workflow_status_change' :
+				
+					if (!empty($running_schemas)) {
+						
+						$o->openField('Change Status?');
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_change'])) ob_start();
+
+							$available_statii = _paintStatusChange($owner, $o, $prefix);
+							?><span class="sq-backend-fineprint"><?php
+							if (!empty($available_statii)) {
+								echo '<br/>Change the status to approve or reject the changes made to this asset';
+							} else {
+								echo '<i>You cannot approve or reject changes at this time</i>';
+							}
+							?></span><?php
+								
+							// if there is a keyword replacement for this, add it to the replacements
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_change'])) {
+								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_status_change']] = ob_get_contents();
+								ob_end_flush();
+							}
+						$o->closeField();
 					}
-					echo '</i>)';
-				}
 
-				$o->openField('Step Logic');
-				if (isset($wfm->_valid_cond_logic[$step_data['logic']])) {
-					// a special type of logic statement
-					$step_logic = $step_data['logic'];
-					$step_logic_num = '';
-				} else {
-					if ($step_data['logic'] != 'all') {
-						list($step_logic, $step_logic_num) = explode(' ', $step_data['logic']);
-					} else {
-						$step_logic = 'all';
-						$step_logic_num = '';
+				break;
+				
+				case 'workflow_log_message' :
+				
+					if (!empty($running_schemas)) {
+						
+						$o->openField('Log Message');
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_log_message'])) ob_start();
+
+							text_area($prefix.'_workflow_new_log_message', '', 60, 6);
+							?>
+							<br/>You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.
+							<br/><a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow&sq_workflow_log_version=<?php echo substr($owner->version, 0, strrpos($owner->version, '.'));?>">Click here to view the workflow message log</a> - a list of system generated workflow messages as well as any comments made by other approvers.
+							<?php
+								
+							// if there is a keyword replacement for this, add it to the replacements
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_log_message'])) {
+								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_log_message']] = ob_get_contents();
+								ob_end_flush();
+							}
+						$o->closeField();
 					}
-				}
 
-				echo '<i>'.$wfm->_valid_step_logic[$step_logic];
-				if ($step_logic_num) echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '')." must be met</i>";
+				break;
+				
+				case 'workflow_status_commit' :
+				
+					if (!empty($running_schemas)) {
+						
+						$o->openField('');
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_commit'])) ob_start();
 
-				$o->openField('Conditions');
+							normal_button($prefix.'_workflow_status_update', 'Commit', 'submit_form()');
 
-				$has_conds = false;
-				ob_start();
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<td class="sq-backend-table-header">&nbsp;</td>
-						<td class="sq-backend-table-header" width="270"><b>Group Logic</b></td>
-						<td align="center" width="100" class="sq-backend-table-header"><b>Complete ?</b></td>
-					</tr>
-				<?php
-				foreach ($step_data['conditions'] as $pub => $cond_data) {
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
-					if (!$asset->id) continue;
-					?>
-					<tr>
-						<td class="sq-backend-table-cell"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
-						<td class="sq-backend-table-cell">
-					<?php
-					if (isset($wfm->_valid_cond_logic[$cond_data['logic']])) {
-						// a special type of logic statement
-						$cond_logic = $cond_data['logic'];
-						$cond_logic_num = '';
+							// if there is a keyword replacement for this, add it to the replacements
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_status_commit'])) {
+								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_status_commit']] = ob_get_contents();
+								ob_end_flush();
+							}
+						$o->closeField();
+					}
+
+				break;
+				
+				///// WORKFLOW REPORT ////
+
+				case 'workflow_report' :
+				
+					if (!empty($running_schemas)) {
+						
+						$o->closeSection();
+						if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) ob_start();
+						
+						$schema_workflows = $wfm->getSchemaWorkflows($owner->id);
+						foreach ($schema_workflows as $schemaid => $workflow) {
+							if (!in_array($schemaid, $running_schemas)) continue;
+				
+							$schema_title = "Running Workflow - ".$workflow['schema_name'];
+							if (isset($workflow['complete']) && $workflow['complete']) {
+								$schema_title .= ' <span style="color:#008800">[Completed]</span>';
+							} else {
+								$schema_title .= ' <span style="color:#880000">[Not Completed]</span>';
+							}
+							$o->openSection($schema_title);
+				
+								$o->openField('Workflow Started');
+									echo $GLOBALS['SQ_SYSTEM']->datetime($workflow['started']);
+								$o->closeField();
+								$o->openField('Time Running');
+									require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+									echo easy_time_total(time() - $workflow['started'], true);
+								$o->closeField();
+					
+								foreach ($workflow['steps'] as $stepid => $step_data) {
+									$section_title = "Step $stepid - ".$step_data['step_name'];
+									if (!$workflow['current_step'] || $workflow['current_step'] > $stepid) {
+										$section_title .= ' <span style="color:#008800">[Completed]</span>';
+									} else {
+										$section_title .= ' <span style="color:#880000">[Not Completed]</span>';
+									}
+					
+									$o->openSection($section_title);
+					
+										if ($step_data['started']) {
+											$o->openField('Step Duration');
+												echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['started']);
+												echo ' - ';
+											if ($step_data['completed']) echo $GLOBALS['SQ_SYSTEM']->datetime($step_data['completed']);
+											else echo '??';
+											echo ' (<i>';
+											require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+											if ($step_data['completed']) {
+												echo easy_time_total($step_data['completed'] - $step_data['started'], true);
+											} else {
+												echo easy_time_total(time() - $step_data['started'], true);
+											}
+											echo '</i>)';
+										}
+					
+										$o->openField('Step Logic');
+											if (isset($wfm->_valid_cond_logic[$step_data['logic']])) {
+												// a special type of logic statement
+												$step_logic = $step_data['logic'];
+												$step_logic_num = '';
+											} else {
+												if ($step_data['logic'] != 'all') {
+													list($step_logic, $step_logic_num) = explode(' ', $step_data['logic']);
+												} else {
+													$step_logic = 'all';
+													$step_logic_num = '';
+												}
+											}
+					
+											echo '<i>'.$wfm->_valid_step_logic[$step_logic];
+											if ($step_logic_num) echo " $step_logic_num condition".(($step_logic_num > 1) ? 's' : '')." must be met</i>";
+										$o->closeField();
+										
+										$o->openField('Conditions');
+							
+											$has_conds = false;
+											ob_start();
+											?>
+											<table class="sq-backend-table">
+												<tr>
+													<td class="sq-backend-table-header">&nbsp;</td>
+													<td class="sq-backend-table-header" width="270"><b>Group Logic</b></td>
+													<td align="center" width="100" class="sq-backend-table-header"><b>Complete ?</b></td>
+												</tr>
+											<?php
+											foreach ($step_data['conditions'] as $pub => $cond_data) {
+												$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+												if (!$asset->id) continue;
+												?>
+												<tr>
+													<td class="sq-backend-table-cell"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
+													<td class="sq-backend-table-cell">
+												<?php
+												if (isset($wfm->_valid_cond_logic[$cond_data['logic']])) {
+													// a special type of logic statement
+													$cond_logic = $cond_data['logic'];
+													$cond_logic_num = '';
+												} else {
+													if ($cond_data['logic'] != 'all') {
+														list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['logic']);
+													} else {
+														$cond_logic = 'all';
+														$cond_logic_num = '';
+													}
+												}
+							
+												if (is_a($asset, 'user')) {
+													echo '&nbsp;';
+												} else {
+													echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
+													if ($cond_logic_num) echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '')." must approve</i>";
+												}
+							
+												?></td>
+							
+													<td align="center" class="sq-backend-table-cell">
+													<?php
+														if (isset($cond_data['complete']) && $cond_data['complete']) {
+															echo '<span style="color:#008800"><b>Yes</b></span>';
+														} else {
+															// do some extra checking
+															if (is_a($asset, 'user')) {
+																echo ((isset($cond_data['published_by'][$asset->id])) ? '<span style="color:#008800"><b>Yes</b></span>' : '&nbsp;');
+															} else {
+																if ($cond_logic_num) $user_count = $cond_logic_num;
+																else $user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
+							
+																echo '<span style="color:#';
+																if (count($cond_data['published_by']) >= $user_count) echo '008800';
+																else echo '880000';
+																echo '"><b>';
+																echo count($cond_data['published_by']).' of '.$user_count;
+																echo '</b></span>';
+															}
+														}
+													?>
+													</td>
+												</tr>
+							
+												<?php
+												$has_conds = true;
+											}
+							
+											if (!$has_conds) {
+												ob_end_clean();
+												echo 'None';
+											} else {
+												ob_end_flush();
+												?></table><?php
+											}
+											
+										$o->closeField();
+					
+									$o->closeSection();
+					
+								}// end foreach
+	
+								// if there is a keyword replacement for this, add it to the replacements
+								if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
+									$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_report']] = ob_get_contents();
+									ob_end_flush();
+								}
+							
+							$o->closeSection();
+				
+						}// end foreach
+							
 					} else {
-						if ($cond_data['logic'] != 'all') {
-							list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['logic']);
-						} else {
-							$cond_logic = 'all';
-							$cond_logic_num = '';
+						$o->openField('');
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) ob_start();
+							
+							echo 'Worklfow is not currently running for this asset';
+							
+							// if there is a keyword replacement for this, add it to the replacements
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_report'])) {
+								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_report']] = ob_get_contents();
+								ob_end_flush();
+							}
+						$o->closeField();
+					}
+
+				break;
+
+				///// METADATA WARNING ////
+
+				case 'workflow_metadata_warning' :
+				
+					// lets show some workflow warnings about metadata if we need to
+					if ($owner->status & SQ_SC_STATUS_PENDING) {
+						$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+						$m_complete = $mm->requiredFieldsComplete($owner->id);
+						if (!$m_complete) {
+							$o->openField('');
+								if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) ob_start();
+								
+								?>
+								<p class="sq-backend-data"><span style="color:#880000"><b>WARNING:</b></span> "<?php echo $owner->name; ?>" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "<?php echo $owner->name; ?>" can become 'Approved' to go live.</p>
+								<p class="sq-backend-data">These metadata fields can be completed by any editor or administrator of "<?php echo $owner->name; ?>" by going to the <a href="<?php echo $owner->getBackendHref('metadata'); ?>">Metadata screen</a>.</p>
+								<?php
+								
+								// if there is a keyword replacement for this, add it to the replacements
+								if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) {
+									$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_metadata_warning']] = ob_get_contents();
+									ob_end_flush();
+								}
+							$o->closeField();
 						}
 					}
 
-					if (is_a($asset, 'user')) {
-						echo '&nbsp;';
-					} else {
-						echo '<i>'.$wfm->_valid_cond_logic[$cond_logic];
-						if ($cond_logic_num) echo " $cond_logic_num group member".(($cond_logic_num > 1) ? 's' : '')." must approve</i>";
+				break;
+
+				///// CURRENT WORKFLOW SCHEMAS ////
+
+				case 'workflow_schemas' :
+				
+					$direct = Array();
+					foreach($schemas as $schemaid => $access) {
+						if (!isset($direct[$access])) $direct[$access] = Array();
+						$direct[$access][] = $schemaid;
 					}
+					ksort($direct);
+					
+					$o->openField('');
+						if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) ob_start();
+						
+						if (empty($direct)) {
+							echo 'There are no workflow schemas applied to this asset';
+						} else {
+							foreach ($direct as $access => $schemaids) {
+							?>
+								<table class="sq-backend-table">
+									<tr>
+										<td class="sq-backend-table-header">
+											<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
+										</td>
+										<?php
+										if ($admin_access) {
+											?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td><?php
+										}
+										?>
+									</tr>
+								<?php
+								foreach($schemaids as $schemaid) {
+									if ($schemaid) {
+										$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+										if (!$schema->id || !is_a($schema, 'workflow_schema')) continue;
+									}
+								?>
+									<tr>
+										<td class="sq-backend-table-cell">
+										<?php
+										echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
+										?>
+										</td>
+										<?php
+										if ($admin_access) {
+											?><td align="center" width="100" class="sq-backend-table-cell"><?php
+											check_box($prefix.'_workflow[delete]['.$schemaid.']');
+											?></td><?php
+										}
+										?>
+									</tr>
+								<?php
+								}// end foreach data
+							?>
+								</table>
+								<br>
+							<?php
+							}//end foreach inherited
 
-					?></td>
+						}// end if
+						
+						// if there is a keyword replacement for this, add it to the replacements
+						if (!is_null($keywords) && isset($keywords['fields']['workflow_schemas'])) {
+							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_schemas']] = ob_get_contents();
+							ob_end_flush();
+						}
 
-						<td align="center" class="sq-backend-table-cell">
-						<?php
-							if (isset($cond_data['complete']) && $cond_data['complete']) {
-								echo '<span style="color:#008800"><b>Yes</b></span>';
-							} else {
-								// do some extra checking
-								if (is_a($asset, 'user')) {
-									echo ((isset($cond_data['published_by'][$asset->id])) ? '<span style="color:#008800"><b>Yes</b></span>' : '&nbsp;');
-								} else {
-									if ($cond_logic_num) $user_count = $cond_logic_num;
-									else $user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
+					$o->closeField();
+					
+				break;
+				
+				///// ADD NEW WORKFLOW SCHEMA ////
 
-									echo '<span style="color:#';
-									if (count($cond_data['published_by']) >= $user_count) echo '008800';
-									else echo '880000';
-									echo '"><b>';
-									echo count($cond_data['published_by']).' of '.$user_count;
-									echo '</b></span>';
-								}
+				case 'workflow_add_schemas' :
+				
+					if ($admin_access && empty($running_schemas)) {
+						$o->openField('');
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_add_schemas'])) ob_start();
+							
+							$o->openField('New ?', 'new_line');
+								combo_box($prefix.'_workflow[new][access]', Array('' => '', '1' => 'Apply', '0' => 'Deny'), false, '');
+								echo ' Workflow schema ';
+								asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', 'null', Array('clear'));
+							$o->closeField();
+
+							if (is_null($keywords) || isset($keywords['fields']['workflow_add_schemas'])) $print_commit_button = true;
+							
+							// if there is a keyword replacement for this, add it to the replacements
+							if (!is_null($keywords) && isset($keywords['fields']['workflow_add_schemas'])) {
+								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_add_schemas']] = ob_get_contents();
+								ob_end_flush();
 							}
-						?>
-						</td>
-					</tr>
-
-					<?php
-					$has_conds = true;
-				}
-
-				if (!$has_conds) {
-					ob_end_clean();
-					echo 'None';
-				} else {
-					ob_end_flush();
-					?></table><?php
-				}
-
-				$o->closeSection();
-
-			}// end foreach
-
-			$o->closeSection();
-
-		}// end foreach
-
-	} else {
-		// there is no running workflow so admin access can be set
-		$admin_access = $owner->adminAccess('workflow');
-	}
-
-	// lets show some workflow warnings about metadata if we need to
-	if ($owner->status & SQ_SC_STATUS_PENDING) {
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		$m_complete = $mm->requiredFieldsComplete($owner->id);
-		if (!$m_complete) {
-			$o->openSection('Metadata Warning');
-				$o->openField('&nbsp;');
-					?>
-					<p class="sq-backend-data"><span style="color:#880000"><b>WARNING:</b></span> "<?php echo $owner->name; ?>" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "<?php echo $owner->name; ?>" can become 'Approved' to go live.</p>
-					<p class="sq-backend-data">These metadata fields can be completed by any editor or administrator of "<?php echo $owner->name; ?>" by going to the <a href="<?php echo $owner->getBackendHref('metadata'); ?>">Metadata screen</a>.</p>
-					<?php
-				$o->closeField();
-			$o->closeSection();
-		}
-	}
-
-	$o->openSection('Workflow Schemas');
-
-	$direct = Array();
-	foreach($schemas as $schemaid => $access) {
-		if (!isset($direct[$access])) $direct[$access] = Array();
-		$direct[$access][] = $schemaid;
-	}
-	ksort($direct);
-
-	if (!empty($direct)) {
-		$o->openField('&nbsp;');
-		foreach ($direct as $access => $schemaids) {
-		?>
-			<table class="sq-backend-table">
-				<tr>
-					<td class="sq-backend-table-header">
-						<span style="color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Applied') ?></span>
-					</td>
-					<?php
-					if ($admin_access) {
-						?><td align="center" width="100" class="sq-backend-table-header" style="font-weight: bold;">Delete ?</td><?php
+	
+						$o->closeField();
 					}
-					?>
-				</tr>
-			<?php
-			foreach($schemaids as $schemaid) {
-				if ($schemaid) {
-					$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-					if (!$schema->id || !is_a($schema, 'workflow_schema')) continue;
-				}
-			?>
-				<tr>
-					<td class="sq-backend-table-cell">
-					<?php
-					echo $schema->name.' ['.$schema->type().' : '.$schemaid.']';
-					?>
-					</td>
-					<?php
-					if ($admin_access) {
-						?><td align="center" width="100" class="sq-backend-table-cell"><?php
-						check_box($prefix.'_workflow[delete]['.$schemaid.']');
-						?></td><?php
-					}
-					?>
-				</tr>
-			<?php
-			}// end foreach data
-		?>
-			</table>
-			<br>
-		<?php
-		}//end foreach inherited
+					
+				break;
+				
+				///// CASACADE OPTIONS ////
 
-	}// end if
+				case 'workflow_cascade_options' :
+				
+					$o->openField('');
+						if (!is_null($keywords) && isset($keywords['fields']['workflow_cascade_options'])) ob_start();
+						
+						if ($admin_access && empty($running_schemas)) {
+							$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
+							if (count($kiddies)) {
+								echo 'These actions will affect '.count($kiddies).' other assets below "'.$owner->name.'"</br></br>';
 
-	if ($admin_access) {
-		$o->openField('New ?', 'new_line');
-			combo_box($prefix.'_workflow[new][access]', Array('' => '', '1' => 'Apply', '0' => 'Deny'), false, '');
-			echo ' Workflow schema ';
-			asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', 'null', Array('clear'));
-		$o->closeField();
-	}
+								check_box($prefix.'_workflow[cascade_changes]', '1', true);
+								echo ' Cascade schema changes';
+								echo '<br/>';
+								check_box($prefix.'_workflow[manual_cascade]');
+								echo ' Manually cascade schemas';
 
-	$o->closeSection();
+							} else {
+								echo 'There are no children to cascade workflow schemas to';
+							}
+						} else if ($admin_access) {
+							echo 'You cannot cascade workflow schemas while workflow is running';
+						} else {
+							echo 'You do not have access to cascade workflow schemas for this asset';
+						}
+						
+						// if there is a keyword replacement for this, add it to the replacements
+						if (!is_null($keywords) && isset($keywords['fields']['workflow_cascade_options'])) {
+							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_cascade_options']] = ob_get_contents();
+							ob_end_flush();
+						}
+					$o->closeField();
+					
+				break;
 
-	if ($admin_access) {
-		$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
-		if (count($kiddies)) {
-			$o->openSection('Cascade Options');
-				$o->openField('Note');
-					echo 'These actions will affect '.count($kiddies).' other assets below "'.$owner->name.'"';
-				$o->closeField();
-				$o->openField('&nbsp;');
-					check_box($prefix.'_workflow[cascade_changes]', '1', true);
-					echo ' Cascade schema changes';
-					echo '<br/>';
-					check_box($prefix.'_workflow[manual_cascade]');
-					echo ' Manually cascade schemas';
-				$o->closeField();
-			$o->closeSection();
+			}//end switch
+
+			if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+				$o->note($field->children[1]->content);
+			}
+
+		}//end for
+
+		$o->closeSection();
+
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower($section->attributes['name'])]] = ob_get_contents();
+			ob_end_flush();
 		}
-	}
 
-	return $admin_access;
+	}//end for
+
+	return $print_commit_button;
 
 }//end paintWorkflow()
 
