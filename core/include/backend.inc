@@ -24,16 +24,18 @@ class Backend extends Resolve_Object
 	*/
 	var $out;
 
+
 	/**
 	* Constructor
 	*
 	*/
-	function Backend() 
+	function Backend()
 	{
 		$this->Resolve_Object();
 	}
 
-	/*
+
+	/**
 	* Returns the url for editing a particular page
 	*
 	* @access private
@@ -44,7 +46,7 @@ class Backend extends Resolve_Object
 	}//end getBackendUrl()
 
 
-	/*
+	/**
 	* Paint the backend interface, dependig on which frame is being displayed
 	*
 	* @access public
@@ -101,7 +103,8 @@ class Backend extends Resolve_Object
 
 	}//end paint()
 
-	/*
+
+	/**
 	* Print out the frames page
 	*
 	* @access private
@@ -128,7 +131,7 @@ class Backend extends Resolve_Object
 
 
 
-	/*
+	/**
 	* Print out the top nav page
 	*
 	* @access private
@@ -172,7 +175,7 @@ class Backend extends Resolve_Object
 	}//end _printHeader()
 
 
-	/*
+	/**
 	* Print out the bottom page
 	*
 	* @access private
