@@ -193,7 +193,12 @@ class Trash_Folder extends Folder
 		$ei = &$this->getEI();
 		$prefix = $ei->getPrefix($this);
 
-		if (isset($_REQUEST[$prefix.'_purge_trash']) && (int)$_REQUEST[$prefix.'_purge_trash'] === 1) {
+		if (isset($_REQUEST[$prefix.'_purge_complete']) && (int)$_REQUEST[$prefix.'_purge_complete'] === 1) {
+			$o->addOnLoad('	if (top.sidenav && top.sidenav.reload_asset) {
+								top.sidenav.reload_asset("2");
+							}');
+			parent::paintBackend($o);
+		} else if (isset($_REQUEST[$prefix.'_purge_trash']) && (int)$_REQUEST[$prefix.'_purge_trash'] === 1) {
 			$o->addFormActionGetVar($prefix.'_purge_trash', 1);
 			$ef = $this->getEditFns();
 			$ef->_purgeTrash($this, $o, $prefix);

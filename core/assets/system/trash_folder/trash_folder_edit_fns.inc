@@ -95,6 +95,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 		if (!$pb->loaded) {
 			$pb->setFns('_purgeTrashInit');
 			$pb->setOption('auto_close', true);
+			$pb->setOption('on_complete_url', $o->getCurrentLocation().'&'.$prefix.'_purge_complete=1');
 
 			$pb->addStep('Aquiring Locks', '_purgeTrashStepLock', null, '_purgeTrashStepLockDone');
 			$pb->addStep('Purging Trashed Assets', '_purgeTrashStep', null, '_purgeTrashStepDone');
@@ -181,6 +182,14 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 		$deleted = $vars['deleted_assets'] = Array();
 		$num_to_purge = count($vars['purge_assets']);
 		$count = -1;
+
+		if (!$num_to_purge) {
+			// nothing to purge in the trash
+			$pb->setPercent(100);
+			$pb->setRunningVars($vars);
+			return;
+		}
+
 		foreach ($vars['purge_assets'] as $link_info) {
 			$count++;
 			if ($vars['num_purged'] && $count <= $vars['num_purged']) continue;
