@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.47 2004/04/30 10:41:41 brobertson Exp $
+* $Id: step_02.php,v 1.48 2004/07/07 05:55:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -195,6 +195,8 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 
 
 //--        NORMAL TABLE DEFINITION        --//
+
+
 		ob_start();
 		echo 'CREATE TABLE '.SQ_TABLE_PREFIX.$table_name.' (';
 		echo $table_columns_string;
@@ -216,6 +218,8 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 
 
 //--        ROLLBACK TABLE DEFINITION        --//
+
+
 		if ($require_rollback) {
 			// type variations
 			switch ($db->phptype) {
@@ -251,6 +255,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 
 
 //--        TABLE INDEXES        --//
+
 
 		// check for any indexes that need creating
 		$table_indexes = &$table->children[2]->children;
@@ -292,7 +297,10 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 
 	pre_echo("DATABASE SEQUENCE CREATION COMPLETE");
 
+
 //--        PGSQL GRANT_ACCESS()        --//
+
+
 	// If this is PostgreSQL we need to do a couple of other things for the secondary user
 	if ($db->phptype == 'pgsql') {
 
@@ -342,7 +350,10 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 
 }//end if table column cache file does not exist
 
+
 //--        CACHE TABLES        --//
+
+
 // if we didnt just create the database tables, loop through and work out the
 // columns in each of our database tables
 if (empty($cached_table_columns)) {
@@ -367,6 +378,11 @@ if (empty($cached_table_columns)) {
 				for($k = 0; $k < count($table_key->children); $k++) {
 					$col_name = $table_key->children[$k]->attributes['name'];
 					$cached_table_columns[$table_name]['primary_key'][] = $col_name;
+				}
+			} else if ($table_key->name == 'unique_key') {
+				for($k = 0; $k < count($table_key->children); $k++) {
+					$col_name = $table_key->children[$k]->attributes['name'];
+					$cached_table_columns[$table_name]['unique_key'][] = $col_name;
 				}
 			}
 		}
