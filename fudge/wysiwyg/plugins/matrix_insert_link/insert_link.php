@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.16 2004/01/16 11:17:22 brobertson Exp $
+* $Id: insert_link.php,v 1.17 2004/04/07 22:57:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,6 +57,11 @@ if (!isset($_GET['url']))         $_GET['url'] = 0;
 if (!isset($_GET['protocol']))    $_GET['protocol'] = 0;
 if (!isset($_GET['status_text'])) $_GET['status_text'] = '';
 if (!isset($_GET['new_window']))  $_GET['new_window'] = 0;
+
+// If we have an anchor, it will have been stuck in the URL, so break it away
+if (strpos($_GET['url'], '#') !== false) {
+	list($_GET['url'], $_GET['anchor']) = explode('#', $_GET['url']);
+}
 
 if (!isset($_GET['new_window'])) {
 	foreach ($new_window_bool_options as $option => $option_text) {
@@ -105,7 +110,12 @@ if (!isset($_GET['new_window'])) {
 				var param = new Object();
 				var f = document.main_form;
 
-				param["url"]         = form_element_value(f.url_protocol) + form_element_value(f.url_link);
+				// check if there is just an anchor in there
+				if ((form_element_value(f.url_link) == '') && (form_element_value(f.anchor) != '')) {
+				  param["url"]         = '#' + form_element_value(f.anchor);
+				} else {
+				  param["url"]         = form_element_value(f.url_protocol) + form_element_value(f.url_link) + (form_element_value(f.anchor) == '' ? '' : '#' + form_element_value(f.anchor));
+				}
 				param["status_text"] = form_element_value(f.status_text);
 				param["new_window"]  = form_element_value(f.new_window);
 
@@ -260,6 +270,10 @@ if (!isset($_GET['new_window'])) {
 														<tr>
 															<td class="label">Select Asset:</td>
 															<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), '', 'setUrl'); ?></td>
+														</tr>
+														<tr>
+															<td class="label">Anchor Name:</td>
+															<td colspan="3"><?php text_box('anchor', $_GET['anchor'], 40, 0) ?></td>
 														</tr>
 													</table>
 													</fieldset>

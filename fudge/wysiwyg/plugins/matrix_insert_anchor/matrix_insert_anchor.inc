@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.21 2004/04/07 22:57:11 lwright Exp $
+* $Id: matrix_insert_anchor.inc,v 1.1 2004/04/07 22:58:25 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,32 +28,30 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 
 /**
-* WYSIWYG Plugin - Matrix Insert Link
+* WYSIWYG Plugin - Matrix Insert Anchor
 *
 * Purpose
 *     A WYSIWYG plugin to allow the user to insert and remove
-*     a link in the editable document using an asset from MySoure Matrix
+*     an anchor in the editable document
 *
-* @author  Greg Sherwood <greg@squiz.net>
+* @author  Mark Brydon <mbrydon@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
-class matrix_insert_link extends wysiwyg_plugin {
+class matrix_insert_anchor extends wysiwyg_plugin {
 
 	/**
 	* Constructor
-	* Adds the insert and remove link buttons to this plugin
+	* Adds the insert anchor button to this plugin
 	*
-	* @returns object Insert_Link
+	* @returns object Insert_Anchor
 	* @access  public
 	*/
-	function matrix_insert_link(&$wysiwyg)
+	function matrix_insert_anchor(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('matrixcreatelink','MatrixCreateLink','Insert Link','false','32');
-		$this->_add_button('matrixunlink','Unlink','Remove Link','false','33');
-
+		$this->_add_button('matrixcreateanchor','MatrixCreateAnchor','Insert Anchor','false','1');
 	}//end constructor()
 
 
@@ -72,27 +70,15 @@ class matrix_insert_link extends wysiwyg_plugin {
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 
 		<script type="text/javascript" language="Javascript">
-			var wysiwyg_editing = true; // just so that onclick link's don't execute in wysiwyg
+			var wysiwyg_editing = true; // just so that onclick links don't execute in wysiwyg
 
-			// Called when the user clicks on "InsertImage" button
-			HTMLArea.prototype._matrixInsertLink = function() {
+			// Called when the user clicks on "Insert Anchor" button
+			HTMLArea.prototype._matrixInsertAnchor = function() {
 				var editor = this; // for nested functions
-
-				// all available new window options
-				var NEW_WINDOW_OPTIONS = new Array('toolbar','menubar','location','status','scrollbars','resizable','width','height');
 
 				// OK, let's create the current args array that we'll pass to the dialog
 				var currArgs = new Object();
-				currArgs["assetid"] = "0";
-				currArgs["url"] = "http://";
-				currArgs["anchor"] = "";
-				currArgs["status_text"] = "";
-				currArgs["new_window"]  = 0;
-
-				currArgs["new_window_options"] = new Object();
-				for(var i=0; i < NEW_WINDOW_OPTIONS.length; i++) {
-					currArgs["new_window_options"][NEW_WINDOW_OPTIONS[i]] = '';
-				}
+				currArgs["name"] = "";
 
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
@@ -141,58 +127,14 @@ class matrix_insert_link extends wysiwyg_plugin {
 					var re = new RegExp("\n", "gi");
 					var tag_html = tag_html.replace(re, "");
 
-					currArgs["url"] = current_a.href;
+					currArgs["name"] = current_a.name;
 
 					re = new RegExp('if \\(!window\\.wysiwyg_editing\\)[\\s]+\\{[\\s]+window\\.open\\([\'"]([^\'"]+)[\'"], [\'"][0-9]+[\'"], [\'"]([^\'"]+)[\'"]\\);', "gi");
 					results = re.exec(tag_html);
 
 					if (results != null) {
-						currArgs["url"] = results[1];
-						currArgs["new_window"] = 1;
-						var options_str = results[2];
-
-						for(var i=0; i < NEW_WINDOW_OPTIONS.length; i++) {
-							e = NEW_WINDOW_OPTIONS[i] + "=([^,]+)";
-							re = new RegExp(e, "gi");
-							var res = re.exec(options_str);
-							currArgs["new_window_options"][NEW_WINDOW_OPTIONS[i]] = (res != null) ? res[1] : "";
-						}
+						currArgs["name"] = results[1];
 					}// end if
-
-
-					// OK, let's try and get the window.status text if any
-					re = new RegExp('onmouseover="([^"]+)"', "gi");
-					results = re.exec(tag_html);
-					if (results != null) {
-						var onmouseover = results[1];
-						re = new RegExp('window.status=\'(.+)\'; return true;', "gi");
-						results = re.exec(onmouseover);
-						if (results != null) {
-							currArgs["status_text"] = rev_htmlspecialchars(results[1]).replace(/\\\'/gi, "\'");
-						}
-					}// end if
-
-					// it seems that the make_relative_hrefs() fn will take out the hash and think that a lone
-					// anchor is actually the url link. Work out here whether it might need to be added on...
-					var needsHash = false;
-					if (currArgs["url"].indexOf('#') != -1) {
-						needsHash = true;
-					}
-
-					// because the editor automatically prepend the http:// business to 
-					// all relative urls remove it
-					currArgs["url"] = unescape(editor.make_relative_hrefs(currArgs["url"]));
-
-					// if it's hashed and it's disappeared, add it back on here
-					if (needsHash && (currArgs["url"].indexOf('#') == -1)) {
-						currArgs["url"] = '#' + currArgs["url"];
-					}
-
-					// Get the assetid for the link if there is one
-					e = '(.*)(\\?a=)([0-9]+)(.*)';
-					re = new RegExp(e, "gi");
-					currArgs["assetid"] = currArgs["url"].replace(re, "$3");
-
 				// else not a link so check for paragraphs
 				} else {
 
@@ -219,32 +161,12 @@ class matrix_insert_link extends wysiwyg_plugin {
 				if (this._inPopup == true) { in_popup = '1'; }
 
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
-				var strPage = "<?php echo $this->get_popup_href('insert_link.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
+				var strPage = "<?php echo $this->get_popup_href('insert_anchor.php')?>?&name=" + escape(currArgs["name"]) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertLink", strPage, 650, 440, true, function(param) {
-					if (param && param["url"] != "") {
+				this._popupDialog("matrixInsertAnchor", strPage, 360, 180, true, function(param) {
+					if (param["name"] != "") {
 		
-						var html = '';
-
-						// if we have a new window, generate the new javascript url string
-						if (param["new_window"] == "1") {
-							var now = new Date();
-							var option_string = "";
-							for(var i=0; i < NEW_WINDOW_OPTIONS.length; i++) {
-								if (option_string != "") option_string += ",";
-								option_string += NEW_WINDOW_OPTIONS[i] + "=" + param["new_window_options"][NEW_WINDOW_OPTIONS[i]];
-							}
-
-							param["onClick"] = "javascript: if (!window.wysiwyg_editing) { window.open('" + param["url"] + "', '" + now.getTime() + "', '" + option_string + "'); } return false;";
-						}
-
-						html += '<a href="' + param["url"] + '"';
-						if (param["status_text"] != "") {
-							html += ' onMouseOver="javascript: window.status=\'' + htmlspecialchars(param["status_text"]).replace(/\'/gi, "\\'") + '\'; return true;" onMouseOut="javascript: window.status=\'\'; return true;"';
-						}
-						if (param["onClick"] != null && param["onClick"] != "") {
-							html += ' onClick="' + param["onClick"] + '"';
-						}
+						var html = '<a name="' + param["name"] + '"';
 						html += '>' + inside_html + '</a>';
 						html = editor.make_absolute_urls(html);
 
@@ -271,8 +193,8 @@ class matrix_insert_link extends wysiwyg_plugin {
 	function print_plugin_button_click()
 	{
 		?>
-		case "matrixcreatelink":
-			this._matrixInsertLink();
+		case "matrixcreateanchor":
+			this._matrixInsertAnchor();
 		break;
 		<?php
 
@@ -288,7 +210,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 	function print_plugin_update_toolbar()
 	{
 		?>
-		case "matrixcreatelink":
+		case "matrixcreateanchor":
 			if (allEnabled == null && this._tmp['disable_toolbar'] == true) {
 				this.updateToolbar(false);
 				return;
