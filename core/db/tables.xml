@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.43 2004/07/06 03:50:03 lwright Exp $
+* $Id: tables.xml,v 1.44 2004/08/12 02:20:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -504,6 +504,130 @@
 			</column>
 			<column name="custom_value" allow_null="0">
 				<type>TEXT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="assetid" />
+				<column name="attributeid" />
+			</primary_key>
+		</keys>
+		<indexes>
+			<index>
+				<column name="attributeid" />
+			</index>
+			<index>
+				<column name="assetid" />
+			</index>
+		</indexes>
+	</table>
+	<table name="asset_attribute_date_value" require_rollback="1">
+		<columns>
+			<column name="assetid" allow_null="0">
+				<type>VARCHAR(15)</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="attributeid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="seconds" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="minutes" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="hours" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="mday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="rmday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="wday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="mon" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="year" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="yday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="ryday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="ts" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="ms" allow_null="1">
+				<type>INT</type>
 				<type_variations />
 				<default />
 				<description />
