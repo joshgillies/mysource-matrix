@@ -160,8 +160,8 @@ class Resolve
 	function start()
 	{
 		// initiailise event listeners
-		$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'] = array();
-		$GLOBALS['SQ_EVENT_LISTENERS'] = array();
+		$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'] = Array();
+		$GLOBALS['SQ_EVENT_LISTENERS']        = Array();
 
 		if (SQ_IN_BACKEND) {
 			if ($this->user) {
@@ -178,7 +178,9 @@ class Resolve
 
 		// we are on the frontend
 		} else {
-			$asset = &$this->am->getAssetFromURL(current_protocol());
+			// check for ./?a=xx type urls or normal
+			if (isset($_GET['a'])) $asset = &$this->am->getAsset($_GET['a']);
+			else $asset = &$this->am->getAssetFromURL(current_protocol());
 			if (is_null($asset)) exit(1);
 			$asset->printFrontend();
 		}
