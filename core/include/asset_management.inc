@@ -95,7 +95,6 @@ class Asset_Management extends Resolve_Object
 		if (!$this->_updateFiles()) return false;
 		return true;
 
-
 	}//end update()
 
 
@@ -136,8 +135,9 @@ class Asset_Management extends Resolve_Object
 
 
 	/**
-	* Install
+	* Install's this asset
 	*
+	* @return boolean 
 	* @access public
 	*/
 	function _install()
@@ -157,7 +157,6 @@ class Asset_Management extends Resolve_Object
 				'.$this->_db->quote($info['instantiable']).', '.$this->_db->quote($info['allowed_access']).',
 				'.$this->_db->quote($info['parent_type']).', '.$this->_db->quote($level).',
 				'.$this->_db->quote($info['dir']).', 0)';
-#		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -205,7 +204,6 @@ class Asset_Management extends Resolve_Object
 					dir             = '.$this->_db->quote($info['dir']).'
 				WHERE type_code = '.$this->_db->quote($this->getAssetType());
 
-#		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -402,20 +400,15 @@ class Asset_Management extends Resolve_Object
 
 		}// end if parents using this name
 
-		if (empty($GLOBALS[__CLASS__.__FUNCTION__])) {
-			trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_NOTICE);
-			$GLOBALS[__CLASS__.__FUNCTION__] = 1;
-		}
+		// make sure this is a valid attribute type
+		if (!$this->_am->validAttributeType($attr_info['type'])) {
+			trigger_error('Attribute Type "'.$attr_info['type'].'" is not known (for the "'.$this->getAssetType().'" Asset Type) ' , E_USER_WARNING);
+			return false;
+		}// end if
 
-
-		// check that the default value is valid
-		require_once(SQ_ATTRIBUTES_PATH.'/'.$attr_info['type'].'/'.$attr_info['type'].'.inc');
-		$func = '$default = Asset_Attribute_'.$attr_info['type'].'::validateValue($attr_info[\'default_value\']);';
-		eval ($func);
-		if ($default === false) {
-			// default value is not valid
-			trigger_error("Default value of attribute '$name' is not valid" , E_USER_WARNING);
-			$attr_info['default_value'] = '';
+		if (!$this->_validateAttributeDefault($attr_info['default_value'], $attr_info['type'], $attr_info['parameters'])) {
+			trigger_error('Default value of attribute "'.$name.'" is not valid for Asset Type "'.$this->getAssetType().'"' , E_USER_WARNING);
+			return false;
 		}
 
 		$attributeid = $this->_db->nextId('sq_sequence_asset_attribute');
@@ -447,6 +440,7 @@ class Asset_Management extends Resolve_Object
 
 		return true;
 
+
 	}//end _addAttribute()
 
 
@@ -464,15 +458,10 @@ class Asset_Management extends Resolve_Object
 
 		$type_code = $this->getAssetType();
 
-		if (empty($GLOBALS[__CLASS__.__FUNCTION__])) {
-			trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_NOTICE);
-			$GLOBALS[__CLASS__.__FUNCTION__] = 1;
-		}
-
 		// if they have defined an update fn for this, then we don't need to do anything
 		if (!empty($this->vars[$name]['update_fn'])) {
 			$fn = $this->vars[$name]['update_fn'];
-			return $this->$fn($current_version);
+			if (!$this->$fn($current_version)) return false;
 
 		} else {
 			// Find the parents with an attribute of this name
@@ -489,64 +478,83 @@ class Asset_Management extends Resolve_Object
 
 			// if this asset type owns this var, we can change it how ever we want
 			if ($curr_attr['owning_type_code'] == $type_code) {
-				return $this->_updateOwnedAttribute($name);
+				if (!$this->_updateOwnedAttribute($name, $curr_attr)) return false;
 
 			// if we have set the params or default value in the vars
 			} else {
-				if (isset($this->vars[$name]['parameters'])) {
-					$this->vars[$name]['parameters'] = serialize($this->vars[$name]['parameters']);
-					if (!$this->_updateCustomAttribute($name, $curr_attr, 'parameters')) return false;
-					$this->vars[$name]['parameters'] = unserialize($this->vars[$name]['parameters']);
-				} else if (!empty($curr_attr['parameters_value'])) {
-					// we have removed our customisation of parameters
-					// so get our parents parameters and set to that
-					$parents = $this->_pm->getTypeAncestors($type_code);
-					$parent = array_shift($parents);
-					
-					$sql = 'SELECT parameters_value
-					FROM sq_asset_attribute
-					WHERE type_code = '.$this->_db->quote($parent).'
-					  AND name = '.$this->_db->quote($name);
 
-					$parent_attr = $this->_db->getRow($sql);
-					if (DB::isError($parent_attr)) {
-						trigger_error($parent_attr->getMessage().'<br/>'.$parent_attr->getUserInfo(), E_USER_WARNING);
-						return false;
-					}
+				// we have removed our customisation of parameters
+				// so get our parents parameters and set to that
+				$parents = $this->_pm->getTypeAncestors($type_code);
+				$parent = array_shift($parents);
 
-					$this->vars[$name]['parameters'] = $parent_attr['parameters_value'];
-					if (!$this->_updateCustomAttribute($name, $curr_attr, 'parameters', $parent)) return false;
+				$sql = 'SELECT parameters_type_code, parameters_value, default_type_code, default_value
+						FROM sq_asset_attribute
+						WHERE type_code = '.$this->_db->quote($parent).'
+						  AND name = '.$this->_db->quote($name);
+
+				$parent_attr = $this->_db->getRow($sql);
+				if (DB::isError($parent_attr)) {
+					trigger_error($parent_attr->getMessage().'<br/>'.$parent_attr->getUserInfo(), E_USER_WARNING);
+					return false;
 				}
 
-				if (isset($this->vars[$name]['default'])) {
-					return $this->_updateCustomAttribute($name, $curr_attr, 'default');
-				} else if (!empty($curr_attr['default_value'])) {
-					// we have removed our customisation of the default
-					// so get our parents default and set to that
-					$parents = $this->_pm->getTypeAncestors($type_code);
-					$parent = array_shift($parents);
-					
-					$sql = 'SELECT default_value
-					FROM sq_asset_attribute
-					WHERE type_code = '.$this->_db->quote($parent).'
-					  AND name = '.$this->_db->quote($name);
+				//// PARAMETERS ////
 
-					$parent_attr = $this->_db->getRow($sql);
-					if (DB::isError($parent_attr)) {
-						trigger_error($parent_attr->getMessage().'<br/>'.$parent_attr->getUserInfo(), E_USER_WARNING);
+				// if this asset type has overidden, use it's values
+				if (isset($this->vars[$name]['parameters'])) {
+					$parameters_value		= serialize($this->vars[$name]['parameters']);
+					$parameters_type_code	= $type_code;
+
+				// otherwise reset to inherit from parents
+				} else if (!empty($parent_attr)) {
+					$parameters_value		= $parent_attr['parameters_value'];
+					$parameters_type_code	= $parent_attr['parameters_type_code'];
+
+				// no parent ? set to blank for ourselves
+				} else {
+					$parameters_value		= serialize(Array());
+					$parameters_type_code	= $type_code;
+				}
+
+				if ($parameters_type_code != $curr_attr['parameters_type_code'] || $parameters_value != $curr_attr['parameters_value']) {
+					if (!$this->_updateCustomAttribute($curr_attr['attributeid'], $name, 'parameters', $curr_attr['parameters_type_code'], $parameters_type_code, $parameters_value)) return false;
+				}
+
+
+				//// DEFAULT VALUES ////
+
+				// if this asset type has overidden, use it's values
+				if (isset($this->vars[$name]['default'])) {
+					$default_value		= $this->vars[$name]['default'];
+					$default_type_code	= $type_code;
+
+					$parameters = unserialize($parameters_value);
+					if (!$this->_validateAttributeDefault($default_value, $curr_attr['type'], $parameters)) {
+						trigger_error('Default value of attribute "'.$name.'" is not valid for Asset Type "'.$this->getAssetType().'"' , E_USER_WARNING);
 						return false;
 					}
 
-					$this->vars[$name]['default'] = $parent_attr['default_value'];
-					if (!$this->_updateCustomAttribute($name, $curr_attr, 'default', $parent)) return false;
+				// otherwise reset to inherit from parents
+				} else if (!empty($parent_attr)) {
+					$default_value		= $parent_attr['default_value'];
+					$default_type_code	= $parent_attr['default_type_code'];
+
+				// no parent ? set to blank for ourselves
+				} else {
+					$default_value		= '';
+					$default_type_code	= $type_code;
+				}
+
+				if ($default_type_code != $curr_attr['default_type_code'] || $default_value != $curr_attr['default_value']) {
+					if (!$this->_updateCustomAttribute($curr_attr['attributeid'], $name, 'default', $curr_attr['default_type_code'], $default_type_code, $default_value)) return false;
 				}
 
 			} // end if
 
-			// otherwise there ain't anything for us to do
-			return true;
-
 		}// end if
+
+		return true;
 
 	}//end _updateAttribute()
 
@@ -555,17 +563,24 @@ class Asset_Management extends Resolve_Object
 	* Updates an attribute that this asset owns (ie the first time it is defined is by this asset)
 	*
 	* @param string	$name	the name of the attribute to update
+	* @param string	$curr_attr	the info for the attribute as it stands at the moment
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _updateOwnedAttribute($name)
+	function _updateOwnedAttribute($name, $curr_attr)
 	{
 
 		$type_code = $this->getAssetType();
 
-		$description = empty($this->vars[$name]['description']) ? '' : $this->vars[$name]['description'];
+		// make sure this is a valid attribute type
+		if (!$this->_am->validAttributeType($this->vars[$name]['type'])) {
+			trigger_error('Attribute Type "'.$this->vars[$name]['type'].'" is not known (for the "'.$this->getAssetType().'" Asset Type) ' , E_USER_WARNING);
+			return false;
+		}// end if
 
+		$description = empty($this->vars[$name]['description']) ? '' : $this->vars[$name]['description'];
+		
 		// update all the attributes that we own
 		$sql = 'UPDATE sq_asset_attribute
 				SET type        = '.$this->_db->quote($this->vars[$name]['type']).',
@@ -579,15 +594,9 @@ class Asset_Management extends Resolve_Object
 			return false;
 		}
 
-		$attr_type = $this->vars[$name]['type'];
-
-		require_once(SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc');
-		$func = '$result = Asset_Attribute_'.$attr_type.'::validateValue($this->vars[$name][\'default\']);';
-		eval ($func);
-		if (!$result) {
-			// default value is not valid
-			trigger_error("Default value of attribute '$name' is not valid" , E_USER_WARNING);
-			$this->vars[$name]['default'] = '';
+		if (!$this->_validateAttributeDefault($this->vars[$name]['default'], $this->vars[$name]['type'], (empty($this->vars[$name]['parameters']) ? Array() : $this->vars[$name]['parameters']))) {
+			trigger_error('Default value of attribute "'.$name.'" is not valid for Asset Type "'.$this->getAssetType().'"' , E_USER_WARNING);
+			return false;
 		}
 
 		// update all the attributes that are still using our default
@@ -626,30 +635,28 @@ class Asset_Management extends Resolve_Object
 	*
 	* @param string	$name		the name of the attribute to update
 	* @param string	$curr_attr	the info for the attribute as it stands at the moment
-	* @param string	$type		the part of the attribute we are updating (ie default | param)
+	* @param string	$field		the part of the attribute we are updating (ie default | param)
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _updateCustomAttribute($name, $curr_attr, $type='default', $type_code='')
+	function _updateCustomAttribute($attributeid, $name, $field, $old_type_code, $new_type_code, $new_value)
 	{
-		if (empty($type_code)) $type_code = $this->getAssetType();
-
 		// OK, the reason that we are setting the default type code for the attributes
 		// is so that if this is the first time that we are setting the default value
 		// then all the asset types below us that were inheriting the default value from the
 		// the same asset type as we used to be will be converted to using our default value
 		$sql = 'UPDATE sq_asset_attribute
-				SET '.$type.'_type_code = '.$this->_db->quote($type_code).',
-					'.$type.'_value     = '.$this->_db->quote($this->vars[$name][$type]).'
-				WHERE attributeid = '.$this->_db->quote($curr_attr['attributeid']).'
+				SET '.$field.'_type_code = '.$this->_db->quote($new_type_code).',
+					'.$field.'_value     = '.$this->_db->quote($new_value).'
+				WHERE attributeid = '.$this->_db->quote($attributeid).'
 				   OR attributeid IN (~SQ0~)';
 
 		$subs = Array( 'SELECT atr.attributeid
 						FROM sq_asset_type_inherited i, sq_asset_attribute atr
-						WHERE i.inherited_type_code = '.$this->_db->quote($type_code).'
+						WHERE i.inherited_type_code = '.$this->_db->quote($new_type_code).'
 						  AND i.type_code = atr.type_code
-						  AND atr.'.$type.'_type_code = '.$this->_db->quote($curr_attr[$type.'_type_code']).'
+						  AND atr.'.$field.'_type_code = '.$this->_db->quote($old_type_code).'
 						  AND atr.name = '.$this->_db->quote($name));
 
 		$sql = db_extras_subquery($this->_db, $sql, $subs);
@@ -667,6 +674,30 @@ class Asset_Management extends Resolve_Object
 		return true;
 
 	}//end _updateCustomAttribute()
+
+
+	/**
+	* Checks an attributes default value to make sure that it is valid
+	* Accepts the $default by reference so that it can be changed if need be
+	* 
+	*
+	* @param mixed	$default		the proposed default value
+	* @param string	$attr_type		the type of asset represented by the id
+	* @param array	$parameters		the params for this attribute
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _validateAttributeDefault(&$default, $attr_type, $parameters)
+	{
+		// check that the default value is valid
+		require_once(SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc');
+		$class = 'Asset_Attribute_'.$attr_type;
+		$attr = new $class();
+		$attr->_params = $parameters;
+		return $attr->validateValue($default);
+
+	}//end _validateAttributeDefault()
 
 
 	/**
