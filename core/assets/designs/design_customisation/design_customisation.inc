@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.23 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: design_customisation.inc,v 1.24 2003/12/12 16:55:42 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -326,61 +326,6 @@ class Design_Customisation extends Design
 		return parent::paint($ASSET, $FILE_URLS);
 
 	}//end paint()
-
-
-	/**
-	* Returns the file system path to the directory holding uploaded files
-	* Because we are a customisation, the path that we return is the one that the
-	* original "Design" object has
-	*
-	* @param string	$filename	the filename to return the path to
-	*
-	* @return string
-	* @access public
-	* @see Design::filePath()
-	*/
-	function filePath($filename)
-	{
-		$full_path = $this->data_path.'/files/'.$filename;
-		// if we have this file then use our path
-		if (file_exists($full_path)) {
-			return $full_path;
-
-		// otherwise, let's hope the parent has this file
-		} else {
-			$parent = &$this->getParentDesign();
-			if (is_null($parent)) return '';
-			return $parent->filePath($filename);
-
-		}
-
-	}//end filePath()
-
-
-	/**
-	* Returns the path that has to be appended to the sq_web_path('data') to
-	* get access to the file for this design
-	*
-	* @param string	$filename	the filename to return the path to
-	*
-	* @return string
-	* @access public
-	*/
-	function webFileSuffix($filename)
-	{
-		// if we have this file then use our path
-		if (file_exists($this->data_path_public.'/files/'.$filename)) {
-			return parent::webFileSuffix($filename);
-
-		// otherwise, let's hope the parent has this file
-		} else {
-			$parent = &$this->getParentDesign();
-			if (is_null($parent)) return '';
-			return $parent->webFileSuffix($filename);
-
-		}
-	}//end webFilesSuffix()
-
 
 }//end class
 ?>
