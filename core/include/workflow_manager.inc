@@ -122,9 +122,38 @@ class Workflow_Manager extends Resolve_Object
 
 		if ($and_inherited) {
 			// now lets do the inherited workflows
-			$users = $this->_asset->getPermission(SQ_PERMISSION_WORKFLOW, true, false, true, false, false);
+			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+			
+			$parents = $this->_asset->getParents();
+			$above_me = $parents;
+			for($i = 0; $i < count($above_me); $i++) $above_me[$i] = $db->quote($above_me[$i]);
+			$in_cond = 'IN ('.implode(', ', $above_me).')';
+			
+			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission ';
+			$where = 'assetid '.$in_cond.'
+						AND access = 1
+						AND permission = '.$db->quote(SQ_PERMISSION_WORKFLOW);
+			$where .= ' AND userid NOT IN (~SQ0~)';
 
-			foreach ($users as $assetid) {
+			$sub_where = 'assetid = '.$db->quote($this->_asset->id).'
+							AND access = 0
+							AND permission = '.$db->quote(SQ_PERMISSION_WORKFLOW);
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where);
+			$subs = Array( 'SELECT userid
+							FROM '.SQ_TABLE_PREFIX.'asset_permission '.$sub_where );
+
+			$where = db_extras_subquery($db, $where, $subs);
+			if (DB::isError($where)) trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+			$inherited = $db->getCol($sql.$where);
+			if (DB::isError($inherited)) {
+				trigger_error($inherited->getMessage().'<br/>'.$inherited->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
+			foreach ($inherited as $assetid) {
 				if ($assetid == $this->_asset->id) continue;
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$this->inherited_workflows[$assetid] =& new Workflow_Manager($asset, true, false, false);

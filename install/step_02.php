@@ -247,7 +247,6 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 	$db->createSequence(SQ_TABLE_PREFIX.'sequence_asset_link');
 	$db->createSequence(SQ_TABLE_PREFIX.'sequence_asset_attribute');
 	$db->createSequence(SQ_TABLE_PREFIX.'sequence_asset_url');
-	$db->createSequence(SQ_TABLE_PREFIX.'sequence_asset_permission');
 	$db->createSequence(SQ_TABLE_PREFIX.'sequence_internal_message');
 
 	pre_echo("DATABASE SEQUENCE CREATION COMPLETE");

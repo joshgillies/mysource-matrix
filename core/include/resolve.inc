@@ -335,6 +335,30 @@ class Resolve
 				if (isset($_SESSION['sq_rollback_view'])) unset($_SESSION['sq_rollback_view']);
 			break;
 
+			case 'hipo' :
+				if (!isset($_GET['hipo_action']) || trim($_GET['hipo_action']) == '') {
+					trigger_error('HIPO action not specified', E_USER_ERROR);
+				}
+				if (!isset($_GET['hipo_codename']) || trim($_GET['hipo_codename']) == '') {
+					trigger_error('HIPO codename not specified', E_USER_ERROR);
+				}
+				$hipo_type = 'hipo_job_'.trim($_GET['hipo_action']);
+				require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$hipo_type.'.inc');
+				$hipo = new $hipo_type();
+				
+				if (!$hipo->load($_GET['hipo_codename'])) {
+					trigger_error('HIPO failed to load', E_USER_ERROR);
+				}
+
+				if (!$hipo->process()) {
+					$hipo->abort();
+					trigger_error('HIPO failed to process', E_USER_ERROR);
+				}
+
+				$hipo->paint();
+				exit();
+			break;
+
 		}//end switch
 
 		// just so it isn't being used anywhere else
@@ -1093,6 +1117,7 @@ class Resolve
 	function datetime($timestamp=null)
 	{
 		return (is_null($timestamp)) ? date('d/m/Y H:i:s') : date('d/m/Y H:i:s', $timestamp);
+
 	}//end datetime()
 
 
@@ -1107,6 +1132,7 @@ class Resolve
 	function date($timestamp=null)
 	{
 		return (is_null($timestamp)) ? date('d/m/Y') : date('d/m/Y', $timestamp);
+
 	}//end date()
 
 
@@ -1121,6 +1147,7 @@ class Resolve
 	function time($timestamp=null)
 	{
 		return (is_null($timestamp)) ? date('H:i:s') : date('H:i:s', $timestamp);
+
 	}//end time()
 
 }//end class

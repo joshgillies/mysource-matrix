@@ -19,7 +19,6 @@
 */
 function link_type_name($type)
 {
-
 	$names = get_bit_names('SQ_LINK_', $type);
 
 	if (is_array($names)) {
@@ -38,6 +37,22 @@ function link_type_name($type)
 	}
 
 }// end link_type_name()
+
+
+/**
+* Takes a permission type and returns the text version of it's name
+*
+* @param int $type
+*
+* @return string
+*/
+function permission_type_name($type)
+{
+	$name = get_bit_names('SQ_PERMISSION_', $type);
+	if (is_array($name)) return 'Unknown';
+	return ucwords(strtolower($name));
+
+}// end permission_type_name()
 
 
 /**

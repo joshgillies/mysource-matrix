@@ -127,16 +127,24 @@ class Asset extends Resolve_Object
 
 	/**
 	* Create this asset
-	* The return value will be:
-	*    FALSE if the asset was not created
-	*    the ID of the newly created link if the asset and intital link were created
-	*    TRUE if the asset was created but $link was empty
 	*
-	* @param Array	&$link	information used to create the initial link,
-	*						Array ('asset' => [ref major asset to create link under],
-	*						'link_type' => SQ_LINK_?, 'value' => [link value],
-	*						'sort_order' => [link sort order], 'dependant' = [0|1],
-	*						'exclusive' = [0|1])
+	* The return value will be:<br/>
+	* <ul>
+	*   <li>FALSE if the asset was not created</li>
+	*   <li>the ID of the newly created link if the asset and intital link were created</li>
+	*   <li>TRUE if the asset was created but $link was empty</li>
+	* </ul>
+	*
+	* @param Array	&$link	information used to create the initial link<br/>
+	* <pre>
+	* Array ('asset'      => [ref major asset to create link under],
+	*        'link_type'  => SQ_LINK_?,
+	*        'value'      => [link value],
+	*        'sort_order' => [link sort order],
+	*        'dependant'  => [0|1],
+	*        'exclusive'  => [0|1]
+	*        )
+	* </pre>
 	*
 	* @return mixed int or false
 	* @access public
@@ -275,10 +283,10 @@ class Asset extends Resolve_Object
 
 	
 	/**
-	* Creates a duplicate of this asset.
-	* The only child assetst that are duplicated are the ones that are DEPENDANTLY linked to this asset
-	* NO OTHER linked assets are duplicated
-	* Returns a reference to the new object or if an error occured NULL
+	* Creates a duplicate of this asset
+	*
+	* The only child assets that are duplicated are the ones that are <i>DEPENDANTLY</i> linked to this asset.
+	* <i>NO OTHER</i> linked assets are duplicated.
 	*
 	* @param Array	&$link				information used to create the initial link,
 	*									Array ('asset' => [ref major asset to create link under],
@@ -291,7 +299,7 @@ class Asset extends Resolve_Object
 	*									linked to this asset, only works if $link is not empty
 	* @param bool	$dupe_directory		whether or not to duplicate this assets data directory
 	*
-	* @return mixed object Asset or NULL
+	* @return mixed reference to the new object or NULL if an error occured
 	* @access public
 	*/
 	function &duplicate(&$link, &$dupe_map, $dupe_dependants=true, $dupe_directory=true)
@@ -459,7 +467,8 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Can this asset have its last significant link removed (putting it in the trash)?
+	* Determines whether this asset can have its last significant link removed
+	* This function is most commonly called when moving the asset to the trash.
 	*
 	* @return boolean
 	* @access public
@@ -472,7 +481,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Delete this asset from the trash
+	* Deletes this asset from the trash
 	*
 	* @param boolean	$release_lock	should we realease the lock after deleting
 	*
@@ -554,11 +563,15 @@ class Asset extends Resolve_Object
 
 	/**
 	* Returns a name to use to describe this instance of this asset
-	* should be overridden, used to set $this->name and $this->short_name
+	*
+	* This function should be overridden by children as it is used to set the <i>name</i> and <i>short_name</i>
+	* for this asset when updating
 	*
 	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
+	* @return string
 	* @access private
+	* @see _updated
 	*/
 	function _getName($short_name=false)
 	{
@@ -568,7 +581,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Returns the prefix that will be used by paint() and process()
+	* Generate a prefix to be used by paint() and process()
 	*
 	* @param object	Asset	$owner	the asset whose interface we are painting
 	*
@@ -581,7 +594,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* The type that this asset is
+	* Get the type of this asset
 	*
 	* @return string
 	* @access public
@@ -594,7 +607,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Returns an array of all assets types that this asset extends from
+	* Get an array of all assets types that this asset extends from
 	*
 	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
 	*									even though it's an unistantiable object
@@ -2386,11 +2399,12 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// make sure the sort order is in a valid range
+		$sql   = 'SELECT COUNT(*) as count, MAX(sort_order) as max
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link ';
 		$where = 'majorid = '.$db->quote($this->id);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT COUNT(*) as count, MAX(sort_order) as max
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link '.$where;
-		$row = $db->getRow($sql);
+
+		$row = $db->getRow($sql.$where);
 		if (DB::isError($row)) {
 			trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2414,13 +2428,14 @@ class Asset extends Resolve_Object
 			//// UPDATE THE TREE TABLE ////
 
 			// Get one of the treeids that we have
+			$sql   = 'SELECT t.treeid
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
+					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid ';
 			$where = 'l.minorid = '.$db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql = 'SELECT t.treeid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
-					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
-					'.$where.' LIMIT 1';
+			$sql .= $where.' LIMIT 1';
+
 			$existing_treeid = $db->getOne($sql);
 			if (DB::isError($existing_treeid)) {
 				trigger_error($existing_treeid->getMessage().'<br/>'.$existing_treeid->getUserInfo(), E_USER_WARNING);
@@ -2438,13 +2453,14 @@ class Asset extends Resolve_Object
 
 			// OK, what we are going to get a treeid and then do a "INSERT INTO ... SELECT FROM"
 			// into the tree table of all the links that are under the minor asset
+			$sql   = 'SELECT t.treeid, t.num_immediate_kids
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
+					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid ';
 			$where = 'l.minorid = '.$db->quote($minor->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$sql = 'SELECT t.treeid, t.num_immediate_kids
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
-					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
-					'.$where.' LIMIT 1';
+			$sql .= $where.' LIMIT 1';
+
 			$minor_tree = $db->getRow($sql);
 			if (DB::isError($minor_tree)) {
 				trigger_error($minor_tree->getMessage().'<br/>'.$minor_tree->getUserInfo(), E_USER_WARNING);
@@ -2462,13 +2478,15 @@ class Asset extends Resolve_Object
 
 			// when links are deleted their entries in the tree table are set to have a linkid of zero
 			// (see deleteLink()) so we can attempt to find unused treeid's that are forming gaps
+			$sql   = 'SELECT ct.treeid
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ';
 			$where = 'ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
 					  AND ct.treeid > '.$db->quote($existing_treeid).'
 					  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
 					  AND ct.linkid = 0';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-			$sql = 'SELECT ct.treeid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct '.$where.' LIMIT 1';
+			$sql .= $where.' LIMIT 1';
+
 			$free_childid = $db->getOne($sql);
 			if (DB::isError($free_childid)) {
 				trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
@@ -2478,17 +2496,19 @@ class Asset extends Resolve_Object
 
 			// No free children ? generate one from the max value
 			if ((string) $free_childid == '') {
+				$sql   = 'SELECT MAX(ct.treeid) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ';
 				$where = 'ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
 						  AND ct.treeid > '.$db->quote($existing_treeid).'
 						  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE);
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-				$sql = 'SELECT MAX(ct.treeid) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct '.$where;
-				$free_childid = $db->getOne($sql);
+
+				$free_childid = $db->getOne($sql.$where);
 				if (DB::isError($free_childid)) {
 					trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
+
 				// No max ? we must be the first
 				if ((string) $free_childid == '') {
 					if (($free_childid = asset_link_treeid_convert(0, true)) === false) {
@@ -2631,29 +2651,48 @@ class Asset extends Resolve_Object
 
 				//// PULL ACROSS MINOR ASSET'S PERMISSIONS LOOKUP'S ////
 
-				// so much for SQL standards...
-				$concat_start_treeid = ($db->phptype == 'mysql')
-					? 'CONCAT(pt.treeid, '.$db->quote($free_childid).', SUBSTRING(ctp.start_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).'))'
-					: 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ctp.start_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')';
-				$concat_stop_treeid = ($db->phptype == 'mysql')
-					? 'CONCAT(pt.treeid, '.$db->quote($free_childid).', SUBSTRING(ctp.stop_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).'))'
-					: 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ctp.stop_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')';
-
-
-				$where = 'pl.minorid = '.$db->quote($this->id).'
-						  AND ctp.start_treeid LIKE '.$db->quote($minor_tree['treeid'].'%');
+				
 				// note that we dont prep this query for rollback because its getting run
 				// by the rollback query functions already
-				$select_from = ''.SQ_TABLE_PREFIX.'asset_link_tree pt INNER JOIN '.SQ_TABLE_PREFIX.'asset_link pl ON pt.linkid = pl.linkid, '.SQ_TABLE_PREFIX.'asset_permission_lookup ctp';
-				$values = Array('permissionid' => 'ctp.permissionid',
-								'start_treeid' => $concat_start_treeid,
-								'stop_treeid'  => $concat_stop_treeid,
-								'inc_stop'     => 'ctp.inc_stop'
+				$select_from = SQ_TABLE_PREFIX.'asset_link_tree pt 
+							   INNER JOIN '.SQ_TABLE_PREFIX.'asset_link pl ON pt.linkid = pl.linkid,
+							   '.SQ_TABLE_PREFIX.'asset_permission ctp';
+				$where       = 'pl.minorid = '.$db->quote($this->id).'
+							   AND ctp.start_treeid LIKE '.$db->quote($minor_tree['treeid'].'%');
+				
+				$values = Array('assetid'    => $db->quote($this->id),
+								'userid'     => 'ctp.userid',
+								'permission' => 'ctp.permission',
+								'access'     => 'ctp.access'
 								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_permission_lookup', $select_from, $values, $where)) {
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_permission', $select_from, $values, $where)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
+
+// so much for SQL standards...
+#$concat_start_treeid = ($db->phptype == 'mysql')
+#	? 'CONCAT(pt.treeid, '.$db->quote($free_childid).', SUBSTRING(ctp.start_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).'))'
+#	: 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ctp.start_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')';
+#$concat_stop_treeid = ($db->phptype == 'mysql')
+#	? 'CONCAT(pt.treeid, '.$db->quote($free_childid).', SUBSTRING(ctp.stop_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).'))'
+#	: 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ctp.stop_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')';
+
+
+#$where = 'pl.minorid = '.$db->quote($this->id).'
+#		  AND ctp.start_treeid LIKE '.$db->quote($minor_tree['treeid'].'%');
+// note that we dont prep this query for rollback because its getting run
+// by the rollback query functions already
+#$select_from = ''.SQ_TABLE_PREFIX.'asset_link_tree pt INNER JOIN '.SQ_TABLE_PREFIX.'asset_link pl ON pt.linkid = pl.linkid, '.SQ_TABLE_PREFIX.'asset_permission_lookup ctp';
+#$values = Array('permissionid' => 'ctp.permissionid',
+#				'start_treeid' => $concat_start_treeid,
+#				'stop_treeid'  => $concat_stop_treeid,
+#				'inc_stop'     => 'ctp.inc_stop'
+#				);
+#if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_permission_lookup', $select_from, $values, $where)) {
+#	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+#	return 0;
+#}
 
 			}// end if
 
@@ -2695,22 +2734,13 @@ class Asset extends Resolve_Object
 			return 0;
 		}
 
-		// if this is a web path link, then we need to inform the asset to update it's lookups
-		if ($link_type & SQ_SC_LINK_WEB_PATHS) {
-			if (!$minor->updateLookups()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-		}
-
-		// if this is a significant link, it's time to refresh the permissions lookup
-		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
-			//// UPDATE OUR PERMISSIONS LOOKUP'S ////
-			if (!$this->_refreshPermissionLookups()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-		}
+// if this is a web path link, then we need to inform the asset to update it's lookups
+//if ($link_type & SQ_SC_LINK_WEB_PATHS) {
+//	if (!$minor->updateLookups()) {
+//		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+//		return 0;
+//	}
+//}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('CreateLink', Array('assetid' => $this->id, 'linkid' => $linkid));
@@ -2941,14 +2971,14 @@ class Asset extends Resolve_Object
 			}
 		}
 
-		// if this is a significant link, it's time to refresh the permissions lookup
-		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
-			//// UPDATE OUR PERMISSIONS LOOKUP'S ////
-			if (!$this->_refreshPermissionLookups()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-		}
+// if this is a significant link, it's time to refresh the permissions lookup
+//if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
+//	//// UPDATE OUR PERMISSIONS LOOKUP'S ////
+//	if (!$this->_refreshPermissionLookups()) {
+//		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+//		return 0;
+//	}
+//}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $this->id, 'linkid' => $linkid));
@@ -3398,7 +3428,6 @@ class Asset extends Resolve_Object
 	* @param boolean	$access			Type of Access : null = all, true = granted, false = denied
 	* @param boolean	$and_greater	get effective permission (eg read access = read
 	*									or write or admin)
-	* @param boolean	$and_inherited	Whether to get inherited permissions as well
 	* @param boolean	$expand_groups	expand user groups so only user ids get returned
 	*									(NOTE: only valid if $all_info is false)
 	* @param boolean	$all_info		when false fn just returns an array of userids for
@@ -3411,11 +3440,12 @@ class Asset extends Resolve_Object
 	* @return array()
 	* @access public
 	*/
-	function getPermission($permission, $access=null, $and_greater=true, $and_inherited=true, $expand_groups=false, $all_info=false)
+	function getPermission($permission, $access=null, $and_greater=true, $expand_groups=false, $all_info=false)
 	{
 		$permission = (int) $permission;
 		// can't be and_greater with workflow
 		if ($permission == SQ_PERMISSION_WORKFLOW) $and_greater = false;
+		if (!is_null($access)) $access = (bool)$access;
 
 		if (($and_greater || $expand_groups) && $all_info) {
 			trigger_error(__CLASS__.'::'.__FUNCTION__.'() - You cannot have either and_greater or expand_groups arguments set to true if you want to have all_info set to true', E_USER_NOTICE);
@@ -3428,29 +3458,14 @@ class Asset extends Resolve_Object
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$concat_1 = ($db->phptype == 'mysql') ? 'CONCAT(pl1.start_treeid, '.$db->quote('%').')' : 'pl1.start_treeid || '.$db->quote('%');
-			$concat_2 = ($db->phptype == 'mysql') ? 'CONCAT(t2.treeid, '.$db->quote('%').')'        : 't2.treeid || '.$db->quote('%');
+			
+			$sql = '  SELECT DISTINCT assetid, userid, access
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission ';
+			$where = 'assetid = '.$db->quote($this->id).'
+					  AND permission '.(($and_greater) ? '>= ' : '= ').$db->quote($permission);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			// NOTE: we can't really join the userid to the asset table to get the type code
-			//       because that would cause public access (ie userid 0) to not be found
-			$where = 'l2.minorid = '.$db->quote($this->id).'
-					  AND t2.treeid       LIKE '.$concat_1.'
-					  AND pl1.stop_treeid LIKE '.$concat_2.'
-					  AND pl1.start_treeid <= t2.treeid
-					  AND (t2.treeid < pl1.stop_treeid OR (pl1.stop_treeid = t2.treeid AND pl1.inc_stop = '.$db->quote('1').'))
-					  AND p1.permission '.(($and_greater) ? '>= ' : '= ').$db->quote($permission);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl1');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p1');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l2');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't2');
-			$sql = 'SELECT DISTINCT p1.assetid, p1.userid, p1.access
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl1
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p1 ON pl1.permissionid = p1.permissionid,
-						'.SQ_TABLE_RUNNING_PREFIX.'asset_link l2
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid
-					'.$where;
-
-			$result = $db->getAll($sql);
+			$result = $db->getAll($sql.$where);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				return Array();
@@ -3463,7 +3478,6 @@ class Asset extends Resolve_Object
 
 		$ret_val = Array();
 		foreach($this->_tmp['permission_cache'][$storage_name] as $data) {
-			if (!$and_inherited && $data['assetid'] != $this->id) continue;
 
 			if      ($access === false && $data['access'] != '0') continue;
 			else if ($access === true  && $data['access'] != '1') continue;
@@ -3475,6 +3489,7 @@ class Asset extends Resolve_Object
 
 			// else we just want user ids
 			} else {
+				
 				// if we are expanding user groups and we aren't public access
 				if ($expand_groups && $data['userid']) {
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userid']);
@@ -3484,19 +3499,17 @@ class Asset extends Resolve_Object
 						} else {
 							$ret_val[] = $user->id;
 						}
-					}// end if
+					}
 				} else {
 					$ret_val[] = $data['userid'];
-				}// end if
+				}
+
 			}// end if all info
 
 		}// end foreach
 
-		if ($all_info) {
-			return $ret_val;
-		} else {
-			return array_unique($ret_val);
-		}
+		if ($all_info) return $ret_val;
+		else           return array_unique($ret_val);
 
 	}//end getPermission()
 
@@ -3506,18 +3519,20 @@ class Asset extends Resolve_Object
 	*
 	* @param int		$userid		the id of the user or user_group to add the permission for
 	* @param string		$permission	the permission code you are adding
-	* @param string		$access		whether this permission grants access or not ('1' or '0')
+	* @param boolean	$access		whether this permission grants access or not
 	*
 	* @return boolean
 	* @access public
 	*/
 	function setPermission($userid, $permission, $access)
 	{
-		$userid = (int) $userid;
-		$permission = (int) $permission;
-		$access = ($access) ? '1' : '0';
-		$current = &$this->getPermission($permission, false, false);
-		if (in_array($userid, array_keys($current))) return false;
+		$userid     = (int)  $userid;
+		$permission = (int)  $permission;
+		$access     = (bool) $access;
+
+		// check if this permission is already set
+		$current = $this->getPermission($permission, $access, false);
+		if (in_array($userid, array_values($current))) return true;
 
 		// if we dont have an userid, we are granting public access
 		if ($permission != SQ_PERMISSION_WORKFLOW && !empty($userid)) {
@@ -3530,31 +3545,36 @@ class Asset extends Resolve_Object
 				trigger_error('Cannot grant permission for asset type "'.$user->type().'", not a user or user group', E_USER_WARNING);
 				return false;
 			}
+			$user_name = $user->name;
+		} else if ($permission != SQ_PERMISSION_WORKFLOW) {
+			$user_name = 'Asset Workflow';
+		} else {
+			$user_name = 'General Public';
+		}
+
+		// check if the reverse access of this permission is set
+		$current = $this->getPermission($permission, !$access, false);
+		if (in_array($userid, array_values($current))) {
+			include_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$perm_name = permission_type_name($permission);
+
+			$new_access     = ($access) ? 'grant'   : 'revoke';
+			$current_access = ($access) ? 'revoked' : 'granted';
+
+			trigger_error('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$this->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'"', E_USER_WARNING);
+			return false;
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$permissionid = $db->nextId('sq_sequence_asset_permission');
-		if (DB::isError($permissionid)) {
-			trigger_error($permissionid->getMessage().'<br/>'.$permissionid->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
 		// add the permission into the database
-		$values = Array('permissionid' => $permissionid,
-						'assetid'      => $this->id,
+		$values = Array('assetid'      => $this->id,
 						'userid'       => $userid,
 						'permission'   => $permission,
-						'access'       => $access
+						'access'       => (($access) ? '1' : '0')
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_permission', $values)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		if (!$this->_addPermissionLookup($permissionid, $userid, $permission)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -3588,23 +3608,6 @@ class Asset extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$where = 'userid     = '.$db->quote($userid).'
-				  AND permission = '.$db->quote($permission).'
-				  AND assetid    = '.$db->quote($this->id);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT permissionid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission '.$where;
-
-		$permissionid = $db->getOne($sql);
-		if (DB::isError($permissionid)) {
-			trigger_error($permissionid->getMessage().'<br/>'.$permissionid->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
-
-		if (!$permissionid) {
-			trigger_error('Cannot delete permission for "'.$this->name.'" (Id #'.$this->id.'), no permission found for User Id #'.$userid, E_USER_WARNING);
-			return false;
-		}
-
 		// if we dont have an userid, we are deleting public access
 		if ($permission != SQ_PERMISSION_WORKFLOW && !empty($userid)) {
 			// check that the passed userid is a user or user_group
@@ -3618,13 +3621,10 @@ class Asset extends Resolve_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// delete and add rollback entries
-		$where_cond = 'permissionid = '.$db->quote($permissionid);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		if (!$this->_deletePermissionLookup($permissionid, $userid, $permission)) {
+		$where = 'userid         = '.$db->quote($userid).'
+				  AND permission = '.$db->quote($permission).'
+				  AND assetid    = '.$db->quote($this->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission', $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -3640,364 +3640,6 @@ class Asset extends Resolve_Object
 		return true;
 
 	}//end deletePermission()
-
-
-	/**
-	* Resets the permission lookup table for this asset
-	* Done by removing and then adding the permissions to the lookup
-	*
-	* @return boolean
-	* @see _addPermissionsLookup()
-	* @see _deletePermissionsLookup()
-	* @access protected
-	*/
-	function _refreshPermissionLookups()
-	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$concat_1 = ($db->phptype == 'mysql') ? 'CONCAT(pl1.start_treeid, '.$db->quote('%').')' : 'pl1.start_treeid || '.$db->quote('%');
-		$concat_2 = ($db->phptype == 'mysql') ? 'CONCAT(t2.treeid, '.$db->quote('%').')'        : 't2.treeid || '.$db->quote('%');
-		// Find all the permissions that affect us, not just the ones that we have directly set,
-		// as these will probably need updating
-		$where = 'l2.minorid = '.$db->quote($this->id).'
-				  AND t2.treeid       LIKE '.$concat_1.'
-				  AND pl1.stop_treeid LIKE '.$concat_2.'
-				  AND pl1.start_treeid <= t2.treeid
-				  AND (t2.treeid < pl1.stop_treeid OR (pl1.stop_treeid = t2.treeid AND pl1.inc_stop = '.$db->quote('1').'))';
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a1');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l1');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't1');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl1');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p1');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't2');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l2');
-		$sql = 'SELECT DISTINCT a1.assetid, a1.type_code, p1.permissionid, p1.userid, p1.permission
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a1
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l1 ON a1.assetid = l1.minorid
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl1 ON t1.treeid = pl1.start_treeid
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p1 ON pl1.permissionid = p1.permissionid,
-					'.SQ_TABLE_RUNNING_PREFIX.'asset_link l2
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid
-				'.$where;
-
-		$lookups = $db->getAll($sql);
-		if (DB::isError($lookups)) {
-			trigger_error($lookups->getMessage().'<br/>'.$lookups->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// if there are no permissions we are all done
-		if (empty($lookups)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
-		}
-
-		foreach($lookups as $data) {
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['assetid'], $data['type_code']);
-			if(is_null($asset)) continue;
-
-			if (!$asset->_deletePermissionLookup((int) $data['permissionid'], (int) $data['userid'], (int) $data['permission'], false)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			if (!$asset->_addPermissionLookup((int) $data['permissionid'], (int) $data['userid'], (int) $data['permission'])) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-		}// end foreach
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
-
-	}// end _refreshPermissionLookups()
-
-
-	/**
-	* Updates the permission lookup table for the by adding a permission in
-	*
-	* @param string	$permissionid	the id of the new permission
-	* @param int	$userid			the user that has had permission set
-	* @param string	$permission		the permission code you are adding
-	*
-	* @return boolean
-	* @access protected
-	*/
-	function _addPermissionLookup($permissionid, $userid, $permission)
-	{
-		//// UPDATE PERMISSIONS LOOKUP TABLE ////
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// First we check to see if this permission will be inserting into the
-		// middle of another currently set permission
-		$concat_1 = ($db->phptype == 'mysql') ? 'CONCAT(pl.start_treeid, '.$db->quote('%').')' : 'pl.start_treeid || '.$db->quote('%');
-		$concat_2 = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')'        : 't.treeid || '.$db->quote('%');
-
-		$where = 'l.minorid = '.$db->quote($this->id).'
-				  AND t.treeid       LIKE '.$concat_1.'
-				  AND pl.stop_treeid LIKE '.$concat_2.'
-				  AND pl.start_treeid <= t.treeid
-				  AND (t.treeid < pl.stop_treeid OR (pl.stop_treeid = t.treeid AND pl.inc_stop = '.$db->quote('1').'))
-				  AND p.permission = '.$db->quote($permission).'
-				  AND p.userid  = '.$db->quote($userid);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-		$sql = 'SELECT t.treeid as our_treeid, pl.start_treeid, pl.permissionid, pl.stop_treeid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p ON pl.permissionid = p.permissionid,
-					'.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t ON l.linkid = t.linkid
-				'.$where;
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		$existing_perms = Array();
-		while (DB_OK === $result->fetchInto($row)) {
-			if (!isset($existing_perms[$row['our_treeid']])) $existing_perms[$row['our_treeid']] = Array();
-			if (!isset($existing_perms[$row['our_treeid']][$row['start_treeid']])) {
-				$existing_perms[$row['our_treeid']][$row['start_treeid']] = Array('permissionid' => $row['permissionid'], 'stop_treeids' => Array());
-			}
-			$existing_perms[$row['our_treeid']][$row['start_treeid']]['stop_treeids'][] = $db->quote($row['stop_treeid']);
-		}
-		$result->free();
-
-		$in_str = '';
-		foreach(array_keys($existing_perms) as $i) $in_str .= $db->quote($i).',';
-		$in_str = substr($in_str, 0, -1);
-
-		// Get the leaf nodes below us, ignoring any that we have already got from existing permissions
-		$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
-
-		$where = 'pl.minorid = '.$db->quote($this->id).'
-				  AND ct.treeid LIKE '.$concat.'
-				  AND ct.num_immediate_kids = 0
-				  AND ct.linkid != 0';
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
-		$sql = 'SELECT pt.treeid as our_treeid, ct.treeid as leaf_treeid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct,
-				  '.SQ_TABLE_RUNNING_PREFIX.'asset_link pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt ON pl.linkid = pt.linkid
-				'.$where;
-		if ($in_str) $sql .= '  AND pt.treeid NOT IN ('.$in_str.')';
-
-		$leaf_treeids = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
-		if (DB::isError($leaf_treeids)) {
-			trigger_error($leaf_treeids->getMessage().'<br/>'.$leaf_treeids->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// Do any permissions start below us ? Ignore any that we have already got from existing permissions
-		$concat = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')' : 't.treeid || '.$db->quote('%');
-
-		$where = 'l.minorid = '.$db->quote($this->id).'
-				  AND pl.start_treeid LIKE '.$concat.'
-				  AND p.permission = '.$db->quote($permission).'
-				  AND p.userid  = '.$db->quote($userid);
-		if ($in_str) $where .= ' AND t.treeid NOT IN ('.$in_str.')';
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-		$sql = 'SELECT DISTINCT t.treeid as our_treeid, pl.start_treeid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p ON pl.permissionid = p.permissionid,
-					'.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t ON l.linkid = t.linkid
-				'.$where;
-
-		$perms_below = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
-		if (DB::isError($perms_below)) {
-			trigger_error($perms_below->getMessage().'<br/>'.$perms_below->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		foreach($existing_perms as $our_treeid => $existing_perm) {
-			foreach($existing_perm as $start_treeid => $existing_perm_data) {
-				// update the existing entries to start with ourselves
-				$where = '  start_treeid = '.$db->quote($start_treeid).'
-							AND stop_treeid IN ('.implode(',', $existing_perm_data['stop_treeids']).')
-							AND permissionid = '.$db->quote($existing_perm_data['permissionid']);
-				$values = Array('start_treeid' => $db->quote($our_treeid), 'permissionid' => $db->quote($permissionid));
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_permission_lookup', $values, $where)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-
-				// create a bridge between the old parent and ourselves
-				// making sure that we exclude the stop point
-				$values = Array('permissionid' => $existing_perm_data['permissionid'],
-								'start_treeid' => $start_treeid,
-								'stop_treeid'  => $our_treeid,
-								'inc_stop'     => '0');
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_permission_lookup', $values)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-
-			}// end foreach
-
-		}// end foreach
-
-		$inserted_perm_belows = Array();
-		foreach($leaf_treeids as $our_treeid => $leafs) {
-			$start_points = Array();
-			foreach($leafs as $leaf) {
-				$stop_treeid = $leaf;
-				$inc_stop    = '1';
-				if (!empty($perms_below[$our_treeid])) {
-					foreach($perms_below[$our_treeid] as $perm_below) {
-						// if the start of this permission below is the start of this leaf treeid
-						// then that means that something is set for this permission
-						// so we can't make our stop_treeid the leaf_treeid, we need to make it the
-						// start_treeid of the permission below us
-						$found = preg_match('/^'.$perm_below.'/', $leaf);
-						if ($found === false) trigger_error('Error with preg', E_USER_ERROR);
-						if ($found) {
-							// if we have already dealt with this permission stop point
-							// continue to next leaf
-							if (in_array($perm_below, $inserted_perm_belows)) {
-								continue 2;
-							} else {
-								$inserted_perm_belows[] = $perm_below;
-								$stop_treeid = $perm_below;
-								$inc_stop    = '0';
-								break;
-							}
-						}
-					}// end foreach
-				}// endif
-
-				$values = Array('permissionid' => $permissionid,
-								'start_treeid' => $our_treeid,
-								'stop_treeid'  => $stop_treeid,
-								'inc_stop'     => $inc_stop
-								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_permission_lookup', $values)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-
-			}// end for leafs
-
-		}// end foreach leaf treeids
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
-
-	}// end _addPermissionLookup()
-
-
-	/**
-	* Updates the permission lookup table for the by removing a permission
-	*
-	* @param string		$permissionid		the id of the permission to remove
-	* @param int		$userid				the id of the user or user_group to add the permission for
-	* @param string		$permission			the permission code you are adding
-	* @param boolean	$reset_inherited	whether or not to reset the inherited permissions lookups
-	*										(only false when called from _refreshPermissionsLookups())
-	*
-	* @return boolean
-	* @access protected
-	*/
-	function _deletePermissionLookup($permissionid, $userid, $permission, $reset_inherited=true)
-	{
-		//// UPDATE PERMISSIONS LOOKUP TABLE ////
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$where = 'l.minorid = '.$db->quote($this->id).'
-				  AND p.start_treeid = t.treeid
-				  AND p.permissionid = '.$db->quote($permissionid);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-		$sql = 'SELECT DISTINCT t.treeid as our_treeid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup p,
-					'.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t ON l.linkid = t.linkid
-				'.$where;
-
-		$existing_perms = $db->getCol($sql);
-		if (DB::isError($existing_perms)) {
-			trigger_error($existing_perms->getMessage().'<br/>'.$existing_perms->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		if ($reset_inherited) {
-			$where = 'l.minorid = '.$db->quote($this->id).'
-					  AND pl.stop_treeid = t.treeid
-					  AND p.permission = '.$db->quote($permission).'
-					  AND p.userid  = '.$db->quote($userid);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
-			$sql = 'SELECT t.treeid as our_treeid, pl.start_treeid, pl.permissionid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p ON pl.permissionid = p.permissionid,
-						'.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t ON l.linkid = t.linkid
-					'.$where;
-
-			$inherited_perms = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC);
-			if (DB::isError($inherited_perms)) {
-				trigger_error($inherited_perms->getMessage().'<br/>'.$inherited_perms->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-		}
-
-		if (!empty($existing_perms)) {
-
-			foreach($existing_perms as $our_treeid) {
-
-				if ($reset_inherited && !empty($inherited_perms[$our_treeid])) {
-					// Now delete our inherited entry entries
-					$where_cond = ' stop_treeid  = '.$db->quote($our_treeid).'
-									AND permissionid = '.$db->quote($inherited_perms[$our_treeid]['permissionid']);
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission_lookup', $where_cond)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-
-					// Reset our entries to start from the inherited treeid
-					$where = '  start_treeid = '.$db->quote($our_treeid).'
-								AND permissionid = '.$db->quote($permissionid);
-					$values = Array('start_treeid' => $db->quote($inherited_perms[$our_treeid]['start_treeid']),
-									'permissionid' => $db->quote($inherited_perms[$our_treeid]['permissionid'])
-									);
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_permission_lookup', $values, $where)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-
-				} else {
-					// add a rollback entries for the permission lookups
-					$where = '  start_treeid = '.$db->quote($our_treeid).'
-								AND permissionid = '.$db->quote($permissionid);
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission_lookup', $where)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-
-				}// end if
-
-			}// end foreach
-
-		}// end if existing perms
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
-
-	}// _deletePermissionLookup()
 
 
 	/**

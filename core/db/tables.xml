@@ -582,14 +582,6 @@
 	</table>
 	<table name="asset_permission" require_rollback="1">
 		<columns>
-			<column name="permissionid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
-				<default />
-				<description />
-			</column>
 			<column name="assetid" allow_null="0">
 				<type>INT</type>
 				<type_variations>
@@ -623,54 +615,9 @@
 		</columns>
 		<keys>
 			<primary_key>
-				<column name="permissionid" />
-			</primary_key>
-			<unique_key>
 				<column name="assetid"    />
 				<column name="userid"     />
 				<column name="permission" />
-			</unique_key>
-		</keys>
-		<indexes />
-	</table>
-	<table name="asset_permission_lookup" require_rollback="1">
-		<columns>
-			<column name="permissionid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
-				<default />
-				<description />
-			</column>
-			<column name="start_treeid" allow_null="0">
-				<type>TEXT</type>
-				<type_variations>
-					<mysql>VARCHAR(200)</mysql>
-				</type_variations>
-				<default />
-				<description />
-			</column>
-			<column name="stop_treeid" allow_null="0">
-				<type>TEXT</type>
-				<type_variations>
-					<mysql>VARCHAR(200)</mysql>
-				</type_variations>
-				<default />
-				<description />
-			</column>
-			<column name="inc_stop" allow_null="0">
-				<type>CHAR(1)</type>
-				<type_variations />
-				<default>'0'</default>
-				<description>include the stop_treeid as part of this permission</description>
-			</column>
-		</columns>
-		<keys>
-			<primary_key>
-				<column name="permissionid" />
-				<column name="start_treeid" />
-				<column name="stop_treeid"  />
 			</primary_key>
 		</keys>
 		<indexes />
@@ -849,6 +796,54 @@
 		<keys>
 			<primary_key>
 				<column name="messageid" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="HIPO_running_vars" require_rollback="0">
+		<columns>
+			<column name="code_name" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default>''</default>
+				<description>A unique ID that a HIPO object can use to determine if another HIPO is running</description>
+			</column>
+			<column name="hipo_vars" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>LONGTEXT</mysql>
+				</type_variations>
+				<default>''</default>
+				<description />
+			</column>
+			<column name="options" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>LONGTEXT</mysql>
+				</type_variations>
+				<default>''</default>
+				<description />
+			</column>
+			<column name="steps" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>LONGTEXT</mysql>
+				</type_variations>
+				<default>''</default>
+				<description />
+			</column>
+			<column name="running_vars" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>LONGTEXT</mysql>
+				</type_variations>
+				<default>''</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="code_name" />
 			</primary_key>
 		</keys>
 		<indexes />

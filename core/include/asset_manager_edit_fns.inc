@@ -107,7 +107,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 				$asset->paintBackend($this->backend->out);
 
-				break;
+			break;
 
 			case 'edit_asset' :
 
@@ -164,19 +164,19 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				}
 
 				$asset->paintBackend($this->backend->out);
-				break;
+			break;
 
 			case 'duplicate' :
 				$this->_dupeAsset();
-				break;
+			break;
 
 			case 'delete' :
 				$this->_deleteAsset();
-				break;
+			break;
 
 			case 'forceably_acquire_lock' :
 				$this->_forceablyAcquireLock();
-				break;
+			break;
 
 			default   :
 				$this->_printAssetList();
