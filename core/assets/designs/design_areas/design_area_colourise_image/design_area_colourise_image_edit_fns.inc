@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image_edit_fns.inc,v 1.11 2003/11/26 00:50:55 gsherwood Exp $
+* $Id: design_area_colourise_image_edit_fns.inc,v 1.12 2003/12/12 17:03:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,21 +71,37 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		require_once SQ_FUDGE_PATH.'/image/image.inc';
 
-		$source = $design->filePath($asset->attr('image'));
-		$dest   = $asset->data_path_public.'/colourised_'.$design->id.'_'.$asset->attr('image');
+		$image_asset = $design->getAssociatedFile($asset->attr('image'));
+		if (is_null($image_asset)) {
+			trigger_error('Unable to colourise "'.$asset->attr('id_name').'", source file asset for "'.$asset->attr('image').'" not found', E_USER_WARNING);
+			return '';
+		}
 
-		create_directory($asset->data_path_public);
-
+		$source = $image_asset->data_path.'/'.$image_asset->attr('name');
 		// check the source file exists
 		if (!file_exists($source)) {
 			trigger_error('Unable to colourise "'.$asset->attr('id_name').'", source file "'.$source.'" doesn\'t exist', E_USER_WARNING);
 			return '';
 		}
 
+		// dest file has design id so that if we are used by customisations they each have there own file
+		$dest = $asset->data_path_public.'/colourised_'.$design->id.'_'.$asset->attr('image');
+
+		if (!create_directory($asset->data_path_public)) {
+			trigger_error('Unable to colourise "'.$asset->attr('id_name').'", unable to create destination directory "'.$asset->data_path_public.'"', E_USER_WARNING);
+			return '';
+		}
+
+		$colours = $asset->attr('colours');
+
 		switch ($asset->attr('type')) {
 		
 			case 'greyscale' :
-				if (Image::gradientPalette($source, $dest, $asset->attr('black_colour'), $asset->attr('white_colour'))) {
+				if (!isset($colours['black_colour']) || !isset($colours['white_colour'])) { 
+					trigger_error('Unable to colourise "'.$asset->attr('id_name').'", you need to set both the black_colour and white_colour attributes in order to greyscale colourise an image', E_USER_WARNING);
+					return '';
+				}
+				if (Image::gradientPalette($source, $dest, $colours['black_colour'], $colours['white_colour'])) {
 					return basename($dest);
 				}
 
@@ -93,14 +109,14 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 
 			case 'multiple_colours' :
 
-				$colours = Array();
+				$colour_map = Array();
 				$i = 1;
-				while(@$asset->attr('from_colour_'.$i) && @$asset->attr('to_colour_'.$i)) {
-					$colours[$asset->attr('from_colour_'.$i)] = $asset->attr('to_colour_'.$i);
+				while(isset($colours['from_colour_'.$i]) && isset($colours['to_colour_'.$i])) {
+					$colour_map[$colours['from_colour_'.$i]] = $colours['to_colour_'.$i];
 					$i++;
 				}
 
-				if (Image::remapColour($source, $dest, $colours, $asset->attr('tolerance'))) {
+				if (Image::remapColour($source, $dest, $colour_map, $asset->attr('tolerance'))) {
 					return basename($dest);
 				}
 
