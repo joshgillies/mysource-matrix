@@ -6,7 +6,7 @@ define('FUDGE_FV_NOT_CHECKED_OUT',   4);
 define('FUDGE_FV_MODIFIED',          8);
 define('FUDGE_FV_NOT_MODIFIED',     16);
 define('FUDGE_FV_UP_TO_DATE',       32);
-define('FUDGE_FV_OUT_OF_DATE',        64);
+define('FUDGE_FV_OUT_OF_DATE',      64);
 
 
 /**
@@ -353,9 +353,10 @@ class File_Versioning
 
 		$filename = basename($real_file);
 
-		// make sure there isn't already a .FFV entry for this file
-		$ffv_file = dirname($real_file).'/.FFV/'.$filename;
-		if (file_exists($ffv_file)) {
+
+		// make sure there isn't already a .FFV entry for this file (or that it hasn't been removed)
+		$existing_ffv_info = $this->_getFileInfoFromRealFile($real_file);
+		if ($existing_ffv_info != FUDGE_FV_NOT_CHECKED_OUT && empty($existing_ffv_info['removal'])) {
 			trigger_error('Unable to add file "'.$real_file.'", there is already a .FFV entry for this file', E_USER_NOTICE);
 			return false;
 		}
@@ -647,7 +648,8 @@ class File_Versioning
 						FROM fudge_file_versioning_file_history
 						WHERE fileid = '.$this->_db->quote($info['fileid']).'
 						  AND from_date <= '.$this->_db->quote($this->_tsIso8601($date)).'
-						  AND (to_date IS NULL OR to_date > '.$this->_db->quote($this->_tsIso8601($date)).')';
+						  AND (to_date IS NULL OR to_date > '.$this->_db->quote($this->_tsIso8601($date)).')
+						ORDER BY version DESC';
 				$nice_date = $this->_tsIso8601($date);
 			}// end if
 
@@ -727,7 +729,7 @@ class File_Versioning
 		}// end if
 
 		// if this version is a removal then we are need to remove any existing files
-		if ($info['removal']) {	
+		if ($info['removal']) {
 			if (file_exists($dest_file) && !unlink($dest_file)) {
 				// remove the FFV file
 				unlink($dest_dir.'/.FFV/'.basename($rep_file));
