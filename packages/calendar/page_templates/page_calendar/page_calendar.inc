@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.60 2004/09/10 01:44:54 lwright Exp $
+* $Id: page_calendar.inc,v 1.61 2004/09/10 04:23:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.60 $ - 1.0
+* @version $Revision: 1.61 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -843,7 +843,7 @@ class Page_Calendar extends Page_Asset_Listing
 		} elseif ($view == 'week') {
 			// convert the date into the first day of the week's date
 			$week_start_day = $this->day_names_full[$this->attr('week_starts_on')];
-			if (date('l',strtotime('date')) != $week_start_day) $date = date('Y-m-d', strtotime('last '.$week_start_day, strtotime($date)));
+			if (date('l',strtotime($date)) != $week_start_day) $date = date('Y-m-d', strtotime('last '.$week_start_day, strtotime($date)));
 		}		
 		return date($title_formats[$view], strtotime($date));
 	}
@@ -1369,55 +1369,33 @@ class Page_Calendar extends Page_Asset_Listing
 	function getWeekEventsByDay($date)
 	{
 		$res = Array();
-		// get the list of columns using the week-starts-on and week-days-to-show attributes
-		$today_ts = strtotime($date);
-		$today_day = date('w', $today_ts);
-		$week_start_day = $this->attr('week_starts_on');
-		$enabled_days = $this->attr('week_view_show_days');
-		$ordered_days = Array();
-		for ($i = $week_start_day; $i < $week_start_day + 7; $i++) {
-			$ordered_days[] = $i%7;
+		for ($i = iso8601_ts($date); $i <= iso8601_ts($date) + 6*86400; $i += 86400) {
+			$res[iso8601_date_component(ts_iso8601($i))] = Array();
 		}
-		$passed_today = false;
-		
+
+		$week_start_day = $this->attr('week_starts_on');
 		$first_day = iso8601_ts($date) - ((7+(date('w', iso8601_ts($date)) - $week_start_day))%7)*86400;
 		$cal_date = date('Y-m-d', $first_day);
-		$last_day = date('Y-m-d', $first_day + 6*86400);
 				
-		$plain_events = $this->getWeekEvents($date);
+		$last_day = iso8601_date_component(ts_iso8601(iso8601_ts($cal_date) + 6*86400));
+				
+		$plain_events = $this->getWeekEvents($cal_date);
 		$events =& $this->_expandEventList($plain_events, $cal_date, $last_day);
 		
-		foreach ($ordered_days as $current_day) {
-			if ($current_day == $today_day) $passed_today = true;
-			if ($enabled_days[$current_day]) {
-				$key = date('Y-m-d', strtotime(($passed_today ? '' : 'last ').$this->day_names_full[$current_day], $today_ts));
-				$res[$key] = Array();
-				foreach(array_keys($events) as $event_key) {		
-					$event =& $events[$event_key];
-					$start_iso = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
-					$end_iso = sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
-					
-					if (($key >= $start_iso) && (is_null($event['end_date_ds']) || ($key <= $end_iso))) {
-						// make a copy of the current event which we will then modify
-						$new_event = $event;
-						list($new_event['start_date_year'], $new_event['start_date_mon'], $new_event['start_date_mday']) = explode('-', $key);
-						list($new_event['end_date_year'], $new_event['end_date_mon'], $new_event['end_date_mday']) = explode('-', $key);
-						
-						if ($key != $start_iso) {
-							list($new_event['start_date_hours'], $new_event['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
-							$new_event['start_date_ts'] = iso8601_ts($key.' '.$this->attr('day_starts_at').':00');
-						}
-						
-						if ($key != $end_iso) {
-							list($new_event['end_date_hours'], $new_event['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
-							$new_event['end_date_ts'] = iso8601_ts($key.' '.$this->attr('day_ends_at').':00');
-						}
-						$res[$key][$event_key] = $new_event;
-					}
-				}
+		bam ($events);
+		
+		foreach ($events as $id => $details) {
+			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
+			if (($event_date >= $cal_date) && ($event_date <= $last_day)) {
+				$res[$event_date][$id] = $details;
 			}
 		}
-		foreach ($res as $day => $events) $this->_processExceptions($res[$day]);
+		
+		foreach ($res as $date => $events) $this->_processExceptions($res[$date]);
+		
+		bam ('Final RESULT!!');
+		bam ($res);
+		
 		return $res;
 
 	}//end getWeekEventsByDay()
@@ -1436,7 +1414,6 @@ class Page_Calendar extends Page_Asset_Listing
 		error_log($time_partition);
 		
 		if (!$last_time) $last_time = $this->attr('day_ends_at');
-		$events = $this->getWeekEventsByDay($date);
 		$partition_keys = Array();
 		list($hour, $mins) = explode(':', $last_time);
 		$end_ts = $mins + (60 * $hour);
@@ -1452,6 +1429,50 @@ class Page_Calendar extends Page_Asset_Listing
 		$partitions['all_day'] = Array();
 
 		$res = Array();
+		
+		$week_start_day = $this->attr('week_starts_on');
+		$first_day = iso8601_ts($date) - ((7+(date('w', iso8601_ts($date)) - $week_start_day))%7)*86400;
+		$cal_date = date('Y-m-d', $first_day);
+						
+		$last_day = iso8601_date_component(ts_iso8601(iso8601_ts($cal_date) + 6*86400));
+		
+		for ($i = iso8601_ts($cal_date); $i <= iso8601_ts($cal_date) + 6*86400; $i += 86400) {
+			$res[iso8601_date_component(ts_iso8601($i))] = $partitions;			
+		}
+
+		
+		$plain_events = $this->getWeekEvents($cal_date);
+		$events =& $this->_expandEventList($plain_events, $cal_date, $last_day);
+		
+		//bam ($events);
+		
+		foreach ($events as $id => $details) {
+			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
+			bam($id.' is occurs on '.$event_date); 			
+			if (($event_date >= $cal_date) && ($event_date <= $last_day)) {
+				if (is_null($details['start_date_hours'])) {
+					$res[$event_date]['all_day'][$id] = $details;
+				} else {
+					$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
+					if ($event_ts < $start_ts) continue;
+					foreach ($partition_keys as $partition_ts => $key) {
+						if (($event_ts - $partition_ts) < $time_partition) {
+							$res[$event_date][$key][$id] = $details;
+							break;
+						}
+					}
+				}
+			}
+		}
+		
+		foreach ($res as $date => $events) {
+			foreach($partition_keys as $partition) $this->_processExceptions($res[$date][$partition]);
+		}
+		
+		//bam ('Final RESULT!!');
+		//bam ($res);
+		
+		return $res;
 		foreach ($events as $day => $day_events) {
 			$res[$day] = $partitions; // nb assignment by copy
 			foreach ($day_events as $assetid => $details) {
@@ -1490,6 +1511,8 @@ class Page_Calendar extends Page_Asset_Listing
 		$recur_result =& $this->_multipleDayRecurringQuery($root_nodes, $date, 'day');
 		
 		$res = $single_result + $recur_result;
+		$res =& $this->_expandEventList($res, $date, $date);
+		
 		$this->_processExceptions($res);
 
 		$date_stamp = floor(iso8601_ts($date.' 12:00:00') / 86400);
@@ -2127,7 +2150,7 @@ class Page_Calendar extends Page_Asset_Listing
 		
 		foreach(array_keys($events) as $key) {
 			$event =& $events[$key];
-			if ($event['type_code'] == 'calendar_event_recurring') {
+			if ($event['type_code'] == 'calendar_event_recurring') {				
 				$this->_expandRecurringEvent($res, $event, $key, $cal_date, $last_day);
 			} else {
 				$this->_expandSingleEvent($res, $event, $key);
@@ -2153,16 +2176,20 @@ class Page_Calendar extends Page_Asset_Listing
 	* @return boolean	always true
 	* @access private
 	*/
-	function _expandSingleEvent(&$result_list, &$event, $assetid) {
+	function _expandSingleEvent(&$result_list, &$event, $assetid) {		
 		$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
 		$event_end_date = sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
+		
+		list($start_date_hours, $start_date_minutes) = sscanf($this->attr('day_starts_at'), '%02d:%02d');
+		list($end_date_hours, $end_date_minutes) = sscanf($this->attr('day_ends_at'), '%02d:%02d');
 		
 		$i = 0;
 		
 		if (!is_null($event['end_date_ds'])) {
 			// end date is specified
 			if ($event['start_date_ds'] != $event['end_date_ds']) {
-				
+				trigger_error('-- EXPANDING SINGLE EVENT ID:'.$event['name'].' --'."\n".
+					'End Date: Specified, Days: Multiple ('.$event['start_date_ds'].'-'.$event['end_date_ds'].')', E_USER_NOTICE);
 				// multiple day
 				$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 				$start_date = date('Y-m-d', $start_time);
@@ -2175,6 +2202,10 @@ class Page_Calendar extends Page_Asset_Listing
 					'start_date_mday' => date('j', $start_time),
 					'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
 					'end_date_mday' => date('j', $start_time)));
+					if (!is_null($result_list[$assetid.':'.$i]['start_date_hours'])) {
+						$result_list[$assetid.':'.$i]['end_date_hours'] = $end_date_hours;
+						$result_list[$assetid.':'.$i]['end_date_minutes'] = $end_date_minutes;
+					}
 				$i++;
 				
 				for ($inter_time = $start_time + 86400; $inter_time < $end_time; $inter_time += 86400) {
@@ -2185,6 +2216,12 @@ class Page_Calendar extends Page_Asset_Listing
 						'end_date_year' => date('Y', $inter_time), 'end_date_mon' => date('n', $inter_time),
 						'end_date_mday' => date('j', $inter_time),
 						'partition_start' => $this->attr('day_starts_at')));
+						if (!is_null($result_list[$assetid.':'.$i]['start_date_hours'])) {
+							$result_list[$assetid.':'.$i]['start_date_hours'] = $start_date_hours;
+							$result_list[$assetid.':'.$i]['start_date_minutes'] = $start_date_minutes;
+							$result_list[$assetid.':'.$i]['end_date_hours'] = $end_date_hours;
+							$result_list[$assetid.':'.$i]['end_date_minutes'] = $end_date_minutes;
+						}
 						$i++;
 				}
 				
@@ -2195,10 +2232,16 @@ class Page_Calendar extends Page_Asset_Listing
 						'end_date_mday' => date('j', $end_time),
 					'partition_start' => $this->attr('day_starts_at')));
 					
+				if (!is_null($result_list[$assetid.':'.$i]['start_date_hours'])) {
+					$result_list[$assetid.':'.$i]['start_date_hours'] = $start_date_hours;
+					$result_list[$assetid.':'.$i]['start_date_minutes'] = $start_date_minutes;
+				}
 
 				$i++;
 				
 			} else {
+				trigger_error('-- EXPANDING SINGLE EVENT ID:'.$event['name'].' --'."\n".
+					'End Date: Specified, Days: Single', E_USER_NOTICE);
 				$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 				$start_date = date('Y-m-d', $start_time);
 				// single day
@@ -2210,6 +2253,8 @@ class Page_Calendar extends Page_Asset_Listing
 				$i++;
 			}
 		} else {
+			trigger_error('-- EXPANDING SINGLE EVENT ID:'.$event['name'].' --'."\n".
+					'End Date: Not Specified, Days: Single', E_USER_NOTICE);
 			$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 			$start_date = date('Y-m-d', $start_time);
 			// single day in any case
