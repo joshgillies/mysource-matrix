@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.4 2004/10/21 02:32:58 tbarrett Exp $
+* $Id: js_calendar.js,v 1.5 2004/11/16 04:02:42 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -429,7 +429,7 @@ function c_output()
 	//month caption
 	output += '<tr style="height:1px"><td class="cal_arrow" onclick="' + this.varname +
 		'.setMonth(\'--\')" align="left">&laquo;</td><td class="cal_month" colspan="' + colspan + '" align="center" onclick="' +
-		this.varname + '.monthClick(1,' + this.month + ',' + this.year + ')">' +
+		this.varname + '.monthClick(1,' + ((this.month+1)) + ',' + this.year + ')">' +
 		this.mon_names[this.month] + '</td><td class="cal_arrow" onclick="' + this.varname +
 		'.setMonth(\'++\')" align="right">&raquo;</td></tr>';
 	//year caption
