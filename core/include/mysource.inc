@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.64 2004/12/23 13:29:47 brobertson Exp $
+* $Id: mysource.inc,v 1.65 2005/01/13 22:19:56 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.64 $
+* @version $Revision: 1.65 $
 * @package MySource_Matrix
 */
 class MySource
@@ -615,8 +615,8 @@ class MySource
 		$groups = $this->am->getParents($this->user->id, 'user_group', false);
 		if (!empty($groups)) {
 			$included_global = false;
-			foreach ($groups as $groupid) {
-				$user_group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($groupid);
+			foreach ($groups as $groupid => $type_code) {
+				$user_group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($groupid, $type_code);
 				if (is_null($user_group)) continue;
 				$file_path = $user_group->data_path.'/.preferences.inc';
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.347 2004/12/24 03:23:42 gsherwood Exp $
+* $Id: asset.inc,v 1.348 2005/01/13 22:19:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.347 $
+* @version $Revision: 1.348 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2872,7 +2872,7 @@ class Asset extends MySource_Object
 			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
 
 			// use the current user and their groups
-			$assetids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false);
+			$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		}
 
