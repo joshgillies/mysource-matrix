@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.1 2004/05/28 01:24:35 gsherwood Exp $
+* $Id: hipo_job_install_patch.inc,v 1.2 2004/06/07 05:16:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -136,7 +136,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 												'paint_function'   => 'paintPleaseWait',
 												'process_function' => 'processInstallScript',
 												),
-						'running_mode'	=> 'server',
+						'running_mode'	=> 'web',
 						'auto_step'		=> true,
 						'skip_step'		=> false,
 						'percent_done'	=> 0,
