@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.5 2004/09/16 11:02:17 brobertson Exp $
+* $Id: hipo_job_reindex.inc,v 1.6 2004/11/15 00:48:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,6 +60,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 						'percent_done'     => 0,
 						'complete'         => false,
 						'message'          => '',
+						'allow_cancel'     => true,   
 					),
 				);
 
