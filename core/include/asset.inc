@@ -4195,13 +4195,14 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url(current_url(false));
 
+		$sql = 'SELECT l.designid, a.type_code
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l, '.SQ_TABLE_RUNNING_PREFIX.'asset a ';
 		$where = 'l.designid = a.assetid
 				  AND l.url        = '.$db->quote($url).'
 				  AND l.assetid    = '.$db->quote($this->id);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT l.designid, a.type_code
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l, '.SQ_TABLE_RUNNING_PREFIX.'asset a '.$where;
+		$sql .= $where;
 
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) {
@@ -4299,14 +4300,16 @@ class Asset extends Resolve_Object
 	/**
 	* Returns the URL for this asset, closest to the $base_url
 	*
-	* @param string	$base_url	the url that we are want to match closest to
+	* @param string		$base_url			the url that we are want to match closest to
+	* @param boolean	$ignore_rollback	ignore rollback checks in asset manager?
+	*										this should only get set by the asset manager itself
 	*
 	* @return string
 	* @access public
 	*/
-	function getURL($base_url=null)
+	function getURL($base_url=null, $ignore_rollback=false)
 	{
-		return $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url);
+		return $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url, $ignore_rollback=false);
 
 	}//end getURL()
 
@@ -4314,14 +4317,16 @@ class Asset extends Resolve_Object
 	/**
 	* Returns the href for this asset closest to the $base_url, but relative to the current url
 	*
-	* @param string	$base_url	the url that we are want to match closest to
+	* @param string		$base_url			the url that we are want to match closest to
+	* @param boolean	$ignore_rollback	ignore rollback checks in asset manager?
+	*										this should only get set by the asset manager itself
 	*
 	* @return string
 	* @access public
 	*/
-	function getHref($base_url=null)
+	function getHref($base_url=null, $ignore_rollback=false)
 	{
-		return $GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->id, $base_url);
+		return $GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->id, $base_url, $ignore_rollback);
 
 	}//end getHref()
 

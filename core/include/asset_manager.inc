@@ -1070,14 +1070,15 @@ class Asset_Manager extends Resolve_Object
 	/**
 	* Returns the URL for an asset, closest to the $base_url
 	*
-	* @param int | array(int)	$assetids	the id of the asset you want the url for or an array
-	*										for a whole bunch of them
-	* @param string				$base_url	the url that we are want to match closest to
+	* @param int | array(int)	$assetids			the id of the asset you want the url for or an array
+	*												for a whole bunch of them
+	* @param string				$base_url			the url that we are want to match closest to
+	* @param boolean			$ignore_rollback	ignore rollback checks
 	*
 	* @return mixed returns string if $assetids is an in and an array(int => string) if $assetids is an array
 	* @access public
 	*/
-	function getAssetURL($assetids, $base_url=null)
+	function getAssetURL($assetids, $base_url=null, $ignore_rollback=false)
 	{
 		$return_array = true;
 		$in_assetid = 0;
@@ -1088,6 +1089,19 @@ class Asset_Manager extends Resolve_Object
 			$return_array = false;
 		} else {
 			if (empty($assetids)) return Array();
+		}
+
+		if (!$ignore_rollback && SQ_ROLLBACK_VIEW) {
+			if ($return_array) {
+				foreach ($assetids as $assetid) {
+					$asset = &$this->getAsset($assetid);
+					$return_hrefs[$assetid] = $asset->getURL($base_url, true);
+				}
+				return $return_hrefs;
+			} else {
+				$asset = &$this->getAsset($assetids[0]);
+				return $asset->getURL($base_url, true);
+			}
 		}
 
 		if (is_null($base_url)) $base_url = current_url(false);
@@ -1161,17 +1175,16 @@ class Asset_Manager extends Resolve_Object
 	/**
 	* Returns the href for an asset closest to the $base_url, but relative to the current url
 	*
-	* @param int | array(int)	$assetids	the id of the asset you want the href for or an array
-	*										for a whole bunch of them
-	* @param string				$base_url	the url that we are want to match closest to
+	* @param int | array(int)	$assetids			the id of the asset you want the href for or an array
+	*												for a whole bunch of them
+	* @param string				$base_url			the url that we are want to match closest to
+	* @param boolean			$ignore_rollback	ignore rollback checks
 	*
 	* @return mixed returns string if $assetids is an in and an array(int => string) if $assetids is an array
 	* @access public
 	*/
-	function getAssetHref($assetids, $base_url=null)
+	function getAssetHref($assetids, $base_url=null, $ignore_rollback=false)
 	{
-		if (is_null($base_url)) $base_url = current_url(false);
-
 		$return_array = true;
 		$in_assetid = 0;
 		if (!is_array($assetids)) {
@@ -1183,10 +1196,25 @@ class Asset_Manager extends Resolve_Object
 			if (empty($assetids)) return Array();
 		}
 
+		$return_hrefs = Array();
+
+		if (!$ignore_rollback && SQ_ROLLBACK_VIEW) {
+			if ($return_array) {
+				foreach ($assetids as $assetid) {
+					$asset = &$this->getAsset($assetid);
+					$return_hrefs[$assetid] = $asset->getHref($base_url, true);
+				}
+				return $return_hrefs;
+			} else {
+				$asset = &$this->getAsset($assetids[0]);
+				return $asset->getHref($base_url, true);
+			}
+		}
+
+		if (is_null($base_url)) $base_url = current_url(false);
+
 		if (is_null($base_url)) $base_url = current_url(false);
 		$base_url = strip_url($base_url, true);
-
-		$return_hrefs = Array();
 
 		// work out if any of these are cached
 		foreach ($assetids as $assetid) {
@@ -1199,7 +1227,7 @@ class Asset_Manager extends Resolve_Object
 		}
 
 		$the_rest = array_diff($assetids, array_keys($return_hrefs));
-		$urls = $this->getAssetURL($the_rest, $base_url);
+		$urls = $this->getAssetURL($the_rest, $base_url, $ignore_rollback);
 
 		foreach ($urls as $assetid => $url) {
 			if ($url != '') {
