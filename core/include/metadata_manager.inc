@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.66 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.67 2005/02/25 04:35:09 gsherwood Exp $
 *
 */
 
@@ -31,11 +31,12 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
 {
+
 
 	/**
 	* Constructor

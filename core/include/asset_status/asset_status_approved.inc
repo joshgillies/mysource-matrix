@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_approved.inc,v 1.16 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: asset_status_approved.inc,v 1.17 2005/02/25 04:35:09 gsherwood Exp $
 *
 */
 
@@ -35,11 +35,12 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    APPROVED -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 */
 class Asset_Status_Approved extends Asset_Status
 {
+
 
 	/**
 	* Constructor

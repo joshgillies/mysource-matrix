@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.9 2005/01/06 12:34:47 brobertson Exp $
+* $Id: external_tools_config.inc,v 1.10 2005/02/25 04:35:09 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    e.g. HTML Tidy, PDFtoHTML, Antiword, etc.
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class External_Tools_Config extends Config
@@ -80,7 +80,7 @@ class External_Tools_Config extends Config
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
 	* @param boolean 	$send_message		whether to send a message using the messaging system
-
+	*
 	* @return boolean	indicates whether the file was written
 	* @access public
 	*/

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.31 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: asset_attribute.inc,v 1.32 2005/02/25 04:35:09 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -89,6 +89,7 @@ class Asset_Attribute extends MySource_Object
 	* @var mixed
 	*/
 	var $processed = false;
+
 
 	/**
 	* Constructor

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.45 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: system_config.inc,v 1.46 2005/02/25 04:35:09 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.45 $
+* @version $Revision: 1.46 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -128,7 +128,7 @@ class System_Config extends Config
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
 	* @param boolean 	$send_message		whether to send a message using the messaging system
-
+	*
 	* @return boolean	indicates whether the file was written
 	* @access public
 	*/

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.28 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: asset_status_under_construction.inc,v 1.29 2005/02/25 04:35:09 gsherwood Exp $
 *
 */
 
@@ -38,11 +38,12 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
 {
+
 
 	/**
 	* Constructor
