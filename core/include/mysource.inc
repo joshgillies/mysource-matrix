@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.53 2004/09/28 23:07:59 gsherwood Exp $
+* $Id: mysource.inc,v 1.54 2004/10/18 23:40:15 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -542,6 +542,10 @@ class MySource
 			case 'set_design_name' :
 				$_SESSION['SQ_DESIGN_NAME'] = (isset($_GET['SQ_DESIGN_NAME'])) ? $_GET['SQ_DESIGN_NAME'] : '';
 				unset($_GET['SQ_DESIGN_NAME']);
+			break;
+
+			case 'clear_design_name' :
+				if (isset($_SESSION['SQ_DESIGN_NAME'])) unset($_SESSION['SQ_DESIGN_NAME']);
 			break;
 
 			case 'asset_map_request' :
