@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.18 2003/11/19 00:46:15 mmcintyre Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.19 2003/11/20 03:39:53 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -251,8 +251,8 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	*/
 	function initialise($source_code_name=null)
 	{
+		$this->prepare();
 		return parent::initialise($source_code_name);
-		return true;
 
 	}//end initialise()
 
