@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.49 2004/08/18 23:15:19 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.50 2004/09/03 05:52:41 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -945,7 +945,8 @@ class HIPO_Job extends MySource_Object
 				// let's reset the running mode and get out of here
 				case 'web' :
 					// if we have reached a new step, that uses a different running mode to ourselves, then change our running mode
-					pre_echo(__FUNCTION__."::".__LINE__.">>>>>>>>>>>>>>>>> RESET RUNNING MODE TO web <<<<<<<<<<<<<<<<<<<");
+					// pre_echo(__FUNCTION__."::".__LINE__.">>>>>>>>>>>>>>>>> RESET RUNNING MODE TO web <<<<<<<<<<<<<<<<<<<");
+					error_log("The Squiz Server reset the running mode to WEB for User ID #".$GLOBALS['SQ_SYSTEM']->currentUserId()." and Job ".$this->source_code_name);
 					return $this->setRunningMode('web');
 				break;
 
