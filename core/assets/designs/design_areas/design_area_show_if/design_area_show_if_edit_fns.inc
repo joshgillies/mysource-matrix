@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if_edit_fns.inc,v 1.4 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_show_if_edit_fns.inc,v 1.5 2005/01/11 03:41:58 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -96,10 +96,10 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 						return false;
 					}
 
-				$then_element = true;
-
-				// Now we want to remove the Then section
-				array_splice($contents, $index, 1);
+					$then_element = true;
+	
+					// Now we want to remove the Then section
+					array_splice($contents, $index, 1);
 				break;
 
 				case 'else' :
@@ -115,7 +115,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 					$else_element = true;
 
 					// Now we want to remove the Else section
-				array_splice($contents, $index, 1);
+					array_splice($contents, $index, 1);
 				break;
 
 			}// end switch
