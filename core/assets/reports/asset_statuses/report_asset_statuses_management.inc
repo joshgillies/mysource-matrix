@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_management.inc,v 1.2 2005/02/16 08:58:56 brobertson Exp $
+* $Id: report_asset_statuses_management.inc,v 1.3 2005/02/18 05:29:08 dbaranovskiy Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,11 +54,11 @@ class Report_Asset_Statuses_Management extends Asset_Management
 							'search_status' => Array(
 								'added'       => '0.1',
 								'type'        => 'selection',
-								'default'     => SQ_SC_STATUS_ALL,
-								'description' => 'The status we are interested in',
+								'default'     => '',
+								'description' => 'The statuses we are interested in',
 								'parameters'  => Array(
-									'options'  => Array(SQ_SC_STATUS_ALL => 'Any Status') + get_status_names(),
-									'multiple' => false,
+									'options'  => get_status_names(),
+									'multiple' => true,
 									'allow_empty' => false,
 								),
 							),
@@ -73,9 +73,9 @@ class Report_Asset_Statuses_Management extends Asset_Management
 							),
 							'status_change_period' => Array(
 								'added'         => '0.1',
-								'type'			=> 'int',
+								'type'			=> 'duration',
 								'default'		=> 0,
-								'description'	=> 'Number of minutes in the past that we want to compare status change time to',
+								'description'	=> 'Number of seconds in the past that we want to compare status change time to',
 							),
 		);
 

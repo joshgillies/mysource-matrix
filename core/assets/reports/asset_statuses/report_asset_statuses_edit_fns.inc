@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.1 2005/02/16 06:02:14 dbaranovskiy Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.2 2005/02/18 05:29:08 dbaranovskiy Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -75,24 +75,24 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, '', false, 'root');
 		if (!empty($root_link)) {
 			// need to restrict results according to link tree position too
-			$parent_treeid = $db->getOne('SELECT t.treeid FROM '.SQ_TABLE_PREFIX.'ast_lnk_tree WHERE linkid = '.$db->quote($root_link['linkid']));
-			$where[] = 'SUBSTRING(t.treeid FROM 1 FOR '.strlen($parent_treeid).') = '.$db-quote($parent_treeid);
+			$parent_treeid = $db->getOne('SELECT t.treeid FROM '.SQ_TABLE_PREFIX.'ast_lnk_tree t WHERE linkid IN (SELECT linkid FROM '.SQ_TABLE_PREFIX.'ast_lnk WHERE minorid = '.$root_link['minorid'].')');
+			assert_valid_db_result($parent_treeid);
+			$where[] = 'SUBSTRING(t.treeid FROM 1 FOR '.strlen($parent_treeid).') = '.$db->quote($parent_treeid);
 			$tables[] = 'ast_lnk l';
 			$tables[] = 'ast_lnk_tree t';
 			$where[] = 'l.linkid = t.linkid';
 			$where[] = 'a.assetid = l.minorid';
 		}
 
-
-		$search_status = $owner->attr('search_status');
+		$search_status = str_replace('|', ', ', $owner->attr('search_status'));
 		if ($search_status != SQ_SC_STATUS_ALL) {
-			$where[] = 'a.status = '.$db->quote($search_status);
+			$where[] = 'a.status in ('.$search_status.')';
 		}
 
 		$period_length = $owner->attr('status_change_period');
 		if ($period_length) {
 			$operator = $owner->attr('status_change_comparator_more_than') ? '<' : '>';
-			$timestamp = time() - ($period_length * 60);
+			$timestamp = time() - $period_length;
 			$where[] = 'a.status_changed '.$operator.' '.$db->quote(ts_iso8601($timestamp));
 		}
 
@@ -102,6 +102,7 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		$sql = 'SELECT a.assetid, a.type_code, a.name, a.status, a.status_changed, a.status_changed_userid, u.name as user_name FROM '.implode(', ', $tables).' WHERE ('.implode(') AND (', $where).')';
 
 		$result = $db->getAll($sql);
+		assert_valid_db_result($result);
 
 		// generate XML contents
 		$contents = '<asset_list>'."\n";
@@ -135,6 +136,9 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
+
+		unset($owner->_tmp['getAssetMapLinks']);
+		unset($owner->_tmp['getLinks']);
 		return true;
 
 	}//end generateReport()
@@ -152,25 +156,17 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	*/
 	function paintLastStatusChange(&$asset, &$o, $prefix)
 	{
-		$minute_count = $asset->attr('status_change_period');
-		$days = (int)($minute_count / (60 * 24));
-		$hours = (int)(($minute_count / 60) - ($days * 24));
-		$minutes = $minute_count % 60;
+		$write_access = $asset->writeAccess('attributes');
 
-		if ($asset->writeAccess('links')) {
-			combo_box($prefix.'_status_change_comparator_more_than', Array('1' => 'more', '0' => 'less'), false, $asset->attr('status_change_comparator_more_than'));
-			echo ' than ';
-			text_box($prefix.'_days', $days, 1, 3, false, 'style="width: 2em"');
-			echo ' days, ';
-			text_box($prefix.'_hours', $hours, 1, 3, false, 'style="width: 2em"');
-			echo ' hours and ';
-			text_box($prefix.'_minutes', $minutes, 1, 3, false, 'style="width: 2em"');
-			echo ' minutes ago ';
-			return true;
-		} else {
-			echo $asset->attr('status_change_comparator_more_than') ? 'more' : 'less';
-			echo ' than '.$days.' days, '.$hours.' hours and '.$minutes.' minutes ago';
-		}
+		$comparator_attr =& $asset->getAttribute('status_change_comparator_more_than');
+		$comparator_attr->setEditParam('true_text', 'more');
+		$comparator_attr->setEditParam('false_text', 'less');
+		$comparator_attr->paint($prefix.'_comparator', !$write_access);
+		echo ' than ';
+		$comparator_attr =& $asset->getAttribute('status_change_period');
+		$comparator_attr->paint($prefix.'_period', !$write_access);
+		echo ' ago';
+		return true;
 
 	}//end paintLastStatusChange()
 
@@ -187,13 +183,13 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 	*/
 	function processLastStatusChange(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST[$prefix.'_days'])) {
-			$minutes_count = ($_POST[$prefix.'_days'] * 24 * 60) + ($_POST[$prefix.'_hours'] * 60) + $_POST[$prefix.'_minutes'];
-			$asset->setAttrValue('status_change_period', $minutes_count);
-		}
-		if (isset($_POST[$prefix.'_status_change_comparator_more_than'])) {
-			$asset->setAttrValue('status_change_comparator_more_than', $_POST[$prefix.'_status_change_comparator_more_than']);
-		}
+		$comparator_attr =& $asset->getAttribute('status_change_comparator_more_than');
+		$comparator_attr->process($prefix.'_comparator');
+		$asset->setAttrValue('status_change_comparator_more_than', $comparator_attr->value);
+		$period_attr =& $asset->getAttribute('status_change_period');
+		$period_attr->process($prefix.'_period');
+		$asset->setAttrValue('status_change_period', $period_attr->value);
+		return true;
 
 	}//end processLastStatusChange()
 
@@ -240,6 +236,8 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 				<td class="sq-backend-table-header">Last Status Changer</td>
 			</tr>
 		<?php
+		$cmp_func = create_function('$a, $b', 'return $a->attributes[\'type_code\'] > $b->attributes[\'type_code\'];');
+		usort($root->children, $cmp_func);
 		foreach ($root->children as $asset_node) {
 			$assetid = $asset_node->attributes['assetid'];
 			$name = $asset_node->attributes['name'];
