@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: insert_link.php,v 1.7 2003/09/26 05:26:38 brobertson Exp $
+* $Id: insert_link.php,v 1.8 2003/10/20 05:21:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,108 +139,170 @@ if (!isset($_GET['new_window'])) {
 
 		<style type="text/css">
 			html, body {
-				background: #F0F0F0;
+				background: #FCFCFC;
 				color: #000000;
 				font: 11px Tahoma,Verdana,sans-serif;
 				margin: 0px;
 				padding: 0px;
+				padding: 5px;
 			}
-			body { padding: 5px; }
+
 			table {
 				font: 11px Tahoma,Verdana,sans-serif;
 			}
-			form p {
-				margin-top: 5px;
-				margin-bottom: 5px;
-			}
-			.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
-			.fr { width: 6em; float: left; padding: 2px 5px; text-align: right; }
-			fieldset { padding: 0px 10px 5px 5px; }
-			select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
-			button { width: 70px; }
-			.space { padding: 2px; }
 
-			.title { background: #ddf; color: #000; font-weight: bold; font-size: 120%; padding: 3px 10px; margin-bottom: 10px;
-			border-bottom: 1px solid black; letter-spacing: 2px;
+			/* main popup title */
+			.title {
+				background: #402F48;
+				color: #FFFFFF;
+				font-weight: bold;
+				font-size: 120%;
+				padding: 3px 10px;
+				margin-bottom: 10px;
+				border-bottom: 1px solid black;
+				letter-spacing: 4px;
 			}
+
+			/* fieldset styles */
+			fieldset { 
+				padding: 0px 10px 5px 5px;
+				border-color: #725B7D;
+			}
+
+			.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
+			.fr { width: 7em; float: left; padding: 2px 5px; text-align: right; }
+
+			/* form and form fields */
 			form { padding: 0px; margin: 0px; }
+
+			select, input, button {
+				font: 11px Tahoma,Verdana,sans-serif;
+			}
+
+			button {
+				width: 70px;
+			}
+
+			/* colour picker button styles */
+			.buttonColor, .buttonColor-hilite {
+				cursor: default;
+				border: 1px solid;
+				border-color: #9E86AA #725B7D #725B7D #9E86AA;
+			}
+
+			.buttonColor-hilite {
+				border-color: #402F48;
+			}
+
+			.buttonColor-chooser, .buttonColor-nocolor, .buttonColor-nocolor-hilite {
+				height: 0.6em;
+				border: 1px solid;
+				padding: 0px 1em;
+				border-color: ButtonShadow ButtonHighlight ButtonHighlight ButtonShadow;
+			}
+
+			.buttonColor-nocolor, .buttonColor-nocolor-hilite { padding: 0px; }
+			.buttonColor-nocolor-hilite { background: #402F48; color: #FFFFFF; }
 		</style>
 	</head>
 
 	<body onLoad="Init(); if (opener) opener.blockEvents('matrixInsertLink')" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
+		
 		<div class="title">Insert Link</div>
+		
 		<form action="" method="get" name="main_form">
-			<table border="0" width="100%" style="padding: 0px; margin: 0px">
-				<tbody>
-					<tr>
-						<td colspan="2">
-							<table border="0" cellspacing="3" cellpadding="0">
-								<tr>
-									<td valign="top">Protocol<br><?php  combo_box('url_protocol', $url_protocol_options, $_GET['protocol'], 'style="font-family: courier new; font-size: 11px;"'); ?></td>
-									<td valign="top">Link<br><?php text_box('url_link', $_GET['url'], 40, 0)?></td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-					<tr>
-						<td style="width: 7em; text-align: right">Select Asset:</td>
-						<td>
-							<?php asset_finder('assetid', $_GET['assetid'], Array(), 'window.opener.top', 'setUrl'); ?>
-						</td>
-					</tr>
-					<tr>
-						<td colspan="2">
-							<table width="100%">
-								<tr>
-									<td nowrap>Options :&nbsp;</td>
-									<td valign="middle" width="100%"><hr width="100%"></td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-					<tr>
-						<td valign="top">
-							Status Bar Text :
-						</td>
-						<td valign="middle">
-							<?php text_box('status_text', $_GET['status_text'], 50); ?>
-						</td>
-					</tr>
-					<tr>
-						<td valign="top">
-							New Window :
-						</td>
-						<td valign="middle">
-							<?php combo_box('new_window', Array('0' => 'No', '1' => 'Yes'), false, $_GET['new_window'], 1, 'onChange="javascript: enable_new_window(this.form, form_element_value(this));"'); ?><br>
-							<br>
-							New Window Options :
-							<table border="0" cellspacing="0" cellpadding="0">
-								<tr>
-						<?php
-							$count = 0;
-							foreach($new_window_bool_options as $var => $name) {
-								$count++;
-							?> 
-									<td width="33%">
-										<input type="checkbox" value="1" name="<?php echo $var?>" <?php echo ($_GET['new_window_options'][$var]) ? 'checked' : '';?>>
-										<?php echo $name?>
-									</td>
-							<?php
-								if ($count % 2 == 0) {
-									echo '</tr><tr>';
-								}
-							}
-						?>
-								</tr>
-								<tr>
-									<td colspan="3">
-										Size : <input type="text" value="<?php echo $_GET['new_window_options']['width']?>" size="3" name="width"> (w) x <input type="text" value="<?php echo $_GET['new_window_options']['height']?>" size="3" name="height"> (h)
-									</td>
-								</tr>
-							</table>
-						</td>
-					</tr>
-				</tbody>
+			<table width="100%">
+				<tr>
+					<td>
+						<table width="100%" cellspacing="0" cellpadding="0">
+							<tr>
+								<td valign="top" width="100%">
+									<fieldset>
+									<legend><b>General</b></legend>
+									<table style="width:100%">
+										<tr>
+											<td class="label">Protocol:</td>
+											<td><?php  combo_box('url_protocol', $url_protocol_options, $_GET['protocol'], 'style="font-family: courier new; font-size: 11px;"'); ?></td>
+											<td class="label">Link:</td>
+											<td><?php text_box('url_link', $_GET['url'], 40, 0)?></td>
+										</tr>
+										<tr>
+											<td class="label">Select Asset:</td>
+											<td colspan="3"><?php asset_finder('assetid', $_GET['assetid'], Array(), 'window.opener.top', 'setUrl'); ?></td>
+										</tr>
+									</table>
+									</fieldset>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table width="100%" cellspacing="0" cellpadding="0">
+							<tr>
+								<td valign="top" width="100%">
+									<fieldset>
+										<legend>Options</legend>
+										<table style="width:100%">
+											<tr>
+												<td class="label">Status Bar Text:</td>
+												<td><?php text_box('status_text', $_GET['status_text'], 50); ?></td>
+											</tr>
+										</table>
+									</fieldset>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table width="100%" cellspacing="0" cellpadding="0">
+							<tr>
+								<td valign="top" width="100%">
+									<fieldset>
+										<legend>New Window Options</legend>
+										<table style="width:100%">
+											<tr>
+												<td class="label" rowspan="2" valign="top">New Window:</td>
+												<td><?php combo_box('new_window', Array('0' => 'No', '1' => 'Yes'), false, $_GET['new_window'], 1, 'onChange="javascript: enable_new_window(this.form, form_element_value(this));"'); ?></td>
+											</tr>
+											<tr>
+												<td>
+													<table border="0" cellspacing="0" cellpadding="0">
+														<tr>
+														<?php
+															$count = 0;
+															foreach($new_window_bool_options as $var => $name) {
+																$count++;
+															?> 
+																	<td width="33%">
+																		<input type="checkbox" value="1" name="<?php echo $var?>" <?php echo ($_GET['new_window_options'][$var]) ? 'checked' : '';?>>
+																		<?php echo $name?>
+																	</td>
+															<?php
+																if ($count % 2 == 0) {
+																	echo '</tr><tr>';
+																}
+															}
+														?>
+														</tr>
+														<tr>
+															<td colspan="3">
+																Size : <input type="text" value="<?php echo $_GET['new_window_options']['width']?>" size="3" name="width"> (w) x <input type="text" value="<?php echo $_GET['new_window_options']['height']?>" size="3" name="height"> (h)
+															</td>
+														</tr>
+													</table>
+												</td>
+											</tr>
+										</table>
+									</fieldset>
+								</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
 			</table>
 
 			<div style="margin-top: 5px; text-align: right;">
