@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.141 2003/10/17 01:33:07 brobertson Exp $
+* $Id: asset_manager.inc,v 1.142 2003/10/17 04:54:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -333,7 +333,9 @@ class Asset_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$where = '';
 
-		for($i = 0; $i < count($assetids); $i++) $assetids[$i] = $db->quote($assetids[$i]);
+		for (reset($assetids); NULL !== ($k = key($assetids)); next($assetids)) {
+			$assetids[$k] = $db->quote($assetids[$k]);
+		}
 		$where .= 'a.assetid IN ('.implode(', ', $assetids).')';
 
 		if (!empty($type_code)) {
