@@ -78,11 +78,14 @@ _root.LIST_ITEM_BG_COLOURS = {
 if (_root.server_exec_path == undefined) {
 	_root.server_exec_path = "http://beta.squiz.net/blair/_edit/?SQ_BACKEND_PAGE=asset_map_request";
 }
+if (_root.url_frame == undefined) {
+	_root.url_frame = "main";
+}
 if (_root.action_bar_path == undefined) {
 	_root.action_bar_path = "http://beta.squiz.net/blair/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%";
 }
-if (_root.action_bar_frame == undefined) {
-	_root.action_bar_frame = "main";
+if (_root.duplicate_path == undefined) {
+	_root.duplicate_path = "http://beta.squiz.net/blair/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=duplicate&assetid=%assetid%&to_parent_assetid=%to_parent_assetid%&to_parent_pos=%to_parent_assetid%";
 }
 
 

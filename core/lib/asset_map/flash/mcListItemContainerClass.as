@@ -615,11 +615,13 @@ mcListItemContainerClass.prototype.endMove = function(parent_item_name, parent_a
 		params.parent_assetid	= parent_assetid;
 		params.relative_pos		= relative_pos;
 
-		// if the parent has changed during the move then we need to ask what we want done
-		if (diff_parents) {
+		// if the parent has changed during the move or if they have pressed CONTROL
+		// then we need to ask what we want done
+		if (diff_parents || Key.isDown(Key.CONTROL)) {
 			_root.options_box.init("Move Type", "Are you moving this asset, or creating a new link ?", this, "moveConfirm", params);
-			_root.options_box.addOption("new link",   "New Link");
+			if (diff_parents) _root.options_box.addOption("new link",   "New Link");
 			_root.options_box.addOption("move asset", "Moving");
+			_root.options_box.addOption("dupe", "Duplicate");
 			_root.options_box.show();
 
 		// otherwise just move it
@@ -643,22 +645,33 @@ mcListItemContainerClass.prototype.moveConfirm = function(move_type, params)
 	// if they didn't hit cancel
 	if (move_type != null) {
 
-		var xml = new XML();
-		var cmd_elem = xml.createElement("command");
-		cmd_elem.attributes.action              = move_type;
-		cmd_elem.attributes.from_parent_assetid = this.selected_item.getParentAssetid();
-		cmd_elem.attributes.linkid              = this.selected_item.linkid;
-		cmd_elem.attributes.to_parent_assetid   = params.parent_assetid;
-		cmd_elem.attributes.to_parent_pos       = params.relative_pos;
-		xml.appendChild(cmd_elem);
+		if (move_type == "dupe") {
+			var link = new String(_root.duplicate_path);
+			link = link.replace("%assetid%", escape(this.selected_item.assetid))
+			link = link.replace("%to_parent_assetid%", escape(params.parent_assetid));
+			link = link.replace("%to_parent_pos%", escape(params.relative_pos));
+			getURL(link, _root.url_frame);
 
-		trace(xml);
+		} else {
 
-		// start the loading process
-		var exec_identifier = _root.server_exec.init_exec(xml, this, "xmlMoveItem", "success");
-		if (this.tmp.move_asset == undefined) this.tmp.move_asset = new Object();
-		this.tmp.move_asset[exec_identifier] = params;
-		_root.server_exec.exec(exec_identifier, ((move_type == "move asset") ? "Moving Asset" : "Creating new link"));
+			var xml = new XML();
+			var cmd_elem = xml.createElement("command");
+			cmd_elem.attributes.action              = move_type;
+			cmd_elem.attributes.from_parent_assetid = this.selected_item.getParentAssetid();
+			cmd_elem.attributes.linkid              = this.selected_item.linkid;
+			cmd_elem.attributes.to_parent_assetid   = params.parent_assetid;
+			cmd_elem.attributes.to_parent_pos       = params.relative_pos;
+			xml.appendChild(cmd_elem);
+
+			trace(xml);
+
+			// start the loading process
+			var exec_identifier = _root.server_exec.init_exec(xml, this, "xmlMoveItem", "success");
+			if (this.tmp.move_asset == undefined) this.tmp.move_asset = new Object();
+			this.tmp.move_asset[exec_identifier] = params;
+			_root.server_exec.exec(exec_identifier, ((move_type == "move asset") ? "Moving Asset" : "Creating new link"));
+
+		}
 
 	}
 

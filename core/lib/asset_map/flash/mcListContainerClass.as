@@ -139,8 +139,7 @@ mcListContainerClass.prototype.actionsBarPressed = function(action)
 		var link = new String(_root.action_bar_path);
 		link = link.replace("%assetid%", escape(this.list.selected_item.assetid))
 		link = link.replace("%action%", escape(action));
-		trace("ACTION BAR link : " + link);
-		getURL(link, _root.action_bar_frame);
+		getURL(link, _root.url_frame);
 	}// end if
 }// end actionsBarPressed()
 
