@@ -63,6 +63,38 @@ class Trash_Folder extends Folder
 
 	}//end create()
 
+	/**
+	* Creates a duplicate of this asset. It DOES NOT duplicate the links that this asset has either to it or from it
+	* Returns a reference to the new object or if an error occured FALSE
+	*
+	* @param bool	$dupe_directory		whether or not to duplicate thia assets data directory
+	*
+	* @return object Asset | NULL
+	* @access public
+	* @see Asset::duplicate()
+	*/
+	function &duplicate($dupe_directory=true)
+	{
+		trigger_error('Unable to duplicate Trash Folder, you are only allowed one', E_USER_WARNING);
+		return NULL;
+	}
+
+	/**
+	* Morph's this asset to either one of it's parent type or one of it's children types
+	* Only succeeds if $type_code asset's is allowed to link to all children that this asset has
+	*
+	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
+	*
+	* @return bool
+	* @access public
+	* @see Asset::morph()
+	*/
+	function morph($new_type_code)
+	{
+		trigger_error('Unable to morph Trash Folder', E_USER_WARNING);
+		return false;
+	}
+
 	/*
 	* Set the value for the passed variable to the passed value
 	*
@@ -128,10 +160,12 @@ class Trash_Folder extends Folder
 	*/
 	function getLinks($link_types, $type_code='', $strict_type_code=true, $side_of_link='major') 
 	{
+		if ($side_of_link != 'major' && $side_of_link != 'minor') 
+			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
 
 		// if we are after the side that we are the minor party in, then call Asset::getLinks() like normal
 		if ($side_of_link == 'minor') {
-			return parent::getLinks($link_types, $asset_type, $strict_type_code, $side_of_link);
+			return parent::getLinks($link_types, $type_code, $strict_type_code, $side_of_link);
 		}
 
 		// because we are only collecting assets with no EXCLUSIVE, UNITE or USES links
@@ -194,14 +228,23 @@ class Trash_Folder extends Folder
 	* Returns the number of links from this asset, see getLinks() for more info about why 
 	* Trash_Folder needs to override default
 	*
-	* @param int    $link_types  integer that can be the product of bitwise operations on the SQ_LINK_* constants
-	* @param string $asset_type  the type of asset that is linked (eg 'Page', 'File', etc);
+	* @param string $side_of_link	Which side of the link this (the current) asset is on ('major' or 'minor')
+	* @param int	$link_types		integer that can be the product of bitwise operations on the SQ_LINK_* constants
+	* @param string	$type_code		the type of asset that is linked (eg 'Page', 'File', etc);
 	*
 	* @return int
 	* @access public
 	*/
-	function countLinks($link_types, $asset_type='') 
+	function countLinks($side_of_link, $link_types, $type_code='') 
 	{
+
+		if ($side_of_link != 'major' && $side_of_link != 'minor') 
+			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
+
+		// if we are after the side that we are the minor party in, then call Asset::getLinks() like normal
+		if ($side_of_link == 'minor') {
+			return parent::countLinks($side_of_link, $link_types, $type_code);
+		}
 
 		// because we are only collecting assets with no SQ_LINK_EXCLUSIVE or SQ_LINK_UNITE links
 		// if the requested type doesn't contain these piss off
@@ -216,7 +259,7 @@ class Trash_Folder extends Folder
 				FROM sq_asset a 
 				WHERE a.assetid != 1
 				  AND a.assetid NOT IN (~SQ0~) '
-				.(empty($asset_type) ? '' : ' AND a.type_code = '.$db->quote($asset_type));
+				.(empty($type_code) ? '' : ' AND a.type_code = '.$db->quote($type_code));
 		$subs = Array( 'SELECT l.minorid
 						FROM sq_asset_link l
 						WHERE (l.link_type & '.$db->quote(SQ_LINK_NAV).') > 0');
@@ -328,7 +371,7 @@ class Trash_Folder extends Folder
 
 
 		// is the asset linked to any thing
-		return ($asset->countLinks(SQ_LINK_NAV, '', false) > 0);
+		return ($asset->countLinks('minor', SQ_LINK_NAV) > 0);
 
 	}// end deleteLink();
 
