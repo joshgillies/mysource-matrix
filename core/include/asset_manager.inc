@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.250 2004/12/06 14:38:12 brobertson Exp $
+* $Id: asset_manager.inc,v 1.251 2004/12/13 22:07:30 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.250 $
+* @version $Revision: 1.251 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -3667,8 +3667,6 @@ class Asset_Manager extends MySource_Object
 	function getPermission($assetid, $permission, $granted=null, $and_greater=true, $expand_groups=false, $all_info=false)
 	{
 		$permission = (int) $permission;
-		// can't be and_greater with workflow
-		if ($permission == SQ_PERMISSION_WORKFLOW) $and_greater = false;
 		if (!is_null($granted)) $granted = (bool) $granted;
 
 		if (($and_greater || $expand_groups) && $all_info) {
@@ -3770,7 +3768,7 @@ class Asset_Manager extends MySource_Object
 		if (in_array($userid, array_values($current))) return true;
 
 		// if we dont have an userid, we are granting public access
-		if ($permission != SQ_PERMISSION_WORKFLOW && !empty($userid)) {
+		if (!empty($userid)) {
 			// check that the passed userid is a user or user_group
 			$user = &$this->getAsset($userid, '', true);
 			if (!$user->id) {
@@ -3781,8 +3779,6 @@ class Asset_Manager extends MySource_Object
 				return false;
 			}
 			$user_name = $user->name;
-		} else if ($permission == SQ_PERMISSION_WORKFLOW) {
-			$user_name = 'Asset Workflow';
 		} else {
 			$user_name = 'General Public';
 		}
@@ -3858,8 +3854,8 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// if we dont have an userid, we are deleting public access
-		if ($permission != SQ_PERMISSION_WORKFLOW && !empty($userid)) {
-			// LTW[17-06-2004] - if the permission is in the database then we know that it must have
+		if (!empty($userid)) {
+			// if the permission is in the database then we know that it must have
 			// been set up correctly, and if an user or LDAP user's asset has been deleted then we
 			// know we want it out. So we'll use getAssetInfo() instead which does not throw an
 			// assertion, just instead just gives an empty array
@@ -3871,8 +3867,6 @@ class Asset_Manager extends MySource_Object
 			} else {
 				$user_name = $user_info[$userid]['name'];
 			}
-		} else if ($permission == SQ_PERMISSION_WORKFLOW) {
-			$user_name = 'Asset Workflow';
 		} else {
 			$user_name = 'General Public';
 		}
