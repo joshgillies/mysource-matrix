@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.196 2004/03/30 10:16:30 brobertson Exp $
+* $Id: asset_manager.inc,v 1.197 2004/03/31 00:28:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1937,7 +1937,7 @@ class Asset_Manager extends MySource_Object
 	* The query generated to get the children is actually contructed in the Asset Manager's
 	* generateGetChildrenQuery function.
 	*
-	* @param int			$assetid			the id of the asset to get its children for
+	* @param int|string		$assetid			the id of the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
@@ -1953,22 +1953,30 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
-		if (!$assetid) {
-			trigger_error('Cannot get children, assetid is empty', E_USER_WARNING);
+		if ((!is_int($assetid) && !is_string($assetid)) || !$assetid) {
+			trigger_error('Cannot get children, assetid is not valid', E_USER_WARNING);
 			return Array();
 		}
-		
+
 		// check if we are getting children for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
+			$children = Array();
 			$real_assetid = $id_parts[0];
 			$asset = &$this->getAsset($real_assetid);
-			$children = $asset->getChildren($id_parts[1], $type_code, $strict_type_code, $sort_by);
-			$this->forgetAsset($asset);
+			if (!is_null($asset)) {
+				if (!method_exists($asset, 'getChildren')) {
+					trigger_error('Shadow asset handler "'.$asset->name.'" can not get children', E_USER_WARNING);
+				} else {
+					$children = $asset->getChildren($id_parts[1], $type_code, $strict_type_code, $sort_by);
+				}
+				$this->forgetAsset($asset);
+			} else {
+				trigger_error('Shadow asset handler #'.$real_assetid.' does not exist', E_USER_WARNING);
+			}
 			return $children;
 		}
-
 
 		// we are not getting children for a shadow asset, so if we are getting children of
 		// an asset that handles shadow assets, palm the request off to it
