@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: loader.js,v 1.1.1.1 2004/10/13 01:31:48 arailean Exp $
+* $Id: loader.js,v 1.2 2004/10/14 00:58:28 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,8 +55,9 @@ function Loader(id, color, text, imagepath, imageheight, imagewidth)
 * @access public
 */
 	this.print = function() {
-		document.write('<iframe id="'+this.id+'_frame" style="visibility:hidden;z-index:500;position:absolute;bottom:0px;height:100%;width:100%;left:0px;top:0px;right:0px;filter:alpha(opacity=0);moz-opacity:0;opacity:0" border="0" frameborder="0"></iframe>');
-		document.write('<table id="'+this.id+'_table" bgcolor="'+this.color+'" border="1" cellpadding="0" cellspacing="0" style="visibility:hidden;z-index:501;position:absolute;bottom:0px;height:100%;width:100%;left:0px;top:0px;right:0px;filter:alpha(opacity=90);moz-opacity:0.9;opacity:0.9"><tr><td align="center"><img alt="loader" src="'+this.imagepath+'" height="'+this.imageheight+'" width="'+this.imagewidth+'"><br /><b style="font: 9pt Tahoma">'+this.text+'</b></td></tr></table>');
+		var height = (typeof window.innerHeight == "undefined")?document.documentElement.clientHeight:window.innerHeight;
+		document.write('<iframe id="'+this.id+'_frame" style="visibility:hidden;z-index:500;position:absolute;bottom:0px;height:'+height+'px;width:100%;left:0px;top:0px;right:0px;filter:alpha(opacity=0);moz-opacity:0;opacity:0" border="0" frameborder="0"></iframe>');
+		document.write('<table id="'+this.id+'_table" bgcolor="'+this.color+'" border="1" cellpadding="0" cellspacing="0" style="visibility:hidden;z-index:501;position:absolute;bottom:0px;height:'+height+'px;width:100%;left:0px;top:0px;right:0px;filter:alpha(opacity=90);moz-opacity:0.9;opacity:0.9"><tr><td align="center"><img alt="loader" src="'+this.imagepath+'" height="'+this.imageheight+'" width="'+this.imagewidth+'"><br /><b style="font: 9pt \'Lucida Grande\',Tahoma,Arial,Helvetica">'+this.text+'</b></td></tr></table>');
 	}//end print()
 
 
