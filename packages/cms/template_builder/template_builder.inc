@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: template_builder.inc,v 1.1 2004/11/02 00:04:54 lwright Exp $
+* $Id: template_builder.inc,v 1.2 2004/11/02 05:03:37 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,11 +50,18 @@ class Template_Builder extends Page
 	*/
 	function Template_Builder($assetid=0)
 	{
+		$this->_ser_attrs = true;
 		$this->Page($assetid);
 
 	}//end Template_Builder()
 
 	
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
 	function create(&$link)
 	{
 		if (!parent::create($link)) return false;
@@ -85,18 +92,23 @@ class Template_Builder extends Page
 	* @param string $link_value	the value attached to the link
 	* @param string $bc_text	the bodycopy text to be placed inside the first
 	*							bodycopy DIV
+	* @param string $underneath the asset which created bodycopies will be created
+	*							underneath (defaults to underneath the Template Builder
+	*							itself)
 	*
 	* @return boolean	true indicates success
 	* @access public
 	*/
-	function createBodycopy($name, $link_value, $bc_text='')
+	function createBodycopy($name, $link_value, $bc_text='', $underneath=null)
 	{
+		if ($underneath == null) $underneath =& $this;
+	
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$bc_asset = new Bodycopy();
 		
-		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => $link_value, 'sort_order' => 1);
+		$copy_link = Array('asset' => &$underneath, 'link_type' => SQ_LINK_TYPE_2, 'value' => $link_value, 'sort_order' => 1);
 		$bc_asset->setAttrValue('name', $name);
 		$attributes = Array();
 		
@@ -237,13 +249,23 @@ class Template_Builder extends Page
 		if (!isset($_POST['SQ_TEMPLATE_COMMIT'])) {
 			print $this->paintDefaultForm();
 		} else {
+			bam($this->attr('create_locations'));
 			$reps = $this->setReplacements();
-			$this->createBodycopy(date('d M Y H:i:s'), '', $reps);
+			foreach($this->attr('create_locations') as $assetid => $link_type) {
+				$under_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$this->createBodycopy(date('d M Y H:i:s'), '', $reps, $under_asset);
+			}
 		}
 	
 	}//end printBody()
 	
 	
+	/**
+	* Returns the output required to paint the default form
+	*
+	* @access public
+	* @return string
+	*/
 	function paintDefaultForm()
 	{
 		$q_fields =& $this->getQuestionFields();
@@ -397,7 +419,7 @@ class Template_Builder extends Page
 		
 		return $bc_text;
 		
-	}
+	}//end setReplacements()
 	
 	
 }//end class

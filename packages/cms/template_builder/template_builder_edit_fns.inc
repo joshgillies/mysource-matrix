@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: template_builder_edit_fns.inc,v 1.1 2004/11/02 00:04:54 lwright Exp $
+* $Id: template_builder_edit_fns.inc,v 1.2 2004/11/02 05:03:37 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -137,13 +137,14 @@ class Template_Builder_Edit_Fns extends Page_Edit_Fns
 	function processQuestionFields(&$asset, &$o, $prefix)
 	{
 		return true;
-	}
+		
+	}//end processQuestionFields()
 
 	
 	/**
 	* Redirect to the template bodycopy
 	*
-	* @param object Page_Custom_Form	&$asset	the asset whose interface we are painting
+	* @param object Template_Builder	&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form elements
 	*
@@ -172,5 +173,113 @@ class Template_Builder_Edit_Fns extends Page_Edit_Fns
 	}//end redirectToFormContents()
 
 
+	//--        CREATE LOCATIONS SCREEN         --//	
+
+	
+	/**
+	* Paint the interface for choosing the locations to which all new assets will be linked
+	*
+	* @param object Template_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintFixedCreateLocations(&$asset, &$o, $prefix)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+		?><p><b>Note:</b> all links to newly created bodycopies will be of TYPE_2; that is, they will appear in the asset map of the Administration interface, but not on the frontend.</p><?php
+
+		$write_access = $asset->writeAccess('attributes');
+		$locations = $asset->attr('create_locations');
+
+		if (empty($locations)) {
+			echo 'No fixed create locations have been specified';
+		} else {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">ID</td>
+					<td class="sq-backend-table-header">Name</td>
+					<?php
+					if ($write_access) {
+						?><td class="sq-backend-table-header">Delete</td><?php
+					}
+					?>
+				</tr>
+				<?php
+
+				foreach ($locations as $locationid => $link_type) {
+					$location = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locationid);
+					if (is_null($location)) continue;
+					?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo $location->id; ?></td>
+						<td class="sq-backend-table-cell"><?php echo $location->name; ?></td>
+						<?php
+						if ($write_access) {
+							?><td class="sq-backend-table-cell"><?php check_box($prefix.'_delete_location['.$location->id.']'); ?></td><?php
+						}
+						?>
+					</tr>
+					<?php
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($location);
+				}
+				?>
+			</table>
+			<?php
+		}
+
+		if ($write_access) {
+			echo '<p><b>Add Location:</b>&nbsp;&nbsp;&nbsp; ';
+			asset_finder($prefix.'_new_create_location', 0);
+			echo '</p>';
+		}
+
+		return $write_access;
+
+	}//end paintFixedCreateLocations()
+
+
+	/**
+	* Processes the interface for choosing the locations to which all new assets will be linked
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processFixedCreateLocations(&$asset, &$o, $prefix)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+		$old_locations = $asset->attr('create_locations');
+		$new_locations = $old_locations;
+
+		// add a new create location - all links in the template builder are TYPE_2
+		if (isset($_POST[$prefix.'_new_create_location'])) {
+			$new_location =(int) $_POST[$prefix.'_new_create_location']['assetid'];
+			if ($new_location && !isset($new_locations[$new_location])) {
+				$new_locations[$new_location] = SQ_LINK_TYPE_2;
+			}
+		} 
+
+		// delete existing create locations
+		if (isset($_POST[$prefix.'_delete_location'])) {
+			foreach ($_POST[$prefix.'_delete_location'] as $locationid => $on) {
+				if (isset($new_locations[$locationid])) unset($new_locations[$locationid]);
+			}
+		}
+
+		if ($old_locations != $new_locations) return $asset->setAttrValue('create_locations', $new_locations);
+		return false;
+
+	}//end processFixedCreateLocations()
+
+	
 }//end class
 ?>
