@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_page.inc,v 1.3 2003/10/14 04:30:11 dwong Exp $
+* $Id: search_page.inc,v 1.4 2003/10/14 05:36:21 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -604,7 +604,7 @@ class Search_Page extends Page
 			if ($value == '')
 				continue;
 
-			$words = split(" +", $value);
+			$words = split(" +", strtolower($value));
 			foreach (array_keys($words) as $i) {
 				$word =& $words[$i];
 				$word = strtr($word, "*?", "%_");
