@@ -42,6 +42,15 @@ class wysiwyg {
 	*/
 	var $init_onload  = 'yes';
 
+
+	/**
+	* Should we show the status bar at the top of the editor?
+	*
+	* @var boolean
+	* @see print_config(), set_show_status_bar()
+	*/
+	var $show_status_bar = true;
+
 	/**
 	* The relative path for web accessable files
 	*
@@ -169,6 +178,7 @@ class wysiwyg {
 						this._uniqueID = textarea;
 						this._editMode = "wysiwyg";
 						this._initialised = false;
+						this._timerToolbar = null;
 						this._tmp = Array();
 <?php $this->print_plugin_vars() ?>
 					}
@@ -237,7 +247,7 @@ class wysiwyg {
 					};
 
 					// this function will handle creation of combo boxes
-					function createSelect() {
+					function createSelect(txt) {
 						var options = null;
 						var el = null;
 						var sel = null;
@@ -378,7 +388,7 @@ class wysiwyg {
 
 							el.appendChild(img);
 						} else if (!el) {
-							el = createSelect();
+							el = createSelect(txt);
 						}
 						if (el) {
 							innerToolbar.appendChild(el);
@@ -400,9 +410,76 @@ class wysiwyg {
 				};
 
 				// updates enabled/disable/active state of the toolbar elements
-				HTMLArea.prototype.updateToolbar = function(allEnabled) {
+				HTMLArea.prototype.updateToolbar = function(allEnabled, noStatus) {
 					var doc = this._doc;
 					var text = (this._editMode == "textmode");
+					var ancestors = null;
+					var htmlareaFound = false;
+
+					if (!text) {
+						ancestors = this.getAllAncestors();
+						if (this.config.statusBar && !noStatus) {
+							this._statusBarTree.innerHTML = ''; // clear
+							for (var i = ancestors.length; --i >= 0;) {
+								var el = ancestors[i];
+								if (!el) {
+									// hell knows why we get here; this
+									// could be a classic example of why
+									// it's good to check for conditions
+									// that are impossible to happen ;-)
+									continue;
+								}
+
+								// work out the display name for this tag
+								var txt = el.tagName.toLowerCase();
+								if (el.id) {
+									txt += "#" + el.id;
+								}
+								if (el.className) {
+									txt += "." + el.className;
+								}
+								
+								// if we are playing with an editable DIV, we need to tread carefully
+								// because there is no body tag expect to one for the whole page
+								// so we fudge the results a little to skip tags outside of the editor
+								if (HTMLArea.is_ie && this.config.bodyType.toLowerCase() != 'iframe') {
+									if (el.id == "htmlarea") {
+										htmlareaFound = true;
+										i--;
+										var el = ancestors[i];
+										txt = 'body';
+									}
+									if (!htmlareaFound) { continue; }
+								}
+
+								var a = document.createElement("a");
+								a.href = "#";
+								a.el = el;
+								a.editor = this;
+								a.onclick = function() {
+									this.blur();
+									this.editor.selectNodeContents(this.el);
+									this.editor.updateToolbar(true);
+									return false;
+								};
+								a.oncontextmenu = function() {
+									// TODO: add context menu here
+									this.blur();
+									var info = "Inline style:\n\n";
+									info += this.el.style.cssText.split(/;\s*/).join(";\n");
+									alert(info);
+									return false;
+								};
+								a.title = el.style.cssText;
+								a.appendChild(document.createTextNode(txt));
+								this._statusBarTree.appendChild(a);
+								if (i != 0) {
+									this._statusBarTree.appendChild(document.createTextNode(String.fromCharCode(0xbb)));
+								}
+							}
+						}
+					}
+
 					for (var i in this._toolbarObjects) {
 						var btn = this._toolbarObjects[i];
 						var cmd = btn.cmd;
@@ -615,6 +692,7 @@ class wysiwyg {
 			<script type="text/javascript" language="Javascript">
 				editor_<?php echo $this->name?> = new HTMLArea("<?php echo $this->name?>");
 				editor_<?php echo $this->name?>._createToolbar();
+				editor_<?php echo $this->name?>._createStatusBar();
 				editor_<?php echo $this->name?>.updateToolbar(false);
 		<?php
 		if ($this->init_onload == 'yes') {
@@ -663,6 +741,9 @@ class wysiwyg {
 			<script type="text/javascript" language="Javascript">
 				HTMLArea.Config_<?php echo $this->name?> = function () {
 					this.version = "3.0";
+
+					// enable creation of a status bar?
+					this.statusBar = <?php echo ($this->show_status_bar) ? 'true' : 'false'; ?>;
 
 					this.width = "<?php echo $this->width?>";
 					this.height = "<?php echo $this->height?>";
@@ -966,6 +1047,21 @@ class wysiwyg {
 		$this->init_onload = trim(strtolower($init));
 
 	}//end set_init_onload()
+
+
+	/**
+	* Sets weather we should show the status bar or not
+	*
+	* @param boolean	$show	Show or not
+	*
+	* @return void
+	* @access public
+	*/
+	function set_show_status_bar($show=true)
+	{
+		$this->show_status_bar = (bool)$show;
+
+	}//end set_show_status_bar()
 
 
 	/**

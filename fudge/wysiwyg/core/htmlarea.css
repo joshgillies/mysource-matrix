@@ -60,6 +60,38 @@ htmlarea-select, htmlarea-select:hover, htmlarea-select:active {
 }
 
 
+/* Status Bar */
+
+.htmlarea-statusBar {
+	border: 1px			solid;
+	border-color:		#D5D5D5 #A0A0A0 #A0A0A0 #D5D5D5;
+	padding:			2px 4px;
+	background-color:	#E0E0E0;
+	color:				#000000;
+	font:				11px Tahoma,Verdana,sans-serif;
+	font-weight:		bold;
+}
+
+.htmlarea-statusBar .htmlarea-statusBarTree a {
+	padding:			2px 5px;
+	color:				#333333;
+	text-decoration:	none;
+	font-weight:		normal;
+}
+
+.htmlarea-statusBar .htmlarea-statusBarTree a:visited { 
+	color:				#333333;
+	font-weight:		normal;
+}
+
+.htmlarea-statusBar .htmlarea-statusBarTree a:hover {
+	background-color:	#CCCCCC;
+	padding:			1px 4px;
+	border:				1px solid #333333;
+	font-weight:		normal;
+}
+
+
 
 /* Text Indicator */
 
