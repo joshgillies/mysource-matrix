@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.91 2004/06/08 16:37:11 brobertson Exp $
+* $Id: backend.inc,v 1.92 2004/06/11 05:18:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -527,21 +527,6 @@ class Backend extends MySource_Object
 				<?php
 					$options = Array();
 					if (!SQ_IN_LIMBO) {
-						$options[] = Array(
-									'url'     => '#',
-									'onclick' => 'Javascript:
-									if (parent.frames["sq_main"] && parent.frames["sq_main"].get_form_element_value) {
-										var sq_link_path = parent.frames["sq_main"].get_form_element_value("sq_link_path");
-										if (sq_link_path && parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].select_path) {
-											parent.frames["sq_sidenav"].select_path(sq_link_path);
-										}
-									}
-									return false;
-									',
-									'title'   => 'Where am I?',
-									'icon'    => 'whereami.png',
-									);
-
 						$options[] = Array(
 									'url'     => '#',
 									'onclick' => 'Javascript:
