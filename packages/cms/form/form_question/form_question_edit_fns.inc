@@ -109,7 +109,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 			if (substr($type_code, 0, 18) != 'form_question_rule') continue;
 			$type_codes[] = $type_code;
 		}
-		$desc = $am->getTypeInfo($type_codes, 'Description');
+		$desc = $am->getTypeInfo($type_codes, 'description');
 		combo_box('rule', array_merge(Array(' ' => '------ Please Select ------'), $desc), false, '');
 		
 		return true;
