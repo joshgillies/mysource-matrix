@@ -442,6 +442,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 	}// end paintCurrentFiles()
 
+
 	/**
 	*
 	* @param object Asset				$asset	the asset to which we belong
@@ -464,6 +465,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 	}// end processCurrentFiles()
 
+
 	/**
 	*
 	* @param object Asset				$asset	the asset whose interface we are painting
@@ -481,6 +483,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			echo "<br>\n";
 		}
 	}// end paintParseFile()
+
 
 	/**
 	*
@@ -557,6 +560,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 	}// end processNewFiles()
 
+
 	/**
 	*
 	* @param object Asset				$asset	the asset whose interface we are painting
@@ -572,6 +576,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		check_box($prefix.'_new_customisation');
 		text_box($prefix.'_new_customisation_name', $asset->name.' - Customisation', 40);
 	}// end paintNewCustomisation()
+
 
 	/**
 	*
