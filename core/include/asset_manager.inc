@@ -463,13 +463,13 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 	{
 		switch(strtolower($name)) {
 			case 'root_folder' :
-				return $this->getAsset(1);
+				return $this->getAsset(1, 'root_folder');
 			case 'trash_folder' :
-				return $this->getAsset(2);
+				return $this->getAsset(2, 'trash_folder');
 			case 'system_user_group' :
-				return $this->getAsset(3);
+				return $this->getAsset(3, 'system_user_group');
 			case 'root_user' :
-				return $this->getAsset(4);
+				return $this->getAsset(4, 'root_user');
 			default :
 				trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);
 		}
