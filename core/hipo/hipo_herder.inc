@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.54 2005/03/15 05:01:17 arailean Exp $
+* $Id: hipo_herder.inc,v 1.55 2005/03/16 05:07:00 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -119,14 +119,8 @@ class HIPO_Herder extends MySource_Object
 				return $null;
 			}
 
-			$vars = unserialize($hipo_vars['hipo_vars']);
-			if (!isset($vars['job_dir']) || empty($vars['job_dir'])) {
-				$job_dir = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
-			} else {
-				$job_dir = $vars['job_dir'];
-			}
+			require_once array_shift($this->locateHipoInclude(SQ_SYSTEM_ROOT, $job_type));
 
-			require_once $job_dir.'/'.$job_type.'.inc';
 			$this->_jobs[$code_name] = new $job_type($code_name);
 
 			if (!$this->_jobs[$code_name]->code_name) {
@@ -979,6 +973,42 @@ class HIPO_Herder extends MySource_Object
 		}
 
 	}//end paintBackend()
+
+	/**
+	* Find any matching HIPO files in the system. Eliminates the issue where HIPO
+	* jobs not located in SQ_SYSTEM_ROOT/core/hipo/jobs can't be run as nested HIPOs.
+	*
+	* @param path       root path to start the search in
+	* @param job_type   name of the hipo job
+	*
+	* @return Array() of paths with the matching hipo name
+	*/
+	function locateHipoInclude($path, $job_type) {
+
+		$return_me = Array();
+		if(is_dir($path)) {
+			if($contents = opendir($path)) {
+				while(($node = readdir($contents)) !== false) {
+					if($node!="." && $node!=".." && is_dir($path.'/'.$node)) {
+						$test_return = $this->locateHipoInclude($path.'/'.$node, $job_type);
+						if(is_array($test_return)) {
+							$temp = array_merge($test_return, $return_me);
+							$return_me = $temp;
+						}
+						if(is_string($test_return)) {
+							array_push($return_me, $test_return);
+						}
+					}
+					elseif ($node == $job_type.'.inc') {
+						array_push($return_me, $path.'/'.$node);
+					}
+				}
+				closedir($contents);
+			}
+		}
+		return $return_me;
+
+	}//end locateHipoJob()
 
 
 }//end class
