@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.47 2003/12/17 04:55:51 mmcintyre Exp $
+* $Id: html_form.inc,v 1.48 2004/01/09 05:47:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -247,7 +247,7 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 *							multiple can be an array
 * @param int	$height		the height (in lines) of the combo box
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
-* @param int	$max		the maximum number of characters displayed for any option, 
+* @param int	$maxlength	the maximum number of characters displayed for any option, 
 *							anything over gets truncated with '...' appended
 *
 * @return void
