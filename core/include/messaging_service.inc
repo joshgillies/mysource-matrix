@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.26 2004/07/08 00:50:37 lwright Exp $
+* $Id: messaging_service.inc,v 1.27 2004/08/09 09:06:37 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -271,7 +271,7 @@ class Messaging_Service extends MySource_Object
 	* @param string		$body		the main body of the message
 	* @param string		$type		the log type of this message (if any)
 	*
-	* @return object Interal_Message
+	* @return object Internal_Message
 	* @access public
 	*/
 	function newMessage($to=Array(), $subject='', $body='', $type='')
