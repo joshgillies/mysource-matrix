@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.2 2004/05/28 03:54:41 gsherwood Exp $
+* $Id: maps.inc,v 1.3 2004/06/10 11:05:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -149,7 +149,7 @@ class Maps extends MySource_Object
 				$o->openField('WARNING');
 					?>
 					<span class="sq-backend-warning">
-						<b>The MySoure Automated Patching System does not appear to be installed properly.</b>
+						<b>The MySource Automated Patching System does not appear to be installed properly.</b>
 					</span>
 					<?php
 				$o->closeField();

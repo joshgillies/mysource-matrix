@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.16 2004/01/22 00:36:47 diarandine Exp $
+* $Id: hipo_config.inc,v 1.17 2004/06/10 11:10:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -195,8 +195,8 @@ class HIPO_Config extends Config
 			}
 			$o->closeField();
 
-			// total threshhold HIPO config entry
-			$o->openField('Total Threshhold');
+			// total threshold HIPO config entry
+			$o->openField('Total Threshold');
 			if($write_access) {
 				text_box($class.'[SQ_HIPO_TOTAL_THRESHOLD]', SQ_HIPO_TOTAL_THRESHOLD, 5);
 			} else {
