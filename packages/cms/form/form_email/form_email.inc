@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.36 2004/12/06 14:41:38 brobertson Exp $
+* $Id: form_email.inc,v 1.37 2005/01/17 18:23:52 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -226,7 +226,7 @@ class Form_Email extends Form
 					'form_info_text'    => $info_text);
 
 		// replacements of question responses
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		$sections = &$this->getSections();
 
 		foreach ($questions as $q_id => $question) {
@@ -305,7 +305,7 @@ class Form_Email extends Form
 					'form_info_text'    => $info_text);
 
 		// replacements of question responses
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		$sections = &$this->getSections();
 
 		foreach ($questions as $q_id => $question) {
@@ -381,7 +381,7 @@ class Form_Email extends Form
 					  );
 
 		// replacements of question responses
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		$sections = &$this->getSections();
 
 		foreach ($questions as $q_id => $question) {
@@ -543,7 +543,7 @@ class Form_Email extends Form
 						);
 
 		// replacements of question responses
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		$sections = &$this->getSections();
 
 		foreach ($questions as $q_id => $question) {
