@@ -875,7 +875,8 @@ class Asset extends Resolve_Object
 		if ($this->id) {
 			$where = 'a.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'v');
+			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
+			// DEFAULT VALUES IF WE DO
 			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
 					FROM ('.SQ_TABLE_RUNNING_PREFIX.'asset a INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute atr ON a.type_code = atr.type_code)
 					  LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v ON atr.attributeid = v.attributeid AND a.assetid = v.assetid '.$where;
