@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.54.2.1 2005/02/25 02:31:17 tbarrett Exp $
+* $Id: metadata_manager.inc,v 1.54.2.2 2005/04/05 05:58:57 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -652,7 +652,9 @@ class Metadata_Manager extends MySource_Object
 			foreach ($nested_tag_values as $i => $values) {
 				echo '$metadata_values_'.$i.' = Array(';
 				foreach ($values as $n => $v) {
-					$v = addslashes($v);
+					$v = stripslashes($v);
+					$v = preg_replace('%\'%', '\\\'', $v);
+					$v = preg_replace('%\"%', '&quot;', $v);
 					$v = preg_replace('|(\$metadata_replacements\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
 					$v = preg_replace('|(\$metadata_values[^\[]+\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
 					echo "'$n' => '$v',\n";
