@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.5.2.2 2004/03/02 18:35:51 brobertson Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.5.2.3 2004/04/21 10:55:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,6 +122,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			
 			$wysiwyg->open_group();
 				if ($iap || in_array('matrix_insert_link', $ap) || in_array('insert_link', $ap))  $wysiwyg->add_plugin('matrix_insert_link');
+				if ($iap || in_array('matrix_insert_anchor', $ap) || in_array('insert_anchor', $ap))  $wysiwyg->add_plugin('matrix_insert_anchor');
 				if ($iap || in_array('matrix_insert_image', $ap) || in_array('insert_image', $ap)) $wysiwyg->add_plugin('matrix_insert_image');
 				if ($iap || in_array('matrix_embed_movie', $ap))  $wysiwyg->add_plugin('matrix_embed_movie');
 			$wysiwyg->close_group();

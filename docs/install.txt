@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.txt,v 1.4.2.1 2004/02/21 12:25:41 brobertson Exp $
+* $Id: install.txt,v 1.4.2.2 2004/04/21 10:55:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,6 +14,8 @@ Web server requires PHP 4.3.3 or higher and Apache 1.3.27 or higher.
 You can choose to use either MySQL 3.23.58 or higher, MySQL 4.0.15 or higher, or PostgreSQL 7.3.4 or higher.
 
 Installation currently requires a CLI (command line interface) version of PHP.
+
+Also please check the ISSUES and REQUIREMENTS file in the root of the MySource Matrix distribution for additional requirements and issues to be aware of before getting started.
 
 The HIPO service allows Matrix to pass off tasks to the Squiz Server instead of having to constantly refresh the editing interfaces. The service will also support multiple systems running on the same server. If you want to use this service, the PHP CLI and PHP apache module or version need compiling with specific options.
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image.inc,v 1.8 2003/11/26 00:50:55 gsherwood Exp $
+* $Id: design_area_custom_image.inc,v 1.8.2.1 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,7 +60,7 @@ class Design_Area_Custom_Image extends Design_Area
 		// return true because it just means that they haven't uploaded the file yet
 		if (!file_exists($image_path)) return true;
 
-		$image = '<'.'?php echo $DATA_PATH; ?'.'>/'.$this->type().'/'.$this->id.'/'.$this->attr('image');
+		$image = '<'.'?php echo $DATA_PATH; ?'.'>/assets/'.$this->type().'/'.$this->id.'/'.$this->attr('image');
 		// if they only want us to echo out the filename
 		if ($this->attr('filename_only')) {
 			echo  $image;

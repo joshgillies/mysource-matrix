@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form_edit_fns.inc,v 1.7 2003/11/26 00:50:56 gsherwood Exp $
+* $Id: design_area_login_form_edit_fns.inc,v 1.7.2.1 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 */
 class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 {
+
 
 	/**
 	* Loops through the contents array and creates the necessary objects
@@ -98,9 +99,10 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 	
 		$asset->setAttrValue('contents', $contents);
 
+		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
 		return $asset->saveAttributes();
 
-	}// end _processContents()
+	}//end _processContents()
 
 
 	/**
@@ -117,7 +119,8 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$asset->_tmp['painting_section'] = '';
 		return parent::_createDesignFileOutput($contents, $asset, $design);
-	}// end _createDesignFileOutput()
+		
+	}//end _createDesignFileOutput()
 
 
 	/**
@@ -176,8 +179,9 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 				return parent::_outputElement($element, $asset, $design);
 		}// end switch
 
-	}// end _outputElement()
+	}//end _outputElement()
 
 
 }//end class
+
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.22.2.7 2004/03/18 15:32:51 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.22.2.8 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -753,17 +753,26 @@ class Metadata_Manager extends MySource_Object
 					} else {
 
 						// searching for special date format keywords
-						$key = substr($keyword, 0, 13); // returns the key name
-						$format = substr($keyword, 14); // should return format, skipping '_' separator
-						$format = str_replace("-", " ", $format); // preparing our date format...
+						$key = substr($keyword, 0, 13);
+						$extras = substr($keyword, 14);
+						if (strpos($extras, '_') === false) {
+							$format = $extras;
+							$offset = '';
+						} else {
+							list ($format, $offset) = explode('_', $extras);
+						}
+						$format = str_replace('-', ' ', $format);
 
 						switch ($key) {
 							case 'asset_created':
 							case 'asset_updated':
-								echo '$metadata_replacements[\''.$keyword.'\'] = date(\''. $format .'\', $metadata_asset->'.substr($key,6).');'."\n";
+								if (empty($offset)) $date = '$metadata_asset->'.substr($key, 6);
+								else $date = 'strtotime(\''.$offset.'\', $metadata_asset->'.substr($key, 6).')';
+								
+								echo '$metadata_replacements[\''.$key.'\'] = date(\''.$format.'\', '.$date.');'."\n";
 							break;
 							default:
-								echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+								echo '$metadata_replacements[\''.$key.'\'] = \'\';'."\n";
 							break;
 						}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.7.2.2 2004/03/02 18:35:51 brobertson Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.7.2.3 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 {
 
+
 	/**
 	* Returns an array of vars that are setable, used to create the parseString
 	*
@@ -55,7 +56,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 		unset($vars['divider_contents']);
 		return $vars;
 
-	}// end getSetableVars()
+	}//end getSetableVars()
 
 
 	/**
@@ -129,6 +130,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 
 		}// end if
 
+		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
 		return $asset->setAttrValue('contents', $contents);
 
 	}// end _processContents()

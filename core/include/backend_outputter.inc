@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.75.2.3 2004/03/26 16:41:50 brobertson Exp $
+* $Id: backend_outputter.inc,v 1.75.2.4 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1062,25 +1062,7 @@ class Backend_Outputter
 					<div id="sq_screen_menu_filler" style="display: none"></div>
 					<div id="sq_screen_menu">
 					<?php
-						if (empty($this->_screens) && empty($this->_static_screens)) {
-							echo '&nbsp;';
-						} else {
-							if (!empty($this->_screens)) {
-								$this->_screens = array_reverse($this->_screens);
-								$this->_screens['#'] = '------';
-								foreach (array_reverse($this->_static_screens) as $url => $code) {
-									$this->_screens[$url] = $code;
-								}
-								$this->_screens = array_reverse($this->_screens);
-							} else {
-								$this->_screens = $this->_static_screens;
-							}
-
-							combo_box('screen_menu', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = form_element_value(this);"');
-							echo '&nbsp;';
-							normal_button('screen_menu_go', ' Go ', 'self.location = get_form_element_value("screen_menu");', 'id="screen_menu_go"');
-							echo '&nbsp;';
-						}
+						$this->printScreenMenu();
 					?>
 					</div>
 					</td>
@@ -1381,6 +1363,37 @@ class Backend_Outputter
 		$this->closeSection();
 
 	}//end commitButton()
+
+
+	/**
+	* Prints the screen selection drop down list
+	*
+	* @return void
+	* @access public
+	*/
+	function printScreenMenu()
+	{
+		if (empty($this->_screens) && empty($this->_static_screens)) {
+			echo '&nbsp;';
+		} else {
+			if (!empty($this->_screens)) {
+				$this->_screens = array_reverse($this->_screens);
+				$this->_screens['#'] = '------';
+				foreach (array_reverse($this->_static_screens) as $url => $code) {
+					$this->_screens[$url] = $code;
+				}
+				$this->_screens = array_reverse($this->_screens);
+			} else {
+				$this->_screens = $this->_static_screens;
+			}
+
+			combo_box('screen_menu', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = form_element_value(this);"');
+			echo '&nbsp;';
+			normal_button('screen_menu_go', ' Go ', 'self.location = get_form_element_value("screen_menu");', 'id="screen_menu_go"');
+			echo '&nbsp;';
+		}
+
+	}//end printScreenMenu();
 
 
 	/**

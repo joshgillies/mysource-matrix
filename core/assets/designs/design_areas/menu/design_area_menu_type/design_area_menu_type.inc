@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.38.2.4 2004/03/18 15:39:39 brobertson Exp $
+* $Id: design_area_menu_type.inc,v 1.38.2.5 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,7 +39,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 class Design_Area_Menu_Type extends Design_Area
 {
 
-	/*
+	
+	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()
@@ -49,8 +50,8 @@ class Design_Area_Menu_Type extends Design_Area
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
 					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array('design_area_menu_type' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_NOTICE => Array()
+					 SQ_LINK_TYPE_3 => Array(),
+					 SQ_LINK_NOTICE => Array('design_area_menu_type' => Array('card' => 'M', 'exclusive' => false))
 					);
 
 	}//end _getAllowedLinks()
@@ -150,6 +151,7 @@ class Design_Area_Menu_Type extends Design_Area
 	/**
 	* Returns an array of Array(id_name => Array(var)) for all var references that are needed by this design area
 	*
+	* @return array
 	* @access public
 	*/
 	function getVarReferences()
@@ -220,7 +222,7 @@ class Design_Area_Menu_Type extends Design_Area
 	function getSubMenuLink()
 	{
 		if (!isset($this->_tmp['sub_menu_link'])) {
-			$this->_tmp['sub_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu');
+			$this->_tmp['sub_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', false, 'sub_menu');
 		}
 		return $this->_tmp['sub_menu_link'];
 
@@ -255,7 +257,7 @@ class Design_Area_Menu_Type extends Design_Area
 	function &getParentMenu()
 	{
 		if (!isset($this->_tmp['parent_menu_link'])) {
-			$this->_tmp['parent_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu', 'minor');
+			$this->_tmp['parent_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', false, 'sub_menu', 'minor');
 		}
 		if (empty($this->_tmp['parent_menu_link'])) {
 			$null = null;
@@ -487,12 +489,26 @@ class Design_Area_Menu_Type extends Design_Area
 	function printInitOutput(&$design)
 	{
 		$level = (int) $this->attr('level');
-		if ($level < 0) {
-			echo '
-			$'.$this->attr('id_name').'_level = (count($ASSET_LINEAGE) -2) + '.(-1 * ($level + 1)).';';
-		} else {
-			echo '
-			$'.$this->attr('id_name').'_level = '.$level.';';
+		$parent_menu = &$this->getParentMenu();
+		if (!is_null($parent_menu)) {
+			// we are a sub menu
+			if ($level == 0) {
+				// we dont have a specific level to print (or they want to print the top level - thats wierd)
+				// so dynamically get the level to print based on our parent's level at runtime
+				$level = null;
+				echo '
+				$'.$this->attr('id_name').'_level = $'.$parent_menu->attr('id_name').'_level + 1;';
+			}
+		}
+
+		if (!is_null($level)) {
+			if ($level < 0) {
+				echo '
+				$'.$this->attr('id_name').'_level = (count($ASSET_LINEAGE) -2) + '.(-1 * ($level + 1)).';';
+			} else {
+				echo '
+				$'.$this->attr('id_name').'_level = '.$level.';';
+			}
 		}
 
 		$sub_menu = &$this->getSubMenu();
@@ -593,7 +609,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 				case 'asset_link' :
 					if ($id_name) { 
-						echo '<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']]; ?', '>';
+						echo '<', '?php echo $'.$id_name.'_urls[$'.$id_name.'_row[\'assetid\']].((SQ_LIMBO_EDITING) ? \'/\'.SQ_CONF_LIMBO_SUFFIX : \'\'); ?', '>';
 					}
 					break;
 

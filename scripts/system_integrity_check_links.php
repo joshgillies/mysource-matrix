@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_links.php,v 1.1 2004/03/31 01:36:33 gsherwood Exp $
+* $Id: system_integrity_check_links.php,v 1.1.2.1 2004/04/21 10:55:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

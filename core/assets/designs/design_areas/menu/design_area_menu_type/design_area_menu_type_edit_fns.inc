@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.32.2.2 2004/03/02 18:35:51 brobertson Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.32.2.3 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 {
 
+	
 	/**
 	* Returns an array of vars that are setable, used to create the parseString
 	*
@@ -55,7 +56,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		unset($vars['divider_contents']);
 		return $vars;
 
-	}// end getSetableVars()
+	}//end getSetableVars()
 
 
 	/**
@@ -200,10 +201,10 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 		}// end if
 
-
+		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
 		return $asset->setAttrValue('contents', $contents);
 
-	}// end _processContents()
+	}//end _processContents()
 
 
 	/**
@@ -224,11 +225,19 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		$sub = &$asset->getSubMenu();
 		// nup ? create one now
 		if (is_null($sub)) {
+			// get the parent
+			$design_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_3, 'design', false, $asset->attr('id_name'), 'minor');
+			if (empty($design_link)) return false;
+			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($design_link['majorid']);
+			if (is_null($design)) return false;
+			
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 			$sub = new $design_area();
-			$sub_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'value' => 'sub_menu', 'dependant' => '1');
+			$sub_link = Array('asset' => &$design, 'link_type' => SQ_LINK_TYPE_3, 'value' => $asset->attr('id_name').'__sub_menu', 'dependant' => 1);
 			$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu');
 			if (!$sub->create($sub_link)) return false;
+
+			if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($asset, $sub, SQ_LINK_NOTICE, 'sub_menu')) return false;
 		}
 
 		// if the current sub is a different type of menu type then morph it to the correct one
@@ -240,22 +249,12 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			if (!$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu')) return false;
 		}
 
-		// set this value here so that if this sub has a sub, it's value can get in it's contents
-		$sub_level = $asset->attr('level');
-		if ($sub_level < 0) $sub_level--;
-		else $sub_level++;
-		$sub->setAttrValue('level', $sub_level);
-
 		$edit_fns = $sub->getEditFns();
 		if (!$edit_fns->_processContents($sub, $contents) && $sub->saveAttributes()) return false;
 
-		if ($sub->attr('level') != $sub_level) {
-			trigger_error('The sub menu for "'.$asset->attr('id_name').'" has a level value '.$sub->attr('level').', which is different from what it should be ('.$sub_level.'). This could cause display issues with the menu. Are you specifically setting the level in the sub menu section ? ', E_USER_WARNING);
-		}
-
 		return true;
 
-	}// end _processSubMenu()
+	}//end _processSubMenu()
 
 
 	/**
@@ -375,7 +374,62 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 				return parent::_outputElement($element, $asset, $design);
 		}// end switch
 
-	}// end _outputElement()
+	}//end _outputElement()
+	
+	
+	/**
+	* Prints the interface for setting the menu level
+	*
+	* @param object Asset				&$asset	the owning asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLevel(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$current_level = $asset->attr('level');
+		$special_levels = Array(''   => '-- custom --',
+								'-2' => 'Children',
+								'-1' => 'Current',
+								'0'  => 'Top',
+								'1'  => 'Sub',
+								);
+		
+		if ($write_access) {
+			combo_box($prefix.'_special_level', $special_levels, false, $asset->attr('level'));
+			echo ' or ';
+			text_box($prefix.'_level', (!isset($special_levels[$current_level])) ? $current_level : '');
+		} else {
+			if (isset($special_levels[$current_level])) echo $special_levels[$current_level];
+			else echo $current_level;
+		}
+
+		return $write_access;
+
+	}//end paintLevel()
+
+
+	/**
+	* Processes the interface for setting the menu level
+	*
+	* @param object Asset				&$asset	the owning asset
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLevel(&$asset, &$o, $prefix)
+	{
+		$special_level = (int) (isset($_POST[$prefix.'_special_level'])) ? $_POST[$prefix.'_special_level'] : '';
+		$custom_level  = (int) (isset($_POST[$prefix.'_level'])) ? $_POST[$prefix.'_level'] : '';
+		$level = (!empty($custom_level)) ? $custom_level : $special_level;
+		return $asset->setAttrValue('level', $level);
+
+	}//end processLevel()
 
 
 }//end class

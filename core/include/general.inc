@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.43.2.4 2004/03/02 18:29:12 brobertson Exp $
+* $Id: general.inc,v 1.43.2.5 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -360,6 +360,31 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 	return $url;
 
 }// end current_url()
+
+
+/**
+* Removes any matrix suffixes and any string following them
+*
+* @param string $url the url to clean
+* @return string
+* @access public
+*/
+function clean_url($url)
+{
+	$bits = Array(
+		'__data',
+		'__lib',
+		'__fudge',
+		SQ_CONF_LIMBO_SUFFIX,
+		SQ_CONF_BACKEND_SUFFIX,
+	);
+	
+	foreach ($bits as $bit) {
+		$url = preg_replace('/\/'.$bit.'.*/', '/', $url);
+	}
+	return $url;
+
+}//end clean_url()
 
 
 /**

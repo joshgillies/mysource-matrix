@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_management.inc,v 1.3.2.3 2004/03/02 18:35:51 brobertson Exp $
+* $Id: metadata_field_date_management.inc,v 1.3.2.4 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,6 +48,11 @@ class Metadata_Field_Date_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
+							'offset'		=> Array(
+													'added'   => '0.1',
+													'type'    => 'text', 
+													'default' => ' ',
+													),
 							'format'		=> Array(
 													'added'   => '0.1',
 													'type'    => 'text', 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.82.2.6 2004/03/18 15:32:51 brobertson Exp $
+* $Id: backend.inc,v 1.82.2.7 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,6 +60,7 @@ class Backend extends MySource_Object
 	/**
 	* Returns the url for editing a particular page
 	*
+	* @return string
 	* @access private
 	*/
 	function getBackendUrl($target='main')
@@ -72,6 +73,7 @@ class Backend extends MySource_Object
 	/**
 	* Paint the backend interface, depending on which frame is being displayed
 	*
+	* @return void
 	* @access public
 	*/
 	function paint()
@@ -227,6 +229,7 @@ class Backend extends MySource_Object
 	/**
 	* Print out the frames page
 	*
+	* @return void
 	* @access private
 	*/
 	function _printFrames()
@@ -252,32 +255,45 @@ class Backend extends MySource_Object
 							'sidenav' => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=sidenav',
 							'resizer' => $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=resizer',
 							);
+							
+		$limbo_hipo = SQ_IN_LIMBO && (strpos($main_url, 'SQ_ACTION=hipo') !== false);
 
 		?>
 		<html>
 			<head>
-			<title><?php echo SQ_SYSTEM_LONG_NAME; ?> Backend</title>
+				<title><?php echo SQ_SYSTEM_LONG_NAME; ?> Backend</title>
 				<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+				<?php
+				if ($limbo_hipo) {
+					?>
+					<script language="Javascript" type="text/javascript">
+						document.location = "<?php echo $main_url; ?>";
+					</script>
+					<?php
+				}
+				?>
 			</head>
 			<?php
-			if (SQ_IN_LIMBO) {
-				?>
-				<frameset rows="28,*" frameborder="0" border="0">
-					<frame src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0">
-					<frame src="<?php echo $frame_urls['main']; ?>" name="sq_main" marginwidth="0" marginheight="0" scrolling="yes">
-				</frameset>
-				<?php
-			} else {
-				?>
-				<frameset rows="28,*" frameborder="0" border="0">
-					<frame src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0">
-					<frameset cols="230,10,*" frameborder="0" border="0" id ="main_frameset">
-						<frame src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0">
-						<frame src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0">
+			if (!$limbo_hipo) {
+				if (SQ_IN_LIMBO) {
+					?>
+					<frameset rows="28,*" frameborder="0" border="0">
+						<frame src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0">
 						<frame src="<?php echo $frame_urls['main']; ?>" name="sq_main" marginwidth="0" marginheight="0" scrolling="yes">
 					</frameset>
-				</frameset>
-				<?php
+					<?php
+				} else {
+					?>
+					<frameset rows="28,*" frameborder="0" border="0">
+						<frame src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0">
+						<frameset cols="230,10,*" frameborder="0" border="0" id ="main_frameset">
+							<frame src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0">
+							<frame src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0">
+							<frame src="<?php echo $frame_urls['main']; ?>" name="sq_main" marginwidth="0" marginheight="0" scrolling="yes">
+						</frameset>
+					</frameset>
+					<?php
+				}
 			}
 			?>
 		</html>
@@ -289,6 +305,7 @@ class Backend extends MySource_Object
 	/**
 	* Print out the top nav page
 	*
+	* @return void
 	* @access private
 	*/
 	function _printHeader()
@@ -481,8 +498,6 @@ class Backend extends MySource_Object
 					msgDiv.innerHTML = '<?php echo addslashes($html)?>';
 
 					setTimeout("showMsgDiv()", 500);
-				} else {
-					REFRESH_UPDATE = 2;
 				}
 			</script>
 			<?php
@@ -607,6 +622,7 @@ class Backend extends MySource_Object
 	/**
 	* Print out the Side Nav
 	*
+	* @return void
 	* @access private
 	*/
 	function _printSideNav()
@@ -699,6 +715,7 @@ class Backend extends MySource_Object
 	/**
 	* Print out the Main backend Page
 	*
+	* @return void
 	* @access private
 	*/
 	function _printMain()
@@ -719,7 +736,7 @@ class Backend extends MySource_Object
 		// and redirects the user to the frameset version if they are not
 		if (!isset($_REQUEST['ignore_frames']) || !$_REQUEST['ignore_frames']) {
 			$redirect_url = strip_url(current_url()).'/?sq_redirect_url='.urlencode($_SERVER['REQUEST_URI']);
-			$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); } ');
+			$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); }');
 		}
 
 		switch($_REQUEST['backend_section']) {
@@ -747,4 +764,5 @@ class Backend extends MySource_Object
 
 
 }//end class
+
 ?>

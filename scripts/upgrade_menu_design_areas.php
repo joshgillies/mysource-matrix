@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_menu_design_areas.php,v 1.1 2004/04/13 02:03:35 gsherwood Exp $
+* $Id: upgrade_menu_design_areas.php,v 1.1.2.1 2004/04/21 10:55:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

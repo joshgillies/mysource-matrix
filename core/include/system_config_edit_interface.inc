@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.2.2.1 2004/01/21 18:45:41 brobertson Exp $
+* $Id: system_config_edit_interface.inc,v 1.2.2.2 2004/04/21 10:55:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -295,6 +295,7 @@ class System_Config_Edit_Interface extends MySource_Object
 
 			// output the new preference file
 			$str = '<'.'?php $preferences = '.var_export($new_preferences, true).'; ?'.'>';
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			if (!string_to_file($str, SQ_DATA_PATH.'/private/conf/preferences.inc')) return false;
 
 			if ($changed_vars) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.34.2.11 2004/04/08 16:14:27 brobertson Exp $
+* $Id: mysource.inc,v 1.34.2.12 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -644,7 +644,12 @@ class MySource
 	*/
 	function setCurrentUser(&$user)
 	{
-		// They can only become current user if they can login
+		if (!is_a($user, 'user')) {
+			trigger_error('Failed setting current user, passed object is not a user', E_USER_WARNING);
+			return false;
+		}
+		
+		// they can only become current user if they can login
 		if (!$user->canLogin()) return false;
 
 		if (!is_null($this->user)) {
@@ -1603,7 +1608,7 @@ class MySource
 			if ($current_lock['userid'] == $this->currentUserid()) {
 				return $this->updateLock($lockid, $expires);
 			} else {
-				$user = &$this->getAsset($current_lock['userid']);
+				$user = &$this->am->getAsset($current_lock['userid']);
 				return 'Cannot acquire lock, lock already held by "'.$user->name.'"';
 			}// end if
 		}// end if

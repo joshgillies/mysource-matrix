@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.4.2.3 2004/03/02 18:35:51 brobertson Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.4.2.4 2004/04/21 10:55:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -177,19 +177,20 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		$attribute_list = '';
 
 		for (reset($div_attributes); $name = key($div_attributes); next($div_attributes)) {
-			if ($name == 'layout_type') continue;
+			if ($name == 'layout_type')  continue;
+			if ($name == 'content_type') continue;
+			if ($name == 'identifier')   continue;
 
 			$val = $div_attributes[$name];
 			if ($val == '') continue;
 			if ($name == 'css_class') $name = 'class';
-			
-			// DIV id must be a single token
-			if ($name == 'identifier') {
-				$name = 'id';
-				$val = str_replace(' ', '_', strtolower($val));
-			}
+
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 		}
+
+		// Now add the ID of the DIV
+		$val = str_replace(' ', '_', strtolower($asset->attr('name')));
+		$attribute_list .= ' '.'id="'.str_replace('"', '&quot;', $val).'"';
 
 		// print DIV or SPAN tag if we are not printing raw HTML
 		if ($div_attributes['layout_type'] != 'none') echo "\n<".strtolower($div_attributes['layout_type']).$attribute_list.">\n";

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.31.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: hipo_herder.inc,v 1.31.2.2 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -191,9 +191,22 @@ class HIPO_Herder extends MySource_Object
 			}
 			return true;
 		}
-		if (!$source_job->process()) {
-			trigger_error('HIPO failed to process', E_USER_WARNING);
+		if (!$source_job->process()) {			
+			$error_details = '';
+
+			trigger_error('HIPO failed to process; error report follows' . $error_details, E_USER_WARNING);
+
+			$o = &$this->getBackendOutputter();
+			$o->setFormData('', '');
+			$o->openRaw();
+			$source_job->_paintErrorReport();
+			$o->closeRaw();
+			$o->paint();
+
 			$source_job->abort();
+
+
+
 			return false;
 
 		}
@@ -237,7 +250,6 @@ class HIPO_Herder extends MySource_Object
 			$auto_step = true;
 			$percent_done = 100;
 			$status_msg = 'HIPO Aborted';
-
 		} else {
 
 			$url = $this->getProcessURL($source_job->code_name);
@@ -252,7 +264,7 @@ class HIPO_Herder extends MySource_Object
 				$onload = 'document.'.$form_name.'.submit();';
 			}
 
-			$status_msg = $source_job->hipo_name.' HIPO '.($source_job->complete()) ? 'Complete' : 'Progress';
+			$status_msg = $source_job->hipo_name.' HIPO '.(($source_job->complete()) ? 'Complete' : 'Progress');
 
 		} // end if
 
@@ -518,7 +530,6 @@ class HIPO_Herder extends MySource_Object
 					}
 				}// end if
 				exit();
-				break;
 			default:
 				trigger_error('Signal '.$signo.' not handled', E_USER_NOTICE);
 				break;
@@ -621,7 +632,6 @@ class HIPO_Herder extends MySource_Object
 			$job_codes[] = $db->quote($job_data['code_name']);
 
 			if (isset($queued_jobs[($i+1)])) {
-				$url = $this->getProcessURL($job_data['code_name']);
 				$next_url = $this->getProcessURL($queued_jobs[($i+1)]['code_name']);
 				$job->setOption('on_complete_url', $next_url);
 				if (!$job->save()) {

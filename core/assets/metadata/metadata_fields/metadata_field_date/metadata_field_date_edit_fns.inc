@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.5.2.3 2004/03/02 18:35:51 brobertson Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.5.2.4 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -148,7 +148,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 
 	/**
-	* Print the interface for editing the cron manager's Epoch
+	* Print the interface for editing the default date
 	*
 	* @param object Asset				&$asset	the owning asset
 	* @param object Backend_Outputter	&$o		the backend outputter
@@ -182,7 +182,6 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		echo "Value in this field is relevant only if you do not select a keyword replacement<br />";
 
-		// take into account lock, plus only root can edit
 		if ($asset->writeAccess('attributes')) $field->printField();
 		else echo $field->format();
 
@@ -190,7 +189,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 
 	/**
-	* Processes the interface for editing the cron manager's Epoch
+	* Processes the interface for editing the default date
 	*
 	* @param object Asset				&$asset	the owning asset
 	* @param object Backend_Outputter	&$o		the backend outputter
@@ -211,6 +210,43 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		return false;
 
 	}//end processEpoch()
+
+
+	/**
+	* Print the interface for editing the time offset
+	*
+	* @param object Asset				&$asset	the owning asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintOffset(&$asset, &$o, $prefix)
+	{
+		$offset = $asset->attr('offset');
+		if ($asset->writeAccess('attributes')) text_box($prefix.'_offset', $offset, 30);
+		else echo $offset;
+
+	}//end paintOffset()
+
+
+	/**
+	* Processes the interface for editing the time offset
+	*
+	* @param object Asset				&$asset	the owning asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processOffset(&$asset, &$o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_offset'])) return false;
+		return $asset->setAttrValue('offset', $_POST[$prefix.'_offset']);
+
+	}//end processOffset()
 
 
 	/**
@@ -466,14 +502,19 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if (strpos($original, '%') === 0) {
 			// strip off the last % sign from the end of $key string
-			$keylen = strlen($original);
-			$key = substr($original, 0, $keylen-1);
+			$key = substr($original, 0, strlen($original) - 1);
 
 			// prepare date format for merging - we will replace all spaces with underscores
 			$format = str_replace(' ', '-', $asset->attr('format'));
 
 			// merge the values with '_', add closing % sign and proceed...
-			$key = $key.'_'.$format.'%';
+			$key = $key.'_'.$format;
+			$offset = $asset->attr('offset');
+			if (!empty($offset)) {
+				$offset = str_replace(' ', '', $offset);
+				$key .= '_'.$offset;
+			}
+			$key .= '%';
 			$metadata_tag = str_replace($original, $key, $metadata_tag);
 			$keywords[] = substr($key, 1, -1);
 		}

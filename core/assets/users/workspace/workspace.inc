@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.20.2.2 2004/03/02 18:35:51 brobertson Exp $
+* $Id: workspace.inc,v 1.20.2.3 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,6 +51,30 @@ class Workspace extends Folder
 	}//end constructor
 
 
+	/**
+	* Create this asset
+	*
+	* The return value will be:<br/>
+	* <ul>
+	*   <li>FALSE if the asset was not created</li>
+	*   <li>the ID of the newly created link if the asset and intital link were created</li>
+	*   <li>TRUE if the asset was created but $link was empty</li>
+	* </ul>
+	*
+	* @param Array	&$link	information used to create the initial link<br/>
+	* <PRE>
+	* Array ('asset'      => [ref major asset to create link under],
+	*        'link_type'  => SQ_LINK_?,
+	*        'value'      => [link value],
+	*        'sort_order' => [link sort order],
+	*        'dependant'  => [0|1],
+	*        'exclusive'  => [0|1]
+	*        )
+	* </PRE>
+	*
+	* @return mixed int or false
+	* @access public
+	*/
 	function create(&$link)
 	{
 		
@@ -78,7 +102,8 @@ class Workspace extends Folder
 
 		return parent::create($link);
 		
-	}
+	}//end create()
+	
 
 	/**
 	* Gets the user that this workspace is attached to
@@ -88,7 +113,9 @@ class Workspace extends Folder
 	*/
 	function &_getUser()
 	{
+		$user = null;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user', false, '', 'minor', '1');
+		if (empty($link)) return $user;
 		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 		return $user;
 
@@ -237,6 +264,7 @@ class Workspace extends Folder
 
 	}//end saveAttributes()
 
+	
 }//end class
 
 ?>

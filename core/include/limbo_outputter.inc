@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.5.2.3 2004/03/02 18:29:12 brobertson Exp $
+* $Id: limbo_outputter.inc,v 1.5.2.4 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,14 +80,9 @@ class Limbo_Outputter extends Backend_Outputter
 		if ($this->_raw_opened) $this->closeRaw();
 		// close all sections
 		while(!empty($this->_section_stack)) $this->closeSection();
-
 		$this->_paintBodyHeader();
-		?>
-		<div id="sq_backend_sections">
-		<?php
-		if (!$this->_redirect) {
-			$this->paintSections();
-		}
+		?><div id="sq_backend_sections"><?php
+		if (!$this->_redirect) $this->paintSections();
 		?></div><?php
 
 		$this->_paintBodyFooter();
@@ -197,7 +192,7 @@ class Limbo_Outputter extends Backend_Outputter
 
 
 	/**
-	* prints a field without buffering (nb == non-buffering)
+	* Print a field without buffering (nb == non-buffering)
 	*
 	* @param string $name		label of the field
 	* @param string $format		format 'new_line' | 'blank' | 'commit' | ''
@@ -216,48 +211,49 @@ class Limbo_Outputter extends Backend_Outputter
 		$this->_current_field_note = $note;
 
 		switch ($format) {
-		case 'new_line' :
+			case 'new_line' :
+				?>
+					<tr>
+						<td nowrap valign="top" class="sq-limbo-field" colspan="3">
+							<a name="field_<?php echo $this->_field_count; ?>"></a>
+							<?php echo $name;?>
+						</td>
+					</tr>
+					<tr>
+						<td valign="top" class="sq-backend-data" colspan="3">
+							<table cellpadding="0" cellspacing="0" border="0">
+								<tr>
+									<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
+									<td width="100%" valign="top" class="sq-backend-data">
+				<?php
+			break;
+	
+			case 'commit' :
+				?>
+				<tr>
+					<td width="100%" valign="top" class="sq-backend-data" style="text-align: right; border" colspan="3">
+				<?php
+			break;
+	
+			case 'blank' :
+				// a blank field to be used just for formatting
+			break;
+	
+			default :
 			?>
 				<tr>
-					<td nowrap valign="top" class="sq-limbo-field" colspan="3">
+					<td nowrap valign="top" class="sq-limbo-field">
 						<a name="field_<?php echo $this->_field_count; ?>"></a>
 						<?php echo $name;?>
 					</td>
-				</tr>
-				<tr>
-					<td valign="top" class="sq-backend-data" colspan="3">
-						<table cellpadding="0" cellspacing="0" border="0">
-							<tr>
-								<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
-								<td width="100%" valign="top" class="sq-backend-data">
+					<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
+					<td width="100%" valign="top" class="sq-backend-data">
 			<?php
-		break;
+		}//end switch
 
-		case 'commit' :
-			?>
-			<tr>
-				<td width="100%" valign="top" class="sq-backend-data" style="text-align: right; border" colspan="3">
-			<?php
-		break;
+	}//end _nbOpenField()
 
-		case 'blank' :
-			// a blank field to be used just for formatting
-		break;
-
-		default :
-		?>
-			<tr>
-				<td nowrap valign="top" class="sq-limbo-field">
-					<a name="field_<?php echo $this->_field_count; ?>"></a>
-					<?php echo $name;?>
-				</td>
-				<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-				<td width="100%" valign="top" class="sq-backend-data">
-		<?php
-	}//end switch
-
-	}
-
+	
 	/**
 	* Opens a section without buffering
 	*

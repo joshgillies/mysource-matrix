@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.60.2.3 2004/03/03 19:39:18 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.60.2.4 2004/04/21 10:55:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 */
 class Design_Edit_Fns extends Design_Area_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -129,7 +130,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		return $changes;
 
-	}// end processParseFile()
+	}//end processParseFile()
 
 
 	/**
@@ -156,7 +157,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 		return false;
 
-	}// end paintReparseFile()
+	}//end paintReparseFile()
 
 
 	/**
@@ -179,7 +180,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 		return false;
 
-	}// end processReparseFile()
+	}//end processReparseFile()
 
 
 	/**
@@ -204,14 +205,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$str = file_to_string($parse_file);
 
 		if ($asset->writeAccess('parsing')) {
-			text_area($prefix.'_new_parse_file', str_replace("\t", "    ", $str), 120, 30);
+			text_area($prefix.'_new_parse_file', str_replace("\t", "    ", $str), 100, 30, 0, 'style="font-family: monospace; white-space: pre;"');
 			return true;
 		} else {
-			pre_echo($str);
+			echo '<pre>', htmlspecialchars($str), '</pre>';
 		}
 		return false;
 
-	}// end paintEditParseFile()
+	}//end paintEditParseFile()
 
 
 	/**
@@ -273,7 +274,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		return false;
 
-	}// end processEditParseFile()
+	}//end processEditParseFile()
 
 
 	/**
@@ -292,7 +293,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$contents = $this->_parseString($str);
 		return (!is_null($contents) && $this->_processContents($asset, $contents) && $asset->saveAttributes());
 
-	}// end parseAndProcessFile()
+	}//end parseAndProcessFile()
 
 
 	/**
@@ -353,7 +354,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function _processContents(&$asset, $contents)
 	{
 		$id_names = Array();
-		//// FIRST, let's check to see if all the design areas have unique names
+		// let's check to see if all the design areas have unique names
 		foreach($contents as $index => $element) {
 			if ($element['_type'] != 'TAG' || $element['operation'] != 'area') continue;
 
@@ -380,27 +381,30 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$id_names[$element['attributes']['id_name']] = $element['attributes']['design_area'];
 
 		}// end foreach
-
+		
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		if (isset($GLOBALS['SQ_PROCESSED_DESIGN_AREAS'])) {
+			// let's remove any design area links that we aren't going to be using any more
+			$existing_da_links = $asset->getDesignAreaLink();
+			$existing_id_names = Array();
+			foreach ($existing_da_links as $link) $existing_id_names[$link['value']] = $link['linkid'];
 
-		//// SECOND, let's remove any design area links that we aren't going to be using any more ////
+			$removed_id_names = array_diff(array_keys($existing_id_names), array_keys($GLOBALS['SQ_PROCESSED_DESIGN_AREAS']));
 
-		$existing_da_links = $asset->getDesignAreaLink();
-		$existing_id_names = Array();
-		foreach ($existing_da_links as $link) $existing_id_names[$link['value']] = $link['linkid'];
-
-		$removed_id_names = array_diff(array_keys($existing_id_names), array_keys($id_names));
-
-		// now remove any unused design area customisations
-		foreach($removed_id_names as $id_name) {
-			if (!$asset->deleteLink($existing_id_names[$id_name])) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-		}// end foreach
+			// now remove any unused design area customisations
+			foreach($removed_id_names as $id_name) {
+				if (!$asset->deleteLink($existing_id_names[$id_name])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}// end foreach
+		} else {
+			$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'] = Array();
+		}
 
 
-		//// THIRD, let's validate the design areas that we are going to use ////
+		// validate the design areas that we are going to use
 
 		$design_areas = Array();
 
@@ -497,7 +501,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			return false;
 		}
 
-	}// end _processContents()
+	}//end _processContents()
 
 
 	/**
@@ -571,9 +575,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$da->setVarReferenceValues($da_ref_values);
 		}// end foreach
 
+		// we are checking to see if there is a global $ASSET_LINEAGE here
+		// because we need other assets to be able to modify the lineage, for
+		// instance 404 pages.
+
 		$pre_str = '<?php
+		global $ASSET_LINEAGE;
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
-		$ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
+		if (!isset($ASSET_LINEAGE) || empty($ASSET_LINEAGE)) $ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
+		define(\'SQ_LIMBO_EDITING\', (SQ_IN_LIMBO && (!isset($_REQUEST[\'ignore_frames\']) || !$_REQUEST[\'ignore_frames\'])));
 		?>';
 
 		$str = '';
@@ -623,7 +633,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		return true;
 
-	}// end createDesignFile()
+	}//end createDesignFile()
 
 
 	/**
@@ -643,7 +653,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			echo "<br>\n";
 		}
 
-	}// end paintParseFile()
+	}//end paintParseFile()
 
 
 	/**
@@ -726,7 +736,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		return $changes;
 
-	}// end processNewFiles()
+	}//end processNewFiles()
 
 
 	/**
@@ -798,7 +808,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		text_box($prefix.'_new_customisation_name', $asset->name.' - Customisation', 40);
 		return true;
 
-	}// end paintNewCustomisation()
+	}//end paintNewCustomisation()
 
 
 	/**
@@ -822,7 +832,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$map = Array();
 		$create_link = Array();
 
-		$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes'), false);
+		$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions'), false);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -899,7 +909,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		return true;
 
-	}// end processNewCustomisation()
+	}//end processNewCustomisation()
 
 
 	/**
@@ -927,7 +937,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			?> No Customisations Created <?php
 		}
 
-	}// end paintCurrentCustomisations()
+	}//end paintCurrentCustomisations()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.164.2.8 2004/03/26 16:41:50 brobertson Exp $
+* $Id: asset_manager.inc,v 1.164.2.9 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -206,7 +206,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns an array of asset information or a specific piece of information
 	*
-	* @param Array|string	$type_code	the code name (or array of code names) for the asset that you want to check
+	* @param array|string	$type_code	the code name (or array of code names) for the asset that you want to check
 	* @param string			$field		if exists, returns this information from the array for this specific field
 	*
 	* @return mixed
@@ -577,6 +577,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetTypeAttributes($type_code, $details=Array('name', 'type'))
 	{
+		if (!is_string($type_code)) return Array();
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 
@@ -613,7 +615,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
-		if (empty($assetid)) {
+		if (empty($assetid) || is_object($assetid)) {
 			if (!$mute_errors) trigger_error('Could not get asset - assetid is empty', E_USER_WARNING);
 			$null = null; // do this because of return by reference
 			return $null;
@@ -634,6 +636,10 @@ class Asset_Manager extends MySource_Object
 
 				$real_assetid = $id_parts[0];
 				$asset = &$this->getAsset($real_assetid, '', $mute_errors);
+				if (!method_exists($asset, 'getAsset')) {
+					trigger_error('Shadow asset handler "'.$asset->name.'" can not get assets', E_USER_WARNING);
+					return $null;
+				}
 				$this->_assets[$store_key]['object'] = &$asset->getAsset($id_parts[1]);
 
 			} else {
@@ -728,6 +734,12 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getSystemAsset($name)
 	{
+		$null = null;
+		if (!is_string($name)) {
+			trigger_error('Invalid system asset name', E_USER_WARNING);
+			return $null;
+		}
+		
 		static $system_assets = null;
 		if (is_null($system_assets)) {
 			// include the system asset config file
@@ -736,7 +748,8 @@ class Asset_Manager extends MySource_Object
 		if (isset($system_assets[$name])) {
 			return $this->getAsset($system_assets[$name], $name);
 		} else {
-			trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);
+			trigger_error('System asset name "'.$name.'" not known', E_USER_WARNING);
+			return $null;
 		}
 
 	}//end getSystemAsset()
@@ -846,10 +859,12 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
+	* @return array
 	* @access public
 	*/
 	function getTypeAssetids($type_code, $strict=true, $include_type=false, $mute_errors=false)
 	{
+		if (!is_string($type_code)) return Array();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		if ($strict) {
@@ -916,9 +931,11 @@ class Asset_Manager extends MySource_Object
 		if (!$source->id) return $null;
 
 		$lock = $this->getLockInfo($source->id, 'all');
-		if (empty($lock)) {
-			trigger_error('You need to acquire an "all" lock on this asset before it can be cloned', E_USER_WARNING);
-			return $null;
+		foreach ($lock as $lock_type => $lock_info) {
+			if (empty($lock_info)) {
+				trigger_error('You need to acquire all locks on this asset before it can be cloned', E_USER_WARNING);
+				return $null;
+			}
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -1058,11 +1075,12 @@ class Asset_Manager extends MySource_Object
 	* @param boolean		$clone_dependants	if TRUE the dependants of the source asset will be cloned
 	*												and will have their sources components cloned
 	*
-	* @return &object Asset the clone of the source
+	* @return &object Asset		the clone of the source, NULL on error
 	* @access public
 	*/
 	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=true)
 	{
+		$null = null;
 
 		// make sure this type of asset can be cloned
 		if (!$source->canClone()) {
@@ -1072,7 +1090,8 @@ class Asset_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!$clone = &$this->_cloneAsset($source, $link, $clone_map)) {
+		$clone = &$this->_cloneAsset($source, $link, $clone_map);
+		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
 		}
@@ -1126,11 +1145,6 @@ class Asset_Manager extends MySource_Object
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return $null;
 						}
-					/*	if (!$child->cloneComponents($cloned_child, $components)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return $null;
-						}
-					*/
 					}// end if
 				}// end foreach
 			}// end if empty
@@ -1369,7 +1383,7 @@ class Asset_Manager extends MySource_Object
 			$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo('asset.'.$assetid.'.'.$lock_type, $full_chain, $check_expires);
 			if (!empty($lock)) {
 				$lock['lock_type']      = $lock_type;
-				$lock['source_assetid'] = preg_replace('/^asset\.([0-9]+\'[0-9]+)\..*$/', '\1', $lock['source_lockid']);
+				$lock['source_assetid'] = preg_replace('|^asset\.(.*)\.[\w]+$|', '\1', $lock['source_lockid']);
 				if ($full_chain) {
 					for(reset($lock['chained_assets']); NULL !== ($k = key($lock['chained_assets'])); next($lock['chained_assets'])) {
 						$lock['chained_assets'][$k]['assetid'] = preg_replace('/^asset\.([0-9]+\'[0-9]+)\..*$/', '\1', $lock['chained_assets'][$k]['lockid']);
@@ -1453,11 +1467,13 @@ class Asset_Manager extends MySource_Object
 	* @param boolean		$exclusive			The exclusive status for the link must be
 	*											this (if not null)
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getLink($assetid, $link_type, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
 	{
+		if (is_object($assetid)) return Array();
+		
 		if ($side_of_link != 'major' && $side_of_link != 'minor')
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
 
@@ -1527,8 +1543,9 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinkById($linkid, $assetid='', $side_of_link='major')
 	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
+		if ($side_of_link != 'major' && $side_of_link != 'minor') {
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
+		}
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
@@ -1567,7 +1584,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param int		$assetid			id of the the $side_of_link asset
 	* @param int		$other_assetid		the asset of the other $side_of_link
-	* @param int		$link_types		integer that can be the product of bitwise operations
+	* @param int		$link_types			integer that can be the product of bitwise operations
 	*										on the SQ_LINK_* constants
 	* @param string		$value				the value that is associated with this link
 	* @param string		$side_of_link		Which side of the link this (the current) asset
@@ -1581,10 +1598,14 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false)
 	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
+		if ($side_of_link != 'major' && $side_of_link != 'minor') {
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
+		}
 
-		if (!$assetid) return Array();
+		if (!$assetid || is_object($assetid)) {
+			trigger_error('Cannot get link by assetid - no assetid given', E_USER_WARNING);
+			return Array();
+		}
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
@@ -1944,7 +1965,7 @@ class Asset_Manager extends MySource_Object
 	* The query generated to get the children is actually contructed in the Asset Manager's
 	* generateGetChildrenQuery function.
 	*
-	* @param int			$assetid			the id of the asset to get its children for
+	* @param int|string		$assetid			the id of the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
@@ -1960,17 +1981,30 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
+		if ((!is_int($assetid) && !is_string($assetid)) || !$assetid) {
+			trigger_error('Cannot get children, assetid is not valid', E_USER_WARNING);
+			return Array();
+		}
+
 		// check if we are getting children for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
 		$id_parts = explode(':', $assetid);
 		if (isset($id_parts[1])) {
+			$children = Array();
 			$real_assetid = $id_parts[0];
 			$asset = &$this->getAsset($real_assetid);
-			$children = $asset->getChildren($id_parts[1], $type_code, $strict_type_code, $sort_by);
-			$this->forgetAsset($asset);
+			if (!is_null($asset)) {
+				if (!method_exists($asset, 'getChildren')) {
+					trigger_error('Shadow asset handler "'.$asset->name.'" can not get children', E_USER_WARNING);
+				} else {
+					$children = $asset->getChildren($id_parts[1], $type_code, $strict_type_code, $sort_by);
+				}
+				$this->forgetAsset($asset);
+			} else {
+				trigger_error('Shadow asset handler #'.$real_assetid.' does not exist', E_USER_WARNING);
+			}
 			return $children;
 		}
-
 
 		// we are not getting children for a shadow asset, so if we are getting children of
 		// an asset that handles shadow assets, palm the request off to it
@@ -3761,6 +3795,12 @@ class Asset_Manager extends MySource_Object
 	function &getAssetFromURL($protocol=null, $url=null, $exact_match=true, $mute_errors=false)
 	{
 		if (is_null($url)) $url = current_url(false, true);
+		if (!is_string($url)) {
+			trigger_error('Invalid URL specified - using current URL', E_USER_WARNING);
+			$null = null;
+			return $null;
+		}
+		
 		// remove any trailing slashes and double slashes
 		$url = strip_url($url);
 

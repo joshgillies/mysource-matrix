@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.34.2.4 2004/03/04 16:39:19 brobertson Exp $
+* $Id: tables.xml,v 1.34.2.5 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -1312,7 +1312,7 @@
 				<description>The LockId for the parent of this chain of locks</description>
 			</column>
 			<column name="userid" allow_null="0">
-				<type>VARCHAR(15)</type>
+				<type>VARCHAR(255)</type>
 				<type_variations />
 				<default />
 				<description />

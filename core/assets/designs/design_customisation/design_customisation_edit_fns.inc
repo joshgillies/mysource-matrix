@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.21.2.1 2004/03/02 16:00:38 brobertson Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.21.2.2 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,19 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 */
 class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 {
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Design_Customisation_Edit_Fns()
+	{
+		$this->Design_Edit_Fns();
+		$this->static_screens['details']['lock_type'] = 'all';
+
+	}//end constructor
+
 
 	/**
 	* Paints the interface for customising the design areas
@@ -141,15 +154,22 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$map  = Array();
-		$create_link = Array(); // because we have to bugger about with this a bit, don't link it anywhere yet
 		foreach($_POST[$prefix.'_customise'] as $id_name) {
 			$link = $asset->getDesignAreaLink($id_name);
 			if (is_null($link)) continue;
 			$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], false);
 			if (is_null($da)) continue;
+			
+			$create_link = Array (	'asset' => &$asset,
+									'link_type'  => SQ_LINK_TYPE_3,
+									'value'      => $link['value'],
+									'sort_order' => null,
+									'dependant'  => 1,
+									'exclusive'  => 0
+								 );
 
 			// First let's duplicate the DA, ignoring the directory with the files
-			$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($da, $create_link, $map, Array('attributes'), false);
+			$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($da, $create_link, $map, Array('attributes', 'permissions'), true);
 			if (is_null($clone)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -215,15 +235,24 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		$da_links = $asset->getDesignAreaLink();
 		foreach($da_links as $da_link) {
 			$id_name = $da_link['value'];
+			// skip this design area if it is not in the list of design areas to update
 			if (empty($data[$id_name])) continue;
+			
+			// okay, this design area is in the list of design areas to update, but
+			// skip it if it is already link'dup correctly
+			if ($data[$id_name][0] == $da_link['minorid']) continue;
 
-			// First remove the old link
+			// remove the old link (the one from the original design)
 			if (!$asset->deleteLink($da_link['linkid'])) return false;
-
-			// Now create the new link
-			$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data[$id_name][0], $data[$id_name][1]);
-			if (is_null($da)) return false;
-			if (!$asset->createLink($da, SQ_LINK_TYPE_3, $id_name, null, '1')) return false;
+			
+			// create the new link if required (wont be required if we created during a customisation)
+			$existing_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $data[$id_name][0]);
+			if (empty($existing_link)) {
+				// now create the new link
+				$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data[$id_name][0], $data[$id_name][1]);
+				if (is_null($da)) return false;
+				if (!$asset->createLink($da, SQ_LINK_TYPE_3, $id_name, null, '1')) return false;
+			}
 
 			// remove any cached versions
 			if (isset($asset->_tmp['design_areas'])) unset($asset->_tmp['design_areas'][$id_name]);
@@ -234,10 +263,8 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		foreach($customisation_links as $customisation_link) {
 			$customisation = &$GLOBALS['SQ_SYSTEM']->am->getAsset($customisation_link['minorid'], $customisation_link['minor_type_code']);
 			if (is_null($customisation)) continue;
-
 			if (!$this->_updateDesignAreaLink($customisation, $data)) return false;
-
-		}// end foreach
+		}
 
 		return true;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.196.2.6 2004/03/26 16:41:50 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.196.2.7 2004/04/21 10:55:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -490,7 +490,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// get the asset tree lineage
 		$asset_path = Array();
 		if (isset($_REQUEST['sq_asset_path'])) {
-			// flash sends comma-separated assetids indicating the path
+			// asset map sends comma-separated assetids indicating the path
 			$matches = preg_split('|,([0-9]+:?),?|', ($_REQUEST['sq_asset_path']), 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 			for (reset($matches); null !== ($k = key($matches)); next($matches)) {
 				// the first match is always fine
@@ -516,7 +516,7 @@ class Asset_Edit_Interface extends MySource_Object
 					$asset_path[] = $asset_info['assetid'];
 				}
 			} else {
-				// flash didn't send one (e.g initial matrix loading)
+				// asset map didn't send one (e.g initial matrix loading)
 				// pretend it did by making a singleton set of the owner
 				if ($owner->id) $asset_path[] = $owner->id;
 			}
@@ -570,6 +570,11 @@ class Asset_Edit_Interface extends MySource_Object
 		if (isset($_REQUEST['ignore_frames']) && $_REQUEST['ignore_frames']) {
 			$o->addHiddenField('ignore_frames', '1');		
 		}
+
+		// set the current screen for both backend and frontend editing
+		$current_location = $o->getCurrentLocation();
+		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
+		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
 
 		// once we have a preview URL, we can paint the layout if there is one
 		// paint the layout now, if needed
@@ -640,9 +645,6 @@ class Asset_Edit_Interface extends MySource_Object
 		  ///////////////////
 		 //  SCREEN MENU  //
 		///////////////////
-		$current_location = $o->getCurrentLocation();
-		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
-
 		// add all the screens to the combo, but only if we aren't creating the object
 		if (!$creating) {
 			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
@@ -662,8 +664,10 @@ class Asset_Edit_Interface extends MySource_Object
 			if (!count($create_sections)) return;
 		}
 
-		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
 
+		  //////////////////////
+		 //  EDIT INTERFACE  //
+		//////////////////////
 		if ($file) {
 			$input = new XML_Tree($file);
 			$root  = &$input->getTreeFromFile();
@@ -811,25 +815,27 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// if there are other screens used by the layout, then we need to acquire locks on those
 			// screens as well
-			if (isset($keywords['screens']) && !empty($keywords['screens'])) {
-				foreach (array_keys($keywords['screens']) as $screen) {
-					// default to 'all', so if lock type is left out a lock can still be gotten and the asset edited
-					$screen_lock_type = 'all';
-					if (isset($this->_edit_fns->static_screens[$screen])) {
-						if (!empty($this->_edit_fns->static_screens[$screen]['lock_type'])) {
-							$screen_lock_type = $this->_edit_fns->static_screens[$screen]['lock_type'];
-						}
-					} else {
-						// must be a normal screen
-						if (!empty($this->_screens[$screen]['lock_type'])) {
-							$screen_lock_type = $this->_screens[$screen]['lock_type'];
-						}
-					}// end if
+			$screens = array_merge(array_keys($keywords['screens']), array_keys($keywords['entire_screens']));
+			$screens = array_unique($screens);
 
-					$locks[] = $screen_lock_type;
+			foreach ($screens as $screen) {
+				// default to 'all', so if lock type is left out a lock can still be gotten and the asset edited
+				$screen_lock_type = 'all';
+				if (isset($this->_edit_fns->static_screens[$screen])) {
+					if (!empty($this->_edit_fns->static_screens[$screen]['lock_type'])) {
+						$screen_lock_type = $this->_edit_fns->static_screens[$screen]['lock_type'];
+					}
+				} else {
+					// must be a normal screen
+					if (!empty($this->_screens[$screen]['lock_type'])) {
+						$screen_lock_type = $this->_screens[$screen]['lock_type'];
+					}
+				}// end if
 
-				}//end foreach
-			}//end if
+				$locks[] = $screen_lock_type;
+
+			}//end foreach
+			
 		}//end if hasLayout
 
 		$locks = array_unique($locks);
@@ -911,7 +917,7 @@ class Asset_Edit_Interface extends MySource_Object
 					trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
 					continue;
 				}//end if
-				
+
 				// get the layout replacements for this NON-static screen
 				if ($this->_getLayoutKeywordReplacements($root, $o, $owner, $keywords, $screen, $entire_screen)) {
 					$print_commit_button = true;
@@ -932,16 +938,39 @@ class Asset_Edit_Interface extends MySource_Object
 					$replacements['__custom-'.$keyword] = $replacement;
 				}
 				$this->_tmp['layout_keyword_replacements'] = array_merge($this->_tmp['layout_keyword_replacements'], $replacements);
+				$print_commit_button = true;
 
 			}//end if
 
 		}//end if
 
 		// we have printed an editable interface on a static screen - show the commit button
-		if ($print_commit_button) {
+		if (in_array('commit_button', $keywords['layout']) && $print_commit_button) {
 			ob_start();
-			$o->commitButton('Commit', false);
-			$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
+				$o->commitButton('Commit', false);
+				$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
+			ob_end_clean();
+		}
+		
+		// show the screen selection menu
+		if (in_array('screen_menu', $keywords['layout'])) {
+			$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
+			$current_location = $o->getCurrentLocation();
+			$current_location .= (strstr($current_location, '?')) ? '&' : '?';
+			
+			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
+				if (!$lm->hasLayout($owner->type(), $code)) continue;
+				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
+			}
+			foreach ($this->_edit_fns->static_screens as $code_name => $data) {
+				if (!$lm->hasLayout($owner->type(), $code_name)) continue;
+				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
+				$o->addStaticScreen($url, $data['name']);
+			}
+			
+			ob_start();
+				$o->printScreenMenu();
+				$this->_tmp['layout_keyword_replacements']['screen_menu'] = ob_get_contents();
 			ob_end_clean();
 		}
 
@@ -975,13 +1004,18 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function _getStaticScreenKeywordReplacements(&$owner, &$o, $screen, $static_keywords, $get_screen=false)
 	{
-		$paint_function = 'paint'.$screen;
 		$this->includeStaticScreen($screen);
 		$print_commit_button = false;
-
+		
 		ob_start();
-		if ($paint_function($owner, $o, $this, $static_keywords)) $print_commit_button = true;
-		if ($get_screen) $this->_tmp['layout_keyword_replacements'][$screen.'-'] = ob_get_contents();
+			if (isset($_POST['am_form_submitted']) && $_POST['am_form_submitted']) {
+				// the form was submitted, so we need to process the static screen as well
+				$process_function = 'process'.$screen;
+				$process_function($owner, $o, $this, $static_keywords);
+			}
+			$paint_function = 'paint'.$screen;
+			if ($paint_function($owner, $o, $this, $static_keywords)) $print_commit_button = true;
+			if ($get_screen) $this->_tmp['layout_keyword_replacements'][$screen.'-'] = ob_get_contents();
 		ob_end_clean();
 
 		return $print_commit_button;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.33.2.2 2004/03/02 18:35:51 brobertson Exp $
+* $Id: design_area_edit_fns.inc,v 1.33.2.3 2004/04/21 10:55:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -493,6 +493,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function _processContents(&$asset, $contents)
 	{
 		if ($this->_setVariables($asset, $contents)) {
+			$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
 			return $asset->setAttrValue('contents', $contents);
 		} else {
 			return false;
@@ -753,6 +754,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	{
 		$text = '';
 		$vars = $this->getSetableVars($asset);
+		require_once SQ_FUDGE_PATH.'/general/general.inc';
 		foreach($vars as $name => $data) {
 			$text .= '<'.$this->tag_name.'_SET name="'.$name.'"';
 
@@ -760,8 +762,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($asset->vars['var_references']['value'][$name])) {
 				$text .= ' id_name="'.htmlentities($asset->vars['var_references']['value'][$name]['id_name']).'" var="'.htmlentities($asset->vars['var_references']['value'][$name]['var']).'"';
 			} else {
-			pre_echo($name.':'.gettype($data['value']));
-				$text .= ' value="'.htmlentities($data['value']).'"';
+				$text .= ' value="'.htmlentities_array($data['value']).'"';
 			}
 			$text .= " />\n";
 		}
@@ -779,7 +780,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			}// end switch
 		}// end foreach
 
-		pre_echo($text);
+		#pre_echo($text);
 
 		return $text;
 
@@ -842,11 +843,11 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// if nothing changed then do nothing
 		if ($_POST[$prefix.'_specialisation_orig'] == $_POST[$prefix.'_specialisation']) return false;
 
-		pre_echo($_POST[$prefix.'_specialisation']);
+		#pre_echo($_POST[$prefix.'_specialisation']);
 		$contents = $this->_parseString($_POST[$prefix.'_specialisation']);
-		pre_echo($contents);
+		#pre_echo($contents);
 		if (!is_null($contents) && $this->_processContents($asset, $contents)) {
-			pre_echo("PROCESS OK");
+			#pre_echo("PROCESS OK");
 			return $asset->setAttrValue('specialised', 1);
 		}
 

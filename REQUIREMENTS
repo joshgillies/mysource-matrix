@@ -1,13 +1,30 @@
+/**
+* +--------------------------------------------------------------------+
+* | MySource Matrix - Instructional Document                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: REQUIREMENTS,v 1.4.2.1 2004/04/21 10:55:15 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
 
+Apache 1.3.27 or higher
 
-
-PHP 4.3.0
-PEAR - Base
-     - XML_Tree
-     - Mail
-     - Mime_Mail
-     - Archive_TAR
+PHP 4.3.3 or higher
+	 - with-gd
+	 - enable-memory-limit
+	 - enable-sockets (Squiz Server only)
+	 - enable-pcntl (Squiz Server only)
+	 
+PEAR - Base = 1.3
+     - Mime_Mail = 1.2.1
+     - Archive_Tar = 1.1
+	 - XML_HTMLSax = 2.1.2 (spell checker)
+	 - XML_Parser = 1.0.1
+     - DB = 1.50RC2
 
 HTML Tidy : http://tidy.sourceforge.net/
 
-
+Databases (one of) : 
+ - MySQL 3.23.58 or higher
+ - MySQL 4.0.15 or higher
+ - PostgreSQL 7.3.4 or higher
