@@ -1,30 +1,33 @@
 <?php
-
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: search_manager_edit_fns.inc,v 1.2 2003/10/08 02:12:04 dwong Exp $
+* $Name: not supported by cvs2svn $
+*/
 
 /**
 * Search_Manager_Edit_Fns
 *
-* Purpose
+* Edit functions for the search manager.
 *
+* @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
+
+
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 {
-	var $static_screens = Array(
-		'details' => Array(
-			'name' => 'Details',
-			'force_unlock' => true
-		),
-	);
 
 	/**
 	* Constructor
-	*
+	* 
+	* @see Asset_Edit_Fns::Asset_Edit_Fns
 	*/
 	function Search_Manager_Edit_Fns()
 	{
@@ -32,7 +35,15 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	}//end constructor
 
 
-
+	/**
+	* Paints the interface for assigning weights to asset types' attributes.
+	* 
+	* @param object Search_Manager		&$asset	the search manager asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	*
+	* @return void
+	* @access public
+	*/
 	function paintBackendAssetWeights(&$owner, &$o)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -44,8 +55,19 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		$this->paintAssetTypeSection($typeHierarchy, $o);
 
 		$o->commitButton();
-	}
+	} // paintBackendAssetWeights()
 
+	
+	/** 
+	* Paints a section for an asset type and its attributes and their weights.
+	* (recursive)
+	*
+	* @param Array						$typeHierarchy	The asset type hierarchy. 
+	* @param object Backend_Outputter	&$o				The backend outputter.
+	* 
+	* @access public
+	* @return void
+	*/
 	function paintAssetTypeSection($typeHierarchy, &$o) {
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -79,8 +101,17 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-	}
+	} // end paintAssetTypeSection
 
+	/**
+	* Paints the interface for assigning weights to asset types' attributes.
+	* 
+	* @param object Search_Manager		&$asset	the search manager asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	*
+	* @return void
+	* @access public
+	*/
 	function processBackendAssetWeights(&$owner, $o)
 	{
 		// go through the list and apply the weights to the table
@@ -110,7 +141,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$o->addMessage(SQ_BO_MSG_NOTICE, "Weighting changed for attribute ". $attribute->name. " ($attributeid)");
 		}
-	}
+	} // end processBackendAssetWeights()
 
 }//end class
 ?>
