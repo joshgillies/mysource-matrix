@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.11 2004/12/29 00:30:30 tbarrett Exp $
+* $Id: metadata.inc,v 1.12 2005/02/01 11:24:25 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -70,7 +70,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
 		}
 
-		$section_access = $ei->_getAccess($owner, $section);
+		$section_access = $ei->_getAccess($owner, $section, $prefix);
 		if (!($section_access & SQ_EI_READ)) continue;
 
 		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) ob_start();
@@ -82,7 +82,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 		for ($j = 0; $j < $num_fields; $j++) {
 			$field = &$section->children[$j];
 
-			$field_access = $ei->_getAccess($owner, $field);
+			$field_access = $ei->_getAccess($owner, $field, $prefix);
 			if (!($field_access & SQ_EI_READ)) continue;
 
 			switch (strtolower($field->attributes['code'])) {

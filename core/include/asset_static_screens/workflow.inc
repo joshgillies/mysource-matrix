@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.14 2004/12/29 00:30:30 tbarrett Exp $
+* $Id: workflow.inc,v 1.15 2005/02/01 11:27:43 brobertson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 
@@ -154,7 +154,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
 		}
 
-		$section_access = $ei->_getAccess($owner, $section);
+		$section_access = $ei->_getAccess($owner, $section, $prefix);
 		if (!($section_access & SQ_EI_READ)) continue;
 
 		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) ob_start();
