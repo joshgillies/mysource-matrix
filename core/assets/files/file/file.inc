@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.63 2004/06/28 16:16:13 brobertson Exp $
+* $Id: file.inc,v 1.64 2004/06/28 22:38:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -466,7 +466,7 @@ class File extends Asset
 			return true;
 		}
 
-		$web_path = $this->getWebDataPath().'/'.$existing['filename'];
+		$web_path = str_replace(sq_web_path('root_url').'/', '', $this->getWebDataPath()).'/'.$existing['filename'];
 
 		// Basically what we are going to do here is find all our parents that are sites
 		// and take the system root urls that are closest to these site urls and tack on __data/... bit
