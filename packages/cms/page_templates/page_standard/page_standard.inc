@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_standard.inc,v 1.24 2003/10/21 06:25:43 dwong Exp $
+* $Id: page_standard.inc,v 1.25 2003/11/03 23:42:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -148,6 +148,10 @@ class Page_Standard extends Page
 				return false;
 			}
 			$o->addFormActionGetVar('assetid', $bodycopy->id);
+			
+			// fudge the navigation history a little
+			$_SESSION['sq_nav_history'][(count($_SESSION['sq_nav_history']) - 1)] = Array('assetid' => $this->id, 'screen' => 'details');
+
 			$bodycopy->paintBackend($o);
 		} else {
 			parent::paintBackend($o);
@@ -173,6 +177,7 @@ class Page_Standard extends Page
 		$bodycopy->printBody();
 
 	}// end printBody()
+
 
 	/** 
 	* Retrieves a list of key data from this asset (used by the indexing service).
