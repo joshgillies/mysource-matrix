@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.29 2004/08/23 00:22:28 amiller Exp $
+* $Id: page_asset_listing.inc,v 1.30 2004/08/24 00:26:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -263,6 +263,7 @@ class Page_Asset_Listing extends Page
 	*/
 	function printBody()
 	{
+
 		// this is what we are grouping by
 		// grouping by number shows a certain number of results per page (eg. 10 assets per page)
 		// grouping by letter makes this template an A-Z listing of assets
@@ -722,6 +723,7 @@ class Page_Asset_Listing extends Page
 	*/
 	function printAssetList($todo)
 	{
+
 		$wanted_types = $this->attr('types');
 		if (empty($wanted_types)) return;
 
@@ -735,6 +737,7 @@ class Page_Asset_Listing extends Page
 		$mm		 = NULL;
 
 		foreach ($todo as $assetid => $type_code) {
+
 
 			$contents = '';
 
@@ -825,13 +828,24 @@ class Page_Asset_Listing extends Page
 		if (!isset($vars['keywords'])) return;
 		if (!is_a($broadcaster, 'content_type_wysiwyg')) return;
 
-		// lets work out which format types the WYSIWYG cell that wants our keywords
-		// is in so we can return the correct keywords for the asset type
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+
+		// the broadcaster could be our page contents bodycopy, in which case
+		// we want to supply our own keyword replacements
+		$page_contents_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+		if (!empty($page_contents_link)) {
+			if (in_array($page_contents_link['minorid'], $parents)) {
+				$vars['keywords'] += $this->getContentsKeywords();
+				return;
+			}
+		}
+
+		// otherwise, it must be from one of our format bodycopies, or something else altogether,
+		// so we'll try to find out which of the format types it is.
 		$folder = &$this->getFolder();
 		if (is_null($folder)) return;
 
 		$type_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
 
 		$type_codes = Array();
 		foreach ($type_links as $link_info) {
@@ -870,6 +884,37 @@ class Page_Asset_Listing extends Page
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
 	}//end onRequestKeywords()
+
+
+	/**
+	* Return the available keywords in the Page Contents Bodycopy for this asset
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'keyword' => Array (
+	*					'name'	=> '(name of the keyword)',
+	*				    'default' => '(default value)',
+	*					'type' => 'block' | 'inline'
+	*                  )
+	* )
+	* </pre>
+	*
+	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	*
+	* @access public
+	* @return Array(mixed)
+	*/
+	function getContentsKeywords()
+	{
+		
+		$keywords = Array();
+		$keywords['asset_listing'] = Array(
+										'name'=>'Asset Listing',
+										'default'=>'The Listing of Assets', 
+										'type'=>'block');
+		return $keywords;
+	}
 
 
 }//end class
