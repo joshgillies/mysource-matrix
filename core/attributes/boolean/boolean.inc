@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.14 2004/02/24 22:13:20 diarandine Exp $
+* $Id: boolean.inc,v 1.15 2004/03/04 03:24:04 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,6 +80,76 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 
 
 	/**
+	* Print the interface for changing edit params
+	*
+	* @param string		$prefix		prefix for the form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function paintEditParams($prefix, $write_access=false)
+	{
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td colspan="2" class="sq-backend-table-header"><?php echo $this->name; ?></td>
+			</tr>
+			<tr>
+				<td class="sq-backend-section-heading">True text</td>
+				<td class="sq-backend-section-heading">False text</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) text_box($prefix.'_' . $this->name . '_true', $this->_edit_params['true_text']);
+					else echo $this->_edit_params['true_text'];
+					?>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) text_box($prefix.'_' . $this->name . '_false', $this->_edit_params['false_text']);
+					else echo $this->_edit_params['false_text'];
+					?>
+				</td>
+			</tr>
+		</table>
+		<?php
+
+	}//end paintEditParams()
+
+
+	/**
+	* Process the interface for changing edit params
+	*
+	* @param string		$prefix		prefix for the form elements
+	*
+	* @return array
+	* @access public
+	*/
+	function processEditParams($prefix)
+	{
+		// reading submitted vars
+		if (!empty($_POST[$prefix.'_' . $this->name . '_true'])) {
+			$this->_edit_params['true_text'] = $_POST[$prefix.'_' . $this->name . '_true'];
+		}
+
+		if (!empty($_POST[$prefix.'_' . $this->name . '_false'])) {
+			$this->_edit_params['false_text'] = $_POST[$prefix.'_' . $this->name . '_false'];
+		}
+
+		$values = Array();
+		$values['true_text'] = $this->_edit_params['true_text'];
+		$values['false_text'] = $this->_edit_params['false_text'];
+
+		$result = Array();
+		$result[$this->name] = $values;
+		
+		return $result;
+
+	}//end processEditParams()
+
+
+	/**
 	* Prints the interface for filling in a value
 	*
 	* @param string		$prefix		prefix for the form element
@@ -95,7 +165,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 							 1 => $this->_edit_params['true_text']
 							);
 		} else {
-			$options = Array('_' => '-- Do not include into search --',
+			$options = Array('_' => '-- Select one --',
 							 0 => $this->_edit_params['false_text'],
 							 1 => $this->_edit_params['true_text']
 							);
@@ -109,7 +179,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		if ($add) {
 			combo_box($prefix.'_'.$this->name, $options, false, $this->value, 0, $extras='', $maxlength=0);
 		} else {
-			combo_box($prefix, $options, false, $this->value, 0, $extras='', $maxlength=0);
+			combo_box($prefix, $options, false, null, 0, $extras='', $maxlength=0);
 		}
 
 	}//end paint()
