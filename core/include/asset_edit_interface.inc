@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.204 2004/04/16 02:33:26 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.205 2004/04/18 23:13:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -490,7 +490,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// get the asset tree lineage
 		$asset_path = Array();
 		if (isset($_REQUEST['sq_asset_path'])) {
-			// flash sends comma-separated assetids indicating the path
+			// asset map sends comma-separated assetids indicating the path
 			$matches = preg_split('|,([0-9]+:?),?|', ($_REQUEST['sq_asset_path']), 0, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
 			for (reset($matches); null !== ($k = key($matches)); next($matches)) {
 				// the first match is always fine
@@ -516,7 +516,7 @@ class Asset_Edit_Interface extends MySource_Object
 					$asset_path[] = $asset_info['assetid'];
 				}
 			} else {
-				// flash didn't send one (e.g initial matrix loading)
+				// asset map didn't send one (e.g initial matrix loading)
 				// pretend it did by making a singleton set of the owner
 				if ($owner->id) $asset_path[] = $owner->id;
 			}
@@ -664,6 +664,10 @@ class Asset_Edit_Interface extends MySource_Object
 
 		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
 
+
+		  //////////////////////
+		 //  EDIT INTERFACE  //
+		//////////////////////
 		if ($file) {
 			$input = new XML_Tree($file);
 			$root  = &$input->getTreeFromFile();
@@ -913,7 +917,7 @@ class Asset_Edit_Interface extends MySource_Object
 					trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
 					continue;
 				}//end if
-				
+
 				// get the layout replacements for this NON-static screen
 				if ($this->_getLayoutKeywordReplacements($root, $o, $owner, $keywords, $screen, $entire_screen)) {
 					$print_commit_button = true;
