@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: styles.css,v 1.1 2003/10/16 04:17:43 brobertson Exp $
+* $Id: styles.css,v 1.2 2003/10/17 00:25:35 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -10,69 +10,52 @@ body {
 }
 body, p, td, ul, li, input, select, textarea {
 	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
-	font-size: 13px;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
 }
 
-.sq-backend-smallprint {
+td {
+	padding: 2px;
+}
+
+td.sq-title {
 	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	background-color: #ffffff;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+td.sq-warning {
+	font-size: 12px;
+	color: #ff0000;
+	background-color: #ffffff;
+	padding: 1px;
+}
+
+td.sq-current-user {
+	background-color: #725b7d;
+	color: #ffffff;
+	font-weight: bold;
 	font-size: 11px;
-	font-weight: normal;
 }
 
-.sq-backend-fineprint {
-	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
+td.sq-message {
 	font-size: 10px;
+	background-color: #ffffff;
 }
 
-.sq-backend-tabs {
+td.sq-main-field {
+	color: #ffffff;
+	background-color: #402F48;
+	font-weight: bold;
+}
+
+td.sq-bottom-field {
 	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
-	font-size: 9px;
-	font-weight: bold;
+	background-color: #a596ac;
 }
 
-.sq-backend-mainheading {
-	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
-	font-weight: bold;
-	font-size: 21px;
-}
-
-.sq-backend-heading {
-	color: #666666;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
-	font-weight: bold;
-	font-size: 12px;
-}
-
-.sq-backend-subheading {
-	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
-	font-weight: bold;
-	font-size: 12px;
-}
-
-.sq-backend-sectionheading {
-	background-color: #b1bdcd;
-	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
-	font-weight: bold;
-	font-size: 11px;
-}
-
-a, a.sq-backend {
-	color: black;
-	text-decoration: none;
-}
-
-a:hover, a.sq-backend:hover {
-	text-decoration: underline;
-}
-
-.sq-backend-field {
+.sq-field {
 	color: #000000;
 	background-color: #e0e0e0;
 	font-family:  Verdana, Arial, Helvetica, sans-serif;
@@ -80,68 +63,9 @@ a:hover, a.sq-backend:hover {
 	font-weight: bold;
 }
 
-.sq-backend-data, td.sq-backend-data, .sq-form-field {
-	color: #000000;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-	font-size: 11px;
-}
-
-td.sq-backend-data {
-	background-color: #f0f0f0;
-}
-
-.sq-backend-warning {
-	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
-	font-size: 13px;
-	color: red;
-}
-
-.sq-backend-page-lineage, a.sq-backend-page-lineage {
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
-	font-size: 12px;
-	font-weight: bold;
-	color: #ffffff;
-}
-
-a.sq-backend-page-lineage:hover {
-	color: #ffffff;
-}
-
-
-.sq-backend-asset {
-	color: #b1bdcd;
-}
-.sq-backend-custom-asset {
-	color: #000000;
-}
-
-
-.sq-backend-header-cell, .sq-backend-header-item {
-	background-color: #212E61;
-}
-
-.sq-backend-header-item {
-	color: #ffffff;
-	font-family:     Verdana, Arial, Helvetica, sans-serif;
-	font-size:       11px;
-	font-weight:     bold;
-	text-decoration: none; 
-}
-
-
-.sq-backend-message-header {
-	color: #000000;
-	font-family:     Verdana, Arial, Helvetica, sans-serif;
-	font-size:       11px;
-	font-weight:     bold;
-	text-decoration: none; 
-}
-
-.sq-backend-message-item {
+.sq-data {
 	color: #000000;
 	background-color: #ffffff;
-	font-family:     Verdana, Arial, Helvetica, sans-serif;
-	font-size:       10px;
-	text-decoration: none; 
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
 }
