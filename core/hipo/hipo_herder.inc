@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.39 2004/05/27 00:27:19 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.40 2004/06/22 00:21:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -243,7 +243,7 @@ class HIPO_Herder extends MySource_Object
 		
 		// if this job is completed but has errors, just paint the job to print the error
 		// report because we dont need the addtional content
-		if ($source_job->complete() && !empty($source_job->_hipo_vars['errors'])) {
+		if (!is_null($source_job) && $source_job->complete() && !empty($source_job->_hipo_vars['errors'])) {
 			$o = &$this->getBackendOutputter();
 			$o->setFormData('main_form', '');
 			$o->openRaw();
@@ -289,7 +289,7 @@ class HIPO_Herder extends MySource_Object
 				$o->addOnLoad('next_page()');
 			}
 		}
-		
+
 		$o->openRaw();
 		?>
 		<script language="JavaScript" type="text/javascript">
@@ -306,8 +306,10 @@ class HIPO_Herder extends MySource_Object
 					document.<?php echo $form_name; ?>.submit();
 				} else {
 					<?php
-					if ($source_job->getRunningMode() == 'server') {
+					if (!is_null($source_job) && $source_job->getRunningMode() == 'server') {
 						?>next_page();<?php
+					} else {
+						?>alert('This action cannot be performed');<?php
 					}
 					?>
 				}
