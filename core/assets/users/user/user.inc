@@ -91,51 +91,6 @@ class User extends Asset
 
 
 	/**
-	* Returns a description representing the passed or current status
-	*
-	* @param int	$status	the status to get the description for - leave blank
-	*						to get the description for the current status of this asset
-	*
-	* @return string
-	* @access public
-	*/
-	function getStatusDescription($status=0)
-	{
-		if (!$status) $status = $this->status;
-		switch ($status) {
-			case SQ_STATUS_LIVE :
-				return 'Active';
-				break;
-			case SQ_STATUS_UNDER_CONSTRUCTION :
-				return 'Locked';
-				break;
-			default :
-				return parent::getStatusDescription($status);
-		}
-
-	}//end getStatusDescription()
-
-
-	/**
-	* Returns an array of statii that the current user can set for this asset
-	* Value returned is a key => value array for a drop down
-	*
-	* @return array
-	* @access public
-	*/
-	function getAvailableStatii()
-	{
-		$statii = parent::getAvailableStatii();
-		for (reset($statii); null !== ($k = key($statii)); next($statii)) {
-			$name =& $statii[$k];
-			$name = str_replace('Place Under Construction', 'Locked', $name);
-			$name = str_replace('Make Live', 'Activate', $name);
-		}
-		return $statii;
-	}//end getAvailableStatii()
-
-
-	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()
@@ -174,6 +129,8 @@ class User extends Asset
 			if ($name == 'password') {
 				$value = crypt($value); // let salt be generated
 			}
+
+			if ($this->vars[$name]['value'] == $value) return true;
 			
 			if ($name == 'username') {
 				$db = &$GLOBALS['SQ_SYSTEM']->db;

@@ -421,11 +421,12 @@ class Asset_Edit_Interface extends Resolve_Object
 			}
 
 			if ($old_status != $owner->status) {
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 				// the status changed, so they might want to know
 				// how the operation went...
 				?>
 				<script language="Javascript" type="text/javascript">
-					if (confirm("The status of '<?php echo $owner->name; ?>' has changed from <?php echo $owner->getStatusDescription($old_status); ?> to <?php echo $owner->getStatusDescription(); ?>. Do you want to view a dependant links report to view the status of the dependant assets below '<?php echo $owner->name; ?>'?")) {
+					if (confirm("The status of '<?php echo $owner->name; ?>' has changed from <?php echo getStatusDescription($old_status); ?> to <?php echo getStatusDescription($owner->status); ?>. Do you want to view a dependant links report to view the status of the dependant assets below '<?php echo $owner->name; ?>'?")) {
 						document.location = '<?php echo $owner->getBackendHref('dependants'); ?>';
 					}
 				</script>
@@ -595,7 +596,7 @@ class Asset_Edit_Interface extends Resolve_Object
 								if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
 								else $display_name = $field->children[0]->content;
 								$o->openField($display_name);
-								combo_box($prefix.'_change_status', $statii, false, $owner->status);
+								combo_box($prefix.'_change_status', $statii, false, 0);
 							}
 							break;
 						default :
@@ -693,7 +694,7 @@ class Asset_Edit_Interface extends Resolve_Object
 							}
 
 							$o->openField('Current');
-							$current_langs = $owner->get_languages();
+							$current_langs = $owner->getLanguages();
 							if (!empty($current_langs)) {
 								sort($current_langs);
 								?>
@@ -779,7 +780,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$prefix = $this->getPrefix($owner);
 
 		//// LANGUAGES ////
-		$current_langs = $owner->get_languages();
+		$current_langs = $owner->getLanguages();
 		$set_languages = Array();
 
 		if (!isset($_POST[$prefix.'_rem_intl_language'])) $_POST[$prefix.'_rem_intl_language'] = Array();

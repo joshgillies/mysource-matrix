@@ -120,16 +120,11 @@ class File extends Asset
 	* Processes the changes required when a new status is set
 	*
 	* @param int	$new_status		the new status to set for this asset
-	* @param int	$real_status	the new status is not always the status that gets
-	*								set because of workflow and other things, so this
-	*								status represents the actual status that will be set
-	*								if known (will only be known if this function was called
-	*								from a dependant parent)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status, $real_status=0)
+	function processStatusChange($new_status)
 	{
 		// let ourselves know not to do any extra updating
 		$this->_tmp['IGNORE_UPDATE'] = true;
@@ -137,7 +132,7 @@ class File extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		
-		if (!parent::processStatusChange($new_status, $real_status=0)) {
+		if (!parent::processStatusChange($new_status)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -180,6 +175,7 @@ class File extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
+
 	}//end processStatusChange()
 
 

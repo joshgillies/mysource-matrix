@@ -1,0 +1,163 @@
+<?php
+require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
+
+/**
+* Asset_Status_Live_Approval
+*
+* Purpose
+*    Provide an Up For Review status for an asset.
+*
+* Valid Transitions
+*    LIVE_APPROVAL -> LIVE_APPROVAL if there is workflow running and current user can approve
+*                                   but is not the last publisher
+*    LIVE_APPROVAL -> LIVE          if there is a workflow and current user can approve
+*                                   and is the last publisher
+*    LIVE_APPROVAL -> EDITING       if there is workflow running and the current user can approve
+*                                   but chooses to reject the changes OR
+*                                   there is workflow running and the user is an admin
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve
+*/
+class Asset_Status_Live_Approval extends Asset_Status
+{
+
+	/**
+	* Constructor
+	*
+	* @param object Asset	&$owner	the asset that this status belongs to
+	*/
+	function Asset_Status_Live_Approval(&$owner)
+	{
+		$this->Asset_Status($owner);
+
+	}//end constructor
+
+
+	/**
+	* Returns a string used to describe this status
+	*
+	* @return string
+	* @access public
+	*/
+	function getDescription()
+	{
+		return 'Up For Review';
+
+	}//end getDescription()
+
+
+	/**
+	* Returns an array of statii that the current user can set for this asset
+	* Value returned is a key => value array for a drop down
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableStatii()
+	{
+		$statii = Array();
+
+		// cant do anything without write access
+		if (!$this->owner->writeAccess(Array(), false)) return $statii;
+
+		if ($this->owner->adminAccess(Array(), false)) {
+			$statii[SQ_STATUS_EDITING] = 'Safe Edit';
+		}
+
+		$wf = &$this->getWorkflow();
+
+		if ($wf->state == 'running') {
+			// check to see if the user logged in can publish
+			$publishers = $wf->whoCanPublish();
+
+			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+			if (in_array($userid, $publishers)) {
+				// the current user can approve this asset to keep the workflow going
+				$status = $wf->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
+				if ($status == 'complete') $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+				else $statii[SQ_STATUS_LIVE_APPROVAL] = 'Approve Review';
+				$statii[SQ_STATUS_EDITING] = 'Safe Edit';
+			}
+		} else {
+			// now running workflow means that anyone with admin access can
+			// make this live (up for review is just a flag in this case)
+			$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+
+		}//end if workflow running
+
+		return $statii;
+
+	}//end getAvailableStatii()
+
+
+	/**
+	* Processes the changes required when a new status is set
+	* Does not change the status of the owner asset or this object
+	*
+	* @param int	$new_status	the new status to set for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status)
+	{
+		if (!parent::processStatusChange($new_status)) return false;
+		
+		$wf = &$this->getWorkflow();
+		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+
+		if ($new_status == SQ_STATUS_EDITING) {
+			// someone has rejected the changes, so we need to cancel the workflow
+			if (!$wf->cancel()) {
+				trigger_error('Workflow cancel failed', E_USER_WARNING);
+				return false;
+			} else {
+				// we are safe editing
+				if (!$this->owner->saveSystemVersion()) {
+					trigger_error('Status change failed, could not save to cache', E_USER_WARNING);
+					return false;
+				}
+
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+				// send an internal message
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+				$body = 'User "'.$user->name.'" has started a safe edit of '.$this->owner->type().' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.getStatusDescription($new_status);
+
+				$ms->sendMessage($this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Asset Review Cancelled', $body);
+			}
+
+		} else if ($wf->state == 'running') {
+			
+			// we are doing a workflow and someone has just approved the asset, so record this
+			if (!$wf->recordPublish($current_userid)) {
+				trigger_error('Review approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
+				return false;
+			}
+
+			// send an internal message
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+			$body = 'User "'.$user->name.'" has approved the review on '.$this->owner->type().' "'.$this->owner->name.'".';
+			$ms->sendMessage($this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Asset Review Approved', $body);
+
+			if ($new_status == SQ_STATUS_APPROVED) {
+				// send another internal message
+				$body = 'The review process for '.$this->owner->type().' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now live.';
+				$ms->sendMessage($this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Review Completed', $body);
+			}
+		}
+
+		// save the workflow
+		$wf->save();
+
+		return true;
+
+	}//end processStatusChange()
+
+}//end class
+
+?>
