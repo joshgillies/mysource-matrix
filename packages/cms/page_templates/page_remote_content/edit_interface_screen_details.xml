@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2004/09/01 03:34:55 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2004/09/06 02:06:10 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -56,6 +56,12 @@
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 
+		<field attribute="only_local_links">
+			<display_name>Only Replace Local Links</display_name>
+			<note>If Replace Links is selected, this option will make sure that only the links to the Remote URL domain name specified above get replaced. Links to remote sites will be left intact.</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+
 		<field attribute="allow_redirect">
 			<display_name>Allow Redirects</display_name>
 			<note>If enabled, this asset will redirect to the necessary location automatically. It is important to leave this YES in the general case because many sites do silent redirects. If a redirect is required and this is set to NO, you will get an Error Message</note>
@@ -64,6 +70,21 @@
 
 	</section>
 
+	<section name="HTTP Authentication" write_access="write:attributes">
+
+		<field attribute="username">
+			<display_name>User Name</display_name>
+			<note>If not using HTTP authentication, leave this blank</note>
+			<text width="35" height="1" />
+		</field>
+
+		<field attribute="password">
+			<display_name>Password</display_name>
+			<note />
+			<password width="25" height="1" />
+		</field>
+
+	</section>
 
 	<section name="Transaction Modifiers" write_access="write:attributes">
 

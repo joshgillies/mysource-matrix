@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_management.inc,v 1.2 2004/09/01 03:39:18 arailean Exp $
+* $Id: page_remote_content_management.inc,v 1.3 2004/09/06 02:05:11 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,10 +59,28 @@ class Page_Remote_Content_Management extends Asset_Management
 											'default'   => true,
 											),
 
+						'only_local_links' => Array(
+											'added'       => '0.1',
+											'type'      => 'boolean',
+											'default'   => false,
+											),
+
 						'allow_redirect' => Array(
 											'added'       => '0.1',
 											'type'      => 'boolean',
 											'default'   => true,
+											),
+
+						'username' => Array(
+											'added'     => '0.1',
+											'type'      => 'text',
+											'default'   => '',
+											),
+
+						'password' => Array(
+											'added'     => '0.1',
+											'type'      => 'password',
+											'default'   => '',
 											),
 
 						'start_tag' => Array(
@@ -102,7 +120,7 @@ class Page_Remote_Content_Management extends Asset_Management
 											'added'     => '0.1',
 											'type'      => 'wysiwyg',
 											'default'   => "<p>
-															The requested document appears to be a binary file. 
+															The requested document appears to be a binary file.
 															Please click the url to open it in another window.<br />
 															<a href='%remote_url%' target='_blank'>%remote_url%</a>
 															</p>",
