@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.46 2004/08/17 03:49:21 gsherwood Exp $
+* $Id: tables.xml,v 1.47 2004/08/19 01:19:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -1102,7 +1102,7 @@
 				<description>Flag to indicate if the HIPO Job has started running yet</description>
 			</column>
 			<column name="userid" allow_null="0">
-				<type>VARCHAR(15)</type>
+				<type>VARCHAR(255)</type>
 				<type_variations />
 				<default />
 				<description>ID of the user that this job is being run by</description>
