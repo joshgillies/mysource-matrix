@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.1.2.1 2004/03/03 18:58:22 brobertson Exp $
+* $Id: tables.xml,v 1.1.2.2 2004/03/04 16:37:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -28,9 +28,9 @@
 		<table name="replication_remote_slave_system" require_rollback="0">
 			<columns>
 				<column name="systemid" allow_null="0">
-					<type>INT</type>
+					<type>SMALLINT</type>
 					<type_variations>
-						<mysql>INT UNSIGNED</mysql>
+						<mysql>SMALLINT UNSIGNED</mysql>
 					</type_variations>
 					<default />
 					<description />
