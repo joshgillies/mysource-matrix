@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.41 2003/12/03 23:12:35 gsherwood Exp $
+* $Id: site_edit_fns.inc,v 1.41.2.1 2004/03/04 16:41:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,6 +44,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	var $protos = Array('http', 'https');
 
+	/**
+	* All available scopes
+	* @var Array(string)
+	*/
+	var $system_scopes = Array('G' => 'Global', 'L' => 'Local');
+
 
 	/**
 	* Constructor
@@ -59,6 +65,38 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 
 	/**
+	* Used in a show_if in the interface xml, returns true is server rep is disabled for this system
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function serverRepDisabled(&$asset)
+	{
+		require_once SQ_SYSTEM_ROOT.'/data/private/conf/replication.inc';
+		return !SQ_REPLICATION_ENABLED;
+
+	}// end serverRepDisabled()
+
+
+	/**
+	* Used in a show_if in the interface xml, returns true is server rep is enabled for this system
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function serverRepEnabled(&$asset)
+	{
+		require_once SQ_SYSTEM_ROOT.'/data/private/conf/replication.inc';
+		return SQ_REPLICATION_ENABLED;
+
+	}// end serverRepEnabled()
+
+
+	/**
 	* Paint the interface for the asset urls
 	*
 	* @param object Asset				$owner	the asset whose interface we are painting
@@ -70,24 +108,38 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintURLs(&$asset, &$o, $prefix)
 	{
+		require_once SQ_SYSTEM_ROOT.'/data/private/conf/replication.inc';
 		?>
-		<table border="0" cellspacing="0" cellpadding="3">
+		<table class="sq-backend-table">
+			<tr>
+		<?php
+			if (SQ_REPLICATION_ENABLED) {
+			?>
+				<td class="sq-backend-table-header" style="white-space: nowrap;">System Scope</td>
+			<?php
+			}
+		?>
+				<td class="sq-backend-table-header">Url</td>
+				<td class="sq-backend-table-header" width="100%">Protocols</td>
+			</tr>
 		<?php
 
-		$urls = $asset->getSiteURLs();
+		$urls = $asset->getSiteURLs(true);
 		$wa = $asset->writeAccess('lookups');
 
 		$urlids = Array();
 
-		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-			$this->_paintURL($o, $prefix, $urlid, $urls[$urlid], $wa);
-			$urlids[] = $urlid;
+		for($i = 0; $i < count($urls); $i++) {
+			// can only edit urls that are for this system
+			$editable = ($wa && SQ_CONF_SYSTEM_ID == $urls[$i]['systemid']);
+			$this->_paintURL($o, $prefix, $urls[$i], $editable, SQ_REPLICATION_ENABLED);
+			if ($editable) $urlids[] = $urls[$i]['urlid'];
 		}// end for
 
 		if ($wa) {
 			// paint a nice blank version
-			$this->_paintURL($o, $prefix, 0, Array('url' => '', 'protocols' => Array()), true);
-			$urlids[] = 0;
+			$this->_paintURL($o, $prefix, Array('urlid' => '0', 'url' => '', 'protocols' => Array(), 'system_scope' => 'L'), true, SQ_REPLICATION_ENABLED);
+			$urlids[] = '0';
 
 			// let's be a bit nice about this, and when they submit confirm that they know what they are doing
 			$o->addOnSubmit('if (!site_url_check()) return false;');
@@ -96,6 +148,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		?>
 		</table>
+		<?php
+
+		trigger_error('EXPLAIN GLOBAL AND LOCAL SCOPE HERE');
+		#$o->note('...');
+
+		?>
 		<script language="JavaScript" type="text/javascript">
 
 			var site_url_protos = new Array("<?php echo implode('","', $this->protos); ?>");
@@ -152,46 +210,60 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*
 	* @param object	Backend_Outputter	$o				the outputter class
 	* @param string						$prefix			prefix for the form element
-	* @param int						$i				the count for this URL
 	* @param Array						$url_info		the urls info
 	* @param boolean					$write_access	whether the user can edit this url
+	* @param boolean					$show_scope		whether to show the system scope for this URL
 	*
 	* @return boolean
 	* @access public
 	*/
-	function _paintURL(&$o, $prefix, $i, $url_info, $write_access)
+	function _paintURL(&$o, $prefix, $url_info, $write_access, $show_scope)
 	{
 		?>
 			<tr>
-				<td class="sq-backend-data">
+		<?php
+			if ($show_scope) {
+		?>
+				<td class="sq-backend-table-cell">
 				<?php
 					if ($write_access) {
-						text_box($prefix.'_urls['.$i.'][url]',  $url_info['url'], 40);
+						combo_box($prefix.'_urls['.$url_info['urlid'].'][system_scope]', $this->system_scopes, false, $url_info['system_scope']);
+					} else {
+						echo $this->system_scopes[$url_info['system_scope']];
+					}
+					if (isset($url_info['systemid'])) echo '<br>(System #'.$url_info['systemid'].')';
+				?>
+				</td>
+		<?php
+			} elseif ($write_access) {
+				hidden_field($prefix.'_urls['.$url_info['urlid'].'][system_scope]', $url_info['system_scope']);
+			}// end if
+		?>
+				<td class="sq-backend-table-cell">
+				<?php
+					if ($write_access) {
+						text_box($prefix.'_urls['.$url_info['urlid'].'][url]',  $url_info['url'], 40);
 					} else {
 						echo $url_info['url'];
 					}
 				?>
 				</td>
-		<?php
-			for($k = 0; $k < count($this->protos); $k++) {
-			?>
-				<td class="sq-backend-data">
+				<td class="sq-backend-table-cell">
 				<?php
-					if ($write_access) {
-						check_box($prefix.'_urls['.$i.'][protocols]['.$k.']', $this->protos[$k], !empty($url_info[$this->protos[$k]]));
-					} else {
-					?>
-						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($url_info[$this->protos[$k]]) ? 'cross' : 'tick'; ?>.gif" width="15" height="15" />
+					for($k = 0; $k < count($this->protos); $k++) {
+						if ($write_access) {
+							check_box($prefix.'_urls['.$url_info['urlid'].'][protocols]['.$k.']', $this->protos[$k], !empty($url_info[$this->protos[$k]]));
+						} else {
+						?>
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($url_info[$this->protos[$k]]) ? 'cross' : 'tick'; ?>.gif" width="15" height="15" />
+						<?php
+						}
+						?>
+						&nbsp;<?php echo strtoupper($this->protos[$k]); ?>&nbsp;&nbsp;
 					<?php
-					}
-				?>
+					}// end for
+					?>
 				</td>
-				<td class="sq-backend-data">
-					<?php echo strtoupper($this->protos[$k]); ?>
-				</td>
-			<?php
-			}// end for
-		?>
 			</tr>
 		<?php
 
@@ -216,11 +288,11 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		$urls = Array();
 		for(reset($post); null !== ($urlid = key($post)); next($post)) {
-			
+
 			$url = trim($post[$urlid]['url']);
 			// if there is a url or some selected protocols, then let's save it
 			if ($url && !empty($post[$urlid]['protocols'])) {
-				$urls[$urlid] = Array('url' => $post[$urlid]['url']);
+				$urls[$urlid] = Array('url' => $post[$urlid]['url'], 'system_scope' => $post[$urlid]['system_scope']);
 				for($k = 0; $k < count($this->protos); $k++) {
 					$urls[$urlid][$this->protos[$k]] = (int) in_array($this->protos[$k], $post[$urlid]['protocols']);
 				}

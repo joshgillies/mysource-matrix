@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.51.2.3 2004/03/02 18:35:51 brobertson Exp $
+* $Id: site.inc,v 1.51.2.4 2004/03/04 16:41:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -146,30 +146,30 @@ class Site extends Folder
 	/**
 	* Returns a list of urls that point to this asset
 	*
+	* @param boolean	$all_systems	whether to get the urls for this site across all the systems or just this one
+	* @param string		$system_scope	what system scope to look for (either 'L' for Local or 'G' for Global)
+	*
 	* @return Array()
 	* @access public
 	*/
-	function getSiteURLs()
+	function getSiteURLs($all_systems=false, $system_scope='')
 	{
-		if (!isset($this->_tmp['urls_info'])) {
-			$sql = 'SELECT urlid, url, http, https
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url
-					';
-			$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		$sql = 'SELECT systemid, urlid, url, http, https, system_scope
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url
+				';
+		$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
+		if (!$all_systems) $where .= ' AND systemid = '.$GLOBALS['SQ_SYSTEM']->db->quote(SQ_CONF_SYSTEM_ID);
+		if ($system_scope) $where .= ' AND system_scope = '.$GLOBALS['SQ_SYSTEM']->db->quote($system_scope);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql.$where, true, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				$this->_tmp['urls_info'] = Array();
-			} else {
-				$this->_tmp['urls_info'] = $result;
-
-			}// end if
+		$result = $GLOBALS['SQ_SYSTEM']->db->getAll($sql.$where);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		} else {
+			return $result;
 
 		}// end if
-
-		return $this->_tmp['urls_info'];
 
 	}// end getSiteURLs()
 
@@ -184,18 +184,37 @@ class Site extends Folder
 	*/
 	function saveWebURLs($save_urls)
 	{
+		require_once SQ_SYSTEM_ROOT.'/data/private/conf/replication.inc';
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$updated = false;
 		$processed_urlids = Array();
-		$current_urls = $this->getSiteURLs();
+		$current_urls = $this->getSiteURLs(true);
 		$system_root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 		for(reset($save_urls); null !== ($save_urlid = key($save_urls)); next($save_urls)) {
 
-			$curr_urlid = $save_urlid;
+			$curr_i = false;
+			if ($save_urlid) {
+				for($i = 0; $i < count($current_urls); $i++) {
+					if ($save_urlid == $current_urls[$i]['urlid']) {
+						$curr_i = $i;
+						break;
+					}
+				}// end for
 
+				if ($curr_i === false) {
+					trigger_error('Unable to Save URLs : URL "'.$save_urls[$save_urlid]['url'].'" states it is for urlid #'.$save_urlid.', but this id was not found', E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+			}// end if
+
+			// if there is no replication on then all urls are globally scoped...this is so that if replication is turned on later it's easier
+			if (!SQ_REPLICATION_ENABLED) $save_urls[$save_urlid]['system_scope'] = 'G';
+
+			
 			// strip any extra slashes
 			$save_urls[$save_urlid]['url'] = strtolower(strip_url($save_urls[$save_urlid]['url'], true));
 
@@ -208,6 +227,7 @@ class Site extends Folder
 				$clean_path = (empty($clean_paths)) ? '' : $clean_paths[0];
 				if ($path != $clean_path) {
 					trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" contains a path "'.$path.'" which was deemed to be not valid. '.(($clean_path != '') ? 'A valid version is "'.$clean_path.'"' : ''), E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 
@@ -225,87 +245,105 @@ class Site extends Folder
 
 			if (!$found_root_url) {
 				trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" is not based upon an existing System Root URL', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
 			//// Next let's try and see if this URL is already in use by something ////
 
-			$found = false;
-			for(reset($current_urls); null !== ($i = key($current_urls)); next($current_urls)) {
+			$found_urlid = 0;
+			for($i = 0; $i < count($current_urls); $i++) {
 				if ($save_urls[$save_urlid]['url'] == $current_urls[$i]['url']) {
-					$found = true;
+					$found_urlid = $current_urls[$i]['urlid'];
 					break;
 				}
 			}// end for
 
+			// OK, we have it, but is it the same urlid as what we are currenly dealing with ?
+			if ($found_urlid) {
+				if ($found_urlid != $save_urlid) {
+					trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" is already being used by this site ("'.$this->name.'" [#'.$this->id.'])', E_USER_NOTICE);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
 			// We don't have it ? does anyone else
-			if (!$found) {
+			} else {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(null, $save_urls[$save_urlid]['url'], true, true);
 				if (!is_null($asset)) {
 					trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" is already in use by "'.$asset->name.'" [#'.$asset->id.']', E_USER_WARNING);
-					continue;
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
 				}
 			}
+
 			// are we an existing or an new one
 			if ($save_urlid) {
-				if ($current_urls[$save_urlid]['url']   != $save_urls[$save_urlid]['url'] ||
-					$current_urls[$save_urlid]['http']  != $save_urls[$save_urlid]['http'] ||
-					$current_urls[$save_urlid]['https'] != $save_urls[$save_urlid]['https']) {
+				if ($current_urls[$curr_i]['url']   != $save_urls[$save_urlid]['url'] ||
+					$current_urls[$curr_i]['http']  != $save_urls[$save_urlid]['http'] ||
+					$current_urls[$curr_i]['https'] != $save_urls[$save_urlid]['https'] ||
+					$current_urls[$curr_i]['system_scope'] != $save_urls[$save_urlid]['system_scope']) {
 
-					$where = 'urlid       = '.$db->quote($save_urlid).'
+					$where = 'urlid = '.$db->quote($save_urlid).'
 							  AND assetid = '.$db->quote($this->id);
-					$values = Array('url'   => $db->quote($save_urls[$save_urlid]['url']),
-									'http'  => $db->quote($save_urls[$save_urlid]['http']),
-									'https' => $db->quote($save_urls[$save_urlid]['https'])
+					$values = Array('url'          => $db->quote($save_urls[$save_urlid]['url']),
+									'http'         => $db->quote($save_urls[$save_urlid]['http']),
+									'https'        => $db->quote($save_urls[$save_urlid]['https']),
+									'system_scope' => $db->quote($save_urls[$save_urlid]['system_scope']),
 									);
 					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_url', $values, $where)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
-					$updated = true;
 				}
+
+				$save_urls[$save_urlid]['urlid'] = $save_urlid;
 
 			} else {
 
-				$curr_urlid = $db->nextId('sq_sequence_asset_url');
-				if (DB::isError($curr_urlid)) {
+				$seq_urlid = $db->nextId('sq_sequence_asset_url');
+				if (DB::isError($seq_urlid)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					trigger_error($curr_urlid->getMessage().'<br/>'.$new_urlid->getUserInfo(), E_USER_ERROR);
+					trigger_error($seq_urlid->getMessage().'<br/>'.$seq_urlid->getUserInfo(), E_USER_ERROR);
 				}
 
-				$values = Array('urlid'   => $curr_urlid,
-								'assetid' => $this->id,
-								'url'     => $save_urls[$save_urlid]['url'],
-								'http'    => $save_urls[$save_urlid]['http'],
-								'https'   => $save_urls[$save_urlid]['https']
+				$new_urlid = SQ_CONF_SYSTEM_ID.'\''.$seq_urlid;
+				$values = Array(
+								'systemid' => SQ_CONF_SYSTEM_ID,
+								'urlid'    => $new_urlid,
+								'assetid'  => $this->id,
+								'url'      => $save_urls[$save_urlid]['url'],
+								'http'     => $save_urls[$save_urlid]['http'],
+								'https'    => $save_urls[$save_urlid]['https'],
+								'system_scope'    => $save_urls[$save_urlid]['system_scope'],
 								);
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_url', $values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 
-				$updated = true;
+				$save_urls[$save_urlid]['urlid'] = $new_urlid;
 
 			}// end if urlid
 
-			$current_urls[$curr_urlid] = $save_urls[$save_urlid];
-			$processed_urlids[] = $curr_urlid;
+			if ($curr_i) $current_urls[$curr_i] = $save_urls[$save_urlid];
+			else         $current_urls[]        = $save_urls[$save_urlid];
+			$processed_urlids[] = $save_urls[$save_urlid]['urlid'];
 
 		}// end for
 
-		$delete_urlids = array_diff(array_keys($current_urls), $processed_urlids);
+		// Remove all the old URLs
+		for($i = 0; $i < count($current_urls); $i++) {
+			if (in_array($current_urls[$i]['urlid'], $processed_urlids)) continue;
+			if ($current_urls[$i]['systemid'] != SQ_CONF_SYSTEM_ID) continue;
 
-		foreach($delete_urlids as $urlid) {
-			// Remove all the old URLs
-			$where_cond = 'urlid = '.$db->quote($urlid);
+			$where_cond = 'urlid = '.$db->quote($current_urls[$i]['urlid']);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_url', $where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-			$updated = true;
-		}
 
-		unset($this->_tmp['urls_info']);
+		}// end for
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
@@ -383,22 +421,26 @@ class Site extends Folder
 		}// end foreach
 
 
+		// See if there any urls for this asset that have been set for this system
 		$urls = $this->getSiteURLs();
+		if (empty($urls)) {
+			// if there are no urls for this system, then use the global urls for this asset
+			$urls = $this->getSiteURLs(true, 'G');
+		}
+
 		// if we have urls then do some url inserting
-		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
+		for($i = 0; $i < count($urls); $i++) {
 			$values = Array(
-							'url'               => $urls[$urlid]['url'],
+							'url'               => $urls[$i]['url'],
 							'assetid'           => $this->id,
-							'http'              => ($this->force_secure) ? '0' : $urls[$urlid]['http'],
-							'https'             => $urls[$urlid]['https'],
-							'root_urlid'        => $urlid,
+							'http'              => ($this->force_secure) ? '0' : $urls[$i]['http'],
+							'https'             => $urls[$i]['https'],
+							'root_urlid'        => $urls[$i]['urlid'],
 						);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-
-
 
 			foreach($our_designs as $name => $designid) {
 				$values = Array(
@@ -411,7 +453,6 @@ class Site extends Folder
 					return false;
 				}
 			}// endforeach
-
 
 		}// end for urls
 
