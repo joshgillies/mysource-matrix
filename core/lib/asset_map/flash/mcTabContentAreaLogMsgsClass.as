@@ -20,7 +20,7 @@ function mcTabContentAreaLogMsgsClass()
 	this.scroll_pane.setHScroll(false);
 	this.scroll_pane.setVScroll(true);
 	this.scroll_pane._x = 0;
-	this.scroll_pane._y = this.sub_header._height;
+	this.scroll_pane._y = this._sub_header._y + this.sub_header._height;
 
 	// Now the msgs container
 	this.attachMovie("mcMsgsBarID", "msgs_container", 3);
@@ -28,7 +28,7 @@ function mcTabContentAreaLogMsgsClass()
 	// Attach the container on to the scroll pane
 	this.scroll_pane.setScrollContent(this.msgs_container);
 	this.msgs_container._x = 0;
-	this.msgs_container._y = this.sub_header._height;
+	this.msgs_container._y = this.sub_header._y + this.sub_header._height;
 
 	// Because the scroll pane inherits from some other place 
 	// we need to manually set it up for nesting
@@ -52,7 +52,7 @@ mcTabContentAreaLogMsgsClass.prototype.setSize = function(w, h)
 {
 	super.setSize(w, h);
 	this.sub_header.back._width = w;
-	this.scroll_pane.setSize(w, h);
+	this.scroll_pane.setSize(w, h - this.sub_header._height);
 	this.msgs_container.refresh();
 
 }// setSize()

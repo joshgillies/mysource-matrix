@@ -59,8 +59,9 @@ mcTabContentAreaMailBoxClass.prototype = new mcTabContentAreaClass();
 mcTabContentAreaMailBoxClass.prototype.setSize = function(w, h)
 {
 	super.setSize(w, h);
+
 	this.sub_header.back._width = w;
-	this.scroll_pane.setSize(w, h);
+	this.scroll_pane.setSize(w, h - this.sub_header._height);
 	this.msgs_container.refresh();
 
 }// setSize()

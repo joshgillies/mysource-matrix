@@ -99,7 +99,6 @@ mcMailBoxClass.prototype.refreshMail = function()
 */
 mcMailBoxClass.prototype.loadMailFromXML = function(xml, exec_indentifier)
 {
-
 	var mc_name = null;
 	while ((mc_name = this.msgs.pop()) !== undefined) {
 		if (this[mc_name]) this[mc_name].removeMovieClip();

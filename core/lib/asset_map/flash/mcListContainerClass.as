@@ -110,7 +110,7 @@ mcListContainerClass.prototype.showActionsBar = function()
 			actions.push(asset_type.edit_screens[i].code_name);
 			labels.push(asset_type.edit_screens[i].name);
 		}// end for
-
+		
 		this.actions_bar.show(actions, labels, this._xmouse - 5, this._ymouse - 5);
 	}
 	this.onPress();

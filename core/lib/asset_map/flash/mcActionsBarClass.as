@@ -13,7 +13,7 @@ function mcActionsBarClass()
 {
 	this._visible		= false;
 	this._bgColour		= 0xEFEFEF;
-	this._bgAlpha		= 80;
+	this._bgAlpha		= 100;
 	this.border_gap		= 2;
 
 	this.createEmptyMovieClip ('_bg', 1);
@@ -39,11 +39,9 @@ mcActionsBarClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieCl
 */
 mcActionsBarClass.prototype.show = function(actions, labels, x, y)
 {
+//	trace (this + "::mcActionsBarClass.show(" + actions + ", " + labels + ", " + x + ", " + y + ")");
 	this.current_button  = null;
 	this.mouse_over_us   = false;
-
-	this._x = x;
-	this._y = y;
 
 	var max_width = 0;
 
@@ -79,7 +77,17 @@ mcActionsBarClass.prototype.show = function(actions, labels, x, y)
 		ypos += this[this.buttons[i]]._height;
 	}// end for
 
-	this.setSize(max_width + (this.border_gap * 2), ypos + this.border_gap);
+	var width = max_width + (this.border_gap * 2);
+	var height = ypos + this.border_gap;
+	this.setSize(width, height);
+
+	x = Math.min (this._parent._width - width, x);
+	y = Math.min (this._parent._height - height, y);
+
+	this._x = x;
+	this._y = y;
+
+	
 	this._visible = true;
 
 
@@ -93,7 +101,7 @@ mcActionsBarClass.prototype.hide = function()
 	for(var i = 0; i < this.buttons.length; i++) {
 		this[this.buttons[i]].removeMovieClip();
 	}
-
+	this._x = this._y = 0;
 	this.buttons = new Array();
 	this._visible = false;
 }
