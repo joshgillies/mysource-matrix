@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_manager.inc,v 1.34 2003/10/15 01:32:18 gsherwood Exp $
+* $Id: workflow_manager.inc,v 1.35 2003/10/15 02:14:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -545,20 +545,19 @@ class Workflow_Manager extends MySource_Object
 		for (reset($schema_workflows); null !== ($schemaid = key($schema_workflows)); next($schema_workflows)) {
 			if (!in_array($schemaid, $running_schemas)) continue;
 			$workflow =& $schema_workflows[$schemaid];
-			if (!$this->_recordPublish($workflow, $publisher)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			
+			if ($this->_recordPublish($workflow, $publisher)) {
+				$new_workflow = serialize($workflow);
+				$values = Array('workflow' => $db->quote($new_workflow));
+				$where = 'assetid = '.$db->quote($assetid).'
+							AND schemaid = '.$db->quote($schemaid);
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
 
-			$new_workflow = serialize($workflow);
-			$values = Array('workflow' => $db->quote($new_workflow));
-			$where = 'assetid = '.$db->quote($assetid).'
-					    AND schemaid = '.$db->quote($schemaid);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
-				return false;
+				$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflow;
 			}
-
-			$this->_tmp['schema_workflows'][$assetid][$schemaid] = $workflow;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
