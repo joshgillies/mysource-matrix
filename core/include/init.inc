@@ -71,6 +71,12 @@ if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 }
 
 /*
+* Fixed Size of the number of digits that each link trees entry can be
+* This run pow(64, SQ_ASSET_TREE_SIZE) to get max number of possible link entries per node
+*/
+define('SQ_ASSET_TREE_SIZE',	4);
+
+/*
 * LINK TYPES - used with bitwise operators
 */
 define('SQ_LINK_EXCLUSIVE',    1); // minor can only be SIGNIFICANT linked to major, and is a child of major
