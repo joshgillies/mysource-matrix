@@ -121,11 +121,14 @@ class Login_Design extends Design
 		if (!$this->setPermission(0, SQ_PERMISSION_READ, '1')) {
 			trigger_error('Login design failed setting public read permission', E_USER_WARNING);
 		}
-
-#if (!copy_directory($source_dir.'/files', $this->data_path_public.'/files')) {
-#	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-#	return false;
-#}
+		$file_links = $this->getLinks(SQ_LINK_TYPE_2, 'file', false);
+		foreach ($file_links as $link) {
+			$file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+			if (!$file->setPermission(0, SQ_PERMISSION_READ, '1')) {
+				trigger_error('Login design failed setting public read permission for file "'.$file->name.'"', E_USER_WARNING);
+			}
+			$GLOBALS['SQ_SYSTEM']->am->unregisterAsset($file);
+		}
 
 		$edit_fns = $this->getEditFns();
 		// First process the design
