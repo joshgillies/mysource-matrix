@@ -472,7 +472,7 @@ class File extends Asset
 		} else {
 			$path = $this->data_path_unrestricted.'/'.$this->attr('name');
 		}
-error_log("EXISTING FILE PATH: $path");
+
 		if (is_file($path)) {
 			$existing['path'] = $path;
 			$existing['filename'] = $this->attr('name');
