@@ -1,0 +1,54 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_log.xml,v 1.1.1.1 2004/10/13 01:31:48 arailean Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Enable / Disable Logging">
+		<field attribute="log">
+			<display_name>Log Submissions</display_name>
+			<note></note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+	</section>
+	<section name="Export">
+		<field>
+			<display_name>Date Range</display_name>
+			<note>Select the date range and file type, then click Download File. A pop-up should appear allowing you to save the resulting file</note>
+			<function_call>
+				<paint_function   name="paintExport"   />
+				<process_function name="processExport" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Submissions">
+		<field>
+			<display_name>Date Range</display_name>
+			<note>Select a date range to display - a summary of submissions in that time period will be displayed. To display the responses for a submission, check the Expand box for that submission and click Commit</note>
+			<function_call>
+				<paint_function   name="paintSubmissions"   />
+				<process_function name="processSubmissions" />
+			</function_call>
+		</field>
+	</section>
+</contents>

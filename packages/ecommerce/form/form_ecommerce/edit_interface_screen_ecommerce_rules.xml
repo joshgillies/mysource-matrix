@@ -1,0 +1,37 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_ecommerce_rules.xml,v 1.1.1.1 2004/10/13 01:31:47 arailean Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Ecommerce Questions">
+		<field>
+			<display_name>Current Questions</display_name>
+			<note>E-commerce rule is a rule that assigns a dollar value to each question option. Left pane shows all the ELIGIBLE question types linked to this form. When you copy the question to the right pane, you are specifying that it should be included in e-commerce rule set. Question added to the set still needs some parameter to be set.  Select the question you want to edit in the right pane and hit the commit button. For a question with multiple options you will see an input box next to each option. Putting a numeric value in each of these boxes will assign dollar values to the options. If the question that you have chosen is of a numeric type, there are n o options you can set. The value submitted by the user will be used as a dollar value.</note>
+			<function_call>
+				<paint_function   name="paintEcommerceQuestionLinks"   />
+				<process_function name="processEcommerceQuestionLinks" />
+			</function_call>
+		</field>
+	</section>
+</contents>
