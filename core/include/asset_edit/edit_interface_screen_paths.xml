@@ -1,10 +1,10 @@
 <!--
 /**
-* +--------------------------------------------------------------------+
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | MySource 3 - MySource Matrix                                       |
-* +--------------------------------------------------------------------+
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
-* +--------------------------------------------------------------------+
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 * | This source file may be used subject to, and only in accordance    |
 * | with, the Squiz Open Source Licence Agreement found at             |
 * | http://www.squiz.net/licence.                                      |
@@ -16,9 +16,9 @@
 * | intellectual property rights in the modification, adaptation and   |
 * | enhancement to Squiz Pty Ltd for use and distribution under that   |
 * | licence.                                                           |
-* +--------------------------------------------------------------------+
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_paths.xml,v 1.4 2003/11/18 15:37:34 brobertson Exp $
+* $Id: edit_interface_screen_paths.xml,v 1.5 2003/11/18 15:58:52 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->

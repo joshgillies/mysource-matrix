@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.181 2003/11/18 15:37:33 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.182 2003/11/18 15:58:52 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,7 +113,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
-			trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+			trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
 			return;
 		}
 
@@ -549,7 +549,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$input = new XML_Tree($file);
 			$root  = &$input->getTreeFromFile();
 			if (PEAR::isError($root)) {
-				trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+				trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
 				return;
 			}
 
@@ -957,7 +957,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
-			trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+			trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
 			return;
 		}
 		for($i = 0; $i < count($root->children); $i++) {
