@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.29 2005/02/21 11:44:05 brobertson Exp $
+* $Id: image.inc,v 1.30 2005/02/23 22:46:05 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,14 +104,7 @@ class Image extends File
 			case 'alt'   :
 			case 'title' :
 				$value = htmlspecialchars($value);
-				break;
-
-			case 'variety_count' :
-				if ((int) $value != (int) $this->attr('variety_count') + 1) {
-					trigger_error('You can only increment the variety_count attribute', E_USER_WARNING);
-					return false;
-				}
-				break;
+			break;
 		}
 
 		return parent::setAttrValue($name, $value);
@@ -270,6 +263,7 @@ class Image extends File
 
 	/**
 	* Creates/Updates a variety for this image
+	*
 	* If the variety has an ID then it must belong to this asset in order to be saved.
 	*
 	* @param object Image_Variety	$variety			the variety to save
@@ -331,9 +325,9 @@ class Image extends File
 
 				if (!$this->setAttrValue('variety_count', $this->attr('variety_count') + 1)) return false;
 
-			}// endif
+			}
 
-		}// endif
+		}//end if
 
 		if (!isset($varieties['data'])) $varieties['data'] = Array();
 		$varieties['data'][$varietyid] = Array();
@@ -363,14 +357,11 @@ class Image extends File
 				$varieties['data'][$varietyid][$attr_name] = $attr_data['value'];
 			}
 			if (!$this->setAttrValue('varieties', $varieties)) return false;
-
-
 		}
 
 		if ($save_attrs && !$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
-
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
