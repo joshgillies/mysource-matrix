@@ -32,8 +32,6 @@ if (is_null($root_folder)) {
 	if ($assetid != 1) {
 		trigger_error('Major Problem: The new Root Folder Asset was not given assetid #1. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
-	pre_echo($root_folder);
-
 
 	$GLOBALS['SQ_RESOLVE']->am->includeAsset('root_user');
 	$root_user = new Root_User();
@@ -46,8 +44,6 @@ if (is_null($root_folder)) {
 	$assetid = $trash_folder->create();
 	$root_folder->createLink($trash_folder, SQ_LINK_EXCLUSIVE);
 	pre_echo('Trash Asset Id : '.$assetid);
-
-
 
 	// Now just create some useful folders 
 	$users_folder = new Folder();
