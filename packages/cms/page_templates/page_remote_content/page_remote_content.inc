@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.3 2004/09/06 02:09:00 arailean Exp $
+* $Id: page_remote_content.inc,v 1.4 2004/09/13 04:15:50 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -311,14 +311,28 @@ REGEX;
 		}
 
 		// prepare for the next round of url replacements
-		$matches = Array();
+		$matches 	= Array();
+		$patterns 	= Array();
 
 		// here we handle all the urls that need to be re-written to point back to our site
-		$pattern = <<<REGEX
+		$patterns[] = <<<REGEX
 /(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src)|(?:(form)[^>]*action))\s*=\s*['\"]?)(?:\s)*((?:(?![\#]|mailto|javascript))[^'\"> ]+)(['\"\> ]?[^<]*\>)/i
 REGEX;
 
-		preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
+		// this pattern is a special case. we don't generally look at JavaScript
+		// because that is a whole new territory.
+		// this one was added for compatibility with MySource v2 ecom module
+		$patterns[] = <<<REGEX
+/(<(input[^>]*?onclick)\s*=\s*['\"]location=')(?:\s)*([^'\"> ]+)(['\"\> ]?[^<]*\>)/i
+REGEX;
+
+		// find whatever matches the above patterns
+		foreach ($patterns as $pattern) {
+			preg_match_all($pattern, $content, $matches_local, PREG_SET_ORDER);
+			$matches = array_merge($matches,$matches_local);
+
+		}
+
 		foreach ($matches as $data) {
 			$subject	= $data[0];
 			$prefix		= $data[1];
