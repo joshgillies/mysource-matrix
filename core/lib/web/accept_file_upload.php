@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: accept_file_upload.php,v 1.4 2004/11/25 11:51:27 brobertson Exp $
+* $Id: accept_file_upload.php,v 1.5 2004/11/25 22:46:50 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,41 +31,53 @@
 */
 
 if ((!is_array($_FILES)) || empty($_FILES)) exit();
-// get init.inc to do all the hard work with access control etc
+
+// get init.inc to do all the hard work figuring out who's logged in etc
 require_once dirname(dirname(dirname(__FILE__))).'/include/init.inc';
 
-if (empty($GLOBALS['SQ_SYSTEM']->user) && !is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) {
-	echo 'FAIL Not logged in as backend user'."\n";
+// kick out the wrong types of people
+if (empty($GLOBALS['SQ_SYSTEM']->user) || !is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) {
+	trigger_error('You must be logged in as a backend user to upload files', E_USER_ERROR);
 	exit();
 }
 
-require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
 // copy all uploaded files, including arrays of files, to the temp dir
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+$ms->openLog();
 foreach ($_FILES as $id => $details) {
 	if (is_array($details['name'])) {
 		foreach ($_FILES[$id]['name'] as $index => $name) {
 			if (!empty($name)) {
-				$file_name = SQ_TEMP_PATH.'/'.strtolower(str_replace(' ', '_', $name));
-				while (file_exists($file_name)) $file_name = increment_filename($file_name);
-				if (move_uploaded_file($_FILES[$id]['tmp_name'][$index], $file_name)) { 
-					print('OK '.basename($file_name)."\n");
+				$file_name = strtolower(str_replace(' ', '_', $name));
+				while (file_exists(SQ_TEMP_PATH.'/'.$file_name)) $file_name = increment_filename($file_name);
+				if (move_uploaded_file($_FILES[$id]['tmp_name'][$index], SQ_TEMP_PATH.'/'.$file_name)) { 
+					print("\nOK ".$file_name."\n");
+					$message_body = 'The file '.$_FILES[$id]['name'][$index].' was uploaded to the temp dir';
+					if ($file_name != $_FILES[$id]['name'][$index]) $message_body .= ' and renamed to '.$file_name;
+					$message = $ms->newMessage(Array(), 'File Uploaded to temp dir', $message_body);
+					$ms->logMessage($message);
 				} else { 
-					print('ERROR '.basename($file_name)."\n"); 
+					trigger_error('Error uploading file '.$_FILES[$id]['name'][$index], E_USER_WARNING);
 				}
 			}
 		}
 	} else {
 		if (!empty($details['name'])) {
-			$file_name = SQ_TEMP_PATH.'/'.strtolower(str_replace(' ', '_', $details['name']));
-			while (file_exists($file_name)) $file_name = increment_filename($file_name);
-			if (move_uploaded_file($_FILES[$id]['tmp_name'], $file_name)) { 
-				print('OK '.basename($file_name)."\n");
+			$file_name = strtolower(str_replace(' ', '_', $details['name']));
+			while (file_exists(SQ_TEMP_PATH.'/'.$file_name)) $file_name = increment_filename($file_name);
+			if (move_uploaded_file($_FILES[$id]['tmp_name'], SQ_TEMP_PATH.'/'.$file_name)) { 
+				print("\nOK ".$file_name."\n");
+				$message_body = 'The file '.$_FILES[$id]['name'].' was uploaded to the temp dir';
+				if ($file_name != $_FILES[$id]['name']) $message_body .= ' and renamed to '.$file_name;
+				$message = $ms->newMessage(Array(), 'File Uploaded to temp dir', $message_body);
+				$ms->logMessage($message);			
 			} else { 
-				print('ERROR '.basename($file_name)."\n"); 
+				trigger_error('Error uploading file '.$_FILES[$id]['name'], E_USER_WARNING);
 			}
 		}
 	}
 }
+$ms->closeLog();
 
 ?>
