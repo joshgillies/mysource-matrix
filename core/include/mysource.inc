@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.40 2004/03/16 16:31:56 brobertson Exp $
+* $Id: mysource.inc,v 1.41 2004/03/16 16:41:32 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1246,11 +1246,11 @@ class MySource
 		$rollback_sql = trim($rollback_sql, ', ');
 		if (!empty($where_cond)) {
 			$live_sql     .= ' WHERE '.$where_cond;
-			$rollback_sql .= ' WHERE '.$where_cond;
+			$rollback_sql .= ' WHERE '.$where_cond.' AND ';
 		} else {
 			$rollback_sql .= ' WHERE ';
 		}
-		$rollback_sql .= ' AND '.SQ_TABLE_PREFIX.'effective_to IS NULL';
+		$rollback_sql .= SQ_TABLE_PREFIX.'effective_to IS NULL';
 
 		// add the rollback entries for the rows are going to update
 		if (!$this->_addRollbackEntry($table_name, $where_cond)) {
