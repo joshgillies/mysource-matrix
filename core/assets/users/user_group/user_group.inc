@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.12 2004/02/10 16:27:40 brobertson Exp $
+* $Id: user_group.inc,v 1.13 2005/01/14 00:51:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,6 +83,133 @@ class User_Group extends Folder
 		return $allowed;
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Called by the design to print extra material in the head of the HTML document for this asset
+	*
+	* @access public
+	*/
+	function printHead()
+	{
+		?>
+		<style type="text/css">
+			.sq_user_group {
+				width:				100%;
+				border:				1px solid #CCCCCC;
+				margin:				2px;
+				padding:			0px;
+			}
+			.sq_user_group_heading, .sq_user_group_heading a:active, .sq_user_group_heading a:visited, .sq_user_group_heading a:hover {
+				padding:			0px;
+				font-weight:		bold;
+				background-color:	#F0F0F0;
+				font-size:			120%;
+				text-decoration:	none;
+			}
+			.sq_user_group_heading a:hover {
+				text-decoration:	underline;
+			}
+			.sq_user_group_display_name {
+				font-weight:		bold;
+			}
+			.sq_user_group_user_name {
+				background-color:	#F0F0F0;
+				width:				200px;
+			}
+			.sq_user_group_user_email {
+				width:				200px;
+			}
+			.sq_user_group_user_name, .sq_user_group_user_email, .sq_user_group_user_data {
+				padding:			0px;
+			}
+		</style>
+		<?php
+
+	}//end printHead()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody()
+	{
+		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cached_contents = $cm->loadFromCache($this, 'default');
+
+		// if the cache is empty, go ahead and regenerate a new version
+		if (empty($cached_contents)) {
+			ob_start();
+				$this->printUserList($this->id);
+				$groups = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'user_group', false);
+				foreach ($groups as $groupid => $type_code) {
+					$this->printUserList($groupid);
+				}
+
+				$cm->saveToCache($this, 'default', ob_get_contents());
+			ob_end_flush();
+		} else {
+			echo $cached_contents;
+		}
+
+	}//end printBody()
+
+
+	/**
+	* Prints a list of users for the passed group
+	*
+	* @param	$groupid	string	the ID of the group that we are printing the user list for
+	*
+	* @return void
+	* @access public
+	*/
+	function printUserList($groupid)
+	{
+		$group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($groupid);
+
+		?>
+		<table class="sq_user_group">
+			<tr>
+				<td class="sq_user_group_heading" colspan="3">
+					<?php
+					$url = $group->getURL();
+					if (!empty($url)) echo '<a href="'.$url.'">';
+					echo $group->name;
+					if (!empty($url)) echo '</a>';
+					?>
+				</td>
+			</tr>
+			<?php
+			$users = $GLOBALS['SQ_SYSTEM']->am->getLinks($groupid, SQ_LINK_TYPE_1, 'user', false);
+			if (!empty($users)) {
+				?>
+				<tr>
+					<td class="sq_user_group_display_name">Name</td>
+					<td class="sq_user_group_display_name">Email</td>
+					<td class="sq_user_group_display_name">Username</td>
+				</tr>
+				<?php
+				foreach ($users as $link_data) {
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
+					?>
+					<tr>
+						<td class="sq_user_group_user_name"><?php echo $user->name; ?></td>
+						<td class="sq_user_group_user_email">
+							<a href="mailto:<?php echo $user->attr('email'); ?>"><?php echo $user->attr('email'); ?></a>
+						</td>
+						<td class="sq_user_group_user_data"><?php echo $user->attr('username'); ?></td>
+					</tr>
+					<?php
+				}//end foreach
+
+			}//end if there are users
+
+		echo '</table>';
+
+	}//end printUserList()
 
 
 }//end class
