@@ -1,0 +1,9 @@
+<contents>
+	<section name="Redirect Details">
+		<field attribute="redirect_url">
+			<display_name>URL</display_name>
+			<note />
+			<text width="80" height="1" />
+		</field>
+	</section>
+</contents>
