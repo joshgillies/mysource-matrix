@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.40 2004/09/20 07:26:31 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.41 2004/09/21 02:19:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.40 $ - 1.0
+* @version $Revision: 1.41 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -280,6 +280,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$interval = substr($this->attr('frequency'), 3);
 			$start = substr($this->attr('start_date'),0,10);
 			$stop = $this->attr('stop_date');
+			// null stop date attribute?
+			if ($stop == '---------- --:--:--') $stop = null;
 		}
 		if (is_null($date)) $date = date('Y-m-d'); 
 
