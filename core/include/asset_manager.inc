@@ -683,6 +683,43 @@ class Asset_Manager extends Resolve_Object
 
 
 	/**
+	* Get all dependant children of an asset in the various tress in which it exists
+	*
+	* @param int			$assetid			the id of the asset to get its children for
+	* @param string|array	$type_code			the type of asset that is linked 
+	*											(eg 'Page', 'File', etc) 
+	*											if an array returns link if matches any 
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return Array	returns an array of assetids
+	* @access public
+	*/
+	function getDependantChildren($assetid, $type_code='', $strict_type_code=true)
+	{
+		$children = Array();
+
+		$asset = &$this->getAsset($assetid);
+		if (!is_null($asset)) {
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$dependant_links = $asset->getLinks(SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', null, 1);
+			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
+				$children[] = $dependant_links[$k]['minorid'];
+				$children = array_merge($children, $this->getDependantChildren($dependant_links[$k]['minorid'], $type_code, $strict_type_code));
+			}
+
+			$this->unregisterAsset($assetid);
+		}
+
+		unset($asset);
+		return $children;
+
+	}// end getDependantChildren()
+
+
+	/**
 	* Returns true if the passed assetid is in the trash, false otherwise
 	* Note that if the passed assetid is the id of the trash folder, false will be returned
 	*
@@ -1325,7 +1362,8 @@ class Asset_Manager extends Resolve_Object
 		}
 		return $return_hrefs;
 
-	} // end getAssetBackendHref()
+	}// end getAssetBackendHref()
+
 
 }//end class
 
