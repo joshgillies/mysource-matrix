@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.30 2004/10/27 00:41:17 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.31 2004/11/04 01:29:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -248,6 +248,9 @@ class wysiwyg {
 					var editor = this; // to access this in nested functions
 
 					var toolbar = document.createElement("div");
+					<?php
+					if ($this->width != 'auto') echo 'toolbar.style.width = "'.$this->width.'";';
+					?>
 					var innerToolbar = document.createElement("div");
 
 					var table = document.createElement("table");
