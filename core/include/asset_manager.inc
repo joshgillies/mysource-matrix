@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.137 2003/10/14 03:43:15 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.138 2003/10/14 06:01:52 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -948,7 +948,7 @@ class Asset_Manager extends MySource_Object
 
 		foreach($current_locks as $lock_type => $lock) {
 
-			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.$lock_type, $expires))) { 
+			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.'.'.$lock_type, $expires))) { 
 				trigger_error('Cannot update lock on "'.$asset->name.'", '.$err_msg, E_USER_NOTICE);
 				$success = false;
 				break;
