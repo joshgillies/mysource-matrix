@@ -1,0 +1,9 @@
+<contents>
+	<section name="Details">
+		<field attribute="id_name">
+			<display_name>Id Name</display_name>
+			<note />
+			<text width="40" height="1" />
+		</field>
+	</section>
+</contents>

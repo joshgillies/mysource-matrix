@@ -1,0 +1,3 @@
+<screens>
+	<screen code_name="details" display_name="Details" icon="edit" default="1" />
+</screens>

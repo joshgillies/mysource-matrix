@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+	<package>__core__</package>
+	<type_code>design</type_code>
+	<version>0.1</version>
+	<name>Design</name>
+	<description>This is the base from which all designs can be parsed and created</description>
+	<instantiable>yes</instantiable>
+	<system_only>no</system_only>
+	<parent_type>design_area</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>design_area</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+</asset_info>

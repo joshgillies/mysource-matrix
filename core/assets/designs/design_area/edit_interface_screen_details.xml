@@ -1,0 +1,11 @@
+<contents>
+	<section name="Details">
+		<field attribute="id_name">
+			<display_name>Id Name</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintIdName" />
+			</function_call>
+		</field>
+	</section>
+</contents>
