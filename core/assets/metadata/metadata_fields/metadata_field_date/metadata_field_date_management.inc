@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_management.inc,v 1.2 2004/02/03 04:29:42 gsherwood Exp $
+* $Id: metadata_field_date_management.inc,v 1.3 2004/02/16 23:32:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 class Metadata_Field_Date_Management extends Asset_Management
 {
 
+
 	/**
 	* Constructor
 	*
@@ -45,19 +46,20 @@ class Metadata_Field_Date_Management extends Asset_Management
 	function Metadata_Field_Date_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-		
-		// additional attrs., that were not defined in parent
+
 		$this->vars = Array(
-							'format' => Array(
-									'added' => '0.1',
-									'type'  => 'text', 
-									'default'   => 'd/m/Y H:i:s'
-							),
-							'setup_params' => Array(
-												'added' => '0.0.1',
-												'type'  => 'serialise', 'default' => Array()
-							),
+							'format'		=> Array(
+													'added'   => '0.1',
+													'type'    => 'text', 
+													'default' => 'd/m/Y H:i:s',
+													),
+							'setup_params'	=> Array(
+													'added'   => '0.0.1',
+													'type'    => 'serialise',
+													'default' => Array(),
+													),
 						);
+
 	}//end constructor
 
 
