@@ -12,6 +12,7 @@ CREATE TABLE sq_package (
 DROP TABLE sq_asset;
 CREATE TABLE sq_asset (
   assetid        INT    NOT NULL,
+  name           VARCHAR(255) NOT NULL DEFAULT '',
   type_code      VARCHAR(100) NOT NULL,
   last_updated   TIMESTAMP    NOT NULL,
   last_userid    INT    NOT NULL,
@@ -25,6 +26,7 @@ CREATE TABLE sq_asset_link (
   minorid            INT    NOT NULL,
   link_type          INT    NOT NULL,
   value              VARCHAR(255) NOT NULL,
+  sort_order         INT    NOT NULL DEFAULT 0,
   last_updated       TIMESTAMP    NOT NULL,
   last_userid        INT          NOT NULL,
   PRIMARY KEY(majorid, minorid, link_type, value)
