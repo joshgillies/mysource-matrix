@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap.inc,v 1.3 2004/04/14 01:58:30 gsherwood Exp $
+* $Id: ldap.inc,v 1.4 2004/08/20 06:21:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,7 +77,6 @@ class Ldap
 		if (!is_null($h) && !empty($h)) $this->connect($h, $p, $pass, $bdn, $rdn);
 
 	}//end constructor
-
 
 
 	/**
@@ -174,13 +173,15 @@ class Ldap
 	* @return resource (search result identifier) | zero (on error)
 	* @access public
 	*/
-	function search($startdn, $filter, $multi_level=true, $multi_result=true)
+	function search($startdn, $filter, $sort_by=null, $multi_level=true, $multi_result=true)
 	{
 		if (!$this->ptr) return 0;
 
 		if ($multi_level && $multi_result) $sr = ldap_search($this->ptr, $startdn, $filter);
 		else if ($multi_result) $sr = ldap_list($this->ptr, $startdn, $filter);
 		else $sr = ldap_read($this->ptr, $startdn, $filter);
+
+		if (!is_null($sort_by)) ldap_sort($this->ptr, $sr,  $sort_by);
 
 		if (!$sr) {
 			trigger_error('Unable to SEARCH ['.$startdn.'] with Filter ['.$filter.']: '.ldap_error($this->ptr), E_USER_WARNING);
