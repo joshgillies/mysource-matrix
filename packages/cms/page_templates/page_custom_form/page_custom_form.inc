@@ -53,7 +53,7 @@ class Page_Custom_Form extends Page
 		$form = new Form_Email();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
 
-		//$bodycopy->setAttrValue('name', 'Page Contents');
+		$form->setAttrValue('name', 'Form Contents');
 		if (!$form->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
