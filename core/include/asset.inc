@@ -218,6 +218,8 @@ class Asset extends Resolve_Object
 					last_userid  = '.$db->quote($userid).'
 				WHERE assetid = '.$db->quote($this->id);
 		
+		pre_echo($sql);
+
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
@@ -227,6 +229,8 @@ class Asset extends Resolve_Object
 		$this->name         = $name;
 		$this->last_updated = $now;
 		$this->last_userid  = $userid;
+
+		return true;
 
 	}//end _updated();
 
