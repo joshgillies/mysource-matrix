@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.15 2004/12/06 14:39:53 brobertson Exp $
+* $Id: dev.inc,v 1.16 2004/12/21 22:52:28 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package Fudge
 * @subpackage dev
 */
@@ -149,9 +149,38 @@ function bam($x='BAM!', $max_depth=0, $style='')
 }//end bam()
 
 
+/**
+* Same as bam, but initially hidden (minimised) and topped with a header that you click to expand it
+*
+* Useful when you're bamming lots of stuff and it's hard to keep track of what's what, or
+* when you want your bam to have a low profile
+*
+* @param mixed	$contents	The thing to bam, can be almost any data type
+* @param string	$title		Title for the block (optional)
+*
+* @access public
+* @return void
+*/
+function minibam($contents, $title='BAM')
+{
+	$id = rawurlencode(strtolower($title)).'_'.microtime();
+	?>
+	<table border="1" cellspacing="0" cellpadding="2" style="background-color: #ffdddd">
+		<tr>
+			<td style="cursor: pointer; cursor: hand; text-decoration: underline; font-weight: bold" onclick="elt = document.getElementById('<?php echo $id; ?>'); elt.style.display = (elt.style.display == 'none') ? '' : 'none';"><?php echo $title; ?></a></td>
+		</tr>
+		<tr>
+			<td id="<?php echo $id; ?>" style="display: none">
+				<?php bam($contents); ?>
+			</td>
+		</tr>
+	</table>
+	<?php
+}
+
 
 /**
-* take any kind of variable and tries to print it out
+* Take any kind of variable and tries to print it out
 *
 * @access public
 */
@@ -305,6 +334,5 @@ function pts_spew($i,$s)
 	}
 
 }//end pts_spew()
-
 
 ?>
