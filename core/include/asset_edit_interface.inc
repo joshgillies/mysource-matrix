@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.208 2004/04/22 13:03:53 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.209 2004/04/27 14:30:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1283,8 +1283,8 @@ class Asset_Edit_Interface extends MySource_Object
 			} else {
 
 				// must be a normal screen
-				if (empty($_REQUEST['asset_ei_screen']) || empty($this->_screens[$_REQUEST['asset_ei_screen']])) {
-					trigger_error('Active Screen unknown unable to process', E_USER_WARNING);
+				if (empty($this->_screens[$active_screen])) {
+					trigger_error('Active Screen "'.$active_screen.'" unknown unable to process', E_USER_WARNING);
 					return false;
 				}
 
