@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.21 2004/01/05 10:08:02 brobertson Exp $
+* $Id: file_system.inc,v 1.22 2004/02/14 21:38:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -101,7 +101,7 @@ function file_to_string($filename)
 function string_to_file($string, $filename)
 {
 	$tmp_filename = tempnam(dirname($filename), __FUNCTION__);
-	if (!$f = fopen($tmp_filename, 'w')) {
+	if (!$f = fopen($tmp_filename, 'wb')) {
 		trigger_error('Unable to open temporary file ('.$tmp_filename.') for writing, unable to write '.$filename, E_USER_WARNING);
 		return false;
 	}
