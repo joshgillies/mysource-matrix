@@ -4,7 +4,31 @@
 
 This FAQ is designed to answer some of the most frequently asked and frustrating questions you may have about using the MySource Matrix content management system. All questions in this document are grouped into relevant sections.
 
++----------------+
+| GENERAL        |
++----------------+
 
+Q. When trying to log in using a correct username and password, i get blue errors, and a message "User not found"
+A. Make sure that cookies are enabled in your browser.
+   
+   Enabling Cookies
+   ---------------
+   
+   Internet Explorer.
+   1. Go to Tools > Internet Options.
+   2. Go to the Privacy Tab.
+   3. Either change the privacy settings to a level where cookies are accepted (eg. Medium)
+      or edit the list of IP addresses that cookies are allowed from by clicking the edit button near the bottom.
+ 
+   Mozilla.
+   1. Go to Tools > Options.
+   2. go to the Privacy tab. 
+   3. Expand the cookies list.
+   4. Click Enable Cookies.
+
+
+Q.
+A.
 
 +----------------+
 | POSTGRESQL     |
