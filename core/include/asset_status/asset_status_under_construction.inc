@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.22 2004/09/17 07:50:00 gsherwood Exp $
+* $Id: asset_status_under_construction.inc,v 1.23 2004/09/26 23:56:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -112,16 +112,16 @@ class Asset_Status_Under_Construction extends Asset_Status
 
 				// we also need to check what if all the required metadata fields are completed
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				if (!$mm->allowsMetadata($this->owner->id)) {
+				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 	
 					if ($wf_complete && $m_complete) $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-					else $statii[SQ_STATUS_PENDING_APPROVAL] = 'Make Live';
+					else $statii[SQ_STATUS_PENDING_APPROVAL] = 'Apply for Approval';
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata
 					$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-					$statii[SQ_STATUS_PENDING_APPROVAL] = 'Make Live';
+					$statii[SQ_STATUS_PENDING_APPROVAL] = 'Apply for Approval';
 				}
 			}
 			
