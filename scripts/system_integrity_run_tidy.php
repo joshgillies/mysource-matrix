@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_run_tidy.php,v 1.2 2004/10/18 21:32:35 amiller Exp $
+* $Id: system_integrity_run_tidy.php,v 1.2.2.1 2004/10/18 21:46:01 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
