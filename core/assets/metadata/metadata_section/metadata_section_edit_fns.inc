@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.16 2004/02/24 07:37:35 gsherwood Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.17 2004/02/26 03:00:19 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -120,7 +120,9 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 				
 				$contents = Array();
 				foreach ($descendant_types as  $type) {
-					$contents[$type] = $type;
+					// $te[2] - type of the field, which we need
+					$te = explode("_", $type);
+					$contents[$type] = ucfirst($te[2]); // capitalizing the first char
 				}
 
 				combo_box($prefix.'_field_type', $contents, false, 'metadata_field_text');
