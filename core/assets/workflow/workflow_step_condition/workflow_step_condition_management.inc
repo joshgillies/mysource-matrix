@@ -29,11 +29,11 @@ class Workflow_Step_Condition_Management extends Asset_Management
 											),
 							'logic'     => Array(
 											'added' => '0.1',
-											'type'  => 'text', 'default'   => ''
+											'type'  => 'text', 'default'   => '>='
 											),
 							'logic_num' => Array(
 											'added' => '0.1',
-											'type'  => 'int', 'default'   => ''
+											'type'  => 'int', 'default'   => '1'
 											)
 							);
 	}//end constructor
