@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.8 2004/05/06 05:05:39 lwright Exp $
+* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.9 2004/10/15 01:28:27 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,7 +67,7 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 
 		$options = explode("\r\n", $asset->attr('options'));
 		$multiple = (get_class($asset) == 'form_question_type_tickbox_list') ? true : false;
-		
+
 		echo "<table cellpadding=\"0\" cellspacing=\"0\">\n";
 		
 		$defaults = $asset->attr('default');
@@ -84,7 +84,7 @@ class Form_Question_Type_Tickbox_List_Edit_Fns extends Form_Question_Edit_Fns
 			$checked = (in_array($ref, $defaults)) ? true : false;
 			$type($name, $ref, $checked);
 			
-			echo '&nbsp;'.$title;
+			echo '&nbsp;<span onclick="this.previousSibling.previousSibling.checked = (!this.previousSibling.previousSibling.checked || this.previousSibling.previousSibling.type==\'radio\')">'.$title.'</span>';
 			echo '</td></tr>';
 		}
 		echo '</table>';

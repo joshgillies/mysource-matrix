@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_edit_fns.inc,v 1.2 2004/04/29 05:19:45 lwright Exp $
+* $Id: form_question_type_option_list_edit_fns.inc,v 1.3 2004/10/15 01:26:58 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,7 +82,7 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 			$checked = (in_array($ref, $defaults)) ? true : false;
 			radio_button($name, $ref, $checked);
 			
-			echo '&nbsp;'.$title;
+			echo '&nbsp;<span onclick="this.previousSibling.previousSibling.checked = (!this.previousSibling.previousSibling.checked || this.previousSibling.previousSibling.type==\'radio\')">'.$title.'</span>';
 			echo '</td></tr>';
 		}
 		echo '</table>';
