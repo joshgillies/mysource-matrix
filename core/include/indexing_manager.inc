@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: indexing_manager.inc,v 1.12 2004/03/03 22:47:11 gsherwood Exp $
+* $Id: indexing_manager.inc,v 1.13 2004/03/03 23:21:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@
 * Handles requests for indexing keydata from searchable assets, and handles search requests.
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.12 $ - 1.0
+* @version $Revision: 1.13 $ - 1.0
 * @package MySource_Matrix
 */
 class Indexing_Manager extends MySource_Object
@@ -79,17 +79,17 @@ class Indexing_Manager extends MySource_Object
 	* Flush the keydata for an asset
 	*
 	* @param int		$assetid	ID of the asset
-	* @param boolean	$component	the component to which the keydata pertains (e.g. metadata or attribute)
+	* @param string	$component	the component to which the keydata pertains (e.g. metadata or attribute)
 	*
 	* @return void
 	* @access public
 	*/
-	function flushKeyData($assetid, $component=false)
+	function flushKeyData($assetid, $component=null)
 	{
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'asset_indexing
 				WHERE assetid = '.$db->quote($assetid);
-		if ($component !== false) $sql .= ' AND component = '.$db->quote($component);
+		if (!is_null($component)) $sql .= ' AND component = '.$db->quote($component);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
