@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime_management.inc,v 1.7 2004/05/05 07:10:13 lwright Exp $
+* $Id: form_question_type_datetime_management.inc,v 1.8 2004/07/14 14:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,12 +45,14 @@ class Form_Question_Type_Datetime_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-	$this->vars = Array(
-
+		$this->vars = Array(
 							'default'	=> Array(
 										'added'		=> '0.0.1',
 										'type'		=> 'datetime',
-										'default'		=> '---------- --:--:--',
+										'default'	=> '---------- --:--:--',
+										'parameters' 	=> Array(
+											'allow_null' => true,
+										),
 									),
 
 							'extra'	=> Array(
@@ -83,6 +85,7 @@ class Form_Question_Type_Datetime_Management extends Asset_Management
 										'type'		=> 'datetime',
 										'default'		=> '---------- --:--:--',
 										'parameters' 	=> Array(
+											'allow_null' => true,
 											'show'	=> Array(
 												'd', 'y',	
 											),
@@ -93,6 +96,9 @@ class Form_Question_Type_Datetime_Management extends Asset_Management
 										'added'		=> '0.0.1',
 										'type'		=> 'datetime',
 										'default'		=> '---------- --:--:--',
+										'parameters' 	=> Array(
+											'allow_null' => true,
+										),
 									),
 			);
 
