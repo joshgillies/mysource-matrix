@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.133 2003/10/13 01:27:01 brobertson Exp $
+* $Id: asset_manager.inc,v 1.134 2003/10/13 06:37:33 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,7 +43,7 @@ class Asset_Manager extends MySource_Object
 	function Asset_Manager()
 	{
 		$this->MySource_Object();
-		if (!$GLOBALS['SQ_INSTALL']) $this->_loadAssetTypes();
+		if (empty($GLOBALS['SQ_INSTALL'])) $this->_loadAssetTypes();
 
 	}//end constructor
 
@@ -768,7 +768,8 @@ class Asset_Manager extends MySource_Object
 	* @param int|NULL	$expires		when the lock expires (timestamp or NULL)
 	*									If expires is set to NULL, the lock will be acquired indefinitely (ie. it will never expire).
 	*
-	* @return boolean
+	* @return int		zero on failue, non-zero on success (1 on success and all lock types reqeusted had to be acquired, 
+	*					2 on any lock was updated [ie at least on lock type was already held])
 	* @access public
 	*/
 	function acquireLock($assetid, $lock_type, $source_assetid=0, $force=false, $expires=0)
@@ -784,6 +785,7 @@ class Asset_Manager extends MySource_Object
 		$success = true;
 
 		$can_force = ($force) ? $asset->canForceablyAcquireLock($lock_type) : false;
+		$lock_updated = false;
 
 		foreach($current_locks as $lock_type => $lock) {
 
@@ -791,6 +793,7 @@ class Asset_Manager extends MySource_Object
 				// the user is asking to acquire a lock they already had
 				// so just update the lock expiry date
 				if ($this->updateLock($assetid, $lock_type, $expires)) {
+					$lock_updated = true;
 					continue;
 				} else {
 					$success = false;
@@ -868,14 +871,9 @@ class Asset_Manager extends MySource_Object
 
 		}// end foreach
 
-		if ($success) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		}
-
+		$GLOBALS['SQ_SYSTEM']->doTransaction(($success) ? 'COMMIT' : 'ROLLBACK');
 		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return $success;
+		return ($success) ? (($lock_updated) ? 2 : 1) : 0;
 
 	}//end acquireLock()
 
@@ -2239,7 +2237,7 @@ class Asset_Manager extends MySource_Object
 		if (!$major->id) return false;
 
 		// if you dont have write access to this asset you cant create any links
-		if (!$GLOBALS['SQ_INSTALL'] && !$major->writeAccess('links')) {
+		if (empty($GLOBALS['SQ_INSTALL']) && !$major->writeAccess('links')) {
 			return 'Cannot create link from '.$major->name.' (# '.$major->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied (no write access to "'.$major->name.'")';
 		}
 
