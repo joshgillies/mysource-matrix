@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.53 2004/09/01 15:13:56 brobertson Exp $
+* $Id: general.inc,v 1.54 2004/09/03 06:58:09 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -398,7 +398,7 @@ function clean_url($url)
 		SQ_CONF_LIMBO_SUFFIX,
 		SQ_CONF_BACKEND_SUFFIX,
 	);
-	
+
 	foreach ($bits as $bit) {
 		$url = preg_replace('/\/'.$bit.'.*/', '/', $url);
 	}
@@ -540,6 +540,29 @@ function array_get_index($array, $index, $default=null)
 	return $default;
 
 }//end array_get_index()
+
+
+/**
+* Add a tooltip to a piece of code
+*
+* Given a tag or a piece of text, wraps it with a span
+*
+* @access public
+* @return string
+*/
+function make_tooltip($tag, $text, $title=false)
+{
+	$new_text 		= rawurlencode($text);
+	$title 			= ($title)?rawurlencode($title):'';
+
+	$onMouseOver 	= "tooltip.show(this,'$text','$title')";
+	$onMouseOut		= 'tooltip.hide()';
+
+	$result = '<span onmouseover="'.$onMouseOver.'" onmouseout="'.$onMouseOut.'">'.$tag.'</span>';
+
+	return $result;
+
+}//end make_tooltip()
 
 
 ?>
