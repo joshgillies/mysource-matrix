@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.44 2004/07/08 00:41:56 lwright Exp $
+* $Id: hipo_herder.inc,v 1.45 2004/09/01 00:48:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -160,7 +160,7 @@ class HIPO_Herder extends MySource_Object
 			// this HIPO is finsihed
 			return $hipo->getOption('on_complete_url');
 		} else {
-			return $_SERVER['PHP_SELF'].'?SQ_ACTION=hipo&hipo_source_code_name='.$hipo->source_code_name;
+			return current_protocol().'://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?SQ_ACTION=hipo&hipo_source_code_name='.$hipo->source_code_name;
 		}
 
 	}//end getProcessURL()
