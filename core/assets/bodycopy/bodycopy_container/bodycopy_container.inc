@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.17.2.1 2004/12/09 03:17:24 gsherwood Exp $
+* $Id: bodycopy_container.inc,v 1.17.2.2 2005/03/31 00:23:50 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17.2.1 $
+* @version $Revision: 1.17.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -301,7 +301,7 @@ class Bodycopy_Container extends Asset
 		$get_href_ids = Array();
 		foreach ($notice_links as $link) $get_href_ids[] = $link['minorid'];
 
-		$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetHref(array_unique($get_href_ids));
+		$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($get_href_ids));
 		foreach ($hrefs as $minorid => $href) {
 			if ($href == '') $href = './?a='.$minorid;
 			$sq_asset_url_list[$minorid] = $href;
