@@ -95,7 +95,6 @@ function db_extras_insert_select(&$db, $insert, $select)
 		// INSERT INTO ... SELECT FROM Compatable DB's
 		case 'pgsql' :
 
-			pre_echo($insert.' '.$select);
 			$result = $db->query($insert.' '.$select);
 			if (DB::isError($result)) return $result;
 			return TRUE;
@@ -114,7 +113,6 @@ function db_extras_insert_select(&$db, $insert, $select)
 					$sql .= (($j) ? ',' : '').$db->quote($result[$i][$j]);
 				}
 				$sql .= ')';
-				pre_echo($sql);
 				$result = $db->query($insert.' '.$select);
 				if (DB::isError($result)) return $result;
 			}
