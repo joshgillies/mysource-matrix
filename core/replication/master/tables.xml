@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.1.2.2 2004/03/04 16:37:30 brobertson Exp $
+* $Id: tables.xml,v 1.1.2.3 2004/03/09 18:17:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -65,6 +65,37 @@
 				<unique_key>
 					<column name="name" />
 				</unique_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="replication_remote_slave_asset_versions" require_rollback="0">
+			<columns>
+				<column name="systemid" allow_null="0">
+					<type>SMALLINT</type>
+					<type_variations>
+						<mysql>SMALLINT UNSIGNED</mysql>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="version" allow_null="0">
+					<type>VARCHAR(20)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="systemid" />
+					<column name="assetid" />
+				</primary_key>
 			</keys>
 			<indexes />
 		</table>

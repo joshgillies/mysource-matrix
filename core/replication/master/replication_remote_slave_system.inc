@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_remote_slave_system.inc,v 1.1.2.2 2004/02/14 17:41:09 brobertson Exp $
+* $Id: replication_remote_slave_system.inc,v 1.1.2.3 2004/03/09 18:17:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,6 +139,15 @@ class Replication_Remote_Slave_System extends Replication_Remote_System
 			return false;
 		}
 
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		// make sure the directory exists
+		if (!create_directory($this->dataPath())) {
+			trigger_error('Unable to create Replication Remote System "'.$this->id.'" : unable to create data directory', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = null;
+			return false;
+		}
+
 		if (!$this->save()) {
 			trigger_error('Unable to create Replication Remote System "'.$this->id.'" : unable to save', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -184,7 +193,7 @@ class Replication_Remote_Slave_System extends Replication_Remote_System
 			trigger_error('Unable to get data path : No System Id', E_USER_WARNING);
 			return '';
 		}
-		return SQ_DATA_PATH.'/private/replication/'.$this->id;
+		return SQ_DATA_PATH.'/private/replication/remote_systems/'.$this->id;
 
 	}// end dataPath()
 
@@ -282,6 +291,271 @@ class Replication_Remote_Slave_System extends Replication_Remote_System
 	{
 		return !is_null($this->retired);
 	}// end isRetired()
+
+
+	/**
+	* Install a slave from ourselves, basically do a few checks and send all our data to the slave
+	*
+	* @return void
+	* @access public
+	*/
+	function install()
+	{
+		trigger_error('NOT WORKING', E_USER_ERROR);
+#
+#		$this->_log("Starting Slave Install", 'debug');
+#		$this->_log("Do Some Locking Here : ".__FILE__.'::'.__LINE__, 'general');
+#
+#		$e = 'Slave Install Error ('.$this->name.' ['.$this->transport->getPeerInfo().']) : ';
+#
+#		if (true !== ($err_msg = $this->transport->sendAndReceiveVar('Start Checks', $ack=null, $headers=null))) {
+#			trigger_error($e.$err_msg, E_USER_WARNING);
+#			return;
+#		}
+#		if ($ack != 'ack') {
+#			trigger_error($e.'Did not receive "ack" reply', E_USER_WARNING);
+#			return;
+#		}
+#
+#		$checks = Array();
+#		
+#		// check PHP
+#		$checks['php'] = Array(
+#							'version' => PHP_VERSION,
+#							);
+#
+#		// check system version
+#		$checks['system'] = Array(
+#								'version' => SQ_SYSTEM_VERSION,
+#							);
+#
+#		// check crypt()
+#		$checks['crypt'] = Array(
+#								'text'      => SQ_SYSTEM_SHORT_NAME,
+#								'encrypted' => crypt(SQ_SYSTEM_SHORT_NAME), // let salt be generated
+#								);
+#
+#		// check db 
+#		$checks['db'] = Array(
+#							'phptype'      => $GLOBALS['SQ_SYSTEM']->db->phptype,
+#							);
+#
+#		// check asset tree
+#		$checks['asset_tree'] = Array(
+#								'SQ_CONF_ASSET_TREE_BASE' => SQ_CONF_ASSET_TREE_BASE,
+#								'SQ_CONF_ASSET_TREE_SIZE' => SQ_CONF_ASSET_TREE_SIZE,
+#								);
+#
+#
+#		if (true !== ($err_msg = $this->transport->sendAndReceiveVar($checks, $ack=null, $headers=null))) {
+#			trigger_error($e.$err_msg, E_USER_WARNING);
+#			return;
+#		}
+#		$this->_log("CHECKS RESULT : ".$ack, 'debug');
+#		if ($ack != 'Checks OK') {
+#			trigger_error($e.'Checks Failed', E_USER_WARNING);
+#			return;
+#		}
+#
+#		$this->_log("SEND DATA", 'debug');
+#
+#		// First thing to do is create a file with all our assetids and versions that will be sent to the slave 
+#		// to permorm the checking
+#		$versions_file = $this->dataPath().'/asset_versions.txt';
+#		$f = fopen($versions_file, 'wb');
+#		if (!$f) {
+#			trigger_error($e.'Unable to open file "'.$versions_file.'" for writing', E_USER_WARNING);
+#			return;
+#		}
+#
+#		$sql = 'SELECT assetid, version
+#				FROM '.SQ_TABLE_PREFIX.'asset
+#				ORDER BY assetid';
+#		$result = $GLOBALS['SQ_SYSTEM']->db->query($sql);
+#		if (DB::isError($result)) {
+#			trigger_error($e.$result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+#			fclose($f);
+#			return;
+#		}
+#
+#		if (!$this->transport->writeVar((int) $result->numRows())) {
+#			trigger_error($e.$err_msg, E_USER_WARNING);
+#			$result->free();
+#			fclose($f);
+#			return;
+#		}
+#
+#
+#		$all_ok = true;
+#		while (null !== ($row = $result->fetchRow())) {
+#			if (!fwrite($f, $row['assetid']."\t".$row['version']."\n")) {
+#				trigger_error($e.'Error writing to "'.$versions_file.'"', E_USER_WARNING);
+#				$all_ok = false;
+#				break;
+#			}
+#		}//end while
+#		$result->free();
+#		fclose($f);
+#
+#		if (!$all_ok) return;
+#
+#		if (!$this->transport->writeFile($versions_file)) {
+#			trigger_error($e.$err_msg, E_USER_WARNING);
+#			return;
+#		}
+
+	}// end install()
+
+
+	/**
+	* Get's all the assetids and versions from the slave just after it has done it's initial import of data
+	*
+	* @return void
+	* @access public
+	*/
+	function versions_init()
+	{
+		$this->_log("Starting Slave Version Init", 'debug');
+		$this->_log("Do Some Locking Here : ".__FILE__.'::'.__LINE__, 'general');
+
+		$e = 'Slave Version Init Error ('.$this->name.' ['.$this->transport->getPeerInfo().']) : ';
+
+		if (true !== ($err_msg = $this->transport->sendAndReceiveVar('Num Assets', $num_assets=null, $headers=null))) {
+			trigger_error($e.$err_msg, E_USER_WARNING);
+			return;
+		}
+		if (!is_int($num_assets)) {
+			trigger_error($e.'Num Assets is not an integer', E_USER_WARNING);
+			return;
+		}
+
+		if (true !== ($err_msg = $this->transport->sendAndReceiveVar('Send Assets', $ack=null, $headers=null))) {
+			trigger_error($e.$err_msg, E_USER_WARNING);
+			return;
+		}
+		if ($ack != 'ack') {
+			trigger_error($e.'Did not receive "ack" reply', E_USER_WARNING);
+			return;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		for($i = 0; $i < $num_assets; $i++) {
+			if (true !== ($err_msg = $this->transport->readVar($row=null, $headers=null))) {
+				trigger_error($e.$err_msg, E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return;
+			}
+			if (!is_array($row) || empty($row['assetid']) || empty($row['version'])) {
+				trigger_error($e.'Invalid from slave, expecting assetid and version in array, got : '.print_r($row, 1), E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return;
+			}
+
+			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'replication_remote_slave_asset_versions
+					(systemid, assetid, version)
+					VALUES
+					('.$db->quote($this->id).', '.$db->quote($row['assetid']).', '.$db->quote($row['version']).')';
+$this->_log($sql, 'debug');
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				trigger_error($e.$result->getMessage()."\n".$result->getUserInfo(), E_USER_ERROR);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return;
+			}
+
+		}// end for
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		if (true !== ($err_msg = $this->transport->sendAndReceiveVar('Got Assets', $ack=null, $headers=null))) {
+			trigger_error($e.$err_msg, E_USER_WARNING);
+			return;
+		}
+		if ($ack != 'ack') {
+			trigger_error($e.'Did not receive "ack" reply', E_USER_WARNING);
+			return;
+		}
+
+	}// end versions_init()
+
+
+	/**
+	* Replicate with the slave
+	*
+	* General Process is list this :
+	* <ul>
+	*  <li> Tell slave to start getting assets changed on it's system
+	*  <li> Create a point in time on this system
+	*  <li> Getting assets changed from the last replication in time until our point in time
+	*  <li> Collect the assets that have changed from the slave system
+	*  <li> Check for assets that have changed in both systems
+	*  <li> 
+	* </ul>
+	*
+	* @return void
+	* @access public
+	*/
+	function replicate()
+	{
+		$this->_log("Starting Slave Replication....", 'debug');
+		$this->_log("Do Some Locking Here : ".__FILE__.'::'.__LINE__, 'general');
+
+		$e = 'Slave Replication Error ('.$this->name.' ['.$this->transport->getPeerInfo().']) : ';
+
+		// tell them to create a list of assets that have changed
+		if (true !== ($err_msg = $this->transport->sendAndReceiveVar('Find Changed Assets', $ack=null, $headers=null))) {
+			trigger_error($e.$err_msg, E_USER_WARNING);
+			return;
+		}
+		if ($ack != 'ack') {
+			trigger_error($e.'Did not receive "ack" reply', E_USER_WARNING);
+			return;
+		}
+
+		$point_in_time = time();
+
+		$our_changed_assets = $this->getChangedAssets($point_in_time);
+
+
+	}// end replicate()
+
+
+	/**
+	* Return a list of assets that have changed since replication was last run for this slave
+	*
+	* @param int	$timestamp	the point in time that we are checking up until
+	*
+	* @return Array('[assetid]' => Array('current_version' => '[the current version according to us]', 'old_version' => '[the version at the last tiem we replicated]'))
+	* @access public
+	*/
+	function getChangedAssets($timestamp) 
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// NOTE: if the sav.* is null it means that the asset was created since the last time we ran this
+		$sql = 'SELECT a.assetid, a.version as current_version, sav.version as old_version
+				FROM '.SQ_TABLE_ROLLBACK_PREFIX.'asset a
+						LEFT OUTER JOIN '.SQ_TABLE_PREFIX.'replication_remote_slave_asset_versions sav ON a.assetid = sav.assetid
+				WHERE a.sq_effective_to IS NULL
+				  AND (a.'.SQ_TABLE_PREFIX.'effective_to IS NULL
+							OR a.'.SQ_TABLE_PREFIX.'effective_to > '.$this->db->quote(ts_iso8601($timestamp)).')
+				  AND (sav.systemid IS NULL OR sav.systemid = '.$this->db->quote($this->id).')
+				  AND (sav.version IS NULL OR a.version != sav.version)';
+pre_echo($sql);
+
+		$result = $db->getAssoc($sql);
+		if (DB::isError($result)) {
+			trigger_error($e.$result->getMessage()."\n".$result->getUserInfo(), E_USER_ERROR);
+			return false;
+		}
+
+		pre_echo($result);
+
+		return $result;		
+
+	}// end getChangedAssets()
 
 }//end class
 
