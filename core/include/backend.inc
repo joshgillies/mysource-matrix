@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.100 2004/11/04 00:47:06 mnyeholt Exp $
+* $Id: backend.inc,v 1.101 2004/11/17 12:07:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -272,6 +272,9 @@ class Backend extends MySource_Object
 	{
 		if (isset($_GET['sq_popups_blocked'])) $_SESSION['sq_popups_blocked'] = (int) $_GET['sq_popups_blocked'];
 		$popups_blocked = (!isset($_SESSION['sq_popups_blocked']) || $_SESSION['sq_popups_blocked']);
+		$dhtml_messages = Array();
+				
+		$asset_search_default = 'Enter Asset Id/URL';
 
 		$this->out->openRaw();
 		?>
@@ -287,7 +290,7 @@ class Backend extends MySource_Object
 					current_assetid = parent.frames["sq_main"].get_form_element_value('backend_assetid');
 					lock_type       = parent.frames["sq_main"].get_form_element_value('sq_lock_type');
 				}
-				var url = '<?php echo $this->getBackendUrl('header');?>'
+				var url = '<?php echo $this->getBackendUrl('header'); ?>'
 									+ '&current_assetid=' + current_assetid
 									+ '&sq_lock_type=' + lock_type
 									+ '&sq_popups_blocked=' + popups_blocked;
@@ -309,7 +312,7 @@ class Backend extends MySource_Object
 			$updated_assetids = $db->getCol($sql);
 			if (!DB::isError($updated_assetids) && !empty($updated_assetids)) {
 				$this->out->addOnLoad('
-					if (parent.frames["sq_sidenav"].reload_assets) {
+					if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_assets) {
 						parent.frames["sq_sidenav"].reload_assets("'.addslashes(implode(',', $updated_assetids)).'");
 					}
 				');
@@ -324,11 +327,54 @@ class Backend extends MySource_Object
 		}
 
 
+		  //////////////////////////////
+		 //  ASSET ID/URL SEARCH     //
+		//////////////////////////////
+		if (!empty($_POST['asset_search']) && $_POST['asset_search'] != $asset_search_default) {
+			$_POST['asset_search'] = trim($_POST['asset_search']);
+			// check for a url first
+			$searched_asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL('', strip_url($_POST['asset_search'], true), true, true);
+			if (is_null($searched_asset) && assert_valid_assetid($_POST['asset_search'], '', true, false)) {
+				// check for assetid second
+				$searched_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST['asset_search'], '', true);
+			}
+
+			if (is_null($searched_asset)) {
+				// if we are in the backend use dhtml otherwise use js alert
+				if (!SQ_IN_LIMBO) {
+					
+					$html = '
+						<table class="sq-backend-search-failed-table">
+							<tr>
+								<td rowspan="2" valign="middle" class="sq-backend-search-failed-cell"><img src="'.$this->out->filesPath('/images/icons/info.png').'" width="16" height="16" alt="" border="0" /></td>
+								<td class="sq-backend-search-failed-heading" nowrap="nowrap">Search Failed</td>
+								<td class="sq-backend-search-failed-body" align="right">[<a class="sq-backend-search-failed-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
+							</tr>
+							<tr>
+								<td class="sq-backend-search-failed-body" colspan="2">Search for "'.addslashes($_POST['asset_search']).'" found nothing. Try Again.</td>
+							</tr>
+						</table>
+						';
+					$dhtml_messages['search_failed'] = Array('html' => str_replace("\n", '', $html), 'width' => '300');
+
+				} else {
+					$this->out->addOnLoad('
+						alert("Search for \"'.addslashes($_POST['asset_search']).'\" found nothing. Try Again");
+					');
+				}// end if
+		
+			} else {
+				$this->out->addOnLoad('
+					if (parent.frames["sq_main"]) {
+						parent.frames["sq_main"].location = "'.$_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.urlencode($searched_asset->id).'";
+					}
+				');
+			}// end if
+		}// end if
+		
+		
 		// check for any new internal messages if we are not in LIMBO
 		if (!SQ_IN_LIMBO) {
-
-			$dhtml_messages = Array();
-
 
 			  //////////////////////////////
 			 //  POPUP BLOCKING MESSAGE  //
@@ -455,7 +501,7 @@ class Backend extends MySource_Object
 						if ($code == 'popups_blocked') continue;
 						?>
 						popupContents[<?php echo $i; ?>] = Array();
-						popupContents[<?php echo $i; ?>]['html'] = '<?php echo addslashes($message['html']); ?>';
+						popupContents[<?php echo $i; ?>]['html'] = '<?php echo str_replace(addslashes($message['html'])); ?>';
 						popupContents[<?php echo $i; ?>]['width'] = '<?php echo addslashes($message['width']); ?>';
 						<?php
 						$i++;
@@ -507,23 +553,32 @@ class Backend extends MySource_Object
 				<?php
 			}// end if empty msgs
 			
-		}//end if not in LIMBO
+		}//end if not in LIMBO		
 
 		if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 		else $now = time();
 
 		?>
-		<style>
+		<style type="text/css">
 			body { background: #342939; }
 		</style>
-		<table cellpadding="2" border="0" cellspacing="2">
+		<table cellpadding="1" border="0" cellspacing="1">
 			<tr>
 				<td nowrap class="sq-backend-header-item" valign="middle" height="99%">
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1">
 					<a class="sq-backend-header-item" style="text-decoration: none;" href="#" onclick="Javascript: reloadHeader(); return false;">
 					Logged in as: <b><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?> - <?php echo date('d M Y g:i a', $now); ?></a></b>
 				</td>
-				<td align="right" width="100%">
+				<td nowrap class="sq-backend-header-item" valign="middle" align="right" width="100%">
+				<?php
+					if (!SQ_IN_LIMBO) {
+						text_box('asset_search', (!empty($_POST['asset_search'])) ? $_POST['asset_search'] : $asset_search_default, 20, 0, empty($_POST['asset_search']), 'class="sq-backend-header-search-box"');
+					} else {
+						echo '&nbsp;';
+					}
+				?>
+				</td>
+				<td nowrap align="right">
 				<?php
 					$options = Array();
 					if (!SQ_IN_LIMBO) {
@@ -596,7 +651,7 @@ class Backend extends MySource_Object
 										);
 
 					}
-
+					
 					foreach($options as $option) {
 						?><a href="<?php echo $option['url'];?>"
 							 class="sq-backend-header-item"
@@ -738,7 +793,7 @@ class Backend extends MySource_Object
 
 		// add an onLoad event that checks if the current window is in the frameset
 		// and redirects the user to the frameset version if they are not
-		if (!isset($_REQUEST['ignore_frames']) || !$_REQUEST['ignore_frames']) {
+		if (empty($_REQUEST['ignore_frames'])) {
 			$redirect_url = strip_url(current_url()).'/?sq_redirect_url='.urlencode($_SERVER['REQUEST_URI']);
 			$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); }');
 		}

@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.40 2004/08/17 03:30:37 gsherwood Exp $
+* $Id: edit.css,v 1.41 2004/11/17 12:07:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,7 +140,24 @@ td.sq-backend-nav-history {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:		11px;
 	text-decoration:	none;
-	padding:		3px;
+	padding-left:		3px;
+	padding-right:		3px;
+}
+
+.sq-backend-header-search-box {
+/*
+	background-color:	#342939;
+	color:				#C2BFC4;
+*/
+	background-color:	#C2BFC4;
+	border:		 		1px #000000 solid;
+/*
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	text-decoration:	none;
+	padding-left:		3px;
+	padding-right:		3px;
+*/
 }
 
 
@@ -364,4 +381,29 @@ td.sq-backend-lock-table-cell-alt {
 .sq-backend-popups-blocked-body, .sq-backend-popups-blocked-cell {
 	font-weight:		boldest;
 	font-size:		10px;
+}
+
+/* SEARCH FAILED POPUP STYLES */
+
+.sq-backend-search-failed-table {
+	border:				2px solid #594165;
+	border-collapse:	collapse;
+	background-color:	#ECECEC;
+	width:				300px;
+}
+
+.sq-backend-search-failed-cell, .sq-backend-search-failed-heading, .sq-backend-search-failed-body {
+	color:				#342939;
+	background-color:	#ececec;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
+	vertical-align:		top;
+	padding:			4px;
+	text-decoration:	none;
+	font-weight:		bold;
+}
+
+.sq-backend-search-failed-body {
+	color:				#342939;
+	font-weight:		none;
 }
