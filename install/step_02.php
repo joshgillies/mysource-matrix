@@ -35,6 +35,12 @@ require_once 'XML/Tree.php';
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
+// Re-generate the Config to make sure that we get any new defines that may have been issued
+require_once SQ_INCLUDE_PATH.'/config.inc';
+$cfg = new Config();
+$cfg->save(Array(), false);
+
+
 $cached_table_columns = Array();
 
 // check if we have already created the database by looking for the
