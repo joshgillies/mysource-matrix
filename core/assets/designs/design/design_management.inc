@@ -24,7 +24,7 @@ class Design_Management extends Asset_Management
 
 		$this->vars = Array(
 							'id_name'   => Array(
-								'default'   => 'Design Name'
+								'default'   => ''
 							)
 						);
 
