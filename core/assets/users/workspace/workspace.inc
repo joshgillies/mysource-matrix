@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.15 2003/11/18 15:37:30 brobertson Exp $
+* $Id: workspace.inc,v 1.16 2003/11/21 22:34:40 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,6 +51,36 @@ class Workspace extends Folder
 
 	}//end constructor
 
+
+	function create(&$link)
+	{
+		
+		$username = $link['asset']->attr('username');
+		
+		// check that we are not going to have web path conflicts
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_names = make_valid_web_paths(Array($username));
+		$name = array_shift($valid_names);
+
+		// we should theretically not be able to get into here
+		if ($name != $username) {
+			trigger_error('Username is not Unique', E_USER_WARNING);
+			return false;
+		}
+
+		// make sure the new web path is not already is use
+		$bad_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], Array($name));
+		if (!empty($bad_paths)) {
+			trigger_error('Unable to create file with name "'.$name.'", web path already exists?', E_USER_WARNING);
+			return false;
+		}
+
+		$this->setAttrValue('name', '~'.$username);
+		bam($this->attr('name'));
+
+		return parent::create($link);
+		
+	}
 
 	/**
 	* Gets the user that this workspace is attached to
@@ -149,6 +179,60 @@ class Workspace extends Folder
 		return 'Workspace';
 
 	}//end _getName();
+
+
+	/**
+	* event listener function that gets called when the user of this workspace gets updated
+	* 
+	* @param Array $vars some information passed about the user
+	*
+	* @return boolean
+	* @access public
+	*/
+	function onUsernameUpdated($vars = Array())
+	{
+		if (empty($vars)) return false;
+		if (!isset($vars['username'])) return false;
+		if (!$this->setAttrValue('name', '~'.$vars['username'])) return false;
+		
+		return $this->saveAttributes(false);
+	
+	}//end onUsernameUpdated()
+
+
+	/**
+	* Set the value of an attribute
+	*
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveAttributes($dont_run_updated=false)
+	{
+		if (!$this->id) return true;
+
+		$is_old_path = false;
+		if (isset($this->_tmp['vars_set']['name']['old_value'])) {
+			$is_old_path = true;
+			$old_path = $this->_tmp['vars_set']['name']['old_value'];
+		}
+		$new_path = $this->attr('name');
+
+		// try and set the new filename - return false if it fails
+		if (!parent::saveAttributes($dont_run_updated)) return false;
+
+		// the name has changed so we need to save the web paths
+		if (!$this->saveWebPaths(Array($new_path))) {
+			trigger_error('Failed updating web path. Path already exists?', E_USER_WARNING);
+			if ($is_old_path) parent::setAttrValue('name', $old_path);
+			return false;
+		}
+
+		return parent::saveAttributes($dont_run_updated);
+
+	}//end saveAttributes()
 
 }//end class
 

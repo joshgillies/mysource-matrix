@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace_management.inc,v 1.6 2003/11/18 15:37:30 brobertson Exp $
+* $Id: workspace_management.inc,v 1.7 2003/11/21 22:34:40 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,7 +45,34 @@ class Workspace_Management extends Folder_Management
 	function Workspace_Management(&$pm)
 	{
 		$this->Folder_Management($pm);
+
 	}//end constructor
+
+
+	/**
+	* returns an array with information about the events that the workspace is listening for
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'				 => 'usernameUpdated',
+					'broadcast_type_code'		 => 'user',
+					'broadcast_strict_type_code'	=> false,	// user, root_user, backend_user, system_user
+					'options'	=> Array(
+						'side_of_link'					=> 'major',	// side of link where the broadcaster exists
+						'indirect'						=> false,
+						'exclusive'						=> null,
+						'dependant'						=> 1,
+						'value'							=> '',
+						'link_type'						=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+					),
+				),
+		);
+	}//end getEventList()
 
 }//end class
 ?>
