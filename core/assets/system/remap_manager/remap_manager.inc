@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.2.2.4 2004/03/16 16:55:34 brobertson Exp $
+* $Id: remap_manager.inc,v 1.2.2.5 2004/03/18 15:39:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2.2.4 $ - 0.1
+* @version $Revision: 1.2.2.5 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -140,7 +140,7 @@ class Remap_Manager extends Asset
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT COUNT(*)
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_remap';
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup_remap';
 		$where = 'url = '.$db->quote($old_url);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
@@ -180,7 +180,7 @@ class Remap_Manager extends Asset
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT url, http, https
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup';
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup';
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
@@ -233,7 +233,7 @@ class Remap_Manager extends Asset
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT remap_url
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_remap';
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup_remap';
 		$where = 'url = '.$db->quote($url).'
 				  AND expires IS NULL OR expires > NOW()';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -342,9 +342,9 @@ class Remap_Manager extends Asset
 		
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT ld.designid, a.type_code
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup l
+						INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup_design ld ON l.url = ld.url
+						INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset a ON ld.designid = a.assetid
 				';
 		$where ='l.assetid  = '.$db->quote($asset->id);
 		if (!is_null($url)) $where .= ' AND ld.url  LIKE '.$db->quote($url.'%');

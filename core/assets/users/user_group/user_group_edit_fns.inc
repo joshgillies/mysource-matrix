@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.10.2.2 2004/03/02 18:35:51 brobertson Exp $
+* $Id: user_group_edit_fns.inc,v 1.10.2.3 2004/03/18 15:39:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,7 +63,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT type_code, screen, section
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_editing_access ';
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_editing_access ';
 		$where = 'userid = '.$db->quote($asset->id);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 

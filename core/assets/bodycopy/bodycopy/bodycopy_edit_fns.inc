@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.2.2.2 2004/03/02 18:35:50 brobertson Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.2.2.3 2004/03/18 15:39:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,7 +104,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'SELECT designid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ';
+			$sql = 'SELECT designid FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup_design ';
 			$where = 'url='.$db->quote($url);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 

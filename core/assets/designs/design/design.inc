@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.62.2.2 2004/03/02 18:35:51 brobertson Exp $
+* $Id: design.inc,v 1.62.2.3 2004/03/18 15:39:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -511,7 +511,7 @@ class Design extends Design_Area
 
 				<?php
 				if (SQ_IN_LIMBO && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend)) $GLOBALS[\'SQ_SYSTEM\']->backend->out->_paintHeader();
-				if (SQ_ROLLBACK_VIEW) $GLOBALS[\'SQ_SYSTEM\']->printRollbackWarning();
+				if ($GLOBALS[\'SQ_ROLLBACK_VIEW\']) $GLOBALS[\'SQ_SYSTEM\']->printRollbackWarning();
 				?>
 				';
 
@@ -637,7 +637,7 @@ class Design extends Design_Area
 		$LIB_PATH  = sq_web_path('lib');
 
 		// work out where the design file is
-		if (SQ_ROLLBACK_VIEW) {
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) {
 			// get an older version of our design file
 			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $this->data_path_suffix.'/design_file.php';

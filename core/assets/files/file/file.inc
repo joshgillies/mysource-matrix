@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.57.2.3 2004/03/04 16:43:56 brobertson Exp $
+* $Id: file.inc,v 1.57.2.4 2004/03/18 15:39:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -437,7 +437,7 @@ class File extends Asset
 
 		// Remove all the old URLs
 		$subs = Array( 'SELECT url
-						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+						FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup l
 						'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l'));
 
 		$where = 'url IN (~SQ0~)';
@@ -746,7 +746,7 @@ class File extends Asset
 	*/
 	function getURL($base_url=null, $ignore_rollback=false)
 	{
-		if (SQ_ROLLBACK_VIEW) {
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) {
 			if (is_null($base_url)) $base_url = current_url();
 			$base_url = strip_url($base_url, false);
 			return $base_url.'/?a='.$this->id;
@@ -769,7 +769,7 @@ class File extends Asset
 	*/
 	function getHref($base_url=null, $ignore_rollback=false)
 	{
-		if (SQ_ROLLBACK_VIEW) return './?a='.$this->id;
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) return './?a='.$this->id;
 		else return parent::getHref($base_url, $ignore_rollback);
 
 	}//end getHref()
@@ -785,7 +785,7 @@ class File extends Asset
 	{
 		$existing = Array();
 
-		if (SQ_ROLLBACK_VIEW) {
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) {
 			// get an older version of this file
 			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			$rep_file = $this->data_path_suffix.'/'.$this->name;

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.4.2.3 2004/03/02 18:35:51 brobertson Exp $
+* $Id: bodycopy_container.inc,v 1.4.2.4 2004/03/18 15:39:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -276,7 +276,7 @@ class Bodycopy_Container extends Asset
 			$sq_asset_url_list[$minorid] = $href;
 		}
 
-		if(SQ_ROLLBACK_VIEW) {
+		if($GLOBALS['SQ_ROLLBACK_VIEW']) {
 			$edit = $this->getEditFns();
 			ob_start();
 			$edit->paint($this, true);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.51.2.5 2004/03/16 16:55:34 brobertson Exp $
+* $Id: site.inc,v 1.51.2.6 2004/03/18 15:39:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -155,7 +155,7 @@ class Site extends Folder
 	function getSiteURLs($all_systems=false, $system_scope='')
 	{
 		$sql = 'SELECT systemid, urlid, url, http, https, system_scope
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_url
 				';
 		$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
 		if (!$all_systems) $where .= ' AND systemid = '.$GLOBALS['SQ_SYSTEM']->db->quote(SQ_CONF_SYSTEM_ID);
@@ -390,7 +390,7 @@ class Site extends Folder
 
 		// Remove all the old URLs
 		$subs = Array( 'SELECT url
-						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+						FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup l
 						'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l'));
 
 		$where = 'url IN (~SQ0~)';
@@ -540,9 +540,9 @@ class Site extends Folder
 		$url = strip_url($this->getURL(), true);
 
 		$sql = 'SELECT ld.designid, a.type_code
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup l
+						INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_lookup_design ld ON l.url = ld.url
+						INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset a ON ld.designid = a.assetid
 				';
 		$where ='l.assetid  = '.$db->quote($asset->id).'
 				  AND ld.url  LIKE '.$db->quote($url.'%').'

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_fns.inc,v 1.4 2003/12/16 12:19:31 brobertson Exp $
+* $Id: system_asset_fns.inc,v 1.4.2.1 2004/03/18 15:39:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,7 +47,7 @@ function system_asset_fns_create_pre_check(&$asset)
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 	$sql = 'SELECT COUNT(*) 
-			FROM '.SQ_TABLE_RUNNING_PREFIX.'asset 
+			FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset 
 			';
 	$where = 'type_code = '.$db->quote($asset->type());
 	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);

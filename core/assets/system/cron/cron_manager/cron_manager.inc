@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.25.2.2 2004/03/02 18:35:13 brobertson Exp $
+* $Id: cron_manager.inc,v 1.25.2.3 2004/03/18 15:39:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -803,8 +803,8 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
 		$sql = 'SELECT l.linkid, a.assetid, a.type_code, av.custom_value as when
 				FROM sq_asset_link l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av ON a.assetid = av.assetid
+						INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset a ON l.minorid = a.assetid
+						INNER JOIN '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_attribute_value av ON a.assetid = av.assetid
 						INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute at ON av.attributeid = at.attributeid
 				'.$where;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.1.2.2 2004/03/02 18:35:13 brobertson Exp $
+* $Id: authentication_default.inc,v 1.1.2.3 2004/03/18 15:39:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,7 +80,7 @@ class Authentication_Default extends Authentication
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
 		$sql = 'SELECT a.assetid, a.type_code
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a, '.SQ_TABLE_PREFIX.'asset_attribute at, '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av
+				FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset a, '.SQ_TABLE_PREFIX.'asset_attribute at, '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset_attribute_value av
 				'.$where;
 
 		$subs = Array( 'SELECT type_code
