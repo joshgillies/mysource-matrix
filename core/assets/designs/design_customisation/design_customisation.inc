@@ -154,31 +154,33 @@ class Design_Customisation extends Design
 	{
 		if (!isset($this->_tmp['customised_areas'])) {
 			$parent = &$this->getParentDesign();
-			if (is_null($parent)) return Array();
+			if (!is_null($parent)) {
+				// OK, get our design area links and our parents
+				$our_links     = $this->getDesignAreaLink();
+				$parents_links = $parent->getDesignAreaLink();
+				$this->_tmp['customised_areas'] = Array();
 
-			// OK, get our design area links and our parents
-			$our_links     = $this->getDesignAreaLink();
-			$parents_links = $parent->getDesignAreaLink();
-			$this->_tmp['customised_areas'] = Array();
-
-			// Basically we do a search through our links and see if the design areas (ie the id_names)
-			// are pointing to the same assetid or not to ascertain whether we have customised this area or not
-			foreach($our_links as $our_link) {
-				foreach($parents_links as $parents_link) {
-					// if the id_names are the same
-					if ($our_link['value'] == $parents_link['value']) {
-						// if the id's are different, we have customised this one
-						if ($parents_link['minorid'] == $our_link['minorid']) {
-							$this->_tmp['uncustomised_areas'][] = $our_link;
-						} else {
-							$this->_tmp['customised_areas'][]   = $our_link;
-						}
-						continue;
-					}// end if
+				// Basically we do a search through our links and see if the design areas (ie the id_names)
+				// are pointing to the same assetid or not to ascertain whether we have customised this area or not
+				foreach($our_links as $our_link) {
+					foreach($parents_links as $parents_link) {
+						// if the id_names are the same
+						if ($our_link['value'] == $parents_link['value']) {
+							// if the id's are different, we have customised this one
+							if ($parents_link['minorid'] == $our_link['minorid']) {
+								$this->_tmp['uncustomised_areas'][] = $our_link;
+							} else {
+								$this->_tmp['customised_areas'][]   = $our_link;
+							}
+							continue;
+						}// end if
+					}// end foreach
 				}// end foreach
-			}// end foreach
-
+			}// end if
 		}// end if
+
+		if (!isset($this->_tmp['customised_areas'])) $this->_tmp['customised_areas'] = Array();
+		if (!isset($this->_tmp['uncustomised_areas'])) $this->_tmp['uncustomised_areas'] = Array();
 
 		return $this->_tmp['customised_areas'];
 
