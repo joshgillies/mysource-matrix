@@ -38,7 +38,6 @@ ServerExec.prototype.init_exec = function(xml_cmd, on_load_obj, on_load_fn, root
 	this.xmls[i] = new Object();
 	this.xmls[i].output = xml_cmd;
 	this.xmls[i].input = new XML();
-	this.xmls[i].input.ignoreWhite = true;
 	this.xmls[i].input.onLoad = serverExecXMLonLoad;
 
 	this.xmls[i].input.__server_exec = new Object();

@@ -196,7 +196,6 @@ mcMsgsBarClass.prototype.onExternalCall = function(cmd, params)
 			for (var i = 0; i < xml.firstChild.childNodes.length; i++) {
 				// get a reference to the child node
 				var msg_node = xml.firstChild.childNodes[i];
-				trace('msg_node : ' + msg_node);
 				if (msg_node.nodeName.toLowerCase() == "message") {
 					msgs.push({type: msg_node.attributes.type, text: msg_node.firstChild.nodeValue}); 
 				}//end if

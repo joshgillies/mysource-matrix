@@ -23,6 +23,16 @@ FScrollPaneClass.prototype.getInnerPaneHeight = function()
 	return this.vHeight;
 }
 
+/**************************************************
+ * Additions to the XML class definition          *
+ **************************************************/
+
+/**
+* Make all the XML objects ignore white by default
+*/ 
+XML.prototype.ignoreWhite = true;
+
+
 
 #include "test.as"
 #include "functions.as"
