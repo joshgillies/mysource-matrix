@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.12 2004/11/23 06:02:47 arailean Exp $
+* $Id: page_remote_content.inc,v 1.13 2004/12/02 03:39:17 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -112,7 +112,7 @@ class Page_Remote_Content extends Page
 				$result = $this->processHtml();
 			} else { // binary content
 
-				// if content is an image and we are tunnelling images, otput it as binary
+				// if content is an image and we are tunneling images, otput it as binary
 				if ((strpos($type,'image/')!==false) && $this->attr('tunnel_images')) {
 					if ($this->attr('strip_images')) {
 						$result = '[Image]';
@@ -120,7 +120,7 @@ class Page_Remote_Content extends Page
 						$this->outputBinaryContent();
 						return true;
 					}
-				// if content is an image and we are tunnelling images, otput it as binary
+				// media content is otput as binary if tunneling
 				} elseif ((strpos($type,'application/')!==false) && $this->attr('tunnel_media')) {
 					$this->outputBinaryContent();
 					return true;
@@ -166,7 +166,11 @@ class Page_Remote_Content extends Page
 		// if the start or stop tags are specified, we scan the page for the necessary content
 		// otherwise the page is good as it is, no scanning necessary
 		if (isset($start_tag) || isset($end_tag)) {
-			$pattern	= "/($start_tag.*$end_tag)/Us";
+			if ($this->attr('include_tags')) {
+				$pattern = "/($start_tag.*?$end_tag)/Us";
+			} else {
+				$pattern = "/$start_tag(.*?)$end_tag/Us";
+			}
 
 			// note that we can find more than one section identified by the tags
 			// all the sections joined together

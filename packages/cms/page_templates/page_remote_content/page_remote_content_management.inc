@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content_management.inc,v 1.6 2004/11/23 06:02:47 arailean Exp $
+* $Id: page_remote_content_management.inc,v 1.7 2004/12/02 03:39:17 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -90,6 +90,15 @@ class Page_Remote_Content_Management extends Asset_Management
 				'added'     => '0.1',
 				'type'      => 'password',
 				'default'   => '',
+			),
+
+			'include_tags' => Array (
+				'added'       => '0.1',
+				'type'      => 'boolean',
+				'default'   => true,
+				'parameters' => Array(
+					'allow_empty' => false
+				),
 			),
 
 			'start_tag' => Array(

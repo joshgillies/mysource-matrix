@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2004/11/23 06:02:46 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2004/12/02 03:39:17 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -77,8 +77,16 @@
 
 		<field attribute="end_tag">
 			<display_name>End Tag</display_name>
-			<note>After the Start Tag has been encountered, all the content on the remote page will be captures until this tag is reached. You can use standard HTML elements or define your own tag to use (for examle &lt;--end--&gt;). If this tag is not found, everything is captured till the end of page.</note>
+			<note>After the Start Tag has been encountered, all the content on the remote page will be captured until this tag is reached. You can use standard HTML elements or define your own tag to use (for examle &lt;--end--&gt;). If this tag is not found, everything is captured till the end of page.</note>
 			<text width="35" height="1" />
+		</field>
+
+		<field attribute="include_tags">
+			<display_name>Include Start/End Tags?</display_name>
+			<note>
+			If start and end tags are specified this switch allows you to specify whether they should be included in the result.
+			</note>
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 
 		<field attribute="strip_images">
@@ -86,6 +94,9 @@
 			<note>If you select "Yes", all images on the target page will be removed and replaced with their Alt tag values (or word 'Image')</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
+
+		<note>When filtering content based on Start/End tags, please be aware that complex nested content might not be properly identified, i.e. if there is a table inside a table and you want to capture the top level table, the captured region might start at the right spot, but end when the included table ends, without reaching the end of the top level one.
+		</note>
 
 	</section>
 
