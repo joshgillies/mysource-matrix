@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.56 2004/05/21 02:00:23 gsherwood Exp $
+* $Id: site.inc,v 1.57 2004/08/09 08:49:33 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -208,6 +208,7 @@ class Site extends Folder
 				$clean_path = (empty($clean_paths)) ? '' : $clean_paths[0];
 				if ($path != $clean_path) {
 					trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" contains a path "'.$path.'" which was deemed to be not valid. '.(($clean_path != '') ? 'A valid version is "'.$clean_path.'"' : ''), E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 
@@ -225,6 +226,7 @@ class Site extends Folder
 
 			if (!$found_root_url) {
 				trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" is not based upon an existing System Root URL', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
