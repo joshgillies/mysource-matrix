@@ -434,7 +434,7 @@ class Package_Manager extends Resolve_Object
 	function getParentList($type_code) {
 
 		if (!isset($this->assets[$type_code])) {
-			trigger_error('Asset "'.$type_code.'" does not exist in the <b>'.$this->package.'</b> package', E_USER_WARNING);
+			trigger_error('Asset "'.$type_code.'" does not exist in the <b>'.$this->package.'</b> package', E_USER_ERROR);
 			return Array();
 
 		}
