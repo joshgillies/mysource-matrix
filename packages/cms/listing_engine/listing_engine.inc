@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.9 2005/02/15 02:54:19 lwright Exp $
+* $Id: listing_engine.inc,v 1.10 2005/02/15 05:48:47 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -402,8 +402,14 @@ class Listing_Engine extends Page
 					foreach ($rem_assetids as $assetid) {
 						if (isset($attr_info[$assetid])) {
 							$sort_assets[$assetid] = strtolower($attr_info[$assetid]);
+							
+							if (($pos = array_search($assetid, $skipped_assets)) !== false) {
+								unset($skipped_assets[$pos]);
+							}
 						}
 					}
+					
+					$skipped_assets = array_merge($skipped_assets, array_diff($rem_assetids,array_keys($attr_info)));
 				} else {
 					// add to the skipped assets array if still in the list
 					// of used type codes
