@@ -166,7 +166,6 @@ class HIPO_Herder extends Resolve_Object
 			trigger_error('Unable to find a source job with the codename "'.$_GET['hipo_source_code_name'].'"', E_USER_WARNING);
 			return false;
 		}
-
 		$onload = '';
 		$delay  = false;
 		$auto_step = false;
@@ -416,11 +415,6 @@ class HIPO_Herder extends Resolve_Object
 			$output_root->content = 'Unable to set the running mode to server for "'.$source_job->code_name.'"';
 			return false;
 		}
-
-		unset($source_job);
-		unset($this->_jobs[$input_root->attributes['source_code_name']]);
-		$source_job = &$this->getJob($input_root->attributes['source_code_name']);
-		pre_echo("AFTER SET : ".print_r($source_job->_hipo_vars, true));
 
 		$this->_tmp['prepared_server']['source_code_name'] = $source_job->code_name;
 

@@ -401,8 +401,6 @@ $output->dump();
 			// right we need to send an SIGINT to child process to get it to abort
 			case 'abort' :
 
-				trigger_error('Abort NOT DONE');
-
 				require_once 'XML/Tree.php';
 				$output = new XML_Tree();
 				$output_root = &$output->addRoot('output');
