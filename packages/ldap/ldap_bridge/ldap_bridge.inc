@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.13 2004/08/18 04:20:33 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.14 2004/08/19 00:15:23 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,11 +47,11 @@ class LDAP_Bridge extends Bridge
 	* @var array(string => string)
 	*/
 	var $_group_types = Array('organizationalunit' => 'ou',
-							  'group'              => 'ou',
-							  'domain'             => 'dc',
-							  'container'          => 'cn',
-							  'organization'       => 'o'
-							);
+				  'group'              => 'cn',
+				  'domain'             => 'dc',
+				  'container'          => 'cn',
+				  'organization'       => 'o'
+				);
 	
 	/**
 	* An array of objectclass values that represent users in LDAP
@@ -176,18 +176,19 @@ class LDAP_Bridge extends Bridge
 				if (empty($filter)) $filter = '(objectClass=' . $key . ')';
 				else $filter = '(|' . $filter . '(objectClass=' . $key . '))';
 			}
-
+			
 			$result = $ldap->search($base_dn,$filter, false);
 			if (!$result) {
 				$ldap->disconnect();
 				return Array();
 			}
-
+			
 			$entries = $ldap->getEntries($result);
 			if (!$entries['count']) {
 				$ldap->disconnect();
 				return Array();
 			}
+			
 			unset($entries['count']);
 
 			$links = Array();
