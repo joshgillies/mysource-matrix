@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.2 2004/10/14 05:22:37 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.3 2004/10/15 01:08:36 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -283,7 +283,7 @@ class Form_Ecommerce extends Form_Email
 			$header =<<<HEREDOC
 			<table class="ecom_header_table">
 				<tr>
-					<td colspan="2">Receipt</td>
+					<td colspan="2"><h2>Receipt</h2></td>
 				</tr>
 				<tr>
 					<td>Transaction Number:</td>
@@ -297,7 +297,7 @@ class Form_Ecommerce extends Form_Email
 					<td>Date:</td>
 					<td>$date</td>
 				</tr>
-			</table
+			</table>
 HEREDOC;
 
 		} else {
@@ -363,7 +363,7 @@ HEREDOC;
 			$gateway_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($gateway);
 			$gateway_asset_url = $gateway_asset->getURL();
 
-			echo '<br /><a href="'.$_SERVER['PHP_SELF'].'">&lt;-- Go Back</a>&nbsp;&nbsp;&nbsp;<a href="'.$gateway_asset_url.'">Proceed to Payment --&gt;</a>';
+			echo '<br /><input type="button" value="     Confirm Order     " onclick="document.location.href=\''.$gateway_asset_url.'\'" /><input type="button" value="Cancel" onclick="document.location.href=\''.$_SERVER['PHP_SELF'].'\'">';
 		} else {
 
 			// if there's nothing to process, treat input as a normal form
@@ -409,7 +409,7 @@ HEREDOC;
 		}
 
 		if ($asHTML) {
-			$receipt_fmt   = '<table class="sq_ecomTable">%s%s</table>';
+			$receipt_fmt   = '<hr /><table class="sq_ecomTable">%s%s</table><hr />';
 			$order_row_fmt = '<tr class="sq_ecomTableItemRow"><td class="sq_ecomTableItemName">%s</td><td class="sq_ecomTableItemValue" align="right">%01.2f</td></tr>';
 			$total_row_fmt = '<tr class="sq_ecomTableTotalRow"><td class="sq_ecomTableTotalName" align="right">%s</td><td class="sq_ecomTableTotalValue" align="right">$%01.2f</td></tr>';
 		} else {
