@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.19 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: system_config.inc,v 1.20 2004/01/15 14:36:36 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -193,6 +193,182 @@ class System_Config extends Config
 		}// end switch
 
 	}//end _paintConfigVar()
+
+
+	/**
+	* Whether the current user can acquire the lock
+	*
+	* @return boolean
+	* @access public
+	* @see MySource::acquireLock()
+	*/
+	function canAcquireLock()
+	{
+		// need to be root or a sys admin
+		return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	}// end canAcquireLock()
+
+
+	/**
+	* Does the current user have writeAccess() to this config ? 
+	*
+	* @return boolean
+	* @access public
+	*/
+	function writeAccess()
+	{
+		if (!parent::writeAccess()) return false;
+		// need to be root or a sys admin
+		return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+	}// end writeAccess()
+
+
+	/**
+	* Paints the interface for our config options.
+	*
+	* If you (as a sub-class) put your config vars so that when they are submitted appear in 
+	* $_POST[get_class($this)] then you probably won't need to override processBackend()
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	*
+	* @return void
+	* @access public
+	* @see processBackend()
+	*/
+	function paintBackend(&$o)
+	{
+		parent::paintBackend($o);
+
+		$write_access = $this->writeAccess();
+		
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+
+		$class = get_class($this);
+
+		$o->openSection('System Settings');
+
+			$o->openField('System Name');
+			if($write_access) {
+				text_box($class.'[SQ_CONF_SYSTEM_NAME]', SQ_CONF_SYSTEM_NAME, 30);
+			} else {
+				echo SQ_CONF_SYSTEM_NAME;
+			}
+
+			$o->openField('System Owner');
+			if($write_access) {
+				text_box($class.'[SQ_CONF_SYSTEM_OWNER]', SQ_CONF_SYSTEM_OWNER, 30);
+			} else {
+				echo SQ_CONF_SYSTEM_OWNER;
+			}
+
+			$o->openField('System Root URLs');
+			if($write_access) {
+				text_area($class.'[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 40, 4);
+			} else {
+				echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
+			}
+
+		$o->closeSection();
+
+		$o->openSection('Email Settings');
+
+			$o->openField('Default Email');
+			if($write_access) {
+				text_box($class.'[SQ_CONF_DEFAULT_EMAIL]', SQ_CONF_DEFAULT_EMAIL, 50);
+			} else {
+				echo SQ_CONF_DEFAULT_EMAIL;
+			}
+
+			$o->openField('Tech Email');
+			if($write_access) {
+				text_box($class.'[SQ_CONF_TECH_EMAIL]', SQ_CONF_TECH_EMAIL, 50);
+			} else {
+				echo SQ_CONF_TECH_EMAIL;
+			}
+
+		$o->closeSection();
+
+		$o->openSection('Login/Session Settings');
+
+			$o->openField('Max Login Attempts', '', 'Zero (0) is unlimited attempts');
+			if($write_access && $is_root) {
+				text_box($class.'[SQ_CONF_MAX_LOGIN_ATTEMPTS]', SQ_CONF_MAX_LOGIN_ATTEMPTS, 5, 5);
+			} else {
+				echo SQ_CONF_MAX_LOGIN_ATTEMPTS;
+			}
+
+			$o->openField('Max Idle Time', '', 'In seconds - Min: 60 or zero (0) for unlimited idle time');
+
+			if($write_access && $is_root) {
+				text_box($class.'[SQ_CONF_MAX_IDLE_TIME]', SQ_CONF_MAX_IDLE_TIME, 10, 10);
+			} else {
+				echo SQ_CONF_MAX_IDLE_TIME;
+			}
+
+		$o->closeSection();
+
+
+		$o->openSection('Intervals');
+
+			$o->openField('Refresh Interval', '', 'How long (in seconds) between refreshes of the top (header) frame - this frame keeps the lock on long edits and checks for new mail - Min: 60');
+			if($write_access) {
+				text_box($class.'[SQ_CONF_REFRESH_INTERVAL]', SQ_CONF_REFRESH_INTERVAL, 5, 5);
+			} else {
+				echo SQ_CONF_REFRESH_INTERVAL;
+			}
+
+			$o->openField('Lock Length', '', 'The length of time after which a lock is considered to have expired. In seconds - Min: 60');
+			if($write_access) {
+				text_box($class.'[SQ_CONF_LOCK_LENGTH]', SQ_CONF_LOCK_LENGTH, 5, 5);
+			} else {
+				echo SQ_CONF_LOCK_LENGTH;
+			}
+
+		$o->closeSection();
+
+
+		$o->openSection('Error Settings');
+
+			$o->openField('Log Errors');
+			if($write_access && $is_root) {
+				combo_box($class.'[SQ_CONF_LOG_ERRORS]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_LOG_ERRORS);
+			} else {
+				echo (SQ_CONF_LOG_ERRORS) ? 'Yes' : 'No';
+			}
+
+			$o->openField('Hide Errors on the Frontend');
+			if($write_access && $is_root) {
+				combo_box($class.'[SQ_CONF_ERRORS_HIDE_FRONTEND]', Array('1' => 'Yes', '0' => 'No'), false, SQ_CONF_ERRORS_HIDE_FRONTEND);
+			} else {
+				echo (SQ_CONF_ERRORS_HIDE_FRONTEND) ? 'Yes' : 'No';
+			}
+
+		$o->closeSection();
+
+		$o->openSection('Internationalisation Settings');
+
+			$o->openField('Default Frontend Language');
+			require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
+			if($write_access) {
+				combo_box($class.'[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE]', $standards_lists_languages, false, SQ_CONF_DEFAULT_FRONTEND_LANGUAGE);
+			} else {
+				echo $standards_lists_languages[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE];
+			}
+
+			$o->openField('Default Character Set');
+			require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
+			if($write_access) {
+				combo_box($class.'[SQ_CONF_DEFAULT_CHARACTER_SET]', $standards_lists_character_sets, false, SQ_CONF_DEFAULT_CHARACTER_SET);
+			} else {
+				echo $standards_lists_character_sets[SQ_CONF_DEFAULT_CHARACTER_SET];
+			}
+
+		$o->closeSection();
+
+		if ($write_access) $o->commitButton('Commit', true);
+
+
+	}// end paintBackend()
 
 
 }//end class

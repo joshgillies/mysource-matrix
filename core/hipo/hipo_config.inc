@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.11 2004/01/14 19:21:46 brobertson Exp $
+* $Id: hipo_config.inc,v 1.12 2004/01/15 14:37:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -128,6 +128,71 @@ class HIPO_Config extends Config
 		}// end if
 
 	}//end save()
+
+
+	/**
+	* Whether the current user can acquire the lock
+	*
+	* @return boolean
+	* @access public
+	* @see MySource::acquireLock()
+	*/
+	function canAcquireLock()
+	{
+		// need to be root
+		return $GLOBALS['SQ_SYSTEM']->userRoot();
+	}// end canAcquireLock()
+
+
+	/**
+	* Does the current user have writeAccess() to this config ? 
+	*
+	* @return boolean
+	* @access public
+	*/
+	function writeAccess()
+	{
+		if (!parent::writeAccess()) return false;
+		// need to be root
+		return $GLOBALS['SQ_SYSTEM']->userRoot();
+	}// end writeAccess()
+
+
+	/**
+	* Paints the interface for our config options.
+	*
+	* If you (as a sub-class) put your config vars so that when they are submitted appear in 
+	* $_POST[get_class($this)] then you probably won't need to override processBackend()
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	*
+	* @return void
+	* @access public
+	* @see processBackend()
+	*/
+	function paintBackend(&$o)
+	{
+		parent::paintBackend($o);
+
+		$write_access = $this->writeAccess();
+		$class = get_class($this);
+
+		$o->openSection('HIPO Server Configuration');
+
+			$o->openField('Use HIPO Server');
+			if($write_access) {
+				combo_box($class.'[SQ_HIPO_USE_SERVER]', Array('1' => 'Yes', '0' => 'No'), false, SQ_HIPO_USE_SERVER);
+			} else {
+				echo (SQ_HIPO_USE_SERVER) ? 'Yes' : 'No';
+			}
+
+		$o->closeSection();
+
+		if ($write_access) $o->commitButton('Commit', true);
+
+
+	}// end paintBackend()
+
 
 
 }//end class

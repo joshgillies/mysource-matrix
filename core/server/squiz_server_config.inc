@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_config.inc,v 1.1 2004/01/14 19:19:47 brobertson Exp $
+* $Id: squiz_server_config.inc,v 1.2 2004/01/15 14:37:48 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,6 +55,99 @@ class Squiz_Server_Config extends Config
 		$this->config_file = SQ_DATA_PATH.'/private/conf/squiz_server.inc';
 
 	}//end constructor
+
+
+	/**
+	* Whether the current user can acquire the lock
+	*
+	* @return boolean
+	* @access public
+	* @see MySource::acquireLock()
+	*/
+	function canAcquireLock()
+	{
+		// need to be root
+		return $GLOBALS['SQ_SYSTEM']->userRoot();
+	}// end canAcquireLock()
+
+
+	/**
+	* Does the current user have writeAccess() to this config ? 
+	*
+	* @return boolean
+	* @access public
+	*/
+	function writeAccess()
+	{
+		if (!parent::writeAccess()) return false;
+		// need to be root
+		return $GLOBALS['SQ_SYSTEM']->userRoot();
+	}// end writeAccess()
+
+
+	/**
+	* Paints the interface for our config options.
+	*
+	* If you (as a sub-class) put your config vars so that when they are submitted appear in 
+	* $_POST[get_class($this)] then you probably won't need to override processBackend()
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	*
+	* @return void
+	* @access public
+	* @see processBackend()
+	*/
+	function paintBackend(&$o)
+	{
+		parent::paintBackend($o);
+
+		$write_access = $this->writeAccess();
+		
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+
+		$class = get_class($this);
+
+
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+		$o->openSection('Squiz Server Configuration');
+
+			$o->openField('Squiz Server System Root');
+			if($write_access) {
+				text_box($class.'[SQ_SERVER_SYSTEM_ROOT]', SQ_SERVER_SYSTEM_ROOT, 60);
+			} else {
+				echo SQ_SERVER_SYSTEM_ROOT;
+			}
+
+			$o->openField('Squiz Server System ID');
+			if($write_access) {
+				text_box($class.'[SQ_SERVER_SYSTEMID]', SQ_SERVER_SYSTEMID, 30);
+			} else {
+				echo SQ_SERVER_SYSTEMID;
+			}
+
+			$o->openField('Squiz Server Domain');
+			if($write_access) {
+				text_box($class.'[SQ_SERVER_DOMAIN]', SQ_SERVER_DOMAIN, 30);
+			} else {
+				echo SQ_SERVER_DOMAIN;
+			}
+
+			$o->openField('Squiz Server Port');
+			if($write_access) {
+				text_box($class.'[SQ_SERVER_PORT]', SQ_SERVER_PORT, 10);
+			} else {
+				echo SQ_SERVER_PORT;
+			}
+
+
+		$o->closeSection();
+
+		if ($write_access) $o->commitButton('Commit', true);
+
+
+	}// end paintBackend()
 
 
 }//end class
