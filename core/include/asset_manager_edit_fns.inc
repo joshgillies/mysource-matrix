@@ -141,7 +141,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 	/**
 	* Looks after the duplication of assets and their trees, includes the interface
 	*
-	* @access public
+	* @access private
 	*/
 	function _dupeAsset()
 	{
@@ -160,7 +160,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		#$pb->testing |= 2; // confirm reload
 		#$pb->testing |= 4; // manual reload
 		if (!$pb->loaded) {
-			$pb->setFns('_dupeInit', '_dupeInitPaint', '_dupeDone');
+			$pb->setFns('_dupeInit', '_dupeInitPaint');
 			$pb->setOption('auto_close', false);
 
 //			$pb->addStep('Obtain Locks', '_dupeStepObtainLocks');
@@ -168,10 +168,6 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 			$pb->addStep('Remap Ids', '_dupeStepRemap', null, '_dupeStepRemapDone');
 //			$pb->addStep('Release Locks', '_dupeStepReleaseLocks', '_dupeStepReleaseLocksInit');
 		}
-
-//				$vars = get_object_vars($pb);
-//				unset($vars['_obj']);
-//				pre_echo($vars);
 
 		$pb->run();
 
@@ -196,6 +192,11 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 
 	/**
+	* Called by the Progress Bar to initialise the duplication process
+	* returns true if ready to start
+	*
+	* @access private
+	* @return boolean
 	*/
 	function _dupeInit(&$pb)
 	{
@@ -290,6 +291,13 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 	}// end _dupeInit()
 
+
+	/**
+	* Returns all child links that the passed asset has, used by the duplication process
+	*
+	* @access private
+	* @return Array()
+	*/
 	function _getAllChildLinks($assetid)
 	{
 		if (!isset($this->_tmp['child_links'][$assetid])) {
@@ -344,7 +352,12 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 	}// _getAllChildLinks()
 
+
 	/**
+	* Called by the Progress Bar to if _dupeInit() returns false
+	* Used to select the assets to duplicate
+	*
+	* @access private
 	*/
 	function _dupeInitPaint(&$pb)
 	{
@@ -500,12 +513,18 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 //		$pb->setRunningVars($vars);
 //	}
 
+
+
 	/**
+	* Called repeatedly by the Progress Bar over multiple page reloads until it set's the percent to 100
+	* Performs the actual duplication of the assets
+	*
+	* @access private
 	*/
 	function _dupeStepDuplicate(&$pb)
 	{
 		$vars = $pb->getRunningVars();
-speed_check();
+#speed_check();
 #		pre_echo("DUPE POS : ".$vars['dupe_pos']);
 		$treeid = $vars['effective_duplicate_treeids'][$vars['dupe_pos']]['treeid'];
 		$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
@@ -545,7 +564,7 @@ speed_check();
 
 		}// end if
 
-speed_check();
+#speed_check("two");
 		if (is_null($link['asset'])) { 
 			trigger_error('Unable to find parent asset for Asset Id #'.$assetid, E_USER_WARNING);
 			$pb->abort();
@@ -577,6 +596,7 @@ speed_check();
 		// otherwise duplicate and link
 		} else {
 
+#speed_check("three");
 #			pre_echo("DUPLICATE ASSET : $assetid");
 			$orig = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 			if (is_null($orig)) {
@@ -585,7 +605,9 @@ speed_check();
 				return;
 			}// end if
 			$pb->setStatusMsg('Duplicating '.$orig->name);
+#speed_check("four");
 			$dupe = &$orig->duplicate($link, $vars['dupe_map'], true, true);
+#speed_check("five");
 			if (is_null($dupe)) {
 				trigger_error('Duplicate failed for Asset Id #'.$assetid, E_USER_WARNING);
 				$pb->abort();
@@ -599,20 +621,29 @@ speed_check();
 		$pb->setPercent(($vars['dupe_pos'] + 1) / count($vars['effective_duplicate_treeids']));
 
 		$vars['dupe_pos']++;
-speed_check('FINISHED');
+#speed_check('FINISHED');
 
 		$pb->setRunningVars($vars);
 
 	}// end _dupeStepDuplicate()
 
 	/**
+	* Called after _dupeStepDuplicate() above has set the percent to 100
+	* Just clears the status msg
+	*
+	* @access private
 	*/
 	function _dupeStepDuplicateDone(&$pb)
 	{
 		$pb->setStatusMsg('');
 	}// end _dupeStepDuplicateDone()
 
+
 	/**
+	* Called repeatedly by the Progress Bar over multiple page reloads until it set's the percent to 100
+	* Performs the remapping of assetids from their original values to their new values
+	*
+	* @access private
 	*/
 	function _dupeStepRemap(&$pb)
 	{
@@ -672,6 +703,10 @@ speed_check('FINISHED');
 	}// end _dupeStepRemap()
 
 	/**
+	* Called after _dupeStepRemap() above has set the percent to 100
+	* Just clears the status msg
+	*
+	* @access private
 	*/
 	function _dupeStepRemapDone(&$pb)
 	{
@@ -712,17 +747,6 @@ speed_check('FINISHED');
 //		$pb->setRunningVars($vars);
 //	}
 //
-
-	/**
-	*/
-	function _dupeDone(&$pb)
-	{
-		$vars = $pb->getRunningVars();
-//		pre_echo("ALL DONE");
-//		pre_echo($vars);
-	}
-
-
 
 	/**
 	* Prints out the interface for viewing and customising asset types
