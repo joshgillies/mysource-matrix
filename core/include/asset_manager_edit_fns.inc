@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.79 2004/12/06 14:38:12 brobertson Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.80 2005/02/14 19:34:53 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -184,14 +184,16 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 								trigger_error('Failed to re-acquire "'.$_POST['sq_lock_type'].'" lock on "'.$asset->name.'"', E_USER_WARNING);
 							}
 						}
+
+						// the backend of the asset has been processed so lets see if we have any HIPO
+						// jobs that need to be run
+						$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+						$url = $hh->runQueuedJobs();
+						if (!empty($url)) $o->setRedirect($url);
+
 					}//end if
 
-					// the backend of the asset has been processed so lets see if we have any HIPO
-					// jobs that need to be run
-					$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-					$url = $hh->runQueuedJobs();
-					if (!empty($url)) $o->setRedirect($url);
-				}
+				}//end if
 
 				if (SQ_IN_LIMBO) $limbo_asset->printFrontend();
 				else $asset->paintBackend($this->backend->out);
