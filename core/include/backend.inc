@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.59 2003/10/03 07:58:09 brobertson Exp $
+* $Id: backend.inc,v 1.60 2003/10/07 02:35:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -376,6 +376,14 @@ class Backend extends MySource_Object
 										'icon' => 'swish.gif',
 										);
 					}
+
+					if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
+						$options[] = Array(
+										'url' => $this->getBackendUrl('main').'&backend_section=hipo_herder',
+										'title' => 'HIPO Herder',
+										'icon' => 'swish.gif',
+										);
+					}
 					$options[] = Array(
 									'url' => $this->getBackendUrl('main').'&backend_section=am',
 									'title' => 'Asset Tree',
@@ -516,6 +524,11 @@ class Backend extends MySource_Object
 				require_once SQ_INCLUDE_PATH.'/system_config.inc';
 				$cfg = new System_Config();
 				$cfg->paintBackend($this);
+			break;
+
+			case 'hipo_herder' :
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hh->paintBackend($this);
 			break;
 
 			case 'am' :
