@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.33 2004/09/10 00:24:29 lwright Exp $
+* $Id: form_question.inc,v 1.34 2004/09/22 00:34:29 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.33 $ - 1.0
+* @version $Revision: 1.34 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -78,8 +78,8 @@ class Form_Question extends Asset
 	* @var object
 	*/
 	var $submission_errors = null;
-	
-	
+
+
 	/**
 	* the active form
 	* @var &object Form
@@ -94,7 +94,7 @@ class Form_Question extends Asset
 	* @param Array	$data		the shadow asset data that will construct this question
 	*
 	*/
-	function Form_Question($formid=0, $data=Array()) 
+	function Form_Question($formid=0, $data=Array())
 	{
 		if (!$formid || empty($data)) return;
 		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($formid, 'form');
@@ -141,7 +141,7 @@ class Form_Question extends Asset
 	/**
 	* Save attributes set with setAttrValue to the database
 	*
-	* Overriding the asset.inc here to make sure that they are saved to the asset_form_question 
+	* Overriding the asset.inc here to make sure that they are saved to the asset_form_question
 	* table instead of asset_attribute.
 	*
 	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
@@ -203,14 +203,14 @@ class Form_Question extends Asset
 
 		// only save the values
 		foreach ($saved_vars as $attr_id => $saved_var) {
-			
+
 			$saved_vars_ser[$attr_id] = (($saved_vars[$attr_id]['type'] == 'serialise') ? serialize($saved_vars[$attr_id]['value']) : $saved_vars[$attr_id]['value']);
 		}
-		
+
 
 		$questions = &$form->getQuestions();
 		$questions[$this->_questionid]['attributes'] = $saved_vars_ser;
-		
+
 		$form->setAttrValue('questions', $questions);
 
 		if (!$form->saveAttributes()) {
@@ -238,8 +238,8 @@ class Form_Question extends Asset
 		return true;
 
 	}//end saveAttributes()
-	
-	
+
+
 	/**
 	* Set the last updated info for this asset
 	*
@@ -277,7 +277,7 @@ class Form_Question extends Asset
 	function canClone()
 	{
 		return false;
-	
+
 	}//end canClone()
 
 
@@ -291,7 +291,7 @@ class Form_Question extends Asset
 	*						'answer' : The HTML for the form field
 	*						'note'   : The note attached to the question
 	*						'value'  : The current value of the question
-	* 
+	*
 	* @access public
 	* @return string relating to the $val field as described above, or empty string if other
 	*/
@@ -315,7 +315,7 @@ class Form_Question extends Asset
 
 
 	/**
-	* process itself in the form 
+	* process itself in the form
 	*
 	* @access public
 	* @return boolean
@@ -325,8 +325,7 @@ class Form_Question extends Asset
 		$rules = &$this->getRules();
 		$ok = true;						// We start as being all OK
 
-		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
-			$rule =& $rules[$k];
+		foreach ($rules as $k=>$rule) {
 			$type_code = 'form_question_rule_type_' . $rule['rule_code'];
 
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
@@ -349,7 +348,7 @@ class Form_Question extends Asset
 		if (!$ok) return false;
 
 		return true;
-	
+
 	}//end processForm()
 
 
@@ -369,7 +368,7 @@ class Form_Question extends Asset
 		}
 
 		return $this->attr('default');
-	
+
 	}//end getValue()
 
 
@@ -388,7 +387,7 @@ class Form_Question extends Asset
 		if (is_array($offset)) {
 			$answers = Array();
 			foreach ($offset as $o) {
-				if (isset($options[$o])) $answers[] = $options[$o]; 
+				if (isset($options[$o])) $answers[] = $options[$o];
 			}
 			return $answers;
 		}
@@ -431,14 +430,14 @@ class Form_Question extends Asset
 	* @abstract
 	*/
 	function generateError()
-	{	
+	{
 		return true;
-	
-	}//end generateError() 
+
+	}//end generateError()
 
 
 	/**
-	* returns an array of the types of rules 
+	* returns an array of the types of rules
 	*
 	* Returned array is 'short name' => 'full name'
 	* this should be overridden with something like (substitute actual allowed rules)
@@ -451,7 +450,7 @@ class Form_Question extends Asset
 	function getAllowedRules()
 	{
 		return Array();
-	
+
 	}//end getAllowedRules()
 
 
@@ -472,10 +471,10 @@ class Form_Question extends Asset
 		$this->setAttrValue('rules', $rules);
 		$this->saveAttributes();
 		return $rules;
-	
+
 	}//end getRules()
-	
-	
+
+
 	/**
 	* removes a validation rule(s) from this question
 	*
@@ -491,10 +490,10 @@ class Form_Question extends Asset
 		$this->setAttrValue('rules', $rules);
 		$this->saveAttributes();
 		return $rules;
-	
+
 	}//end removeRule()
-	
-	
+
+
 	/**
 	* returns all the rules that this question has
 	*
@@ -504,7 +503,7 @@ class Form_Question extends Asset
 	function &getRules()
 	{
 		return $this->attr('rules');
-	
+
 	}//end getRules()
 
 
@@ -517,7 +516,7 @@ class Form_Question extends Asset
 	function getRuleCount()
 	{
 		return count($this->getRules());
-	
+
 	}//end getRuleCount()
 
 
@@ -525,14 +524,14 @@ class Form_Question extends Asset
 	* return the name of this question
 	*
 	* @param boolean $short_name if TRUE, returns the short name
-	* 
+	*
 	* @access private
 	* @return string
 	*/
 	function _getName($short_name = false)
 	{
 		return $this->attr('name');
-	
+
 	}//end _getName()
 
 
@@ -547,7 +546,7 @@ class Form_Question extends Asset
 	function getSummary($answer)
 	{
 		return $answer;
-	
+
 	}//end getSummary()
 
 
@@ -565,7 +564,7 @@ class Form_Question extends Asset
 			}
 		}
 		return false;
-	
+
 	}//end isSelection()
 
 
@@ -587,7 +586,7 @@ class Form_Question extends Asset
 		);
 
 		return $questions;
-	
+
 	}//end getSelectionTypeQuestions()
 
 	/**
@@ -603,7 +602,7 @@ class Form_Question extends Asset
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 		return $asset;
-	
+
 	}//end getMySection()
 
 
@@ -623,10 +622,10 @@ class Form_Question extends Asset
 
 	}//end getMySectionName()
 
-	
+
 	/**
 	* writes JavaScript code for client side validation
-	* 
+	*
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
@@ -663,8 +662,8 @@ class Form_Question extends Asset
 		return $code;
 
 	}//end generateJSCode()
-	
-	
+
+
 	/**
 	* returns an answer summary in XML format (suitable for submission logs)
 	*
@@ -688,7 +687,7 @@ class Form_Question extends Asset
 
 	}//end getXML()
 
-	
+
 //--        PERMISSIONS/ACCESS (DEFERS TO FORM/FORM SECTION)        --//
 
 
@@ -817,7 +816,7 @@ class Form_Question extends Asset
 		return $form->_checkPermissionAccess($perm, $assetids);
 
 	}//end _checkPermissionAccess()
-	
+
 
 }//end class
 ?>
