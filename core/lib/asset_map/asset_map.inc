@@ -604,7 +604,7 @@ class Asset_Map
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 			if ($new_parent->id != $trash_folder->id) {
 				$new_parent->aquireLock();
-				$linkid = $new_parent->createLink($asset, SQ_LINK_TYPE_1, '', $input->root->attributes['to_parent_pos']);
+				$linkid = $new_parent->createLink($asset, $link['link_type'], '', $input->root->attributes['to_parent_pos']);
 				$new_parent->releaseLock();
 				if (!$linkid) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -668,7 +668,7 @@ class Asset_Map
 
 		// First let's try and create the new link, if there are any issues then it will cryout for us
 		$new_parent->aquireLock();
-		$linkid = $new_parent->createLink($asset, SQ_LINK_TYPE_1, '', $input->root->attributes['to_parent_pos']);
+		$linkid = $new_parent->createLink($asset, $link['link_type'], '', $input->root->attributes['to_parent_pos']);
 		$new_parent->releaseLock();
 		if (!$linkid) {
 			return;
