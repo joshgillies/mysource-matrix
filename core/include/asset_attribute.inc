@@ -26,6 +26,12 @@ class Asset_Attribute extends Resolve_Object
 	var $name = '';
 
 	/**
+	* The description of this attribute
+	* @var string
+	*/
+	var $description = '';
+
+	/**
 	* Parameters for processing/calculating/validating this attribute
 	* @var Array()
 	*/
@@ -71,7 +77,7 @@ class Asset_Attribute extends Resolve_Object
 		if ($attributeid) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT attributeid, name, type, parameters_value, default_value
+			$sql = 'SELECT attributeid, name, type, description, parameters_value, default_value
 					FROM '.SQ_TABLE_PREFIX.'asset_attribute
 					WHERE attributeid = '.$db->quote($attributeid);
 
@@ -80,7 +86,7 @@ class Asset_Attribute extends Resolve_Object
 
 			if (is_null($result)) return;
 
-			list($this->id, $this->name, $type, $parameters, $this->_default_value) = $result;
+			list($this->id, $this->name, $type, $this->description, $parameters, $this->_default_value) = $result;
 
 			// make sure the asset we are loading is of the same type as our class
 			if ($type != $this->type()) {
