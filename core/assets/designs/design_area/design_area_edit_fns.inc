@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.33 2003/12/16 18:36:59 brobertson Exp $
+* $Id: design_area_edit_fns.inc,v 1.34 2004/01/22 23:09:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,6 +67,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function paintIdName(&$asset, &$o, $prefix)
 	{
 		echo $asset->attr('id_name');
+		return true;
 
 	}//end paintIdName()
 
