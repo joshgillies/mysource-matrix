@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.23 2005/03/21 06:16:13 gsherwood Exp $
+* $Id: bodycopy_container.inc,v 1.24 2005/03/31 00:15:36 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,8 +52,8 @@ class Bodycopy_Container extends Asset
 		$this->Asset($assetid);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Create this asset
 	*
@@ -345,7 +345,7 @@ class Bodycopy_Container extends Asset
 		$get_href_ids = $this->attr('shadow_links');
 		foreach ($notice_links as $link) $get_href_ids[] = $link['minorid'];
 
-		$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetHref(array_unique($get_href_ids));
+		$sq_asset_url_list = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($get_href_ids));
 		for(reset($sq_asset_url_list); NULL !== ($minorid = key($sq_asset_url_list)); next($sq_asset_url_list)) {
 			if ($sq_asset_url_list[$minorid] == '') $sq_asset_url_list[$minorid] = './?a='.$minorid;
 		}
