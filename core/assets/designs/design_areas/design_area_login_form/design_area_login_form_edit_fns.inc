@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form_edit_fns.inc,v 1.8 2004/04/16 06:18:44 gsherwood Exp $
+* $Id: design_area_login_form_edit_fns.inc,v 1.9 2004/05/07 15:48:00 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -180,6 +180,24 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 		}// end switch
 
 	}//end _outputElement()
+
+
+	/**
+	* Returns an array of vars that are setable, used to create the parseString
+	*
+	* @param object Asset	$asset	the asset whose interface we are painting
+	*
+	* @return Array
+	* @access public
+	* @see Design_Area_Edit_Fns::createParseString()
+	*/
+	function getSetableVars(&$asset)
+	{
+		$vars = parent::getSetableVars($asset);
+		unset($vars['login_contents']);
+		unset($vars['logout_contents']);
+		return $vars;
+	}// end getSetableVars()
 
 
 }//end class
