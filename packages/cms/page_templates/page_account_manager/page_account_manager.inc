@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.22 2005/01/25 00:27:28 lwright Exp $
+* $Id: page_account_manager.inc,v 1.23 2005/02/01 04:56:55 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -287,13 +287,16 @@ class Page_Account_Manager extends Page_Asset_Builder
 						foreach ($attrs as $attr => $type) $user_attributes[$attr] = $user->attr($attr);
 						$create_locations = parent::getFixedCreateLocations() + parent::getRuleMatchCreateLocations($create_type, $user_attributes);
 						$selectable_create_locations = parent::getAllSelectableCreateLocations();
-						$selected_create_location_codes = explode('-', $locs);
-						if (is_array($selected_create_location_codes)) {
+						if (strpos($locs, '-') !== false) {
+							$selected_create_location_codes = explode('-', $locs);
 							foreach ($selected_create_location_codes as $code) {
-								// we will add this create location and type iff the location id is a valid option AND the link type is no more dominant than the max allowed link type for the location AND any existing link type for that location is no better than the proposed one
+								// we will add this create location and type if the location id
+								// is a valid option AND the link type is no more dominant than
+								// the max allowed link type for the location AND any existing
+								// link type for that location is no better than the proposed one
 								list($loc_id, $link_type) = explode(':', $code);
 								if (isset($selectable_create_locations[$loc_id]) && ($selectable_create_locations[$loc_id] <= $link_type)) {
-									if (!isset($create_locations[$loc_id]) || ($create_locations[$loc_id] > $link_type))  {
+									if (!isset($create_locations[$loc_id]) || ($create_locations[$loc_id] > $link_type)) {
 										$create_locations[$loc_id] = $link_type;
 									}
 								}
