@@ -368,6 +368,28 @@ class Asset_Manager extends Resolve_Object
 
 
 	/**
+	* Returns a reference to a system asset (ie Root Folder, Root User or Trash Folder)
+	*
+	* @param string	$name	the name of the system asset ('root_folder', 'root_user', 'trash_folder')
+	*
+	* @access public
+	*/
+	function &getSystemAsset($name)
+	{
+		switch(strtolower($name)) {
+			case 'root_folder' :
+				return $this->getAsset(1);
+			case 'root_user' :
+				return $this->getAsset(2);
+			case 'trash_folder' :
+				return $this->getAsset(3);
+			default :
+				trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);				
+		}
+
+	}//end getSystemAsset()
+
+	/**
 	* Returns list of all assetids of a certain type
 	*
 	* @param string		$type_code		if this exists then this object is used to load the asset,
