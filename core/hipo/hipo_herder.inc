@@ -154,11 +154,10 @@ class HIPO_Herder extends Resolve_Object
 		$form_name = 'HIPO_'.$source_job->code_name;
 		$url = $this->getProcessURL($source_job->code_name);
 		$auto_step = $source_job->auto_step();
-		$auto_step = false;
 
 		if ($auto_step) {
-			if ($source_job->complete()) $onload = 'onLoad="javascript: self.location=\''.$url.'\'"';
-			else $onload = 'onLoad="javascript: document.'.$form_name.'.submit()"';
+			if ($source_job->complete()) $onload = 'onLoad="javascript: self.location=\''.$url.'\'";';
+			else $onload = 'onLoad="javascript: document.'.$form_name.'.submit();"';
 		} else {
 			$onload = '';
 		}
@@ -167,6 +166,9 @@ class HIPO_Herder extends Resolve_Object
 		<html>
 			<head>
 				<style>
+					pre {
+						color: #000000;
+					}
 					.sq-hipo-normal, p, td {
 						font-size: 10px;
 						font-family: Verdana;
@@ -230,7 +232,7 @@ class HIPO_Herder extends Resolve_Object
 										if (!$auto_step) {
 											// they dont want us to refresh automatically, so we need to provide a manual NEXT button
 											$button_text = ($source_job->complete()) ? 'Finish' : 'Next >>';
-											$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'this.form.submit()');
+											$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'this.form.submit();');
 										}
 
 										if (count($buttons_to_print)) {
