@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.14 2004/03/24 06:28:00 gsherwood Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.15 2004/09/15 04:22:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 */
 class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -182,6 +183,17 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 	}//end processSteps()
 
 
+	/**
+	* Generate an array representing the workflow structure for the schema at this point in time
+	*
+	* The generated array is a snap shot of the schema at a point in time that can get written
+	* to the database and used for publishing etc.
+	*
+	* @param object Asset	&$asset	the asset we are generating the array for
+	*
+	* @access public
+	* @return array
+	*/
 	function generateWorkflowArray($asset)
 	{
 		$workflow_array['steps']        = Array();
@@ -202,7 +214,8 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			$i++;
 		}
 		return $workflow_array;
-	}
+
+	}//end generateWorkflowArray()
 
 
 }//end class

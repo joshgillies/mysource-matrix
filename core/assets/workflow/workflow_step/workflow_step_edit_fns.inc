@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.17 2004/06/07 05:42:39 gsherwood Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.18 2004/09/15 04:22:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 */
 class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -92,7 +93,8 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 				<table class="sq-backend-table">
 					<tr>
 						<td class="sq-backend-table-header">&nbsp;</td>
-						<td class="sq-backend-table-header" width="270"><b>Group Logic</b></td>
+						<td class="sq-backend-table-header">Notify When Live</td>
+						<td class="sq-backend-table-header" width="270">Group Logic</td>
 						<?php
 						if ($write_access) {
 							?><td align="center" width="70" class="sq-backend-table-header"><b>Delete ?</b></td><?php
@@ -204,7 +206,17 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	}//end paintInlineOptionInterface()
 
 
-
+	/**
+	* Generate an array representing the workflow structure for the step at this point in time
+	*
+	* The generated array is a snap shot of the schema at a point in time that can get written
+	* to the database and used for publishing etc.
+	*
+	* @param object Asset	&$asset	the asset we are generating the array for
+	*
+	* @access public
+	* @return array
+	*/
 	function generateWorkflowArray($asset, &$workflow_array)
 	{
 		$workflow_array = Array();
@@ -229,7 +241,8 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$i++;
 		}
 		return true;
-	}
+
+	}//end generateWorkflowArray()
 
 
 }//end class
