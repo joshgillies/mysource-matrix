@@ -1101,136 +1101,6 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Returns a status object for the current asset to be used for processing
-	*
-	* @return object Asset_Status
-	* @access public
-	*/
-	function &getStatus()
-	{
-		if (!isset($this->_tmp['status_object'])) {
-			// work out the name of our status file
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$status_code = get_bit_names('SQ_STATUS_', $this->status);
-			$status_code = 'asset_status_'.strtolower($status_code);
-			require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
-			$this->_tmp['status_object'] = new $status_code($this);
-		}
-		return $this->_tmp['status_object'];
-
-	}//end &getStatus()
-
-
-	/**
-	* Returns an array of statii that the current user can set for this asset
-	* Value returned is a key => value array for a drop down
-	*
-	* @return array
-	* @access public
-	*/
-	function getAvailableStatii()
-	{
-		$status = &$this->getStatus();
-		$statii = $status->getAvailableStatii();
-		ksort($statii, SORT_NUMERIC);
-		return array_reverse($statii, true);
-
-	}//end getAvailableStatii()
-
-
-	/**
-	* Returns a description representing the current status
-	*
-	* @return string
-	* @access public
-	*/
-	function getStatusDescription()
-	{
-		$status = &$this->getStatus();
-		return $status->getDescription();
-
-	}//end getStatusDescription()
-
-
-	/**
-	* Processes the changes required when a new status is set
-	*
-	* @param int	$new_status	the new status to set for this asset
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processStatusChange($new_status)
-	{
-		if ($this->status != $new_status) {
-			// if we are dependant minor assets, we can only change
-			// our status to a status higher than or equal to all
-			// the statii of our parents
-			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor', null, 1);
-			if (!empty($dependant_parents)) {
-				$am = &$GLOBALS['SQ_SYSTEM']->am;
-				foreach ($dependant_parents as $link) {
-					$asset = &$am->getAsset($link['majorid'], $link['major_type_code']);
-					if ($asset->status > $new_status) {
-						// we dont want to rollback, but we dont
-						// want to change our status for real
-						return true;
-					}
-				}
-			}
-		}
-
-		$status = &$this->getStatus();
-		if (!$status->processStatusChange($new_status)) return false;
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		if ($new_status != $this->status) {
-
-			// if we have just made this asset live, we update its minor version
-			if ($new_status == SQ_STATUS_LIVE) {
-				if (!$this->incrementVersion('minor')) {
-					trigger_error('processStatusChange failed for asset "'.$this->name.'", version not updated', E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-			$where = 'assetid = '.$db->quote($this->id);
-			$values = Array('status' => $db->quote($new_status));
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetStatusUpdate',
-												  Array('assetid'    => $this->id,
-														'old_status' => $this->status,
-														'new_status' => $new_status,
-														));
-
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$message_body = 'The status of "'.$this->name.'" was successfully changed from "'.get_status_description($this->status).'" to "'.get_status_description($new_status).'"';
-			$message = $ms->newMessage(Array(), 'Asset Status Changed', $message_body, 'asset.status');
-			$message->parameters['assetid'] = $this->id;
-			$message->send();
-
-			$this->status = $new_status;
-			unset($this->_tmp['status_object']);
-			$this->_updated();
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		return true;
-
-	}//end processStatusChange()
-
-
-	/**
 	* Gets the default languages of the asset as an array
 	*
 	* @return array(string)
@@ -1513,6 +1383,139 @@ class Asset extends MySource_Object
 		return true;
 
 	}//end _morphCleanup()
+
+
+//--        STATUS        --//
+
+
+/**
+	* Returns a status object for the current asset to be used for processing
+	*
+	* @return object Asset_Status
+	* @access public
+	*/
+	function &getStatus()
+	{
+		if (!isset($this->_tmp['status_object'])) {
+			// work out the name of our status file
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$status_code = get_bit_names('SQ_STATUS_', $this->status);
+			$status_code = 'asset_status_'.strtolower($status_code);
+			require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
+			$this->_tmp['status_object'] = new $status_code($this);
+		}
+		return $this->_tmp['status_object'];
+
+	}//end &getStatus()
+
+
+	/**
+	* Returns an array of statii that the current user can set for this asset
+	* Value returned is a key => value array for a drop down
+	*
+	* @return array
+	* @access public
+	*/
+	function getAvailableStatii()
+	{
+		$status = &$this->getStatus();
+		$statii = $status->getAvailableStatii();
+		ksort($statii, SORT_NUMERIC);
+		return array_reverse($statii, true);
+
+	}//end getAvailableStatii()
+
+
+	/**
+	* Returns a description representing the current status
+	*
+	* @return string
+	* @access public
+	*/
+	function getStatusDescription()
+	{
+		$status = &$this->getStatus();
+		return $status->getDescription();
+
+	}//end getStatusDescription()
+
+
+	/**
+	* Processes the changes required when a new status is set
+	*
+	* @param int	$new_status	the new status to set for this asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatusChange($new_status)
+	{
+		if ($this->status != $new_status) {
+			// if we are dependant minor assets, we can only change
+			// our status to a status higher than or equal to all
+			// the statii of our parents
+			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor', null, 1);
+			if (!empty($dependant_parents)) {
+				$am = &$GLOBALS['SQ_SYSTEM']->am;
+				foreach ($dependant_parents as $link) {
+					$asset = &$am->getAsset($link['majorid'], $link['major_type_code']);
+					if ($asset->status > $new_status) {
+						// we dont want to rollback, but we dont
+						// want to change our status for real
+						return true;
+					}
+				}
+			}
+		}
+
+		$status = &$this->getStatus();
+		if (!$status->processStatusChange($new_status)) return false;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if ($new_status != $this->status) {
+
+			// if we have just made this asset live, we update its minor version
+			if ($new_status == SQ_STATUS_LIVE) {
+				if (!$this->incrementVersion('minor')) {
+					trigger_error('processStatusChange failed for asset "'.$this->name.'", version not updated', E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$where = 'assetid = '.$db->quote($this->id);
+			$values = Array('status' => $db->quote($new_status));
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetStatusUpdate',
+												  Array('assetid'    => $this->id,
+														'old_status' => $this->status,
+														'new_status' => $new_status,
+														));
+
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$message_body = 'The status of "'.$this->name.'" was successfully changed from "'.get_status_description($this->status).'" to "'.get_status_description($new_status).'"';
+			$message = $ms->newMessage(Array(), 'Asset Status Changed', $message_body, 'asset.status');
+			$message->parameters['assetid'] = $this->id;
+			$message->send();
+
+			$this->status = $new_status;
+			unset($this->_tmp['status_object']);
+			$this->_updated();
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end processStatusChange()
 
 
 //--        LOCKING        --//
