@@ -17,6 +17,16 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 {
 
 	/**
+	* An array of tab code names and their display names
+	* @var Array()
+	*/
+	var $static_screens = Array('details'     => Array('name' => 'Details',
+													   'force_unlock' => true
+													  )
+								);
+
+
+	/**
 	* Constructor
 	*
 	*/
