@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.29 2004/05/12 05:58:35 lwright Exp $
+* $Id: form.inc,v 1.30 2004/05/12 06:35:20 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,7 +66,7 @@ class Form extends Bridge
 	* available bodycopy keywords
 	* @var object 
 	*/
-	var $_available_keywords = Array('form_contents', 'form_errors', 'submit_button', 'form_summary');
+	var $_available_keywords = Array('form_contents', 'form_errors', 'submit_button');
 
 
 	/**
@@ -1134,14 +1134,43 @@ class Form extends Bridge
 		if (!isset($vars['keywords'])) return;
 
 		$keywords = Array();
-		foreach ($this->_available_keywords as $keyword) {
-			$name = ucwords(str_replace('_', ' ', $keyword));
-			$type = 'inline';
-			if (array_search($keyword, Array('form_contents', 'form_errors', 'form_summary')) !== false) {
-				$type = 'block';
+		// search for a bodycopies folder
+		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
+
+		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']); 
+
+		if (is_null($folder)) return false;
+
+		// lets work out which bodycopy the WYSIWYG cell that wants our keywords
+		// is in so we can return the correct keywords for the screen
+		$bodycopy_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy');
+		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
+
+		$bodycopies = Array();
+		foreach ($bodycopy_links as $link_info) {
+			if (in_array($link_info['minorid'], $parents)) {
+				$bodycopies[] = $link_info['value'];
 			}
-			$default = $name;
-			$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
+		}
+		if (empty($bodycopies)) return;
+
+		foreach ($bodycopies as $bodycopy) {
+			if ($bodycopy == 'Page Contents') {
+				// work out the query replacements
+				foreach ($this->_available_keywords as $keyword) {
+					$name = ucwords(str_replace('_', ' ', $keyword));
+					$type = 'inline';
+					if (array_search($keyword, Array('form_contents', 'form_errors')) !== 	false) {
+						$type = 'block';
+					}
+					$default = $name;
+					$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
+				}	
+			} else if ($bodycopy == 'Thank You') {
+				$keywords['form_summary'] = Array('name' => 'Form Summary', 'default' => 'Summary of form results', 'type' => 'block');
+			}
+
+
 		}
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
