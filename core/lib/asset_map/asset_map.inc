@@ -44,7 +44,7 @@ class Asset_Map
 			$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
 			$inbox_url = $inbox_asset->getBackendHref('mail');
 		}
-		
+
 		$flash_vars = 'server_exec_path='.rawurlencode($backend->getBackendUrl('asset_map_request')).
 					  '&action_bar_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%').
 					  '&inbox_path='.rawurlencode($inbox_url).
@@ -63,7 +63,7 @@ class Asset_Map
 				}
 			}
 			// Hook for Internet Explorer
-			if (navigator.appName && navigator.appName.indexOf("Microsoft") != -1 && 
+			if (navigator.appName && navigator.appName.indexOf("Microsoft") != -1 &&
 				navigator.userAgent.indexOf("Windows") != -1 && navigator.userAgent.indexOf("Windows 3.1") == -1) {
 				document.write('<SCRIPT LANGUAGE="VBScript"\> \n');
 				document.write('on error resume next \n');
@@ -180,7 +180,7 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _send($output) 
+	function _send($output)
 	{
 #		error_log("XML OUT : \n".$output->get());
 		header("Content-Type: text/xml");
@@ -195,7 +195,7 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _error($msg) 
+	function _error($msg)
 	{
 		$output = new XML_Tree();
 		$root = &$output->addRoot('error', $msg);
@@ -224,7 +224,7 @@ class Asset_Map
 			$this->_error($root->getMessage()."\n".$root->getUserInfo());
 			return;
 		}
-			
+
 		if ($root->name != 'command' || empty($root->attributes['action'])) {
 			$this->_error('No action was defined, or the root node is not "command"');
 			return;
@@ -279,7 +279,7 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _doInitialise(&$input) 
+	function _doInitialise(&$input)
 	{
 
 		$output = new XML_Tree();
@@ -320,7 +320,7 @@ class Asset_Map
 		echo $assets_xml;
 
 		echo "</initialisation>\n";
-		
+
 	}// end _doInitialise()
 
 
@@ -381,13 +381,13 @@ class Asset_Map
 	*
 	* @param object XML_Tree_Node	$root			the root node to add the asset to
 	* @param int					$assetid		the assetid of the asset to add
-	* @param boolean				$load_new_links	whether or not to load the children of this 
+	* @param boolean				$load_new_links	whether or not to load the children of this
 	*												asset not in the $current_kids array
 	* @param Array(int)				$current_kids	the children that the flash currently has
 	*
 	* @access private
 	*/
-	function _addAssetToXML(&$root, $assetid, $load_new_links=false, $current_kids=Array()) 
+	function _addAssetToXML(&$root, $assetid, $load_new_links=false, $current_kids=Array())
 	{
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
@@ -396,8 +396,8 @@ class Asset_Map
 			$this->_error('Asset #'.$assetid.' not found');
 			return false;
 		}
-		$attrs = Array('assetid' => $asset->id, 
-						'name'   => $asset->short_name.' ['.$asset->id. ']', 
+		$attrs = Array('assetid' => $asset->id,
+						'name'   => $asset->short_name.' ['.$asset->id. ']',
 						'type_code'  => $asset->type(),
 						'accessible' => $asset->readAccess(),
 						'status' => $asset->status
@@ -438,7 +438,7 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _getMenuItems(&$input) 
+	function _getMenuItems(&$input)
 	{
 
 		$output = new XML_Tree();
@@ -506,7 +506,7 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _getURL(&$input, &$backend) 
+	function _getURL(&$input, &$backend)
 	{
 
 		$link  = '';
@@ -730,7 +730,7 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _newLink(&$input) 
+	function _newLink(&$input)
 	{
 
 		$old_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['from_parent_assetid']);
@@ -774,7 +774,10 @@ class Asset_Map
 		$skip_perms = true;
 		foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
 			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($new_parent->id, $perm);
-			if (!empty($set_perms)) $skip_perms = false;
+			if (!empty($set_perms)) {
+				$skip_perms = false;
+				break;
+			}
 		}
 
 		if (!$skip_perms) {
@@ -799,7 +802,7 @@ class Asset_Map
 	*
 	* @access private
 	*/
-	function _getMail(&$input) 
+	function _getMail(&$input)
 	{
 		if (!$GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			$this->_error('No one is currently logged in, unable to get mail messages');
@@ -821,7 +824,7 @@ class Asset_Map
 			unset($attrs['body']);
 			unset($attrs['parameters']);
 			unset($attrs['userto']);
-			
+
 			if (date('H', $attrs['sent']) >= 12) {
 				$attrs['am'] = "false";
 			} else {
