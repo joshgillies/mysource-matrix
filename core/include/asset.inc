@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.375 2005/03/10 23:45:25 gsherwood Exp $
+* $Id: asset.inc,v 1.376 2005/03/15 01:23:59 amiller Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.375 $
+* @version $Revision: 1.376 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2606,15 +2606,23 @@ class Asset extends MySource_Object
 								  'asset_updated_short',
 								  'asset_created_readable',
 								  'asset_updated_readable',
+  								  'asset_created_iso8601',
+								  'asset_updated_iso8601',
+  								  'asset_created_rfc2822',
+								  'asset_updated_rfc2822',
 								  'asset_created_by_name',
 								  'asset_updated_by_name',
 								  'asset_published',
 								  'asset_published_short',
 								  'asset_published_readable',
+								  'asset_published_iso8601',
+								  'asset_published_rfc2822',
 								  'asset_published_by_name',
 								  'asset_status_changed',
 								  'asset_status_changed_short',
 								  'asset_status_changed_readable',
+  								  'asset_status_changed_iso8601',
+								  'asset_status_changed_rfc2822',
 								  'asset_status_changed_by_name',
 								  'asset_url',
 								  'asset_href',

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.70 2005/03/10 23:45:26 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.71 2005/03/15 01:24:10 amiller Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -824,6 +824,19 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_status_changed_readable':
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'d M Y g:ia\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_readable') - strlen('asset_')).');'."\n";
 				break;
+				
+				case 'asset_created_iso8601' :
+				case 'asset_updated_iso8601' :
+				case 'asset_status_changed_iso8601' :
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d\\TH:i:s\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_iso8601') - strlen('asset_')).');'."\n";					
+				break;
+				
+				case 'asset_created_rfc2822' :
+				case 'asset_updated_rfc2822' :
+				case 'asset_status_changed_rfc2822' :
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'r\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_rfc2822') - strlen('asset_')).');'."\n";					
+				break;
+
 
 				case 'asset_created_by_name' :
 				case 'asset_updated_by_name' :
@@ -870,6 +883,14 @@ class Metadata_Manager extends MySource_Object
 
 				case 'asset_published_readable' :
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'d M Y g:ia\', $metadata_asset->published);'."\n";
+				break;
+				
+				case 'asset_published_iso8601' :
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'Y-m-d\\TH:i:s\', $metadata_asset->published);'."\n";
+				break;
+				
+				case 'asset_published_rfc2822' :
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = (is_null($metadata_asset->published)) ? \'Never\' : date(\'r\', $metadata_asset->published);'."\n";
 				break;
 
 				case 'asset_published_by_name' :
