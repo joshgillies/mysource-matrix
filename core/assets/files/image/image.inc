@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.21 2005/01/18 09:27:08 brobertson Exp $
+* $Id: image.inc,v 1.22 2005/01/18 11:24:35 brobertson Exp $
 *
 */
 
@@ -152,16 +152,14 @@ class Image extends File
 	*/
 	function getExistingFile()
 	{
-		if (!isset($this->_tmp['existing_file'])) {
-			$this->_tmp['existing_file'] = parent::getExistingFile();
-			if (!empty($this->_tmp['existing_file']['path'])) {
-				$size = getimagesize($this->_tmp['existing_file']['path']);
-				$this->_tmp['existing_file']['width']  = $size[0];
-				$this->_tmp['existing_file']['height'] = $size[1];
-			}
+		$info = parent::getExistingFile();
+		if (!empty($info['path'])) {
+			$size = getimagesize($info['path']);
+			$info['width']  = $size[0];
+			$info['height'] = $size[1];
 		}
 
-		return $this->_tmp['existing_file'];
+		return $info;
 
 	}//end getExistingFile()
 
@@ -182,7 +180,7 @@ class Image extends File
 	function printImageTag($alt='', $title='', $return=false)
 	{
 		if ($title == '') {
-			$title = ($alt != '') ? $alt : $this->atr('title');
+			$title = ($alt != '') ? $alt : $this->attr('title');
 		}
 		if ($alt == '') $alt = $this->attr('alt');
 
@@ -216,14 +214,14 @@ class Image extends File
 		$keywords = parent::getAssetKeywords($descriptions);
 
 		$existing = $this->getExistingFile();
-		if (!isset($existing['height'])) $existing['height'] = '0';
-		if (!isset($existing['width'])) $existing['width'] = '0';
-		$keywords['image_width'] = Array('value' => $existing['width']);
-		$keywords['image_height'] = Array('value' => $existing['height']);
+		$keywords['image_width']	= Array('value' => $this->attr('width'));
+		$keywords['image_height']	= Array('value' => $this->attr('height'));
+		$keywords['image_tag']		= Array('value' => $this->printImageTag('', '', true));
 
 		if ($descriptions) {
-			$keywords['image_width']['description'] = 'Width of the image in pixels';
-			$keywords['image_height']['description'] = 'Height of the image in pixels';
+			$keywords['image_width']['description']		= 'Width of the image in pixels';
+			$keywords['image_height']['description']	= 'Height of the image in pixels';
+			$keywords['image_tag']['description']		= 'HTML IMG tag to display this image';
 		}
 
 		return $keywords;
