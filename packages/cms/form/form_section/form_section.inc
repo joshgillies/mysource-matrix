@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.32 2005/01/17 18:27:39 brobertson Exp $
+* $Id: form_section.inc,v 1.33 2005/01/19 04:26:34 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -258,16 +258,23 @@ class Form_Section extends Asset
 		$children = Array();
 
 		$entries = $this->getQuestions();
-
-		foreach ($entries as $questionid => $data) {
-			if ($strict_type_code) {
-				if ($data['question_type_code'] == $type_code) {
-					$children[$this->id.':q'.$questionid] = $data['question_type_code'];
-				}
-			} else {
-				$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code) + Array($type_code);
-				if (in_array($data['question_type_code'], $type_desc)) {
-					$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+		if ($type_code == Array()) {
+			foreach ($entries as $questionid => $data) {
+				$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+			}
+		} else {
+			foreach ($type_code as $this_type_code) {
+				foreach ($entries as $questionid => $data) {
+					if ($strict_type_code) {
+						if ($data['question_type_code'] == $this_type_code) {
+							$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+						}
+					} else {
+						$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($this_type_code) + Array($this_type_code);
+						if (in_array($data['question_type_code'], $type_desc)) {
+							$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+						}
+					}
 				}
 			}
 		}
