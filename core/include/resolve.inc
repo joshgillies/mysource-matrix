@@ -639,7 +639,7 @@ class Resolve
 	*/
 	function &getWorkflowManager()
 	{
-		if(!isset($this->wm) || get_class($this->mm) != 'workflow_manager') {
+		if(!isset($this->wm) || get_class($this->wm) != 'workflow_manager') {
 			require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 			$this->wm = new Workflow_Manager();
 		}
