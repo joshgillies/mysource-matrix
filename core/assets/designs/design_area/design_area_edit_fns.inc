@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_edit_fns.inc,v 1.27 2003/11/10 03:04:59 gsherwood Exp $
+* $Id: design_area_edit_fns.inc,v 1.28 2003/11/10 03:20:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -124,7 +124,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 
 		// lets just make sure they aren't trying to be tricky and do some processing we don't know about
-		$file_contents = preg_replace('|\<\?(?!xml)(.+?)(?=\?\>)|', '&lt;?\\2?&gt;', $file_contents);
+		$file_contents = preg_replace('|\<\?(?!xml)(.+?)(?=\?\>)\?\>|', '&lt;?\\1?&gt;', $file_contents);
+		$file_contents = preg_replace('|\<\?(?=xml)(.+?)(?=\?\>)\?\>|', '<?php echo "<"."?"; ?>\\1<?php echo "?".">"; ?>', $file_contents);
 
 		// Lets make all occurances of the open cnd close tags the
 		// same case as the constant just to make it easier to parse
