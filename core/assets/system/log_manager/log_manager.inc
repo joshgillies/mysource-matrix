@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.1 2005/03/23 03:00:54 arailean Exp $
+* $Id: log_manager.inc,v 1.2 2005/03/23 05:31:27 rhoward Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -233,43 +233,21 @@ class Log_Manager extends Asset
 	* @param string					$logname	The prefix of the file to log to, eg. 'error'
 	* @param mixed string|array		$data		The data to write to the log file
 	* @param int					$level		The log level, eg. E_USER_ERROR
+	* @param boolean				$encode		If true, encodes elements such as newlines that mess up the log format
 	*
 	* @access public
 	* @return boolean
 	*/
-	function log($logname, $data, $level=E_USER_NOTICE)
+	function log($logname, $data, $level=E_USER_NOTICE, $encode=true)
 	{
 		if (empty($logname) || empty($data)) {
 			return false;
 		}
 
 		// encode the elements that will mess up the log format
-		return $this->_log($logname, $data, $level, true);
+		return $this->_log($logname, $data, $level, $encode);
 
 	}//end log()
-
-
-	/**
-	* Takes the log name, data, and optionally the log level, and passes it out to be logged to file
-	* Bypasses the encoding of the log message
-	*
-	* @param string					$logname	The prefix of the file to log to, eg. 'error'
-	* @param mixed string|array		$data		The data to write to the log file
-	* @param int					$level		The log level, eg. E_USER_ERROR
-	*
-	* @access public
-	* @return boolean
-	*/
-	function logRaw($logname, $data, $level=E_USER_NOTICE)
-	{
-		if (empty($logname) || empty($data)) {
-			return false;
-		}
-
-		// don't encode the log message
-		return $this->_log($logname, $data, $level, false);
-
-	}//end logRaw()
 
 
 	/**
