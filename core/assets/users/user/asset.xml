@@ -11,5 +11,5 @@
 	<allowed_access>system_user</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements />
-	<flash_menu_path/>
+	<flash_menu_path>Users</flash_menu_path>
 </asset_info>
