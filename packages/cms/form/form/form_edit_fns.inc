@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.34 2004/06/30 00:57:02 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.35 2004/07/01 02:20:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -348,13 +348,13 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	function processUseBodycopy(&$asset, &$o, $prefix)
 	{
 		// Page Contents
-		if (isset($_POST['use_bodycopy_main']) && !$asset->getBodycopy('page_contents')) {
+		if (isset($_POST['use_bodycopy_main']) && !$asset->getBodycopy('Page Contents')) {
 			$asset->createBodycopy('Page Contents');
 		}
 		$asset->setAttrValue('use_bodycopy_main', isset($_POST['use_bodycopy_main']));
 
 		// Thank You!
-		if (isset($_POST['use_bodycopy_thank_you']) && !$asset->getBodycopy('thank_you')) {
+		if (isset($_POST['use_bodycopy_thank_you']) && !$asset->getBodycopy('Thank You')) {
 			$asset->createBodycopy('Thank You');
 		}
 		$asset->setAttrValue('use_bodycopy_thank_you', isset($_POST['use_bodycopy_thank_you']));
