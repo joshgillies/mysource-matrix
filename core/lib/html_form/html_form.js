@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.29 2004/09/23 03:32:05 gsherwood Exp $
+* $Id: html_form.js,v 1.30 2004/11/11 06:28:19 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -487,3 +487,104 @@ function datetime_set_date(d, m, y, prefix)
 	}
 
 }//end datetime_set_date()
+
+
+/**
+* Create an input type="hidden" element to add to the DOM
+*
+* @param string		name	The name and ID for the field
+* @param string		value	The value to put in it
+*
+* @access public
+* @return object
+*/
+function createHiddenField(name, value)
+{
+	var newElt = document.createElement('INPUT');
+	newElt.type = 'hidden';
+	newElt.name = name;
+	newElt.id = name;
+	newElt.value = value;
+	return newElt;
+}
+
+
+/**
+* Create an input type="text" element to add to the DOM
+*
+* @param string		name		The name and ID for the field
+* @param int		size		The display size
+* @param int		maxLength	Max number of chars it's alllowed to hold
+* @param string		className	The CSS class to apply to it
+* @param string		onFocus		Javascript code to be executed when the element gets the focus
+* @param string		onBlur		Javascript code to be executed when the element loses the focus
+*
+* @access public
+* @return object
+*/	
+function createTextBox(name, value, size, maxLength, className, onFocus, onBlur)
+{
+	var newElt = document.createElement('INPUT');
+	newElt.type = 'text';
+	newElt.name = name;
+	newElt.id = name;
+	newElt.size = size;
+	newElt.maxLength = maxLength;
+	newElt.className = className;
+	newElt.onfocus = new Function('', onFocus);
+	newElt.onblur = new Function('', onBlur);
+	return newElt;
+}
+
+/**
+* Create an input type="button" element to add to the DOM
+*
+* @param string		name		The name and ID for the field
+* @param string		label		What to show on the button
+* @param string		onClick		Javascript code to be executed when the button is clicked
+*
+* @access public
+* @return object
+*/	
+function createButton(name, label, onClick)
+{
+	var newElt = document.createElement('INPUT');
+	newElt.type = 'button';
+	newElt.name = name;
+	newElt.id = name;
+	newElt.value = label;
+	newElt.onclick = new Function('', onClick);
+	return newElt;
+}
+
+/**
+* Add a new asset finder widget above the 'more' button specified
+*
+* @param object		moreButton		The more button that was clicked to call this function
+* @param string		nameBase		The base name to use for the actual fields
+* @param string		safeNameBase	The base name to use for the buttons and text area
+* @param string		typeCodesString	String indicating which type codes are allowed
+* @param string		mapFrame		The javascript expression used to refer to the asset map's frame
+* @param string		doneFn			Javascript function to be called when the finding process is finished
+* @param boolean	showClear		Whether to show the 'clear' button in this asset finder
+*
+* @access public
+* @return void
+*/	
+function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, mapFrame, doneFn, showClear)
+{
+	var next_index = 0;
+	while (document.getElementById(safeNameBase+'_'+next_index+'__label') != null) next_index++;
+	parentElt = moreButton.parentNode;
+	name = nameBase + '[' + next_index + ']';
+	safeName = safeNameBase + '_' + next_index + '_';
+	parentElt.insertBefore(document.createElement('BR'), moreButton);
+	parentElt.insertBefore(createHiddenField(name+'[assetid]', 0), moreButton);
+	parentElt.insertBefore(createHiddenField(name+'[url]', 0), moreButton);
+	parentElt.insertBefore(createTextBox(safeName+'_label', '', 30, 0, 'sq-form-asset-finder', 'this.tmp = this.value;', 'this.value = this.tmp;'), moreButton);
+	var changeButton = createButton(safeName+'_change_btn', 'Change', mapFrame+'.asset_finder_change_btn_press(\''+name+"', '"+safeName+"', '"+typeCodesString+"', "+doneFn+");");
+	parentElt.insertBefore(changeButton, moreButton);
+	if (showClear) {
+		parentElt.insertBefore(createButton(safeName+'_clear_btn', 'Clear', mapFrame+'.asset_finder_clear_btn_press(\''+name+'\', \''+safeName+'\');'), moreButton);
+	}
+}
