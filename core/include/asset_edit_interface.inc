@@ -212,11 +212,16 @@ class Asset_Edit_Interface extends Resolve_Object
 				if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 				else $now = time();
 
-				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				$expires_in = easy_time_total(($lock['expires'] - $now), true);
-				if (!$expires_in) $expires_in = '1 second';
+				if (is_null($lock['expires'])) {
+					$expires_in = 'The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.';
+				} else {
+					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+					$expires_in = easy_time_total(($lock['expires'] - $now), true);
+					if (!$expires_in) $expires_in = '1 second';
+					$expires_in = 'The lock is due to expire in '.$expires_in;
+				}
 
-				echo '<p class="sq-backend-data">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". The lock is due to expire in '.$expires_in.'</p>';
+				echo '<p class="sq-backend-data">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". '.$expires_in.'</p>';
 
 				if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
 

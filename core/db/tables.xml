@@ -689,7 +689,7 @@
 				<default />
 				<description />
 			</column>
-			<column name="expires" allow_null="0">
+			<column name="expires" allow_null="1">
 				<type>TIMESTAMP</type>
 				<type_variations>
 					<mysql>DATETIME</mysql>

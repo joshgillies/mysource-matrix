@@ -1599,16 +1599,20 @@ class Asset extends Resolve_Object
 	/**
 	* Acquires a lock on this asset
 	*
+	* If expires is set to NULL, the lock will be acquired indefinitely
+	* (ie. it will never expire).
+	*
 	* @param int		$source		the id of the asset that started this locking process
 	* @param boolean	$force		attempt to forcibly acquire (if allowed)
-	* @param int		$expires	when the lock expires (timestamp)
+	* @param int|NULL	$expires	when the lock expires (timestamp or NULL)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function acquireLock($source=0, $force=false, $expires=null)
+	function acquireLock($source=0, $force=false, $expires=0)
 	{
 		$current_lock = $this->getLockInfo();
+
 		if (!empty($current_lock) && $current_lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
 			// the user is asking to acquire a lock they already had
 			// so just update the lock expiry date
@@ -1672,7 +1676,13 @@ class Asset extends Resolve_Object
 
 		// if we have no source, we are the asset aquiring the locks
 		if (empty($source)) $source = $this->id;
-		$expires = (is_null($expires)) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
+		
+		if (is_null($expires)) {
+			$expires = 'NULL';
+		} else {
+			$expires = (!$expires) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
+			$expires = ts_iso8601($expires);
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -1680,7 +1690,7 @@ class Asset extends Resolve_Object
 		$values = Array('assetid'      => $this->id,
 						'source_asset' => $source,
 						'userid'       => $GLOBALS['SQ_SYSTEM']->currentUserid(),
-						'expires'      => ts_iso8601($expires)
+						'expires'      => $expires
 						);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lock', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1730,25 +1740,35 @@ class Asset extends Resolve_Object
 	/**
 	* Updates the expiry date of the lock on this asset
 	*
-	* @param int	$source		the id of the asset that started this locking process
-	* @param int	$expires	when the lock expires (timestamp)
+	* If the current lock is being held indefinitely (ie. expires = NULL), the lock
+	* expiry time will not be updated but the function will return true. You must release
+	* an indefinite lock before updating its expiry date.
+	*
+	* @param int		$source		the id of the asset that started this locking process
+	* @param int|NULL	$expires	when the lock expires (timestamp or NULL)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function updateLock($expires=null)
+	function updateLock($expires=0)
 	{
 		$current_lock = $this->getLockInfo();
 		if (empty($current_lock)) return true;
+		if (empty($current_lock['expires'])) return true;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$expires = (is_null($expires)) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
+		if (is_null($expires)) {
+			$expires = 'NULL';
+		} else {
+			$expires = (!$expires) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
+			$expires = ts_iso8601($expires);
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$where = 'source_asset = '.$db->quote($current_lock['source_asset']);
-		$values = Array('expires' => $db->quote(ts_iso8601($expires)));
+		$values = Array('expires' => $db->quote($expires));
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_lock', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -1785,9 +1805,9 @@ class Asset extends Resolve_Object
 			return Array();
 		}
 
-		if (!empty($result)) {
+		if (!empty($result) && $check_expires && !empty($result['expires'])) {
 			$result['expires'] = iso8601_ts($result['expires']);
-			if ($check_expires && !empty($result) && $result['expires'] < time()) {
+			if ($result['expires'] < time()) {
 				// this lock has expired
 				if ($this->cleanupLocks()) return Array();
 			}
@@ -1809,7 +1829,8 @@ class Asset extends Resolve_Object
 			}
 
 			foreach ($to_do as $lock_row) {
-				$lock_row['expires'] = iso8601_ts($lock_row['expires']);
+				if (empty($lock_row['expires'])) $lock_row['expires'] = NULL;
+				else $lock_row['expires'] = iso8601_ts($lock_row['expires']);
 				$result['chained_assets'][$lock_row['assetid']] = $lock_row;
 			}
 		}
@@ -1834,14 +1855,15 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$where_cond = ' source_asset = '.$db->quote($current_lock['source_asset']).'
-						AND expires < '.$db->quote($now);
+						AND expires < '.$db->quote($now).'
+						AND expires IS NOT NULL';
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lock', $where_cond)) {
 			return false;
 		}
 
 		return true;
 
-	}//end cleanupLock()
+	}//end cleanupLocks()
 
 
 	/**
