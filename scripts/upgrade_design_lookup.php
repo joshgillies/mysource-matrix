@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_design_lookup.php,v 1.2 2005/02/21 12:07:17 brobertson Exp $
+* $Id: upgrade_design_lookup.php,v 1.3 2005/02/21 19:32:28 brobertson Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade the *_ast_lookup_design table to *_ast_lookup_value
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -213,7 +213,7 @@ foreach(Array(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX) as $prefix) {
 
 	printName('Copying from '.$prefix.'ast_lookup_design to '.$prefix.'ast_lookup_value');
 
-	$insert_sql = 'INSERT INTO '.$prefix.'ast_lookup_value (url, name, value, inhd,'.$extra.')';
+	$insert_sql = 'INSERT INTO '.$prefix.'ast_lookup_value (url, name, value, inhd'.$extra.')';
 	$select_sql = 'SELECT url, '.$db->quote('design::').' || replace(name, '.$db->quote('_design::').', '.$db->quote('::').'), designid, '.$db->quote('0').$extra.' FROM '.$prefix.'ast_lookup_design';
 	$result = db_extras_insert_select($db, $insert_sql, $select_sql);
 	assert_valid_db_result($result);
