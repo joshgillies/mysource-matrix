@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.20 2004/02/25 00:57:19 gsherwood Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.21 2004/07/07 04:08:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -465,6 +465,10 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
+		$frontend_option = $asset->attr('frontend');
+		// if we aren't printing this on the frontend then don't print anything
+		if ($frontend_option == 'hide') return true;
+
 		if (!isset($values['using_default'])) $values['using_default'] = false;
 		if (isset($values['value']) && !$values['using_default']) {
 			$default = $values['value'];
@@ -477,12 +481,10 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		$keywords = array_merge($keywords, retrieve_keywords_replacements($default, '.'));
 
-		echo '<meta name="'.$asset->name.'"';
-		if (trim($asset->attr('language')) != '') echo ' lang="'.$asset->attr('language').'"';
-		if (trim($asset->attr('scheme')) != '') echo ' scheme="'.$asset->attr('scheme').'"';
-
 		$value_string = '';
 		$current_vc = $asset->attr('value_components');
+
+		$empty_vc = true;
 
 		if (!empty($current_vc)) {
 			foreach ($current_vc as $vc_name => $vc_value) {
@@ -490,11 +492,20 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 					// install the default value
 					$values['value_components'][$vc_name] = $vc_value;
 				}
+				// if any value component is not empty then the whole thing is not empty
+				if (!empty($values['value_components'][$vc_name])) $empty_vc = false;
 				$vc_value = $values['value_components'][$vc_name];
 				$keywords = array_merge($keywords, retrieve_keywords_replacements($vc_value, '.'));
 				$value_string .= $vc_name.'='.$vc_value.'; ';
 			}
 		}
+
+		// if we are empty and it must be filled to be printed, then don't print anything
+		if (($frontend_option == 'fill') && $empty_vc) return true;
+
+		echo '<meta name="'.$asset->name.'"';
+		if (trim($asset->attr('language')) != '') echo ' lang="'.$asset->attr('language').'"';
+		if (trim($asset->attr('scheme')) != '') echo ' scheme="'.$asset->attr('scheme').'"';
 
 		echo ' content="<?php echo $metadata_values[\''.$asset->name.'\']; ?>" />'."\n";
 		

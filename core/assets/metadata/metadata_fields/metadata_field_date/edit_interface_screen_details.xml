@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2004/04/19 03:58:59 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2004/07/07 04:08:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -96,6 +96,11 @@
 			<display_name>Required</display_name>
 			<note />
 			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="frontend">
+			<display_name>Show On Frontend</display_name>
+			<note>&lt;b&gt;Always:&lt;/b&gt; this metadata field will always be printed on the frontend.&lt;br&gt;&lt;b&gt;Only If Filled:&lt;/b&gt; this metadata field will only be printed on the frontend if data is entered in that field for that asset.&lt;br&gt;&lt;b&gt;Never:&lt;/b&gt; this metadata field will not be printed on the frontend.</note>
+			<selection style="list" />
 		</field>
 	</section>
 </contents>
