@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.21 2004/05/06 05:12:02 lwright Exp $
+* $Id: form_question.inc,v 1.22 2004/05/10 00:22:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -435,8 +435,12 @@ class Form_Question extends Asset
 	* @access public
 	* @return Array(string => string)
 	*/
-	function getAllowedRules() {
-		return Array('regexp', 'comparison', 'numeric', 'found_in', 'contain', 'length', 'email');
+	function getAllowedRules()
+	{
+		// this should be overridden with something like (substitute actual allowed rules)
+		//return Array('regexp', 'comparison', 'numeric', 'found_in', 'contain', 'length', 'email', 'begins_with', 'ends_with', 'select_limit');
+
+		return Array();
 	
 	}//end getAllowedRules()
 
