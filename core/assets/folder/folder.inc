@@ -45,8 +45,7 @@ class Folder extends Asset
 
 		if (parent::create()) {
 
-			$this->setAttribute('name',   $name);
-			return true;
+			return $this->setAttribute('name',   $name);
 
 		}#end if
 
