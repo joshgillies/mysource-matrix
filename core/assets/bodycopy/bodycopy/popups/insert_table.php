@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_table.php,v 1.4 2004/06/24 03:29:37 gsherwood Exp $
+* $Id: insert_table.php,v 1.5 2004/07/08 22:41:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,11 +83,11 @@ include(dirname(__FILE__)."/header.php");
 						<table style="width:100%">
 							<tr>
 								<td class="label">Columns:</td>
-								<td><input type="text" name="rows" value="1" size="3" onChange="javascript: set_pos_int(this, 1);"></td>
+								<td><input type="text" name="cols" value="1" size="3" onChange="javascript: set_pos_int(this, 1);"></td>
 							</tr>
 							<tr>
 								<td class="label">Rows:</td>
-								<td><input type="text" name="cols" value="1" size="3" onChange="javascript: set_pos_int(this, 1);"></td>
+								<td><input type="text" name="rows" value="1" size="3" onChange="javascript: set_pos_int(this, 1);"></td>
 							</tr>
 							<tr>
 								<td class="label">Width:</td>
