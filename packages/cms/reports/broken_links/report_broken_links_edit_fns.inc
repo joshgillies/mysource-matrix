@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.6 2004/08/12 03:53:04 gsherwood Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.7 2004/08/13 04:07:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -123,7 +123,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 						$link_type = '';
 	
 						$results = Array();
-						preg_match('|\./\?a=([0-9]+)|',$match, $results);
+						preg_match('|^\./\?a=([0-9]+)$|',$match, $results);
 	
 						$validated_results = false;
 						if (!empty($results)) {
@@ -274,7 +274,12 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 					$description = 'The URL was not found';
 					$valid = '0';
 				} else if (preg_match('|301 moved|i', $response)) {
-					$description = 'The URL has been moved permanently';
+					$description = 'The URL has been permanently moved';
+					$valid = '1';
+					preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
+					if (isset($matches[1])) $description .= ' to "'.$matches[1].'"';
+				} else if (preg_match('|302 moved|i', $response)) {
+					$description = 'The URL has been temporarily moved';
 					$valid = '1';
 					preg_match('|Location:\s*(.+)\r|i', $headers, $matches);
 					if (isset($matches[1])) $description .= ' to "'.$matches[1].'"';
