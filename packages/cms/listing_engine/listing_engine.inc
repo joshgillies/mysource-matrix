@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.13 2005/02/16 01:08:02 lwright Exp $
+* $Id: listing_engine.inc,v 1.14 2005/02/16 01:19:32 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1059,7 +1059,7 @@ class Listing_Engine extends Page
 		}
 
 		$keywords['page_href']['value'] = $this->getHref();
-		$keywords['asset_position']['value'] = $list_position;
+		$keywords['result_number']['value'] = $keywords['asset_position']['value'] = (array_get_index($_REQUEST, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
 
 		foreach ($keywords as $keyword => $info) {
 			$contents = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|is', '\\1%'.$keyword.'%\\4', $contents);
