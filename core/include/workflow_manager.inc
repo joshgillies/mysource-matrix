@@ -443,7 +443,7 @@ class Workflow_Manager extends MySource_Object
 			$continue = false;
 			$completed_conds = 0;
 
-			for (reset($step_data['conditions']); 
+			for (reset($step_data['conditions']);
 					null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 				$continue = false;
 				$cond_data =& $step_data['conditions'][$pub];
@@ -650,7 +650,16 @@ class Workflow_Manager extends MySource_Object
 		if ($workflow_updated) {
 			// load the current step into the workflow
 			$this->_loadCurrentStep($workflow);
-			if ($workflow['current_step'] === 0) $workflow['complete'] = true;
+			if ($workflow['current_step'] === 0) {
+				$workflow['complete'] = true;
+			} else {
+				if (!$workflow['steps'][$workflow['current_step']]['started']) {
+					$workflow['steps'][$workflow['current_step']]['started'] = time();
+				}
+				if ($workflow['current_step'] > 1 && !$workflow['steps'][$workflow['current_step'] -1]['completed']) {
+					$workflow['steps'][$workflow['current_step'] -1]['completed'] = time();
+				}
+			}
 			$updated = true;
 		}
 

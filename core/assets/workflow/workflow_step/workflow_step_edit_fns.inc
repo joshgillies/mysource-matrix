@@ -183,7 +183,9 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 	{
 		$workflow_array = Array();
 		$workflow_array['conditions'] = Array();
-		$workflow_array['step_name'] = $asset->name;
+		$workflow_array['step_name']  = $asset->name;
+		$workflow_array['started']    = 0;
+		$workflow_array['completed']  = 0;
 
 		// work out the logic expression
 		$logic = $asset->attr('logic');

@@ -157,10 +157,11 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 
 	function generateWorkflowArray($asset)
 	{
-		$workflow_array['steps'] = Array();
+		$workflow_array['steps']        = Array();
 		$workflow_array['current_step'] = 1;
-		$workflow_array['complete'] = false;
-		$workflow_array['schema_name'] = $asset->name;
+		$workflow_array['complete']     = false;
+		$workflow_array['schema_name']  = $asset->name;
+		$workflow_array['started']      = time();
 
 		$i = 1;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step', true, 'major', null, true, false);
@@ -170,6 +171,7 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 			$edit_fns = $step->getEditFns();
 			$workflow_array['steps'][$i] = Array();
 			if (!$edit_fns->generateWorkflowArray($step, $workflow_array['steps'][$i])) return false;
+			if ($i == 1) $workflow_array['steps'][$i]['started'] = time();
 			$i++;
 		}
 		return $workflow_array;
