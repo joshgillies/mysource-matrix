@@ -297,7 +297,7 @@ class Asset extends Resolve_Object
 					  AND (l.link_type & '.$db->quote($search_link_types).') > 0 '
 					.(empty($asset_type) ? 'ORDER BY a.type_code, l.sort_order' : ' AND a.type_code = '.$db->quote($asset_type));
 
-			error_log("\n".$sql);
+#			error_log("\n".$sql);
 
 			$result = $db->query($sql);
 			if (DB::isError($result)) 
@@ -550,7 +550,7 @@ class Asset extends Resolve_Object
 		// that way the major asset can have specific cardinality for different assets types
 		// EG, assets => 'M', user => '1' -> this means that many assets can be linked to this this asset
 		//     and only one user, but because 'user' is an 'asset' we need to check for any 'user' references
-		//     bfore we check for any 'asset' references
+		//     before we check for any 'asset' references
 		$type = '';
 		for($i = 0; $i < count($types); $i++) {
 			$type = $types[$i];
@@ -701,7 +701,7 @@ class Asset extends Resolve_Object
 	/*
 	* processes a backend submission from this asset, returns true if all OK
 	*
-	* @ return boolean
+	* @return boolean
 	* @access public
 	*/
 	function processBackend() 

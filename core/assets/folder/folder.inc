@@ -56,7 +56,7 @@ class Folder extends Asset
 	/*
 	* Returns name of the asset
 	*
-	* @ see Asset::_getName()
+	* @see Asset::_getName()
 	* @access public
 	*/
 	function _getName() {
@@ -108,7 +108,7 @@ class Folder extends Asset
 	/*
 	* processes a backend submission from this asset, returns true if all OK
 	*
-	* @ return boolean
+	* @return boolean
 	* @access public
 	*/
 	function processBackend() {
