@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.32 2004/06/25 00:10:38 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.33 2004/06/30 00:46:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -379,7 +379,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	*/
 	function paintAddQuestions(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$question_types = $am->getTypeDescendants('form_question');
