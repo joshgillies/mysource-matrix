@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.19 2005/02/14 23:50:25 lwright Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.20 2005/02/15 22:07:08 amiller Exp $
 *
 */
 
 
 require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
-
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Page_Asset_Listing_Edit_Fns
@@ -34,7 +34,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -73,43 +73,34 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 		foreach ($root_links as $root_link) {
 			$root_asset_ids[$root_link['minorid']] = $root_link['minor_type_code'];
 		}
-		$root_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($root_asset_ids));
 		
-		$write_access = $asset->writeAccess('links');
+		if ($asset->writeAccess('links')) {
+			multiple_asset_finder($prefix.'_root_nodes', array_keys($root_asset_ids));
+		} else {
+			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($root_asset_ids));
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">ID</td>
+					<td class="sq-backend-table-header">Name</td>
+					<td class="sq-backend-table-header">Type</td>
+				</tr>
+			<?php 
+			foreach ($infos as $assetid => $info) {
+			?>
 
-		?>
-		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-cell"><?php echo $assetid ?></td>
+				<td class="sq-backend-table-cell"><?php echo $info['name'] ?></td>
+				<td class="sq-backend-table-cell"><?php echo ucwords(str_replace('_',' ', $info['type_code'])) ?></td>
+			</tr>
 			<?php
-			$l = 1;
-			foreach ($root_links as $root_link) {
-				?>
-				<tr>
-					<td class="sq-backend-table-cell">
-						<?php
-						if ($write_access) {
-							asset_finder($prefix.'_root_nodes['.$l.']', $root_link['minorid']);
-						} else {
-							echo $root_info[$root_link['minorid']]['name'].' [# '.$root_link['minorid'].']';
-						}
-						?>
-					</td>
-				</tr>
-				<?php
-				$l++;
-			}//end foreach
-		
-			if ($write_access) {
-				?>
-				<tr>
-					<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_root_nodes['.$l.']', 0); ?></td>
-				</tr>
-				<?php
 			}
 			?>
-		</table>
-		<?php
-
-		return $write_access;
+			</table>
+			<?php
+		}
+		return true;
 
 	}//end paintRootNode()
 
