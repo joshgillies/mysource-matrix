@@ -28,10 +28,10 @@ class Designs_Folder extends Folder
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Designs_Folder($assetid=0) 
+	function Designs_Folder($assetid=0)
 	{
 		$this->Folder($assetid);
 	}
@@ -72,10 +72,11 @@ class Designs_Folder extends Folder
 
 
 	/**
-	* Creates a duplicate of this asset. It DOES NOT duplicate the links that this asset has either to it or from it
+	* Creates a duplicate of this asset
+	* It DOES NOT duplicate the links that this asset has either to it or from it
 	* Returns a reference to the new object or if an error occured FALSE
 	*
-	* @param bool	$dupe_directory		whether or not to duplicate thia assets data directory
+	* @param bool	$dupe_directory	whether or not to duplicate thia assets data directory
 	*
 	* @return object Asset | NULL
 	* @access public
@@ -111,7 +112,8 @@ class Designs_Folder extends Folder
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run 
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
@@ -189,16 +191,22 @@ class Designs_Folder extends Folder
 	/**
 	* Returns true if the passed assetid has write access to this asset
 	*
-	* @param array $assetids An array of user_group and/or user ids to check for write access
-	*						 If the array is empty, the current user will be checked
+	* @param array		$assetids	An array of user_group and/or user ids to check for write access
+	*								If the array is empty, the current user will be checked
+	* @param boolean	$effective	effective access based on locking and status
 	*
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($assetids=Array())
+	function writeAccess($assetids=Array(), $effective=true)
 	{
 		// only root can write to this folder
-		return $GLOBALS['SQ_SYSTEM']->userRoot();
+		if (empty($assetids)) {
+			return $GLOBALS['SQ_SYSTEM']->userRoot();
+		} else {
+			$root_user = &$GLOBALS['SQ_SYSTEM']->$am->getSystemAsset('root_user');
+			return in_array($root_user->id, $assetids);
+		}
 	}//end writeAccess()
 
 

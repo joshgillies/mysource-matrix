@@ -195,13 +195,14 @@ class Trash_Folder extends Folder
 	/**
 	* Returns true if the passed assetid has write access to this asset
 	*
-	* @param array $assetids An array of user_group and/or user ids to check for write access
-	*						 If the array is empty, the current user will be checked
+	* @param array		$assetids	An array of user_group and/or user ids to check for write access
+	*								If the array is empty, the current user will be checked
+	* @param boolean	$effective	effective access based on locking and status
 	*
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($assetids=Array())
+	function writeAccess($assetids=Array(), $effective=true)
 	{
 		return true;
 	}//end writeAccess()

@@ -1672,7 +1672,8 @@ class Asset extends Resolve_Object
 	* Returns the link information for a specific link that this asset is the major asset in
 	*
 	* @param int	$linkid
-	* @param string	$side_of_link	Which side of the link this (the current) asset is on ('major' or 'minor')
+	* @param string	$side_of_link	Which side of the link this (the current) 
+	*								asset is on ('major' or 'minor')
 	* @param bool	$ignore_this	if true we don't care whether this link is ours or not
 	*
 	* @return Array
@@ -1950,7 +1951,7 @@ class Asset extends Resolve_Object
 		if (!$this->id) return false;
 
 		// if you dont have write access to this asset you cant create any links
-		if (!$GLOBALS['SQ_INSTALL'] && !$this->writeAccess()) {
+		if (!$GLOBALS['SQ_INSTALL'] && !$this->writeAccess(Array(), true, false)) {
 			return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied';
 		}
 
@@ -3647,10 +3648,10 @@ class Asset extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($assetids=Array(), $effective=true)
+	function writeAccess($assetids=Array(), $effective=true, $editing=true)
 	{
 		if (!$this->id) return true;
-		if ($effective && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
+		if ($effective && $editing && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
 		return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids, $effective);
 	}//end writeAccess()
 
@@ -3665,10 +3666,10 @@ class Asset extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function adminAccess($assetids=Array(), $effective=true)
+	function adminAccess($assetids=Array(), $effective=true, $editing=true)
 	{
 		if (!$this->id) return true;
-		if ($effective && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
+		if ($effective && $editing && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
 		return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids, $effective);
 	}//end adminAccess()
 
@@ -3729,7 +3730,6 @@ class Asset extends Resolve_Object
 	function printFrontend()
 	{
 		if (!$this->readAccess()) {
-			error_log('no read access');
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
 			return;
 		}
