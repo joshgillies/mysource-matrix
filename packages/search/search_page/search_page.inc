@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.24 2004/02/12 01:37:13 diarandine Exp $
+* $Id: search_page.inc,v 1.25 2004/02/12 03:17:11 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
