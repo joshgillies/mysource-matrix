@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.30 2004/02/24 02:59:55 gsherwood Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.31 2004/07/06 03:26:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -219,20 +219,20 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 		// to start acquiring locks, we need to have an asset id to acquire a lock on
 		if (empty($this->_running_vars['assetid']) || empty($this->_running_vars['lock_type'])) {
 			trigger_error('Cannot initialise Acquire Locks HIPO, no start asset ID and/or lock type specified', E_USER_WARNING);
-			return '';
+			return false;
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (is_null($asset)) {
 			trigger_error('Cannot initialise Acquire Locks HIPO, invalid start asset ID specified ('.$this->_running_vars['assetid'].')', E_USER_WARNING);
-			return '';
+			return false;
 		}
 
 		// we were passed an invalid lock type, bugger off
 		if (empty($this->_running_vars['lock_types'])) {
 			trigger_error('Cannot initialise Acquire Locks HIPO, lock type "'.$this->_running_vars['lock_type'].'" invalid', E_USER_WARNING);
-			return '';
+			return false;
 		}
 
 		// we don't need this anymore, we use the array 'lock_types'
