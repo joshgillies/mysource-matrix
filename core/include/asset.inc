@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.308 2004/06/30 07:02:01 gsherwood Exp $
+* $Id: asset.inc,v 1.309 2004/07/01 04:02:42 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -668,9 +668,9 @@ class Asset extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
-		$sm->flushKeyData($this->id);
+		
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'assetDeleted', Array());
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this, true);
 
 		return true;
