@@ -30,10 +30,9 @@ header('Content-Type: text/css');
 .sq-backend-table-header img, .sq-backend-table-header input {
 	float:			left;
 }
-.sq-backend-table-header img {
-	margin:			0 3px;
+.sq-backend-table-cell img, .sq-backend-table-cell input {
+	float:			left;
 }
-
 .read {
 	background:		url(<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_read.png);
 	background:		expression('none');
