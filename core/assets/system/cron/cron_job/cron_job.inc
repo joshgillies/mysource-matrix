@@ -23,34 +23,6 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 class Cron_Job extends Asset
 {
 	/**
-	* Text versions of the type names to used for the when attr
-	* @var array
-	*/
-	var	$type_names = Array(
-							'OO' => 'One Off',
-							'YR' => 'Yearly',
-							'MT' => 'Monthly',
-							'WK' => 'Weekly',
-							'DL' => 'Daily',
-							'HR' => 'Hourly',
-							);
-
-	/**
-	* Text versions of the week day names for the when attr
-	* @var array
-	*/
-	var	$weekly_names = Array(
-							'0' => 'Sunday',
-							'1' => 'Monday',
-							'2' => 'Tuesday',
-							'3' => 'Wednesday',
-							'4' => 'Thursday',
-							'5' => 'Friday',
-							'6' => 'Saturday',
-							);
-
-
-	/**
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
@@ -251,15 +223,69 @@ class Cron_Job extends Asset
 
 
 	/**
+	* Returns a text version of the type names to used for the when attr
+	*
+	* @param string	$type	two char type name from the when attr
+	*
+	* @return string
+	* @access public
+	* @static
+	*/
+	function whenTypeName($type)
+	{
+		switch($type) {
+			case 'OO' : return 'One Off';
+			case 'HR' : return 'Hourly';
+			case 'DL' : return 'Daily';
+			case 'WK' : return 'Weekly';
+			case 'MT' : return 'Monthly';
+			case 'YR' : return 'Yearly';
+			default :
+				trigger_error('Cron Job when type "'.$type.'" not known', E_USER_NOTICE);
+			return '';
+		}
+	}// end whenTypeName()
+
+
+	/**
+	* Returns a text version of the week day
+	*
+	* @param int	$wday	the wday value (0-6)
+	*
+	* @return string
+	* @access public
+	* @static
+	*/
+	function whenWeekDayName($wday)
+	{
+		switch((int) $wday) {
+			case 0 : return 'Sunday';
+			case 1 : return 'Monday';
+			case 2 : return 'Tuesday';
+			case 3 : return 'Wednesday';
+			case 4 : return 'Thursday';
+			case 5 : return 'Friday';
+			case 6 : return 'Saturday';
+			default :
+				trigger_error('Week Day "'.$wday.'" not known', E_USER_NOTICE);
+				return '';
+		}// end switch
+
+	}// end whenWeekDayName()
+
+
+	/**
 	* Readable version of the 'when' time
+	*
+	* @param boolean	$inc_type	whether or not to include the job type with the string
 	*
 	* @return string
 	* @access public
 	*/
-	function readableWhen()
+	function readableWhen($inc_type=true)
 	{
 		$when_arr = Cron_Job::getWhenArr($this->attr('when'));
-		$ret_val = $this->type_names[$when_arr['type']].' at ';
+		$ret_val = ($inc_type) ? Cron_Job::whenTypeName($when_arr['type']).' at ' : '';
 		switch($when_arr['type']) {
 			case 'OO' :
 				$ret_val .= $when_arr['hour'].':'.$when_arr['minute'].' on '.$when_arr['day'].'/'.$when_arr['month'].'/'.$when_arr['year'];
@@ -274,7 +300,7 @@ class Cron_Job extends Asset
 				break;
 
 			case 'WK' :
-				$ret_val .= $when_arr['hour'].':'.$when_arr['minute'].' on '.$this->weekly_names[$when_arr['day']].'\'s';
+				$ret_val .= $when_arr['hour'].':'.$when_arr['minute'].' on '.Cron_Job::whenWeekDayName($when_arr['day']).'\'s';
 				break;
 
 			case 'DL' :
@@ -354,14 +380,8 @@ class Cron_Job extends Asset
 	*/
 	function run()
 	{
-#$user = null;
-#$result = SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_RETRY;
-
-#pre_echo("RESULT .. : ".$result);
-
 		$this->_tmp['running_errors'] = '';
 		set_error_handler(Array(&$this, '_errorHandler'));
-
 
 		$result = 0;
 
@@ -467,9 +487,7 @@ class Cron_Job extends Asset
 			$msg->body .= "\nError Messages :\n".$this->_tmp['running_errors'];
 		}
 
-pre_echo("MESSAGE : \n".$msg->body);
-
-		#$ms->enqueueMessage($msg);
+		$ms->enqueueMessage($msg);
 		$ms->closeQueue();
 
 
@@ -552,10 +570,8 @@ pre_echo("MESSAGE : \n".$msg->body);
 
 			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 			$link = $cm->getLinkByAsset($this);
-			pre_echo("LINK : \n".var_export($link, true));
 			if (!empty($link)) {
-				pre_echo("DELETE LINK : \n".var_export($link, true));
-				#$cm->deleteLink($link['linkid']);
+				$cm->deleteLink($link['linkid']);
 			}// end if
 
 			$user       = &$this->getRunningUser();
@@ -602,7 +618,7 @@ pre_echo("MESSAGE : \n".$msg->body);
 
 
 	/**
-	* When given a when string value and a start time returns the timestamp for the first time after the 
+	* When given a when string value and a start time returns the timestamp for the first time after the
 	* start time that this when string represents
 	*
 	* @return int	timestamp of when the next run will occur for this when string
@@ -724,6 +740,7 @@ pre_echo("MESSAGE : \n".$msg->body);
 		return $start_ts + ($add['minutes'] * 60);
 
 	}// end getNextRun()
+
 
 }//end class
 ?>
