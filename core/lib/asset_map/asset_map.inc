@@ -157,7 +157,7 @@ class Asset_Map
 			registerFlashToJsCall('asset_map_popup', asset_map_popup);
 			function asset_map_popup(params)
 			{
-				window.open(params['url'], 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=400,height=300');
+				window.open(params['url'], 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');
 			}
 
 		//-->
