@@ -13,6 +13,7 @@
   - INSTALL process 
     - check for default values for attributes that are arrays
     - check for any array attributes and make sure that asset->_arr_atrs is true
+    - check for changes to asset files in _updateFiles and warn for overwrite
 
   - Flash Asset Tree
     - Get flash to check for need to refresh - ie when someone else updates a page
