@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder.inc,v 1.3 2003/11/26 00:51:02 gsherwood Exp $
+* $Id: system_management_folder.inc,v 1.4 2003/12/02 03:53:15 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -209,6 +209,7 @@ class System_Management_Folder extends Folder
 											'system_user_group' => Array('card' => '1', 'exclusive' => true),
 											'designs_folder'    => Array('card' => '1', 'exclusive' => true),
 											'search_manager'    => Array('card' => '1', 'exclusive' => true),
+											'layout_manager'    => Array('card' => '1', 'exclusive' => true),
 											'cron_manager'      => Array('card' => '1', 'exclusive' => true),
 										),
 					);
