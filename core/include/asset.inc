@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.373 2005/03/02 23:36:19 gsherwood Exp $
+* $Id: asset.inc,v 1.374 2005/03/03 13:27:42 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.373 $
+* @version $Revision: 1.374 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2938,11 +2938,8 @@ class Asset extends MySource_Object
 				// get the current user and groups we are not restricted from
 				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
 				$assetids = $user->getUserGroups();
-				$assetids[] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
 			}
-
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		}
 
@@ -2972,6 +2969,11 @@ class Asset extends MySource_Object
 			$revoked = array_intersect($assetids, $revokes);
 			if (!empty($revoked)) return false;
 		}
+
+		// Add the public user to the mix, because if the public can see it then everyone should see it.
+		// we add it after the revoke check because we otherwise if the publc is revoked then everyone bar a sysadmin or Root
+		// will be blocked
+		$assetids[] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 
 		// have they been granted access?
 		$common = array_intersect($assetids, $grants);
