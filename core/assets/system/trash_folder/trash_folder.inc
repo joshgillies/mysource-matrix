@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.48.2.2 2004/03/02 16:00:40 brobertson Exp $
+* $Id: trash_folder.inc,v 1.48.2.3 2004/03/02 18:35:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

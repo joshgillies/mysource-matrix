@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.15.2.2 2004/02/26 18:22:38 brobertson Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.15.2.3 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

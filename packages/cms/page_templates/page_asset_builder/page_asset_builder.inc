@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.2.2.2 2004/03/02 16:02:22 brobertson Exp $
+* $Id: page_asset_builder.inc,v 1.2.2.3 2004/03/02 18:46:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -397,7 +397,7 @@ class Page_Asset_Builder extends Page
 					if (is_array($create_locations)) {
 						$create_parentid = array_shift(array_values($create_locations));
 					} else {
-						$create_parentid = (int)$create_locations;
+						$create_parentid = $create_locations;
 					}
 
 					$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($create_parentid);
@@ -429,8 +429,6 @@ class Page_Asset_Builder extends Page
 							// the new links to all the other parents
 							if (is_array($create_locations)) {
 								foreach (array_values($create_locations) as $link_parentid) {
-									$link_parentid = (int)$link_parentid;
-
 									// skip the orginal parent we linked the new asset to
 									if ($link_parentid == $parent->id) continue;
 

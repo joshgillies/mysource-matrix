@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.5.2.1 2004/02/18 12:30:09 brobertson Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.5.2.2 2004/03/02 18:46:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -207,7 +207,7 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 	{
 		$exclude_list = $asset->attr('exclude_list');
 		if (isset($_POST[$prefix.'_exclude_list']['assetid']) && $_POST[$prefix.'_exclude_list']['assetid']) {
-			$exclude_id = (int)$_POST[$prefix.'_exclude_list']['assetid'];
+			$exclude_id = $_POST[$prefix.'_exclude_list']['assetid'];
 			$exclude_list[$exclude_id] = $exclude_id;
 		}
 		if (isset($_POST[$prefix.'_curr_exclude_list'])) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.10.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: search_manager_edit_fns.inc,v 1.10.2.2 2004/03/02 18:35:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.10.2.1 $ - 1.0
+* @version $Revision: 1.10.2.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

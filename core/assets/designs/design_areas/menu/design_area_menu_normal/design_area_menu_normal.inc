@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_normal.inc,v 1.12.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: design_area_menu_normal.inc,v 1.12.2.2 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,10 +52,10 @@ class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 
 		// if we aren't a sub menu, or if our parent is only showing subs if we are in the lineage, use the asset from the lineage
 		if (is_null($parent_menu) || $parent_menu->attr('show_subs') == 'on_current') {
-			$majorids = 'Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\'])';
+			$majorids = 'Array($ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\'])';
 			echo '
 			if (isset($ASSET_LINEAGE[$'.$this->attr('id_name').'_level])) {
-				$'.$this->attr('id_name').'_assetids = menu_get_assets(Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']));
+				$'.$this->attr('id_name').'_assetids = menu_get_assets(Array($ASSET_LINEAGE[$'.$this->attr('id_name').'_level][\'assetid\']));
 			} else {
 				$'.$this->attr('id_name').'_assetids = Array();
 			}

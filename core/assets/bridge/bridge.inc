@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge.inc,v 1.1.2.1 2004/02/18 14:36:27 brobertson Exp $
+* $Id: bridge.inc,v 1.1.2.2 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -138,13 +138,13 @@ class Bridge extends Asset
 	*
 	* Can only find parents of type <i>user_group</i>
 	*
-	* @param int			$assetid			the id of the asset to get its parents for
+	* @param string			$assetid			the id of the asset to get its parents for
 	* @param string|array	$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
 	*											if an array returns link if matches any of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return array(int)
+	* @return array(string)
 	* @access public
 	* @see Asset_Manager::getParents()
 	*/

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_div_props.php,v 1.3.2.2 2004/02/21 12:25:40 brobertson Exp $
+* $Id: edit_div_props.php,v 1.3.2.3 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

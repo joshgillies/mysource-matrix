@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button.inc,v 1.14 2003/11/26 00:50:55 gsherwood Exp $
+* $Id: design_area_constant_button.inc,v 1.14.2.1 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ class Design_Area_Constant_Button extends Design_Area
 	*/
 	function printArea(&$design)
 	{
-		$assetid = (int) $this->attr('assetid');
+		$assetid = $this->attr('assetid');
 		$url     = $this->attr('url');
 
 		// return true because it just means that they haven't set anything yet
@@ -86,7 +86,7 @@ class Design_Area_Constant_Button extends Design_Area
 	{
 		switch($var) {
 			case 'href' :
-				$assetid = (int) $this->attr('assetid');
+				$assetid = $this->attr('assetid');
 
 				if (empty($assetid)) {
 					$url_code = $this->attr('url');

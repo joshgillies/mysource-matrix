@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.38.2.2 2004/02/26 18:22:38 brobertson Exp $
+* $Id: design_area_menu_type.inc,v 1.38.2.3 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -377,7 +377,7 @@ class Design_Area_Menu_Type extends Design_Area
 						$majorids_str .= $id.\',\';
 					} else {
 						foreach($GLOBALS[\'MENU_DATA\'][$id] as $row) {
-							$assetids[] = (int) $row[\'assetid\'];
+							$assetids[] = $row[\'assetid\'];
 						}
 					}
 				}
@@ -395,7 +395,7 @@ class Design_Area_Menu_Type extends Design_Area
 							$USERIDS_COND = \'\';
 						} else {
 							$userids = $GLOBALS[\'SQ_SYSTEM\']->am->getParents($GLOBALS[\'SQ_SYSTEM\']->user->id, \'user_group\', false);
-							array_push($userids, 0, (int) $GLOBALS[\'SQ_SYSTEM\']->user->id);
+							array_push($userids, 0, $GLOBALS[\'SQ_SYSTEM\']->user->id);
 							for(reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
 							$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
 						}
@@ -454,7 +454,7 @@ class Design_Area_Menu_Type extends Design_Area
 						unset($menu_asset);
 						if (!$read_access) continue;
 					}
-					$assetids[] = (int) $row[\'assetid\'];
+					$assetids[] = $row[\'assetid\'];
 					if (!isset($GLOBALS[\'MENU_DATA\'][$row[\'majorid\']])) $GLOBALS[\'MENU_DATA\'][$row[\'majorid\']] = Array();
 					$GLOBALS[\'MENU_DATA\'][$row[\'majorid\']][$row[\'assetid\']] = $row;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.39.2.1 2004/03/02 16:00:40 brobertson Exp $
+* $Id: root_folder.inc,v 1.39.2.2 2004/03/02 18:35:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,30 +72,33 @@ class Root_Folder extends Folder
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$ret_val = parent::create($link);
 		if ($ret_val) {
-			if ($this->id != 1) {
+			// see Asset::create() for format of assetid
+			if ($this->id != '0\'1') {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error('The new Root Folder Asset was not given assetid #1. This needs to be fixed by YOU, consider this system corrupted', E_USER_ERROR);
+				trigger_error('The new Root Folder Asset was not given assetid #0\'1. This needs to be fixed by YOU, consider this system corrupted', E_USER_ERROR);
 				return false;
 			}
 
-			$linkid = $db->nextId('sq_sequence_asset_link');
-			if (DB::isError($linkid)) {
-				trigger_error($linkid->getMessage().'<br/>'.$linkid->getUserInfo(), E_USER_WARNING);
+			$seq_linkid = $db->nextId('sq_sequence_asset_link');
+			if (DB::isError($seq_linkid)) {
+				trigger_error($seq_linkid->getMessage().'<br/>'.$seq_linkid->getUserInfo(), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
-			if ($linkid != 1) {
+			// see Asset_Manager::createLink() for format of linkid
+			$linkid = '0\''.$seq_linkid;
+			if ($linkid != '0\'1') {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error('The new Root Folder Asset was not given linkid #1. This needs to be fixed by YOU, consider this system corrupted', E_USER_ERROR);
+				trigger_error('The new Root Folder Asset was not given linkid #0\'1. This needs to be fixed by YOU, consider this system corrupted', E_USER_ERROR);
 				return false;
 			}
 
 			// Right we need to do some manipulation for the link table to put in some initial values
 			// so that the root folder, like everything else, has a link where it is a minor party
-			$values = Array('linkid'         => 1,
-							'majorid'        => 0,
-							'minorid'        => 1,
+			$values = Array('linkid'         => $linkid,
+							'majorid'        => '',
+							'minorid'        => $this->id,
 							'link_type'      => SQ_LINK_TYPE_1,
 							'value'          => '',
 							'sort_order'     => 1,
@@ -110,7 +113,7 @@ class Root_Folder extends Folder
 			}
 
 			$values = Array('treeid'             => '',
-							'linkid'             => 1,
+							'linkid'             => $linkid,
 							'num_immediate_kids' => 0
 						);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link_tree', $values)) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.33.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: design_area_edit_fns.inc,v 1.33.2.2 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -147,7 +147,6 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// same case as the constant just to make it easier to parse
 		$file_contents = preg_replace('/<'.$this->tag_name.'/i', '<'.$this->tag_name, $file_contents);
 		$file_contents = preg_replace('/<\\/'.$this->tag_name.'/i', '</'.$this->tag_name, $file_contents);
-
 		// create the super array from the tags
 		$cur_pos    = 0;
 		$nest_level = 0;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive.inc,v 1.18 2003/12/16 18:08:22 brobertson Exp $
+* $Id: design_area_menu_recursive.inc,v 1.18.2.1 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -133,7 +133,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 				$i++;
 				$end = ($i == $num_kids);
 				// if not live, we have to get the proper object, sorry
-				if (((int) $'.$this->attr('id_name').'_row[\'status\'] & SQ_STATUS_LIVE) == 0) {
+				if (($'.$this->attr('id_name').'_row[\'status\'] & SQ_STATUS_LIVE) == 0) {
 					$'.$this->attr('id_name').'_obj = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($'.$this->attr('id_name').'_row[\'assetid\'], $'.$this->attr('id_name').'_row[\'type_code\']);
 				} else {
 					unset($'.$this->attr('id_name').'_obj);
@@ -241,12 +241,12 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 			if ('.$min_levels_extra_cond.' $'.$this->attr('id_name').'_i < '.((int) $this->attr('min_num_levels')).') {
 				$'.$this->attr('id_name').'_assetids_cond = $'.$this->attr('id_name').'_assetids;
 			} else {
-				$'.$this->attr('id_name').'_assetids_cond = Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level + $'.$this->attr('id_name').'_i][\'assetid\']);
+				$'.$this->attr('id_name').'_assetids_cond = Array($ASSET_LINEAGE[$'.$this->attr('id_name').'_level + $'.$this->attr('id_name').'_i][\'assetid\']);
 			}
 			';
 			$majorids = '$'.$this->attr('id_name').'_assetids_cond';
 		} else {
-			$majorids = 'Array((int) $ASSET_LINEAGE[$'.$this->attr('id_name').'_level + $'.$this->attr('id_name').'_i][\'assetid\'])';
+			$majorids = 'Array($ASSET_LINEAGE[$'.$this->attr('id_name').'_level + $'.$this->attr('id_name').'_i][\'assetid\'])';
 		}
 
 		echo '

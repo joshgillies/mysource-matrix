@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button_edit_fns.inc,v 1.14 2003/12/17 04:28:36 mmcintyre Exp $
+* $Id: design_area_constant_button_edit_fns.inc,v 1.14.2.1 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,7 +82,7 @@ class Design_Area_Constant_Button_Edit_Fns extends Design_Area_Edit_Fns
 
 		if ($asset->attr('assetid') == $_POST[$prefix.'_assetid']['assetid']) return false;
 
-		return $asset->setAttrValue('assetid', (int) $_POST[$prefix.'_assetid']['assetid']);
+		return $asset->setAttrValue('assetid', $_POST[$prefix.'_assetid']['assetid']);
 
 	}//end processAssetid()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_user_management.inc,v 1.10.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: root_user_management.inc,v 1.10.2.2 2004/03/02 18:35:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.39 2003/12/17 04:31:46 mmcintyre Exp $
+* $Id: file_edit_fns.inc,v 1.39.2.1 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -293,7 +293,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
-		$thumbid = (int) $_POST[$prefix.'_thumbid']['assetid'];
+		$thumbid = $_POST[$prefix.'_thumbid']['assetid'];
 
 		if (isset($_POST[$prefix.'_delete_thumbnail'])) {
 			// they want to remove the thumbnail

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.34.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: tables.xml,v 1.34.2.2 2004/03/02 18:46:36 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -61,10 +61,8 @@
 	<table name="asset" require_rollback="1">
 		<columns>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -168,26 +166,20 @@
 	<table name="asset_link" require_rollback="1">
 		<columns>
 			<column name="linkid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="majorid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="minorid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -276,10 +268,8 @@
 				<description />
 			</column>
 			<column name="linkid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -479,10 +469,8 @@
 	<table name="asset_attribute_value" require_rollback="1">
 		<columns>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -535,10 +523,8 @@
 				<description />
 			</column>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -608,10 +594,8 @@
 				<description />
 			</column>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -742,10 +726,8 @@
 				<description />
 			</column>
 			<column name="designid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -879,18 +861,14 @@
 	<table name="asset_metadata" require_rollback="1">
 		<columns>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="schemaid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default>0</default>
 				<description />
 			</column>
@@ -928,10 +906,8 @@
 				<description />
 			</column>
 			<column name="schemaid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default>0</default>
 				<description />
 			</column>
@@ -993,10 +969,8 @@
 	<table name="internal_message" require_rollback="1">
 		<columns>
 			<column name="messageid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -1064,7 +1038,7 @@
 					<mysql>LONGTEXT</mysql>
 				</type_variations>
 				<default />
-				<description>Any params needed for search or jut making sense of the message in the form "key:value;key:value" eg. assetid:4;attributeid:12</description>
+				<description>Any params needed for search or just making sense of the message in the form "key:value;key:value" eg. assetid:4;attributeid:12</description>
 			</column>
 		</columns>
 		<keys>
@@ -1097,10 +1071,8 @@
 				<description>Flag to indicate if the HIPO Job has started running yet</description>
 			</column>
 			<column name="userid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description>ID of the user that this job is being run by</description>
 			</column>
@@ -1169,10 +1141,8 @@
 				<description>Value of the keydata.</description>
 			</column>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description>ID of the asset to which this keydata applies to.</description>
 			</column>
@@ -1227,10 +1197,8 @@
 	<table name="asset_indexing_weightings" require_rollback="0">
 		<columns>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description>ID of the asset to which this component-weighting applies to.</description>
 			</column>
@@ -1326,10 +1294,8 @@
 				<description>The LockId for the parent of this chain of locks</description>
 			</column>
 			<column name="userid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.12 2003/12/15 19:10:00 brobertson Exp $
+* $Id: design_area_nest_content.inc,v 1.12.2.1 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -138,7 +138,7 @@ class Design_Area_Nest_Content extends Design_Area
 	*/
 	function printArea(&$design) 
 	{
-		$assetid = (int) $this->_getNestAssetInfo('minorid');
+		$assetid = $this->_getNestAssetInfo('minorid');
 
 		// return true because it just means that they haven't set anything yet
 		if (empty($assetid)) return true;

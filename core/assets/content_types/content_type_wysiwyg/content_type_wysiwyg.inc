@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg.inc,v 1.3.2.1 2004/02/18 11:39:04 brobertson Exp $
+* $Id: content_type_wysiwyg.inc,v 1.3.2.2 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

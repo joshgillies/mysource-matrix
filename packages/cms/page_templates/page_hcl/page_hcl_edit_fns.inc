@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_edit_fns.inc,v 1.4.2.1 2004/02/18 12:30:09 brobertson Exp $
+* $Id: page_hcl_edit_fns.inc,v 1.4.2.2 2004/03/02 18:46:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -206,7 +206,6 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 		// now checking if there were any checkboxes marked->delete those schemas from list
 		if (isset($_POST[$prefix.'_schemas'])) {
 			foreach ($_POST[$prefix.'_schemas'] as $linkid) {
-				$linkid = (int)$linkid;
 				if (!$linkid) continue;
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid)) {
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);

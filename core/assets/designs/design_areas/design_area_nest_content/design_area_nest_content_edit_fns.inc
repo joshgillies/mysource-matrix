@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content_edit_fns.inc,v 1.8 2003/12/17 04:29:05 mmcintyre Exp $
+* $Id: design_area_nest_content_edit_fns.inc,v 1.8.2.1 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,7 +86,7 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 
 		if ($asset->_getNestAssetInfo('minorid') == $_POST[$prefix.'_assetid']['assetid']) return false;
 
-		$assetid = (int) $_POST[$prefix.'_assetid']['assetid'];
+		$assetid = $_POST[$prefix.'_assetid']['assetid'];
 
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.25.2.1 2004/03/02 16:00:39 brobertson Exp $
+* $Id: cron_manager.inc,v 1.25.2.2 2004/03/02 18:35:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -612,9 +612,9 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 	/**
 	* Get the jobs that need to be run for the passed time period
 	*
-	* @param int		$start_ts		the starting timestamp of the time period
-	* @param int		$end_ts			the ending timestamp of the time period
-	* @param Array(int)	$ignore_jobs	a list of assetids to ignore
+	* @param int			$start_ts		the starting timestamp of the time period
+	* @param int			$end_ts			the ending timestamp of the time period
+	* @param Array(string)	$ignore_jobs	a list of assetids to ignore
 	*
 	* @return Array()
 	* @access public

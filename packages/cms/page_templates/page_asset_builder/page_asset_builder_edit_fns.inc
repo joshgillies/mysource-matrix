@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.2.2.1 2004/02/18 12:30:08 brobertson Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.2.2.2 2004/03/02 18:46:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -523,9 +523,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				$locations = Array();
 				if (isset($_POST[$prefix.'_rule_location'][$i])) {
 					foreach ($_POST[$prefix.'_rule_location'][$i] as $loc) {
-						$locid = (int) $loc['assetid'];
-						if (!$locid) continue;
-						$locations[$locid] = $locid;
+						if (!$loc['assetid']) continue;
+						$locations[$loc['assetid']] = $loc['assetid'];
 					}
 				}
 				$rules[substr($rule_text, 0, -4)] = $locations;

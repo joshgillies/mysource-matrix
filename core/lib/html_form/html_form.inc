@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.50.2.1 2004/02/18 11:39:07 brobertson Exp $
+* $Id: html_form.inc,v 1.50.2.2 2004/03/02 18:32:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -591,7 +591,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 * Prints an interface for getting an assetid from the flash menu
 *
 * @param string	$name			the form name to use for the field
-* @param int	$assetid		current value for this field
+* @param string	$assetid		current value for this field
 * @param array	$type_codes		Array('[type_code]' => '[flag]') 
 *								where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
 * @param string	$map_frame		a reference to the map_frame so we can get the asset map
@@ -602,7 +602,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 * @return void
 * @access public
 */
-function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sidenav', $done_fn='null')
+function asset_finder($name, $assetid='', $type_codes=Array(), $map_frame='sq_sidenav', $done_fn='null')
 {
 	$finder_frame = (empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
 	
@@ -634,7 +634,6 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	}// end foreach
 
 	$label = '';
-	$assetid = (int) $assetid;
 	if ($assetid) {
 		$asset = &$am->getAsset($assetid);
 		if (is_null($asset)) $assetid = 0;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_folder.inc,v 1.1.2.2 2004/03/02 16:00:39 brobertson Exp $
+* $Id: authentication_folder.inc,v 1.1.2.3 2004/03/02 18:35:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -244,7 +244,7 @@ class Authentication_Folder extends Folder
 	* These are only the authentication systems that are actually installed into the
 	* authentication systems folder
 	*
-	* @return array(int)
+	* @return array(string)
 	* @access public
 	*/
 	function getAuthSystems()

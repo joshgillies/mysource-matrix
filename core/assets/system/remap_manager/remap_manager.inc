@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.2.2.2 2004/03/02 16:00:40 brobertson Exp $
+* $Id: remap_manager.inc,v 1.2.2.3 2004/03/02 18:35:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2.2.2 $ - 0.1
+* @version $Revision: 1.2.2.3 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */

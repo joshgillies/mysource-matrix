@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: designs_folder.inc,v 1.17.2.2 2004/03/02 16:00:39 brobertson Exp $
+* $Id: designs_folder.inc,v 1.17.2.3 2004/03/02 18:35:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

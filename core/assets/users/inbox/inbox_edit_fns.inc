@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.29.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: inbox_edit_fns.inc,v 1.29.2.2 2004/03/02 18:35:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

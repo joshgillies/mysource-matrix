@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.15.2.1 2004/02/18 12:30:08 brobertson Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.15.2.2 2004/03/02 18:45:52 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -190,8 +190,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	function processBackend($link, &$asset, $prefix)
 	{
 		$nested_asset = &$this->_getNestedAsset($asset);
-		$current_assetid = (!is_null($nested_asset)) ? $nested_asset->id : 0;
-		$assetid = (isset($_POST[$prefix.'_nested_assetid']['assetid'])) ? (int)$_POST[$prefix.'_nested_assetid']['assetid'] : 0;
+		$current_assetid = (!is_null($nested_asset)) ? $nested_asset->id : '';
+		$assetid = (isset($_POST[$prefix.'_nested_assetid']['assetid'])) ? $_POST[$prefix.'_nested_assetid']['assetid'] : '';
 
 		if ($assetid) {
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.7.2.3 2004/03/02 16:00:40 brobertson Exp $
+* $Id: search_manager.inc,v 1.7.2.4 2004/03/02 18:35:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.7.2.3 $ - 0.1
+* @version $Revision: 1.7.2.4 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -155,7 +155,7 @@ class Search_Manager extends Asset
 							'.SQ_TABLE_PREFIX.'asset_permission ap,
 							'.SQ_TABLE_PREFIX.'asset a
 						WHERE
-							al1.majorid = '.$db->quote((int)$search_info['root_assetid']).'
+							al1.majorid = '.$db->quote($search_info['root_assetid']).'
 							AND al1.linkid = alt1.linkid
 							AND alt2.treeid LIKE '.$concat.'
 							AND alt2.linkid = al2.linkid
@@ -168,7 +168,7 @@ class Search_Manager extends Asset
 		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
-				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+				array_push($userids, 0, $GLOBALS['SQ_SYSTEM']->user->id);
 				$userid_cond = ' AND ap.userid  IN ('.implode(',', $userids).')';
 			}
 		} else {
@@ -291,7 +291,7 @@ class Search_Manager extends Asset
 
 					$sql = $start_sql.'
 							AND ai.type = '.$db->quote('text').'
-							AND ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['metadata_field']['assetid']).'
+							AND ai.component = '.$db->quote('metadata:'.$attr_info['params']['metadata_field']['assetid']).'
 							AND ai.value LIKE '.$like.'
 							GROUP BY ai.assetid';
 

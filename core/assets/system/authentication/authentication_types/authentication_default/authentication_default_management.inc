@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default_management.inc,v 1.2.2.1 2004/02/18 14:36:28 brobertson Exp $
+* $Id: authentication_default_management.inc,v 1.2.2.2 2004/03/02 18:35:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
