@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.6 2004/08/11 01:02:23 gsherwood Exp $
+* $Id: wysiwyg.inc,v 1.7 2004/09/07 02:35:24 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -191,6 +191,8 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 		$prefix = $prefix.'_'.$this->name;
 		$wysiwyg = $this->_createEditor($prefix);
 
+		if (!(SQ_IN_BACKEND || SQ_IN_LIMBO)) echo '<script type="text/javascript" language="javascript" src="'.sq_web_path('lib').'/js/edit.js"></script>';
+		
 		?>
 		<table style="width:100%;">
 			<tr>
