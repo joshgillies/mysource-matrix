@@ -129,11 +129,12 @@ class Resolve
 			$this->user = null;
 			if(!empty($_SESSION['userid']) && $_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR']) {
 				// we mute errors trying to get the user because we will handle this gracefully later
-				$this->user = &$this->am->getAsset($_SESSION['userid'], '', true);
+				$this->user = &$this->am->getAsset($_SESSION['userid'], $_SESSION['user_type_code'], true);
 			}
 			
 			if (is_null($this->user)) {
 				$_SESSION['userid']            = 0;
+				$_SESSION['user_type_code']    = '';
 				$_SESSION['user_is_root']      = false;
 				$_SESSION['user_is_sys_admin'] = false;
 			}
@@ -262,8 +263,9 @@ class Resolve
 					if ($userid) {
 						$user = &$this->am->getAsset($userid, $user_type);
 						if ($this->setCurrentUser($user)) {
-							$_SESSION['userid']      = $userid;
-							$_SESSION['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+							$_SESSION['userid']         = $userid;
+							$_SESSION['user_type_code'] = $user->type();
+							$_SESSION['remote_addr']    = $_SERVER['REMOTE_ADDR'];
 							// generate a new login key so that when they try and login next
 							// they have to re-enter the details
 							$this->generateLoginKey();
@@ -285,6 +287,7 @@ class Resolve
 				// login fails we make sure that we're logged out
 			case 'logout' :
 				$_SESSION['userid']				= 0;
+				$_SESSION['user_type_code']		= '';
 				$_SESSION['user_is_root']		= false;
 				$_SESSION['user_is_sys_admin']	= false;
 				$this->user = null;
