@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.51 2005/01/20 13:10:34 brobertson Exp $
+* $Id: hipo_herder.inc,v 1.52 2005/02/24 05:27:17 dbaranovskiy Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -202,7 +202,6 @@ class HIPO_Herder extends MySource_Object
 
 		if (!$source_job->process()) {
 			$error_details = '';
-
 			$o = &$this->getBackendOutputter();
 			$o->setFormData('', '');
 			$o->openRaw();
@@ -586,7 +585,7 @@ class HIPO_Herder extends MySource_Object
 		// prepare() check the integrity of the the running vars
 		if (!$init_hipo->prepare()) return false;
 		$init_hipo->_hipo_vars['job_dir'] = $job_dir;
-		$job_threshold = (float) $init_hipo->getThreshold();
+		$job_threshold = $init_hipo->getThresholdPercentageRequired();
 
 		// if the job has not explictly asked to be run in hipo mode
 		// see if we can freestyle it

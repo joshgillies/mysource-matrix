@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.22 2004/12/06 14:38:11 brobertson Exp $
+* $Id: hipo_config.inc,v 1.23 2005/02/24 05:27:17 dbaranovskiy Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -196,13 +196,14 @@ class HIPO_Config extends Config
 			$o->closeField();
 
 			// total threshold HIPO config entry
-			$o->openField('Total Threshold');
+			$o->openField('Freestyle threshold');
 			if ($write_access) {
 				text_box($class.'[SQ_HIPO_TOTAL_THRESHOLD]', SQ_HIPO_TOTAL_THRESHOLD, 5);
-				echo '&nbsp;%';
+				echo '&nbsp;';
 			} else {
-				echo SQ_HIPO_TOTAL_THRESHOLD.'%';
+				echo SQ_HIPO_TOTAL_THRESHOLD;
 			}
+			echo '% of the sum of the queued jobs\' thresholds';
 			$o->closeField();
 
 			// looping through job class files and painting their backends

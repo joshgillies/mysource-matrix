@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.4 2005/02/22 04:05:19 gsherwood Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.5 2005/02/24 05:27:17 dbaranovskiy Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -159,10 +159,11 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$o->openField('Clone Asset Threshold');
 
 		if ($write_access) {
-				text_box($class.'[SQ_DUPE_ASSET_THRESHOLD]',SQ_DUPE_ASSET_THRESHOLD, 2);
+				text_box($class.'[SQ_DUPE_ASSET_THRESHOLD]',SQ_DUPE_ASSET_THRESHOLD, 5);
 		} else {
 				echo SQ_DUPE_ASSET_THRESHOLD;
 		}
+		echo ' assets';
 
 		$o->closeField();
 
@@ -211,13 +212,13 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 	* @return float
 	* @access public
 	*/
-	function getThreshold()
+	function getThresholdPercentageRequired()
 	{
 		if (SQ_DUPE_ASSET_THRESHOLD == 0) return 0;
 		if (!isset($this->_running_vars['todo_assetids'])) return 0;
 		return ((count($this->_running_vars['todo_assetids']) / SQ_DUPE_ASSET_THRESHOLD) * 100);
 
-	}//end getThreshold()
+	}//end getThresholdPercentageRequired()
 
 
 	/**

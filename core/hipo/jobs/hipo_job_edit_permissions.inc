@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.38 2005/02/22 23:01:17 mmcintyre Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.39 2005/02/24 05:27:17 dbaranovskiy Exp $
 *
 */
 
@@ -31,8 +31,8 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Initial Running Vars :
 *    array  assets              -  the IDs of the assets we are modifying permissions for in the form :
 *                                  $assetids = Array([assetid] => Array(
-                                                                        'type_code' => [type_code],
-                                                                        ),
+																		'type_code' => [type_code],
+																		),
 *    array  permission_changes  -  the values that we are trying to set for our children, in the form :
 *                                  $changes = Array([perm] => Array (
 *                                                                    Array(
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -131,9 +131,11 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 		if ($write_access) {
 			text_box($class.'[SQ_HIPO_PERMISSIONS_THRESHOLD]', SQ_HIPO_PERMISSIONS_THRESHOLD, 5);
+			echo ' assets';
 			$o->note('Value will be divided by number of affected permissions');
 		} else {
 			echo SQ_HIPO_PERMISSIONS_THRESHOLD;
+			echo ' assets';
 		}
 
 		$o->closeField();
@@ -177,13 +179,13 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* @return float
 	* @access public
 	*/
-	function getThreshold()
+	function getThresholdPercentageRequired()
 	{
 		if (SQ_HIPO_PERMISSIONS_THRESHOLD == 0) return 0;
 		if (!isset($this->_running_vars['todo_assetids'])) return 0;
 		return ((count($this->_running_vars['todo_assetids']) / (SQ_HIPO_PERMISSIONS_THRESHOLD / count($this->_running_vars['permission_changes']))) * 100);
 
-	}//end getThreshold()
+	}//end getThresholdPercentageRequired()
 
 
 	/**
@@ -359,7 +361,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	{
 		$job_type = 'hipo_job_acquire_locks';
 		$options['auto_complete'] = true;
-		
+
 		$running_vars = Array(
 							'assetids'          => array_keys($this->_running_vars['assets']),
 							'lock_type'         => Array('permissions'),

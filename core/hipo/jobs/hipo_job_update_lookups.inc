@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_update_lookups.inc,v 1.24 2005/01/13 22:04:05 gsherwood Exp $
+* $Id: hipo_job_update_lookups.inc,v 1.25 2005/02/24 05:27:17 dbaranovskiy Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -99,6 +99,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		} else {
 			echo SQ_HIPO_LOOKUPS_THRESHOLD;
 		}
+		echo ' assets';
 
 		$o->closeField();
 
@@ -146,13 +147,13 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	* @return float
 	* @access public
 	*/
-	function getThreshold()
+	function getThresholdPercentageRequired()
 	{
 		if (SQ_HIPO_LOOKUPS_THRESHOLD == 0) return 0;
 		if (!isset($this->_running_vars['todo_assetids'])) return 0;
 		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_LOOKUPS_THRESHOLD) * 100);
 
-	}//end getThreshold()
+	}//end getThresholdPercentageRequired()
 
 
 	/**
@@ -189,7 +190,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		foreach ($this->_running_vars['assetids'] as $assetid) {
-			
+
 			// check if we are updating lookups for a shadow asset, or a bridge
 			$id_parts = explode(':', $assetid);
 			if (isset($id_parts[1])) {
@@ -206,20 +207,20 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 				$sql = 'SELECT t.treeid
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
 						'.$where.' LIMIT 1';
-	
+
 				$treeid = $db->getOne($sql);
 				assert_valid_db_result($treeid);
-	
+
 				$sql = 'SELECT l.minorid, MAX(CHAR_LENGTH(t.treeid)) as length
 						FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
 								 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid
 						';
 				$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
 						  GROUP BY l.minorid ORDER BY length';
-	
+
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-	
+
 				$todo_assets = $db->getCol($sql.$where);
 			}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.54 2005/01/20 13:10:34 brobertson Exp $
+* $Id: hipo_job.inc,v 1.55 2005/02/24 05:27:17 dbaranovskiy Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -475,18 +475,38 @@ class HIPO_Job extends MySource_Object
 
 
 	/**
-	* Returns the current Threshold.
+	* Returns the maximum number of assets we can process in FreeStyle mode
 	*
-	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
-	*
-	* @return float
+	* @return int
 	* @access public
 	*/
 	function getThreshold()
 	{
-		return 0;
+		$config_vars = $this->getConfigVars();
+		if (empty($config_vars)) {
+			return 1;
+		}
+		foreach ($config_vars as $name => $value) {
+			if (strpos($name, 'THRESHOLD') !== false) {
+				return constant($name);
+			}
+		}
+		return 1;
 
 	}//end getThreshold()
+
+
+	/**
+	* Returns what percentage of our threshold value is needed for this job
+	*
+	* @return int
+	* @access public
+	*/
+	function getThresholdPercentageRequired()
+	{
+		return 0;
+
+	}//end getThresholdPercentageRequired()
 
 
 	/**
@@ -885,22 +905,41 @@ class HIPO_Job extends MySource_Object
 
 		// if we are is a display mode different from the running mode, we should not be
 		// doing any processing or saving - so just return true here
-		if ($this->_current_mode != $this->_hipo_vars['running_mode']) return true;
+		if ($this->_current_mode != $this->_hipo_vars['running_mode']) {
+			return true;
+		}
 
 		// if we are complete, then just save (which will clear the DB if needed)
-		if ($this->complete()) return $this->save();
+		if ($this->complete()) {
+			return $this->save();
+		}
 
 		$step = $this->_hipo_vars['current_step'];
-
 		if ($this->_steps[$step]['running_mode'] == $this->_hipo_vars['running_mode']) {
 
 			// call the correct process function based on the running mode
-			$fn = 'process'.$this->_hipo_vars['running_mode'];
-			$prefix = $this->code_name.'step'.$step;
-			set_error_handler(Array(&$this, '_errorHandler'));
-			$ret_val = $this->$fn($this->_steps[$step], $prefix);
-			restore_error_handler();
-			return $ret_val;
+			if ($this->_hipo_vars['running_mode'] == 'web') {
+				// web mode
+				set_error_handler(Array(&$this, '_errorHandler'));
+				$max_assets_to_process = $this->getThreshold();
+				$i = 0;
+				$ret_val = true;
+				while (($i < $max_assets_to_process) && (!$this->_steps[$step]['complete'])) {
+					$prefix = $this->code_name.'step'.$step;
+					$ret_val = $ret_val && $this->processWeb($this->_steps[$step], $prefix);
+					$i++;
+				}
+				restore_error_handler();
+				return $ret_val;
+
+			} else {
+				// server mode
+				$prefix = $this->code_name.'step'.$step;
+				set_error_handler(Array(&$this, '_errorHandler'));
+				$ret_val = $this->processServer($this->_steps[$step], $prefix);
+				restore_error_handler();
+				return $ret_val;
+			}
 
 		// if we are using the server
 		} elseif (SQ_HIPO_USE_SERVER) {
@@ -991,7 +1030,6 @@ class HIPO_Job extends MySource_Object
 		if (!empty($step_data['function_call'])) {
 			$fn = $step_data['function_call']['process_function'];
 			$process_ok = $this->$fn($step_data, $prefix);
-
 
 		} elseif (!empty($step_data['hipo_job'])) {
 			if (empty($step_data['hipo_job']['code_name']) || empty($step_data['hipo_job']['job_type'])) {

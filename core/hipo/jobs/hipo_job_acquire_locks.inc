@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.2 2005/02/22 03:46:50 gsherwood Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.3 2005/02/24 05:27:17 dbaranovskiy Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -102,6 +102,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 		} else {
 			echo SQ_HIPO_ACQUIRE_LOCK_THRESHOLD;
 		}
+		echo ' assets';
 
 		$o->closeField();
 
@@ -191,14 +192,14 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	* @return float
 	* @access public
 	*/
-	function getThreshold()
+	function getThresholdPercentageRequired()
 	{
 		if (SQ_HIPO_ACQUIRE_LOCK_THRESHOLD == 0) return 0;
 		if (!isset($this->_running_vars['child_assetids'])) return 0;
 		// note that we add 1 to the cound to take the root assetid into account
 		return (($this->_running_vars['total_count'] + 1 / SQ_HIPO_ACQUIRE_LOCK_THRESHOLD) * 100);
 
-	}//end getThreshold()
+	}//end getThresholdPercentageRequired()
 
 
 	/**
