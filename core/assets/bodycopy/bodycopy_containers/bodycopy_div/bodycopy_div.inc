@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.8 2004/11/18 05:02:28 gsherwood Exp $
+* $Id: bodycopy_div.inc,v 1.9 2004/12/01 05:59:04 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,7 +58,7 @@ class Bodycopy_Div extends Bodycopy_Container
 	* Create this asset
 	*
 	* @param array	&$link		information used to create the initial link
-	* @param array	$bc_data	bodycopy data submitted to help create this table
+	* @param array	$bc_data	bodycopy data submitted to help create this div
 	*
 	* @return mixed int or false
 	* @access public
@@ -98,7 +98,6 @@ class Bodycopy_Div extends Bodycopy_Container
 		if (!parent::_createAdditional($link)) return false;
 
 		// set the name to what they entered - if they entered anything, otherwise use a default unique name
-		$acquire_lock = empty($bc_data);
 		if (isset($bc_data['attributes']['identifier']) && trim($bc_data['attributes']['identifier']) != '') {
 			$this->setAttrValue('name', $bc_data['attributes']['identifier']);
 		} else {
@@ -110,9 +109,12 @@ class Bodycopy_Div extends Bodycopy_Container
 		$wysiwyg =& new Content_Type_Wysiwyg();
 		$div_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'div_contents', 'sort_order' => 1, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$wysiwyg->setAttrValue('name', 'DIV Content');
+		if (isset($bc_data['content']) && (trim($bc_data['content'] != ''))) {
+			$wysiwyg->setAttrValue('html', $bc_data['content']);
+		}
 		if (!$wysiwyg->create($div_link)) return false;
 
-		if ($acquire_lock && !$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
+		if (!($lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes'))) {
 			return false;
 		}
 
@@ -121,8 +123,10 @@ class Bodycopy_Div extends Bodycopy_Container
 			return false;
 		}
 
-		if ($acquire_lock && !$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'atttributes')) {
-			return false;
+		if ($lock_status == 1) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'atttributes')) {
+				return false;
+			}
 		}
 
 		return true;

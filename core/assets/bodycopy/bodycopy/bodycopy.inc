@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.14 2004/11/26 04:24:44 arailean Exp $
+* $Id: bodycopy.inc,v 1.15 2004/12/01 05:59:04 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,19 +121,24 @@ class Bodycopy extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array	&$link	information used to create the initial link
+	* @param array	&$link		information used to create the initial link
+	* @param array	$bc_data	details for this bodycopy
+	*								['attributes']['identifier'] => id for the default div container
+	*								['content'] => html content for the default div container
 	*
 	* @see Asset::create()
 	* @return mixed int or false
 	* @access public
 	*/
-	function create(&$link)
+	function create(&$link, $bc_data=Array())
 	{
 		$name = trim($this->attr('name'));
 		if ($name == '') {
 			trigger_error('Unable to create a Bodycopy with a blank name', E_USER_WARNING);
 			return false;
 		}
+		// store this data for later use during the create process in _createAdditional()
+		$this->_tmp['bodycopy_create_data'] = $bc_data;
 
 		return parent::create($link);
 
@@ -145,13 +150,17 @@ class Bodycopy extends Asset
 	*
 	* Bodycopies create a DIV when they are created
 	*
-	* @param array	&$link	information used to create the initial link
+	* @param array	&$link		information used to create the initial link
 	*
 	* @access private
 	* @return boolean
 	*/
 	function _createAdditional(&$link)
 	{
+		// grab the bodycopy data that we stored in the create() function
+		$bc_data = $this->_tmp['bodycopy_create_data'];
+		unset($this->_tmp['bodycopy_create_data']);
+
 		if (!parent::_createAdditional($link)) return false;
 
 		// create a DIV
@@ -159,8 +168,7 @@ class Bodycopy extends Asset
 		$bodycopy_div =& new Bodycopy_DIV();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'is_dependant' => 1);
 		$bodycopy_div->setAttrValue('name', 'Content DIV');
-		$attributes = Array();
-		return $bodycopy_div->create($copy_link, $attributes);
+		return $bodycopy_div->create($copy_link, $bc_data);
 
 	}//end _createAdditional()
 
