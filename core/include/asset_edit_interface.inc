@@ -1382,6 +1382,94 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
+	* Paints the interface for viewing links to/from this asset
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLinking(&$owner, &$o)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$o->openSection('Assets linking to "'.$owner->name.'"');
+		$o->openField('&nbsp;');
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$assetids = Array();
+		$asset_links = $owner->getLinks(SQ_LINK_ALL, '', true, 'minor');
+
+		foreach ($asset_links as $link) $assetids[$link['majorid']] = Array();
+
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
+		$sql = 'SELECT cl.minorid, pt.treeid, a.name
+				FROM sq_asset_link cl INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
+					 sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid 
+					 INNER JOIN sq_asset a ON a.assetid = pl.minorid ';
+		$sql .= 'WHERE cl.minorid IN ('.implode(', ', array_keys($assetids)).')
+				  AND ct.treeid LIKE '.$concat.'
+				  AND pt.treeid < ct.treeid';
+
+		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		foreach ($result as $assetid => $treeids) $assetids[$assetid] = $treeids;
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
+
+		$done_something = false;
+		foreach ($asset_links as $link) {
+			$majorid = $link['majorid'];
+			
+			// dont even pretend that the root folder is going to
+			// care that it is linking to this asset!!
+			if ($majorid == 1) continue;
+
+			$lineage_prefix = '[ '.link_type_name($link['link_type']).' ] Root Folder > ';
+			$lineage_suffix = '<b>'.$asset_info[$majorid]['name'].'</b><br/>';
+
+			$asset_lineage = $lineage_prefix;
+			$last_treeid = '';
+			
+			foreach ($assetids[$majorid] as $tree_data) {
+				if ($tree_data[0] < $last_treeid) {
+					// starting a new lineage
+					$asset_lineage .= $lineage_suffix;
+					echo $asset_lineage;
+					$asset_lineage = $lineage_prefix;
+				}
+				$last_treeid = $tree_data[0];
+				$asset_lineage .= $tree_data[1].' > ';
+			}
+			$asset_lineage .= $lineage_suffix;
+			echo $asset_lineage;
+			$done_something = true;
+		}
+
+		if (!$done_something) echo 'None';
+	}//end paintLinking()
+
+
+	/**
+	* Processes the interface for viewing links to/from this asset
+	* Note that this function doesnt do anything
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLinking(&$owner, &$o)
+	{
+		return false;
+	}//end processLinking()
+
+
+	/**
 	* Takes the requested filename and searches back up the directory's to find the matching file
 	* closest to the type of the asset that we are creating
 	*

@@ -27,11 +27,15 @@ class Asset_Edit_Fns extends Resolve_Object
 											   'force_unlock' => true
 											  ),
 						'workflow'    => Array('name' => 'Workflow',
-											   'icon' => 'web',
+											   'icon' => 'reorder',
 											   'force_unlock' => false
 											  ),
 						'locking'    => Array('name' => 'Locking',
 											  'icon' => 'preview',
+											  'force_unlock' => true
+											  ),
+						'linking'    => Array('name' => 'Linking',
+											  'icon' => 'web',
 											  'force_unlock' => true
 											  )
 					  );
