@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CueTree.java,v 1.1 2005/04/06 00:02:52 ndvries Exp $
+* $Id: CueTree.java,v 1.2 2005/04/06 02:10:01 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -950,6 +950,7 @@ public class CueTree extends JTree {
 					index = 0;
 				} else {
 					// if we are on the same branch...
+					index = 1;
 					if (currentPath.getParentPath() == sourcePath.getParentPath()) {
 
 						int newIndex = getModel().getIndexOfChild(
@@ -969,9 +970,6 @@ public class CueTree extends JTree {
 							stopCueMode();
 							return;
 						}
-						index = 1;
-					} else {
-						index = 2;
 					}
 
 					index += getModel().getIndexOfChild(
