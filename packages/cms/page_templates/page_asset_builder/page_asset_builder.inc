@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.13 2004/05/12 07:02:51 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.14 2004/06/16 06:10:21 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once dirname(__FILE__).'/../../page/page.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
