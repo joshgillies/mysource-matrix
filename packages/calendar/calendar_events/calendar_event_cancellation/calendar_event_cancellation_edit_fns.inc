@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation_edit_fns.inc,v 1.4 2004/09/13 05:17:17 tbarrett Exp $
+* $Id: calendar_event_cancellation_edit_fns.inc,v 1.5 2004/09/14 19:07:16 brobertson Exp $
 * $prefix:  $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -71,7 +71,7 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 			$this->printDateChooser($prefix.'_start', $ts);
 			?>
 			<br />This must be a date on which the recurring event occurs
-			<?
+			<?php
 		} else {
 			echo $asset->getFriendlyDatesAndTimes();
 		}
@@ -114,10 +114,8 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 				$modified_event_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
 			}
 		}
-		if (!is_null($modified_event_asset)) 
-			echo $modified_event_asset->name.' (Id: #'.$modified_event_asset->id.')';
-		else 
-			echo 'No event has been selected for cancellation';
+		if (!is_null($modified_event_asset)) echo $modified_event_asset->name.' (Id: #'.$modified_event_asset->id.')';
+		else echo 'No event has been selected for cancellation';
 
 	}//end paintRecurringEventChooser()
 
