@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_email_edit_fns.inc,v 1.6 2003/09/26 06:01:45 mmcintyre Exp $
+* $Id: form_email_edit_fns.inc,v 1.7 2003/10/03 00:09:03 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,10 +50,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			// a question in another section, so append the id of it on the end
 			$questions[$id] = $info['name'].' [#'.$id.']';
 		}
-		$o->AddHiddenField($prefix.'_se_new_qid', '');
+		$o->addHiddenField($prefix.'_se_new_qid', '');
 		$extras =	'onChange="'.
-					'document.main_form.'.$prefix.'_se_new_qid.value=document.main_form.'.$prefix.'_se_new_question.value; '.
-					'document.main_form.submit()"';
+					'set_hidden_field(\''.$prefix.'_se_new_qid\', get_form_element_value(\''.$prefix.'_se_new_question\')); '.
+					'sq_submit_edit_form();"';
 
 		// add a 'please select' 
 		$questions = Array(0 => '----Please Select----') + $questions;
