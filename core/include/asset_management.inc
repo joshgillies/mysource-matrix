@@ -592,7 +592,7 @@ class Asset_Management extends Resolve_Object
 		// update all the attributes that we own
 		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_attribute
 				SET type        = '.$this->_db->quote($this->vars[$name]['type']).',
-					uniq        = '.$this->_db->quote($this->vars[$name]['uniq']).',
+					uniq        = '.$this->_db->quote(empty($this->vars[$name]['uniq']) ? 0 : 1).',
 					description = '.$this->_db->quote($description).'
 				WHERE owning_type_code = '.$this->_db->quote($type_code).'
 				  AND name = '.$this->_db->quote($name);
