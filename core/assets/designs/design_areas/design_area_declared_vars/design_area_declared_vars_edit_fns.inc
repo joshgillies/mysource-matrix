@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.17 2003/11/26 05:21:52 gsherwood Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.18 2004/05/03 06:19:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -93,11 +93,12 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		}// end foreach
 
 		// now make sure we save our changes
+		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
 		return $asset->setAttrValue('declared_vars', $declared_vars);
 
 		// NOTE: we deliberately don't set the 'contents' as is done in other design areas
 	
-	}// end _processContents()
+	}//end _processContents()
 
 
 	/**
