@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.44 2004/04/15 08:13:21 gsherwood Exp $
+* $Id: mysource.inc,v 1.45 2004/04/16 04:36:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1525,7 +1525,7 @@ class MySource
 			if ($current_lock['userid'] == $this->currentUserid()) {
 				return $this->updateLock($lockid, $expires);
 			} else {
-				$user = &$this->getAsset($current_lock['userid']);
+				$user = &$this->am->getAsset($current_lock['userid']);
 				return 'Cannot acquire lock, lock already held by "'.$user->name.'"';
 			}// end if
 		}// end if
