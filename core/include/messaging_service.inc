@@ -100,31 +100,37 @@ class Messaging_Service extends Resolve_Object
 	/**
 	* Gets all messages for the passed userid
 	*
-	* @param int			$userid	id of the user you are fetching messages for
-	* @param array(string)	$stati	can limit returned messages to those with a status in this array
-	* @param int			$from	timestamp that every msg returned must be this time or after (NULL to ignore)
-	* @param int			$to		timestamp that every msg returned must be this time or before (NULL to ignore)
+	* @param int			$userid			id of the user you are fetching messages for
+	* @param array(string)	$stati			can limit returned messages to those with a status in this array
+	* @param int			$from			timestamp that every msg returned must be this time or after (NULL to ignore)
+	* @param int			$to				timestamp that every msg returned must be this time or before (NULL to ignore)
+	* @param string			$get_from_name	[name|short_name], used to return the name/short_name of the from user with the return. (NULL to ignore)
 	*
 	* @return array
 	* @access public
 	*/
-	function getMessages($userid, $stati=Array(), $from=null, $to=null)
+	function getMessages($userid, $stati=Array(), $from=null, $to=null, $get_user_name=null)
 	{
 		if (!$userid) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT messageid, userto, userfrom, subject, body, sent, priority, status, parameters
-				FROM sq_internal_message 
-				WHERE userto = '.$db->quote($userid);
+		if (!is_null($get_user_name) && $get_user_name != 'name') $get_user_name = 'short_name';
+
+		$sql = 'SELECT m.messageid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.parameters';
+		if (is_string($get_user_name)) $sql .= ', a.'.$get_user_name;
+		$sql .= ' FROM sq_internal_message m';
+		if (is_string($get_user_name)) $sql .= ' LEFT OUTER JOIN sq_asset a ON m.userfrom = a.assetid';
+
+		$sql .= ' WHERE m.userto = '.$db->quote($userid);
 		if (!empty($stati)) {
 			for($i = 0; $i < count($stati); $i++) $stati[$i] = $db->quote($stati[$i]);
-			$sql .= ' AND status IN ('.implode(', ', $stati).')';
+			$sql .= ' AND m.status IN ('.implode(', ', $stati).')';
 		}
-		if (!is_null($from)) $sql .= ' AND sent >= '.$db->quote(ts_iso8601($from));
-		if (!is_null($to))   $sql .= ' AND sent <= '.$db->quote(ts_iso8601($to));
+		if (!is_null($from)) $sql .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
+		if (!is_null($to))   $sql .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
 
-		$sql .= ' ORDER BY status DESC, sent DESC';
+		$sql .= ' ORDER BY m.status DESC, m.sent DESC';
 
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
