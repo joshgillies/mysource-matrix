@@ -324,7 +324,13 @@ class Asset_Management extends Resolve_Object
 			$attr_info['default_type_code']      = $type_code;
 			$attr_info['default_value']          = $this->vars[$name]['default'];
 			$attr_info['parameters_type_code']   = $type_code;
-			$attr_info['parameters']             = $this->vars[$name]['parameters'];
+
+			if (isset($this->vars[$name]['parameters'])) {
+				$attr_info['parameters'] = $this->vars[$name]['parameters'];
+			} else {
+				$attr_info['parameters'] = Array();
+			}
+			
 
 		// else one of our parents has defined the an attribute of this type before
 		// so we are really just overriding the default value for this asset type
