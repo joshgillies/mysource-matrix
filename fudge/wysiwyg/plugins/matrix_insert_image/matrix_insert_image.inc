@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_insert_image.inc,v 1.14 2003/11/05 01:36:53 gsherwood Exp $
+* $Id: matrix_insert_image.inc,v 1.15 2003/11/05 21:53:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -146,6 +146,7 @@ class matrix_insert_image extends wysiwyg_plugin {
 						html += ' border="' + param["f_border"] + '"';
 					}
 					html += '>';
+					html = editor.make_absolute_urls(html);
 
 					if (!is_image || HTMLArea.is_gecko) {
 						// replace text with new image

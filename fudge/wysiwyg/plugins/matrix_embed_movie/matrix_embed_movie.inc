@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_embed_movie.inc,v 1.10 2003/11/05 01:36:53 gsherwood Exp $
+* $Id: matrix_embed_movie.inc,v 1.11 2003/11/05 21:53:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,6 +140,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 					html += ' show_controls="' + param["f_show_controls"] + '"';
 					html += ' embed_loop="'    + param["f_embed_loop"] + '"';
 					html += '>';
+					html = editor.make_absolute_urls(html);
 
 					if (!is_file || HTMLArea.is_gecko) {
 						// replace text with new image

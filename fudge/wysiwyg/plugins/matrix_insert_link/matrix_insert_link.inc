@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_insert_link.inc,v 1.13 2003/11/05 01:36:53 gsherwood Exp $
+* $Id: matrix_insert_link.inc,v 1.14 2003/11/05 21:53:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -216,6 +216,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 							html += ' onClick="' + param["onClick"] + '"';
 						}
 						html += '>' + inside_html + '</a>';
+						html = editor.make_absolute_urls(html);
 
 						// replace with new URL
 						editor.insertHTML(html, range);
