@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.23 2004/06/25 09:22:25 lwright Exp $
+* $Id: form_email.inc,v 1.24 2004/07/01 00:52:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
