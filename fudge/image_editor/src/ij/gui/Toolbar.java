@@ -23,6 +23,9 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 	public static final int HAND = 10;
 	public static final int DROPPER = 11;
 
+	public static final int FIRST_SELECT_TOOL = 0;
+	public static final int LAST_SELECT_TOOL = 8;
+
 	// deprecated
 	public static final int ANGLE = 999;
 	public static final int CROSSHAIR = 999;
@@ -43,9 +46,9 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 		FREELINE,
 		WAND,
 		DIVIDER,
-		DROPPER,
-		DIVIDER,
 		TEXT,
+		DIVIDER,
+		DROPPER,
 		DIVIDER,
 		MAGNIFIER,
 		HAND,
@@ -386,11 +389,10 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 		if (tool==current || tool<0 || tool>=NUM_TOOLS) {
 			System.out.println("Dodgy tool number "+tool);
 			return;
-		}/*
-		if (names[tool]==null) {
-			System.out.println("no name for tool "+tool);
-			return;
-		}*/
+		}
+		if ((FIRST_SELECT_TOOL <= tool) && (LAST_SELECT_TOOL >= tool)) {
+			IJ.getInstance().getImagePlus().killRoi();
+		}
 		current = tool;
 		down[current] = true;
 		down[previous] = false;
@@ -432,7 +434,6 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 		Toolbar tb = getInstance();
 		Graphics g = tb.getGraphics();
 		tb.drawButton(g, DROPPER);
-		tb.drawButton(g, CROSSHAIR);
 		g.dispose();
 	}
 

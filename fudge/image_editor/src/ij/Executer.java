@@ -56,14 +56,7 @@ public class Executer implements Runnable {
 		iplus = null; // maybe this will help get the image GC'd
 
 		try {
-		//	if (Recorder.record) {
-		//		Recorder.setCommand(command);
-		//		runCommand(command, imp);
-		//		Recorder.saveCommand();
-		//	} else
-	
 			runCommand(command, imp);
-
 		} catch(Throwable e) {
 			IJ.showStatus("");
 			IJ.showProgress(1.0);

@@ -282,7 +282,7 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 		
 		if (control && (keyCode == e.VK_D)) {
 			// hard coding the control-d shortcut until we fix the menu shortcuts
-			doCommand("ij.plugin.filter.Filler(\"draw\")");
+			IJ.run("Draw");
 			imp.killRoi();
 		}
 
@@ -359,11 +359,14 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 		mainPane.remove(imageScrollPane);
 		imageCanvas = new ImageCanvas(ip);
 		ip.setCanvas(imageCanvas);
+		imageCanvas.addKeyListener(this);
+		imageCanvas.setFocusable(true);
 		imageScrollPane = new JScrollPane(imageCanvas);
 		mainPane.add(imageScrollPane, BorderLayout.CENTER);
 		updateFileTypes();
 		getContentPane().validate();
 		getContentPane().repaint();
+		requestFocus();
 	}
 
 	public void clearImagePlus() {

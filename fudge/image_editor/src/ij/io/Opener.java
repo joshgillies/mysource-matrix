@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.URL;
 import java.net.*;
 import java.util.zip.*;
+import java.util.Iterator;
 import java.util.Locale;
 import javax.swing.*;
 import javax.swing.filechooser.*;
@@ -26,7 +27,9 @@ public class Opener {
 		GIF=6,LUT=7,BMP=8,ZIP=9,JAVA_OR_TEXT=10,ROI=11,TEXT=12,PNG=13,TIFF_AND_DICOM=14,CUSTOM=15;
 	private static final String[] types = {"unknown","tif","dcm","fits","pgm",
 		"jpg","gif","bmp","png"};
-	public static javax.swing.filechooser.FileFilter[] FILE_FILTERS;
+	public static FileExtensionFilter[] FILE_FILTERS;
+	public static FileExtensionFilter ALL_FILES_FILTER;
+
 	static {
 		ArrayList filters = new ArrayList();
 		LinkedList extensions = new LinkedList();
@@ -56,10 +59,20 @@ public class Opener {
 		extensions.clear();
 		extensions.add("pgm");
 		filters.add(new FileExtensionFilter("Portable Gray Map", extensions));
+		LinkedList allExtensions = new LinkedList();
+		for (Iterator itr=filters.iterator(); itr.hasNext(); ) {
+			String[] e = ((FileExtensionFilter)(itr.next())).getExtensions();
+			for (int i=0; i < e.length; i++) {
+				allExtensions.add(e[i]);
+			}
+		}
+		ALL_FILES_FILTER = new FileExtensionFilter("All Supported Types", allExtensions);
+		ALL_FILES_FILTER.setShowExtensions(false);
 
-		FILE_FILTERS = new FileExtensionFilter[filters.size()];
+		FILE_FILTERS = new FileExtensionFilter[filters.size()+1];
+		FILE_FILTERS[0] = ALL_FILES_FILTER;
 		for (int i=0; i < filters.size(); i++) {
-			FILE_FILTERS[i] = (FileExtensionFilter)filters.get(i);
+			FILE_FILTERS[i+1] = (FileExtensionFilter)filters.get(i);
 		}
 
 	}
@@ -85,7 +98,8 @@ public class Opener {
 		for (int i=0; i < FILE_FILTERS.length; i++) {
 			fc.addChoosableFileFilter(FILE_FILTERS[i]);
 		}
-		fc.setAcceptAllFileFilterUsed(true);
+		fc.setFileFilter(ALL_FILES_FILTER);
+		fc.setAcceptAllFileFilterUsed(false);
 		int returnVal = fc.showOpenDialog(IJ.getInstance());
 		defaultDirectory = fc.getCurrentDirectory();
 
