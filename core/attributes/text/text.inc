@@ -103,9 +103,9 @@ class Asset_Attribute_Text extends Asset_Attribute
 	*/
 	function validateValue(&$value)
 	{
-		$value = trim($value);
-		$new_value = (string)$value;
+		$new_value = (string) $value;
 		if ($new_value != $value) return false;
+		$value = $new_value;
 		return true;
 	}//end validateValue()
 
