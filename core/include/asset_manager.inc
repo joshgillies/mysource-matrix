@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.261 2005/01/15 16:36:28 brobertson Exp $
+* $Id: asset_manager.inc,v 1.262 2005/01/17 17:48:24 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.261 $
+* @version $Revision: 1.262 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -549,7 +549,7 @@ class Asset_Manager extends MySource_Object
 		$result = $db->getCol('SELECT inhd_type_code
 								FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
 								WHERE type_code = '.$db->quote($type_code).'
-								  AND inhd_type_code <> '.$db->quote($type_code).'
+								  AND inhd_type_code <> type_code
 								'.(($include_asset) ? '' : ' AND inhd_type_code <> '.$db->quote('asset')).'
 								ORDER BY inhd_type_code_lvl DESC'
 								);
@@ -560,25 +560,39 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Returns an array of all assets types that are descendants for the passed asset
+	* Returns an array of all assets types that are descendants for the passed asset type
 	* in the order Array ('type_code_sub_class_one', 'type_code_sub_class_two', ..., 'type_code_sub_class_one_sub_class_one', ...)
 	*
-	* @param string		$type_code		the code name for the asset that you want to check
+	* @param string|Array	$type_code		the type code that you want the decendants of
+	* @param boolean		$include_passed	when true includes the passed $type_code in the result
 	*
 	* @access public
 	*/
-	function getTypeDescendants($type_code)
+	function getTypeDescendants($type_code, $include_passed=false)
 	{
-		if ($type_code != 'asset') {
-			assert_isset_array_index($this->_asset_types, $type_code, 'Asset Type "'.$type_code.'" is not installed on the system');
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$type_code_cond = '';
+		if (is_array($type_code)) {
+			for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) {
+				if ($type_code != 'asset') {
+					assert_isset_array_index($this->_asset_types, $type_code[$i], 'Asset Type "'.$type_code[$i].'" is not installed on the system');
+				}
+				$type_code[$i] = $db->quote($type_code[$i]);
+			}
+			$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+		} else {
+			if ($type_code != 'asset') {
+				assert_isset_array_index($this->_asset_types, $type_code, 'Asset Type "'.$type_code.'" is not installed on the system');
+			}
+			$type_code_cond = '= '.$db->quote($type_code);
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getCol('SELECT type_code
 								FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
-								WHERE inhd_type_code = '.$db->quote($type_code).'
-								  AND type_code <> '.$db->quote($type_code).'
-								ORDER BY type_code_lvl ASC'
+								WHERE inhd_type_code '.$type_code_cond.'
+								'.(($include_passed) ? '' : '  AND type_code <> inhd_type_code').'
+								ORDER BY inhd_type_code, type_code_lvl ASC'
 								);
 		assert_valid_db_result($result);
 		return $result;
@@ -1849,7 +1863,7 @@ class Asset_Manager extends MySource_Object
 		// an asset that handles shadow assets, palm the request off to it
 		if ($side_of_link == 'major') {
 			$asset = &$this->getAsset($assetid);
-			if (is_a($asset, 'bridge')) {
+			if (implements_interface($asset, 'bridge')) {
 				$links = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
 				$this->forgetAsset($asset);
 				return $links;
@@ -2122,7 +2136,7 @@ class Asset_Manager extends MySource_Object
 		// we are not getting children for a shadow asset, so if we are getting children of
 		// an asset that handles shadow assets, palm the request off to it
 		$asset = &$this->getAsset($assetid);
-		if (is_a($asset, 'bridge')) {
+		if (implements_interface($asset, 'bridge')) {
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
 			$this->forgetAsset($asset);
 			return $children;
@@ -2538,7 +2552,6 @@ class Asset_Manager extends MySource_Object
 
 		assert_false(!($link_type & SQ_SC_LINK_SIGNIFICANT) && $dependant, 'In order for a link to be dependant it must also be a significant link');
 		assert_false((strpos($major->id.$minor->id, ':') !== false), 'You cannot create a link to or from a shadow asset');
-
 
 		// First, we should check that we don't already have a link of this type
 		$current_links = $this->getLinks($major->id, $link_type, $minor->type());
