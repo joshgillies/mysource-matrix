@@ -996,7 +996,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		// make sure cell exists
 		if ($rows[$rowid]['cells'][$cellid] && count($rows[$rowid]['cells']) > 1) {
 			// do any clean up
-			$rows[$rowid]['cells'][$cellid]->delete($table, $rowid, $cellid);
+			if (!$rows[$rowid]['cells'][$cellid]->delete($table, $rowid, $cellid)) return false;
 
 			// move all the cells down one position
 			for($i = $cellid; $i < count($rows[$rowid]['cells']) - 1; $i++) {
