@@ -296,7 +296,7 @@ class HIPO_Job
 
 		if (!isset($this->_steps[$step])) {
 			// this step doesnt exist - probably reached the end of the HIPO
-			if ($this->_complete) $status_msg = 'Complete';
+			if ($this->_complete) $status_msg = $this->_hipo_name.' HIPO Complete';
 			else                  $status_msg = 'Unknown Error Occured';
 			$auto_step = $this->_options['auto_complete'];
 		} else {
