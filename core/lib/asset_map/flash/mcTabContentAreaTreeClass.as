@@ -188,7 +188,7 @@ mcTabContentAreaTreeClass.prototype.stopAssetFinder = function()
 mcTabContentAreaTreeClass.prototype.cancelAssetFinder = function() 
 {
 	this.stopAssetFinder();
-	_root.external_call.makeExternalCall('asset_finder_done', {assetid: 0, label: ''});
+	_root.external_call.makeExternalCall('asset_finder_done', {assetid: -1, label: ''});
 
 }// end cancelAssetFinder()
 
