@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_manager.inc,v 1.7 2003/10/02 01:35:32 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.8 2003/10/07 07:04:39 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -174,6 +174,9 @@ class Metadata_Manager extends MySource_Object
 			return false;
 		}
 
+		// add defaults to the indexing service
+		$this->indexDefaultMetaData($asset, $schemaid);
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
@@ -336,10 +339,91 @@ class Metadata_Manager extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		$this->indexMetadata($asset, $metadata, $schemas);
+
 		return true;
 
 	}//end setMetadata()
 
+
+	function indexMetadata(&$asset, &$metadata, &$schemaids)
+	{
+		require_once SQ_FUDGE_PATH."/general/text.inc";
+
+		$keyData = Array();
+
+		$am =& $GLOBALS['SQ_SYSTEM']->am;
+		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
+
+		$schemas = Array();
+		foreach ($schemaids as $schemaid) {
+			$schemas[$schemaid] =& $am->getAsset($schemaid);
+		}
+
+		foreach ($metadata as $schemaName => $schemaMetadata) {
+			$schema = null;
+			foreach($schemas as $thisSchemaId => $thisSchema) {
+				if($thisSchema->name == $schemaName) {
+					$schema =& $schemas[$thisSchemaId];
+					break;
+				}
+			}
+			if (is_null($schema)) {
+				// not our problem - continue
+				continue;
+			}
+			$sectionLinks = $am->getLinks($schema->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major');
+			$sections = Array();
+			foreach ($sectionLinks as $sectionLink) {
+				$sections[$sectionLink['minorid']] =& $am->getAsset($sectionLink['minorid']);
+			}
+
+			foreach ($schemaMetadata['sections'] as $sectionName => $sectionMetadata) {
+				$section = null;
+				foreach ($sections as $thisSectionId => $thisSection) {
+					if ($thisSection->name == $sectionName) {
+						$section =& $sections[$thisSectionId];
+						break;
+					}
+				}
+				if (is_null($section))
+					continue;
+
+				$fieldLinks = $am->getLinks($section->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major');
+				$fields = Array();
+				foreach ($fieldLinks as $fieldLink) {
+					$fields[$fieldLink['minorid']] =& $am->getAsset($fieldLink['minorid']);
+				}
+				foreach ($sectionMetadata['fields'] as $fieldName => $fieldMetadata) {
+					$field = null;
+					foreach ($fields as $thisFieldId => $thisField) {
+						if ($thisField->name == $fieldName) {
+							$field =& $fields[$thisFieldId];
+							break;
+						}
+					}
+					if (is_null($field))
+						continue;
+					$im->flushKeyData($asset->id, 'metadata:' . $field->id);
+					$word_counts = get_word_counts(strtolower($fieldMetadata['value']));
+					foreach ($word_counts as $word => $count) {
+						$asset->buildKeyData($keyData, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count);
+					}
+				}
+					
+			}
+			
+		}
+
+		$im->addKeyData($asset->id, $keyData);
+		
+	}
+
+	function indexDefaultMetadata(&$asset, $schemaid)
+	{
+		
+	}
 
 	/**
 	* Check if all required fields have been completed for an asset
