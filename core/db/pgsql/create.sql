@@ -13,6 +13,7 @@ DROP TABLE sq_asset;
 CREATE TABLE sq_asset (
   assetid        INT    NOT NULL,
   name           VARCHAR(255) NOT NULL DEFAULT '',
+  short_name     VARCHAR(255) NOT NULL DEFAULT '',
   type_code      VARCHAR(100) NOT NULL,
   last_updated   TIMESTAMP    NOT NULL,
   last_userid    INT    NOT NULL,
@@ -101,7 +102,7 @@ CREATE TABLE sq_asset_path (
   path       VARCHAR(255) NOT NULL DEFAULT '',
   assetid    INT NOT NULL,
   sort_order INT NOT NULL DEFAULT 0,
-  PRIMARY KEY  (path)
+  PRIMARY KEY  (path, assetid)
 );
 
 DROP TABLE sq_asset_lookup;
