@@ -179,7 +179,7 @@ mcListContainerClass.prototype.onMenuItemPress = function(action, info)
 				this.action = "add_asset";
 				this.tmp.exec_action = {type_code: info};
 			} else {
-				_root.dialog_box.show("Unable to aquire the Move Indicator", "");
+				_root.dialog_box.show("Unable to acquire the Move Indicator", "");
 			}
 
 		break;

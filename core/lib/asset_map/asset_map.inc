@@ -750,7 +750,7 @@ class Asset_Map
 		}
 
 		// First let's try and create the new link, if there are any issues then it will cryout for us
-		$new_parent->aquireLock();
+		$new_parent->acquireLock();
 		$linkid = $new_parent->createLink($asset, $link['link_type'], '', $input->root->attributes['to_parent_pos']);
 		$new_parent->releaseLock();
 		if (!$linkid) {

@@ -126,9 +126,9 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 					$do_process_backend = true;
 
-					// try to aquire a lock on this asset?
-					if (isset($_POST['sq_aquire_lock'])) {
-						$asset->aquireLock(0, (bool) $_POST['sq_aquire_by_force']);
+					// try to acquire a lock on this asset?
+					if (isset($_POST['sq_acquire_lock'])) {
+						$asset->acquireLock(0, (bool) $_POST['sq_acquire_by_force']);
 						$do_process_backend = false;
 					}
 
@@ -153,9 +153,9 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 										trigger_error('Failed to release lock on "'.$asset->name.'"', E_USER_WARNING);
 									}
 								} else {
-									// not releasing the lock, so re-aquire
-									if (!$asset->aquireLock()) {
-										trigger_error('Failed to re-aquire lock on "'.$asset->name.'"', E_USER_WARNING);
+									// not releasing the lock, so re-acquire
+									if (!$asset->acquireLock()) {
+										trigger_error('Failed to re-acquire lock on "'.$asset->name.'"', E_USER_WARNING);
 									}
 								}
 							}
@@ -174,8 +174,8 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				$this->_deleteAsset();
 				break;
 
-			case 'forceably_aquire_lock' :
-				$this->_forceablyAquireLock();
+			case 'forceably_acquire_lock' :
+				$this->_forceablyAcquireLock();
 				break;
 
 			default   :
@@ -211,10 +211,10 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 			$pb->setFns('_dupeInit', '_dupeInitPaint');
 			$pb->setOption('auto_close', false);
 
-			$pb->addStep('Aquire Locks', 
-							'_dupeStepAquireLocks', 
-							'_dupeStepAquireLocksInit', 
-							'_dupeStepAquireLocksDone');
+			$pb->addStep('Acquire Locks', 
+							'_dupeStepAcquireLocks', 
+							'_dupeStepAcquireLocksInit', 
+							'_dupeStepAcquireLocksDone');
 			$pb->addStep('Duplicate', 
 							'_dupeStepDuplicate', 
 							'_dupeStepDuplicateInit', 
@@ -337,7 +337,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 			}// end foreach
 
-			// create a unique list of assets to aquire locks for
+			// create a unique list of assets to acquire locks for
 			$vars['assets'] = Array();
 			foreach($map as $assetid => $type_code) {
 				$vars['assets'][] = Array('assetid' => $assetid, 'type_code' => $type_code);
@@ -528,23 +528,23 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 
 	/**
-	* Called before _dupeStepAquireLocks() to set-up some initial things
+	* Called before _dupeStepAcquireLocks() to set-up some initial things
 	*
 	* @access private
 	*/
-	function _dupeStepAquireLocksInit(&$pb)
+	function _dupeStepAcquireLocksInit(&$pb)
 	{
-		$pb->setStatusMsg('Starting to Aquire Locks');
+		$pb->setStatusMsg('Starting to Acquire Locks');
 
 		$vars = $pb->getRunningVars();
 		$vars['lock']['flag'] = 'assets';
 		$vars['lock']['pos']  = 0;
-		$vars['lock']['aquired_assets'] = Array();
+		$vars['lock']['acquired_assets'] = Array();
 		$vars['lock']['missed_assets']  = Array();
 
 		$pb->setRunningVars($vars);
 
-	}// end _dupeStepAquireLocksInit()
+	}// end _dupeStepAcquireLocksInit()
 
 
 	/**
@@ -553,7 +553,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 	*
 	* @access private
 	*/
-	function _dupeStepAquireLocks(&$pb)
+	function _dupeStepAcquireLocks(&$pb)
 	{
 		$vars = $pb->getRunningVars();
 #speed_check();
@@ -564,7 +564,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		$attempted_assets = Array();
 		// Get the next four locks
 		$i = 1;
-		while ($i <= 4 && count($vars['lock']['aquired_assets']) < count($vars['assets'])) {
+		while ($i <= 4 && count($vars['lock']['acquired_assets']) < count($vars['assets'])) {
 			$i++;
 
 			switch ($vars['lock']['flag']) {
@@ -603,14 +603,14 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 			$attempted_assets[] = $assetid;
 
-			// attempt to aquire the lock for this asset
-			if ($aquired = @$asset->aquireLock($initiating_asset->id)) {
-				$vars['lock']['aquired_assets'][] = $asset->id;
-				$status_msg .= 'Lock Aquired for '.$asset->name."\n";
+			// attempt to acquire the lock for this asset
+			if ($acquired = @$asset->acquireLock($initiating_asset->id)) {
+				$vars['lock']['acquired_assets'][] = $asset->id;
+				$status_msg .= 'Lock Acquired for '.$asset->name."\n";
 	#speed_check("five");
 			} else {
 				$vars['lock']['missed_assets'][] = Array('assetid' => $assetid, 'type_code' => $type_code);
-				$status_msg .= 'Unable to Aquire Lock for '.$asset->name.', will try again at end'."\n";
+				$status_msg .= 'Unable to Acquire Lock for '.$asset->name.', will try again at end'."\n";
 			}
 
 			switch ($vars['lock']['flag']) {
@@ -625,8 +625,8 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 				// are we now fetching missed assets ? 
 				case 'missed' :
-					// if we aquired the last missed asset
-					if ($aquired) {
+					// if we acquired the last missed asset
+					if ($acquired) {
 						// remove it from the missed list
 						// no need to adjust the pos because the elements will shift down
 						array_splice($vars['lock']['missed_assets'], $vars['lock']['pos'], 1);
@@ -650,7 +650,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		}// end while
 
 		$pb->setStatusMsg($status_msg);
-		$pb->setPercent(count($vars['lock']['aquired_assets']) / count($vars['assets']));
+		$pb->setPercent(count($vars['lock']['acquired_assets']) / count($vars['assets']));
 
 speed_check('FINISHED');
 
@@ -659,16 +659,16 @@ speed_check('FINISHED');
 		$pb->setRunningVars($vars);
 
 
-	}// end _dupeStepAquireLocks()
+	}// end _dupeStepAcquireLocks()
 
 
 	/**
-	* Called after _dupeStepAquireLocks() above has set the percent to 100
+	* Called after _dupeStepAcquireLocks() above has set the percent to 100
 	* Just clears the status msg
 	*
 	* @access private
 	*/
-	function _dupeStepAquireLocksDone(&$pb)
+	function _dupeStepAcquireLocksDone(&$pb)
 	{
 		$pb->setStatusMsg('');
 
@@ -676,7 +676,7 @@ speed_check('FINISHED');
 		unset($vars['lock']);
 		$pb->setRunningVars($vars);
 
-	}// end _dupeStepAquireLocksDone()
+	}// end _dupeStepAcquireLocksDone()
 
 
 	/**
@@ -960,7 +960,7 @@ speed_check('FINISHED');
 			$asset = &$this->am->getAsset($_GET['delete_assetid']);
 			$link = $asset->getLinkById($_GET['delete_linkid'], 'minor');
 			$parent = &$this->am->getAsset($link['majorid'], $link['type_code']);
-			$parent->aquireLock();
+			$parent->acquireLock();
 			$parent->deleteLink($link['linkid']);
 			$parent->releaseLock();
 			$trash = &$this->am->getSystemAsset('trash_folder');
@@ -1006,16 +1006,16 @@ speed_check('FINISHED');
 
 
 	/**
-	* Looks after the warning interface for forceably aquire locks
+	* Looks after the warning interface for forceably acquire locks
 	*
 	* @access private
 	*/
-	function _forceablyAquireLock()
+	function _forceablyAcquireLock()
 	{
 		$o = &$this->backend->out;
 
-		if (isset($_GET['forceably_aquire_confirm'])) {
-			// they have confirmed their intention to forceably aquire the lock on this asset
+		if (isset($_GET['forceably_acquire_confirm'])) {
+			// they have confirmed their intention to forceably acquire the lock on this asset
 			$asset = &$this->am->getAsset($_GET['assetid']);
 
 			// check that they entered the correct security key
@@ -1023,25 +1023,25 @@ speed_check('FINISHED');
 				// the security key entered is wrong
 				$o->openSection('Security Key Incorrect');
 				$o->openField('&nbsp;');
-				echo '<b><i>The security key entered was incorrect. The lock on "'.$asset->name.'" has not been forceably aquired. You may try again using the new security key displayed below.</i></b>';
+				echo '<b><i>The security key entered was incorrect. The lock on "'.$asset->name.'" has not been forceably acquired. You may try again using the new security key displayed below.</i></b>';
 				$o->closeSection();
 			} else {
-				if (!@$asset->aquireLock(0, true)) {
+				if (!@$asset->acquireLock(0, true)) {
 					$o->openSection('Note');
 					$o->openField('&nbsp;');
-					echo '<b>ERROR: Failed to forceably aquire the lock on "'.$asset->name.'"</b>';
+					echo '<b>ERROR: Failed to forceably acquire the lock on "'.$asset->name.'"</b>';
 					$o->closeSection();
 					$o->openField('', 'commit');
 					normal_button('cancel', 'Cancel', 'window.close()');
 				} else {
-					$o->addOnLoad('window.opener.top.main.main_form.sq_aquire_by_force.value = \'1\'; window.opener.top.main.main_form.submit(); window.close();');
+					$o->addOnLoad('window.opener.top.main.main_form.sq_acquire_by_force.value = \'1\'; window.opener.top.main.main_form.submit(); window.close();');
 				}
 				return;
 			}
 		}
 		
 		$o->addFormActionGetVar('assetid', $_GET['assetid']);
-		$o->addFormActionGetVar('forceably_aquire_confirm', 1);
+		$o->addFormActionGetVar('forceably_acquire_confirm', 1);
 		$asset = &$this->am->getAsset($_GET['assetid']);
 		if (is_null($asset)) {
 			trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
@@ -1062,13 +1062,13 @@ speed_check('FINISHED');
 
 		$o->openSection('Note');
 		$o->openField('&nbsp;');
-		echo 'You are about to forceably aquire the lock on "'.$asset->name.'" currently held by "'.$user->name.'" at "'.$editing->name.'" and due to expire in '.$expires_in.'. <b>Any changes being made to "'.$asset->name.'" or any other asset in the locking chain (<i>see full list below</i>) will be lost.</b>';
+		echo 'You are about to forceably acquire the lock on "'.$asset->name.'" currently held by "'.$user->name.'" at "'.$editing->name.'" and due to expire in '.$expires_in.'. <b>Any changes being made to "'.$asset->name.'" or any other asset in the locking chain (<i>see full list below</i>) will be lost.</b>';
 		
 		$o->openField('&nbsp;');
 		?>
 		<table border="0">
 			<tr>
-				<td class="sq-backend-data">To aquire the lock, enter the 8 character string you see below into the box supplied, then press the Commit button</td>
+				<td class="sq-backend-data">To acquire the lock, enter the 8 character string you see below into the box supplied, then press the Commit button</td>
 			</tr>
 			<tr>
 				<td valign="top"><?php security_key(8, 20, 2.5); ?></td>
@@ -1103,7 +1103,7 @@ speed_check('FINISHED');
 		echo '&nbsp;';
 		submit_button('commit', 'Commit');
 
-	}// end _forceablyAquireLock()
+	}// end _forceablyAcquireLock()
 
 
 	/**

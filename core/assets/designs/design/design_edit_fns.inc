@@ -601,8 +601,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		$GLOBALS['SQ_SYSTEM']->am->registerAsset($da);
 
-		// Aquire a lock on the new object
-		if (!$dupe->aquireLock()) {
+		// Acquire a lock on the new object
+		if (!$dupe->acquireLock()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -636,7 +636,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			}
 		}// end foreach
 
-		// Aquire a lock on the new object
+		// Acquire a lock on the new object
 		if (!$dupe->releaseLock()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;

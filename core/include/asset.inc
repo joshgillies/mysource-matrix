@@ -204,7 +204,7 @@ class Asset extends Resolve_Object
 			if (!isset($link['dependant']))  $link['dependant']  = 0;
 			if (!isset($link['exclusive']))  $link['exclusive']  = 0;
 
-			if (!$link['asset']->aquireLock()) {
+			if (!$link['asset']->acquireLock()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
 				return false;
@@ -217,7 +217,7 @@ class Asset extends Resolve_Object
 				$lock = $link['asset']->getLockInfo();
 				$source_assetid = $lock['source_asset'];
 			}
-			if (!$this->aquireLock($source_assetid)) {
+			if (!$this->acquireLock($source_assetid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
 				return false;
@@ -276,7 +276,7 @@ class Asset extends Resolve_Object
 
 		$lock = $this->getLockInfo();
 		if (empty($lock)) {
-			trigger_error('You need to aquire a lock on this asset before it can be duplicated', E_USER_WARNING);
+			trigger_error('You need to acquire a lock on this asset before it can be duplicated', E_USER_WARNING);
 			return $null;
 		}
 
@@ -312,7 +312,7 @@ class Asset extends Resolve_Object
 		}
 
 		// Lock the new dupe in the same chain as we are locked
-		if (!$dupe->aquireLock($lock['source_asset'])) {
+		if (!$dupe->acquireLock($lock['source_asset'])) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
 		}
@@ -346,7 +346,7 @@ class Asset extends Resolve_Object
 					}
 				}
 
-				if (!$link['asset']->aquireLock($lock['source_asset'])) {
+				if (!$link['asset']->acquireLock($lock['source_asset'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return $null;
 				}
@@ -1171,7 +1171,7 @@ class Asset extends Resolve_Object
 	function remapAssetids($map)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		// try and aquire locks on our dependants
+		// try and acquire locks on our dependants
 		$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 		if (!empty($dependant_links)) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -1366,54 +1366,54 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Can the current user forceably aquire the current lock on this asset?
+	* Can the current user forceably acquire the current lock on this asset?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function canForceablyAquireLock()
+	function canForceablyAcquireLock()
 	{
 		$current_lock = $this->getLockInfo();
 		if (empty($current_lock)) return false;
 
 		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
 
-		$can_aquire_lock = false;
+		$can_acquire_lock = false;
 
 		// lets work out if the current user has a high
-		// enough level of access to forceably aquire the lock
+		// enough level of access to forceably acquire the lock
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot($user)) {
 			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
 				// lock is held by a system admin, so need
-				// to be root to aquire this lock
-				if ($GLOBALS['SQ_SYSTEM']->userRoot()) $can_aquire_lock = true;
+				// to be root to acquire this lock
+				if ($GLOBALS['SQ_SYSTEM']->userRoot()) $can_acquire_lock = true;
 			} else {
-				// need to be a system admin to aquire this lock
-				if ($GLOBALS['SQ_SYSTEM']->userRoot()) $can_aquire_lock = true;
-				else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) $can_aquire_lock = true;
+				// need to be a system admin to acquire this lock
+				if ($GLOBALS['SQ_SYSTEM']->userRoot()) $can_acquire_lock = true;
+				else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) $can_acquire_lock = true;
 			}
 		}
 
-		return $can_aquire_lock;
+		return $can_acquire_lock;
 
-	}//end canForceablyAquireLock()
+	}//end canForceablyAcquireLock()
 
 
 	/**
-	* Aquires a lock on this asset and its dependant assets
+	* Acquires a lock on this asset and its dependant assets
 	*
 	* @param int		$source		the id of the asset that started this locking process
-	* @param boolean	$force		attempt to forcibly aquire (if allowed)
+	* @param boolean	$force		attempt to forcibly acquire (if allowed)
 	* @param int		$expires	when the lock expires (timestamp)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function aquireLock($source=0, $force=false, $expires=null)
+	function acquireLock($source=0, $force=false, $expires=null)
 	{
 		$current_lock = $this->getLockInfo();
 		if (!empty($current_lock) && $current_lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-			// the user is asking to aquire a lock they already had
+			// the user is asking to acquire a lock they already had
 			// so just update the lock expiry date
 			$this->updateLock($expires);
 			return true;
@@ -1421,7 +1421,7 @@ class Asset extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		if($force && $this->canForceablyAquireLock()) {
+		if($force && $this->canForceablyAcquireLock()) {
 			// special case where the current user is actually
 			// removing the current lock and taking it for themselves
 			$sql = 'SELECT assetid FROM sq_asset_lock
@@ -1448,8 +1448,8 @@ class Asset extends Resolve_Object
 				// create a new message object and populate it, before adding to
 				// the message queue in the internal messaging system to sending later
 				$message = $ms->newMessage();
-				$message->subject = 'Asset Lock Forceably Aquired';
-				$message->body = 'User "'.$current_user->name.'" has forceably aquired the lock on '.$locked_asset->type().' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
+				$message->subject = 'Asset Lock Forceably Acquired';
+				$message->body = 'User "'.$current_user->name.'" has forceably acquired the lock on '.$locked_asset->type().' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
 				$message->to = $locked_asset->getPermission(SQ_PERMISSION_ADMIN, true);
 				$message->to[] = $user->id;
 				$message->from = 0; // a system message
@@ -1473,7 +1473,7 @@ class Asset extends Resolve_Object
 			$expires_in = easy_time_total(($current_lock['expires'] - time()), true);
 			if (!$expires_in) $expires_in = '1 second';
 
-			trigger_error('Cannot aquire lock on "'.$this->name.'", lock already held by "'.$user->name.'"', E_USER_WARNING);
+			trigger_error('Cannot acquire lock on "'.$this->name.'", lock already held by "'.$user->name.'"', E_USER_WARNING);
 			return false;
 		}
 
@@ -1483,13 +1483,13 @@ class Asset extends Resolve_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// try and aquire locks on our dependants
+		// try and acquire locks on our dependants
 		$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 		if (!empty($dependant_links)) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach ($dependant_links as $link) {
 				$asset = &$am->getAsset($link['minorid']);
-				if (!$asset->aquireLock($source, $force, $expires)) {
+				if (!$asset->acquireLock($source, $force, $expires)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -1513,7 +1513,7 @@ class Asset extends Resolve_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}//end aquireLock()
+	}//end acquireLock()
 
 
 	/**
@@ -1527,8 +1527,8 @@ class Asset extends Resolve_Object
 		$current_lock = $this->getLockInfo(false, false);
 		if (empty($current_lock)) return true;
 
-		// is this asset already locked by someone else and we can't forceably aquire it, piss off
-		if ((int) $current_lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid() && !$this->canForceablyAquireLock()) {
+		// is this asset already locked by someone else and we can't forceably acquire it, piss off
+		if ((int) $current_lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid() && !$this->canForceablyAcquireLock()) {
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
 			trigger_error('You cannot release a lock that you do not own, the lock on "'.$this->name.'" is held by "'.$user->name.'"', E_USER_WARNING);
 			return false;
@@ -2818,7 +2818,7 @@ class Asset extends Resolve_Object
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$new_parent->aquireLock();
+		$new_parent->acquireLock();
 		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
 		$new_parent->releaseLock();
 		if (!$new_linkid) {
@@ -2827,7 +2827,7 @@ class Asset extends Resolve_Object
 		}
 
 		// Now let's try and delete the old link
-		$this->aquireLock();
+		$this->acquireLock();
 		$deleted = $this->deleteLink($linkid);
 		$this->releaseLock();
 		if (!$deleted) {

@@ -16,7 +16,7 @@ function SystemEvents()
 
 /* Constants for use when checking checkModal() returns */
 SystemEvents.NO_MODAL			= 1; // there is no modal status in effect
-SystemEvents.IS_MODAL			= 2; // the passed object has aquired modal status
+SystemEvents.IS_MODAL			= 2; // the passed object has acquired modal status
 SystemEvents.KID_MODAL			= 4; // one of the passed objects kids has acquired modal status
 SystemEvents.OTHER_MODAL		= 8; // another object has modal status
 

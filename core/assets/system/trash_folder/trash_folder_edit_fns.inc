@@ -302,7 +302,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function _purgeTrashStepDone(&$pb)
 	{
-		// now we need to release all locks we aquired
+		// now we need to release all locks we acquired
 		$vars = $pb->getRunningVars();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'DELETE FROM sq_asset_lock WHERE source_asset = '.$db->quote($vars['trash_id']);
@@ -340,14 +340,14 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 			if ($vars['num_locked'] && $count < $vars['num_locked']) continue;
 
 			// if this asset is dependant, it will be locked when
-			// we call aquire_lock of the asset it is dependant on, so
+			// we call acquire_lock of the asset it is dependant on, so
 			// we can skip these and just lock non-dependant ones
 			if (!$link_info['dependant']) {
 				if ($done_a_lock) break;
 				$assetid = $link_info['assetid'];
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (!$asset->aquireLock($vars['trash_id'])) {
-					trigger_error('Purge aborted, unable to aquire lock for "'.$asset->name.'" for purging trash', E_USER_WARNING);
+				if (!$asset->acquireLock($vars['trash_id'])) {
+					trigger_error('Purge aborted, unable to acquire lock for "'.$asset->name.'" for purging trash', E_USER_WARNING);
 					$pb->abort();
 					return;
 				} else {

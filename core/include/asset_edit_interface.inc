@@ -226,23 +226,23 @@ class Asset_Edit_Interface extends Resolve_Object
 					submit_button('sq_manual_release_lock', 'Release Lock');
 				} else {
 					// does the current user has a high
-					// enough level of access to forceably aquire the lock
-					if ($owner->canForceablyAquireLock()) {
-						echo '<p class="sq-form-field">You can forceably aquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably aquired.</p>';
+					// enough level of access to forceably acquire the lock
+					if ($owner->canForceablyAcquireLock()) {
+						echo '<p class="sq-form-field">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</p>';
 
 						// they aren't going to do this without a fight though
 						// they'll have to go thorough our popup window first
-						$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=forceably_aquire_lock&assetid='.$owner->id;
+						$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=forceably_acquire_lock&assetid='.$owner->id;
 
-						hidden_field('sq_aquire_by_force', '0');
-						normal_button('sq_forceably_aquire_lock', 'Aquire Lock', 'window.open(\''.$popup_url.'\', \'sq_forceably_aquire_lock_popup\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300\');');
+						hidden_field('sq_acquire_by_force', '0');
+						normal_button('sq_forceably_acquire_lock', 'Acquire Lock', 'window.open(\''.$popup_url.'\', \'sq_forceably_acquire_lock_popup\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300\');');
 
 					}
 				}
 			} else if ($full_write_access) {
 				$write_access = false;
-				hidden_field('sq_aquire_by_force', '0');
-				submit_button('sq_aquire_lock', 'Aquire Lock');
+				hidden_field('sq_acquire_by_force', '0');
+				submit_button('sq_acquire_lock', 'Acquire Lock');
 			} else {
 				echo 'You do not have access to edit "'.$owner->name.'".';
 			}

@@ -186,8 +186,8 @@ LOCKING [ 4 DAYS ]
 		  userid
 		  expires
 		);
-	- when forceable aquiring a lock, transaction begins to release all locks with the same asset_sourceid as the elements locked on the page and then aquire new lock on current page
-	- to aquire current locks you must have access to aquire all currently active locks
+	- when forceable aquiring a lock, transaction begins to release all locks with the same asset_sourceid as the elements locked on the page and then acquire new lock on current page
+	- to acquire current locks you must have access to acquire all currently active locks
 	- the frame that refreshes and updates the expiry date for the lock needs to make sure you are still editing the asset that you have locked. If you change assets, your lock is removed
 	- any commit will release the lock on all elements of the page. Two ways to do this:
 		- forms can set a hidden var to tell the system to not release the lock (eg creating a table will submit the form with a commit action but will not release the lock if the form var is set)
@@ -198,7 +198,7 @@ LOCKING [ 4 DAYS ]
 			- display when lock expires
 			- display what they are editing (name of source asset)
 			- display what elements of your page are being locked
-		- 'Force Aquire Lock' button at bottom of page to auire all locks on page
+		- 'Force Acquire Lock' button at bottom of page to auire all locks on page
 
 ROLLBACK
 
