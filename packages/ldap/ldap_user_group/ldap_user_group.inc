@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group.inc,v 1.4 2004/10/07 04:44:35 gsherwood Exp $
+* $Id: ldap_user_group.inc,v 1.5 2005/01/13 23:20:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 */
 class Ldap_User_Group extends User_Group
 {
+	
+	/**
+	* The ID of the LDAP bridge we are from
+	*
+	* @var int
+	*/
+	var $_ldapid = 0;
 
 
 	/**
@@ -52,6 +59,7 @@ class Ldap_User_Group extends User_Group
 		if (!$ldapid || empty($data)) return;
 		$ldap = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
 		if (is_null($ldap)) return;
+		$this->_ldapid = $ldapid;
 
 		// the attribute mappings to the LDAP schemas
 		$attrs = $ldap->attr('attributes');
@@ -95,6 +103,166 @@ class Ldap_User_Group extends User_Group
 		return Array();
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Called by the design to print extra material in the head of the HTML document for this asset
+	*
+	* @access public
+	*/
+	function printHead()
+	{
+		?>
+		<style type="text/css">
+			.sq_ldap_group {
+				width:				100%;
+				border:				1px solid #CCCCCC;
+				margin:				2px;
+				padding:			0px;
+			}
+			.sq_ldap_group_heading, .sq_ldap_group_heading a:active, .sq_ldap_group_heading a:visited, .sq_ldap_group_heading a:hover {
+				padding:			0px;
+				font-weight:		bold;
+				background-color:	#F0F0F0;
+				font-size:			120%;
+				text-decoration:	none;
+			}
+			.sq_ldap_group_heading a:hover {
+				text-decoration:	underline;
+			}
+			.sq_ldap_group_display_name {
+				font-weight:		bold;
+			}
+			.sq_ldap_group_user_name {
+				background-color:	#F0F0F0;
+			}
+			.sq_ldap_group_user_name, .sq_ldap_group_user_email, .sq_ldap_group_user_data {
+				padding:			0px;
+			}
+		</style>
+		<?php
+
+	}//end printHead()
+
+
+	/**
+	* Called by the design to print the body of this asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printBody()
+	{
+		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cached_contents = $cm->loadFromCache($this, 'default');
+
+		// if the cache is empty, go ahead and regenerate a new version
+		if (empty($cached_contents)) {
+			ob_start();
+				if (!$this->_ldapid) return;
+
+				$ldap_bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_ldapid, 'ldap_bridge');
+				if (is_null($ldap_bridge)) return;
+		
+				$this->printUserList($this->id);
+				$groups = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'user_group', false);
+				foreach ($groups as $groupid => $type_code) {
+					$this->printUserList($groupid);
+				}
+
+				$cm->saveToCache($this, 'default', ob_get_contents());
+			ob_end_flush();
+		} else {
+			echo $cached_contents;
+		}
+
+	}//end printBody()
+
+
+	/**
+	* Prints a list of users for the passed group
+	*
+	* @param	$groupid	string	the ID of the group that we are printing the user list for
+	*
+	* @return void
+	* @access public
+	*/
+	function printUserList($groupid)
+	{
+		$ldap_bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_ldapid, 'ldap_bridge');
+		if (is_null($ldap_bridge)) return;
+
+		$group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($groupid);
+
+		$show = $ldap_bridge->attr('user_attributes');
+		if (!isset($show['show'])) $show = Array();
+		else $show = $show['show'];
+		
+		$special_attrs = $ldap_bridge->attr('attributes');
+
+		?>
+		<table class="sq_ldap_group">
+			<tr>
+				<td class="sq_ldap_group_heading" colspan="<?php echo count($show); ?>">
+					<?php
+					$url = $group->getURL();
+					if (!empty($url)) echo '<a href="'.$url.'">';
+					echo $group->name;
+					if (!empty($url)) echo '</a>';
+					?>
+				</td>
+			</tr>
+			<?php
+			$users = $GLOBALS['SQ_SYSTEM']->am->getLinks($groupid, SQ_LINK_TYPE_1, 'user');
+			if (!empty($users)) {
+				?>
+				<tr>
+					<?php
+					foreach ($show as $field_name => $display_name) {
+						?><td class="sq_ldap_group_display_name"><?php echo $display_name; ?></td><?php
+					}
+					?>
+				</tr>
+				<?php
+				foreach ($users as $link_data) {
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
+					
+					$info = $user->vars;
+					if (empty($info)) continue;
+		
+					echo '<tr>';
+					foreach ($show as $field_name => $display_name) {
+						if (isset($info[$field_name])) {
+							$field_value = '';
+							$field_data = $info[$field_name];
+							$class = 'sq_ldap_group_user_data';
+
+							if ($special_attrs['email'] == $field_name) {
+								$class = 'sq_ldap_group_user_email';
+								foreach ($field_data as $email) {
+									if (!empty($field_value)) $field_value .= '<br />';
+									$field_value .= '<a href="mailto:'.$email.'">'.$email.'</a>';
+								}
+							} else {
+								if ($special_attrs['cn'] == $field_name) {
+									$class = 'sq_ldap_group_user_name';
+								}
+								$field_value = implode('<br />', $info[$field_name]);
+							}
+						} else {
+							$field_value = '&nbsp;';
+						}
+						?><td class="<?php echo $class; ?>"><?php echo $field_value; ?></td><?php
+					}
+					echo '</tr>';
+					
+				}//end foreach
+
+			}//end if there are users
+
+		echo '</table>';
+
+	}//end printUserList()
 
 
 }//end class
