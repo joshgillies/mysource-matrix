@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.58 2004/12/15 23:56:04 gsherwood Exp $
+* $Id: asset_management.inc,v 1.59 2005/02/22 05:48:39 tbarrett Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.58 $
+* @version $Revision: 1.59 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -247,7 +247,7 @@ class Asset_Management extends MySource_Object
 
 
 	/**
-	* Install's this asset
+	* Installs this asset
 	*
 	* @return boolean
 	* @access public
