@@ -220,6 +220,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false);
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
+		if (empty($_POST[$prefix.'_designid'])) return false;
+
 		$new_designid = $_POST[$prefix.'_designid'];
 
 		// if they are the same then there is nothing to do.
@@ -297,6 +299,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		// if there is no current link, we need to create one
 		if (empty($link)) {
+			if (empty($_POST[$prefix.'_'.$page_type])) return false;
 			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_'.$page_type]);
 			return (bool) $asset->createLink($page, SQ_LINK_USES, $page_type);
 		} else {
