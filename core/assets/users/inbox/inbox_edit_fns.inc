@@ -66,7 +66,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					doc.write(html);
 					doc.close();
 				}
-				setTimeout("showMessageBody('', '')", 20);
+				setTimeout("showMessageBody('', '')", 100);
 			</script>
 
 			<table border="0" cellspacing="1" cellpadding="3" width="100%" bgcolor="#DDDDDD">
@@ -76,7 +76,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				<td class="sq-backend-message-header">Sent</td>
 				<td class="sq-backend-message-header">Priority</td>
 				<td class="sq-backend-message-header">Read</td>
-				<td>&nbsp;</td>
+				<?php
+				if ($asset->writeAccess()) {
+					?>
+					<td>&nbsp;</td>
+					<?php
+				}
+				?>
 			</tr>
 			<?php
 			foreach ($messages as $data) {
@@ -96,11 +102,30 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<?php echo $data['priority']; ?>
 					</td>
 					<td class="sq-backend-message-item" style="text-align: center;">
-						<input type="checkbox" name="<?php echo $prefix.'_mark_as_read['.$data['messageid'].']'?>" value="1"<?php echo (($data['status'] == SQ_MSG_READ) ? ' checked' : '')?>>
+						<?php
+						if ($asset->writeAccess()) {
+							?>
+							<input type="checkbox" name="<?php echo $prefix.'_mark_as_read['.$data['messageid'].']'?>" value="1"<?php echo (($data['status'] == SQ_MSG_READ) ? ' checked' : '')?>>
+							<?php
+						} else {
+							if ($data['status'] == SQ_MSG_READ) {
+								echo hidden_field($prefix.'_mark_as_read['.$data['messageid'].']', '1');
+								echo 'Yes';
+							} else {
+								echo 'No';
+							}
+						}
+						?>
 					</td>
-					<td>
-						<input type="submit" name="<?php echo $prefix.'_delete['.$data['messageid'].']'?>" value="x">
-					</td>
+					<?php
+					if ($asset->writeAccess()) {
+						?>
+						<td>
+							<input type="submit" name="<?php echo $prefix.'_delete['.$data['messageid'].']'?>" value="x">
+						</td>
+						<?php
+					}
+					?>
 				</tr>
 				<tr>
 					<td colspan="6"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
@@ -110,7 +135,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			?>
 			</table>
 			<p>
-			<iframe src="" id="sq_message_body" width="100%" height="200" frameborder="1" />
+			<iframe src="" id="sq_message_body" width="100%" height="200" frameborder="1"></iframe>
 			<?php
 		}
 
