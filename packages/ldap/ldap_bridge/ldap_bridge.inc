@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.12 2004/04/14 01:58:55 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.13 2004/08/18 04:20:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,9 +44,14 @@ class LDAP_Bridge extends Bridge
 	* An array of objectclass values that represent groups in LDAP
 	* All values must be lowercase
 	*
-	* @var array(string)
+	* @var array(string => string)
 	*/
-	var $_group_types = Array('organizationalunit', 'group');
+	var $_group_types = Array('organizationalunit' => 'ou',
+							  'group'              => 'ou',
+							  'domain'             => 'dc',
+							  'container'          => 'cn',
+							  'organization'       => 'o'
+							);
 	
 	/**
 	* An array of objectclass values that represent users in LDAP
@@ -54,7 +59,7 @@ class LDAP_Bridge extends Bridge
 	*
 	* @var array(string)
 	*/
-	var $_user_types = Array('organizationalperson');
+	var $_user_types = Array('organizationalperson' => 'cn');
 
 
 	/**
@@ -104,21 +109,23 @@ class LDAP_Bridge extends Bridge
 		if (empty($shadowid)) return $asset;
 		
 		$ldap = $this->connectToLdap();
-		$result = $ldap->search($shadowid,'(objectClass=*)', false, false);
-		if (!$result) return $asset;
-		$data = $ldap->getEntries($result);
-		if (!$data['count']) return $asset;
-		$data = $data[0];
+			$result = $ldap->search($shadowid,'(objectClass=*)', false, false);
+			if (!$result) return $asset;
+
+			$data = $ldap->getEntries($result);
+			if (!$data['count']) return $asset;
+
+			$data = $data[0];
 		$ldap->disconnect();
 	
-		unset($data['objectclass']['count']);	
+		unset($data['objectclass']['count']);
 		foreach ($data['objectclass'] as $class) {
 			$class = strtolower($class);
-			if (in_array($class, $this->_group_types)) {
+			if (isset($this->_group_types[$class])) {
 				// an LDAP user group
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user_group');
 				$asset = new Ldap_User_Group($this->id, $data);
-			} else if (in_array($class, $this->_user_types)) {
+			} else if (isset($this->_user_types[$class])) {
 				// an LDAP user
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('ldap_user');
 				$asset = new LDAP_User($this->id, $data);
@@ -160,11 +167,22 @@ class LDAP_Bridge extends Bridge
 			if ($assetid == $this->id) $base_dn = $this->attr('root_dn');
 			else $base_dn = $assetid;
 			
-			$result = $ldap->search($base_dn,'(objectClass=*)', false);
+			$filter = '';
+			foreach ($this->_group_types as $key => $value) {
+				if (empty($filter)) $filter = '(objectClass=' . $key . ')';
+				else $filter = '(|' . $filter . '(objectClass=' . $key . '))';
+			}
+			foreach ($this->_user_types as $key => $value) {
+				if (empty($filter)) $filter = '(objectClass=' . $key . ')';
+				else $filter = '(|' . $filter . '(objectClass=' . $key . '))';
+			}
+
+			$result = $ldap->search($base_dn,$filter, false);
 			if (!$result) {
 				$ldap->disconnect();
 				return Array();
 			}
+
 			$entries = $ldap->getEntries($result);
 			if (!$entries['count']) {
 				$ldap->disconnect();
@@ -184,39 +202,41 @@ class LDAP_Bridge extends Bridge
 				unset($data['objectclass']['count']);
 				foreach ($data['objectclass'] as $class) {
 					$class = strtolower($class);
-					switch ($class) {
-						case 'organizationalunit' :
-							if (!isset($data[$attrs['ou']][0])) continue(2);
-							$name = $data[$attrs['ou']][0];
+					foreach ($this->_group_types as $key => $value) {
+						if ($class == $key) {
+							if (!isset($data[$attrs[$value]][0])) continue(3);
+							$name = $data[$attrs[$value]][0];
 							$type = 'ldap_user_group';
-						break;
-						case 'group' :
-							if (!isset($data[$attrs['cn']][0])) continue(2);
-							$name = $data[$attrs['cn']][0];
-							$type = 'ldap_user_group';
-						break;
-						case 'organizationalperson' :
-							if (!isset($data[$attrs['cn']][0])) continue(2);
-							$name = $data[$attrs['cn']][0];
-							$type = 'ldap_user';
-						break;
+						}
+					}
+					
+					// if this container is not a group, check to see if it is a user
+					if (empty($type)) {
+						foreach ($this->_user_types as $key => $value) {
+							if ($class == $key) {
+								if (!isset($data[$attrs[$value]][0])) continue(2);
+								$name = $data[$attrs[$value]][0];
+								$type = 'ldap_user';
+							}
+						}
 					}
 					if (!empty($type)) break;
 				}
 				if (empty($type)) continue;
 
-				$links[] = Array('linkid' => 0,
-								 'majorid' => $this->id,
-								 'minorid' => $this->id.':'.$data['dn'],
+				$links[] = Array('linkid'          => 0,
+								 'majorid'         => $this->id,
+								 'minorid'         => $this->id.':'.$data['dn'],
 								 'minor_type_code' => $type,
-								 'value' => '',
-								 'link_type' => SQ_LINK_TYPE_1,
-								 'dependant' => false,
-								 'exclusive' => false,
-								 'sort_order' => $i,
+								 'value'           => '',
+								 'link_type'       => SQ_LINK_TYPE_1,
+								 'dependant'       => false,
+								 'exclusive'       => false,
+								 'sort_order'      => $i,
 								);
 				$i++;
-			}
+
+			}//end foreach entries
 
 			$ldap->disconnect();
 
@@ -287,7 +307,7 @@ class LDAP_Bridge extends Bridge
 			$ldap->disconnect();
 
 			$this->_tmp['getParents'][$assetid] = $parents;
-		}
+		}//end if not cached
 
 		return $this->_tmp['getParents'][$assetid];
 
@@ -347,9 +367,12 @@ class LDAP_Bridge extends Bridge
 				unset($data['objectclass']['count']);
 				foreach ($data['objectclass'] as $class) {
 					$class = strtolower($class);
-					if ($class == 'organizationalunit') $attr = 'ou';
-					else if ($class == 'group') $attr = 'cn';
-					else if ($class == 'organizationalperson') $attr = 'cn';
+					foreach ($this->_group_types as $key => $value) {
+						if ($class == $key) $attr = $value;
+					}
+					foreach ($this->_user_types as $key => $value) {
+						if ($class == $key) $attr = $value;
+					}
 				}
 				if (empty($attr)) continue;
 				
@@ -372,10 +395,10 @@ class LDAP_Bridge extends Bridge
 			unset($data['objectclass']['count']);
 			foreach ($data['objectclass'] as $class) {
 				$class = strtolower($class);
-				if (in_array($class, $this->_group_types)) {
+				if (isset($this->_group_types[$class])) {
 					if (!empty($type_code) && !in_array('user_group', $type_code)) continue(2);
 					$children[$this->id.':'.$data['dn']] = 'ldap_user_group';
-				} else if (in_array($class, $this->_user_types)) {
+				} else if (isset($this->_user_types[$class])) {
 					if (!empty($type_code) && !in_array('user', $type_code)) continue(2);
 					$children[$this->id.':'.$data['dn']] = 'ldap_user';
 				}

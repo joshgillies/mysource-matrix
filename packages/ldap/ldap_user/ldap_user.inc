@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.4 2004/08/18 00:49:33 mmcintyre Exp $
+* $Id: ldap_user.inc,v 1.5 2004/08/18 04:20:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 */
 class Ldap_User extends Backend_User
 {
-	
+
+	/**
+	* The ID of the LDAP bridge we are from
+	*
+	* @var int
+	*/
 	var $_ldapid = 0;
 
 
@@ -61,7 +66,12 @@ class Ldap_User extends Backend_User
 
 		// set general object properties
 		$this->id = $ldap->id.':'.$data['dn'];
-		$this->name = $data[$attrs['cn']][0];
+		foreach ($data['objectclass'] as $class) {
+			$class = strtolower($class);
+			foreach ($ldap->_user_types as $key => $value) {
+				if ($class == $key) $this->name = $data[$attrs[$value]][0];
+			}
+		}
 		$this->short_name = $this->name;
 		$this->status = $ldap->status;
 		$this->version = '0.1';

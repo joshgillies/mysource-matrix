@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_group.inc,v 1.2 2004/04/02 04:32:46 gsherwood Exp $
+* $Id: ldap_user_group.inc,v 1.3 2004/08/18 04:20:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,10 +61,8 @@ class Ldap_User_Group extends User_Group
 		unset($data['objectclass']['count']);
 		foreach ($data['objectclass'] as $class) {
 			$class = strtolower($class);
-			if ($class == 'organizationalunit') {
-				$this->name = $data[$attrs['ou']][0];
-			} else if ($class == 'group') {
-				$this->name = $data[$attrs['cn']][0];
+			foreach ($ldap->_group_types as $key => $value) {
+				if ($class == $key) $this->name = $data[$attrs[$value]][0];
 			}
 		}
 
