@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec_management.inc,v 1.2 2004/10/14 01:04:06 arailean Exp $
+* $Id: payment_gateway_esec_management.inc,v 1.3 2004/10/15 01:11:44 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,6 +61,13 @@ class Payment_Gateway_Esec_Management extends Asset_Management
 					'allow_empty' => false
 				),
 			),
+
+			'message' => Array(
+				'added'     => '0.1',
+				'type'      => 'wysiwyg',
+				'default'   => '',
+			),
+
 		);
 
 	}//end constructor
