@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.81 2005/02/14 23:58:38 mmcintyre Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.82 2005/02/22 06:32:15 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -160,8 +160,12 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					// try to acquire a lock on this asset?
 					if (!empty($_POST['sq_lock_acquire']) && !empty($_POST['sq_lock_type'])) {
 						$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-						$vars = Array('assetid' => $asset->id, 'lock_type' => $_POST['sq_lock_type'], 'forceably_acquire' => (bool) $_POST['sq_lock_acquire_by_force']);
-						$hh->queueHipo('hipo_job_acquire_lock', $vars);
+						$vars = Array(
+								'assetids' => Array($asset->id,),
+								'lock_type' => $_POST['sq_lock_type'],
+								'forceably_acquire' => (bool) $_POST['sq_lock_acquire_by_force'],
+							);
+						$hh->queueHipo('hipo_job_acquire_locks', $vars);
 						$do_process_backend = false;
 					}
 

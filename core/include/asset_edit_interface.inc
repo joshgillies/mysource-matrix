@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.241 2005/02/01 11:31:24 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.242 2005/02/22 06:32:15 ndvries Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.241 $
+* @version $Revision: 1.242 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1042,8 +1042,12 @@ class Asset_Edit_Interface extends MySource_Object
 
 		if (!$have_all_locks) {
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array('assetid' => $owner->id, 'lock_type' => $locks, 'forceably_acquire' => false);
-			$hh->queueHipo('hipo_job_acquire_lock', $vars);
+			$vars = Array(
+								'assetids' => Array($owner->id,),
+								'lock_type' => $locks,
+								'forceably_acquire' => false,
+							);
+			$hh->queueHipo('hipo_job_acquire_locks', $vars);
 			$url = $hh->runQueuedJobs();
 			if (!empty($url)) $o->setRedirect(strip_url(current_url()).'/?sq_redirect_url='.urlencode($url));
 		}
