@@ -183,6 +183,7 @@ class Bodycopy extends Asset
 	*/
 	function paintBackend(&$backend)
 	{
+		if (!isset($_REQUEST['asset_ei_screen'])) return parent::paintBackend($backend);
 		switch($_REQUEST['asset_ei_screen']) {
 			case 'show_popup' :
 				require_once(dirname(__FILE__).'/popups/'.trim($_REQUEST['popup_file']));
