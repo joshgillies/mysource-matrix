@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.39 2004/06/17 05:57:15 lwright Exp $
+* $Id: form.inc,v 1.40 2004/06/21 06:50:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1125,7 +1125,7 @@ class Form extends Bridge
 				echo ($html) ? '<tr><td><li>' : '';
 				echo $question->attr('name');
 				echo ($html) ? ': </li></td><td>' : ' : ';
-				echo $question->getSummary($this->active_submission[$assetid]);
+				echo $question->getSummary(empty($this->active_submission[$assetid]) ? '' : $this->active_submission[$assetid]);
 				echo ($html) ? '</td></tr>' : "\n";
 			}
 
@@ -1150,7 +1150,7 @@ class Form extends Bridge
 					echo ($html) ? '<tr><td><li>' : '';
 					echo $question->attr('name');
 					echo ($html) ? ': </li></td><td>' : ' : ';
-					echo $question->getSummary($this->active_submission[$assetid]);
+					echo $question->getSummary(empty($this->active_submission[$assetid]) ? '' : $this->active_submission[$assetid]);
 					echo ($html) ? '</td></tr>' : "\n";
 				}
 
