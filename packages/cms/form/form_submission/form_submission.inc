@@ -65,11 +65,6 @@ class Form_Submission extends Asset
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
 	{
-		// if this is a bodycopy table then we need to make it a dependant link
-		//if (is_a($minor, 'bodycopy')) {
-		//	$dependant = '1';
-		//}
-
 		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 
 	}// end createLink()
@@ -98,9 +93,8 @@ class Form_Submission extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-	//	$page_links = parent::_getAllowedLinks();
-	//	$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => '1', 'exclusive' => true);
-	//	return $page_links;
+		$page_links = parent::_getAllowedLinks();
+		return $page_links;
 
 	}//end _getAllowedLinks()
 
@@ -115,18 +109,7 @@ class Form_Submission extends Asset
 	function paintBackend(&$o)
 	{
 		parent::paintBackend($o);
-	//	if (isset($_GET['sq_from_frontend'])) {
-			// get the bodycopy attached to us
-		//	$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-		//	$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
-		//	if (is_null($bodycopy)) {
-		//		trigger_error('Could not locate the bodycopy for standard page "'.$this->name.'"', E_USER_ERROR);
-		//		return false;
-	//		}
-		//	$o->addFormActionGetVar('assetid', $bodycopy->id);
-		//	$bodycopy->paintBackend($o);
-	//	} else {
-	//	}
+
 	}// end paintBackend()
 
 
@@ -157,7 +140,8 @@ class Form_Submission extends Asset
 			return $a['answers'][$id];
 		}
 		return false;
-	}
+
+	}// end getAnswer()
 	
 
 	/**
@@ -178,8 +162,79 @@ class Form_Submission extends Asset
 		}
 
 		return true;
-	}
+	
+	}// end setAnswer()
 
+
+	/**
+	* set a form error into the error store
+	*
+	* @param string $error the error to set
+	*
+	* @access public
+	* @return boolean
+	*/
+	function setError($error)
+	{
+		$a = $this->attr('attributes');
+		if (!$a['is_error']) $a['is_error'] = true;
+		if (!is_array($a['errors'])) $a['errors'] = Array();
+		$a['errors'][] = $error;
+		
+		if (!$this->setAttrValue('attributes', $a)) {
+			return false;
+		}
+		return true;
+	
+	}// end setError()
+
+	
+	/**
+	* get the form errors from the store
+	*
+	* @access public
+	* @return Array(error)
+	*/
+	function getErrors()
+	{
+		$a = $this->attr('attributes');
+		return $a['errors'];
+	
+	}// end getErrors()
+
+
+	/**
+	* flush the errors in the store
+	*
+	* @access public
+	* @return boolean
+	*/
+	function flushErrors()
+	{
+		$a = $this->attr('attributes');
+		$a['is_error'] = false;
+		$a['errors'] = Array();
+
+		if (!$this->setAttrValue('attributes', $a)) {
+			return false;
+		}
+		return true;
+	
+	}// end flushErrors()
+
+
+	/**
+	* returns true if there is a form error
+	*
+	* @access public
+	* @return boolean
+	*/
+	function isError()
+	{
+		$a = $this->attr('attributes');
+		return ($a['is_error']) ? true : false;
+	
+	}//end isError()
 
 }//end class
 ?>
