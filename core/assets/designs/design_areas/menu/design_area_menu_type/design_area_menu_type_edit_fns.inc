@@ -27,7 +27,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _processContents(&$asset, &$contents)
 	{
-
 		if (!$asset->setAttrValue('settings', Array())) return false;
 		if (!$this->_setVariables($asset, $contents)) return false;
 		$settings = $asset->attr('settings');
@@ -182,7 +181,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		if (!empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$designid])) return;
 
 		echo '<', '?php
-		$PAGE_LINEAGE = $am->getLineageFromURL();
+		$PAGE_LINEAGE = $am->getLineageFromURL(null, null, \'short_name\');
 		?', '>';
 		$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$designid] = true;
 
