@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.11 2005/02/04 03:16:40 mnyeholt Exp $
+* $Id: maps.inc,v 1.12 2005/02/04 03:18:50 mnyeholt Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -188,7 +188,8 @@ class Maps extends MySource_Object
 		if ($handle = opendir(SQ_DATA_PATH.'/private/maps/installed_patches')) {
 			while (false !== ($patchid = readdir($handle))) {
 				if (!preg_match('|^[0-9]{12}$|', $patchid)) continue;
-
+				
+				$patch_details = $this->getPatchDetails($patchid);
 				if (!isset($db_patches[$patchid])) {
 					$installed_patches[$patchid] = Array(
 													'description' => $patch_details['patch_description'],
