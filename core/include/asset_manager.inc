@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.164 2004/01/14 22:11:14 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.165 2004/01/19 00:52:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1571,17 +1571,19 @@ class Asset_Manager extends MySource_Object
 	*											of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param string			$order_by			a field in the asset table you would like the results
+	*											ordered by (eg. name, short_name etc)
 	*
-	* @return Array	returns an array of assetids
+	* @return Array(int => string)	returns an array of assetids and their type code
 	* @access public
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true)
+	function getChildren($assetid, $type_code='', $strict_type_code=true, $order_by=null)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// if we are the root folder then we just need to select from the asset table
 		if ($assetid == 1) {
-			$sql = 'SELECT a.assetid
+			$sql = 'SELECT a.assetid, a.type_code
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
 			if (!empty($where) && !empty($type_code)) $where .= ' AND ';
@@ -1600,20 +1602,18 @@ class Asset_Manager extends MySource_Object
 				trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
 			}
 
-			$sql = 'SELECT DISTINCT l.minorid
+			$sql = 'SELECT DISTINCT l.minorid, a.type_code
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
 					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid
 					';
 			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
 					  AND t.treeid > '.$db->quote($treeid);
 
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			if (!empty($type_code)) {
-				$sql .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid';
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-				$where .= ' AND ';
-			}
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			if (!empty($type_code)) $where .= ' AND ';
 
 		}// end if assetid == 1
 
@@ -1641,7 +1641,10 @@ class Asset_Manager extends MySource_Object
 			}
 		}// end if
 
-		$children = $db->getCol($sql.$where);
+		// order by a field if required
+		if (!is_null($order_by)) $where .= ' ORDER BY a.'.$order_by;
+
+		$children = $db->getAssoc($sql.$where);
 		if (DB::isError($children)) {
 			trigger_error($children->getMessage().'<br/>'.$children->getUserInfo(), E_USER_ERROR);
 		}
@@ -1662,7 +1665,7 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return Array	returns an array of assetids
+	* @return Array(int => string)	an array of assetids and their type code
 	* @access public
 	*/
 	function getDependantChildren($assetid, $type_code='', $strict_type_code=true)
@@ -1675,8 +1678,8 @@ class Asset_Manager extends MySource_Object
 
 			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', null, 1);
 			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
-				$children[] = $dependant_links[$k]['minorid'];
-				$children = array_merge($children, $this->getDependantChildren($dependant_links[$k]['minorid'], $type_code, $strict_type_code));
+				$children[$dependant_links[$k]['minorid']] = $dependant_links[$k]['minor_type_code'];
+				$children = $children + $this->getDependantChildren($dependant_links[$k]['minorid'],$type_code, $strict_type_code);
 			}
 
 			$this->forgetAsset($assetid);
@@ -3190,7 +3193,7 @@ class Asset_Manager extends MySource_Object
 					$user = &$this->getAsset($data['userid']);
 					if (!is_null($user)) {
 						if (is_a($user, 'user_group')) {
-							$ret_val = array_merge($ret_val, $this->getChildren($user->id, Array('user'), false));
+							$ret_val = array_merge($ret_val, array_keys($this->getChildren($user->id, Array('user'), false)));
 						} else {
 							$ret_val[] = $user->id;
 						}
