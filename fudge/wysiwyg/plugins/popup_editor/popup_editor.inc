@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: popup_editor.inc,v 1.6 2003/09/26 05:26:38 brobertson Exp $
+* $Id: popup_editor.inc,v 1.7 2003/10/16 01:06:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,12 +69,15 @@ class popup_editor extends wysiwyg_plugin {
 
 		$query_string  = '?editor_name='.$this->wysiwyg->name;
 		$query_string .= '&editor_web_path='.rawurlencode('../../');
+		$query_string .= '&editor_php_self='.rawurlencode($_SERVER['PHP_SELF']);
 		$query_string .= '&editor_plugins=';
 		foreach ($this->wysiwyg->plugins as $name => $obj) {
 			if ($name == get_class($this)) continue;
 			$query_string .= $name.'|';
 		}
 		$query_string = trim($query_string,' |');
+		$query_string .= '&rhc='.rawurlencode(serialize($this->wysiwyg->relative_href_checks));
+		$query_string .= '&auc='.rawurlencode(serialize($this->wysiwyg->absolute_url_checks));
 		?>
 		<script type="text/javascript" language="Javascript">
 			// Called when the user clicks the Insert Table button

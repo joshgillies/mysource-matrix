@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.26 2003/10/10 06:49:27 brobertson Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.27 2003/10/16 01:06:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,6 +54,9 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->set_show_status_bar(true);
 		$wysiwyg->set_width('100%');
 		$wysiwyg->set_height('100%');
+		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'(\?a=[0-9]+)', './$1');
+		$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?$1');
+
 		$wysiwyg->add_plugin('format_text');
 		$wysiwyg->add_plugin('justify_text');
 		$wysiwyg->add_plugin('indenting');

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: wysiwyg.inc,v 1.21 2003/10/07 00:28:14 gsherwood Exp $
+* $Id: wysiwyg.inc,v 1.22 2003/10/16 01:06:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,6 +89,22 @@ class wysiwyg {
 	* @see print_config(), set_height();
 	*/
 	var $height  = 'auto';
+
+	/**
+	* Regular expressions to convert URLs to HREFs
+	*
+	* @var string
+	* @see print_config(), add_relative_href_check();
+	*/
+	var $relative_href_checks = Array();
+
+	/**
+	* Regular expressions to convert HREFs to URLs
+	*
+	* @var string
+	* @see print_config(), add_absolute_url_check();
+	*/
+	var $absolute_url_checks = Array();
 
 	/**
 	* Extra HTML code to add in the TEXTAREA tag
@@ -764,7 +780,12 @@ class wysiwyg {
 					// let any plugins modify the returned HTML if they want to
 <?php $this->print_plugin_get_html()?>
 
-					return this.make_relative_hrefs(retVal);
+					if (this._editMode == "textmode") {
+						retVal = this.make_absolute_urls(retVal);
+					} else {
+						retVal = this.make_relative_hrefs(retVal);
+					}
+					return retVal;
 				};
 
 				 ////////////////////////////////////////////////////////////////////////
@@ -788,20 +809,35 @@ class wysiwyg {
 					current_location = current_location.replace(/\&/gi, "&amp;");
 					re = new RegExp(current_location, "gi");
 					html = html.replace(re, "");
-
-					// links to assets in the backend (./?a=xxx style links)
-					e = 'http[s]?://<?php echo $_SERVER['HTTP_HOST'].$_SERVER["PHP_SELF"]?>?(\\?a=[0-9]+)';
-					re = new RegExp(e, "gi");
-					html = html.replace(re, "./$1");
-
-					e = '([^\\.])/(\\?a=[0-9]+)';
-					re = new RegExp(e, "gi");
-					html = html.replace(re, "$1./$2");
+					for (var i = 0; i < this.config.relativeHrefChecks.length; i++) {
+						e = this.config.relativeHrefChecks[i][0];
+						re = new RegExp(e, "gi");
+						html = html.replace(re, this.config.relativeHrefChecks[i][1]);
+					}
 
 					// any other links
-					e = 'http[s]?://<?php echo $_SERVER['HTTP_HOST'].$_SERVER["PHP_SELF"]?>';
+					e = 'http[s]?://<?php echo $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF']?>';
 					re = new RegExp(e, "gi");
 					html = html.replace(re, "");
+
+					return html;
+				};
+
+				 ////////////////////////////////////////////////////////////////////////
+				// reconstruct all relative HREFs into absolute URLs before the browser
+				// decides to do it for us anyway
+				HTMLArea.prototype.make_absolute_urls = function(html_code) {
+
+					var html = new String(html_code);
+					var e  = '';
+					var re = null;
+
+					for (var i = 0; i < this.config.absoluteUrlChecks.length; i++) {
+						e = this.config.absoluteUrlChecks[i][0];
+						re = new RegExp(e, "gi");
+						html = html.replace(re, this.config.absoluteUrlChecks[i][1]);
+
+					}
 
 					return html;
 				};
@@ -906,6 +942,25 @@ class wysiwyg {
 
 					this.replaceNextLines = 0;
 					this.plainTextInput = 0;
+
+					this.relativeHrefChecks = Array(
+						<?php
+						$i = count($this->relative_href_checks);
+						foreach ($this->relative_href_checks as $find => $replace) {
+							echo "Array(\"$find\", \"$replace\")".(($i > 1) ? ',' : '')."\n";
+							$i--;
+						}
+						?>
+					);
+					this.absoluteUrlChecks = Array(
+						<?php
+						$i = count($this->absolute_url_checks);
+						foreach ($this->absolute_url_checks as $find => $replace) {
+							echo "Array(\"$find\", \"$replace\")".(($i > 1) ? ',' : '')."\n";
+							$i--;
+						}
+						?>
+					);
 
 					this.toolbar = [
 							<?php
@@ -1317,6 +1372,43 @@ class wysiwyg {
 		$this->stylesheet = $stylesheet;
 
 	}//end set_stylesheet()
+
+
+	/**
+	* Add a relative HREF check to the editor
+	*
+	* @param string	$find		the pattern to match the absolute URL
+	* @param string	$replace	the replacement to make the relative HREF
+	*
+	* @return void
+	* @access public
+	*/
+	function add_relative_href_check($find, $replace)
+	{
+		$find = str_replace('\\', '\\\\\\', $find);
+		$replace = str_replace('\\', '\\\\\\', $replace);
+		$this->relative_href_checks[$find] = $replace;
+
+	}//end add_relative_href_check()
+
+
+	/**
+	* Add an absolute URL check to the editor
+	*
+	* @param string	$find		the pattern to match the relative HREF
+	* @param string	$replace	the replacement to make the absolute URL
+	*
+	* @return void
+	* @access public
+	*/
+	function add_absolute_url_check($find, $replace)
+	{
+		$find = str_replace('\\', '\\\\\\', $find);
+		$replace = str_replace('\\', '\\\\\\', $replace);
+		$this->absolute_url_checks[$find] = $replace;
+
+	}//end add_absolute_url_check()
+
 
 }//end class
 
