@@ -62,18 +62,20 @@ class Root_Folder extends Folder
 			if ($this->id != 1) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				trigger_error('The new Root Folder Asset was not given assetid #1. This needs to be fixed by YOU, consider this system corrupted', E_USER_ERROR);
+				return false;
 			}
 
 			$linkid = $db->nextId('sq_sequence_asset_link');
 			if (DB::isError($linkid)) {
 				trigger_error($linkid->getMessage().'<br/>'.$linkid->getUserInfo(), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
+				return false;
 			}
 
 			if ($linkid != 1) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				trigger_error('The new Root Folder Asset was not given linkid #1. This needs to be fixed by YOU, consider this system corrupted', E_USER_ERROR);
+				return false;
 			}
 
 			// Right we need to do some manipulation for the link table to put in some initial values
@@ -86,13 +88,12 @@ class Root_Folder extends Folder
 							'sort_order'     => 1,
 							'dependant'      => 1,
 							'exclusive'      => 1,
-							'created'        => ts_iso8601(time()),
-							'created_userid' => 0,
 							'updated'        => ts_iso8601(time()),
 							'updated_userid' => 0
 							);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
 			}
 
 			$values = Array('treeid'             => '',
@@ -101,6 +102,7 @@ class Root_Folder extends Folder
 						);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link_tree', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
