@@ -244,6 +244,16 @@ function sq_web_path($path='base')
 }// end sq_web_path()
 
 /**
+* Returns the current http protocol in use for this page
+*
+* @return string
+*/
+function current_protocol()
+{
+	return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
+}// end current_protocol()
+
+/**
 * Takes an integer and returns an array of numbers representing the active
 * bits in the integer
 * eg. for 5 is 101 in binary

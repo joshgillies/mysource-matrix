@@ -104,9 +104,9 @@ class Resolve
 		} else {
 
 			speed_check('one');
-			$asset = &$this->am->getAssetFromURL((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http');
+			$asset = &$this->am->getAssetFromURL(current_protocol());
 			if (is_null($asset)) exit(1);
-			pre_echo("Active Asset : ".$asset->name);
+#			pre_echo("Active Asset : ".$asset->name);
 			speed_check('two');
 			$asset->printFrontend();
 
