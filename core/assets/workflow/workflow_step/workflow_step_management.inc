@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_step_management.inc,v 1.3 2003/09/26 05:26:30 brobertson Exp $
+* $Id: workflow_step_management.inc,v 1.4 2003/10/14 02:10:41 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,8 +31,7 @@ class Workflow_Step_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array('name'      => Array(
-											'added'     => '0.1',
-											'type'      => 'text', 'default'   => ''
+											'default'   => ''
 											),
 							'logic'     => Array(
 											'added'     => '0.1',

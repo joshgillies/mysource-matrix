@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.7 2003/10/10 06:49:24 brobertson Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.8 2003/10/14 02:10:41 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,6 +31,8 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['lock_type'] = 'content';
+
 
 	}//end construtor()
 

@@ -2,12 +2,12 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_step_edit_fns.inc,v 1.8 2003/10/10 06:49:24 brobertson Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.9 2003/10/14 02:10:41 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 
 /**
 * Workflow_Step_Edit_Fns
@@ -20,7 +20,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
+class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 {
 
 	/**
@@ -29,7 +29,7 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Workflow_Step_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
+		$this->Folder_Edit_Fns();
 
 	}//end constructor
 

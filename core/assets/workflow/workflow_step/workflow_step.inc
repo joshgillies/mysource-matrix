@@ -2,12 +2,12 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_step.inc,v 1.3 2003/09/26 05:26:30 brobertson Exp $
+* $Id: workflow_step.inc,v 1.4 2003/10/14 02:10:41 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 
 /**
 * Workflow_Step
@@ -20,7 +20,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Workflow_Step extends Asset
+class Workflow_Step extends Folder
 {
 
 	/**
@@ -31,7 +31,7 @@ class Workflow_Step extends Asset
 	*/
 	function Workflow_Step($assetid=0)
 	{
-		$this->Asset($assetid);
+		$this->Folder($assetid);
 
 	}//end constructor
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_schema.inc,v 1.3 2003/09/26 05:26:29 brobertson Exp $
+* $Id: workflow_schema.inc,v 1.4 2003/10/14 02:10:41 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,6 +34,21 @@ class Workflow_Schema extends Asset
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
 
 
 	/**
