@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.39 2004/12/06 14:41:38 brobertson Exp $
+* $Id: form_email_edit_fns.inc,v 1.40 2005/02/21 14:37:01 gnoel Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -156,12 +156,20 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						<?php echo $sub_time ?>
 					</td>
 					<td class="sq-backend-table-cell-alt" colspan="2">
-						<?php if (!is_null($sub_user)) {
-							$sub_user_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
-							echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
-						} else {
+						<?php
+						$valid_user = false;
+						if (!empty($sub_user)) {									
+							$sub_user_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($sub_user);
+							if (!empty($sub_user_asset)) {
+								echo $sub_user_asset->name . ' (Id: #'.$sub_user.')';
+								$valid_user = true;
+							}
+						} 
+						
+						if (!$valid_user) { 
 							?><i>No logged in user</i><?php
-						} ?>
+						} 
+						?>
 					</td>
 					<td class="sq-backend-table-cell-alt">
 						<input type="checkbox" name="<?php echo $prefix ?>_viewsub[<?php echo $assetid ?>]" value="1" <?php if ($sub_expanded) echo ' checked="checked"' ?>>
@@ -175,25 +183,27 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 					$i = 0;
 					$elements =& $sub_asset->getSummary();
-					foreach ($elements as $element) {
-						$i++;
-
-						if ($i % 2 == 1) { ?>
-							<td class="sq-backend-table-cell">&nbsp;</td>
+					if (!empty($elements)) {
+						foreach ($elements as $element) {
+							$i++;
+	
+							if ($i % 2 == 1) { ?>
+								<td class="sq-backend-table-cell">&nbsp;</td>
+							<?php }
+							?>
+							<td class="sq-backend-table-cell">
+								<i><?php echo $element['name'] ?>:</i>
+							</td>
+							<td class="sq-backend-table-cell">
+								<?php echo $element['answer'] ?>
+							</td>
+							<?php
+							if (($i < count($elements)) && ($i % 2 == 0)) { ?>
+								</tr><tr>
 						<?php }
-						?>
-						<td class="sq-backend-table-cell">
-							<i><?php echo $element['name'] ?>:</i>
-						</td>
-						<td class="sq-backend-table-cell">
-							<?php echo $element['answer'] ?>
-						</td>
-						<?php
-						if (($i < count($elements)) && ($i % 2 == 0)) { ?>
-							</tr><tr>
-					<?php }
-					}	//end-if sub_expanded
-
+						}	//end-if sub_expanded
+					}
+					
 					?></tr><?php
 	/*
 					$kids =& $root->children;
