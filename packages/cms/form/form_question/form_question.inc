@@ -144,11 +144,16 @@ class Form_Question extends Asset
 	*/
 	function _updated()
 	{
+		if (!parent::_updated()) return false;
+
 		$link = $this->getLink(SQ_LINK_TYPE_2, 'form_section', true, '', 'minor');
-		$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
-		if (is_null($section)) return false;
-		
-		return $section->fileRegeneration();
+
+		if (!empty($link)) {
+			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
+			if (is_null($section)) return false;
+			return $section->fileRegeneration();
+		}
+		return true;
 	}
 
 
@@ -193,11 +198,15 @@ class Form_Question extends Asset
 	}
 
 	/**
-	* @abstact
+	* 
 	*/
-	function processForm()
+	function processForm(&$submission)
 	{
-		return true;
+		$rules = $this->getRules();
+		
+		foreach ($rules as $rule) {
+			$rule->processForm($submission, $this->id, $this->attr('name')); 
+		}
 	}
 
 
@@ -226,6 +235,52 @@ class Form_Question extends Asset
 	{
 		
 	}
+
+	/**
+	* returns all the links to rules that this question has
+	*
+	* @access public
+	* @return Array(link)
+	*/
+	function getRuleLinks()
+	{
+		$links = $this->getLinks(SQ_LINK_TYPE_3, 'question_rule', false, 'major');	
+		return $links;
+	
+	}// end getRuleLinks()
+
+
+	/**
+	* returns all the rules that this question has
+	*
+	* @access public
+	* @return Array(link)
+	*/
+	function getRules()
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$links = $this->getRuleLinks();
+		$rules = Array();
+		
+		foreach ($links as $link) {
+			$rules[] = &$am->getAsset($link['minorid'], $link['type_code']);
+		}
+		return $rules;
+	
+	}// end getRules()
+
+
+	/**
+	* returns allamount of rules this question has
+	*
+	* @access public
+	* @return Array(link)
+	*/
+	function getRuleCount()
+	{
+		return count($this->getRuleLinks());
+	
+	}// end getRuleCount()
 
 
 }//end class

@@ -104,8 +104,8 @@ class Form_Section extends Asset
 		if (is_a($minor, 'bodycopy')) {
 			$dependant = '1';
 		}
-		parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-		return $this->fileRegeneration();
+		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
+		//return $this->fileRegeneration();
 
 	}// end createLink()
 

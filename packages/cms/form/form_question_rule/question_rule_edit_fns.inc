@@ -25,5 +25,23 @@ class Question_Rule_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 	}
 
+
+	/**
+	* @abstract
+	*/
+	function paintInlineBackend()
+	{
+		return true;
+	}
+
+
+	/**
+	* @abstract
+	*/
+	function processInlineBackend()
+	{
+		return true;
+	}
+
 }//end class
 ?>

@@ -117,8 +117,8 @@ class Form extends Asset
 		if (is_a($minor, 'bodycopy')) {
 			$dependant = '1';
 		}
-		parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-		return $this->fileRegeneration();
+		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
+		//return $this->fileRegeneration();
 
 	}// end createLink()
 
@@ -365,21 +365,34 @@ class Form extends Asset
 	function printStandard(&$submission) {
 		
 		$prefix = $this->getPrefix();
-		
+		$is_error = false;
+
 		// check to see if the form has been submitted or not
 		if (isset($_POST[$prefix.'_submit'])) {
 			if (!$submission) {
 				$submission = &$this->createSubmission();
 				$this->setFormCookie($submission->id, $this->attr('cookie_time'));
 			}
+			
+			// flush any errors that exist in the submisssion asset
+			$submission->flushErrors();
 			$this->processForm($submission);
-			$this->finishForm();
+			
+			// check to see if there is an error with the form
+			if ($submission->isError()) { 
+				$is_error = true;
+			} else {
+				$this->finishForm();
+			}
+		}
 
-		// nothing submitted yet
-		} else {
+		// nothing submitted yet, or there was an error
+		if (!isset($_POST[$prefix.'_submit']) || $is_error) {
+			
 			// we need to create this $am variable for the php
 			// in the include file to use!
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
+
 			if (!file_exists($this->data_path.'/content_file.php')) {
 				$edit = &$this->getEditFns();
 				$edit->generateStandardContentFile($this);
@@ -580,6 +593,11 @@ class Form extends Asset
 			$tyb->printBody();
 		}
 	} // end finishForm()
+
+	function printErrors(&$submission)
+	{
+
+	}
 
 }// end class
 ?>

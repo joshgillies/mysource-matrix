@@ -125,11 +125,14 @@ class Question_Rule extends Asset
 	} // end printBody()
 
 
-	function _getName($short_name=false)
+	/**
+	* @abstract
+	*/
+	function processForm(&$submission, $questionid)
 	{
-		return $this->attr('name');
-
-	} // end _getName();
+		return true;
+	}
 
 } // end class
+
 ?>
