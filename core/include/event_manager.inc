@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.7 2003/11/26 00:51:10 gsherwood Exp $
+* $Id: event_manager.inc,v 1.8 2003/12/08 03:47:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -304,6 +304,7 @@ class Event_Manager extends MySource_Object
 				return false;
 			}
 			$listener->$function($vars);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($listener);
 		}// end for
 		
 		return true;
@@ -332,26 +333,39 @@ class Event_Manager extends MySource_Object
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(t2.treeid, '.$db->quote('%').')' : '(t2.treeid || '.$db->quote('%').')';
 		
 		// big f.o query
-		$subs = Array('SELECT '.$concat.' FROM '
-		.SQ_TABLE_PREFIX.'asset_link l1 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
-		.SQ_TABLE_PREFIX.'asset_link l2 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
-		.SQ_TABLE_PREFIX.'asset a '
-		.'WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).' '
-		.'AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid '
-		.'AND a.assetid=l2.'.$side_of_link.'id '
-		.'AND a.type_code='.$db->quote($type_code).' ORDER BY t2.treeid DESC LIMIT 1');
+		$sql = 'SELECT '.$concat.' FROM '
+				.SQ_TABLE_PREFIX.'asset_link l1 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
+				.SQ_TABLE_PREFIX.'asset_link l2 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
+				.SQ_TABLE_PREFIX.'asset a '
+				.'WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).' '
+					.'AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid '
+					.'AND a.assetid=l2.'.$side_of_link.'id '
+					.'AND a.type_code='.$db->quote($type_code).'
+				  ORDER BY t2.treeid DESC';
 
-		$where =' l1.'.$side_of_link.'id = '.$db->quote($assetid).'
-			 AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid 
-			 AND a.assetid=l2.'.$side_of_link.'id and t2.treeid like (~SQ0~) ORDER BY t2.treeid';
+		$result = $db->getCol($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
 
-		$where = db_extras_subquery($db, $where, $subs);
+		if (empty($result)) return Array();
+
+		$treeid_string = '';
+		foreach ($result as $treeid) $treeid_string .= 't2.treeid LIKE '.$db->quote($treeid).' OR ';
+		$treeid_string = substr($treeid_string, 0, -4);
+
 
 		$sql = 'SELECT a.assetid, t2.treeid, a.type_code, l2.link_type, l2.dependant, l2.exclusive '
-			.'FROM '
-			.SQ_TABLE_PREFIX.'asset_link l1 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
-			.SQ_TABLE_PREFIX.'asset_link l2 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
-			.SQ_TABLE_PREFIX.'asset a WHERE '.$where;
+			  .'FROM '
+				.SQ_TABLE_PREFIX.'asset_link l1 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
+				.SQ_TABLE_PREFIX.'asset_link l2 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
+				.SQ_TABLE_PREFIX.'asset a
+				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).'
+					AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid 
+					AND a.assetid = l2.'.$side_of_link.'id
+					AND ('.$treeid_string.')
+				ORDER BY t2.treeid';
 
 		$result = $db->getAll($sql);
 
@@ -360,18 +374,58 @@ class Event_Manager extends MySource_Object
 			return false;
 		}
 
-		$assetid = Array();
-		$nice_value = true;
+		$assetids = Array();
+		$start_treeid = true;
+		$popped_treeid = false;
 
 		for ($i = 0; $i < count($result); $i++) {
-			if ($info['value'] && $info['value'] != $result[$i]['value']) $nice_value = false;
-			if (!$result[$i]['dependant'] && $info['dependant'])    continue;
-			if (!$result[$i]['exclusive'] && $info['exclusive'])    continue;
-			if ($result[$i]['link_type'] & $info['link_type'] <= 0) continue;
-			if ($i == 0) $assetid[] = $result[$i]['assetid'];
-		}
-		if (!$nice_value) return Array();
-		return $assetid;
+
+			if (isset($result[$i+1]) && strpos($result[$i+1]['treeid'], $result[$i]['treeid']) === false) {
+				
+				// the next treeid is not based on our treeid, so we will be starting a new branch
+				$start_treeid = true;
+				$popped_treeid = false;
+
+			} else {
+
+				if (!$popped_treeid) {
+
+					if (in_array($result[$i]['assetid'], $assetids)) {
+						// we have already approved this asset to get notified
+						// so lets skip the rest of the branch
+						$popped_treeid = true;
+						continue;
+					}
+
+					if ($side_of_link == 'minor') {
+						if (!isset($result[$i +1])) continue;
+						$test_info = $result[$i +1];
+					} else {
+						$test_info = $result[$i];
+					}
+
+					$valid_assetid = true;
+					if ($valid_assetid && $info['value'] && $info['value'] != $test_info['value']) $valid_assetid = false;
+					if ($valid_assetid && !$test_info['dependant'] && $info['dependant'])          $valid_assetid = false;
+					if ($valid_assetid && !$test_info['exclusive'] && $info['exclusive'])          $valid_assetid = false;
+					if ($valid_assetid &&  $test_info['link_type'] &  $info['link_type'] <= 0)     $valid_assetid = false;
+
+					if ($start_treeid && $valid_assetid) {
+						$assetids[] = $result[$i]['assetid'];
+						$start_treeid = false;
+					} else if (!$start_treeid && !$valid_assetid) {
+						// the last assetid we added failed the test, so get rid of it
+						array_pop($assetids);
+						$popped_treeid = true;
+					}
+
+				}//end if !$popped_treeid
+
+			}//end if not starting again next time around
+
+		}//end for
+
+		return $assetids;
 
 	}//end _getDiscreteAssets()
 
