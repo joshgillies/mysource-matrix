@@ -18,15 +18,25 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_fields.xml,v 1.5 2003/11/26 00:51:32 gsherwood Exp $
+* $Id: edit_interface_screen_fields.xml,v 1.6 2004/02/10 00:33:16 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 <contents>
+	<section name="Searchable asset types">
+		<field>
+			<display_name>Types</display_name>
+			<note></note>
+			<function_call>
+				<paint_function name="paintTypes" />
+				<process_function name="processTypes" />
+			</function_call>
+		</field>
+	</section>
 	<section name="Field Configuration">
 		<field>
 			<display_name>Fields</display_name>
-			<note>Add search query fields here.</note>
+			<note></note>
 			<function_call>
 				<paint_function name="paintFields" />
 				<process_function name="processFields" />
