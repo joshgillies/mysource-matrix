@@ -77,8 +77,11 @@ class Asset extends Resolve_Object
 	* An array of tab code names and their display names
 	* @var Array()
 	*/
-	var $_tabs = Array('permissions' => Array('name' => 'Permissions', 
-											  'icon' => 'users'
+	var $_tabs = Array( 'permissions' => Array('name' => 'Permissions', 
+											  'icon'  => 'users'
+											  ),
+									'workflow'    => Array('name' => 'Workflow', 
+											  'icon'  => 'web'
 											  )
 					   );
 
@@ -1862,12 +1865,13 @@ class Asset extends Resolve_Object
 	* Grants a permission for the passed user or user_group
 	*
 	* @param int	$assetid	the id of the user or user_group to add the permission for
-	* @param string	$permission	the permission code you are adding (R, W, A)
+	* @param string	$permission	the permission code you are adding
+	* @param string	$extras		extra information you want to store (eg. workflow)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function grantPermission($assetid, $permission)
+	function grantPermission($assetid, $permission, $extras='')
 	{
 
 		$assetid = (int) $assetid;
@@ -1891,9 +1895,9 @@ class Asset extends Resolve_Object
 
 		// add the permission into the database
 		$sql = 'INSERT INTO sq_asset_permission
-				(assetid, userid, permission)
+				(assetid, userid, permission, extras)
 				VALUES
-				('.$db->quote($this->id).','.$db->quote($assetid).', '.$db->quote($permission).')';
+				('.$db->quote($this->id).','.$db->quote($assetid).', '.$db->quote($permission).', '.$db->quote($extras).')';
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -1903,6 +1907,7 @@ class Asset extends Resolve_Object
 
 		// clear the permission cache
 		unset($this->_tmp['permission_cache']);
+		$this->_updated();
 		return true;
 	}//end grantPermission()
 
@@ -1950,9 +1955,48 @@ class Asset extends Resolve_Object
 
 		// clear the permission cache
 		unset($this->_tmp['permission_cache']);
-
+		$this->_updated();
 		return true;
 	}//end revokePermission()
+
+
+	/**
+	* Sets the extras for the passed user or user_group
+	*
+	* @param int	$assetid	the id of the user or user_group to edit the permission for
+	* @param string	$permission	the permission code you are editing
+	* @param string	$permission	the revoked code you are editing
+	*
+	* @return boolean
+	* @access public
+	*/
+	function editPermission($assetid, $permission, $revoked, $extras)
+	{
+		$assetid = (int) $assetid;
+		$current = &$this->getPermission($permission, false, false);
+		if (!in_array($assetid, array_keys($current))) return false;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// add the permission into the database
+		$sql = 'UPDATE sq_asset_permission
+				SET extras = '.$db->quote($extras).'
+				WHERE assetid = '.$db->quote($this->id).'
+				  AND userid = '.$db->quote($assetid).'
+				  AND permission = '.$db->quote($permission).'
+				  AND revoked = '.$db->quote($revoked);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		// clear the permission cache
+		unset($this->_tmp['permission_cache']);
+		$this->_updated();
+		return true;
+	}//end editPermission()
 
 
 	/**
@@ -2000,6 +2044,7 @@ class Asset extends Resolve_Object
 
 		// clear the permission cache
 		unset($this->_tmp['permission_cache']);
+		$this->_updated();
 		return true;
 	}//end revokeInheritedPermission()
 
@@ -2050,6 +2095,7 @@ class Asset extends Resolve_Object
 
 		// clear the permission cache
 		unset($this->_tmp['permission_cache']);
+		$this->_updated();
 		return true;
 	}//end reinstateRevokedPermission()
 
@@ -2074,6 +2120,12 @@ class Asset extends Resolve_Object
 			return $this->_tmp['permission_cache'][$storage_name][$permission];
 		}
 
+		// work out the max_limit if needed
+		// we will need this if checking permission below workflow
+		// so we dont interperate workflow as admin access
+		$max_limit = 0;
+		if ($permission < SQ_PERMISSION_WORKFLOW) $max_limit = SQ_PERMISSION_WORKFLOW;
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// get the permissions
@@ -2088,7 +2140,7 @@ class Asset extends Resolve_Object
 					? 'CONCAT(pp.userid, '.$db->quote('~').', pp.permission, '.$db->quote('~').', MAX(pt.treeid))' 
 					: 'pp.userid || '.$db->quote('~').' || pp.permission || '.$db->quote('~').' || MAX(pt.treeid)';
 
-			$sql = 'SELECT DISTINCT p.userid, p.assetid
+			$sql = 'SELECT DISTINCT p.userid, p.assetid, p.extras
 					FROM sq_asset_link l
 					  INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid 
 					  INNER JOIN sq_asset_permission p ON l.minorid = p.assetid
@@ -2105,7 +2157,8 @@ class Asset extends Resolve_Object
 							WHERE cl.minorid = '.$db->quote($this->id).'
 							  AND ct.treeid LIKE '.$concat.'
 							  AND pt.treeid <= ct.treeid
-							  AND pp.permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).'
+							  AND pp.permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).' '
+							.(($max_limit) ? 'AND pp.permission < '.$db->quote($max_limit) : '').'
 							GROUP BY ct.treeid, pp.userid, pp.permission');
 
 			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -2117,20 +2170,27 @@ class Asset extends Resolve_Object
 
 		} else {
 			// just get the permissions set for this asset
-			$sql = 'SELECT userid, assetid FROM sq_asset_permission
+			$sql = 'SELECT userid, assetid, extras FROM sq_asset_permission
 					WHERE assetid = '.$db->quote($this->id).'
 					  AND permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).'
 					  AND revoked = 0';
 		}
 
-		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return Array();
 		}
 
-		$this->_tmp['permission_cache'][$storage_name][$permission] = $result;
-		return $result;
+		// format the result so we can use it
+		$return_result = Array();
+		foreach ($result as $row) {
+			if (!isset($return_result[$row['userid']])) $return_result[$row['userid']] = Array();
+			$return_result[$row['userid']][$row['assetid']] = $row['extras'];
+		}
+
+		$this->_tmp['permission_cache'][$storage_name][$permission] = $return_result;
+		return $return_result;
 	}//end getPermission()
 
 
@@ -2224,7 +2284,7 @@ class Asset extends Resolve_Object
 		}
 
 		// generate the MEGA query
-		$major_query = 'SELECT DISTINCT pp.userid, pp.assetid
+		$major_query = 'SELECT DISTINCT pp.userid, pp.assetid, pp.extras
 						FROM sq_asset_link cl
 						  INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
 						  sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid
@@ -2239,14 +2299,21 @@ class Asset extends Resolve_Object
 
 		$major_query = $major_query."\n".$or_query."\n)";
 
-		$major_result = $db->getAssoc($major_query, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		$major_result = $db->getAll($major_query);
 		if (DB::isError($major_result)) {
 			trigger_error($major_result->getMessage().'<br/>'.$major_result->getUserInfo(), E_USER_WARNING);
 			return Array();
 		}
 
-		$this->_tmp['permission_cache']['full_permissions'][$permission] = $major_result;
-		return $major_result;
+		// format the result so we can use it
+		$return_result = Array();
+		foreach ($major_result as $row) {
+			if (!isset($return_result[$row['userid']])) $return_result[$row['userid']] = Array();
+			$return_result[$row['userid']][$row['assetid']] = $row['extras'];
+		}
+
+		$this->_tmp['permission_cache']['full_permissions'][$permission] = $return_result;
+		return $return_result;
 	}//end getInheritedPermission()
 
 
@@ -2272,19 +2339,26 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// just get the permissions set for this asset
-		$sql = 'SELECT userid, assetid FROM sq_asset_permission
+		$sql = 'SELECT userid, assetid, extras FROM sq_asset_permission
 				WHERE assetid = '.$db->quote($this->id).'
 				  AND permission = '.$db->quote($permission).'
 				  AND revoked = 1';
 
-		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return Array();
 		}
 
-		$this->_tmp['permission_cache']['revoked_permissions'][$permission] = $result;
-		return $result;
+		// format the result so we can use it
+		$return_result = Array();
+		foreach ($result as $row) {
+			if (!isset($return_result[$row['userid']])) $return_result[$row['userid']] = Array();
+			$return_result[$row['userid']][$row['assetid']] = $row['extras'];
+		}
+
+		$this->_tmp['permission_cache']['revoked_permissions'][$permission] = $return_result;
+		return $return_result;
 	}//end getRevokedPermission()
 
 
