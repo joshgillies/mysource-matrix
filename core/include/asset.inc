@@ -1520,7 +1520,7 @@ class Asset extends Resolve_Object
 
 		$attribute = &$this->getAttribute($name);
 		if (!$attribute->setValue($value)) {
-			trigger_error("Value of attribute '$name' not set in setAttrValue()", E_USER_NOTICE);
+			trigger_error("Value of attribute '$name' not set in setAttrValue()", E_USER_WARNING);
 		}
 
 		if ($this->vars[$name]['value'] == $value) return true;
@@ -1656,16 +1656,17 @@ class Asset extends Resolve_Object
 	function grantPermission($assetid, $permission)
 	{
 
-		if (empty($assetid)) return false;
-
 		$current = &$this->getPermission($permission, false);
 		if (in_array($assetid, array_keys($current))) return false;
 
-		// check that the passed assetid is a user or user_group
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
-			trigger_error('Cannot grant permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
-			return false;
+		// if we dont have an assetid, we are granting public access
+		if (!empty($assetid)) {
+			// check that the passed assetid is a user or user_group
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
+				trigger_error('Cannot grant permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
+				return false;
+			}
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -1700,19 +1701,19 @@ class Asset extends Resolve_Object
 	*/
 	function revokePermission($assetid, $permission)
 	{
-		$permission = (int) $permission;
-
-		if (empty($assetid)) return false;
 
 		// make sure the permission is set before trying to delete
 		$current = &$this->getPermission($permission, false);
 		if (!in_array($assetid, array_keys($current))) return false;
 
-		// check that the passed assetid is a user or user_group
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-		if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
-			trigger_error('Cannot revoke permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
-			return false;
+		// if we dont have an assetid, we are revoking public access
+		if (!empty($assetid)) {
+			// check that the passed assetid is a user or user_group
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
+				trigger_error('Cannot revoke permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
+				return false;
+			}
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -1762,7 +1763,8 @@ class Asset extends Resolve_Object
 		// get the permissions
 		$in_string = '';
 		foreach ($parents as $parent) $in_string .= $db->quote($parent).', ';
-		$in_string .= $db->quote($this->id);
+		$in_string .= $db->quote($this->id); // check permission set by this asset
+		$in_string .= ", '0'";               // check public permissions
 
 		$sql = 'SELECT userid, assetid FROM sq_asset_permission
 				WHERE assetid IN ('.$in_string.')
@@ -1780,7 +1782,37 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Returns true if the passed assetid has read access to this asset
+	* Returns true if at least one of the passed assetids has the passed permission
+	*
+	* @param array $assetids An array of user_group and/or user ids to check for permission
+	*						 If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function checkAccess($perm, $assetids=Array())
+	{
+		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->user->id) {
+			// if we are the root user, we can do anything
+			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+
+			// if we are a system administrator, we can do anything
+			// unless an asset overwrites this function
+			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
+			
+			// use the current user and their groups
+			$assetids = $GLOBALS['SQ_SYSTEM']->user->getParents(Array('user', 'user_group'));
+			$assetids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+		}
+		
+		$perms = array_keys($this->getPermission($perm));
+		$common = array_intersect($assetids, $perms);
+		return (!empty($common));
+	}//end checkAccess()
+
+
+	/**
+	* Returns true if at least one of the passed assetids has read access to this asset
 	*
 	* @param array $assetids An array of user_group and/or user ids to check for read access
 	*						 If the array is empty, the current user will be checked
@@ -1790,23 +1822,12 @@ class Asset extends Resolve_Object
 	*/
 	function readAccess($assetids=Array())
 	{
-		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->user->id) {
-			// if we are the root user, we can do anything
-			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
-
-			// use the current user and their groups
-			$assetids = $GLOBALS['SQ_SYSTEM']->user->getParents(Array('user', 'user_group'));
-			$assetids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-		}
-
-		$perms = array_keys($this->getPermission(SQ_PERMISSION_READ));
-		$common = array_intersect($assetids, $perms);
-		return (!empty($common));
+		return $this->checkAccess(SQ_PERMISSION_READ, $assetids);
 	}//end readAccess()
 
 
 	/**
-	* Returns true if the passed assetid has write access to this asset
+	* Returns true if at least one of the passed assetids has write access to this asset
 	*
 	* @param array $assetids An array of user_group and/or user ids to check for write access
 	*						 If the array is empty, the current user will be checked
@@ -1816,19 +1837,23 @@ class Asset extends Resolve_Object
 	*/
 	function writeAccess($assetids=Array())
 	{
-		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->user->id) {
-			// if we are the root user, we can do anything
-			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
-
-			// use the current user and their groups
-			$assetids = $GLOBALS['SQ_SYSTEM']->user->getParents(Array('user', 'user_group'));
-			$assetids[] = $GLOBALS['SQ_SYSTEM']->user->id;
-		}
-		
-		$perms = array_keys($this->getPermission(SQ_PERMISSION_WRITE));
-		$common = array_intersect($assetids, $perms);
-		return (!empty($common));
+		return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids);
 	}//end writeAccess()
+
+
+	/**
+	* Returns true if at least one of the passed assetids has admin access to this asset
+	*
+	* @param array $assetids An array of user_group and/or user ids to check for admin access
+	*						 If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function adminAccess($assetids=Array())
+	{
+		return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids);
+	}//end adminAccess()
 
 
 	/**
