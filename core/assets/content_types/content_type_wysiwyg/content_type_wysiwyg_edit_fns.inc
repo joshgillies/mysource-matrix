@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.5 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.6 2004/01/22 02:51:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,6 +87,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg->add_relative_href_check('(http[s]?://'.$_SERVER['HTTP_HOST'].')'.$_SERVER['PHP_SELF'], '$1'.$base_php_self);
 			$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?(\?a=[0-9]+)', './$1');
 			$wysiwyg->add_relative_href_check('([^.][^/])(\?a=[0-9]+)', '$1./$2');
+			$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?%([a-zA-Z_\-0-9]+)%', '%$1%');
 			$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?$1');
 
 			// get the keyword replacements
@@ -230,6 +231,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		return false;
 
 	}//end processBackend()
+
 
 }//end class
 
