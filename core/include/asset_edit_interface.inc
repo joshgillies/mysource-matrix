@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.150 2003/09/29 01:40:45 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.151 2003/10/01 23:35:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2700,7 +2700,7 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 		}
 
-		foreach ($asset_links as $link_data) $link_info[$link_data['majorid']] = $link_data;
+		foreach ($asset_links as $link_data) $link_info[$link_data['majorid']][] = $link_data;
 
 		$output_lineages = Array();
 		$editing_linkids = Array();
@@ -2709,46 +2709,50 @@ class Asset_Edit_Interface extends MySource_Object
 			// work out some values we are going to need
 			$parent_data = $link_tree[count($link_tree) -1];
 			$majorid = $parent_data['assetid'];
-			$link_type = $link_info[$majorid]['link_type'];
-			$linkid = $link_info[$majorid]['linkid'];
+			
+			foreach ($link_info[$majorid] as $link_data) {
 
-			// dont even pretend that the root folder is going to
-			// care that it is linking to this asset!!
-			#if ($majorid == 1) continue;
+				$link_type = $link_data['link_type'];
+				$linkid = $link_data['linkid'];
 
-			// work out if the user can change the link types
-			// the arg $allow_edit must be set to TRUE to try the write access test
-			$can_edit = ($write_access && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids));
+				// dont even pretend that the root folder is going to
+				// care that it is linking to this asset!!
+				//if ($majorid == 1) continue;
 
-			$asset_lineage = '';
-			foreach ($link_tree as $tree_data) {
-				if ($tree_data['assetid'] == $majorid) continue;
-				$asset_lineage .= $tree_data['name'].' &gt; ';
+				// work out if the user can change the link types
+				// the arg $allow_edit must be set to TRUE to try the write access test
+				$can_edit = ($write_access && in_array($link_type, array_keys($editable_link_types)) && !in_array($linkid, $editing_linkids));
+
+				$asset_lineage = '';
+				foreach ($link_tree as $tree_data) {
+					if ($tree_data['assetid'] == $majorid) continue;
+					$asset_lineage .= $tree_data['name'].' &gt; ';
+				}
+				$asset_lineage .= '<b>'.$parent_data['name'].'</b>';
+				if (isset($output_lineages[$asset_lineage]) && !$can_edit) continue;
+
+				ob_start();
+				?>
+				<tr>
+					<td class="sq-backend-table-cell" style="text-align: center;">
+						<?php echo $linkid; ?>
+					</td>
+					<td class="sq-backend-table-cell" style="text-align: center;">
+						<?php
+						if (!$can_edit) {
+							echo link_type_name($link_type);
+						} else {
+							combo_box($prefix.'_link_type['.$linkid.']', $editable_link_types, false, $link_type);
+							$editing_linkids[] = $linkid;
+						}
+						?>
+					</td>
+					<td class="sq-backend-table-cell"><?php echo $asset_lineage; ?></td>
+				</tr>
+				<?php
+				$output_lineages[] = ob_get_contents();
+				ob_end_clean();
 			}
-			$asset_lineage .= '<b>'.$parent_data['name'].'</b>';
-			if (isset($output_lineages[$asset_lineage]) && !$can_edit) continue;
-
-			ob_start();
-			?>
-			<tr>
-				<td class="sq-backend-table-cell" style="text-align: center;">
-					<?php echo $linkid; ?>
-				</td>
-				<td class="sq-backend-table-cell" style="text-align: center;">
-					<?php
-					if (!$can_edit) {
-						echo link_type_name($link_type);
-					} else {
-						combo_box($prefix.'_link_type['.$linkid.']', $editable_link_types, false, $link_type);
-						$editing_linkids[] = $linkid;
-					}
-					?>
-				</td>
-				<td class="sq-backend-table-cell"><?php echo $asset_lineage; ?></td>
-			</tr>
-			<?php
-			$output_lineages[$asset_lineage] = ob_get_contents();
-			ob_end_clean();
 
 		}//end foreach result
 
