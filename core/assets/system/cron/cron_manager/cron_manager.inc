@@ -194,7 +194,7 @@ class Cron_Manager extends Asset
 
 
 	/**
-	* Sets a permission for the passed user or user_group
+	* Adds a job to the cron manager
 	*
 	* @param object Cron_Job	$job		a reference to the cron job to add to add to the system
 	* @param object User		$user		a reference to the user that this job will run as
@@ -202,7 +202,7 @@ class Cron_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function &addJob(&$job, &$user)
+	function addJob(&$job, &$user)
 	{
 		if (!is_a($job, 'cron_job')) {
 			trigger_error('"'.$job->type().'" is not an asset type that inherites from "cron_job"', E_USER_WARNING);
@@ -223,6 +223,29 @@ class Cron_Manager extends Asset
 		return false;
 
 	}// end addJob()
+
+
+	/**
+	* Removes a job form the cron manager
+	*
+	* @param object Cron_Job	$job		a reference to the cron job to add to add to the system
+	*
+	* @return boolean
+	* @access public
+	*/
+	function removeJob(&$job)
+	{
+		if (!is_a($job, 'cron_job')) {
+			trigger_error('"'.$job->type().'" is not an asset type that inherites from "cron_job"', E_USER_WARNING);
+			return false;
+		}
+
+		$link = $this->getLinkByAsset($job);
+		if (empty($link)) return false;
+
+		return $this->deleteLink($link['linkid']);
+
+	}// end removeJob()
 
 
 	/**
