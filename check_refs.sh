@@ -3,7 +3,7 @@
 # the system object are being called by reference
 
 
-grep -rsn "[^&]\$GLOBALS\[.\?SQ_RESOLVE.\?\]->get" *
-grep -rsn "[^&]\$GLOBALS\[.\?SQ_RESOLVE.\?\]->db;" *
-grep -rsn "[^&]\$GLOBALS\[.\?SQ_RESOLVE.\?\]->am->getAsset(" *
+grep -rsn "[^&]\$GLOBALS\[.\?SQ_SYSTEM.\?\]->get" *
+grep -rsn "[^&]\$GLOBALS\[.\?SQ_SYSTEM.\?\]->db;" *
+grep -rsn "[^&]\$GLOBALS\[.\?SQ_SYSTEM.\?\]->am->getAsset(" *
 
