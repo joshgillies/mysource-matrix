@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.51 2004/08/11 06:20:14 tbarrett Exp $
+* $Id: asset_management.inc,v 1.52 2004/08/11 06:27:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -600,7 +600,7 @@ class Asset_Management extends MySource_Object
 		$type_code = $this->getAssetType();
 
 		// find the attributeid
-		$sql = 'SELECT attributeid FROM '.SQ_TABLE_PREFIX.'asset_attribute WHERE owning_type_code = \''.$type_code.'\' AND name=\''.$name.'\'';
+		$sql = 'SELECT attributeid FROM '.SQ_TABLE_PREFIX.'asset_attribute WHERE owning_type_code = '.$this->_db->quote($type_code).' AND name='.$this->_db->quote($name);
 		$attributeid = $this->_db->getOne($sql);
 
 		assert_valid_db_result($attributeid);
@@ -610,12 +610,12 @@ class Asset_Management extends MySource_Object
 		}
 
 		// delete the attribute values
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'asset_attribute_value WHERE attributeid='.$attributeid;
+		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'asset_attribute_value WHERE attributeid='.$this->_db->quote($attributeid);
 		$result = $this->_db->query($sql);
 		assert_valid_db_result($result);
 
 		// delete the attribute
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'asset_attribute WHERE attributeid='.$attributeid;
+		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'asset_attribute WHERE attributeid='.$this->_db->quote($attributeid);
 		$result = $this->_db->query($sql);
 		assert_valid_db_result($result);
 		
@@ -623,7 +623,8 @@ class Asset_Management extends MySource_Object
 		if (isset($this->vars[$name])) unset($this->vars[$name]);
 		
 		return true;
-	}
+		
+	}//end _deleteAttribute()
 
 
 	/**
