@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: JsEventNotFoundException.java,v 1.1 2004/01/13 00:51:50 mmcintyre Exp $
+* $Id: JsEventNotFoundException.java,v 1.2 2004/06/29 03:39:30 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -25,33 +25,29 @@ package net.squiz.matrix.assetmap;
 
 
 /** 
-* An exception indicating that Event was not found.
-* 
-* <code>$Id: JsEventNotFoundException.java,v 1.1 2004/01/13 00:51:50 mmcintyre Exp $</code>
-*
-* @author Marc McIntyre <mmcintyre@squiz.net>
-* 
-* @see JsEventManager
-*/
+ * An exception indicating that Event was not found.
+ * 
+ * @author Marc McIntyre <mmcintyre@squiz.net>
+ * @see JsEventManager
+ */
 public class JsEventNotFoundException extends Exception { 
 	
 	/** 
-	* Constructor 
-	*/
+	 * Constructor 
+	 */
 	public JsEventNotFoundException() {
 		super();
 	
-	}//end constructor
+	}
 
 
 	/**
-	* Constructor with message.
-	*
-	* @param msg the error message
-	*/
+	 * Constructor with message.
+	 *
+	 * @param msg the error message
+	 */
 	public JsEventNotFoundException(String msg) {
 		super(msg);
 	
-	}//end constructor
-
-}//end class
+	}
+}

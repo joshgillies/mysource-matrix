@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetManager.java,v 1.1 2004/06/29 01:23:03 mmcintyre Exp $
+* $Id: AssetManager.java,v 1.2 2004/06/29 03:39:30 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -344,7 +344,7 @@ public class AssetManager implements ReloadAssetListener {
 	 * 
 	 * @param assetElement the XML element that represents this asset
 	 * @param refresh if TRUE refresh the asset if it exists in the system
-	 * @return
+	 * @return the asset
 	 */
 	private Asset processAssetXML(Element assetElement, boolean refresh) {
 		Asset asset = null;
@@ -363,8 +363,14 @@ public class AssetManager implements ReloadAssetListener {
 		if (!assets.containsKey(assetid)) {
 			AssetType type = getAssetType(typeCode);
 			asset = createAsset(assetid, name, type, linkType, status, accessible, url, webPath);
-		} else {
+		} else {			
 			asset = getAsset(assetid);
+			
+			// make sure that if the url has changed in this asset 
+			// that we propagate the url down the tree
+			if (!(asset.getURL().equals(url)))
+				propagateURL(asset, url);
+			
 			if (refresh) {
 				asset.refresh(name, status, linkType, accessible, url, webPath);
 				Iterator iterator = asset.getTreeNodes();
@@ -412,6 +418,52 @@ public class AssetManager implements ReloadAssetListener {
 		}
 		parent.cleanNodes(linkids);
 		parent.setChildCount(index);
+	}
+	
+	/**
+	 * Propagates a url of an asset down to all its children (not only)
+	 * immediate children
+	 * 
+	 * @param parent the parent to traverse from
+	 * @param url the url to propagate
+	 */
+	private void propagateURL(Asset parent, String url) {
+		
+		parent.setURL(url);
+		
+		Iterator childNodes = parent.getTreeNodes();
+		while (childNodes.hasNext()) {
+			AssetTreeNode node = (AssetTreeNode) childNodes.next();
+			propagateURL(node, url);
+		}
+	}
+	
+	/**
+	 * Traverses asset tree nodes that are only under the particular parent
+	 * and propagates their preview url. It is important that we only consider
+	 * nodes under a particular branch, as the asset may exist in some other part
+	 * of the tree which may have a totally different url on the site level.
+	 * 
+	 * @param parent the parent to propagate from
+	 * @param url the url to propagate
+	 */
+	private void propagateURL(AssetTreeNode parent, String url) {
+		if (url.equals("") || url == null)
+			return;
+		
+		// if we have a url then we want to set this as the preview
+		// url of the node
+		if (parent.getAsset().getURL().equals("")) {
+			if (!parent.getAsset().getWebPath().equals(""))
+				parent.setPreviewURL(url + "/" + parent.getAsset().getWebPath());
+		} else {
+			parent.setPreviewURL(parent.getAsset().getURL());
+		}
+		Enumeration children = parent.children();
+		while (children.hasMoreElements()) {
+			AssetTreeNode node = (AssetTreeNode) children.nextElement();
+			propagateURL(node, url);
+		}
 	}
 	
 	/**

@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.2 2004/06/29 01:22:33 mmcintyre Exp $
+* $Id: Asset.java,v 1.3 2004/06/29 03:39:30 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -299,8 +299,22 @@ public class Asset {
 		this.childrenLoaded = childrenLoaded;
 	}
 	
+	/**
+	 * Returns TRUE if this asset has its children loaded
+	 * 
+	 * @return the children loaded property
+	 */
 	public boolean childrenLoaded() {
 		return childrenLoaded;
+	}
+	
+	/**
+	 * Sets the URL
+	 * 
+	 * @param url the new url to set
+	 */
+	public void setURL(String url) {
+		this.url = url;
 	}
 	
 	/**
