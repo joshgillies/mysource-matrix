@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.313 2004/07/23 07:12:23 mmcintyre Exp $
+* $Id: asset.inc,v 1.314 2004/08/09 08:52:54 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -287,6 +287,7 @@ class Asset extends MySource_Object
 		// to be setting public write access
 		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, true)) {
+				$ms->abortLog();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
 				$this->id = 0;
