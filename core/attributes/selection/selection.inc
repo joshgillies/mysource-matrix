@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.34 2004/12/06 14:54:48 brobertson Exp $
+* $Id: selection.inc,v 1.35 2004/12/23 22:02:05 tbarrett Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -239,6 +239,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=false)
 	{
+
 		$options = $this->_params['options'];
 		if ($this->_params['allow_empty'] && !$this->_params['multiple']) {
 			if (empty($this->_edit_params['empty_text'])) $this->_edit_params['empty_text'] = '-- Leave Empty --';
@@ -259,7 +260,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 					// may have a value left over from when we
 					// were a mutiple selection field
 					$value = $this->_str2ar($value);
-					if (!isset($options[$value[0]])) return;
+					if (empty($value) || !isset($options[$value[0]])) return;
 					echo $options[$value[0]];
 				} else {
 					echo $options[$value];
