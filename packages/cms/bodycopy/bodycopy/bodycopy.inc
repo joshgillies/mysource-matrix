@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy.inc,v 1.29 2003/10/10 06:49:27 brobertson Exp $
+* $Id: bodycopy.inc,v 1.30 2003/10/21 00:25:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -159,29 +159,6 @@ class Bodycopy extends Asset
 		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 
 	}// end createLink()
-
-
-	/**
-	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
-	*
-	* @param object Asset	$minor		the minor asset that we are linking to
-	* @param string			$link_type	the type of link this is
-	*
-	* @return mixed TRUE or error message string 
-	* @access public
-	*/
-	function canCreateLink(&$minor, $link_type, $exclusive)
-	{
-		if (!$this->id) return false;
-
-		// if you dont have write access to this asset you cant create any links
-		if (!$this->writeAccess('links')) {
-			return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied';
-		}
-
-		return parent::canCreateLink($minor, $link_type, $exclusive);
-
-	}//end canCreateLink()
 
 
 	/**
