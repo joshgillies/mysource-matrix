@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.2 2004/07/22 00:50:14 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.3 2004/07/22 04:32:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,8 @@ require_once SQ_FUDGE_PATH . '/general/datetime.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -71,23 +72,6 @@ class Calendar_Event extends Asset
 	
 	}//end _getName()
 
-
-	/**
-	* Returns an array of all the permitted links type, the type asset and the cardinality
-	*
-	* ?????
-	* The base calendar event asset accepts NO links underneath it. Calendar event subclasses may
-	* wish to create links to other assets which are meaningful to be associated to that type of
-	* event (eg. required resources); they should override this if they wish to do that.
-	*
-	* @return array
-	* @access protected
-	*/
-	//function _getAllowedLinks()
-	//{
-	//	return Array();
-	//
-	//}//end _getAllowedLinks()
 
 	/**
 	* Return the keywords with their replacements
@@ -130,6 +114,7 @@ class Calendar_Event extends Asset
 
 	}//end getAssetKeywords()
 
+
 	/**
 	* Save attributes set with setAttrValue to the database
 	*
@@ -138,7 +123,7 @@ class Calendar_Event extends Asset
 	*
 	* @return boolean
 	* @access public
-	* @see setAttrValue()
+	* @see Asset::setAttrValue()
 	*/
 	function saveAttributes($dont_run_updated=false)
 	{
@@ -209,7 +194,7 @@ class Calendar_Event extends Asset
 		// all sweet, so it seems
 		return parent::saveAttributes($dont_run_updated);
 
-	}//end saveAttributes();
+	}//end saveAttributes()
 	
 
 	/**
@@ -222,14 +207,12 @@ class Calendar_Event extends Asset
 	*                                              (ie. calendar days * 86400)
 	* If both fields specified in full => return the difference between the two times in seconds
 	*
-	*
-	* @return int	the number of seconds between the two datetimes, or NULL if no time is set up
-	*				yet (ie. start date has not been filled)
+	* @return int
 	* @access public
 	*/
 	function getDuration()
 	{
-		$seconds_per_day = 24*60*60;
+		$seconds_per_day = 24 * 60 * 60;
 
 		$start_date = $this->attr('start_date');
 		$end_date   = $this->attr('end_date');
@@ -240,15 +223,15 @@ class Calendar_Event extends Asset
 		$start_has_date = (strpos($start_date, '----------') === false);
 		$end_has_date   = (strpos($end_date, '----------') === false);
 
-		if (!$start_has_date) {	// start has no date, then why are we here
-			return null;
-		}
+		if (!$start_has_date) return null;
 
-		if (!$end_has_date) {	// no end date
-			if ($start_has_time) {		// start has a time => single point in time
+		if (!$end_has_date) {
+			if ($start_has_time) {
+				// single point in time, and so it has no duration
 				return 0;
 			} else {
-				return $seconds_per_day;	// start has no time => single day event, return '1 day'
+				// this is a single day event, return '1 day'
+				return $seconds_per_day;
 			}
 		}
 
@@ -256,27 +239,29 @@ class Calendar_Event extends Asset
 		// ISO-to-timestamp conversion function already recognises that it's not a full datetime
 		// if that's the case
 
-		if (!$start_has_time && !$end_has_time)	{		// multiple day event
+		if (!$start_has_time && !$end_has_time)	{
 			// in a multiple day event without times it's assumed to be the start of the start date
-			// (ie. 00:00) to the end of the end date (ie. 00:00 the next day).
+			// (ie. 00:00) to the end of the end date (ie. 00:00 the day after end date).
 			return iso8601_ts($end_date) - iso8601_ts($start_date) + $seconds_per_day;
 
-		} else {		// all fields specified, from one time point to another
+		} else {
+			// all fields specified, from one time point to another
 			return iso8601_ts($end_date) - iso8601_ts($start_date);
 
 		}
 
 	}//end getDuration()
 
+
 	/**
 	* Get the start date and time in friendly format
 	*
-	* @access public
 	* @return string the start date and time if appropriate, in friendly format
+	* @access public
 	*/
 	function getFriendlyStart() 
 	{
-		if (strpos($this->attr('start_date'), '--:--:--') === FALSE) { // has time
+		if (strpos($this->attr('start_date'), '--:--:--') === FALSE) {
 			return readable_datetime(iso8601_ts($this->attr('start_date')));
 		} else { 
 			return date('d M Y', iso8601_ts($this->attr('start_date')));
@@ -284,15 +269,16 @@ class Calendar_Event extends Asset
 
 	}//end getFriendlyStart()
 
+
 	/**
 	* Get the end date and time in friendly format
 	*
-	* @access public
 	* @return string the end date and time if appropriate, in friendly format
+	* @access public
 	*/
 	function getFriendlyEnd() 
 	{
-		if (strpos($this->attr('end_date'), '--:--:--') === FALSE) { // has time
+		if (strpos($this->attr('end_date'), '--:--:--') === FALSE) {
 			return readable_datetime(iso8601_ts($this->attr('end_date')));
 		} else { 
 			return date('d M Y', iso8601_ts($this->attr('end_date')));
@@ -304,15 +290,19 @@ class Calendar_Event extends Asset
 	/**
 	* Get the start and end details in friendly format
 	* 
-	* If start date = end date, the date is not repeated.
+	* If date components of Start Date and End Date attributes are the same, the date is not repeated,
+	* and the times are shown in abbreviated format (see example returns below).
 	*
+	* Example returns:
+	* if (start date != end date)		"23 Jul 2004 4:00pm - 25 Jul 2004 10:00am"
+	* if (start date == end date)		"23 Jul 2004 4:00pm-5:00pm"
+	*
+	* @return string
 	* @access public
-	* @return string the end date and time if appropriate, in friendly format
 	*/
 	function getFriendlyDatesAndTimes()
 	{
 		if (substr($this->attr('start_date'), 0, 10) == substr($this->attr('end_date'), 0, 10)) {
-			// start and end dates are the same
 			return $this->getFriendlyStart() . '-' . date('g:ia', iso8601_ts($this->attr('end_date')));
 		} else {
 			return $this->getFriendlyStart() . ' - ' . $this->getFriendlyEnd();
@@ -320,9 +310,11 @@ class Calendar_Event extends Asset
 
 	}//end getFriendlyDatesAndTimes()
 
+
 	/**
 	* Called by the design to print the body of this asset
 	*
+	* @return void
 	* @access public
 	*/
 	function printBody()
@@ -354,7 +346,6 @@ class Calendar_Event extends Asset
 		<?php
 
 	}//end printBody()
-
 
 
 }//end class
