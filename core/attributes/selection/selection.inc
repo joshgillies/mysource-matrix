@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.28 2004/08/11 01:03:27 gsherwood Exp $
+* $Id: selection.inc,v 1.29 2004/09/08 03:58:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,13 +29,14 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 * Selection Asset Attribute
 *
 * parameters => Array(
-*                     'options'  => Array('value' => 'text name')
-*                     'multiple' => [true|false]
+*                     'options'     => Array('value' => 'text name')
+*                     'multiple'    => [true|false]
+*                     'allow_empty' => [true|false]
 *               )
 *
 *
 * <!-- Sample Edit Interface XML Node -->
-*   <selection style="list"  height="1" />
+*   <selection style="list"  height="1" empty_text="" />
 *   <selection style="boxes" columns="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
@@ -45,6 +46,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 */
 class Asset_Attribute_Selection extends Asset_Attribute
 {
+
 
 	/**
 	* Constructor
@@ -56,15 +58,17 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	function Asset_Attribute_Selection($attributeid=0, $value=null) 
 	{
 		$this->Asset_Attribute($attributeid, $value);
-		if (!$attributeid) {
-			// Set Some default params for when we are loaded without an ID
-			$this->_params = Array('options'  => Array(), 'multiple' => false);
-		}
+
+		// set default parameters
+		if (!isset($this->_params['options']))     $this->_params['options']     = Array();
+		if (!isset($this->_params['multiple']))    $this->_params['multiple']    = false;
+		if (!isset($this->_params['allow_empty'])) $this->_params['allow_empty'] = true;
 
 		// set default edit parameters
-		$this->_edit_params['style']   = 'list';
-		$this->_edit_params['height']  = '';
-		$this->_edit_params['columns'] = '1';
+		$this->_edit_params['style']      = 'list';
+		$this->_edit_params['height']     = '';
+		$this->_edit_params['columns']    = '1';
+		$this->_edit_params['empty_text'] = '';
 
 	}//end constructor
 
@@ -81,9 +85,11 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	{
 		if (!parent::setEditParams($node)) return false;
 
-		if (!empty($node->attributes['style'])) $this->_edit_params['style'] = $node->attributes['style'];
-		if (!empty($node->attributes['height'])) $this->_edit_params['height'] = $node->attributes['height'];
-		if (!empty($node->attributes['columns'])) $this->_edit_params['columns'] = $node->attributes['columns'];
+		if (isset($node->attributes['style'])) $this->_edit_params['style'] = $node->attributes['style'];
+		if (isset($node->attributes['height'])) $this->_edit_params['height'] = $node->attributes['height'];
+		if (isset($node->attributes['columns'])) $this->_edit_params['columns'] = $node->attributes['columns'];
+		if (isset($node->attributes['empty_text'])) $this->_edit_params['empty_text'] = $node->attributes['empty_text'];
+
 		return true;
 
 	}//end setEditParams()
@@ -110,7 +116,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 				<td class="sq-backend-section-heading" style="width: 100px;">Style</td>	
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) combo_box($prefix.'_'.$this->name.'_style', $searchStyles, false, $this->_edit_params['style']);
+					if ($write_access) combo_box($prefix.'_style', $searchStyles, false, $this->_edit_params['style']);
 					else echo $this->_edit_params['style'];
 					?>
 				</td>
@@ -119,7 +125,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 				<td class="sq-backend-section-heading" style="width: 100px;">Height</td>
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_'.$this->name.'_height', $this->_edit_params['height']);
+					if ($write_access) text_box($prefix.'_height', $this->_edit_params['height']);
 					else echo $this->_edit_params['height'];
 					?>
 				</td>
@@ -128,11 +134,26 @@ class Asset_Attribute_Selection extends Asset_Attribute
 				<td class="sq-backend-section-heading" style="width: 100px;">Columns</td>
 				<td class="sq-backend-table-cell">
 					<?php
-					if ($write_access) text_box($prefix.'_'.$this->name.'_columns', $this->_edit_params['columns']);
+					if ($write_access) text_box($prefix.'_columns', $this->_edit_params['columns']);
 					else echo $this->_edit_params['columns'];
 					?>
 				</td>
 			</tr>
+			<?php
+			if ($this->_params['allow_empty']) {
+				?>
+				<tr>
+					<td class="sq-backend-section-heading" style="width: 100px;">Empty Text</td>
+					<td class="sq-backend-table-cell">
+						<?php
+						if ($write_access) text_box($prefix.'_empty', $this->_edit_params['empty_text']);
+						else echo $this->_edit_params['empty_text'];
+						?>
+					</td>
+				</tr>
+				<?php
+			}
+			?>
 		</table>
 		<?php
 
@@ -149,28 +170,29 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	*/
 	function processEditParams($prefix)
 	{
-		// reading submitted vars
-		if (!empty($_POST[$prefix.'_' . $this->name . '_style'])) {
-			$this->_edit_params['style'] = $_POST[$prefix.'_' . $this->name . '_style'];
+		if (!empty($_POST[$prefix.'_style'])) {
+			$this->_edit_params['style'] = $_POST[$prefix.'_style'];
 		}
 
-		if (!empty($_POST[$prefix.'_' . $this->name . '_height'])) {
-			$this->_edit_params['height'] = $_POST[$prefix.'_' . $this->name . '_height'];
+		if (!empty($_POST[$prefix.'_height'])) {
+			$this->_edit_params['height'] = $_POST[$prefix.'_height'];
 		}
 
-		if (!empty($_POST[$prefix.'_' . $this->name . '_columns'])) {
-			$this->_edit_params['columns'] = $_POST[$prefix.'_' . $this->name . '_columns'];
+		if (!empty($_POST[$prefix.'_columns'])) {
+			$this->_edit_params['columns'] = $_POST[$prefix.'_columns'];
+		}
+		
+		if (!empty($_POST[$prefix.'_empty'])) {
+			$this->_edit_params['empty_text'] = $_POST[$prefix.'_empty'];
 		}
 
 		$values = Array();
-		$values['style'] = $this->_edit_params['style'];
-		$values['height'] = $this->_edit_params['height'];
-		$values['columns'] = $this->_edit_params['columns'];
+		$values['style']      = $this->_edit_params['style'];
+		$values['height']     = $this->_edit_params['height'];
+		$values['columns']    = $this->_edit_params['columns'];
+		$values['empty_text'] = $this->_edit_params['empty_text'];
 
-		$result = Array();
-		$result[$this->name] = $values;
-
-		return $result;
+		return $values;
 
 	}//end processEditParams()
 
@@ -185,7 +207,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	*/
 	function _ar2str($array)
 	{
-		return implode('|',array_intersect(array_keys($this->_params['options']),$array));
+		return implode('|', array_intersect(array_keys($this->_params['options']), $array));
 
 	}//end _ar2str()
 
@@ -200,7 +222,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	*/
 	function _str2ar($string)
 	{
-		return array_intersect(array_keys($this->_params['options']),explode('|',$string));
+		return array_intersect(array_keys($this->_params['options']), explode('|', $string));
 
 	}//end _str2ar()
 
@@ -210,14 +232,24 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	*
 	* @param string		$prefix		prefix for the form element
 	* @param boolean	$read_only	are we just printing the value
-	* @param boolean	$add		if we should add the field name, or not (not - for search page)
 	*
 	* @access public
 	*/
-	function paint($prefix, $read_only=false, $add=true)
+	function paint($prefix, $read_only=false)
 	{
 		$options = $this->_params['options'];
-		$value = (!empty($this->_params['multiple']) && !is_array($this->value)) ? $this->_str2ar($this->value) : $this->value;
+		if ($this->_params['allow_empty']) {
+			if (empty($this->_edit_params['empty_text'])) $this->_edit_params['empty_text'] = '-- Leave Empty --';
+			$options = array_reverse($options);
+			$options[''] = $this->_edit_params['empty_text'];
+			$options = array_reverse($options);
+		}
+
+		if (!empty($this->_params['multiple']) && !is_array($this->value)) {
+			$value = $this->_str2ar($this->value);
+		} else { 
+			$value = $this->value;
+		}
 
 		if ($read_only) {
 			if (empty($this->_params['multiple'])) {
@@ -244,52 +276,45 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		}
 		
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
 		// just have this so that we can check whether this field was posted or not
 		// because checkboxes don't have an entry in the $_POST array when they are not selected
+		hidden_field($prefix.'_posted', '1');
 
-		// add the hidden field only if working in backend (i.e. not on search page itself)
-		if ($add) {
-			hidden_field($prefix.'_'.$this->name.'_posted', '1');
-		}
-
-		if($this->_edit_params['style'] == 'list') {
-			if ($add) {
-				combo_box($prefix.'_'.$this->name, $options, !empty($this->_params['multiple']), $value, $this->_edit_params['height']);
-			} else {
-				combo_box($prefix, $options, !empty($this->_params['multiple']), $value, $this->_edit_params['height']);
-			}
+		if ($this->_edit_params['style'] == 'list') {
+			combo_box($prefix, $options, !empty($this->_params['multiple']), $value, $this->_edit_params['height']);
 		} else {
-			echo ('<table cellpadding="0" cellspacing="0" border="0"><tr>');
-			reset($options);
-			$i = 0;
-			while(list($key,$val) = each($options)) {
-				if(empty($this->_params['multiple'])) {
-					?><td>&nbsp;<input type="radio" name="<?php 
-						if ($add) {
-							echo $prefix.'_'.$this->name;
+			?>
+			<table cellpadding="0" cellspacing="0" border="0">
+				<tr>
+					<?php
+					$i = 0;
+					while (list($key, $val) = each($options)) {
+						if (empty($this->_params['multiple'])) {
+							?>
+							<td>&nbsp;
+								<input type="radio" name="<?php echo $prefix; ?>" value="<?php echo $key; ?>"<?php echo (($key == $value) ? ' checked' : ''); ?>>
+								<?php echo $val?>
+							</td>
+							<?php
 						} else {
-							echo $prefix;
+							?>
+							<td>&nbsp;
+								<input type="checkbox" name="<?php echo $prefix."[$i]"; ?>" value="<?php echo $key; ?>"<?php echo ((is_array($value) && in_array($key, $value)) ? ' checked' : ''); ?>>
+								<?php echo $val?>
+							</td>
+							<?php
+
 						}
-					?>" value="<?php echo $key?>"<?php
-					if($key == $value) echo ' checked';
-					?>><?php echo $val?></td><?php
-				} else {
-					?><td>&nbsp;<input type="checkbox" name="<?php 
-						if ($add) {
-							echo $prefix.'_'.$this->name."[$i]";
-						} else { 
-							echo $prefix . "[$i]";
+						if ((($i++) % $this->_edit_params['columns']) == ($this->_edit_params['columns'] - 1)) {
+							echo '</tr><tr>';
 						}
-							?>" value="<?php echo $key?>"<?php
-					if(is_array($value) && in_array($key, $value)) echo ' checked';
-					?>><?php echo $val?></td><?php
-				}
-				if ((($i++) % $this->_edit_params['columns']) == ($this->_edit_params['columns'] - 1)) {
-					echo "</tr><tr>" ;
-				}
-			}
-			echo "</tr></table>" ;
-		}
+					}
+					?>
+				</tr>
+			</table>
+			<?php
+		}//end if style is list
 
 	}//end paint()
 
@@ -304,12 +329,10 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	function process($prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
-		if (!isset($_POST[$prefix.'_'.$this->name.'_posted'])) return false;
-		$value = (isset($_POST[$prefix.'_'.$this->name])) ? $_POST[$prefix.'_'.$this->name] : '';
+		if (!isset($_POST[$prefix.'_posted'])) return false;
+		$value = (isset($_POST[$prefix])) ? $_POST[$prefix] : '';
 
-		if(is_array($value)) {
-			$value = $this->_ar2str($value);
-		}
+		if (is_array($value)) $value = $this->_ar2str($value);
 
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
@@ -336,7 +359,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		if ($value == '') return true;
 
 		// special case for multiple values
-		if(empty($this->_params['multiple'])) {
+		if (empty($this->_params['multiple'])) {
 			if (!isset($options[$value])) return false;
 		} else {
 			$new_value = $this->_str2ar($value);
