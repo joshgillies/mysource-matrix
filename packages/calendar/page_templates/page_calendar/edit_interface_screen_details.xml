@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.15 2004/10/25 04:23:56 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.16 2004/10/29 05:51:40 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -131,6 +131,11 @@
 			<display_name>Height of rows (px)</display_name>
 			<note></note>
 			<int width="6" />
+		</field>
+		<field attribute="month_links_to_week">
+			<display_name>Display Links to Week View</display_name>
+			<note>If this option is set, the Month View calendar will display a link at the start of each row to the relevant week</note>
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 

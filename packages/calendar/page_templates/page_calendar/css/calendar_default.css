@@ -86,7 +86,7 @@ table#month { border: 1px solid #173e57; background-color: #f8f8f8; border-colla
 #month th  { border: 1px solid #c8c8c8; }
 
 /* Header Cells */
-#month th.dayLabel { background-color: #41afe0; color: white}
+#month th.dayLabel, #month th.weekLink { background-color: #41afe0; color: white}
 #month th.dayLabelWeekend { background-color: #93b0e6; }
 
 /* All data cells, including completely empty ones */
@@ -107,6 +107,11 @@ table#month { border: 1px solid #173e57; background-color: #f8f8f8; border-colla
 /* Linked event names in cells (root-node-specific classes will also apply) */
 #month .event, #month a.event:visited, #month a.event:hover { font-weight: bold; text-decoration: none; padding: 0px 1px; text-align: center}
 
+/* Arrowed '»' (&raquo;) links to the week view from the month */
+#month th.weekLink { vertical-align: middle; padding: 0px 5px; cursor: pointer; cursor: hand }
+
+/* Week view links text */
+#month th.weekLink a.dateLink, #month th.weekLink a.dateLink:visited, #month th.weekLink a.dateLink:hover { color: white; font-weight: bold; text-decoration: none; font-size:1.2em } 
 
 
 /**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.26 2004/10/28 04:34:19 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.27 2004/10/29 05:51:40 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.26 $ - 1.0
+* @version $Revision: 1.27 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -200,6 +200,13 @@ class Page_Calendar_Management extends Asset_Management
 													'default'		=> '70',
 													'description'   => 'The height of the rows in the month calendar table, in pixels',
 											);
+
+		// month view links on the side to week view...
+		$this->vars['month_links_to_week'] = Array(
+													'added'		=> '0.1',
+													'type'		=> 'boolean',
+													'default'	=> 'false'
+												);
 		
 		$this->vars['up_link_text'] = Array(
 												'added'     => '0.1',
