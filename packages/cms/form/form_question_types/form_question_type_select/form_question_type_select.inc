@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.15 2004/05/05 07:10:14 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.16 2004/05/06 04:41:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,6 +54,20 @@ class Form_Question_Type_Select extends Form_Question
 	}//end Form_Question_Type_Select()
 
 
+	/**
+	* returns an array of the types of rules that are allowed upon this asset
+	*
+	* Returned array is 'short name' => 'full name'
+	*
+	* @access public
+	* @return Array(string => string)
+	*/
+	function getAllowedRules() {
+		return Array('comparison');
+	
+	}//end getAllowedRules()
+	
+	
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
