@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.3 2004/05/17 05:21:14 lwright Exp $
+* $Id: csv.inc,v 1.4 2004/10/22 04:25:46 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -302,7 +302,7 @@ class CSV {
 		$line = '';
 		foreach($array as $val) {
 			if(is_array($val)) {
-				$line .= '"'.$this->format_line($val,$deliminator).'"'.$deliminator;
+				$line .= '"'.$this->formatLine($val,$deliminator).'"'.$deliminator;
 			} else {
 				if(ereg("[$deliminator\"\n\r]", $val)) {
 					$val = '"'.str_replace('"', '""', $val).'"';
