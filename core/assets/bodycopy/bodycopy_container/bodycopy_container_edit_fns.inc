@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.11 2004/07/19 00:42:22 mnyeholt Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.12 2004/07/19 05:49:53 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -634,6 +634,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$bc_data   = (empty($_POST['bodycopy_data']))   ? Array() : $_POST['bodycopy_data'];
 		$bc_saved  = (empty($_POST['bodycopy_saved']))  ? Array() : $_POST['bodycopy_saved'];
 		
+		// if there is some bodycopy data, deserialise it into the arrays
+		// so that everything else can use it
+		if ($bc_data) $bc_data = var_unserialise($bc_data);
+			
 		// unserialize the data for a bodycopy.
 		for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
 			$containers = &$bc_saved[$k];
