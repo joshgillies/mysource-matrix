@@ -18,11 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.6 2004/07/29 05:17:10 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.7 2004/08/02 00:09:37 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
 require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
+require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 
 /**
 * Calendar_Event_Recurring
@@ -31,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -52,6 +53,15 @@ class Calendar_Event_Recurring extends Calendar_Event
 	}//end Calendar_Event_Recurring()
 
 
+	function _addMonths(&$month, &$year, $num)
+	{
+		$month += $num;
+		if ($month > 12) {
+			$year++;
+			$month = 1;
+		}
+	}
+
 	/**
 	* Determines the next occurrence of an event after a certain time
 	*
@@ -63,11 +73,113 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function getFirstOccurrenceAfter($after=null)
 	{
-		if (is_null($after)) {
-			$after = time();
-		}
+		if (is_null($after)) $after = time();
+		$freq_type = substr($this->attr('frequency'), 0, 3);
+		$interval = substr($this->attr('frequency'), 3);
+		if (!$interval)	$interval = 1;
+		$seconds_per_day = 60 * 60 * 24;
+		$start_ts = iso8601_ts($this->attr('start_time'));
+		switch ($freq_type) {
+			case 'DED':
+				$interval_length = $seconds_per_day * $interval;
+				$periods_so_far = (int)(($after - $start_ts) / ($interval_length));
+				return $start_ts + ($interval_length * ($periods_so_far + 1));
+			break;
 
-		// interpret frequency etc
+			case 'DWD':
+				$res = $after + $seconds_per_day;
+				while (in_array(date('D', $res), Array('Sat', 'Sun'))) {
+					$res += $seconds_per_day;
+				}
+				return $res;
+			break;
+
+			case 'WEW':
+				$interval_length = 7 * $seconds_per_day * $interval;
+				$periods_so_far = (int)(($after - $start_ts) / ($interval_length));
+				return $start_ts + ($interval_length * ($periods_so_far + 1));
+			break;
+
+			case 'MFN':
+				$res_month = date('n', $after);
+				$res_year = date('Y', $after);
+				$month_diff = (12 * (date('Y', $after) - date('Y', $start_ts))) + $res_month - date('n', $start_ts);
+				if (($month_diff % $interval) != 0)
+					$res_month = date('n', $after) + $interval - ($month_diff % $interval);
+				elseif ((int)date('j', $after) > (int)date('j', $start_ts))
+					$this->_addMonths($res_month, $res_year, $interval);
+				while (date('j', $start_ts) > days_in_month($res_month, $res_year))
+					$this->_addMonths($res_month, $res_year, $interval);
+				return strtotime($res_year . '-' . sprintf('%02d', $res_month) . date('-d', $start_ts));
+			break;
+
+			case 'MFW':
+				$res_month = date('n', $after);
+				$res_year = date('Y', $after);
+				$month_diff = (12 * (date('Y', $after) - date('Y', $start_ts))) + $res_month - date('n', $start_ts);
+				$target_week_of_month = (int)((date('j', $start_ts) - 1) / 7);
+				if (($month_diff % $interval) != 0)
+					$res_month = date('n', $after) + $interval - ($month_diff % $interval);
+				elseif (((int)(date('j', $after) - 1) / 7) > $target_week_of_month)
+					$this->_addMonths($res_month, $res_year, $interval);
+
+				$target_day_of_week = (date('w', $start_ts));
+				$res_day = ($target_week_of_month * 7) + 1;
+
+				$month_length = days_in_month($res_month, $res_year);
+				while ((date('w', strtotime($res_year . '-' . sprintf('%02d', $res_month) . '-' . $res_day))) != $day_of_week) {
+					$res_day++;
+					if ($res_day > $month_length) {
+						// run out of days, so we'll have to start again in the next valid month
+						$this->_addMonths($res_month, $res_year, $interval);
+						$month_length = days_in_month($res_month, $res_year);
+						$res_day = ($target_week_of_month * 7) + 1;
+					}
+				}
+				return strtotime($res_year . '-' . sprintf('%02d', $res_month) . date('-d', $start_ts));
+			break;
+
+			case 'MRN':
+				$res_month = date('m', $after);
+				$res_year = date('Y', $after);
+				$target_days_from_end = days_in_month(date('n', $start_ts)) - date('j', $start_ts));
+
+				$month_diff = (12 * (date('Y', $after) - date('Y', $start_ts))) + $res_month - date('n', $start_ts);
+				if (($month_diff % $interval) != 0)
+					$res_month = date('n', $after) + $interval - ($month_diff % $interval);
+				elseif ((days_in_month($res_month, $res_year) - (int)date('j', $after)) < $target_days_from_end)
+					$this->_addMonths($res_month, $res_year, $interval);
+				while ((days_in_month($res_month, $res_year) - $target_days_from_end) < 0)
+					$this->_addMonths($res_month, $res_year, $interval);
+
+				return strtotime($res_year . '-' . $res_month . sprintf('%02d', days_in_month($res_month, $res_year) - $target_days_from_end));
+			break;
+
+			case 'MRW':
+				$res_month = date('m', $after);
+				$res_year = date('Y', $after);
+				$target_week_from_end = (int)((days_in_month(date('n', $start_ts), date('Y', $start_ts)) - date('j', $start_ts)) / 7);
+				$month_diff = (12 * (date('Y', $after) - date('Y', $start_ts))) + $res_month - date('n', $start_ts);
+				if (($month_diff % $interval) != 0)
+					$res_month = date('n', $after) + $interval - ($month_diff % $interval);
+				elseif ((int)((days_in_month(date('n', $after), date('Y', $after)) - date('j', $after)) / 7) < $target_week_from_end)
+					$this->_addMonths($res_month, $res_year, $interval);
+
+				$target_day_of_week = (date('w', $start_ts));
+				$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
+
+				while ((date('w', strtotime($res_year . '-' . $res_month . '-' . $res_day))) != $target_day_of_week) {
+					$res_day--;
+					if ($res_day < 1) {
+						// this month doesn't have a nth-last xday, so go to the next valid month
+						$this->_addMonths($res_month, $res_year, $interval);
+						$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
+					}
+				}
+				return strtotime($res_year . '-' . $res_month . date('-d', $start_ts));
+			break;
+		}
+		return false;
 		
 	}//end getFirstOccurrenceAfter()
 
@@ -133,14 +245,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 					&& ((((((int)substr($date, 0, 4) - (int)substr($start_date, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start_date, 5, 2)) % $interval) == 0));
 			break;
 
-			case 'MFD':
+			case 'MFW':
 				// occurs if date and start_date are the same day of the week
 				// AND they are in the same week of the month
 				return (date('D', $start_ts) == date('D', $query_ts)) 
 					&& ((int)((date('j', $start_ts) - 1)/ 7) == (int)((date('j', $query_ts) - 1) / 7));
 			break;
 
-			case 'MFDx':
+			case 'MFWx':
 				// occurs if date and start_date are the same day of the week
 				// AND they are in the same week of the month
 				// AND the number of months in between is a multiple of $interval
@@ -161,14 +273,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 					&& (days_in_month(substr($start_date, 5, 2), substr($start_date, 0, 4)) - substr($start_date, 8, 2) == days_in_month(substr($date, 5, 2), substr($date, 0, 4)) - substr($date, 8, 2));
 			break;
 
-			case 'MRD':
+			case 'MRW':
 				// occurs if date and start_date are the same day of the week 
 				// AND they are in the same week from the end of the month
 				return (date('D', $start_ts) == date('D', $end_ts)) 
 					&& (((int)(days_in_month(substr($start_date, 5, 2), substr($start_date, 0, 4)) - substr($start_date, 8, 2)) / 7) == ((int)(days_in_month(substr($date, 5, 2), substr($date, 0, 4)) - substr($date, 8, 2)) / 7));
 			break;
 
-			case 'MRDx':
+			case 'MRWx':
 				// occurs if date and start_date are the same day of the week 
 				// AND they are in the same week from the end of the month
 				// AND the number of months in between start_date and date is a multiple of $interval
@@ -202,12 +314,9 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$res = 'every day';
 			break;
 
-			// every weekday (or x weekdays)
+			// every weekday
 			case 'DWD':
-				if ($interval)
-					$res = "every $interval weekdays";
-				else
-					$res = 'every weekday';
+				$res = 'every weekday';
 			break;
 
 			// every week (or x weeks)
