@@ -33,8 +33,11 @@ mcMenuItemClass.prototype.show = function()
 
 mcMenuItemClass.prototype.hide = function() 
 {
+	if (!this._visible) return;
 	this.hideKids();
 	this._visible = false;
+	this._x = 0; // } Move back to 0,0 so that we aren't collected by the 
+	this._y = 0; // } nestedMouseMovieClip when it's checking where stuff is
 }
 
 mcMenuItemClass.prototype.showKids = function() 
@@ -66,9 +69,6 @@ mcMenuItemClass.prototype.onRelease = function()
 
 	// check if something else is modal
 	if (_root.system_events.inModal(this)) return true;
-
-	// if there is a dialog box up do nothing
-	if (_root.pop_up) return true;
 
 	if (this.kids.length) {
 		this._parent.itemOpen(this);

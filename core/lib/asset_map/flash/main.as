@@ -111,6 +111,9 @@ _root.tabs.addTab("mcTabContentAreaTreeID", "tree",  "Tree");
 _root.tabs.addTab("mcTabContentAreaID", "mail",  "Mail Messages");
 _root.tabs.addTab("mcTabContentAreaID", "log",  "Log Messages");
 
+_root.blah = 0;
+_root.blah1 = 0;
+_root.blah2 = 0;
 
 /*
 

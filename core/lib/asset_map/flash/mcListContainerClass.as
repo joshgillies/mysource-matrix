@@ -10,18 +10,18 @@ function mcListContainerClass()
 	this.action      = "";
 
 	// Create the container to hold all the list items
-	this.attachMovie("mcListItemContainerID", "list", 2);
+	this.attachMovie("mcListItemContainerID", "list", 1);
 	this.list._x = 0;
 	this.list._y = 0;
 
 	// Create the Plus Minus Button
-	this.attachMovie("mcMoveIndicatorID", "move_indicator", 3);
+	this.attachMovie("mcMoveIndicatorID", "move_indicator", 2);
 	this.move_indicator._x = 10;
 	this.move_indicator._y = 10;
 	this.move_indicator._visible = false;
 
 	// Create the Action Bar (pop's up with the edit screens)
-	this.attachMovie("mcActionsBarID", "actions_bar", 4);
+	this.attachMovie("mcActionsBarID", "actions_bar", 3);
 	this.actions_bar._x = 10;
 	this.actions_bar._y = 10;
 
@@ -62,9 +62,7 @@ mcListContainerClass.prototype.refreshDisplay = function()
 	var w = Math.max(this._parent.scroll_pane.getInnerPaneWidth(),  this.list._width);
 	var h = Math.max(this._parent.scroll_pane.getInnerPaneHeight(), this.list._height + _root.LIST_ITEM_END_BRANCH_GAP);
 
-	set_background_box(this, w - 2, h - 2, 0xFF0000, 50);
-	trace("THIS WIDTH  : " + this._width);
-	trace("THIS HEIGHT : " + this._height);
+	set_background_box(this, w - 2, h - 2, 0xFF0000, 0);
 
 	// force a refresh of the scroller
 	this._parent.scroll_pane.refreshPane();
@@ -160,7 +158,7 @@ mcListContainerClass.prototype.onMenuItemPress = function(action, info)
 */
 mcListContainerClass.prototype.processAddAsset = function(parent_item_name, parent_assetid, relative_pos) 
 {
-	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to under parent : " + parent_assetid + ". at pos " + relative_pos);
+	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to under parent : " + parent_assetid + " at pos " + relative_pos);
 
 	var xml = new XML();
 	var cmd_elem = xml.createElement("command");

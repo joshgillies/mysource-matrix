@@ -3,9 +3,8 @@ _root.test_pressed_count = 0;
 
 function testOnClick1(component)
 { 
-	trace("LABEL SIZE : " + _root.tab.label_text._width + " x " + _root.tab.label_text._height);
-	trace("TAG   SIZE : " + _root.tab._width + " x " + _root.tab._height);
-	_root.tab.setWidth(_root.tab.textWidth());
+	trace('MENU SIZE : ' + _root.tabs.tree.menu_container._width + 'x' + _root.tabs.tree.menu_container._height);
+	trace('scroll pane : ' + (_root.tabs.tree.scroll_pane instanceof MovieClip));
 
 //	_root.asset_manager.reloadAssets([1]);
 //	_root.asset_manager.reloadAsset(3);
@@ -73,6 +72,9 @@ function testOnClick2 (component)
 
 }
 
+
+_root.test_button1.swapDepths(200);
+_root.test_button2.swapDepths(201);
 _root.test_button1.setClickHandler("testOnClick1", _root);
 _root.test_button2.setClickHandler("testOnClick2", _root);
 

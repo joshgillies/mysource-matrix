@@ -27,5 +27,17 @@ mcTabContentAreaClass.prototype.setSize = function(w, h)
 	set_background_box(this, w, h, this._parent.colours.selected.bg, 100);
 }// setSize()
 
+/**
+* Fired when we are pressed and then release
+*
+* @access public
+*/
+mcTabContentAreaClass.prototype.onRelease = function() 
+{
+	if (super.onRelease()) return true;
+	_root.system_events.screenPress(this);
+	return true;
+}// end
+
 
 Object.registerClass("mcTabContentAreaID", mcTabContentAreaClass);

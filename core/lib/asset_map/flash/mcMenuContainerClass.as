@@ -43,8 +43,8 @@ function mcMenuContainerClass()
 
 }
 
-// Make it inherit from MovieClip
-mcMenuContainerClass.prototype = new MovieClip();
+// Make it inherit from Nested Mouse Movements MovieClip
+mcMenuContainerClass.prototype = new NestedMouseMovieClip(true, NestedMouseMovieClip.NM_ON_PRESS);
 
 /**
 * Event fired when the Asset Types object has finished recieving all the asset types from the server
@@ -167,14 +167,14 @@ mcMenuContainerClass.prototype.show = function()
 		x += this[name]._width;
 	}// end for
 
-}// show();
+}// showKids();
 
 mcMenuContainerClass.prototype.hideKids = function()
 {
 	if (this.open_items[0] != undefined) {
 		this[this.open_items[0]].hideKids();
 	}
-}// hide();
+}// hideKids();
 
 mcMenuContainerClass.prototype.itemOpen = function(item)
 {

@@ -10,24 +10,28 @@ function mcTabContentAreaTreeClass()
 {
 	super();
 
+	// NOTE: the depth order for these MC's is important because the menu must be higner
+	//       than the scroll pane and list container so that it's items will display 
+	//       over the top of them
+
 	// Now attach the menu
-	this.attachMovie("mcMenuContainerID", "menu_container", 1);
+	this.attachMovie("mcMenuContainerID", "menu_container", 3);
 	this.menu_container._x = 0;
 	this.menu_container._y = 0;
 
-	trace("MENU HEIGHT : " + this.menu_container._height);
-
-	this.attachMovie("FScrollPaneSymbol", "scroll_pane", 2);
+	this.attachMovie("FScrollPaneSymbol", "scroll_pane", 1);
 	this.scroll_pane.setHScroll(false);
 	this.scroll_pane.setVScroll(true);
 	this.scroll_pane._x = 0;
 	this.scroll_pane._y = this.menu_container._height;
 
 	// Now the list container
-	this.attachMovie("mcListContainerID", "list_container", 3);
+	this.attachMovie("mcListContainerID", "list_container", 2);
 
 	// Attach the container on to the scroll pane
 	this.scroll_pane.setScrollContent(this.list_container);
+
+
 
 }// end constructor()
 
@@ -43,7 +47,6 @@ mcTabContentAreaTreeClass.prototype = new mcTabContentAreaClass();
 */
 mcTabContentAreaTreeClass.prototype.setSize = function(w, h)
 {
-	trace("SET WIDTH : " + w);
 	super.setSize(w, h);
 
 	this.menu_container.setWidth(w);
@@ -51,6 +54,16 @@ mcTabContentAreaTreeClass.prototype.setSize = function(w, h)
 	this.list_container.refresh();
 
 }// setSize()
+
+/**
+* Fired when we are pressed and then release
+*
+* @access public
+*/
+mcTabContentAreaTreeClass.prototype.onRelease = function() 
+{
+	return super.onRelease(); // Fucking flash see SUPER_METHOD_EG.as
+}// end
 
 
 Object.registerClass("mcTabContentAreaTreeID", mcTabContentAreaTreeClass);

@@ -129,6 +129,7 @@ NestedMouseMovieClip.prototype.onRollOver = function()
 
 NestedMouseMovieClip.prototype.onPress = function() 
 {
+	trace("onPress : " + this);
 	this._nm_drag_active = true;
 	var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
 	if (mc_name === null) {
@@ -138,6 +139,7 @@ NestedMouseMovieClip.prototype.onPress = function()
 	} else {
 		this._nm_on_press_mc  = mc_name;
 		this._nm_drag_in_mc   = true;
+		trace(this[this._nm_on_press_mc] + ".onPress Defined : " + (this[this._nm_on_press_mc].onPress != undefined));
 		return (this[this._nm_on_press_mc].onPress != undefined) ? this[this._nm_on_press_mc].onPress() : false;
 	}
 
@@ -145,29 +147,41 @@ NestedMouseMovieClip.prototype.onPress = function()
 
 NestedMouseMovieClip.prototype.onRelease = function() 
 {
+	var ret_val = false;
+	trace("onRelease : " + this);
 	// if we pressed down on an nested MC
 	if (this._nm_on_press_mc != null) {
 		var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
 		// if we are still over the mc that we onPress()ed on, call onRelease, otherwise we call onReleaseOutside
 		// check by reference, just incase we have 2 var names referring to the same MC
 		var fn = (this[this._nm_on_press_mc] === this[mc_name]) ? "onRelease" : "onReleaseOutside";
-		if (this[this._nm_on_press_mc][fn] != undefined) this[this._nm_on_press_mc][fn]();
+		trace(this[this._nm_on_press_mc] + "." + fn + " Defined : " + (this[this._nm_on_press_mc].onPress != undefined));
+		if (this[this._nm_on_press_mc][fn] != undefined) {
+			ret_val = this[this._nm_on_press_mc][fn]();
+		}
 	}
 	this._nm_on_press_mc = null;
 	this._nm_drag_active = false;
 	this._nm_drag_in_mc  = false;
+
+	return ret_val;
 
 }// end onRelease()
 
 NestedMouseMovieClip.prototype.onReleaseOutside = function() 
 {
+	var ret_val = false;
 	// if we pressed down on an nested MC
 	if (this._nm_on_press_mc != null) {
-		if (this[this._nm_on_press_mc].onReleaseOutside != undefined) this[this._nm_on_press_mc].onReleaseOutside();
+		if (this[this._nm_on_press_mc].onReleaseOutside != undefined) {
+			ret_val = this[this._nm_on_press_mc].onReleaseOutside();
+		}
 	}
 	this._nm_on_press_mc = null;
 	this._nm_drag_active = false;
 	this._nm_drag_in_mc  = false;
+
+	return ret_val;
 
 }// end onReleaseOutside()
 

@@ -12,7 +12,7 @@
 function mcTabsClass()
 {
 	this.tabs = new Array();  // name of all the tabs that we have
-	this.current_tab = null;  // reference to the contents area of the current tab
+	this.current_tab = null;  // name of the contents area of the current tab
 
 	this.tab_height = null;   // set when the first tab is added
 
@@ -84,13 +84,13 @@ mcTabsClass.prototype.setCurrentTab = function(name)
 	if (this.tabs.search(name) == null) return;
 	
 	if (this.current_tab != null) {
-		this["tab_button_" + this.current_tab._name].unselect();
-		this.current_tab._visible = false;
+		this["tab_button_" + this.current_tab].unselect();
+		this[this.current_tab]._visible = false;
 	}
 
 	this["tab_button_" + name].select();
-	this.current_tab = this[name];
-	this.current_tab._visible = true;
+	this[name]._visible = true;
+	this.current_tab = name;
 
 	this.refreshTab();
 
@@ -117,7 +117,7 @@ mcTabsClass.prototype.setSize = function(w, h)
 	this.lineStyle(1, 0x000000);
 	for(var i = 0; i < this.tabs.length; i++) {
 		var line_x = this["tab_button_" + this.tabs[i]]._x + this["tab_button_" + this.tabs[i]]._width;
-		trace("LINE X : " + line_x + " H : " + line_h);
+//		trace("LINE X : " + line_x + " H : " + line_h);
 		this.moveTo(line_x, 0);
 		this.lineTo(line_x, this.tab_height);
 
@@ -151,12 +151,9 @@ mcTabsClass.prototype.refreshTab = function()
 	if (this.current_tab == null) return;
 
 	// then just set the size of current tab contents area
-	this.current_tab.setSize(this.dims.w, this.dims.h - this.tab_height);
+	this[this.current_tab].setSize(this.dims.w, this.dims.h - this.tab_height);
 	this[name]._visible = true;
 
 }// refreshTab()
-
-
-
 
 Object.registerClass("mcTabsID", mcTabsClass);

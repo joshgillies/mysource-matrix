@@ -107,6 +107,8 @@ mcTabButtonClass.prototype.onRelease = function()
 	// only proceed if there is no modal status, or we or one of ours kids owns it
 	//var modal = _root.system_events.checkModal(this);
 	this._parent.setCurrentTab(this.getTabName());
+	_root.system_events.screenPress(this);
+	return true;
 }// end 
 
 
