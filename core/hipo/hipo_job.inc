@@ -71,7 +71,7 @@ class HIPO_Job extends MySource_Object
 	/**
 	* Zero Indexed Array of steps to perform in this HIPO
 	* Form :
-	* <code>
+	* <pre>
 	* Array(
 	*		Array(
 	*			'name'			=> [name of the step],
@@ -93,7 +93,7 @@ class HIPO_Job extends MySource_Object
 	*		),
 	*		...
 	* );
-	* </code>
+	* </pre>
 	* @var array()
 	*/
 	var $_steps = Array();
