@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.22 2004/02/14 21:38:25 brobertson Exp $
+* $Id: file_system.inc,v 1.23 2004/02/18 04:44:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,6 +47,7 @@
 function get_file_type($filename)
 {
 	return strtolower(  substr( strrchr($filename,'.') , 1)  );
+
 }//end get_file_type()
 
 
@@ -86,7 +87,7 @@ function file_to_string($filename)
 {
 	return file_get_contents($filename);
 
-}// end file_to_string()
+}//end file_to_string()
 
 
 /**
@@ -124,7 +125,7 @@ function string_to_file($string, $filename)
 		return false;
 	}
 
-}// end string_to_file()
+}//end string_to_file()
 
 
 /**
@@ -142,7 +143,7 @@ function easy_filesize($size)
 	elseif	($size < 1500000000)	return sprintf('%.1f mb',($size/1024.0)/1024.0);
 	else							return sprintf('%.1f gb',(($size/1024.0)/1024.0)/1024.0);
 
-}// end easy_filesize()
+}//end easy_filesize()
 
 
 /**
@@ -155,7 +156,8 @@ function easy_filesize($size)
 * @access public
 * @see Fudge::general::increment_name()
 */
-function increment_filename($name,$spacer='') {
+function increment_filename($name,$spacer='')
+{
 	require_once dirname(__FILE__).'/../general/general.inc';
 	if(strpos($name,'.') !== false) {
 		$ext = get_file_type($name);
