@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.3 2004/06/25 04:04:10 gsherwood Exp $
+* $Id: hipo_job_install_patch.inc,v 1.4 2004/10/06 01:54:14 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -403,10 +403,31 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 	{
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 
+		// To allow for a patch to be applied which doesn't change the 
+		// version number, any requirement that has a new_version == old_version
+		// will only check to make sure that the old version was at LEAST
+		// the required version. 
+		// For example, if your system is on RC2, but you want to patch 
+		// something that only needs RC1, the patch's requirement says
+		// old_version = RC1, new_version=RC1, which will make the system
+		// only check that the old version was at LEAST RC1. This lets us
+		// not need to update the version for something just to be able
+		// to add a patch (ie CMS is still version 0.1, nothing has changed)
+		
 		if (isset($patch_info['requirements']['system'])) {
-			// the system version must be exactly equal to what is defined
-			// in the patch or else the patch is patching an untested system
-			if ($patch_info['requirements']['system']['old_version'] != SQ_SYSTEM_VERSION) {
+			
+			// if new and old are the same, check that old version is at least
+			// sq_system_version
+			if ($patch_info['requirements']['system']['old_version'] == 
+				$patch_info['requirements']['system']['new_version']) {
+				// if the current version is lower than the minimum required version
+				if (version_compare(SQ_SYSTEM_VERSION,$patch_info['requirements']['system']['old_version']) < 0) {
+					trigger_error('This patch can only be applied to version '.$patch_info['requirements']['system']['old_version'].' of the system (current version is '.SQ_SYSTEM_VERSION.')', E_USER_ERROR);
+					return false;
+				}
+			} else if ($patch_info['requirements']['system']['old_version'] != SQ_SYSTEM_VERSION) {
+				// the system version must be exactly equal to what is defined
+				// in the patch or else the patch is patching an untested system
 				trigger_error('This patch can only be applied to version '.$patch_info['requirements']['system']['old_version'].' of the system (current version is '.SQ_SYSTEM_VERSION.')', E_USER_ERROR);
 				return false;
 			}
@@ -427,9 +448,22 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 						trigger_error('This patch can only be applied to a system without a current "'.strtoupper($package_code).'" package (current system has version '.$package->version.' installed)', E_USER_ERROR);
 						return false;
 					}
+				} else if ($versions['old_version'] == $versions['new_version']) {
+					// if the new and old versions are the same, make sure the 
+					// package version is at least that of the required version.
+					require_once $package_path;
+					$package = new $package_class();
+					
+					// if the current version is lower than the minimum required version
+					// then the requirement fails.
+					if (version_compare($package->version,$versions['old_version']) < 0) {
+						trigger_error('This patch can only be applied to version '.$patch_info['requirements']['system']['old_version'].' of the system (current version is '.SQ_SYSTEM_VERSION.')', E_USER_ERROR);
+						return false;
+					}
+					
 				} else {
 					if (!is_file($package_path)) {
-						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of package "'.strtoupper($package_code).'" (package is not installed on this system)', E_USER_ERROR);
+						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of package "'.strtoupper($package_code).'" (current version is '.$package->version.')', E_USER_ERROR);
 						return false;
 					}
 					require_once $package_path;
@@ -452,6 +486,18 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 						trigger_error('This patch can only be applied to a system without a current "'.$type_code.'" asset type installed (current system has version '.$installed_version.' installed)', E_USER_ERROR);
 						return false;
 					}
+				} else if ($versions['old_version'] == $versions['new_version']) {
+					// if the new and old versions are the same, make sure the 
+					// asset version is at least that of the required version.
+					$installed_version = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'version');
+					
+					// if the current version is lower than the minimum required version
+					// then the requirement fails.
+					if (version_compare($installed_version,$versions['old_version']) < 0) {
+						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of asset type "'.$type_code.'" (current version is '.$installed_version.')', E_USER_ERROR);
+						return false;
+					}
+					
 				} else {
 					$installed_version = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'version');
 					if ($installed_version != $versions['old_version']) {
