@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.20 2004/03/01 17:35:48 brobertson Exp $
+* $Id: search_page_edit_fns.inc,v 1.21 2004/03/04 03:23:11 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.20 $ - 1.0
+* @version $Revision: 1.21 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -376,10 +376,12 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 
 		foreach ($fields as $field) {
 
-		  if ($field['type'] == 'asset_attrib' && isset($field['params'])) {
+		  if ($field['type'] == 'asset_attrib' && isset($field['params']['type_attr'])) {
 
 			// [0] - name, [1] - type, [2] - id
 			$attr_parts = explode("__", $field['params']['type_attr']);
+			if (empty($attr_parts[1]) || empty($attr_parts[2])) continue;
+
 			require_once SQ_ATTRIBUTES_PATH.'/'.$attr_parts[1].'/'.$attr_parts[1].'.inc';
 			$attr_class = 'Asset_Attribute_'.$attr_parts[1]; // attr name
 			$attribute = new $attr_class($attr_parts[2], null); // attr id
@@ -419,6 +421,8 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 
 		foreach ($fields as $fieldname => $field) {
 		  if ($field['type'] == 'asset_attrib') {
+
+			if (empty($field['params']['type_attr'])) continue;
 
 			// [0] - name, [1] - type, [2] - id
 			$attr_parts = explode("__", $field['params']['type_attr']);
