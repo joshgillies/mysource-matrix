@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.68 2004/06/23 00:03:13 mnyeholt Exp $
+* $Id: init.inc,v 1.69 2004/08/05 03:44:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,6 +68,7 @@ define('SQ_CORE_PACKAGE_PATH',	SQ_SYSTEM_ROOT.'/core/assets');
 define('SQ_ATTRIBUTES_PATH',	SQ_SYSTEM_ROOT.'/core/attributes');
 define('SQ_LIB_PATH',			SQ_SYSTEM_ROOT.'/core/lib');
 define('SQ_DATA_PATH',			SQ_SYSTEM_ROOT.'/data');
+define('SQ_CACHE_PATH',			SQ_SYSTEM_ROOT.'/cache');
 define('SQ_PACKAGES_PATH',		SQ_SYSTEM_ROOT.'/packages');
 define('SQ_WEB_PATH',			SQ_SYSTEM_ROOT.'/core/web');
 define('SQ_FUDGE_PATH',			SQ_SYSTEM_ROOT.'/fudge');
