@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.56 2004/12/03 15:33:23 brobertson Exp $
+* $Id: asset_management.inc,v 1.56.2.1 2004/12/15 23:56:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -130,6 +130,7 @@ class Asset_Management extends MySource_Object
 	/**
 	* Returns the asset type that this management class is working for
 	*
+	* @return string
 	* @access public
 	*/
 	function getAssetType()
@@ -148,7 +149,6 @@ class Asset_Management extends MySource_Object
 	*/
 	function update()
 	{
-
 		$type_code = $this->getAssetType();
 
 		// OK, first thing we are going to do is check that the parent type of this asset is the same between the 
@@ -832,27 +832,18 @@ class Asset_Management extends MySource_Object
 				SET '.$field.'_type_code = '.$this->_db->quote($new_type_code).',
 					'.$field.'_val     = '.$this->_db->quote($new_value).'
 				WHERE attrid = '.$this->_db->quote($attributeid).'
-				   OR attrid IN (~SQ0~)';
-
-		$subs = Array( 'SELECT atr.attrid
-						FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd i, '.SQ_TABLE_PREFIX.'ast_attr atr
-						WHERE i.inhd_type_code = '.$this->_db->quote($new_type_code).'
-						  AND i.type_code <> '.$this->_db->quote($new_type_code).'
-						  AND i.type_code = atr.type_code
-						  AND atr.'.$field.'_type_code = '.$this->_db->quote($old_type_code).'
-						  AND atr.name = '.$this->_db->quote($name));
-
-		$sql = db_extras_subquery($this->_db, $sql, $subs);
-		if (DB::isError($sql)) {
-			trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+				   OR attrid IN (
+								SELECT atr.attrid
+								FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd i, '.SQ_TABLE_PREFIX.'ast_attr atr
+								WHERE i.inhd_type_code = '.$this->_db->quote($new_type_code).'
+								  AND i.type_code <> '.$this->_db->quote($new_type_code).'
+								  AND i.type_code = atr.type_code
+								  AND atr.'.$field.'_type_code = '.$this->_db->quote($old_type_code).'
+								  AND atr.name = '.$this->_db->quote($name).'
+								  )';
 
 		$result = $this->_db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		assert_valid_db_result($result);
 
 		return true;
 

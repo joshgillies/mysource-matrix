@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.231.2.1 2004/12/06 03:22:01 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.231.2.2 2004/12/15 23:56:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.231.2.1 $
+* @version $Revision: 1.231.2.2 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1594,20 +1594,15 @@ class Asset_Edit_Interface extends MySource_Object
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$where .= ' AND type_code = '.$db->quote('0').'
-					OR type_code IN (~SQ0~)';
-		$subs = Array( 'SELECT inhd_type_code
-						FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
-						WHERE type_code = '.$db->quote($owner->type()));
-		$where = db_extras_subquery($db, $where, $subs);
-		if (DB::isError($where)) trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
-
+					OR type_code IN (
+									SELECT type_code
+									FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
+									WHERE inhd_type_code '.$type_code_cond.'
+									)';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$allowed_screens = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC, true);
-		if (DB::isError($allowed_screens)) {
-			trigger_error($allowed_screens->getMessage().'<br/>'.$allowed_screens->getUserInfo(), E_USER_ERROR);
-		}
-
+		assert_valid_db_result($allowed_screens);
 		return $allowed_screens;
 
 	}//end getAllowedScreens()
