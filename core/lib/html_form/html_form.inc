@@ -380,7 +380,7 @@ function time_box($hours_name, $hours, $mins_name, $mins, $extras='')
 
 	$mins_list = array();
 	for($i = 0; $i < 60; $i++) {
-		$mins_list[$m] = sprintf(':%02d', $i);
+		$mins_list[$i] = sprintf(':%02d', $i);
 	}
 	combo_box($mins_name, $mins_list, $mins, $extras);
 
