@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.30.2.1 2004/12/30 03:07:45 tbarrett Exp $
+* $Id: html_form.js,v 1.30.2.2 2005/02/16 04:15:11 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -530,7 +530,9 @@ function createTextBox(name, value, size, maxLength, className, onFocus, onBlur)
 	newElt.name = name;
 	newElt.id = name;
 	newElt.size = size;
-	newElt.maxLength = maxLength;
+	if (maxLength > 0) {
+		newElt.maxLength = maxLength;
+	}
 	newElt.className = className;
 	newElt.onfocus = new Function('', onFocus);
 	newElt.onblur = new Function('', onBlur);
