@@ -528,7 +528,7 @@ class Resolve
 	*/
 	function &getMessagingService()
 	{
-		if(!isset($this->ms) && get_class($this->ms) != 'messaging_service') {
+		if(!isset($this->ms) || get_class($this->ms) != 'messaging_service') {
 			require_once SQ_INCLUDE_PATH.'/messaging_service.inc';
 			$this->ms = new Messaging_Service();
 		}
@@ -546,7 +546,7 @@ class Resolve
 	*/
 	function &getFileVersioning()
 	{
-		if(!isset($this->fv) && get_class($this->fv) != 'file_versioning') {
+		if(!isset($this->fv) || get_class($this->fv) != 'file_versioning') {
 			require_once SQ_FUDGE_PATH.'/file_versioning/file_versioning.inc';
 			$this->fv = new File_Versioning(SQ_DATA_PATH.'/file_repository', $this->db);
 		}
@@ -566,7 +566,7 @@ class Resolve
 	* @access public
 	*/
 	function doTransaction($type) {
-		if (get_class($this->tm) != 'transaction_manager') {
+		if (!isset($this->tm) || get_class($this->tm) != 'transaction_manager') {
 			require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
 			$this->tm = new Transaction_Manager();
 		}
