@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: test.as,v 1.25 2003/10/16 01:20:49 dwong Exp $
+* $Id: test.as,v 1.26 2003/10/16 02:18:07 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 

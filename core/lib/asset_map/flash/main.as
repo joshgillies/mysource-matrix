@@ -1,14 +1,14 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: main.as,v 1.49 2003/10/16 01:22:09 dwong Exp $
+* $Id: main.as,v 1.50 2003/10/16 02:18:07 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
 var minVersion = [6,0,40,0];
 // Check versions
 
-/*
+
 var versionStrings = this.$version.split(" ");
 if (minVersion > versionStrings[1]) {
 	_root.createTextField('error', 1, 0, 0, 50, 50);
@@ -31,8 +31,8 @@ if (minVersion > versionStrings[1]) {
 	_root.error._y = (Stage.height - _root.error._height) / 2;
 	return;
 }
-*/
-	
+
+
 
 // Set this to make sure
 Stage.scaleMode = "noScale";

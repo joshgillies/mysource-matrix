@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcAssetFinderHeading.as,v 1.6 2003/09/26 05:26:32 brobertson Exp $
+* $Id: mcAssetFinderHeading.as,v 1.7 2003/10/16 02:18:07 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -27,7 +27,6 @@ function mcAssetFinderHeadingClass()
 	var text_format = new TextFormat();
 	text_format.font  = "Arial";
 	text_format.size  = 10;
-	text_format.color = 0xffffff;
 
 	this.cancel.label_text.setTextFormat(text_format); 
 
@@ -65,6 +64,7 @@ mcAssetFinderHeadingClass.prototype.setWidth = function(w)
 //	set_background_box(this, w, 20, 0x000000, 50);
 //	trace("Cancel Width : " + this.cancel._width);
 	this.cancel._x = w - this.cancel._width;
+	this.cancel._y = (this.back._height - this.cancel._height) / 2;
 	this.back._width = w;
 }// setWidth()
 
