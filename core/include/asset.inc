@@ -2588,6 +2588,10 @@ class Asset extends Resolve_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
+		if (!$minor->_linksUpdated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return 0;
+		}
 
 		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
 		if ($link_type & SQ_SC_LINK_FRONTEND_NAV) {
@@ -2665,14 +2669,14 @@ class Asset extends Resolve_Object
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		if (is_null($minor)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
 		// if this is a significant link
 		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
-
-			$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
-			if (is_null($minor)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
 
 			$num_other_links = $minor->countLinks('minor', SQ_SC_LINK_SIGNIFICANT, '', true, $linkid);
 
@@ -2821,6 +2825,10 @@ class Asset extends Resolve_Object
 		if (!$this->_linksUpdated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
+		}
+		if (!$minor->_linksUpdated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return 0;
 		}
 
 		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
@@ -3011,6 +3019,8 @@ class Asset extends Resolve_Object
 		$link_type  = (int) $link_type;
 		$sort_order = (int) $sort_order;
 
+		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset((int) $link['minorid']);
+
 		if ($link_type_changed) {
 
 			// We need to make sure that we aren't going to have to be fucking
@@ -3024,7 +3034,6 @@ class Asset extends Resolve_Object
 				return false;
 			}
 
-			$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset((int) $link['minorid']);
 			if (($err_msg = $this->canLinkToType($minor->type(), $link_type)) !== true) {
 				trigger_error('Unable to update link #'.$linkid.' ('.$err_msg.')', E_USER_WARNING);
 				return false;
@@ -3109,7 +3118,7 @@ class Asset extends Resolve_Object
 
 		}// end if sort order changed
 
-		return true;
+		return $minor->_updated();
 
 	}//end _updateLink()
 
