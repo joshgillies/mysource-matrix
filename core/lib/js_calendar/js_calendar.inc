@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.inc,v 1.2 2004/09/14 02:04:43 arailean Exp $
+* $Id: js_calendar.inc,v 1.3 2004/09/14 13:46:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,8 +31,8 @@
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Fudge
-* @subpackage JS_Calendar
+* @package MySource_Matrix
+* @subpackage lib
 */
 class JS_Calendar
 {
