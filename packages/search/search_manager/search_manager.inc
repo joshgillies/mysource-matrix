@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.36 2004/12/21 00:55:05 tbarrett Exp $
+* $Id: search_manager.inc,v 1.37 2004/12/21 18:33:52 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -237,14 +237,17 @@ class Search_Manager extends Asset
 
 		$keys = array_keys($keydata);
 		foreach ($keys as $key) {
-			$datum =& $keydata[$key];
+			$datum = &$keydata[$key];
 			$value = $datum['value'];
+
+			if (trim($value) == '') continue;
+
 
 			switch ($datum['type']) {
 				case 'datetime':
 					// convert to ISO 8601 date format Y-m-d H:i:s if not already
 					if (!(ereg('([0-9]{4}|----)-([0-9]{2}|--)-([0-9]{2}|--) ([0-9]{2}|--):([0-9]{2}|--):([0-9]{2}|--)', $value))) {
-						$value = date('Y-m-d H:i:s', strtotime($value));
+						$value = ts_iso8601(strtotime($value));
 					}
 				break;
 
@@ -430,20 +433,22 @@ class Search_Manager extends Asset
 	*/
 	function onIndexMetadata(&$broadcaster, $vars=Array())
 	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		
 		$assetid = $vars['assetid'];
-		$schemaids =& $vars['schemaids'];
-		// TODO: This needs to be split out
-		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		foreach ($schemaids as $schemaid) {
-			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
-			foreach ($sectionids as $sectionid => $section_type) {
-				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
-				foreach ($fieldids as $fieldid => $field_type) {
-					$this->flushKeyData($assetid, 'metadata:'.$fieldid);
-				}
-			}
+
+		if (!empty($vars['schemaids'])) {
+			$fieldids = $mm->getMetadataFields($vars['schemaids']);
+		} else {
+			$fieldids = $mm->getMetadataFields($mm->getSchemas($assetid, true));
 		}
-		$this->addKeyData($assetid, $this->getMetadataKeyData($assetid, $schemaids));
+
+		foreach($fieldids as $fieldid => $field_type) {
+			$this->flushKeyData($assetid, 'metadata:'.$fieldid);
+		}
+
+		$this->addKeyData($assetid, $this->getMetadataKeyData($assetid, $fieldids));
 
 	}//end onIndexMetadata()
 
@@ -451,84 +456,64 @@ class Search_Manager extends Asset
 	/**
 	* Builds key data array for indexing, with keyword replacements.
 	*
-	* @param Object		&$asset			The asset
-	* @param Array		&$metadata		The values for the metadata
-	* @param Array		&$schemaids		The schema IDs
+	* @param Object		$asseitd		The asset ID
+	* @param Array		$fieldids		Array of fieldid => type_code
 	*
 	* @return Array
-	* @access private
+	* @access public
 	*/
-	function getMetadataKeyData($assetid, $schemaids)
+	function getMetadataKeyData($assetid, $fieldids=Array())
 	{
-		// get the default values
 		$keydata = Array();
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$mm =& $GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-		// sections can be shared between schemas and we only want to index them once
-		// so keep a list of all the sections we have indexed so we can skip repeats
-		$done_sectionids = Array();
+		$asset = &$am->getAsset($assetid);
+		if (is_null($asset)) return $keydata;
 
-		$asset =& $am->getAsset($assetid);
-		foreach ($schemaids as $schemaid) {
-			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
-			$metadata = $mm->getSchemaMetadata($assetid, $schemaid);
+		if (empty($fieldids)) {
+			$fieldids = $mm->getMetadataFields($mm->getSchemas($assetid, true));
+		}
+		$metadata = $mm->getMetadata($assetid);
 
-			foreach ($sectionids as $sectionid => $section_type) {
-				// skip sections that have already been indexed
-				if (in_array($sectionid, $done_sectionids)) continue;
-				$done_sectionids[] = $sectionid;
+		foreach ($fieldids as $fieldid => $field_type) {
 
-				$section = &$am->getAsset($sectionid, $section_type);
+			$field = &$am->getAsset($fieldid, $field_type);
 
-				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
-				foreach ($fieldids as $fieldid => $field_type) {
+			if (isset($metadata[$field->id]['value'])) {
+				$value = $metadata[$field->id]['value'];
+			} else {
+				$value = $field->attr('default');
+			}
 
-					$field =& $am->getAsset($fieldid, $field_type);
+			$force_processing = 1; // will tell the function to process values in any case
 
-					if (isset($metadata['sections'][$section->name]['fields'][$field->name]['value'])) {
-						$value = $metadata['sections'][$section->name]['fields'][$field->name]['value'];
-					} else {
-						$value = $field->attr('default');
-					}
+			// check field_type to define the indexing way
+			if ($field_type == 'metadata_field_date') {
 
-					$force_processing = 1; // will tell the function to process values in any case
+				$asset->buildKeyData($keydata, $value, 'datetime', 'metadata:'. $field->id, $field->attr('weighting') * 1, $force_processing);
 
-					// check field_type to define the indexing way
-					if ($field_type == 'metadata_field_date') {
+			} else {
+				switch ($field_type) {
+					case 'metadata_field_select':
+						$key_type = 'selection';
+					break;
 
-						$mydate = date('Y-m-d H:i:s', $value);
-						$asset->buildKeyData($keydata, $mydate, 'datetime', 'metadata:'. $field->id, $field->attr('weighting') * 1, $force_processing);
+					case 'metadata_field_thesaurus':
+						$key_type = 'thesaurus';
+					break;
 
-					} else {
-						switch ($field_type) {
-							case 'metadata_field_select':
-								$key_type = 'selection';
-							break;
+					default:
+						$key_type = 'text';
+				}
 
-							case 'metadata_field_thesaurus':
-								$key_type = 'thesaurus';
-							break;
+				$keywords = retrieve_keywords_replacements($value, '.');
+				$value = replace_keywords($value, $mm->generateKeywordReplacements($asset, $keywords, false));
 
-							default:
-								$key_type = 'text';
-						}
+				$word_counts = get_word_counts(strtolower($value));
 
-						$keywords = retrieve_keywords_replacements($value, '.');
-
-						$replacements = $mm->generateKeywordReplacements($asset, $keywords, false);
-						foreach ($keywords as $keyword => $replacement) {
-							$replacements[$keyword] = strtolower($replacement);
-						}
-						$value = replace_keywords($value, $replacements);
-
-						$word_counts = get_word_counts(strtolower($value));
-
-						foreach ($word_counts as $word => $count) {
-							$asset->buildKeyData($keydata, $word, $key_type, 'metadata:'. $field->id, $field->attr('weighting') * $count, $force_processing);
-						}
-
-					}
+				foreach ($word_counts as $word => $count) {
+					$asset->buildKeyData($keydata, $word, $key_type, 'metadata:'.$field->id, $field->attr('weighting') * $count, $force_processing);
 				}
 			}
 		}
@@ -669,6 +654,7 @@ class Search_Manager extends Asset
 									AND ai.type = '.$db->quote('datetime').'
 									AND ai.component = '.$db->quote('attr:'. $attr_info['params']['asset_type'].':'.$attribute->name).'
 									'.$where.' '.$group_by;
+
 							$result = $db->getAssoc($sql);
 							assert_valid_db_result($result);
 
