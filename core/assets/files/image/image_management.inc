@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_management.inc,v 1.7 2005/01/06 17:05:22 brobertson Exp $
+* $Id: image_management.inc,v 1.8 2005/01/13 23:27:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,7 +104,7 @@ class Image_Management extends Asset_Management
 
 		$asset_name = strtoupper($this->_pm->getTypeInfo($this->getAssetType(), 'name'));
 
-		if (version_compare($current_version, '0.2', '<=')) {
+		if (version_compare($current_version, '0.2', '<')) {
 			// version 0.1 -> 0.2
 			// Added the attributes of which alt, title, width, height, size need to be set
 			bam('STARTING '.$asset_name.' UPGRADE - FROM VERSION 0.1');
