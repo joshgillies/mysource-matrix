@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.148 2004/06/18 05:46:45 lwright Exp $
+* $Id: asset_map.inc,v 1.149 2004/06/21 00:23:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -115,7 +115,7 @@ class Asset_Map
 			<tr>
 				<td style="height: 100%; width: 100%;">
 		<?php
-			$this->embed_asset_map('complex', '224', '500');	
+			$this->embed_asset_map('complex', '224', '99%');	
 		?>
 		</td>
 		</tr>
