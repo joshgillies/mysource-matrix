@@ -256,12 +256,19 @@ class HIPO_Job extends Resolve_Object
 		$this->_hipo_vars['initialise_mode'] = $this->_current_mode;
 		$this->_hipo_vars['running_mode']    = $this->_current_mode;
 
-		// if we aren't using the server make sure that all the steps are changed accordingly
-		if (!SQ_HIPO_USE_SERVER) {
-			for($i = 0; $i < count($this->_steps); $i++) {
-				$this->_steps[$i]['running_mode'] = 'web';
-			}
-		}
+		for($i = 0; $i < count($this->_steps); $i++) {
+			if ($this->_steps[$i]['running_mode'] == 'server') {
+				if (empty($this->_steps[$i]['auto_step'])) {
+					trigger_error('You can\'t have auto_step set to false for a step that run\'s on the HIPO Server - it just does not make sense', E_USER_WARNING);
+					$this->_steps[$i]['auto_step'] = true;
+
+				}// end if	
+
+				// if we aren't using the server make sure that all the steps are changed accordingly
+				if (!SQ_HIPO_USE_SERVER) $this->_steps[$i]['running_mode'] = 'web';
+
+			}// end if
+		}// end for
 
 		$steps     = serialize($this->_steps);
 		$vars      = serialize($this->_running_vars);
@@ -360,7 +367,17 @@ class HIPO_Job extends Resolve_Object
 			$this_step_per = ($this->complete()) ? 0 : ((1 / count($this->_steps)) * $this->_steps[$step]['percent_done']);
 			$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
 
-			if (!empty($this->_steps[$step]['complete'])) $this->_hipo_vars['current_step']++;
+			if (!empty($this->_steps[$step]['complete'])) {
+				$this->_hipo_vars['current_step']++;
+				$step = $this->_hipo_vars['current_step'];
+
+				// if we have reached a new step, that uses a different running mode to ourselves, 
+				// then change our running mode
+				if (isset($this->_steps[$step]) && $this->_hipo_vars['running_mode'] != $this->_steps[$step]['running_mode']) {
+					$this->_hipo_vars['running_mode'] = $this->_steps[$step]['running_mode'];
+				}
+
+			}
 		}// end if
 
 		// if we have completed then we need to re-set the running mode back to the init mode
@@ -606,7 +623,7 @@ class HIPO_Job extends Resolve_Object
 				// we have reached a step that requires server processing, but we are not yet
 				// running in server mode (ie. we are not running on the HIPO server) - so lets
 				// put a call through the HIPO phone to the server
-				if ($this->_steps[$step]['running_mode'] == 'server' && SQ_HIPO_USE_SERVER) {
+				if ($this->_current_mode == 'web' && $this->_steps[$step]['running_mode'] == 'server' && SQ_HIPO_USE_SERVER) {
 
 					require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_client.inc';
 					require_once 'XML/Tree.php';
@@ -651,6 +668,11 @@ class HIPO_Job extends Resolve_Object
 					// on the server
 					return $ret_val;
 
+				// if we are running on the server, we can't do anything because we should have exited
+				} elseif ($this->_current_mode == 'server') {
+					trigger_error('This should have been caught by the hipo herder', E_USER_ERROR);
+					return true;
+
 				// this should never happen, because of what happens in initialise()
 				} else {
 					trigger_error('Something is not right with this HIPO, please consult your system administrator', E_USER_ERROR);
@@ -678,107 +700,6 @@ class HIPO_Job extends Resolve_Object
 		return $this->_save();
 
 	}//end process()
-
-
-	/**
-	* Cancel the HIPO and cleanup
-	*
-	* @return boolean
-	* @access public
-	*/
-	function abort()
-	{
-		if ($this->source_code_name != $this->code_name) {
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$source_job = &$hh->getJob($this->source_code_name);
-			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) return false;
-			$source_job->abort();
-		}
-
-		// if aborting through a web script, but the processing is running on the server we need to inform the server to abort
-		if ($this->_current_mode == 'web' && $this->_hipo_vars['running_mode'] == 'server') {
-
-			trigger_error('CONNECT TO HIPO SERVER HERE AND SEND ABORT', E_USER_NOTICE);
-
-			// if there is no system taskid then there is nothing we can do
-			if (empty($this->_hipo_vars['server_taskid'])) {
-				trigger_error('Unable To Send Abort, No TaskID for the process on the server ', E_USER_NOTICE);
-				return false;
-			}
-
-			require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_client.inc';
-			require_once 'XML/Tree.php';
-
-			$attrs = Array(
-						'command'			=> 'abort', 
-						'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
-						'source_code_name'	=> $this->source_code_name,
-						'taskid'			=> $this->_hipo_vars['server_taskid'],
-					);
-
-			$data = new XML_Tree();
-			$root = &$data->addRoot('hipo_job', '', $attrs);
-
-			$ret_val = false;
-			$client = new HIPO_Client();
-			if ($client->connect()) {
-				if ($client->write($data)) {
-					$ack = $client->read();
-					if (!is_null($ack)) {
-						switch ($ack->root->name) {
-							case 'ack' :
-								pre_echo('GOT ACK');
-								$ret_val = true;
-								break;
-
-							case 'error' :
-								trigger_error('HIPO Server Error : '.$ack->root->content, E_USER_WARNING);
-								break;
-
-							default :
-								trigger_error('Unexpected return from the HIPO Server : '.$ack->get(), E_USER_WARNING);
-
-						}// end switch
-
-					}// end if
-				}// end if
-
-				$client->disconnect();
-			}// endif
-
-			return $ret_val;
-
-		// otherwise we can just do what needs to be done
-		} else {
-
-			$this->jobAborted();
-
-			$sub_job = &$this->_getSubJob();
-			if (!is_null($sub_job)) {
-				$sub_job->jobAborted();
-			}// end if
-
-			return true;
-
-
-		}// end if
-
-	}//end abort()
-
-
-	/**
-	* Called to do any clean-up for this job
-	*
-	* @return boolean
-	* @access public
-	*/
-	function jobAborted()
-	{
-		$this->setOption('auto_complete', true);
-		$this->_hipo_vars['aborted'] = true;
-		return $this->_save();
-
-	}//end jobAborted()
 
 
 	/**
@@ -910,6 +831,105 @@ class HIPO_Job extends Resolve_Object
 	}//end processServer()
 
 
+	/**
+	* Cancel the HIPO and cleanup
+	*
+	* @return boolean
+	* @access public
+	*/
+	function abort()
+	{
+		if ($this->source_code_name != $this->code_name) {
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$source_job = &$hh->getJob($this->source_code_name);
+			if (is_null($source_job) || ($source_job->source_code_name != $source_job->code_name)) return false;
+			$source_job->abort();
+		}
+
+		// if aborting through a web script, but the processing is running on the server we need to inform the server to abort
+		if ($this->_current_mode == 'web' && $this->_hipo_vars['running_mode'] == 'server') {
+
+			// if there is no system taskid then there is nothing we can do
+			if (empty($this->_hipo_vars['server_taskid'])) {
+				trigger_error('Unable To Send Abort, No TaskID for the process on the server ', E_USER_NOTICE);
+				return false;
+			}
+
+			require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_client.inc';
+			require_once 'XML/Tree.php';
+
+			$attrs = Array(
+						'command'			=> 'abort', 
+						'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+						'source_code_name'	=> $this->source_code_name,
+						'taskid'			=> $this->_hipo_vars['server_taskid'],
+					);
+
+			$data = new XML_Tree();
+			$root = &$data->addRoot('hipo_job', '', $attrs);
+
+			$ret_val = false;
+			$client = new HIPO_Client();
+			if ($client->connect()) {
+				if ($client->write($data)) {
+					$ack = $client->read();
+					if (!is_null($ack)) {
+						switch ($ack->root->name) {
+							case 'ack' :
+								pre_echo('GOT ACK');
+								$ret_val = true;
+								break;
+
+							case 'error' :
+								trigger_error('HIPO Server Error : '.$ack->root->content, E_USER_WARNING);
+								break;
+
+							default :
+								trigger_error('Unexpected return from the HIPO Server : '.$ack->get(), E_USER_WARNING);
+
+						}// end switch
+
+					}// end if
+				}// end if
+
+				$client->disconnect();
+			}// endif
+
+			if ($ret_val) return true;
+
+			trigger_error('Forcing Abort of HIPO Job', E_USER_WARNING);
+			// fall through and delete this bugger, set the running mode to allow the saving
+			$this->setRunningMode('web');
+
+		}// end if
+
+		$this->jobAborted();
+
+		$sub_job = &$this->_getSubJob();
+		if (!is_null($sub_job)) {
+			$sub_job->jobAborted();
+		}// end if
+
+		return true;
+
+	}//end abort()
+
+
+	/**
+	* Called to do any clean-up for this job
+	*
+	* @return boolean
+	* @access public
+	*/
+	function jobAborted()
+	{
+		$this->setOption('auto_complete', true);
+		$this->_hipo_vars['aborted'] = true;
+		return $this->_save();
+
+	}//end jobAborted()
+	
+	
 	/**
 	* Paint a report of errors that were triggered during HIPO execution
 	*
