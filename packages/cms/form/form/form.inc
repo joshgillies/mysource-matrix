@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.77 2005/01/17 18:21:13 brobertson Exp $
+* $Id: form.inc,v 1.78 2005/01/17 22:44:11 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1518,41 +1518,41 @@ class Form extends Asset
 						$type = 'block';
 					}
 					$default = $name;
-					$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
+					$keywords[$keyword] = $name;
 				}
 
 				foreach ($questions as $q_id => $question) {
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
-					$keywords['question_field_'.$this->id.'_q'.$q_id] = Array('name' => 'Field: '.ellipsisize($q_name,30), 'default' => '[Question Field for '.$q_name.']', 'type' => 'inline');
+					$keywords['question_field_'.$this->id.'_q'.$q_id] = 'Field: '.ellipsisize($q_name,30);
 				}
 
 				foreach ($sections as $section) {
-					$keywords['section_title_'.$section->id] = Array('name' => 'Section Title: '.$section->attr('name'), 'default' => $section->attr('name'), 'type' => 'inline');
+					$keywords['section_title_'.$section->id] = 'Section Title: '.$section->attr('name');
 					$questions = &$section->getQuestions();
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
-						$keywords['question_field_'.$section->id.'_q'.$q_id] = Array('name' => 'Field: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30), 'default' => '[Question Field for '.$q_name.']', 'type' => 'inline');
+						$keywords['question_field_'.$section->id.'_q'.$q_id] = 'Field: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30);
 					}
 				}
 
 			} else if ($bodycopy == 'Thank You') {
-				$keywords['form_summary'] = Array('name' => 'Form Summary', 'default' => 'Summary of form results', 'type' => 'block');
+				$keywords['form_summary'] = 'Submission Summary';
 
 				foreach ($questions as $q_id => $question) {
 					$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 					$q_name = $q_asset->attr('name');
-					$keywords['response_'.$this->id.'_q'.$q_id] = Array('name' => 'Response: '.ellipsisize($q_name,30), 'default' => '[Response for '.$q_name.']', 'type' => 'inline');
+					$keywords['response_'.$this->id.'_q'.$q_id] = 'Response: '.ellipsisize($q_name,30);
 				}
 
 				foreach ($sections as $section) {
-					$keywords['section_title_'.$section->id] = Array('name' => 'Section Title: '.$q_name, 'default' => $section->attr('name'), 'type' => 'inline');
+					$keywords['section_title_'.$section->id] = 'Section Title: '.$q_name;
 					$questions = &$section->getQuestions();
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($section->id.':q'.$q_id);
 						$q_name = $q_asset->attr('name');
-						$keywords['response_'.$section->id.'_q'.$q_id] = Array('name' => 'Response: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30), 'default' => '[Response for '.$section->attr('name').': '.$q_name.']', 'type' => 'inline');
+						$keywords['response_'.$section->id.'_q'.$q_id] = 'Response: '.ellipsisize($section->attr('name'),20).': '.ellipsisize($q_name,30);
 					}
 				}
 			}
