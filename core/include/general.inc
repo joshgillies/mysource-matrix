@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.46 2004/04/01 07:06:56 mmcintyre Exp $
+* $Id: general.inc,v 1.47 2004/05/20 06:23:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -439,20 +439,38 @@ function bit_elements($num)
 /**
 * Takes an ISO-8601 compliant date-time string and returns a unix timestamp for it
 *
-* @param string	$iso8601	date time string in 'YYYY-MM-DD HH:MM:SS' format
+* @param string	$iso8601	date time string in any of the following formats:
+*							'YYYY-MM-DDTHH:MM:SS'	date and time with 'T' separator (XML format)
+*							'YYYY-MM-DD HH:MM:SS'	date and time without 'T' (SQL date/datetime format)
+*							'YYYY-MM-DD'			date only
 *
 * @return int
 */
 function iso8601_ts($iso8601)
 {
-	return mktime(
-		(int) substr($iso8601,11,2),
-		(int) substr($iso8601,14,2),
-		(int) substr($iso8601,17,2),
-		(int) substr($iso8601,5,2),
-		(int) substr($iso8601,8,2),
-		(int) substr($iso8601,0,4)
-	);
+	// we have everything including the time
+	if (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}[ T]([0-9\-]{2}\:?){3}$/",$iso8601)) {
+		return mktime(
+			(int) substr($iso8601,11,2),
+			(int) substr($iso8601,14,2),
+			(int) substr($iso8601,17,2),
+			(int) substr($iso8601,5,2),
+			(int) substr($iso8601,8,2),
+			(int) substr($iso8601,0,4)
+		);
+	// valid but we only have the date
+	} elseif (preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}$/",$iso8601)) {
+		return mktime(
+			0, 0, 0,
+			(int) substr($iso8601,5,2),
+			(int) substr($iso8601,8,2),
+			(int) substr($iso8601,0,4)
+		);
+	} else {
+		return 0;
+	}
+
+
 
 }//end iso8601_ts()
 
