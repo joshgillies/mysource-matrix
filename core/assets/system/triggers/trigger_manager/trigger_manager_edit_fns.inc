@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.2 2005/02/18 07:30:33 amiller Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.3 2005/02/18 07:33:35 amiller Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -831,7 +831,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$data = array_get_index($component, 'data', Array());
 			if (!array_get_index($component, 'new', false)) {
-				eval('$status = '.$type.'::processInterface(&$settings, &$hash, $data);');
+				eval('$status = '.$type.'::processInterface(&$settings, $hash, $data);');
 			}
 
 			$processed_components[] = Array(
@@ -887,7 +887,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 			$data = array_get_index($component, 'data', Array());
 			if (!array_get_index($component, 'new', false)) {
-				eval('$status = '.$type.'::processInterface(&$settings, $data);');
+				eval('$status = '.$type.'::processInterface($settings, $data);');
 			}
 
 			$processed_components[] = Array(
