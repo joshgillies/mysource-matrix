@@ -237,9 +237,7 @@ function sq_web_path($path='base')
 
 		case 'root_url'  : 
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
-			$current_url = ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http').'://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
-			// remove any trailing slashes
-			$current_url = preg_replace('/\/+$/', '', $current_url);
+			$current_url = strip_url(current_url());
 
 			$tmp = $root_urls[0];
 			for($i = 1; $i < count($root_urls); $i++) {
@@ -268,6 +266,7 @@ function sq_web_path($path='base')
 
 }// end sq_web_path()
 
+
 /**
 * Returns the current URL for this page, including the protocol
 *
@@ -280,6 +279,7 @@ function current_url($inc_protocol=true)
 	return (($inc_protocol) ? current_protocol().'://' : '').$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
 }// end current_url()
 
+
 /**
 * Returns the current http protocol in use for this page
 *
@@ -289,6 +289,22 @@ function current_protocol()
 {
 	return (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') ? 'https' : 'http';
 }// end current_protocol()
+
+
+/**
+* Returns a url that has had trailing slashes and double slashes stripped
+*
+* @param url	$url			the url to check (with or without protocol)
+* @param bool	$strip_protocol	if true doesn't return the protocol with the url
+*
+* @return string
+*/
+function strip_url($url, $strip_protocol=false)
+{
+	$re = '/^([a-z]+:\/\/)?(.*)$/';
+	preg_match($re, $url, $matches);
+	return (($strip_protocol) ? '' : $matches[1]).preg_replace(Array('/\\/+$/', '/\\/\\/+/'), Array('', '/'), $matches[2]);
+}// end strip_url()
 
 /**
 * Takes an integer and returns an array of numbers representing the active
