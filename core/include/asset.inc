@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.269 2004/01/12 06:04:44 gsherwood Exp $
+* $Id: asset.inc,v 1.270 2004/01/15 14:48:03 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1198,9 +1198,14 @@ class Asset extends MySource_Object
 	{
 		if (!$this->id) return false;
 
-		if      ($number == 'major') $part_num = 0;
-		else if ($number == 'minor') $part_num = 1;
-		else if ($number == 'micro') $part_num = 2;
+		switch($number) {
+			case 'major' : $part_num = 0; break;
+			case 'minor' : $part_num = 1; break;
+			case 'micro' : $part_num = 2; break;
+			default :
+				trigger_error('Failed incrementing version of "'.$this->name.'" [#'.$this->id.'], number part "'.$number.'" not known.', E_USER_WARNING);
+				return false;
+		}
 
 		// work out the new version number based on the part of the
 		// version that we have been asked to update (major|minor|micro)
@@ -3287,7 +3292,7 @@ class Asset extends MySource_Object
 					$rm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
 					$new_url = array_shift(array_keys($done_urls));
 
-					if ($url_data['http']) $rm->addRemapURL('http://'.$old_url, 'http://'.$new_url);
+					if ($url_data['http'])  $rm->addRemapURL('http://'.$old_url,  'http://'.$new_url);
 					if ($url_data['https']) $rm->addRemapURL('https://'.$old_url, 'https://'.$new_url);
 				}
 			}
