@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.24 2004/11/29 02:14:16 gsherwood Exp $
+* $Id: image_edit_fns.inc,v 1.25 2004/11/29 22:07:12 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,10 +58,10 @@ class Image_Edit_Fns extends File_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			?><br/><span style="font-size: 10px;">You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
 		}
-		if (!$asset->id) {
+		if ((!$asset->id) && file_exists(SQ_FUDGE_PATH.'/image_editor/imagej.jar')) {
 			// we are in the create screen, so offer the editor too
 			echo '<p>';
-			normal_button($prefix.'_use_editor_button', 'Use Image Editor', 'this.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_hide_editor_button\').parentNode.parentNode.style.display=\'\';');
+			normal_button($prefix.'_use_editor_button', 'Use Image Editor', 'this.parentNode.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_hide_editor_button\').parentNode.parentNode.style.display=\'\';');
 			echo '</p>';
 		}
 		return true;
@@ -83,7 +83,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	{
 		if (!$asset->id) {
 			// we are in the create screen, so we'll print
-			normal_button($prefix.'_hide_editor_button', 'Use Simple Upload', 'this.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_use_editor_button\').parentNode.parentNode.style.display=\'\';', 'style="margin-bottom: 5px"');
+			normal_button($prefix.'_hide_editor_button', 'Use Simple Upload', 'this.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_use_editor_button\').parentNode.parentNode.parentNode.style.display=\'\';', 'style="margin-bottom: 5px"');
 			echo '<br />';
 			$this->_paintApplet($asset, $o, $prefix);
 		}
@@ -272,10 +272,11 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* @param string						$prefix	prefix for form elements
 	*
 	* @access private
-	* @return boolean	true
+	* @return boolean	true if the applet was printed OK
 	*/
 	function _paintApplet(&$asset, &$o, $prefix) 
 	{
+		if (!file_exists(SQ_FUDGE_PATH.'/image_editor/imagej.jar')) return false;
 		$open_url = $asset->getURL();
 		if (empty($open_url)) $open_url = current_url(true, true).'?a='.$asset->id;
 		$open_url .= ((strpos($open_url, '?') === false) ? '?' : '&').'t='.time();
