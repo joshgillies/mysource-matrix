@@ -20,8 +20,26 @@ ASBroadcaster.initialize(Asset.prototype);
 
 
 // all the ones we care about
-Asset.prototype.UNDER_CONSTRUCTION_STATUS = 1;
-Asset.prototype.LIVE_STATUS = 4;
+/* 
+define('SQ_STATUS_ARCHIVED',           1); // asset is archived
+define('SQ_STATUS_UNDER_CONSTRUCTION', 2); // asset is under construction
+define('SQ_STATUS_PENDING_APPROVAL',   4); // asset is currently in workflow
+define('SQ_STATUS_APPROVED',           8); // asset is approved waiting to go live from under construction
+define('SQ_STATUS_LIVE',              16); // asset is live
+define('SQ_STATUS_LIVE_APPROVAL',     32); // asset is up for review
+define('SQ_STATUS_EDITING',           64); // asset is currently safe editing
+define('SQ_STATUS_EDITING_APPROVAL', 128); // asset is currently in workflow from safe edit
+define('SQ_STATUS_EDITING_APPROVED', 256); // asset is approved waiting to go live from safe edit
+
+define('SQ_SC_STATUS_NOT_LIVE',      15); // short hand for SQ_STATUS_ARCHIVED | SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_APPROVED
+define('SQ_SC_STATUS_CAN_APPROVE',   66); // short hand for SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_EDITING
+define('SQ_SC_STATUS_PENDING',      164); // short hand for SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_EDITING_APPROVAL | SQ_STATUS_LIVE_APPROVAL
+define('SQ_SC_STATUS_ALL_APPROVED', 136); // short hand for SQ_STATUS_APPROVED | SQ_STATUS_EDITING_APPROVED
+define('SQ_SC_STATUS_SAFE_EDITING', 448); // short hand for SQ_STATUS_EDITING | SQ_STATUS_EDITING_APPROVAL | SQ_STATUS_EDITING_APPROVED
+*/
+Asset.prototype.UNDER_CONSTRUCTION_STATUS = 2 | 4 | 8 | 64 | 128 | 256;
+Asset.prototype.LIVE_STATUS = 16 | 32;
+
 
 
 Asset.prototype.toString = function()
