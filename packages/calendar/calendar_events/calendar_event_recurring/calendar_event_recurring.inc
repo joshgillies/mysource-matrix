@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.29 2004/09/02 05:27:35 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.30 2004/09/02 23:06:38 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.29 $ - 1.0
+* @version $Revision: 1.30 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -561,7 +561,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function getAssetKeywords($descriptions=false)
 	{
-		if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
+		if (isset($_REQUEST['SQ_CALENDAR_DATE']) && ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE']))) {
 			bam("SPECIAL CASE: This asset has an exception today");
 			bam($exception_link);
 		}
