@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_file_versioning.php,v 1.8 2004/12/06 14:38:13 brobertson Exp $
+* $Id: upgrade_file_versioning.php,v 1.9 2004/12/21 14:08:27 brobertson Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade menu design areas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -49,6 +49,11 @@ $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
 	echo "ERROR: The root password entered was incorrect\n";
 	exit();
+}
+
+// log in as root
+if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
+	trigger_error("Failed logging in as root user\n", E_USER_ERROR);
 }
 
 $db = &$GLOBALS['SQ_SYSTEM']->db;
