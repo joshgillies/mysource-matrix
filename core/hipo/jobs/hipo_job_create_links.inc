@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_links.inc,v 1.5 2005/02/24 22:18:08 gsherwood Exp $
+* $Id: hipo_job_create_links.inc,v 1.6 2005/03/02 21:16:43 brobertson Exp $
 *
 */
 
@@ -42,7 +42,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -568,7 +568,7 @@ class HIPO_Job_Create_Links extends HIPO_Job
 
 				if (count($this->_running_vars['assets']) > 0) {
 					echo '<p><b>The following asset(s) have been successfully linked under "'.$parent->name.'":</b></p>';
-					echo '<ul';
+					echo '<ul>';
 					for (reset($assets); null !== ($assetid = key($assets)); next($assets)) {
 						$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid,));
 						echo '<li>"'.$asset_info[$assetid]['name'].'"</li>';
