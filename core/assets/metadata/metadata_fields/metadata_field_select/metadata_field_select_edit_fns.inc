@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.6.2.2 2004/10/19 01:06:43 mmcintyre Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.6.2.3 2004/11/07 22:36:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -78,7 +78,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			$select_options = $asset->attr('select_options');
 
 			if ($asset->attr('multiple')) $default = explode('; ', $default);
-			if ($asset->attr('editable')) {
+			if ($write_access && $asset->attr('editable')) {
 				combo_box($prefix.'_value', $select_options, $asset->attr('multiple'), $default);
 			} else {
 				if (!is_array($default)) $default = Array($default);
@@ -276,7 +276,6 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	function paintEditParams(&$asset, &$o, $prefix)
 	{
 		$selection = $asset->getSelectionAttribute();
-		$selection->_edit_params = $asset->attr('edit_params');
 		$selection->paintEditParams($prefix.'_style', $asset->writeAccess('attributes'));
 
 	}//end paintEditParams()
