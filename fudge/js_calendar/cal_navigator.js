@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cal_navigator.js,v 1.2 2004/09/10 01:48:05 dbaranovskiy Exp $
+* $Id: cal_navigator.js,v 1.3 2004/09/13 01:25:58 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,11 @@ function Calendar(varname, divname, width, height, year, month, day)
 	this.day_name_length = 2;
 	this.popup = false;
 	this.imageURL = null;
+	this.fadeit = true;
+	
 	this.first_time = true;
+	this.time = null;
+	this.fade = 0;
 
 	this.output	= c_output;
 	this.draw	= c_draw;
@@ -62,6 +66,8 @@ function Calendar(varname, divname, width, height, year, month, day)
 	this.setDay	= c_setDay;
 	this.setDate	= c_setDate;
 	this.today	= c_today;
+	this.fadeOn	= c_fadeOn;
+	this.fadeOff	= c_fadeOff;
 
 	this.dayClick	= c_dayClick;
 	this.weekClick	= c_weekClick;
@@ -93,25 +99,38 @@ function c_show(e)
 	div.style.left = e.clientX + "px";
 	div.style.top  = e.clientY + "px";
 	div.innerHTML = this.output();
-	if (document.getElementById('ie_'+this.varname+'_iframe') == null && document.body.insertAdjacentHTML) {
-		var iframe = '<iframe id="ie_'+this.varname+'_iframe" scrolling="no" border="0" frameborder="0" style="position:absolute;top:-1000px;left:-1000px;width:10px; height:10px;visibility:hidden" src="about:blank"></iframe>'+div.outerHTML;
+	if (document.getElementById('ie_'+this.divname+'_iframe') == null && document.body.insertAdjacentHTML) {
+		var shadow = '<span id="ie_'+this.divname+'_shadow" style="background:#000000;position:absolute;top:0px;left:0px;filter:progid:DXImageTransform.Microsoft.blur(pixelradius=6, enabled=\'true\', makeshadow=\'true\', ShadowOpacity=0.7)"></span>';
+		var iframe = '<iframe id="ie_'+this.divname+'_iframe" scrolling="no" border="0" frameborder="0" style="filter:alpha(opacity=0);position:absolute;top:-1000px;left:-1000px;width:10px; height:10px;visibility:hidden" src="about:blank"></iframe>' + shadow + div.outerHTML;
 		document.body.insertAdjacentHTML('beforeEnd', iframe);
 		div.id = this.divname + "_old";
 		div.innerHTML = "";
 		
 		div = document.getElementById(this.divname);
 	}
-	if (document.body.insertAdjacentHTML) {
 		var cal_height = document.getElementById(this.divname).offsetHeight;
 		var cal_width  = document.getElementById(this.divname).offsetWidth;
+	if (document.body.insertAdjacentHTML) {
 		var cal_top    = document.getElementById(this.divname).style.top;
 		var cal_left   = document.getElementById(this.divname).style.left;
-		var iframe = document.getElementById('ie_'+this.varname+'_iframe');
+		var iframe = document.getElementById('ie_'+this.divname+'_iframe');
+		var shadow = document.getElementById('ie_'+this.divname+'_shadow');
 		iframe.style.top	= cal_top;
 		iframe.style.left	= cal_left;
 		iframe.style.width	= cal_width + "px";
 		iframe.style.height	= cal_height + "px";
 		iframe.style.visibility	= "visible";
+		shadow.style.top	= cal_top.substring(0, cal_top.length - 2) - 2 + "px";
+		shadow.style.left	= cal_left.substring(0, cal_left.length - 2) - 6 + "px";
+		shadow.style.width	= cal_width + "px";
+		shadow.style.height	= cal_height + "px";
+		if (this.fadeit) shadow.style.visibility	= "hidden";
+		else shadow.style.visibility	= "visible";
+	}
+//	div.style.clip =  "rect(0px, "+cal_width+"px, "+(500)+"px, 0px)";
+	if (this.fadeit) {
+		this.fade = 0;
+		this.fadeOn();
 	}
 	div.style.visibility = "visible";
 
@@ -129,10 +148,76 @@ function c_hide()
 {
 	this.popup = true;
 	var div = document.getElementById(this.divname);
-	div.style.visibility = "hidden";
-	if (window.event) document.getElementById('ie_'+this.varname+'_iframe').style.visibility = "hidden";
+	if (this.fadeit) {
+		this.fade = 96;
+		this.fadeOff();
+	} else div.style.visibility = "hidden";
+	if (document.body.insertAdjacentHTML){
+		if (!this.fadeit) document.getElementById('ie_'+this.divname+'_iframe').style.visibility = "hidden";
+		document.getElementById('ie_'+this.divname+'_shadow').style.visibility = "hidden";
+	}
 
 }//end c_hide()
+
+
+/**
+* Description
+*
+* @param
+*
+* @return
+* @access public
+*/
+function c_fadeOn()
+{
+	clearTimeout(this.time);
+	var div = document.getElementById(this.divname);
+	div.style.visibility = "visible";
+	if (this.fade >= 100) {
+		this.time = null; 
+		div.style.MozOpacity = 0.99;
+		div.style.filter= 'alpha(opacity=99)';
+		if (document.body.insertAdjacentHTML){
+			document.getElementById('ie_'+this.divname+'_iframe').style.visibility = "visible";
+			document.getElementById('ie_'+this.divname+'_shadow').style.visibility = "visible";
+		}
+		return;
+	}
+	div.style.MozOpacity = this.fade/100;
+	div.style.filter= 'alpha(opacity=' + this.fade + ')';
+	this.fade+=4;
+	this.time = setTimeout(this.varname+".fadeOn()",1);
+	
+}//end c_fadeOn()
+
+
+/**
+* Description
+*
+* @param
+*
+* @return
+* @access public
+*/
+function c_fadeOff()
+{
+	clearTimeout(this.time);
+	var div = document.getElementById(this.divname);
+	if (this.fade <= 0) {
+		this.time = null;
+		div.style.visibility = "hidden"; 
+		if (document.body.insertAdjacentHTML){
+			document.getElementById('ie_'+this.divname+'_iframe').style.visibility = "hidden";
+			document.getElementById('ie_'+this.divname+'_shadow').style.visibility = "hidden";
+		}
+		return;
+	}
+	div.style.MozOpacity = this.fade/100;
+	div.style.filter= 'alpha(opacity=' + this.fade + ')';
+	this.fade-=4;
+	this.time = setTimeout(this.varname+".fadeOff()",1);
+	
+}//end c_fadeOn()
 
 
 /**
