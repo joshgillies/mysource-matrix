@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.54 2005/02/11 05:39:31 gsherwood Exp $
+* $Id: file_edit_fns.inc,v 1.55 2005/03/30 17:18:43 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -198,6 +198,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				trigger_error('Failed copying non-uploaded file ('.$info['tmp_name'].') to destination directory ('.$asset->data_path.'/'.$name.')', E_USER_WARNING);
 				return false;
 			}
+		} else {
+			trigger_error('No file uploaded or non-uploaded, unable to process file upload', E_USER_ERROR);
+			return false;
 		}
 
 		// if we are overwriting our current file with one that has the same name,
