@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.1 2004/07/28 01:25:32 lwright Exp $
+* $Id: calendar_event.inc,v 1.2 2004/07/29 02:18:03 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH . '/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -271,10 +271,8 @@ class Calendar_Event extends Asset
 	/**
 	* Returns the duration between the start and end dates, if they are set
 	*
-	* If end date/time is null => return 0 if start time specified (single point in time)
-	*                          => return '1 day' (86400 seconds) if start time not specified
-	*                             (single-day event)
-	* If start date and end date only specified	=> return calendar days between two dates
+	* If end date/time is null => return 0 (single point in time)
+	* If start date and end date only specified	=> return calendar days covered by two dates
 	*                                              (ie. calendar days * 86400)
 	* If both fields specified in full => return the difference between the two times in seconds
 	*
@@ -297,13 +295,8 @@ class Calendar_Event extends Asset
 		if (!$start_has_date) return null;
 
 		if (!$end_has_date) {
-			if ($start_has_time) {
-				// single point in time, and so it has no duration
-				return 0;
-			} else {
-				// this is a single day event, return '1 day'
-				return $seconds_per_day;
-			}
+			// single point in time, and so it has no duration
+			return 0;
 		}
 
 		// NOTE: no need to replace null time fields with 'midnight' (00:00:00) because the
