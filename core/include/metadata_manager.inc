@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.30 2004/02/24 07:37:35 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.31 2004/02/24 22:37:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -594,7 +594,7 @@ class Metadata_Manager extends MySource_Object
 							}
 						}
 					}
-					
+
 					$nested_tag_values[$nested_index][$n] = $v;
 					$tag_nested_index[$n] = $nested_index;
 				}
@@ -782,7 +782,7 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Regenerate both the cached tag metadata and the serialised DB values
 	*
-	* Basically just an alias to generateContentFile to 
+	* Basically just an alias to generateContentFile to
 	*
 	* @param int	$assetid	the ID of the asset to regenerate metadata for
 	*
@@ -801,11 +801,11 @@ class Metadata_Manager extends MySource_Object
 
 	/**
 	* Indexes metadata for an asset
-	* 
+	*
 	* @param Object		&$asset			The asset
 	* @param Array		&$metadata		The values for the metadata
 	* @param Array		&$schemaids		The schema IDs
-	* 
+	*
 	* @access private
 	* @return void
 	*/
@@ -823,7 +823,7 @@ class Metadata_Manager extends MySource_Object
 			}
 		}
 		$im->addKeyData($assetid, $this->getMetadataKeyData($assetid, $schemaids));
-		
+
 	}//end indexMetadata()
 
 
@@ -833,7 +833,7 @@ class Metadata_Manager extends MySource_Object
 	* @param Object		&$asset			The asset
 	* @param Array		&$metadata		The values for the metadata
 	* @param Array		&$schemaids		The schema IDs
-	* 
+	*
 	* @return Array
 	* @access private
 	*/
@@ -854,7 +854,7 @@ class Metadata_Manager extends MySource_Object
 				foreach ($fieldids as $fieldid => $field_type) {
 
 					$field =& $am->getAsset($fieldid, $field_type);
-					
+
 					if (isset($metadata['sections'][$section->name]['fields'][$field->name]['value'])) {
 						$value = $metadata['sections'][$section->name]['fields'][$field->name]['value'];
 					} else {
@@ -862,17 +862,16 @@ class Metadata_Manager extends MySource_Object
 					}
 
 					$force_processing = 1; //will tell the function to process values in any case
-					
-					//////////////////////////////////////////////
-					// check field_type to define the indexing way
 
+					// check field_type to define the indexing way
 					if ($field_type == 'metadata_field_date') {
-						
-						$mydate = date("d:m:Y:h:i:s", $value);							$asset->buildKeyData($keydata, $mydate, 'text', 'metadata:'. $field->id, $field->attr('weighting') * 1, $force_processing);
+
+						$mydate = date("d:m:Y:h:i:s", $value);
+						$asset->buildKeyData($keydata, $mydate, 'text', 'metadata:'. $field->id, $field->attr('weighting') * 1, $force_processing);
 
 					} else {
 
-						$keywords = retrieve_keywords_replacements($value);
+						$keywords = retrieve_keywords_replacements($value, '.');
 
 						$replacements = $this->generateKeywordReplacements($asset, $keywords, false);
 						foreach ($keywords as $keyword => $replacement) {

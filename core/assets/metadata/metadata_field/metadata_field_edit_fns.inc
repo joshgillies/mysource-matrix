@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.18 2004/02/24 07:37:35 gsherwood Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.19 2004/02/24 22:37:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -475,7 +475,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			$values['using_default'] = true;
 		}
 
-		$keywords = array_merge($keywords, retrieve_keywords_replacements($default));
+		$keywords = array_merge($keywords, retrieve_keywords_replacements($default, '.'));
 
 		echo '<meta name="'.$asset->name.'"';
 		if (trim($asset->attr('language')) != '') echo ' lang="'.$asset->attr('language').'"';
@@ -491,7 +491,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 					$values['value_components'][$vc_name] = $vc_value;
 				}
 				$vc_value = $values['value_components'][$vc_name];
-				$keywords = array_merge($keywords, retrieve_keywords_replacements($vc_value));
+				$keywords = array_merge($keywords, retrieve_keywords_replacements($vc_value, '.'));
 				$value_string .= $vc_name.'='.$vc_value.'; ';
 			}
 		}
@@ -530,7 +530,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if (isset($values['value'])) $default = $values['value'];
 		else $default = $field->attr('default');
 
-		$used_keywords = retrieve_keywords_replacements($default);
+		$used_keywords = retrieve_keywords_replacements($defaultm, '.');
 
 		$value_string = '';
 		$current_vc = $field->attr('value_components');
@@ -539,7 +539,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 				if (isset($values['value_components'][$vc_name])) {
 					$vc_value = $values['value_components'][$vc_name];
 				}
-				$used_keywords = array_merge($used_keywords, retrieve_keywords_replacements($vc_value));
+				$used_keywords = array_merge($used_keywords, retrieve_keywords_replacements($vc_value, '.'));
 				$value_string .= $vc_name.'='.$vc_value.'; ';
 			}
 		}
