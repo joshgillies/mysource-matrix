@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_management.inc,v 1.8 2004/12/06 14:41:40 brobertson Exp $
+* $Id: page_site_map_management.inc,v 1.9 2005/03/04 13:00:21 mkeehan Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -84,6 +84,14 @@ class Page_Site_Map_Management extends Asset_Management
 												'default'	=> Array(),
 												),
 							'icons'		=> Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'boolean',
+												'default'	=> false,
+												'parameters' => Array(
+													'allow_empty' => false
+													),
+												),
+							'show_type_2'	=> Array (
 												'added'		=> '0.0.1',
 												'type'		=> 'boolean',
 												'default'	=> false,

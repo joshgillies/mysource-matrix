@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2005/01/20 13:18:40 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2005/03/04 13:00:21 mkeehan Exp $
 *
 */
 -->
@@ -69,6 +69,11 @@
 			<display_name>Print Asset Icons</display_name>
 			<note />
 			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="show_type_2">
+			<display_name>Show Type_2 Links</display_name>
+			<note />
+			<boolean true_text="yes" false_text="No" />
 		</field>
 		<field>
 			<display_name>Exclude List</display_name>
