@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.6 2003/11/26 00:51:18 gsherwood Exp $
+* $Id: text.inc,v 1.7 2003/12/17 01:08:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -78,7 +78,7 @@ function replace_keywords($text, &$replacements)
 function retrieve_keywords_replacements($text)
 {
 	$matches = Array();
-	preg_match_all ('/%([a-zA-Z() _\-0-9]+)%/', $text, $matches, PREG_PATTERN_ORDER);
+	preg_match_all ('/%([a-zA-Z_\-0-9]+)%/', $text, $matches, PREG_PATTERN_ORDER);
 	return (count($matches)) ? $matches[1] : Array();
 
 }//end retrieve_keywords_replacements()
