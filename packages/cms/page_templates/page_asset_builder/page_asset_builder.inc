@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.25 2004/08/11 23:33:51 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.26 2004/08/16 05:32:21 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -468,11 +468,11 @@ class Page_Asset_Builder extends Page
 		}
 
 		// start with the fixed create locations
-		$create_locations = $this->attr('fixed_create_locations');
+		$create_locations = $this->attr('create_location');
 		
 		// add selected create locations if we are using the submitted form vars
 		if (empty($attributes)) {
-			foreach ($this->attr('selectable_create_location_sets') as $name => $details) {
+			foreach ($this->attr('create_location_optional') as $name => $details) {
 				$selected_locations = Array();
 				$code_name = str_replace(' ', '_', strtolower($name));
 				if (isset($_POST[$code_name])) {
@@ -700,7 +700,7 @@ class Page_Asset_Builder extends Page
 			ob_end_clean();
 		}
 	
-		foreach ($this->attr('selectable_create_location_sets') as $name => $data) {
+		foreach ($this->attr('create_location_optional') as $name => $data) {
 			$code_name = str_replace(' ', '_', strtolower($name));
 			$options = $data['locations'];
 
@@ -851,7 +851,7 @@ class Page_Asset_Builder extends Page
 		$dropdown_default = '<select><option>%name% Option 1</option><option>%name% Option 2</option></select>';
 		$radio_default = '<input type="radio" />%name% Option 1 <br /><input type="radio" />%name% Option 2 <br />';
 
-		foreach ($this->attr('selectable_create_location_sets') as $name => $data) {
+		foreach ($this->attr('create_location_optional') as $name => $data) {
 			$kw_name = str_replace(' ', '_', strtolower($name)).'_field';
 			$keywords[$kw_name] = Array('name' => $name.' Field', 
 										'default' => str_replace('%name%', $name, (($data['input_style'] == 'dropdown') ? $dropdown_default : $radio_default)),

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.10 2004/08/11 07:18:56 tbarrett Exp $
+* $Id: page_asset_builder_management.inc,v 1.11 2004/08/16 05:32:21 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,8 +57,8 @@ class Page_Asset_Builder_Management extends Asset_Management
 		* Locations under which created assets will always be linked
 		*	Array (assetid => link_type)
 		*/
-		$this->vars['fixed_create_locations']			= Array(
-															'added'     => '0.4',
+		$this->vars['create_location']			= Array(
+															'added'     => '0.1',
 															'type'      => 'serialise',
 															'default'   => Array(),
 														);
@@ -73,12 +73,11 @@ class Page_Asset_Builder_Management extends Asset_Management
 		*						 )
 		*		  )
 		*/
-		$this->vars['selectable_create_location_sets']	= Array(
-															'added'     => '0.4',
+		$this->vars['create_location_optional']	= Array(
+															'added'     => '0.1',
 															'type'      => 'serialise',
 															'default'   => Array(),
 														);
-
 		/**
 		* Rules governing additional create locations
 		*   Array (create_type => Array (index => Array('attributes'  => Array(index => attribute_name),
@@ -161,6 +160,36 @@ class Page_Asset_Builder_Management extends Asset_Management
 	*/
 	function _upgrade($current_version)
 	{
+		// important upgrades that must be taken care of before create type becomes
+		// a serialise in 0.3
+		if ($current_version <= '0.2') {
+			$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), false);
+			foreach ($children as $assetid => $type) {
+				
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
+				if (is_null($asset)) continue;
+
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) { 
+					trigger_error('Asset Builder Upgrade [from 0.2] Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
+					return false;
+				}
+				
+				$old_create_type = $asset->attr('create_type');
+				$create_type = Array($old_create_type => true);
+				$asset->setAttrValue('create_type', serialize($create_type));
+								
+				if (!$asset->saveAttributes()) { 
+					trigger_error('Asset Builder Upgrade [from 0.2] Failed', _USER_WARNING);
+					return false;
+				}
+				
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
+			
+			}
+		}								
+				
+		
 		if (!parent::_upgrade($current_version)) return false;
 
 		if ($current_version == '0.1') {
@@ -199,13 +228,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 					$i++;
 				}
 				
-				$asset->setAttrValue('create_location_rules', $new_locations);
-				
-				// 0.1->0.3 upgrades - see v0.2 comments below for more info 
-				$create_type = $asset->attr('create_type');
-				$create_type = Array($create_type => true);
-								
-				$asset->setAttrValue('create_type', $create_type);
+				$asset->setAttrValue('create_location_rules', $new_locations);				
 				
 				if (!$asset->saveAttributes()) { 
 					trigger_error('Asset Builder Upgrade Failed', E_USER_WARNING);
@@ -233,11 +256,6 @@ class Page_Asset_Builder_Management extends Asset_Management
 					trigger_error('Asset Builder Upgrade [from 0.2] Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
 					return false;
 				}
-
-				$old_create_type = $asset->attr('create_type');
-				$create_type = Array($old_create_type => true);
-								
-				$asset->setAttrValue('create_type', $create_type);
 				
 				$create_locs = $asset->attr('create_location_rules');
 				$create_locs = Array($old_create_type => $create_locs);
@@ -266,7 +284,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 		}
 		return true;
 
-	}//end upgrade()
+	}//end _upgrade()
 
 
 	function _upgrade03To04()
@@ -295,7 +313,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				foreach ($old_create_locations as $assetid => $null) {
 					$fixed_create_locations[$assetid] = $old_link_type;
 				}
-				$asset->setAttrValue('fixed_create_locations', $fixed_create_locations);
+				$asset->setAttrValue('create_location', $fixed_create_locations);
 
 				// convert the selectable (optional) create locations by creating a set of the old ones
 				if ($asset->attr('create_location_optional')) {
@@ -314,7 +332,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 					$selectable_locations_set_details['allow_empty'] = 0;
 					$selectable_locations_set_details['link_type'] = $old_link_type;
 					$selectable_locations_set_details['input_style'] = $old_input_style;
-					$asset->setAttrValue('selectable_create_location_sets', Array('First Selectable Location' =>  $selectable_locations_set_details));
+					$asset->setAttrValue('create_location_optional', Array('First Selectable Location' =>  $selectable_locations_set_details));
 				}
 
 				// convert the create location rules into the new format
@@ -396,8 +414,6 @@ class Page_Asset_Builder_Management extends Asset_Management
 			}
 
 			// get rid of the old attributes
-			$this->_deleteAttribute('create_location');
-			$this->_deleteAttribute('create_location_optional');
 			$this->_deleteAttribute('create_location_multiple');
 			$this->_deleteAttribute('create_location_type');
 			$this->_deleteAttribute('create_link_type');

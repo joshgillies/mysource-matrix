@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.14 2004/08/11 07:18:56 tbarrett Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.15 2004/08/16 05:32:21 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -305,7 +305,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		echo '<p><i><b>'.$this->location_messages['fixed'].'</b></i></p>';
 
 		$write_access = $asset->writeAccess('attributes');
-		$locations = $asset->attr('fixed_create_locations');
+		$locations = $asset->attr('create_location');
 
 		if (empty($locations)) {
 			echo 'No fixed create locations have been specified';
@@ -374,7 +374,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-		$old_locations = $asset->attr('fixed_create_locations');
+		$old_locations = $asset->attr('create_location');
 		$new_locations = $old_locations;
 
 		// add a new create location
@@ -395,7 +395,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			}
 		}
 
-		if ($old_locations != $new_locations) return $asset->setAttrValue('fixed_create_locations', $new_locations);
+		if ($old_locations != $new_locations) return $asset->setAttrValue('create_location', $new_locations);
 		return false;
 
 	}//end processFixedCreateLocations()
@@ -573,7 +573,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		echo '<p><i><b>'.$this->location_messages['selectable'].'</b></i></p>';
 
 		$write_access = $asset->writeAccess('attributes');
-		if (is_array($sets = $asset->attr('selectable_create_location_sets')) && (!empty($sets))) {
+		if (is_array($sets = $asset->attr('create_location_optional')) && (!empty($sets))) {
 			foreach ($sets as $name => $data) $this->_paintSelectableLocationSet($asset, $o, $prefix, $name, $data);
 		} else {
 			echo 'No sets of selectable locations have been specified';
@@ -604,14 +604,14 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	function processSelectableLocationSets(&$asset, &$o, $prefix)
 	{
 		
-		$sets = $asset->attr('selectable_create_location_sets');
+		$sets = $asset->attr('create_location_optional');
 
 		// see if there is a set to delete altogether
 		foreach (array_keys($sets) as $name) {
 			$code_name = str_replace(' ', '_', strtolower($name));
 			if ($_POST[$prefix.'_'.$code_name.'_delete']) {
 				unset($sets[$name]);
-				$asset->setAttrValue('selectable_create_location_sets', $sets);
+				$asset->setAttrValue('create_location_optional', $sets);
 				$asset->saveAttributes();
 
 				return true; // when deleting a set, nothing else should be done.
@@ -663,7 +663,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 														   );
 		}
 
-		$asset->setAttrValue('selectable_create_location_sets', $sets);
+		$asset->setAttrValue('create_location_optional', $sets);
 		$asset->saveAttributes();
 		$asset->_updated();
 
