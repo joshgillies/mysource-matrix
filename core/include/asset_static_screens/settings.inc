@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.1 2003/12/02 04:43:25 gsherwood Exp $
+* $Id: settings.inc,v 1.2 2003/12/17 04:27:17 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -460,7 +460,7 @@ function processSettings(&$owner, &$o, &$ei)
 
 		foreach ($_POST[$prefix.'_designs'] as $design_name => $design_data) {
 
-			$new_designid = $design_data['designid'];
+			$new_designid = $design_data['designid']['assetid'];
 
 			if ($design_name == 'user_design::') {
 				if (empty($design_data['name'])) continue;

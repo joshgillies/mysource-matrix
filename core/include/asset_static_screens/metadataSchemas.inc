@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.1 2003/12/02 04:43:25 gsherwood Exp $
+* $Id: metadataSchemas.inc,v 1.2 2003/12/17 04:27:53 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -239,19 +239,19 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 	$post_data = $_POST[$prefix.'_metadata'];
 
 	// apply a schema
-	if (!empty($post_data['new']['schemaid'])) {
+	if (!empty($post_data['new']['schemaid']['assetid'])) {
 		if (!isset($post_data['new']['access']) || $post_data['new']['access'] == '') {
-			trigger_error('You need to select the type of access in order to apply schema #'.$post_data['new']['schemaid'], E_USER_NOTICE);
+			trigger_error('You need to select the type of access in order to apply schema #'.$post_data['new']['schemaid']['assetid'], E_USER_NOTICE);
 		} else {
 			if ($cascade_changes) {
 				// cascading access of some kind, so queue it up for the HIPO
 				$schema_vars[] = Array('access'          => (int)$post_data['new']['access'],
-									   'schemaid'        => (int)$post_data['new']['schemaid'],
+									   'schemaid'        => (int)$post_data['new']['schemaid']['assetid'],
 									   'previous_access' => null,
 									   );
 			} else {
 				// lets do this ourselves
-				if (!$mm->setSchema($owner->id, (int)$post_data['new']['schemaid'], (int)$post_data['new']['access'])) return false;
+				if (!$mm->setSchema($owner->id, (int)$post_data['new']['schemaid']['assetid'], (int)$post_data['new']['access'])) return false;
 			}
 		}
 	}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.1 2003/12/02 04:43:25 gsherwood Exp $
+* $Id: permissions.inc,v 1.2 2003/12/17 04:27:06 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -289,19 +289,19 @@ function processPermissions(&$owner, &$o, &$ei)
 		}
 
 		// grant access to a user
-		if (!empty($post_data['new']['userid'])) {
+		if (!empty($post_data['new']['userid']['assetid'])) {
 			if (!isset($post_data['new']['access']) || $post_data['new']['access'] == '') {
-				trigger_error('You need to select the type of access in order to set a permission for Asset #'.$post_data['new']['userid'], E_USER_NOTICE);
+				trigger_error('You need to select the type of access in order to set a permission for Asset #'.$post_data['new']['userid']['assetid'], E_USER_NOTICE);
 			} else {
 				if ($cascade_changes) {
 					// cascading access of some kind, so queue it up for the HIPO
 					$permission_vars[$perm][] = Array('access'          => (int)$post_data['new']['access'],
-													  'userid'          => (int)$post_data['new']['userid'],
+													  'userid'          => (int)$post_data['new']['userid']['assetid'],
 													  'previous_access' => null,
 													  );
 				} else {
 					// lets do this ourselves
-					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, $post_data['new']['userid'], $perm, $post_data['new']['access'])) return false;
+					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, $post_data['new']['userid']['assetid'], $perm, $post_data['new']['access'])) return false;
 
 				}
 			}
