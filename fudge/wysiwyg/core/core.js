@@ -38,6 +38,11 @@ HTMLArea.prototype.generate = function () {
 	// retrieve the HTML on submit
 	eval ('var otherOnSubmit_' + this._uniqueID + '= (textarea.form.onsubmit) ? textarea.form.onsubmit :  new Function;');
 	eval ('textarea.form.onsubmit = function() { editor._formSubmit(); otherOnSubmit_' + this._uniqueID + '(); };');
+
+	// add a handler for the "back/forward" case -- on body.unload we save
+	// the HTML content into the original textarea.
+	eval ('var otherOnUnload_' + this._uniqueID + '= (window.onunload) ? window.onunload :  new Function;');
+	eval ('window.onunload = function() { editor._textArea.value = editor.getHTML(); otherOnUnload_' + this._uniqueID + '(); };');
 	
 	// creates & appends the toolbar
 	this._htmlArea.appendChild(this._toolbar);
@@ -136,7 +141,7 @@ HTMLArea.prototype.generate = function () {
 
 // Switches editor mode; parameter can be "textmode" or "wysiwyg"
 HTMLArea.prototype.setMode = function(mode, noFocus) {
-	if (this._mode == mode) return false;
+	if (this._editMode == mode) return false;
 	switch (mode) {
 		case "textmode":
 			var html = this.getHTML();
@@ -160,7 +165,7 @@ HTMLArea.prototype.setMode = function(mode, noFocus) {
 			alert("Mode <" + mode + "> not defined!");
 		return false;
 	}
-	this._mode = mode;
+	this._editMode = mode;
 	if (!noFocus) { this.focusEditor(); }
 };
 
@@ -244,7 +249,7 @@ HTMLArea.prototype.insertHTML = function(html, range) {
 
 // completely change the HTML inside
 HTMLArea.prototype.setHTML = function(html) {
-	switch (this._mode) {
+	switch (this._editMode) {
 		case "textmode":
 			if (HTMLArea.is_gecko) {
 				var html = document.createTextNode(html);
