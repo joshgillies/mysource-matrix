@@ -18,7 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.19 2004/02/27 05:44:54 diarandine Exp $
+* $Id: search_page_edit_fns.inc,v 1.20 2004/03/01 17:35:48 brobertson Exp $
+* $Name: not supported by cvs2svn $
 */
 
 require_once SQ_PACKAGES_PATH.'/cms/page/page_edit_fns.inc';
@@ -29,6 +30,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
+* @version $Revision: 1.20 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
