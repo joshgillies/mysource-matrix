@@ -97,12 +97,20 @@ mcProgressBarClass.prototype.setText = function()
 
 	this.progress_text.text = '';
 
+	var baseText = '';
+
 	for (var i = 0; i < this.order.length; ++i) {
 		if (!first) {
-			this.progress_text.text += " + ";
+			baseText += " + ";
 		}
-		this.progress_text.text += this.descs[this.order[(this.progress_pos + i) % this.order.length]];
+		baseText += this.descs[this.order[(this.progress_pos + i) % this.order.length]];
 		first = false;
+	}
+
+	this.progress_text.text = baseText;
+	while (this.progress_text.textWidth > this.progress_text._width) {
+		baseText = baseText.substr(0, baseText.length - 1);
+		this.progress_text.text = baseText + "...";
 	}
 
 	this.progress_pos = (this.progress_pos + 1) % this.order.length;
