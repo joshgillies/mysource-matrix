@@ -117,20 +117,37 @@ class Design extends Design_Area
 	*/
 	function processBackend()
 	{
-		$this->_tmp['regenerate_design'] = false;
-		$this->_tmp['update_customisations'] = false;
-		$processed = parent::processBackend();
-		if ($processed) {
 
-			// regenerate the design, 
-			// but don't do the customisations if they have yet to be updated 
-			// (they will be regenerated during the update process anyway)
-			if ($this->_tmp['regenerate_design'])     $this->generateDesignFile(!$this->_tmp['update_customisations']);
-			if ($this->_tmp['update_customisations']) $this->_updateCustomisations();
-			
-		}// end if
+		switch($_POST['asset_action']) {
+			case 'create' :
+				$ei = &$this->getEI();
+				$ei->process($this, true);
 
-		return $processed;
+				$id_name = $this->getAttribute('id_name');
+				if ($id_name->processed) {
+					return $this->create($id_name->value);
+				} else {
+					return false;
+				}
+				break;
+
+			default :
+				$this->_tmp['regenerate_design'] = false;
+				$this->_tmp['update_customisations'] = false;
+				$processed = parent::processBackend();
+				if ($processed) {
+
+					// regenerate the design, 
+					// but don't do the customisations if they have yet to be updated 
+					// (they will be regenerated during the update process anyway)
+					if ($this->_tmp['regenerate_design'])     $this->generateDesignFile(!$this->_tmp['update_customisations']);
+					if ($this->_tmp['update_customisations']) $this->_updateCustomisations();
+					
+				}// end if
+
+				return $processed;
+
+		}// end switch
 
 	}// end processBackend()
 
