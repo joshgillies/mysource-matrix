@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder_edit_fns.inc,v 1.29 2003/11/26 00:51:03 gsherwood Exp $
+* $Id: trash_folder_edit_fns.inc,v 1.30 2004/06/25 01:20:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -73,9 +73,16 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintPurgeTrash(&$asset, &$o, $prefix)
 	{
+		$kids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
 		if ($asset->purgeAccess()) {
-			combo_box($prefix.'_purge_trash', Array(0 => 'No', 1 => 'Yes'), false, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm('Are you sure you want to purge all assets currently in the trash?')) { this.value = 0; } } \"");
-			return true;
+			if (count($kids) == 0) { ?>
+				The trash is currently empty; there is nothing to purge
+			<?php
+				return false;
+			} else {
+				combo_box($prefix.'_purge_trash', Array(0 => 'No', 1 => 'Yes'), false, 0, 0, "onChange=\"Javascript: if (this.value == 1) { if(!confirm('Are you sure you want to purge all assets currently in the trash?')) { this.value = 0; } } \"");
+				return true;
+			}
 		}
 		return false;
 
