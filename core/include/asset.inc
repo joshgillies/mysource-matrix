@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.327 2004/09/14 04:31:10 lwright Exp $
+* $Id: asset.inc,v 1.327.2.1 2004/10/06 00:54:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2463,7 +2463,7 @@ class Asset extends MySource_Object
 		$keywords['asset_assetid']['value'] = $this->id;
 
 		if ($descriptions) {
-			$keywords['asset_assetid']['descriptions']				= "The Asset's ID";
+			$keywords['asset_assetid']['description']               = 'The ID of the asset';
 			$keywords['asset_name']['description']                  = 'Full name of the asset';
 			$keywords['asset_short_name']['description']            = 'Short name of the asset';
 			$keywords['asset_version']['description']               = 'Version of the asset being displayed';
