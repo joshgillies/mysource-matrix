@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.3 2004/05/19 06:22:47 lwright Exp $
+* $Id: option_list.inc,v 1.4 2004/05/19 23:23:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,21 +75,21 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			$current_to_string = '';
 			$current_to = '';
 			foreach ($current_value as $option) {
-				$current_to_string .= '[ <a href="#" onclick="Javascript: optionListRemoveOption(\''.$option.'\', \'options\'); return false;">del</a> ] '.$option.'<br>';
+				$current_to_string .= '[ <a href="#" onclick="Javascript: optionListRemoveOption(\''.$option.'\', \''.$prefix.'\', \'options\'); return false;">del</a> ] '.$option.'<br>';
 				$current_to .= $option."\r\n";
 			}
 
 		?>
 		<script language="Javascript">
 
-			function optionListAddOption(type) {
-				var value = document.getElementById("<?php echo $prefix; ?>_" + type);
-				var box = document.getElementById("<?php echo $prefix; ?>_new_" + type);
-				var div = document.getElementById("<?php echo $prefix; ?>_current_" + type);
+			function optionListAddOption(box_name, type) {
+				var value = document.getElementById(box_name + "_" + type);
+				var box = document.getElementById(box_name + "_new_" + type);
+				var div = document.getElementById(box_name + "_current_" + type);
 				
 				if (box.value == "") return;
 
-				div.innerHTML += '[ <a href="#" onclick="Javascript: optionListRemoveOption(\'' + box.value + '\', \'' + type + '\'); return false;">del</a> ] ' + box.value + '<br>';
+				div.innerHTML += '[ <a href="#" onclick="Javascript: optionListRemoveOption(\'' + box.value + '\', \'' + box_name + '\', \'' + type + '\'); return false;">del</a> ] ' + box.value + '<br>';
 				value.value += box.value + "\r\n";
 				
 				box.value = "";
@@ -97,9 +97,9 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			}//end optionListAddOption()
 
 
-			function optionListRemoveOption(opt_delete, type) {
-				var value = document.getElementById("<?php echo $prefix; ?>_" + type);
-				var div = document.getElementById("<?php echo $prefix; ?>_current_" + type);
+			function optionListRemoveOption(opt_delete, box_name, type) {
+				var value = document.getElementById(box_name + "_" + type);
+				var div = document.getElementById(box_name + "_current_" + type);
 				
 				var current_options = div.innerHTML;
 
@@ -132,7 +132,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			}//end optionListRemoveOption()
 		</script>
 			<?php text_box($prefix.'_new_options', '', 50); ?>
-			[ <a href="#" onclick="Javascript: optionListAddOption('options'); return false;">add</a> ]<br/>
+			[ <a href="#" onclick="Javascript: optionListAddOption('<?php echo $prefix ?>', 'options'); return false;">add</a> ]<br/>
 			<div id="<?php echo $prefix; ?>_current_options"><?php echo $current_to_string; ?></div>
 			<span style="display:none;"><?php text_area($prefix.'_options', $current_to, 5, 1); ?></span>
 		<?php
