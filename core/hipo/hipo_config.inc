@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.17 2004/06/10 11:10:19 brobertson Exp $
+* $Id: hipo_config.inc,v 1.18 2004/06/28 05:35:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -187,7 +187,7 @@ class HIPO_Config extends Config
 		$o->openSection('HIPO Server Configuration');
 
 			// writing out standard fields, which are not specific to any single job
-			$o->openField('Use HIPO Server');
+			$o->openField('Run on Squiz Server');
 			if($write_access) {
 				combo_box($class.'[SQ_HIPO_USE_SERVER]', Array('1' => 'Yes', '0' => 'No'), false, SQ_HIPO_USE_SERVER);
 			} else {
@@ -199,8 +199,9 @@ class HIPO_Config extends Config
 			$o->openField('Total Threshold');
 			if($write_access) {
 				text_box($class.'[SQ_HIPO_TOTAL_THRESHOLD]', SQ_HIPO_TOTAL_THRESHOLD, 5);
+				echo '&nbsp;%';
 			} else {
-				echo SQ_HIPO_TOTAL_THRESHOLD;
+				echo SQ_HIPO_TOTAL_THRESHOLD.'%';
 			}
 			$o->closeField();
 
