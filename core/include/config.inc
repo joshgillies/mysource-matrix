@@ -98,8 +98,6 @@ class Config extends Resolve_Object
 
 		$str = "<"."?php\n";
 
-		print_r($vars);
-
 		foreach($this->config_vars as $var_name => $data) {
 
 			$value = $data['default'];
@@ -123,7 +121,7 @@ class Config extends Resolve_Object
 
 		$str .= "?>\n";
 
-		if ($backup_existing) {
+		if ($backup_existing && file_exists($this->config_file)) {
 		
 			$i = 0;
 			do {
