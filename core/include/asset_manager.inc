@@ -150,7 +150,7 @@ class Asset_Manager extends Resolve_Object
 	function getTypeList()
 	{
 		return array_keys($this->_asset_types);
-	}//end getInfo()
+	}//end getTypeList()
 
 
 	/**
@@ -162,7 +162,7 @@ class Asset_Manager extends Resolve_Object
 	* @return mixed
 	* @access public
 	*/
-	function getInfo($type_code, $field='')
+	function getTypeInfo($type_code, $field='')
 	{
 
 		if (!isset($this->_asset_types[$type_code])) {
@@ -187,7 +187,7 @@ class Asset_Manager extends Resolve_Object
 
 		return ($field) ? $this->_asset_types[$type_code][$field] : $this->_asset_types[$type_code];
 
-	}//end getInfo()
+	}//end getTypeInfo()
 
 
 	/**
@@ -243,6 +243,61 @@ class Asset_Manager extends Resolve_Object
 		}
 		return $arr;
 	}
+
+
+	/**
+	* Returns an array of assetid => inherited_types for assets of the passed codes
+	*
+	* @param array(int)		$assetids	an array of assets to limit
+	* @param array(string)	$field		if exists, returns this information from the array for this specific field
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getAssetTypeInfo($assetids, $type_code=Array(), $strict_type_code=true)
+	{
+		if (empty($assetids)) return Array();
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT a.assetid, at.inherited_type_code FROM sq_asset a INNER JOIN sq_asset_type_inherited at ON a.type_code = at.type_code WHERE ';
+
+		for($i = 0; $i < count($assetids); $i++) $assetids[$i] = $db->quote($assetids[$i]);
+		$sql .= 'a.assetid IN ('.implode(', ', $assetids).')';
+
+		if (!empty($type_code)) {
+			
+			$type_code_cond = '';
+			if (is_array($type_code)) {
+				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+			} else {
+				$type_code_cond = '= '.$db->quote($type_code);
+			}
+
+			if ($strict_type_code) {
+				$sql .= ' AND a.type_code '.$type_code_cond;
+			} else {
+				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+				$sql .= ' AND (a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
+				$subs = Array( 'SELECT type_code
+								FROM sq_asset_type_inherited
+								WHERE inherited_type_code '.$type_code_cond );
+				$sql = db_extras_subquery($db, $sql, $subs);
+				if (DB::isError($sql))
+					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
+			}
+		}// end if
+
+		$sql .= ' ORDER BY a.assetid';
+
+		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+		
+		return $result;
+	}//end getAssetTypeInfo()
 
 
 	/**
