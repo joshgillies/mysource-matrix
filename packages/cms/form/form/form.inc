@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.35 2004/05/20 05:33:22 lwright Exp $
+* $Id: form.inc,v 1.36 2004/06/03 04:16:30 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,7 +66,7 @@ class Form extends Bridge
 	* available bodycopy keywords
 	* @var object 
 	*/
-	var $_available_keywords = Array('form_contents', 'form_errors', 'submit_button');
+	var $_available_keywords = Array('form_contents', 'form_errors', 'submit_button', 'reset_button');
 
 
 	/**
@@ -636,12 +636,19 @@ class Form extends Bridge
 			submit_button($this->getPrefix().'_submit', $button_name);
 			$submit_button = ob_get_contents();
 			ob_end_clean();
+
+			$reset_button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : 'Clear Form'; 
+
+			ob_start();
+			reset_button($this->getPrefix().'_reset', $reset_button_name);
+			$reset_button = ob_get_contents();
+			ob_end_clean();
 	
 			// check to see if the bodycopy attached to this form has any content
 			if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
 
 				ob_start();
-				$bodycopy->setKeywordReplacements(Array('form_contents' => &$cf_output, 'form_errors' => &$err_output, 'submit_button' => &$submit_button));
+				$bodycopy->setKeywordReplacements(Array('form_contents' => &$cf_output, 'form_errors' => &$err_output, 'submit_button' => &$submit_button, 'reset_button' => &$reset_button));
 				$bodycopy->printBody();
 				$output = ob_get_contents(); 
 				ob_end_clean();

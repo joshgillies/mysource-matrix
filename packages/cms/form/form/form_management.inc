@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.20 2004/05/12 06:38:29 lwright Exp $
+* $Id: form_management.inc,v 1.21 2004/06/03 04:16:30 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,6 +92,11 @@ class Form_Management extends Asset_Management
 													),
 												),
 							'submit_button' => Array(
+											'added'     => '0.0.1',
+											'type'      => 'text',  
+											'default'   => '',
+								),
+							'reset_button' => Array(
 											'added'     => '0.0.1',
 											'type'      => 'text',  
 											'default'   => '',
