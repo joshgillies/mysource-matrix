@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.24 2004/08/31 04:54:51 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.25 2004/09/01 07:17:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.24 $ - 1.0
+* @version $Revision: 1.25 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -75,15 +75,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* statically (with all the parameters). If only $after is specified the object's
 	* attributes are used.
 	*
-	* @param string	$after		the time for which we want the first occurrence after
-	*							if NULL, reverts to current server time
-	* @param string	$start		The timestamp at which the event's 1st instance started 
+	* @param string	$after		the earliest date (YYYY-MM-DD) we are interested in
+	* @param string	$start		The date (YYYY-MM-DD) on which the event's first instance started 
 	* @param string	$freq_type	3-letter frequency code
 	* @param int	$interval	The frequency interval
-	* @param string	$stop		The date after which recurrences should stop
+	* @param string	$stop		The date on which the event stops recurring
 	*
 	* @static
-	* @return int	a UNIX timestamp representing the next occurrence
+	* @return int	the date (YYYY-MM-DD) of the next occurrence
 	* @access public
 	*/
 	function getFirstOccurrenceAfter($after=null, $start=null, $freq_type=null, $interval=null, $stop=null)
@@ -91,7 +90,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		if (is_null($after)) $after = date('Y-m-d');
 		
 		// if we are calling statically make sure that we have all our arguments
-		if (is_null($this) && (func_num_args() < 5)) {
+		if ((!(isset($this) && is_a($this, "Calendar_Event_Recurring"))) && (func_num_args() < 5)) {
 			trigger_error('If Calendar_Event_Recurring::getFirstOccurrenceAfter() is called statically it must be called using all 5 arguments', E_USER_ERROR);
 		}
 		
@@ -564,13 +563,187 @@ class Calendar_Event_Recurring extends Calendar_Event
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
 		$keywords['event_frequency'] = Array('value'=> $this->getFriendlyFrequency());
+		$keywords['cancel_link'] = Array('value'=>$this->_getCancelLink());
+		$keywords['modify_link'] = Array('value'=>$this->_getModifyLink());
 		if ($descriptions) {
 			$keywords['event_frequency']['description'] = 'The frequency with which this event recurs';
+			$keywords['cancel_link']['description'] = 'A link to cancel this instance of the event';
+			$keywords['modify_link']['description'] = 'A link to modify this instance of the event';
 		}
 		return $keywords;
+
 	}//end getAssetKeywords()
+
+
+	/**
+	* Return the link that the user can click to add a cancellation of this event from the event view
+	*
+	* @return string
+	* @access private
+	*/	
+	function _getCancelLink()
+	{
+		if (isset($_REQUEST['SQ_CALENDAR_DATE']))	return '<a href="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=cancel1&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'" onclick="return confirm(\'Are you sure you want to cancel this instance?\');">Cancel this instance</a>';
+		else return '';
+
+	}//end _getCancelLink()
 	
+
+	/**
+	* Return the link that the user can click to modify an instance of this event from the event view
+	*
+	* @return string
+	* @access private
+	*/	
+	function _getModifyLink()
+	{
+		if (isset($_REQUEST['SQ_CALENDAR_DATE']))	return '<a href="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=modify1&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">Modify this instance</a>';
+		else return '';
+
+	}//end _getModifyLink()
+
+	/**
+	* Process the specified action on this event, and return whatever html the action wants to show
+	*
+	* @param string	$action_name	The action to perform, eg 'cancel'
+	*
+	* @return string	HTML to show as the result of this action
+	* @access public
+	*/	
+	function processEventAction($action_name) 
+	{
+		$res = '';
+		switch ($action_name) {
+			case 'cancel1':
+				if (!isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+					trigger_error('Attempt to create a cancellation with no date', E_USER_WARNING);
+					return '';
+				}
+				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=cancel2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">Reason for cancellation: <textarea rows="4" cols="40" name="event_cancellation_reason"></textarea><input type="submit" /></form>';
+			break;
+
+			case 'cancel2':
+				if ((!isset($_REQUEST['SQ_CALENDAR_DATE'])) || (!isset($_REQUEST['event_cancellation_reason']))) {
+					trigger_error('Attempt to create a cancellation one of the parameters missing', E_USER_WARNING);
+					return '';
+				}
+
+				$this->addCancellation($_REQUEST['SQ_CALENDAR_DATE'], $_REQUEST['event_cancellation_reason']);
+
+				$res = '<p>The recurring event <i>'.$this->attr('name').'</i> has been cancelled on '.date('jS M Y', strtotime($_REQUEST['SQ_CALENDAR_DATE'].' 12:00:00 GMT')).' only.</p>';
+				$res .= '<p style="margin: 0px; ">Would you like to create a replacement for the cancelled event?<p>';
+				$res .= '<form style="margin: 0px; float: left" method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=addreplacement&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><input type="submit" value="Yes" /></form><form style="margin: 0px 1ex; float: left" method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><input type="submit" value="No" /></form>';
+			break;
+
+			case 'modify1':
+				if (!isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+					trigger_error('Attempt to create a modification with no date', E_USER_WARNING);
+					return '';
+				}
+				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=modify2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">';
+				$res .= 'Date and Time: ';
+				ob_start();
+					$edit_fns = $this->getEditFns();
+					$edit_fns->paintStartEndChooser($this, 'event', '');
+					$res .= ob_get_contents();
+				ob_end_clean();
+				$res .= '<br />Description: <textarea name="event_description">';
+				$res .= $this->attr('description');
+				$res .= '</textarea><input type="submit" /></form>';
+			break;
+
+			case 'modify2':
+				$occurrence_end_date = $this->getEndDate() ? date('Y-m-d', iso8601_ts($_REQUEST['SQ_CALENDAR_DATE'].' '.($this->getStartTime() ? $this->getStartTime() : ' 12:00:00')) + $this->getDuration()) : false;
+				// We can only avoid cancelling and rescheduling if the time components are all the same, ie if
+				// (start date field equals the occurrence start date)
+				// AND (event has start time AND start time field is equal to it) 
+				//		OR (event has no start time AND start time field is disabled)
+				// AND (occurrence has end date AND end date field is equal to it)
+				//		OR (event has no end date AND end date field is disabled)
+				// AND (event has end time AND end time field is equal to it)
+				//		OR (event has no end time AND end time field is disabled)
+				// ... in other words...
+
+				$start_dates_agree = ($_REQUEST['SQ_CALENDAR_DATE'] == sprintf('%04d-%02d-%02d', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day']));
+						
+				$start_times_agree = ((($start_time = $this->getStartTime()) && isset($_REQUEST['event_start_time_enabled']) &&  (sprintf('%02d:%02d', $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']) == $start_time)) || ((!$this->getStartTime()) && (!isset($_REQUEST['event_start_time_enabled']))));
+				
+				$end_dates_agree = ((($occurrence_end_date) && isset($_REQUEST['event_end_date_enabled']) && (sprintf('%04d-%02d-%02d', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day']) == $occurrence_end_date)) || ((!$occurrence_end_date && (!isset($_REQUEST['event_end_date_enabled'])))));
+
+				$end_times_agree = ((($end_time = $this->getEndTime()) && isset($_REQUEST['event_end_time_enabled']) &&  (sprintf('%02d:%02d', $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']) == $end_time)) || ((!$this->getEndTime()) && (!isset($_REQUEST['event_end_time_enabled']))));
+
+				//bam("start dates agree: $start_dates_agree; start times agree: $start_times_agree; end dates agree: $end_dates_agree; end times agree: $end_times_agree");
+				if ($start_dates_agree && $start_times_agree && $end_dates_agree && $end_times_agree) {
+					$this->addModification($_REQUEST['SQ_CALENDAR_DATE'], $_REQUEST['event_description']);
+					$res = '<p>Event instance modified</p>';
+				} else {
+					$cancellation_event = $this->addCancellation($_REQUEST['SQ_CALENDAR_DATE'], '(rescheduled)');
+					if (!isset($_REQUEST['event_start_time_enabled'])) {
+						$_REQUEST['event_start_hours'] = '--';
+						$_REQUEST['event_start_minutes'] = '--';
+					}
+					if (!isset($_REQUEST['event_end_time_enabled'])) {
+						$_REQUEST['event_end_hours'] = '--';
+						$_REQUEST['event_end_minutes'] = '--';
+					}
+					if (!isset($_REQUEST['event_end_date_enabled'])) {
+						$_REQUEST['event_end_year'] = '----';
+						$_REQUEST['event_end_month'] = '--';
+						$_REQUEST['event_end_day'] = '--';
+					}
+					$cancellation_event->addReplacement(sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day'],  $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']),  sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day'],  $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']),  $_REQUEST['event_description']);
+					
+					$res = '<p>Event rescheduled</p>';
+				}
+			break;
+
+			default:
+				$res = parent::processEventAction($action_name);
+			break;
+		}
+		return $res;
+
+	}//end processEventAction();
+
 	
+
+	/**
+	* Add a cancellation event linked under this recurring event
+	*
+	* @param string		$date	the date of the occurrence to cancel (YYYY-MM-DD)
+	* @param string		$reason	text to put in the description field of the cancellation event
+	*/
+	function addCancellation($date, $reason)
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_cancellation');
+		$cancellation_event = new Calendar_Event_Cancellation();
+		$cancellation_event->setAttrValue('start_date', $date.' --:--:--');
+		$cancellation_event->setAttrValue('description', $reason);
+		$link = Array('asset' => &$this, 'name' => $date, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 0);
+		$cancellation_event->create($link);
+		return $cancellation_event;
+
+	}// end addCancellation()
+
+
+	/**
+	* Add a modification event linked under this recurring event
+	*
+	* @param string		$date	the date of the occurrence to cancel (YYYY-MM-DD)
+	* @param string		$reason	text to put in the description field of the cancellation event
+	*/
+	function addModification($date, $description)
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_modification');
+		$modification_event = new Calendar_Event_Modification();
+		$modification_event->setAttrValue('start_date', $date.' --:--:--');
+		$modification_event->setAttrValue('description', $description);
+		$link = Array('asset' => &$this, 'name' => $date, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 0);
+		$modification_event->create($link);
+		return $modification_event;
+
+	}// end addModification()
+
 	/*
 	* Cache the calendar data's stuff
 	*

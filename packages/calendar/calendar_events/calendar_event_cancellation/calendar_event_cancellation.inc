@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.6 2004/08/02 23:47:13 tbarrett Exp $
+* $Id: calendar_event_cancellation.inc,v 1.7 2004/09/01 07:17:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -136,7 +136,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	{
 		// check that it has an occurrence on the date specified
 		if (!$parent->hasOccurrenceOnDate($this->getStartDate())) {
-			trigger_error('There is no occurrence of the specified recurring event on the specified date', E_USER_ERROR);
+			trigger_error('There is no occurrence of the specified recurring event on the specified date, being '.$this->getStartDate(), E_USER_ERROR);
 			return false;
 		}
 
@@ -156,6 +156,26 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		return true;
 
 	}//end synchronizeWithParent()
+
+
+	/**
+	* Add a replacement single event linked under this cancellation event
+	*
+	* @param string		$date	the date of the occurrence to cancel (YYYY-MM-DD)
+	* @param string		$reason	text to put in the description field of the cancellation event
+	*/
+	function addReplacement($start_date, $end_date, $description)
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_single');
+		$replacement_event = new Calendar_Event_Single();
+		$replacement_event->setAttrValue('start_date', $start_date);
+		$replacement_event->setAttrValue('end_date', $end_date);
+		$replacement_event->setAttrValue('description', $description);
+		$link = Array('asset' => &$this, 'name' => false, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+		$replacement_event->create($link);
+		return $replacement_event;
+
+	}// end addCancellation()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.11 2004/08/30 23:15:55 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.12 2004/09/01 07:17:25 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.11 $ - 1.0
+* @version $Revision: 1.12 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -65,13 +65,14 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintStartEndChooser(&$asset, $prefix, $onkeyup_code = '', $onchange_code='') 
 	{
+		$occurrence_end_ts = (isset($_REQUEST['SQ_CALENDAR_DATE']) && ($asset->getEndDate())) ? strtotime($_REQUEST['SQ_CALENDAR_DATE'].' '.($asset->getEndTime() ? $asset->getEndTime() : '12:00:00 GMT')) : false;
 		?>
 		<script language="JavaScript" type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event/js/date_chooser.js'?>"></script>
 		<table border="0" cellpadding="0" cellspacing="0">
 			<tr>
 				<td class="sq-backend-data" style="text-align: right">Occurs on&nbsp;&nbsp;</td>
 				<td class="sq-backend-data">
-					<?php $this->printDateChooser($prefix.'_start', $onkeyup_code, "updateEndDate('$prefix');  $onchange_code", ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0)); ?>
+					<?php $this->printDateChooser($prefix.'_start', $onkeyup_code, "updateEndDate('$prefix');  $onchange_code", isset($_REQUEST['SQ_CALENDAR_DATE']) ? strtotime($_REQUEST['SQ_CALENDAR_DATE']) : ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0)); ?>
 				</td>
 				<td class="sq-backend-data">
 					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_start', "processStartTimeClick(this, '$prefix'); ", $onkeyup_code, "updateEndDate('$prefix'); $onchange_code",  ($asset->getStartTime() ? iso8601_ts($asset->attr('start_date')) : false)); ?>
@@ -82,7 +83,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 					<input type="checkbox" value="1" <?php if ($asset->getEndDate()) echo ' checked="checked" '; ?> id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_date_enabled" onclick="processEndEnabledClick(this, '<?php echo $prefix; ?>')" onkeypress="processEndEnabledClick(this, '<?php echo $prefix; ?>')" />runs until&nbsp;&nbsp;
 				</td>
 				<td class="sq-backend-data">
-					<?php $this->printDateChooser($prefix.'_end', $onkeyup_code, "updateStartDate('$prefix');  $onchange_code", ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
+					<?php $this->printDateChooser($prefix.'_end', $onkeyup_code, "updateStartDate('$prefix');  $onchange_code", $occurrence_end_ts ? $occurrence_end_ts : ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
 				</td>
 				<td class="sq-backend-data">
 					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_end', "processEndTimeClick(this, '$prefix'); ", $onkeyup_code, "updateStartDate('$prefix'); $onchange_code",  ($asset->getEndTime() ? iso8601_ts($asset->attr('end_date')) : false)); ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.20 2004/09/01 04:10:28 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.21 2004/09/01 07:17:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.20 $ - 1.0
+* @version $Revision: 1.21 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -76,8 +76,12 @@ class Calendar_Event extends Asset
 			return false;
 		}
 		
-		if (!parent::create($link)) return false;
-		return $this->cacheCalendarData(false);
+		$res = parent::create($link);
+		if ($this->cacheCalendarData(false)) {
+			return $res;
+		} else {
+			return false;
+		}
 
 	}//end create()
 	
@@ -247,7 +251,7 @@ class Calendar_Event extends Asset
 
 		// For dates, this means all three parts of the date have a value
 		if ($end_has_date && (($end_components['d'] == -1) || ($end_components['m'] == -1) || ($end_components['y'] == -1))) {
-			trigger_error('If the date component of \'End Date\' is specified it must specify all of day, month and year', E_USER_WARNING);
+			trigger_error('If the date component of \'End Date\' is specified it must specify all of day, month and year '.$end_date, E_USER_WARNING);
 			return false;
 		}
 
