@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.3 2003/11/26 00:51:21 gsherwood Exp $
+* $Id: matrix_apply_style.inc,v 1.4 2003/12/16 13:36:58 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Fudge
+* @package MySource_Matrix
 * @subpackage wysiwyg
 */
 class Matrix_Apply_Style extends WYSIWYG_Plugin {
