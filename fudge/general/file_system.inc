@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.25 2004/06/24 00:46:06 mnyeholt Exp $
+* $Id: file_system.inc,v 1.25.2.1 2004/10/14 04:03:39 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,11 +80,12 @@ function is_image($filename)
 *
 * @param string $filename	the filename whose contents to return
 *
-* @return string
+* @return mixed [string|false]
 * @access public
 */
 function file_to_string($filename)
 {
+	if (!is_readable($filename)) return false;
 	return file_get_contents($filename);
 
 }//end file_to_string()
@@ -118,9 +119,9 @@ function string_to_file($string, $filename)
 	chmod($tmp_filename, 0664);
 	umask($om);
 
-	// if the file being renamed to exists, have to delete it because winnt doesn't overwrite on 
+	// if the file being renamed to exists, have to delete it because winnt doesn't overwrite on
 	// rename
-	if ((strtolower(PHP_OS) == 'winnt') || (strtolower(PHP_OS) == 'win32')) {	
+	if ((strtolower(PHP_OS) == 'winnt') || (strtolower(PHP_OS) == 'win32')) {
 		if (file_exists($filename)) {
 			unlink($filename);
 		}
