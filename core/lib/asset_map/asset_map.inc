@@ -643,7 +643,7 @@ class Asset_Map
 			if ($new_parent->id == $trash_folder->id) {
 				$num_other_links = $asset->countLinks('minor', SQ_SC_LINK_SIGNIFICANT, '', true, $link['linkid']);
 				if (!$num_other_links) {
-					$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=delete&assetid='.$asset->id.'&linkid='.$link['linkid'];
+					$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=delete_asset&assetid='.$asset->id.'&linkid='.$link['linkid'];
 					$output = new XML_Tree();
 					$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
 					$this->_send($output);
@@ -654,6 +654,22 @@ class Asset_Map
 			// Now let's move the link
 			$moved = $old_parent->moveLink($link['linkid'], $new_parent->id, $link['link_type'], $input->root->attributes['to_parent_pos']);
 			if (!$moved) return;
+
+			// if our new parent has permission set, do the popup thang to ask the user if
+			// they want to go ahead and cascade these puppies
+			$skip_perms = true;
+			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
+				$set_perms = $new_parent->getPermission($perm);
+				if (!empty($set_perms)) $skip_perms = false;
+			}
+
+			if (!$skip_perms) {
+				$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=move_asset&assetid='.$asset->id.'&parentid='.$new_parent->id.'&old_parentid='.$old_parent->id.'&linkid='.$link['linkid'];
+				$output = new XML_Tree();
+				$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
+				$this->_send($output);
+				return;
+			}
 
 		}// end if
 

@@ -1321,15 +1321,18 @@ class Asset_Edit_Interface extends Resolve_Object
 	*
 	* @param object	Asset				$owner		the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o			the outputter class
+	* @param boolean					$allow_edit	allow editing of permissions if user has access
 	*
 	* @access public
 	* @return boolean
 	*/
-	function paintPermissions(&$owner, &$o)
+	function paintPermissions(&$owner, &$o, $allow_edit=true)
 	{
 		$prefix = $owner->getPrefix();
 		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
-		$admin_access = $owner->adminAccess(Array(), true, false);
+
+		if ($allow_edit) $admin_access = $owner->adminAccess(Array(), true, false);
+		else             $admin_access = false;
 
 		foreach ($perms as $title => $perm) {
 			$o->openSection($title.' Access');
@@ -1344,7 +1347,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			ksort($direct);
 
 			if (!empty($direct)) {
-				$o->openField('Direct', 'new_line');
+				$o->openField('&nbsp;');
 				foreach ($direct as $access => $userids) {
 				?>
 					<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
@@ -1470,7 +1473,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				foreach ($post_data['delete'] as $userid => $on) {
 					$userid = (int)$userid;
 					$current = $owner->getPermission($perm, null, false, false, true);
-					$current_access = $current[$userid][$owner->id];
+					$current_access = $current[$userid];
 					$permission_vars[$perm][] = Array('access'          => -1,
 													  'userid'          => $userid,
 													  'previous_access' => $current_access,
