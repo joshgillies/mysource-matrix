@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tools.inc,v 1.2 2005/03/16 05:54:43 ndvries Exp $
+* $Id: tools.inc,v 1.3 2005/03/17 22:50:31 dheppell Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 class Tools extends MySource_Object
@@ -70,7 +70,6 @@ class Tools extends MySource_Object
 				<table class="sq-backend-table">
 					<tr>
 						<th>Name</th>
-						<th>Version</th>
 						<th>Description</th>
 					</tr>
 				<?php
@@ -80,7 +79,6 @@ class Tools extends MySource_Object
 					?>
 					<tr>
 						<td class="sq-backend-table-cell"><a href="<?php echo $backend_url; ?>&backend_section=tools&tool_type_code=<?php echo $tool_info['type_code']; ?>"><?php echo $tool_info['name']; ?></a></td>
-						<td class="sq-backend-table-cell"><?php echo $tool_info['version']; ?></td>
 						<td class="sq-backend-table-cell"><?php echo $tool_info['description']; ?></td>
 					</tr>
 					<?php
