@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.11 2003/11/21 05:09:08 mmcintyre Exp $
+* $Id: search_page.inc,v 1.12 2003/11/25 05:45:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.11 $ - 1.0
+* @version $Revision: 1.12 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -783,7 +783,8 @@ class Search_Page extends Page
 			$nextScore = $matches[$nextAssetId];
 			unset ($matches[$nextAssetId]);
 			if (!isset($asset_info[$nextAssetId])) {
-				$asset_info[$nextAssetId] = $am->getAssetInfo(Array($nextAssetId));
+				$info = $am->getAssetInfo(Array($nextAssetId));
+				$asset_info[$nextAssetId] = $info[$nextAssetId];
 			}
 
 			$nextAssetInfo = $asset_info[$nextAssetId];
