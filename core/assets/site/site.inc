@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.58 2004/09/28 23:25:41 gsherwood Exp $
+* $Id: site.inc,v 1.59 2004/10/26 01:40:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -489,24 +489,37 @@ class Site extends Folder
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url($this->getURL(), true);
-
-		$sql = 'SELECT ld.designid, a.type_code
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
-				';
-		$where ='l.assetid  = '.$db->quote($asset->id).'
-				  AND ld.url  LIKE '.$db->quote($url.'%').'
-				  AND ld.name    = '.$db->quote('system_design::frontend');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ld');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql .= $where.' LIMIT 1';
-
-		$result = $db->getRow($sql);
-		assert_valid_db_result($result);
-
 		$asset_url = strip_url($asset->getURL(null, true), true);
+
+		// Have they set a design name that they want to view ??
+		if (!empty($_GET['SQ_DESIGN_NAME'])) {
+			$design_name = 'user_design::'.$_GET['SQ_DESIGN_NAME'];
+		} elseif (!empty($_SESSION['SQ_DESIGN_NAME'])) {
+			$design_name = 'user_design::'.$_SESSION['SQ_DESIGN_NAME'];
+		} else {
+			$design_name = 'system_design::frontend';
+		}
+
+		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
+
+		
+		if (empty($result)) {
+			$sql = 'SELECT ld.designid, a.type_code
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
+					';
+			$where ='l.assetid  = '.$db->quote($asset->id).'
+					  AND ld.url  LIKE '.$db->quote($url.'%').'
+					  AND ld.name    = '.$db->quote('system_design::frontend');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ld');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			$sql .= $where.' LIMIT 1';
+		
+			$result = $db->getRow($sql);
+			assert_valid_db_result($result);
+		}
 
 		global $ASSET_LINEAGE;
 		$ASSET_LINEAGE = $GLOBALS['SQ_SYSTEM']->am->getLineageFromUrl(null, $asset_url);
