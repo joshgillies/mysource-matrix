@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.5 2004/06/17 04:32:07 lwright Exp $
+* $Id: option_list.inc,v 1.6 2004/07/04 23:15:25 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,6 +66,8 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function paint($prefix, $read_only=false)
 	{
 		$prefix = $prefix.'_'.$this->name;
+		$prefix = str_replace(':','_',$prefix); // handle shadow assets
+
 		$current_value = explode("\r\n", $this->value);
 		if (!is_array($current_value))             $current_value = Array();
 		
@@ -153,6 +155,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	function process($prefix)
 	{
 		$prefix = $prefix.'_'.$this->name;
+		$prefix = str_replace(':','_',$prefix);	// handle shadow assets
 
 		if (!isset($_POST[$prefix.'_options'])) {
 			return false;
