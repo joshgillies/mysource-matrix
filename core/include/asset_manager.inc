@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.202 2004/04/15 08:35:29 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.203 2004/04/19 01:08:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -925,9 +925,11 @@ class Asset_Manager extends MySource_Object
 		if (!$source->id) return $null;
 
 		$lock = $this->getLockInfo($source->id, 'all');
-		if (empty($lock)) {
-			trigger_error('You need to acquire an "all" lock on this asset before it can be cloned', E_USER_WARNING);
-			return $null;
+		foreach ($lock as $lock_type => $lock_info) {
+			if (empty($lock_info)) {
+				trigger_error('You need to acquire all locks on this asset before it can be cloned', E_USER_WARNING);
+				return $null;
+			}
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -1072,7 +1074,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=true)
 	{
-
 		// make sure this type of asset can be cloned
 		if (!$source->canClone()) {
 			trigger_error($source->type().' asset types cannot be cloned', E_USER_WARNING);
@@ -1081,7 +1082,8 @@ class Asset_Manager extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!$clone = &$this->_cloneAsset($source, $link, $clone_map)) {
+		$clone = &$this->_cloneAsset($source, $link, $clone_map);
+		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
 		}
@@ -1135,11 +1137,6 @@ class Asset_Manager extends MySource_Object
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return $null;
 						}
-					/*	if (!$child->cloneComponents($cloned_child, $components)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return $null;
-						}
-					*/
 					}// end if
 				}// end foreach
 			}// end if empty
