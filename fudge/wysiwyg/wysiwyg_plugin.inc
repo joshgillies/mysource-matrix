@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: wysiwyg_plugin.inc,v 1.8 2003/09/26 05:26:37 brobertson Exp $
+* $Id: wysiwyg_plugin.inc,v 1.9 2003/10/07 00:27:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,7 +48,7 @@ class wysiwyg_plugin {
 	*/
 	function wysiwyg_plugin(&$wysiwyg)
 	{
-		$this->wysiwyg = $wysiwyg;
+		$this->wysiwyg =& $wysiwyg;
 
 	}//end constructor
 
@@ -61,7 +61,7 @@ class wysiwyg_plugin {
 	*							This command will be used to switch on action of
 	*							a pressed button to determine the functionality
 	* @param string $tooltip	The tooltip for this button (appears on hover)
-	* @param string $textmode	Should this button be availabel in text mode?
+	* @param string $textmode	Should this button be available in text mode?
 	*							Value is either 'true' or 'false' (with quotes)
 	* @param string $position	The position of the button in the toolbar image
 	*							This is zero indexed (first button is id zero)
@@ -81,6 +81,20 @@ class wysiwyg_plugin {
 	}//end _add_button()
 
 
+	/**
+	* Opens a drop down menu to group buttons
+	*
+	* @param string $id			A unique ID for this menu
+	* @param string $tooltip	The tooltip for the menu button (appears on hover)
+	* @param string $textmode	Should this menu be available in text mode?
+	*							Value is either 'true' or 'false' (with quotes)
+	* @param string $position	The position of the menu button in the toolbar image
+	*							This is zero indexed (first button is id zero)
+	* @param string $context	Enable this menu if outside this element
+	*
+	* @return void
+	* @access private
+	*/
 	function _open_menu($id, $tooltip, $textmode, $position, $context='')
 	{
 		$this->buttons[$id]['command']    = 'htmlarea-menu-'.$id;
@@ -92,6 +106,15 @@ class wysiwyg_plugin {
 
 	}//end _open_menu()
 
+
+	/**
+	* Closes an open menu of grouped buttons
+	*
+	* @param string $id			A unique ID of the menu
+	*
+	* @return void
+	* @access private
+	*/
 	function _close_menu($id)
 	{
 		$this->buttons['menu_end_'.$id]['menu_end'] = true;
