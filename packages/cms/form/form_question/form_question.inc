@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.24 2004/06/10 23:09:07 lwright Exp $
+* $Id: form_question.inc,v 1.25 2004/06/16 04:52:43 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.24 $ - 1.0
+* @version $Revision: 1.25 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -249,7 +249,7 @@ class Form_Question extends Asset
 		$ms->closeLog();
 		$this->informChanges();
 
-		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->_formid, 'all');
+		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->_formid, 'attributes');
 
 		return true;
 
@@ -677,6 +677,136 @@ class Form_Question extends Asset
 
 	}//end getXML()
 
+	
+//--        PERMISSIONS/ACCESS (DEFERS TO FORM/FORM SECTION)        --//
+
+
+	/**
+	* Returns true if at least one of the passed assetids has read access to this asset
+	*
+	* @param array	$assetids	An array of user_group and/or user ids to check for read access
+	*							If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function readAccess($assetids=Array())
+	{
+		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid, 'form');
+		if (is_null($form)) return false;
+
+		return $form->readAccess($assetids);
+
+	}//end readAccess()
+
+
+	/**
+	* Returns true if at least one of the passed assetids has write access to this asset
+	*
+	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
+	*							permissions set for this asset, otherwise returns effective access based on locking
+	*							and status
+	* @param Array	$assetids	An array of user_group and/or user ids to check for write access
+	*							If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function writeAccess($lock_type, $assetids=Array())
+	{
+		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid, 'form');
+		if (is_null($form)) return false;
+
+		return $form->writeAccess($lock_type, $assetids);
+
+	}//end writeAccess()
+
+
+	/**
+	* Returns true if at least one of the passed assetids has admin access to this asset
+	*
+	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
+	*							permissions set for this asset, otherwise returns effective access based on locking
+	*							and status
+	* @param array	$assetids	an array of user_group and/or user ids to check for write access
+	*							If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function adminAccess($lock_type, $assetids=Array())
+	{
+		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid, 'form');
+		if (is_null($form)) return false;
+
+		return $form->adminAccess($lock_type, $assetids);
+
+	}//end adminAccess()
+
+
+	/**
+	* Returns true if the current user can live edit this asset
+	* Live edit means the asset is currently SQ_STATUS_LIVE but this
+	* user can edit the asset without going through a safe edit
+	* NOTE: will return false if asset is not currently live
+	*
+	* @return boolean
+	* @access public
+	* @see canliveEdit()
+	*/
+	function liveEditAccess($lock_type)
+	{
+		if (empty($lock_type) || $this->canLiveEdit($lock_type)) return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type);
+		return false;
+
+	}//end liveEditAccess()
+
+
+	/**
+	* Returns true if at least one of the passed assetids has the passed permission
+	* Can perform effective access check based on current status, lock, workflow, and metadata
+	* NOTE: Only for write and above access
+	*
+	* @param int	$perm		the permission to check access for
+	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
+	*							permissions set for this asset, otherwise returns effective access based on locking
+	*							and status
+	* @param array	$assetids	An array of user_group and/or user ids to check for permission
+	*							If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function checkAccess($perm, $lock_type, $assetids=Array())
+	{
+		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid, 'form');
+		if (is_null($form)) return false;
+
+		return $form->checkAccess($perm, $lock_type, $assetids);
+
+	}//end checkAccess()
+
+
+	/**
+	* Returns true if at least one of the passed assetids has the passed permission
+	* Does not check current status of lock
+	*
+	* @param int	$perm		the permission to check access for
+	* @param array	$assetids	An array of user_group and/or user ids to check for permission
+	*							If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _checkPermissionAccess($perm, $assetids=Array())
+	{
+		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid, 'form');
+		if (is_null($form)) return false;
+
+		return $form->_checkPermissionAccess($perm, $assetids);
+
+	}//end _checkPermissionAccess()
+	
 
 }//end class
 ?>
