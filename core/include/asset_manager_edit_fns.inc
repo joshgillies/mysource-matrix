@@ -1042,7 +1042,7 @@ speed_check('FINISHED');
 					$o->openField('', 'commit');
 					normal_button('cancel', 'Cancel', 'window.close()');
 				} else {
-					$o->addOnLoad('window.opener.top.main.main_form.submit(); window.close();');
+					$o->addOnLoad('window.opener.top.main.main_form.sq_aquire_by_force.value = \'1\'; window.opener.top.main.main_form.submit(); window.close();');
 				}
 				return;
 			}
