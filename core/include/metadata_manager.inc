@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.56 2004/12/21 15:24:36 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.57 2004/12/21 18:18:21 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56 $
+* @version $Revision: 1.57 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -353,6 +353,8 @@ class Metadata_Manager extends MySource_Object
 			// restrict to just the one schema
 			$schemas = Array($schemaid);
 		}
+
+		if (empty($schemas)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
