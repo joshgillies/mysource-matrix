@@ -23,7 +23,8 @@ class matrix_insert_image extends wysiwyg_plugin {
 	* @returns object Insert_Image
 	* @access  public
 	*/
-	function matrix_insert_image() {
+	function matrix_insert_image(&$wysiwyg) {
+		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
 		$this->_add_button('matrixinsertimage','MatrixInsertImage','Insert Image','false','34');
 	}
 
@@ -42,6 +43,10 @@ class matrix_insert_image extends wysiwyg_plugin {
 			// Called when the user clicks on "InsertImage" button
 			HTMLArea.prototype._matrixinsertImage = function() {
 				var editor = this; // for nested functions
+				
+				// disable the toolbar
+				this._tmp['disable_toolbar'] = true;
+				this.updateToolbar(false);
 
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
@@ -86,8 +91,9 @@ class matrix_insert_image extends wysiwyg_plugin {
 					re = new RegExp(e, "gi");
 					imageid = imageid.replace(re, "$3");
 				}
-
-				strPage = "<?php echo $this->get_popup_href('insert_image.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_alt=" + escape(alt) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border);
+				
+				editor_<?php echo $this->wysiwyg->name?>._object = this;
+				strPage = "<?php echo $this->get_popup_href('insert_image.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_alt=" + escape(alt) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>");
 
 				this._popupDialog(strPage, function(param) {
 					if (!param) { 
@@ -115,7 +121,7 @@ class matrix_insert_image extends wysiwyg_plugin {
 
 					if (!is_image || HTMLArea.is_gecko) {
 						// replace text with new image
-						editor.insertHTML(html);
+						editor.insertHTML(html, range);
 					} else {
 						// we are replacing an existing image in IE
 						image_tag.outerHTML = html;
@@ -138,6 +144,7 @@ class matrix_insert_image extends wysiwyg_plugin {
 		?>
 		case "matrixinsertimage":
 			this._matrixinsertImage();
+			return;
 		break;
 		<?php
 	}

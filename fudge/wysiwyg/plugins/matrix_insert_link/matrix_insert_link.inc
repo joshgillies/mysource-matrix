@@ -23,7 +23,8 @@ class matrix_insert_link extends wysiwyg_plugin {
 	* @returns object Insert_Link
 	* @access  public
 	*/
-	function matrix_insert_link() {
+	function matrix_insert_link(&$wysiwyg) {
+		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
 		$this->_add_button('matrixcreatelink','MatrixCreateLink','Insert Link','false','32');
 		$this->_add_button('matrixunlink','Unlink','Remove Link','false','33');
 	}
@@ -45,6 +46,10 @@ class matrix_insert_link extends wysiwyg_plugin {
 			// Called when the user clicks on "InsertImage" button
 			HTMLArea.prototype._matrixInsertLink = function() {
 				var editor = this; // for nested functions
+
+				// disable the toolbar
+				this._tmp['disable_toolbar'] = true;
+				this.updateToolbar(false);
 
 				// all available new window options
 				var NEW_WINDOW_OPTIONS = new Array('toolbar','menubar','location','status','scrollbars','resizable','width','height');
@@ -182,7 +187,8 @@ class matrix_insert_link extends wysiwyg_plugin {
 
 				}// end if existing link
 
-				var strPage = "<?php echo $this->get_popup_href('insert_link.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"]));
+				editor_<?php echo $this->wysiwyg->name?>._object = this;
+				var strPage = "<?php echo $this->get_popup_href('insert_link.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>");
 
 				this._popupDialog(strPage, function(param) {
 					if (param && param["url"] != "") {
@@ -220,7 +226,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 						}
 
 						// Replace with new URL
-						editor.insertHTML(html);
+						editor.insertHTML(html, range);
 
 					}// end if param exists
 
@@ -242,6 +248,24 @@ class matrix_insert_link extends wysiwyg_plugin {
 		?>
 		case "matrixcreatelink":
 			this._matrixInsertLink();
+		break;
+		<?php
+	}
+
+
+	/**
+	* Disable the toolbar when the popup is open
+	*
+	* @returns void
+	* @access  public
+	*/
+	function print_plugin_update_toolbar() {
+		?>
+		case "matrixcreatelink":
+			if (allEnabled == null && this._tmp['disable_toolbar'] == true) {
+				this.updateToolbar(false);
+				return;
+			}
 		break;
 		<?php
 	}
