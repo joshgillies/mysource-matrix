@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.18 2004/05/19 22:41:53 gsherwood Exp $
+* $Id: hipo_job_create_link.inc,v 1.19 2004/08/26 01:59:40 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -271,7 +271,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 									$o->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 									include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 									$asset_map = new Asset_Map();
-									$asset_map->embed_asset_map('simple');
+									$asset_map->embed_asset_map('simple', 200, 350);
 									?>
 								</td>
 								<td width="100%" valign="top"><p>Please confirm that you are moving "<?php echo $asset->name; ?>" to the trash.</p>
