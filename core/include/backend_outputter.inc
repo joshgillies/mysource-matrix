@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.89 2004/11/23 06:06:15 arailean Exp $
+* $Id: backend_outputter.inc,v 1.90 2004/11/23 22:05:53 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -701,7 +701,7 @@ class Backend_Outputter
 	*
 	* @access public
 	*/
-	function openField($name, $format='', $note='')
+	function openField($name, $format='', $note='', $hidden=false)
 	{
 		if ($this->_buffering) {
 			if (!is_null($this->_current_field)) $this->closeField();
@@ -720,6 +720,7 @@ class Backend_Outputter
 																'format'		=> $format,
 																'note'			=> $note,
 																'contents'		=> '',
+																'hidden'		=> $hidden,
 															);
 
 			$this->_current_field = &$this->_section_stack[$stack_i]['areas'][$i];
@@ -729,7 +730,7 @@ class Backend_Outputter
 
 		} else {
 			// we are not buffering
-			$this->_nbOpenField($name, $format='', $note='');
+			$this->_nbOpenField($name, $format='', $note='', $hidden);
 		}
 
 	}//end openField()
@@ -745,7 +746,7 @@ class Backend_Outputter
 	* @return boolean
 	* @access private
 	*/
-	function _nbOpenField($name, $format='', $note='')
+	function _nbOpenField($name, $format='', $note='', $hidden=false)
 	{
 		if ($this->_is_open_field) $this->closeField();
 		$this->_is_open_field = true;
@@ -757,13 +758,13 @@ class Backend_Outputter
 		switch ($format) {
 			case 'new_line' :
 				?>
-					<tr>
+					<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
 						<td nowrap valign="top" class="sq-backend-field" colspan="3">
 							<a name="field_<?php echo $this->_field_count; ?>"></a>
 							<?php echo $name;?>
 						</td>
 					</tr>
-					<tr>
+					<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
 						<td valign="top" class="sq-backend-data" colspan="3">
 							<table cellpadding="0" cellspacing="0" border="0">
 								<tr>
@@ -774,7 +775,7 @@ class Backend_Outputter
 
 			case 'commit' :
 				?>
-				<tr>
+				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
 					<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="3">
 					<?php
 			break;
@@ -785,13 +786,13 @@ class Backend_Outputter
 
 			default :
 			?>
-				<tr>
-					<td nowrap valign="top" class="sq-backend-field">
+				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
+					<td nowrap valign="top" class="sq-backend-field" style="padding-bottom: 10px">
 						<a name="field_<?php echo $this->_field_count; ?>"></a>
 						<?php echo $name;?>
 					</td>
 					<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-					<td width="100%" valign="top" class="sq-backend-data">
+					<td width="100%" valign="top" class="sq-backend-data" style="padding-bottom: 10px">
 					<?php
 		}//end switch
 
@@ -863,9 +864,6 @@ class Backend_Outputter
 				if ($this->_current_field_note) $this->note($note);
 					?>
 					</td>
-				</tr>
-				<tr>
-					<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
 				</tr>
 				<?php
 		}//end switch
@@ -1212,13 +1210,13 @@ class Backend_Outputter
 						switch ($field['format']) {
 							case 'new_line' :
 								?>
-									<tr>
+									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
 										<td nowrap valign="top" class="sq-backend-field" colspan="3">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
 										</td>
 									</tr>
-									<tr>
+									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
 										<td valign="top" class="sq-backend-data" colspan="3">
 											<table cellpadding="0" cellspacing="0" border="0">
 												<tr>
@@ -1238,7 +1236,7 @@ class Backend_Outputter
 
 							case 'commit' :
 								?>
-								<tr>
+								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
 									<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="3">
 									<?php
 										echo $field['contents'];
@@ -1255,21 +1253,18 @@ class Backend_Outputter
 
 							default :
 							?>
-								<tr>
+								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
 									<td nowrap valign="top" class="sq-backend-field">
 										<a name="field_<?php echo $field['field_count']; ?>"></a>
 										<?php echo $field['name'];?>
 									</td>
 									<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-									<td width="100%" valign="top" class="sq-backend-data">
+									<td width="100%" valign="top" class="sq-backend-data" style="padding-bottom: 10px">
 									<?php
 										echo $field['contents'];
 										if ($field['note']) $this->note($field['note']);
 									?>
 									</td>
-								</tr>
-								<tr>
-									<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
 								</tr>
 							<?php
 						}//end switch
