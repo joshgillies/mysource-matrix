@@ -18,21 +18,20 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.14 2004/12/06 14:38:09 brobertson Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.15 2004/12/21 17:30:09 brobertson Exp $
 *
 */
 
-require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.inc';
 
 /**
-* Metadata_Field_Text_Edit_Fns
+* Metadata_Field_Date_Edit_Fns
 *
 * Purpose
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,7 +45,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function Metadata_Field_Date_Edit_Fns()
 	{
-		Metadata_Field_Edit_Fns::Metadata_Field_Edit_Fns(); // calling super
+		$this->Metadata_Field_Edit_Fns();
 
 	}//end constructor
 
@@ -91,64 +90,6 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 
 	/**
-	* Getting the date-time field (taking CronManager implementation as template)
-	*
-	* @param object Asset				&$asset	the owning asset
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return object DateTime_Field
-	* @access private
-	*/
-	function _getEpochDateTimeField(&$asset, $prefix, $value=null)
-	{
-		// only if we are printing the default value
-		if (is_null($value)) {
-			$value = (int) $asset->attr('default');
-		}
-
-		$epoch_date = getdate($value);
-		$value_arr = Array(
-						'y' => $epoch_date['year'],
-						'm' => $epoch_date['mon'],
-						'd' => $epoch_date['mday'],
-						'h' => $epoch_date['hours'],
-						'i' => $epoch_date['minutes'],
-						's' => $epoch_date['seconds'],
-					);
-
-		// parameters
-		$parameters = $asset->attr('setup_params');
-		if (empty($parameters)) {
-			$date = getdate();
-			$parameters = Array(
-				'min'			=> '2003-01-01 00:00:00',
-				'max'			=> ($date['year'] + 1).'-12-31 23:59:59',
-				'allow_circa'	=> '0',
-				'show'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
-				'null'			=> Array(),
-				'style'			=> Array(
-								'y' => 's',
-								'm' => 's',
-								'd' => 's',
-								'h' => 's',
-								'i' => 's',
-								's' => 's',
-							),
-			);
-		}
-		$parameters['print_format'] = $asset->attr('format');
-
-		$value = '';
-		$field = new DateTime_Field($prefix.'_epoch', $value, $parameters);
-		$value = $field->unitsArrayToStr($value_arr);
-		$field->setValue($value);
-
-		return $field;
-
-	}//end _getEpochDateTimeField()
-
-
-	/**
 	* Print the interface for editing the default date
 	*
 	* @param object Asset				&$asset	the owning asset
@@ -158,35 +99,27 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintEpoch(&$asset, &$o, $prefix)
+	function paintDefaultDateTime(&$asset, &$o, $prefix)
 	{
 		$default = $asset->attr('default');
-		$params = $asset->attr('setup_params');
 
-		$percent_pos = strpos($default, '%'); // where the percent sign was found (if at all)
+		$uses_keyword = (substr($default, 0, 1) == '%');
 
 		// parsing the keyword if its not a datestamp already before proceeding...
-		if ($percent_pos === 0) {
-				$temp_val = str_replace("%", "", $default);
-				$keys = Array();
-				array_push($keys, $temp_val);
-				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		if ($uses_keyword) {
+			$temp_val = str_replace('%', '', $default);
+			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
-				$res = $mm->generateKeywordReplacements($asset, $keys, false); // just return value
-
-				foreach ($res as $key => $val) {
-					$default = strtotime($val);
-				}
+			$res = $mm->generateKeywordReplacements($asset, Array($temp_val), false); // just return value
+			$default = $res[$temp_val];
 		}
 
-		$field = $this->_getEpochDateTimeField($asset, $prefix, $default);
-
-		echo "Value in this field is relevant only if you do not select a keyword replacement<br />";
+		$field = $asset->_getDateTimeField($prefix, $default);
 
 		if ($asset->writeAccess('attributes')) $field->printField();
 		else echo $field->format();
 
-	}//end paintEpoch()
+	}//end paintDefaultDateTime()
 
 
 	/**
@@ -199,18 +132,18 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processEpoch(&$asset, &$o, $prefix)
+	function processDefaultDateTime(&$asset, &$o, $prefix)
 	{
-		$field = $this->_getEpochDateTimeField($asset, $prefix);
+		$field = $asset->_getDateTimeField($prefix);
 
 		if ($asset->writeAccess('attributes') && $field->processField()) {
-			$epoch = strtotime($field->value);
-			return $asset->setAttrValue('default', $epoch);
+#			$default = strtotime($field->value);
+			return $asset->setAttrValue('default', $field->value);
 		}
 
 		return false;
 
-	}//end processEpoch()
+	}//end processDefaultDateTime()
 
 
 	/**
@@ -273,7 +206,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		);
 
-		echo "Selected keyword replacement will be used instead of any entered default date values<br />";
+		echo 'Selected keyword replacement will be used instead of any entered default date values<br />';
 
 		// displaying default value if any values were actually saved in the array
 		if ($write_access) {
@@ -312,7 +245,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 
 	/**
-	* Print the interface for editing the cron manager's Epoch
+	* Print the interface for editing how the editing interface parameters for the date time field that is used
+	* to enter the metadata value for an individual asset
 	*
 	* @param object Asset				&$asset	the owning asset
 	* @param object Backend_Outputter	&$o		the backend outputter
@@ -321,11 +255,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintEpochSetup(&$asset, &$o, $prefix)
+	function paintSetupParams(&$asset, &$o, $prefix)
 	{
-		$field = $this->_getEpochDateTimeField($asset, $prefix);
+		$field = $asset->_getDateTimeField($prefix);
 
-		echo "Setup table below only affects how the field looks to the metadata editor,<br /> NOT how it is displayed in the META field of your web page.";
+		$o->note('Setup table below only affects how the field looks to the metadata editor,<br />NOT how it is displayed in the META field of your web page.');
 
 		if ($asset->writeAccess('attributes')) {
 			// custom definition for edit interface
@@ -335,11 +269,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			echo $field->format();
 		}
 
-	}//end paintEpochSetup()
+	}//end paintSetupParams()
 
 
 	/**
-	* Processes the interface for editing the cron manager's Epoch
+	* Processes the interface for editing the Setup Params
 	*
 	* @param object Asset				&$asset	the owning asset
 	* @param object Backend_Outputter	&$o		the backend outputter
@@ -348,9 +282,9 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processEpochSetup(&$asset, &$o, $prefix)
+	function processSetupParams(&$asset, &$o, $prefix)
 	{
-		$field = $this->_getEpochDateTimeField($asset, $prefix);
+		$field = $asset->_getDateTimeField($prefix);
 
 		if ($asset->writeAccess('attributes') && $field->processEditOptions()) {
 			return $asset->setAttrValue('setup_params', $field->parameters);
@@ -358,7 +292,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		return false;
 
-	}//end processEpochSetup()
+	}//end processSetupParams()
 
 
 	/**
@@ -366,18 +300,28 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o				the outputter class
-	* @param array						$values			current metadata values set for this asset
+	* @param string						$value_str		the current value for this field in the asset (NOT $asset)
+	*													NULL means that there is no current value set
 	* @param boolean					$write_access	does the current user have write access to the asset
 	*													that we are setting metadata for (NOT THE SAME AS $asset)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
+	function paintInlineValueInterface(&$asset, &$o, $value_str, $write_access)
 	{
 		$prefix = $asset->getPrefix();
-		$field_name = $asset->name;
 
+		if (is_null($value_str)) {
+			$value = $asset->attr('default');
+			$value_components = $asset->attr('value_components');
+		} else {
+			$value='';
+			$value_components = $asset->attr('value_components');
+			Metadata_Field::decodeValueString($value_str, $value, $value_components);
+		}
+
+		$field_name = $asset->name;
 		if ($asset->attr('required')) $field_name .= ' <span style="color: #FF0000">*</span>';
 
 		$select_options = Array(
@@ -385,38 +329,20 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 							'%asset_created%'   => 'Creation date',
 							'%asset_updated%'   => 'Last updated date',
 							'%asset_published%' => 'Last published date',
-
 		);
 
 		$o->openField($field_name);
 
-			$params = $asset->attr('setup_params');
-			$default = $asset->attr('default');
+			// checking if the value is a keyword replacement
+			$uses_keyword = (substr($value, 0, 1) == '%');
+			$field = $asset->_getDateTimeField($prefix, $value);
 
-			// make sure we have at least something in the values var
-			if (empty($values)) $values['value'] = $default;
-
-			// checking if the value must be parsed before processing
-			$percent_pos = strpos($values['value'], '%');
-			$initial = $values['value']; // default value for the dropdown box
-
-			if ($percent_pos === 0) {
-				$temp_val = str_replace('%', '', $values['value']);
-				$keys = Array();
-				array_push($keys, $temp_val);
-
-				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				$res = $mm->generateKeywordReplacements($asset, $keys, false); // just return value
-				foreach ($res as $key => $val) $values['value'] = strtotime($val);
-			}
-
-			$field = $this->_getEpochDateTimeField($asset, $prefix, $values['value']);
-
-			// take into account lock, plus only root can edit
 			if ($write_access && $asset->attr('editable')) {
 				$field->printField();
-				echo " <b>-OR-</b> ";
-				combo_box($prefix.'_repkeys', $select_options, false, $initial); // replacement keys
+				echo ' <b>-OR-</b> ';
+				combo_box($prefix.'_repkeys', $select_options, false, $value); // replacement keys
+			} else if ($uses_keyword && isset($select_options[$value])) {
+				echo '<i>Keyword Replacement: </i>', $select_options[$value];
 			} else {
 				echo $field->format();
 			}
@@ -431,31 +357,34 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	/**
 	* Process the interface for filling in metadata values
 	*
-	* @param object Metadata_Field	&$asset			the asset whose interface we are painting
-	* @param array					&$new_values	an array we can store the new values in
+	* @param object Metadata_Field	&$asset				the asset whose interface we are processing
+	* @param string					&$new_value_str		a string by reference that we can store the new values in
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processInlineValueInterface(&$asset, &$new_values)
+	function processInlineValueInterface(&$asset, &$new_value_str)
 	{
+		// nothing for us to do
+		if (!$asset->attr('editable')) return true;
+
 		$prefix = $asset->getPrefix();
 
-		if ($asset->attr('editable')) {
+		$value = array_get_index($_POST, $prefix.'_repkeys', '');
 
-			$field = $this->_getEpochDateTimeField($asset, $prefix);
-
+		// if we aren't using keywords...get the date that was set
+		if ($value == '') {
+			$field = $asset->_getDateTimeField($prefix);
 			if ($field->processField()) {
-				$new_default = trim($_POST[$prefix.'_repkeys']);
-				if ($new_default != '') $new_values[$asset->name]['value'] = $new_default;
-				else $new_values[$asset->name]['value'] = strtotime($field->value);
+				$value = $field->value;
 			} else {
 				// field could not be processed
 				trigger_error('Date field "'.$asset->name.'" could not be processed', E_USER_WARNING);
 				return false;
 			}
+		}
 
-		}//end if editable
+		$new_value_str = Metadata_Field::encodeValueString(trim($value), Array());
 
 		return true;
 
@@ -466,48 +395,49 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	* Output the complete metadata tag for this field
 	*
 	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
-	* @param array					&$values	the current metadata values
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset) 
+	*											NULL means that there is no current value set
 	* @param array					&$tag_value	the metadata tag value
 	* @param array					&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, &$values, &$tag_value, &$keywords)
+	function generateMetadata(&$asset, $value_str, &$tag_value, &$keywords)
 	{
-		if (!isset($values['using_default'])) $values['using_default'] = false;
-		if (isset($values['value']) && !$values['using_default']) {
-			$value = $values['value'];
-			$values['using_default'] = false;
-		} else {
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+
+		$frontend_option = $asset->attr('frontend');
+		// if we aren't printing this on the frontend then don't print anything
+		if ($frontend_option == 'hide') return true;
+
+
+		if (is_null($value_str)) {
 			$value = $asset->attr('default');
-			$values['value'] = $value;
-			$values['using_default'] = true;
+			$value_components = $asset->attr('value_components');
+		} else {
+			$value='';
+			$value_components = $asset->attr('value_components');
+			Metadata_Field::decodeValueString($value_str, $value, $value_components);
 		}
 
 		$original = $value;
 
 		// we create a new array here to pass to our parent so we dont muck up the
 		// referenced timestamp values
-		$new_values = $values;
-		if (strpos($value, '%') === false) {
-			$field = $this->_getEpochDateTimeField($asset, '', $value);
-			$new_values['value'] = $field->format();
-		} else {
-			$new_values['value'] = $value;
+		if (substr($value, 0, 1) != '%') {
+			$field = $asset->_getDateTimeField('', $value);
+			$value = $field->format();
 		}
-		// we dont want out default value restored even if we are using it
-		// because we have already formatted it here
-		$new_values['using_default'] = false;
 
 		ob_start();
-			parent::generateMetadata($asset, $new_values, $tag_value, $keywords);
+			parent::generateMetadata($asset, Metadata_Field::encodeValueString($value, $value_components), $tag_value, $keywords);
 			$metadata_tag = ob_get_contents();
 		ob_end_clean();
 
-		if (strpos($original, '%') === 0) {
+		if (substr($original, 0, 1) == '%') {
 			// strip off the last % sign from the end of $key string
-			$key = substr($original, 0, strlen($original) - 1);
+			$key = substr($original, 0, -1);
 
 			// prepare date format for merging - we will replace all spaces with underscores
 			$format = str_replace(' ', '-', $asset->attr('format'));
@@ -520,65 +450,24 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 				$key .= '_'.$offset;
 			}
 			$key .= '%';
-			$metadata_tag = str_replace($original, $key, $metadata_tag);
-			$keywords[] = substr($key, 1, -1);
-		}
+
+			// replace the plain keyword with the one that contains the format
+			$tag_value = str_replace($original, $key, $tag_value);
+
+			// replace the plain keyword (or at least it's first occurance in the keywords array) 
+			// with the one that contains the format
+			$keyword = substr($original, 1, -1);
+			if (($i = array_search($keyword, $keywords)) !== false) {
+				$keywords[$i] = substr($key, 1, -1);
+			}
+
+		}// end if
 
 		echo $metadata_tag;
 
 		return true;
 
 	}//end generateMetadata()
-
-
-	/**
-	* Generate an array of current values for the passed metadata field names
-	*
-	* @param object Asset			&$asset		the asset whose field values we are getting
-	* @param object Metadata_Field	&$field		the asset whose interface we are painting
-	* @param array					$values		the current metadata values
-	* @param array					&$fields	an array of field names that need replacing
-	*
-	* @access public
-	* @return boolean
-	*/
-	function getMetadataFieldValues(&$asset, &$field, $values, &$fields)
-	{
-		if (!isset($fields[$field->name])) return;
-
-		if (isset($values['value'])) $default = $values['value'];
-		else $default = $field->attr('default');
-
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-
-		if (strpos($default, '%') === false) {
-			$datetime_field = $this->_getEpochDateTimeField($field, '', $default);
-			$field_value = $datetime_field->format();
-
-		} else {
-
-			// strip off the last % sign from the end of $key string
-			$key = substr($default, 1, strlen($default) - 2);
-
-			// prepare date format for merging - we will replace all spaces with underscores
-			$format = str_replace(' ', '-', $field->attr('format'));
-
-			// merge the values with '_', add closing % sign and proceed...
-			$keyword = $key.'_'.$format;
-			$offset = $field->attr('offset');
-			if (!empty($offset)) {
-				$offset = str_replace(' ', '', $offset);
-				$keyword .= '_'.$offset;
-			}
-
-			$metadata_values = $mm->generateKeywordReplacements($asset, Array($keyword), false);
-			$field_value = $metadata_values[$key];
-		}
-
-		$fields[$field->name] = $field_value;
-		return true;
-
-	}//end getMetadataFieldValues()
 
 
 }//end class

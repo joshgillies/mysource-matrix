@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.1 2004/02/03 03:27:42 diarandine Exp $
+* $Id: metadata_field_date.inc,v 1.2 2004/12/21 17:30:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
+require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 
 /**
@@ -51,6 +51,117 @@ class Metadata_Field_Date extends Metadata_Field
 
 	}//end constructor
 
+
+	/**
+	* Generate an array of current values for the passed metadata field names
+	*
+	* @param object Asset			&$asset		the asset whose field values we are getting
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset) 
+	*											NULL means that there is no current value set
+	*
+	* @access public
+	* @return string	the metadata value for the passed asset 
+	*/
+	function getMetadataValue(&$asset, $value_str)
+	{
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+
+		if (is_null($value_str)) {
+			$value = $this->attr('default');
+			$value_components = $this->attr('value_components');
+		} else {
+			$value='';
+			$value_components = $this->attr('value_components');
+			Metadata_Field::decodeValueString($value_str, $value, $value_components);
+		}
+
+		if ($value{0} == '%') {
+
+			// strip off the last % sign from the end of $key string
+			$key = substr($value, 1, -1);
+
+			// prepare date format for merging - we will replace all spaces with underscores
+			$format = str_replace(' ', '-', $this->attr('format'));
+
+			// merge the values with '_', add closing % sign and proceed...
+			$keyword = $key.'_'.$format;
+			$offset = $this->attr('offset');
+			if (!empty($offset)) {
+				$offset = str_replace(' ', '', $offset);
+				$keyword .= '_'.$offset;
+			}
+
+			$metadata_values = $mm->generateKeywordReplacements($asset, Array($keyword), false);
+			$value = $metadata_values[$keyword];
+
+		} else {
+			$datetime_field = $this->_getDateTimeField('', $value);
+			$value = $datetime_field->format();
+		}
+
+		return Metadata_Field::encodeValueString($value, $value_components);
+
+	}//end getMetadataValue()
+
+
+	/**
+	* Getting the date-time field
+	*
+	* @param object Asset	&$asset	the owning asset
+	* @param string			$prefix	prefix for form elements
+	* @param string			$value	the value to place in the datetime field
+	*
+	* @return object DateTime_Field
+	* @access private
+	*/
+	function _getDateTimeField($prefix, $value=null)
+	{
+		// only if we are printing the default value
+		if (is_null($value)) {
+			$value = $this->attr('default');
+			if ($value{0} == '%') $value = ts_iso8601(time());
+		}
+
+		$date = getdate(iso8601_ts($value));
+		$value_arr = Array(
+						'y' => $date['year'],
+						'm' => $date['mon'],
+						'd' => $date['mday'],
+						'h' => $date['hours'],
+						'i' => $date['minutes'],
+						's' => $date['seconds'],
+					);
+
+		// parameters
+		$parameters = $this->attr('setup_params');
+		if (empty($parameters)) {
+			$date = getdate();
+			$parameters = Array(
+				'min'			=> '2003-01-01 00:00:00',
+				'max'			=> ($date['year'] + 1).'-12-31 23:59:59',
+				'allow_circa'	=> '0',
+				'show'			=> Array('y', 'm', 'd', 'h', 'i', 's'),
+				'null'			=> Array(),
+				'style'			=> Array(
+								'y' => 's',
+								'm' => 's',
+								'd' => 's',
+								'h' => 's',
+								'i' => 's',
+								's' => 's',
+							),
+			);
+		}
+		$parameters['print_format'] = $this->attr('format');
+
+		$value = '';
+		$field = new DateTime_Field($prefix.'_datetime', $value, $parameters);
+		$value = $field->unitsArrayToStr($value_arr);
+		$field->setValue($value);
+
+		return $field;
+
+	}//end _getDateTimeField()
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2004/07/07 04:08:42 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2004/12/21 17:30:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -32,10 +32,10 @@
 		</field>
 		<field>
 			<display_name>Default</display_name>
-			<note></note>
+			<note>Value in this field is relevant only if you do not select a keyword replacement</note>
 			<function_call>
-				<paint_function   name="paintEpoch" />
-				<process_function name="processEpoch" />
+				<paint_function   name="paintDefaultDateTime" />
+				<process_function name="processDefaultDateTime" />
 			</function_call>
 		</field>
 		<field>
@@ -58,8 +58,8 @@
 			<display_name>Setup</display_name>
 			<note></note>
 			<function_call>
-				<paint_function   name="paintEpochSetup" />
-				<process_function name="processEpochSetup" />
+				<paint_function   name="paintSetupParams" />
+				<process_function name="processSetupParams" />
 			</function_call>
 		</field>
 		<field>
@@ -94,7 +94,7 @@
 		</field>
 		<field attribute="required">
 			<display_name>Required</display_name>
-			<note />
+			<note>%description%</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="frontend">
