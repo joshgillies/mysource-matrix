@@ -155,6 +155,36 @@ class Cron_Job_Future_Status extends Cron_Job
 
 
 	/**
+	* returns an array of all statii in the system in the form Array('[value]' => '[description]')
+	* Used for the drop down boxes
+	*
+	* @return Array()
+	* @access private
+	* @static
+	*/
+	function _getAllStatiiDescs()
+	{
+		static $descs = Array();
+
+		if (empty($descs)) {
+			$descs['']  = '[Select Status]';
+			$statii = Cron_Job_Future_Status::_getAllStatii();
+			foreach($statii as $value => $code) { 
+				$code = strtolower($code);
+				$status_code = 'asset_status_'.$code;
+				require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
+				eval('$descs[$value] = '.$status_code.'::getDescription();');
+
+			}// end foreach
+
+		}// end if
+
+		return $descs;
+
+	}//end _getAllStatiiDescs()
+
+	
+	/**
 	* returns the name of the status that this future status object is going to change the asset to
 	*
 	* @return string
@@ -214,17 +244,23 @@ class Cron_Job_Future_Status extends Cron_Job
 	/**
 	* Actually executes the functionality for this job, called by run()
 	*
+	* @param string	$msg	accepted by reference, used to return any messages about completion etc from _exec
+	*
 	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
 	* @see Cron_Job::_exec(), Cron_Job::run()
 	* @access private
 	*/
-	function _exec()
+	function _exec(&$msg)
 	{
 		$asset = &$this->getAssetToUpdate();
 		if (!is_null($asset)) {
 
+			$old_status = $asset->status;
+
 			// Let's just process the status change
 			if ($asset->processStatusChange($this->attr('status'))) {
+				$descs = $this->_getAllStatiiDescs();
+				$msg = 'Altered Status of "'.$asset->name.'" (#'.$asset->id.') from "'.$descs[$old_status].'" to "'.$descs[$asset->status].'"';
 				// All OK, and we can be removed because we have done our one off task
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
 

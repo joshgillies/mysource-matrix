@@ -27,36 +27,6 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 
 
 	/**
-	* returns an array of all statii in the system in the form Array('[value]' => '[description]')
-	* Used for the drop down boxes
-	*
-	* @return Array()
-	* @access private
-	* @static
-	*/
-	function _getAllStatiiDescs()
-	{
-		static $descs = Array();
-
-		if (empty($descs)) {
-			$descs['']  = '[Select Status]';
-			$statii = Cron_Job_Future_Status::_getAllStatii();
-			foreach($statii as $value => $code) { 
-				$code = strtolower($code);
-				$status_code = 'asset_status_'.$code;
-				require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
-				eval('$descs[$value] = '.$status_code.'::getDescription();');
-
-			}// end foreach
-
-		}// end if
-
-		return $descs;
-
-	}//end _getAllStatiiDescs()
-
-
-	/**
 	* Prints the tasks interface in a one line format
 	*
 	* @param object Asset				&$asset	the owning asset
@@ -69,7 +39,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	function paintOneLineBackend(&$asset, &$o, $prefix)
 	{
 		echo 'Set Status to ';
-		$descs = $this->_getAllStatiiDescs();
+		$descs = $asset->_getAllStatiiDescs();
 		if ($asset->writeAccess()) {
 			combo_box($prefix.'_status', $descs, false, $asset->attr('status'));
 		} else {
