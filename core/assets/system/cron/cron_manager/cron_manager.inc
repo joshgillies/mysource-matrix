@@ -194,26 +194,36 @@ class Cron_Manager extends Asset
 			return false;
 		}// end if
 
+		// the refresh time has some restrictions on it, because otherwise painting the when box would be a pain
+		if ($name == 'refresh_time') {
+			$value = (int) $value;
+
+			$one_hour = 60 * 60;
+			$one_day  = 24 * $one_hour;
+
+			if ($value >= $one_day) {
+				// if we are over a day we must be a multiple of one day
+				if ($value % $one_day) {
+					trigger_error('You can only have a refresh time of over one day if it\'s a multiple of a day ('.$one_day.' seconds)', E_USER_WARNING);
+					return false;
+				}
+			} else if ($value >= $one_hour) {
+				// if we are over an hour we must be a multiple of one hour
+				if ($value % $one_hour || $one_day % $value) {
+					trigger_error('You can only have a refresh time of over one hour if it\'s a multiple of an hour ('.$one_hour.' seconds) and the number of hours divides evenly into one day', E_USER_WARNING);
+					return false;
+				}
+
+			// if we less than an hour we must divide evenly into an hour
+			} else if ($one_hour % $value) {
+				trigger_error('You can only have a refresh time of under one hour if it divides evenly into one hour ('.$one_hour.' seconds)', E_USER_WARNING);
+				return false;
+			}
+		}// endi f
+
 		return parent::setAttrValue($name, $value, $dont_run_updated);
-		
+
 	}// end setAttrValue()
-
-
-	/**
-	* Sets a permission for the passed user or user_group
-	*
-	* @param int		$userid		the id of the user or user_group to add the permission for
-	* @param string		$permission	the permission code you are adding
-	* @param string		$access		whether this permission grants access or not ('1' or '0')
-	*
-	* @return boolean
-	* @access public
-	*/
-	function setPermission($userid, $permission, $access)
-	{
-		trigger_error('You cannot set permissions on the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
-		return false;
-	}// end setPermission()
 
 
 	/**
@@ -297,7 +307,7 @@ class Cron_Manager extends Asset
 		return $jobs;
 
 	}// end getJobs()
-	
+
 
 	/**
 	* Returns the time of the next run of the cron manager
@@ -307,7 +317,33 @@ class Cron_Manager extends Asset
 	*/
 	function timeOfNextRun()
 	{
-		return (int) $this->attr('last_run') + (int) $this->attr('refresh_time');
+		return max((int) $this->attr('last_run'), (int) $this->attr('epoch')) + (int) $this->attr('refresh_time');
+	}// end timeOfNextRun()
+
+
+	/**
+	* Returns a string with the readable version of how often the cron runs
+	*
+	* @return string
+	* @access public
+	*/
+	function readableRefreshTime()
+	{
+		$refresh_time = (int) $this->attr('refresh_time');
+		if ($refresh_time >= 86400) {
+			$num = ($refresh_time / 86400);
+			return ($num > 1) ? $num.' days' : 'day';
+		}
+		if ($refresh_time >= 3600) {
+			$num = ($refresh_time / 3600);
+			return ($num > 1) ? $num.' hours' : 'hour';
+		}
+		if ($refresh_time >= 60) {
+			$num = ($refresh_time / 60);
+			return ($num > 1) ? $num.' minutes' : 'minute';
+		}
+		return $refresh_time.' seconds';
+
 	}// end timeOfNextRun()
 
 
@@ -378,12 +414,27 @@ class Cron_Manager extends Asset
 		} else {
 
 			// OK using the epoch time and the the refresh time figure when the this period "really" started
-			$secs = $start_time - (int) $this->attr('epoch');
-			$periods = floor($secs / (int) $this->attr('refresh_time'));
-			$this_run = (int) $this->attr('epoch') + ((int) $this->attr('refresh_time') * $periods);
+			$epoch        = (int) $this->attr('epoch');
+			$refresh_time = (int) $this->attr('refresh_time');
 
-#pre_echo("RUN START : ".date('d/m/Y H:i:s', $this_run));
+			$secs = $start_time - $epoch;
+			$periods = floor($secs / $refresh_time);
+			$this_run = $epoch + ($refresh_time * $periods) + $dst_adjustment;
 
+			// if we only every day (or higher) we need to take into account the effects of 
+			// daylight savings
+			if ($refresh_time >= (60 * 60 * 24)) {
+				$epoch_in_dst = (date('I', $epoch)      == '1');
+				$start_in_dst = (date('I', $start_time) == '1');
+
+				// if the epoch and start time are in different stages of daylight savings we need to adjust
+				if ($epoch_in_dst != $start_in_dst) {
+					// because the epoch is before the start time, if it is in daylight savings
+					// then we need to add one hour to this run's time
+					// otherwise we need to drop an hour
+					$this_run += ($epoch_in_dst) ? +3600 : -3600;
+				}// end if
+			}// end if
 
 			// now get the lock, set the running flag and reset the run_check
 			if ($this->acquireLock(0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0)) {
@@ -395,7 +446,7 @@ class Cron_Manager extends Asset
 
 				// first get some times
 				$last_run = (int) $this->attr('last_run');
-				$next_run = $this_run + (int) $this->attr('refresh_time');
+				$next_run = $this_run + $refresh_time;
 
 #pre_echo("Get Jobs : ".date('d/m/Y H:i:s', $last_run).", ".date('d/m/Y H:i:s', $this_run));
 				$jobs = $this->getJobsToRun($last_run, $this_run);
@@ -496,7 +547,7 @@ class Cron_Manager extends Asset
 					// if we have gone into the next run's time then we need to do it's work as well
 					if (time() > $next_run) {
 						$this_run = $next_run;
-						$next_run += (int) $this->attr('refresh_time');
+						$next_run += $refresh_time;
 					}
 
 #pre_echo("Get Jobs : ".date('d/m/Y H:i:s', $last_run).", ".date('d/m/Y H:i:s', $this_run));
