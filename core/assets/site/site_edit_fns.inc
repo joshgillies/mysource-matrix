@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: site_edit_fns.inc,v 1.35 2003/10/10 06:49:23 brobertson Exp $
+* $Id: site_edit_fns.inc,v 1.36 2003/10/16 00:23:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,70 +53,75 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	function paintURLs(&$asset, &$o, $prefix)
 	{
 		?>
-		<script language="JavaScript" type="text/javascript">
-
-			var site_url_protos = new Array("<?php echo implode('","', $this->protos); ?>");
-
-			function site_url_url_change(url_num) {
-
-				// if there isn't any value in the url box, it doesn't matter
-				if (get_form_element_value("<?php echo $prefix; ?>_urls[" + url_num + "][url]")) {
-					var found = false;
-					for(var i = 0; i < site_url_protos.length; i++) {
-						if (get_form_element_value("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][" + i + "]")) {
-							found = true;
-							break;
-						}
-					}// end if
-
-					// if nothing is checked, then select the first protocol
-					if (!found) {
-						var first_proto = get_form_element("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][0]");
-						first_proto.checked = true;
-					}
-
-				// remove all the protocols
-				} else {
-					for(var i = 0; i < site_url_protos.length; i++) {
-						var proto = get_form_element("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][" + i + "]");
-						proto.checked = false;
-					}// end if
-
-				}// end if
-
-			}// end site_url_url_change();
-
-			function site_url_protocol_click(url_num) {
-
-				// if there isn't any value in the url box, it doesn't matter
-				if (!get_form_element_value("<?php echo $prefix; ?>_urls[" + url_num + "][url]")) return;
-
-				for(var i = 0; i < site_url_protos.length; i++) {
-					if (get_form_element_value("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][" + i + "]")) return;
-				}// end if
-
-				// if we get this far then there is nothing checked
-				alert('You need to select at least one protocol, otherwise the url will be deleted');
-
-			}// end site_url_protocol_click();
-
-
-		</script>
 		<table border="0" cellspacing="0" cellpadding="3">
 		<?php
 
 		$urls = $asset->getSiteURLs();
 		$wa = $asset->writeAccess('lookups');
 
+		$urlids = Array();
+
 		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
 			$this->_paintURL($o, $prefix, $urlid, $urls[$urlid], $wa);
+			$urlids[] = $urlid;
 		}// end for
 
 		if ($wa) {
+			// paint a nice blank version
 			$this->_paintURL($o, $prefix, 0, Array('url' => '', 'protocols' => Array()), true);
-		}
+			$urlids[] = 0;
+
+			// let's be a bit nice about this, and when they submit confirm that they know what they are doing
+			$o->addOnSubmit('if (!site_url_check()) return false;');
+
+		}// end if
+
 		?>
 		</table>
+		<script language="JavaScript" type="text/javascript">
+
+			var site_url_protos = new Array("<?php echo implode('","', $this->protos); ?>");
+			var site_url_urlids = new Array("<?php echo implode('","', $urlids); ?>");
+
+			function site_url_check() {
+
+				for(var j = 0; j < site_url_urlids.length; j++) {
+					var urlid = site_url_urlids[j];
+					// if there isn't any value in the url box, it doesn't matter
+					var url = get_form_element_value("<?php echo $prefix; ?>_urls[" + urlid + "][url]");
+					if (url.length) {
+						var found = false;
+						for(var i = 0; i < site_url_protos.length; i++) {
+							if (get_form_element_value("<?php echo $prefix; ?>_urls[" + urlid + "][protocols][" + i + "]")) {
+								found = true;
+								break;
+							}
+						}// end if
+
+						// if nothing is checked, confirm deletion
+						if (!found) {
+							// if they don't want to delete, abort submit
+							if (!confirm('You need to select at least one protocol, otherwise the url will be deleted.\nDo you want to delete "' + url + '" ?')) {
+								return false;
+							}
+						}
+
+					// remove all the protocols
+					} else {
+						for(var i = 0; i < site_url_protos.length; i++) {
+							var proto = get_form_element("<?php echo $prefix; ?>_urls[" + urlid + "][protocols][" + i + "]");
+							proto.checked = false;
+						}// end if
+
+					}// end if
+
+				}// end for
+
+				return true;
+
+			}// end site_url_check();
+
+		</script>
 		<?php
 
 	}//end paintURLs()
@@ -142,7 +147,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 				<td class="sq-backend-data">
 				<?php
 					if ($write_access) {
-						text_box($prefix.'_urls['.$i.'][url]',  $url_info['url'], 40, 0, 'onChange="javascript: site_url_url_change('.$i.');"');
+						text_box($prefix.'_urls['.$i.'][url]',  $url_info['url'], 40);
 					} else {
 						echo $url_info['url'];
 					}
@@ -154,7 +159,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 				<td class="sq-backend-data">
 				<?php
 					if ($write_access) {
-						check_box($prefix.'_urls['.$i.'][protocols]['.$k.']', $this->protos[$k], !empty($url_info[$this->protos[$k]]), 'site_url_protocol_click('.$i.');');
+						check_box($prefix.'_urls['.$i.'][protocols]['.$k.']', $this->protos[$k], !empty($url_info[$this->protos[$k]]));
 					} else {
 					?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($url_info[$this->protos[$k]]) ? 'cross' : 'tick'; ?>.gif" width="15" height="15" />
