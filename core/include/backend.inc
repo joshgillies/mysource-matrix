@@ -212,7 +212,7 @@ class Backend extends Resolve_Object
 			// check for updates to the asset tree
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$where = 'last_updated > '.$db->quote(ts_iso8601($_SESSION['last_refresh']));
+			$where = 'updated > '.$db->quote(ts_iso8601($_SESSION['last_refresh']));
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
 

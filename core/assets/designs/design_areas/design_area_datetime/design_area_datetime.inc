@@ -27,8 +27,8 @@ class Design_Area_DateTime extends Design_Area
 	{
 		$format = addslashes($this->attr('format'));
 		switch($this->attr('datetime')) {
-			case 'last_updated' :
-				$datetime = '$ASSET->last_updated';
+			case 'updated' :
+				$datetime = '$ASSET->updated';
 				break;
 			case 'now' :
 			default :

@@ -36,8 +36,8 @@ class Design_Area_DateTime_Management extends Asset_Management
 								'default'		=> 'now',
 								'parameters'	=> Array(
 									'options' => Array(
-											'now'			=> 'When the page is loaded',
-											'last_updated'	=> 'When the page was last modified',
+											'now'		=> 'When the page is loaded',
+											'updated'	=> 'When the page was last modified',
 									),
 								),
 								'description'	=> 'The value to be used',
