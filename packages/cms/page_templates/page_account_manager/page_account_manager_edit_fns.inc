@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.9 2004/08/11 23:23:29 lwright Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.9.2.1 2004/11/15 01:38:07 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,16 +39,6 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 {
-
-	/**
-	* Messages used to provide info about the differnt types of create locations
-	* @var array(string => string)
-	*/
-	var $location_messages = Array(
-						'fixed' => 'All new user accounts will be placed into these user groups',
-						'selectable'  => 'When creating a new account, the user will have the option of placing themselves into users groups from these sets',
-						'conditional'     => 'These rules define where new user accounts should be created based on the values filled in by the user',
-										);
 
 	/**
 	* An array of asset types that can be passed to asset_finder to define what types of create locations are allowed
