@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses_edit_fns.inc,v 1.2 2005/02/18 05:29:08 dbaranovskiy Exp $
+* $Id: report_asset_statuses_edit_fns.inc,v 1.3 2005/02/20 22:50:23 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,8 +69,8 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$owner = &$am->getAsset($job->_running_vars['assetid'], 'report_asset_counter');
-		$where = Array('a.status_changed_userid = u.assetid');
-		$tables = Array('ast a', 'ast u');
+		$where = Array();
+		$tables = Array('ast a');
 
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, '', false, 'root');
 		if (!empty($root_link)) {
@@ -99,10 +99,25 @@ class Report_Asset_Statuses_Edit_Fns extends Report_Edit_Fns
 		foreach ($tables as $index => $table) {
 			$tables[$index] = SQ_TABLE_PREFIX.$table;
 		}
-		$sql = 'SELECT a.assetid, a.type_code, a.name, a.status, a.status_changed, a.status_changed_userid, u.name as user_name FROM '.implode(', ', $tables).' WHERE ('.implode(') AND (', $where).')';
+		$sql = 'SELECT a.assetid, a.type_code, a.name, a.status, a.status_changed, a.status_changed_userid FROM '.implode(', ', $tables).' WHERE ('.implode(') AND (', $where).')';
 
 		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
+		
+		// find the users' names
+		$assetids = Array();
+		foreach ($result as $r) {
+			$userids[] = $r['status_changed_userid'];
+		}
+		$names = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($userids, Array(), false, 'name');
+		foreach ($result as $i => $r) {
+			if (isset($names[$r['status_changed_userid']])) {
+				$result[$i]['user_name'] = $names[$r['status_changed_userid']];
+			} else {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($r['status_changed_userid']);
+				$result[$i]['user_name'] = $asset->name;
+			}
+		}
 
 		// generate XML contents
 		$contents = '<asset_list>'."\n";
