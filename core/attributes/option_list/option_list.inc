@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.4 2004/05/19 23:23:01 lwright Exp $
+* $Id: option_list.inc,v 1.5 2004/06/17 04:32:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,9 +74,11 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 		} else {	
 			$current_to_string = '';
 			$current_to = '';
-			foreach ($current_value as $option) {
-				$current_to_string .= '[ <a href="#" onclick="Javascript: optionListRemoveOption(\''.$option.'\', \''.$prefix.'\', \'options\'); return false;">del</a> ] '.$option.'<br>';
-				$current_to .= $option."\r\n";
+			if (!empty($this->value)) {
+				foreach ($current_value as $option) {
+					$current_to_string .= '[ <a href="#" onclick="Javascript: optionListRemoveOption(\''.$option.'\', \''.$prefix.'\', \'options\'); return false;">del</a> ] '.$option.'<br>';
+					$current_to .= $option."\r\n";
+				}
 			}
 
 		?>
