@@ -1085,7 +1085,7 @@ class Asset extends Resolve_Object
 
 		// if we have no source, we are the asset aquiring the locks
 		if (!$source) $source = $this->id;
-		if (empty($expires)) $expires = ts_iso8601((time() + (10 * 60)));
+		if (empty($expires)) $expires = ts_iso8601((time() + (100 * 60)));
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -1676,7 +1676,6 @@ class Asset extends Resolve_Object
 					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
 					WHERE l.minorid = '.$db->quote($minor->id).'
 					LIMIT 1';
-
 			$minor_treeid = $db->getOne($sql);
 			if (DB::isError($minor_treeid)) {
 				trigger_error($minor_treeid->getMessage().'<br/>'.$minor_treeid->getUserInfo(), E_USER_WARNING);
@@ -1750,7 +1749,7 @@ class Asset extends Resolve_Object
 				// because the root folder is not a minor party in any links we have to something special for it
 				if ($this->id == 1) {
 					$sql = 'DELETE FROM sq_asset_link_tree
-							WHERE treeid = '.$db->quote($free_childid);
+							WHERE treeid LIKE '.$db->quote($free_childid);
 				} else {
 					$concat = ($db->phptype == 'mysql')
 								? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
@@ -1767,6 +1766,7 @@ class Asset extends Resolve_Object
 						return 0;
 					}
 				}
+pre_echo($sql);
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -1824,6 +1824,8 @@ class Asset extends Resolve_Object
 							WHERE pl.minorid = '.$db->quote($this->id).'
 							  AND ct.treeid LIKE '.$db->quote($minor_treeid.'%').'
 							  AND ct.treeid > '.$db->quote($minor_treeid);
+
+pre_echo($select);
 
 				$result = db_extras_insert_select($db, $insert, $select);
 				if (DB::isError($result)) {
@@ -2196,16 +2198,16 @@ class Asset extends Resolve_Object
 
 			//// UPDATE THE TREE ////
 
-			// set all the links that are under this 
-			$sql = 'UPDATE sq_asset_link_tree
-					   SET linkid = 0
+			// Wwe can delete all the links under these nodes because it will be a clean start 
+			// when we insert into the gap's we created above
+			$sql = 'DELETE FROM sq_asset_link_tree
 					WHERE treeid in (~SQ0~)';
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
 			$subs = Array('SELECT ct.treeid
 							FROM sq_asset_link_tree pt, sq_asset_link_tree ct
 							WHERE pt.linkid = '.$db->quote($linkid).'
 							  AND ct.treeid LIKE '.$concat.'
-							  AND ct.treeid >= pt.treeid');
+							  AND ct.treeid > pt.treeid');
 
 			$sql = db_extras_subquery($db, $sql, $subs);
 			if (DB::isError($sql)) {
@@ -2213,12 +2215,27 @@ class Asset extends Resolve_Object
 				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
+pre_echo($sql);
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
+
+			// We are going to set the treeid nodes that this link is associated with to zero so that we can
+			// find it as a gap when we createLink() later on
+			$sql = 'UPDATE sq_asset_link_tree
+					   SET linkid = 0
+					WHERE linkid = '.$db->quote($linkid);
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
+
 
 		}// end if significant link
 
