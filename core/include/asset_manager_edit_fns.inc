@@ -158,13 +158,15 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 		require_once SQ_LIB_PATH.'/progress_bar/progress_bar.inc';
 		$pb = new Progress_Bar($o->getCurrentLocation(), $this);
+		#$pb->testing = true;
 		if (!$pb->loaded) {
 			$pb->setFns('_dupeInit', '_dupeInitPaint', '_dupeDone');
 			$pb->setOption('auto_close', false);
 
-			$pb->addStep('Obtain Locks', '_dupeObtainLocks');
-			$pb->addStep('Duplicate', '_dupeExec');
-			$pb->addStep('Release Locks', '_dupeReleaseLocks', '_dupeReleaseLocksInit');
+//			$pb->addStep('Obtain Locks', '_dupeStepObtainLocks');
+			$pb->addStep('Duplicate', '_dupeStepDuplicate', null, '_dupeStepDuplicateDone');
+			$pb->addStep('Remap Ids', '_dupeStepRemap');
+//			$pb->addStep('Release Locks', '_dupeStepReleaseLocks', '_dupeStepReleaseLocksInit');
 		}
 
 //				$vars = get_object_vars($pb);
@@ -198,35 +200,87 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 	function _dupeInit(&$pb)
 	{
 		$vars = $pb->getRunningVars();
+		$initialised = false;
+
 		// first time here ?
 		if (empty($vars)) {
 			$vars = Array(	'assetid'			=> $_GET['assetid'],
 							'to_parent_assetid' => $_GET['to_parent_assetid'],
 							'to_parent_pos'		=> $_GET['to_parent_pos']
 						);
-			$pb->setRunningVars($vars);
-		}
 
 		// they have posted what they want to duplicate ?
-		if (!empty($_POST['duplicate_assetid'])) {
+		} else if (!empty($_POST['duplicate_assetid'])) {
 			$asset = &$this->am->getAsset($vars['assetid']);
-			$dependant_linkids = $asset->getDependantLinkIds();
 			$tree = $this->_getAllChildLinks($vars['assetid']);
 
+			$effective_duplicate_treeids = Array('' => Array());
+			$indexed_effective_duplicate_treeids = Array();
+			if (!empty($_POST['duplicate_treeids'])) {
+
+				// make sure they are all in the proper order
+				ksort($_POST['duplicate_treeids'], SORT_STRING);
+				$duplicate_treeids = Array();
+				for(reset($_POST['duplicate_treeids']); null !== ($treeid = key($_POST['duplicate_treeids'])); next($_POST['duplicate_treeids'])) {
+					$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
+					// if this is a top level link or if this links parent link is selected
+					// then we can add it to the proper array
+					// this strips out any selections whose parents where selected
+					// and any dependent links (in hidden fields) whose parent wasn't selected
+					if ($parent_treeid == '' || isset($duplicate_treeids[$parent_treeid])) {
+						$duplicate_treeids[$treeid] = $_POST['duplicate_treeids'][$treeid];
+
+						if ($tree[$treeid]['dependant']) {
+							$dependant_treeid = $tree[$treeid]['dependant_treeid'];
+							if(!isset($effective_duplicate_treeids[$dependant_treeid])) $effective_duplicate_treeids[$dependant_treeid] = Array();
+							$effective_duplicate_treeids[$dependant_treeid][] = $treeid;
+						}
+
+					}
+
+				}// end for
+
+				ksort($duplicate_treeids, SORT_STRING);
+				ksort($effective_duplicate_treeids, SORT_STRING);
+
+				$indexed_effective_duplicate_treeids = Array();
+
+				for(reset($effective_duplicate_treeids); null !== ($treeid = key($effective_duplicate_treeids)); next($effective_duplicate_treeids)) {
+					$indexed_effective_duplicate_treeids[] = Array('treeid' => $treeid, 
+																	'dependants' => $effective_duplicate_treeids[$treeid]
+																	);
+				}// end for
+
+			}// end if
+
 			?><table border="1"><tr><td valign="top"><?php
-			pre_echo($_POST);
+			pre_echo($_POST['duplicate_treeids']);
 			?></td><td valign="top"><?php
-			pre_echo($tree);
+			pre_echo($duplicate_treeids);
+			?></td><td valign="top"><?php
+			pre_echo($effective_duplicate_treeids);
+			?></td><td valign="top"><?php
+			pre_echo($indexed_effective_duplicate_treeids);
+//			pre_echo($tree);
 			?></td></tr></table><?php
 
-//			foreach($dependant_linkids as $linkid) {
-//				if (empty($_POST['duplicate_assetid']
-//
-//			}
+			// OK, what we have with the $effective_duplicate_treeids array is access to all the assets that 
+			// we are going to duplicate to have to duplicate, with all the assets that they will create
+			// when duplicate is called (because it also duplicates any dependantly linked assets)
 
-		}
+			pre_echo("Call duplicate() on ".count($effective_duplicate_treeids)." assets, which will duplicate ".count($duplicate_treeids)." assets");
 
-		return false;
+			$vars['tree'] = $tree;
+			$vars['effective_duplicate_treeids'] = $indexed_effective_duplicate_treeids;
+			$vars['dupe_pos'] = 0;
+
+			$initialised = true;
+
+		}// end if
+
+		$pb->setRunningVars($vars);
+
+		return $initialised;
 
 	}
 
@@ -256,11 +310,27 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 					WHERE t.treeid LIKE '.$db->quote($treeid.'%').'
 					  AND t.treeid > '.$db->quote($treeid).'
 					ORDER BY t.treeid';
-	pre_echo($sql);
-			$this->_tmp['child_links'][$assetid] = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
-			if (DB::isError($this->_tmp['child_links'][$assetid])) {
-				trigger_error($this->_tmp['child_links'][$assetid]->getMessage().'<br/>'.$this->_tmp['child_links'][$assetid]->getUserInfo(), E_USER_ERROR);
+
+			$child_links = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+			if (DB::isError($child_links)) {
+				trigger_error($child_links->getMessage().'<br/>'.$child_links->getUserInfo(), E_USER_ERROR);
 			}
+
+			// OK, what we are going to do is set up the effective dependant treeid for each tree link 
+			for(reset($child_links); null !== ($treeid = key($child_links)); next($child_links)) {
+				if ($child_links[$treeid]['dependant']) {
+					$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
+					if ($parent_treeid == '') {
+						$child_links[$treeid]['dependant_treeid'] = '';
+					} else {
+						$child_links[$treeid]['dependant_treeid'] = $child_links[$parent_treeid]['dependant_treeid'];
+					}
+				} else {
+					$child_links[$treeid]['dependant_treeid'] = $treeid;
+				}
+			}// end for
+
+			$this->_tmp['child_links'][$assetid] = $child_links;
 
 		}// end if
 
@@ -276,8 +346,6 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		$vars = $pb->getRunningVars();
 
 		$asset = &$this->am->getAsset($vars['assetid']);
-		$dependant_linkids = $asset->getDependantLinkIds();
-		pre_echo($dependant_linkids);
 		$tree = $this->_getAllChildLinks($asset->id);
 		?>
 		<table border="0" cellspacing="0" cellpadding="0">
@@ -300,16 +368,17 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 					var DUPLICATE_TREEIDS = ["<?php echo implode('" ,"', array_keys($tree));?>"];
 
-					function duplicate_treeid_check(treeid) {
+					function duplicate_treeids_check(treeid) {
+
 						var tmp_treeid = new String(treeid);
 
-						var clicked_elem = get_form_element("duplicate_treeid[" + tmp_treeid + "]");
+						var clicked_elem = get_form_element("duplicate_treeids[" + tmp_treeid + "]");
 						// if we were checked make sure that all our parents are checked
 						if (clicked_elem.checked) {
 							while (tmp_treeid.length > 0) {
-								var elem = get_form_element("duplicate_treeid[" + tmp_treeid + "]");
+								var elem = get_form_element("duplicate_treeids[" + tmp_treeid + "]");
 								// this may be a dependant link , which is a hidden field
-								if (element.type != 'checkbox') continue;
+								if (elem.type != 'checkbox') continue;
 								elem.checked = true;
 								tmp_treeid = tmp_treeid.substr(0, tmp_treeid.length - <?php echo SQ_CONF_ASSET_TREE_SIZE; ?>);
 							}
@@ -317,14 +386,14 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 						// Change all our children to be what we are
 						for(var i = 0; i < DUPLICATE_TREEIDS.length; i++) {
 							if (treeid == DUPLICATE_TREEIDS[i].substr(0, treeid.length)) {
-								var elem = get_form_element("duplicate_treeid[" + DUPLICATE_TREEIDS[i] + "]");
+								var elem = get_form_element("duplicate_treeids[" + DUPLICATE_TREEIDS[i] + "]");
 								// this may be a dependant link , which is a hidden field
-								if (element.type != 'checkbox') continue;
+								if (elem.type != 'checkbox') continue;
 								elem.checked = clicked_elem.checked;
 							}
 						}
 
-					}// end duplicate_treeid_check()
+					}// end duplicate_treeids_check()
 
 				// -->
 			</script>
@@ -354,19 +423,6 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 					}
 				}
 
-//				// if it's in the dependant links array, they can't change it
-//				if ($tree[$treeid]['dependant']) {
-//					$checked = true;
-//					$on_click = 'alert("This is a dependant asset, needed for the correct running of this asset, you cannot unset it"); this.checked = true;';
-//					$style = 'style="font-weight: bold;"';
-//				} else {
-//					// have we submitted this before ? if so and they checked, select it again for them
-//					$checked = !empty($_POST['duplicate_treeid'][$treeid]);
-//					$on_click = 'duplicate_treeid_check("'.$treeid.'");';
-//					$style = '';
-//				}
-
-
 			?>
 			<table border="0" cellspacing="0" cellpadding="0">
 				<tr>
@@ -382,16 +438,16 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 					<?php 
 						if ($tree[$treeid]['dependant']) {
 							echo '&nbsp;';
-							hidden_field('duplicate_treeid['.$treeid.']', $tree[$treeid]['assetid']);
+							hidden_field('duplicate_treeids['.$treeid.']', $tree[$treeid]['linkid']);
 						} else {
 							// have we submitted this before ? if so and they checked, select it again for them
-							check_box('duplicate_treeid['.$treeid.']', $tree[$treeid]['assetid'], !empty($_POST['duplicate_treeid'][$treeid]), 'duplicate_treeid_check("'.$treeid.'");'); 
+							check_box('duplicate_treeids['.$treeid.']', $tree[$treeid]['linkid'], !empty($_POST['duplicate_treeids'][$treeid]), 'duplicate_treeids_check("'.$treeid.'");'); 
 						}
 					?>
 					</td>
 					<td class="sq-backend-data">
 					<?php 
-						echo $tree[$treeid]['short_name'], ' - Id #', $tree[$treeid]['assetid']; 
+						echo $tree[$treeid]['short_name'], ' - Id #', $tree[$treeid]['assetid'], ' ----- ', $treeid; 
 					?>
 					</td>
 				</tr>
@@ -419,7 +475,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 	/**
 	*/
-	function _dupeObtainLocks(&$pb)
+	function _dupeStepObtainLocks(&$pb)
 	{
 		$vars = $pb->getRunningVars();
 		$vars['locks_run_num'] = empty($vars['locks_run_num']) ? 1 : ($vars['locks_run_num'] + 1);
@@ -429,7 +485,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		sleep(1);
 
 		$pb->setStatusMsg('Locking'.str_repeat('.', $vars['locks_run_num']));
-		$pb->setPercent($vars['locks_run_num'] / 3);
+		$pb->setPercent($vars['locks_run_num'] / 1);
 //		pre_echo("CURRENT STEP : ");
 //		pre_echo($pb->_steps[$pb->_step]);
 		$pb->setRunningVars($vars);
@@ -437,14 +493,47 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 	/**
 	*/
-	function _dupeExec(&$pb)
+	function _dupeStepDuplicate(&$pb)
+	{
+		$vars = $pb->getRunningVars();
+
+		pre_echo("DUPE POS : ".$vars['dupe_pos']);
+		$treeid = $vars['effective_duplicate_treeids'][$vars['dupe_pos']]['treeid'];
+		pre_echo("TREE ID : ".$treeid);
+		// if there is a blank treeid then we must be duplicating the initialising asset
+		$assetid = ($treeid == '') ? $vars['assetid'] : $vars['tree'][$treeid]['assetid'];
+		pre_echo("ASSET ID : ".$assetid);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+
+		sleep(1);
+
+		$pb->setStatusMsg('Duplicating '.$asset->name);
+		$pb->setPercent(($vars['dupe_pos'] + 1) / count($vars['effective_duplicate_treeids']));
+//		pre_echo("CURRENT STEP : ");
+//		pre_echo($pb->_steps[$pb->_step]);
+
+		$vars['dupe_pos']++;
+
+		$pb->setRunningVars($vars);
+	}// end _dupeStepDuplicate()
+
+	/**
+	*/
+	function _dupeStepDuplicateDone(&$pb)
+	{
+		$pb->setStatusMsg('');
+	}// end _dupeStepDuplicateDone()
+
+	/**
+	*/
+	function _dupeStepRemap(&$pb)
 	{
 		$vars = $pb->getRunningVars();
 		$vars['run_num'] = empty($vars['run_num']) ? 1 : ($vars['run_num'] + 1);
 
 //		pre_echo("RUN NUM : ".$vars['run_num']);
 
-		sleep(2);
+		sleep(1);
 
 		$pb->setStatusMsg('Running'.str_repeat('.', $vars['run_num']));
 		$pb->setPercent($vars['run_num'] / 5);
@@ -455,7 +544,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 	/**
 	*/
-	function _dupeReleaseLocksInit(&$pb)
+	function _dupeStepReleaseLocksInit(&$pb)
 	{
 		$vars = $pb->getRunningVars();
 		$vars['locks_run_num'] = 0;
@@ -471,7 +560,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 	/**
 	*/
-	function _dupeReleaseLocks(&$pb)
+	function _dupeStepReleaseLocks(&$pb)
 	{
 		$vars = $pb->getRunningVars();
 		$vars['locks_run_num'] = empty($vars['locks_run_num']) ? 1 : ($vars['locks_run_num'] + 1);
@@ -481,7 +570,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		sleep(1);
 
 		$pb->setStatusMsg('Unlocking'.str_repeat('.', $vars['locks_run_num']));
-		$pb->setPercent($vars['locks_run_num'] / 3);
+		$pb->setPercent($vars['locks_run_num'] / 1);
 //		pre_echo("CURRENT STEP : ");
 //		pre_echo($pb->_steps[$pb->_step]);
 		$pb->setRunningVars($vars);
