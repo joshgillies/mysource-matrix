@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.3.4.1 2005/01/03 21:35:47 amiller Exp $
+* $Id: csv.inc,v 1.3.4.2 2005/01/03 22:47:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,8 @@
 * @package Fudge
 * @subpackage CSV
 */
-class CSV {
+class CSV
+{
 
 	/**
 	* The path of the CSV file we are parsing/creating
@@ -98,7 +99,7 @@ class CSV {
 	*/
 	function CSV($filepath='')
 	{
-		if($filepath) $this->setFilepath($filepath);
+		if ($filepath) $this->setFilepath($filepath);
 
 	}//end constructor
 
@@ -173,13 +174,13 @@ class CSV {
 	*/
 	function setFilepath($filepath='')
 	{
-		if($filepath) {
+		if ($filepath) {
 			// full path to this file
 			$this->filepath = $filepath;
 
 			// directory of this file
 			$this->_dir = dirname($filepath);
-			if (!file_exists($this->_dir)) mkdir($this->_dir,0775);
+			if (!file_exists($this->_dir)) mkdir($this->_dir, 0775);
 
 			// name of file without full path
 			$this->setFilename(basename($filepath));
@@ -205,7 +206,7 @@ class CSV {
 	*/
 	function setHeader($header='')
 	{
-		if($header) {
+		if ($header) {
 			// set custom headers
 			header($header);
 		} else {
@@ -226,27 +227,27 @@ class CSV {
 	*/
 	function export()
 	{
-		if(!$this->filepath) {
+		if (!$this->filepath) {
 			// no file to write to.....lets send the header and then the file
 			$this->setHeader();
 		} else {
-			if(!$fp = fopen($this->filepath,'w')) {
+			if (!$fp = fopen($this->filepath,'w')) {
 				trigger_error('Unable to open file "'.$this->filepath.'" for writing', E_USER_WARNING);
 				return;
 			}
 		}
-		if($this->field_headers) {
+		if ($this->field_headers) {
 			$line = $this->formatLine($this->field_headers, $this->deliminator);
-			if(isset($fp)) {
+			if (isset($fp)) {
 				fputs($fp, $line."\n");
 			} else {
 				echo $line."\n";
 			}
 		}
 
-		foreach($this->values as $value) {
+		foreach ($this->values as $value) {
 			$line = $this->formatLine($value, $this->deliminator);
-			if(isset($fp)) {
+			if (isset($fp)) {
 				fputs($fp, $line."\n");
 			} else {
 				echo $line."\n";
@@ -268,12 +269,12 @@ class CSV {
 	function import($start_at=1, $lines=0)
 	{
 		// can only import from a file
-		if(!$this->filepath) return;
+		if (!$this->filepath) return;
 		
 		// check to see if the file exsts
 		if (!is_file($this->filepath)) return;
 
-		if(!$fp = fopen($this->filepath,'r')) {
+		if (!$fp = fopen($this->filepath,'r')) {
 			trigger_error('Unable to open file "'.$this->filepath.'" for reading', E_USER_WARNING);
 			return;
 		}
@@ -284,7 +285,7 @@ class CSV {
 		$line_count = 0;
 		$lines_done = 0;
 
-		while(($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
+		while (($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
 			$line_count++;
 			if ($line_count >= $start_at) {
 				$this->values[] = $tmp;
@@ -310,11 +311,11 @@ class CSV {
 	function formatLine(&$array, $deliminator=',')
 	{
 		$line = '';
-		foreach($array as $val) {
-			if(is_array($val)) {
+		foreach ($array as $val) {
+			if (is_array($val)) {
 				$line .= '"'.$this->format_line($val,$deliminator).'"'.$deliminator;
 			} else {
-				if(ereg("[$deliminator\"\n\r]", $val)) {
+				if (ereg("[$deliminator\"\n\r]", $val)) {
 					$val = '"'.str_replace('"', '""', $val).'"';
 				}
 				$line .= $val.$deliminator;
@@ -340,29 +341,58 @@ class CSV {
 	function countLines($start_at=0)
 	{
 		// can only count from a file
-		if(!$this->filepath) return;
+		if (!$this->filepath) return;
 		
 		// check if the file even exists
 		if (!is_file($this->filepath)) {
-			$this->lineCount = 0;
+			$this->line_count = 0;
 			return;
 		}
 
-		if(!$fp = fopen($this->filepath,'r')) {
+		if (!$fp = fopen($this->filepath,'r')) {
 			trigger_error('Unable to open file "'.$this->filepath.'" for counting', E_USER_WARNING);
 			return;
 		}
 
 		$line_count = 0;
 
-		while(($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
+		while (($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
 			$line_count++;
 		}
 		
 		$this->line_count = $line_count - $start_at;
 
 		fclose($fp);
-	}//end count()
+
+	}//end countLines()
+
+
+	/**
+	* Checks to see if the supplied string exists as an entry in the file
+	*
+	* @return boolean
+	* @access public
+	*/
+	function isUnique($string)
+	{
+		// can only import from a file
+		if (!$this->filepath) return;
+		
+		// check if the file even exists
+		if (!is_file($this->filepath)) return;
+
+		if (!$fp = fopen($this->filepath,'r')) {
+			trigger_error('Unable to open file "'.$this->filepath.'" for reading', E_USER_WARNING);
+			return;
+		}
+		
+		while (($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
+			if (in_array($string, $tmp)) return false;
+		}
+		
+		return true;
+	
+	}//end isUnique()
 
 
 }//end class
