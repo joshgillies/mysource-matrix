@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.173 2003/10/30 04:39:22 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.174 2003/10/30 04:47:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -424,6 +424,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 		$o->addHiddenField('sq_preview_url', $preview_url);
 
+
 		  //////////////////////////
 		 //  Navigation History  //
 		//////////////////////////
@@ -439,22 +440,24 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 		}
 
-		if (!empty($_SESSION['sq_nav_history'])) {
-			$nav_count = count($_SESSION['sq_nav_history']);
+		if (!$creating) {
+			if (!empty($_SESSION['sq_nav_history'])) {
+				$nav_count = count($_SESSION['sq_nav_history']);
 
-			if ($nav_count >= 20) {
-				array_shift($_SESSION['sq_nav_history']);
-				$nav_count--;
-			}
+				if ($nav_count >= 20) {
+					array_shift($_SESSION['sq_nav_history']);
+					$nav_count--;
+				}
 
-			$current_nav_node = $_SESSION['sq_nav_history'][($nav_count-1)];
-			if ($current_nav_node['assetid'] != $owner->id) {
-				$_SESSION['sq_nav_history'][$nav_count] = Array('assetid' => $owner->id, 'screen' => $active_screen);
-			} else if ($current_nav_node['screen'] != $active_screen) {
-				$_SESSION['sq_nav_history'][($nav_count -1)] = Array('assetid' => $owner->id, 'screen' => $active_screen);
+				$current_nav_node = $_SESSION['sq_nav_history'][($nav_count-1)];
+				if ($current_nav_node['assetid'] != $owner->id) {
+					$_SESSION['sq_nav_history'][$nav_count] = Array('assetid' => $owner->id, 'screen' => $active_screen);
+				} else if ($current_nav_node['screen'] != $active_screen) {
+					$_SESSION['sq_nav_history'][($nav_count -1)] = Array('assetid' => $owner->id, 'screen' => $active_screen);
+				}
+			} else {
+				$_SESSION['sq_nav_history'][0] = Array('assetid' => $owner->id, 'screen' => $active_screen);
 			}
-		} else {
-			$_SESSION['sq_nav_history'][0] = Array('assetid' => $owner->id, 'screen' => $active_screen);
 		}
 
 
