@@ -64,19 +64,25 @@ class matrix_insert_image extends wysiwyg_plugin {
 
 				// loop through and try and find a selected image tag
 				if (HTMLArea.is_gecko) {
-					for (var i = 0; i < range.startContainer.childNodes.length; i++) {
-						if (range.startContainer.childNodes[i].tagName == "IMG") {
+					var fragment = this._doc.createDocumentFragment();
+					var div = this._doc.createElement("div");
+					div.innerHTML = this.getSelectedHTML();
+					while (div.firstChild) { 
+						if (div.firstChild.tagName == "IMG") {
 							is_image = true;
-							var image_tag = range.startContainer.childNodes[i];
-						}// end if IMG
+							var image_tag = div.firstChild;
+							break;
+						}
+						// the following call also removes the node from div
+						fragment.appendChild(div.firstChild);
 					}
 				} else if (HTMLArea.is_ie) {
 					if(range.length) {
 						if (range.item(0).tagName == "IMG") {
 							is_image = true;
 							var image_tag = range.item(0);
-						}// end if IMG
-					}// end if length
+						}
+					}
 				}
 
 				// if there is an existing image, get its properties
