@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.34 2004/12/06 14:38:10 brobertson Exp $
+* $Id: inbox_edit_fns.inc,v 1.35 2005/01/05 04:21:06 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.34 $
+* @version $Revision: 1.35 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,6 +72,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		// get the message we are printing
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$message = $ms->getMessageById($messageid);
+
+		// mark the message as read
+		if ($message->status == SQ_MSG_UNREAD) {
+			$message->updateStatus(SQ_MSG_READ);
+		}
 
 		return $message->printBody();
 
