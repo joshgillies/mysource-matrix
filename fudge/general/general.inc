@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.21 2004/08/05 04:54:02 lwright Exp $
+* $Id: general.inc,v 1.22 2004/08/05 04:58:49 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -133,7 +133,7 @@ function htmlentities_array(&$array, $encode_keys=false)
 * @return boolean	true if instance removed, false if not found
 * @access public
 */
-function array_remove_element($v='', &$a) {
+function array_remove_element($v, &$a) {
 	if (!is_array($a) || empty($a)) return false;
 	if(in_array($v,$a)) {
 		unset($a[array_search($v,$a)]);
