@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_js_calendar_navigator.inc,v 1.1 2004/09/10 04:23:40 arailean Exp $
+* $Id: design_area_js_calendar_navigator.inc,v 1.2 2004/09/14 02:00:17 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Version$ - 1.0
+* @version $Version$ - 1.1
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -50,72 +50,65 @@ class Design_Area_JS_Calendar_Navigator extends Design_Area
 	function printArea(&$design)
 	{
 		$php_code = '
-		<!-- generated code -->
+		<!-- generated calendar code -->
 		<?php
-			$calendar_navigator = &$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$this->id.');
+			$am =& $GLOBALS["SQ_SYSTEM"]->am;
+
+			$calendar_navigator = &$am->getAsset('.$this->id.');
 			$element_id 		= $calendar_navigator->attr("element_id");
 			$calendar_assetid 	= $calendar_navigator->attr("target_assetid");
 
-			$am =& $GLOBALS["SQ_SYSTEM"]->am;
-
 			if (!empty($calendar_assetid)) {
-				$asset =& $am->getAsset($calendar_assetid);
+				$asset = &$am->getAsset($calendar_assetid);
 				$target_url = $asset->getURL();
+
+				// generate javascript even handlers
+				?>
+				<script language="Javascript" type="text/javascript">
+					function onDayClick(day, mon, year)
+					{
+						document.location.href = "<?php echo($target_url);?>?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year);
+					}
+
+					function onWeekClick(day, mon, year)
+					{
+						document.location.href = "<?php echo($target_url);?>?SQ_CALENDAR_VIEW=week&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year);
+					}
+
+					function onMonthClick(day, mon, year)
+					{
+						document.location.href = "<?php echo($target_url);?>?SQ_CALENDAR_VIEW=month&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year);
+					}
+
+					function onYearClick(day, mon, year)
+					{
+						document.location.href = "<?php echo($target_url);?>?SQ_CALENDAR_VIEW=year&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year);
+					}
+				</script>
+				<?php
+
 			};
 
-			$cal_path = sq_web_path("fudge")."/js_calendar";
-			$cal_js_path = $cal_path."/cal_navigator.js";
+			require_once SQ_LIB_PATH."/js_calendar/js_calendar.inc";
+
+			$calendar = new JS_Calendar();
+			$calendar->changeSetting("onDayClick", 	"onDayClick");
+			$calendar->changeSetting("onWeekClick", "onWeekClick");
+			$calendar->changeSetting("onMonthClick","onMonthClick");
+			$calendar->changeSetting("onYearClick",	"onYearClick");
+			$calendar->changeSetting("height",		"100%");
+			$calendar->changeSetting("width",		"100%");
 
 			$custom_style_assetid = $calendar_navigator->attr("style_assetid");
 			if (!empty($custom_style_assetid)) {
 				$style_file =& $am->getAsset($custom_style_assetid);
-				$style_url = $style_file->getURL();
-			} else {
-				$style_url = "$cal_path/cal_navigator.css";
+				$calendar->changeSetting("cssURL",  $style_file->getURL());
 			}
+
+			$calendar->paint("js_calendar",$element_id);
 
 		?>
-		<script src="<?php echo($cal_js_path);?>"></script>
-		<link rel="stylesheet" type="text/css" href="<?php echo($style_url);?>" media="screen">
-
-
-		<div id="<?php echo($element_id);?>"></div>
-
-		<script type="text/javascript">
-
-		<?php
-		if (!empty($target_url)) {
-		?>
-			function onDayClick(day, mon, year)
-			{
-				document.location.href = "<?php echo($target_url);?>?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year);
-			}
-
-			function onWeekClick(day, mon, year)
-			{
-				document.location.href = "<?php echo($target_url);?>?SQ_CALENDAR_VIEW=week&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year);
-			}
-
-			function onMonthClick(day, mon, year)
-			{
-				document.location.href = "<?php echo($target_url);?>?SQ_CALENDAR_VIEW=month&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year);
-			}
-
-			function onYearClick(day, mon, year)
-			{
-				document.location.href = "<?php echo($target_url);?>?SQ_CALENDAR_VIEW=year&SQ_CALENDAR_DATE=" + DateConvert2MySQL(day, mon, year);
-			}
-		<?php
-		}
-		?>
-
-			var cal = new Calendar("cal","<?php echo($element_id);?>");
-			cal.onDayClick	= onDayClick;
-			cal.onWeekClick	= onWeekClick;
-			cal.onMonthClick= onMonthClick;
-			cal.onYearClick	= onYearClick;
-			cal.draw();
-		</script>
+		<!-- end generated calendar code -->
 		';
 
 		echo $php_code;
