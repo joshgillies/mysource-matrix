@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.37 2005/02/11 03:11:38 dbaranovskiy Exp $
+* $Id: inbox_edit_fns.inc,v 1.38 2005/02/13 22:23:30 dbaranovskiy Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -83,6 +83,16 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	}//end paintMessage()
 
 
+	/**
+	* Prints the new message interface
+	*
+	* @param object File				&$asset	the file asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function paintNewMessage(&$asset, &$o, $prefix)
 	{
 		$user = &$asset->_getUser();
@@ -222,7 +232,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					post += prefix + "_Priority=" + priority + "&";
 					post += prefix + "_Content=" + escape(document.getElementById(prefix + "_Content").value);
 					var form = document.getElementById("main_form");
-					JsHttpConnector.process = function()
+					JsHttpConnector.process = function(responseText)
 					{
 						document.getElementById("AlertBefore").style.display = "none";
 						document.getElementById("AlertAfter").style.display = "block";
@@ -359,7 +369,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Prints the inbox interface
+	* Prints the sent box interface
 	*
 	* @param object File				&$asset	the file asset
 	* @param object Backend_Outputter	&$o		the backend outputter
@@ -697,11 +707,12 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 							break;
 						}
 					}
-					if (allunchecked) {
+					if (allunchecked && document.getElementById("letterIcon")) {
+
 						document.getElementById("letterIcon").className = "unread";
 						read_all = true;
 					}
-					if (allchecked) {
+					if (allchecked && document.getElementById("letterIcon")) {
 						document.getElementById("letterIcon").className = "read";
 						read_all = false;
 					}
@@ -1177,7 +1188,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Processes the trash interface
+	* Processes the new message interface
 	*
 	* @param object Asset				$asset	the asset to which we belong
 	* @param object	Backend_Outputter	$o		the outputter class
