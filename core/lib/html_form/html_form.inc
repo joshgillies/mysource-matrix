@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.58 2004/06/11 06:41:51 lwright Exp $
+* $Id: html_form.inc,v 1.59 2004/06/24 05:14:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,7 +48,7 @@ function submit_button($name, $value, $on_click='', $extras='')
 	// Make sure that they don't use 'submit' as the form field, because it clashes
 	// with the submit() fn that the form has
 	if ($name == 'submit') trigger_error('Rename your Submit button, so as not use "submit"', E_USER_ERROR);
-	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="submit" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
@@ -71,7 +71,7 @@ function reset_button($name, $value, $on_click='', $extras='')
 	// Make sure that they don't use 'reset' as the form field, because it clashes
 	// with the reset() fn that the form has
 	if ($name == 'reset') trigger_error('Rename your Reset button, so as not use "reset"', E_USER_ERROR);
-	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="reset" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
@@ -91,7 +91,7 @@ function reset_button($name, $value, $on_click='', $extras='')
 */
 function normal_button($name, $value, $on_click='', $extras='')
 {
-	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="button" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
@@ -197,7 +197,7 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 	echo	'<textarea name="', htmlspecialchars($name), '" ',
 			(($cols)  ? 'cols="'.$cols.'" ' : ''),
 			(($rows)  ? 'rows="'.$rows.'" ' : ''),
-			(($max)   ? 'onKeyPress="if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(\'This field can contain no more than '.$max.' characters.\'); this.focus()}" ' : ''),
+			(($max)   ? 'onkeypress="if (this.value.length > '.$max.') { this.value = this.value.substr(0,'.$max.'); alert(\'This field can contain no more than '.$max.' characters.\'); this.focus()}" ' : ''),
 			$extras,
 			'>',
 			htmlspecialchars($contents),
@@ -220,7 +220,7 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 */
 function radio_button($name, $value='1', $checked=false, $on_click='', $extras='')
 {
-	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="radio" ',
 			'name="', htmlspecialchars($name), '" ',
@@ -246,7 +246,7 @@ function radio_button($name, $value='1', $checked=false, $on_click='', $extras='
 */
 function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 {
-	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
+	if ($on_click) $extras .= ' onclick="javascript: '.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="checkbox" ',
 			'name="', htmlspecialchars($name), '" ',
@@ -349,7 +349,7 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 
 	if ($show_text_box) {
 		$extras  = ' id="colour_box_'.$name.'" style="font-family: courier;"'
-				 . ' onChange="javascript: this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');"';
+				 . ' onchange="javascript: this.value = check_colour(this.value, '.(($allow_blanks) ? 'true' : 'false').');"';
 
 		if ($show_current_colour) $extras .= ' show_colour_change(\''.addslashes($name).'\');';
 		text_box($name, $default, 7, 6, false, $extras);
@@ -363,7 +363,7 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 
 	if ($show_change_colour) {
 		?>
-		<img id="colour_change_<?php echo $name; ?>" name="colour_change_<?php echo $name; ?>" src="<?php echo sq_web_path('lib'); ?>/web/images/cross.gif" width="15" height="15" border="0" align="bottom">
+		<img id="colour_change_<?php echo $name; ?>" name="colour_change_<?php echo $name; ?>" src="<?php echo sq_web_path('lib'); ?>/web/images/cross.gif" width="15" height="15" border="0" align="bottom" />
 		<?php
 	}
 
@@ -392,7 +392,7 @@ function date_box($name, $default_timestamp=null, $show_time=true, $extras='')
 	$end_year   = max($default['year'], $start_year) + 10;
 
 
-	$extras .= ' onChange="javascript: check_date(\''.$name.'\', '.(($show_time) ? 'true':'false').');"';
+	$extras .= ' onchange="javascript: check_date(\''.$name.'\', '.(($show_time) ? 'true':'false').');"';
 	hidden_field($name, $default_timestamp);
 
 	$days = array();
@@ -450,7 +450,7 @@ function time_box($hours_name, $hours, $mins_name, $mins, $extras='')
 function file_upload($name, $extras='')
 {
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
-	echo '<input type="file" name="', $name, '" ', $extras, '>';
+	echo '<input type="file" name="', $name, '" ', $extras, ' />';
 
 }//end file_upload()
 
@@ -460,9 +460,7 @@ function file_upload($name, $extras='')
 *
 * @param string	$name		the form name from the file upload box
 *
-* @return FALSE on error, blank array on no file upload and the $_FILES[$name] if a file was uploaded successfully
-*
-* @return void
+* @return mixed (bool|array) FALSE on error, blank array on no file upload and the $_FILES[$name] if a file was uploaded successfully
 * @access public
 */
 function get_file_upload_info($name)
@@ -515,9 +513,7 @@ function get_file_upload_info($name)
 *								if false must NOT be in $extensions
 * @param Array	$extensions		if not empty, the only extensions that are not allowed to be uploaded
 *
-* @return FALSE on error, blank string on no file upload and the filename (basename) if a file was uploaded
-*
-* @return void
+* @return mixed (bool|string) FALSE on error, blank string on no file upload and the filename (basename) if a file was uploaded
 * @access public
 */
 function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restrict_exts=true, $extensions=Array())
@@ -683,7 +679,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 		</script>
 	<?php
 
-	text_box($safe_name.'_label', $label, 30, 0, false, 'class="sq-form-asset-finder" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
+	text_box($safe_name.'_label', $label, 30, 0, false, 'class="sq-form-asset-finder" onfocus="javascript: this.tmp = this.value;" onblur="javascript: this.value = this.tmp;"');
 	normal_button($safe_name.'_change_btn', 'Change', $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
 	
 	if (in_array('clear', $buttons)) {
@@ -748,15 +744,15 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='F
 	<?php
 	}// end if
 	?>
-			<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" border="0"></td>
+			<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" border="0" /></td>
 		</tr>
 		<tr>
-			<td class="sq-backend-data" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i>Can't read the security key? <a href="#" onClick="Javascript: var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;">Click here to get a new key</a>.</i></td>
+			<td class="sq-backend-data" colspan="<?php echo (($img_on_newline) ? '1' : '2'); ?>"><i>Can't read the security key? <a href="#" onclick="Javascript: var img = document.getElementById('sq_security_key'); img.src = '<?php echo $img_url; ?>&regen_key=1'; return false;">Click here to get a new key</a>.</i></td>
 		</tr>
 	</table>
 	<?php
 
-}//end security_key
+}//end security_key()
 
 
 /**
