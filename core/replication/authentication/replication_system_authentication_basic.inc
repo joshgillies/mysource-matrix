@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication_basic.inc,v 1.1.2.8 2004/02/14 21:11:56 brobertson Exp $
+* $Id: replication_system_authentication_basic.inc,v 1.1.2.9 2004/02/14 21:40:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -126,7 +126,18 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 		if ($initiator) {
 			if (!$this->_sendPhrase($transport)) return false;
 			if (!$this->_requestPhrase($transport)) return false;
+
 		} else {
+			// only need to check the ip on the side that didn't initiate because the side that initated
+			// know's where it initiated the connection to :)
+			if ($this->ip_address != '') {
+				if ($this->ip_address != $transport->getPeerInfo(true)) {
+					trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : IP Address Incorrect', E_USER_WARNING);
+					// just being polite really, but we don't really care if it doesn't get there, we quitting anyway..
+					$transport->writeVar('Authentication Failed');
+					return false;
+				}
+			}
 			if (!$this->_requestPhrase($transport)) return false;
 			if (!$this->_sendPhrase($transport)) return false;
 		}// end if
@@ -161,7 +172,7 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 		if ($data != $their_phrase) {
 			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Supplied Phrase was incorrect', E_USER_WARNING);
 			// just being polite really, but we don't really care if it doesn't get there, we quitting anyway..
-			$transport->writeVar('Phrase Incorrect');
+			$transport->writeVar('Authentication Failed');
 			return false;
 		}
 		if (!$transport->writeVar('Authenticated')) {
