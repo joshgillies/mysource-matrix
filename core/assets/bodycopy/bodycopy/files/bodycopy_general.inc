@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: bodycopy_general.inc,v 1.1 2004/07/19 00:59:18 mnyeholt Exp $
+* $Id: bodycopy_general.inc,v 1.2 2004/07/19 01:16:47 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,7 @@
 *
 * Contains a library of functions used by bodycopy assets
 *
-* @author mnyehor
+* @author mnyeholt
 * @version $version$ - 1.0
 * @package MySource_Matrix
 * @subpackage Core
