@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: assetManager.as,v 1.19 2003/09/26 05:26:32 brobertson Exp $
+* $Id: assetManager.as,v 1.20 2003/10/27 05:27:24 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -321,6 +321,7 @@ AssetManager.prototype._createAssetsFromXML = function(assets_node)
 			var assetid = asset_node.attributes.assetid;
 
 			var links = new Array();
+			var paths = new Array();
 
 			for (var j = 0; j < asset_node.childNodes.length; j++) {
 				var linkid = asset_node.childNodes[j].attributes.linkid;
@@ -330,6 +331,10 @@ AssetManager.prototype._createAssetsFromXML = function(assets_node)
 														 asset_node.childNodes[j].attributes.link_type);
 				links.push(linkid);
 			}
+			if (asset_node.attributes.web_paths != '')
+				paths = asset_node.attributes.web_paths.split(";");
+			else
+				paths = Array();
 
 			// only create if it doesn't already exist
 			if (this.assets[assetid] == undefined) {
@@ -340,12 +345,16 @@ AssetManager.prototype._createAssetsFromXML = function(assets_node)
 				changes.old_assets[assetid] = this.assets[assetid].clone();
 			}
 
-			this.assets[assetid].setInfo(	assetid, 
-											asset_node.attributes.type_code, 
-											asset_node.attributes.name, 
-											asset_node.attributes.accessible, 
-											asset_node.attributes.status,
-											links);
+			this.assets[assetid].setInfo(
+				assetid, 
+				asset_node.attributes.type_code, 
+				asset_node.attributes.name, 
+				asset_node.attributes.accessible, 
+				asset_node.attributes.status,
+				asset_node.attributes.url,
+				paths,
+				links
+			);
 
 			changes.new_assets[assetid] = this.assets[assetid];
 

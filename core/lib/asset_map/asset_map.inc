@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.91 2003/10/16 03:13:46 brobertson Exp $
+* $Id: asset_map.inc,v 1.92 2003/10/27 05:27:24 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -458,12 +458,17 @@ class Asset_Map
 			$this->_error('Asset #'.$assetid.' not found');
 			return false;
 		}
-		$attrs = Array('assetid' => $asset->id,
-						'name'   => $asset->short_name,
-						'type_code'  => $asset->type(),
-						'accessible' => $asset->readAccess(),
-						'status' => $asset->status
-						);
+
+		$attrs = Array(
+			'assetid'		=> $asset->id,
+			'name'			=> $asset->short_name,
+			'type_code'		=> $asset->type(),
+			'accessible'	=> $asset->readAccess(),
+			'status'		=> $asset->status,
+			'url'			=> $asset->getURL(),
+			'web_paths'		=> implode(";", $asset->getWebPaths()),
+		);
+		bom($attrs);
 		$asset_node = &$root->addChild('asset', '', $attrs);
 
 		if ($asset->readAccess()) {

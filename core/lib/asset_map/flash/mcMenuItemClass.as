@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcMenuItemClass.as,v 1.16 2003/10/16 01:20:49 dwong Exp $
+* $Id: mcMenuItemClass.as,v 1.17 2003/10/27 05:27:25 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,7 +40,7 @@ mcMenuItemClass.prototype.onPress = function() {
 }
 
 mcMenuItemClass.prototype.onRelease = function() {
-	trace (this + "::mcMenuitemClass.onRelease()");
+//	trace (this + "::mcMenuitemClass.onRelease()");
 
 // check if something else is modal
 	if (_root.system_events.inModal(this)) return true;

@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListContainerClass.as,v 1.37 2003/10/13 01:37:37 dwong Exp $
+* $Id: mcListContainerClass.as,v 1.38 2003/10/27 05:27:25 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,6 +116,12 @@ mcListContainerClass.prototype.showActionsBar = function()
 		var actions = new Array();
 		var labels  = new Array();
 
+		// add preview option
+		if (this.list.selected_item.preview_url != undefined) {
+			actions.push('preview');
+			labels.push('Preview');
+		}
+
 		for(var i = 0; i < asset_type.edit_screens.length; i++) {
 			actions.push(asset_type.edit_screens[i].code_name);
 			labels.push(asset_type.edit_screens[i].name);
@@ -146,10 +152,15 @@ mcListContainerClass.prototype.actionsBarPressed = function(action)
 			this._parent.finishAssetFinder(this.list.selected_item.assetid);
 		}
 	} else {
-		var link = new String(_root.action_bar_path);
-		link = link.replace("%assetid%", escape(this.list.selected_item.assetid))
-		link = link.replace("%action%", escape(action));
-		getURL(link, _root.url_frame);
+		if (action == 'preview') {
+			// preview this asset according to this tree
+			getURL(this.list.selected_item.preview_url, "_blank");
+		} else {
+			var link = new String(_root.action_bar_path);
+			link = link.replace("%assetid%", escape(this.list.selected_item.assetid))
+			link = link.replace("%action%", escape(action));
+			getURL(link, _root.url_frame);
+		}
 	}// end if
 }// end actionsBarPressed()
 

@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.as,v 1.14 2003/09/26 05:26:32 brobertson Exp $
+* $Id: asset.as,v 1.15 2003/10/27 05:27:24 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,19 +54,23 @@ Asset.prototype.toString = function()
 	return  "AssetId: " + this.assetid + 
 			", Type Code: " + this.type_code + 
 			", Name: " + this.name + 
-			", Accessible : " + this.accessible + 
-			", Status : " + this.status + 
-			", Links: " + this.links;
+			", Accessible: " + this.accessible + 
+			", Status: " + this.status + 
+			", URL: " + this.url + 
+			", Paths: [" + this.paths + "]" +
+			", Links: [" + this.links + "]";
 }
 
-Asset.prototype.setInfo = function(assetid, type_code, name, accessible, status, links)
+Asset.prototype.setInfo = function(assetid, type_code, name, accessible, status, url, paths, links)
 {
-	if (assetid    != undefined && assetid    != null) this.assetid    = assetid;
-	if (type_code  != undefined && type_code  != null) this.type_code  = type_code;
-	if (name       != undefined && name       != null) this.name       = name;
-	if (accessible != undefined && accessible != null) this.accessible = (accessible == "1") ? true : false;
-	if (status     != undefined && status     != null) this.status     = status;
-	if (links      != undefined && links      != null) this.links      = links;
+	if (assetid    != undefined && assetid    != null) this.assetid		= assetid;
+	if (type_code  != undefined && type_code  != null) this.type_code	= type_code;
+	if (name       != undefined && name       != null) this.name		= name;
+	if (accessible != undefined && accessible != null) this.accessible	= (accessible == "1") ? true : false;
+	if (status     != undefined && status     != null) this.status		= status;
+	if (url        != undefined && url        != null) this.url			= url;
+	if (paths      != undefined && paths      != null) this.paths		= paths;
+	if (links      != undefined && links      != null) this.links		= links;
 	this.broadcastMessage("onAssetChange", this);
 }
 
@@ -78,6 +82,7 @@ Asset.prototype.clone = function()
 	copy.type_code  = this.type_code;
 	copy.name       = this.name;
 	copy.accessible = this.accessible;
+	copy.paths		= this.paths.clone();
 	copy.links      = this.links.clone();
 
 	return copy;

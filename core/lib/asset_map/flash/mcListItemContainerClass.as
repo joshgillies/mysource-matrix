@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemContainerClass.as,v 1.22 2003/10/26 23:11:26 dwong Exp $
+* $Id: mcListItemContainerClass.as,v 1.23 2003/10/27 05:27:25 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -346,7 +346,6 @@ mcListItemContainerClass.prototype.onAssetsReload = function(assetids, new_asset
 	var linkids = Array();
 	for (linkid in _root.asset_manager.asset_links) {
 		if (parseInt(linkid)  > 0) {
-			trace(_root.asset_manager.asset_links[linkid]);
 			linkids.push(linkid);
 		}
 	}
@@ -414,7 +413,6 @@ mcListItemContainerClass.prototype.onAssetsReload = function(assetids, new_asset
 */
 mcListItemContainerClass.prototype._reloadAssetListItem = function(assetid, item_name, pos, expanded, deletes, inserts, all_kids)
 {
-	trace("_reloadAssetListItem (" + assetid + ", " + item_name + ", " + pos + ", " + expanded + ", " + deletes + ", " + inserts + ", " + all_kids + ")");
 
 	// delete any child items that aren't needed any more
 	for(var j = 0; j < deletes.length; j++) {
