@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.2 2004/07/28 23:30:09 tbarrett Exp $
+* $Id: calendar_event_modification.inc,v 1.3 2004/07/28 23:31:35 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -92,22 +92,6 @@ class Calendar_Event_Modification extends Calendar_Event
 		return parent::create($link);
 	}
 
-	
-	/**
-	* Returns an array of all the permitted link types, the type asset and the cardinality
-	*
-	* @return Array()
-	* @access private
-	* @see Asset::_getAllowedLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_NOTICE]['calendar_event_recurring'] = Array('card' => 1, 'exclusive' => false);
-		return $page_links;
-
-	}//end _getAllowedLinks()
-
 
 	/**
 	* Save attributes set with setAttrValue to the database
@@ -126,7 +110,6 @@ class Calendar_Event_Modification extends Calendar_Event
 	
 			// check that the date given matches the date of an instance of the modified event
 			$recurring_event_ids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false);
-			bam($recurring_event_ids);
 			if (empty($recurring_event_ids)) {
 				trigger_error('Recurring Event Modifications can only be created underneath recurring events', E_USER_ERROR);
 				return false;
