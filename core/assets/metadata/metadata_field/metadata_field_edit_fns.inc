@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.19 2004/02/24 22:37:23 gsherwood Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.20 2004/02/25 00:57:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -530,7 +530,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if (isset($values['value'])) $default = $values['value'];
 		else $default = $field->attr('default');
 
-		$used_keywords = retrieve_keywords_replacements($defaultm, '.');
+		$used_keywords = retrieve_keywords_replacements($default, '.');
 
 		$value_string = '';
 		$current_vc = $field->attr('value_components');
