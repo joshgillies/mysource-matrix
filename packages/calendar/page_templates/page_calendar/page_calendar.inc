@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.132 2004/12/16 01:39:45 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.133 2004/12/16 02:55:29 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.132 $
+* @version $Revision: 1.133 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -901,7 +901,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$mouseup_code = $dragging_enabled ? 'onmouseup="if (stopDragging()!=\'no_move\') { formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)}"' : '';
 		?>
 		<style>
-			table#day tr td.sq-time-cell {
+			table#day tr td.sq-time-cell, table#week tr td.sq-time-cell {
 				width: <?php echo $width; ?>px; 
 				height: <?php echo $partition_height; ?>px; 
 				padding: 0px 1px; 
@@ -918,7 +918,7 @@ class Page_Calendar extends Page_Asset_Listing
 			/* CSS Hack to cope with the unusual situation of strict-mode IE being better
 			   than strict-mode Firefox.  The following rule will be picked up only by firefox
 			   and compensates for its td-height bug. */
-			html>body table#day tr td.sq-time-cell {
+			html>body table#day tr td.sq-time-cell, html>body table#week tr td.sq-time-cell {
 				height: <?php echo $partition_height+1; ?>px;
 			}
 			td.sq-allday-cell {
