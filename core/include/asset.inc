@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.315 2004/08/19 00:20:23 gsherwood Exp $
+* $Id: asset.inc,v 1.316 2004/08/19 05:44:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -119,6 +119,12 @@ class Asset extends MySource_Object
 	* @var int
 	*/
 	var $published_userid;
+	
+	/**
+	* Is this asset type able to be cached automatically by the system?
+	* @var boolean
+	*/
+	var $_is_cacheable = false;
 
 	/**
 	* The Vars that belong to this asset

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.12 2004/08/11 23:15:48 lwright Exp $
+* $Id: design_area_body.inc,v 1.13 2004/08/19 05:44:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 class Design_Area_Body extends Design_Area
 {
 
+
 	/*
 	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
 	*
@@ -50,28 +51,41 @@ class Design_Area_Body extends Design_Area
 	function printArea(&$design)
 	{
 		$format = $this->attr('format');
-		echo '<','?php if (SQ_IN_LIMBO) {$ASSET->printLimbo();} else {';
+
+		echo '
+		<','?php
+		if (SQ_IN_LIMBO) {
+			$ASSET->printLimbo();
+		} else {
+			$body = \'\';
+			if ($ASSET->_is_cacheable) {
+				$cm = &$GLOBALS[\'SQ_SYSTEM\']->am->getSystemAsset(\'cache_manager\');
+				$body = $cm->loadFromCache($ASSET);
+			}
+			if (empty($body)) {
+				ob_start();
+					$ASSET->printBody();
+					$body = ob_get_contents();
+				ob_end_clean();
+			}
+		';
+
 		switch($format) {
 			case 'text':
 				// text - text only design - strip images, embeds and objects
-				echo 'ob_start();',
-					 '$ASSET->printBody();',
-				     '$body = ob_get_contents();',
-					 'ob_end_clean();',
-					 '$body = preg_replace(\'|\<img([^\>]*)\>|U\',\'\',$body);',
-					 '$body = preg_replace(\'|\\<embed(.*)\>(.*)</embed>|\',\'\',$body);',
-					 '$body = preg_replace(\'|\\<object(.*)\>(.*)</object>|\',\'\',$body);',
-				     'echo $body;';
+				echo '
+					$body = preg_replace(\'|\<img([^\>]*)\>|U\',\'\',$body);
+					$body = preg_replace(\'|\\<embed(.*)\>(.*)</embed>|\',\'\',$body);
+					$body = preg_replace(\'|\\<object(.*)\>(.*)</object>|\',\'\',$body);
+					';
 			break;
-
-			case 'html':
-			default:
-				// default = html - just print the body as usual
-				echo '$ASSET->printBody();';
-				break;
-
 		}
-		echo '} ?','>';
+
+		echo '
+			echo $body;
+		}';
+		echo '
+		?','>';
 		return true;
 
 	}//end printArea()
