@@ -251,8 +251,12 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		}// end if
 
-		$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').
-						' - '.$owner->name.' (version '.$owner->version.')';
+		if (!$creating) {
+			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').
+							' - '.$owner->name.' (version '.$owner->version.')';
+		} else {
+			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
+		}
 
 		// check the active screen for special system defined static screens
 		$file = null;
