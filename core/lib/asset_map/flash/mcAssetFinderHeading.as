@@ -4,8 +4,6 @@
 function mcAssetFinderHeadingClass()
 {
 
-	trace("CREATE ASSET FINDER");
-
 	// create the text field
 	this.createTextField("label_text", 1, 0, 0, 0, 0);
 	this.label_text.multiline  = false;	// }

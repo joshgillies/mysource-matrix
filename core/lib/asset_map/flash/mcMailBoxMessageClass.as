@@ -114,7 +114,13 @@ mcMailBoxMessageClass.prototype.setWidth = function(w, subject_pos, from_pos, co
 */
 mcMailBoxMessageClass.prototype.onRelease = function()
 {
-	trace("MAIL PRESSED");
+	trace("MAIL Message Released : " + this.subject);
+
+	var str = "From : " + this.from + "\n"
+			+ "Date : " + this.sent + "\n"
+			+ this.body;
+	_root.dialog_box.show(this.subject, str);
+
 	return true;
 }// end onRelease()
 

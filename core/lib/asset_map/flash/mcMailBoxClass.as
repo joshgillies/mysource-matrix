@@ -139,16 +139,6 @@ mcMailBoxClass.prototype.loadMailFromXML = function(xml, exec_indentifier)
 }// end loadMailFromXML()
 
 /**
-* Called when this item has been pressed and then released
-*/
-mcMailBoxMessageClass.prototype.onRelease = function()
-{
-	trace("MAIL BOX PRESSED");
-	return true;
-}// end onRelease()
-
-
-/**
 * Event fired whenever a command is made from outside the flash movie
 *
 * @param string	cmd		the command to perform

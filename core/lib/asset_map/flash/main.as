@@ -43,7 +43,7 @@ XML.prototype.ignoreWhite = true;
 #include "assetManager.as"
 #include "mcTabsClass.as"
 #include "mcTabContentAreaTreeClass.as"
-#include "mcTabContentAreaMailMsgsClass.as"
+#include "mcTabContentAreaMailBoxClass.as"
 #include "mcTabContentAreaLogMsgsClass.as"
 #include "mcOptionsBoxClass.as"
 #include "mcDialogBoxClass.as"
@@ -67,6 +67,11 @@ _root.LIST_ITEM_BG_COLOURS = {
 							normal:   {colour: 0xFFFFFF, alpha: 0},   // alpha = 0 -> transparent
 							selected: {colour: 0xc0c0c0, alpha: 100}
 							};  
+// the colours for the background of a mail box message
+_root.MAIL_MSG_BG_COLOURS = {
+							normal:   {colour: 0xFFFFFF, alpha: 0},   // alpha = 0 -> transparent
+							selected: {colour: 0xc0c0c0, alpha: 100}
+							};  
 
   ///////////////////////////////////////////////////
  // ALL INITIALISATION STUFF                      //
@@ -84,6 +89,9 @@ if (_root.action_bar_path == undefined) {
 }
 if (_root.duplicate_path == undefined) {
 	_root.duplicate_path = "http://beta.squiz.net/blair/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=duplicate&assetid=%assetid%&to_parent_assetid=%to_parent_assetid%&to_parent_pos=%to_parent_pos%";
+}
+if (_root.inbox_path == undefined) {
+	_root.inbox_path = "http://beta.squiz.net/blair/_edit/?SQ_BACKEND_PAGE=main&backend_section=am";
 }
 
 
@@ -108,7 +116,7 @@ _root.asset_manager = new AssetManager();
 // Now attach the Tabs
 _root.attachMovie("mcTabsID", "tabs", 1);
 _root.tabs.addTab("mcTabContentAreaTreeID", "tree",  "Tree");
-_root.tabs.addTab("mcTabContentAreaMailMsgsID", "mail",  "Mail Messages");
+_root.tabs.addTab("mcTabContentAreaMailBoxID", "mail",  "Mail Messages");
 _root.tabs.addTab("mcTabContentAreaLogMsgsID", "log",  "Log Messages");
 
 // Initialise stage resize listener

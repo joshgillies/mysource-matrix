@@ -1,3 +1,4 @@
+#include "mcMailBoxHeadingClass.as"
 #include "mcMailBoxClass.as"
 
 
@@ -13,14 +14,18 @@ function mcTabContentAreaMailBoxClass()
 {
 	super();
 
-	this.attachMovie("FScrollPaneSymbol", "scroll_pane", 1);
+	this.attachMovie("mcMailBoxHeadingID", "heading", 1);
+	this.heading._x = 0;
+	this.heading._y = 0;
+
+	this.attachMovie("FScrollPaneSymbol", "scroll_pane", 2);
 	this.scroll_pane.setHScroll(false);
 	this.scroll_pane.setVScroll(true);
 	this.scroll_pane._x = 0;
-	this.scroll_pane._y = 0;
+	this.scroll_pane._y = this.heading._height;
 
 	// Now the msgs container
-	this.attachMovie("mcMailBoxID", "msgs_container", 2);
+	this.attachMovie("mcMailBoxID", "msgs_container", 3);
 
 	// Attach the container on to the scroll pane
 	this.scroll_pane.setScrollContent(this.msgs_container);
@@ -48,6 +53,7 @@ mcTabContentAreaMailBoxClass.prototype = new mcTabContentAreaClass();
 mcTabContentAreaMailBoxClass.prototype.setSize = function(w, h)
 {
 	super.setSize(w, h);
+	this.heading.setWidth(w);
 	this.scroll_pane.setSize(w, h);
 	this.msgs_container.refresh();
 
@@ -60,7 +66,6 @@ mcTabContentAreaMailBoxClass.prototype.setSize = function(w, h)
 */
 mcTabContentAreaMailBoxClass.prototype.onRelease = function() 
 {
-	trace('Mail Tab Released');
 	return super.onRelease(); // Fucking flash see SUPER_METHOD_EG.as
 }// end
 
