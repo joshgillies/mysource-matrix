@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemClass.as,v 1.25 2003/10/08 02:24:02 dwong Exp $
+* $Id: mcListItemClass.as,v 1.26 2003/10/17 06:32:55 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,6 +54,11 @@ function mcListItemClass()
 	// background alpha
 	this.bg_alpha = 0;
 
+	// link type alpha 
+	this.link_type_alpha = Array();
+	this.link_type_alpha[1] = 100;
+	this.link_type_alpha[2] = 40;
+	this.link_type_alpha[3] = 0;
 }
 
 // Make it inherit from Nested Mouse Movements MovieClip, nested mc's NEVER OVERLAP
@@ -70,9 +75,13 @@ mcListItemClass.prototype.getParentAssetid = function()
 }
 
 
-mcListItemClass.prototype.setLinkId = function(linkid) 
+mcListItemClass.prototype.setLink = function(link) 
 {
-	this.linkid = linkid;
+//	trace (this + "::mcListItemClass.setLink(" + link.linkid + " type=" + link.link_type + ")");
+//	trace("asset id: " + this.assetid);
+	this.linkid = link.linkid;
+	this.link_type = link.link_type;
+	this.text_field.text = this.getText();
 }
 
 mcListItemClass.prototype.setAsset = function(asset) 
@@ -81,14 +90,25 @@ mcListItemClass.prototype.setAsset = function(asset)
 	asset.addListener(this);
 }
 
+mcListItemClass.prototype.getText = function()
+{
+	var text = this.asset.name;
+	if (this.link_type == 2)
+		text += "*";
+	text += " [" + this.assetid + "]";
+
+	return text;
+}
+
 mcListItemClass.prototype.setInfo = function(asset) 
 {
 //	trace (this + "::mcListItemClass.setInfo (" + asset + " )");
-
+	this.asset				= asset;
 	this.assetid			= asset.assetid;
 	this.type_code			= asset.type_code;
 	this._accessible		= asset.accessible;
-	this.text_field.text	= asset.name + " [" + asset.assetid + "]";
+	this.text_field.text	= this.getText();
+
 	this.asset_status		= asset.status;
 
 	this.move_button.setIcon("mc_asset_type_" + asset.type_code + "_icon");
@@ -216,6 +236,14 @@ mcListItemClass.prototype.getMouseButton = function()
 mcListItemClass.prototype.onAssetChange = function(asset) 
 {
 	this.setInfo(asset);
+
+	for (var i = 0; i < asset.links.length; i++) {
+		var linkid = asset.links[i];
+		if (linkid == this.linkid) {
+			var link = _root.asset_manager.asset_links[linkid];
+			this.setLink(link);
+		}
+	}
 }
 
 

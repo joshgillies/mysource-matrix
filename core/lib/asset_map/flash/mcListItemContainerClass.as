@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemContainerClass.as,v 1.19 2003/10/13 01:37:37 dwong Exp $
+* $Id: mcListItemContainerClass.as,v 1.20 2003/10/17 06:32:56 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -118,9 +118,10 @@ mcListItemContainerClass.prototype.showKidsLoaded = function(params)
 
 	// Now create the kids list items, if they don't already exist
 	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].links.length; j++) {
-		var linkid    = _root.asset_manager.assets[parent_assetid].links[j];
+		var linkid = _root.asset_manager.assets[parent_assetid].links[j];
+		var link = _root.asset_manager.asset_links[linkid];
 		var item_name = parent_name + "_" + linkid;
-		this._createItem(parent_name, item_name, linkid);
+		this._createItem(parent_name, item_name, link);
 
 	}// end for
 
@@ -190,14 +191,15 @@ mcListItemContainerClass.prototype._recurseDisplayKids = function(parent_assetid
 *
 * @param string		parent_name		The parent list item name
 * @param string		item_name		The item name for the new item
-* @param int		linkid			The linkid for which this item is the minor party
+* @param int		link			The link for which this item is the minor party
 *
 */
-mcListItemContainerClass.prototype._createItem = function(parent_name, item_name, linkid)
+mcListItemContainerClass.prototype._createItem = function(parent_name, item_name, link)
 {
 	if (this[item_name] == undefined) {
 
 		this.num_items++;
+		var linkid = link.linkid;
 		var indent = (_root.asset_manager.asset_links[linkid].majorid > 1) ? this[parent_name].indent + 1 : 0;
 		var assetid = _root.asset_manager.asset_links[linkid].minorid;
 
@@ -205,8 +207,8 @@ mcListItemContainerClass.prototype._createItem = function(parent_name, item_name
 		this[item_name]._visible = false;
 
 		this[item_name].setParent(parent_name);
-		this[item_name].setLinkId(linkid);
 		this[item_name].setAsset(_root.asset_manager.assets[assetid]);
+		this[item_name].setLink(link);
 		this[item_name].setIndent(indent);
 		var active = (this._active_type_codes.length == 0 || this._active_type_codes.search(this[item_name].type_code) !== null);
 		this[item_name].setActive(active);
@@ -340,7 +342,15 @@ mcListItemContainerClass.prototype._recurseHideKids = function(parent_assetid, p
 */
 mcListItemContainerClass.prototype.onAssetsReload = function(assetids, new_assets, old_assets)
 {
-
+	trace ("onAssetReload");
+	var linkids = Array();
+	for (linkid in _root.asset_manager.asset_links) {
+		if (parseInt(linkid)  > 0) {
+			trace(_root.asset_manager.asset_links[linkid]);
+			linkids.push(linkid);
+		}
+	}
+	trace ("linkids: " + linkids);
 	for(var j = 0; j < assetids.length; j++) {
 
 		var assetid = assetids[j];
@@ -404,6 +414,7 @@ mcListItemContainerClass.prototype.onAssetsReload = function(assetids, new_asset
 */
 mcListItemContainerClass.prototype._reloadAssetListItem = function(assetid, item_name, pos, expanded, deletes, inserts, all_kids)
 {
+	trace("_reloadAssetListItem (" + assetid + ", " + item_name + ", " + pos + ", " + expanded + ", " + deletes + ", " + inserts + ", " + all_kids + ")");
 
 	// delete any child items that aren't needed any more
 	for(var j = 0; j < deletes.length; j++) {
