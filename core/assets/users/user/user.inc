@@ -210,7 +210,7 @@ class User extends Asset
 				  AND at.name         = '.$db->quote('username').'
 				  AND at.attributeid  = av.attributeid
 				  AND av.assetid      = a.assetid
-				  and av.custom_value = '.$db->quote($username);
+				  AND av.custom_value = '.$db->quote($username);
 
 		$subs = Array( 'SELECT type_code 
 						FROM sq_asset_type_inherited 
