@@ -2001,10 +2001,14 @@ class Asset extends Resolve_Object
 			// getting all permissions taking note of revoked permissions
 			// anywhere up the trees this asset is in
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
-			$concat_userid = ($db->phptype == 'mysql') ? 'CONCAT(p.userid, '.$db->quote('~').', t.treeid)' : 'p.userid || '.$db->quote('~').' || t.treeid';
-			$concat_userid_sub = ($db->phptype == 'mysql') ? 'CONCAT(pp.userid, '.$db->quote('~').', MAX(pt.treeid))' : 'pp.userid || '.$db->quote('~').' || MAX(pt.treeid)';
+			$concat_userid = ($db->phptype == 'mysql') 
+					? 'CONCAT(p.userid, '.$db->quote('~').', p.permission, '.$db->quote('~').', t.treeid)' 
+					: 'p.userid || '.$db->quote('~').' || p.permission || '.$db->quote('~').' || t.treeid';
+			$concat_userid_sub = ($db->phptype == 'mysql') 
+					? 'CONCAT(pp.userid, '.$db->quote('~').', pp.permission, '.$db->quote('~').', MAX(pt.treeid))' 
+					: 'pp.userid || '.$db->quote('~').' || pp.permission || '.$db->quote('~').' || MAX(pt.treeid)';
 
-			$sql = 'SELECT p.userid, p.assetid
+			$sql = 'SELECT DISTINCT p.userid, p.assetid
 					FROM sq_asset_link l
 					  INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid 
 					  INNER JOIN sq_asset_permission p ON l.minorid = p.assetid
@@ -2013,7 +2017,7 @@ class Asset extends Resolve_Object
 					GROUP BY p.userid
 					HAVING MIN(p.revoked) = 0';
 
-			$subs = Array('	SELECT '.$concat_userid_sub.'
+			$subs = Array( 'SELECT DISTINCT '.$concat_userid_sub.'
 							FROM sq_asset_link cl
 							  INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
 							  sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid 
@@ -2022,7 +2026,7 @@ class Asset extends Resolve_Object
 							  AND ct.treeid LIKE '.$concat.'
 							  AND pt.treeid <= ct.treeid
 							  AND pp.permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).'
-							GROUP BY ct.treeid, pp.userid');
+							GROUP BY ct.treeid, pp.userid, pp.permission');
 
 			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 			$sql = db_extras_subquery($db, $sql, $subs);
@@ -2227,7 +2231,6 @@ class Asset extends Resolve_Object
 			$assetids = $GLOBALS['SQ_SYSTEM']->user->getParents(Array('user', 'user_group'));
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 		}
-		
 		$perms = array_keys($this->getPermission($perm));
 		if (in_array('0', $perms)) return true;
 		$common = array_intersect($assetids, $perms);
