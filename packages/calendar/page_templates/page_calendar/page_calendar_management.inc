@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.34 2004/12/03 05:34:46 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.35 2004/12/05 23:46:51 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.34 $ - 1.0
+* @version $Revision: 1.35 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -83,7 +83,7 @@ class Page_Calendar_Management extends Asset_Management
 		// Which of the root nodes should get their own column in day view
 		$this->vars['columnise_day_view_by_root_node'] = Array('added'		 => '0.2',
 															   'type'		 => 'serialise',
-															   'default'	 => Array(),
+															   'default'	 => Array('*'),
 															   'description' => 'list of root nodes which should have their own columns in day view, and * if you want a column for events that don\'t belong in any other column',
 														 );
 		// The name of the 'other' column in day view
