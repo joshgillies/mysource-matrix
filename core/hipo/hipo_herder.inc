@@ -168,7 +168,8 @@ class HIPO_Herder extends Resolve_Object
 		}
 
 		$onload = '';
-		$delay  = '';
+		$delay  = false;
+		$auto_step = false;
 
 
 		// if the source job is null it means that an abort finally finished
@@ -177,19 +178,18 @@ class HIPO_Herder extends Resolve_Object
 			$form_name = 'HIPO_abort';
 			$url = $_POST['aborting_hipo_url'];
 			$onload = 'self.location = "'.$url.'";';
+			$auto_step = true;
 		} else {
 
 			$form_name = 'HIPO_'.$source_job->code_name;
 			$url = $this->getProcessURL($source_job->code_name);
 			$auto_step = $source_job->auto_step();
 
-			if ($auto_step) {
-				if ($source_job->complete()) {
-					$onload = 'self.location = "'.$url.'";';
-				} else {
-					$delay = ($source_job->getRunningMode() == 'server');
-					$onload = 'document.'.$form_name.'.submit();';
-				}
+			if ($source_job->complete()) {
+				$onload = 'self.location = "'.$url.'";';
+			} else {
+				$delay = ($source_job->getRunningMode() == 'server');
+				$onload = 'document.'.$form_name.'.submit();';
 			}
 
 		} // end if
@@ -216,6 +216,7 @@ class HIPO_Herder extends Resolve_Object
 					var ON_LOAD_TIME_OUT = null;
 					function init() {
 				<?php
+				if ($auto_step) {
 					if ($delay)  {
 				?>
 						ON_LOAD_TIME_OUT = setTimeout("next_page();", 2000);
@@ -225,8 +226,9 @@ class HIPO_Herder extends Resolve_Object
 							next_page();
 				<?php
 					}// end if
+				}// end if
 				?>
-					}// end iniut()
+					}// end init()
 
 					function next_page() {
 						//if (confirm('Refresh')) {
@@ -452,9 +454,28 @@ class HIPO_Herder extends Resolve_Object
 			return false;
 		}
 
-		$ret_val = $source_job->process();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$this->_tmp['processing_server'] = true;
+
+		$ret_val = true;
+		while(!$source_job->complete() && $source_job->getRunningMode() == 'server') {
+			if (!$source_job->process()) {
+				$ret_val = false;
+				break;
+			}
+		}// end while
+
 		unset($this->_tmp['prepared_server']);
-		return $ret_val;
+		unset($this->_tmp['processing_server']);
+
+		if ($ret_val) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
 	}//end processServer()
 
@@ -471,6 +492,11 @@ class HIPO_Herder extends Resolve_Object
 			case SIGINT:
 			case SIGTERM:
 				error_log('Aborting Job...');
+				if (!empty($this->_tmp['processing_server'])) {
+					$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db'); // just to make sure
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+				}
 				if (!empty($this->_tmp['prepared_server'])) {
 					$source_job = &$this->getJob($this->_tmp['prepared_server']['source_code_name']);
 					if (!is_null($source_job)) {
