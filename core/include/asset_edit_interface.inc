@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.190 2003/12/02 04:44:30 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.191 2003/12/03 04:54:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -201,7 +201,6 @@ class Asset_Edit_Interface extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>'.$active_screen.'</i> screen of "'.$owner->name.'"');
 			exit();
 		}
-
 
 		// make sure that we have the screen for next time
 		$o->addFormActionGetVar('asset_ei_screen', $active_screen);
@@ -829,16 +828,21 @@ class Asset_Edit_Interface extends MySource_Object
 		$keywords = $layout->getLayoutKeywords();
 
 		// find what screens we need to process
+		if (!isset($keywords['screens'])) $keywords['screens'] = Array();
+		if (!isset($keywords['entire_screens'])) $keywords['entire_screens'] = Array();
 		$screens = array_merge(array_keys($keywords['screens']), array_keys($keywords['entire_screens']));
 		$screens = array_unique($screens);
+
 
 		$this->_tmp['layout_keyword_replacements'] = Array();
 
 		// let the backend outputter know that we want buffering turned off
 		$o->setBuffering(false);
+		
 		// loop over the screens and get the xml file for each screen
 		// generate some keywords for each screen
 		foreach ($screens as $screen) {
+
 			if(!($file = $this->_findFile('screen_'.$screen))) return false;
 			$input = new XML_Tree($file);
 			$root  = &$input->getTreeFromFile();
@@ -849,7 +853,10 @@ class Asset_Edit_Interface extends MySource_Object
 			$entire_screen = false;
 			if (in_array($screen, array_keys($keywords['entire_screens']))) $entire_screen = true;
 			$this->_getLayoutKeywordReplacements($root, $o, $owner, $keywords, $screen, $entire_screen);
+
 		}//end foreach
+		
+
 
 		// if there are some custom keywords, get some replacements from the owner
 		if (isset($keywords['custom']) && !empty($keywords['custom'])) {
@@ -862,8 +869,11 @@ class Asset_Edit_Interface extends MySource_Object
 					$replacements['__custom-'.$keyword] = $replacement;
 				}
 				$this->_tmp['layout_keyword_replacements'] = array_merge($this->_tmp['layout_keyword_replacements'], $replacements);
+
 			}//end if
+
 		}//end if
+
 
 		// turn buffering back on so the output is not malformed
 		$o->setBuffering(true);
@@ -872,7 +882,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// we need to open a raw section so that the form gets printed before the contents of the layout
 		$o->openRaw();
-		$layout->printBody();
+			$layout->printBody();
 		$o->closeRaw();
 
 		return true;
@@ -1087,7 +1097,7 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!count($this->_screens) && empty($this->_edit_fns->static_screens)) return false;
 
 		$current_screen = (empty($_REQUEST['asset_ei_screen'])) ? 'details' : $_REQUEST['asset_ei_screen'];
-		$screens =  Array($current_screen);
+		$screens = Array($current_screen);
 
 		if (!$creating) {
 			$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
@@ -1105,19 +1115,6 @@ class Asset_Edit_Interface extends MySource_Object
 					$owner->processCustomKeywords($keywords['custom']);
 				}
 			}
-		} else {
-			  /////////////////////////////
-			 //  ALLOWED SCREEN ACCESS  //
-			/////////////////////////////
-			if (!$owner->adminAccess('')) {
-				$allowed_screens = $this->getAllowedScreens($owner);
-
-				if (!isset($allowed_screens['0']['0']) && !isset($allowed_screens[$active_screen])) {
-					// this user is not allowed to view the current screen
-					$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>'.$active_screen.'</i> screen of "'.$owner->name.'"');
-					exit();
-				}
-			}
 		}
 
 
@@ -1128,9 +1125,26 @@ class Asset_Edit_Interface extends MySource_Object
 
 			// if we are creating open the create file to see which fields we are supposed to print out
 			if ($creating) {
+
 				list($create_sections, $active_screen) = $this->_getCreateSections(false);
 				if (!count($create_sections)) return false;
-			}
+
+			} else {
+
+				  /////////////////////////////
+				 //  ALLOWED SCREEN ACCESS  //
+				/////////////////////////////
+				if (!$owner->adminAccess('')) {
+					$allowed_screens = $this->getAllowedScreens($owner);
+
+					if (!isset($allowed_screens['0']['0']) && !isset($allowed_screens[$active_screen])) {
+						// this user is not allowed to view the current screen
+						$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>'.$active_screen.'</i> screen of "'.$owner->name.'"');
+						exit();
+					}
+				}
+
+			}//end if
 
 			// check the active screen for special system defined static screens
 			$file = null;
