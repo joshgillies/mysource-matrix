@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.182 2004/03/01 16:55:28 brobertson Exp $
+* $Id: asset_manager.inc,v 1.183 2004/03/01 17:11:02 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2080,16 +2080,13 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($asset);
 			return $children;
 		}
+
+		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by);
 		$this->forgetAsset($asset);
 		unset($asset);
-
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$query = $this->generateGetChildrenQuery($assetid, $type_code, $strict_type_code, $sort_by);
 		if (empty($query)) return Array();
 
-		$result = $db->getAssoc(implode(' ', $query));
+		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			return Array();
@@ -4461,14 +4458,14 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Generate the parts of the query needed to get children of the passwed assetid
+	* Generate the parts of the query needed to get children of the passed asset
 	*
 	* The return value is array consisting of a select statement, a from statement, a where clause
 	* (which may be blank is we are getting children of the root node) and an order by clause
 	* (which may be blank if we are not sorting). The return array is structed so you can implode
 	* it using ' ' as glue to form the full query.
 	*
-	* @param int			$assetid			the id of the asset to get its children for
+	* @param object Asset	&$asset				the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
@@ -4482,12 +4479,12 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	* @see getChildren()
 	*/
-	function generateGetChildrenQuery($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// if we are the root folder then we just need to select from the asset table
-		if ($assetid == 1) {
+		if (get_class($asset) == 'root_folder') {
 			$select = 'SELECT a.assetid, a.type_code';
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a';
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
@@ -4495,7 +4492,7 @@ class Asset_Manager extends MySource_Object
 
 		// OK, normal asset, let's find a reference to them in the tree and go from there
 		} else {
-			$where = 'l.minorid = '.$db->quote($assetid);
+			$where = 'l.minorid = '.$db->quote($asset->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$sql = 'SELECT t.treeid

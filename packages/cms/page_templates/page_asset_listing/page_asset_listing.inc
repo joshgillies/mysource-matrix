@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.13 2004/02/23 05:51:16 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.14 2004/03/01 17:12:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -321,7 +321,7 @@ class Page_Asset_Listing extends Page
 				break;
 
 				case 'letter' :
-					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset->id, array_keys($wanted_types), false, $sort_by);
+					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by);
 					if (empty($query)) return;
 					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 
