@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_edit_fns.inc,v 1.20 2004/12/06 14:38:09 brobertson Exp $
+* $Id: thumbnail_edit_fns.inc,v 1.21 2004/12/23 23:14:08 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -58,7 +58,6 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 			<span style="font-size: 10px;">Image size is restricted to a maximum of <?php echo $asset->max_width.' x '.$asset->max_height?> pixels</span><?php
 		}
 
-		$this->printExistingFileInfo($asset);
 		return true;
 
 	}//end paintFileUpload()
