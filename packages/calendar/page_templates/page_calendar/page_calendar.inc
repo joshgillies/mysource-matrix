@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.66 2004/09/12 23:58:25 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.67 2004/09/13 00:10:59 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.66 $ - 1.0
+* @version $Revision: 1.67 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -2363,7 +2363,6 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($event['stop_date'] < $last_day) {
 				$event_last_day = $event['stop_date'];
 			}
-			//$event_last_day = min($event['stop_date'], $last_day);
 		}
 
 		switch($event['frequency']{0}) {
@@ -2381,6 +2380,12 @@ class Page_Calendar extends Page_Asset_Listing
 
 		}
 
+		// if multiple day event, subtract a further <event length> days so it catches those
+		// events occurring before last recurrence but long enough to extend into this period
+		if (!is_null($event['end_date_ds'])) {
+			$first_occur = increment_iso_by_days($cal_date, -($event['end_date_ds']-$event['start_date_ds']));
+		}
+		
 		$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter($first_occur, $event_start_date, $event['frequency'], $event['period'], $event_last_day);
 		$i = 0;
 
