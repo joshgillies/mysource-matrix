@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_file_versioning.php,v 1.4 2004/11/16 04:41:53 lwright Exp $
+* $Id: upgrade_file_versioning.php,v 1.5 2004/11/16 04:54:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,8 +83,7 @@ foreach(Array('file_versioning_file', 'file_versioning_file_history', 'file_vers
 		print '('.$result->getMessage().")\n";
 	} else {
 		// no error = table already exists!
-		printUpdateStatus('ALREADY EXISTS');
-	
+		printUpdateStatus('--');	
 	}
 	
 }
@@ -95,11 +94,11 @@ printName('Drop repository field');
 $result = $db->query('ALTER TABLE '.SQ_TABLE_PREFIX.'file_versioning_file DROP COLUMN repository');
 	
 if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHFIELD)) {
-	// old table does not exist!!
-	printUpdateStatus('FAIL FIELD DNE');
+	// reports 'field not exist' - fine
+	printUpdateStatus('--');
 } else if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHTABLE)) {
-	// old table does not exist!!
-	printUpdateStatus('FAIL TABLE DNE');
+	// reports 'table not exist' (damn you PostgreSQL...) - fine
+	printUpdateStatus('--');
 } else if (DB::isError($result)) {
 	// miscellaneous error
 	printUpdateStatus('FAIL');
@@ -110,17 +109,17 @@ if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHFIELD)) {
 }
 
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-if (!file_exists(SQ_DATA_PATH.'/data/private/db/sequences.inc')) {
+if (!file_exists(SQ_DATA_PATH.'/private/db/sequences.inc')) {
 	printName('Create sequences cache file');
-	$seq_str = "<?php $sequences = array (
+	$seq_str = '<'.'?php $'."sequences = array (
   0 => 'sequence_asset',
   1 => 'sequence_asset_link',
   2 => 'sequence_asset_attribute',
   3 => 'sequence_asset_url',
   4 => 'sequence_internal_message',
   5 => 'sequence_file_versioning_file',
-); ?>";
-	if (string_to_file(SQ_DATA_PATH.'/data/private/db/sequences.inc')) {
+); ?".'>';
+	if (string_to_file($seq_str, SQ_DATA_PATH.'/private/db/sequences.inc')) {
 		printUpdateStatus('OK');
 	} else {
 		printUpdateStatus('FAIL');
