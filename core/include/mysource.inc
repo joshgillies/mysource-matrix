@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.69 2005/01/26 09:23:18 brobertson Exp $
+* $Id: mysource.inc,v 1.70 2005/02/02 23:54:34 mnyeholt Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.69 $
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 */
 class MySource
@@ -171,8 +171,8 @@ class MySource
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
 
-		// running from the command line ? don't use cookies for session
-		if (!SQ_PHP_CLI) {
+		// running from the command line or installer? don't use cookies for session
+		if (!SQ_PHP_CLI && !$GLOBALS['SQ_INSTALL']) {
 			session_name('SQ_SYSTEM_SESSION');
 			session_save_path(SQ_SYSTEM_ROOT.'/cache');
 
