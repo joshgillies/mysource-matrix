@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.41 2004/02/11 18:47:49 brobertson Exp $
+* $Id: hipo_job.inc,v 1.42 2004/04/28 00:33:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1203,7 +1203,7 @@ class HIPO_Job extends MySource_Object
 	*/
 	function _paintErrorReport()
 	{
-		require SQ_FUDGE_PATH.'/general/datetime.inc';
+		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		?>
 		<div align="center">
 		<table border="0" cellspacing="1" cellpadding="1" bgcolor="#000000" width="95%">
