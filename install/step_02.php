@@ -63,8 +63,6 @@ if (is_null($root_folder)) {
 	if ($system_group->id != 3) {
 		trigger_error('Major Problem: The new System Administrators User Group Asset was not given assetid #3. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
-	$system_group->grantPermission($root_user->id, 'A');
-
 
 	// Create users folder
 	$users_folder = new Folder();
@@ -84,6 +82,8 @@ if (is_null($root_folder)) {
 	if ($root_user->id != 5) {
 		trigger_error('Major Problem: The new Root User Asset was not given assetid #5. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
+
+	$system_group->grantPermission($root_user->id, SQ_PERMISSION_ADMIN);
 
 	// From here on in, the user needs to be logged in to create assets and links
 	$GLOBALS['SQ_INSTALL'] = false;
