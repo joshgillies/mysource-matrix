@@ -21,7 +21,7 @@ class Internal_Message extends Resolve_Object
 
 	/**
 	* An array of users or user groups to send the message to
-	* @var int
+	* @var Array(int)
 	*/
 	var $to = Array();
 
