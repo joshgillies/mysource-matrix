@@ -35,7 +35,7 @@ class Page extends Asset
 
 		return Array(SQ_LINK_EXCLUSIVE => Array('page_template' => 1),
 					 SQ_LINK_UNITE     => Array('page' => 'M', 'file' => 'M', 'permissions_group' => 'M'),
-					 SQ_LINK_HREF      => Array('page' => 'M')
+					 SQ_LINK_NOTICE    => Array('page' => 'M')
 					);
 
 	}#end _getAllowedLinks()
