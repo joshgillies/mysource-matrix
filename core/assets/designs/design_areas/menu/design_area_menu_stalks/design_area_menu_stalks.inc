@@ -33,12 +33,11 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value, $dont_run_updated=false)
+	function setAttrValue($name, $value)
 	{
 		// make sure the aligment is lower case
 		switch($name) { 
@@ -53,7 +52,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 				}
 				break;
 		}// end switch
-		return parent::setAttrValue($name, $value, $dont_run_updated);
+		return parent::setAttrValue($name, $value);
 	}//end setAttrValue()
 
 
