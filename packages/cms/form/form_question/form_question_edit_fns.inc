@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.26 2004/10/12 01:38:39 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.27 2004/10/17 23:13:25 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,7 +74,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		$rule_codes = $asset->getAllowedRules();
 		$type_codes = Array();
 
-		foreach	($rule_codes as $rule_code) {
+		foreach ($rule_codes as $rule_code) {
 			$type_codes[] = 'form_question_rule_type_'.$rule_code;
 		}
 
@@ -101,9 +101,9 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 				<?php
 				$allowed_rules = &$asset->getAllowedRules();
 				$rules = &$asset->getRules();
-				if(!empty($rules)) {
+				if (!empty($rules)) {
 
-					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
+					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this
 					// will allow sections to be sorted in later
 					$i = 0;
 					for (reset($rules); null !== ($k = key($rules)); next($rules)) {
@@ -121,8 +121,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 						<tr>
 							<td class="sq-backend-table-cell">
 								<?php if ($asset->writeAccess('attributes')) {
-									combo_box($rule_prefix.'_operator', $operators, 
-									false, $rule['operator']); 
+									combo_box($rule_prefix.'_operator', $operators,
+									false, $rule['operator']);
 								} else {
 									echo $operators[$rule['operator']];
 								} ?>
@@ -133,8 +133,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 									if ($asset->writeAccess('attributes')) {
 										if ($asset->isSelection() && !$attributes['force_text']) {
 											$options = $asset->getOptions();
-											combo_box($rule_prefix.'_value', array_merge(Array(' ' => '------ Please Select ------'), $options), 
-									false, $rule['value']); 
+											combo_box($rule_prefix.'_value', array_merge(Array(' ' => '------ Please Select ------'), $options),
+									false, $rule['value']);
 										} else {
 											text_box($rule_prefix.'_value', $rule['value'], 30, 255);
 										}
@@ -174,8 +174,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end paintRules()
-	
-	
+
+
 	/**
 	* get the rules to process their parameters
 	*
@@ -247,12 +247,12 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintAddRule(&$asset, &$o, $prefix)
 	{
-		if(!$asset->writeAccess('attributes')) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 
 		$rule_codes = $asset->getAllowedRules();
 		$type_codes = Array();
 
-		foreach	($rule_codes as $rule_code) {
+		foreach ($rule_codes as $rule_code) {
 			$type_code = 'form_question_rule_type_'.$rule_code;
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 			$attributes = eval('return '.$type_code.'::getAttributes();');
@@ -261,7 +261,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		$desc = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_codes, 'description');
 		combo_box('rule', array_merge(Array(' ' => '------ Please Select ------'), $desc), false, '');
-		
+
 		return true;
 
 	}//end paintAddRule()
@@ -284,7 +284,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		if (!trim($rule_code)) return false;
 
 		$rules = &$asset->getRules();
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 		$operators = array_keys(eval('return '.$type_code.'::getOperators();'));
 
@@ -292,7 +292,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 						 'operator' => $operators[0],
 						 'value' => '',
 						 'comparison_question_id' => 0);
-						 
+
 		$asset->setAttrValue('rules', $rules);
 		return $asset->saveAttributes();
 
@@ -330,9 +330,12 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 			// this asset is currently locked so display message to the user
 			$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 			$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
-	
-			if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
-			else $now = time();
+
+			if (SQ_ROLLBACK_VIEW) {
+				$now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+			} else {
+				$now = time();
+			}
 
 			if (is_null($lock['expires'])) {
 				$expires_in = 'The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.';
