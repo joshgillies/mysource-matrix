@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.53.2.5.2.6 2005/02/22 03:24:18 lwright Exp $
+* $Id: form.inc,v 1.53.2.5.2.7 2005/02/22 03:48:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.5.2.6 $
+* @version $Revision: 1.53.2.5.2.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -645,12 +645,10 @@ class Form extends Bridge
 	/**
 	* get the section links attached to this form
 	*
-	* @param &object $asset the form asset
-	*
 	* @access public
 	* @return array(link)
 	*/
-	function getSectionLinks()
+	function &getSectionLinks()
 	{
 		// This is what one would find in Asset_Manager::&getAsset() except we can't call that,
 		// lest we spin off into an infinite loop involving OUR &getAsset().
