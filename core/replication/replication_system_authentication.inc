@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication.inc,v 1.1.2.2 2004/02/13 17:18:58 brobertson Exp $
+* $Id: replication_system_authentication.inc,v 1.1.2.3 2004/02/14 19:42:31 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,13 +92,13 @@ class Replication_System_Authentication extends MySource_Object
 	/**
 	* Attempts to authenticate with the connection with $fd
 	*
-	* @param resource	$fd		the socket file desriptor resource to read from
-	* @param boolean	$initiating	whether this end of the connection initiated the connection or not
+	* @param object Replication_System_Transport	$transport	the socket file desriptor resource to read from
+	* @param boolean								$initiator	whether this end of the connection initiated the connection or not
 	*
 	* @return boolean
 	* @access public
 	*/
-	function authenticate($fd, $initiating)
+	function authenticate($transport, $initiator)
 	{
 		return false;
 	}//end authenticate()
