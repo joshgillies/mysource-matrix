@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.14 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: image.inc,v 1.15 2004/07/23 07:09:33 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,7 +88,7 @@ class Image extends File
 	* Get an array of some useful data about the existing uploaded file
 	*
 	* @return array(string)
-	* @access public
+	* @access private
 	*/
 	function _getExistingFile()
 	{
@@ -103,7 +103,29 @@ class Image extends File
 	}//end _getExistingFile()
 
 
+	/**
+	* Prints the tag for an image
+	*
+	* The output includes the width and height of the image, and the image 
+	* name for the alt tag
+	*
+	* @param string 	$alt 	the alt tag content. If empty the filename is used
+	* @param boolean 	$return if TRUE the tag will be returned
+	*
+	* @return string | void
+	* @access public
+	*/
+	function printImageTag($alt='', $return=false)
+	{
+		if (empty($alt)) $alt = $this->name;
+		$info = $this->_getExistingFile();
+		$tag = '<img src="'.$this->getURL().'" width="'.$info['width'].'" height="'.$info['height'].'" alt="'.$alt.'" title="'.$alt.'" />';
+		if ($return) return $tag;
+		echo $tag;
+
+	}//end printImageTag()
 
 
 }//end class
+
 ?>
