@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.17 2004/08/16 03:00:19 gsherwood Exp $
+* $Id: search_manager.inc,v 1.18 2004/08/19 05:49:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.17 $ - 0.1
+* @version $Revision: 1.18 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -526,6 +526,28 @@ class Search_Manager extends Asset
 	*
 	* Formulates search query and returns the results
 	*
+	* @param array	$search_info	an array of search settings in the form
+	* <PRE>
+	* Array('root_assetid'    => asset ID to search under,
+	*       'logic'           => 'OR'|'AND',
+	*       'search_statuses' => Array( ..statues to search.. ),
+	*       'search_types'    => Array( ..asset types to search.. ),
+	*       'sort_by'         => 'name'|'short_name'|'created'|'updated'|'published'|'type_code',
+	*       'include_all'     => Array(ATTR_NAME => Array('words'  => Array( ..search terms.. )),
+	*       'exclude'         => Array(ATTR_NAME => Array('words'  => Array( ..search terms.. )),
+	*       'asset_attrib'    => Array(ATTR_NAME => Array(
+	*                                                  'words'  => Array( ..search terms.. ),
+	*                                                  'params' => Array('searchtype' => '',
+	*                                                                    'type_attr' => 'NAME_TYPE_ID'
+	*                                                                   )
+	*                                                    ),
+	*       'metadata'        => Array(ATTR_NAME => Array(
+	*                                                  'words'  => Array( ..search terms.. ),
+	*                                                  'params' => Array('assetid' => FIELD_ID)
+	*                                                    )
+	* );
+	*</PRE>
+	*
 	* @return array
 	* @access public
 	*/
@@ -533,82 +555,25 @@ class Search_Manager extends Asset
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$total_asset_scores = null;
-		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->currentUserId() || (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin())); 
+
+
+		  /////////////////////////////
+		 //  CONSTRUCT CACHING KEY  //
+		/////////////////////////////
+		$search_cache_key = $search_info['root_assetid'];
+		if (isset($search_info['search_statuses'])) $search_cache_key .= implode(':', $search_info['search_statuses']);
+		if (isset($search_info['search_types']))    $search_cache_key .= implode(':', $search_info['search_types']);
+		if (isset($search_info['sort_by']))         $search_cache_key .= $search_info['sort_by'];
+		
+		// we need the cache manager to cache the results of queries
+		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 
 
 		  ///////////////////////////////////
 		 //  CONSTRUCT BASE SEARCH QUERY  //
 		///////////////////////////////////
-		$concat = ($db->phptype == 'mysql') ? 'CONCAT(alt1.treeid, '.$db->quote('%').')' : '(alt1.treeid || '.$db->quote('%').')';
-
-		$start_sql = 'SELECT DISTINCT(ai.assetid), SUM(ai.score)
-						FROM
-							'.SQ_TABLE_PREFIX.'asset_indexing ai,
-							'.SQ_TABLE_PREFIX.'asset_link_tree alt1,
-							'.SQ_TABLE_PREFIX.'asset_link_tree alt2,
-							'.SQ_TABLE_PREFIX.'asset_link al1,
-							'.SQ_TABLE_PREFIX.'asset_link al2,
-							'.SQ_TABLE_PREFIX.'asset a';
-		if ($user_restrictions) $start_sql .= ', '.SQ_TABLE_PREFIX.'asset_permission ap ';
-							
-		$start_sql .= '	WHERE ';
-
-		if ($user_restrictions) $start_sql .= 'a.assetid = ap.assetid AND ';
-		
-		$start_sql .= ' a.assetid = ai.assetid
-						AND al1.majorid = '.$db->quote($search_info['root_assetid']).'
-						AND al1.linkid  = alt1.linkid
-						AND alt2.treeid LIKE '.$concat.'
-						AND alt2.linkid = al2.linkid
-						AND ai.assetid  = al2.minorid';
-
-		// add in status restrictions
-		if (isset($search_info['search_statuses']) && !empty($search_info['search_statuses'])) {
-			$statues = $search_info['search_statuses'];
-			for($i = 0; $i < count($statues); $i++) $statues[$i] = $db->quote($statues[$i]);
-			$start_sql .= ' AND a.status IN ('.implode(', ', $statues).')';
-		} else {
-			// if there are no status restrictions, default to LIVE assets only
-			$start_sql .= ' AND a.status  >= '.$db->quote(SQ_STATUS_LIVE);
-		}
-
-		if (!empty($search_info['search_types'])) {
-			for(reset($search_info['search_types']); NULL !== ($i = key($search_info['search_types'])); next($search_info['search_types'])) {
-				$search_info['search_types'][$i] = $db->quote($search_info['search_types'][$i]);
-			}
-			$type_code_cond = 'IN ('.implode(', ', $search_info['search_types']).')';
-
-			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-			$start_sql .= ' AND a.type_code IN (~SQ0~)';
-			$subs = Array( 'SELECT type_code
-							FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-							WHERE inherited_type_code '.$type_code_cond );
-			$start_sql = db_extras_subquery($db, $start_sql, $subs);
-			if (DB::isError($start_sql)) {
-				trigger_error($start_sql->getMessage().'<br/>'.$start_sql->getUserInfo(), E_USER_ERROR);
-			}
-		}
-
-		$userid_cond = '';
-		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-				$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
-				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
-				for(reset($userids); NULL !== ($i = key($userids)); next($userids)) {
-					$userids[$i] = $db->quote($userids[$i]);
-				}
-				$userid_cond = ' AND ap.userid  IN ('.implode(',', $userids).')';
-			}
-		} else {
-			// public users
-			$userid_cond = ' AND ap.userid = 0';
-		}
-
-		if (!empty($userid_cond)) {
-			$start_sql .= $userid_cond;
-			$start_sql .= ' AND ap.permission >= '.$db->quote(SQ_PERMISSION_READ).'
-							AND ap.access = 1';
-		}
+		$start_sql_array = $this->constructBaseSearchQuery($search_info);
+		$start_sql = implode(' ', $start_sql_array);
 
 
 		  ///////////////////////////////
@@ -623,14 +588,20 @@ class Search_Manager extends Asset
 				$field_asset_scores = null;
 
 				foreach ($attr_info['words'] as $word) {
-
-					$sql = $start_sql.'
-						AND ai.component = '.$db->quote('attr:'. $attr_info['params']['searchtype'].':'.$attr_parts[0]).'
-						AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
-						GROUP BY ai.assetid';
-
-					$result = $db->getAssoc($sql);
-					if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+					$result = $cm->loadFromCache($this, $search_cache_key.'asset_attrib'.$word);
+					if (empty($result)) {
+						$sql = $start_sql.'
+							AND ai.component = '.$db->quote('attr:'. $attr_info['params']['searchtype'].':'.$attr_parts[0]).'
+							AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
+							GROUP BY ai.assetid';
+	
+						$result = $db->getAssoc($sql);
+						if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+						
+						$cm->saveToCache($this, $search_cache_key.'asset_attrib'.$word, serialize($result));
+					} else {
+						$result = unserialize($result);
+					}
 
 					if (is_null($field_asset_scores)) $field_asset_scores = $result;
 					else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
@@ -651,12 +622,19 @@ class Search_Manager extends Asset
 
 				$field_asset_scores = null;
 				foreach ($attr_info['words'] as $word) {
-					$sql = $start_sql.'
-						AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
-						GROUP BY ai.assetid';
-
-					$result = $db->getAssoc($sql);
-					if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+					$result = $cm->loadFromCache($this, $search_cache_key.'include_all'.$word);
+					if (empty($result)) {
+						$sql = $start_sql.'
+							AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
+							GROUP BY ai.assetid';
+	
+						$result = $db->getAssoc($sql);
+						if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+						
+						$cm->saveToCache($this, $search_cache_key.'include_all'.$word, serialize($result));
+					} else {
+						$result = unserialize($result);
+					}
 
 					if (is_null($field_asset_scores)) $field_asset_scores = $result;
 					else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
@@ -717,14 +695,21 @@ class Search_Manager extends Asset
 						$like = $db->quote($like);
 					}
 
-					$sql = $start_sql.'
-							AND ai.type = '.$db->quote('text').'
-							AND ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['metadata_field']['assetid']).'
-							AND ai.value LIKE '.$like.'
-							GROUP BY ai.assetid';
-
-					$result = $db->getAssoc($sql);
-					if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+					$result = $cm->loadFromCache($this, $search_cache_key.'metadata'.$like);
+					if (empty($result)) {
+						$sql = $start_sql.'
+								AND ai.type = '.$db->quote('text').'
+								AND ai.component = '.$db->quote('metadata:'.(int)$attr_info['params']['metadata_field']['assetid']).'
+								AND ai.value LIKE '.$like.'
+								GROUP BY ai.assetid';
+	
+						$result = $db->getAssoc($sql);
+						if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+						
+						$cm->saveToCache($this, $search_cache_key.'metadata'.$like, serialize($result));
+					} else {
+						$result = unserialize($result);
+					}
 
 					if (is_null($field_asset_scores)) $field_asset_scores = $result;
 					else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
@@ -744,20 +729,35 @@ class Search_Manager extends Asset
 			foreach($search_info['exclude'] as $attr_name => $attr_info) {
 
 				$sql = $start_sql.'
-					AND (ai.value LIKE \'%'.implode ("%' OR ai.value LIKE '%", $attr_info['words']).'%\')
+					AND (ai.value LIKE \'%'.implode("%' OR ai.value LIKE '%", $attr_info['words']).'%\')
 					GROUP BY ai.assetid';
 
 				$result = $db->getAssoc($sql);
-				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+				assert_valid_db_result($result);
 
-				foreach (array_keys($results) as $exclude_assetid) {
+				foreach (array_keys($result) as $exclude_assetid) {
 					if (isset($total_asset_scores[$exclude_assetid])) unset($total_asset_scores[$exclude_assetid]);
 				}
 			}
 		}
-
-		if (is_null($total_asset_scores)) $total_asset_scores = Array();
-		else arsort($total_asset_scores);
+		
+		if (is_null($total_asset_scores)) {
+			$total_asset_scores = Array();
+		} else {
+			$sorted_scores = Array();
+			foreach ($total_asset_scores as $assetid => $search_data) {
+				$sorted_scores[strtolower($search_data['sort_by'])][$assetid] = $search_data['search_score'];
+			}
+			if (isset($search_info['reverse_sort']) && $search_info['reverse_sort']) {
+				krsort($sorted_scores);
+			} else {
+				ksort($sorted_scores);
+			}
+			$total_asset_scores = Array();
+			foreach ($sorted_scores as $sort_by => $results) {
+				foreach ($results as $assetid => $search_score) $total_asset_scores[$assetid] = $search_score;
+			}
+		}
 		return $total_asset_scores;
 
 	}//end processSearch()
@@ -768,7 +768,9 @@ class Search_Manager extends Asset
 	*
 	* Accepts the same input array as processSearch but does use any search terms
 	*
-	* @return arra
+	* @param array	$search_info	an array of search settings
+	*
+	* @return array
 	* @access public
 	* @see processSearch()
 	*/
@@ -868,6 +870,110 @@ class Search_Manager extends Asset
 
 
 	/**
+	* Generates a base query for searching
+	*
+	* Accepts the same search info array as processSearch()
+	*
+	* @param array	$search_info	an array of search settings
+	*
+	* @return array
+	* @access public
+	* @see processSearch()
+	*/
+	function constructBaseSearchQuery($search_info)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->currentUserId() || (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
+		
+		// sorting by relevance by default
+		$sort_string = 'SUM(ai.score)';
+		
+		if (isset($search_info['sort_by'])) {
+			$valid_sort_fields = Array('name', 'short_name', 'created', 'updated', 'published', 'type_code');
+			if (in_array($search_info['sort_by'], $valid_sort_fields)) {
+				// sorting by a field in the asset table
+				$sort_string = 'a.'.$search_info['sort_by'];
+			}
+		}
+
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(alt1.treeid, '.$db->quote('%').')' : '(alt1.treeid || '.$db->quote('%').')';
+		
+		$sql = Array();
+
+		$sql['select'] = 'SELECT DISTINCT(ai.assetid), SUM(ai.score) as search_score, '.$sort_string.' AS sort_by';
+		$sql['from']   = 'FROM
+							'.SQ_TABLE_PREFIX.'asset_indexing ai,
+							'.SQ_TABLE_PREFIX.'asset_link_tree alt1,
+							'.SQ_TABLE_PREFIX.'asset_link_tree alt2,
+							'.SQ_TABLE_PREFIX.'asset_link al1,
+							'.SQ_TABLE_PREFIX.'asset_link al2,
+							'.SQ_TABLE_PREFIX.'asset a';
+		if ($user_restrictions) $sql['from'] .= ', '.SQ_TABLE_PREFIX.'asset_permission ap ';
+							
+		$sql['where'] = 'WHERE ';
+
+		if ($user_restrictions) $sql['where'] .= 'a.assetid = ap.assetid AND ';
+		
+		$sql['where'] .= '  a.assetid = ai.assetid
+							AND al1.majorid = '.$db->quote($search_info['root_assetid']).'
+							AND al1.linkid  = alt1.linkid
+							AND alt2.treeid LIKE '.$concat.'
+							AND alt2.linkid = al2.linkid
+							AND ai.assetid  = al2.minorid';
+
+		// add in status restrictions
+		if (isset($search_info['search_statuses']) && !empty($search_info['search_statuses'])) {
+			$statues = $search_info['search_statuses'];
+			for($i = 0; $i < count($statues); $i++) $statues[$i] = $db->quote($statues[$i]);
+			$sql['where'] .= ' AND a.status IN ('.implode(', ', $statues).')';
+		} else {
+			// if there are no status restrictions, default to LIVE assets only
+			$sql['where'] .= ' AND a.status  >= '.$db->quote(SQ_STATUS_LIVE);
+		}
+
+		if (!empty($search_info['search_types'])) {
+			for(reset($search_info['search_types']); NULL !== ($i = key($search_info['search_types'])); next($search_info['search_types'])) {
+				$search_info['search_types'][$i] = $db->quote($search_info['search_types'][$i]);
+			}
+			$type_code_cond = 'IN ('.implode(', ', $search_info['search_types']).')';
+
+			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+			$sql['where'] .= ' AND a.type_code IN (~SQ0~)';
+			$subs = Array( 'SELECT type_code
+							FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+							WHERE inherited_type_code '.$type_code_cond );
+			$sql['where'] = db_extras_subquery($db, $sql['where'], $subs);
+			assert_valid_db_result($sql['where']);
+		}
+
+		$userid_cond = '';
+		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+				for(reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					$userids[$i] = $db->quote($userids[$i]);
+				}
+				$userid_cond = ' AND ap.userid  IN ('.implode(',', $userids).')';
+			}
+		} else {
+			// public users
+			$userid_cond = ' AND ap.userid = 0';
+		}
+
+		if (!empty($userid_cond)) {
+			$sql['where'] .= $userid_cond;
+			$sql['where'] .= ' AND ap.permission >= '.$db->quote(SQ_PERMISSION_READ).'
+							AND ap.access = 1';
+		}
+		
+		return $sql;
+
+	}//end constructBaseSearchQuery()
+
+
+	/**
 	* Combines asset scores according to the passed logic
 	*
 	* Returns a mapping from assetids to combined scores
@@ -900,15 +1006,15 @@ class Search_Manager extends Asset
 			foreach ($removed_assets as $assetid) unset ($out_asset_scores[$assetid]);
 
 			foreach ($common_assets as $assetid) {
-				if (isset($out_asset_scores[$assetid])) $out_asset_scores[$assetid] += $asset_scores2[$assetid];
-				else $out_asset_scores[$assetid] = $asset_scores2[$assetid];
+				if (isset($out_asset_scores[$assetid])) $out_asset_scores[$assetid]['search_score'] += $asset_scores2[$assetid]['search_score'];
+				else $out_asset_scores[$assetid]['search_score'] = $asset_scores2[$assetid]['search_score'];
 			}
 
 		} else if ($logic == 'OR') {
 
-			foreach ($asset_scores2 as $assetid => $score) {
-				if (isset($out_asset_scores[$assetid])) $out_asset_scores[$assetid] += $asset_scores2[$assetid];
-				else $out_asset_scores[$assetid] = $asset_scores2[$assetid];
+			foreach ($asset_scores2 as $assetid => $data) {
+				if (isset($out_asset_scores[$assetid])) $out_asset_scores[$assetid]['search_score'] += $asset_scores2[$assetid]['search_score'];
+				else $out_asset_scores[$assetid]['search_score'] = $asset_scores2[$assetid]['search_score'];
 			}
 
 		}
