@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.10 2004/07/07 02:52:11 lwright Exp $
+* $Id: install.inc,v 1.11 2004/07/12 05:24:17 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -132,11 +132,12 @@ function uninstall_asset_types()
 		}
 	
 		if ($errors) {	// we're screwed, proceed no further!
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('Asset hierarchy would be corrupted, uninstall not committed', E_USER_WARNING);
 			exit(1);
 		}
-	
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// now actually delete the types
 		foreach($asset_types as $asset_type) {
 			// delete the types
