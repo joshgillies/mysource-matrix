@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.37 2004/05/13 04:13:01 lwright Exp $
+* $Id: metadata_manager.inc,v 1.38 2004/05/20 03:21:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -842,7 +842,7 @@ class Metadata_Manager extends MySource_Object
 	function indexMetadata($assetid, $schemaids)
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$sm =& $GLOBALS['SQ_SYSTEM']->getSystemAsset('search_manager');
+		$sm =& $am->getSystemAsset('search_manager');
 		if (!$sm) return false;
 		foreach ($schemaids as $schemaid) {
 			$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
