@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.53.2.3 2004/10/17 23:20:11 lwright Exp $
+* $Id: form.inc,v 1.53.2.4 2004/10/18 23:48:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.3 $
+* @version $Revision: 1.53.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -696,42 +696,25 @@ class Form extends Bridge
 	function cloneComponents(&$clone, $components)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
+		
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+			return false;			
 		}
-
+		
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			$sort_order = $this->attr('sort_order');
 			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
-
-			// send to a friend format
-			$recip = unserialize($this->attr('recipient_emails_format'));
-			$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
-			$rec = unserialize($this->attr('receipt_emails_format'));
-			$rec = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $rec);
-			$staf = unserialize($this->attr('staf_format'));
-			$staf = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $staf);
-			$sel = $this->attr('selective_emails');
-			foreach($sel as $key => $null) {
-				$sel[$key]['address'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $sel[$key]['address']);
-				$sel[$key]['assetid'] = str_replace($this->id.':q', $clone->id.':q', $sel[$key]['assetid']);
-			}
-
+			
 			// save the information
 			$clone->setAttrValue('sort_order', $sort_order);
-			$clone->setAttrValue('recipient_emails_format', serialize($recip));
-			$clone->setAttrValue('receipt_emails_format', serialize($rec));
-			$clone->setAttrValue('staf_format', serialize($staf));
-			$clone->setAttrValue('selective_emails', $sel);
 			$clone->saveAttributes();
-
+			
 		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
 		return true;
-
+	
 	}//end cloneComponents()
 
 
