@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.191 2004/03/23 23:47:20 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.192 2004/03/24 23:37:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -366,7 +366,7 @@ class Asset_Manager extends MySource_Object
 
 		$type_codes = Array();
 		$allowed_access = trim($allowed_access);
-		if (!empty($ignore_allowed_access)) {
+		if (!empty($allowed_access)) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT type_code
 					FROM '.SQ_TABLE_PREFIX.'asset_type
@@ -816,7 +816,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$return_result = Array();
-		foreach ($result as $assetid => $row) {
+		foreach (array_values($result) as $row) {
 			foreach ($row as $name => $value) {
 				$return_result[$row['assetid']][$name] = $value;
 			}
@@ -1318,10 +1318,10 @@ class Asset_Manager extends MySource_Object
 
 		$success = true;
 
-		foreach($current_locks as $lock_type => $lock) {
+		foreach(array_keys($current_locks) as $lock_type) {
 
 			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.'.'.$lock_type, $expires))) {
-				trigger_error('Cannot update lock on "'.$asset->name.'", '.$err_msg, E_USER_NOTICE);
+				trigger_error('Cannot update lock on asset #'.$assetid.', '.$err_msg, E_USER_NOTICE);
 				$success = false;
 				break;
 			}
@@ -1817,7 +1817,7 @@ class Asset_Manager extends MySource_Object
 		foreach ($asset_links as $link_data) $link_info[$link_data['majorid']][] = $link_data;
 
 		$link_lineages = Array();
-		foreach ($result as $treeid => $link_tree) {
+		foreach (array_values($result) as $link_tree) {
 
 			// work out some values we are going to need
 			$parent_data = $link_tree[count($link_tree) -1];
@@ -2014,7 +2014,6 @@ class Asset_Manager extends MySource_Object
 
 		$asset = &$this->getAsset($assetid);
 		if (!is_null($asset)) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', null, 1);
 			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
@@ -2052,8 +2051,7 @@ class Asset_Manager extends MySource_Object
 
 		$asset = &$this->getAsset($assetid);
 		if (!is_null($asset)) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
+			
 			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'minor', null, 1);
 			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
 				$parentid = $dependant_links[$k]['majorid'];
@@ -2105,7 +2103,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* does the work for getAssetTree
+	* Does the work for getAssetTree
 	*
 	* @param int|Array(int)	$majorids		the majorids to traverse the tree from
 	* @param &Array			$tree_data		the data that is created recursively
@@ -2136,8 +2134,6 @@ class Asset_Manager extends MySource_Object
 
 		if (empty($majorids_str)) return $assetids;
 		static $USERIDS_COND = null;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		if (is_null($USERIDS_COND)) {
 			// if they are logged in add their parents to the list
@@ -3033,7 +3029,7 @@ class Asset_Manager extends MySource_Object
 			$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
 			if (DB::isError($where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($sql->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
+				trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 
@@ -3212,8 +3208,6 @@ class Asset_Manager extends MySource_Object
 			trigger_error('Unable to Move Asset, minor (Asset #"'.$link['minorid'].'") not found', E_USER_WARNING);
 			return 0;
 		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -3518,8 +3512,11 @@ class Asset_Manager extends MySource_Object
 		$ret_val = Array();
 		foreach($this->_tmp['permission_cache'][$assetid][$storage_name] as $data) {
 
-			if      ($access === false && $data['access'] != '0') continue;
-			else if ($access === true  && $data['access'] != '1') continue;
+			if ($access === false && $data['access'] != '0') {
+				continue;
+			} else if ($access === true  && $data['access'] != '1') {
+				continue;
+			}
 
 			// return all info
 			if ($all_info) {
@@ -3610,7 +3607,6 @@ class Asset_Manager extends MySource_Object
 			return false;
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// add the permission into the database
@@ -3967,6 +3963,7 @@ class Asset_Manager extends MySource_Object
 
 		if (is_null($base_url)) $base_url = current_url(false);
 
+		$matches = Array();
 		if (!preg_match('/^(([a-z]+):\/\/)?(.*)$/', strip_url($base_url), $matches)) return ($return_array) ? Array() : '';
 		$protocol = ($matches[2] == '') ? current_protocol() : (($matches[2] == 'https') ? 'https' : 'http');
 		$base_url = $matches[3];
@@ -4005,7 +4002,7 @@ class Asset_Manager extends MySource_Object
 			$str = '';
 			// so much for SQL standards...
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
-			foreach($url_bits as $i => $bit) {
+			foreach(array_values($url_bits) as $bit) {
 				$str .= $bit.'/';
 				$sql .= ' +
 				(CASE WHEN SUBSTRING('.$concat.' FROM 1 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';
