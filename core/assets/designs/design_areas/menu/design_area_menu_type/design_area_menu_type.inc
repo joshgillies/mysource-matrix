@@ -83,7 +83,7 @@ class Design_Area_Menu_Type extends Design_Area
 			}// end switch
 
 		// if they are trying to set the type_codes, split the string
-		} else if ($name == 'type_codes') {
+		} else if ($name == 'type_codes' && !is_array($value)) {
 			$value = preg_split('/[ ,]+/', $value);
 
 		}// end if
@@ -263,14 +263,11 @@ class Design_Area_Menu_Type extends Design_Area
 				// we got php code ? OK, we need to use a switch statement
 				if ($this->_settingHasPHPCode($setting_name)) {
 					$settings = $this->attr('settings');
-					ob_start();
 					echo '<', '?php switch($'.$this->attr('id_name').'_current_setting){ ';
 					foreach($settings[$setting_name] as $case => $value) {
 						echo 'case \''.addslashes($case).'\' : ?>'.$value.'<?php break; ';
 					}
 					echo '}// end switch ?', '>';
-					error_log(ob_get_contents());
-					ob_end_flush();
 
 				// no php code ? cool, we can read from the array
 				} else {
