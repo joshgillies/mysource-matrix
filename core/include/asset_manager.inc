@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.277 2005/02/25 04:43:00 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.278 2005/02/25 06:03:05 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.277 $
+* @version $Revision: 1.278 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2589,8 +2589,7 @@ class Asset_Manager extends MySource_Object
 				  AND t.treeid '.(($exclusively) ? 'NOT ' : '').'LIKE ('.$sub_sql.')';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-
-		$result = $db->getOne($sql);
+		$result = $db->getOne($sql.$where);
 		assert_valid_db_result($result);
 
 		if ($exclusively) return ($result == 0);
