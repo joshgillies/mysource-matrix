@@ -23,9 +23,6 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'id_name'   => Array(
-								'default'   => 'Design Name'
-							),
 							'image' => Array(
 								'added'     => '0.0.1',
 								'type'      => 'text',

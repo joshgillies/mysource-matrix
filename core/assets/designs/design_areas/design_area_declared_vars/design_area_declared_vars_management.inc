@@ -23,9 +23,6 @@ class Design_Area_Declared_Vars_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'id_name'   => Array(
-								'default'   => 'Design Name'
-							),
 							'declared_vars'   => Array(
 								'added'       => '0.0.1',
 								'type'        => 'serialise',
