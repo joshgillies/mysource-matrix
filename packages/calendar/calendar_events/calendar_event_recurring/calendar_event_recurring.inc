@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.34 2004/09/13 00:48:34 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.35 2004/09/13 05:20:33 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.34 $ - 1.0
+* @version $Revision: 1.35 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -730,7 +730,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$res .= '<tr><td style="vertical-align: top">Start and End: </td><td>';
 				ob_start();
 					$edit_fns = $this->getEditFns();
-					$edit_fns->paintStartEndChooser($this, 'event', '');
+					$edit_fns->paintStartEndChooser($this, 'event');
 					$res .= ob_get_contents();
 				ob_end_clean();
 				$res .= '</td></tr>';
