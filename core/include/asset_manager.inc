@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.205 2004/04/22 04:01:56 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.206 2004/05/07 02:16:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -216,6 +216,7 @@ class Asset_Manager extends MySource_Object
 	{
 		$do_query = false;
 
+
 		// multiple typecodes
 		if (is_array($type_code)) {
 
@@ -232,7 +233,10 @@ class Asset_Manager extends MySource_Object
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			for($i = 0; $i < count($type_code); $i++) {
-				if (!isset($this->_asset_types[$type_code[$i]])) {
+				if (!is_string($type_code[$i])) {
+					trigger_error('Type code "'.$type_code[$i].'" is not a string', E_USER_WARNING);
+					continue;
+				} elseif (!isset($this->_asset_types[$type_code[$i]])) {
 					trigger_error('Asset "'.$type_code[$i].'" is not installed on the system', E_USER_WARNING);
 					unset($type_code[$i]);
 					unset($tmp[$i]);
@@ -251,6 +255,11 @@ class Asset_Manager extends MySource_Object
 		// just a single typecode
 		} else {
 			$columns = $field;
+
+			if (!is_string($type_code)) {
+				trigger_error('Type code "'.$type_code.'" is not a string', E_USER_WARNING);
+				return ($field) ? null : Array();
+			}
 
 			if (!isset($this->_asset_types[$type_code])) {
 				trigger_error('Asset "'.$type_code.'" is not installed on the system', E_USER_WARNING);
@@ -2057,8 +2066,17 @@ class Asset_Manager extends MySource_Object
 			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
 				if (!$dependant_links[$k]['dependant']) continue;
 				$children[$dependant_links[$k]['minorid']] = $dependant_links[$k]['minor_type_code'];
-				$children = $children + $this->getDependantChildren($dependant_links[$k]['minorid'],$type_code, $strict_type_code);
 			}
+
+			// get ALL kids, regardless of type code, so we can chase them down
+			// for the type code we want
+			$all_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, '', false, 'major', null, 1);
+			for (reset($all_links); NULL !== ($k = key($all_links)); next($all_links)) {
+				// must still be dependant
+				if (!$all_links[$k]['dependant']) continue;
+				$children = $children + $this->getDependantChildren($all_links[$k]['minorid'],$type_code, $strict_type_code);
+			}
+
 
 			$this->forgetAsset($asset);
 		}
