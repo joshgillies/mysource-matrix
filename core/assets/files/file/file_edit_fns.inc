@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: file_edit_fns.inc,v 1.32 2003/09/26 05:26:26 brobertson Exp $
+* $Id: file_edit_fns.inc,v 1.33 2003/10/08 04:42:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -211,7 +211,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$asset->_tmp['uploading_file'] = true;
 		$asset->setAttrValue('name', $name);
 
-		return true;
+		return $asset->_updated();
 
 	}//end processFileUpload()
 
