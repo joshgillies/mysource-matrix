@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.2 2004/01/15 14:34:57 brobertson Exp $
+* $Id: system_config_edit_interface.inc,v 1.2.2.1 2004/01/21 18:45:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -93,9 +93,10 @@ class System_Config_Edit_Interface extends MySource_Object
 
 		$config_screens = Array(
 									'system_config'			=> 'System Configuration',
+									'user_prefs'			=> 'Global Preferences',
 									'squiz_server_config'	=> 'Squiz Server Configuration',
 									'hipo_config'			=> 'HIPO Configuration',
-									'user_prefs'			=> 'Global Preferences',
+									'replication_config'	=> 'Replication Configuration',
 								);
 
 		foreach ($config_screens as $screen_code => $screen_name) {
@@ -110,6 +111,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			case 'system_config' :
 			case 'squiz_server_config' :
 			case 'hipo_config' :
+			case 'replication_config' :
 
 				$config = null;
 
@@ -125,6 +127,10 @@ class System_Config_Edit_Interface extends MySource_Object
 					case 'hipo_config' :
 						require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
 						$config = new HIPO_Config();
+						break;
+					case 'replication_config' :
+						require_once SQ_SYSTEM_ROOT.'/core/replication/replication_config.inc';
+						$config = new Replication_Config();
 						break;
 				}// end switch
 				if (!empty($_POST['config_posted'])) {
