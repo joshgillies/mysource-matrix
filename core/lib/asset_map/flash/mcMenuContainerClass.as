@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcMenuContainerClass.as,v 1.20 2003/09/26 05:26:32 brobertson Exp $
+* $Id: mcMenuContainerClass.as,v 1.21 2003/10/16 01:20:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,6 +53,10 @@ mcMenuContainerClass.prototype.onAssetManagerInitialised = function()
 
 	var newMenu = this.addMenu ('Add', 'mcAddMenuIconID');
 	var newMenuContainer = newMenu.getContainer();
+	var newMenuHead = newMenu.getHead();
+	var format = newMenuHead.getTextFormat();
+	format.color = 0xffffff;
+	newMenuHead.setTextFormat(format);
 
 	newMenuContainer.createFromArray (_root.asset_manager.getTypeMenu());
 	this.hideChildMenus();

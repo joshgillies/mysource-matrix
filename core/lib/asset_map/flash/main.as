@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: main.as,v 1.47 2003/10/13 04:27:04 dwong Exp $
+* $Id: main.as,v 1.48 2003/10/16 01:20:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,7 +158,7 @@ _root.progress_bar.init(_root.header.spinner, _root.header.loadingText);
 _root.attachMovie("mcTabsID", "tabs", 2);
 
 _root.tabs.addTab("mcTabContentAreaTreeID",		"tree",		"Tree",		"mc_tree_tab_icon");
-_root.tabs.addTab("mcTabContentAreaMailBoxID",	"mail",		"Mail",		"mc_messages_tab_icon");
+_root.tabs.addTab("mcTabContentAreaMailBoxID",	"mail",		"Messages",		"mc_messages_tab_icon");
 _root.tabs.addTab("mcTabContentAreaLogMsgsID",	"log",		"Log",		"mc_log_tab_icon");
 // Initialise stage resize listener	
 _root.stage_resize = new StageResize();

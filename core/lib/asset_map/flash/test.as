@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: test.as,v 1.24 2003/10/13 01:37:37 dwong Exp $
+* $Id: test.as,v 1.25 2003/10/16 01:20:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,6 +37,21 @@ function doTest() {
 	sendToBom(xmlString);
 }
 
+/* asset finder testing functions */
+function testOnClick1(component)
+{ 
+	var tree = _root.tabs.tree;
+	tree.startAssetFinder([]);
+}
+
+function testOnClick2 (component)
+{
+	var tree = _root.tabs.tree;
+	tree.stopAssetFinder();
+}
+
+/* status message testing functions */
+/*
 function testOnClick1(component)
 { 
 	if (this.test_stack == undefined)
@@ -48,12 +63,12 @@ function testOnClick2 (component)
 {
 	_root.progress_bar.hide(this.test_stack.pop());
 }
-
+*/
 
 _root.test_button1.swapDepths(200);
 _root.test_button2.swapDepths(201);
-_root.test_button1.setClickHandler("testOnClick1", _root);
-_root.test_button2.setClickHandler("testOnClick2", _root);
+_root.test_button1.onRelease = testOnClick1;
+_root.test_button2.onRelease = testOnClick2;
 
 
 //	trace("R : " + _root.asset_manager.asset_types.root_user.isType('backend_user'));

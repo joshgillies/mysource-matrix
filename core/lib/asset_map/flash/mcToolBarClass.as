@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcToolBarClass.as,v 1.7 2003/09/26 05:26:32 brobertson Exp $
+* $Id: mcToolBarClass.as,v 1.8 2003/10/16 01:20:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -11,24 +11,40 @@ function mcToolBarClass() {
 	
 	ASBroadcaster.initialize(this);
 
-	this.attachMovie('mcLogoutIconID', 'logout_icon', 1);
+	var nextDepth = 1;
+	
+	this.attachMovie('mcLogoutIconID', 'logout_icon', nextDepth++);
 	this.icons.push(this.logout_icon);
 	this.logout_icon.helpText = "Logout";
 	this.logout_icon.onRelease = logout;
 
-	this.attachMovie('mcStatusIconID', 'status_icon', 2);
+	this.attachMovie('mcKeyIconID', 'key_icon', nextDepth++);
+	this.icons.push(this.key_icon);
+	this.key_icon.helpText = "Key";
+	this.key_icon.onRelease = function() { 
+//		_root.dialog_box.show('Key', 'implement me!');
+	}
+
+	this.attachMovie('mcRefreshIconID', 'refresh_icon', nextDepth++);
+	this.icons.push(this.refresh_icon);
+	this.refresh_icon.helpText = "Full Refresh";
+	this.refresh_icon.onRelease = function() { 
+		_root.asset_manager.reloadAllAssets();
+		_root.tabs.mail.msgs_container.refreshMail();
+	}
+
+	this.attachMovie('mcStatusIconID', 'status_icon', nextDepth++);
 	this.icons.push(this.status_icon);
 	this.status_icon.helpText = "Toggle Status View";
 	this.status_icon.onRelease = function() { 
 		this._parent.broadcastMessage("onStatusToggle");
 	}
 
-	this.attachMovie('mcRefreshIconID', 'refresh_icon', 3);
-	this.icons.push(this.refresh_icon);
-	this.refresh_icon.helpText = "Full Refresh";
-	this.refresh_icon.onRelease = function() { 
-		_root.asset_manager.reloadAllAssets();
-		_root.tabs.mail.msgs_container.refreshMail();
+	this.attachMovie('mcHelpIconID', 'help_icon', nextDepth++);
+	this.icons.push(this.help_icon);
+	this.help_icon.helpText = "Help";
+	this.help_icon.onRelease = function() { 
+//		_root.dialog_box.show('Help', 'implement me!');
 	}
 
 	for (var i = 0; i < this.icons.length; ++i) {

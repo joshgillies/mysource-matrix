@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcTabContentAreaTreeClass.as,v 1.13 2003/09/26 05:26:32 brobertson Exp $
+* $Id: mcTabContentAreaTreeClass.as,v 1.14 2003/10/16 01:20:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,16 +65,11 @@ mcTabContentAreaTreeClass.prototype = new mcTabContentAreaClass();
 
 mcTabContentAreaTreeClass.prototype._initMenu = function() 
 {
-	// this menu will get loaded before asset types are retrieved
-	var initialMenu = [
-		{
-			type:		'menu',
-			label:		'Add',
-			iconID:		'mcAddMenuIconID',
-			children:	[]
-		}
-	];
-	this.menu_container.createFromArray(initialMenu);
+	var initial_menu = this.menu_container.addMenu('Add', 'mcAddMenuIconID');
+	var head = initial_menu.getHead();
+	var format = head.getTextFormat();
+	format.color = 0xffffff;
+	head.setTextFormat(format);
 }
 
 /**

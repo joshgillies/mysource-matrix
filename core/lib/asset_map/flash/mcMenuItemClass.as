@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcMenuItemClass.as,v 1.15 2003/10/08 02:24:02 dwong Exp $
+* $Id: mcMenuItemClass.as,v 1.16 2003/10/16 01:20:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,17 +54,61 @@ mcMenuItemClass.prototype.onRelease = function() {
 	return true;
 }
 
+/** 
+* Sets the text format for the menu item.
+*
+* @param TextFormat format
+* @access public
+* @return void
+*/
+mcMenuItemClass.prototype.setTextFormat = function(format) 
+{
+	this._baseTextFormat = format;
+	this._refresh();
+} // end setTextFormat()
+
+
+/**
+* Gets the text format for the menu item.
+*
+* @access public
+*
+* @return TextFormat
+*/
+
+mcMenuItemClass.prototype.getTextFormat = function() 
+{
+//	trace(this + "::mcMenuItemClass.getTextFormat()");
+//	trace(this._baseTextFormat);
+	return this._baseTextFormat;
+} // end getTextFormat()
+
+
+
+/** 
+* Draws the highlight for rollovers.
+* 
+* @access private
+*
+* @return void
+*/
 mcMenuItemClass.prototype._drawHighlight = function()
 {
-//	trace (this + '::mcMenuItemClass.onRollOver()');
 	if (this.frozen) 
 		return;
 
 	this._textBox.setTextFormat (this._rollOverTextFormat);
 	this._drawBackground(this.getWidth(), this.getHeight());
 	return true;
-}
+} // end _drawHighlight()
 
+/** 
+* Clears the highlight for rollovers.
+* 
+* @access private
+*
+* @return void
+*/
 mcMenuItemClass.prototype._clearHighlight = function() 
 {
 	if (this.frozen)
@@ -73,19 +117,33 @@ mcMenuItemClass.prototype._clearHighlight = function()
 	this._textBox.setTextFormat (this._baseTextFormat);
 	this._drawBackground(this.getWidth(), this.getHeight(), 0);
 	return true;
-}
+} // end _clearHighlight()
 
+/** 
+* Freezes the highlight for rollovers. The highlight cannot be changed until it is unfrozen.
+* 
+* @access private
+*
+* @return void
+*/
 mcMenuItemClass.prototype.freezeHighlight = function()
 {
 //	trace (this + ":freeze");
 	this.frozen = true;
-}
+} // end freezeHighlight()
 
+/** 
+* Unfreezes the highlight for rollovers. The highlight cannot be changed until it is unfrozen.
+* 
+* @access private
+*
+* @return void
+*/
 mcMenuItemClass.prototype.unfreezeHighlight = function()
 {
 //	trace (this + ":unfreeze");
 	this.frozen = false;
-}
+} // end unfreezeHighlight()
 
 mcMenuItemClass.prototype.create = function(container, label, iconID, value, action, showArrow) 
 {
@@ -180,7 +238,10 @@ mcMenuItemClass.prototype._initTextField = function(label)
 mcMenuItemClass.prototype._refresh = function() 
 {
 	var padding = 3;
-	
+
+	this._textBox.setTextFormat(this._baseTextFormat);
+	this._textBox.autoSize = 'left';
+
 	// x - direction
 	var nextX = padding;
 	this._bg._x = nextX;
