@@ -764,7 +764,7 @@ class Asset_Manager extends Resolve_Object
 		// if we get to here, it is not one of the
 		// system assets, but it may be dependantly linked to one
 		// so lets check for that
-		$parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor', '', 1);
+		$parents = $asset->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor', '', 1);
 		for($i = 0; $i < count($parents); $i++) if ($parents[$i]['majorid'] <= SQ_NUM_RESERVED_ASSETIDS) return false;
 		
 		return true;
