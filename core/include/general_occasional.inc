@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.30 2004/01/15 04:14:40 gsherwood Exp $
+* $Id: general_occasional.inc,v 1.31 2004/01/15 09:30:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -123,7 +123,7 @@ function get_bit_names($prefix, $bit_value, $force_array=false, $exact_value=fal
 * @return Array(string => string)
 * @access public
 */
-function get_bit_values($prefix)
+function get_constant_values($prefix)
 {
 	$constants = get_defined_constants();
 
@@ -136,7 +136,7 @@ function get_bit_values($prefix)
 
 	return $names;
 
-}//end get_bit_values()
+}//end get_constant_values()
 
 
 /**

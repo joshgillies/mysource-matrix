@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.1 2004/01/15 05:15:22 gsherwood Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.2 2004/01/15 09:31:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,7 +122,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		if (!$asset->writeAccess('attributes')) {
 			echo link_type_name($asset->attr('create_link_type'));
 		} else {
-			$link_options = get_bit_values('SQ_LINK_');
+			$link_options = get_constant_values('SQ_LINK_');
 			$options = Array();
 			foreach($link_options as $link_name => $bit_value) {
 				$options[$bit_value] = link_type_name($bit_value);
@@ -279,7 +279,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		if (!$asset->writeAccess('attributes')) {
 			echo get_status_description($asset->attr('create_status'));
 		} else {
-			$status_options = get_bit_values('SQ_STATUS_');
+			$status_options = get_constant_values('SQ_STATUS_');
 			$options = Array();
 			foreach($status_options as $status_name => $bit_value) {
 				$options[$bit_value] = get_status_description($bit_value);
