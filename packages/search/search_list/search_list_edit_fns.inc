@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_edit_fns.inc,v 1.1 2004/08/19 05:52:22 gsherwood Exp $
+* $Id: search_list_edit_fns.inc,v 1.1.2.1 2004/11/10 00:49:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -166,11 +166,11 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				switch ($field['type']) {
 					case 'asset_attrib' :
 						$field_description .= '(asset attribute)';
-						$field_name = 'attribute:'.$field_name.':'.$field['params']['searchtype'];
+						$field_name = 'attribute:'.$field_name.':'.$field['params']['asset_type'];
 					break;
 					case 'metadata' :
 						$field_description .= '(metadata)';
-						$field_name = 'metadata:'.$field_name.':'.$field['params']['metadata_field']['assetid'];
+						$field_name = 'metadata:'.$field_name.':'.$field['params']['assetid'];
 					break;
 					default:
 						// note that we cant use exclude fields because, by themsevles, they never return results
