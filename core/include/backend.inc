@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.95 2004/08/31 14:31:07 brobertson Exp $
+* $Id: backend.inc,v 1.96 2004/10/06 23:51:35 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -531,7 +531,7 @@ class Backend extends MySource_Object
 									'url'     => '#',
 									'onclick' => 'Javascript:
 									if (parent.frames["sq_main"] && parent.frames["sq_main"].get_form_element_value) {
-										var sq_preview_url = parent.frames["sq_main"].get_form_element_value("sq_preview_url");
+										var sq_preview_url = parent.frames["sq_main"].get_form_element_value("sq_preview_url") + "?no_cache=1";
 										if (sq_preview_url) {
 											window.open(sq_preview_url, "sq_preview_window");
 										} else {

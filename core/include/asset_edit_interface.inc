@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.220 2004/09/28 05:53:06 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.221 2004/10/06 23:51:35 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -550,7 +550,6 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 			}
 		}
-		if (!empty($preview_url)) $preview_url .= '?no_cache=1';
 		$o->addHiddenField('sq_preview_url', $preview_url);
 
 		// store this preview url into the global vars so that any other asset
