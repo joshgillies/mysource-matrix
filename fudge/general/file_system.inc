@@ -8,7 +8,7 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Squizlib::file_system
+* @package Fudge::file_system
 */
 
 
@@ -115,7 +115,7 @@ function easy_filesize($size)
 *
 * @return string
 * @access public
-* @see Squizlib::general::increment_name()
+* @see Fudge::general::increment_name()
 */
 function increment_filename($name,$spacer='') {
 	require_once dirname(__FILE__).'../general/general.inc';

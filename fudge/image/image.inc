@@ -10,7 +10,7 @@ require_once dirname(__FILE__).'/../general/file_system.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Squizlib::colour
+* @package Fudge::colour
 */
 class Image
 {

@@ -8,7 +8,7 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Squizlib::general
+* @package Fudge::general
 */
 
 /*

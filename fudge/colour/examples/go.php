@@ -1,26 +1,4 @@
-<?  ##############################################
-   ### SQUIZLIB ------------------------------###
-  ##- Generic Include Files -- PHP4 ----------##
- #-- Copyright Squiz.net ---------------------#
-##############################################
-## This file is subject to version 1.0 of the
-## MySource License, that is bundled with
-## this package in the file LICENSE, and is
-## available at through the world-wide-web at
-## http://mysource.squiz.net/
-## If you did not receive a copy of the MySource
-## license and are unable to obtain it through
-## the world-wide-web, please contact us at
-## mysource@squiz.net so we can mail you a copy
-## immediately.
-##
-## File: colour/examples/go.php
-## Desc: Example usage of colour manipulation functions
-## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/fudge/colour/examples/Attic/go.php,v $
-## $Revision: 1.1.1.1 $
-## $Author: brobertson $
-## $Date: 2003/03/21 00:47:12 $
-#######################################################################
+<? 
 
 include_once("../colour.inc");
 

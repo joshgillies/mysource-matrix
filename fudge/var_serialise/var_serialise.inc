@@ -1,38 +1,48 @@
-<?php  
-    ##############################################
-   ### SQUIZLIB ------------------------------###
-  ##- Generic Include Files -- PHP4 ----------##
- #-- Copyright Squiz.net ---------------------#
-##############################################
-## This file is subject to version 1.0 of the
-## MySource License, that is bundled with
-## this package in the file LICENSE, and is
-## available at through the world-wide-web at
-## http://mysource.squiz.net/
-## If you did not receive a copy of the MySource
-## license and are unable to obtain it through
-## the world-wide-web, please contact us at
-## mysource@squiz.net so we can mail you a copy
-## immediately.
-##
-## Desc: PHP functions that serialise/unserialise an variables, so 
-##       they can be passed between Javascript and PHP
-## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/fudge/var_serialise/var_serialise.inc,v $
-## $Revision: 1.2 $
-## $Author: brobertson $
-## $Date: 2003/04/07 01:30:40 $
-#######################################################################
+<?php 
 
- # this is a dummy fn to get the copy of the var then pass that copy by 
-# reference to _var_serialise() fn that may alter the var with escaping
+/**
+* Var Serialise
+*
+* Purpose
+*     Allow the transportation of PHP variables to JS variables
+* Example
+*
+*     <script language="JavaScript" type="text/javascript" src="var_serialise.js"></script>
+*     <script language="JavaScript" type="text/javascript">
+*         var js_var = var_unserialise('<?php echo var_serialise($php_var, true)?>');
+*     </script>
+*
+* @author  Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package Fudge::var_serialise
+*/
+
+/**
+* This is a dummy fn to get the copy of the var then pass that copy by 
+* reference to _var_serialise() fn that may alter the var with escaping
+*
+* @param mixed	$var			the var to serialise
+* @param bool	$string_escape	whether the string should be escaped, useful for pasting straight into JS vars
+*
+* @return string
+* @access public
+*/
 function var_serialise($var, $string_escape=false) {
 	$str = _var_serialise($var);
 	if ($string_escape) {
 		$str = str_replace("\n", "\\n", addslashes($str));
 	}
 	return $str;
-}#end var_serialise()
+}//end var_serialise()
 
+/**
+* Actual recursive workhorse of var_serialise()
+*
+* @param mixed	$var			the var to serialise
+*
+* @return string
+* @access private
+*/
 function _var_serialise(&$var) {
 
 	if (func_num_args() == 3) {
@@ -46,7 +56,7 @@ function _var_serialise(&$var) {
 	$type = gettype($var);
 
 	switch($type) {
-		# normal vars
+		// normal vars
 		case "string"  :
 			$var = str_replace('~', '~~', $var);
 			$var = str_replace('<', '~l~', $var);
@@ -57,28 +67,28 @@ function _var_serialise(&$var) {
 		case "double"  :
 			if (isset($name)) {
 				$str .= $indent.'<name_type>'.gettype($name).'</name_type><name>'.$name.'</name>';
-			}#end if
+			}//end if
 			$str .= '<val_type>'.$type.'</val_type><val>'.$var."</val>\n";
 		break;
 
 		case "boolean" :
 			if (isset($name)) {
 				$str .= $indent.'<name_type>'.gettype($name).'</name_type><name>'.$name.'</name>';
-			}#end if
+			}//end if
 			$str .= '<val_type>'.$type.'</val_type><val>'.(($var) ? 1 : 0)."</val>\n";
 		break;
 
 
-		# recursive vars
+		// recursive vars
 
 		case "array"   :
 			if (isset($name)) {
 				$str .= $indent.'<name_type>'.gettype($name).'</name_type><name>'.$name.'</name>';
-			}#end if
+			}//end if
 			$str .= '<val_type>'.$type."</val_type>\n";
 			for(reset($var); NULL !== ($k = key($var)); next($var)) {
 				$str .= _var_serialise($var[$k], $k, $indent.' ');
-			}#end for
+			}//end for
 
 		break;
 
@@ -88,14 +98,21 @@ function _var_serialise(&$var) {
 
 		default :
 			echo "<hr><b>Unable to serialise a var of type '$type'</b><hr>\n";
-	}#end switch
+	}//end switch
 	
 	return $str;
 
-}#end _var_serialise()
+}//end _var_serialise()
 
- # this is a dummy fn to get the copy of the var then pass that copy by 
-# reference to _var_unserialise() fn that may alter the var with escaping
+/**
+* This is a dummy fn to get the copy of the var then pass that copy by 
+* reference to _var_unserialise() fn that may alter the var with escaping
+*
+* @param mixed	$str			the var to unserialise
+*
+* @return string
+* @access public
+*/
 function var_unserialise($str) {
 	$str = str_replace("\r\n", "\n", $str);
 	$str = str_replace("\r", "\n", $str);
@@ -103,13 +120,23 @@ function var_unserialise($str) {
 	$i = 0;
 	list($var, $name) = _var_unserialise($lines, $i);
 	return $var;
-}#end var_unserialise()
+}//end var_unserialise()
 
+/**
+* Actual recursive workhorse of var_unserialise()
+*
+* @param Array(string)	$lines	an array of the lines of the serialisation
+* @param int			$i		the current line that we are on
+* @param string			$indent	the current indent (depth)
+*
+* @return string
+* @access private
+*/
 function _var_unserialise(&$lines, &$i, $indent='') {
 
 	$str = &$lines[$i];
 
-	# if it's blank then return NULL
+	// if it's blank then return NULL
 	if ($str == "") return Array(NULL, NULL);
 
 	$name_type = "";
@@ -121,24 +148,24 @@ function _var_unserialise(&$lines, &$i, $indent='') {
 		$name      = $matches[2];
 		$str       = $matches[3];
 		settype($name, $name_type);
-	}#end if
+	}//end if
 
-	# OK so it's an array
+	// OK so it's an array
 	if ($str == '<val_type>array</val_type>'){
 		$indent_len = strlen($indent);
 		$i++;
 		$val = Array();
-		# while the indent is still the same unserialise our contents
+		// while the indent is still the same unserialise our contents
 		while(isset($lines[$i]) && $indent.' ' == substr($lines[$i], 0, $indent_len + 1)) {
 			list($var, $key) = _var_unserialise($lines, $i, $indent.' ');
 			$val[$key] = $var;
 			$i++;
-		}#end while
+		}//end while
 		$i--;
 
 		return Array($val, $name);
 
-	}#end if
+	}//end if
 
 	$val_type = "";
 	$val      = NULL;
@@ -150,19 +177,19 @@ function _var_unserialise(&$lines, &$i, $indent='') {
 		$val      = $matches[2];
 		settype($val, $val_type);
 
-		# if this is a string then we need to reverse the escaping process
+		// if this is a string then we need to reverse the escaping process
 		if ($val_type == "string") {
 			$val = str_replace('<cr>', "\r", $val);
 			$val = str_replace('<lf>', "\n", $val);
 			$val = str_replace('~g~', '>', $val);
 			$val = str_replace('~l~', '<', $val);
 			$val = str_replace('~~', '~', $val);
-		}#end if
+		}//end if
 
-	}#end if
+	}//end if
 
 	return Array($val, $name);
 
-}#end _var_unserialise()
+}//end _var_unserialise()
 
 ?>

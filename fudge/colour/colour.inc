@@ -151,7 +151,7 @@ $GLOBALS['COLOUR_PALETTE'] = Array(
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Squizlib::colour
+* @package Fudge::colour
 */
 class Colour 
 {
