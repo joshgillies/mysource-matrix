@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.71 2004/12/13 06:15:43 lwright Exp $
+* $Id: search_page.inc,v 1.72 2004/12/20 23:27:27 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -294,7 +294,7 @@ class Search_Page extends Page
 		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('results_per_page'));
 
 		?>
-		<form name="search_form" method="get" action="<?php echo $this->getUrl(); ?>">
+		<form name="search_form" method="get" action="<?php echo replace_query_string_vars(Array()); ?>">
 			<input type="hidden" name="current_result_page" value="<?php echo $current_result_page; ?>" />
 			<input type="hidden" name="results_per_page" value="<?php echo $results_per_page; ?>" />
 			<?php
@@ -1255,7 +1255,7 @@ class Search_Page extends Page
 					} else if (ereg('(.+)_query_synonyms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						// synonym searching
-						$field_name = $matches[1];						
+						$field_name = $matches[1];
 						$suggestion_string = Array();
 						foreach ($this->_tmp['search_synonyms'][$field_name] as $word => $synonyms) {
 							foreach ($synonyms as $synonym) {
