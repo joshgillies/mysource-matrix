@@ -21,8 +21,9 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	* @var Array()
 	*/
 	var $tabs = Array('details' => Array('name' => 'Details',
-										  'icon' => 'create'
-										  )
+										 'icon' => 'create',
+										 'force_unlock' => true
+										 )
 					   );
 
 
