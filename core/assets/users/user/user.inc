@@ -51,11 +51,17 @@ class User extends Asset
 			$this->setAttrValue('last_name',  $last_name);
 			$this->setAttrValue('email',      $email);
 
+			$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE);
+
 			// create an inbox
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
 			$inbox = new Inbox();
-			$inbox_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE);
-			if (!$inbox->create($inbox_link)) return false;
+			if (!$inbox->create($user_link)) return false;
+
+			// create a workspace
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('workspace');
+			$workspace = new Workspace();
+			if (!$workspace->create($user_link)) return false;
 
 			return true;
 
