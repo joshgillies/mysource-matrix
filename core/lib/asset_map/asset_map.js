@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.8 2004/08/26 03:54:31 gsherwood Exp $
+* $Id: asset_map.js,v 1.9 2004/11/02 03:18:41 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,6 +29,8 @@ var FLASH_TO_JS_CALL_BACK_FNS = {};
 var IE_FLASH_VERSION  = 6;
 var MOZ_FLASH_VERSION = 7;
 var flash_InternetExplorer = (navigator.appName.indexOf("Microsoft") != -1);
+
+var SQ_REFRESH_ASSETIDS = "";
 
 
 // Hook for Internet Explorer
@@ -56,7 +58,7 @@ function init_asset_map() {
 	if (matches = navigator.userAgent.match(/MSIE ([0-9.]+)/)) {
 		if (matches[1] < '6.0') {
 			alert('You need to use Internet Explorer 6.0 or above for the communication between the Asset Map and the Javascript');
-		} 
+		}
 
 	} else {
 
@@ -100,8 +102,8 @@ function open_hipo(url)
 //{
 //	var asset_mapObj = document.asset_map;
 //	jsToFlashCall(asset_mapObj, 'reload_assets', {assetids_xml: assetids_xml});
-	
-	
+
+
 
 //}//end reload_assets()
 
@@ -118,10 +120,10 @@ function get_java_applet_object()
 
 function reload_assets(assetids)
 {
-	var asset_mapObj = get_java_applet_object();
-	params = new Array();
-	params["assetids"] = assetids;
-	jsToJavaCall(asset_mapObj, "reload_assets", "assetsReloaded", params);
+	if (SQ_REFRESH_ASSETIDS != "") {
+		SQ_REFRESH_ASSETIDS += ",";
+	}
+	SQ_REFRESH_ASSETIDS += assetids;
 }
 
 
@@ -130,11 +132,11 @@ function reload_assets(assetids)
 */
 function reload_asset(assetid)
 {
-	var asset_mapObj = get_java_applet_object();
-	params = new Array();
-	params["assetids"] = assetid + ",";
-	jsToJavaCall(asset_mapObj, "reload_assets", "assetsReloaded", params);
-	
+	if (SQ_REFRESH_ASSETIDS != "") {
+		SQ_REFRESH_ASSETIDS += ",";
+	}
+	SQ_REFRESH_ASSETIDS += assetid;
+
 }//end reload_asset()
 
 
@@ -218,9 +220,8 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 	if (ASSET_FINDER_FIELD_NAME == null) {
 		ASSET_FINDER_FIELD_NAME = name;
 		ASSET_FINDER_FIELD_SAFE_NAME = safe_name;
-		
+
 		asset_finder_start('asset_finder_done', type_codes);
-		
 
 		ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Cancel');
 
@@ -246,6 +247,9 @@ function asset_finder_change_btn_press(name, safe_name, type_codes, done_fn)
 */
 function asset_finder_done(params, label, url)
 {
+	var win = ASSET_FINDER_OBJ.window;
+	win.focus();
+
 	if (ASSET_FINDER_FIELD_NAME == null) return;
 
 	var assetid = params;
@@ -254,6 +258,7 @@ function asset_finder_done(params, label, url)
 		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[assetid]',assetid);
 		ASSET_FINDER_OBJ.set_hidden_field(ASSET_FINDER_FIELD_NAME + '[url]', url);
 		ASSET_FINDER_OBJ.set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_label', (assetid == 0) ? '' : label + ' (Id : #' + assetid + ')');
+
 	}
 
 	ASSET_FINDER_OBJ.set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change');
@@ -266,7 +271,7 @@ function asset_finder_done(params, label, url)
 
 /**
 * Starts the asset finder and lets the asset map know that we are now in asset finder mode
-* 
+*
 * @param String		fn				the function to call when done
 * @param String		type_codes		the type codes to restrict the asset finder to
 *
@@ -279,7 +284,7 @@ function asset_finder_start(fn, type_codes)
 	var params = new Array();
 	params["callback_fn"] = fn;
 	params["type_codes"] = type_codes;
-	
+
 	jsToJavaCall(asset_mapObj, 'asset_finder', 'assetFinderStarted', params);
 
 }//end asset_finder_start()
@@ -291,11 +296,11 @@ function asset_finder_start(fn, type_codes)
 * @access public
 */
 function asset_finder_cancel() {
-	
+
 	var asset_mapObj = get_java_applet_object();
 	params = new Array();
 	jsToJavaCall(asset_mapObj, 'asset_finder', 'assetFinderStopped', params);
-	
+
 }//end asset_finder_cancel()
 
 
@@ -353,7 +358,7 @@ window.onunload = asset_finder_onunload;
 *
 * @param object		$asset_mapObj	the java applet
 * @param string		$type			the type of request
-* @param String		$command		the command 
+* @param String		$command		the command
 * @param Array		$params			the params to pass to java
 */
 function jsToJavaCall(asset_mapObj, type, command, params)
