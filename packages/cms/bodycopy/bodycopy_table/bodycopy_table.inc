@@ -27,6 +27,7 @@ class Bodycopy_Table extends Asset
 	{
 		$this->_ser_attrs = true;
 		$this->Asset($assetid);
+
 	}//end constructor
 
 
@@ -61,6 +62,7 @@ class Bodycopy_Table extends Asset
 		}
 
 		return true;
+
 	}//end saveSystemVersion()
 
 
@@ -153,6 +155,7 @@ class Bodycopy_Table extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
+
 	}//end create()
 
 
@@ -171,6 +174,7 @@ class Bodycopy_Table extends Asset
 			$dependant = '1';
 		}
 		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
+
 	}// end createLink()
 
 
@@ -215,6 +219,7 @@ class Bodycopy_Table extends Asset
 		}
 
 		return true;
+
 	}
 
 
@@ -304,6 +309,35 @@ class Bodycopy_Table extends Asset
 	*/
 	function printBody()
 	{
+		// create an array of urls that the content file is
+		// going to try and use to work out file urls, link hrefs etc
+		$sq_asset_url_list = Array();
+		
+		$notice_links = $this->getLinks(SQ_LINK_NOTICE);
+		$get_href_ids = Array();
+		foreach ($notice_links as $link) $get_href_ids[] = $link['minorid'];
+		
+		$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetHref(array_unique($get_href_ids));
+		foreach ($hrefs as $minorid => $href) {
+			if ($href == '') $href = "Javascript: alert('This link does not exist');";
+			$sq_asset_url_list[$minorid] = $href;
+		}
+
+		if(SQ_ROLLBACK_VIEW) {
+			$edit = $this->getEditFns();
+			ob_start();
+			$edit->paint($this, true);
+			$output = ob_get_contents();
+			ob_end_clean();
+
+			foreach ($sq_asset_url_list as $assetid => $href) {
+				$e = "(/?\./\\?a=$assetid)([^0-9]+)";
+				$output = ereg_replace($e, $href.'\\2', $output);
+			}
+			echo $output;
+			return;
+		}
+
 		if (!file_exists($this->data_path.'/content_file.php')) {
 			// generate the contents file
 			$edit = $this->getEditFns();
@@ -313,22 +347,9 @@ class Bodycopy_Table extends Asset
 		if (!file_exists($this->data_path.'/content_file.php')) {
 			trigger_error('Contents file failed to generate for bodycopy table '.$this->name, E_USER_WARNING);
 		} else {
-			// create an array of urls that the content file is
-			// going to try and use to work out file urls, link hrefs etc
-			$sq_asset_url_list = Array();
-
-			$notice_links = $this->getLinks(SQ_LINK_NOTICE);
-			$get_href_ids = Array();
-			foreach ($notice_links as $link) $get_href_ids[] = $link['minorid'];
-
-			$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetHref(array_unique($get_href_ids));
-			foreach ($hrefs as $minorid => $href) {
-				if ($href == '') $href = "Javascript: alert('This link does not exist');";
-				$sq_asset_url_list[$minorid] = $href;
-			}
-
 			include($this->data_path.'/content_file.php');
 		}
+
 	}// end printBody()
 
 
@@ -348,4 +369,5 @@ class Bodycopy_Table extends Asset
 
 
 }//end class
+
 ?>
