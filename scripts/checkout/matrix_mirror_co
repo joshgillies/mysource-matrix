@@ -18,7 +18,7 @@
 # | licence.                                                           |
 # +--------------------------------------------------------------------+
 #
-# $Id: matrix_mirror_co,v 1.1 2005/04/01 13:27:54 brobertson Exp $
+# $Id: matrix_mirror_co,v 1.2 2005/04/05 14:57:53 brobertson Exp $
 #
 # Script used to checkout MySource v3 (Matrix) from one of the CVS mirrors
 #
@@ -30,11 +30,6 @@ FUDGE_MODULES="colour csv datetime_field db_extras dev file_versioning general i
 
 if [ ! `which cvs 2> /dev/null` ]; then
 	echo "'cvs' command not in path";
-	exit 1;
-fi
-
-if [ ! `which fudge_co 2> /dev/null` ]; then
-	echo "'fudge_co' command not in path";
 	exit 1;
 fi
 
