@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.216 2004/06/09 04:50:06 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.217 2004/06/09 11:12:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1294,7 +1294,7 @@ class Asset_Manager extends MySource_Object
 	{
 		// type-check lock type BEFORE we get asset, otherwise we're just wasting time allocating it
 		if (empty($lock_type) || !is_string($lock_type)) {
-			trigger_error('A lock type must be specified when acquiring locks for asset #' . $assetid, E_USER_WARNING);
+			trigger_error('A lock type must be specified when releasing locks for asset #' . $assetid, E_USER_WARNING);
 			return false;
 		}
 
