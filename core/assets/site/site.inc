@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: site.inc,v 1.45 2003/10/13 07:16:51 brobertson Exp $
+* $Id: site.inc,v 1.46 2003/10/16 01:51:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,6 +34,21 @@ class Site extends Folder
 		$this->Folder($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['attr_links'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
 
 
 	/**

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: site_edit_fns.inc,v 1.36 2003/10/16 00:23:18 brobertson Exp $
+* $Id: site_edit_fns.inc,v 1.37 2003/10/16 01:51:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,6 +36,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	function Site_Edit_Fns()
 	{
 		$this->Folder_Edit_Fns();
+		$this->static_screens['details']['lock_type'] = 'attr_links';
 
 	}//end constructor
 
