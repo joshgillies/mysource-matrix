@@ -41,8 +41,8 @@ function externalCallWatch(property, old_val, new_val)
 		break;
 		case "exec" :
 			if (this.cmd != "" && new_val == "true") {
-//				trace("onExternalCall : " + this.cmd);
-//				for(var i in this.params) trace("params -> " + i + " : " + this.params[i]);
+				trace("onExternalCall : " + this.cmd);
+				for(var i in this.params) trace("params -> " + i + " : " + this.params[i]);
 				this.broadcastMessage("onExternalCall", this.cmd, this.params);
 				// reset the storage units
 				this.params = {};

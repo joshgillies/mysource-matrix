@@ -1,15 +1,15 @@
+#include "mcMailMsgsClass.as"
 
-#include "mcMsgsBarClass.as"
 
 /**
-* TabContentArea
+* TabContentAreaMailMsgs
 *
-* This is the code for a single instance of a tab content area that is used by mcTabs
+* Looks after the displaying of the mail msgs
 *
 */
 
 // Create the Class
-function mcTabContentAreaLogMsgsClass()
+function mcTabContentAreaMailMsgsClass()
 {
 	super();
 
@@ -20,7 +20,7 @@ function mcTabContentAreaLogMsgsClass()
 	this.scroll_pane._y = 0;
 
 	// Now the msgs container
-	this.attachMovie("mcMsgsBarID", "msgs_container", 2);
+	this.attachMovie("mcMailMsgsID", "msgs_container", 2);
 
 	// Attach the container on to the scroll pane
 	this.scroll_pane.setScrollContent(this.msgs_container);
@@ -29,14 +29,14 @@ function mcTabContentAreaLogMsgsClass()
 
 	// Because the scroll pane inherits from some other place 
 	// we need to manually set it up for nesting
-	makeNestedMouseMovieClip(this.scroll_pane, true, NestedMouseMovieClip.NM_ON_PRESS);
+	makeNestedMouseMovieClip(this.scroll_pane,               true, NestedMouseMovieClip.NM_ON_PRESS);
 	makeNestedMouseMovieClip(this.scroll_pane.hScrollBar_mc, true, NestedMouseMovieClip.NM_ON_PRESS);
 	makeNestedMouseMovieClip(this.scroll_pane.vScrollBar_mc, true, NestedMouseMovieClip.NM_ON_PRESS);
 
 }// end constructor()
 
 // Make it inherit from Tab Content Area
-mcTabContentAreaLogMsgsClass.prototype = new mcTabContentAreaClass();
+mcTabContentAreaMailMsgsClass.prototype = new mcTabContentAreaClass();
 
 /**
 * Set the size of the tabs
@@ -45,7 +45,7 @@ mcTabContentAreaLogMsgsClass.prototype = new mcTabContentAreaClass();
 * @param int	h	the height of the tabs
 *
 */
-mcTabContentAreaLogMsgsClass.prototype.setSize = function(w, h)
+mcTabContentAreaMailMsgsClass.prototype.setSize = function(w, h)
 {
 	super.setSize(w, h);
 	this.scroll_pane.setSize(w, h);
@@ -58,10 +58,10 @@ mcTabContentAreaLogMsgsClass.prototype.setSize = function(w, h)
 *
 * @access public
 */
-mcTabContentAreaLogMsgsClass.prototype.onRelease = function() 
+mcTabContentAreaMailMsgsClass.prototype.onRelease = function() 
 {
 	return super.onRelease(); // Fucking flash see SUPER_METHOD_EG.as
 }// end
 
 
-Object.registerClass("mcTabContentAreaLogMsgsID", mcTabContentAreaLogMsgsClass);
+Object.registerClass("mcTabContentAreaMailMsgsID", mcTabContentAreaMailMsgsClass);

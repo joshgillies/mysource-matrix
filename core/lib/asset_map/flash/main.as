@@ -43,10 +43,8 @@ XML.prototype.ignoreWhite = true;
 #include "assetManager.as"
 #include "mcTabsClass.as"
 #include "mcTabContentAreaTreeClass.as"
+#include "mcTabContentAreaMailMsgsClass.as"
 #include "mcTabContentAreaLogMsgsClass.as"
-#include "mcMenuContainerClass.as"
-#include "mcListContainerClass.as"
-#include "mcMsgsBarClass.as"
 #include "mcOptionsBoxClass.as"
 #include "mcDialogBoxClass.as"
 #include "mcProgressBarClass.as"
@@ -110,10 +108,12 @@ _root.asset_manager = new AssetManager();
 // Now attach the Tabs
 _root.attachMovie("mcTabsID", "tabs", 1);
 _root.tabs.addTab("mcTabContentAreaTreeID", "tree",  "Tree");
-_root.tabs.addTab("mcTabContentAreaID", "mail",  "Mail Messages");
+_root.tabs.addTab("mcTabContentAreaMailMsgsID", "mail",  "Mail Messages");
 _root.tabs.addTab("mcTabContentAreaLogMsgsID", "log",  "Log Messages");
 
 // Initialise stage resize listener
 _root.stage_resize = new StageResize();
 
 _root.asset_manager.init();
+_root.tabs.mail.msgs_container.refreshMail();
+

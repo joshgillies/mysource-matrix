@@ -1,9 +1,35 @@
 
 _root.test_pressed_count = 0;
 
+
 function testOnClick1(component)
 { 
-	trace("R : " + _root.asset_manager.asset_types.root_user.isType('backend_user'));
+	_root.tmp_text = new String(_root.tabs.mail.msgs_container.msg_5.subject_field.text);
+	trace("Width      : " + _root.tabs.mail.msgs_container.msg_5.subject_field._width);
+	trace("Text Width : " + _root.tabs.mail.msgs_container.msg_5.subject_field.textWidth);
+	trace("");
+
+}
+
+function testOnClick2 (component)
+{
+	_root.tmp_text = _root.tmp_text.substr(0, _root.tmp_text.length - 1);
+	_root.tabs.mail.msgs_container.msg_5.subject_field.text = _root.tmp_text + "...";
+	_root.tabs.mail.msgs_container.msg_5.subject_field.setTextFormat(_root.tabs.mail.msgs_container.msg_5.text_format);
+
+	trace("Width      : " + _root.tabs.mail.msgs_container.msg_5.subject_field._width);
+	trace("Text Width : " + _root.tabs.mail.msgs_container.msg_5.subject_field.textWidth);
+	trace("");
+}
+
+
+_root.test_button1.swapDepths(200);
+_root.test_button2.swapDepths(201);
+_root.test_button1.setClickHandler("testOnClick1", _root);
+_root.test_button2.setClickHandler("testOnClick2", _root);
+
+
+//	trace("R : " + _root.asset_manager.asset_types.root_user.isType('backend_user'));
 
 //	trace('MENU SIZE : ' + _root.tabs.tree.menu_container._width + 'x' + _root.tabs.tree.menu_container._height);
 //	trace('scroll pane : ' + (_root.tabs.tree.scroll_pane instanceof MovieClip));
@@ -32,11 +58,6 @@ function testOnClick1(component)
 //	_root.msgs_bar.scroll_pane.refreshPane();
 //
 //	trace("SCROLL CONTENT :\t" + _root.msgs_bar.scroll_content._x + ", " + _root.msgs_bar.scroll_content._y + " \t :\t" + (_root.msgs_bar.scroll_content._x + _root.msgs_bar.scroll_content._width) + ", " + (_root.msgs_bar.scroll_content._y + _root.msgs_bar.scroll_content._height));
-
-}
-
-function testOnClick2 (component)
-{
 //	for(var i = 0; i < 7; i++) {
 //		_root.tabs.log.msgs_container.addMessages([{type: "error", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
 //	}
@@ -62,25 +83,9 @@ function testOnClick2 (component)
 //			trace(i + " :\t" + _root.msgs_bar.scroll_content[i]._x + ", " + _root.msgs_bar.scroll_content[i]._y + " \t :\t" + (_root.msgs_bar.scroll_content[i]._x + _root.msgs_bar.scroll_content[i]._width) + ", " + (_root.msgs_bar.scroll_content[i]._y + _root.msgs_bar.scroll_content[i]._height));
 //		}
 //	}
-
-	for(var i in _root.tabs.tree.list_container.list) {
-		if (_root.tabs.tree.list_container.list[i] instanceof MovieClip) {
-			trace(i + " :\t" + _root.tabs.tree.list_container.list[i].text_field.text);
-		}
-	}
-
 //	trace("TABS MCs:");
 //	for(var i in _root.tabs) {
 //		if (_root.tabs[i] instanceof MovieClip) {
 //			trace(i + " :\t" + _root.tabs[i]._name);
 //		}
 //	}
-
-}
-
-
-_root.test_button1.swapDepths(200);
-_root.test_button2.swapDepths(201);
-_root.test_button1.setClickHandler("testOnClick1", _root);
-_root.test_button2.setClickHandler("testOnClick2", _root);
-
