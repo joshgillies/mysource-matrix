@@ -3,7 +3,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: indexing_manager.inc,v 1.5 2003/10/22 05:12:25 dwong Exp $
+* $Id: indexing_manager.inc,v 1.6 2003/10/30 23:47:13 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@
 
 *
 * @author  Dominic Wong<dwong@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix
 */
 class Indexing_Manager extends MySource_Object 
@@ -27,7 +27,7 @@ class Indexing_Manager extends MySource_Object
 	function Indexing_Manager() 
 	{
 		parent::MySource_Object();
-	} // end constructor
+	}//end constructor
 
 	/** 
 	  * Function called from when an asset processes changes to signify
@@ -39,25 +39,20 @@ class Indexing_Manager extends MySource_Object
 	  * @returns void
 	  * 
 	*/
-	function changed($assetid, $component = false) 
+	function changed($assetid) 
 	{
 		if ($assetid <= 0)
 			return;
 
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		// get dependent parents
-		$changed_assetids = $am->getDependantParents($assetid);
-		$changed_assetids[] = $assetid;
 
-		foreach ($changed_assetids as $assetid) {
-			$this->flushKeyData($assetid, $component);
+		$this->flushKeyData($assetid);
 
-			$asset =& $am->getAsset($assetid);
-			$newKeyData =& $asset->getKeyData($component);
+		$asset =& $am->getAsset($assetid);
+		$newKeyData =& $asset->getKeyData();
+		$this->addKeyData($assetid, $newKeyData);
 
-			$this->addKeyData($assetid, $newKeyData);
-		}
-	} // end changed()
+	}//end changed()
 
 	/**
 	* Flushes the keydata for an asset.
@@ -77,7 +72,7 @@ class Indexing_Manager extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$db->query($sql);
-	} // end flushKeyData()
+	}//end flushKeyData()
 
 	/** 
 	  * Adds keydata for an asset.
@@ -113,15 +108,15 @@ class Indexing_Manager extends MySource_Object
 				$datum['value'] = strtolower($datum['value']);
 			}
 
-			array_push($paramData, Array($datum['value'], $datum['type'], $datum['component'], $datum['score']));
+			array_push($paramData, Array($datum['value'], $datum['type'], $datum['component'], $datum['position']));
 		}
 		$st = $db->prepare(
-			"INSERT INTO ". SQ_TABLE_PREFIX ."asset_indexing(value, type, assetid, component, score)
+			"INSERT INTO ". SQ_TABLE_PREFIX ."asset_indexing(value, type, assetid, component, position)
 			VALUES (?, ?, $assetid, ?, ?)"
 		);
 
 		$db->executeMultiple($st, $paramData);
-	} // end addKeyData()
+	}//end addKeyData()
 
 	/**
 	  * Adds a single piece of data for an asset.
@@ -134,7 +129,7 @@ class Indexing_Manager extends MySource_Object
 	  * @returns void
 	*/
 
-	function addKeyDatum($assetid, $value, $type = 'text', $component = '') 
+	function addKeyDatum($assetid, $value, $type = 'text', $component = '', $position = 0) 
 	{
 		if (!$assetid || !$value)
 			return;
@@ -144,17 +139,18 @@ class Indexing_Manager extends MySource_Object
 			$component = '';
 
 
-		$sql = "INSERT INTO ".SQ_TABLE_PREFIX."asset_indexing (value, type, assetid, component)
+		$sql = "INSERT INTO ".SQ_TABLE_PREFIX."asset_indexing (value, type, assetid, component, position)
 				VALUES (
 					'". addslashes($value)		."', 
 					'". addslashes($type)		."',
 					'". addslashes($assetid)	."',
-					'". addslashes($component)	."'
+					'". addslashes($component)	."',
+					'". addslashes($position)	."'
 				)";
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$results = $db->query($sql);
-	} // end addKeyDatum()
+	}//end addKeyDatum()
 
 	/** 
 	* Sets the default component weighting for a particular asset type. This does NOT create any new rows in defaults. 
@@ -175,7 +171,7 @@ class Indexing_Manager extends MySource_Object
 	
 		$db->query($sql);
 
-	} // end setComponentDefaultWeighting()
+	}//end setComponentDefaultWeighting()
 
 	/** 
 	* Sets the component weighting for a particular asset. 
@@ -200,8 +196,8 @@ class Indexing_Manager extends MySource_Object
 			$db->query($sql);
 		}
 
-	} // end setComponentWeighting()
+	}//end setComponentWeighting()
 
-} // end class
+}//end class
 
 ?>

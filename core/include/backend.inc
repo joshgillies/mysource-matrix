@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.69 2003/10/30 01:26:28 gsherwood Exp $
+* $Id: backend.inc,v 1.70 2003/10/30 23:47:13 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -371,6 +371,21 @@ class Backend extends MySource_Object
 					$options[] = Array(
 									'url'     => '#',
 									'onclick' => "Javascript:
+									if(top.main.main_form.sq_link_path) {
+										if(top.main.main_form.sq_link_path.value) {
+											if (top.sidenav.select_path) {
+												top.sidenav.select_path(top.main.main_form.sq_link_path.value);
+											}
+										}
+										return false;
+									}",
+									'title'   => 'Where am I?',
+									'icon'    => 'whereami.png',
+									);
+
+					$options[] = Array(
+									'url'     => '#',
+									'onclick' => "Javascript:
 									if(top.main.main_form.sq_preview_url) {
 										if(top.main.main_form.sq_preview_url.value) {
 											window.open(top.main.main_form.sq_preview_url.value, 'sq_preview_window');
@@ -416,13 +431,13 @@ class Backend extends MySource_Object
 
 					foreach($options as $option) {
 						?><a href="<?php echo $option['url'];?>"
-							 title="<?php echo htmlspecialchars($option['title']);?>"
+							 onMouseOver="window.status = '<?php echo htmlspecialchars($option['title']);?>'; return true;"
+							 onMouseOut = "window.status = ''; return true;" 
 							 style="cursor: pointer;"
 							 <?php echo (isset($option['target'])) ? 'target="'.$option['target'].'"' : ''; ?>
 							 <?php echo (isset($option['onclick'])) ? 'onClick="'.$option['onclick'].'"' : ''; ?>
-						  >
-									<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script>
-								</a>&nbsp;&nbsp;<?php
+						  ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script></a>
+						&nbsp;&nbsp;<?php
 					}
 
 				?>

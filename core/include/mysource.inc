@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.15 2003/10/21 23:45:59 gsherwood Exp $
+* $Id: mysource.inc,v 1.16 2003/10/30 23:47:13 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -183,7 +183,7 @@ class MySource
 			$_SESSION['user_last_access'] = time();
 			$this->_user_is_root      = $_SESSION['user_is_root'];
 			$this->_user_is_sys_admin = $_SESSION['user_is_sys_admin'];
-
+			$this->setCurrentUser($this->am->getSystemAsset('root_user'));
 		} else {
 			define('SQ_ROLLBACK_VIEW',        '0');
 			define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_PREFIX);
