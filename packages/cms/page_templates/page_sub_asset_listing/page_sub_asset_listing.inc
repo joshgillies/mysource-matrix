@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing.inc,v 1.15 2003/12/12 03:37:07 gsherwood Exp $
+* $Id: page_sub_asset_listing.inc,v 1.16 2004/01/14 04:23:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -78,14 +78,15 @@ class Page_Sub_Asset_Listing extends Page
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
 		$sub_assets= Array(
-			'type_formats' => 'folder',
+			'type_formats'  => 'folder',
 			'asset_formats' => 'folder',
-			'page_contents' => 'Bodycopy',
+			'page_contents' => 'bodycopy',
 		);
+
 		$type_formats = null;
 		foreach ($sub_assets as $name => $type) {
 			$asset = new $type();
-			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 	1, 'exclusive' => 1);
+			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
 
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
 			if (!$asset->create($copy_link)) {
@@ -96,9 +97,11 @@ class Page_Sub_Asset_Listing extends Page
 			if ($name == 'type_formats') {
 				$type_formats = $asset;
 			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
 		}
 		$asset = new Bodycopy();
-		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 	1, 'exclusive' => 1);
+		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
 		$asset->setAttrValue('name', 'Default Format');
 
 		if (!$asset->create($copy_link)) {
@@ -107,6 +110,8 @@ class Page_Sub_Asset_Listing extends Page
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+		unset($asset);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
