@@ -11,6 +11,8 @@ function mcListItemClass()
 	// the current state that the buttons is in (normal, selected)
 	this.state = "normal";
 
+	this.setMoveState("off");
+
 	// Create the Plus Minus Button
 	this.attachMovie("mcPlusMinusID", "kids_button", 2);
 	this.kids_button._x = 3;
@@ -64,6 +66,11 @@ mcListItemClass.prototype.getKidState = function()
 mcListItemClass.prototype.setKidState = function(state) 
 {
 	this.kids_button.setState(state);
+}
+
+mcListItemClass.prototype.setMoveState = function(state) 
+{
+	this.move_button.gotoAndStop("move_" + state);
 }
 
 

@@ -562,39 +562,48 @@ mcListContainerClass.prototype.getItemPos = function(x, y, bleed_gaps)
 /**
 * Returns the assetid and the position in it's kids array that a pos in the items_order array refers to
 *
-* @param int		pos 
-* @param boolean	[in_gap] default=false, if pos is over a branch gap below the it's indicated pos
+* @param int	pos
+* @param string	where	where in relation to pos are we talking about (before | after | child)
 *
 * @return Object
 * @access public
 */
-mcListContainerClass.prototype.posToAssetInfo = function(pos, in_gap) 
+mcListContainerClass.prototype.posToAssetInfo = function(pos, where) 
 {
 
 	trace('Items Order : ' + this.items_order[pos].name);
 	trace('Parent  : ' + this[this.items_order[pos].name].parent_item_name);
 
-
 	var pos_item = this[this.items_order[pos].name];
+	var parent_assetid = 0;
+	var relative_pos   = 0;
 
-	var parent_assetid  = (pos_item.parent_item_name == this.item_prefix) ? 1 : this[pos_item.parent_item_name].assetid;
-	var asset = _root.asset_manager.assets[assetid];
-
-	// Get the relative index from the kids array
-	var relative_pos = 0;
-	// if we are in the gap (and this pos is an end branch)
-	// then our pos is the length of the kids array
-	if (in_gap && this.items_order[pos].end_branch) {
-		relative_pos = _root.asset_manager.assets[parent_assetid].kids.length;
+	// if we are after a child pos, then this is easy, the parent is the current item 
+	// and the relative pos is the top of the list
+	if (where == "child") {
+		parent_assetid = pos_item.assetid;
+		relative_pos   = 0;
 
 	} else {
-		for(var j = 0; j < _root.asset_manager.assets[parent_assetid].kids.length; j++) {
-			if (_root.asset_manager.assets[parent_assetid].kids[j] == pos_item.assetid) {
-				relative_pos = j;
-				break;
-			}
 
-		}// end for
+		parent_assetid  = (pos_item.parent_item_name == this.item_prefix) ? 1 : this[pos_item.parent_item_name].assetid;
+
+		// if we are after this pos (and this pos is an end branch)
+		// then our pos is the length of the kids array
+		if (where == "after" && this.items_order[pos].end_branch) {
+			relative_pos = _root.asset_manager.assets[parent_assetid].kids.length;
+
+		// else we must cycle through our parents kids until we find ourselves
+		} else {
+			for(var j = 0; j < _root.asset_manager.assets[parent_assetid].kids.length; j++) {
+				if (_root.asset_manager.assets[parent_assetid].kids[j] == pos_item.assetid) {
+					relative_pos = j;
+					break;
+				}
+
+			}// end for
+
+		}// end if
 
 	}// end if
 
@@ -710,12 +719,12 @@ mcListContainerClass.prototype.itemStartMove = function()
 		trace("Start Item Move");
 		this.action = 'move';
 		// move to top of layers
-		this.selected_item.move_button.gotoAndStop("btn_down");
+		this.selected_item.setMoveState("on");
 	}
 
 }// end itemStartMove()
 
-mcListContainerClass.prototype.itemEndMove = function(pos, in_gap) 
+mcListContainerClass.prototype.itemEndMove = function(pos, where) 
 {
 	if (this.action != 'move') return;
 
@@ -724,11 +733,11 @@ mcListContainerClass.prototype.itemEndMove = function(pos, in_gap)
 	// if we actually moved
 	if (pos != this.selected_item.pos && pos != this.selected_item.pos + 1) {
 
-		trace("Move to Pos : " + pos + ", in gap : " + in_gap);
+		trace("Move to Pos : " + pos + ", where : " + where);
 
 	}// end if
 
-	this.selected_item.move_button.gotoAndStop("btn_up");
+	this.selected_item.setMoveState("off");
 
 	this.action = '';
 
@@ -740,7 +749,7 @@ mcListContainerClass.prototype.startMoveIndicator = function(on_end_fn)
 	if (this.move_indicator_on) return false;
 	this.move_indicator_on = true;
 
-	this.tmp.move_indicator = {on_end_fn: on_end_fn, pos: -1, in_gap: false};
+	this.tmp.move_indicator = {on_end_fn: on_end_fn, pos: -1, where: ""};
 	// move to top of layers
 	this.move_indicator.swapDepths(this.num_items + 1);
 
@@ -756,7 +765,7 @@ mcListContainerClass.prototype.endMoveIndicator = function()
 	if (!this.move_indicator_on) return;
 
 	// call back to the end fn for whoever called us
-	this[this.tmp.move_indicator.on_end_fn](this.tmp.move_indicator.pos, this.tmp.move_indicator.in_gap);
+	this[this.tmp.move_indicator.on_end_fn](this.tmp.move_indicator.pos, this.tmp.move_indicator.where);
 
 	// clear the move indicator
 	this.move_indicator._visible = false;
@@ -783,25 +792,43 @@ mcListContainerClass.prototype.onMouseMove = function()
 		if (pos.pos > this.items_order.length) pos.pos = this.items_order.length;
 		else if (pos.pos < 0) pos.pos = 0;
 
-		if (pos.pos != this.tmp.move_indicator.pos || pos.in_gap != this.tmp.move_indicator.in_gap) {
-			
-			// if we are past the end of the list then we are really at the last pos, in the gap
-			if (pos.pos == this.items_order.length) {
-				pos.pos    = this.items_order.length - 1;
-				pos.in_gap = true;
-			}
+		// if we are past the end of the list then we are really at the last pos, in the gap
+		if (pos.pos == this.items_order.length) {
+			pos.pos    = this.items_order.length - 1;
+			pos.in_gap = true;
+		}
 
-			// if we are past the end of the list, improvise
-			var item_name = this.items_order[pos.pos].name;
-			var incr      = (pos.in_gap) ? _root.LIST_ITEM_POS_INCREMENT : 0;
+		// if we are past the end of the list, improvise
+		var item_name = this.items_order[pos.pos].name;
 
+		this.tmp.move_indicator.pos    = pos.pos;
+
+		if (pos.in_gap) {
+			this.move_indicator.gotoAndStop("normal");
 			this.move_indicator._x  = this[item_name]._x;
-			this.move_indicator._y  = this[item_name]._y + incr;
-			this.move_indicator._visible = true;
-			this.tmp.move_indicator.pos    = pos.pos;
-			this.tmp.move_indicator.in_gap = pos.in_gap;
+			this.move_indicator._y  = this[item_name]._y + _root.LIST_ITEM_POS_INCREMENT;
+			this.tmp.move_indicator.where = "after";
 
-		}// endif
+		} else {
+
+			var percentile = ((ym - this[item_name]._y) / _root.LIST_ITEM_POS_INCREMENT);
+
+			if (percentile < 0.45) {
+				this.move_indicator.gotoAndStop("normal");
+				this.move_indicator._x  = this[item_name]._x;
+				this.move_indicator._y  = this[item_name]._y;
+				this.tmp.move_indicator.where = "before";
+
+			} else {
+				this.move_indicator.gotoAndStop("new_child");
+				this.move_indicator._x  = this[item_name]._x + _root.LIST_ITEM_INDENT_SPACE;
+				this.move_indicator._y  = this[item_name]._y + _root.LIST_ITEM_POS_INCREMENT;
+				this.tmp.move_indicator.where = "child";
+
+			}
+		}
+
+		this.move_indicator._visible = true;
 
 	}// end if action
 
@@ -843,11 +870,11 @@ mcListContainerClass.prototype.onMenuItemPress = function(action, info)
 * @param boolean	in_gap	whether the indicator finished up in the gap at the end of the list
 *
 */
-mcListContainerClass.prototype.execActionAddAsset = function(pos, in_gap) 
+mcListContainerClass.prototype.execActionAddAsset = function(pos, where) 
 {
 
-	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to pos " + pos + ". In Gap ? " + in_gap);
-	var info = this.posToAssetInfo(pos, in_gap);
+	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to pos " + pos + ". Where ? " + where);
+	var info = this.posToAssetInfo(pos, where);
 
 	var xml = new XML();
 	var cmd_elem = xml.createElement("command");
