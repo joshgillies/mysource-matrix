@@ -50,7 +50,7 @@ function normal_button($name, $value, $on_click='', $extras='')
 */
 function hidden_field($name, $value='')
 {
-	echo '<input type="hidden" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" />';
+	echo '<input type="hidden" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" />';
 }
 
 /**
@@ -506,7 +506,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 * @param int	$assetid		current value for this field
 * @param array	$type_codes		Array('[type_code]' => '[flag]') where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
 */
-function asset_finder($name, $assetid=0, $type_codes=Array())
+function asset_finder($name, $assetid=0, $type_codes=Array(), $top_obj='top', $done_fn='null')
 {
 	require_once 'XML/Tree.php';
 	$xml_type_codes = new XML_Tree();
@@ -544,7 +544,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array())
 
 	hidden_field($name, $assetid);
 	text_box($safe_name.'_label', $label, 30, 0, 'style="border-style: none; border-width: 0px;" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
-	normal_button($safe_name.'_change_btn', 'Change...', 'asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.str_replace("\n", "\\n", addslashes($xml_type_codes->get())).'\');');
+	normal_button($safe_name.'_change_btn', 'Change...', 'asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.str_replace("\n", "\\n", addslashes($xml_type_codes->get())).'\', '.$top_obj.', '.$done_fn.');');
 	normal_button($safe_name.'_clear_btn', 'Clear', 'asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
 	normal_button($safe_name.'_reset_btn', 'Reset', 'asset_finder_reset_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
 

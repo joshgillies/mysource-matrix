@@ -5,9 +5,9 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-* $Revision: 1.14 $
-* $Author: brobertson $
-* $Date: 2003/06/16 10:07:12 $
+* $Revision: 1.15 $
+* $Author: gsherwood $
+* $Date: 2003/06/20 07:01:57 $
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
@@ -405,7 +405,7 @@ function check_date(date_name, show_time)
 	var hour = 0;
 	var min  = 0;
 
-    // if we're showing the time boxes get them as well
+	// if we're showing the time boxes get them as well
 	if(show_time) {
 		var hour_box = get_form_element('hour_'   + date_name);
 		var min_box  = get_form_element('min_' + date_name);
@@ -437,16 +437,20 @@ function check_date(date_name, show_time)
 */
 var ASSET_FINDER_FIELD_NAME = null;
 var ASSET_FINDER_FIELD_SAFE_NAME = null;
-function asset_finder_change_btn_press(name, safe_name, type_codes_xml) 
+var ASSET_FINDER_TOP_OBJ = null;
+var ASSET_FINDER_DONE_FUNCTION = null;
+function asset_finder_change_btn_press(name, safe_name, type_codes_xml, top_obj, done_fn)
 {
 	var f = document.main_form;
+	ASSET_FINDER_TOP_OBJ = top_obj;
+	ASSET_FINDER_DONE_FUNCTION = done_fn;
 
 	if (ASSET_FINDER_FIELD_NAME != null && ASSET_FINDER_FIELD_NAME != name) {
 		alert('The asset finder is currently in use');
 		return;
 	}
 
-	if (!top.sidenav && !top.sidenav.asset_finder_start) {
+	if (!ASSET_FINDER_TOP_OBJ.sidenav && !ASSET_FINDER_TOP_OBJ.sidenav.asset_finder_start) {
 		alert('Unable to find flash');
 	}
 
@@ -454,12 +458,12 @@ function asset_finder_change_btn_press(name, safe_name, type_codes_xml)
 	if (ASSET_FINDER_FIELD_NAME == null) {
 		ASSET_FINDER_FIELD_NAME = name;
 		ASSET_FINDER_FIELD_SAFE_NAME = safe_name;
-		top.sidenav.asset_finder_start(asset_finder_done, type_codes_xml);
+		ASSET_FINDER_TOP_OBJ.sidenav.asset_finder_start(asset_finder_done, type_codes_xml);
 		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Cancel');
 
 	// else we must be cancelling the asset finder
 	} else {
-		top.sidenav.asset_finder_cancel();
+		ASSET_FINDER_TOP_OBJ.sidenav.asset_finder_cancel();
 		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change...');
 		ASSET_FINDER_FIELD_NAME = null;
 		ASSET_FINDER_FIELD_SAFE_NAME = null;
@@ -475,7 +479,7 @@ function asset_finder_change_btn_press(name, safe_name, type_codes_xml)
 *
 * @access public
 */
-function asset_finder_done(assetid, label) 
+function asset_finder_done(assetid, label)
 {
 	if (ASSET_FINDER_FIELD_NAME == null) return;
 
@@ -487,6 +491,7 @@ function asset_finder_done(assetid, label)
 	set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change...');
 	ASSET_FINDER_FIELD_NAME = null;
 	ASSET_FINDER_FIELD_SAFE_NAME = null;
+	if (ASSET_FINDER_DONE_FUNCTION !== null) ASSET_FINDER_DONE_FUNCTION();
 
 }// end asset_finder_done()
 
@@ -498,7 +503,7 @@ function asset_finder_done(assetid, label)
 *
 * @access public
 */
-function asset_finder_clear_btn_press(name, safe_name) 
+function asset_finder_clear_btn_press(name, safe_name)
 {
 	set_hidden_field(name, 0);
 	set_text_field(safe_name + '_label', '');
@@ -513,7 +518,7 @@ function asset_finder_clear_btn_press(name, safe_name)
 *
 * @access public
 */
-function asset_finder_reset_btn_press(name, safe_name, assetid, label) 
+function asset_finder_reset_btn_press(name, safe_name, assetid, label)
 {
 	set_hidden_field(name, assetid);
 	set_text_field(safe_name + '_label', label);
@@ -526,12 +531,12 @@ function asset_finder_reset_btn_press(name, safe_name, assetid, label)
 *
 * @access public
 */
-function asset_finder_onunload() 
+function asset_finder_onunload()
 {
 	// got a name ? we must be finding assets, cancel it
 	if (ASSET_FINDER_FIELD_NAME != null) {
-		if (top.sidenav && top.sidenav.asset_finder_cancel) {
-			top.sidenav.asset_finder_cancel();
+		if (ASSET_FINDER_TOP_OBJ.sidenav && ASSET_FINDER_TOP_OBJ.sidenav.asset_finder_cancel) {
+			ASSET_FINDER_TOP_OBJ.sidenav.asset_finder_cancel();
 		}
 	}
 }// end asset_finder_onunload()
