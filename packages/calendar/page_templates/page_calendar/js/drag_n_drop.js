@@ -85,20 +85,28 @@
 	movingElt.parentNode.style.cursor='';
 	document.onmousemove = null;
 	var newCell = getDestCell(movingElt);
+	var oldCell = movingElt.parentNode;
+	var oldBrother = movingElt.nextSibling;
 	if (newCell == originalParent) {
 		result = 'no_move';
 	} else if (newCell == null) {
 		result = 'left_table';
-	} else if ((typeof confirmDrag != "undefined") && !confirmDrag(movingElt, newCell)) {
-		result = 'user_cancelled';
-    } else {
-	   movingElt.parentNode.removeChild(movingElt);
-	   if (newCell.firstChild != null) newCell.insertBefore(movingElt, newCell.firstChild);
-	   else newCell.appendChild(movingElt);
-	   if (typeof onDragFinish != "undefined") onDragFinish(movingElt, newCell);
+	} else {
+		movingElt.style.left = '';
+		movingElt.style.top = '';	
+	    oldCell.removeChild(movingElt);
+		if (newCell.firstChild != null) newCell.insertBefore(movingElt, newCell.firstChild);
+        else newCell.appendChild(movingElt);
+
+		if ((typeof confirmDrag != "undefined") && !confirmDrag(movingElt, newCell)) {
+			result = 'user_cancelled';
+			newCell.removeChild(movingElt);
+			if (oldBrother != null) oldCell.insertBefore(movingElt, oldBrother);
+			else oldCell.appendChild(movingElt);
+		} else {
+			if (typeof onDragFinish != "undefined") onDragFinish(movingElt, newCell);
+		}
 	}
-	movingElt.style.left = '';
-	movingElt.style.top = '';
 	movingElt = null;
 	return result;
   

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.34.2.1 2004/12/23 06:01:22 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.34.2.2 2004/12/30 03:20:52 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.34.2.1 $ - 1.0
+* @version $Revision: 1.34.2.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -197,7 +197,7 @@ class Calendar_Event extends Asset
 		if (empty($total_time)) $total_time = 'N/A';
 
 		$keywords['event_duration'] = Array('value'=>$total_time);
-		$keywords['edit_link'] = Array('value'=>($this->writeAccess('') ? '<a href="./_edit?limbo_assetid='.$this->id.'">Edit</a>' : ''));
+		$keywords['edit_link'] = Array('value'=>($this->writeAccess('') ? '<a href="'.replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id)).'">Edit</a>' : ''));
 		$keywords['delete_link'] = Array('value'=>$this->_getDeleteLink());
 
 		if ($descriptions) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.35.2.2 2004/12/16 05:50:40 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.35.2.3 2004/12/30 03:20:52 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.35.2.2 $
+* @version $Revision: 1.35.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -234,6 +234,7 @@ class Page_Calendar_Management extends Asset_Management
 		$this->vars['enable_event_dragging'] = Array('added'	=> '0.1',
 													 'type'		=> 'boolean',
 													 'default'	=> 'false',
+													 'parameters'  => Array('allow_empty' => false),
 											   );
 
 		// Whether you want to show a popup with the event description onmouseover
