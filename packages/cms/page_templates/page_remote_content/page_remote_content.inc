@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.17 2005/03/11 03:16:00 arailean Exp $
+* $Id: page_remote_content.inc,v 1.18 2005/03/14 22:36:53 arailean Exp $
 *
 */
 
@@ -32,16 +32,29 @@ require_once 'HTTP/Client/CookieManager.php';
 /**
 * Page_Remote_Content
 *
-* Purpose
+* Parse content from the remote location
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Remote_Content extends Page
 {
+
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Page_Remote_Content($assetid=0)
+	{
+		$this->Page($assetid);
+
+	}//end constructor
 
 
 	/**
