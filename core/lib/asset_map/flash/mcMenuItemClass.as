@@ -33,6 +33,10 @@ mcMenuItemClass.prototype.onPress = function() {
 }
 mcMenuItemClass.prototype.onRelease = function() {
 //	trace (this + "::mcMenuitemClass.onRelease()");
+
+// check if something else is modal
+	if (_root.system_events.inModal(this)) return true;
+
 	if (this._action != null) {
 		//this._parent.getRootContainer().hideChildMenus();
 //		trace ("action : " + this._action);

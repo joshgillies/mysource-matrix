@@ -67,7 +67,7 @@ _root.LIST_ITEM_END_BRANCH_GAP = 5;
 _root.LIST_ITEM_BG_COLOURS = {
 							normal:					{colour: 0xCCCCCC, alpha: 100},   // alpha = 0 -> transparent
 							live:					{colour: 0xCCFF66, alpha: 100}, 
-							under_construction:		{colour: 0x99CCFF, alpha: 100},
+							under_construction:		{colour: 0xBBDDFF, alpha: 100},
 							error:					{colour: 0xFF9999, alpha: 100},
 							selected:				{colour: 0x406080, alpha: 100}
 							};  
@@ -102,10 +102,6 @@ _root.system_events = new SystemEvents();
 _root.attachMovie("mcDialogBoxID", "dialog_box", 21);
 _root.dialog_box.hide();
 
-// Add the progress bar
-//_root.attachMovie("mcProgressBarID", "progress_bar", 20);
-//_root.progress_bar.hide();
-
 // Now the dialog options box
 _root.attachMovie("mcOptionsBoxID", "options_box", 22);
 
@@ -113,10 +109,13 @@ _root.server_exec = new ServerExec(_root.server_exec_path);
 
 _root.asset_manager = new AssetManager();
 
-
 // Attach the header
 _root.attachMovie ("mcHeaderID", "header", 1);
-_root.progress_bar = _root.header;
+
+// Add the progress bar
+_root.attachMovie("mcProgressBarID", "progress_bar", 20);
+_root.progress_bar.init(_root.header.spinner, _root.header.loadingText);
+
 // Now attach the Tabs
 _root.attachMovie("mcTabsID", "tabs", 2);
 

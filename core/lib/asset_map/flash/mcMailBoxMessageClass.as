@@ -150,7 +150,7 @@ mcMailBoxMessageClass.prototype.onRelease = function()
 	trace("MAIL Message Released : " + this.subject);
 
 	var str = "From : " + this.from + "\n"
-			+ "Date : " + this.sent + "\n"
+			+ "Date : " + this.sent + "\n\n"
 			+ this.body;
 	_root.dialog_box.show(this.subject, str);
 

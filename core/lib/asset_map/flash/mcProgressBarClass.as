@@ -7,7 +7,7 @@
 // Create the Class
 function mcProgressBarClass()
 {
-	this.stop();
+	this.spinner = null;
 	this._visible = false;
 
 	this.counter = 0;
@@ -15,35 +15,21 @@ function mcProgressBarClass()
 	this.order   = new Array();
 
 	this.intervalid = null;
-	this.text_pos   = 0;
-
-	this.bg_colour   = 0xC0C0C0;
-	this.fg_colour   = 0xFFFFFF;
-	this.full_width  = 230;
-	this.full_height = 100;
-
-
-
-	this.progress_text.text_color = this.fg_colour;
-
-	this.clear();
-	_root.dialog_border(this, 0, 0, this.full_width, this.full_height, false, false);
-	this.beginFill(this.bg_colour, 100);
-	this.lineStyle();
-	this.moveTo(0, 0);
-	this.lineTo(this.full_width, 0);
-	this.lineTo(this.full_width, this.full_height);
-	this.lineTo(0, this.full_height);
-	this.lineTo(0, 0);
-	this.endFill();
-
 }
+
+
 
 // Make it inherit from MovieClip
 mcProgressBarClass.prototype = new MovieClip();
 
+mcProgressBarClass.prototype.init = function(spinner, progress_text) 
+{
+	this.spinner = spinner;
+	this.progress_text = progress_text;
+}
+
 /**
-* Initialises a new Options box
+* Makes the spinner thing happen.
 *
 * @param string	text
 *
@@ -51,15 +37,14 @@ mcProgressBarClass.prototype = new MovieClip();
 */
 mcProgressBarClass.prototype.show = function(desc) 
 {
-	// check if something else is modal
 	if (_root.system_events.inModal(this)) return false;
 	// attempt to get the modal status
 	if (!_root.system_events.startModal(this)) return false;
 
-
 	var id = this.counter++;
 	this.descs[id] = desc;
 	this.order.push(id);
+
 
 	if (!this.intervalid) {
 		if (this.order.length > 1) {
@@ -68,16 +53,11 @@ mcProgressBarClass.prototype.show = function(desc)
 			this.setText();
 		}
 	} 
-
-	// centre this box in the stage
-	this._x = (Stage.width  - this.full_width)  / 2;
-	this._y = (Stage.height - this.full_height) / 2;
-	this.gotoAndPlay(1);
-	this._visible = true;
+	
+	this.spinner.play();
 
 	return id;
-
-}// end show()
+}
 
 
 /**
@@ -98,8 +78,8 @@ mcProgressBarClass.prototype.hide = function(id)
 		}
 	} else {
 		_root.system_events.stopModal(this);
-		this._visible = false;
-		this.stop();
+		this.spinner.gotoAndStop(1);
+		this.progress_text.text = '';
 	}
 }
 

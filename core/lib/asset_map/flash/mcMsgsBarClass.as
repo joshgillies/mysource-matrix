@@ -39,9 +39,16 @@ mcMsgsBarClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.
 */
 mcMsgsBarClass.prototype.refresh = function()
 {
+	var ypos = 0; 
+	var width = this._parent.scroll_pane.getInnerPaneWidth();
 	for(var i = 0; i < this.msgs.length; i++) {
-		this[this.msgs[i]].setWidth(this._parent.scroll_pane.getInnerPaneWidth());
+		var msg = this[this.msgs[i]];
+		msg._y = ypos;
+		msg.setWidth(width);
+		ypos = msg._y + msg._height - 1;
 	}
+
+	this._parent.scroll_pane.refreshPane();
 }
 
 
@@ -54,32 +61,36 @@ mcMsgsBarClass.prototype.refresh = function()
 mcMsgsBarClass.prototype.addMessages = function(msgs)
 {
 	var scroll_pos = null;
-	var open_bar   = false;
+	var open_tab   = false;
 
 	for(var i = 0; i < msgs.length; i++) {
 
 		var ypos = 0; 
 		if (this.msgs.length) {
 			var last_msg = this[this.msgs[this.msgs.length - 1]];
-			ypos = last_msg._y + last_msg._height;
+			ypos = last_msg._y + last_msg._height - 1;
 		}
 		var name = 'msg_' + this.msgs.length;
 
 		this.attachMovie("mcMsgsBarMessageID", name, this.msgs.length);
-		this[name].setInfo(msgs[i].type, msgs[i].text);
-		this[name]._x = 0;
-		this[name]._y = ypos;
-		this[name].setWidth(this._parent.scroll_pane.getInnerPaneWidth());
+		var msg = this[name];
+		msg.setInfo(msgs[i].type, msgs[i].text);
+		msg._x = 0;
+		msg._y = ypos;
+		msg.setWidth(this._parent.scroll_pane.getInnerPaneWidth());
+		msg.name = name;
 
 		this.msgs.push(name);
+
 		if (scroll_pos == null) scroll_pos = ypos;
-		if (this[name].type == "error" || this[name].type == "warning") {
-			open_bar = true;
+
+		if (msg.type == "error" || msg.type == "warning") {
+			open_tab = true;
 		}
 
 	}// end for
 
-	if (open_bar) this._parent.openTab();
+	if (open_tab) this._parent.openTab();
 
 	if (scroll_pos != null) {
 		// refresh the scroll pane
@@ -89,6 +100,16 @@ mcMsgsBarClass.prototype.addMessages = function(msgs)
 
 }// addMessages()
 
+/**
+* Removes a message from the list
+*/
+mcMsgsBarClass.prototype.removeMessage = function(mc)
+{
+	var i = this.msgs.search(mc.name);
+	this.msgs.splice(i, 1);
+	mc.removeMovieClip();
+	this.refresh();
+}
 
 /**
 * Event fired whenever a command is made from outside the flash movie
@@ -104,7 +125,7 @@ mcMsgsBarClass.prototype.onExternalCall = function(cmd, params)
 		case "add_message" :
 			if (params.msgs_xml == null || params.msgs_xml.length <= 0) return;
 			var xml  = new XML(params.msgs_xml);
-
+			trace(xml);
 			// something buggered up with the connection
 			if (xml.status != 0) {
 				_root.dialog_box.show("XML Error, unable to print messages", "XML Status '" + xml.status + "'\nPlease Try Again");
