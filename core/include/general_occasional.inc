@@ -116,4 +116,57 @@ function restrict_data_path($restricted, $dir)
 
 }// end restrict_data_path()
 
+/**
+* For encoding takes an integer and returns a base 64 encoded string
+* For decoding takes a string and returns an integer
+* Returns NULL on error
+*
+* @param string|int		$value	The value to encode or decode
+* @param boolean		$encode	Whether to encode or decode
+*
+* @return string|int|NULL
+*/
+function asset_tree_base64_convert($value, $encode) 
+{
+	// These characters are chosen so as not to clash with any SQL control symbols - ie . * ^ \ [ ] { } ( ) < > ? & $
+	static $digits = Array(
+		 0 => '0',  1 => '1',  2 => '2',  3 => '3',  4 => '4',  5 => '5',  6 => '6',  7 => '7',  
+		 8 => '8',  9 => '9', 10 => ':', 11 => ';', 12 => 'A', 13 => 'B', 14 => 'C', 15 => 'D', 
+		16 => 'E', 17 => 'F', 18 => 'G', 19 => 'H', 20 => 'I', 21 => 'J', 22 => 'K', 23 => 'L', 
+		24 => 'M', 25 => 'N', 26 => 'O', 27 => 'P', 28 => 'Q', 29 => 'R', 30 => 'S', 31 => 'T', 
+		32 => 'U', 33 => 'V', 34 => 'W', 35 => 'X', 36 => 'Y', 37 => 'Z', 38 => 'a', 39 => 'b', 
+		40 => 'c', 41 => 'd', 42 => 'e', 43 => 'f', 44 => 'g', 45 => 'h', 46 => 'i', 47 => 'j', 
+		48 => 'k', 49 => 'l', 50 => 'm', 51 => 'n', 52 => 'o', 53 => 'p', 54 => 'q', 55 => 'r', 
+		56 => 's', 57 => 't', 58 => 'u', 59 => 'v', 60 => 'w', 61 => 'x', 62 => 'y', 63 => 'z'
+		);
+
+	// encode value ?
+	if ($encode) {
+		$str = '';
+		$i = (int) $value;
+		while ($i != 0) { 
+			$str = $digits[$i % 64].$str;
+			$i = floor($i / 64);
+		}
+		if (strlen($str) > SQ_ASSET_TREE_SIZE) {
+			trigger_error('The length of the encoded value of '.(int) $value.' size larger than than stored with '.SQ_ASSET_TREE_SIZE.' digits - the range is 0 to '.(pow(64, SQ_ASSET_TREE_SIZE) - 1).' inclusive', E_USER_WARNING);
+			return null;
+		} else {
+			return str_pad($str, SQ_ASSET_TREE_SIZE, '0', STR_PAD_LEFT);
+		}
+	// else decode value
+	} else {
+		$num = 0;
+		$str = (string) $value;
+		$l = strlen($str);
+		$x = pow(64, $l - 1);
+		for($i = 0; $i < $l; $i++) { 
+			if (($d = array_search($str{$i}, $digits)) === FALSE) return null;
+			$num += $x * $d;
+			$x = $x / 64;
+		}
+		return $num;
+	}// end if
+}// end base64_clean_convert
+
 ?>
