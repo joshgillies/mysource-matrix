@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.250 2005/03/30 03:51:13 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.251 2005/03/31 04:26:46 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.250 $
+* @version $Revision: 1.251 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1573,12 +1573,19 @@ class Asset_Edit_Interface extends MySource_Object
 				$file = @$this->findLanguageFile('screen_'.$active_screen);
 
 				if (empty($file)) {
-					$file  = $this->findFile('screen_'.$active_screen);
-					$input = new XML_Tree($file);
-					$root  = &$input->getTreeFromFile();
-					if (PEAR::isError($root)) {
-						trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-						return false;
+					// no language files, try and find the base structure
+					$file  = @$this->findFile('screen_'.$active_screen);
+
+					// still can't find anything?!
+					if (empty($file)) {
+						$root = null;
+					} else {
+						$input = new XML_Tree($file);
+						$root  = &$input->getTreeFromFile();
+						if (PEAR::isError($root)) {
+							trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+							$root = null;
+						}
 					}
 				} else {
 					$root = unserialize(file_get_contents($file));
@@ -1587,7 +1594,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 				// must be a normal screen
 				if (empty($this->_screens[$active_screen])) {
-					trigger_error('Active Screen "'.$active_screen.'" unknown unable to process', E_USER_WARNING);
+					trigger_error('Active Screen "'.$active_screen.'" unknown unable to process', E_USR_WARNING);
 					return false;
 				}
 
@@ -1870,7 +1877,6 @@ class Asset_Edit_Interface extends MySource_Object
 				break;
 			}
 		}
-
 		if (!$file) {
 			trigger_error($file_name.' not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
 			return false;
@@ -1934,7 +1940,7 @@ class Asset_Edit_Interface extends MySource_Object
 	* does:
 	* 1. Looks for the closest screen structure file, if it is EMPTY then
 	*    return the empty file - we don't need any localised stuff
-	* 2. If it is not empty, we then look for the closest language file - 
+	* 2. If it is not empty, we then look for the closest language file -
 	*    even if a partial version of a parent is there it *should* be
 	*    localised in any case
 	*
