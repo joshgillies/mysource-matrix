@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.65 2005/02/21 11:35:51 brobertson Exp $
+* $Id: site.inc,v 1.66 2005/02/25 04:45:51 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,8 +158,9 @@ class Site extends Folder
 					';
 			$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$sql .= $where.'ORDER BY urlid';
 
-			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql.$where, true, Array(), DB_FETCHMODE_ASSOC);
+			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, true, Array(), DB_FETCHMODE_ASSOC);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				$this->_tmp['urls_info'] = Array();
@@ -608,6 +609,45 @@ class Site extends Folder
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
 	}//end getSpecialPage()
+
+
+	/**
+	* Returns the Site Network that this site exists in (if any)
+	*
+	* If this site is not in a Site Network, NULL will be returned.
+	*
+	* @return object Site_Network | NULL
+	* @access public
+	*/
+	function &getSiteNetwork()
+	{
+		$null = null;
+
+		$network_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, 'site_network', false, 'minor');
+		if (empty($network_links)) return $null;
+		
+		$site_network = &$GLOBALS['SQ_SYSTEM']->am->getAsset($network_links[0]['majorid'], $network_links[0]['major_type_code']);
+		return $site_network;
+
+	}//end getSiteNetwork()
+
+
+	/**
+	* Returns the primary URL of the Site Network in which this site exists (if any)
+	*
+	* If this site iss not in a Site Network, or the network has not been configured, an
+	* empty string will be returned.
+	*
+	* @return string
+	* @access public
+	*/
+	function getNetworkPrimaryURL()
+	{
+		$site_network = &$this->getSiteNetwork();
+		if (is_null($site_network)) return '';
+		return $site_network->getPrimaryURL();
+
+	}//end getNetworkPrimaryURL()
 
 
 }//end class

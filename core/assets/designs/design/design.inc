@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.81 2005/02/21 19:21:05 brobertson Exp $
+* $Id: design.inc,v 1.82 2005/02/25 04:45:51 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -506,9 +506,24 @@ echo '<!--   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
   (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
   Page generated: <?php echo date(\'d F Y\')."\n"; ?>
 -->
-<script type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
+<script type="text/javascript" src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
 
 <?php
+if (!empty($SQ_PRIMARY_URL)) {
+	?>
+	<script type="text/javascript" src="<?php echo sq_web_path(\'lib\'); ?>/js/JsHttpConnector.js"></script>
+	<script type="text/javascript" src="<?php echo $SQ_PRIMARY_URL; ?>/__lib/session/session.php?in_primary=<?php echo (sq_web_path(\'root_url\') == $SQ_PRIMARY_URL) ? 1 : 0; ?>&site_network=<?php echo $SQ_SITE_NETWORK->id; ?>"></script>
+	<?php 
+	if (sq_web_path(\'root_url\') != $SQ_PRIMARY_URL) {
+		?>
+		<script type="text/javascript">
+			start_session_handler("<?php echo sq_web_path(\'lib\'); ?>/session/session.php?site_network=<?php echo $SQ_SITE_NETWORK->id; ?>");
+		</script>
+		<?php
+	}
+}//end if primary URL available
+
+
 if (SQ_IN_LIMBO && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend) && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend->out)) $GLOBALS[\'SQ_SYSTEM\']->backend->out->_paintHeader();
 if (SQ_ROLLBACK_VIEW) $GLOBALS[\'SQ_SYSTEM\']->printRollbackWarning();
 ?>

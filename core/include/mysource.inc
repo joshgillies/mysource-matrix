@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.76 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: mysource.inc,v 1.77 2005/02/25 04:45:51 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix
 */
 class MySource
@@ -185,6 +185,17 @@ class MySource
 
 		// running from the command line or installer? don't use cookies for session
 		if (!SQ_PHP_CLI && !$GLOBALS['SQ_INSTALL']) {
+			$domain = strip_url(sq_web_path('root_url'), true);
+			$pos = strpos($domain, '/');
+			$path = '/';
+			
+			if ($pos !== false) {
+				$path = substr($domain, $pos);
+				$domain = substr($domain, 0, $pos);
+			}
+			
+			session_set_cookie_params(0, $path, $domain);
+			
 			session_name('SQ_SYSTEM_SESSION');
 			session_save_path(SQ_SYSTEM_ROOT.'/cache');
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.79 2005/02/24 21:54:44 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.80 2005/02/25 04:45:51 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -566,7 +566,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$da = &$asset->getDesignArea($link['value']);
 			if (is_null($da)) continue;
 			$da->setVarReferenceValues($var_ref_values);
-		}//end foreach
+		}
 
 		// Now that all the all the DA's have their vars set, we can do the DA output ones
 		$da_ref_values = Array();
@@ -574,18 +574,18 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$da = &$asset->getDesignArea($id_name);
 			if (is_null($da)) continue;
 			ob_start();
-			$da->printArea($asset);
-			// NOTE: format like this because we are calling setVarReferenceValues()
-			$da_ref_values[$id_name] = Array('' => ob_get_contents());
+				$da->printArea($asset);
+				// NOTE: format like this because we are calling setVarReferenceValues()
+				$da_ref_values[$id_name] = Array('' => ob_get_contents());
 			ob_end_clean();
-		}//end foreach
+		}
 
 		// OK, now that we have all the da reference values we can just set them for all the DA's
 		foreach ($design_area_links as $link) {
 			$da = &$asset->getDesignArea($link['value']);
 			if (is_null($da)) continue;
 			$da->setVarReferenceValues($da_ref_values);
-		}//end foreach
+		}
 
 		// we are checking to see if there is a global $ASSET_LINEAGE here
 		// because we need other assets to be able to modify the lineage, for
@@ -595,6 +595,24 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		global $ASSET_LINEAGE;
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
 		if (!isset($ASSET_LINEAGE) || empty($ASSET_LINEAGE)) $ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
+
+		global $SQ_SITE_NETWORK, $SQ_PRIMARY_URL;
+		$site = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($ASSET_LINEAGE[0][\'assetid\'], $ASSET_LINEAGE[0][\'type_code\']);
+		if (!is_null($site)) {
+			$SQ_SITE_NETWORK = &$site->getSiteNetwork();
+			if (!is_null($SQ_SITE_NETWORK)) {
+				$SQ_PRIMARY_URL = $SQ_SITE_NETWORK->getPrimaryURL();
+				if (!empty($SQ_PRIMARY_URL)) {
+					if (sq_web_path(\'root_url\') != $SQ_PRIMARY_URL) {
+						require_once SQ_LIB_PATH.\'/session/pre_session.php\';
+					}
+				}
+			}
+		} else {
+			$SQ_PRIMARY_URL = \'\';
+			$SQ_SITE_NETWORK = null;
+		}
+
 		define(\'SQ_LIMBO_EDITING\', (SQ_IN_LIMBO && (!isset($_REQUEST[\'ignore_frames\']) || !$_REQUEST[\'ignore_frames\'])));
 		?>';
 

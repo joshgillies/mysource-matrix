@@ -1,6 +1,3 @@
-<?xml version='1.0' encoding='UTF-8' ?>
-<?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
-
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
@@ -21,20 +18,9 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.11 2005/02/25 04:45:51 gsherwood Exp $
+* $Id: edit_interface_screens.xml,v 1.1 2005/02/25 04:45:51 gsherwood Exp $
 *
 */
 -->
 
-<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
-	<package>__core__</package>
-	<type_code>site</type_code>
-	<version>0.2</version>
-	<name>Site</name>
-	<description>Sites are the base points for any frontend web system</description>
-	<instantiable>yes</instantiable>
-	<allowed_access>backend_user</allowed_access>
-	<parent_type>folder</parent_type>
-	<requirements />
-	<flash_menu_path>Web</flash_menu_path>
-</asset_info>
+<screens />
