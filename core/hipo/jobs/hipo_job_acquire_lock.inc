@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.19 2003/11/20 03:39:53 mmcintyre Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.20 2003/11/20 03:50:46 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,6 +48,12 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	* @var string
 	*/
 	var $_hipo_name = 'Acquire Lock';
+
+	/**
+	* Flag to see if we are prepared or not
+	* @var boolean
+	*/
+	var $is_prepared = false;
 
 	/**
 	* Array of steps to perform in this HIPO
@@ -186,6 +192,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	*/
 	function prepare()
 	{
+		$this->is_prepared = true;
 		// to start acquiring locks, we need to have an asset id to acquire a lock on
 		if (empty($this->_running_vars['assetid']) || empty($this->_running_vars['lock_type'])) {
 			trigger_error('Cannot initialise Acquire Locks HIPO, no start asset ID and/or lock type specified', E_USER_WARNING);
@@ -251,7 +258,9 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	*/
 	function initialise($source_code_name=null)
 	{
-		$this->prepare();
+		if (!$this->is_prepared) {
+			$this->prepare();
+		}
 		return parent::initialise($source_code_name);
 
 	}//end initialise()
