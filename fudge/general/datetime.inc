@@ -199,13 +199,79 @@ function easy_time_total($secs=0, $full_format=false)
 /**
 * Takes a timestamp and returns a human-friendly date/time string
 *
-* @param string	$then	the timestamp to convert
+* @param int	$then	the timestamp to convert
 *
 * @return string
 * @access public
 */
-function readable_datetime($then='') {
-	return date('d M Y H:i', $then);
+function readable_datetime($then=null)
+{
+	return (is_null($then)) ? date('d M Y H:i') : date('d M Y H:i', $then);
 }
+
+
+/**
+* Returns whether the passed year is a leap year or not
+*
+* @param int	$year	the year to check if it's a leap year or not
+*
+* @return boolean
+* @access public
+*/
+function is_leap_year($year=null)
+{
+	if (is_null($year)) $year = (int) date('Y');
+	if ($year % 4 != 0) return false;
+
+	// only 1 out of evey four hundred year milestones is a leap year
+	if ($year % 100 == 0) {
+		return (($year / 100) % 4 == 0);
+	}
+
+	return true;
+
+}// end is_leap_year()
+
+
+/**
+* Returns whether the passed year is a leap year or not
+*
+* @param int	$month	the month to return the number of days in 
+* @param int	$year	the year that the month is in
+*
+* @return boolean
+* @access public
+*/
+function days_in_month($month=null, $year=null)
+{
+	if (is_null($month)) $month = (int) date('n');
+	if (is_null($year))  $year  = (int) date('Y');
+
+
+	switch($month) {
+		case  2 : // Feb
+			return (is_leap_year($year)) ? 29 : 28;
+
+		case  1 : // Jan
+		case  3 : // March
+		case  5 : // May
+		case  7 : // July
+		case  8 : // Aug
+		case 10 : // Oct
+		case 12 : // Dec
+			return 31;
+
+		case  4 : // April
+		case  6 : // June
+		case  9 : // Sept
+		case 11 : // Nov
+			return 30;
+		default : 
+			trigger_error('UNKNOWN MONTH : '.$month, E_USER_ERROR);
+	}// end switch
+
+}// end days_in_month()
+
+
 
 ?>
