@@ -69,8 +69,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 						$sub_index = $sub_element_index;
 
-		#				pre_echo("FOUND THE SUB : $sub_index");
-
 						// right so we have a sub menu, let's check it out
 
 						// if there is a name and it's not the the same type as the current design area
@@ -94,18 +92,15 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 						break;
 
 					}// end foreach
-
-					break;
+				break;
 
 				case 'divider' :
 					$divider_index = $index;
-					break;
+				break;
 
 			}// end switch
 
 		}//end foreach
-
-#		pre_echo("$asset->name ..... PAGE INDEX : $page_index, SUB INDEX : $sub_index");
 
 		// OK, so we have a working sub menu, add it in
 		if ($sub_menu_processed && $page_index >= 0 && $sub_index >= 0) {
@@ -221,7 +216,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		$sub = &$asset->getSubMenu();
 		// nup ? create one now
 		if (is_null($sub)) {
-#			pre_echo("CREATE SUB ....");
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 			$sub = new $design_area();
 			$sub_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'value' => 'sub_menu', 'dependant' => '1');
@@ -273,9 +267,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 				$'.$asset->attr('id_name').'_lineage_assetid = (empty($PAGE_LINEAGE[$'.$asset->attr('id_name').'_level + 1])) ? 0 : $PAGE_LINEAGE[$'.$asset->attr('id_name').'_level + 1][\'assetid\'];
 				$'.$asset->attr('id_name').'_lineage_setting = (count($PAGE_LINEAGE) - 1 == $'.$asset->attr('id_name').'_level + 1) ? \'current\' : \'hierarchy\';
 
-#				pre_echo("Lineage Setting : $'.$asset->attr('id_name').'_lineage_setting");
-#				pre_echo("Lineage Assetid : $'.$asset->attr('id_name').'_lineage_assetid");
-
 				';
 				$parent_menu = &$asset->getParentMenu();
 				// if we aren't a sub menu
@@ -297,17 +288,8 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 				echo '
 
-
 				foreach($GLOBALS[\'MENU_DATA\']['.$parent_assetid_name.'] as $'.$asset->attr('id_name').'_row) {
-					// if not live, we have to get the proper object, sorry
-					if (((int) $'.$asset->attr('id_name').'_row[\'status\'] & SQ_STATUS_LIVE) == 0) {
-						$'.$asset->attr('id_name').'_obj = &$am->getAsset($'.$asset->attr('id_name').'_row[\'assetid\'], $'.$asset->attr('id_name').'_row[\'type_code\']);
-					} else { 
-						unset($'.$asset->attr('id_name').'_obj);
-					}
-
 					$'.$asset->attr('id_name').'_current_setting = ($'.$asset->attr('id_name').'_lineage_assetid == $'.$asset->attr('id_name').'_row[\'assetid\']) ? $'.$asset->attr('id_name').'_lineage_setting : \'normal\';
-#					pre_echo("CURRENT SETTING : ".$'.$asset->attr('id_name').'_current_setting);
 				?', '>';
 				if ($page_contents = $asset->attr('page_contents')) {
 					if (!$this->_outputContents($page_contents, $asset, $design)) return false;
@@ -331,6 +313,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 	}// end _outputElement()
 
-
 }//end class
+
 ?>

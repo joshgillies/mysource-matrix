@@ -329,7 +329,6 @@ class Design_Area_Menu_Type extends Design_Area
 	*/
 	function printStaticInitOutput(&$design)
 	{
-
 		// Stuff that is only needed once per design file
 		if (empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$design->id])) {
 			echo '
@@ -339,83 +338,72 @@ class Design_Area_Menu_Type extends Design_Area
 			require_once SQ_FUDGE_PATH.\'/db_extras/db_extras.inc\';
 
 			$GLOBALS[\'MENU_DATA\'] = Array();
-			function menu_get_assets($majorids) {
+
+			function menu_get_assets($majorids)
+			{
 				$majorids = array_diff($majorids, array_keys($GLOBALS[\'MENU_DATA\']));
 				if (empty($majorids)) return;
 
 				static $USERIDS_COND = null;
-				static $STATUS_COND  = null;
 
 				$db = &$GLOBALS[\'SQ_SYSTEM\']->db;
 
 				if (is_null($USERIDS_COND)) {
 					// if they are logged in add their parents to the list
 					if ($GLOBALS[\'SQ_SYSTEM\']->currentUserId()) {
-						$STATUS_COND  = \'\';
 						if ($GLOBALS[\'SQ_SYSTEM\']->userRoot() || $GLOBALS[\'SQ_SYSTEM\']->userSystemAdmin()) {
 							$USERIDS_COND = \'\';
 						} else {
 							$userids = $GLOBALS[\'SQ_SYSTEM\']->user->getParents(\'user_group\', false);
 							array_push($userids, 0, (int) $GLOBALS[\'SQ_SYSTEM\']->user->id);
-							$USERIDS_COND = \'AND p1.userid  IN (\'.implode(\',\', $userids).\')\';
+							$USERIDS_COND = \'AND p.userid  IN (\'.implode(\',\', $userids).\')\';
 						}
-					// public users
 					} else {
-						$USERIDS_COND = \'AND p1.userid = 0\';
-						$STATUS_COND  = \'AND (a.status & \'.$db->quote(SQ_SC_STATUS_NOT_LIVE).\') = 0\';
+						// public users
+						$USERIDS_COND = \'AND p.userid = 0\';
 					}
-				}// endif
-
-				$where = \'p.sort_order = 0
-						  AND l.majorid IN (\'.implode(\',\', $majorids).\')
-						  AND l.minorid IN (~SQ0~)
-						  \'.$STATUS_COND.\'
-						  AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0\';
-				$where = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'p\');
-				$where = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'l\');
-				$sql = \'SELECT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, p.path
-						FROM sq_asset a
-							INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_path p on a.assetid = p.assetid
-							INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_link l on a.assetid = l.minorid
-						\'.$where.\' ORDER BY l.majorid, l.sort_order\';
-
-				$concat_1 = ($db->phptype == \'mysql\') ? \'CONCAT(pl1.start_treeid, \'.$db->quote(\'%\').\')\' : \'pl1.start_treeid || \'.$db->quote(\'%\');
-				$concat_2 = ($db->phptype == \'mysql\') ? \'CONCAT(t2.treeid, \'.$db->quote(\'%\').\')\'        : \'t2.treeid || \'.$db->quote(\'%\');
-				
-				$sub_where = \'l2.majorid IN (\'.implode(\',\', $majorids).\')
-								  \'.$USERIDS_COND.\'
-								  AND p1.permission >= \'.$db->quote(SQ_PERMISSION_READ).\'
-								  AND p1.access = \'.$db->quote(\'1\').\'
-								  AND t2.treeid       LIKE \'.$concat_1.\'
-								  AND pl1.stop_treeid LIKE \'.$concat_2.\'
-								  AND pl1.start_treeid <= t2.treeid
-								  AND (
-										t2.treeid < pl1.stop_treeid 
-												OR 
-										(pl1.stop_treeid = t2.treeid AND pl1.inc_stop = \'.$db->quote(\'1\').\')
-									)\';
-				$sub_where = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($sub_where, \'pl1\');
-				$sub_where = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($sub_where, \'p1\');
-				$sub_where = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($sub_where, \'l2\');
-				$sub_where = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($sub_where, \'t2\');
-				$subs = Array(\'SELECT DISTINCT l2.minorid
-								FROM \'.SQ_TABLE_RUNNING_PREFIX.\'asset_permission_lookup pl1
-										INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_permission p1 ON pl1.permissionid = p1.permissionid,
-									\'.SQ_TABLE_RUNNING_PREFIX.\'asset_link l2
-										INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_link_tree t2 ON l2.linkid = t2.linkid
-								\'.$sub_where
-								);
-				$sql = db_extras_subquery($db, $sql, $subs);
-				if (DB::isError($sql)) {
-					trigger_error($sql->getMessage().\'<br/>\'.$sql->getUserInfo(), E_USER_ERROR);
 				}
 
-				$result = $db->query($sql);
+				$sql    = \'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path
+						   FROM \'.SQ_TABLE_RUNNING_PREFIX.\'asset a
+						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_link l ON a.assetid = l.minorid
+						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_path pt ON a.assetid = pt.assetid
+						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_permission p ON a.assetid = p.assetid \';
+				$where  = \'l.majorid IN (\'.implode(\',\', $majorids).\')
+						     AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0 \'.$USERIDS_COND;
+				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'a\');
+				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'l\');
+				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'p\');
+				$where  = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'pt\');
+				$where .= \'
+						   GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path
+						   HAVING MIN(p.access) = 1
+						   ORDER BY l.majorid, l.sort_order\';
+
+				$result = $db->query($sql.$where);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().\'<br/>\'.$result->getUserInfo(), E_USER_ERROR);
 				}
+
 				$assetids = Array();
 				while (DB_OK === $result->fetchInto($row)) {
+					if (!($row[\'status\'] & (SQ_STATUS_LIVE | SQ_STATUS_LIVE_APPROVAL))) {
+						$menu_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($row[\'assetid\']);
+						$read_access = $menu_asset->readAccess();
+
+						$row[\'name\'] = $menu_asset->name;
+						$row[\'short_name\'] = $menu_asset->short_name;
+
+						if ($row[\'status\'] & SQ_SC_STATUS_NOT_LIVE) {
+							// somewhere between under construction and live so we show this by altering the name
+							$row[\'name\']       = \'(( \'.$row[\'name\'].\' ))\';
+							$row[\'short_name\'] = \'(( \'.$row[\'short_name\'].\' ))\';
+						}
+
+						$GLOBALS[\'SQ_SYSTEM\']->am->unregisterAsset($menu_asset);
+						unset($menu_asset);
+						if (!$read_access) continue;
+					}
 					$assetids[] = (int) $row[\'assetid\'];
 					if (!isset($GLOBALS[\'MENU_DATA\'][$row[\'majorid\']])) $GLOBALS[\'MENU_DATA\'][$row[\'majorid\']] = Array();
 					$GLOBALS[\'MENU_DATA\'][$row[\'majorid\']][] = $row;
@@ -442,7 +430,7 @@ class Design_Area_Menu_Type extends Design_Area
 	/**
 	* Performs any outputting needed to intialise this instance of the menu type
 	*
-	* @param object Design	$design			the design for which we are currently printing
+	* @param object Design	$design	the design for which we are currently printing
 	*
 	* @access public
 	*/
@@ -534,11 +522,11 @@ class Design_Area_Menu_Type extends Design_Area
 					break;
 
 				case 'page_short_name' :
-					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'((isset($'.$this->attr('id_name').'_obj)) ? $'.$this->attr('id_name').'_obj->short_name : $'.$this->attr('id_name').'_row[\'short_name\'])'.$value_suffix, $args), '; ?', '>';
+					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_row[\'short_name\']'.$value_suffix, $args), '; ?', '>';
 					break;
 
 				case 'page_name' :
-					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'((isset($'.$this->attr('id_name').'_obj)) ? $'.$this->attr('id_name').'_obj->name : $'.$this->attr('id_name').'_row[\'name\'])'.$value_suffix, $args), '; ?', '>';
+					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_row[\'name\']'.$value_suffix, $args), '; ?', '>';
 					break;
 
 				default :
@@ -562,7 +550,7 @@ class Design_Area_Menu_Type extends Design_Area
 		foreach($settings[$setting_name] as $case => $value) {
 			// we know that this will be the long format because only our design areas have put this in
 			if (strpos($value, '<'.'?php') !== false) return true;
-		}// end if
+		}
 
 	}//end _settingHasPHPCode()
 
