@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.3 2004/12/03 00:31:19 gsherwood Exp $
+* $Id: tables.xml,v 1.4 2004/12/15 09:15:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -488,6 +488,10 @@
 				<index>
 					<column name="assetid" />
 				</index>
+				<!-- 
+				  NOTE: This index fails for PostgreSQL 7.3 but works for 7.4
+				        No functionality difference, just performance.
+				-->
 				<index name="concat">
 					<column name="(assetid || '~' || attrid)" />
 				</index>
