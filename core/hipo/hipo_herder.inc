@@ -180,7 +180,7 @@ class HIPO_Herder extends MySource_Object
 			$auto_step = true;
 		} else {
 
-			$form_name = 'HIPO_'.$source_job->code_name;
+			$form_name = 'HIPO_'.preg_replace('/[^a-zA-Z0-9_]/i', '_', $source_job->code_name);
 			$url = $this->getProcessURL($source_job->code_name);
 			$auto_step = $source_job->auto_step();
 
@@ -454,13 +454,12 @@ if (!empty($todo_hipo)) {
 	* no timeouts here and continually call the process function of the current step until
 	* it is completed.
 	*
+	* @return boolean
 	* @access public
 	*/
 	function processServer()
 	{
-		if (empty($this->_tmp['prepared_server'])) {
-			return false;
-		}
+		if (empty($this->_tmp['prepared_server'])) return false;
 
 		$source_job = &$this->getJob($this->_tmp['prepared_server']['source_code_name']);
 		if (is_null($source_job)) {
