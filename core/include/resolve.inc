@@ -350,18 +350,9 @@ class Resolve
 			break;
 
 			case 'hipo' :
-				if (!isset($_GET['hipo_action']) || trim($_GET['hipo_action']) == '') {
-					trigger_error('HIPO action not specified', E_USER_ERROR);
-				}
-				if (!isset($_GET['hipo_codename']) || trim($_GET['hipo_codename']) == '') {
-					trigger_error('HIPO codename not specified', E_USER_ERROR);
-				}
-				$hipo_type = 'hipo_job_'.trim($_GET['hipo_action']);
-				require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$hipo_type.'.inc');
-				$hipo = new $hipo_type($_GET['hipo_codename']);
-
-				if (!$hipo->process()) trigger_error('HIPO failed to process', E_USER_ERROR);
-				$hipo->paint();
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				if (!$hh->processWeb()) trigger_error('HIPO failed to process', E_USER_ERROR);
+				$hh->paintWeb();
 				exit();
 			break;
 
@@ -578,11 +569,31 @@ class Resolve
 	{
 		if(!isset($this->fv) || get_class($this->fv) != 'file_versioning') {
 			require_once SQ_FUDGE_PATH.'/file_versioning/file_versioning.inc';
+			$this->changeDatabaseConnection('db'); // just to make sure
 			$this->fv = new File_Versioning(SQ_DATA_PATH.'/file_repository', $this->db);
+			$this->restoreDatabaseConnection();
 		}
 		return $this->fv;
 
 	}//end getFileVersioning()
+
+
+	/**
+	* Get the file versioning object so you can add/remove/commit/checkout file versions
+	* Always call this function to get the file versioning object, dont use $this->fv directly
+	*
+	* @return object Hipo_Herder
+	* @access public
+	*/
+	function &getHipoHerder()
+	{
+		if(!isset($this->hh) || get_class($this->hh) != 'hipo_herder') {
+			require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_herder.inc';
+			$this->hh = new Hipo_Herder();
+		}
+		return $this->hh;
+
+	}//end getHipoHerder()
 
 
 	/**
