@@ -33,7 +33,7 @@ echo "DB NAME : ${DB_NAME}";
 
 case "${DB_TYPE}" in 
 	"mysql")
-		mysql -u root "${DB_NAME}" -e "SHOW TABLES;"  -s -N | sed 's/^.*$/DROP TABLE &;/' | mysql -u root "${DB_NAME}"
+		mysql -u root -e "SHOW TABLES;" -s -N "${DB_NAME}" | sed 's/^.*$/DROP TABLE &;/' | mysql -u root "${DB_NAME}"
 	;;
 
 	"pgsql")
