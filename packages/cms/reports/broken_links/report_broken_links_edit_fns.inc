@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.8 2004/10/25 01:36:25 arailean Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.8.2.1 2004/12/09 05:39:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -145,8 +145,8 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 						if ($validated_results === false) continue;
 
 						fwrite($temp_file, "\t<link assetid=\"".$asset->id."\" type=\"$link_type\" valid=\"".$validated_results['valid']."\">\n");
-						fwrite($temp_file, "\t\t<html>$match</html>\n");
-						fwrite($temp_file, "\t\t<description>".$validated_results['description']."</description>\n");
+						fwrite($temp_file, "\t\t<html><![CDATA[$match]]></html>\n");
+						fwrite($temp_file, "\t\t<description><![CDATA[".$validated_results['description']."]]></description>\n");
 						fwrite($temp_file, "\t</link>\n");
 					}//end foreach
 
