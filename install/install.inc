@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.17 2004/09/14 01:42:03 gsherwood Exp $
+* $Id: install.inc,v 1.18 2004/09/28 04:40:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -162,8 +162,8 @@ function uninstall_asset_types()
 	
 			// remove the inherited types
 			$sql = 'DELETE FROM sq_asset_type_inherited
-				WHERE type_code = '.$db->quote($asset_type).'
-				OR inherited_type_code = '.$db->quote($asset_type);
+					WHERE type_code = '.$db->quote($asset_type).'
+					  OR inherited_type_code = '.$db->quote($asset_type);
 	
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
@@ -273,7 +273,6 @@ function install_core()
 	require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
 	$pm = new Package_Manager_Core();
 	$result = $pm->updatePackageDetails();
-	
 	
 	$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 	$message_body = 'Core Package '.(($result) ? 'done successfully' : 'FAILED');
