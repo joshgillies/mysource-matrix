@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.7 2004/04/02 04:32:46 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.8 2004/04/02 05:04:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -197,7 +197,7 @@ class LDAP_Bridge extends Bridge
 								 'minorid' => $this->id.':'.$data['dn'],
 								 'minor_type_code' => $type,
 								 'value' => '',
-								 'link_type' => SQ_LINK_TYPE_2,
+								 'link_type' => SQ_LINK_TYPE_1,
 								 'dependant' => false,
 								 'exclusive' => false,
 								 'sort_order' => $i,
