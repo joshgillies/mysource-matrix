@@ -88,6 +88,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 		}
 
 		$this->_running_vars['todo_assetids'] = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->_running_vars['root_assetid']);
+		array_push($this->_running_vars['todo_assetids'], $this->_running_vars['root_assetid']);
 		$this->_running_vars['done_assetids'] = Array();
 		
 		return parent::initialise($source_code_name);
