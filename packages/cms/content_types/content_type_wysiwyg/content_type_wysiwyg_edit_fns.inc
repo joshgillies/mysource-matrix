@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.22 2003/09/26 05:26:40 brobertson Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.23 2003/10/03 06:53:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,7 +52,6 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->set_body_type('div');
 		$wysiwyg->set_init_onload(false);
 		$wysiwyg->set_show_status_bar(true);
-		$wysiwyg->set_contents($html);
 		$wysiwyg->set_width('100%');
 		$wysiwyg->set_height('100%');
 		$wysiwyg->add_plugin('format_text');
@@ -68,6 +67,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->add_plugin('view_source');
 		$wysiwyg->add_plugin('popup_editor');
 		$wysiwyg->add_plugin('html_tidy');
+		// contents must be set AFTER all plugins are loaded
+		$wysiwyg->set_contents($html);
 		return $wysiwyg;
 
 	}//end _createEditor()
@@ -123,7 +124,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	function paint(&$asset, $generating=false)
 	{
 		$html = $asset->attr('html');
-		$html = preg_replace('|(<SQ_WYSIWYG_EDITOR[^>]*?>)(.*?)(</SQ_WYSIWYG_EDITOR>)|si', '$2', $html);
+		$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);
 		echo $html;
 
 	}//end paint()

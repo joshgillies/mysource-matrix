@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_embed_movie.inc,v 1.7 2003/09/26 05:26:38 brobertson Exp $
+* $Id: matrix_embed_movie.inc,v 1.8 2003/10/03 06:53:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -240,7 +240,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 			ob_start();
 			
 			?>
-			<SQ_WYSIWYG_EDITOR <?php echo $match; ?>>
+			<htmlarea_special <?php echo $match; ?>>
 			<?php
 
 			switch (strtolower(get_file_type($filename))) {
@@ -295,15 +295,13 @@ class matrix_embed_movie extends wysiwyg_plugin {
 
 			}//end switch
 
-			?></SQ_WYSIWYG_EDITOR><?php
+			?></htmlarea_special><?php
 			$new_html = ob_get_contents();
 			ob_end_clean();
 
 			$html = str_replace($old_html, $new_html, $html);
 
 		}//end foreach $matches
-
-		return $html;
 
 	}//end process()
 
@@ -318,9 +316,8 @@ class matrix_embed_movie extends wysiwyg_plugin {
 	*/
 	function set_contents(&$contents)
 	{
-		$contents = preg_replace('|(<SQ_WYSIWYG_EDITOR([^>]*)?>)(.*?)(</SQ_WYSIWYG_EDITOR>)|si', '<IMG src="'.$this->_img_url.'" $2>', $contents);
+		$contents = preg_replace('|(<htmlarea_special([^>]*)?>)(.*?)(</htmlarea_special>)|si', '<IMG src="'.$this->_img_url.'" $2>', $contents);
 		$contents = preg_replace('|\s+|', ' ', $contents);
-		return $contents;
 
 	}//end set_contents()
 
