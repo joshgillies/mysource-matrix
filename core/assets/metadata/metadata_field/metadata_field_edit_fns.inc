@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.13 2003/11/18 15:37:27 brobertson Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.14 2003/11/20 23:21:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -471,9 +471,9 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		$keywords = array_merge($keywords, retrieve_keywords_replacements($default));
 
-		echo '<meta NAME="'.$asset->name.'"';
-		if (trim($asset->attr('language')) != '') echo ' LANG="'.$asset->attr('language').'"';
-		if (trim($asset->attr('scheme')) != '') echo ' SCHEME="'.$asset->attr('scheme').'"';
+		echo '<meta name="'.$asset->name.'"';
+		if (trim($asset->attr('language')) != '') echo ' lang="'.$asset->attr('language').'"';
+		if (trim($asset->attr('scheme')) != '') echo ' scheme="'.$asset->attr('scheme').'"';
 
 		$value_string = '';
 		$current_vc = $asset->attr('value_components');
@@ -487,7 +487,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		echo ' CONTENT="';
+		echo ' content="';
 		if (trim($default) != '') {
 			echo trim($default);
 			if (trim($value_string) != '') echo '; ';
