@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.29 2003/11/18 15:37:24 brobertson Exp $
+* $Id: design_area_edit_fns.inc,v 1.30 2003/11/25 23:47:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,7 +68,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	{
 		echo $asset->attr('id_name');
 
-	}// end paintIdName()
+	}//end paintIdName()
 
 
 	/**
@@ -81,7 +81,6 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _parseString($file_contents)
 	{
-
 		// lets just make sure that they are all UNIX new lines
 		$file_contents = str_replace(Array("\r\n", "\r"), "\n", $file_contents);
 
@@ -178,7 +177,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	{
 		$start_pos = $cur_pos;
 		$parsed = Array();
-		$tag    = Array();		// the currently processed tag
+		$tag    = Array(); // the currently processed tag
 
 		$is_nested = ($nest_level > 0);
 
@@ -294,7 +293,6 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				$cur_pos = $next_terminate_pos;
 				return 'terminate';
 			}
-
 		}
 
 		// if there is a open tag then use it
@@ -350,7 +348,6 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 			$tag['operation'] = strtolower($tag['operation']);
 
-
 		}//end if specific operation
 
 		while ($file_contents{$cur_pos} != '>' || $in_quote) {
@@ -401,7 +398,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					// or we are in a quote and have found a another quote of the same char
 					// SO, we have finished this value, assign to tag and start over
 					} else {
- 						$tag['attributes'][strtolower($current_name)] = strtr($current_value, $trans);
+						$tag['attributes'][strtolower($current_name)] = strtr($current_value, $trans);
 						$currently_getting = '';
 						$current_name = '';
 						$current_value = '';
@@ -481,7 +478,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			}// end if
 		}// end for
 
-	}// end _parserCleanupContents()
+	}//end _parserCleanupContents()
 
 
 	/**
@@ -501,7 +498,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			return false;
 		}
 
-	}// end _processContents()
+	}//end _processContents()
 
 
 	/**
@@ -632,7 +629,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		return Array();
 
-	}// end _getDefaultContents()
+	}//end _getDefaultContents()
 
 
 	/**
@@ -649,7 +646,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	{
 		return $this->_outputContents($contents, $asset, $design);
 
-	}// end _createDesignFileOutput()
+	}//end _createDesignFileOutput()
 
 
 	/**
@@ -677,7 +674,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}// end _outputContents()
+	}//end _outputContents()
 
 
 	/**
@@ -741,7 +738,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		}// end switch
 
-	}// end _outputElement()
+	}//end _outputElement()
 
 
 	/**
@@ -786,7 +783,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		return $text;
 
-	}// end createParseString()
+	}//end createParseString()
 
 
 	/**
@@ -807,7 +804,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		unset($vars['specialised']);
 		return $vars;
 
-	}// end _getSetableVars()
+	}//end _getSetableVars()
 
 
 	/**
@@ -827,7 +824,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		hidden_field($prefix.'_specialisation_orig', $text);
 		text_area($prefix.'_specialisation', $text, 75, 20, 0, 'wrap="off" style="font-family: courier new, courier, monospace; font-size: 9pt;"');
 
-	}// end paintSpecialisation()
+	}//end paintSpecialisation()
 
 
 	/**
@@ -855,7 +852,8 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		return false;
 
-	}// end processSpecialisation()
+	}//end processSpecialisation()
+
 
 }//end class
 

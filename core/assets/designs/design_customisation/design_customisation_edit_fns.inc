@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.19 2003/11/25 04:41:31 mmcintyre Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.20 2003/11/25 23:47:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,7 +58,8 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			$this->_paintDesignAreaList($customised_areas, 'Remove Customisation ?', $prefix.'_remove_customisation', $asset->writeAccess('links'), true, true);
 		}
 
-	}// end paintCustomisedDesignAreas()
+	}//end paintCustomisedDesignAreas()
+
 
 	/**
 	* Processes the customising of design areas
@@ -96,7 +97,8 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}// end processCustomisedDesignAreas()
+	}//end processCustomisedDesignAreas()
+
 
 	/**
 	* Paints the interface for customising the design areas
@@ -116,7 +118,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		} else {
 			$this->_paintDesignAreaList($uncustomised_areas, 'Customise ?', $prefix.'_customise', $asset->writeAccess('links'));
 		}
-	}// end paintUnCustomisedDesignAreas()
+
+	}//end paintUnCustomisedDesignAreas()
+
 
 	/**
 	* Processes the customising of design areas
@@ -163,7 +167,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}// end processUnCustomisedDesignAreas()
+	}//end processUnCustomisedDesignAreas()
 
 
 	/**
@@ -199,8 +203,8 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	* Recursivly updates all links to a design area from under this asset
 	*
 	* @param object Asset	$asset	the asset to which we belong
-	* @param Array			$data	array of Array([id_name] => Array([assetid], [type_code])); 
-	*								where key is the id_name, whose link needs to be updated and the value 
+	* @param Array			$data	array of Array([id_name] => Array([assetid], [type_code]));
+	*								where key is the id_name, whose link needs to be updated and the value
 	*								is an array with assetid and type_code
 	*
 	* @return boolean
@@ -237,7 +241,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		return true;
 
-	}// end _updateDesignAreaLink()
+	}//end _updateDesignAreaLink()
 
 
 	/**
@@ -258,9 +262,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			<tr>
 				<td class="sq-backend-data" width="25%"><b>Type</b></td>
 				<td class="sq-backend-data" width="25%"><b>Design Area</b></td>
-			<?php if ($write_access) { ?> 
+			<?php if ($write_access) { ?>
 				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo $check_box_col; ?></b></td>
-			<?php }// end if ?> 
+			<?php }// end if ?>
 				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo ($show_specialised) ? 'Specialised ?' : '&nbsp;'; ?></b></td>
 			</tr>
 		<?php
@@ -268,7 +272,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		$current_type = '';
 		foreach($links as $link) {
 			$da = &$am->getAsset($link['minorid'], $link['minor_type_code']);
-			
+
 			if ($da->attr('id_name') == '') {
 				trigger_error('Design Area #'.$da->id.' does not have an id_name set. Attempting to recover.', E_USER_NOTICE);
 				foreach ($links as $link) {
@@ -305,17 +309,17 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 					if ($link_name) echo '</a>';
 					?>
 				</td>
-			<?php if ($write_access) { ?> 
+			<?php if ($write_access) { ?>
 				<td class="sq-backend-data" style="text-align: center;">
 					<input type="checkbox" name="<?php echo $check_box_name; ?>[]" value="<?php echo $da->attr('id_name');; ?>">
 				</td>
-			<?php }// end if ?> 
+			<?php }// end if ?>
 				<td class="sq-backend-data" style="text-align: center;">
-				<?php if ($show_specialised && $da->attr('specialised')) { ?> 
+				<?php if ($show_specialised && $da->attr('specialised')) { ?>
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/tick.gif" width="15" height="15" />
-				<?php } else { ?> 
+				<?php } else { ?>
 					&nbsp;
-				<?php }// end if ?> 
+				<?php }// end if ?>
 				</td>
 			</tr>
 		<?php
@@ -323,9 +327,11 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		?>
 		</table>
 		<?php
-	}// end _paintDesignAreaList()
 
-    /**
+	}//end _paintDesignAreaList()
+
+
+	/**
 	* This is the static comparing function called by uasort() in _paintDesignAreaList()
 	*
 	* @param Array	$a	array of link information
@@ -334,13 +340,16 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	* @return int
 	* @see _paintDesignAreaList()
 	*/
-    function linkCompare($a, $b)
-    {
+	function linkCompare($a, $b)
+	{
 		// if they don't match, return the value
-        if ($c = strcmp($a['minor_type_code'], $b['minor_type_code'])) return $c;
+		if ($c = strcmp($a['minor_type_code'], $b['minor_type_code'])) return $c;
 		// otherwise the types are equal, so compare by id_name
 		return strcmp(strtolower($a['value']), strtolower($b['value']));
-    }
+
+	}//end linkCompare()
+
 
 }//end class
+
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.63 2003/11/25 05:52:10 gsherwood Exp $
+* $Id: user.inc,v 1.64 2003/11/25 23:47:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ class User extends Asset
 	{
 		$this->Asset($assetid);
 	
-	} // end User
+	}//end constructor
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button.inc,v 1.12 2003/11/18 15:37:24 brobertson Exp $
+* $Id: design_area_constant_button.inc,v 1.13 2003/11/25 23:47:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,7 +47,7 @@ class Design_Area_Constant_Button extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function printArea(&$design) 
+	function printArea(&$design)
 	{
 		$assetid = (int) $this->attr('assetid');
 		$url     = $this->attr('url');
@@ -113,7 +113,6 @@ class Design_Area_Constant_Button extends Design_Area
 		}// end switch
 
 	}//end printVar()
-
 
 
 }//end class

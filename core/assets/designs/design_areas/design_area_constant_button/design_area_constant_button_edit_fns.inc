@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button_edit_fns.inc,v 1.11 2003/11/18 15:37:24 brobertson Exp $
+* $Id: design_area_constant_button_edit_fns.inc,v 1.12 2003/11/25 23:47:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,7 +60,9 @@ class Design_Area_Constant_Button_Edit_Fns extends Design_Area_Edit_Fns
 			if (!is_null($link_asset)) echo $link_asset->name, '(Id: #', $link_asset->id, ')';
 
 		}// end if
+
 		return true;
+
 	}//end paintAssetid()
 
 
@@ -86,4 +88,5 @@ class Design_Area_Constant_Button_Edit_Fns extends Design_Area_Edit_Fns
 
 
 }//end class
+
 ?>
