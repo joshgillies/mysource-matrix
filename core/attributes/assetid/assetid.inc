@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assetid.inc,v 1.3 2003/12/17 04:43:48 mmcintyre Exp $
+* $Id: assetid.inc,v 1.4 2004/06/04 06:26:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,6 +42,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 class Asset_Attribute_Assetid extends Asset_Attribute
 {
 
+
 	/**
 	* Constructor
 	*
@@ -53,7 +54,7 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	{
 		$this->Asset_Attribute($attributeid, (int) $value);
 
-	}// end constructor
+	}//end constructor
 
 
 	/**
@@ -141,12 +142,31 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	function validateValue(&$value)
 	{
 		if ($value) {
+			$error_msg = 'Atempted to set value of attribute "'.$this->name.'" [#'.$this->id.'] to an invalid asset ID';
+			if (!assert_valid_assetid($value, $error_msg, true, false)) return false;
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($value);
 			if (is_null($asset)) return false;
 		}
 		return true;
 
 	}//end validateValue()
+
+
+	/**
+	* Retrieve a list of indexable values from this attribute
+	*
+	* The return value not only contains the indexable values, but also the number of
+	* times they occur in this attributes value
+	*
+	* @return array(string => int)
+	* @access public
+	*/
+	function getKeyData()
+	{
+		if (empty($this->value)) return Array();
+		return Array((string) $this->value => 1);
+
+	}//end getKeyData()
 
 
 }//end class
