@@ -1,0 +1,26 @@
+
+
+Main Assets to Write
+------
+Folder
+Permissions_Group
+
+
+Asset -> for diff types of attr have different update cases
+
+Make sure usernames are unique system wide (LOCK TABLES ?)
+
+Enable removing of attributes from assets in Asset_Management
+
+User Preferences Config...
+
+
+Base Package Installation of Pears, see http://pear.php.net/manual/en/faq.flat-structure.php
+
+Use PEAR DB Object
+
+
+Giving Assets "Purposes" where assets have an original file (.doc, .pdf, image) and can be given another "purpose". eg, have orig img at high resolution, but create smaller imgs from it for other purposes. Or have .doc and have it exported to pdf for certain purposes
+
+Dynamic Tree Nav for the backend
+

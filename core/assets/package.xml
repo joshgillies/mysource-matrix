@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../package.xsl" type="text/xsl"?>
+
+<package_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../package.xsd">
+	<code_name>__core__</code_name>
+	<version>0.1</version>
+	<name>Core Package</name>
+	<description>The Assets in this package are the ones that the core can call on to always be in existence in the system</description>
+</package_info>

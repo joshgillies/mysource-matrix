@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+	<package>__core__</package>
+	<type_code>root_user</type_code>
+	<version>0.1</version>
+	<name>Root User</name>
+	<description>Root User - aka System God</description>
+	<instantiable>yes</instantiable>
+	<parent_type>user</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>user</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+</asset_info>
