@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.1 2003/12/02 04:43:25 gsherwood Exp $
+* $Id: linking.inc,v 1.2 2003/12/19 04:00:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -41,7 +41,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 {
 	// If we are allowed to edit, we check the write effective access, minus live edit access
 	// We are ignoring live edit access because changes to links are not reliant on
-	// status of the asset (because the are not save edited)
+	// status of the asset (because the are not safe edited)
 	$created = false;
 
 	$write_access = ($allow_edit) ? $owner->writeAccess('links') :  false;
