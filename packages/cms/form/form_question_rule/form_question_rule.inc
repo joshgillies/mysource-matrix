@@ -16,6 +16,28 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 class Form_Question_Rule extends Asset
 {
 
+
+	/**
+	* the question id that this rule belongs to 
+	* @var integer
+	*/
+	var $my_question_id = 0;
+
+
+	/**
+	* the question type that this rule belongs to 
+	* @var string
+	*/
+	var $my_question_type = '';
+
+
+	/**
+	* the question object that this rule belongs to
+	* @var &object form_question
+	*/
+	var $my_question = null;
+
+
 	/**
 	* Constructor
 	*
@@ -25,7 +47,8 @@ class Form_Question_Rule extends Asset
 	function Form_Question_Rule($assetid=0) 
 	{
 		$this->Asset($assetid);
-	}
+
+	} // end Form_Question_Rule()
 
 
 	/**
@@ -51,37 +74,7 @@ class Form_Question_Rule extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
-	}//end create()
-
-
-	/**
-	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
-	*
-	* @return int
-	* @access public
-	* @see Asset::creatLink();
-	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
-	{
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-
-	}// end createLink()
-
-
-	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return mixed TRUE or error msg string
-	* @access public
-	*/
-	function canDeleteLink($linkid)
-	{
-		return parent::canDeleteLink($linkid);
-	
-	} // end canDeleteLink()
+	}// end create()
 
 
 	/**
@@ -100,38 +93,99 @@ class Form_Question_Rule extends Asset
 
 
 	/**
-	* Prints out the backend interface for the asset
-	*
-	* @param object Backend_Outputter $o
-	*
-	* @access public
-	*/
-	function paintBackend(&$o)
-	{
-		parent::paintBackend($o);
-
-	} // end paintBackend()
-
-
-	/**
-	* Called by the design to print the body of this asset
- 	*
-	* @access public
-	*/
-	function printBody()
-	{
-		return true;
-
-	} // end printBody()
-
-
-	/**
 	* @abstract
 	*/
 	function processForm(&$submission, $questionid, $question_name)
 	{
 		return true;
-	}
+
+	} // end process form()
+
+
+	/**
+	* returns a list of question types that are selections
+	* the rule uses this information to see if it should be displaying
+	* any more information in the rule itself
+	*
+	* @access public
+	* @return Array()
+	*/
+	function getSelectionTypeQuestions()
+	{
+		$questions = Array(
+			'form_question_type_select',
+			'form_question_type_tickbox',
+		);
+
+		return $questions;
+	
+	} // end getSelectionTypeQuestions()
+
+
+	/**
+	* returns the question that this rule belongs to
+	*
+	* @access public
+	* @return &object form_question
+	*/
+	function &getMyQuestion()
+	{
+		if (is_null($this->my_question)) {
+			$this->my_question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->my_question_id, $this->getMyQuestionType());
+			if (is_null($this->my_question)) return null;
+		}
+		return $this->my_question;
+	
+	} // end getMyQuestion()
+
+
+	/**
+	* returns the question type that this rule belongs to
+	* 
+	* @access public
+	* @return string
+	*/
+	function getMyQuestionType()
+	{
+		if (!$this->my_question_type) {
+			$my_question_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($this->my_question_id));
+	
+			if (!empty($my_question_info)) {
+				$this->my_question_type = $my_question_info[$this->my_question_id]['type_code'];
+			}
+		}
+		
+		return $this->my_question_type;
+
+	} // end getMyQuestionType()
+
+
+	/**
+	* returns TRUE if the question that this rule belongs to is a selection type question
+	*
+	* @access public
+	* @return boolean
+	*/
+	function isSelection()
+	{
+		if (in_array($this->getMyQuestionType(), $this->getSelectionTypeQuestions())) {
+			return true;
+		}
+		return false;
+	
+	} // end isSelection()
+
+	/**
+	* prints a dropdown list of questions (id => question name)
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getQuestionDropdownList()
+	{
+		return true;
+
+	} // end getQuestionDropdownList()
 
 } // end class
 
