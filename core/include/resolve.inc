@@ -63,10 +63,10 @@ class Resolve
 	}// end constructor
 
 	/**
-	* This initialises all the objects that we need to use, the reason that we can't do this in the 
-	* constructor is that the Asset_Manager uses the DB in it's constructor in order to load the asset types
-	* but if initialise the Asset_Manager in our constructor we don't exist and therefore cannot be accessed
-	* to get the DB for the Asset_Manager to use
+	* This initialises all the objects that we need to use, the reason that we can't do 
+	* this in the constructor is that the Asset_Manager uses the DB in it's constructor 
+	* in order to load the asset types but if initialise the Asset_Manager in our constructor 
+	* we don't exist and therefore cannot be accessed to get the DB for the Asset_Manager to use
 	*
 	* @access public
 	*/
@@ -126,12 +126,10 @@ class Resolve
 
 		// we are on the frontend
 		} else {
-
 			$asset = &$this->am->getAssetFromURL(current_protocol());
 			if (is_null($asset)) exit(1);
 			$asset->printFrontend();
-
-		}//end if
+		}
 
 		$this->db->disconnect();
 
