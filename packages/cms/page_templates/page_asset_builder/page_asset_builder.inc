@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.38 2004/11/24 04:28:07 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.39 2004/11/24 23:14:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -416,6 +416,13 @@ class Page_Asset_Builder extends Page
 									continue;
 								}
 							}
+							
+							// we need to update lookups to make sure the URLs for the
+							// new create locations are set correctly
+							$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+							$vars = Array('assetids' => Array($new_asset->id));
+							$lookup_errors = $hh->freestyleHipo('hipo_job_update_lookups', $vars);
+							$this->_errors = array_merge($this->_errors, $lookup_errors);
 						}
 
 						if (empty($this->_errors)) {
