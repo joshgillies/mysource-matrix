@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.30.2.2 2004/02/18 11:39:07 brobertson Exp $
+* $Id: step_03.php,v 1.30.2.3 2004/02/21 13:28:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,7 +86,7 @@ $ms_cfg = new Messaging_Service_Config();
 $ms_cfg->save(Array(), false);
 
 // Re-generate the Messaging Service Config to make sure that we get any new defines that may have been issued
-require_once SQ_SYSTEM_ROOT.'/core/replicaton/replication_config.inc';
+require_once SQ_SYSTEM_ROOT.'/core/replication/replication_config.inc';
 $rep_cfg = new Replication_Config();
 $rep_cfg->save(Array(), false);
 
