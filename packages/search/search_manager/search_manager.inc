@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.15 2004/07/15 05:17:52 lwright Exp $
+* $Id: search_manager.inc,v 1.16 2004/07/15 05:24:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.15 $ - 0.1
+* @version $Revision: 1.16 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -498,10 +498,10 @@ class Search_Manager extends Asset
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT LOWER(value) as keyword, SUM(score) as total_score 
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_indexing 
-				    WHERE assetid='.$db->quote($asset->id).
-				   ($include_metadata ? '' : ' AND component NOT LIKE "metadata:%"').
-				   ' GROUP BY keyword ORDER BY total_score DESC';
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_indexing 
+				WHERE assetid = '.$db->quote($asset->id).
+				  ($include_metadata ? '' : ' AND component NOT LIKE '.$db->quote('metadata:%')).'
+				GROUP BY keyword ORDER BY total_score DESC';
 
 		$result = $db->getAssoc($sql);
 		assert_valid_db_result($result);
