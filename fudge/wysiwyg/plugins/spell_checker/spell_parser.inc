@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_parser.inc,v 1.8 2003/11/26 00:51:23 gsherwood Exp $
+* $Id: spell_parser.inc,v 1.9 2003/12/16 12:42:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,8 +31,8 @@
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package MySource_Fudge
-* @subpackage cms
+* @package Fudge
+* @subpackage wysiwyg
 */
 Class Spell_Parser {
 

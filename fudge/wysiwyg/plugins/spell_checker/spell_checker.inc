@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.inc,v 1.4 2003/11/26 00:51:23 gsherwood Exp $
+* $Id: spell_checker.inc,v 1.5 2003/12/16 12:42:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,8 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package wysiwyg
+* @package Fudge
+* @subpackage wysiwyg
 */
 class spell_checker extends wysiwyg_plugin {
 
