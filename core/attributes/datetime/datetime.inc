@@ -105,7 +105,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		$field = new Datetime_Field($prefix.'_'.$this->name, $this->value, $this->_edit_params);
 
 		if ($read_only) {
-			echo $field->format($this->_edit_params['print_format']);
+			echo $field->format();
 			return;
 		}
 
