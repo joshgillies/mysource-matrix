@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.14 2004/06/18 01:48:25 lwright Exp $
+* $Id: search_page_management.inc,v 1.15 2004/06/18 11:08:03 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -130,6 +130,7 @@ class Search_Page_Management extends Asset_Management
 
 				// get the current root asset id and make sure it exists
 				$current_root_assetid = $asset->attr('root_assetid');
+				if (empty($current_root_assetid)) continue;
 				$root_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($current_root_assetid));
 
 				// create the notice link
