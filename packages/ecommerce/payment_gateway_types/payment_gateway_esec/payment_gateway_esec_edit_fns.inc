@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec_edit_fns.inc,v 1.1.1.1 2004/10/13 01:31:48 arailean Exp $
+* $Id: payment_gateway_esec_edit_fns.inc,v 1.2 2004/10/17 23:23:59 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../payment_gateway/payment_gateway_edit_fns.
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
