@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit.css,v 1.20 2003/10/17 01:33:45 brobertson Exp $
+* $Id: edit.css,v 1.21 2003/10/30 01:09:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,22 +29,38 @@ a.hover {
 
 /* HEADING STYLES */
 
-td.sq-backend-main-heading, td.sq-backend-sub-heading {
+td.sq-backend-main-heading {
 	background-color:	#725B7D;
 	color:				#FFFFFF;
-	font-family:		Verdana, Arial, Helvetica, sans-serif;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
 	font-size:			12px;
 	padding:			4px;
 	border-bottom:		1px solid #342939;
 }
 
-td.sq-backend-sub-heading {
-	background-color:	#C8BDCB;
+.sq-backend-sub-heading {
+	background-color:	#725B7D;
 	color:				#FFFFFF;
-	font-size:			12px;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			9px;
+	padding:			0px;
 }
 
+
+td.sq-backend-nav-history, a.sq-backend-nav-history {
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	padding:			4px;
+	background-color:	#C8BDCB;
+	color:				#000000;
+	font-size:			11px;
+	text-decoration:	none;
+	font-weight:		bold;
+}
+
+td.sq-backend-nav-history {
+	border-bottom:		1px solid #342939;
+}
 
 /* GENERAL STYLES */
 
@@ -92,17 +108,17 @@ td.sq-backend-sub-heading {
 /* BACKEND OUTPUTTER - SECTIONS AND FIELDS */
 
 .sq-backend-section-heading {
-	background-color:	#ECECEC;
-	color:				#000000;
+	background-color:	#F4F4EB;
+	color:				#848479;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
 	font-size:			12px;
-	padding:			5px;
+	padding:			3px;
 }
 
 .sq-backend-section-subheading {
 	background-color:	#FFFFFF;
-	color:				#2086EA;
+	color:				#33B9E6;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
 	font-size:			11px;
@@ -149,12 +165,32 @@ td.sq-backend-table-cell-alt {
 
 
 
-/* ASSET FINDER */
+/* LOCKING TABLE STYLES */
 
-.sq-form-asset-finder {
-	border-style:	dashed;
-	border-color:	#D0D0D0;
-	border-width:	1px;
+.sq-backend-lock-table {
+	width:				100%;
+	border:				1px solid #C6B344;
+	border-collapse:	collapse;
+}
+
+td.sq-backend-lock-table-header, td.sq-backend-lock-table-cell, td.sq-backend-lock-table-cell-alt {
+	background-color:	#FFFFFF;
+	vertical-align:		top;
+	color:				#000000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
+	padding:			2px;
+}
+
+td.sq-backend-lock-table-header {
+	font-size:			11px;
+	font-weight:		bold;
+	background-color:	#EEE5AF;
+	border-bottom:		1px solid #C6B344;
+}
+
+td.sq-backend-lock-table-cell-alt {
+	background-color:	#F6F2D7;
 }
 
 
@@ -170,7 +206,17 @@ td.sq-backend-table-cell-alt {
 }
 
 .sq-backend-unlocked {
-	color:		#0066CB;
+	color:		#D37E17;
+}
+
+
+
+/* ASSET FINDER */
+
+.sq-form-asset-finder {
+	border-style:	dashed;
+	border-color:	#D0D0D0;
+	border-width:	1px;
 }
 
 

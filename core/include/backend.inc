@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.67 2003/10/21 23:46:26 gsherwood Exp $
+* $Id: backend.inc,v 1.68 2003/10/30 01:09:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,6 +51,7 @@ class Backend extends MySource_Object
 	function getBackendUrl($target='main')
 	{
 		return current_url().'?SQ_BACKEND_PAGE='.$target;
+
 	}//end getBackendUrl()
 
 
@@ -367,6 +368,13 @@ class Backend extends MySource_Object
 				<td align="right" width="100%">
 				<?php
 					$options = Array();
+					$options[] = Array(
+									'url'     => '#',
+									'onclick' => "Javascript: if(top.main.main_form.sq_preview_url) { window.open(top.main.main_form.sq_preview_url.value, 'sq_preview_window'); }",
+									'title'   => 'Preview on frontend',
+									'icon'    => 'preview.png',
+									);
+
 					if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 						$options[] = Array(
 										'url'    => $this->getBackendUrl('main').'&backend_section=config',
@@ -385,21 +393,28 @@ class Backend extends MySource_Object
 										);
 					}
 					$options[] = Array(
-									'url'    => $this->getBackendUrl('main').'&backend_section=am',
-									'target' => 'main',
-									'title'  => 'Asset Tree',
-									'icon'   => 'asset_tree.png',
+									'url'     => $this->getBackendUrl('main').'&backend_section=am',
+									'target'  => 'main',
+									'title'   => 'Asset Tree',
+									'icon'    => 'asset_tree.png',
 									);
 
 					$options[] = Array(
-									'url'    => $_SERVER['PHP_SELF'].'?SQ_ACTION=logout',
-									'target' => '_top',
-									'title'  => 'Logout',
-									'icon'   => 'logout.png',
+									'url'     => $_SERVER['PHP_SELF'].'?SQ_ACTION=logout',
+									'target'  => '_top',
+									'title'   => 'Logout',
+									'icon'    => 'logout.png',
 									);
 
 					foreach($options as $option) {
-						?><a href="<?php echo $option['url'];?>" title="<?php echo htmlspecialchars($option['title']);?>" style="cursor: pointer;" target="<?php echo $option['target'];?>"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script></a>&nbsp;&nbsp;<?php
+						?><a href="<?php echo $option['url'];?>"
+							 title="<?php echo htmlspecialchars($option['title']);?>"
+							 style="cursor: pointer;"
+							 <?php echo (isset($option['target'])) ? 'target="'.$option['target'].'"' : ''; ?>
+							 <?php echo (isset($option['onclick'])) ? 'onClick="'.$option['onclick'].'"' : ''; ?>
+						  >
+									<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script>
+								</a>&nbsp;&nbsp;<?php
 					}
 
 				?>

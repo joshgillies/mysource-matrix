@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.170 2003/10/27 02:29:27 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.171 2003/10/30 01:09:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -229,15 +229,15 @@ class Asset_Edit_Interface extends MySource_Object
 				$o->openSection('Locking / Editing');
 				$o->openField('&nbsp;');
 			?>
-				<table class="sq-backend-table">
+				<table class="sq-backend-lock-table">
 					<tr>
-						<td class="sq-backend-table-header">
+						<td class="sq-backend-lock-table-header">
 							&nbsp;
 						</td>
-						<td class="sq-backend-table-header">
+						<td class="sq-backend-lock-table-header">
 							Lock Type
 						</td>
-						<td class="sq-backend-table-header">
+						<td class="sq-backend-lock-table-header">
 							&nbsp;
 						</td>
 					</tr>
@@ -250,16 +250,20 @@ class Asset_Edit_Interface extends MySource_Object
 			$have_all_locks  = true;
 			$need_force_locks = false;
 			$can_force_locks  = true;
+			$class = 'sq-backend-lock-table-cell-alt';
 			foreach($locks as $lock_type => $lock) {
+				if ($class == 'sq-backend-lock-table-cell') $class = 'sq-backend-lock-table-cell-alt';
+				else $class = 'sq-backend-lock-table-cell';
+
 			?>
 				<tr>
-					<td class="sq-backend-table-cell">
+					<td class="<?php echo $class; ?>">
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
 					</td>
-					<td class="sq-backend-table-cell">
+					<td class="<?php echo $class; ?>">
 						<?php echo ucwords(str_replace('_', ' ', $lock_type)); ?>
 					</td>
-					<td class="sq-backend-table-cell">
+					<td class="<?php echo $class; ?>">
 						<?php
 						if (empty($lock)) {
 							$have_all_locks = false;
@@ -309,7 +313,6 @@ class Asset_Edit_Interface extends MySource_Object
 								}
 							}
 
-
 						}// end if
 						?>
 					</td>
@@ -317,65 +320,51 @@ class Asset_Edit_Interface extends MySource_Object
 			<?php
 			}// end foreach lock types
 			?>
-				<tr>
-					<td class="sq-backend-table-header" style="text-align: right;" colspan="3">
-					<?php
-						hidden_field('sq_lock_type', $screen_lock_type);
-
-						if (!$have_all_locks) {
-							if ($need_force_locks) {
-								if ($can_force_locks) {
-									echo '<p class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</p>';
-
-									// they aren't going to do this without a fight though
-									// they'll have to go thorough our popup window first
-									$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
-
-									hidden_field('sq_lock_acquire_by_force',  '0');
-									hidden_field('sq_lock_acquire',      '0');
-									normal_button('sq_forceably_acquire_lock', 'Acquire Lock(s)', 'window.open(\''.$popup_url.'\', \'sq_forceably_acquire_lock_popup\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300\');');
-								}
-							} else if ($full_write_access && $acquire_lock_access) {
-								hidden_field('sq_lock_acquire_by_force', '0');
-								submit_button('sq_lock_acquire', 'Lock');
-							} // end if
-						}
-
-						if ($have_any_locks) {
-							submit_button('sq_lock_release_manual', 'Release Lock(s)');
-						}
-						
-					?>
-					</td>
-				</tr>
 			</table>
+
 			<?php
-			if (strtolower($screen_lock_type) != 'none') {
-				$o->closeSection();
-			} else {
-				$o->closeRaw();
+			hidden_field('sq_lock_type', $screen_lock_type);
+
+			if (!$have_all_locks || $have_any_locks) {
+				?><span style="float: right; padding: 2px;"><?php
 			}
+
+			if (!$have_all_locks) {
+				if ($need_force_locks) {
+					if ($can_force_locks) {
+						echo '<p class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</p>';
+
+						// they aren't going to do this without a fight though
+						// they'll have to go through our popup window first
+						$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
+
+						hidden_field('sq_lock_acquire_by_force', '0');
+						hidden_field('sq_lock_acquire', '0');
+						normal_button('sq_forceably_acquire_lock', 'Acquire Lock(s)', "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');");
+					}
+				} else if ($full_write_access && $acquire_lock_access) {
+					hidden_field('sq_lock_acquire_by_force', '0');
+					submit_button('sq_lock_acquire', 'Lock');
+				}// end if
+			}
+
+			if ($have_any_locks) submit_button('sq_lock_release_manual', 'Release Lock(s)');
+
+			if (!$have_all_locks || $have_any_locks) {
+				?></span><?php
+			}
+
+			if (strtolower($screen_lock_type) != 'none') $o->closeSection();
+			else $o->closeRaw();
 
 		}// end if
 
-		// set correct page headings based on what we are doing
-		if (!$creating) {
-			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name')
-								.' - '.$owner->name.' (version '.$owner->version.')';
-		} else {
-			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
-		}
-
-		$o->setHeading($page_heading, '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code).'", "16", "16", "");</script>');
-
-		// set a preview url to use
-		$o->addHiddenField('sq_preview_url', $owner->getUrl());
 
 		// check the active screen for special system defined static screens
 		$file = null;
 		if (isset($this->_edit_fns->static_screens[$active_screen])) {
 
-			$o->setSubHeading($this->_edit_fns->static_screens[$active_screen]['name']);
+			$active_screen_name = $this->_edit_fns->static_screens[$active_screen]['name'];
 
 			// if we are not creating, paint the system defined bit of this tab
 			if (!$creating) {
@@ -401,9 +390,113 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$force_unlock_on_commit = $this->_screens[$active_screen]['force_unlock'];
 
-			$o->setSubHeading($this->_screens[$active_screen]['name']);
+			$active_screen_name = $this->_screens[$active_screen]['name'];
 
 		}// end if
+
+
+		  ///////////////////
+		 //  PREVIEW URL  //
+		///////////////////
+		// get the asset tree lineage
+//bam($_GET);
+		if (isset($_GET['sq_asset_path'])) {
+			// flash sends comma-separated assetids indicating the path
+			$asset_path = split(",", ($_GET['sq_asset_path']));
+		} else {
+			// flash didn't send one (e.g initial matrix loading) - pretend it did by making a singleton set of the owner
+			$asset_path = Array($owner->id);
+		}
+//bam($asset_path);
+//$o->addFormActionGetVar('sq_asset_path', implode(',', $asset_path));
+		$preview_url = '';
+		foreach ($asset_path as $assetid) {
+			if ($assetid != $owner->id) $ancestor =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			else $ancestor =& $owner;
+			
+			if (is_null($ancestor)) {
+				$preview_url = '';
+				break;
+			}
+
+			if ($preview_url == '') {
+				// we need a base url
+				$url = $ancestor->getUrl();
+				if ($url == '') {
+					// no url defined, so the owner can't have a valid preview url from this tree
+					break;
+				} else {
+					$preview_url = $ancestor->getUrl();
+				}
+			} else {
+				// we have a base url, but we need the appropriate paths
+				$paths = $ancestor->getWebPaths();
+				if (empty($paths)) {
+					// no path defined from here onwards - just use what we've got so far
+					break;
+				} else {
+					$preview_url .= "/" . array_shift($paths);
+				}
+			}
+		}
+		$o->addHiddenField('sq_preview_url', $preview_url);
+
+
+		  //////////////////////////
+		 //  Navigation History  //
+		//////////////////////////
+		if (!isset($_SESSION['sq_nav_history']) || !is_array($_SESSION['sq_nav_history'])) $_SESSION['sq_nav_history'] = Array();
+
+		// first work out if we have gone back to a previous entry
+		if (!empty($_SESSION['sq_nav_history'])) {
+			if (isset($_REQUEST['sq_nav_goback'])) {
+				for ($i = count($_SESSION['sq_nav_history']); $i > $_REQUEST['sq_nav_goback']; $i--) {
+					array_pop($_SESSION['sq_nav_history']);
+					if (empty($_SESSION['sq_nav_history'])) break;
+				}
+			}
+		}
+
+		if (!empty($_SESSION['sq_nav_history'])) {
+			$nav_count = count($_SESSION['sq_nav_history']);
+
+			if ($nav_count >= 20) {
+				array_shift($_SESSION['sq_nav_history']);
+				$nav_count--;
+			}
+
+			$current_nav_node = $_SESSION['sq_nav_history'][($nav_count-1)];
+			if ($current_nav_node['assetid'] != $owner->id) {
+				$_SESSION['sq_nav_history'][$nav_count] = Array('assetid' => $owner->id, 'screen' => $active_screen);
+			} else if ($current_nav_node['screen'] != $active_screen) {
+				$_SESSION['sq_nav_history'][($nav_count -1)] = Array('assetid' => $owner->id, 'screen' => $active_screen);
+			}
+		} else {
+			$_SESSION['sq_nav_history'][0] = Array('assetid' => $owner->id, 'screen' => $active_screen);
+		}
+
+
+		  /////////////////////
+		 //  PAGE HEADINGS  //
+		/////////////////////
+		// set correct page headings based on what we are doing
+		if (!$creating) {
+			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').' - '.$owner->name.' (v. '.$owner->version.')';
+		} else {
+			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
+		}
+		$page_heading .= '&nbsp;&nbsp;|&nbsp;&nbsp;'.$active_screen_name;
+
+		$o->setHeading($page_heading, '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($this->_type_code).'", "16", "16", "");</script>');
+
+		$closest_parentid = array_pop($asset_path);
+		if ($closest_parentid != $owner->id) {
+			$closest_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($closest_parentid);
+			if (!is_null($closest_parent)) {
+				$o->setSubHeading('Currently editing '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($closest_parent->type(), 'name').' "'.$closest_parent->name.'"');
+			}
+		}
+
 
 		if ($file) {
 			$input = new XML_Tree($file);

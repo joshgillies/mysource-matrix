@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend_outputter.inc,v 1.59 2003/10/29 00:38:37 dwong Exp $
+* $Id: backend_outputter.inc,v 1.60 2003/10/30 01:09:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -703,21 +703,22 @@ class Backend_Outputter
 		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
 		hidden_field('process_form', '1');
-		foreach($this->_hidden_fields as $name => $value) {
-			hidden_field($name, $value);
-		}//end foreach
+		foreach($this->_hidden_fields as $name => $value) hidden_field($name, $value);
 
 		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
 			?>
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
 				<?php if ($this->_heading_icon) { ?>
-					<td class="sq-backend-main-heading" style="vertical-align: middle; white-space: nowrap;"><?php echo $this->_heading_icon; ?></td>
+					<td rowspan="2" class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;"><?php echo $this->_heading_icon; ?></td>
 				<?php } else { ?>
-					<td class="sq-backend-main-heading" style="vertical-align: middle; white-space: nowrap;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/></td>
+					<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/></td>
 				<?php } // end if ?>
-					<td class="sq-backend-main-heading" style="vertical-align: middle; white-space: nowrap;"><?php echo $this->_heading; ?></td>
-					<td class="sq-backend-main-heading" style="text-align: right;" width="100%">
+					<td class="sq-backend-main-heading" style="vertical-align: top; white-space: nowrap;">
+					<?php echo $this->_heading; ?>
+					<?php if ($this->_sub_heading) echo '</br><span class="sq-backend-sub-heading">'.$this->_sub_heading.'</span>'; ?>
+					</td>
+					<td class="sq-backend-main-heading" style="vertical-align: middle; text-align: right;" width="100%">
 					<div id="sq_screen_menu_filler" style="display: none"></div>
 					<div id="sq_screen_menu">
 					<?php
@@ -746,16 +747,43 @@ class Backend_Outputter
 				</tr>
 			</table>
 			<?php
-		}// end if
 
-		if ($this->_sub_heading) {
-			?>
-			<table width="100%" cellpadding="3" cellspacing="0" border="0">
-				<tr>
-					<td class="sq-backend-sub-heading" valign="middle"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"/><?php echo $this->_sub_heading; ?></td>
-				</tr>
-			</table>
-			<?php
+			if (isset($_SESSION['sq_nav_history'])) {
+				?>
+				<table width="100%" cellpadding="3" cellspacing="0" border="0">
+					<tr>
+						<td class="sq-backend-nav-history" valign="middle">
+						<span style="color: #342939">Back to : </span>
+						<?php
+							$nav_count = count($_SESSION['sq_nav_history']);
+							if ($nav_count < 5) $start = 0;
+							else $start = $nav_count - 5;
+
+							for ($i = $start; $i < $nav_count; $i++) {
+								$nav_details = $_SESSION['sq_nav_history'][$i];
+
+								$nav_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nav_details['assetid']);
+								if (is_null($nav_asset)) continue;
+
+								?><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($nav_asset->type()); ?>", "16", "16", "<?php echo $nav_asset->short_name;?>");</script><?php
+
+								if ($i < ($nav_count -1)) {
+									?><a href="<?php echo $nav_asset->getBackendHref($nav_details['screen']); ?>&sq_nav_goback=<?php echo $i; ?>" class="sq-backend-nav-history"><?php echo $nav_asset->short_name; ?></a> <span style="color: #FFFFFF">+</span> <?php
+								} else {
+									// the last entry (the current asset)
+									echo '&nbsp;'.$nav_asset->short_name;
+								}
+
+								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($nav_asset);
+								unset($nav_asset);
+							}
+						?>
+						</td>
+					</tr>
+				</table>
+				<?php
+			}
+
 		}// end if
 
 	}//end _paintHeader()
@@ -794,7 +822,7 @@ class Backend_Outputter
 						<td colspan="3">
 							<table width="100%" cellpadding="0" cellspacing="0" border="0">
 								<tr>
-									<td width="100%" bgcolor="#000000"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td>
+									<td width="100%" bgcolor="#B3B3B3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td>
 								</tr>
 							</table>
 						</td>
