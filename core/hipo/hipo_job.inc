@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.51 2004/09/16 10:55:53 brobertson Exp $
+* $Id: hipo_job.inc,v 1.52 2004/11/08 03:39:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,6 +140,8 @@ class HIPO_Job extends MySource_Object
 	*		]
 	*			'running_mode'	=> [web|server],
 	*			'auto_step'		=> [true|false],
+	*			'skip_step'		=> [true|false],
+	*			'allow_cancel'	=> [true|false],
 	*			'percent_done'	=> 0,
 	*			'complete'		=> false,
 	*			'message'		=> '',
@@ -720,7 +722,7 @@ class HIPO_Job extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function auto_step()
+	function autoStep()
 	{
 		$step = $this->_hipo_vars['current_step'];
 		if ($this->complete()) {
@@ -736,7 +738,7 @@ class HIPO_Job extends MySource_Object
 			$sub_job = &$this->_getSubJob();
 			// if we are processing a sub job, it's it's decision whether to auto step or not
 			if (!is_null($sub_job)) {
-				return $sub_job->auto_step();
+				return $sub_job->autoStep();
 
 			// otherwise do what's set for this step
 			} else {
@@ -748,12 +750,11 @@ class HIPO_Job extends MySource_Object
 
 		return false;
 
-	}//end auto_step()
-
+	}//end autoStep()
 
 
 	/**
-	* returns the next step to be executed by the hipo job, 
+	* Return the next step to be executed by the hipo job, 
 	*
 	* @access public
 	* @return integer 

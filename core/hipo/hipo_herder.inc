@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.46 2004/10/07 23:34:01 mmcintyre Exp $
+* $Id: hipo_herder.inc,v 1.47 2004/11/08 03:39:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -268,7 +268,7 @@ class HIPO_Herder extends MySource_Object
 			$status_msg = 'HIPO Aborted';
 		} else {
 			$url = $this->getProcessURL($source_job->code_name);
-			$auto_step = $source_job->auto_step();
+			$auto_step = $source_job->autoStep();
 			$percent_done = $source_job->percentDone();
 
 			if ($source_job->complete()) {
@@ -351,7 +351,10 @@ class HIPO_Herder extends MySource_Object
 						// basically what happens here is that if cancel has already been pressed we increment the counter
 						// this means that the cancel button only get's pressed once
 						hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
-						$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
+						$allow_cancel = $source_job->_steps[$source_job->_hipo_vars['current_step']]['allow_cancel'];
+						if ($allow_cancel) {
+							$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
+						}
 					}
 
 					// print the NEXT or FINISH button if we are not auto stepping through the HIPO
