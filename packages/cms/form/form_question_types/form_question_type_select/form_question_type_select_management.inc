@@ -42,23 +42,17 @@ class Form_Question_Type_Select_Management extends Asset_Management
 									),
 							'multiple' => Array(
 									'added'		=> '0.0.1',
-									'type'		=> 'selection',
+									'type'		=> 'boolean',
 									'default'	=> 0,
-									'parameters'	=> Array(	
-										'options'	=> Array(
-											1	=> 'yes',
-											0	=> 'no',
-										),
 								),
 							'extra'	 => Array(
 									'added'     => '0.0.1',
 									'type'      => 'text',  
 									'default'   => '',
 									),
-						),
 								
 			);
-	}//end constructor
+	} // end constructor
 
 }//end class
 ?>
