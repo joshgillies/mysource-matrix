@@ -95,6 +95,15 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		
 		// get all the tables linked to this bodycopy
 		$tables = $asset->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
+
+		if (!$asset->writeAccess()) {
+			foreach ($tables as $table_data) {
+				$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
+				$table_edit = $table->getEditFns();
+				$table_edit->paintTable($table, $o, $prefix);
+			}
+			return true;
+		}
 		
 		// the initial width and height to have the layer display created at;
 		$init_layer_width  = 500;

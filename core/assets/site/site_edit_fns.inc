@@ -193,12 +193,14 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
 		if (!$asset->writeAccess()) {
+			echo '<i>';
 			if (!$designid) {
 				echo 'None';
 			} else {
 				$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
 				echo $design->name.' :: '.$design->id;
 			}
+			echo '</i>';
 			return;
 		}
 		
@@ -266,13 +268,19 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function paintPageSelection($page_type, &$asset, $prefix)
 	{
+
+		$link = $asset->getSpecialPageLink($page_type);
+		$selected = (empty($link)) ? 0 : $link['minorid'];
+
 		if (!$asset->writeAccess()) {
-			if (!$designid) {
+			echo '<i>';
+			if (!$selected) {
 				echo 'None';
 			} else {
-				$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
-				echo $design->name.' :: '.$design->id;
+				$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected, '', true);
+				echo $page->name;
 			}
+			echo '</i>';
 			return;
 		}
 
@@ -283,16 +291,13 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			hidden_field($prefix.'_'.$page_type, '0');
 			return;
 		}
-		
+
 		$contents = Array();
 		foreach($pages as $info) {
 			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($info['minorid'], $info['type_code'], true);
 			if (is_null($page)) continue;
 			$contents[$page->id] = $page->name;
 		}
-
-		$link = $asset->getSpecialPageLink($page_type);
-		$selected = (empty($link)) ? 0 : $link['minorid'];
 
 		combo_box($prefix.'_'.$page_type, $contents, false, $selected);
 

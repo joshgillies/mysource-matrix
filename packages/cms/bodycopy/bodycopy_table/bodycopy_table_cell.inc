@@ -159,7 +159,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		$link = $table->getLinkById($this->attributes['linkid']);
 		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
 		$content_edit = &$content_type->getEditFns();
-		if (!$generating) {
+		if (!empty($prefix)) {
 			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 			$content_edit->paintBackend($content_type, $content_prefix);
 		} else {

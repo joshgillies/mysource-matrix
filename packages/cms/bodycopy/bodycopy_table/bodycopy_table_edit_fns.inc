@@ -165,6 +165,11 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintTable(&$asset, &$o, $prefix)
 	{
+		if (!$asset->writeAccess()) {
+			$this->paint($asset);
+			return true;
+		}
+		
 		$table_rows = $asset->attr('rows');
 		$table_attributes = $asset->attr('attributes');
 
