@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.35 2004/06/16 01:49:21 mmcintyre Exp $
+* $Id: edit.css,v 1.36 2004/06/16 04:35:25 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,8 +47,7 @@ a.hover {
 /* HEADING STYLES */
 
 td.sq-backend-main-heading {
-	/*background-color:	#725B7D;*/
-	background-color: #594165;
+	background-color:       #594165;
 	color:			#FFFFFF;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
@@ -58,7 +57,7 @@ td.sq-backend-main-heading {
 }
 
 .sq-backend-sub-heading {
-	background-color:	#725B7D;
+	background-color:	#594165;
 	color:			#FFFFFF;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:		9px;
