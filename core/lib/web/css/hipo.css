@@ -1,0 +1,65 @@
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: hipo.css,v 1.1 2003/10/30 22:29:35 mmcintyre Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+
+/* BACKEND OUTPUTTER - SECTIONS AND FIELDS */
+
+.sq-backend-section-heading {
+	background-color:	#735B7D;
+	color:				#33B9E6;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight:		bold;
+	font-size:			12px;
+	padding:			3px;
+}
+
+.sq-backend-section-subheading {
+	background-color:	#735B7D;
+	color:				#33B9E6;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight:		bold;
+	font-size:			11px;
+	padding:			3px;
+}
+
+.sq-backend-field {
+	color:				#000000;
+	background-color:	#735B7D;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	font-weight:		bold;
+	vertical-align:		top;
+}
+
+
+
+/* BACKEND TABLE STYLES */
+
+.sq-backend-table {
+	width:				100%;
+	border:				1px solid #8B8B8B;
+	border-collapse:	collapse;
+}
+
+td.sq-backend-table-header, td.sq-backend-table-cell, td.sq-backend-table-cell-alt {
+	background-color:	#D5CFD8;
+	vertical-align:		top;
+	color:				#000000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
+	padding:			4px;
+}
+
+td.sq-backend-table-header {
+	font-size:			11px;
+	font-weight:		bold;
+	background-color:	#E8E8E8;
+}
+
+td.sq-backend-table-cell-alt {
+	background-color:	#C8BDCB;
+}
