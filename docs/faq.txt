@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: faq.txt,v 1.19 2004/04/14 06:20:35 ramato Exp $
+* $Id: faq.txt,v 1.20 2004/09/10 01:31:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,6 +116,24 @@ So on beta go to /home/htdocs/mysource_matrix_phpdoc/mysource_matrix/packages (a
   chmod -R g+w PACKAGE
 
 Once it has been checked out it will be updated automatically by the cron script.
+
+
+Contributed by: Greg Sherwood <greg@squiz.net>
+
+
+Q. How do I add a new directory to Fudge ?
+A. You cant just add the directory, you need to import it.
+
+Go to the directory (eg. cd /mysource_matrix/fudge/DIR)
+Now import the directory (eg. cvs -d /home/cvs/fudge import -m "Dir description" DIR squiz start)
+
+You will now have to checkout the fudge directory for yourself. The directory you imported is not a working version at the moment.
+So, back out of the directory back to the mysource matrix root directory, rename your DIR directory, then check out the working version.
+  cd ../../
+  mv fudge/DIR fudge/DIR_import
+  fudge_co
+
+The fudge_co script will check out your new imported directory.
 
 
 Contributed by: Greg Sherwood <greg@squiz.net>
