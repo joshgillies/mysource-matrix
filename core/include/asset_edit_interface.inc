@@ -473,7 +473,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			if ($owner->writeAccess()) {
 				$o->openField('New?');
-				asset_finder($prefix.'_new_'.strtolower($title), 0, Array('root_user' => 'D', 'user_group' => 'D'));
+				asset_finder($prefix.'_new_'.strtolower($title), 0, Array('user' => 'D', 'user_group' => 'D'));
 			}
 		}
 		
