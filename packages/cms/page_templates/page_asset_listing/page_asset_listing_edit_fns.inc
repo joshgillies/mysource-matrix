@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.1.2.2 2004/02/21 12:27:59 brobertson Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.1.2.3 2004/02/26 18:40:44 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -342,8 +342,7 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 
 			foreach ($_POST[$prefix.'_remove'] as $type) {
 				if (in_array($type, $types)) {
-					$key = array_search($type, $types, true);
-					unset($types[$key]);
+					unset($types[$type]);
 
 					// remove from the customise list if its in here
 					if (in_array($type, $customised)) {
