@@ -118,12 +118,57 @@ FLASH MESSAGE TAB [ 2 DAYS ]
 	- this view should allow the user to mark the messages as read and archive them
 
 PERMISSIONS [ 6 DAYS ]
+	- four types of access: Read, Write, Administrator, Publish
+	- publish access incorporates workflow management (user defined)
+	- administrators of the asset can do anything they like
+	- once an asset is live (example: page), write access will let you safe-edit or dupe the asset.
+	- if safe-editing, the workflow process must be followed from the begining before publishing.
+	- the publishing workflow will be, at least, a single person (in a user group with publish access on the asset) to approve/publish the asset (make live)
+	- If a user with publish access wants to edit a live page, three situations may occur:
+		1. If there is no workflow defined in the system, anyone with publish access to an asset can live edit
+		2. If there is workflow, but their are no other concerned users for workflow, the publisher can live edit. An example is if the workflow for the asset says that someone in UserGroup1 must approve the work before publishing, and this publisher is in UserGroup1.
+		3. If there is workflow defined, and there are other users concerned with this workflow anywhere in the workflow process, the publisher may not live edit. They can only safe-edit the asset, which then goes through the workflow process as normal (which they may be a part of).
+	- need some sort of PUBLIC flag for an asset to indicate anyone has read access
+	- create a new type of user, backend_user (from which root_user inherits) so that only backend_users can access the backend and thus create assets
+	- any backend_user can create any asset type
+	- to create a new page under page 'foo' you need to have write access to 'foo'
+	- to delete the link from 'foo' to 'bar' (foo is major) you need to have write access to 'foo' but dont need any access to 'bar'
+	- create a new registered user group 'System Administrators'. Users in this group can do anything except root specific functions (eg config settings, adding/removing from sysAsmin group)
+	- permissions are inherited using the asset tree
+	- when multiple trees define different permissions, they are added together eg R + RW = RW
+	- if you define your own permissions, they override all others
+	- only sysAdmins can create/edit workflow and assign workflow to an asset. The exception is an administrator of an asset who can change workflow
+	- people with ADMINSTRATOR permission are like sysAdmins for the asset. This permission is inherited. These users can do anything, including changing permissions/workflow/live edit/publish for the asset
+	- admins can delete their assets
+	- sysAdmins/Root can create/delete users
+	- a user can edit their own details because they are made an admin of their user asset
+	- users are admins of their own workspaces, so when you create an asset in your workspace the new asset inherits the permission of the workspace (ie. you become an admin). BUT when you move the asset out of the worlspace, no direct permissions are created and so the asset now inherits permission from the new parent (where the user who created it may not even have read access)
 
 WORKFLOW [ 4 DAYS ]
+	- create a workflow object that is NOT an asset
+	- alter the publish permission to incorporate workflow instead
+	- workflow is stored as a serialised object/array which stores the steps of the workflow
+	- allow a simple interface for adding publishers in backend for an asset
+		adding a publisher is basically just adding/removing them from a hidden first step of the workflow process where the asset needs to be approved by at least one user
+	- workflow will be a tab in the backend for each asset
+	- workflow will be inherited/stored just like permissions
+	- overriding workflow is done as a whole - not individual steps
+	- if multiple tress define workflow for the same asset (ie. the asset inherits more than one workflow), all workflows must be satisfied before publishing
+	- if you define your own workflow, it overrides all others
+	- rollback entries need to be marked as being in the middle of a workflow process to they cant be purged
+	- special groups appear in the workflow steps so users can select aminds/read/write permission groups for the current asset (eg. at least one admin of this page must approve the page)
+	- if an admin changes workflow, warn of all current workflows that this will affect and then reset all workflows
 
 WORKSPACES [ 1/2 DAY ]
+	- will have system wide URL to access workspaces on frontend
+		eg. beta.squiz.net/~gsherwood
+	- user has admin access to their workspace
+	- cant delete your workspace
 
 TRASH [ 1 1/2 DAYS ]
+	- when an asset is trashed, its permission get set to what the asset was inheriting (if it was inheriting)
+	- assets in the trash can be restored to where they were deleted from by people who have write access to the old parent
+	- asset in the trash can be duped by anyone with read access (most commonly to their own workspace)
 
 LOCKING [ 4 DAYS ]
 	- to lock an asset, need to be able to find out what we are going to need to lock before the locking process in started eg. locking a page locks the bodycopy, tables etc.
