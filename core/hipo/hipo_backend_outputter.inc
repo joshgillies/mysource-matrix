@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_backend_outputter.inc,v 1.5 2003/11/26 00:51:08 gsherwood Exp $
+* $Id: hipo_backend_outputter.inc,v 1.6 2004/06/25 04:05:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,7 +40,12 @@ require_once SQ_SYSTEM_ROOT.'/core/include/backend_outputter.inc';
 class Hipo_Backend_Outputter extends Backend_Outputter
 {
 
+	/**
+	* An array of data decribing the main HIPO form and its action
+	* @var array
+	*/
 	var $_form_data = Array();
+
 
 	/**
 	* Constructor
@@ -58,6 +63,9 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 
 	/**
 	* Set the form name and url to submit to
+	*
+	* @return void
+	* @access public
 	*/
 	function setFormData($form_name, $url)
 	{
@@ -69,6 +77,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 	/**
 	* Paint the header of the page
 	*
+	* @return void
 	* @access private
 	*/
 	function _paintHeader()
@@ -104,7 +113,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 						<?php
 						foreach($this->_on_load_calls as $call) {
 							echo "\n".$call;
-						}//end foreach
+						}
 						?>
 					}// end page_on_load()
 
@@ -307,6 +316,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 		}//end if section type == raw
 
 	}//end _paintSection()
+
 
 }//end class
 

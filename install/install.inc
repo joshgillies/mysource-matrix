@@ -1,5 +1,4 @@
 <?php
-
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
@@ -19,17 +18,17 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.2 2004/06/25 01:30:49 lwright Exp $
+* $Id: install.inc,v 1.3 2004/06/25 04:04:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 /**
-* step_03
+* Install functions
 *
-* Break up of the old step 3 script into discrete functions.
+* Purpose
+* Functions used to install and upgrade the system
 *
-* @author mnyeholt
 * @version $version$ - 1.0
 * @package MySource_Matrix
 * @subpackage install
@@ -39,7 +38,6 @@
 /**
 * Regenerate all the configs used by Matrix
 * 
-* @author mnyeholt
 * @return void
 * @access public
 */
@@ -71,17 +69,16 @@ function regenerate_configs()
 /**
 * Uninstall any assets that no longer have a .inc file 
 * 
-* @author mnyeholt
 * @return void
 * @access public
 */
 function uninstall_asset_types()
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
-	
+
 	$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
-	
-	// Asset types are deleted if the .inc file for them does not exist (eg. for Page asset it would be
+
+	// asset types are deleted if the .inc file for them does not exist (eg. for Page asset it would be
 	// page.inc) and no assets OR asset types currently depend on them in the system.
 	if (!empty($asset_types)) {
 		$types_to_delete = Array();
@@ -193,7 +190,7 @@ function uninstall_asset_types()
 			pre_echo($types_to_delete);
 		}
 	
-	}// end if - asset types not empty
+	}//end if asset types not empty
 	
 }//end uninstall_asset_types()
 
@@ -201,7 +198,6 @@ function uninstall_asset_types()
 /**
 * Uninstall any packages that don't have a package manager defined for them
 * 
-* @author mnyeholt
 * @return void
 * @access public
 */
@@ -225,43 +221,41 @@ function uninstall_packages()
 			// package manager should exist for the package to exist
 			$dir = 'packages/'.$package;
 			$exists = file_exists(SQ_SYSTEM_ROOT.'/'.$dir.'/package_manager_'.$package.'.inc');
-			
-			if (!$exists) {	// folder or the package manager does not exist
-				// safe to delete
-	
+
+			if (!$exists) {
+				// folder or the package manager does not exist, safe to delete
 				$sql = 'DELETE FROM sq_package WHERE code_name = '.$db->quote($package);
-	
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
-					trigger_error('SQL error while deleting package \''.$package.'\': ' .$result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					trigger_error('SQL error while deleting package "'.$package.'": ' .$result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					exit(1);
 				}
 	
 				// remove its asset map file from the data directory
 				if (!unlink(SQ_DATA_PATH.'/private/asset_map/'.$package.'.xml')) {
-					trigger_error('Could not delete the asset map file for \''.$package.'\'', E_USER_WARNING);
+					trigger_error('Could not delete the asset map file for "'.$package.'"', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					exit(1);
 				}
 	
 				pre_echo(strtoupper($package).' PACKAGE UNINSTALLED');
-	
-			}
-	
-		}
-	
+
+			}//end if exists
+
+		}//end foreach installed package
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-	
-	}// end if - installed packages not empty
+
+	}//end if installed packages not empty
 	
 }//end uninstall_packages()
 
 
+
 /**
-* Install core assets / modules / packages
+* Install core assets
 * 
-* @author mnyeholt
 * @return void
 * @access public
 */
@@ -304,15 +298,14 @@ function install_core()
 
 
 /**
-* Install all the packages into matrix
+* Install all the packages into the system
 * 
-* @author mnyeholt
 * @return void
 * @access public
 */
 function install_packages()
 {
-	// Right now that we have sorted all that out we can install the packages
+	// right now that we have sorted all that out we can install the packages
 	$d = dir(SQ_PACKAGES_PATH);
 	while (false !== ($entry = $d->read())) {
 		if ($entry == '.' || $entry == '..') continue;
@@ -338,15 +331,13 @@ function install_packages()
 
 
 /**
-* install authentication types
+* Install authentication types
 * 
-* @author mnyeholt
 * @return void
 * @access public
 */
 function install_authentication_types()
 {
-	
 	// get all the authentication types that are currently installed
 	$auth_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('authentication');
 	
@@ -378,7 +369,6 @@ function install_authentication_types()
 /**
 * Generate the global preferences list
 * 
-* @author mnyeholt
 * @return void
 * @access public
 */
@@ -386,6 +376,7 @@ function generate_global_preferences()
 {
 	// we need to install any event listeners here, now that we have installed all the asset types.
 	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+	bam($packages);
 	$preferences = Array();
 	if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) include SQ_DATA_PATH.'/private/conf/preferences.inc';
 	
@@ -414,7 +405,6 @@ function generate_global_preferences()
 /**
 * Install event listeners
 * 
-* @author mnyeholt
 * @return void
 * @access public
 */
@@ -443,5 +433,6 @@ function install_event_listeners()
 	pre_echo('EVENT LISTENERS DONE');
 	
 }//end install_event_listeners()
+
 
 ?>
