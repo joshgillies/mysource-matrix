@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: init.inc,v 1.54 2003/10/30 23:54:21 dwong Exp $
+* $Id: init.inc,v 1.55 2003/11/03 05:02:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,6 +87,9 @@ if (!isset($GLOBALS['SQ_INSTALL'])) $GLOBALS['SQ_INSTALL'] = false;
 
 // we are not purging the trash
 $GLOBALS['SQ_PURGING_TRASH'] = false;
+
+// we are not reverting to a system version
+$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
 
 // the number of assetids reserved for system assets
 define('SQ_NUM_RESERVED_ASSETIDS', 128);

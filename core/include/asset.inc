@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.251 2003/10/30 23:49:02 dwong Exp $
+* $Id: asset.inc,v 1.252 2003/11/03 05:02:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -969,6 +969,7 @@ class Asset extends MySource_Object
 	*/
 	function revertToSystemVersion()
 	{
+		$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = true;
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		// load our object data in as it was before
@@ -976,6 +977,7 @@ class Asset extends MySource_Object
 			$old_version = unserialize(file_to_string($this->data_path.'/.sq_system/.object_data'));
 		} else {
 			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not locate object data file', E_USER_WARNING);
+			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
 			return false;
 		}
 
@@ -987,13 +989,9 @@ class Asset extends MySource_Object
 
 			if (!copy_file($this->data_path.'/.sq_system/'.$filename, $this->data_path.'/'.$filename)) {
 				trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not copy file "'.$filename.'" to restricted data directory', E_USER_WARNING);
+				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
 				return false;
 			}
-		}
-
-		if (!$this->clearSystemVersion()) {
-			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not clear system version', E_USER_WARNING);
-			return false;
 		}
 
 		// update all the vars
@@ -1001,8 +999,20 @@ class Asset extends MySource_Object
 			if ($var_data['type'] == 'serialise') $var_data['value'] = serialize($var_data['value']);
 			if (!$this->setAttrValue($var_name, $var_data['value'], true)) {
 				trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not save value of attribute "'.$var_name.'"', E_USER_WARNING);
+				$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
 				return false;
 			}
+		}
+		if (!$this->saveAttributes()) {
+			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not save previous version of attributes', E_USER_WARNING);
+			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
+			return false;
+		}
+
+		if (!$this->clearSystemVersion()) {
+			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not clear system version', E_USER_WARNING);
+			$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
+			return false;
 		}
 
 		// ITS ALIVE... ITS ALIVE...
@@ -1011,6 +1021,7 @@ class Asset extends MySource_Object
 		// save this old version to the db
 		$this->_updated();
 
+		$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
 		return true;
 
 	}//end revertToSystemVersion()
@@ -1848,8 +1859,8 @@ class Asset extends MySource_Object
 	{
 		if (!$this->id) return true;
 		if (empty($this->_tmp['vars_set'])) return true;
-		if (!$this->writeAccess('attributes')) {
-			trigger_error('You do not have permission to save the edit the attributes of "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+		if (!$GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] && !$this->writeAccess('attributes')) {
+			trigger_error('You do not have permission to save the attributes of "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
 			return false;
 		}
 
