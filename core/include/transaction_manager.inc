@@ -40,7 +40,19 @@ class Transaction_Manager extends Resolve_Object
 		$this->_levels = 0;
 	}//end constructor
 
-	
+
+	/**
+	* Returns whether we are in a transaction or not
+	*
+	* @return boolean
+	* @access public
+	*/
+	function inTransaction()
+	{
+		return ($this->_levels > 0);
+	}//end inTransaction()
+
+
 	/**
 	* Begins a transaction
 	* Only does a real begin if this is the first begin
