@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.25 2004/10/13 03:58:24 dbaranovskiy Exp $
+* $Id: html_tidy.inc,v 1.26 2004/10/13 06:55:43 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,8 +67,6 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 	*/
 	function HTML_Tidy()
 	{
-		//$this->_add_button('replacetext','ReplaceText','Replace Text','true','11');
-
 	}//end constructor
 
 
