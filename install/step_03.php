@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.49 2004/12/03 15:42:39 brobertson Exp $
+* $Id: step_03.php,v 1.50 2004/12/31 00:09:37 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -26,10 +26,17 @@
 /**
 * Install Step 3
 *
-* Purpose
+* Installs packages into the matrix system. You can optionally specify what 
+* packages and assets to run the script for in the following manner
+*
+* 	php step_03.php /system/root --package=packagename[-assettype,assettype,assettype]
+*
+* You may specify several --package= entries. If the packagename is followed by
+* a hyphen, entries after the hyphen will be taken to be asset types.
+* 
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.50 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -55,6 +62,25 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error($err_msg, E_USER_ERROR);
 }
 
+
+// Only use console stuff if we're running from the command line.
+if ((php_sapi_name() == 'cli')) {
+	require_once 'Console/Getopt.php';
+
+	$shortopt = '';
+	$longopt = Array('package=');
+	
+	$con  = new Console_Getopt; 
+	$args = $con->readPHPArgv();
+	array_shift($args);
+	$options = $con->getopt($args, $shortopt, $longopt);
+	
+	if (is_array($options[0])) {
+		$package_list = get_console_list($options[0]);
+	}
+}
+
+
 // Dont set SQ_INSTALL flag before this include because we want
 // a complete load now that the database has been created
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
@@ -78,13 +104,12 @@ if (!regenerate_configs()) {
 if (!isset($package_list)) {
 	$package_list = Array();	//'cms'=>Array('content_type_raw_html')
 }
+inject_beef();
 
 uninstall_asset_types();
 uninstall_packages();
 install_core($package_list);
 $deferred = install_packages($package_list);
-
-
 // if there were deferred packages, try to reinstall them.
 if (is_array($deferred)) {
 	// try and install the deferred packages again in a loop until the result
@@ -95,10 +120,10 @@ if (is_array($deferred)) {
 		trigger_error('The following assets could not be installed due to dependency failures (see previous warnings for details): '."\n".format_deferred_packages($deferred), E_USER_ERROR);
 	}
 }
+
 install_authentication_types();
 generate_global_preferences();
 install_event_listeners();
-
 // need to run the install packages twice
 install_packages($package_list);
 cache_asset_types();
@@ -106,4 +131,35 @@ cache_asset_types();
 unset($GLOBALS['SQ_INSTALL']);
 
 
+/**
+* Gets a list of supplied package options from the command line arguments given
+* 
+* @param		Array	$options	The options as retrieved from Console::getopts
+* @return 		Array				An array in the format needed for the package_list 
+* @access public
+*/
+function get_console_list($options)
+{
+	$list = Array();
+	
+	foreach ($options as $option) {
+		// If nothing set, skip this entry.
+		if (!isset($option[0]) || !isset($option[1])) continue;
+		
+		if ($option[0] != '--package') continue;
+		
+		// Now process the list
+		$parts = split('-', $option[1]);
+		
+		$types = Array();
+		if (count($parts) == 2 && strlen($parts[1])) {
+			$types = split(',', $parts[1]);
+		}
+		
+		$list[$parts[0]] = $types;
+	}
+	
+	return $list;
+	
+}
 ?>
