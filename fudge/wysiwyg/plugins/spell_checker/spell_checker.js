@@ -1,0 +1,327 @@
+// htmlArea v3.0 - Copyright (c) 2002 interactivetools.com, inc.
+
+
+var is_ie = window.opener.HTMLArea.is_ie;
+var frame = null;
+var currentElement = null;
+var wrongWords = null;
+var modified = false;
+var allWords = {};
+
+/*
+* 
+*
+*
+*/
+function makeCleanDoc(leaveFixed) {
+	for (var i in wrongWords) {
+		var el = wrongWords[i];
+		if (!(leaveFixed && /HA-spellcheck-fixed/.test(el.className))) {
+			el.parentNode.insertBefore(el.firstChild, el);
+			el.parentNode.removeChild(el.nextSibling);
+			el.parentNode.removeChild(el);
+		} else {
+			el.className = "HA-spellcheck-fixed";
+			el.parentNode.removeChild(el.nextSibling);
+		}
+	}
+	// we should use innerHTML here, but IE6's implementation fucks up the
+	// HTML to such extent that our poor Perl parser doesn't understand it
+	// anymore.
+	var html = window.opener.HTMLArea.getHTML(frame.contentWindow.document.body, leaveFixed);
+
+	// strip out the xml tags used to parse the text
+	e = /<spellThis\s+\/>/gi;
+	html = html.replace(e, "");
+	e = /<\/spellThis\s+\/>/gi;
+	html = html.replace(e, "");
+
+	return html;
+};
+
+/**
+* changes the current dictionary to another one
+*/
+function recheckClicked() {
+	document.getElementById("status").innerHTML = "Please wait: changing dictionary to" + ': "' + document.getElementById("f_dictionary").value + '".';
+	var field = document.getElementById("f_content");
+	field.value = makeCleanDoc(true);
+	field.form.submit();
+};
+
+
+/**
+* replaces a word in the iframe with the one selected by the user
+*/
+function replaceWord(el) {
+	var replacement = document.getElementById("v_replacement").value;
+	modified = (el.innerHTML != replacement);
+	if (el) {
+		el.className = el.className.replace(/\s*HA-spellcheck-(hover|fixed)\s*/g, " ");
+	}
+	el.className += " HA-spellcheck-fixed";
+	el.__msh_fixed = true;
+	if (!modified) {
+		return false;
+	}
+	el.innerHTML = replacement;
+};
+
+/**
+* capsture the replace button on a click
+*/
+function replaceClicked() {
+	replaceWord(currentElement);
+	var start = currentElement.__msh_id;
+	var index = start;
+	do {
+		++index;
+		if (index == wrongWords.length) {
+			index = 0;
+		}
+	} while ((index != start) && wrongWords[index].__msh_fixed);
+	if (index == start) {
+		index = 0;
+		alert("Finished list of mispelled words");
+	}
+	wrongWords[index].onclick();
+	return false;
+};
+
+/**
+* capture the replace all button on a click
+*/
+function replaceAllClicked() {
+	var replacement = document.getElementById("v_replacement").value;
+	var ok = true;
+	var spans = allWords[currentElement.__msh_origWord];
+	if (spans.length == 0) {
+		alert("An impossible condition just happened.  Call FBI.  ;-)");
+	} else if (spans.length == 1) {
+		replaceClicked();
+		return false;
+	}
+	
+	if (ok) {
+		for (var i in spans) {
+			if (spans[i] != currentElement) {
+				replaceWord(spans[i]);
+			}
+		}
+		// replace current element the last, so that we jump to the next word ;-)
+		replaceClicked();
+	}
+	return false;
+};
+
+
+/**
+* capture the ignore button on a click
+*/
+function ignoreClicked() {
+	document.getElementById("v_replacement").value = currentElement.__msh_origWord;
+	replaceClicked();
+	return false;
+};
+
+
+/**
+* capture the ignore all button on a click
+*/
+function ignoreAllClicked() {
+	document.getElementById("v_replacement").value = currentElement.__msh_origWord;
+	replaceAllClicked();
+	return false;
+};
+
+
+/**
+* capture the learn button on a click
+*/
+function learnClicked() {
+	alert("Not [yet] implemented");
+	return false;
+};
+
+
+/**
+* initialises all the event handlers, gets the content from the wysiwyg
+*/
+function initDocument() {
+	modified = false;
+	frame = document.getElementById("i_framecontent");
+	var field = document.getElementById("f_content");
+	field.value = parent_object.getHTML();
+	field.form.submit();
+	document.getElementById("f_init").value = "0";
+
+	// assign some global event handlers
+
+	var select = document.getElementById("v_suggestions");
+	select.onchange = function() {
+		document.getElementById("v_replacement").value = this.value;
+	};
+	if (is_ie) {
+		select.attachEvent("ondblclick", replaceClicked);
+	} else {
+		select.addEventListener("dblclick", replaceClicked, true);
+	}
+
+	document.getElementById("b_replace").onclick = replaceClicked;
+	// document.getElementById("b_learn").onclick = learnClicked;
+	document.getElementById("b_replall").onclick = replaceAllClicked;
+	document.getElementById("b_ignore").onclick = ignoreClicked;
+	document.getElementById("b_ignall").onclick = ignoreAllClicked;
+	document.getElementById("b_recheck").onclick = recheckClicked;
+
+	select = document.getElementById("v_dictionaries");
+	select.onchange = function() {
+		document.getElementById("f_dictionary").value = this.value;
+	};
+};
+
+
+/**
+* capture when a word is clicked
+*/
+function wordClicked() {
+	if (currentElement) {
+		var a = allWords[currentElement.__msh_origWord];
+		currentElement.className = currentElement.className.replace(/\s*HA-spellcheck-current\s*/g, " ");
+		for (var i in a) {
+			var el = a[i];
+			if (el != currentElement) {
+				el.className = el.className.replace(/\s*HA-spellcheck-same\s*/g, " ");
+			}
+		}
+	}
+	currentElement = this;
+	this.className += " HA-spellcheck-current";
+	var a = allWords[currentElement.__msh_origWord];
+	for (var i in a) {
+		var el = a[i];
+		if (el != currentElement) {
+			el.className += " HA-spellcheck-same";
+		}
+	}
+	document.getElementById("b_replall").disabled = (a.length <= 1);
+	document.getElementById("b_ignall").disabled = (a.length <= 1);
+	var txt;
+	if (a.length == 1) {
+		txt = a.length + " occurrence";
+	} else {
+		txt = a.length + " occurrences";
+	}
+	
+	document.getElementById("status").innerHTML = "&nbsp;Found " + txt +
+		' for word "<b>' + currentElement.__msh_origWord + '</b>"';
+	var select = document.getElementById("v_suggestions");
+	for (var i = select.length; --i >= 0;) {
+		select.remove(i);
+	}
+	var suggestions;
+	suggestions = this.nextSibling.firstChild.data.split(/,/);
+	for (var i = 0; i < suggestions.length; ++i) {
+		var txt = suggestions[i];
+		var option = document.createElement("option");
+		option.value = txt;
+		option.appendChild(document.createTextNode(txt));
+		select.appendChild(option);
+	}
+	document.getElementById("v_currentWord").innerHTML = this.__msh_origWord;
+	if (suggestions.length > 0) {
+		select.selectedIndex = 0;
+		select.onchange();
+	} else {
+		document.getElementById("v_replacement").value = this.innerHTML;
+	}
+	return false;
+};
+
+
+/**
+* capture when a word has the mouse over it
+*/
+function wordMouseOver() {
+	this.className += " HA-spellcheck-hover";
+};
+
+
+/**
+* capture when a word has the mouse out of it
+*/
+function wordMouseOut() {
+	this.className = this.className.replace(/\s*HA-spellcheck-hover\s*/g, " ");
+};
+
+
+/**
+* gets called when the spell parser has finished checking the spelling
+*/
+function finishedSpellChecking() {
+	// initialization of global variables
+	currentElement = null;
+	wrongWords = null;
+	allWords = {};
+
+	document.getElementById("status").innerHTML = "&nbsp;Spell Checker ";
+	var doc = frame.contentWindow.document;
+		var spans = doc.getElementsByTagName("span");
+		var sps = [];
+	var id = 0;
+		for (var i = 0; i < spans.length; ++i) {
+				var el = spans[i];
+				if (/HA-spellcheck-error/.test(el.className)) {
+					sps.push(el);
+					el.onclick = wordClicked;
+					el.onmouseover = wordMouseOver;
+					el.onmouseout = wordMouseOut;
+					el.__msh_id = id++;
+					var txt = (el.__msh_origWord = el.firstChild.data);
+					el.__msh_fixed = false;
+					
+					if (typeof allWords[txt] == "undefined") {
+						allWords[txt] = [el];
+					} else {
+						allWords[txt].push(el);
+					}
+				}
+		}
+	wrongWords = sps;
+	if (sps.length == 0) {
+		if (!modified) {
+			alert('There were no errors found.');
+		} else {
+			alert('No Errors');
+		}
+		return false;
+	}
+	(currentElement = sps[0]).onclick();
+	var as = doc.getElementsByTagName("a");
+	for (var i = as.length; --i >= 0;) {
+		var a = as[i];
+		a.onclick = function() {
+			if (confirm("You have clicked a link" + ":\n" +
+				    this.href + "\n" + "I will open it in a new page.")) {
+				window.open(this.href);
+			}
+			return false;
+		};
+	}
+	var dicts = doc.getElementById("HA-spellcheck-dictionaries");
+	if (dicts) {
+		dicts.parentNode.removeChild(dicts);
+		dicts = dicts.innerHTML.split(/,/);
+		var select = document.getElementById("v_dictionaries");
+		for (var i = select.length; --i >= 0;) {
+			select.remove(i);
+		}
+		for (var i = 0; i < dicts.length; ++i) {
+			var txt = dicts[i];
+			var option = document.createElement("option");
+			option.value = txt;
+			option.appendChild(document.createTextNode(txt));
+			select.appendChild(option);
+		}
+	}
+};
