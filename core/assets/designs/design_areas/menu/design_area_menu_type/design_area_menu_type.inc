@@ -529,15 +529,15 @@ class Design_Area_Menu_Type extends Design_Area
 					echo '<', '?php echo $'.$this->attr('id_name').'_row[\'assetid\']; ?', '>';
 					break;
 
-				case 'page_link' :
+				case 'asset_link' :
 					echo '<', '?php echo $'.$this->attr('id_name').'_base_url.\'/\'.$'.$this->attr('id_name').'_row[\'path\']; ?', '>';
 					break;
 
-				case 'page_short_name' :
+				case 'asset_short_name' :
 					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_row[\'short_name\']'.$value_suffix, $args), '; ?', '>';
 					break;
 
-				case 'page_name' :
+				case 'asset_name' :
 					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_row[\'name\']'.$value_suffix, $args), '; ?', '>';
 					break;
 
