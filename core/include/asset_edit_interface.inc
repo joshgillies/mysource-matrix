@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.219 2004/09/08 05:57:26 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.220 2004/09/28 05:53:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -550,7 +550,8 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 			}
 		}
-		$o->addHiddenField('sq_preview_url', $preview_url.'?no_cache=1');
+		if (!empty($preview_url)) $preview_url .= '?no_cache=1';
+		$o->addHiddenField('sq_preview_url', $preview_url);
 
 		// store this preview url into the global vars so that any other asset
 		// can use it as a way to know the content we are in
@@ -1572,23 +1573,17 @@ class Asset_Edit_Interface extends MySource_Object
 
 		$sql = 'SELECT screen, section
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_editing_access ';
-		$where = 'userid IN ('.implode(',', $groups).')';
-
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		$where .= ' AND type_code = '.$db->quote('0').'
-					OR type_code IN (~SQ0~)';
-		$subs = Array( 'SELECT inherited_type_code
-						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-						WHERE type_code = '.$db->quote($owner->type()));
-		$where = db_extras_subquery($db, $where, $subs);
-		if (DB::isError($where)) trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
-
+		$where = 'userid IN ('.implode(',', $groups).')
+					AND type_code = '.$db->quote('0').'
+					OR type_code IN (
+									SELECT inherited_type_code
+									FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+									WHERE type_code = '.$db->quote($owner->type()).'
+									)';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$allowed_screens = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC, true);
-		if (DB::isError($allowed_screens)) {
-			trigger_error($allowed_screens->getMessage().'<br/>'.$allowed_screens->getUserInfo(), E_USER_ERROR);
-		}
+		assert_valid_db_result($allowed_screens);
 
 		return $allowed_screens;
 
@@ -1609,14 +1604,14 @@ class Asset_Edit_Interface extends MySource_Object
 		$file_name = 'edit_interface_'.$file_name.'.xml';
 
 		$file = '';
-		for($i = 0; $i < count($this->_dirs); $i++) {
+		for ($i = 0; $i < count($this->_dirs); $i++) {
 			if (file_exists($this->_dirs[$i].'/'.$file_name)) {
 				$file = $this->_dirs[$i].'/'.$file_name;
 				break;
 			}
 		}
 
-		if(!$file) {
+		if (!$file) {
 			trigger_error($file_name.' not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
 			return false;
 		}
@@ -1648,14 +1643,14 @@ class Asset_Edit_Interface extends MySource_Object
 			return Array($create_sections, '');
 		}
 
-		// Loop over the sections
-		for($i = 0; $i < count($root->children); $i++) {
+		// loop over the sections
+		for ($i = 0; $i < count($root->children); $i++) {
 			$section = &$root->children[$i];
 			if ($section->name != 'section') continue;
 
 			$create_sections[$section->attributes['name']] = Array();
-			// Loop over the fields
-			for($j = 0; $j < count($section->children); $j++) {
+			// loop over the fields
+			for ($j = 0; $j < count($section->children); $j++) {
 				$field = &$section->children[$j];
 				if ($field->name != 'field') continue;
 
@@ -1664,11 +1659,11 @@ class Asset_Edit_Interface extends MySource_Object
 				} else if ($field->children[1]->name == 'function_call') {
 					$fn_node = &$field->children[1]->children[(($painting) ? 0 : 1)];
 					$create_sections[$section->attributes['name']][] = $fn_node->attributes['name'];
-				}// end if
+				}
 
-			}// end for
+			}//end for
 
-		}// end for
+		}//end for
 
 		return Array($create_sections, $root->attributes['screen']);
 
