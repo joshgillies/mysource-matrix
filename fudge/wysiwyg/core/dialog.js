@@ -1,5 +1,5 @@
 //
-// An article about this code can be foudn at:
+// An article about this code can be found at:
 // http://developer.netscape.com/viewsource/goodman_modal/goodman_modal.html
 //
 
