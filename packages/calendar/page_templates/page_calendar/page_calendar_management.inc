@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.29 2004/11/16 05:00:57 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.30 2004/11/17 22:34:03 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.29 $ - 1.0
+* @version $Revision: 1.30 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -88,13 +88,13 @@ class Page_Calendar_Management extends Asset_Management
 		$this->vars['day_starts_at']	= Array(
 														'added'     => '0.1',
 														'type'      => 'text',
-														'default'   => '00:00',
+														'default'   => '08:00',
 														);
 		
 		$this->vars['day_ends_at']	= Array(
 														'added'     => '0.1',
 														'type'      => 'text',
-														'default'   => '23:59',
+														'default'   => '20:00',
 														);
 														
 		
@@ -262,6 +262,8 @@ class Page_Calendar_Management extends Asset_Management
 	{
 		return Array(
 					 'css/calendar_default.css',
+			         'js/drag_n_drop.js',
+					 'js/popup.js',
 					 );
 
 	}//end _getFileList()

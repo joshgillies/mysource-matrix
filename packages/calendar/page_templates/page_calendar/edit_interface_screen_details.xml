@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.17 2004/11/16 05:00:56 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.18 2004/11/17 22:34:03 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -193,8 +193,8 @@
 			<assetid type_codes="page_asset_builder:I" />
 		</field>
 		<field attribute="enable_event_dragging">
-			<display_name>Enable Drag-and-Drop editing of events</display_name>
-			<note></note>
+			<display_name>Enable Drag-and-Drop editing of Single Events</display_name>
+			<note>Note:  Due to an unavoidable restriction in Internet Explorer, clicking on an event's name to drag it (rather than clicking elsewhere in its box) will not work perfectly if Single Event View is enabled for this calendar page.  This does not affect other browsers.</note>
 			<boolean />
 		</field>
 	</section>

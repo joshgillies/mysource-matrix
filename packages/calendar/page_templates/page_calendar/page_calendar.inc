@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.112 2004/11/16 05:00:56 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.113 2004/11/17 22:34:03 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.112 $ - 1.0
+* @version $Revision: 1.113 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -413,7 +413,8 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function getCalendarContents($cal_view, $cal_date, $event_id, $format)
 	{
-		$res = '<div id="calendar'.(((strpos($format, 'list') === 0) || $cal_view == 'event') ? 'List' : 'Table').'">';
+		$res = $this->_getGeneralScript();
+		$res .= '<div id="calendar'.(((strpos($format, 'list') === 0) || $cal_view == 'event') ? 'List' : 'Table').'">';
 		$func = 'get'.ucfirst($cal_view).'View';
 		$res .= ($cal_view == 'event') ? $this->$func($event_id) : $this->$func($cal_date, $format);
 		$res .= '</div>';
@@ -467,7 +468,6 @@ class Page_Calendar extends Page_Asset_Listing
 		} else {
 			$events = $this->getYearEventsByMonthAndDay($year);
 			$week_start_day = $this->attr('week_starts_on');
-			$this->_printClickChildScript();
 			?>
 			<table id="year" border="0" cellspacing="0" cellpadding="0" style="width: 131ex; font-size: 90%">
 				<tr>
@@ -601,7 +601,6 @@ class Page_Calendar extends Page_Asset_Listing
 			$week_length = 7;
 			$month_length = days_in_month($month, $year);
 			$current_day = 1;
-			$this->_printClickChildScript();
 			if ($this->attr('enable_description_popups')) $this->_printPopupsScript();
 			?>
 			<table id="month" border="0" cellspacing="0" cellpadding="0" style="width: <?php echo (7.35 * $column_width); ?>px">
@@ -914,8 +913,8 @@ class Page_Calendar extends Page_Asset_Listing
 		$partition_height = $this->attr('day_partition_height');
 
 		$root_nodes = $this->_getRootNodes();
-		$this->_printClickChildScript();
 		$width = ($table_id == 'day') ? $this->attr('day_column_width') : $this->attr('table_column_width');
+
 		$layout_maps =  Array();
 		foreach ($events as $date => $times_events) {
 			$layout_maps[$date] = Array();
@@ -923,27 +922,19 @@ class Page_Calendar extends Page_Asset_Listing
 				$layout_maps[$date][$time] = Array();
 			}
 		}
+
 		$dragging_enabled = $this->attr('enable_event_dragging');
-		$mouseup_code = $dragging_enabled ? 'onmouseup="endDrag(this)"' : '';
-		$mousedown_code = $dragging_enabled ? 'onmousedown="beginDrag(this)"' : '';
-		if ($dragging_enabled) $this->_printEventDraggingScript();
-		if ($this->attr('enable_description_popups')) $this->_printPopupsScript();
+		$popups_enabled = $this->attr('enable_description_popups');
+		$click_to_add_ab = $this->attr('asset_builder_page');
+
+		$mousedown_code = $dragging_enabled ? 'onmousedown="'.($popups_enabled ? 'stopTrailingPopup(); ' : '').'startDragging(this)"' : '';
+		$mouseup_code = $dragging_enabled ? 'onmouseup="if (stopDragging()!=\'no_move\') {  formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)}"' : '';
+
+		if ($dragging_enabled) $this->_printEventDraggingScript($table_id);
+		if ($popups_enabled) $this->_printPopupsScript();
+		if ($click_to_add_ab) $this->_printAddEventScript($click_to_add_ab);
+
 		?>
-		<script type="text/javascript">
-		<!--
-		  function addEvent(date, time) {
-			<?php
-			if ($ab_id = $this->attr('asset_builder_page')) {
-			?>
-				  loc = "<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->attr('asset_builder_page')); ?>?SQ_CALENDAR_DATE="+date;
-				  if (time != '*') loc += '&SQ_CALENDAR_TIME='+time+'&SQ_CALENDAR_DURATION=<?php echo (int)$this->attr('day_partition_time');?>_min';
-				  document.location = loc;
-			<?php
-			}
-			?>
-		  }
-		//-->
-		</script>
 		<table id="<?php echo $table_id; ?>" border="0" cellspacing="0" cellpadding="0" summary="events in this <?php echo $table_id ?>" style="width: <?php echo ($width * count($events)) + 65; ?>px">
 		<?php
 		if (!empty($column_names)) {
@@ -978,7 +969,8 @@ class Page_Calendar extends Page_Asset_Listing
 			foreach ($column_names as $id => $name) {
 				$col_events = $events[$id];
 				$event_link_date = is_iso8601($id) ? $id : $_REQUEST['SQ_CALENDAR_DATE'];
-				echo '<td '.$mouseup_code.' id="'.$id.'_allday"'. (empty($col_events['all_day']) ? 'onclick="addEvent(\''.$event_link_date.'\', \'*\');"' : '').'>';
+				$click_to_add_code = ($click_to_add_ab && empty($col_events['all_day'])) ? ' onclick="addEvent(\''.$event_link_date.'\', \'*\');" style="cursor: pointer; cursor: hand"' : '';
+				echo '<td id="'.$id.'_allday"'.$click_to_add_code.'>';
 				if (empty($col_events['all_day'])) echo '&nbsp;';
 				foreach($col_events['all_day'] as $assetid => $event) {
 					$assetid = strtok($assetid,':');
@@ -989,7 +981,7 @@ class Page_Calendar extends Page_Asset_Listing
 					$current_mouse_over_out_code = '';
 					if (isset($event['description']) && !empty($event['description'])) {
 						echo '<div id="event_'.$assetid.'_description" class="popup">'.$event['description'].'</div>';
-						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup(\'event_'.$assetid.'_description\')"';
+						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup()"';
 					}
 					echo '<div id="'.$assetid.'" '.$current_mousedown_code.' '.$current_mouse_over_out_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; width: '. $width*0.98.'px;'.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
 					echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'&amp;SQ_CALENDAR_DATE='.$event_link_date.'">' : '<span class="event '.$event_class.'">';
@@ -1010,11 +1002,13 @@ class Page_Calendar extends Page_Asset_Listing
 			foreach ($column_names as $id => $name) {
 				$col_events = $events[$id];
 				$time_key = sprintf('%02d:%02d', $current_hour, $current_mins);
-				if ($show_event_links && is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
+				if (is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
+				$click_to_add_code = ($click_to_add_ab && empty($col_events['all_day'])) ? ' onclick="addEvent(\''.$event_link_date.'\', \''.$time_key.'\');"' : '';
+				$click_to_add_style = ($click_to_add_ab && empty($col_events[$time_key])) ? 'cursor: pointer; cursor: hand' : '';
 				?>
-				<td <?php echo $mouseup_code; ?> id="<?php echo $id.'_'.$time_key ?>" <?php echo empty($col_events[$time_key]) ? 'onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : ''; ?> style="<?php echo $width; ?>px; height: <?php echo $partition_height; ?>px; padding-left: 1px">
+				<td id="<?php echo $_REQUEST['SQ_CALENDAR_DATE'].'_'.$time_key ?>" style="<?php echo $width; ?>px; height: <?php echo $partition_height; ?>px; padding-left: 1px; <?php echo $click_to_add_style; ?>" <?php echo $click_to_add_code; ?>>
 				<?php
-					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $col_events['_overlap_'], $layout_maps[$id], $mousedown_code);
+					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $col_events['_overlap_'], $layout_maps[$id], $mousedown_code, $mouseup_code);
 				?>
 				&nbsp;
 				</td>
@@ -1043,11 +1037,12 @@ class Page_Calendar extends Page_Asset_Listing
 	* @param float		$cell_height	The height of the cell, in px-es
 	* @param float		$event_width		The width of the event, in px-es
 	* @param string		$mousedown_code		Javascript code to put in the onmousedown attribute of the event DIVs
+	* @param string		$mouseup_code		Javascript code to put in the onmouseup attribute of the event DIVs
 	*
 	* @return string	The HTML for the contents of the table cell
 	* @access private
 	*/
-	function _getTimedTableCellContents(&$events, $show_event_links, &$root_nodes, $cell_ts, $partition_time, $cell_height, $event_width, &$layout_map, $mousedown_code)
+	function _getTimedTableCellContents(&$events, $show_event_links, &$root_nodes, $cell_ts, $partition_time, $cell_height, $event_width, &$layout_map, $mousedown_code, $mouseup_code)
 	{
 		$cmp_func = create_function('$a, $b', 'return ($b[\'end_date_ts\'] - $b[\'start_date_ts\']) - ($a[\'end_date_ts\'] - $a[\'start_date_ts\']);');
 		uasort($events, $cmp_func);
@@ -1081,7 +1076,7 @@ class Page_Calendar extends Page_Asset_Listing
 			if ($event_height < 0) continue;
 
 			// Now for a bit o good old browser sniffing.  Spoons ready.  Mmmm.
-			// IE and Opera (wrongly) build their borders inwards from the specified element height & width.  
+			// IE and Opera (wrongly) build their borders inwards from the specified element height & width.
 			// Mozilla and other more CSS compliant browsers build them outwards from the element width.
 			// Therefore if we are using a compliant browser we want to subtract the borders from the
 			// height for correct alignment.  We assume 1px borders since we will specify that in the style
@@ -1110,19 +1105,18 @@ class Page_Calendar extends Page_Asset_Listing
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
 			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
 			$inner_width = $event_width - 4;
-			$current_mousedown_code = ($details['type_code'] != 'calendar_event_recurring') ? $mousedown_code : 'onmousedown="var a=2; return true;"';
-
+			$current_mouse_up_down_code = ($details['type_code'] != 'calendar_event_recurring') ? $mousedown_code.' '.$mouseup_code : '';
 			$current_mouse_over_out_code = '';
 			if (isset($details['description']) && !empty($details['description'])) {
 				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
-				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup(\'event_'.$assetid.'_description\')"';
+				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')"  onmouseout="stopTrailingPopup()"';
 			}
 
-			$res .= '<div id="'.$assetid.'" '.$current_mousedown_code.' '.$current_mouse_over_out_code.' class="'.$event_class.' event" style="float: left; position: absolute; width: '.($event_width-1).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
+			$res .= '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' class="'.$event_class.' event" style="float: left; position: absolute; width: '.($event_width-1).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
 
-			$res .= '<div class="eventText" style="z-index: 30; position: absolute; width: '.$inner_width.'px; border: none;  background-color: transparent" onmousedown="this.parentNode.onmousedown(); return false;">';
+			$res .= '<div class="eventText" style="z-index: 30; position: absolute; width: '.$inner_width.'px; border: none;  background-color: transparent">';
 
-			$res .= $show_event_links ? '<a style="z-index: 1" class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$real_assetid.'">' : '<span class="event '.$event_class.'">';
+			$res .= $show_event_links ? '<a '.$current_mouse_up_down_code.' style="z-index: 1" class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$real_assetid.'">' : '<span class="event '.$event_class.'">';
 			$res .= $details['name'];
 			$res .= $show_event_links ? '</a>' : '</span>';
 			$res .= '</div></div>';
@@ -1155,7 +1149,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$current_mouse_over_out_code = '';
 			if (isset($details['description']) && !empty($details['description'])) {
 				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
-				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup(\'event_'.$assetid.'_description\')"';
+				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup()"';
 			}
 
 			$res .= '<div style="width: '.$width.'px; '.$cursor_code.'"'.$onclick_code.' '.$current_mouse_over_out_code.'><div style="width: auto; margin-bottom: 1px;" class="event '.$event_class.'">';
@@ -1170,16 +1164,25 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 	/**
-	* Print the javascript function used to make DIVs clickable
+	* Print general javascript used by this page
 	*
+	* @access publoc
 	* @return void
 	*/
-	function _printClickChildScript()
+	function _getGeneralScript()
 	{
-		?>
+		return '
+		
+		<!-- GENERAL CALENDAR PAGE JAVASCRIPT, ALWAYS PRESENT -->
 		<script language="JavaScript" type="text/javascript">
 		<!--
-		  function clickChild(elt) {
+    	var formSubmitted = false;
+     	
+		function clickChild(elt) {
+			 if (formSubmitted) {
+				 return;
+			 }
+			 formSubmitted = true;
 			 linkChildren = elt.getElementsByTagName("A");
 			 if (linkChildren.length > 0) {
 				 document.location = linkChildren.item(0).href;
@@ -1187,147 +1190,121 @@ class Page_Calendar extends Page_Asset_Listing
 		  }
 		//-->
 		</script>
-		<?php
+		<!-- /GENERAL CALENDAR PAGE JAVASCRIPT, ALWAYS PRESENT -->
+			
+		';
 
-	}//end _printClickChildScript()
+	}//end _getGeneralScript()
 
 
-	function _printEventDraggingScript()
+	/**
+	* Print the javascript needed to support click-to-add-event behaviour
+	*
+	* @param $ab_id		The assetid of the asset builder page to redirect to
+	*
+	* @access private
+	* @return void
+	*/
+	function _printAddEventScript($ab_id)
 	{
 		?>
-		<script language="JavaScript">
+
+		<!-- SCRIPT FOR CLICK-TO-ADD-EVENT -->
+		<script type="text/javascript">
 		<!--
-		document.onselectstart=new Function ("return false")
-		var movingElt = null;
-		var movingType = null;
-
-		function beginDrag(elt) {
-		  movingElt = elt;
-		  movingType = (elt.parentNode.id.indexOf('allday') == -1) ? 'timed' : 'allday';
-		  document.body.style.cursor='move';
-		  return 0;
-		}
-
-		function endDrag(elt) {
-		  destType = (elt.id.indexOf('allday') == -1) ? 'timed' : 'allday';
-		  if ((movingElt != null) && (movingElt.parentNode != elt) && (destType == movingType)) {
-			oldParent = movingElt.parentNode;
-			for (i=0; i<elt.childNodes.length; i++) {
-			  if (elt.childNodes.item(i).nodeName == '#text') {
-				elt.removeChild(elt.childNodes.item(i));
-			  }
-			}
-			if (oldParent.childNodes.length == 1) {
-			  oldParent.appendChild(document.createTextNode("\u00A0"));
-			}
-			oldParent.removeChild(movingElt);
-			elt.appendChild(movingElt);
-			date_comps = elt.id.split('_');
-			document.getElementById('SQ_CALENDAR_DATE').value = date_comps[0];
-			if (date_comps[1] != 'allday') document.getElementById('SQ_CALENDAR_TIME').value = date_comps[1];
-			document.getElementById('SQ_CALENDAR_EVENT_ID').value = movingElt.id;
-			if (confirm('Move this event to ' + date_comps[0] + ' at ' + date_comps[1] + '?')) {
-			  document.getElementById('dragForm').submit();
-			} else {
-			  for (i=0; i<oldParent.childNodes.length; i++) {
-				if (oldParent.childNodes.item(i).nodeName == '#text') {
-				  oldParent.removeChild(oldParent.childNodes.item(i));
-				}
-			  }
-			  oldParent.appendChild(movingElt);
-			}
+		  function addEvent(date, time) {
+			  if (formSubmitted) return;
+			  loc = "<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetHref($ab_id); ?>?SQ_CALENDAR_DATE="+date;
+			  if (time != '*') loc += '&SQ_CALENDAR_TIME='+time+'&SQ_CALENDAR_DURATION=<?php echo (int)$this->attr('day_partition_time');?>_min';
+			  document.location = loc;
 		  }
-		  movingElt = null;
-		  document.body.style.cursor='auto';
-		}
 		//-->
 		</script>
-		<form method="GET" id="dragForm" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-		  <input type="hidden" name="SQ_CALENDAR_EVENT_ID" id="SQ_CALENDAR_EVENT_ID" />
-		  <input type="hidden" name="SQ_CALENDAR_DATE" id="SQ_CALENDAR_DATE" />
-		  <input type="hidden" name="SQ_CALENDAR_TIME" id="SQ_CALENDAR_TIME" />
-		  <input type="hidden" name="SQ_CALENDAR_EVENT_ACTION" id="SQ_CALENDAR_EVENT_ACTION" value="move" />
-		  <input type="hidden" name="SQ_CALENDAR_VIEW" value="<?php echo $_REQUEST['SQ_CALENDAR_VIEW']; ?>" />
-		</form>
-	<?php
+		<!-- /SCRIPT FOR CLICK-TO-ADD-EVENT -->
+
+		<?php
+
+	}//end _printAddEventScript()
+
+
+	/**
+	* Print the javascript needed to support drag and drop editing of events
+	*
+	* @param $table_id	The ID of the HTML table within which events are being dragged and dropped
+	*
+	* @access private
+	* @return void
+	*/
+	function _printEventDraggingScript($table_id)
+	{
+		?>
+		<!-- DRAG AND DROP SUPPORT -->
+
+			<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/page_calendar/js/drag_n_drop.js"></script>
+
+			<script type="text/javascript">
+			<!--
+	    	      destinationTableId='<?php echo $table_id; ?>'; 
+
+				  function confirmDrag(movingElt, newCell)
+				  {
+					var source_date_comps = originalParent.id.split('_');
+					var date_comps = newCell.id.split('_');
+					if (((source_date_comps[1] == 'allday') || (date_comps[1] == 'allday')) && (date_comps[1] != source_date_comps[1])) {
+						return false; // trying to drag in/out of all-day row
+					}
+					return confirm('Move this event to ' + date_comps[0] 
+						+ ((date_comps[1] != 'allday') ? (' at ' + date_comps[1]) : '') + '?');
+				  }
+
+				  function onDragFinish(movingElt, newCell)
+				  {
+					var date_comps = newCell.id.split('_');
+					document.getElementById('SQ_CALENDAR_DATE').value = date_comps[0];
+					if (date_comps[1] != 'allday') document.getElementById('SQ_CALENDAR_TIME').value = date_comps[1];
+					document.getElementById('SQ_CALENDAR_EVENT_ID').value = movingElt.id;
+					document.getElementById('dragForm').submit();
+					formSubmitted = true;
+				  }
+				  document.onselectstart=new Function ("return false")
+			//-->
+			</script>
+
+			<form method="GET" id="dragForm" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+			  <input type="hidden" name="SQ_CALENDAR_EVENT_ID" id="SQ_CALENDAR_EVENT_ID" />
+			  <input type="hidden" name="SQ_CALENDAR_DATE" id="SQ_CALENDAR_DATE" />
+			  <input type="hidden" name="SQ_CALENDAR_TIME" id="SQ_CALENDAR_TIME" />
+			  <input type="hidden" name="SQ_CALENDAR_EVENT_ACTION" id="SQ_CALENDAR_EVENT_ACTION" value="move" />
+			  <input type="hidden" name="SQ_CALENDAR_VIEW" value="<?php echo $_REQUEST['SQ_CALENDAR_VIEW']; ?>" />
+			</form>
+		
+		<!-- /DRAG AND DROP SUPPORT -->
+		<?php
 
 	}//end _printEventDraggingScript()
 
 
+	/**
+	* Print the script used to support rollover description popups
+	*
+	* @access private
+	* @return void
+	*/
 	function _printPopupsScript()
 	{
 		?>
-		<script type="text/javascript">
-		// Funky-ass mouse-following popup code based on the script from http://javascriptkit.com
 
-		var offsetfrommouse=[12,4] //image x,y offsets from cursor position in pixels. Enter 0,0 for no offset
-		var popupObj = null;
+		<!-- DESCRIPTION POPUPS SUPPORT -->
+		<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/page_calendar/js/popup.js"></script>
+		<!-- /DESCRIPTION POPUPS SUPPORT -->
 
-		function getTrailObj()
-		{
-			if (popupObj == null) return null;
-			if (document.getElementById)
-			  return document.getElementById(popupObj).style
-			else if (document.all)
-			  exec('return document.all.'+popupObj+'.style');
-		}
-
-		function stopTrailingPopup()
-		{
-			document.onmousemove=null;
-			getTrailObj().display='none';
-		}
-
-		function startTrailingPopup(name)
-		{
-			popupObj = name;
-			document.onmousemove = followMouse;
-		}
-
-		function truebody()
-		{
-			return (!window.opera && document.compatMode && document.compatMode!="BackCompat")? document.documentElement : document.body
-		}
-
-		function followMouse(e)
-		{
-			if (!(document.getElementById || document.all)) return false;
-			var xcoord=offsetfrommouse[0];
-			var ycoord=offsetfrommouse[1];
-			if (typeof e != "undefined")
-			{
-				xcoord+=e.pageX;
-				ycoord+=e.pageY;
-			}
-			else if (typeof window.event !="undefined")
-			{
-				xcoord+=truebody().scrollLeft+event.clientX;
-				ycoord+=truebody().scrollTop+event.clientY;
-			}
-			var docwidth = document.all ? truebody().scrollLeft + truebody().clientWidth : pageXOffset + window.innerWidth-15;
-			var docheight = document.all ? Math.max(truebody().scrollHeight, truebody().clientHeight) : Math.max(document.body.offsetHeight, window.innerHeight);
-			trailObj = getTrailObj();
-			if (((trailObj.width != 0) && ((xcoord + trailObj.width + 3) > docwidth)) || ((trailObj.height != 0) && ((ycoord + trailObj.height) > docheight))) {
-				trailObj.display="none"
-			} else {
-				trailObj.display="block"
-			}
-			trailObj.left=xcoord+"px"
-			trailObj.top=ycoord+"px"
-		}
-
-		</script>
 		<?php
-	}
+
+	}//end _printPopupsScript()
 
 
 	/**
 	* Returns the maximum number of overlapping events in a certain event list
-	*
-	* This is meant to determine whether there are double and triple bookings (and adjust
-	* the display of the week or day view to suit), hence the other parameters. This
-	* method doesn't have much meaning outside the day (including resource day) and
-	* week views.
 	*
 	* @param Array	&$events	array of events containing at least start_date and
 	*							end_date indices which only contain a time component
@@ -1677,8 +1654,6 @@ class Page_Calendar extends Page_Asset_Listing
 			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
 			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
 		}
-
-
 
 		return $res;
 
