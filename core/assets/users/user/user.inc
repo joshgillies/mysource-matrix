@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.70 2004/06/29 05:08:55 mmcintyre Exp $
+* $Id: user.inc,v 1.71 2004/08/11 01:06:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 */
 class User extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -303,6 +304,24 @@ class User extends Asset
 
 	}//end canLogin()
 
+
+	/**
+	* Gets an array of groups that this user is in
+	*
+	* The result is stored in the session for faster access
+	*
+	* @return array
+	* @access public
+	*/
+	function getGroups()
+	{
+		if (!isset($_SESSION['sq_user_groups'])) {
+			$_SESSION['sq_user_groups'] = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false);
+		}
+		return $_SESSION['sq_user_groups'];
+
+	}//end getGroups()
+
 	
 	/**
 	* Returns the link to the workspace
@@ -371,7 +390,7 @@ class User extends Asset
 		</table>
 		<?php
 
-	}// end printBody()
+	}//end printBody()
 
 
 }//end class
