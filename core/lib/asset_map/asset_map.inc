@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.90 2003/10/16 01:57:20 gsherwood Exp $
+* $Id: asset_map.inc,v 1.91 2003/10/16 03:13:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -214,11 +214,11 @@ class Asset_Map
 
 
 			// Reload the passed assetid in the flash
-			registerFlashToJsCall('asset_map_popup', asset_map_popup);
 			function asset_map_popup(params)
 			{
-				window.open(params['url'], 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');
+				var popup_win = window.open(params.url, 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');
 			}
+			registerFlashToJsCall('asset_map_popup', asset_map_popup);
 
 		//-->
 		</script>
