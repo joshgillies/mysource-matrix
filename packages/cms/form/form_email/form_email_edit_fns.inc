@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.34 2004/10/12 01:38:15 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.35 2004/10/22 05:15:26 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -322,6 +322,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$options = Array('' => '------- Please Select -------',
 						 'csv' => 'Comma Separated Values (CSV)',
+						 'csv_nhr' => 'Comma Separated Values (CSV) - No Header Row',
 						 'xml' => 'XML Format');
 
 		echo combo_box($prefix.'_export_format', $options, false, '');
@@ -368,6 +369,10 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 			case 'csv':
 				$this->processExportCSV($asset, $o, $prefix);
 			break;
+			
+			case 'csv_nhr':
+				$this->processExportCSV($asset, $o, $prefix, false);
+			break;
 
 			case 'xml':
 				$this->processExportXML($asset, $o, $prefix);
@@ -385,14 +390,15 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* Will only perform export for the date range which was
 	* selected in the Export block.
 	*
-	* @param object Form_Email			&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object Form_Email			&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	* @param boolean					$header_row whether the header row is filled in
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processExportCSV(&$asset, &$o, $prefix)
+	function processExportCSV(&$asset, &$o, $prefix, $header_row=true)
 	{
 		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 		$csv = new CSV();
@@ -474,7 +480,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		}//end if handle opened
 		closedir($handle);
 
-		$csv->setFieldHeaders($headers);
+		if ($header_row) {
+			$csv->setFieldHeaders($headers);
+		}
 		$csv->setValues($logs);
 		$csv->export();
 		exit(0);
