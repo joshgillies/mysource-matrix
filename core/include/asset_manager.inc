@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.145 2003/10/20 01:10:00 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.146 2003/10/21 04:28:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -620,7 +620,13 @@ class Asset_Manager extends MySource_Object
 	*/
 	function canPurgeAsset(&$asset)
 	{
-		if ($asset->id <= SQ_NUM_RESERVED_ASSETIDS) {
+		static $system_assets = null;
+		if (is_null($system_assets)) {
+			// include the main system config file
+			require SQ_DATA_PATH.'/private/conf/system_assets.inc';
+		}
+
+		if (in_array($asset->id, array_values($system_assets))) {
 			// this asset is a direct system asset
 			// so we can not purge this asset
 			return false;
