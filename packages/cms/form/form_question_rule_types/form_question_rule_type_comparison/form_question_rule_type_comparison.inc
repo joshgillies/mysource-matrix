@@ -105,12 +105,28 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		// if there is no operator, assign it to ==
 		if (!$operator) $operator = '==';
 
-		$query = 'return \''.$answer.'\''.$operator.'\''.$value.'\';';
-		(eval($query)) ? $valid = 1 : $valid = 0; 
+		if (is_array($answer)) {
+			$valid = 0;		
+			foreach ($answer as $a) {
+				$query = 'return \''.$a.'\''.$operator.'\''.$value.'\';';
+				if (eval($query)) {
+					$valid = 1;
+					break;
+				}				
+			}
+		} else {
+			$query = 'return \''.$answer.'\''.$operator.'\''.$value.'\';';
+			(eval($query)) ? $valid = 1 : $valid = 0; 
+		}
 		
 		if ($valid) {
 			return true;
 		} else {
+			// if this rule's question is a selection, we need to ask it to covert from an offset, to a value
+			if ($this->isSelection()) {
+				$q = $this->getMyQuestion();
+				$value = $q->getAnswerByOffset($value);
+			}
 			$error = $question_name.' '.$operators[$operator].' \''.$value.'\'';
 			$submission->setError($error);
 			return false;

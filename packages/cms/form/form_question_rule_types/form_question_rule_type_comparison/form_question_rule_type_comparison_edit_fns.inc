@@ -42,6 +42,14 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 		$contents = $asset->getOperators();
 		if (empty($contents)) return false;
 
+		// find out if we are some sort of select question
+		$select = false;
+		if ($asset->isSelection()) {
+			$select = true;
+			$my_question = &$asset->getMyQuestion();
+
+		}
+
 		// table tags are printed in caller (form_question_edit_fns::printRules())
 		?>
 		<tr>
@@ -49,7 +57,16 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 				<?php combo_box($prefix.'_operator', $contents, false, $asset->attr('operator')); ?>
 			</td>
 			<td>
-			   <?php text_box($prefix.'_value', $asset->attr('value')); ?>
+			<?php
+				if ($select) {
+					combo_box($prefix.'_value', $my_question->getOptions(), false, $asset->attr('value'), 1, '', 30);
+				} else {
+					text_box($prefix.'_value', $asset->attr('value'));
+				}
+			?>
+			</td>
+			<td>
+			  
 			</td>
 			<td>
 				Delete? <?php check_box('delete_rule', $asset->id); ?>
@@ -81,7 +98,7 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 		if (isset($_POST[$prefix.'_value'])) {
 			$asset->setAttrValue('value', $_POST[$prefix.'_value']);
 		}
-		bam($_POST[$prefix.'_value']);
+
 		return $asset->saveAttributes();
 
 	}// end processInlineBackend()
