@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.52 2004/03/12 04:38:54 gsherwood Exp $
+* $Id: html_form.inc,v 1.53 2004/03/12 04:48:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -112,6 +112,7 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 	$max  = (int) $max;
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="text" ',
+			'id="', htmlspecialchars($name), '" ',
 			'name="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
