@@ -641,11 +641,13 @@ class Resolve
 	*								eg. SELECT * FROM asset a --> $table_alias is 'a'
 	*								so rollback queries for table 'a' get added, otherwise
 	*								the entries will not be prefixed with an alias
+	* @param string	$prefix			the prefix (eg 'WHERE' or 'AND') to put at the start of 
+	*								the condition
 	*
-	* @return string (prefixed with WHERE)
+	* @return string
 	* @access public
 	*/
-	function constructRollbackWhereClause($where='', $table_alias=null)
+	function constructRollbackWhereClause($where='', $table_alias=null, $prefix='WHERE')
 	{
 		// trim off a current "WHERE" keyword if it exists
 		$where = trim($where);
@@ -654,8 +656,8 @@ class Resolve
 
 		if (!SQ_ROLLBACK_VIEW) {
 			// we are not in rollback view so we dont need anything special in the where clause
-			if (!empty($where)) return "WHERE $where";
-			else return '';
+			if (empty($where)) return '';
+			else return $prefix.' '.$where;
 		}
 
 		if (!is_null($table_alias)) $table_alias .= '.';
@@ -668,7 +670,7 @@ class Resolve
 				  AND ('.$table_alias.SQ_TABLE_PREFIX.'effective_to IS NULL 
 					   OR '.$table_alias.SQ_TABLE_PREFIX.'effective_to > '.$this->db->quote($then).')';
 
-		return "WHERE $where";
+		return $prefix.' '.$where;
 
 	}//end constructRollbackWhereClause()
 
