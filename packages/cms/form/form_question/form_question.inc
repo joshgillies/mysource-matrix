@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.25 2004/06/16 04:52:43 lwright Exp $
+* $Id: form_question.inc,v 1.26 2004/06/21 06:54:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.25 $ - 1.0
+* @version $Revision: 1.26 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -324,9 +324,9 @@ class Form_Question extends Asset
 
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule =& $rules[$k];
-			$type_code = 'form_question_rule_type_' . $rule['name'];
+			$type_code = 'form_question_rule_type_' . $rule['rule_code'];
 
-			if ($rule['comparison_question_id']) {
+			if (!empty($rule['comparison_question_id'])) {
 				$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
 			} else {
 				$comparison = $rule['value'];
@@ -638,9 +638,9 @@ class Form_Question extends Asset
 
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
 			$rule =& $rules[$k];
-			$type_code = 'form_question_rule_type_' . $rule['name'];
+			$type_code = 'form_question_rule_type_' . $rule['rule_code'];
 
-			if ($rule['comparison_question_id']) {
+			if (!empty($rule['comparison_question_id'])) {
 				$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
 			} else {
 				$comparison = $rule['value'];
