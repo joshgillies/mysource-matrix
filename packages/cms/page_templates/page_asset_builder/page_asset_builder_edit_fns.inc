@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.11 2004/07/28 01:40:16 lwright Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.12 2004/08/02 01:11:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,7 +72,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint the current asset types that have been added
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form elements
 	*
@@ -102,30 +102,30 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			}
 			?>
 		</tr>
-			<?php
-			foreach ($types as $type => $value) {
-				?>
-				<tr>
+		<?php
+		foreach ($types as $type => $value) {
+			?>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<?php
+					$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type);
+					echo $info['name'];
+					?>
+				</td>
+				<?php
+				if ($write_access) {
+					?>
 					<td class="sq-backend-table-cell">
 						<?php
-						$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type);
-						echo $info['name'];
+						check_box($prefix.'_remove[]', $type, false);
 						?>
 					</td>
 					<?php
-					if ($write_access) {
-						?>
-						<td class="sq-backend-table-cell">
-							<?php
-							check_box($prefix.'_remove[]', $type, false);
-							?>
-						</td>
-						<?php
-					}
-					?>
-				</tr>
-				<?php
-			}
+				}
+				?>
+			</tr>
+			<?php
+		}//end foreach
 		?>
 		</table>
 		<?php
@@ -136,7 +136,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the current asset types that have been added
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form elements
 	*
@@ -164,7 +164,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Paint section to add an asset type
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form elements
 	*
@@ -189,14 +189,17 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			}
 		} else {
 			$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
-			$options = Array('' => '-- select asset type --');
 			foreach ($asset_types as $type_code) {
 				$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
 				if ($info['allowed_access'] != 'system' && $info['instantiable']) {
 					$options[$type_code] = $info['name'];
 				}
 			}
-			combo_box($prefix.'_new_type', $options, false, $asset->attr('create_type'));
+			asort($options);
+			$options = array_reverse($options, true);
+			$options[''] = '-- select asset type --';
+			$options = array_reverse($options, true);
+			combo_box($prefix.'_new_type', $options, false, '');
 		}
 
 	}//end paintAddCreateType()
@@ -205,7 +208,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	/**
 	* Process the section to add a new format for an asset
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form elements
 	*
@@ -487,7 +490,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		return $write_access;
 
-	}//end paintCreateLocation()
+	}//end paintCreateLocationOptional()
 
 
 	/**
@@ -523,7 +526,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		if ($old_locations != $new_locations) return $asset->setAttrValue('create_location_optional', $new_locations);
 		return false;
 
-	}//end processCreateLocation()
+	}//end processCreateLocationOptional()
 
 
 	/**
@@ -685,12 +688,12 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				$attributes[''] = '-- select attribute --';
 				combo_box($type_prefix.'_rules['.$i.'][new_attr]', $attributes, false, '');
 			}
-				$o->closeRaw();
-				$o->closeSection();
+			$o->closeRaw();
+			$o->closeSection();
 			?>
-				
-			<?php 
-		}
+
+			<?php
+		}//end foreach create types
 
 		return true;
 
@@ -711,11 +714,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	{
 		$rules = Array();
 		foreach (array_keys($asset->attr('create_type')) as $create_type) {
-			
+
 			$type_prefix = $prefix.'_'.$create_type;
-			
+
 			foreach ($_POST[$type_prefix.'_rules'] as $i => $rule_data) {
-		
+
 				foreach ($rule_data as $attr => $rule) {
 					
 					if ($attr == '') continue;
@@ -736,19 +739,19 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					$locations = Array();
 					
 					if (isset($_POST[$type_prefix.'_rule_location'][$i])) {
-						
 						foreach ($_POST[$type_prefix.'_rule_location'][$i] as $loc) {
 							$locid = $loc['assetid'];
 							if (!$locid) continue;
 							$locations[] = $locid;
-							
 						}
 					}
 					
 					$rules[$create_type][$i]['_create_locations_'] = array_unique($locations);
 				}
-			}
-		}
+
+			}//end foreach rules
+
+		}//end foreach createt types
 
 		return $asset->setAttrValue('create_location_rules', $rules);
 
@@ -960,7 +963,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		return (count($asset->attr('create_type')) > 1);
 
 	}//end definesMultipleLocations()
-	
+
+
 }//end class
 
 ?>

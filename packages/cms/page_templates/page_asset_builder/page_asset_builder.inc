@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.17 2004/07/30 02:06:31 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.18 2004/08/02 01:11:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -107,7 +107,7 @@ class Page_Asset_Builder extends Page
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
 	* @return mixed int or false
