@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_settings.xml,v 1.5.8.1 2005/01/16 22:20:41 gsherwood Exp $
+* $Id: edit_interface_static_screen_settings.xml,v 1.5.8.2 2005/04/01 05:53:43 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -29,7 +29,7 @@
 			<display_name>Current Version</display_name>
 			<note />
 		</field>
-		<field code="version_update_verion">
+		<field code="version_update_version">
 			<display_name>Update Major Version ?</display_name>
 			<note>Check the box to increment the major version number of this asset</note>
 		</field>
