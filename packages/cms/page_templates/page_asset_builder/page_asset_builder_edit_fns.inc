@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.15 2004/08/16 05:32:21 tbarrett Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.16 2004/09/03 17:37:48 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -967,18 +967,21 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			}
 	
 			if ($write_access) {
-				$attributes = array_reverse($attributes, true);
-				$attributes[''] = '-- select attribute --';
-				$attributes = array_reverse($attributes, true);
-	
+				
+				$new_required = Array('' => '-- select attribute --');
+				foreach($attributes as $attr => $name) {
+					if (isset($current[$create_type][$attr])) continue;
+					$new_required[$attr] = $name;
+				}
+
 				echo '<br/><b>New required attribute ? </b>';
-				combo_box($type_prefix.'_new_required', $attributes, false, '');
+				combo_box($type_prefix.'_new_required', $new_required, false, '');
 			}
 			
 			$o->closeRaw();
 			$o->closeSection();
 			
-		}
+		}// end for
 
 		return $write_access;
 
@@ -1015,7 +1018,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			// add new required field
 			if (isset($_POST[$type_prefix.'_new_required']) && !empty($_POST[$type_prefix.'_new_required'])) {
 				$new_required = $_POST[$type_prefix.'_new_required'];
-				if (!in_array($new_required, $required_fields)) $required_fields[$create_type][$new_required] = '';
+				if (!isset($required_fields[$create_type][$new_required])) $required_fields[$create_type][$new_required] = '';
 			}
 		}
 			
