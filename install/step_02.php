@@ -24,6 +24,7 @@ $GLOBALS['SQ_SYSTEM']->db->createSequence('sq_sequence_asset_url');
 require_once(SQ_INCLUDE_PATH.'/package_manager.inc');
 $pm = new Package_Manager('__core__');
 if (!$pm->updatePackageDetails()) exit(1);
+echo "CORE PACKAGE DONE<br>";
 
 // Firstly let's create some Assets that we require to run
 
@@ -34,22 +35,28 @@ if (is_null($root_folder)) {
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_folder');
 	$root_folder = new Root_Folder();
 	if (!$root_folder->create()) die();
-	pre_echo('Asset Id : '.$root_folder->id);
+	pre_echo('Root Folder Asset Id : '.$root_folder->id);
 	if ($root_folder->id != 1) {
 		trigger_error('Major Problem: The new Root Folder Asset was not given assetid #1. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
 	$root_user = new Root_User();
-	if (!$root_user->create('root@'.$_SERVER['HTTP_HOST'])) die();
 	pre_echo('Root User Asset Id : '.$root_user->id);
+	if ($root_user->id != 2) {
+		trigger_error('Major Problem: The new Root Folder Asset was not given assetid #1. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+	}
+	if (!$root_user->create('root@'.$_SERVER['HTTP_HOST'])) die();
 
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('trash_folder');
 	$trash_folder = new Trash_Folder();
 	if (!$trash_folder->create()) die();
-	$root_folder->createLink($trash_folder, SQ_LINK_EXCLUSIVE);
 	pre_echo('Trash Asset Id : '.$trash_folder->id);
+	if ($trash_folder->id != 3) {
+		trigger_error('Major Problem: The new Root Folder Asset was not given assetid #1. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
+	}
+	$root_folder->createLink($trash_folder, SQ_LINK_EXCLUSIVE);
 
 	// Now just create some useful folders 
 	$users_folder = new Folder();
@@ -73,6 +80,7 @@ while (false !== ($entry = $d->read())) {
 		$pm = new Package_Manager($entry);
 		if ($pm->package) {
 			$result = $pm->updatePackageDetails();
+			echo strtoupper($entry)." PACKAGE DONE<br>";
 		}
 	}
 }
