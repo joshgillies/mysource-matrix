@@ -30,8 +30,8 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		file_upload($prefix);
 		?>
 		<div style="font-size: 7pt">
-			<b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?>
-			<b>Note:</b> Image size is restricted to a maximum of <?php echo $this->max_width.' x '.$this->max_height?> pixels</span>
+			<b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?><br>
+			<b>Note:</b> Image size is restricted to a maximum of <?php echo $asset->attr('max_width').' x '.$asset->attr('max_height'); ?> pixels
 		</div>
 		<?php
 
@@ -114,9 +114,14 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$image = $asset->attr('image');
 		if (empty($image) || !file_exists($asset->data_path.'/'.$image)) {
-			echo 'No Image Uploaded';
+		?>
+			No Image Uploaded
+		<?php
 		} else {
-			echo $image;
+			$size = getimagesize($asset->data_path.'/'.$image);
+		?>
+			<img src="<?php echo sq_web_path('data').'/'.$asset->type().'/'.$asset->id.'/'.$image; ?>" <?php echo $size[3];?> alt="Custom Image">
+		<?php
 		}
 		return true;
 
