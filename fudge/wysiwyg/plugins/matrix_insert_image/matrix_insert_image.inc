@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.18 2003/12/16 12:44:11 brobertson Exp $
+* $Id: matrix_insert_image.inc,v 1.19 2004/01/13 01:39:05 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,10 +69,6 @@ class matrix_insert_image extends wysiwyg_plugin {
 			// Called when the user clicks on "InsertImage" button
 			HTMLArea.prototype._matrixinsertImage = function() {
 				var editor = this; // for nested functions
-
-				// disable the toolbar
-				this._tmp['disable_toolbar'] = true;
-				this.updateToolbar(false);
 
 				var url      = "";
 				var align    = "";
@@ -134,7 +130,7 @@ class matrix_insert_image extends wysiwyg_plugin {
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				strPage = "<?php echo $this->get_popup_href('insert_image.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_alt=" + escape(alt) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
-				this._popupDialog("matrixInsertImage", strPage, 400, 300, false, function(param) {
+				this._popupDialog("matrixInsertImage", strPage, 630, 480, true, function(param) {
 					if (!param) {
 						// user must have pressed Cancel
 						return false;

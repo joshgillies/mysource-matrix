@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.12 2003/12/17 04:44:29 mmcintyre Exp $
+* $Id: insert_image.php,v 1.13 2004/01/13 01:39:05 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,13 +33,11 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		<title>Insert Image</title>
 
 		<script type="text/javascript" src="../../core/popup.js"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/javaExternalCall.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
 
 		<script type="text/javascript">
-			var parent_object = opener.editor_<?php echo $_REQUEST['editor_name']?>._object;
-			
-			window.opener.onFocus = function() { getFocus(); }
-			parent_object.onFocus = function() { getFocus(); }
 
 			function getFocus() {
 				setTimeout('self.focus()',100);
@@ -79,13 +77,11 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				param["f_imageid"] = document.main_form.elements["f_imageid[assetid]"].value;
 
 				__dlg_close("matrixInsertImage", param);
-				window.opener.focus();
 				return false;
 			};
 
 			function onCancel() {
 				__dlg_close("matrixInsertImage", null);
-				window.opener.focus();
 				return false;
 			};
 		</script>
@@ -119,6 +115,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			/* fieldset styles */
 			fieldset { 
 				padding: 0px 10px 5px 5px;
+				width: 407px;
 				border-color: #725B7D;
 			}
 
@@ -159,107 +156,104 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		</style>
 	</head>
 
-	<body onLoad="Init(); if (opener) opener.blockEvents('matrixInsertImage')" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
+	<body>
 		
 		<div class="title">Insert Image</div>
-
 		<form action="" method="get" name="main_form">
 			<table width="100%">
 				<tr>
-					<td>
-						<table width="100%" cellspacing="0" cellpadding="0">
+					<td valign="top">
+						<?php embed_asset_map('simple'); ?>
+					</td>
+					<td valign="top">
+						<table cellspacing="0" cellpadding="0">
 							<tr>
 								<td valign="top" width="100%">
 									<fieldset>
 									<legend><b>General</b></legend>
-									<table style="width:100%">
-										<tr>
-											<td class="label">Image URL:</td>
-											<td>
-											<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), (($_GET['in_popup']) ? 'opener.opener.top' : 'opener.top'), 'getFocus'); ?>
-											</td>
-										</tr>
-										<tr>
-											<td class="label">Alternate text:</td>
-											<td>
-											<input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo $_REQUEST['f_alt']?>" />
-											</td>
-										</tr>
-									</table>
+										<table style="width:100%">
+											<tr>
+												<td class="label" nowrap="nowrap">Image URL:</td>
+												<td>
+													<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), 'top'); ?>
+												</td>
+											</tr>
+											<tr>
+												<td class="label" nowrap="nowrap">Alternate text:</td>
+												<td>
+													<input type="text" name="alt" id="f_alt" style="width:100%" title="For browsers that don't support images" value="<?php echo $_REQUEST['f_alt']?>" />
+												</td>
+											</tr>
+										</table>
 									</fieldset>
 								</td>
 							</tr>
-						</table>
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<table width="100%" cellspacing="0" cellpadding="0">
 							<tr>
 								<td valign="top" width="50%">
 									<fieldset>
 										<legend>Layout</legend>
 										<table style="width:100%">
 											<tr>
-												<td class="label">Alignment:</td>
+												<td class="label" width="30%">Alignment:</td>
 												<td>
-												<select size="1" name="align" id="f_align" title="Positioning of this image">
-													<?php
-													if (!isset($_REQUEST['f_align'])) $_REQUEST['f_align'] = 'baseline';
-													$options_array = Array(	'' => 'Not set',
-																			'left' => 'Left',
-																			'right' => 'Right',
-																			'texttop' => 'Texttop',
-																			'absmiddle' => 'Absmiddle',
-																			'baseline' => 'Baseline',
-																			'absbottom' => 'Absbottom',
-																			'bottom' => 'Bottom',
-																			'middle' => 'Middle',
-																			'top' => 'Top'
-																		  );
-													foreach ($options_array as $value => $text) {
-														?><option value="<?php echo $value?>" <?php echo ($_REQUEST['f_align'] == $value) ? 'selected="1"' : ''?>><?php echo $text?></option><?php
-													}
-													?>
-												</select>
+													<select size="1" name="align" id="f_align" title="Positioning of this image">
+														<?php
+														if (!isset($_REQUEST['f_align'])) $_REQUEST['f_align'] = 'baseline';
+														$options_array = Array(	'' => 'Not set',
+																				'left' => 'Left',
+																				'right' => 'Right',
+																				'texttop' => 'Texttop',
+																				'absmiddle' => 'Absmiddle',
+																				'baseline' => 'Baseline',
+																				'absbottom' => 'Absbottom',
+																				'bottom' => 'Bottom',
+																				'middle' => 'Middle',
+																				'top' => 'Top'
+																			  );
+														foreach ($options_array as $value => $text) {
+															?><option value="<?php echo $value?>" <?php echo ($_REQUEST['f_align'] == $value) ? 'selected="1"' : ''?>><?php echo $text?></option><?php
+														}
+														?>
+													</select>
 												</td>
 											</tr>
 											<tr>
 												<td class="label">Border thickness:</td>
 												<td>
-												<input type="text" name="border" id="f_border" size="5" title="Leave empty for no border" value="<?php echo $_REQUEST['f_border']?>" />
+													<input type="text" name="border" id="f_border" size="5" title="Leave empty for no border" value="<?php echo $_REQUEST['f_border']?>" />
 												</td>
 											</tr>
 											<tr>
 												<td class="label">Horizontal:</td>
 												<td>
-												<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" value="<?php echo $_REQUEST['f_horiz']?>" />
+													<input type="text" name="horiz" id="f_horiz" size="5" title="Horizontal padding" value="<?php echo $_REQUEST['f_horiz']?>" />
 												</td>
 											</tr>
 											<tr>
 												<td class="label">Vertical:</td>
 												<td>
-												<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo $_REQUEST['f_vert']?>" />
+													<input type="text" name="vert" id="f_vert" size="5" title="Vertical padding" value="<?php echo $_REQUEST['f_vert']?>" />
 												</td>
 											</tr>
 										</table>
 									</fieldset>
 								</td>
-								<td>&nbsp;</td>
+							</tr>
+							<tr>
 								<td valign="top" width="50%">
 									<fieldset>
 										<legend>Size</legend>
 										<table style="width:100%">
 											<tr>
-												<td class="label">Width:</td>
+												<td class="label" width="30%">Width:</td>
 												<td>
-												<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />
+													<input type="text" name="width" id="f_width" size="5" title="Width" value="<?php echo $_REQUEST['f_width']?>" />
 												</td>
 											</tr>
 											<tr>
 												<td class="label">Height:</td>
 												<td>
-												<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />
+													<input type="text" name="height" id="f_height" size="5" title="Height" value="<?php echo $_REQUEST['f_height']?>" />
 												</td>
 											</tr>
 										</table>
@@ -272,9 +266,9 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			</table>
 
 			<div style="margin-top: 5px; text-align: right;">
-			<hr />
-			<button type="button" name="ok" onclick="return onOK();">OK</button>
-			<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
+				<hr />
+				<button type="button" name="ok" onclick="return onOK();">OK</button>
+				<button type="button" name="cancel" onclick="return onCancel();">Cancel</button>
 			</div>
 		</form>
 	</body>
