@@ -60,7 +60,7 @@ class Design_Area_Declared_Vars extends Design_Area
 		foreach($this->vars['declared_vars']['value'] as $name => $data) {
 			$type = basename($data['type']); // just to make sure they aren't attempting to be a bit tricky
 			// do include,so it doesn't die if it ain't there
-			include_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
+			require_once SQ_ATTRIBUTES_PATH.'/'.$type.'/'.$type.'.inc';
 			$attr_class = 'Asset_Attribute_'.$type;
 			if(!class_exists($attr_class)) {
 				trigger_error('Attribute Type "'.$type.'" not found for "'.$name.'"', E_USER_WARNING);

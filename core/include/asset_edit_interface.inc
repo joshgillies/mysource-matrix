@@ -1269,7 +1269,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		$prefix = $this->getPrefix($owner).'_workflow';
 
-		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+		require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner, true, true, true);
 
 		$inheriting_workflows = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($wfm->getRunningInheriting()));
@@ -1657,7 +1657,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		// if we dont have admin access, dont process anything
 		if (!$owner->adminAccess(Array(), true, false)) return false;
 
-		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+		require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner);
 		if ($wfm->state == 'running') return false;
 

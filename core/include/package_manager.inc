@@ -205,7 +205,7 @@ class Package_Manager extends Resolve_Object
 			// now we simply call the management class for this object
 			$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$type_code.'_management.inc';
 			// include rather that require so that if it doesn't exist we can kill the transaction
-			include_once $file;
+			require_once $file;
 			$class = $type_code.'_management';
 			// make sure the class exists
 			if (class_exists($class)) {

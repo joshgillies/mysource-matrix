@@ -1031,7 +1031,7 @@ class Asset extends Resolve_Object
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$status_code = get_bit_names('SQ_STATUS_', $this->status);
 		$status_code = 'asset_status_'.strtolower($status_code);
-		include_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
+		require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
 		return new $status_code($this);
 
 	}//end &getStatus()
@@ -3978,7 +3978,7 @@ class Asset extends Resolve_Object
 		if (!$this->id) return true;
 		if ($this->status != SQ_STATUS_LIVE) return true;
 
-		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+		require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($this);
 
 		if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
@@ -4415,7 +4415,7 @@ class Asset extends Resolve_Object
 			if (in_array($path, $sibling_paths)) {
 				if ($return_alternatives) {
 					// find a good path to use
-					include_once SQ_FUDGE_PATH.'/general/file_system.inc';
+					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					$new_path = $path;
 					while (in_array($new_path, $sibling_paths)) {
 						// increment the path using numerials

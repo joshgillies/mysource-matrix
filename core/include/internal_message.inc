@@ -172,7 +172,7 @@ class Internal_Message extends Resolve_Object
 			}
 
 			// now send an email as well
-			include_once SQ_FUDGE_PATH.'/general/www.inc';
+			require_once SQ_FUDGE_PATH.'/general/www.inc';
 			$to_email = trim($user->attr('email'));
 			if (!empty($to_email) && valid_email($to_email)) {
 				mail($to_email, $this->subject, $this->body, "From: ".$from_string, "-f$from_email");

@@ -421,7 +421,7 @@ class Resolve
 	function &getMessagingService()
 	{
 		if(!isset($this->ms) && get_class($this->ms) != 'messaging_service') {
-			include_once SQ_INCLUDE_PATH.'/messaging_service.inc';
+			require_once SQ_INCLUDE_PATH.'/messaging_service.inc';
 			$this->ms = new Messaging_Service();
 		}
 		return $this->ms;

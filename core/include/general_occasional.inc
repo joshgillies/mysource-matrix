@@ -85,7 +85,7 @@ function getStatusDescription($status)
 	$status_code = get_bit_names('SQ_STATUS_', $status);
 	$status_code = 'asset_status_'.strtolower($status_code);
 
-	include_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
+	require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
 	$status_object = new $status_code($this);
 	return $status_object->getDescription();
 
