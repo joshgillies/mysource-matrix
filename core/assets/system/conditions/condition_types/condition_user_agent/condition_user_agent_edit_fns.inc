@@ -2,7 +2,6 @@
 /**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
-
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -19,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_agent_edit_fns.inc,v 1.1 2005/01/11 03:45:23 gsherwood Exp $
+* $Id: condition_user_agent_edit_fns.inc,v 1.1.2.1 2005/01/11 04:35:24 gsherwood Exp $
 *
 */
 
@@ -33,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
