@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.30.2.5 2004/03/04 16:54:13 brobertson Exp $
+* $Id: step_03.php,v 1.30.2.6 2004/03/17 15:33:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,6 +113,10 @@ if (is_null($root_folder)) {
 
 	if (SQ_CONF_SYSTEM_ID != 0) {
 		trigger_error('Inorder to install '.SQ_SYSTEM_LONG_NAME.' the System Id needs to be set to 0', E_USER_ERROR);
+	}
+	require_once SQ_DATA_PATH.'/private/conf/replication.inc';
+	if (SQ_REPLICATION_ENABLED) {
+		trigger_error('Inorder to install '.SQ_SYSTEM_LONG_NAME.' the you must disable replication', E_USER_ERROR);
 	}
 	
 	$root_folder = &create_root_folder();
