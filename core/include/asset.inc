@@ -2071,7 +2071,7 @@ class Asset extends Resolve_Object
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
 					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
+					 SQ_LINK_TYPE_3 => Array('design' => Array('card' => 'M', 'exclusive' => false)),
 					 SQ_LINK_NOTICE => Array()
 					);
 
@@ -4562,12 +4562,12 @@ class Asset extends Resolve_Object
 		if (!isset($this->_tmp['lookups'])) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+			$sql = 'SELECT url, root_urlid, designid, login_designid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup ';
 			$where = 'assetid = '.$db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$sql = 'SELECT url, root_urlid, designid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup '.$where;
 
-			$result = $db->getAll($sql);
+			$result = $db->getAll($sql.$where);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 				$this->_tmp['lookups'] = Array();
@@ -4636,8 +4636,10 @@ class Asset extends Resolve_Object
 		// if we have paths then do some url inserting
 		if (count($paths)) {
 
-			$design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false);
+			$design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false, 'frontend_design');
 			$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
+			$login_design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false, 'login_design');
+			$login_designid = (is_null($login_design_link)) ? 0 : $login_design_link['minorid'];
 			$parents = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
 
 			$done_urls    = Array();
@@ -4654,10 +4656,11 @@ class Asset extends Resolve_Object
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (in_array($new_url, $done_urls)) continue;
 
-						$values = Array('url'        => $new_url,
-										'assetid'    => $this->id,
-										'root_urlid' => $parent_urls[$j]['root_urlid'],
-										'designid'   => (($designid) ? $designid : $parent_urls[$j]['designid'])
+						$values = Array('url'            => $new_url,
+										'assetid'        => $this->id,
+										'root_urlid'     => $parent_urls[$j]['root_urlid'],
+										'designid'       => (($designid) ? $designid : $parent_urls[$j]['designid']),
+										'login_designid' => (($login_designid) ? $login_designid : $parent_urls[$j]['login_designid'])
 										);
 						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 							return false;
@@ -4673,6 +4676,7 @@ class Asset extends Resolve_Object
 
 		}// end if count paths
 
+		// recusively call the kids update
 		$kids = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'major');
 		for($i = 0; $i < count($kids); $i++) {
 			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);

@@ -86,13 +86,16 @@ class Page extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array('page' => Array('card' => 'M', 'exclusive' => false), 
-											 'file' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_2 => Array('page' => Array('card' => 'M', 'exclusive' => false), 
-											 'file' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array('page' => Array('card' => 'M', 'exclusive' => false))
-					);
+		$allowed = parent::_getAllowedLinks();
+		$allowed[SQ_LINK_TYPE_1]['page'] = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_1]['file'] = Array('card' => 'M', 'exclusive' => false);
+
+		$allowed[SQ_LINK_TYPE_2]['page'] = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_2]['file'] = Array('card' => 'M', 'exclusive' => false);
+
+		$allowed[SQ_LINK_TYPE_3]['page'] = Array('card' => 'M', 'exclusive' => false);
+
+		return $allowed;
 
 	}//end _getAllowedLinks()
 

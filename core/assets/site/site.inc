@@ -250,7 +250,6 @@ class Site extends Folder
 	*/
 	function _updateLookups()
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		unset($this->_tmp['lookups']);
@@ -263,7 +262,7 @@ class Site extends Folder
 			return false;
 		}
 
-		$design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false, 'design');
+		$design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false, 'frontend_design');
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 		$login_design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false, 'login_design');
 		$login_designid = (is_null($login_design_link)) ? 0 : $login_design_link['minorid'];
@@ -283,11 +282,15 @@ class Site extends Folder
 		}// end for urls
 
 		// recusively call the kids update
-		$kids = $this->getLinks(SQ_SC_LINK_WEB_PATHS);
+		$kids = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'major');
 		for($i = 0; $i < count($kids); $i++) {
 			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;
-			if (!$kid->_updateLookups()) return false;
+
+			if (!$kid->_updateLookups()) {
+				return false;
+			}
+
 		}// end for kids
 
 		return true;
@@ -296,56 +299,59 @@ class Site extends Folder
 
 
 	/**
-	* Processes a backend submission from this asset, returns true if all OK
-	*
-	* @param object Backend_Outputter	$o
-	* @param array(string)				&$link	information used to create the initial link
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processBackend(&$o, &$link)
-	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		if (parent::processBackend($o, $link)) {
-			if (isset($this->_tmp['update_lookups']) && $this->_tmp['update_lookups']) {
-				if (!$this->_updateLookups()) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
-
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}// end if
-
-	}// end processBackend()
-
-
-	/**
 	* Prints out the Frontend for this asset
-	* Extra checking here to make sure the user has read access to the index page
+	* Ensures the design of the index page is printed
 	*
 	* @return void
 	* @access public
 	*/
 	function printFrontend()
 	{
+		// check that the user has read access to the site
+		if (!$this->readAccess()) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
+			return;
+		}
+
 		$index_page = &$this->getSpecialPage('index');
 		if (is_null($index_page)) return;
 
+		// check that the user has read access to the index page
 		if (!$index_page->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
 			return;
 		}
 
-		parent::printFrontend();
+		if($index_page->charset) header("Content-type: text/html; charset=$this->charset");
+		if($index_page->languages) header("Content-language: $this->languages");
 
-	}//end printFrontend()
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$url = strip_url(current_url(false));
+
+		$sql = 'SELECT l.designid, a.type_code
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l, '.SQ_TABLE_RUNNING_PREFIX.'asset a ';
+		$where = 'l.designid = a.assetid
+				  AND l.url     LIKE '.$db->quote($url.'%').'
+				  AND l.assetid    = '.$db->quote($index_page->id);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$sql .= $where.' LIMIT 1';
+
+		$result = $db->getRow($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		}
+
+		// we have found the design to use
+		if ($result) {
+			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
+			$design->paint($this);
+		// shit we can't find a design, oh well let's just print out our body
+		} else {
+			$index_page->printBody();
+		}
+
+	}// end printFrontend()
 
 
 	/**

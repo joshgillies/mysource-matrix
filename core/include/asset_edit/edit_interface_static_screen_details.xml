@@ -13,4 +13,14 @@
 			<note />
 		</field>
 	</section>
+	<section name="Design">
+		<field code="frontend_design">
+			<display_name>Frontend Design</display_name>
+			<note>The Design that is to be used when displaying this asset on the frontend</note>
+		</field>
+		<field code="login_design">
+			<display_name>Login Design</display_name>
+			<note>The Design that is to be used whenever someone attempts to access this asset without permission</note>
+		</field>
+	</section>
 </contents>

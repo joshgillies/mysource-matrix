@@ -695,12 +695,16 @@ class Asset_Edit_Interface extends Resolve_Object
 				$field = &$section->children[$j];
 
 				switch (strtolower($field->attributes['code'])) {
+					
+					///// STATUS CHANGES - NOW AND IN THE FUTURE ////
+					
 					case 'current' :
 						if ($field->children[0]->name != 'display_name') $display_name = 'Current';
 						else $display_name = $field->children[0]->content;
 						$o->openField($display_name);
 						echo '<i>'.$owner->getStatusDescription().'</i>';
-						break;
+					break;
+
 					case 'change' :
 						$statii = $owner->getAvailableStatii();
 
@@ -714,9 +718,9 @@ class Asset_Edit_Interface extends Resolve_Object
 							$o->openField($display_name);
 							combo_box($prefix.'_change_status', $statii, false, 0);
 						}
-						break;
-					case 'future_status' :
+					break;
 
+					case 'future_status' :
 						$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 						$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 						if (!empty($fs_jobs)) {
@@ -780,10 +784,50 @@ class Asset_Edit_Interface extends Resolve_Object
 							<?php
 							$print_commit_button = true;
 						}
-						break;
+					break;
+
+					//// FRONTEND AND LOGIN DESIGN OPTIONS ////
+
+					case 'frontend_design' :
+					case 'login_design' :
+						$design_name = strtolower($field->attributes['code']);
+						
+						if ($field->children[0]->name != 'display_name') $display_name = ucwords(str_replace('_', ' ', $design_name));
+						else $display_name = $field->children[0]->content;
+						$o->openField($display_name);
+
+						$design_link = $owner->getLink(SQ_LINK_TYPE_3, 'design', false, $design_name);
+						$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
+
+						if (!$owner->writeAccess()) {
+							echo '<i>';
+							if (!$designid) {
+								echo 'None';
+							} else {
+								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
+								echo $design->name.' :: '.$design->id;
+							}
+							echo '</i>';
+
+						} else {
+
+							$designs = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', false, true);
+							$contents = Array('0' => '-- use inherited --');
+							foreach($designs as $id => $type_code) {
+								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type_code, true);
+								if (is_null($design)) continue;
+								$contents[$design->id] = $design->name.' :: '.$design->id;
+							}
+
+							asort($contents);
+							combo_box($prefix.'_designs['.$design_name.']', $contents, false, $designid);
+						}
+
+					break;
+
 					default :
 						continue;
-						break;
+					break;
 				}
 
 				if ($field->children[1]->name == 'note' && $field->children[1]->content) {
@@ -814,13 +858,19 @@ class Asset_Edit_Interface extends Resolve_Object
 	{
 		$prefix = $owner->getPrefix();
 
-		$status_processed = false;
+		$is_updated = false;
+
+		///// IMMEDIATE STATUS CHANGES ////
 
 		if (isset($_POST[$prefix.'_change_status']) && (int) $_POST[$prefix.'_change_status'] > 0) {
-			$status_processed = $owner->processStatusChange($_POST[$prefix.'_change_status']);
+			if ($owner->processStatusChange($_POST[$prefix.'_change_status'])) {
+				$is_updated = true;
+			}
 		}
 
-		$future_status_processed = false;
+
+		///// FUTURE STATUS CHANGES ////
+
 		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 		if (!is_null($cron_mgr)) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
@@ -833,7 +883,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						for($i = 0; $i < count($fs_jobs); $i++) {
 							if (in_array($fs_jobs[$i]->id, $_POST[$prefix.'_remove_fs'])) {
 								if ($cron_mgr->removeJob($fs_jobs[$i])) {
-									$future_status_processed = true;
+									$is_updated = true;
 								}
 							}// end if
 						}// end for
@@ -860,7 +910,7 @@ class Asset_Edit_Interface extends Resolve_Object
 							if ($fs->acquireLock()) {
 								if ($fs->setAssetToUpdate($owner)) {
 									$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-									$future_status_processed = true;
+									$is_updated = true;
 									$fs->releaseLock();
 								} else {
 									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -878,7 +928,55 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		}//end if is null cron mgr
 
-		return ($status_processed || $future_status_processed);
+
+		///// FRONTEND AND LOGIN DESIGN CHANGES ////
+
+		if ($owner->writeAccess()) {
+			if (isset($_POST[$prefix.'_designs'])) {
+				foreach ($_POST[$prefix.'_designs'] as $design_name => $new_designid) {
+					
+					$design_link = $owner->getLink(SQ_LINK_TYPE_3, 'design', false, $design_name);
+					$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
+
+					// if they are the same then there is nothing to do.
+					if ($designid != $new_designid) {
+
+						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+						// if there is an existing entry delete it
+						if ($designid) {
+							if (!$owner->deleteLink($design_link['linkid'])) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return false;
+							}
+						}
+
+						if ($new_designid) {
+							$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
+							if (is_null($design)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return false;
+							}
+							if (!$owner->createLink($design, SQ_LINK_TYPE_3, $design_name)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return false;
+							}
+						}
+
+						// fianlly, try updating the lookups
+						if (!$owner->_updateLookups()) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return false;
+						}
+
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+						$is_updated = true;
+					}
+				}
+			}
+		}
+
+		return ($is_updated);
 
 	}//end processDetails()
 

@@ -21,14 +21,17 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	var $protos = Array('http', 'https');
 
+
 	/**
 	* Constructor
 	*
 	*/
-	function Site_Edit_Fns() 
+	function Site_Edit_Fns()
 	{
 		$this->Folder_Edit_Fns();
-	}
+
+	}//end constructor
+
 
 	/**
 	* Paint the interface for the asset urls
@@ -40,7 +43,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintURLs(&$asset, &$o, $prefix) 
+	function paintURLs(&$asset, &$o, $prefix)
 	{
 		?>
 		<script language="JavaScript" type="text/javascript">
@@ -65,7 +68,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 						first_proto.checked = true;
 					}
 
-				// remove all the protocols 
+				// remove all the protocols
 				} else {
 					for(var i = 0; i < site_url_protos.length; i++) {
 						var proto = get_form_element("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][" + i + "]");
@@ -96,8 +99,6 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		<?php
 
 		$urls = $asset->getSiteURLs();
-#		pre_echo("URLS : ");
-#		pre_echo($urls);
 
 		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
 			$this->_paintURL($o, $prefix, $urlid, $urls[$urlid], $asset->writeAccess());
@@ -109,8 +110,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		?>
 		</table>
 		<?php
-		
-	}// end paintURLs()
+
+	}//end paintURLs()
 
 
 	/**
@@ -125,14 +126,14 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function _paintURL(&$o, $prefix, $i, $url_info, $write_access) 
+	function _paintURL(&$o, $prefix, $i, $url_info, $write_access)
 	{
 
 		?>
 			<tr>
 				<td class="sq-backend-data">
-				<?php 
-					if ($write_access) { 
+				<?php
+					if ($write_access) {
 						text_box($prefix.'_urls['.$i.'][url]',  $url_info['url'], 40, 0, 'onChange="javascript: site_url_url_change('.$i.');"');
 					} else {
 						echo $url_info['url'];
@@ -143,10 +144,10 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			for($k = 0; $k < count($this->protos); $k++) {
 			?>
 				<td class="sq-backend-data">
-				<?php 
-					if ($write_access) { 
+				<?php
+					if ($write_access) {
 						check_box($prefix.'_urls['.$i.'][protocols]['.$k.']', $this->protos[$k], !empty($url_info[$this->protos[$k]]), 'site_url_protocol_click('.$i.');');
-					} else { 
+					} else {
 					?>
 						<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo empty($url_info[$this->protos[$k]]) ? 'cross' : 'tick'; ?>.gif" width="15" height="15" />
 					<?php
@@ -161,7 +162,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		?>
 			</tr>
 		<?php
-	}// end _paintURL()
+
+	}//end _paintURL()
 
 
 	/**
@@ -174,7 +176,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processURLs(&$asset, &$o, $prefix) 
+	function processURLs(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_urls'])) return false;
 
@@ -194,166 +196,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		return $asset->saveWebURLs($urls);
 
-	}// end processURLS()
-
-
-	/**
-	* Paint the interface for setting the designs for this site
-	*
-	* @param string						$design_name	the name of the design (really just the value for the link)
-	* @param object Asset				$owner			the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o				the outputter class
-	* @param string						$prefix			prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _paintDesign($design_name, &$asset, &$o, $prefix) 
-	{
-		$design_link = $asset->getLink(SQ_LINK_TYPE_3, 'design', false, $design_name);
-		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
-
-		if (!$asset->writeAccess()) {
-			echo '<i>';
-			if (!$designid) {
-				echo 'None';
-			} else {
-				$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
-				echo $design->name.' :: '.$design->id;
-			}
-			echo '</i>';
-			return;
-		}
-		
-		$designs = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', false, true);
-		$contents = Array('0' => '');
-		foreach($designs as $id => $type_code) {
-			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type_code, true);
-			if (is_null($design)) continue;
-			$contents[$design->id] = $design->name.' :: '.$design->id;
-		}
-
-		asort($contents);
-		combo_box($prefix.'_'.$design_name.'_designid', $contents, false, $designid);
-
-	}// end _paintDesign()
-
-
-	/**
-	* Processes the setting of Designs for this site
-	*
-	* @param string						$design_name	the name of the design (really just the value for the link)
-	* @param object Asset				$owner			the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o				the outputter class
-	* @param string						$prefix			prefix for the form element
-	*
-	* @return boolean
-	* @access private
-	*/
-	function _processDesign($design_name, &$asset, &$o, $prefix) 
-	{
-		$design_link = $asset->getLink(SQ_LINK_TYPE_3, 'design', false, $design_name);
-		$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
-
-		if (!isset($_POST[$prefix.'_'.$design_name.'_designid'])) return false;
-
-		$new_designid = $_POST[$prefix.'_'.$design_name.'_designid'];
-
-		// if they are the same then there is nothing to do.
-		if ($designid == $new_designid) return true;
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// if there is an exist entry delete it
-		if ($designid) {
-			if (!$asset->deleteLink($design_link['linkid'])) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-		}// end if
-
-		if ($new_designid) {
-			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
-			if (is_null($design)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-			if (!$asset->createLink($design, SQ_LINK_TYPE_3, $design_name)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-		}// end if
-
-		$asset->_tmp['update_lookups'] = true;
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
-
-	}// end _processDesign()
-
-
-	/**
-	* Paint the interface for setting the design for this site
-	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintDesign(&$asset, &$o, $prefix) 
-	{
-		return $this->_paintDesign('design', $asset, $o, $prefix);
-	}// end paintDesign
-
-
-	/**
-	* Processes the setting of the Design for this site
-	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processDesign(&$asset, &$o, $prefix) 
-	{
-		return $this->_processDesign('design', $asset, $o, $prefix);
-	}// end processDesign()
-
-
-	/**
-	* Paint the interface for setting the design for this site
-	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintLoginDesign(&$asset, &$o, $prefix) 
-	{
-		return $this->_paintDesign('login_design', $asset, $o, $prefix);
-	}// end paintDesign
-
-
-	/**
-	* Processes the setting of the Design for this site
-	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processLoginDesign(&$asset, &$o, $prefix) 
-	{
-		return $this->_processDesign('login_design', $asset, $o, $prefix);
-	}// end processDesign()
+	}//end processURLS()
 
 
 	/**
@@ -401,7 +244,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		combo_box($prefix.'_'.$page_type, $contents, false, $selected);
 
-	}// end paintPageSelection()
+	}//end paintPageSelection()
+
 
 	/**
 	* Processes the setting of the index page for this site
@@ -413,7 +257,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processPageSelection($page_type, &$asset, $prefix) 
+	function processPageSelection($page_type, &$asset, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_'.$page_type])) return false;
 
@@ -444,7 +288,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}// end processPageSelection()
+	}//end processPageSelection()
+
 
 	/**
 	* Paint the interface for setting the index page for this site
@@ -456,10 +301,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintIndexPage(&$asset, &$o, $prefix) 
+	function paintIndexPage(&$asset, &$o, $prefix)
 	{
 		$this->paintPageSelection('index', $asset, $prefix);
-	}// end paintIndexPage
+
+	}//end paintIndexPage
+
 
 	/**
 	* Processes the setting of the index page for this site
@@ -471,10 +318,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processIndexPage(&$asset, &$o, $prefix) 
+	function processIndexPage(&$asset, &$o, $prefix)
 	{
 		$this->processPageSelection('index', $asset, $prefix);
-	}
+
+	}//end processIndexPage()
+
 
 	/**
 	* Paint the interface for setting the forbidden page for this site
@@ -486,10 +335,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintForbiddenPage(&$asset, &$o, $prefix) 
+	function paintForbiddenPage(&$asset, &$o, $prefix)
 	{
 		$this->paintPageSelection('forbidden', $asset, $prefix);
-	}// end paintForbiddenPage
+
+	}//end paintForbiddenPage
+
 
 	/**
 	* Processes the setting of the forbidden page for this site
@@ -501,10 +352,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processForbiddenPage(&$asset, &$o, $prefix) 
+	function processForbiddenPage(&$asset, &$o, $prefix)
 	{
 		$this->processPageSelection('forbidden', $asset, $prefix);
-	}
+
+	}//end processForbiddenPage()
+
 
 	/**
 	* Paint the interface for setting the not found page for this site
@@ -516,10 +369,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintNotFoundPage(&$asset, &$o, $prefix) 
+	function paintNotFoundPage(&$asset, &$o, $prefix)
 	{
 		$this->paintPageSelection('not_found', $asset, $prefix);
-	}// end paintNotFoundPage
+
+	}//end paintNotFoundPage
+
 
 	/**
 	* Processes the setting of the not found page for this site
@@ -531,10 +386,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processNotFoundPage(&$asset, &$o, $prefix) 
+	function processNotFoundPage(&$asset, &$o, $prefix)
 	{
 		$this->processPageSelection('not_found', $asset, $prefix);
-	}
+
+	}//end processNotFoundPage()
 
 }//end class
+
 ?>

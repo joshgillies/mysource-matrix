@@ -22,10 +22,11 @@ class User_Group extends Folder
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function User_Group($assetid=0) 
+	function User_Group($assetid=0)
 	{
 		$this->Folder($assetid);
-	}
+
+	}//end constructor
 
 
 	/*
@@ -34,16 +35,17 @@ class User_Group extends Folder
 	* @see Asset::_getAllowLinks()
 	* @access private
 	*/
-	function _getAllowedLinks() 
+	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array('user_group' => Array('card' => 'M', 'exclusive' => false),
-											 'user'       => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array()
-					);
+		$allowed = parent::_getAllowedLinks();
+		$allowed[SQ_LINK_TYPE_1]['user_group'] = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_1]['user']       = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_2]['user_group'] = Array('card' => 'M', 'exclusive' => false);
+		$allowed[SQ_LINK_TYPE_2]['user']       = Array('card' => 'M', 'exclusive' => false);
+		return $allowed;
 
 	}//end _getAllowedLinks()
 
 }//end class
+
 ?>

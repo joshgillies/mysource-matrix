@@ -40,7 +40,7 @@ class Design extends Design_Area
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
 					 SQ_LINK_TYPE_2 => Array('design_customisation' => Array('card' => 'M', 'exclusive' => false),
-											 'file'					=> Array('card' => 'M', 'exclusive' => false)),
+											 'file'                 => Array('card' => 'M', 'exclusive' => false)),
 					 SQ_LINK_TYPE_3 => Array('design_area'          => Array('card' => 'M', 'exclusive' => false)),
 					 SQ_LINK_NOTICE => Array()
 					);
