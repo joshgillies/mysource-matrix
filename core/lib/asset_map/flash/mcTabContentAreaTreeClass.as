@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcTabContentAreaTreeClass.as,v 1.14 2003/10/16 01:20:49 dwong Exp $
+* $Id: mcTabContentAreaTreeClass.as,v 1.15 2003/10/30 23:20:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -159,6 +159,18 @@ mcTabContentAreaTreeClass.prototype.onExternalCall = function(cmd, params)
 
 			}// end switch
 
+			case "select_path" :
+				var link_path = params.link_path.split(",");
+				// build up the item name so we can find it
+				var item_name = "li";
+				while(link_path.length) {
+					var path_component = "_" + link_path.shift();
+					if (this.list_container.list[item_name + path_component] != undefined)
+						item_name += path_component;
+					else
+						break;
+				}
+				this.list_container.list.selectItem(this.list_container.list[item_name]);
 		break;
 	}// end switch
 

@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: externalCall.as,v 1.11 2003/09/26 05:26:32 brobertson Exp $
+* $Id: externalCall.as,v 1.12 2003/10/30 23:20:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,7 +61,7 @@ function externalCallWatch(property, old_val, new_val)
 	}// end switch
 	return new_val;
 
-}// end externalCallWatch()
+}//end externalCallWatch()
 
 
 /**
@@ -91,8 +91,7 @@ ExternalCall.prototype.makeExternalCall = function(cmd, params)
 	}// end for
 
 	fscommand('flashToJsCall', 'exec://true');
-
-}// end makeExternalCall()
+}//end makeExternalCall()
 
 // Now create the object, we do this here so the JS file knows what the thing is called
 _root.external_call = new ExternalCall();

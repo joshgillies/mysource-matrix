@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: test.as,v 1.28 2003/10/29 00:34:24 dwong Exp $
+* $Id: test.as,v 1.29 2003/10/30 23:20:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,6 +40,11 @@ function testOnClick1(component)
 {
 	var am = _root.asset_manager;
 	am.reloadAssets([240]);
+}
+
+function testOnClick2 (component)
+{
+	_root.tabs.tree.onExternalCall('select_path', {link_path: '21,24,18'});
 }
 
 /* asset finder testing functions */

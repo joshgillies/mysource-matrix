@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: main.as,v 1.51 2003/10/30 03:07:29 dwong Exp $
+* $Id: main.as,v 1.52 2003/10/30 23:20:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -160,7 +160,7 @@ if (_root.url_frame == undefined) {
 	_root.url_frame = "main";
 }
 if (_root.action_bar_path == undefined) {
-	_root.action_bar_path = "http://beta.squiz.net/dom_resolvefx/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%";
+	_root.action_bar_path = "http://beta.squiz.net/dom_resolvefx/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=%assetid%&sq_asset_path=%asset_path%&sq_link_path=%link_path%&asset_ei_screen=%action%";
 }
 if (_root.inbox_path == undefined) {
 	_root.inbox_path = "http://beta.squiz.net/dom_resolvefx/_edit/?SQ_BACKEND_PAGE=main&backend_section=am";

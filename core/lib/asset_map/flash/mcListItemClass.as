@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemClass.as,v 1.34 2003/10/30 03:47:57 dwong Exp $
+* $Id: mcListItemClass.as,v 1.35 2003/10/30 23:20:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -13,10 +13,11 @@
 // Create the Class
 function mcListItemClass()
 {
-	trace("mcListItemClass.(constructor)()");
+//	trace("mcListItemClass.(constructor)()");
 	this.parent_item_name = "";
-	this.lineage_path = Array();
-	
+	this.asset_path = Array();
+	this.link_path = Array();
+
 	this.linkid    = "";
 	this.assetid   = "";
 	this.type_code = "";
@@ -80,12 +81,11 @@ mcListItemClass.prototype.getParentAssetid = function()
 */
 mcListItemClass.prototype.setLink = function(link) 
 {
-	trace (this + "::mcListItemClass.setLink(" + link + ")");
+//	trace (this + "::mcListItemClass.setLink(" + link + ")");
 //	trace("asset id: " + this.assetid);
 	this.linkid = link.linkid;
 	this.link_type = link.link_type;
 	
-	trace("setting text format");
 	this.text_field.text = this.getText();
 	var textformat = this.text_field.getTextFormat();
 	textformat.color = (this.selected) ? (0xffffff) : (0x000000);
@@ -96,14 +96,21 @@ mcListItemClass.prototype.setLink = function(link)
 
 mcListItemClass.prototype.setAsset = function(asset, parent_item_name) 
 {
-	trace(this + "::mcListItemClass.setAsset(" + asset.assetid + ", " + parent_item_name + ")");
+//	trace(this + "::mcListItemClass.setAsset(" + asset.assetid + ", " + parent_item_name + ")");
 	var parentItem = this._parent[parent_item_name];
 	
 	if (parentItem != undefined) {
-		this.lineage_path = parentItem.lineage_path.clone();
-		this.lineage_path.push(asset.assetid);
+		this.asset_path = parentItem.asset_path.clone();
+		this.asset_path.push(asset.assetid);
 	} else {
-		this.lineage_path = Array(asset.assetid);
+		this.asset_path = Array(asset.assetid);
+	}
+
+	if (parentItem != undefined) {
+		this.link_path = parentItem.link_path.clone();
+		this.link_path.push(this.linkid);
+	} else {
+		this.link_path = Array(this.linkid);
 	}
 
 	this.parent_item_name = parent_item_name;
@@ -122,7 +129,6 @@ mcListItemClass.prototype.setAsset = function(asset, parent_item_name)
 	this.text_field.text	= this.getText();
 	this.asset_status		= asset.status;
 
-	trace("setting text format");
 
 	var textformat = this.text_field.getTextFormat();
 	textformat.color = (this.selected) ? (0xffffff) : (0x000000);
@@ -160,9 +166,7 @@ mcListItemClass.prototype.setAsset = function(asset, parent_item_name)
 mcListItemClass.prototype.getBgColour = function()
 {
 	if (!this.selected) {
-		trace (_root.LIST_ITEM_BG_COLOURS[this.state].normal);
-		trace (adjust_brightness(_root.LIST_ITEM_BG_COLOURS[this.state].normal, 0.8));
-		return adjust_brightness(_root.LIST_ITEM_BG_COLOURS[this.state].normal, 0.8);
+		return adjust_brightness(_root.LIST_ITEM_BG_COLOURS[this.state].normal, 0.5);
 	} else {
 		return _root.LIST_ITEM_BG_COLOURS[this.state].selected;
 	}
@@ -170,8 +174,6 @@ mcListItemClass.prototype.getBgColour = function()
 
 mcListItemClass.prototype.getText = function()
 {
-	trace (this + "::mcListItemClass.getText()");
-	trace (this.asset.assetid + ":" + this.linkid);
 	var text = this.asset.name;
 	if (this.link_type == 2)
 		text += "*";

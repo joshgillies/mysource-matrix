@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemContainerClass.as,v 1.26 2003/10/30 03:07:29 dwong Exp $
+* $Id: mcListItemContainerClass.as,v 1.27 2003/10/30 23:20:49 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -750,10 +750,10 @@ mcListItemContainerClass.prototype.moveConfirm = function(move_type, params)
 
 mcListItemContainerClass.prototype.xmlMoveItem = function(xml, exec_identifier)
 {
-	for (var i = 0; i < xml.childNodes.length; ++i) {
-		nextChildResponse = xml.childNodes[i];
+	for (var i = 0; i < xml.firstChild.childNodes.length; ++i) {
+		nextChildResponse = xml.firstChild.childNodes[i];
 
-		switch (nextChildResponse.firstChild.nodeName) {
+		switch (nextChildResponse.nodeName) {
 			case "success" : 
 				var select_linkid = nextChildResponse.firstChild.attributes.linkid;
 
@@ -763,11 +763,10 @@ mcListItemContainerClass.prototype.xmlMoveItem = function(xml, exec_identifier)
 
 				// get the asset manager to reload the assets
 				_root.asset_manager.reloadAssets([this.selected_item.getParentAssetid(), this.tmp.move_asset[exec_identifier].parent_assetid]);
-
 				break;
 
 			case "url" : 
-				_root.external_call.makeExternalCall(nextChildResponse.firstChild.attributes.js_function, {url: nextChildResponse.firstChild.firstChild.nodeValue});
+				_root.external_call.makeExternalCall(nextChildResponse.attributes.js_function, {url: nextChildResponse.firstChild.nodeValue});
 				break;
 
 			default :
