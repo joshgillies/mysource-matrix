@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2004/08/19 06:56:28 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2004/08/20 00:01:51 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -67,6 +67,17 @@
 			<display_name>Day to show first in week</display_name> 
 			<note />
 			<selection /> 
+		</field>
+	</section>
+
+	<section name="Settings for Year View" write_access="write:attributes">
+		<field>
+			<display_name>drill-down view</display_name>
+			<note>When a user clicks on a day in year view they will be taken to this view.  (In other views, the drill-down view is always the next-smallest of the enabled views.  In year view, clicking on a month name will always take you to the month view if it's enabled.)</note>
+			<function_call>
+				<paint_function name="paintYearDrillDownView" />
+				<process_function name="processYearDrillDownView" />
+			</function_call>
 		</field>
 	</section>
 

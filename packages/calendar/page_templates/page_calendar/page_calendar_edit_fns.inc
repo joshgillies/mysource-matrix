@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.7 2004/08/19 23:59:01 lwright Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.8 2004/08/20 00:01:51 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -476,9 +476,60 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function processLookAndFeel(&$asset, &$o, $prefix)
 	{
 		return true;
-		
+
 	}//end processLookAndFeel()
+
+
+	/**
+	* Paint the interface where you choose the view you're taken to when you click on a day in year view
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintYearDrillDownView(&$asset, &$o, $prefix)
+	{
+		$current_view = $asset->attr('year_drill_down_view');
+		echo '<select name="'.$prefix.'_year_drill_down_view">';
+		$options = $asset->attr('enabled_views');
+		foreach ($options as $category => $type) {
+			if (!(($category == 'year') || ($category == 'event') || ($type == ''))) {
+				echo '<option '.(($category==$current_view) ? 'selected="selected" ' : '').'value="'.$category.'">'.$category.'</option>';
+			}
+		}
+		echo '</select>';
+		return true;
+
+	}//end paintYearDrillDownView()
+
+
+	/**
+	* Paint the interface where you choose the view you're taken to when you click on a day in year view
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processYearDrillDownView(&$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_year_drill_down_view'])) {
+			$enabled_views = $asset->attr('enabled_views');
+			if (isset($enabled_views[$_POST[$prefix.'_year_drill_down_view']]) && $enabled_views[$_POST[$prefix.'_year_drill_down_view']]) {
+				$asset->setAttrValue('year_drill_down_view', $_POST[$prefix.'_year_drill_down_view']);
+				return true;
+			}
+		}
+		return false;
+
+	}//end processYearDrillDownView()
 	
+
 }//end class
 
 ?>
