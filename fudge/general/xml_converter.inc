@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_converter.inc,v 1.1 2005/02/02 10:42:49 gnoel Exp $
+* $Id: xml_converter.inc,v 1.2 2005/03/31 18:21:15 gnoel Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,7 +55,7 @@ require_once 'XML/Parser.php';
 *
 *
 * @author  Geoffroy Noel <gnoel@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package Fudge
 * @subpackage General
 */
@@ -225,6 +225,8 @@ class XML_Converter extends XML_Parser
 				}
 				else {
 					if ($xml_key == '-content') {
+						//$ret .= htmlentities($xml_val);
+						$xml_val = str_replace('&', '&amp;', $xml_val);
 						$ret .= $xml_val;
 					}
 					elseif ($xml_key{0} == '@') {
@@ -304,7 +306,16 @@ class XML_Converter extends XML_Parser
 	 */
 	function endHandler($xp, $elem)
 	{
-		$this->array_xml[count($this->array_xml) - 2][$elem][] = $this->array_xml[count($this->array_xml) - 1];
+		$element_index = count($this->array_xml) - 1;
+		$element = &$this->array_xml[$element_index];
+		if (isset($element['-content'])) {
+			$element['-content'] = trim($element['-content']);
+			if (empty($element['-content'])) {
+				unset($this->array_xml[$element_index]['-content']);
+			}
+		}
+		
+		$this->array_xml[$element_index - 1][$elem][] = $element;
 
 		array_pop($this->array_xml);
 
@@ -313,16 +324,18 @@ class XML_Converter extends XML_Parser
 
 	/**
 	 * Element Content event handler for the XML parser
+	 * No need to decode entities, the default php parser already does it.
 	 * 
 	 * @return void
 	 * @access private
 	 */
 	function cdataHandler($xp, $data)
 	{
-		$data = trim($data);
-		if (!empty($data))
-		{
-			$this->array_xml[count($this->array_xml) - 1]['-content'] = $data;
+		if (!empty($data)) {
+			$element = &$this->array_xml[count($this->array_xml) - 1];
+			if (!isset($element['-content'])) 
+				$element['-content'] = '';
+			$element['-content'] .= $data;
 		}
 
 	}
