@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design.inc,v 1.56 2003/11/07 04:56:49 gsherwood Exp $
+* $Id: design.inc,v 1.57 2003/11/11 00:41:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -571,9 +571,7 @@ class Design extends Design_Area
 		}
 
 		// Now we just include the design file to get it to print
-		speed_check();
 		require_once $file_path;
-		speed_check();
 
 	}//end paint()
 
