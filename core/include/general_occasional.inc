@@ -63,7 +63,9 @@ function get_bit_names($prefix, $bit_value, $force_array=false)
 		}
 	}
 
-	return ($force_array || count($names) > 1) ? $names : $names[0];
+	if ($force_array || count($names) > 1) return $names;
+	elseif (count($names)) return $names[0];
+	else '';
 
 }// end get_bit_names()
 
