@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.6 2004/08/19 23:37:16 lwright Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.7 2004/08/19 23:59:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -158,18 +158,23 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current_views = $asset->attr('enabled_views');
+		?><table class="sq-backend-table"><?php
 		foreach ($asset->view_options as $category => $options) {
+			?>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<b><label for="<?php echo $prefix.'_enabled_views['.$category.']'; ?>"><?php echo ucwords($category); ?> View</label></b>
+				</td>
+				<td class="sq-backend-table-cell"><?php
 			if ($write_access) {
-				?>
-				<br /><label style="width: 20ex" for="<?php echo $prefix.'_enabled_views['.$category.']'; ?>"><?php echo ucwords($category); ?> view type: </label>
-				<?php
 				combo_box($prefix.'_enabled_views['.$category.']', $options, 0,  $current_views[$category], 0, 'style="width: 25ex"');
 			} else {
-				?>
-				<br /><div style="display: inline; width: 20ex"><?php echo ucwords($category); ?></div><?php echo $asset->view_options[$category][$current_views[$category]]; ?>
-				<?php
+				echo $asset->view_options[$category][$current_views[$category]];
 			}
+			?></td>
+			</tr><?php
 		}
+		?></table><?php
 		return true;
 		
 	}//end paintViewsChooser()
@@ -216,7 +221,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			foreach ($enabled_views as $name => $status) {
 				if (empty($status)) unset($view_options[$name]);
 			}
-			foreach ($view_options as $key => $val) $view_options[$key] = $key;
+			foreach ($view_options as $key => $val) $view_options[$key] = ucfirst($key).' View';
 			if (!in_array($selected_view, $view_options)) $selected_view = current($view_options);
 			combo_box($prefix.'_initial_view', $view_options, 0, $selected_view, 0);
 		} else {
