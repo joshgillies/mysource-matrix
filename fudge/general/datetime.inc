@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: datetime.inc,v 1.7 2003/09/26 05:26:36 brobertson Exp $
+* $Id: datetime.inc,v 1.8 2003/10/07 01:58:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,6 +49,12 @@ function easy_datetime($then='')
 */
 function easy_time_total($secs=0, $full_format=false)
 {
+	if ($secs < 0) { 
+		$suffix = ' ago';
+		$secs = abs($secs);
+	} else {
+		$suffix = '';
+	}
 
 	$secs = (int) $secs;
 
@@ -198,7 +204,7 @@ function easy_time_total($secs=0, $full_format=false)
 
 	}
 
-	return $str;
+	return $str.$suffix;
 
 }//end easy_time_total()
 
