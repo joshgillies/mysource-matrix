@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_fns.inc,v 1.27 2003/10/21 07:57:14 brobertson Exp $
+* $Id: asset_edit_fns.inc,v 1.28 2003/10/21 23:45:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,6 +113,8 @@ class Asset_Edit_Fns extends MySource_Object
 		}
 
 		if ($wa) text_box($prefix.'_paths[]', '', 25);
+
+		return $wa;
 
 	}// end paintPaths()
 
