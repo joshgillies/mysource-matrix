@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.74 2004/11/18 04:39:52 gsherwood Exp $
+* $Id: init.inc,v 1.75 2004/11/24 01:40:14 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 */
 
@@ -72,6 +72,7 @@ define('SQ_CACHE_PATH',			SQ_SYSTEM_ROOT.'/cache');
 define('SQ_PACKAGES_PATH',		SQ_SYSTEM_ROOT.'/packages');
 define('SQ_WEB_PATH',			SQ_SYSTEM_ROOT.'/core/web');
 define('SQ_FUDGE_PATH',			SQ_SYSTEM_ROOT.'/fudge');
+define('SQ_TEMP_PATH',			SQ_SYSTEM_ROOT.'/data/temp');
 
 
 // include the system version setttings
