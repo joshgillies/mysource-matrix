@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.9 2004/12/06 14:39:54 brobertson Exp $
+* $Id: matrix_expand_keywords.inc,v 1.10 2004/12/22 23:53:10 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -87,7 +87,7 @@ class matrix_expand_keywords  extends wysiwyg_plugin
 			return;
 		}
 
-		$abbrevs = $thesaurus->getAbbrevsDeprecated();
+		$abbrevs = $thesaurus->getAbbreviations();
 		if (!is_array($abbrevs) || empty($abbrevs)) {
 			?>
 			<script type="text/javascript"> function expandKeywords() {} </script>
