@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager_edit_fns.inc,v 1.59 2003/10/10 06:49:25 brobertson Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.60 2003/10/17 01:32:08 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1382,7 +1382,8 @@ speed_check('FINISHED');
 		$o = &$this->backend->out;
 
 		//$o->addCrummingLink('Asset Types', $o->getCurrentLocation());
-		$o->setHeading('Assets Types', 'create');
+		$o->setHeading('Assets Types', '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/asset_tree.png').'", "20", "20", "HIPO Icon");</script>');
+
 		$o->addHiddenField('am_action');
 		$o->addHiddenField('am_new_type_code');
 
