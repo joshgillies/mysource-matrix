@@ -55,7 +55,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg->add_plugin('matrix_insert_link');
 			$wysiwyg->add_plugin('matrix_insert_image');
 			$wysiwyg->add_plugin('view_source');
-			$wysiwyg->add_plugin('popup_editor');
+			//$wysiwyg->add_plugin('popup_editor');
 			$wysiwyg->paint();
 		}
 		return true;
