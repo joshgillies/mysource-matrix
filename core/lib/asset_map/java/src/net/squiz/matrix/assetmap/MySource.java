@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MySource.java,v 1.8 2004/09/24 04:13:44 mmcintyre Exp $
+* $Id: MySource.java,v 1.9 2004/11/12 02:41:33 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,6 +31,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 import java.io.*;
 import java.security.*;
+import javax.swing.JOptionPane;
 
 
 /**
@@ -170,10 +171,10 @@ public class MySource {
 
 		if (document.getDocumentElement().getTagName().equals("error")) {
 			Element errorElement = (Element) document.getDocumentElement();
+			JOptionPane.showMessageDialog(AssetManager.INSTANCE.getTree(), errorElement.getFirstChild().getNodeValue(), "Error", JOptionPane.ERROR_MESSAGE);
 			throw new IOException("error while getting response: " 
 					+ errorElement.getFirstChild().getNodeValue());
-		}
-		
+		} 
 		return document;
 
 	}
