@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.12 2004/12/06 14:40:32 brobertson Exp $
+* $Id: calendar_event_cancellation.inc,v 1.13 2004/12/06 17:31:33 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -281,7 +281,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		}
 		return $res;
 
-	}//end processEventAction();
+	}//end processEventAction()
 
 
 	/**

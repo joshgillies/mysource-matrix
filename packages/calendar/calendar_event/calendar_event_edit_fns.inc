@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.23 2004/12/06 14:40:32 brobertson Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.24 2004/12/06 17:31:33 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -160,7 +160,8 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				return false;
 			}
 		}
-	}
+
+	}//end _validateDateTimeFields()
 
 	/**
 	* Process the start/end date/time entry form fields for an event
@@ -315,7 +316,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		<?php
 		return true;
 
-	}//end printTimeChooser
+	}//end printTimeChooser()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.13 2004/12/06 14:41:40 brobertson Exp $
+* $Id: page_site_map.inc,v 1.14 2004/12/06 17:31:50 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -258,7 +258,7 @@ class Page_Site_Map extends Page
 
 		return true;
 
-	}//end _recursePrintAssetTypeList()
+	}//end _recursePrintAssetList()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.50 2004/12/06 14:40:32 brobertson Exp $
+* $Id: calendar_event_recurring.inc,v 1.51 2004/12/06 17:31:33 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -66,7 +66,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 	function _secondsToday($timestamp)
 	{
 		return $timestamp - strtotime(gmdate('Y-m-d 00:00:00', $timestamp).' GMT');
-	}
+
+	}//end _secondsToday()
 
 
 	/**
@@ -665,7 +666,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation', 'calendar_event_modification'), false, 'major', $date);
 		return current($child_links);
 
-	}//end getExceptionEvent()
+	}//end getExceptionLink()
 
 
 	/**

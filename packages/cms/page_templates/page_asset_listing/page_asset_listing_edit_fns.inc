@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.7 2004/11/18 05:12:48 gsherwood Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.8 2004/12/06 17:31:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -462,7 +462,7 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		}
 		return false;
 
-	}//end paintAddFormat()
+	}//end processAddAssetType()
 
 
 }//end class

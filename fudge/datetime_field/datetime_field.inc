@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.28 2004/12/06 14:55:04 brobertson Exp $
+* $Id: datetime_field.inc,v 1.29 2004/12/06 17:31:15 brobertson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -810,7 +810,7 @@ class DateTime_Field
 		$d = new DateTime_Field("{$this->prefix}_max",$this->getParam('max'),$p);
 		$d->processField();
 
-	}//end processMaxValue()
+	}//end processMaxField()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor.inc,v 1.8 2004/12/06 15:56:16 brobertson Exp $
+* $Id: esec_processor.inc,v 1.9 2004/12/06 17:32:01 brobertson Exp $
 *
 */
 
@@ -40,7 +40,7 @@
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -464,7 +464,7 @@ class Esec_Processor
 	{
 		$this->set('EPS_INFOEMAIL', 'mailto: '.$email);
 
-	}
+	}//end setInfoEmail()
 
 	/**
 	* sets the redirect URL
@@ -483,7 +483,8 @@ class Esec_Processor
 		}
 		$this->setArray('EPS_RESULTURL', $value);
 
-	}//end setCardName()
+	}//end setRedirectURL()
+
 
 	/**
 	* sets paramenters required for test transaction using test values

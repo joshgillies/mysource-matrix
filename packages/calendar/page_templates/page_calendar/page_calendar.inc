@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.126 2004/12/06 14:40:32 brobertson Exp $
+* $Id: page_calendar.inc,v 1.127 2004/12/06 17:31:33 brobertson Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.126 $
+* @version $Revision: 1.127 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -847,7 +847,7 @@ class Page_Calendar extends Page_Asset_Listing
 		} else {
 			return date($title_formats[$view], strtotime($date));
 		}
-	}
+	}//end getViewTitle()
 
 
 //--        HELPER FUNCTIONS FOR CONTENTS-GETTING FUNCTIONS        --//
@@ -1013,7 +1013,7 @@ class Page_Calendar extends Page_Asset_Listing
 		if ($click_to_add_ab) $this->_printAddEventScript($click_to_add_ab);
 
 
-	}//end printTimedTable()
+	}//end _printTimedTable()
 
 
 	/**

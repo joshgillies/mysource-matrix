@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder.inc,v 1.6 2004/12/06 14:41:40 brobertson Exp $
+* $Id: page_template_builder.inc,v 1.7 2004/12/06 17:31:50 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -129,7 +129,7 @@ class Page_Template_Builder extends Page
 	{
 		$res = $this->attr('create_locations') + $this->getAdditionalCreateLocations();
 		return $res;
-	}// end getCreateLocations()
+	}//end getCreateLocations()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.16 2004/12/06 14:40:32 brobertson Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.17 2004/12/06 17:31:33 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -129,7 +129,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 
 		return true;
 
-	}//end printFrequencyField()
+	}//end paintFrequencyField()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification_edit_fns.inc,v 1.7 2004/12/06 14:40:32 brobertson Exp $
+* $Id: calendar_event_modification_edit_fns.inc,v 1.8 2004/12/06 17:31:33 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -71,7 +71,7 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 			echo $asset->getFriendlyDatesAndTimes();
 		}
 
-	}//end paintDateChooser()
+	}//end paintDateTimeChooser()
 
 
 	/**
@@ -88,7 +88,7 @@ class Calendar_Event_Modification_Edit_Fns extends Calendar_Event_Edit_Fns
 	{
 		return $this->processStartEndChooser($asset, $o, $prefix);
 
-	}//end processSingleStartEndChooser
+	}//end processDateTimeChooser()
 
 
 	/**

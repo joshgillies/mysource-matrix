@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.7 2004/12/06 14:38:13 brobertson Exp $
+* $Id: system_move_update.php,v 1.8 2004/12/06 17:31:05 brobertson Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Small script to be run AFTER the system root directory is changed
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -56,7 +56,7 @@ function get_line($prompt='')
 	// now get their entry and remove the trailing new line
 	return rtrim(fgets(STDIN, 4094));
 
-}// end get_line()
+}//end get_line()
 
 // Dont set SQ_INSTALL flag before this include because we want
 // a complete load now that the database has been created

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.13 2004/12/06 14:40:32 brobertson Exp $
+* $Id: calendar_common.inc,v 1.14 2004/12/06 17:31:33 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1083,3 +1083,5 @@ function quoted_descendants($type_code)
 	return $type_codes;
 
 }//end quoted_descendants()
+
+?>

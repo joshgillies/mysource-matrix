@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.22 2004/12/06 14:40:32 brobertson Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.23 2004/12/06 17:31:33 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -565,7 +565,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_processTitleFormat('day', $asset, $o, $prefix);
 
-	}//end paintDayTitleFormat()
+	}//end processDayTitleFormat()
 
 
 	/**
@@ -582,7 +582,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_paintTitleFormat('week', $asset, $o, $prefix);
 
-	}//end paintweekTitleFormat()
+	}//end paintWeekTitleFormat()
 
 
 	/**
@@ -599,7 +599,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_processTitleFormat('week', $asset, $o, $prefix);
 
-	}//end paintweekTitleFormat()
+	}//end processWeekTitleFormat()
 
 
 	/**
@@ -616,7 +616,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_paintTitleFormat('month', $asset, $o, $prefix);
 
-	}//end paintmonthTitleFormat()
+	}//end paintMonthTitleFormat()
 
 
 	/**
@@ -633,7 +633,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_processTitleFormat('month', $asset, $o, $prefix);
 
-	}//end paintmonthTitleFormat()
+	}//end processMonthTitleFormat()
 
 
 	/**
@@ -650,7 +650,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_paintTitleFormat('year', $asset, $o, $prefix);
 
-	}//end paintyearTitleFormat()
+	}//end paintYearTitleFormat()
 
 
 	/**
@@ -667,7 +667,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_processTitleFormat('year', $asset, $o, $prefix);
 
-	}//end paintyearTitleFormat()
+	}//end processYearTitleFormat()
 
 
 	/**
@@ -773,7 +773,8 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			</tr>
 		</table>
 		<?php
-	}
+
+	}//end paintColumnNodes()
 
 
 	/**
@@ -799,8 +800,10 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			}
 		}
 		if (empty($val)) $val = Array('*');
+
 		return $asset->setAttrValue('columnise_day_view_by_root_node', $val);
-	}
+
+	}//end processColumnNodes()
 
 }//end class
 
