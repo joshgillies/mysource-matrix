@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_edit_fns.inc,v 1.50 2003/10/17 07:04:29 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.51 2003/10/21 23:42:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -746,13 +746,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$new_file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing_fileid);
 		}
 
-		$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'attributes');
+		$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'attributes');
 		$edit_fns = $new_file->getEditFns();
 		if ($edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info)) {
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
+			if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
 			return true;
 		}
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
+		if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
 
 		return false;
 
