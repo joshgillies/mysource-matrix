@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.33 2004/11/18 05:06:22 gsherwood Exp $
+* $Id: inbox_edit_fns.inc,v 1.33.2.1 2005/01/05 04:21:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,6 +72,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		// get the message we are printing
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$message = $ms->getMessageById($messageid);
+
+		// mark the message as read
+		if ($message->status == SQ_MSG_UNREAD) {
+			$message->updateStatus(SQ_MSG_READ);
+		}
 
 		return $message->printBody();
 
