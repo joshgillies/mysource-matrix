@@ -3216,7 +3216,7 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns the href(s) of an asset based on its assetid and the wanted screen
 	*
-	* @param array(mixed) $assetinfo an array of asset info in the form assetid => screen code name
+	* @param array(mixed)	$asset_info	an array of asset info in the form assetid => screen code name
 	*
 	* @return array(int => string) returns an array of assetid and hrefs to the wanted screen
 	* @access public
@@ -3232,6 +3232,22 @@ class Asset_Manager extends MySource_Object
 		return $return_hrefs;
 
 	}// end getAssetBackendHref()
+
+
+	/**
+	* Get a URL to access the icon for a type of asset
+	*
+	* @param string	$asset_type	the type code to get the icon for
+	*
+	* @return array(int => string) returns an array of assetid and hrefs to the wanted screen
+	* @access public
+	*/
+	function getAssetIconURL($asset_type)
+	{
+		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+		return $root_urls[0].'/__data/asset_types/'.$asset_type.'/icon.png';
+
+	}//end getAssetIconURL()
 
 
 	/**

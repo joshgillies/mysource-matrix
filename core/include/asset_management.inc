@@ -73,7 +73,6 @@ class Asset_Management extends MySource_Object
 	*/
 	function getAssetType()
 	{
-
 		$class = get_class($this);
 		return substr($class, 0, strlen($class) - 11);
 
@@ -88,7 +87,6 @@ class Asset_Management extends MySource_Object
 	*/
 	function update()
 	{
-
 		// if the asset manager knows about it it is installed, so upgrade...
 		if ($this->_am->installed($this->getAssetType())) {
 			if (!$this->_upgrade($this->_am->getTypeInfo($this->getAssetType(), 'version'))) return false;
@@ -96,6 +94,30 @@ class Asset_Management extends MySource_Object
 			if (!$this->_install()) return false;
 		}
 		if (!$this->_updateFiles()) return false;
+
+		// save a copy of an icon we can use to represent this asset
+		// if no icon is directly available, the parents icon will be used
+		$from_icon_path = SQ_SYSTEM_ROOT.'/'.$this->_pm->getTypeInfo($this->getAssetType(),'dir').'/icon.png';
+		$to_icon_path   = SQ_DATA_PATH.'/public/asset_types/'.$this->getAssetType().'/icon.png';
+		if (!is_file($from_icon_path)) {
+			// copy the icon from our parent
+			$parent_type = $this->_pm->getTypeInfo($this->getAssetType(), 'parent_type');
+			if ($parent_type == 'asset') {
+				// we are a top level asset so we need to copy our icon from the include dir
+				$from_icon_path = SQ_INCLUDE_PATH.'/asset_edit/icon.png';
+			} else {
+				// our parent should already have gone through all this and have
+				// an icon we can... 'borrow' <evil_laugh> mwahhaha </evil_laugh>
+				$from_icon_path = SQ_DATA_PATH.'/public/asset_types/'.$parent_type.'/icon.png';
+			}
+		}
+
+		if (!is_file($from_icon_path)) {
+			trigger_error('No icon file found for asset type "'.$this->getAssetType().'" or its ancestors.', E_USER_WARNING);
+		} else {
+			if (!copy_file($from_icon_path, $to_icon_path)) return false;
+		}
+
 		return true;
 
 	}//end update()
@@ -107,9 +129,9 @@ class Asset_Management extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	function _updateFiles() {
-
-		# get a list of files to copy
+	function _updateFiles()
+	{
+		// get a list of files to copy
 		$file_list = $this->_getFileList();
 		if (empty($file_list)) return true;
 
@@ -118,18 +140,18 @@ class Asset_Management extends MySource_Object
 		$to_dir_path = SQ_DATA_PATH.'/public/asset_types/'.$this->getAssetType();
 		$from_dir_path = SQ_SYSTEM_ROOT.'/'.$this->_pm->getTypeInfo($this->getAssetType(),'dir');
 
-		# create the directory to store these files if it doesnt exist
-		# NOTE: The create_direcotyr function of file_system.inc handles this for us
+		// create the directory to store these files if it doesnt exist
+		// NOTE: The create_direcotyr function of file_system.inc handles this for us
 		create_directory($to_dir_path);
 
-		# for each file, copy it over
+		// for each file, copy it over
 		for (reset($file_list); null !== ($k = key($file_list)); next($file_list)) {
 			$file = $file_list[$k];
 			$from = $from_dir_path.'/'.$file;
 			$to = $to_dir_path.'/'.$file;
 
-			# the copy_file function of file_system.inc will create the
-			# directory strucutre before copying
+			// the copy_file function of file_system.inc will create the
+			// directory strucutre before copying
 			if (!copy_file($from, $to)) return false;
 		}
 
@@ -146,7 +168,7 @@ class Asset_Management extends MySource_Object
 	*/
 	function _install()
 	{
-		$type_code   = $this->getAssetType();
+		$type_code = $this->getAssetType();
 
 		// get how deep we are in the heirarchy
 		$level = count($this->_pm->getTypeAncestors($type_code));
@@ -578,7 +600,6 @@ class Asset_Management extends MySource_Object
 	*/
 	function _updateOwnedAttribute($name, $curr_attr)
 	{
-
 		$type_code = $this->getAssetType();
 
 		// make sure this is a valid attribute type
@@ -771,5 +792,7 @@ class Asset_Management extends MySource_Object
 
 	}//end getAssetArrayPaths()
 
+
 }//end class
+
 ?>

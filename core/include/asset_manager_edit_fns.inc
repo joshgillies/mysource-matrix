@@ -1398,9 +1398,9 @@ speed_check('FINISHED');
 				return false;
 			}
 
-
 		//-->
 		</script>
+
 		<table cellpadding="0" cellspacing="0" border="0">
 			<tr>
 				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="20" border="0" alt="branch" /></td>
@@ -1443,19 +1443,12 @@ speed_check('FINISHED');
 
 			$type_code = $offspring[$parent][$i];
 			$end = ($i == $num_kids - 1);
-//			$bg_img = 'images/page_'.(($page[effective_visible]) ? '' : 'in').'visible_'.page::get_status_colour($page[effective_status]).'.gif';
-
 			$bg = ($end) ? '' : 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
 		?>
 			<tr>
 				<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
 				<td class="sq-backend-data">
-				<?php /*
-					<  ?php radio_button('am_type_code', $type_code, false, 'asset_checked(\''.addslashes($this->am->_asset_types[$type_code]['name']).'\', '.(($this->am->_asset_types[$type_code]['customisation']) ? 'true' : 'false').');'); ?  >
-					<span class="sq-backend-<  ?php echo ($this->am->_asset_types[$type_code]['customisation']) ? 'custom-' : ''?  >asset"><  ?php echo $this->am->_asset_types[$type_code]['name'].' ('.$type_code.')';?  ></span>
-					*/
-				?>
-					&nbsp;&nbsp;<?php echo $this->am->_asset_types[$type_code]['name'].' ('.$type_code.')';?>
+					<script language="Javascript">sqPrintIcon("<?php echo $this->am->getAssetIconURL($type_code); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php echo $this->am->_asset_types[$type_code]['name'].' ('.$type_code.')';?>
 				</td>
 			</tr>
 		<?php
