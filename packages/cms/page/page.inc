@@ -62,10 +62,14 @@ class Page extends Asset
 		}
 
 		// set an initial web path
-		$this->saveWebPaths(Array(strtolower($name)));
+		if (!$this->saveWebPaths(Array(strtolower($name)))) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
+		return $linkid;
 
 	}//end create()
 
