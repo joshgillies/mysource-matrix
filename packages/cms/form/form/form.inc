@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.56 2004/10/13 06:50:50 arailean Exp $
+* $Id: form.inc,v 1.57 2004/10/15 00:16:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -192,6 +192,41 @@ class Form extends Bridge
 	}//end getLinks()
 
 
+	/**
+	* Processes the file upload from the source file so that file versioning cloned properly
+	*
+	* @param object asset &$clone the clone asset shell
+	* @param array			$components	the wanted components to clone eg.
+	*                       Array(
+	*                           'attributes',
+	*                           'metadata_shemas',
+	*                           'metadata',
+	*                           'workflow',
+	*                           'permissions',
+	*                           'data'
+	*                       );
+	*                       or alternately
+	*                       Array('all');
+	* 
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponents()
+	*/
+	function cloneComponents(&$clone, $components)
+	{
+		if (in_array('attributes', $components)) {
+			$sort_order = $this->attr('sort_order');
+			str_replace($this->id.':', $clone->id.':', $sort_order);
+		
+			// create some information so we know where to clone the file from
+			$clone->setAttrValue('sort_order', $sort_order);
+		}
+			
+		return parent::cloneComponents($clone, $components);
+	
+	}//end cloneComponents()
+	
+	
 	/**
 	* Used by asset map to return a asset map-style link array
 	*
