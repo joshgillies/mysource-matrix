@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.60 2003/12/17 01:12:44 gsherwood Exp $
+* $Id: init.inc,v 1.61 2004/02/14 21:42:48 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -174,6 +174,7 @@ if (get_magic_quotes_gpc()) {
 	require_once SQ_FUDGE_PATH.'/general/general.inc';
 	stripslashes_array($_GET, true);
 	stripslashes_array($_POST, true);
+	stripslashes_array($_COOKIE, true);
 	stripslashes_array($_REQUEST, true);
 }
 
