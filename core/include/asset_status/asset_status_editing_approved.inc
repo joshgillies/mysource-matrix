@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing_approved.inc,v 1.8 2004/07/06 02:20:39 lwright Exp $
+* $Id: asset_status_editing_approved.inc,v 1.9 2004/09/14 04:31:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -110,7 +110,7 @@ class Asset_Status_Editing_Approved extends Asset_Status_Approved
 				return false;
 			}
 			// update the last published date
-			if (!$this->owner->setPublishedDate()) {
+			if (!$this->owner->setDate('published')) {
 				return false;
 			}
 		}
