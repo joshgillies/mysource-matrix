@@ -1494,7 +1494,7 @@ class Asset extends Resolve_Object
 		$current_lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id);
 		if (empty($current_lock)) return false;
 
-		$user = &$this->getAsset($current_lock['userid']);
+		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
 
 		$can_acquire_lock = false;
 
