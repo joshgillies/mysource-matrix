@@ -3,7 +3,7 @@
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Question_Rule_Type_Found_In_Management
+* Form_Question_Rule_Type_Email_Management
 *
 * @see Asset_Management
 *
@@ -12,17 +12,18 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @package Resolve_Packages
 * @subpackage __core__
 */
-class Question_Rule_Type_Found_In_Management extends Asset_Management
+class Form_Question_Rule_Type_Email_Management extends Asset_Management
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Question_Rule_Type_Found_In_Management(&$pm)
+	function Form_Question_Rule_Type_Email_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 
+		$this->vars = Array();
 	}//end constructor
 
 }//end class

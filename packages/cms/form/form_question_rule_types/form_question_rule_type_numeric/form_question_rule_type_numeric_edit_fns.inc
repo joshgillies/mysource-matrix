@@ -1,9 +1,9 @@
 <?php
 
-require_once dirname(__FILE__).'/../../question_rule/question_rule_edit_fns.inc';
+require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edit_fns.inc';
 
 /**
-* Question_Rule_Type_Found_In_Edit_Fns
+* Form_Question_Rule_Type_Numeric_Edit_Fns
 *
 * Purpose
 *
@@ -13,24 +13,24 @@ require_once dirname(__FILE__).'/../../question_rule/question_rule_edit_fns.inc'
 * @package Resolve_Packages
 * @subpackage cms
 */
-class Question_Rule_Type_Found_In_Edit_Fns extends Question_Rule_Edit_Fns
+class Form_Question_Rule_Type_Numeric_Edit_Fns extends Form_Question_Rule_Edit_Fns
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Question_Rule_Type_Found_In_Edit_Fns()
+	function Form_Question_Rule_Type_Numeric_Edit_Fns()
 	{
-		$this->Question_Rule_Edit_Fns();
+		$this->Form_Question_Rule_Edit_Fns();
 	}
 	
 	function paintInlineBackend(&$asset, &$o, $prefix)
 	{
 
 		$contents = Array(
-			1 => 'Text Must Be Found In...',
-			0 => 'Text Must Not Be Found In...',
+			1 => 'Must be Numeric',
+			0 => 'Must Not be Numeric',
 		);
 
 		// table tags are printed in caller (form_question_edit_fns::printRules())
@@ -40,7 +40,7 @@ class Question_Rule_Type_Found_In_Edit_Fns extends Question_Rule_Edit_Fns
 				<?php combo_box($prefix.'_operator', $contents, false, $asset->attr('operator')); ?>
 			</td>
 			<td>
-				 <?php text_box($prefix.'_value', $asset->attr('value')); ?>
+				&nbsp;
 			</td>
 			<td>
 				Delete? <?php check_box('delete_rule', $asset->id); ?>
@@ -56,9 +56,6 @@ class Question_Rule_Type_Found_In_Edit_Fns extends Question_Rule_Edit_Fns
 
 		if (isset($_POST[$prefix.'_operator'])) {
 			$asset->setAttrValue('operator', $_POST[$prefix.'_operator']);
-		}
-		if (isset($_POST[$prefix.'_value'])) {
-			$asset->setAttrValue('value', $_POST[$prefix.'_value']);
 		}
 		return true;
 

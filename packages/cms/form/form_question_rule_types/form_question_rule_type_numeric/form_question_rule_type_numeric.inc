@@ -1,9 +1,9 @@
 <?php
 
-require_once dirname(__FILE__).'/../../question_rule/question_rule.inc';
+require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc';
 
 /**
-* Question_Rule_Type_Numeric
+* Form_Question_Rule_Type_Numeric
 *
 * Purpose
 *
@@ -13,7 +13,7 @@ require_once dirname(__FILE__).'/../../question_rule/question_rule.inc';
 * @package Resolve_Packages
 * @subpackage cms
 */
-class Question_Rule_Type_Numeric extends Question_Rule
+class Form_Question_Rule_Type_Numeric extends Form_Question_Rule
 {
 
 	/**
@@ -22,11 +22,11 @@ class Question_Rule_Type_Numeric extends Question_Rule
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Question_Rule_Type_Numeric($assetid=0) 
+	function Form_Question_Rule_Type_Numeric($assetid=0) 
 	{
-		$this->Question_Rule($assetid);
+		$this->Form_Question_Rule($assetid);
 	
-	}// end Question_Rule_Type_Numeric()
+	}// end Form_Question_Rule_Type_Numeric()
 
 
 	/**
@@ -129,7 +129,7 @@ class Question_Rule_Type_Numeric extends Question_Rule
 	* returns true if the question is valid, otherwise 
 	* adds an error to the submission object, and return false
 	* 
-	* @see question_rule::processForm()
+	* @see Form_Question_Rule::processForm()
 	*
 	* @param &object form_submission	$submission		the submission object for this form
 	* @param	int						$questionid		the id of the question this rule is linked to 

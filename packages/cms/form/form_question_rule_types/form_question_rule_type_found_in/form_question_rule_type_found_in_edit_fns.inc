@@ -1,9 +1,9 @@
 <?php
 
-require_once dirname(__FILE__).'/../../question_rule/question_rule_edit_fns.inc';
+require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edit_fns.inc';
 
 /**
-* Question_Rule_Type_Regexp_Edit_Fns
+* Form_Question_Rule_Type_Found_In_Edit_Fns
 *
 * Purpose
 *
@@ -13,24 +13,24 @@ require_once dirname(__FILE__).'/../../question_rule/question_rule_edit_fns.inc'
 * @package Resolve_Packages
 * @subpackage cms
 */
-class Question_Rule_Type_Regexp_Edit_Fns extends Question_Rule_Edit_Fns
+class Form_Question_Rule_Type_Found_In_Edit_Fns extends Form_Question_Rule_Edit_Fns
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Question_Rule_Type_Regexp_Edit_Fns()
+	function Form_Question_Rule_Type_Found_In_Edit_Fns()
 	{
-		$this->Question_Rule_Edit_Fns();
+		$this->Form_Question_Rule_Edit_Fns();
 	}
 	
 	function paintInlineBackend(&$asset, &$o, $prefix)
 	{
 
 		$contents = Array(
-			1 => 'Must match the Regular Expression ...',
-			0 => 'Must Not match the Regular Expression ...',
+			1 => 'Text Must Be Found In...',
+			0 => 'Text Must Not Be Found In...',
 		);
 
 		// table tags are printed in caller (form_question_edit_fns::printRules())

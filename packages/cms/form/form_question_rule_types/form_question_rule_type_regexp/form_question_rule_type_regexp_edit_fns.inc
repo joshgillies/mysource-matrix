@@ -1,9 +1,9 @@
 <?php
 
-require_once dirname(__FILE__).'/../../question_rule/question_rule_edit_fns.inc';
+require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edit_fns.inc';
 
 /**
-* Question_Rule_Type_Email_Edit_Fns
+* Form_Question_Rule_Type_Regexp_Edit_Fns
 *
 * Purpose
 *
@@ -13,33 +13,34 @@ require_once dirname(__FILE__).'/../../question_rule/question_rule_edit_fns.inc'
 * @package Resolve_Packages
 * @subpackage cms
 */
-class Question_Rule_Type_Email_Edit_Fns extends Question_Rule_Edit_Fns
+class Form_Question_Rule_Type_Regexp_Edit_Fns extends Form_Question_Rule_Edit_Fns
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Question_Rule_Type_Email_Edit_Fns()
+	function Form_Question_Rule_Type_Regexp_Edit_Fns()
 	{
-		$this->Question_Rule_Edit_Fns();
+		$this->Form_Question_Rule_Edit_Fns();
 	}
 	
 	function paintInlineBackend(&$asset, &$o, $prefix)
 	{
 
 		$contents = Array(
-			'1' => 'Must Be a Valid Email Address',
-			'2' => 'Must Not Be A Valid Email Address',
+			1 => 'Must match the Regular Expression ...',
+			0 => 'Must Not match the Regular Expression ...',
 		);
 
+		// table tags are printed in caller (form_question_edit_fns::printRules())
 		?>
 		<tr>
 			<td>
 				<?php combo_box($prefix.'_operator', $contents, false, $asset->attr('operator')); ?>
 			</td>
 			<td>
-				&nbsp;
+				 <?php text_box($prefix.'_value', $asset->attr('value')); ?>
 			</td>
 			<td>
 				Delete? <?php check_box('delete_rule', $asset->id); ?>
@@ -51,13 +52,16 @@ class Question_Rule_Type_Email_Edit_Fns extends Question_Rule_Edit_Fns
 
 	function processInlineBackend(&$asset, &$o, $prefix)
 	{
-		// check to see if this rule was deleted
 		if ($this->processDelete()) return true;
 
 		if (isset($_POST[$prefix.'_operator'])) {
 			$asset->setAttrValue('operator', $_POST[$prefix.'_operator']);
 		}
-	
+		if (isset($_POST[$prefix.'_value'])) {
+			$asset->setAttrValue('value', $_POST[$prefix.'_value']);
+		}
+		return true;
+
 	}// end processInlineBackend()
 
 

@@ -3,7 +3,7 @@
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Question_Rule_Type_Regexp_Management
+* Form_Question_Rule_Type_Regexp_Management
 *
 * @see Asset_Management
 *
@@ -12,14 +12,14 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @package Resolve_Packages
 * @subpackage __core__
 */
-class Question_Rule_Type_Regexp_Management extends Asset_Management
+class Form_Question_Rule_Type_Regexp_Management extends Asset_Management
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Question_Rule_Type_Regexp_Management(&$pm)
+	function Form_Question_Rule_Type_Regexp_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 

@@ -1,9 +1,9 @@
 <?php
 
-require_once dirname(__FILE__).'/../../question_rule/question_rule_edit_fns.inc';
+require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edit_fns.inc';
 
 /**
-* Question_Rule_Type_Numeric_Edit_Fns
+* Form_Question_Rule_Type_Email_Edit_Fns
 *
 * Purpose
 *
@@ -13,27 +13,26 @@ require_once dirname(__FILE__).'/../../question_rule/question_rule_edit_fns.inc'
 * @package Resolve_Packages
 * @subpackage cms
 */
-class Question_Rule_Type_Numeric_Edit_Fns extends Question_Rule_Edit_Fns
+class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Question_Rule_Type_Numeric_Edit_Fns()
+	function Form_Question_Rule_Type_Email_Edit_Fns()
 	{
-		$this->Question_Rule_Edit_Fns();
+		$this->Form_Question_Rule_Edit_Fns();
 	}
 	
 	function paintInlineBackend(&$asset, &$o, $prefix)
 	{
 
 		$contents = Array(
-			1 => 'Must be Numeric',
-			0 => 'Must Not be Numeric',
+			'1' => 'Must Be a Valid Email Address',
+			'2' => 'Must Not Be A Valid Email Address',
 		);
 
-		// table tags are printed in caller (form_question_edit_fns::printRules())
 		?>
 		<tr>
 			<td>
@@ -52,13 +51,13 @@ class Question_Rule_Type_Numeric_Edit_Fns extends Question_Rule_Edit_Fns
 
 	function processInlineBackend(&$asset, &$o, $prefix)
 	{
+		// check to see if this rule was deleted
 		if ($this->processDelete()) return true;
 
 		if (isset($_POST[$prefix.'_operator'])) {
 			$asset->setAttrValue('operator', $_POST[$prefix.'_operator']);
 		}
-		return true;
-
+	
 	}// end processInlineBackend()
 
 

@@ -1,9 +1,9 @@
 <?php
 
-require_once dirname(__FILE__).'/../../question_rule/question_rule.inc';
+require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc';
 
 /**
-* Question_Rule_Type_Regexp
+* Form_Question_Rule_Type_Email
 *
 * Purpose
 *
@@ -13,7 +13,7 @@ require_once dirname(__FILE__).'/../../question_rule/question_rule.inc';
 * @package Resolve_Packages
 * @subpackage cms
 */
-class Question_Rule_Type_Regexp extends Question_Rule
+class Form_Question_Rule_Type_Email extends Form_Question_Rule
 {
 
 	/**
@@ -22,11 +22,11 @@ class Question_Rule_Type_Regexp extends Question_Rule
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Question_Rule_Type_Regexp($assetid=0) 
+	function Form_Question_Rule_Type_Email($assetid=0) 
 	{
-		$this->Question_Rule($assetid);
+		$this->Form_Question_Rule($assetid);
 	
-	}// end Question_Rule_Type_Regexp()
+	}// end Form_Question_Rule_Type_Email()
 
 
 	/**
@@ -129,7 +129,7 @@ class Question_Rule_Type_Regexp extends Question_Rule
 	* returns true if the question is valid, otherwise 
 	* adds an error to the submission object, and return false
 	* 
-	* @see question_rule::processForm()
+	* @see Form_Question_Rule::processForm()
 	*
 	* @param &object form_submission	$submission		the submission object for this form
 	* @param	int						$questionid		the id of the question this rule is linked to 
@@ -142,16 +142,14 @@ class Question_Rule_Type_Regexp extends Question_Rule
 	{
 		$answer   = $submission->getAnswer($questionid);
 		$operator = ($this->attr('operator')) ? 1 : 0;
-		$value = $this->attr('value');
 
-		$value = str_replace('|', '\|', $value);
-		$pattern = "|".$value."|";
-		(preg_match($pattern, $answer)) ? $valid = 1 : $valid = 0; 
+		$regex = '/^([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-]+)*@([a-zA-Z0-9])+(\.[a-zA-Z0-9_-]+)+$/';
+		$valid = preg_match($regex, $answer);
 
 		if ($valid == $operator) {
 			return true;
 		} else {
-			$error = $question_name.' is not in the correct format';
+			$error = $question_name.' must '. (($operator) ? '' : 'not') .' be a valid Email Address';
 			$submission->setError($error);
 			return false;
 		}
