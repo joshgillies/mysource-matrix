@@ -31,6 +31,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	}//end constructor
 
 
+	/**
+	* Prints info about the current uploaded file
+	*
+	* @param object File	&$asset	the file asset
+	*
+	* @return void
+	* @access public
+	*/
 	function _printExistingFileInfo(&$asset)
 	{
 		$existing = $asset->_getExistingFile();
@@ -50,6 +58,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		}
 
 	}//end _printExistingFileInfo()
+
 
 	/**
 	* Prints the interface for uploading a file
@@ -76,9 +85,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the interface for uploading a file
 	*
-	* @param object File				&$asset	the file asset
-	* @param string						$prefix	prefix for form elements
-	* @param array(string)				$info	info about the uploaded file
+	* @param object File	&$asset	the file asset
+	* @param string			$prefix	prefix for form elements
+	* @param array(string)	$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
@@ -140,6 +149,16 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	}//end processFileUpload()
 
 
+	/**
+	* Prints the interface for adding a thumbnail
+	*
+	* @param object File				&$asset	the file asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function paintThumbnail(&$asset, &$o, $prefix)
 	{
 		// get the current thumbnail if there is one
@@ -172,9 +191,18 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<input type="text" name="<?php echo $prefix?>_thumbid" value="">
 		<?php
-	}
+	}//end paintThumbnail()
 
-	
+
+	/**
+	* Processes the interface for creating a thumbnail
+	*
+	* @param object File	&$asset	the file asset
+	* @param string			$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function processThumbnail(&$asset, $prefix)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -183,8 +211,6 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		if (isset($_POST[$prefix.'_delete_thumbnail'])) {
 			// they want to remove the thumbnail
-
-			// get the current thumbnail if there is one
 			$thumb_link = $asset->getLink(SQ_LINK_USES, 'thumbnail', true, 'thumbnail');
 			if (!$asset->deleteLink($thumb_link['linkid'])) return false;
 		}
@@ -210,7 +236,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$asset->createLink($thumb, SQ_LINK_USES, 'thumbnail');
 
 		return true;
-	}
+	}//end processThumbnail
 
 }//end class
 ?>
