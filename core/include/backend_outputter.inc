@@ -623,7 +623,8 @@ class Backend_Outputter
 								$this->_screens[$url] = $code;
 							}
 							$this->_screens = array_reverse($this->_screens);
-							combo_box('', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = form_element_value(this);"');
+							combo_box('screen_menu', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = form_element_value(this);"');
+							normal_button('screen_menu_go', 'Go', 'self.location = get_form_element_value("screen_menu");', 'id="screen_menu_go"');
 						}
 					?>
 					</td>
