@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_edit_fns.inc,v 1.4 2004/12/06 14:38:09 brobertson Exp $
+* $Id: report_asset_counter_edit_fns.inc,v 1.5 2005/03/03 00:42:03 gsherwood Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -204,7 +204,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 					return;
 				}
 
-				$sort_by_attr = $asset->getAttribute('sort_by');
+				$sort_by_attr = &$asset->getAttribute('sort_by');
 				$sort_by = $sort_by_attr->value;
 
 				$row_format =<<<HEREDOC

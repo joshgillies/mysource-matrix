@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.10 2004/12/06 14:38:07 brobertson Exp $
+* $Id: bodycopy_table.inc,v 1.11 2005/03/03 00:42:02 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -146,7 +146,7 @@ class Bodycopy_Table extends Bodycopy_Container
 			return true;
 		}
 
-		$old_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($old_assetid, $this->type());
+		$old_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($old_assetid, $this->type());
 		$our_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, 'content_type', false);
 
 		if (is_null($old_asset) || empty($our_links)) {

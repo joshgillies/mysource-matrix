@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.13 2004/12/15 05:33:29 gsherwood Exp $
+* $Id: cron_job_future_lineage.inc,v 1.14 2005/03/03 00:42:03 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			}
 
 			foreach ($this->_tmp['asset_in_link'] as $side_of_link => $link) {
-				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($asset) || !$this->setAssetInLink($asset, $side_of_link)) {
 					trigger_error('Could not create future lineage cron job, could not set asset in link', E_USER_WARNING);
 					return false;
@@ -249,7 +249,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			$str .= 'Deleting Link Id #'.$this->attr('delete_linkid');
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
 			if (!empty($link)) {
-				$old_major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+				$old_major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 				if (!is_null($old_major)) {
 					$str .= ' - '.$minor->name.' (#'.$minor->id.') from under '.$old_major->name.' (#'.$old_major->id.')';
 				}
@@ -297,7 +297,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			$delete_ok = false;
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
 			if (!empty($link)) {
-				$old_major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+				$old_major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
 				if (!is_null($old_major) && $GLOBALS['SQ_SYSTEM']->am->acquireLock($old_major->id, 'links')) {
 					$delete_ok = $old_major->deleteLink($this->attr('delete_linkid'));
 				}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_design.inc,v 1.4 2005/03/02 03:48:28 rhoward Exp $
+* $Id: trigger_action_set_design.inc,v 1.5 2005/03/03 00:42:03 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,12 +110,8 @@ class Trigger_Action_Set_Design extends Trigger_Action
 
 		// create a link between the asset (major) and the design (minor)
 		if (!$link_already_created) {
-			$link_create_status = $am->createAssetLink(
-				$state['asset'],
-				$am->getAsset($settings['assetid']),
-				SQ_LINK_NOTICE,
-				$design_name
-			);
+			$design = &$am->getAsset($settings['assetid']);
+			$link_create_status = $am->createAssetLink($state['asset'], $design, SQ_LINK_NOTICE, $design_name);
 
 			if (!$link_create_status) {
 				// couldn't create link, die

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.11 2005/01/20 13:07:37 brobertson Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.12 2005/03/03 00:42:03 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -134,7 +134,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		}
 
 		if (!empty($_POST[$prefix.'_major_assetid']['assetid'])) {
-			$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_major_assetid']['assetid']);
+			$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_major_assetid']['assetid']);
 			if (is_null($major))  {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.21 2005/01/19 16:52:08 brobertson Exp $
+* $Id: bodycopy_container.inc,v 1.22 2005/03/03 00:42:02 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -231,7 +231,7 @@ class Bodycopy_Container extends Asset
 
 		if (in_array($link['minorid'], $replace_assetids)) {
 			// we were using this asset... thanks very much... I'm telling...
-			$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 

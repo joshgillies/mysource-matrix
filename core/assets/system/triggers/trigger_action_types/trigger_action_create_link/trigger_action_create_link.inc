@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.3 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_action_create_link.inc,v 1.4 2005/03/03 00:42:03 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,9 +90,9 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		// determine major/minor from settings
 		if ($settings['is_major']) {
 			$major = $state['asset'];
-			$minor = $am->getAsset($settings['assetid']);
+			$minor = &$am->getAsset($settings['assetid']);
 		} else {
-			$major = $am->getAsset($settings['assetid']);
+			$major = &$am->getAsset($settings['assetid']);
 			$minor = $state['asset'];
 		}
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.4 2004/12/06 14:38:09 brobertson Exp $
+* $Id: authentication_default.inc,v 1.5 2005/03/03 00:42:03 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -127,7 +127,8 @@ class Authentication_Default extends Authentication
 		if ($_SESSION['user_login_attempts'][$username] >= SQ_CONF_MAX_LOGIN_ATTEMPTS) {
 			if (!is_null($user) && $user->canLogin()) {
 				// pretend to be the root user so we can lock the account
-				if ($GLOBALS['SQ_SYSTEM']->setCurrentUser($GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user'))) {
+				$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+				if ($GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 					$success = false;
 					if ($user->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION)) {
 						$GLOBALS['SQ_SYSTEM']->addMessage('User "'.$username.'" locked');
