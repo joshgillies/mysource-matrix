@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.4 2004/10/17 22:46:32 arailean Exp $
+* $Id: payment_gateway_esec.inc,v 1.5 2004/10/17 23:33:14 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -222,6 +222,7 @@ FORMBODY;
 			}
 
 			$response['STATUS'] = $status;
+			$response['CARDNO'] = (strlen($card_info['number']) < 16)?'****-****-****-****':'****-****-****-'.substr($card_info['number'],12);
 			$_SESSION['SQ_ECOM_RESPONSE']   = $response;
 		}
 
