@@ -92,6 +92,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					$success = $asset->processBackend($this->backend->out, $link);
 
 					if ($success) {
+						$o->addFormActionGetVar('am_section', 'edit_asset');
+						$o->addFormActionGetVar('assetid', $asset->id);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 					} else {
 						// the asset was not created fully or linking failed
