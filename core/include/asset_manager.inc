@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.184 2004/03/01 18:11:42 brobertson Exp $
+* $Id: asset_manager.inc,v 1.185 2004/03/02 04:12:17 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -982,7 +982,7 @@ class Asset_Manager extends MySource_Object
 			}
 
 			$linkid = $link['asset']->createLink($clone, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
-			if(empty($linkid)) {
+			if (empty($linkid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return $null;
 			}
@@ -1036,7 +1036,7 @@ class Asset_Manager extends MySource_Object
 	* <PRE>
 	* Array(
 	*     'attributes',
-	*     'metadata_shemas',
+	*     'metadata_schemas',
 	*     'metadata',
 	*     'workflow',
 	*     'permissions',
@@ -1055,14 +1055,20 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=true) {
 		
+		// make sure this type of asset can be cloned
+		if (!$source->canClone()) {
+			trigger_error($source->type().' asset types cannot be cloned', E_USER_WARNING);
+			return $null;
+		}
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if (!$clone = &$this->_cloneAsset($source, $link, $clone_map)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
 		}
-		
-		if (!$this->cloneComponents($source, $clone, $components)) {
+
+		if (!$source->cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
 		}
@@ -1105,14 +1111,17 @@ class Asset_Manager extends MySource_Object
 						$create_link['sort_order']	= $data['sort_order'];
 						$create_link['exclusive']	= $data['exclusive'];
 						
-						$cloned_child = &$this->_cloneAsset($child, $create_link, $clone_map);
+						$cloned_child = &$this->cloneAsset($child, $create_link, $clone_map, $components, $clone_dependants);
 
 						if (is_null($cloned_child)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return $null;
 						}
-						$this->cloneComponents($child, $cloned_child, $components);
-
+					/*	if (!$child->cloneComponents($cloned_child, $components)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return $null;
+						}
+					*/
 					}// end if
 				}// end foreach
 			}// end if empty
@@ -1123,126 +1132,6 @@ class Asset_Manager extends MySource_Object
 		return $clone;
 	
 	}//end cloneAsset()
-
-
-	/**
-	* Takes a clone shell and clones the sources required components to the clone shell
-	*
-	* @param &object Asset	$source		the source asset
-	* @param &object Asset	$clone		the clone shell
-	* @param array			$components	the wanted components to clone eg.
-	*                       Array(
-	*                           'attributes',
-	*                           'metadata_shemas',
-	*                           'metadata',
-	*                           'workflow',
-	*                           'permissions',
-	*                           'data'              // data directory
-	*                       );
-	*                       or alternately
-	*                       Array('all');
-	*
-	* @return boolean
-	* @access public
-	*/
-	function cloneComponents(&$source, &$clone, $components)
-	{
-		if (!is_array($components) || empty($components)) return false;
-		if (is_null($source) || is_null($clone)) return false;
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		  //////////////////
-		 /// ATTRIBUTES ///
-		//////////////////
-
-		if (in_array('attributes', $components) || in_array('all', $components)) {
-			// Now we set all the attributes
-			foreach ($source->vars as $name => $data) {
-				if (!$clone->setAttrValue($name, $data['value'])) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-			$clone->saveAttributes();
-		}//end if attributes
-
-		  ///////////////////
-		 /// PERMISSIONS ///
-		///////////////////
-
-		if (in_array('permissions', $components) || in_array('all', $components)) {
-			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-				$set_perms = $this->getPermission($source->id, $perm, null, false, false, true);
-				foreach ($set_perms as $userid => $access) {
-					if (!$this->setPermission($clone->id, $userid, $perm, $access)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-				}
-			}//end foreach
-		}//end if permissions
-
-		  ////////////////
-		 /// METADATA ///
-		////////////////
-
-		if (in_array('metadata_schemas', $components) || in_array('all', $components)) {
-			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			// apply the schemas and metadata from the cloner to the clonee
-			$schemas = $mm->getSchemas($source->id);
-			foreach ($schemas as $schemaid => $access) {
-				if (!$mm->setSchema($clone->id, $schemaid, $access)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-				if (in_array('metadata', $components) || in_array('all', $components)) {
-					$metadata = $mm->getSchemaMetadata($source->id, $schemaid);
-					if (!empty($metadata)) {
-						if (!$mm->setSchemaMetadata($clone->id, $schemaid, $metadata)) {
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return false;
-						}
-					}
-				}
-			}//end foreach
-		}//end if metadata
-
-		  ////////////////
-		 /// WORKFLOW ///
-		////////////////
-
-		if (in_array('workflow', $components) || in_array('all', $components)) {
-			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-			$schemas = $wfm->getSchemas($source->id);
-			foreach ($schemas as $schemaid => $access) {
-				if (!$wfm->setSchema($clone->id, $schemaid, $access)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}//end foreach
-		}//end if workflow
-
-		  ////////////////
-		 /// DATA DIR ///
-		////////////////
-
-		if (in_array('data', $components) || in_array('all', $components)) {
-			// OK if we got this far let's copy the directory (if it exists)
-			if (is_dir($source->data_path)) {
-				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-				if (!copy_directory($source->data_path, $clone->data_path)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-		}//end if data
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		return true;
-
-	}//end clone()
 
 
 //--        LOCKING        --//
@@ -1855,6 +1744,7 @@ class Asset_Manager extends MySource_Object
 					if ($parent_treeid == '') {
 						$child_links[$treeid]['dependant_treeid'] = '';
 					} else {
+						if (!isset($child_links[$parent_treeid])) continue;
 						$child_links[$treeid]['dependant_treeid'] = $child_links[$parent_treeid]['dependant_treeid'];
 					}
 				} else {
