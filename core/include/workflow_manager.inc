@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.53 2004/11/08 00:03:25 mmcintyre Exp $
+* $Id: workflow_manager.inc,v 1.54 2004/11/08 00:07:30 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1125,7 +1125,7 @@ class Workflow_Manager extends MySource_Object
 
 		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_workflow', $where_cond);
 
-	}//end deleteWorkflow()
+	}//end purgeWorkflow()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.51 2004/11/08 00:02:39 mmcintyre Exp $
+* $Id: metadata_manager.inc,v 1.52 2004/11/08 00:07:09 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -944,7 +944,7 @@ class Metadata_Manager extends MySource_Object
 
 		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_metadata', $where_cond);
 
-	}//end deleteMetadata()
+	}//end purgeMetadata()
 
 
 }//end class
