@@ -1,9 +1,3 @@
-function msg(m) 
-{
-	document.getElementById('textmessage').value = m;
-}
-
-
 var currentField = null;
 var oldField = null;
 
@@ -21,7 +15,6 @@ function processEndDateBlur(elt, prefix)
 function processStartDateBlur(elt, prefix)
 {
 	if (fieldGroupBlurred(elt)) {
-		msg('start field blurred');
 		updateEndDate(prefix);
 	}
 
