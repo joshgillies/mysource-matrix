@@ -27,27 +27,36 @@ class table_editing extends wysiwyg_plugin {
 	function table_editing(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
-		$this->_add_button('inserttable','InsertTable','Insert Table','false','35');
-		$this->_add_button('tableproperties','TableProperties','Table Properties','false','36', 'table');
-		//$this->_add_button('showborders','ShowBorders','Show 0 borders','false','37');
+		$this->_open_menu('tablefunctions', 'Table Functions','false','35');
+			$this->_add_button('inserttable','InsertTable','Insert Table','false','35');
+			$this->_add_button('tableproperties','TableProperties','Table Properties','false','36','table');
+			//$this->_add_button('showborders','ShowBorders','Show 0 borders','false','37');
+		$this->_close_menu('tablefunctions');
 		
-		//$this->_add_button('rowproperties','RowProperties','Row Properties','false','38');
-		//$this->_add_button('insertrowbefore','InsertRowBefore','Insert Row Before','false','39');
-		//$this->_add_button('insertrowafter','InsertRowAfter','Insert Row After','false','40');
-		//$this->_add_button('deleterow','DeleteRow','Delete Row','false','41');
-		//$this->_add_button('splitrow','SplitRow','Split Row','false','42');
-		//$this->_add_button('mergerows','MergeRows','Merge Rows','false','43');
+		$this->_open_menu('rowfunctions', 'Row Functions','false','38','tr');
+			$this->_add_button('rowproperties','RowProperties','Row Properties','false','38','tr');
+			$this->_add_button('insertrowbefore','InsertRowBefore','Insert Row Before','false','39','tr');
+			$this->_add_button('insertrowafter','InsertRowAfter','Insert Row After','false','40','tr');
+			$this->_add_button('deleterow','DeleteRow','Delete Row','false','41','tr');
+			$this->_add_button('splitrow','SplitRow','Split Row','false','42','td[rowSpan!=1]');
+			$this->_add_button('mergerows','MergeRows','Merge Rows','false','43','tr');
+		$this->_close_menu('rowfunctions');
 		
-		//$this->_add_button('insertcolumnbefore','InsertColumnBefore','Insert Column Before','false','44');
-		//$this->_add_button('insertcolumnafter','InsertColumnAfter','Insert Column Afer','false','45');
-		//$this->_add_button('deletecolumn','DeleteColumn','Delete Column','false','46');
-		
-		//$this->_add_button('cellproperties','CellProperties','Cell Properties','false','47');
-		//$this->_add_button('insertcellbefore','InsertCellBefore','Insert Cell Before','false','48');
-		//$this->_add_button('insertcellafter','InsertCellAfter','Insert Cell After','false','49');
-		//$this->_add_button('deletecell','DeleteCell','Delete Cell','false','50');
-		//$this->_add_button('splitcell','SplitCell','Split Cell','false','51');
-		//$this->_add_button('mergecells','MergeCells','Merge Cells','false','52');
+		$this->_open_menu('columnfunctions', 'Column Functions','false','44','td');
+			$this->_add_button('insertcolumnbefore','InsertColumnBefore','Insert Column Before','false','44','td');
+			$this->_add_button('insertcolumnafter','InsertColumnAfter','Insert Column Afer','false','45','td');
+			$this->_add_button('deletecolumn','DeleteColumn','Delete Column','false','46','td');
+			$this->_add_button('splitcolumn','SplitColumn','Split Column','false','46','td[colSpan!=1]');
+		$this->_close_menu('columnfunctions');
+
+		$this->_open_menu('cellfunctions', 'Cell Functions','false','47','td');
+			$this->_add_button('cellproperties','CellProperties','Cell Properties','false','47','td');
+			$this->_add_button('insertcellbefore','InsertCellBefore','Insert Cell Before','false','48','td');
+			$this->_add_button('insertcellafter','InsertCellAfter','Insert Cell After','false','49','td');
+			$this->_add_button('deletecell','DeleteCell','Delete Cell','false','50','td');
+			$this->_add_button('splitcell','SplitCell','Split Cell','false','51','td');
+			$this->_add_button('mergecells','MergeCells','Merge Cells','false','52','tr');
+		$this->_close_menu('cellfunctions');
 
 	}//end constructor
 
@@ -90,6 +99,77 @@ class table_editing extends wysiwyg_plugin {
 					}
 				}
 				return ret;
+			};
+
+			// helper function that clears the content in a table row
+			HTMLArea.prototype.clearRow = function(tr) {
+				var mozbr = HTMLArea.is_gecko ? "<br />" : "";
+				var tds = tr.getElementsByTagName("td");
+				for (var i = tds.length; --i >= 0;) {
+					var td = tds[i];
+					td.rowSpan = 1;
+					td.innerHTML = mozbr;
+				}
+			};
+
+
+			HTMLArea.prototype.selectNextNode = function(el) {
+				var node = el.nextSibling;
+				while (node && node.nodeType != 1) {
+					node = node.nextSibling;
+				}
+				if (!node) {
+					node = el.previousSibling;
+					while (node && node.nodeType != 1) {
+						node = node.previousSibling;
+					}
+				}
+				if (!node) {
+					node = el.parentNode;
+				}
+				this.selectNodeContents(node);
+			};
+
+			HTMLArea.prototype.splitRow = function(td) {
+				var mozbr = HTMLArea.is_gecko ? "<br />" : "";
+				var n = parseInt("" + td.rowSpan);
+				var nc = parseInt("" + td.colSpan);
+				td.rowSpan = 1;
+				tr = td.parentNode;
+				var itr = tr.rowIndex;
+				var trs = tr.parentNode.rows;
+				var index = td.cellIndex;
+				while (--n > 0) {
+					tr = trs[++itr];
+					var otd = this._doc.createElement("td");
+					otd.colSpan = td.colSpan;
+					otd.innerHTML = mozbr;
+					tr.insertBefore(otd, tr.cells[index]);
+				}
+			};
+
+			HTMLArea.prototype.splitCol = function(td) {
+				var mozbr = HTMLArea.is_gecko ? "<br />" : "";
+				var nc = parseInt("" + td.colSpan);
+				td.colSpan = 1;
+				tr = td.parentNode;
+				var ref = td.nextSibling;
+				while (--nc > 0) {
+					var otd = this._doc.createElement("td");
+					otd.rowSpan = td.rowSpan;
+					otd.innerHTML = mozbr;
+					tr.insertBefore(otd, ref);
+				}
+			};
+
+			HTMLArea.prototype.splitCell = function(td) {
+				var nc = parseInt("" + td.colSpan);
+				this.splitCol(td);
+				var items = td.parentNode.cells;
+				var index = td.cellIndex;
+				while (nc-- > 0) {
+					this.splitRow(items[index++]);
+				}
 			};
 
 			// Called when the user clicks the Insert Table button
@@ -170,14 +250,13 @@ class table_editing extends wysiwyg_plugin {
 				var table = this.getClosest("table");
 
 				var f_width = parseInt(table.style.width);
-				isNaN(f_width) && (f_width = "");
+				if (isNaN(f_width)) { f_width = ""; }
 				var f_height = parseInt(table.style.height);
-				isNaN(f_height) && (f_height = "");
+				if (isNaN(f_height)) { f_height = ""; }
 
 				var f_widthUnit = /%/.test(table.style.width)   ? '%' : 'px';
 				var f_heightUnit = /%/.test(table.style.height) ? '%' : 'px';
 
-				var f_align   = table.align;
 				var f_spacing = table.cellSpacing;
 				var f_padding = table.cellPadding;
 				var f_borders = table.border;
@@ -203,7 +282,6 @@ class table_editing extends wysiwyg_plugin {
 					"&f_height="      + escape(f_height)      +
 					"&f_widthUnit="   + escape(f_widthUnit)   +
 					"&f_heightUnit="  + escape(f_heightUnit)  +
-					"&f_align="       + escape(f_align)       +
 					"&f_spacing="     + escape(f_spacing)     +
 					"&f_padding="     + escape(f_padding)     +
 					"&f_borders="     + escape(f_borders)     +
@@ -266,6 +344,84 @@ class table_editing extends wysiwyg_plugin {
 
 
 
+			HTMLArea.prototype._editRowCellProperties = function(cell) {
+				var editor = this; // for nested functions
+
+				// retrieve existing values
+				var element = this.getClosest(cell ? "td" : "tr");
+				var table = this.getClosest("table");
+
+				var f_width = parseInt(element.style.width);
+				if (isNaN(f_width)) { f_width = ""; }
+				var f_height = parseInt(element.style.height);
+				if (isNaN(f_height)) { f_height = ""; }
+
+				var f_widthUnit = /%/.test(element.style.width)   ? '%' : 'px';
+				var f_heightUnit = /%/.test(element.style.height) ? '%' : 'px';
+
+				var f_align  = element.align;
+				var f_valign = element.vAlign;
+
+				var f_bgcolor     = element.style.backgroundColor.replace("#", "");
+				var f_color       = element.style.color.replace("#", "");
+				var f_borderColor = element.style.borderColor.replace("#", "");
+
+				var f_borderWidth = parseInt(element.style.borderWidth);
+				if (isNaN(f_borderWidth)) { f_borderWidth = 0; }
+				var f_borderStyle = element.style.borderStyle;
+				// Gecko reports "solid solid solid solid" for "border-style: solid".
+				// That is, "top right bottom left" -- we only consider the first
+				// value.
+				(f_borderStyle.match(/([^\s]*)\s/)) && (f_borderStyle = RegExp.$1);
+
+				editor_<?php echo $this->wysiwyg->name?>._object = this;
+				strPage = "<?php echo $this->get_popup_href(''); ?>edit_" + (cell ? "cell" : "row") + ".php" + 
+					"?f_width="       + escape(f_width)       +
+					"&f_height="      + escape(f_height)      +
+					"&f_widthUnit="   + escape(f_widthUnit)   +
+					"&f_heightUnit="  + escape(f_heightUnit)  +
+					"&f_align="       + escape(f_align)       +
+					"&f_valign="      + escape(f_valign)      +
+					"&f_bgcolor="     + escape(f_bgcolor)     +
+					"&f_color="       + escape(f_color)       +
+					"&f_borderColor=" + escape(f_borderColor) +
+					"&f_borderStyle=" + escape(f_borderStyle) +
+					"&f_borderWidth=" + escape(f_borderWidth) +
+					"&editor_name="   + escape("<?php echo $this->wysiwyg->name; ?>");
+
+				this._popupDialog("edit" + (cell ? "Cell" : "Row") + "Properties", strPage, 380, 270, true, function(params) {
+					if (!params) {
+						// user must have pressed Cancel
+						return false;
+					}
+
+					HTMLArea.processStyle(params, element);
+					for (var i in params) {
+						var val = params[i];
+						switch (i) {
+							case "f_align":
+								element.align = val;
+							break;
+
+							case "f_valign":
+								element.vAlign = val;
+							break;
+						}
+					}
+
+					// various workarounds to refresh the table display (Gecko,
+					// what's going on?! do not disappoint me!)
+					editor.forceRedraw();
+					editor.focusEditor();
+					editor.updateToolbar();
+					var save_collapse = table.style.borderCollapse;
+					table.style.borderCollapse = "collapse";
+					table.style.borderCollapse = "separate";
+					table.style.borderCollapse = save_collapse;
+				}, null);
+			};
+
+
 			HTMLArea.prototype._nullBorders = function(doc, status) {
 				// show table borders
 				if (!doc) return;
@@ -312,9 +468,210 @@ class table_editing extends wysiwyg_plugin {
 		case "inserttable":
 			this._insertTable();
 		break;
+
 		case "tableproperties":
 			this._editTableProperties();
 		break;
+
+		case "rowproperties":
+			this._editRowCellProperties(false);
+		break;
+
+		case "cellproperties":
+			this._editRowCellProperties(true);
+		break;
+
+		case "insertrowbefore":
+		case "insertrowafter" :
+			var tr = this.getClosest("tr");
+			if (!tr) { break; }
+			var otr = tr.cloneNode(true);
+			this.clearRow(otr);
+			tr.parentNode.insertBefore(otr, /after/.test(cmd.toLowerCase()) ? tr.nextSibling : tr);
+			editor.forceRedraw();
+			editor.focusEditor();
+		break;
+
+		case "deleterow":
+			var tr = this.getClosest("tr");
+			if (!tr) { break; }
+			var par = tr.parentNode;
+			if (par.rows.length == 1) {
+				alert("Cannot delete the last row in a table");
+				break;
+			}
+			// set the caret first to a position that doesn't disappear.
+			this.selectNextNode(tr);
+			par.removeChild(tr);
+			editor.forceRedraw();
+			editor.focusEditor();
+			editor.updateToolbar();
+		break;
+
+		case "splitrow":
+			var td = this.getClosest("td");
+			if (!td) { break; }
+			this.splitRow(td);
+			editor.forceRedraw();
+			editor.updateToolbar();
+		break;
+
+		case "insertcolumnbefore":
+		case "insertcolumnafter" :
+			var mozbr = HTMLArea.is_gecko ? "<br />" : "";
+			var td = this.getClosest("td");
+			if (!td) { break; }
+			var rows = td.parentNode.parentNode.rows;
+			var index = td.cellIndex;
+			for (var i = rows.length; --i >= 0;) {
+				var tr = rows[i];
+				var ref = tr.cells[index + (/after/.test(cmd.toLowerCase()) ? 1 : 0)];
+				var otd = editor._doc.createElement("td");
+				otd.innerHTML = mozbr;
+				tr.insertBefore(otd, ref);
+			}
+			editor.focusEditor();
+		break;
+
+		case "splitcolumn":
+			var td = this.getClosest("td");
+			if (!td) { break; }
+			this.splitCol(td);
+			editor.forceRedraw();
+			editor.updateToolbar();
+		break;
+
+		case "deletecolumn":
+			var td = this.getClosest("td");
+			if (!td) { break; }
+			var index = td.cellIndex;
+			if (td.parentNode.cells.length == 1) {
+				alert("Cannot delete the last column in a row");
+				break;
+			}
+			// set the caret first to a position that doesn't disappear
+			this.selectNextNode(td);
+			var rows = td.parentNode.parentNode.rows;
+			for (var i = rows.length; --i >= 0;) {
+				var tr = rows[i];
+				tr.removeChild(tr.cells[index]);
+			}
+			editor.forceRedraw();
+			editor.focusEditor();
+			editor.updateToolbar();
+		break;
+
+		case "insertcellbefore":
+		case "insertcellafter" :
+			var mozbr = HTMLArea.is_gecko ? "<br />" : "";
+			var td = this.getClosest("td");
+			if (!td) { break; }
+			var tr = td.parentNode;
+			var otd = editor._doc.createElement("td");
+			otd.innerHTML = mozbr;
+			tr.insertBefore(otd, /after/.test(cmd.toLowerCase()) ? td.nextSibling : td);
+			editor.forceRedraw();
+			editor.focusEditor();
+		break;
+
+		case "splitcell":
+			var td = this.getClosest("td");
+			if (!td) { break; }
+			this.splitCell(td);
+			editor.forceRedraw();
+			editor.updateToolbar();
+		break;
+
+		case "deletecell":
+			var td = this.getClosest("td");
+			if (!td) { break; }
+			if (td.parentNode.cells.length == 1) {
+				alert("Cannot delete last cell in a row");
+				break;
+			}
+			// set the caret first to a position that doesn't disappear
+			this.selectNextNode(td);
+			td.parentNode.removeChild(td);
+			editor.forceRedraw();
+			editor.updateToolbar();
+		break;
+
+		case "mergecells":
+			// !! FIXME: Mozilla specific !!
+			var sel = editor._getSelection();
+			var range, i = 0;
+			var rows = [];
+			var row = null;
+			var cells = null;
+			if (!HTMLArea.is_ie) {
+				try {
+					while (range = sel.getRangeAt(i++)) {
+						var td = range.startContainer.childNodes[range.startOffset];
+						if (td.parentNode != row) {
+							row = td.parentNode;
+							(cells) && rows.push(cells);
+							cells = [];
+						}
+						cells.push(td);
+					}
+				} catch(e) {/* finished walking through selection */}
+				rows.push(cells);
+			} else {
+				// Internet Explorer "browser"
+				var td = this.getClosest("td");
+				if (!td) {
+					alert("Please click inside a cell");
+					break;
+				}
+				var tr = td.parentElement;
+				var no_cols = prompt("How many columns would you like to merge?", 1);
+				if (!no_cols) {
+					// cancelled
+					break;
+				}
+				var no_rows = prompt("How many rows would you like to merge?", 1);
+				if (!no_rows) {
+					// cancelled
+					break;
+				}
+				var cell_index = td.cellIndex;
+				while (no_rows-- > 0) {
+					td = tr.cells[cell_index];
+					cells = [td];
+					for (var i = 1; i < no_cols; ++i) {
+						td = td.nextSibling;
+						if (!td) {
+							break;
+						}
+						cells.push(td);
+					}
+					rows.push(cells);
+					tr = tr.nextSibling;
+					if (!tr) {
+						break;
+					}
+				}
+			}
+			var HTML = "";
+			for (i = 0; i < rows.length; ++i) {
+				// i && (HTML += "<br />");
+				var cells = rows[i];
+				for (var j = 0; j < cells.length; ++j) {
+					// j && (HTML += "&nbsp;");
+					var cell = cells[j];
+					HTML += cell.innerHTML;
+					(i || j) && (cell.parentNode.removeChild(cell));
+				}
+			}
+			var td = rows[0][0];
+			td.innerHTML = HTML;
+			td.rowSpan = rows.length;
+			td.colSpan = rows[0].length;
+			editor.selectNodeContents(td);
+			editor.forceRedraw();
+			editor.focusEditor();
+		break;
+
 		case "showborders":
 			if (HTMLArea.is_ie) {
 				var doco = this._docContent;
