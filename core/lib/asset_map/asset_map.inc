@@ -693,6 +693,7 @@ class Asset_Map
 			unset($attrs['body']);
 			unset($attrs['parameters']);
 			unset($attrs['userto']);
+			$attrs['sent'] = $GLOBALS['SQ_SYSTEM']->datetime($attrs['sent']);
 			$msg_node = &$root->addChild('message', '', $attrs);
 			$msg_node->addChild('subject', strip_tags($messages[$i]['subject']));
 			$msg_node->addChild('from', strip_tags($messages[$i]['from_name']));
