@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing_edit_fns.inc,v 1.9 2003/11/21 04:59:48 mmcintyre Exp $
+* $Id: page_sub_asset_listing_edit_fns.inc,v 1.10 2003/11/21 05:00:56 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,7 +71,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		echo 'The contents of the sub asset listing format can be '.
 			'replaced into the <a href="'.$href[$link['minorid']].'">Page Contents Bodycopy</a> by using the %sub_asset_listing% keyword';
 
-	}// end paintBodycopyInformation()
+	}//end paintBodycopyInformation()
 
 
 	/**
@@ -84,7 +84,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	{
 		return true;
 
-	} // end processBodycopyInformation()
+	}//end processBodycopyInformation()
 
 
 	/**
@@ -109,7 +109,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 
 		return true;
 
-	} // end paintDefaultFormatLink()
+	}//end paintDefaultFormatLink()
 
 
 	/**
@@ -122,7 +122,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	{
 		return true;
 
-	} // end processDefaultFormatLink()
+	}//end processDefaultFormatLink()
 
 
 	/**
@@ -224,7 +224,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		</table>
 		<?php
 
-	}// end processCurrentAssetTypes()
+	}//end processCurrentAssetTypes()
 
 
 	/**
@@ -311,7 +311,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		$asset->setAttrValue('customised', $customised);
 		$asset->saveAttributes();
 	
-	}// end paintCurrentAssetTypes()
+	}//end paintCurrentAssetTypes()
 
 
 	/**
@@ -338,7 +338,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		}
 		combo_box($prefix.'_types', $uc_types, true, '', 6);
 
-	}// end paintAddAssetType()
+	}//end paintAddAssetType()
 
 
 	/**
@@ -368,7 +368,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 			$asset->saveAttributes();
 		}
 
-	} // end paintAddFormat()
+	}//end paintAddFormat()
 	
 }//end class
 
