@@ -1,0 +1,48 @@
+<contents>
+	<section name="Details">
+		<field>
+			<display_name>Id Name</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintIdName" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Link">
+		<field>
+			<display_name>Asset</display_name>
+			<note>The asset that this button is to link to</note>
+			<function_call>
+				<paint_function   name="paintAssetid" />
+				<process_function name="processAssetid" />
+			</function_call>
+		</field>
+		<field attribute="url">
+			<display_name>URL</display_name>
+			<note>The url that this button is to link to, only relevant if the assetid above is blank</note>
+			<text width="30" height="1" />
+		</field>
+	</section>
+	<section name="Settings">
+		<field attribute="text">
+			<display_name>Text</display_name>
+			<note>The text that forms the link if there is no image</note>
+			<text width="30" height="1" />
+		</field>
+		<field attribute="new_window">
+			<display_name>New Window</display_name>
+			<note />
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		<field attribute="new_window_width">
+			<display_name>New Window Width</display_name>
+			<note>Only applicable if New Window is "Yes"</note>
+			<int width="5" />
+		</field>
+		<field attribute="new_window_height">
+			<display_name>New Window Height</display_name>
+			<note>Only applicable if New Window is "Yes"</note>
+			<int width="5" />
+		</field>
+	</section>
+</contents>
