@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.14 2005/03/03 16:39:19 brobertson Exp $
+* $Id: image_variety.inc,v 1.15 2005/03/30 17:17:25 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -172,7 +172,7 @@ class Image_Variety extends Asset
 		}
 
 		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
-		return $image->saveVariety($this);
+		return (bool) $image->saveVariety($this);
 
 	}//end saveAttributes()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.7 2005/03/03 16:39:19 brobertson Exp $
+* $Id: image_variety_edit_fns.inc,v 1.8 2005/03/30 17:17:25 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -190,7 +190,8 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		if ($asset->_imageid && $asset->attr('variety_type') == 'upload') {
-			if ($this->_processUploadedFile($asset, $prefix)) {
+			$info = get_file_upload_info($prefix.'_upload_file');
+			if ($this->processUploadedFile($asset, $info)) {
 				$changes_made = true;
 			}
 		}
@@ -204,19 +205,24 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Takes care of processing any uploaded file
 	*
+	* If you want to process an upload of a file that was not uploaded through PHP
+	* (possible because of FTP or it was in a tar archive), ensure you pass the information
+	* about the file in the $info array.
+	* The fields required are:
+	*     name              => the filename without path (eg file.txt)
+	*     tmp_name          => the location of the file on the file system
+	*     non_uploaded_file => must equal TRUE
+	*
 	* @param object Image_Variety		&$asset		the asset whose interface we are processing
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for form elements
+	* @param array(string)				$info		info about the uploaded file
 	*
 	* @access public
 	* @return boolean
 	*/
-	function _processUploadedFile(&$asset, $prefix)
+	function processUploadedFile(&$asset, $info=Array())
 	{
 		if (empty($asset->_imageid)) return false;
 		if ($asset->attr('name') == '') return false;
-
-		$info = get_file_upload_info($prefix.'_upload_file');
 
 		// return on failed or no upload
 		if ($info === false || empty($info)) return false;
@@ -257,7 +263,23 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		}// endif
 
-		if (!commit_file_upload($prefix.'_upload_file', $d_new_file, true, 0)) return false;
+		// copy over the new uploaded file
+		if (is_uploaded_file($info['tmp_name'])) {
+			// a normal uploaded file
+			if (!move_uploaded_file($info['tmp_name'], $d_new_file)) {
+				trigger_error('Failed moving uploaded file ('.$info['tmp_name'].') to destination ('.$d_new_file.')', E_USER_WARNING);
+				return false;
+			}
+		} else if (isset($info['non_uploaded_file']) && $info['non_uploaded_file'] === true) {
+			// we have special permission to move a non-uploaded file
+			if (!copy($info['tmp_name'], $d_new_file)) {
+				trigger_error('Failed copying non-uploaded file ('.$info['tmp_name'].') to destination directory ('.$d_new_file.')', E_USER_WARNING);
+				return false;
+			}
+		} else {
+			trigger_error('No file uploaded or non-uploaded, unable to process file upload', E_USER_ERROR);
+			return false;
+		}
 
 		$up_to_date = $fv->upToDate($d_new_file);
 
@@ -280,7 +302,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}// end _processUploadedFile()
+	}// end processUploadedFile()
 
 
 }//end class
