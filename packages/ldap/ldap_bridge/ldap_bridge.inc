@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.1 2004/02/06 03:12:38 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.2 2004/02/06 05:54:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 
 /**
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
-class LDAP_Bridge extends Asset
+class LDAP_Bridge extends Bridge
 {
 
 
@@ -50,38 +50,9 @@ class LDAP_Bridge extends Asset
 	function LDAP_Bridge($assetid=0)
 	{
 		$this->_ser_attrs = true;
-		$this->Asset($assetid);
+		$this->Bridge($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Returns name of the asset
-	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
-	*
-	* @see Asset::_getName()
-	* @access public
-	*/
-	function _getName($short_name=false)
-	{
-		return $this->attr('name');
-
-	}//end _getName()
-
-
-	/**
-	* Returns an array of all the permitted links type, the type asset and the cardinality
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		return Array();
-
-	}//end _getAllowedLinks()
 
 
 	/**

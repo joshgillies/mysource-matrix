@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.173 2004/02/06 03:09:54 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.174 2004/02/06 05:54:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1392,7 +1392,7 @@ class Asset_Manager extends MySource_Object
 		// an asset that handles shadow assets, palm the request off to it
 		if ($side_of_link == 'major') {
 			$asset = &$this->getAsset($assetid);
-			if ($asset->type() == 'ldap_bridge') {
+			if (is_a($asset, 'bridge')) {
 				$links = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
 				$this->forgetAsset($asset);
 				return $links;
@@ -1619,7 +1619,7 @@ class Asset_Manager extends MySource_Object
 		// we are not getting children for a shadow asset, so if we are getting children of
 		// an asset that handles shadow assets, palm the request off to it
 		$asset = &$this->getAsset($assetid);
-		if ($asset->type() == 'ldap_bridge') {
+		if (is_a($asset, 'bridge')) {
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
 			$this->forgetAsset($asset);
 			return $children;

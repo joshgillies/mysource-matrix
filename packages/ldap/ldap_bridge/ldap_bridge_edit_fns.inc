@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.1 2004/02/06 03:12:38 gsherwood Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.2 2004/02/06 05:54:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 
 /**
 * LDAP_Bridge_Edit_Fns
