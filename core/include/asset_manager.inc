@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.206 2004/05/07 02:16:28 lwright Exp $
+* $Id: asset_manager.inc,v 1.207 2004/05/07 07:09:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -226,15 +226,20 @@ class Asset_Manager extends MySource_Object
 			// we do not have cached, but keep the type_code array intact for
 			// looping through later
 			$tmp = $type_code;
+			
+			// need to fix number of type codes here otherwise it'll affect the count() in the loop
+			$num_type_codes = count($type_code);
 
 			// if there are multiple type_codes we need to select the type_code as well
 			// as the field from the database so we know what field belongs to what typecode
 			$columns = 'type_code, '.$field;
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			for($i = 0; $i < count($type_code); $i++) {
+			for($i = 0; $i < $num_type_codes; $i++) {
 				if (!is_string($type_code[$i])) {
 					trigger_error('Type code "'.$type_code[$i].'" is not a string', E_USER_WARNING);
+					unset($type_code[$i]);
+					unset($tmp[$i]);
 					continue;
 				} elseif (!isset($this->_asset_types[$type_code[$i]])) {
 					trigger_error('Asset "'.$type_code[$i].'" is not installed on the system', E_USER_WARNING);
