@@ -18,12 +18,10 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.2 2004/05/19 05:59:08 lwright Exp $
+* $Id: option_list.inc,v 1.3 2004/05/19 06:22:47 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
-require_once SQ_ATTRIBUTES_PATH.'/serialise/serialise.inc';
 
 /**
 * Option List Asset Attribute
@@ -50,9 +48,9 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Email_Format($attributeid=0, $value=null)
+	function Asset_Attribute_Option_List($attributeid=0, $value=null)
 	{
-		$this->Asset_Attribute_Serialise($attributeid, $value);
+		$this->Asset_Attribute($attributeid, $value);
 
 	}//end constructor
 
@@ -76,9 +74,9 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 		} else {	
 			$current_to_string = '';
 			$current_to = '';
-			foreach ($current_value as $email) {
-				$current_to_string .= '[ <a href="#" onclick="Javascript: optionListRemoveOption(\''.$email.'\', \'options\'); return false;">del</a> ] '.$email.'<br>';
-				$current_to .= $email."\r\n";
+			foreach ($current_value as $option) {
+				$current_to_string .= '[ <a href="#" onclick="Javascript: optionListRemoveOption(\''.$option.'\', \'options\'); return false;">del</a> ] '.$option.'<br>';
+				$current_to .= $option."\r\n";
 			}
 
 		?>
@@ -99,17 +97,17 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 			}//end optionListAddOption()
 
 
-			function optionListRemoveOption(address, type) {
+			function optionListRemoveOption(opt_delete, type) {
 				var value = document.getElementById("<?php echo $prefix; ?>_" + type);
 				var div = document.getElementById("<?php echo $prefix; ?>_current_" + type);
 				
-				var current_emails = div.innerHTML;
+				var current_options = div.innerHTML;
 
 				lastIndex = i = 0;
 				arrIndex = 0;
-				email_array = new Array();
-				while(-1 != (i = current_emails.toLowerCase().indexOf("<br>", lastIndex))) {
-					email_array[arrIndex] = current_emails.substring(lastIndex, i);
+				option_array = new Array();
+				while(-1 != (i = current_options.toLowerCase().indexOf("<br>", lastIndex))) {
+					option_array[arrIndex] = current_options.substring(lastIndex, i);
 					arrIndex++;
 					lastIndex = i+4;
 				}
@@ -117,14 +115,14 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				var new_div_content = '';
 				var new_value_content = '';
 
-				for (var i = 0; i < email_array.length; i++) {
-					var email = email_array[i];
+				for (var i = 0; i < option_array.length; i++) {
+					var option = option_array[i];
 					re = new RegExp("\\\[.*\\\] (.*)", "gi");
-					email_addr = email.replace(re, "\$1");
+					this_option = option.replace(re, "\$1");
 
-					if (email_addr != address && email_addr != "") {
-						new_div_content += email + "<br>";
-						new_value_content += email_addr + "\r\n";
+					if (this_option != opt_delete && this_option != "") {
+						new_div_content += option + "<br>";
+						new_value_content += this_option + "\r\n";
 					}
 				}
 				
@@ -164,10 +162,10 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 		if (isset($_POST[$prefix.'_options'])) {
 			$to = explode("\r\n", trim($_POST[$prefix.'_options']));
 			// make sure the emails are valid
-			foreach ($to as $email) {
-				$email = trim($email);
-				if (empty($email)) continue;
-				$value[] = $email;
+			foreach ($to as $option) {
+				$option = trim($option);
+				if (empty($option)) continue;
+				$value[] = $option;
 			}
 		}
 		
