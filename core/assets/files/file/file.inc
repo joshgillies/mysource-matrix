@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.57 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: file.inc,v 1.57.2.1 2004/03/02 16:00:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,6 +51,42 @@ class File extends Asset
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Processes the file upload from the source file so that file versioning cloned properly
+	*
+	* @param object asset &$clone the clone asset shell
+	* @param array			$components	the wanted components to clone eg.
+	*                       Array(
+	*                           'attributes',
+	*                           'metadata_shemas',
+	*                           'metadata',
+	*                           'workflow',
+	*                           'permissions',
+	*                           'data'
+	*                       );
+	*                       or alternately
+	*                       Array('all');
+	* 
+	* @return boolean
+	* @access public
+	* @see asset::cloneComponents()
+	*/
+	function cloneComponents(&$clone, $components)
+	{
+		// create some information so we know where to clone the file from
+		$temp_info = Array('name' => $this->name, 'tmp_name' => $this->data_path.'/'.$this->name, 'non_uploaded_file' => true);
+
+		$edit_fns = $clone->getEditFns();
+		if (!$edit_fns->processFileUpload($clone, $GLOBALS['SQ_SYSTEM']->backend->out, $clone->getPrefix(), $temp_info)) {
+			trigger_error('Could not clone file '.$this->name.' (#'.$this->id.')');
+			return false;
+		}
+
+		return parent::cloneComponents($clone, $components);
+	
+	}//end cloneComponents()
 
 
 	/**

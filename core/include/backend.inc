@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.82.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: backend.inc,v 1.82.2.2 2004/03/02 16:00:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -103,18 +103,13 @@ class Backend extends MySource_Object
 			$printing_assetid = (SQ_IN_LIMBO) ? $_REQUEST['limbo_assetid'] : $_REQUEST['assetid'];
 			$printing_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($printing_assetid);
 			if (is_null($printing_asset)) {
-				// could find an asset that we are printing, so just make sure the current user
-				// is a backend user and let permissions work themselves out
-				if (!is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) {
-					$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You need to be a backend user in order to access the backend');
-					return;
-				}
-			} else {
-				// lets ask the asset itself if we are allowed access to its backend (no dirty thoughts)
-				if (!$printing_asset->backendAccess()) {
-					$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the backend for <i>'.$printing_asset->name.'</i>');
-					return;
-				}
+				trigger_error('No Asset found for Id #'.$printing_assetid, E_USER_WARNING);
+				return;
+			} 
+			// lets ask the asset itself if we are allowed access to its backend (no dirty thoughts)
+			if (!$printing_asset->backendAccess()) {
+				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the backend for <i>'.$printing_asset->name.'</i>');
+				return;
 			}
 		} else {
 			// we are not looking at any asset in particular - probably just trying to get into the
@@ -127,6 +122,10 @@ class Backend extends MySource_Object
 
 		if (isset($_REQUEST['a'])) {
 			$frontend_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
+			if (is_null($printing_asset)) {
+				trigger_error('No Asset found for Id #'.$printing_assetid, E_USER_WARNING);
+				return;
+			}
 			$frontend_asset->printFrontend();
 			exit();
 		}

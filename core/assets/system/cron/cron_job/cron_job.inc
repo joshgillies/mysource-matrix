@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.17 2003/11/26 00:50:59 gsherwood Exp $
+* $Id: cron_job.inc,v 1.17.2.1 2004/03/02 16:00:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -96,21 +96,16 @@ class Cron_Job extends Asset
 
 
 	/**
-	* Creates a duplicate of this asset. It DOES NOT duplicate the links that this asset has either to it or from it
-	* Returns a reference to the new object or if an error occured FALSE
+	* returns FALSE always because we don't want to be able to clone a cron job
 	*
-	* @param bool	$dupe_directory	whether or not to duplicate thia assets data directory
-	*
-	* @return mixed object Asset or NULL
+	* @return boolean
 	* @access public
-	* @see Asset::duplicate()
 	*/
-	function &duplicate($dupe_directory=true)
+	function canClone()
 	{
-		trigger_error('Unable to duplicate '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
-		$null = NULL; // 'cause we need to return by reference :)
-		return $null;
-	}//end duplicate()
+		return false;
+	
+	}//end canClone()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.164.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: asset_manager.inc,v 1.164.2.2 2004/03/02 16:00:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -870,6 +870,270 @@ class Asset_Manager extends MySource_Object
 	}//end getTypeAssetids()
 
 
+//--        CLONING        --//
+
+
+	/**
+	* Create the shell of a clone without cloning any of the source's components
+	*
+	* The only child assets that are cloned are the ones that are <i>DEPENDANTLY</i> linked to this asset.
+	* <i>NO OTHER</i> linked assets are cloned.
+	*
+	* @param object Asset	&$source			the source asset that we are creating a clone of	
+	* @param Array			&$link				information used to create the initial link,
+	* <PRE>
+	* Array ('asset'      => [ref major asset to create link under],
+	*        'link_type'  => SQ_LINK_?,
+	*        'value'      => [link value],
+	*        'sort_order' => [link sort order],
+	*        'dependant'  => [0|1],
+	*        'exclusive'  => [0|1]
+	*        )
+	* </PRE>
+	* @param Array			&$clone_map			a map for that can be used for re-indexing data held in
+	*												assets of the form Array([old asset id] => [new asset id])
+	*
+	* @return mixed reference to the new object or NULL if an error occured
+	* @access private
+	*/
+	function &_cloneAsset(&$source, &$link, &$clone_map)
+	{
+		if (!empty($link)) {
+			// make sure the initial link information is passed in
+			if (!isset($link['asset']))     trigger_error('Cant create asset without an asset to link to', E_USER_ERROR);
+			if (!isset($link['link_type'])) trigger_error('Cant create asset without a link type', E_USER_ERROR);
+		}
+
+		$null = null; // needed because we return by reference
+		if (!$source->id) return $null;
+
+		$lock = $this->getLockInfo($source->id, 'all');
+		if (empty($lock)) {
+			trigger_error('You need to acquire an "all" lock on this asset before it can be cloned', E_USER_WARNING);
+			return $null;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
+		$assetid = $db->nextId('sq_sequence_asset');
+		if (DB::isError($assetid)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
+		}
+
+		$now    = time();
+		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		// version number starts at 0.0.0 again because the clone is a brand new asset
+		$initial_version = '0.0.0';
+
+		$values = Array('assetid'        => $assetid,
+						'version'        => $initial_version,
+						'type_code'      => $source->type(),
+						'name'           => $source->name.' - clone',
+						'short_name'     => $source->short_name.' - clone',
+						'status'         => SQ_STATUS_UNDER_CONSTRUCTION,
+						'created'        => ts_iso8601($now),
+						'created_userid' => $userid,
+						'updated'        => ts_iso8601($now),
+						'updated_userid' => $userid
+						);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $null;
+		}
+
+		$clone = &$this->getAsset($assetid, $source->type());
+		if (is_null($clone)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $null;
+		}
+
+		// Lock the new clone in the same chain as we are locked
+		if (!$this->acquireLock($clone->id, 'all', $source->id)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $null;
+		}
+
+		if (!empty($link)) {
+			// create the initial link
+			if (!isset($link['value']))      $link['value']      = '';
+			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
+			if (!isset($link['dependant']))  $link['dependant']  = 0;
+			if (!isset($link['exclusive']))  $link['exclusive']  = 0;
+
+			// OK what we are going to do is make sure that the new parents lock is
+			// in the same chain as our current lock
+			$parent_lock = $this->getLockInfo($link['asset']->id, 'links');
+			if (empty($parent_lock) || $parent_lock['source_assetid'] != $lock['links']['source_assetid']) {
+
+				if (!empty($parent_lock)) {
+					if (!$this->releaseLock($link['asset']->id, 'links')) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return $null;
+					}
+				}
+			
+				if (!$this->acquireLock($link['asset']->id, 'links', $lock['links']['source_assetid'])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return $null;
+				}
+			}
+
+			$linkid = $link['asset']->createLink($clone, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
+			if (empty($linkid)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return $null;
+			}
+
+		}// end if !empty(link)
+
+		// we do not want to clone any assets that are type_3 or type_notice linked to the asset we are
+		// cloning. Instead, we will just link them up to the cloner's orginial link counter parts
+		$orig_links = $this->getLinks($source->id, SQ_LINK_TYPE_3 | SQ_LINK_NOTICE, '', true, 'major', null, false, null);
+		foreach ($orig_links as $orig_link) {
+			$asset = &$this->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
+			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['dependant'], $link['exclusive']);
+			
+			if (!$linkid) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+		}//end foreach
+
+		// if we got this far all is well,
+		// so add to the map and return the clone
+		$clone_map[$source->id] = $clone->id;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return $clone;
+
+	}//end &_cloneAsset()
+
+
+	/**
+	* Creats a clone of an asset and clones the required components of the source asset
+	*
+	* if $clone_dependants is set the true, the dependants of the source asset will be cloned, 
+	* and the specified components will be cloned to them as well.
+	*
+	* @param object Asset	&$source			the source asset that we are creating a clone of	
+	* @param Array			&$link				information used to create the initial link,
+	* <PRE>
+	* Array ('asset'      => [ref major asset to create link under],
+	*        'link_type'  => SQ_LINK_?,
+	*        'value'      => [link value],
+	*        'sort_order' => [link sort order],
+	*        'dependant'  => [0|1],
+	*        'exclusive'  => [0|1]
+	*        )
+	* </PRE>
+	* @param Array			&$clone_map			a map for that can be used for re-indexing data held in
+	*												assets of the form Array([old asset id] => [new asset id])
+	* @param array			$components	the wanted components to clone, 
+	* <PRE>
+	* Array(
+	*     'attributes',
+	*     'metadata_schemas',
+	*     'metadata',
+	*     'workflow',
+	*     'permissions',
+	*     'data'              // data directory
+	* );
+	* </PRE>
+	* or alternately
+	* <PRE>
+	* Array('all');
+	* </PRE>
+	* @param boolean		$clone_dependants	if TRUE the dependants of the source asset will be cloned 
+	*												and will have their sources components cloned
+	*
+	* @return &object Asset the clone of the source
+	* @access public
+	*/
+	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=true) {
+		
+		// make sure this type of asset can be cloned
+		if (!$source->canClone()) {
+			trigger_error($source->type().' asset types cannot be cloned', E_USER_WARNING);
+			return $null;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!$clone = &$this->_cloneAsset($source, $link, $clone_map)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $null;
+		}
+
+		if (!$source->cloneComponents($clone, $components)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $null;
+		}
+
+		// OK now that we are linked up let's our dependants
+		if ($clone_dependants) {
+			$dependant_links = $this->getLinks($source->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+
+			if (!empty($dependant_links)) {
+				$create_link = Array('asset'      => &$clone,
+									 'link_type'  => null,
+									 'value'      => null,
+									 'sort_order' => -1,
+									 'dependant'  => '1',
+									 'exclusive'  => '0');
+
+				foreach ($dependant_links as $data) {
+					// If this asset has already been cloned in this duplication run
+					// then just link it to the new clone of ourselves
+					if (isset($clone_map[$data['minorid']])) {
+
+						$cloned_child = &$this->getAsset($clone_map[$data['minorid']], $data['minor_type_code']);
+						if (is_null($cloned_child)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return $null;
+						}// end if
+
+						$linkid = $clone->createLink($cloned_child, $data['link_type'], $data['value'], $data['sort_order'], '1', $data['exclusive']);
+						if (!$linkid) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return $null;
+						}// end if
+
+					// otherwise clone and link
+					} else {
+						$child = &$this->getAsset($data['minorid'], $data['minor_type_code']);
+						if (is_null($child)) continue;
+						$create_link['link_type']	= $data['link_type'];
+						$create_link['value']		= $data['value'];
+						$create_link['sort_order']	= $data['sort_order'];
+						$create_link['exclusive']	= $data['exclusive'];
+						
+						$cloned_child = &$this->cloneAsset($child, $create_link, $clone_map, $components, $clone_dependants);
+
+						if (is_null($cloned_child)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return $null;
+						}
+					/*	if (!$child->cloneComponents($cloned_child, $components)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return $null;
+						}
+					*/
+					}// end if
+				}// end foreach
+			}// end if empty
+		}// end if clone dependants
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return $clone;
+	
+	}//end cloneAsset()
+
+
 //--        LOCKING        --//
 
 
@@ -1422,6 +1686,82 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
+	* Returns all child links that the passed asset has
+	*
+	* @param string		$assetid	the assetid of the asset to find the child links
+	* @param integer	$link_type	the type of links to get
+	*
+	* @access public
+	* @return Array()
+	*/
+	function getAllChildLinks($assetid, $link_type=0)
+	{
+		if (!isset($this->_tmp['child_links'][$assetid])) {
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$where = 'l.minorid = '.$db->quote($assetid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$sql = 'SELECT t.treeid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					'.$where.' LIMIT 1';
+
+			$treeid = $db->getOne($sql);
+			if (DB::isError($treeid)) {
+				trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
+			}
+
+			$current_level = strlen($treeid) / SQ_CONF_ASSET_TREE_SIZE;
+
+			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
+					  AND t.treeid > '.$db->quote($treeid);
+
+			// only do a link comparison if they have specified a link type
+			if ($link_type != 0) $where .=  ' AND (l.link_type & '.$db->quote($link_type).') > 0';
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$sql = 'SELECT SUBSTRING(t.treeid FROM '.$db->quote(strlen($treeid) + 1).') as treeid,
+							(CHARACTER_LENGTH(t.treeid) / '.SQ_CONF_ASSET_TREE_SIZE.') '.(($current_level) ? ' - '.$current_level : '').' as level,
+							l.linkid, a.assetid, a.short_name, a.type_code, l.link_type, l.sort_order, l.value, l.dependant
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
+						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid
+					'.$where.'
+					ORDER BY t.treeid';
+
+			$child_links = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+			if (DB::isError($child_links)) {
+				trigger_error($child_links->getMessage().'<br/>'.$child_links->getUserInfo(), E_USER_ERROR);
+			}
+
+			// OK, what we are going to do is set up the effective dependant treeid for each tree link
+			for (reset($child_links); null !== ($treeid = key($child_links)); next($child_links)) {
+				if ($child_links[$treeid]['dependant']) {
+					$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
+					if ($parent_treeid == '') {
+						$child_links[$treeid]['dependant_treeid'] = '';
+					} else {
+						if (!isset($child_links[$parent_treeid])) continue;
+						$child_links[$treeid]['dependant_treeid'] = $child_links[$parent_treeid]['dependant_treeid'];
+					}
+				} else {
+					$child_links[$treeid]['dependant_treeid'] = $treeid;
+				}
+			}// end for
+
+			$this->_tmp['child_links'][$assetid] = $child_links;
+
+		}// end if
+
+		return $this->_tmp['child_links'][$assetid];
+
+	}//end getAllChildLinks()
+
+
+	/**
 	* For a given asset, get the lineages from the Root folder down to it
 	*
 	* Also returns basic information about the last link (linkid and link type)
@@ -1630,16 +1970,13 @@ class Asset_Manager extends MySource_Object
 			$this->forgetAsset($asset);
 			return $children;
 		}
+
+		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by);
 		$this->forgetAsset($asset);
 		unset($asset);
-
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$query = $this->generateGetChildrenQuery($assetid, $type_code, $strict_type_code, $sort_by);
 		if (empty($query)) return Array();
 
-		$result = $db->getAssoc(implode(' ', $query));
+		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			return Array();
@@ -2189,7 +2526,7 @@ class Asset_Manager extends MySource_Object
 
 			// if we aren't linked anywhere we can't be linked to, sorry
 			// NOTE: exception to rule is root folder
-			if ((string) $existing_treeid == '' && $major->id != 1) {
+			if ((string) $existing_treeid == '' && get_class($major) != 'root_folder') {
 				trigger_error('Unable to create link, Asset "'.$major->name.'" (Asset #'.$major->id.') is not linked to anything itself', E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
@@ -2284,29 +2621,24 @@ class Asset_Manager extends MySource_Object
 				// remove the current zeroed entries in the tree table,
 				// as we will be inserting over the top of them
 
-				// because the root folder is not a minor party in any links we have
-				// to something special for it
-				$where_cond = '';
-				if ($major->id == 1) {
-					$where_cond = 'treeid = '.$db->quote($free_childid);
-				} else {
-					$where_cond = 'treeid IN (~SQ0~)';
+				$where_cond = 'treeid IN (~SQ0~)';
 
-					$concat = ($db->phptype == 'mysql')
-								? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
-								: 't.treeid || '.$db->quote($free_childid);
-					$sub_where = 'l.minorid = '.$db->quote($major->id);
-					$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
-					$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
-					$subs = Array(' SELECT '.$concat.'
-									FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid '.$sub_where);
-					$where_cond = db_extras_subquery($db, $where_cond, $subs);
-					if (DB::isError($where_cond)) {
-						trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return 0;
-					}
+				$concat = ($db->phptype == 'mysql')
+							? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
+							: 't.treeid || '.$db->quote($free_childid);
+				$sub_where = 'l.minorid = '.$db->quote($major->id);
+				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
+				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 
+				$subs = Array(' SELECT '.$concat.'
+								FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t 
+									INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid 
+								'.$sub_where);
+				$where_cond = db_extras_subquery($db, $where_cond, $subs);
+				if (DB::isError($where_cond)) {
+					trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return 0;
 				}
 
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link_tree', $where_cond)) {
@@ -4016,14 +4348,14 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Generate the parts of the query needed to get children of the passwed assetid
+	* Generate the parts of the query needed to get children of the passed asset
 	*
 	* The return value is array consisting of a select statement, a from statement, a where clause
 	* (which may be blank is we are getting children of the root node) and an order by clause
 	* (which may be blank if we are not sorting). The return array is structed so you can implode
 	* it using ' ' as glue to form the full query.
 	*
-	* @param int			$assetid			the id of the asset to get its children for
+	* @param object Asset	&$asset				the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
@@ -4037,12 +4369,12 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	* @see getChildren()
 	*/
-	function generateGetChildrenQuery($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// if we are the root folder then we just need to select from the asset table
-		if ($assetid == 1) {
+		if (get_class($asset) == 'root_folder') {
 			$select = 'SELECT a.assetid, a.type_code';
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a';
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
@@ -4050,7 +4382,7 @@ class Asset_Manager extends MySource_Object
 
 		// OK, normal asset, let's find a reference to them in the tree and go from there
 		} else {
-			$where = 'l.minorid = '.$db->quote($assetid);
+			$where = 'l.minorid = '.$db->quote($asset->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$sql = 'SELECT t.treeid

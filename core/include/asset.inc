@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.270.2.1 2004/02/18 11:39:06 brobertson Exp $
+* $Id: asset.inc,v 1.270.2.2 2004/03/02 16:00:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -347,46 +347,13 @@ class Asset extends MySource_Object
 			// cascade permissions, and schemas on this asset that the parent has if the parent is not the root folder
 			$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
 
-			// setting permissions
-			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($link['asset']->id, $perm, null, false, false, true);
-				foreach ($set_perms as $userid => $access) {
-					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $userid, $perm, $access)) {
-						$ms->abortLog();
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-						$this->id = 0;
-						return false;
-					}
-				}
+			if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow'))) {
+				$ms->abortLog();
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+				$this->id = 0;
+				return false;
 			}
-
-			// setting metadata schemas
-			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-			$schemas = $mm->getSchemas($link['asset']->id);
-			foreach ($schemas as $schemaid => $access) {
-				if (!$mm->setSchema($this->id, $schemaid, $access)) {
-					$ms->abortLog();
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-					$this->id = 0;
-					return false;
-				}
-			}
-
-			// setting workflow schemas
-			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-			$schemas = $wfm->getSchemas($link['asset']->id);
-			foreach ($schemas as $schemaid => $access) {
-				if (!$wfm->setSchema($this->id, $schemaid, $access)) {
-					$ms->abortLog();
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-					$this->id = 0;
-					return false;
-				}
-			}
-
 			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 
 			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
@@ -591,198 +558,6 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Create a duplicate of this asset
-	*
-	* The only child assets that are duplicated are the ones that are <i>DEPENDANTLY</i> linked to this asset.
-	* <i>NO OTHER</i> linked assets are duplicated.
-	*
-	* @param Array	&$link				information used to create the initial link,
-	* <PRE>
-	* Array ('asset'      => [ref major asset to create link under],
-	*        'link_type'  => SQ_LINK_?,
-	*        'value'      => [link value],
-	*        'sort_order' => [link sort order],
-	*        'dependant'  => [0|1],
-	*        'exclusive'  => [0|1]
-	*        )
-	* </PRE>
-	* @param Array	&$dupe_map			a map for that can be used for re-indexing data held in
-	*									assets of the form Array([old asset id] => [new asset id])
-	* @param bool	$dupe_dependants	whether or not to duplicate any assets that are dependantly
-	*									linked to this asset, only works if $link is not empty
-	* @param bool	$dupe_directory		whether or not to duplicate this assets data directory
-	*
-	* @return mixed reference to the new object or NULL if an error occured
-	* @access public
-	*/
-	function &duplicate(&$link, &$dupe_map, $dupe_dependants=true, $dupe_directory=true)
-	{
-		if (!empty($link)) {
-			// make sure the initial link information is passed in
-			if (!isset($link['asset']))     trigger_error('Cant create asset without an asset to link to', E_USER_ERROR);
-			if (!isset($link['link_type'])) trigger_error('Cant create asset without a link type', E_USER_ERROR);
-		}
-
-		$null = null; // needed because we return by reference
-		if (!$this->id) return $null;
-
-		$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, 'all');
-		if (empty($lock)) {
-			trigger_error('You need to acquire an "all" lock on this asset before it can be duplicated', E_USER_WARNING);
-			return $null;
-		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
-		$assetid = $db->nextId('sq_sequence_asset');
-		if (DB::isError($assetid)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
-		}
-
-		$now    = time();
-		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		// version number starts at 0.0.0 again because the dupe is a brand new asset
-		$initial_version = '0.0.0';
-
-		$values = Array('assetid'        => $assetid,
-						'version'        => $initial_version,
-						'type_code'      => $this->type(),
-						'name'           => $this->name.' - Duplicate',
-						'short_name'     => $this->short_name.' - Duplicate',
-						'status'         => SQ_STATUS_UNDER_CONSTRUCTION,
-						'created'        => ts_iso8601($now),
-						'created_userid' => $userid,
-						'updated'        => ts_iso8601($now),
-						'updated_userid' => $userid
-						);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return $null;
-		}
-
-		$dupe = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->type());
-		if (is_null($dupe)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return $null;
-		}
-
-		// Lock the new dupe in the same chain as we are locked
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dupe->id, 'all', $this->id)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return $null;
-		}
-
-		// Now we set all the attributes
-		foreach($this->vars as $name => $data) {
-			if (!$dupe->setAttrValue($name, $data['value'])) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return $null;
-			}
-		}
-		$dupe->saveAttributes();
-
-		if (!empty($link)) {
-			// create the initial link
-			if (!isset($link['value']))      $link['value']      = '';
-			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
-			if (!isset($link['dependant']))  $link['dependant']  = 0;
-			if (!isset($link['exclusive']))  $link['exclusive']  = 0;
-
-			// OK what we are going to do is make sure that the new parents lock is
-			// in the same chain as our current lock
-			$parent_lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
-			if (empty($parent_lock) || $parent_lock['source_assetid'] != $lock['source_assetid']) {
-
-				if (!empty($parent_lock)) {
-					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id, 'links')) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return $null;
-					}
-				}
-
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, 'links', $lock['source_assetid'])) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return $null;
-				}
-			}
-
-			$linkid = $link['asset']->createLink($dupe, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
-			if(empty($linkid)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return $null;
-			}
-
-			// OK now that we are linked up let's our dependants
-			if ($dupe_dependants) {
-				$dependant_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
-
-				if (!empty($dependant_links)) {
-					$create_link = Array('asset'      => &$dupe,
-										 'link_type'  => null,
-										 'value'      => null,
-										 'sort_order' => -1,
-										 'dependant'  => '1',
-										 'exclusive'  => '0');
-					$am = &$GLOBALS['SQ_SYSTEM']->am;
-					foreach($dependant_links as $data) {
-						// If this asset has already been duplicated in this duplication run
-						// then just link it to the new duplicate of ourselves
-						if (isset($dupe_map[$data['minorid']])) {
-
-							$duped_child = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dupe_map[$data['minorid']], $data['minor_type_code']);
-							if (is_null($duped_child)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return $null;
-							}// end if
-
-							$linkid = $dupe->createLink($duped_child, $data['link_type'], $data['value'], $data['sort_order'], '1', $data['exclusive']);
-							if (!$linkid) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return $null;
-							}// end if
-
-						// otherwise duplicate and link
-						} else {
-							$child = &$am->getAsset($data['minorid'], $data['minor_type_code']);
-							if (is_null($child)) continue;
-							$create_link['link_type']	= $data['link_type'];
-							$create_link['value']		= $data['value'];
-							$create_link['sort_order']	= $data['sort_order'];
-							$create_link['exclusive']	= $data['exclusive'];
-							$duped_child = &$child->duplicate($create_link, $dupe_map, true, $dupe_directory);
-							if (is_null($duped_child)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return $null;
-							}
-						}// end if
-					}// end fpr
-				}// end if empty
-			}// end if dupe dependants
-
-		}// end if !empty(link)
-
-		// OK if we got this far let's copy the directory (if it exists)
-		if ($dupe_directory && is_dir($this->data_path)) {
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			if (!copy_directory($this->data_path, $dupe->data_path)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return $null;
-			}
-		}
-
-		// if we got this far all is well,
-		// so add to the map and return the duplicate
-		$dupe_map[$this->id] = $dupe->id;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $dupe;
-
-	}//end duplicate()
-
-
-	/**
 	* Determine whether this asset can have its last significant link removed
 	*
 	* This function is most commonly called when moving the asset to the trash.
@@ -891,6 +666,140 @@ class Asset extends MySource_Object
 		return true;
 
 	}//end delete()
+
+
+	/**
+	* Returns TRUE if this type of asset can be cloned
+	*
+	* override this function if you do not want a particular type of asset to be cloned
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canClone()
+	{
+		return true;
+	
+	}//end canClone()
+
+
+	/**
+	* Takes a clone shell and clones the sources required components to the clone shell
+	*
+	* @param &object Asset	$clone		the clone shell
+	* @param array			$components	the wanted components to clone eg.
+	*                       Array(
+	*                           'attributes',
+	*                           'metadata_shemas',
+	*                           'metadata',
+	*                           'workflow',
+	*                           'permissions',
+	*                           'data'
+	*                       );
+	*                       or alternately
+	*                       Array('all');
+	*
+	* @return boolean
+	* @access public
+	*/
+	function cloneComponents(&$clone, $components)
+	{
+		if (!is_array($components) || empty($components)) return false;
+		if (is_null($clone)) return false;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		  //////////////////
+		 /// ATTRIBUTES ///
+		//////////////////
+
+		if (in_array('attributes', $components) || in_array('all', $components)) {
+			// Now we set all the attributes
+			foreach ($this->vars as $name => $data) {
+				if (!$clone->setAttrValue($name, $data['value'])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+			$clone->saveAttributes();
+		}//end if attributes
+
+		  ///////////////////
+		 /// PERMISSIONS ///
+		///////////////////
+
+		if (in_array('permissions', $components) || in_array('all', $components)) {
+			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
+				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, null, false, false, true);
+				foreach ($set_perms as $userid => $access) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($clone->id, $userid, $perm, $access)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+				}
+			}//end foreach
+		}//end if permissions
+
+		  ////////////////
+		 /// METADATA ///
+		////////////////
+
+		if (in_array('metadata_schemas', $components) || in_array('all', $components)) {
+			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			// apply the schemas and metadata from the cloner to the clonee
+			$schemas = $mm->getSchemas($this->id);
+			foreach ($schemas as $schemaid => $access) {
+				if (!$mm->setSchema($clone->id, $schemaid, $access)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+				if (in_array('metadata', $components) || in_array('all', $components)) {
+					$metadata = $mm->getSchemaMetadata($this->id, $schemaid);
+					if (!empty($metadata)) {
+						if (!$mm->setSchemaMetadata($clone->id, $schemaid, $metadata)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return false;
+						}
+					}
+				}
+			}//end foreach
+		}//end if metadata
+
+		  ////////////////
+		 /// WORKFLOW ///
+		////////////////
+
+		if (in_array('workflow', $components) || in_array('all', $components)) {
+			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$schemas = $wfm->getSchemas($this->id);
+			foreach ($schemas as $schemaid => $access) {
+				if (!$wfm->setSchema($clone->id, $schemaid, $access)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}//end foreach
+		}//end if workflow
+
+		  ////////////////
+		 /// DATA DIR ///
+		////////////////
+
+		if (in_array('data', $components) || in_array('all', $components)) {
+			// OK if we got this far let's copy the directory (if it exists)
+			if (is_dir($this->data_path)) {
+				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+				if (!copy_directory($this->data_path, $clone->data_path)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+		}//end if data
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end cloneComponents()
 
 
 	/**
@@ -1804,21 +1713,22 @@ class Asset extends MySource_Object
 
 		foreach($current_locks as $lock) {
 			if (empty($lock)) continue;
-
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-
+			$user = null;
+			if ($lock['userid']) {
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+			}
 			// lets work out if the current user has a high
 			// enough level of access to forceably acquire the lock
-			if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) return false;
+			if (!is_null($user)) {
+				// locked by root, no-one can force acquire...
+				if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) return false;
 
-			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
-				// lock is held by a system admin, so need
-				// to be root to acquire this lock
-				if (!$GLOBALS['SQ_SYSTEM']->userRoot()) return false;
-			} else {
-				// need to be a system admin to acquire this lock
-				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
+				// locked by a sysadmin ? only root can force acquire...
+				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user) && !$GLOBALS['SQ_SYSTEM']->userRoot()) return false;
 			}
+
+			// locked by someone else ? need to be a system admin to acquire this lock
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
 
 		}//end foreach
 		return true;
@@ -2652,13 +2562,13 @@ class Asset extends MySource_Object
 			return $this->_checkPermissionAccess($perm, $assetids);
 
 		} else {
-
 			// effective access is only valid for the current user
 			if (!empty($assetids)) return false;
 
 			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, true);
 			// if there is no lock or
 			if (empty($locks)) return false;
+
 			foreach($locks as $lock) {
 				// if any one of these locks is not owned by the current user they can't edit
 				if (empty($lock) || $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) return false;

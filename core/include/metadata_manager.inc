@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.22.2.3 2004/02/26 18:22:39 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.22.2.4 2004/03/02 16:00:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -313,7 +313,6 @@ class Metadata_Manager extends MySource_Object
 		$sectionids = $am->getChildren($schemaid, 'metadata_section', false);
 
 		foreach ($sectionids as $sectionid => $section_type) {
-			$section = $am->getAsset($sectionid, $section_type);
 			$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
 			$fields_array = array_merge($fields_array, array_keys($fieldids));
 		}
@@ -466,41 +465,64 @@ class Metadata_Manager extends MySource_Object
 		$schemaids = $this->getSchemas($asset->id, true);
 		if (empty($schemaids)) return false;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
+		
 		foreach ($schemaids as $schemaid) {
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
-			if (is_null($schema)) {
-				trigger_error('Failed setting metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			if (!is_a($schema, 'metadata_schema')) {
-				trigger_error('Failed setting metadata, "'.$schema->name.'" (Asset #'.$schemaid.') is not a metadata schema', E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
 			if (!isset($metadata[$schema->name])) continue;
-
-			$values = Array('metadata' => $db->quote(serialize($metadata[$schema->name])));
-			$where = 'assetid = '.$db->quote($asset->id).'
-					    AND schemaid = '.$db->quote($schema->id);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_metadata', $values, $where)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			if (false === ($this->setSchemaMetadata($assetid, $schemaid, $metadata[$schema->name]))) return false;
 		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$this->indexMetadata($assetid, $schemaids);
 
 		return true;
 
 	}//end setMetadata()
+
+
+	/**
+	* sets metadata for an asset that is specific to a schema
+	*
+	* @param integer	$assetid	the assetid to apply the schema for
+	* @param integer	$schemaid	the id of the schema to apply the metadata to
+	* @param array		$metadata	the metadata values to set
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setSchemaMetadata($assetid, $schemaid, $metadata)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+
+		if (is_null($schema)) {
+			trigger_error('Failed setting metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		if (!is_a($schema, 'metadata_schema')) {
+			trigger_error('Failed setting metadata, "'.$schema->name.'" (Asset #'.$schemaid.') is not a metadata schema', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$values = Array('metadata' => $db->quote(serialize($metadata)));
+		$where = 'assetid = '.$db->quote($asset->id).'
+					AND schemaid = '.$db->quote($schema->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_metadata', $values, $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end setSchemaMetadata()
+
 
 
 //--        (RE)GENERATE METADATA        --//
@@ -565,63 +587,62 @@ class Metadata_Manager extends MySource_Object
 		$metadata = ob_get_contents();
 		ob_end_clean();
 
-		if (!empty($keywords)) {
-			require_once SQ_FUDGE_PATH.'/general/text.inc';
-			ob_start();
-				echo '<'.'?php'."\n";
+		ob_start();
+			echo '<'.'?php'."\n";
 
+			if (!empty($keywords)) {
+				require_once SQ_FUDGE_PATH.'/general/text.inc';
 				echo '$metadata_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.');'."\n\n";
 				$replacements = $this->generateKeywordReplacements($asset, $keywords);
-				echo "\n\n";
-
 				$tag_values = replace_keywords($tag_values, $replacements);
+				echo "\n\n";
+			}
 
-				$nested_tag_values = Array();
-				$tag_nested_index = Array();
-				foreach ($tag_values as $n => $v) {
-					$matches = Array();
-					$nested_index = 0;
-					preg_match_all('|\$metadata_values\[\'([^\]]+)\'\]|', $v, $matches);
-					if (!empty($matches[1])) {
-						foreach ($matches[1] as $field_name) {
-							// we have a nested field name
-							for ($i = 0; $i < count($nested_tag_values); $i++) {
-								if (isset($nested_tag_values[$i][$field_name])) {
-									$v = preg_replace('|(\$metadata_values)(\[\')('.$field_name.')(\'\])|', '$metadata_values_'.$i.'[\'\\3\']', $v);
-									if ($i >= $nested_index) $nested_index = $i + 1;
-									break;
-								}
+			$nested_tag_values = Array();
+			$tag_nested_index = Array();
+			foreach ($tag_values as $n => $v) {
+				$matches = Array();
+				$nested_index = 0;
+				preg_match_all('|\$metadata_values\[\'([^\]]+)\'\]|', $v, $matches);
+				if (!empty($matches[1])) {
+					foreach ($matches[1] as $field_name) {
+						// we have a nested field name
+						for ($i = 0; $i < count($nested_tag_values); $i++) {
+							if (isset($nested_tag_values[$i][$field_name])) {
+								$v = preg_replace('|(\$metadata_values)(\[\')('.$field_name.')(\'\])|', '$metadata_values_'.$i.'[\'\\3\']', $v);
+								if ($i >= $nested_index) $nested_index = $i + 1;
+								break;
 							}
 						}
 					}
-
-					$nested_tag_values[$nested_index][$n] = $v;
-					$tag_nested_index[$n] = $nested_index;
 				}
 
-				foreach ($nested_tag_values as $i => $values) {
-					echo '$metadata_values_'.$i.' = Array(';
-					foreach ($values as $n => $v) {
-						$v = addslashes($v);
-						$v = preg_replace('|(\$metadata_replacements\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
-						$v = preg_replace('|(\$metadata_values[^\[]+\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
-						echo "'$n' => '$v',\n";
-					}
-					echo ");\n";
-				}
-
-				echo '?'.'>';
-				$php = ob_get_contents();
-			ob_end_clean();
-
-			$metadata_matches = Array();
-			preg_match_all('|\$metadata_values\[\'([^\]]+)\'\]|', $metadata, $metadata_matches);
-			foreach ($metadata_matches[1] as $field_name) {
-				$metadata = preg_replace('|\$metadata_values\[\''.$field_name.'\'\]|', '$metadata_values_'.$tag_nested_index[$field_name].'[\''.$field_name.'\']', $metadata);
+				$nested_tag_values[$nested_index][$n] = $v;
+				$tag_nested_index[$n] = $nested_index;
 			}
 
-			$metadata = $php."\n\n".$metadata;
+			foreach ($nested_tag_values as $i => $values) {
+				echo '$metadata_values_'.$i.' = Array(';
+				foreach ($values as $n => $v) {
+					$v = addslashes($v);
+					$v = preg_replace('|(\$metadata_replacements\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
+					$v = preg_replace('|(\$metadata_values[^\[]+\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
+					echo "'$n' => '$v',\n";
+				}
+				echo ");\n";
+			}
+
+			echo '?'.'>';
+			$php = ob_get_contents();
+		ob_end_clean();
+
+		$metadata_matches = Array();
+		preg_match_all('|\$metadata_values\[\'([^\]]+)\'\]|', $metadata, $metadata_matches);
+		foreach ($metadata_matches[1] as $field_name) {
+			$metadata = preg_replace('|\$metadata_values\[\''.$field_name.'\'\]|', '$metadata_values_'.$tag_nested_index[$field_name].'[\''.$field_name.'\']', $metadata);
 		}
+
+		$metadata = $php."\n\n".$metadata;
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		create_directory($asset->data_path);

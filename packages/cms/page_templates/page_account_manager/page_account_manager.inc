@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.6.2.1 2004/02/18 12:30:08 brobertson Exp $
+* $Id: page_account_manager.inc,v 1.6.2.2 2004/03/02 16:02:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,12 +91,10 @@ class Page_Account_Manager extends Page_Asset_Builder
 	*/
 	function printBody()
 	{
+		parent::printBody();
+
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
-		$this->_current_state = 'not_logged_in';
-		$this->_processGlobalActions();
-
 		if (!is_null($current_user) && !SQ_IN_BACKEND) {
-
 			// this person is logged in - so redirect them to limbo where they can edit their details
 			$redirect_url = strip_url(current_url()).'/'.SQ_CONF_LIMBO_SUFFIX.'/?ignore_frames=1';
 			?>
@@ -105,15 +103,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			</script>
 			Click <a href="<?php echo $redirect_url; ?>">here</a> to edit your details.
 			<?php
-
-		} else {
-
-			// this person is not logged in, so we should let them log in or sign up for an account
-			$this->_loadLoginReplacements();
-			$this->_loadCreateReplacements();
-			$this->_printBody();
-
-		}//end if logged in
+		}
 
 	}//end printBody()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7.2.1 2004/02/21 12:43:54 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7.2.2 2004/03/02 16:06:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -54,6 +54,11 @@
 		<field attribute="lineage_seperator" read_access="" write_access="write:attributes" >
 			<display_name>Lineage Seperator</display_name>
 			<note>Seperator to use when printing the lineage to a search result asset.</note>
+			<text />
+		</field>
+		<field attribute="submit_button_text" read_access="" write_access="write:attributes" >
+			<display_name>Submit button text</display_name>
+			<note>This text will appear on the submit button of this search page</note>
 			<text />
 		</field>
 	</section>

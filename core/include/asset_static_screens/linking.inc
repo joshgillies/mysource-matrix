@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.3 2004/01/16 11:45:56 brobertson Exp $
+* $Id: linking.inc,v 1.3.2.1 2004/03/02 16:00:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,10 +116,6 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 
 			$link_type = $link_data['link_type'];
 			$linkid = $link_data['linkid'];
-
-			// dont even pretend that the root folder is going to
-			// care that it is linking to this asset!!
-			//if ($majorid == 1) continue;
 
 			// work out if the user can change the link types
 			// the arg $allow_edit must be set to TRUE to try the write access test

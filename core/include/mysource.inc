@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.34.2.3 2004/02/18 11:39:06 brobertson Exp $
+* $Id: mysource.inc,v 1.34.2.4 2004/03/02 16:00:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -542,7 +542,7 @@ class MySource
 	*/
 	function loginKey()
 	{
-		return $_SESSION['SQ_LOGIN_KEY'];
+		return (isset($_SESSION['SQ_LOGIN_KEY'])) ? $_SESSION['SQ_LOGIN_KEY'] : '';
 
 	}//end loginKey()
 
@@ -1354,8 +1354,9 @@ class MySource
 	*								eg. asset, workflow etc
 	* @param string	$select_from	the FROM clause (eg. asset a INNER JOIN asset_link l ON...)
 	* @param array	$insert_values	an array in form insert_column => select_column
-									where inset_column is the column in the INSERT table and
-									select_column is the column in the SELECT clause
+	*								where inset_column is the column in the INSERT table and
+	*								select_column is the column in the SELECT clause
+	*								(NOTE: select_column is NOT db->quote() because they could be column names)
 	* @param string	$where_cond		a string to tack onto the WHERE clause of the query
 	*								to limit the rows that get selected for inserting
 	*

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder.inc,v 1.5.2.1 2004/02/18 11:39:05 brobertson Exp $
+* $Id: system_management_folder.inc,v 1.5.2.2 2004/03/02 16:00:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,22 +82,16 @@ class System_Management_Folder extends Folder
 
 
 	/**
-	* Creates a duplicate of this asset
-	* It DOES NOT duplicate the links that this asset has either to it or from it
-	* Returns a reference to the new object or if an error occured FALSE
+	* returns FALSE always because we don;t want to be able to clone the system management folder
 	*
-	* @param bool	$dupe_directory	whether or not to duplicate thia assets data directory
-	*
-	* @return mixed object Asset or NULL
+	* @return boolean
 	* @access public
-	* @see Asset::duplicate()
 	*/
-	function &duplicate($dupe_directory=true)
+	function canClone()
 	{
-		trigger_error('Unable to duplicate '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').', you are only allowed one', E_USER_WARNING);
-		$null = NULL; // 'cause we need to return by reference :)
-		return $null;
-	}//end duplicate()
+		return false;
+	
+	}//end canClone()
 
 
 	/**

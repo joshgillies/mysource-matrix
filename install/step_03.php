@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.30.2.3 2004/02/21 13:28:40 brobertson Exp $
+* $Id: step_03.php,v 1.30.2.4 2004/03/02 16:00:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -162,24 +162,6 @@ if (is_null($root_folder)) {
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($designs_folder->id,		'all');
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($system_user_group->id,	'all');
 
-
-	$sql = 'SELECT MAX(assetid) FROM sq_asset';
-	$num_assets = $db->getOne($sql);
-	if (DB::isError($num_assets)) {
-		trigger_error('Could not reverve assetids for system assets, failed getting current number of assets in the system', E_USER_ERROR);
-	} else {
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		for ($i = $num_assets; $i < SQ_NUM_RESERVED_ASSETIDS; $i++) {
-			$assetid = $db->nextId('sq_sequence_asset');
-			if (DB::isError($assetid)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error('Could not reverve assetids for system assets, failed getting id "'.$i.'" in sequence', E_USER_ERROR);
-			}
-		}
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-	}
-
-	// Re-generate the System Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
 	$sys_asset_cfg = new System_Asset_Config();
 	$sys_asset_cfg->save(Array(), false);
@@ -336,9 +318,6 @@ function &create_root_folder()
 	$link = Array();
 	if (!$root_folder->create($link)) trigger_error('ROOT FOLDER NOT CREATED', E_USER_ERROR);
 	pre_echo('Root Folder Asset Id : '.$root_folder->id);
-	if ($root_folder->id != 1) {
-		trigger_error('Major Problem: The new Root Folder Asset was not given assetid #1. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
-	}
 	
 	$GLOBALS['SQ_SYSTEM_ASSETS']['root_folder'] = $root_folder->id;
 	return $root_folder;

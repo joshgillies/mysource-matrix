@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.3.2.2 2004/02/21 12:27:59 brobertson Exp $
+* $Id: page_asset_listing_management.inc,v 1.3.2.3 2004/03/02 16:02:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -138,6 +138,7 @@ class Page_Asset_Listing_Management extends Asset_Management
 		if ($current_version == '0.1') {
 			// this upgrade changed the attribute 'types' to include a flag to
 			// say if the type code should allow inheriting of its type descendants
+			bam('STARTING ASSET LISTING UPGRADE - VERSION 0.1');
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), false);
 			foreach ($children as $assetid => $type) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
@@ -151,6 +152,7 @@ class Page_Asset_Listing_Management extends Asset_Management
 
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
+			bam('ASSET LISTING UPGRADE COMPLETE - VERSION 0.1');
 		}//end version 0.1 upgrade
 
 		return true;

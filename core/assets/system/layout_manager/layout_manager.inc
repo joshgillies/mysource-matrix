@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.2.2.2 2004/02/21 12:25:41 brobertson Exp $
+* $Id: layout_manager.inc,v 1.2.2.3 2004/03/02 16:00:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2.2.2 $ - 0.1
+* @version $Revision: 1.2.2.3 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,6 +111,19 @@ class Layout_Manager extends Asset
 		return false;
 
 	}//end canDelete()
+
+	
+	/**
+	* returns FALSE always because we don't want to be able to clone a layout manager
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canClone()
+	{
+		return false;
+	
+	}//end canClone()
 
 
 	/**

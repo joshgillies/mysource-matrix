@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.60.2.4 2004/02/18 11:39:06 brobertson Exp $
+* $Id: init.inc,v 1.60.2.5 2004/03/02 16:00:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,10 +113,6 @@ $GLOBALS['SQ_PURGING_TRASH'] = false;
 
 // we are not reverting to a system version
 $GLOBALS['SQ_REVERT_TO_SYSTEM_VERSION'] = false;
-
-// the number of assetids reserved for system assets
-define('SQ_NUM_RESERVED_ASSETIDS', 128);
-
 
 /*
 * LINK TYPES - used with bitwise operators

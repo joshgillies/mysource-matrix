@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.2.2.1 2004/02/18 12:30:08 brobertson Exp $
+* $Id: page_asset_builder.inc,v 1.2.2.2 2004/03/02 16:02:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,6 +82,12 @@ class Page_Asset_Builder extends Page
 							 'Created'       => 'created',
 							 'Logged In'     => 'logged_in',
 							);
+
+	/**
+	* The default state the system should be in if the user is logged in
+	* @var string
+	*/
+	var $_default_state = 'create';
 
 
 	/**
@@ -218,7 +224,21 @@ class Page_Asset_Builder extends Page
 		$this->_current_state = 'logged_in';
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
 
-		$this->_processGlobalActions();
+		set_error_handler(Array(&$this, '_errorHandler'));
+			$success = $this->_processGlobalActions();
+		restore_error_handler();
+
+		// create a friendly error message on error
+		if (isset($_POST['ASSET_BUILDER_ACTION']) && !$success) {
+			$this->_replacements[strtolower($_POST['ASSET_BUILDER_ACTION']).'_error'] = $this->attr(strtolower($_POST['ASSET_BUILDER_ACTION']).'_error');
+
+			if (!empty($this->_errors)) {
+				$errors = '';
+				foreach ($this->_errors as $text) $errors .= '<li>'.$text.'</li>';
+				$this->_replacements[strtolower($_POST['ASSET_BUILDER_ACTION']).'_error'] .= '<ul>'.$errors.'</ul>';
+			}
+		}
+
 		// if a new asset is created, it will be stored in the tmp vars for use by other asset types
 		// that extend this one, but we wont need it any more - so chuck it out
 		if (isset($this->_tmp['created_asset'])) unset($this->_tmp['created_asset']);
@@ -229,7 +249,8 @@ class Page_Asset_Builder extends Page
 			$this->_loadLoginReplacements();
 		}
 
-		$this->_loadCreateReplacements();
+		$fn = '_load'.$this->_default_state.'Replacements';
+		$this->$fn();
 		$this->_printBody();
 
 	}//end printBody()
@@ -247,7 +268,7 @@ class Page_Asset_Builder extends Page
 		<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib');?>/html_form/html_form.js"></script>
 		<form name="asset_builder" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
 			<?php
-			echo hidden_field('ASSET_BUILDER_ACTION', 'create');
+			echo hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
 			$this->_printContents();
 			?>
 		</form>
@@ -266,11 +287,13 @@ class Page_Asset_Builder extends Page
 	*/
 	function _processGlobalActions()
 	{
+		$success = true;
+
 		// process some global asset builder actions
 		if (isset($_POST['ASSET_BUILDER_ACTION'])) {
 
+			// okay, we are doing something - so success is not guaranteed
 			$success = false;
-			set_error_handler(Array(&$this, '_errorHandler'));
 
 			switch (strtolower($_POST['ASSET_BUILDER_ACTION'])) {
 
@@ -343,7 +366,7 @@ class Page_Asset_Builder extends Page
 								break;
 							}
 
-							
+
 						}//end foreach
 
 						if ($valid_rule) {
@@ -395,7 +418,7 @@ class Page_Asset_Builder extends Page
 					// logged in - so any write access checks will fail
 					$GLOBALS['SQ_INSTALL'] = true;
 
-						
+
 						if (!$new_asset->processBackend($o, $link)) {
 
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -441,22 +464,18 @@ class Page_Asset_Builder extends Page
 
 				break;
 
+				default :
+
+					// there was an action, but we didnt do anything
+					$success = true;
+
+				break;
+
 			}//end switch
 
-			restore_error_handler();
-
-			// create a friendly error message
-			if (!$success) {
-				$this->_replacements[strtolower($_POST['ASSET_BUILDER_ACTION']).'_error'] = $this->attr(strtolower($_POST['ASSET_BUILDER_ACTION']).'_error');
-			
-				if (!empty($this->_errors)) {
-					$errors = '';
-					foreach ($this->_errors as $text) $errors .= '<li>'.$text.'</li>';
-					$this->_replacements[strtolower($_POST['ASSET_BUILDER_ACTION']).'_error'] .= '<ul>'.$errors.'</ul>';
-				}
-			}
-
 		}//end if ASSET_BUILDER_ACTION
+
+		return $success;
 
 	}//end _processGlobalActions()
 

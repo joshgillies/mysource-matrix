@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_asset.inc,v 1.2 2004/03/02 04:24:03 mmcintyre Exp $
+* $Id: hipo_job_clone_asset.inc,v 1.2.2.1 2004/03/02 16:00:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.6.2.2 2004/02/21 12:43:54 brobertson Exp $
+* $Id: search_page_management.inc,v 1.6.2.3 2004/03/02 16:06:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,6 +63,12 @@ class Search_Page_Management extends Asset_Management
 				'type'			=> 'text',
 				'default'		=> ' > ',
 				'description'	=> 'Seperator to use when printing the lineage to a search result asset.',
+			),
+			'submit_button_text' => Array (
+				'added'			=> '0.1',
+				'type'			=> 'text',
+				'default'		=> 'Search',
+				'description'	=> 'Text that would appear on the search page submit button',
 			),
 			'fields' => Array(
 				'added'			=> '0.1',
