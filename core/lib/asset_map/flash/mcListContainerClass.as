@@ -58,7 +58,7 @@ mcListContainerClass.prototype = new MovieClip();
 * @param int $parent_assetid   the assetid of the asset who's kids to show
 *
 */
-mcListContainerClass.prototype.showKids = function(parent_assetid) 
+mcListContainerClass.prototype.showKids = function(parent_assetid, parent_name) 
 {
 
 	// we don't know anything about this or it's got know kids, bugger off
@@ -66,7 +66,7 @@ mcListContainerClass.prototype.showKids = function(parent_assetid)
 
 	// check to see if we have already been to this asset's kids
 	if (this.assets[parent_assetid].kids.length > 0) {
-		this._displayKids(parent_assetid);
+		this._displayKids(parent_assetid, parent_name);
 
 	// else load from server
 	} else {
@@ -80,8 +80,9 @@ mcListContainerClass.prototype.showKids = function(parent_assetid)
 		trace(xml);
 
 		// start the loading process
-		_root.server_exec.exec(xml, this, "loadKids", "assets", "Loading Assets");
-		this.tmp.parent_assetid = parent_assetid;
+		var exec_indentifier = _root.server_exec.exec(xml, this, "loadAssets", "assets", "Loading Assets");
+		if (this.tmp.load_kids == undefined) this.tmp.load_kids = new Object();
+		this.tmp.load_kids[exec_indentifier] = {parent_assetid: parent_assetid, parent_name: parent_name};
 	}
 	
 }// end showKids()
@@ -92,12 +93,12 @@ mcListContainerClass.prototype.showKids = function(parent_assetid)
 * @param object XML $xml   the xml object that contain the information that we need
 *
 */
-mcListContainerClass.prototype.loadKids = function(xml) 
+mcListContainerClass.prototype.loadAssets = function(xml, exec_indentifier) 
 {
 
 	// get a reference to the parent item
-	var parent_assetid = this.tmp.parent_assetid;
-	var parent_name = (this.selected_item == null) ? this.item_prefix : this.selected_item._name;
+	var parent_assetid = this.tmp.load_kids[exec_indentifier].parent_assetid;
+	var parent_name    = this.tmp.load_kids[exec_indentifier].parent_name;
 
 	children = xml.firstChild.childNodes;
 	for (var i = 0; i < children.length; i++) {
@@ -105,31 +106,20 @@ mcListContainerClass.prototype.loadKids = function(xml)
 		var asset_node = children[i];
 		if (asset_node.nodeName.toLowerCase() == "child") {
 
-			var assetid = asset_node.attributes.assetid;
-			this.assets[assetid] = new Asset(assetid, 
-											 asset_node.attributes.type_code, 
-											 asset_node.firstChild.nodeValue, 
-											 asset_node.attributes.has_kids);
+			this.assets[asset_node.attributes.assetid] = new Asset(asset_node.attributes.assetid, 
+																	 asset_node.attributes.type_code, 
+																	 asset_node.firstChild.nodeValue, 
+																	 asset_node.attributes.has_kids);
 
-			this.num_items++;
-
-			var indent      = (this.selected_item == null) ? 0 : this.selected_item.indent + 1;
-
-			var item_name = parent_name + "_" + assetid;
-			this.attachMovie("mcListItemID", item_name, this.num_items);
-			this[item_name]._visible = false;
-
-			this[item_name].setInfo(parent_name, this.assets[assetid]);
-			this[item_name].setIndent(indent);
-
-			this.assets[parent_assetid].kids.push(assetid);
+			this.assets[parent_assetid].kids.push(asset_node.attributes.assetid);
 
 		}//end if
 	}//end for
 
-	this._displayKids(parent_assetid);
+	this.tmp.load_kids[exec_indentifier] = null;
+	this._displayKids(parent_assetid, parent_name);
 
-}// end loadKids()
+}// end loadAssets()
 
 
 /**
@@ -139,17 +129,41 @@ mcListContainerClass.prototype.loadKids = function(xml)
 * @param string $parent_assetid   the asset whose kids we are showing
 *
 */
-mcListContainerClass.prototype._displayKids = function(parent_assetid) 
+mcListContainerClass.prototype._displayKids = function(parent_assetid, parent_name) 
 {
 
+	// Now create the kids list items, if they don't already exist
+	for(var j = 0; j < this.assets[parent_assetid].kids.length; j++) {
+		var assetid = this.assets[parent_assetid].kids[j];
+		var item_name = parent_name + "_" + assetid;
+
+		if (this[item_name] == undefined) {
+			trace(item_name + " undefined");
+
+			this.num_items++;
+			var indent = (parent_assetid > 1) ? this[parent_name].indent + 1 : 0;
+
+			this.attachMovie("mcListItemID", item_name, this.num_items);
+			this[item_name]._visible = false;
+
+			this[item_name].setInfo(parent_name, this.assets[assetid]);
+			this[item_name].setIndent(indent);
+
+			this.assets[assetid].list_items.push(item_name);
+
+		}// end if
+
+	}// end for
+
 	// see if we can find this parent in the list
-	var parent_i = (this.selected_item == null) ? -1 : this.selected_item.pos;
+	var parent_i = (parent_assetid > 1) ? this[parent_name].pos : -1;
 
-	this._recurseDisplayKids(parent_assetid, ((this.selected_item == null) ? this.item_prefix : this.selected_item._name), parent_i);
+	this._recurseDisplayKids(parent_assetid, parent_name, parent_i);
 
-	// Because we only want to change the collapse sign for the top level
-	if (this.selected_item != null) {
-		this.selected_item.setKidState("minus");
+	if (parent_assetid > 1) {
+		// Because we only want to change the collapse sign for the parent asset
+		// we do it here rather than in the recusion
+		 this[parent_name].setKidState("minus");
 	}
 
 	this.refreshList(parent_i);
@@ -181,21 +195,27 @@ mcListContainerClass.prototype._recurseDisplayKids = function(parent_assetid, pa
 
 }// end _recurseDisplayKids()
 
-mcListContainerClass.prototype.hideKids = function(parent_assetid) 
+/**
+* Called by the mcListItem's on the pressing of the minus button
+* Hiding the children of the passed 
+*
+* @param int $parent_assetid   the assetid of the asset who's kids to show
+*
+*/
+mcListContainerClass.prototype.hideKids = function(parent_assetid, parent_name) 
 {
 
-	// we don't know anything about it - "should" never happen
-	if (this.selected_item == null) return;
-	var parent_i = this.selected_item.pos;
+	var parent_i = (parent_assetid > 1) ? this[parent_name].pos : -1;
 	
-	var num_to_remove = this._recurseHideKids(parent_assetid, this.selected_item._name, parent_i);
+	var num_to_remove = this._recurseHideKids(parent_assetid, parent_name, parent_i);
 
 	// Now remove the kids from the items order
 	this.items_order.splice(parent_i + 1, num_to_remove);
 
-	// Because we only want to change the expand sign for the top level
-	if (this.selected_item != null) {
-		this.selected_item.setKidState("plus");
+	if (parent_assetid > 1) {
+		// Because we only want to change the collapse sign for the parent asset
+		// we do it here rather than in the recusion
+		 this[parent_name].setKidState("plus");
 	}
 
 	this.refreshList(parent_i);
@@ -449,11 +469,11 @@ mcListContainerClass.prototype.onRelease = function()
 					switch(this.selected_item.getKidState()) {
 						case "plus" :
 							//	Expand Branch
-							this.showKids(this.selected_item.assetid);
+							this.showKids(this.selected_item.assetid, this.selected_item._name);
 						break;
 						case "minus" :
 							//	Collapse Branch
-							this.hideKids(this.selected_item.assetid);
+							this.hideKids(this.selected_item.assetid, this.selected_item._name);
 						break;
 					}
 				break;
@@ -664,7 +684,7 @@ mcListContainerClass.prototype.execActionAddAsset = function(pos, in_gap)
 	trace(xml);
 
 	// start the loading process
-	_root.server_exec.exec(xml, this, "execActionGoUrl", "url", "Sending Request");
+	var exec_identifier = _root.server_exec.exec(xml, this, "execActionGoUrl", "url", "Sending Request");
 
 	this.action = '';
 

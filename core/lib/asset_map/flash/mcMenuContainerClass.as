@@ -47,7 +47,7 @@ mcMenuContainerClass.prototype.create = function(arr)
 	}
 
 	// start the loading process
-	_root.server_exec.exec(xml, this, "loadItems", "options", "Loading Menu");
+	var exec_identifier = _root.server_exec.exec(xml, this, "loadItems", "options", "Loading Menu");
 
 }
 

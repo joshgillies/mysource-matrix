@@ -1,5 +1,8 @@
 
-// Create the Class
+/**
+* This class controls the sending and retrieval of data from the server in XML
+*
+*/
 function serverExec(exec_path, content_type)
 {
 	this.exec_path    = exec_path;
@@ -11,6 +14,8 @@ function serverExec(exec_path, content_type)
 
 /**
 * Execute the passed xml command by sending it to the server
+* Returns a unique (on a per movie load) index that can be used to identify 
+* results from multiple of the same commands
 *
 * @param object	XML			xml command to send to server
 * @param object	on_load_obj	the object to run the on_load_fn on
@@ -18,13 +23,14 @@ function serverExec(exec_path, content_type)
 * @param string	root_node	the expected root node for the returned text
 * @param string	desc		text desc for the progress bar
 *
-*
+* @return int
+* @access public
 */
 serverExec.prototype.exec = function(xml_cmd, on_load_obj, on_load_fn, root_node, desc)
 {
 	// bit of cleanup
 	for (var j in this.xmls) {
-		if (this.xmls[i] != null && this.xmls[i].__php_exec.finished) this.xmls[i] = null;
+		if (this.xmls[j] != null && this.xmls[j].__server_exec.finished) this.xmls[j] = null;
 	}
 
 	var i = this.count++;
@@ -32,15 +38,17 @@ serverExec.prototype.exec = function(xml_cmd, on_load_obj, on_load_fn, root_node
 	this.xmls[i].ignoreWhite = true;
 	this.xmls[i].onLoad = serverExecXMLonLoad;
 
-	this.xmls[i].__php_exec = new Object();
-	this.xmls[i].__php_exec.i = i;
-	this.xmls[i].__php_exec.on_load_obj = on_load_obj;
-	this.xmls[i].__php_exec.on_load_fn  = on_load_fn;
-	this.xmls[i].__php_exec.root_node   = root_node;
+	this.xmls[i].__server_exec = new Object();
+	this.xmls[i].__server_exec.i = i;
+	this.xmls[i].__server_exec.on_load_obj = on_load_obj;
+	this.xmls[i].__server_exec.on_load_fn  = on_load_fn;
+	this.xmls[i].__server_exec.root_node   = root_node;
 
 	_root.showProgressBar(desc);
 	xml_cmd.contentType = this.content_type;
 	xml_cmd.sendAndLoad(this.exec_path, this.xmls[i]);
+
+	return i;
 
 }// end exec()
 
@@ -66,19 +74,19 @@ function serverExecXMLonLoad(success)
 		_root.showDialog("Server Error", root.firstChild.nodeValue);
 
 	// we got an unexpected root node
-	} else if (this.__php_exec.root_node != '' && root.nodeName != this.__php_exec.root_node) {
+	} else if (this.__server_exec.root_node != '' && root.nodeName != this.__server_exec.root_node) {
 		_root.hideProgressBar();
 		_root.showDialog("Connection Failure to Server", "Please Try Again");
 
 	// everything went well, load 'em up
 	} else {
 		trace('All OK -> ' + this.toString());
-		this.__php_exec.on_load_obj[this.__php_exec.on_load_fn](this);
+		this.__server_exec.on_load_obj[this.__server_exec.on_load_fn](this, this.__server_exec.i);
 		_root.hideProgressBar();
 
 	}// end if
 
-	this.__php_exec.finished = true;
+	this.__server_exec.finished = true;
 
 }// end serverExecXMLonLoad()
 

@@ -44,11 +44,7 @@ _root.dialog_box._visible = false;
 _root.dialog_box.swapDepths(21);
 _root.dialog_box.stop();
 
-// Call resize to setup intial sizes of things
-_root.stageResizeListener.onResize();
-
 server_exec = new serverExec(server_exec_path);
-
 
 // Now attach the menu
 _root.attachMovie("mcMenuContainerID", "menu_container", 2);
@@ -64,8 +60,13 @@ _root.attachMovie("mcListContainerID", "list_container", 1);
 //Attach the container on to the "scroller"
 _root.scroller.setScrollContent(_root.list_container);
 
-
 // Load up the root entries
 // create the root asset as we need to this to start somewhere
 _root.list_container.assets['1'] = new Asset(1, 'root_folder', '/', true);
-_root.list_container.showKids('1');
+_root.list_container.showKids('1', 'li');
+
+// Call resize to setup intial sizes of things
+_root.stageResizeListener.onResize();
+
+_root.external_call.registerCmd("reload_asset", _root.list_container, 'reloadAsset');
+
