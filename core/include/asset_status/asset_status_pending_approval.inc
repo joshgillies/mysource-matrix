@@ -107,7 +107,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 		$wf = &$this->getWorkflow();
 		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
-		if ($new_status & SQ_STATUS_CAN_APPROVE) {
+		if ($new_status & SQ_SC_STATUS_CAN_APPROVE) {
 			// someone has rejected the changes, so we need to cancel the workflow
 			if (!$wf->cancel()) {
 				trigger_error('Workflow cancel failed', E_USER_WARNING);
