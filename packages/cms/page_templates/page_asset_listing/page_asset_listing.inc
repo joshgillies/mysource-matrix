@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.22 2004/06/16 06:10:37 mmcintyre Exp $
+* $Id: page_asset_listing.inc,v 1.23 2004/06/18 02:02:23 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -168,6 +168,29 @@ class Page_Asset_Listing extends Page
 	}//end prepareLink()
 
 
+	/**
+	* Return a human readable description of the passed link
+	*
+	* @param int	$linkid	the link ID of the link to describe
+	*
+	* @return string
+	* @access public
+	*/
+	function describeLink($linkid)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		switch (strtolower($link['value'])) {
+			case 'root' :
+				return 'The root node of the Asset Listing';
+			break;
+			default :
+				return parent::describeLink($linkid);
+			break;
+		}
+
+	}//end describeLink()
+	
+	
 	/**
 	* Returns TRUE if we can delete the passed link, or a string with the error msg
 	*

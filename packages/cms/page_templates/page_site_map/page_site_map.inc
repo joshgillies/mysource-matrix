@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.10 2004/06/16 06:12:06 mmcintyre Exp $
+* $Id: page_site_map.inc,v 1.11 2004/06/18 02:02:23 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,6 +84,29 @@ class Page_Site_Map extends Page
 
 
 	/**
+	* Return a human readable description of the passed link
+	*
+	* @param int	$linkid	the link ID of the link to describe
+	*
+	* @return string
+	* @access public
+	*/
+	function describeLink($linkid)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		switch (strtolower($link['value'])) {
+			case 'root' :
+				return 'The root node of the Site Map';
+			break;
+			default :
+				return parent::describeLink($linkid);
+			break;
+		}
+
+	}//end describeLink()
+	
+	
+	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
 	*
@@ -93,7 +116,7 @@ class Page_Site_Map extends Page
 	function printBody()
 	{
 		$root_asset = null;
-		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'asset', false, 'root');
 		if (!empty($root_link)) {
 			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
 		}

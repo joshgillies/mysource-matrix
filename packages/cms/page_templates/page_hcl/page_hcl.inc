@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl.inc,v 1.4 2004/06/16 06:11:17 mmcintyre Exp $
+* $Id: page_hcl.inc,v 1.5 2004/06/18 02:02:23 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,6 +82,29 @@ class Page_HCL extends Page
 	}//end lockTypes()
 
 
+	/**
+	* Return a human readable description of the passed link
+	*
+	* @param int	$linkid	the link ID of the link to describe
+	*
+	* @return string
+	* @access public
+	*/
+	function describeLink($linkid)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		switch (strtolower($link['value'])) {
+			case 'root' :
+				return 'The root node of the Harvest Control List';
+			break;
+			default :
+				return parent::describeLink($linkid);
+			break;
+		}
+
+	}//end describeLink()
+	
+	
 	/**
 	* Creates XML formatted list of the metadata entries
 	*

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.40 2004/06/18 01:33:21 lwright Exp $
+* $Id: search_page.inc,v 1.41 2004/06/18 02:02:24 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.40 $ - 1.0
+* @version $Revision: 1.41 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -224,6 +224,29 @@ class Search_Page extends Page
 	}//end _getAllowedLinks()
 
 
+	/**
+	* Return a human readable description of the passed link
+	*
+	* @param int	$linkid	the link ID of the link to describe
+	*
+	* @return string
+	* @access public
+	*/
+	function describeLink($linkid)
+	{
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
+		switch (strtolower($link['value'])) {
+			case 'root' :
+				return 'The root asset from where searches are conducted from';
+			break;
+			default :
+				return parent::describeLink($linkid);
+			break;
+		}
+
+	}//end describeLink()
+	
+	
 	/**
 	* Returns a list of lock types available for this asset type
 	*
