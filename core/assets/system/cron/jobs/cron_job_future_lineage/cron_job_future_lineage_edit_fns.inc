@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.5 2003/11/26 00:51:00 gsherwood Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.6 2003/12/17 04:41:58 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -121,7 +121,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	*/
 	function processInLineBackend(&$asset, &$o, $prefix)
 	{
-		if (empty($_POST[$prefix.'_delete_linkid']) && (empty($_POST[$prefix.'_link_type']) || empty($_POST[$prefix.'_major_assetid']))) return false;
+		if (empty($_POST[$prefix.'_delete_linkid']) && (empty($_POST[$prefix.'_link_type']) || empty($_POST[$prefix.'_major_assetid']['assetid']))) return false;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -132,8 +132,8 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			}
 		}
 
-		if (!empty($_POST[$prefix.'_major_assetid'])) {
-			$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_major_assetid']);
+		if (!empty($_POST[$prefix.'_major_assetid']['assetid'])) {
+			$major = $GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_major_assetid']['assetid']);
 			if (is_null($major))  {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.4 2003/11/26 00:51:30 gsherwood Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.5 2003/12/17 04:46:39 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -114,12 +114,13 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 	function processExcludeList(&$asset, &$o, $prefix)
 	{
 		$exclude_list = $asset->attr('exclude_list');
-		if (isset($_POST[$prefix.'_exclude_list']) && $_POST[$prefix.'_exclude_list']) {
-
-			if (!in_array($_POST[$prefix.'_exclude_list'], $exclude_list)) {
-				$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($_POST[$prefix.'_exclude_list']));
-				$name = ((empty($info)) ? '' : $info[$_POST[$prefix.'_exclude_list']]['name']).' ('.$_POST[$prefix.'_exclude_list'].')';
-				$exclude_list[$_POST[$prefix.'_exclude_list']] = $name;
+		if (isset($_POST[$prefix.'_exclude_list']['assetid']) && $_POST[$prefix.'_exclude_list']['assetid']) {
+			$exclude_id = $_POST[$prefix.'_exclude_list']['assetid'];
+			
+			if (!in_array($_POST[$prefix.'_exclude_list'], $exclude_id)) {
+				$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($exclude_id));
+				$name = ((empty($info)) ? '' : $info[$exclude_list]['name']).' ('.$exclude_id.')';
+				$exclude_list[$exclude_id] = $name;
 			}
 		}
 		if (isset($_POST[$prefix.'_curr_exclude_list'])) {

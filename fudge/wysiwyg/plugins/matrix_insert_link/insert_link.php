@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.11 2003/11/26 00:51:22 gsherwood Exp $
+* $Id: insert_link.php,v 1.12 2003/12/17 04:44:48 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -127,7 +127,7 @@ if (!isset($_GET['new_window'])) {
 				if (link     != null) {
 					f.url_link.value = link;
 				} else {
-					var assetid = form_element_value(f.assetid);
+					var assetid = f.elements["assetid[assetid]"].value;
 
 					if (assetid > 0) {
 						f.url_link.value = './?a=' + assetid;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.11 2003/11/26 00:51:22 gsherwood Exp $
+* $Id: insert_image.php,v 1.12 2003/12/17 04:44:29 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,7 +65,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					}
 				}
 				// pass data back to the calling window
-				var fields = ["f_imageid", "f_alt", "f_align", "f_border",
+				var fields = ["f_alt", "f_align", "f_border",
 							"f_horiz", "f_vert", "f_width", "f_height"];
 				var param = new Object();
 				for (var i in fields) {
@@ -73,6 +73,11 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 					var el = document.getElementById(id);
 					param[id] = el.value;
 				}
+
+				// Because the id of the f_image field has array references in it, 
+				// we can't get use getElementById, so do this...
+				param["f_imageid"] = document.main_form.elements["f_imageid[assetid]"].value;
+
 				__dlg_close("matrixInsertImage", param);
 				window.opener.focus();
 				return false;

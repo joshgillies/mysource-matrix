@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.7 2003/11/26 00:51:21 gsherwood Exp $
+* $Id: embed_movie.php,v 1.8 2003/12/17 04:45:11 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 
 			function onOK() {
 				// pass data back to the calling window
-				var fields = ["f_fileid", "f_width", "f_height"];
+				var fields = ["f_width", "f_height"];
 				var chk_fields = ["f_show_controls", "f_auto_start", "f_embed_loop"];
 				var param = new Object();
 
@@ -62,6 +62,9 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 					var el = document.getElementById(id);
 					param[id] = el.value;
 				}
+				// Because the id of the f_image field has array references in it, 
+				// we can't get use getElementById, so do this...
+				param["f_fileid"] = document.main_form.elements["f_fileid[assetid]"].value;
 
 				for (var i in chk_fields) {
 					var id = chk_fields[i];

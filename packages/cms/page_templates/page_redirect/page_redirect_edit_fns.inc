@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_edit_fns.inc,v 1.10 2003/11/26 00:51:30 gsherwood Exp $
+* $Id: page_redirect_edit_fns.inc,v 1.11 2003/12/17 04:46:15 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -90,9 +90,9 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processRedirectAssetid(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_redirect_assetid'])) return true;
+		if (!isset($_POST[$prefix.'_redirect_assetid']['assetid'])) return true;
 
-		$redirect_assetid = $_POST[$prefix.'_redirect_assetid'];
+		$redirect_assetid = $_POST[$prefix.'_redirect_assetid']['assetid'];
 
 		if ($redirect_assetid) {
 			$redirect_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($redirect_assetid);

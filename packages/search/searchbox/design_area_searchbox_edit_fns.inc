@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.6 2003/11/26 00:51:32 gsherwood Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.7 2003/12/17 04:47:41 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -88,10 +88,12 @@ class Design_Area_SearchBox_Edit_Fns extends Design_Area_Edit_Fns
 
 	function processBackendSearchPage(&$asset, &$o, $prefix)
 	{
-		if ($_POST[$prefix.'_search_page'] > 0) {
-			$asset->setAttrValue('search_page_assetid', $_POST[$prefix.'_search_page']);
-		} else {
-			$asset->setAttrValue('search_page_assetid', 0);
+		if (isset($_POST[$prefix.'_search_page']['assetid'])) {
+			if ($_POST[$prefix.'_search_page']['assetid'] > 0) {
+				$asset->setAttrValue('search_page_assetid', $_POST[$prefix.'_search_page']['assetid']);
+			} else {
+				$asset->setAttrValue('search_page_assetid', 0);
+			}
 		}
 		return true;
 	} // end processBackendSearchPage
@@ -135,11 +137,11 @@ class Design_Area_SearchBox_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processBackendSubmitImage(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_submit_image']))
+		if (!isset($_POST[$prefix.'_submit_image']['assetid']))
 			return false;
 
-		if ($_POST[$prefix.'_submit_image'] > 0)
-			$asset->setAttrValue('submit_image_assetid', $_POST[$prefix.'_submit_image']);
+		if ($_POST[$prefix.'_submit_image']['assetid'] > 0)
+			$asset->setAttrValue('submit_image_assetid', $_POST[$prefix.'_submit_image']['assetid']);
 		else 
 			$asset->setAttrValue('submit_image_assetid', 0);
 		return true;

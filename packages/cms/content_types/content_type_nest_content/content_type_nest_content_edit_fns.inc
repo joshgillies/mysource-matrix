@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.14 2003/12/08 05:47:50 gsherwood Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.15 2003/12/17 04:45:38 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,7 +158,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paintGenerated(&$asset, &$nested_asset)
 	{
-		echo '<?php'."\n";
+		echo '<'.'?php'."\n";
 		?>
 		if(!isset($GLOBALS['SQ_NEST_CONTENT_PAINTED'])) $GLOBALS['SQ_NEST_CONTENT_PAINTED'] = Array();
 
@@ -172,7 +172,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 		unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][<?php echo $nested_asset->id?>]);
 		<?php
-		echo '?>'."\n";
+		echo '?'.'>'."\n";
 
 	}//end paintGenerated()
 
@@ -190,7 +190,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	function processBackend($link, &$asset, $prefix)
 	{
 		$current_assetid = $asset->attr('nested_assetid');
-		$assetid = (isset($_POST[$prefix.'_nested_assetid'])) ? $_POST[$prefix.'_nested_assetid'] : '';
+		$assetid = (isset($_POST[$prefix.'_nested_assetid']['assetid'])) ? $_POST[$prefix.'_nested_assetid']['assetid'] : '';
 
 		if (!empty($assetid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -226,6 +226,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 					$asset->setAttrValue('html', $html);
 				ob_end_clean();
 
+				$this->_contentsUpdated($asset);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				return true;
 				
@@ -234,6 +235,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 		} else if ($current_assetid) {
 			if (!$asset->setAttrValue('nested_assetid', '')) return false;
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_3, '', true, 'nested_asset');
+			
+			$this->_contentsUpdated($asset);
 			return $asset->deleteLink($link['linkid']);
 		}
 		return false;

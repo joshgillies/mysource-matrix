@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_edit_fns.inc,v 1.1 2003/12/02 03:33:47 mmcintyre Exp $
+* $Id: layout_manager_edit_fns.inc,v 1.2 2003/12/17 04:42:56 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -239,9 +239,9 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 		// get any layouts that have been allocated to a screen
 		if (isset($_POST[$prefix.'_find'])) {
 			foreach ($_POST[$prefix.'_find']  as $info => $assetid) {
-				if (!$assetid) continue;
+				if (!isset($assetid['assetid']) || !$assetid['assetid']) continue;
 				list($type_code, $screen) = explode('@', $info);
-				$layouts[$type_code][$screen] = $assetid;
+				$layouts[$type_code][$screen] = $assetid['assetid'];
 				$save = true;
 			}
 		}
