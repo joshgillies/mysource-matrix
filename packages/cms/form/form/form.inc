@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.48 2004/08/05 00:01:24 lwright Exp $
+* $Id: form.inc,v 1.49 2004/08/18 23:39:46 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -205,7 +205,7 @@ class Form extends Bridge
 		$old_links = $this->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV, 'asset', false, 'major', 'sort_order');
 		$links = Array();
 		while (!empty($old_links)) {
-			array_push($links, array_pop($old_links));
+			array_push($links, array_shift($old_links));
 		}
 
 		foreach(array_keys($links) as $i) {
