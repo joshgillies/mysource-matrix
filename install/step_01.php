@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_01.php,v 1.28 2004/05/21 09:07:45 brobertson Exp $
+* $Id: step_01.php,v 1.29 2004/08/26 05:58:52 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,8 +54,8 @@ define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
 define('SQ_CONF_ASSET_TREE_BASE', 36);
 define('SQ_CONF_ASSET_TREE_SIZE', 4);
 define('SQ_CONF_ROLLBACK_ENABLED', '0');
-define('SQ_CONF_DEFAULT_EMAIL', 'support-matrix@squiz.net');
-define('SQ_CONF_TECH_EMAIL',    'support-matrix@squiz.net');
+define('SQ_CONF_DEFAULT_EMAIL', 'matrix-team@squiz.net');
+define('SQ_CONF_TECH_EMAIL',    'matrix-team@squiz.net');
 
 trigger_error('Need to chmod cache and data directories', E_USER_NOTICE);
 
