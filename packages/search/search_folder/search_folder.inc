@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.2 2004/06/15 01:04:43 gsherwood Exp $
+* $Id: search_folder.inc,v 1.3 2004/06/18 06:25:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,7 +99,7 @@ class Search_Folder extends Bridge
 			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
 			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
 	
-			if (trim($settings['phrase']) == '') {
+			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
 				$words = explode(' ',strtolower($settings['phrase']));
@@ -157,7 +157,7 @@ class Search_Folder extends Bridge
 			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
 			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
 			
-			if (trim($settings['phrase']) == '') {
+			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
 				$words = explode(' ',strtolower($settings['phrase']));
