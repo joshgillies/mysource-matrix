@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.3 2004/04/18 23:18:32 gsherwood Exp $
+* $Id: metadata.inc,v 1.4 2004/04/22 03:38:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,7 +92,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_current'])) ob_start();
 						
 						if (empty($schemas)) {
-							echo 'There are no metadata schemas applied for this asset.';
+							echo 'There are no metadata schemas applied to this asset.';
 						} else if (file_exists($owner->data_path.'/metadata.php')) {
 							ob_start();
 								require($owner->data_path.'/metadata.php');
