@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.258 2005/01/07 10:28:39 brobertson Exp $
+* $Id: asset_manager.inc,v 1.259 2005/01/13 22:19:27 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.258 $
+* @version $Revision: 1.259 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2034,13 +2034,19 @@ class Asset_Manager extends MySource_Object
 	* @param int			$assetid			the id of the asset to get its parents for
 	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
 	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*											Specify that links should be returned for assets the user has read,
+	*											write, or admin access for. Leave NULL to ignore permissions.
 	*
-	* @return array(int)
+	* @return array	Array(int => string)	returns an array of assetids and their type code
 	* @access public
+	* @see generateGetParentsQuery()
 	*/
-	function getParents($assetid, $type_code='', $strict_type_code=true)
+	function getParents($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
 	{
 		// check if we are getting parents for a shadow asset, and palm the request off to the
 		// handler of the shadow asset if we are
@@ -2053,51 +2059,15 @@ class Asset_Manager extends MySource_Object
 			return $parents;
 		}
 
+		$query = $this->generateGetParentsQuery($assetid, $type_code, $strict_type_code, $sort_by, $access);
+		if (empty($query)) return Array();
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
+		assert_valid_db_result($result);
 
-		$sql = 'SELECT DISTINCT pl.minorid, pt.treeid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
-					 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid ';
-
-		$where = 'cl.minorid = '.$db->quote($assetid).'
-				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
-				  AND pt.treeid < ct.treeid';
-
-		if (!empty($type_code)) {
-			$type_code_cond = '';
-			if (is_array($type_code)) {
-				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
-				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
-			} else {
-				$type_code_cond = '= '.$db->quote($type_code);
-			}
-
-			if ($strict_type_code) {
-				$where .= ' AND pa.type_code '.$type_code_cond;
-			} else {
-				$where .= ' AND pa.type_code IN (
-												SELECT type_code
-												FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
-												WHERE inhd_type_code '.$type_code_cond.'
-												)';
-			}
-		}//end if
-
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
-		if (!empty($type_code)) {
-			$sql .= 'INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast pa ON pl.minorid = pa.assetid ';
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pa');
-		}
-		$where .= ' ORDER BY pt.treeid';
-
-		$parents = $db->getCol($sql.$where);
-		assert_valid_db_result($parents);
-
-		return array_unique($parents);
+		$parents = Array();
+		foreach ($result as $assetid => $asset_info) $parents[$assetid] = $asset_info['type_code'];
+		return $parents;
 
 	}//end getParents()
 
@@ -2118,10 +2088,10 @@ class Asset_Manager extends MySource_Object
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	* 											Specify that links should be returned for assets the user has read,
-	* 											write, or admin access for. Leave NULL to ignore permissions.
+	*											Specify that links should be returned for assets the user has read,
+	*											write, or admin access for. Leave NULL to ignore permissions.
 	*
-	* @return array()		Array(int => string)	returns an array of assetids and their type code
+	* @return array	Array(int => string)	returns an array of assetids and their type code
 	* @access public
 	* @see generateGetChildrenQuery()
 	*/
@@ -2332,7 +2302,7 @@ class Asset_Manager extends MySource_Object
 				if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 					$USERIDS_COND = '';
 				} else {
-					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+					$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
 					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
 					for (reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
 					$USERIDS_COND = 'AND p.userid  IN ('.implode(',', $userids).')';
@@ -2345,7 +2315,7 @@ class Asset_Manager extends MySource_Object
 			if (!empty($USERIDS_COND)) {
 				$USERIDS_COND .= '
 					GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
-					HAVING MAX(p.granted) = 1';
+					HAVING MIN(p.granted) = 1';
 			}
 		}
 
@@ -4015,8 +3985,8 @@ class Asset_Manager extends MySource_Object
 	*
 	* If no url is passed the current (aka PHP_SELF) one is used
 	*
-	* @param string    $protocol    the protocol to match -> null means it is ignored
-	* @param string    $url        the urls to check for -> null defaults it to current url
+	* @param string	$protocol	the protocol to match -> null means it is ignored
+	* @param string	$url		the urls to check for -> null defaults it to current url
 	*
 	* @return array
 	* @access public
@@ -4064,8 +4034,23 @@ class Asset_Manager extends MySource_Object
 		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
 
-		// No urls found or we only found some of the parents, but not the passed url
-		if (empty($result) || $result[count($result) - 1]['url'] != $url) {
+		
+		$url_asset = &$this->getAssetFromURL($protocol, $url);
+		$id_parts = explode(':', $url_asset->id);
+		if (isset($id_parts[1])) {
+
+			$real_assetid = $id_parts[0];
+			$asset = &$this->getAsset($real_assetid);
+			if (!method_exists($asset, 'getLineageFromURL')) {
+				trigger_error('Shadow asset handler "'.$asset->name.'" can not get lineages from URLs', E_USER_WARNING);
+			}
+			$bridge_lineage = $asset->getLineageFromURL($id_parts[1], $protocol, $url);
+			
+			$result = array_merge($result, $bridge_lineage);
+
+		} else if (empty($result) || $result[count($result) - 1]['url'] != $url) {
+
+			// no urls found or we only found some of the parents, but not the passed url
 			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
 			trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'"', E_USER_WARNING);
 			return Array();
@@ -4093,9 +4078,9 @@ class Asset_Manager extends MySource_Object
 										);
 				}//end if
 			}//end if
-
-			return $result;
 		}//end if
+		
+		return $result;
 
 	}//end getLineageFromURL()
 
@@ -4227,11 +4212,29 @@ class Asset_Manager extends MySource_Object
 			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
 			assert_valid_db_result($result);
 
+			$the_rest_urls = Array();
+			foreach ($result as $assetid => $db_urls) {
+				if (count($db_urls) == 1) {
+					// only one URL returned, so use that
+					$the_rest_urls[$assetid] = $db_urls[0];
+				} else {
+					// find the closest URL based on the base URL
+					$min_slashes = null;
+					foreach ($db_urls as $url_data) {
+						$test_url = substr($url_data['url'], strlen($base_url) +1);
+						$num_slashes = count(explode('/', $test_url));
+						if ($min_slashes == null || $num_slashes < $min_slashes) {
+							$the_rest_urls[$assetid] = $url_data;
+						}
+					}
+				}
+			}
+
 			foreach ($the_rest as $assetid) {
-				if (!isset($result[$assetid])) {
+				if (!isset($the_rest_urls[$assetid])) {
 					$this->_tmp['urls'][$assetid][$base_url] = '';
 				} else {
-					$this->_tmp['urls'][$assetid][$base_url] = $result[$assetid][0]['protocol'].'://'.$result[$assetid][0]['url'];
+					$this->_tmp['urls'][$assetid][$base_url] = $the_rest_urls[$assetid]['protocol'].'://'.$the_rest_urls[$assetid]['url'];
 				}
 				$return_urls[$assetid] = $this->_tmp['urls'][$assetid][$base_url];
 			}
@@ -4522,7 +4525,7 @@ class Asset_Manager extends MySource_Object
 			$userid_cond = '';
 			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+					$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
 					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
 					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 						$userids[$i] = $db->quote($userids[$i]);
@@ -4604,8 +4607,8 @@ class Asset_Manager extends MySource_Object
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
-	* 											Specify that links should be returned for assets the user has read,
-	* 											write, or admin access for. Leave NULL to ignore permissions.
+	*											Specify that links should be returned for assets the user has read,
+	*											write, or admin access for. Leave NULL to ignore permissions.
 	* @param boolean		$inc_type_code		whether to include the type code in the SELECT or not
 	*
 	* @return Array()		returns an array of parts of the SQL statment
@@ -4658,7 +4661,7 @@ class Asset_Manager extends MySource_Object
 			$userid_cond = '';
 			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
-					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+					$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
 					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
 					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
 						$userids[$i] = $db->quote($userids[$i]);
@@ -4711,6 +4714,104 @@ class Asset_Manager extends MySource_Object
 					);
 
 	}//end generateGetChildrenQuery()
+	
+	
+	/**
+	* Get all asset ids that are above the passed assetid in the various trees in which it exists
+	*
+	* @param int			$assetid			the id of the asset to get its parents for
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
+	*											if an array returns link if matches any of the array values
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	* @param string			$sort_by			a field in the asset table you would like the results
+	*											sorted by (eg. name, short_name etc)
+	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	*											Specify that links should be returned for assets the user has read,
+	*											write, or admin access for. Leave NULL to ignore permissions.
+	*
+	* @return array(int)
+	* @access public
+	* @see getParents()
+	*/
+	function generateGetParentsQuery($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$select = 'SELECT DISTINCT pl.minorid, a.type_code, pt.treeid';
+		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk cl
+				     INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ON cl.linkid = ct.linkid,
+				  '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk pl
+				     INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt ON pl.linkid = pt.linkid,
+				  '.SQ_TABLE_RUNNING_PREFIX.'ast a';
+		$where  ='cl.minorid = '.$db->quote($assetid).'
+				  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
+				  AND pt.treeid < ct.treeid
+				  AND pl.minorid = a.assetid';
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		
+		if (!empty($type_code)) {
+			$type_code_cond = '';
+			if (is_array($type_code)) {
+				for (reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+			} else {
+				$type_code_cond = '= '.$db->quote($type_code);
+			}
+
+			if ($strict_type_code) {
+				$where .= ' AND a.type_code '.$type_code_cond;
+			} else {
+				$where .= ' AND a.type_code IN (
+												SELECT type_code
+												FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
+												WHERE inhd_type_code '.$type_code_cond.'
+												)';
+			}
+		}//end if
+
+		// order by a field if required
+		$order_by = '';
+		if (!is_null($sort_by)) {
+			$order_by = 'ORDER BY a.'.$sort_by;
+			$select .= ', a.'.$sort_by.' AS sort_value';
+		} else {
+			$order_by = 'ORDER BY pt.treeid';
+		}
+		
+		$group_by = '';
+		if (!is_null($access)) {
+			$from .= ','.SQ_TABLE_RUNNING_PREFIX.'ast_perm p';
+			$where .= ' AND a.assetid = p.assetid';
+			$userid_cond = '';
+			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
+					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+					for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+						$userids[$i] = $db->quote($userids[$i]);
+					}
+					$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+				}
+			} else {
+				// public users
+				$userid_cond = ' AND p.userid = 0';
+			}
+			$where .= $userid_cond.' AND p.granted >= '.$db->quote($access);
+		}
+
+		return Array('select'   => $select,
+					 'from'     => $from,
+					 'where'    => $where,
+					 'order_by' => $order_by,
+					);
+
+	}//end generateGetParentsQuery()
 
 
 }//end class 
