@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.29 2004/11/05 02:47:42 dbaranovskiy Exp $
+* $Id: html_tidy.inc,v 1.30 2004/11/15 03:49:28 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,8 +106,8 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 
 		// Remove the following unsupported character codes that do not get replaced
 		// back to their original characters through the encoding process (mostly MS Word chars)
-		$search  = Array("%u2018","%u2019","%u2013","%u2014","%u2026","%u201C","%u201D");
-		$replace = Array("'"     , "'"    ,"-"     ,"-",     "...",   '"',     '"'     );
+		$search  = Array("%u2018",  "%u2019",  "%u2013",  "%u2014",  "%u2026",   "%u201C",  "%u201D");
+		$replace = Array("&lsquo;", "&rsquo;", "&ndash;", "&mdash;", "&hellip;", "&ldquo;", "&rdquo;");
 		$html = str_replace($search, $replace, $html);
 
 		// replace unicode's URL '%u' character entities with their HTML entity equivs
