@@ -146,6 +146,8 @@ mcListItemClass.prototype.hideKids = function()
 */
 mcListItemClass.prototype.startMove = function() 
 {
+	// if we aren't active we can't move
+	if (!this._active) return;
 	this._parent.startMove();
 }
 
