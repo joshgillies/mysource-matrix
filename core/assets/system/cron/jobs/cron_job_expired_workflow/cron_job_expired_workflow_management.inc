@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_expired_workflow_management.inc,v 1.2 2005/02/24 22:57:04 tbarrett Exp $
+* $Id: cron_job_expired_workflow_management.inc,v 1.3 2005/03/01 10:54:12 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @see Asset_Management
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,8 +45,14 @@ class Cron_Job_Expired_WorkFlow_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars['type']['default'] = 'repeating';
-		$this->vars['when']['default'] = 'ET=';
+		$this->vars = Array(
+						'type' => Array(
+							'default' => 'repeating',
+						),
+						'when' => Array(
+							'default' => 'ET=',
+						),
+					);
 
 	}//end constructor
 
