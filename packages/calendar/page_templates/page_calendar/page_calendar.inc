@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.15 2004/08/20 02:26:21 lwright Exp $
+* $Id: page_calendar.inc,v 1.16 2004/08/20 02:35:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,45 +34,76 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.15 $ - 1.0
+* @version $Revision: 1.16 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Calendar extends Page_Asset_Listing
 {
-	// All the view options available
+	
+	
+	/**
+	* list of available view options for each period and their keys => names 
+	* @var array
+	*/
 	var $view_options = Array(	
 		'year'	=> Array(
-			''						=>'(none)',
-			'list_without_headings'	=>'List without Headings', 
-			'list_with_headings'	=>'List with Month Headings', 
-			'calendar_format'		=>'Calendar Format'),
+			''						=> '(none)',
+			'list_without_headings'	=> 'List without Headings', 
+			'list_with_headings'	=> 'List with Month Headings', 
+			'calendar_format'		=> 'Calendar Format'),
 		'month' => Array(
-			''						=>'(none)',
-			'list_without_headings'	=>'List without Headings',
-			'list_with_headings'=>'List with Day Headings',
-			'calendar_format'=>'Calendar Format'),
+			''						=> '(none)',
+			'list_without_headings'	=> 'List without Headings',
+			'list_with_headings'	=> 'List with Day Headings',
+			'calendar_format'		=> 'Calendar Format'),
 		'week' => Array(	
-			''						=>'(none)',
-			'list_without_headings'=>'List without Headings',
-			'list_with_headings'=>'List with Day Headings',
-			'calendar_format'=>'Calendar Format'),
+			''						=> '(none)',
+			'list_without_headings'	=> 'List without Headings',
+			'list_with_headings'	=> 'List with Day Headings',
+			'calendar_format'		=> 'Calendar Format'),
 		'day' => Array(
-			''						=>'(none)',
-			'list_without_headings'=>'List without Headings',
-			'calendar_format'=>'Calendar Format'),
+			''						=> '(none)',
+			'list_without_headings'	=> 'List without Headings',
+			'calendar_format'		=> 'Calendar Format'),
 		'event' => Array(	
-			''						=>'(none)',
-			'single_event'=>'Single Event Display')
+			''						=> '(none)',
+			'single_event'			=> 'Single Event Display')
 	);
 
-	// Day name constants
+	
+	/**
+	* List of full day names, in order of date() weekday number
+	* @var array
+	*/
 	var $day_names_full = Array('Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday');
+	
+	
+	/**
+	* List of abbreviated day names, in order of date() weekday number
+	* @var array
+	*/
 	var $day_names_short = Array('Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat');
+	
+	
+	/**
+	* List of single-character day names, in order of date() weekday number
+	* @var array
+	*/
 	var $day_names_very_short = Array('S', 'M', 'T', 'W', 'T', 'F', 'S');
 
-	// Month name constants
+	
+	/**
+	* List of full month names, in chronological order
+	* @var array
+	*/
 	var $month_names_full = Array('', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December');
+	
+	
+	/**
+	* List of abbreviated month names, in chronological order
+	* @var array
+	*/
 	var $month_names_short = Array('', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
 
 
