@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.1 2005/02/11 00:48:39 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.2 2005/02/11 03:34:39 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -128,7 +128,13 @@ class Listing_Engine_Management extends Asset_Management
 										'default' => Array(),
 										);
 
-										
+		$this->vars['lineage_seperator'] = Array (
+										'added'			=> '0.1',
+										'type'			=> 'text',
+										'default'		=> ' > ',
+										'description'	=> 'Seperator to use when printing the lineage to a search result asset.',
+										);
+			
 	}//end Listing_Engine_Management()
 
 
@@ -140,6 +146,8 @@ class Listing_Engine_Management extends Asset_Management
 	*/
 	function _install()
 	{
+		$search_page_fields = Array('lineage_seperator');
+		
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		if (!parent::_install()) return false;
 		
@@ -149,14 +157,26 @@ class Listing_Engine_Management extends Asset_Management
 		bam('INSTALL LISTING ENGINE');
 		
 		$attr_names = Array();
+		$search_attr_names = Array();
 		foreach($this->vars as $attr_name => $attr_info) {
-			$attr_names[] = $db->quote($attr_name);
+			if (in_array($attr_name, $search_page_fields)) {
+				$search_attr_names[] = $db->quote($attr_name);
+			} else {
+				$attr_names[] = $db->quote($attr_name);
+			}
 		}
 		
 		$sql = 'UPDATE '.SQ_TABLE_RUNNING_PREFIX.'ast_attr SET owning_type_code = '.$db->quote($this->getAssetType()).', parameters_type_code = '.$db->quote($this->getAssetType()).' WHERE name IN ('.implode(', ', $attr_names).') AND owning_type_code = '.$db->quote('page_asset_listing');
 		
 		if (!$db->query($sql)) {
-			trigger_error('Unable to complete post-install script - ownership of attributes could not be transferred to asset listing');
+			trigger_error('Unable to complete post-install script - ownership of attributes could not be transferred from asset listing');
+			return false;
+		}
+		
+		$sql = 'UPDATE '.SQ_TABLE_RUNNING_PREFIX.'ast_attr SET owning_type_code = '.$db->quote($this->getAssetType()).', parameters_type_code = '.$db->quote($this->getAssetType()).' WHERE name IN ('.implode(', ', $search_attr_names).') AND owning_type_code = '.$db->quote('search_page');
+		
+		if (!$db->query($sql)) {
+			trigger_error('Unable to complete post-install script - ownership of attributes could not be transferred from search page');
 			return false;
 		}
 		
