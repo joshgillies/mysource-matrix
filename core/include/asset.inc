@@ -3014,14 +3014,11 @@ class Asset extends Resolve_Object
 						  AND revoked = 0';
 			}
 
-pre_echo($sql);
 			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				return Array();
 			}
-
-pre_echo($sql);
 
 			// cache the result for next time
 			$this->_tmp['permission_cache'][$storage_name][$permission] = $result;
@@ -3316,9 +3313,6 @@ pre_echo($sql);
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
 			return;
 		}
-$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['designid'], 'design');
-$design->paint($this);
-return;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url(current_url(false));
