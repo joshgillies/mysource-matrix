@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.242 2003/10/21 07:19:41 dwong Exp $
+* $Id: asset.inc,v 1.243 2003/10/21 23:48:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1583,15 +1583,6 @@ class Asset extends MySource_Object
 
 		if ($new_status != $this->status) {
 
-			// if we have just made this asset live, we update its minor version
-			if ($new_status == SQ_STATUS_LIVE) {
-				if (!$this->incrementVersion('minor')) {
-					trigger_error('processStatusChange failed for asset "'.$this->name.'", version not updated', E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$where = 'assetid = '.$db->quote($this->id);
@@ -1617,6 +1608,15 @@ class Asset extends MySource_Object
 			$this->status = $new_status;
 			unset($this->_tmp['status_object']);
 			$this->_updated();
+
+			// if we have just made this asset live, we update its minor version
+			if ($new_status == SQ_STATUS_LIVE) {
+				if (!$this->incrementVersion('minor')) {
+					trigger_error('processStatusChange failed for asset "'.$this->name.'", version not updated', E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
