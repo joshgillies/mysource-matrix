@@ -58,10 +58,12 @@ class Design_Area extends Asset
 	/*
 	* Returns name of the asset
 	*
+	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	*
 	* @see Asset::_getName()
 	* @access public
 	*/
-	function _getName() 
+	function _getName($short_name=false)
 	{
 		return $this->attr('id_name');
 	}//end _getName();

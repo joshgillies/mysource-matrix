@@ -26,6 +26,12 @@ class Asset extends Resolve_Object
 	var $name;
 
 	/**
+	* Short String representation of this attribute
+	* @var string
+	*/
+	var $short_name;
+
+	/**
 	* Timestamp of when this asset was last updated
 	* @var int
 	*/
@@ -129,9 +135,9 @@ class Asset extends Resolve_Object
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 		$sql = 'INSERT INTO sq_asset
-				(assetid, type_code, name, last_updated, last_userid)
+				(assetid, type_code, name, short_name, last_updated, last_userid)
 				VALUES
-				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($name).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
+				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($name).', '.$db->quote($name).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -141,6 +147,7 @@ class Asset extends Resolve_Object
 
 		$this->id   = $assetid;
 		$this->name = $name;
+		$this->short_name   = $name;
 		$this->last_updated = $now;
 		$this->last_userid  = $userid;
 
@@ -165,7 +172,7 @@ class Asset extends Resolve_Object
 
 		// OK, the first thing to do is check we actually exist :)
 
-		$sql = 'SELECT assetid, name, type_code, last_updated, last_userid
+		$sql = 'SELECT assetid, name, short_name, type_code, last_updated, last_userid
 				FROM sq_asset
 				WHERE assetid = '.$db->quote($assetid);
 		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
@@ -175,7 +182,7 @@ class Asset extends Resolve_Object
 			return;
 		}
 
-		list($this->id, $this->name, $type_code, $this->last_updated, $this->last_userid) = $result;
+		list($this->id, $this->name, $this->short_name, $type_code, $this->last_updated, $this->last_userid) = $result;
 		$this->last_updated = iso8601_ts($this->last_updated);
 		unset($result);
 
@@ -244,11 +251,13 @@ class Asset extends Resolve_Object
 
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		$name   = $this->_getName();
+		$name       = $this->_getName();
+		$short_name = $this->_getName(true);
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'UPDATE sq_asset
 				SET name         = '.$db->quote($name).',
+					short_name   = '.$db->quote($short_name).',
 					last_updated = '.$db->quote(ts_iso8601($now)).',
 					last_userid  = '.$db->quote($userid).'
 				WHERE assetid = '.$db->quote($this->id);
@@ -260,6 +269,7 @@ class Asset extends Resolve_Object
 		}
 
 		$this->name         = $name;
+		$this->short_name   = $short_name;
 		$this->last_updated = $now;
 		$this->last_userid  = $userid;
 
@@ -269,11 +279,13 @@ class Asset extends Resolve_Object
 
 	/**
 	* Returns a name to use to describe this instance of this asset
-	* should be overridden, used to set $this->name
+	* should be overridden, used to set $this->name and $this->short_name
+	*
+	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @access private
 	*/
-	function _getName()
+	function _getName($short_name=false)
 	{
 		return ucwords(str_replace('_', ' ', $this->type())).' #'.$this->id;
 	}//end _getName();
@@ -304,9 +316,9 @@ class Asset extends Resolve_Object
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
 		$sql = 'INSERT INTO sq_asset
-				(assetid, type_code, name, last_updated, last_userid)
+				(assetid, type_code, name, short_name, last_updated, last_userid)
 				VALUES
-				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($this->name.' - Duplicate').', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
+				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($this->name.' - Duplicate').', '.$db->quote($this->short_name.' - Duplicate').', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {

@@ -132,6 +132,9 @@ class Design_Area_Menu_Type extends Design_Area
 					break;
 
 				case 'page_short_name' :
+					echo '<?', 'php echo ', $escape_start, '$kid->short_name', $escape_end, '; ?', '>';
+					break;
+
 				case 'page_name' :
 					echo '<?', 'php echo ', $escape_start, '$kid->name', $escape_end, '; ?', '>';
 					break;

@@ -100,12 +100,15 @@ class User extends Asset
 	/**
 	* Returns name of the user
 	*
+	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	*
 	* @see Asset::_getName()
 	* @access public
 	*/
-	function _getName() {
+	function _getName($short_name=false)
+	{
 		return ($this->attr('first_name') || $this->attr('last_name')) ? $this->attr('first_name').' '.$this->attr('last_name') : $this->attr('username');
-	}//end _getName();
+	}//end _getName()
 
 
 	/**

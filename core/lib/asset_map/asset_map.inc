@@ -253,7 +253,7 @@ class Asset_Map
 			return false;
 		}
 		$attrs = Array('assetid' => $asset->id, 
-						'name'   => '[CS] '.$asset->name, 
+						'name'   => '[CS] '.$asset->short_name, 
 						'type_code' => $asset->type()
 						);
 		$asset_node = &$root->addChild('asset', '', $attrs);
