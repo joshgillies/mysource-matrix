@@ -64,15 +64,7 @@ public class TextWindow extends JFrame implements ActionListener, FocusListener 
 	@param height	the height of the window in pixels
 	*/
 	public TextWindow(String path, int width, int height) {
-		super("");
-		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-		textPanel = new TextPanel();
-		getContentPane().add(textPanel, BorderLayout.CENTER);
-		if (openFile(path)) {
-			setSize(width, height);
-			show();
-		} else
-			dispose();
+		this("Opening text files not supported",  "Opening text files not supported", width, height);
 	}
 	
 	void addMenuBar() {
@@ -112,30 +104,7 @@ public class TextWindow extends JFrame implements ActionListener, FocusListener 
 		textPanel.setFont(font);
 	}
   
-	boolean openFile(String path) {
-		OpenDialog od = new OpenDialog("Open Text File...", path);
-		String directory = od.getDirectory();
-		String name = od.getFileName();
-		if (name==null)
-			return false;
-		path = directory + name;
-		
-		IJ.showStatus("Opening: " + path);
-		try {
-			BufferedReader r = new BufferedReader(new FileReader(directory + name));
-			load(r);
-			r.close();
-		}
-		catch (Exception e) {
-			IJ.error(e.getMessage());
-			return true;
-		}
-		textPanel.setTitle(name);
-		setTitle(name);
-		IJ.showStatus("");
-		return true;
-	}
-	
+
 	/** Returns a reference to this TextWindow's TextPanel. */
 	public TextPanel getTextPanel() {
 		return textPanel;
