@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.275 2005/02/23 05:11:37 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.276 2005/02/24 01:21:24 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.275 $
+* @version $Revision: 1.276 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1177,11 +1177,13 @@ class Asset_Manager extends MySource_Object
 		$null = null; // needed because we return by reference
 		if (!$source->id) return $null;
 
-		$lock = $this->getLockInfo($source->id, 'all');
-		foreach ($lock as $lock_type => $lock_info) {
-			if (empty($lock_info)) {
-				trigger_error('You need to acquire all locks on this asset (#'.$source->id.') before it can be cloned. Failed on lock type "'.$lock_type.'"', E_USER_WARNING);
-				return $null;
+		if (!isset($GLOBALS['SQ_INSTALL']) || !$GLOBALS['SQ_INSTALL']) {
+			$lock = $this->getLockInfo($source->id, 'all');
+			foreach ($lock as $lock_type => $lock_info) {
+				if (empty($lock_info)) {
+					trigger_error('You need to acquire all locks on this asset (#'.$source->id.') before it can be cloned. Failed on lock type "'.$lock_type.'"', E_USER_WARNING);
+					return $null;
+				}
 			}
 		}
 
@@ -1219,10 +1221,12 @@ class Asset_Manager extends MySource_Object
 			return $null;
 		}
 
-		// Lock the new clone in the same chain as we are locked
-		if (!$this->acquireLock($clone->id, 'all', $source->id)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return $null;
+		if (!isset($GLOBALS['SQ_INSTALL']) || !$GLOBALS['SQ_INSTALL']) {
+			// Lock the new clone in the same chain as we are locked
+			if (!$this->acquireLock($clone->id, 'all', $source->id)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return $null;
+			}
 		}
 
 		if (!empty($link)) {
@@ -1232,21 +1236,23 @@ class Asset_Manager extends MySource_Object
 			if (!isset($link['is_dependant']))  $link['is_dependant']  = 0;
 			if (!isset($link['is_exclusive']))  $link['is_exclusive']  = 0;
 
-			// OK what we are going to do is make sure that the new parents lock is
-			// in the same chain as our current lock
-			$parent_lock = $this->getLockInfo($link['asset']->id, 'links');
-			if (empty($parent_lock) || $parent_lock['source_assetid'] != $lock['links']['source_assetid']) {
-
-				if (!empty($parent_lock)) {
-					if (!$this->releaseLock($link['asset']->id, 'links')) {
+			if (!isset($GLOBALS['SQ_INSTALL']) || !$GLOBALS['SQ_INSTALL']) {
+				// OK what we are going to do is make sure that the new parents lock is
+				// in the same chain as our current lock
+				$parent_lock = $this->getLockInfo($link['asset']->id, 'links');
+				if (empty($parent_lock) || $parent_lock['source_assetid'] != $lock['links']['source_assetid']) {
+	
+					if (!empty($parent_lock)) {
+						if (!$this->releaseLock($link['asset']->id, 'links')) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return $null;
+						}
+					}
+	
+					if (!$this->acquireLock($link['asset']->id, 'links', $lock['links']['source_assetid'])) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return $null;
 					}
-				}
-
-				if (!$this->acquireLock($link['asset']->id, 'links', $lock['links']['source_assetid'])) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return $null;
 				}
 			}
 
@@ -1300,7 +1306,7 @@ class Asset_Manager extends MySource_Object
 	*        )
 	* </PRE>
 	* @param Array			&$clone_map			a map for that can be used for re-indexing data held in
-	*												assets of the form Array([old asset id] => [new asset id])
+	*											assets of the form Array([old asset id] => [new asset id])
 	* @param array			$components	the wanted components to clone,
 	* <PRE>
 	* Array(
