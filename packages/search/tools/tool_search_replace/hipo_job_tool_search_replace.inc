@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.4 2005/03/23 00:22:35 ndvries Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.5 2005/03/23 04:07:00 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to perform search and replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -736,7 +736,9 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		foreach ($this->_running_vars['schema_replacements'][$assetid] as $fieldid => $data) {
 			$new_data = preg_replace('/'.$search_string.'/i', $replace_string, $data['value']);
 			$field = &$am->getAsset($fieldid);
-			$field->setAttrValue('default', $new_data);
+			$value_component = Array();
+			$field->decodeValueString($new_data, $default_data, $value_component);
+			$field->setAttrValue('default', $default_data);
 			$field->saveAttributes();
 			$am->forgetAsset($field);
 		}
