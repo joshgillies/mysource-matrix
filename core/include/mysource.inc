@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.56 2004/11/18 04:39:52 gsherwood Exp $
+* $Id: mysource.inc,v 1.57 2004/11/26 02:44:29 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,6 +117,13 @@ class MySource
 	*/
 	var $user = null;
 
+	/**
+	* The object of the (main) asset being printed on the frontend
+	*
+	* @var object Asset
+	*/
+	var $frontendAsset;
+	
 	/**
 	* Whether the logged in user is the root user or not
 	*
@@ -308,6 +315,7 @@ class MySource
 				exit(1);
 			}//end if is_null(asset)
 
+			$this->frontendAsset = &$asset;
 			$asset->printFrontend();
 
 		}//end if backend/limbo
