@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_page.inc,v 1.1.1.1 2003/10/08 01:20:58 dwong Exp $
+* $Id: search_page.inc,v 1.2 2003/10/13 07:01:45 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -635,7 +635,6 @@ class Search_Page extends Page
 
 				
 				case 'exclude':
-					$word_logic = 'OR';
 
 					foreach ($words as $word) {
 						if ($asset_list_sql != '') {
@@ -643,7 +642,7 @@ class Search_Page extends Page
 						}
 						$asset_list_sql .= "(SELECT ai.assetid
 							FROM sq_asset_indexing ai
-							WHERE ai.type = 'text' AND (ai.value LIKE '". implode ("' $word_logic ai.value LIKE '", $words) ."'))";
+							WHERE ai.type = 'text' AND (ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."'))";
 					}
 
 				break;
@@ -659,7 +658,7 @@ class Search_Page extends Page
 							FROM sq_asset_indexing ai
 							WHERE ai.type = 'text' 
 							AND ai.component = 'metadata:". (int)$field['params']['metadata_field'] . "' 
-							AND (ai.value LIKE ('". implode ("' $word_logic ai.value LIKE '", $words) ."'))";
+							AND (ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."'))";
 				break;
 
 				default:
@@ -677,8 +676,9 @@ class Search_Page extends Page
 			return Array();
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
+		bam(str_replace("\t", " ", $sql));
 		$results = $db->getAll($sql);
-
+		bam($results);
 		$matches = array();
 		foreach($results as $result) {
 			$matches[$result['assetid']] = $result;
