@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.26 2004/11/30 23:02:52 tbarrett Exp $
+* $Id: image_edit_fns.inc,v 1.26.2.1 2005/03/07 00:35:57 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -299,13 +299,6 @@ class Image_Edit_Fns extends File_Edit_Fns
 				return true;
 			}
 
-			forms = document.getElementsByTagName('FORM');
-			if (forms[0].onsubmit) {
-				var otherOnSubmit = forms[0].onsubmit;
-				forms[0].onsubmit = function() { otherOnSubmit(); return getAppletResult(); }
-			} else {
-				forms[0].onsubmit = function() { return getAppletResult(); }
-			}
 			// -->
 		</script>
 
@@ -325,6 +318,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		?>
 		</applet>
 		<?php
+		$o->addOnSubmit('if (!getAppletResult()) return false;');
 		return true;
 
 	}//end _paintApplet()
