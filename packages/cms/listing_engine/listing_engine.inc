@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.11 2005/02/15 05:50:47 lwright Exp $
+* $Id: listing_engine.inc,v 1.12 2005/02/16 01:06:23 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1026,7 +1026,10 @@ class Listing_Engine extends Page
 			foreach ($parent_asset_ids as $parent_asset_id) {
 				if ($parent_asset_id == $root_assetid) $found_root = true;
 				if (!$found_root) continue;
-				if (!$first) $replacement .= $this->attr('lineage_seperator');
+				if (!$first) {
+					$lineage .= $this->attr('lineage_seperator');
+					$linked_lineage .= $this->attr('lineage_seperator');
+				}
 				$first = false;
 				$ancestor_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_asset_id);
 				$linked_lineage .= '<a href="'.$ancestor_asset->getUrl().'">'.$ancestor_asset->name.'</a>';
@@ -1056,6 +1059,8 @@ class Listing_Engine extends Page
 		}
 
 		$keywords['page_href']['value'] = $this->getHref();
+		$keywords['asset_position']['value'] = $list_position;
+		$element_contents = replace_keywords($element_contents, $element_replacements);
 
 		foreach ($keywords as $keyword => $info) {
 			$contents = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|is', '\\1%'.$keyword.'%\\4', $contents);
@@ -1122,6 +1127,7 @@ class Listing_Engine extends Page
 		$keywords['asset_contents'] = 'Asset Contents';
 		$keywords['asset_name_linked'] = 'Asset Name Linked';
 		$keywords['asset_short_name_linked'] = 'Asset Short Name Linked';
+		$keywords['asset_position'] = 'Asset Position';
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
