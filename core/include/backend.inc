@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.73 2003/11/18 15:37:33 brobertson Exp $
+* $Id: backend.inc,v 1.74 2003/11/19 13:00:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -394,30 +394,32 @@ class Backend extends MySource_Object
 					$options = Array();
 					$options[] = Array(
 									'url'     => '#',
-									'onclick' => "Javascript:
-									if(top.main.main_form.sq_link_path) {
-										if(top.main.main_form.sq_link_path.value) {
-											if (top.sidenav.select_path) {
-												top.sidenav.select_path(top.main.main_form.sq_link_path.value);
-											}
+									'onclick' => 'Javascript:
+									if (top.main && top.main.get_form_element_value) {
+										var sq_link_path = top.main.get_form_element_value("sq_link_path");
+										if (sq_link_path && top.sidenav && top.sidenav.select_path) {
+											top.sidenav.select_path(sq_link_path);
 										}
-										return false;
-									}",
+									}
+									return false;
+									',
 									'title'   => 'Where am I?',
 									'icon'    => 'whereami.png',
 									);
 
 					$options[] = Array(
 									'url'     => '#',
-									'onclick' => "Javascript:
-									if(top.main.main_form.sq_preview_url) {
-										if(top.main.main_form.sq_preview_url.value) {
-											window.open(top.main.main_form.sq_preview_url.value, 'sq_preview_window');
+									'onclick' => 'Javascript:
+									if (top.main && top.main.get_form_element_value) {
+										var sq_preview_url = top.main.get_form_element_value("sq_preview_url");
+										if (sq_preview_url) {
+											window.open(sq_preview_url, "sq_preview_window");
 										} else {
-											alert('No preview is available');
+											alert("No preview is available");
 										}
-										return false;
-									}",
+									}
+									return false;
+									',
 									'title'   => 'Preview on frontend',
 									'icon'    => 'preview.png',
 									);
@@ -455,11 +457,12 @@ class Backend extends MySource_Object
 
 					foreach($options as $option) {
 						?><a href="<?php echo $option['url'];?>"
+							 title="<?php echo htmlspecialchars($option['title']);?>"
 							 onMouseOver="window.status = '<?php echo htmlspecialchars($option['title']);?>'; return true;"
 							 onMouseOut = "window.status = ''; return true;" 
 							 style="cursor: pointer;"
 							 <?php echo (isset($option['target'])) ? 'target="'.$option['target'].'"' : ''; ?>
-							 <?php echo (isset($option['onclick'])) ? 'onClick="'.$option['onclick'].'"' : ''; ?>
+							 <?php echo (isset($option['onclick'])) ? 'onClick="'.htmlspecialchars($option['onclick']).'"' : ''; ?>
 						  ><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script></a>
 						&nbsp;&nbsp;<?php
 					}
