@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.22 2004/01/22 00:33:52 diarandine Exp $
+* $Id: search_page.inc,v 1.23 2004/02/10 00:35:43 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,8 @@
 *
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $ - 1.0
+* @author  Dmitri Iarandine <diarandine@squiz.net>
+* @version $Revision: 2.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -463,7 +464,6 @@ class Search_Page extends Page
 					$replacement = '<a href="'. $this->getURL() .'" onClick=\''.$js .'\'>Next</a>';
 				break;
 
-
 				case 'initial_layout':
 					$replacement = $this->getBodycopyContents('initial', $this->getInitialBodyReplacements());
 				break;
@@ -587,11 +587,16 @@ class Search_Page extends Page
 				// convert wildcard symbols to corresponding SQL wildcards
 				$words[$i] = strtr($words[$i], "*?", "%_");
 
-				// preserve the wildcard symbols - i.e. don't quote them
-				if (ereg('^[A-z%_]+$', $words[$i]))
-					$words[$i] = addslashes($words[$i]);
-				else
-					unset($words[$i]);
+				// if this is an Email, skip the following check...
+				$at_pos  = strpos($words[$i], '@'); 
+				$dot_pos = strpos($words[$i], '.');
+				if ($at_pos === false && $dot_pos === false) { 
+					// preserve the wildcard symbols - i.e. don't quote them
+					if (ereg('^[A-z%_]+$', $words[$i]))
+						$words[$i] = addslashes($words[$i]);
+					else
+						unset($words[$i]);
+				} // if this is an Email
 			}
 
 			// retrieve the search field for this query
@@ -611,14 +616,14 @@ class Search_Page extends Page
 				SQ_TABLE_PREFIX . "asset_permission ap,\n"      .
 				SQ_TABLE_PREFIX . "asset a\n"                  .
 				"WHERE ".
-				"al1.majorid = " . $db->quote((int)$root_assetid)	.	// all links that root asset is a major in
+				"al1.majorid = " . $db->quote((int)$root_assetid).	// all links that root asset is a major in
 				" AND al1.linkid = alt1.linkid "			.	// all treeids with those links
 				" AND alt2.treeid LIKE ".$concat			.	// all treeids that start with those treeids
 				" AND alt2.linkid = al2.linkid "			.	// all links with those treeids
 				" AND ai.assetid  = al2.minorid \n"			.	// and the indexing data for those assets
 				" AND a.assetid   = ai.assetid \n"			.	// and the asset data for those assets       
 				" AND ap.assetid  = ai.assetid \n"			. // and the permission data for those assets
-				" AND a.status  >= ".SQ_STATUS_LIVE." \n";          // and only assets that are live
+				//" AND a.status  >= ".SQ_STATUS_LIVE." \n";          // and only assets that are live
 
 			$userid_cond = '';
 			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
@@ -639,10 +644,38 @@ class Search_Page extends Page
 			}
 			
 			switch($field['type']) {
+
+				case 'asset_attrib': 
+					if ($field['params']['searchtype'] == '')
+						break;
+					$field_asset_scores = null;
+
+					foreach ($words as $word) {
+						$sql = $start_sql . "AND (ai.component = 'attr:". $field['params']['searchtype'] . ":" . $field['params']['type_attr'] . "'
+							AND (ai.value LIKE '%". implode ("' OR ai.value LIKE '", $words) ."%'))\n";
+						$sql .= "GROUP BY ai.assetid";
+
+						$results = $db->getAssoc($sql);
+
+						if (is_null($field_asset_scores)) {
+							$field_asset_scores = $results;
+						} else {
+							$field_asset_scores = $this->combineAssetScores($field_asset_scores, $results, 'AND');
+						};
+					}
+
+					if (is_null($total_asset_scores)) {
+						$total_asset_scores = $field_asset_scores;
+					} else {
+						$total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $logic);
+					}
+
+				break;
+
 				case 'include_all':
 					$field_asset_scores = null;
 					foreach ($words as $word) {
-						$sql = $start_sql . "AND (ai.value LIKE '$word')\n";
+						$sql = $start_sql . "AND (ai.value LIKE '%$word%')\n";
 						$sql .= "GROUP BY ai.assetid";
 
 						$results = $db->getAssoc($sql);
@@ -667,7 +700,7 @@ class Search_Page extends Page
 
 					$field_asset_scores = null;
 					foreach ($words as $word) {
-						$sql = $start_sql . "AND (ai.value LIKE '$word')\n";
+						$sql = $start_sql . "AND (ai.value LIKE '%$word%')\n";
 						$sql .= "GROUP BY ai.assetid";
 
 						$results = $db->getAssoc($sql);
@@ -713,7 +746,9 @@ class Search_Page extends Page
 			unset($total_asset_scores[$exclude_assetid]);
 		}
 
-		$results = $this->_climbToAssetTypes($total_asset_scores, array('file', 'page'));
+		// Allowed code types should be specified dynamically!!
+
+		$results = $this->_climbToAssetTypes($total_asset_scores, array('file', 'page', 'workflow_schema', 'metadata_schema', 'user'));
 
 		return $results;
 
@@ -795,6 +830,7 @@ class Search_Page extends Page
 		}
 
 		$assetTypes = array_merge($assetTypes, $newDescendantTypes);
+
 		$asset_info = $am->getAssetInfo(array_keys($matches));
 
 		// use matches as a queue, take head match if it is one of the asset types then add to out

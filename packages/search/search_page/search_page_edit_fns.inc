@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.9 2004/01/22 00:33:52 diarandine Exp $
+* $Id: search_page_edit_fns.inc,v 1.10 2004/02/10 00:35:54 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@
 *     Edit functions for search page
 *
 * @author  Dominic WOng <dwong@squiz.net>
-* @version $Revision: 1.9 $ - 1.0
+* @version $Revision: 1.10 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -159,9 +159,10 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			$fields = unserialize($fields);
 
 		$queryTypes = Array(
-			'include_all' => 'Include All', 
-			'exclude' => 'Exclude', 
-			'metadata' => 'Metadata', 
+			'include_all'	=> 'Include All',
+			'asset_attrib'	=> 'Asset attribute', // added for testing new features
+			'exclude'		=> 'Exclude', 
+			'metadata'		=> 'Metadata'
 		); 
 
 		$i = 0;
@@ -203,6 +204,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			}
 			?>
 		</table>
+		<br />
 		<?php
 
 		if ($asset->writeAccess('attributes')) {
@@ -210,7 +212,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			?>Add field (name): <?php
 			text_box($prefix."_fields[$i][name]", '', 15);
 			?><br />Query type: <?php
-			echo combo_box($prefix.'_fields['. $i .'][type]', $queryTypes, false, array());
+			echo combo_box($prefix.'_fields['. $i .'][type]', $queryTypes, false, 'include_all');
 		}
 
 		return true;
@@ -241,6 +243,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			$fields = unserialize($fields);
 
 		$fields_post =& $_POST[$prefix.'_fields'];
+
 		$deleted_fields =& $_POST[$prefix.'_deleted_fields'];
 
 		$fields = Array();
@@ -265,6 +268,133 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
+	* Paints the interface for adding and configuring searchable asset types
+	*
+	* @param object Search_Page			&$asset	the search page asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	* 
+	*/
+	function paintTypes(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$search_types = $asset->attr('search_types');
+
+		if (!empty($search_types)) {
+
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<td class="sq-backend-table-header">Searchable Asset Type</td>
+						<?php
+						if ($write_access) {
+							?><td class="sq-backend-table-header">Delete ?</td><?php
+						}
+						?>
+					</tr>
+				<?php
+
+				foreach ($search_types as $type) {
+
+				?>
+				<tr>
+					<td class="sq-backend-table-cell"><?php echo $type; ?></td>
+					<?php
+					if ($write_access) {
+						?><td class="sq-backend-table-cell"><?php check_box($prefix.'_delete_type[]', $type); ?></td><?php
+					}
+					?>
+				</tr>
+				<?php
+
+				} // end foreach select_options
+
+				?></table><?php
+
+		} else {
+			echo 'There are currently no searchable asset types';
+		} // end if empty
+
+		// selection field for searchable asset types
+		if ($write_access) {
+			$o->openField('Add asset type');
+
+				$system_types = & $GLOBALS['SQ_SYSTEM']->am->getTypeList();
+				$systemTypes = Array();
+				$systemTypes['none'] = '- Select asset type -'; // default value
+
+				foreach ($system_types as $sys_key => $sys_val) {
+					if (!in_array($sys_val, $search_types)) {
+						$systemTypes[$sys_val] = $sys_val; // adding only if it's not already there
+					}
+				}
+
+				// displaying combo boxes...
+				if ($asset->writeAccess('attributes')) {
+					if (!empty($systemTypes)){
+						combo_box($prefix.'_new_type', $systemTypes, false, 'none'); 
+					}
+				}
+
+			$o->closeField();
+		}
+
+		return true;
+
+	}//end paintTypes
+
+
+	/**
+	* Processes the interface for adding and configuring searchable asset types.
+	*
+	* @param object Search_Page			&$asset	the search page asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	* 
+	*/
+	function processTypes(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$search_types = $asset->attr('search_types');
+		
+		$update = false;
+
+		// 1). Deleting checked items
+
+		if (isset($_POST[$prefix.'_delete_type'])) {
+			foreach ($_POST[$prefix.'_delete_type'] as $type_key) {
+				unset($search_types[$type_key]);
+			}
+			$update = true;
+		}
+
+		// 2). now get the new submitted values (if any) and add them to array
+
+		if (!empty($_POST[$prefix.'_new_type']) && $_POST[$prefix.'_new_type'] != 'none') {
+			$new_type  = trim($_POST[$prefix.'_new_type']);
+			$search_types[$new_type] = $new_type;
+			$update = true;
+		}
+			
+		// 3). Updating asset attribute value
+		if ($update) {
+			$asset->setAttrValue('search_types', $search_types);
+		} 
+
+		return true;
+
+	}//end processTypes()
+
+
+	/**
 	* Paints the interface for the fields' parameters.
 	*
 	* @param object Search_Page			&$asset			the search page asset
@@ -278,6 +408,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	function paintFieldParameters(&$asset, $fieldPrefix, $fieldData)
 	{
 		switch ($fieldData['type']) {
+	
 			case 'metadata':
 				if (!isset($fieldData['params']['metadata_field']['assetid'])) {
 					$metadata_field = 0;
@@ -295,6 +426,69 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					}
 				}
 			break;
+			
+			//////////////////////// TESTING NEW FEATURE /////////////////////////
+			case 'asset_attrib': 
+
+				// printing out attribute selection combo box
+				if (!isset($fieldData['params']['searchtype'])) {
+					$search_type = '';
+				} else {
+					$search_type = $fieldData['params']['searchtype'];
+				}
+
+				// getting array of searchable asset types from page attribute
+				$search_types = $asset->attr('search_types');
+				
+				// getting the values for available types list
+				$avail_asset_types = & $GLOBALS['SQ_SYSTEM']->am->getTypeList();
+				$assetTypes = Array();
+				foreach ($avail_asset_types as $type_key => $type_val) {
+					if (in_array($type_val, $search_types)) { // adding only searchable attributes
+						$assetTypes[$type_val] = $type_val; // creating assoc array out of normal one
+					}
+				}
+				
+				// displaying combo boxes...
+				if ($asset->writeAccess('attributes')) {
+
+					// not printing the combo box unless there is something to show
+					if (!empty($assetTypes)){
+						combo_box($fieldPrefix.'[params][searchtype]', $assetTypes, false, $search_type); 
+					}
+
+					// printing out attribute selection combo box
+					if (!isset($fieldData['params']['type_attr']) || $search_type == '') {
+						$selected_attr = '';
+					} else {
+						$selected_attr = $fieldData['params']['type_attr'];
+					}
+
+					// not printing the combo box unless there is something to show
+					if ($search_type != ''){
+
+					$type_attrs = & $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, true);
+
+						echo " <b>Attr:</b> ";
+						$typeAttrs = Array();
+						$typeAttrs[''] = "- attribute -";
+						foreach ($type_attrs as $attr_name => $attr_type) {
+							// we could use $attr_type to check if it's wanted here
+							$typeAttrs[$attr_name] = $attr_name;
+						}
+
+						combo_box($fieldPrefix.'[params][type_attr]', $typeAttrs, false, $selected_attr); 
+					}
+
+				} else {
+					if ($search_type != '') {
+						echo $search_type;
+					} else {
+						echo 'No asset type selected';
+					}
+				}
+			break;
+			/////////////////////////////////////////////////////////////////////
 
 			case 'include_all':
 			case 'exclude':
