@@ -1,3 +1,32 @@
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: TSelect.js,v 1.2 2005/02/11 03:39:37 dbaranovskiy Exp $
+*
+*/
+
+/**
+* Select class. Constructor
+*
+* @return null
+* @access public
+*/
 TSelect = function(varname, select)
 {
 	this.select = document.getElementById(select);
@@ -14,6 +43,15 @@ TSelect = function(varname, select)
 	this.valuefield = "value";
 
 
+	/**
+	* function fires when user press any key in the text field. It searches for words
+	*
+	* @param	word	value of the select
+	* @param	evt		event object
+	*
+	* @return null
+	* @access public
+	*/
 	this.search = function(word, evt)
 	{
 		var res = Array();
@@ -85,6 +123,14 @@ TSelect = function(varname, select)
 	}
 
 
+	/**
+	* hides select box
+	*
+	* @param	val		to set or not value before hiding
+	*
+	* @return null
+	* @access public
+	*/
 	this.hide = function(val)
 	{
 		if (typeof(val) != "undefined" && this.sel.selectedIndex > -1) {
@@ -99,6 +145,13 @@ TSelect = function(varname, select)
 		this.curvalue = "";
 	}
 
+
+	/**
+	* shows select box and refresh position
+	*
+	* @return null
+	* @access public
+	*/
 	this.refresh = function()
 	{
 		if (this.sel == null) {
@@ -145,6 +198,16 @@ TSelect = function(varname, select)
 	}
 
 
+	/**
+	* build options for list
+	* could be overwritten
+	*
+	* @param	option	option object
+	* @oaram	num		number of the element in the "this.result" array
+	*
+	* @return null
+	* @access public
+	*/
 	this.build = function(option, num)
 	{
 		option.text = this.results[num].text;
@@ -154,9 +217,22 @@ TSelect = function(varname, select)
 	}
 
 
+	/**
+	* build options for list
+	* could be overwritten
+	*
+	* @return null
+	* @access public
+	*/
 	this.process = function(){}
 
 
+	/**
+	* converts object to string
+	*
+	* @return null
+	* @access public
+	*/
 	this.toString = function()
 	{
 		var res = "";
@@ -170,7 +246,10 @@ TSelect = function(varname, select)
 		res += '<select multiple="multiple" onfocus="clearTimeout(' + this.varname + '.time)" onchange="' + this.varname + '.hide(1)" id="' + this.varname + '_select" class="results" onblur="' + this.varname + '.time = setTimeout(\'' + this.varname + '.hide(1)\', 500)"></select>\n';
 		return res;
 	}
+
+
 	//initialisation
+
 	if (this.select != null) {
 		this.select.style.display = "none";
 	} else {
