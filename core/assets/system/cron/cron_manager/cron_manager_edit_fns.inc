@@ -40,6 +40,61 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Prints the jobs interface
 	*
+	* @param object Cron_Manager		&$cron_mgr	the owning asset
+	* @param string						$one_off	whether we are after one_off options or repeating
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getWhenBoxHoursMins(&$cron_mgr, $one_off)
+	{
+		$repeating = !$one_off; // for easier reading
+
+		$options = Array(
+					'mins'		=> Array(),
+					'hours'		=> Array(),
+				);
+
+		$one_hour = 60 * 60;
+		$one_day  = 24 * $one_hour;
+
+		$refresh_secs  = (int) $cron_mgr->attr('refresh_time');
+		$refresh_mins  = floor($refresh_secs  / 60);
+		$refresh_hours = floor($refresh_mins  / 60);
+
+		$epoch_date    = getdate($cron_mgr->attr('epoch'));
+
+		// how often in an hour do we refresh
+		if ($refresh_mins == 0)			$num_refreshes = 60;
+		else if ($refresh_mins >= 60)	$num_refreshes = 1;
+		else							$num_refreshes = floor(60 / $refresh_mins);
+
+		for ($i = $epoch_date['minutes']; $i < $epoch_date['minutes'] + 60; $i+= (60 / $num_refreshes)) {
+			$num = ($i >= 60) ? $i - 60 : $i;
+			$options['mins'][] = str_pad($num, 2, '0', STR_PAD_LEFT);
+		}
+		sort($options['mins']);
+
+
+		// how often in an day do we refresh
+		if ($refresh_hours == 0)		$num_refreshes = 24;
+		else if ($refresh_hours >= 24)	$num_refreshes = 1;
+		else							$num_refreshes = floor(24 / $refresh_hours);
+		for ($i = $epoch_date['hours']; $i < $epoch_date['hours'] + 24; $i+= (24 / $num_refreshes)) {
+			$num = ($i >= 24) ? $i - 24 : $i;
+			$options['hours'][] = str_pad($num, 2, '0', STR_PAD_LEFT);
+		}
+
+		sort($options['hours']);
+
+		return $options;
+
+	}// end getWhenBoxHoursMins()
+
+
+	/**
+	* Prints the jobs interface
+	*
 	* @param object Asset				&$asset	the owning asset
 	* @param object Backend_Outputter	&$o		the backend outputter
 	* @param string						$prefix	prefix for form elements
@@ -49,6 +104,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintJobs(&$asset, &$o, $prefix)
 	{
+
 		$jobs = &$asset->getJobs('cron_job', false);
 		if (empty($jobs)) {
 			$o->openField('');
@@ -114,8 +170,8 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 										Run As :&nbsp;
 									</td>
 									<td class="sq-backend-data">
-										<?php 
-											$user = &$jobs[$i]->getRunningUser(); 
+										<?php
+											$user = &$jobs[$i]->getRunningUser();
 											echo $user->name.' (#'.$user->id.')';
 										?>
 									</td>
@@ -183,7 +239,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Yes getting the date time field requires it's own function because it is so 
+	* Yes getting the date time field requires it's own function because it is so
 	* fucking hard to set-up
 	*
 	* @param object Asset				&$asset	the owning asset
@@ -279,7 +335,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->writeAccess() && $GLOBALS['SQ_SYSTEM']->userRoot()) {
 			if ($field->processField()) {
 				$value_arr = $field->strToUnitsArray($field->value);
-				$epoch = mktime($value_arr['h'], $value_arr['i'], $value_arr['s'], $value_arr['m'], $value_arr['d'], $value_arr['y']);		
+				$epoch = mktime($value_arr['h'], $value_arr['i'], $value_arr['s'], $value_arr['m'], $value_arr['d'], $value_arr['y']);
 				return $asset->setAttrValue('epoch', $epoch);
 
 			}// end if
@@ -289,7 +345,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 	}// end processEpoch()
 
-	
+
 	/**
 	* Prints the interface for showing when the cron manager last ran
 	*
