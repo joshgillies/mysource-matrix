@@ -1,5 +1,5 @@
 <contents screen="details">
-	<section name="Section One">
+	<section name="User Details">
 		<field attribute="username" />
 		<field attribute="password" />
 	</section>
