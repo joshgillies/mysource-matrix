@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: InspectorGadget.java,v 1.1 2005/02/18 05:21:40 mmcintyre Exp $
+* $Id: InspectorGadget.java,v 1.2 2005/02/20 22:40:25 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -528,7 +528,7 @@ public class InspectorGadget 	extends 	JTable
 	public void mouseClicked(MouseEvent evt) {
 
 		// we dont want to drill down the asset on right mouse clicks
-		if (SwingUtilities.isRightMouseButton(evt))
+		if (GUIUtilities.isRightMouseButton(evt))
 			return;
 
 		if (evt.getClickCount() != 2)
@@ -1231,7 +1231,7 @@ public class InspectorGadget 	extends 	JTable
 
 	protected class MenuHandler extends MouseAdapter {
 		public void mouseClicked(MouseEvent evt) {
-			if (!SwingUtilities.isRightMouseButton(evt))
+			if (!GUIUtilities.isRightMouseButton(evt))
 				return;
 			JPopupMenu menu = null;
 
@@ -1357,7 +1357,7 @@ public class InspectorGadget 	extends 	JTable
 				int mouseY = evt.getY();
 
 				if ((rowAtPoint(evt.getPoint()) == -1)
-						&& !SwingUtilities.isRightMouseButton(evt))
+						&& !GUIUtilities.isRightMouseButton(evt))
 					clearSelection();
 				else if (!mouseInsideCellComponent(evt.getPoint()))
 					clearSelection();
