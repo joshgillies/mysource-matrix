@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend_outputter.inc,v 1.60 2003/10/30 01:09:23 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.61 2003/10/30 04:38:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,6 +47,9 @@ class Backend_Outputter
 
 	// the form action
 	var $_action  = '';
+
+	// form GET vars that the backend outputter will endevour to ensure are on each screen
+	var $_persistant_get_vars = Array();
 
 	// the anchor the form will be submitted to
 	var $_anchor  = '';
@@ -130,6 +133,14 @@ class Backend_Outputter
 	*/
 	function setRedirect($link, $target='self')
 	{
+		// ensure that any persistant GET vars are appended to the redirect URL
+		$link_extras = '';
+		foreach ($this->_persistant_get_vars as $name => $value) {
+			$link_extras .= '&'.rawurlencode($name).'='.rawurlencode($value);
+		}
+		$link_extras = trim($link_extras, ' &');
+		if (!empty($link_extras)) $link .= ((strstr($link, '?')) ? '&' : '?').$link_extras;
+
 		$this->_redirect = trim($link);
 		$this->_redirect_target = trim($target);
 
@@ -153,14 +164,17 @@ class Backend_Outputter
 	/**
 	* Allows you to add get vars to the action section of the form
 	*
-	* @param string $name
-	* @param string $value
+	* @param string		$name		the name of the var
+	* @param string		$value		the value of the var
+	* @param boolean	$persistant	try and keep this var available at all times (even on redirects)?
 	*
+	* @return void
 	* @access public
 	*/
-	function addFormActionGetVar($name, $value)
+	function addFormActionGetVar($name, $value, $persistant=false)
 	{
 		$this->_action .= ((strstr($this->_action, '?')) ? '&' : '?').rawurlencode($name).'='.rawurlencode($value);
+		if ($persistant) $this->_persistant_get_vars[$name] = $value;
 
 	}//end addFormActionGetVar()
 
