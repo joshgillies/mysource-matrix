@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.53.2.2 2004/10/15 06:46:15 arailean Exp $
+* $Id: form.inc,v 1.53.2.3 2004/10/17 23:20:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.53.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.40 2004/09/21 00:40:47 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.40.2.1 2004/10/17 23:20:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.40.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */

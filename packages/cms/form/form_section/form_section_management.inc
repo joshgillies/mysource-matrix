@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_management.inc,v 1.8 2004/05/05 06:59:07 lwright Exp $
+* $Id: form_section_management.inc,v 1.8.2.1 2004/10/17 23:20:11 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
