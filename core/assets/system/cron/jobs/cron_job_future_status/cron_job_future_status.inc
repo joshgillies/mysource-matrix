@@ -201,12 +201,6 @@ class Cron_Job_Future_Status extends Cron_Job
 	*/
 	function _exec()
 	{
-		trigger_error('TRIGGER TERMINATE ERROR', E_USER_ERROR);
-
-
-
-		return SQ_CRON_JOB_ERROR;
-
 		$asset = &$this->getAssetToUpdate();
 		if (!is_null($asset)) {
 
@@ -231,6 +225,47 @@ class Cron_Job_Future_Status extends Cron_Job
 		return SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
 	}// end _exec()
+
+
+	/**
+	* Returns an array of active future status jobs that are to be run on the passed asset
+	* in chronological order
+	*
+	* @param object Asset	$asset	the asset to get the future status jobs for
+	*
+	* @return Array() returns an array of references to the Future Status jobs
+	* @access public
+	* @static
+	*/
+	function &getActiveJobs(&$asset)
+	{
+		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		if (is_null($cron_mgr)) return Array();
+
+		// get all active future status jobs
+		$all_jobs = &$cron_mgr->getJobs(__CLASS__, false);
+
+		$dates = Array();
+		for($i = 0, $total = count($all_jobs); $i < $total; $i++) {
+			
+			$link = $all_jobs[$i]->getLink(SQ_LINK_NOTICE, 'asset', false, 'updating');
+			if (!empty($link) && $link['minorid'] == $asset->id) {
+				$dates[$i] = $all_jobs[$i]->attr('when');
+			}
+
+		}// end for
+
+		asort($dates, SORT_STRING);
+		$assets_jobs = Array();
+
+		foreach($dates as $i => $date) {
+			$assets_jobs[] = &$all_jobs[$i];
+		}// end for
+
+		return $assets_jobs;
+
+	}// end getActiveJobs()
+
 
 }//end class
 ?>
