@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.12 2004/08/25 22:53:36 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.13 2004/09/09 06:44:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12 $ - 1.0
+* @version $Revision: 1.13 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -359,8 +359,19 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*/
 	function paintDayStart(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess('attributes'))	$this->_paint5MinTimeField($prefix.'_day_start_time', 9, 0, false);
-		else echo $asset->attr('day_starts_at');
+		if ($asset->writeAccess('attributes')) {
+			list($hour,$minute) = sscanf($asset->attr('day_starts_at'),'%02d:%02d');
+			$is_pm = false;
+			if ($hour >= 12) {
+				$is_pm = true;
+				$hour -= 12;
+			}
+			if ($hour == 0) $hour = 12;
+			
+			$this->_paint5MinTimeField($prefix.'_day_start_time', $hour, $minute, $is_pm);
+		} else {
+			echo $asset->attr('day_starts_at');
+		}
 		return true;
 
 	}//end paintDayStart()
@@ -400,7 +411,19 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*/
 	function paintDayEnd(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess('attributes'))	$this->_paint5MinTimeField($prefix.'_day_end_time', 5, 0, true);
+		if ($asset->writeAccess('attributes'))	if ($asset->writeAccess('attributes')) {
+			list($hour,$minute) = sscanf($asset->attr('day_ends_at'),'%02d:%02d');
+			$is_pm = false;
+			if ($hour >= 12) {
+				$is_pm = true;
+				$hour -= 12;
+			}
+			if ($hour == 0) $hour = 12;
+			
+			$this->_paint5MinTimeField($prefix.'_day_end_time', $hour, $minute, $is_pm);
+		} else {
+			echo $asset->attr('day_starts_at');
+		}
 		else echo $asset->attr('day_ends_at');
 
 	}//end paintDayEnd()
