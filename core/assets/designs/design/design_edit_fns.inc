@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_edit_fns.inc,v 1.46 2003/10/13 09:50:05 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.47 2003/10/14 01:00:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -154,7 +154,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processReparseFile(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST[$prefix.'_reparse'])) return $this->parseAndProcessFile($asset);
+		if (isset($_POST[$prefix.'_reparse'])) {
+			if($this->parseAndProcessFile($asset)) {
+				$asset->_tmp['update_customisations'] = true;
+				return true;
+			}
+		}
 		return false;
 
 	}// end processReparseFile()
