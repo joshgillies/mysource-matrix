@@ -92,8 +92,20 @@ class Asset_Status extends Resolve_Object
 
 		// make sure we can actually set this status
 		$valid_statii = $this->getAvailableStatii();
-		if (!isset($valid_statii[$new_status])) return false;
-		return true;
+		if (!isset($valid_statii[$new_status])) {
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+			$code = strtolower((string)get_bit_names('SQ_STATUS_', $new_status));
+			$status_code = 'asset_status_'.$code;
+			require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
+			eval('$desc = '.$status_code.'::getDescription();');
+
+			trigger_error('Unable to process the status change.<br>"'.$desc.'" is not a valid option for the "'.$this->owner->name.'" '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' asset (# '.$this->owner->id.') in it\'s current "'.$this->getDescription().'" state.<br>This may be due to permissions for the current user "'.$GLOBALS['SQ_SYSTEM']->user->name.'" (# '.$GLOBALS['SQ_SYSTEM']->user->id.')', E_USER_WARNING);
+
+			return false;
+		} else {
+			return true;
+		}
 
 	}//end processStatusChange()
 
