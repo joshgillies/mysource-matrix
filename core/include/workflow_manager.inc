@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.54 2004/11/08 00:07:30 mmcintyre Exp $
+* $Id: workflow_manager.inc,v 1.55 2004/11/17 00:18:44 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -686,7 +686,7 @@ class Workflow_Manager extends MySource_Object
 
 		$log = $ms->newMessage();
 		$log->subject = 'Asset Changes Approved';
-		$log->body    = 'User "'.$user->name.'" has approved '.$asset_type.' "'.$asset->name.'" to go live.';
+		$log->body    = 'User "'.$user->name.'" has approved the changes to '.$asset_type.' "'.$asset->name.'".';
 		// create a link for navigation to the workflow screen for this asset
 		$log->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
 		$log->parameters['assetid'] = $asset->id;
