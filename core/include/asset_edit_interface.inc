@@ -304,6 +304,7 @@ class Asset_Edit_Interface extends Resolve_Object
 						}// end if
 
 						if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+							echo '<br/>&nbsp;';
 							$o->note($field->children[1]->content);
 						}
 
