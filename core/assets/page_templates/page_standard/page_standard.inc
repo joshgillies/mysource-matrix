@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.2 2004/06/29 15:33:29 brobertson Exp $
+* $Id: page_standard.inc,v 1.3 2004/08/19 05:45:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 */
 class Page_Standard extends Page
 {
+
 
 	/**
 	* Constructor
@@ -205,8 +206,19 @@ class Page_Standard extends Page
 	*/
 	function printBody()
 	{
-		$bodycopy = &$this->getBodycopy();
-		if (!is_null($bodycopy)) $bodycopy->printBody();
+		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$cached_contents = $cm->loadFromCache($this, 'default');
+
+		// if the cache is empty, go ahead and regenerate a new version
+		if (empty($cached_contents)) {
+			ob_start();
+				$bodycopy = &$this->getBodycopy();
+				if (!is_null($bodycopy)) $bodycopy->printBody();
+				$cm->saveToCache($this, 'default', ob_get_contents());
+			ob_end_flush();
+		} else {
+			echo $cached_contents;
+		}
 
 	}//end printBody()
 
@@ -244,7 +256,7 @@ class Page_Standard extends Page
 	*
 	* @param mixed	$component	If it is not false, then it is assumed to be the name of a component
 	*							of this asset (defined and controlled by subclasses).
-	* @return Array An array of all the keydata for this asset. Keydata is of the form
+	* @return array An array of all the keydata for this asset. Keydata is of the form
 	* <PRE>
 	* Array (
 	* 	Array (
@@ -279,9 +291,9 @@ class Page_Standard extends Page
 
 
 	/**
-	* Acquires any locks that are needed for editing, based on a set of custom keywords
+	* Acquire any locks that are needed for editing, based on a set of custom keywords
 	*
-	* @param Array() $keywords the keywords to govern what locks are required
+	* @param array	$keywords	the keywords to govern what locks are required
 	*
 	* @return boolean
 	* @access public
@@ -310,7 +322,7 @@ class Page_Standard extends Page
 
 
 	/**
-	* Returns the bodycopy linked to this page
+	* Return the bodycopy linked to this page
 	*
 	* @return &object Asset
 	* @access public
@@ -327,11 +339,11 @@ class Page_Standard extends Page
 
 
 	/**
-	* Gets replacements for keywords that are specific to this asset
+	* Get replacements for keywords that are specific to this asset
 	*
 	* @param Array $keywords the keywords to get replacements for
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*
 	* @see Asset::getCustomKeywordReplacements()
@@ -368,7 +380,7 @@ class Page_Standard extends Page
 
 
 	/**
-	* processes anything that was previously printed for a custom keyword
+	* Process anything that was previously printed for a custom keyword
 	*
 	* @param Array $keywords the keywords that were originally printed
 	*
@@ -389,13 +401,14 @@ class Page_Standard extends Page
 					$edit = &$bodycopy->getEditFns();
 					$edit->processBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix());
 				break;
-			}//end switch
-		}//end foreach
-		
+			}
+		}
+
 		return true;
 
 	}//end processCustomKeywordReplacements()
 
 
 }//end class
+
 ?>
