@@ -232,53 +232,137 @@ class Backend extends Resolve_Object
 	*/
 	function _printSiteMapXML()
 	{
-#sleep(5);
+
 		header("Content-Type: text/xml");
 		include_once 'XML/Tree.php';
-
 		$err_msg = '';
 
-		if ($_GET['parent_assetid']) {
+		$xml_in = new XML_Tree('php://input');
+		$root_in = &$xml_in->getTreeFromFile();
 
-			$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($_GET['parent_assetid'], '', true);
-			if (!is_null($parent)) {
-				$links = $parent->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE);
-				if (count($links)) {
-					$tree = new XML_Tree();
-					$root = &$tree->addRoot('assets', '', Array('success' => 1));
-					// we only want EXCLUSIVE or UNITE links
-					for(reset($links); NULL !== ($type_code = key($links)); next($links)) {
-						for($i = 0; $i < count($links[$type_code]); $i++) {
-							$child = &$GLOBALS['SQ_RESOLVE']->am->getAsset($links[$type_code][$i]['minorid']);
-							if (!is_null($child)) {
-								$attrs = Array('assetid' => $child->id, 
-												'type_code' => get_class($child), 											
-												'has_kids'  => (int) ($child->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE) > 0)
-												);
-								$child = &$root->addChild('child', '[CS] '.$child->name(), $attrs);
+		if (PEAR::isError($root_in)) {
+			$err_msg = $root_in->getMessage()."\n".$root_in->getUserInfo();
+
+		} else {
+			
+			if ($root_in->name != 'command' || empty($root_in->attributes['action'])) {
+				$err_msg = 'No action was defined, or the root node is not "command"';
+
+			} else  {
+
+				switch($root_in->attributes['action']) {
+					case 'get kids' :
+
+						if (empty($root_in->attributes['parent_assetid'])) {
+							$err_msg = 'No Parent Asset Id passed';
+							break;
+						} 
+						$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($root_in->attributes['parent_assetid'], '', true);
+						if (is_null($parent)) {
+							$err_msg = 'Parent Asset #'.$root_in->attributes['parent_assetid'].' not found';
+							break;
+						}
+						// we only want EXCLUSIVE or UNITE links
+						$links = $parent->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE);
+						if (!count($links)) {
+							$err_msg = 'Asset "'.$parent->name().'" has no children';
+							break;
+						} 
+
+						$xml_out = new XML_Tree();
+						$root_out = &$xml_out->addRoot('assets', '');
+						for(reset($links); NULL !== ($type_code = key($links)); next($links)) {
+							for($i = 0; $i < count($links[$type_code]); $i++) {
+								$child = &$GLOBALS['SQ_RESOLVE']->am->getAsset($links[$type_code][$i]['minorid']);
+								if (!is_null($child)) {
+									$attrs = Array('assetid' => $child->id, 
+													'type_code' => get_class($child), 											
+													'has_kids'  => (int) ($child->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE) > 0)
+													);
+									$child = &$root_out->addChild('child', '[CS] '.$child->name(), $attrs);
+								}
 							}
 						}
-					}
 
-					$tree->dump();
-					return;
-				} else {
-					$err_msg = 'Asset "'.$parent->name().'" has no children';
-				}// end if
-			} else {
-				$err_msg = 'Parent Asset #'.$_GET['parent_assetid'].' not found';
+						$xml_out->dump();
+						return;
+
+					case 'menu items' :
+
+						$xml_out = new XML_Tree();
+						$root_out = &$xml_out->addRoot('options', '');
+
+						for($i = 0; $i < count($root_in->children); $i++) {
+							$name = $root_in->children[$i]->attributes['name'];
+							$top_level = &$root_out->addChild('item', '', Array('text' => $name, 'value'  => ''));
+							switch($name) {
+								case 'add' :
+									$hier = $GLOBALS['SQ_RESOLVE']->am->getAssetTypeHierarchy('', true);
+									$this->_recurseSiteMapXMLAddMenu($top_level, $hier);
+								break;
+
+								default :
+									$err_msg = 'Menu Item "'.$name.'" not defined';
+									break 3; // out of switch, loop and switch
+
+							}// end $name switch
+
+						}// end children for
+
+						$xml_out->dump();
+						return;
+
+					break;
+
+					default :
+						$err_msg = 'Action "'.$root_in->attributes['action'].'" not defined';
+
+				}// end switch
+
 			}// end if
-		} else {
-			$err_msg = 'No Parent Asset Id passed';
+
 		}// end if
 
-		$tree = new XML_Tree();
-		$root = &$tree->addRoot('assets', $err_msg, Array('success' => 0));
-		$tree->dump();
+		$xml_out = new XML_Tree();
+		$root_out = &$xml_out->addRoot('error', $err_msg);
+		$xml_out->dump();
 		return;
 
 
 	}//end _printSiteMapXML()
+
+	/*
+	* Creates the XML object recusivly for the site map menu
+	*
+	* @access private
+	*/
+	function _recurseSiteMapXMLAddMenu(&$parent_node, $heir)
+	{
+		for (reset($heir); NULL !== ($type_code = key($heir)); next($heir)) {
+			$inst     = $GLOBALS['SQ_RESOLVE']->am->getInfo($type_code, 'instantiable');
+			$has_kids = count($heir[$type_code]['subs']);
+			// no point, if you can't create an instance and there are no kids
+			if (!$inst && !$has_kids) continue;
+
+			$text  = $heir[$type_code]['name'];
+			$value = 'list/add/'.$type_code;
+
+			$child = &$parent_node->addChild('item', '', Array('text' => $text.(($has_kids) ? ' Types' : ''), 'value'  => (($has_kids) ? '' : $value)));
+
+			// if can instantiate and have kids
+			// then we need to add an entry into the kids array so it can be selected
+			if ($inst && $has_kids) {
+				$real_child   = &$child->addChild('item', '', Array('text' => $text, 'value'  => $value));
+			}
+
+			if ($has_kids) {
+				$this->_recurseSiteMapXMLAddMenu($child, $heir[$type_code]['subs']);
+			}
+
+		}
+
+	}// end _recurseSiteMapXMLAddMenu()
+
 
 	/*
 	* Print out the Main backend Page
