@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.219 2004/06/16 23:54:37 lwright Exp $
+* $Id: asset_manager.inc,v 1.220 2004/06/18 07:19:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1898,7 +1898,7 @@ class Asset_Manager extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT DISTINCT pl.minorid
+		$sql = 'SELECT DISTINCT pl.minorid, pt.treeid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ON cl.linkid = ct.linkid,
 					 '.SQ_TABLE_RUNNING_PREFIX.'asset_link pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt ON pl.linkid = pt.linkid ';
 
@@ -1938,10 +1938,11 @@ class Asset_Manager extends MySource_Object
 			$sql .= 'INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset pa ON pl.minorid = pa.assetid ';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pa');
 		}
-
+		$where .= ' ORDER BY pt.treeid';
+		
 		$parents = $db->getCol($sql.$where);
 		assert_valid_db_result($parents);
-
+		
 		return $parents;
 
 	}//end getParents()
