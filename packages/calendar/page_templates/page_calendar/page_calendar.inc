@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.115 2004/11/22 04:17:48 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.116 2004/11/22 05:40:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.115 $ - 1.0
+* @version $Revision: 1.116 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -220,7 +220,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 	/******
 	*
-	*/
+	*
 	function attr($name)
 	{
 		if ($name == 'types') {
@@ -234,6 +234,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}		
 			
 	}//end attr()
+	*/
 	
 	
 	/**
@@ -414,10 +415,10 @@ class Page_Calendar extends Page_Asset_Listing
 	function getCalendarContents($cal_view, $cal_date, $event_id, $format)
 	{
 		$res = $this->_getGeneralScript();
-		$res .= '<div id="calendar'.(((strpos($format, 'list') === 0) || $cal_view == 'event') ? 'List' : 'Table').'">';
+		if (strpos($format, 'list') === false) $res .= '<div id="calendarTable">';
 		$func = 'get'.ucfirst($cal_view).'View';
 		$res .= ($cal_view == 'event') ? $this->$func($event_id) : $this->$func($cal_date, $format);
-		$res .= '</div>';
+		if (strpos($format, 'list') === false) $res .= '</div>';
 		return $res;
 
 	}//end getCalendarContents()
@@ -801,7 +802,7 @@ class Page_Calendar extends Page_Asset_Listing
 		} else {
 			$column_names = Array();
 			$column_links = Array();
-			if (array_values($this->attr('columnise_day_view_by_root_node')) != Array('other')) {
+			if (array_values($this->attr('columnise_day_view_by_root_node')) != Array('*')) {
 				$root_nodes = array_keys($this->_getRootNodes());
 				$columns_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($this->attr('columnise_day_view_by_root_node'));
 				for (reset($columns_info); null !== ($k = key($columns_info)); next($columns_info)) {
@@ -810,10 +811,12 @@ class Page_Calendar extends Page_Asset_Listing
 					}
 				}
 				foreach ($columns_info as $id => $info) $column_names[$id] = $info['name'];
-				if (in_array('other', $this->attr('columnise_day_view_by_root_node'))) $column_names['other'] = 'other';
+				if (in_array('*', $this->attr('columnise_day_view_by_root_node'))) {
+					$column_names['*'] = ($this->attr('other_column_name') == '') ? 'Other' : $this->attr('other_column_name');
+				}
 				$events = $this->getDayEventsByRootNodeAndTime($date);
 			} else {
-				$column_names[1] = 'Events';
+				$column_names[1] = ($this->attr('other_column_name') == '') ? 'Events' : $this->attr('other_column_name');
 				$events = Array(1 => $this->getDayEventsByTime($date));
 			}
 			$enabled_views = $this->attr('enabled_views');
@@ -962,6 +965,7 @@ class Page_Calendar extends Page_Asset_Listing
 			<tr>
 			<th class="timeLabel">*</th>
 			<?php
+
 			// print the "all day" events
 			foreach ($column_names as $id => $name) {
 				$col_events = $events[$id];
@@ -1101,7 +1105,7 @@ class Page_Calendar extends Page_Asset_Listing
 					}
 				}
 			}
-			
+
 			// other layout things
 			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-bottom: 0px; border-left: 0px; border-right: 0px; padding-top: 0px; background-color: transparent;';
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
@@ -1109,8 +1113,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$inner_width = $event_width - 4;
 			$current_mouse_up_down_code = (($details['type_code'] != 'calendar_event_recurring') && (!isset($details['trimmed'])) && (!isset($details['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')"';
 			$current_mouse_over_out_code = '';
-			if (isset($details['description']) && !empty($details['description'])) {
-				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
+			if (isset($details['description']) && !empty($details['description'])) {				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')"  onmouseout="stopTrailingPopup()"';
 			}
 
@@ -1168,7 +1171,7 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Print general javascript used by this page
 	*
-	* @access publoc
+	* @access public
 	* @return void
 	*/
 	function _getGeneralScript()
@@ -1954,9 +1957,8 @@ class Page_Calendar extends Page_Asset_Listing
 		$res = Array();
 		
 		$columnise_by_root = $this->attr('columnise_day_view_by_root_node');
-		
 		foreach ($columnise_by_root as $node_id) {
-			if (in_array($node_id, $root_nodes)) $res[$node_id] = $partitions;
+			if (($node_id == '*') || in_array($node_id, $root_nodes)) $res[$node_id] = $partitions;
 		}
 		
 		$root_node_treeids = get_treeids(array_flip($root_nodes));
