@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.1 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.2 2004/06/18 11:37:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,7 +72,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend($o, $have_lock, $pref=null)
+	function paintBackend(&$o, $have_lock, $pref=null)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_prefs.inc,v 1.1 2004/01/22 02:52:51 gsherwood Exp $
+* $Id: content_type_raw_html_prefs.inc,v 1.2 2004/06/18 11:37:35 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,7 +68,7 @@ class Content_Type_Raw_HTML_Prefs extends Prefs
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend($o, $have_lock, $pref=null)
+	function paintBackend(&$o, $have_lock, $pref=null)
 	{
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
