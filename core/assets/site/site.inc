@@ -371,7 +371,10 @@ class Site extends Folder
 	function &getSpecialPage($page)
 	{
 		$link = $this->getSpecialPageLink($page);
-		if (empty($link)) return null;
+		if (empty($link)) {
+			$null = null;
+			return $null;
+		}
 
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
 

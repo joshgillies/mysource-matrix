@@ -122,7 +122,8 @@ class Asset_Status extends Resolve_Object
 	{
 		if (!$force_refresh && !is_null($this->workflow)) return $this->workflow;
 		require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-		return new Workflow_Manager($this->owner);
+		$wf = new Workflow_Manager($this->owner);
+		return $wf;
 
 	}//end &getWorkflow()
 

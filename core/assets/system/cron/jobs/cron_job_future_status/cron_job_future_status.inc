@@ -295,7 +295,10 @@ class Cron_Job_Future_Status extends Cron_Job
 	function &getActiveJobs(&$asset)
 	{
 		$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-		if (is_null($cron_mgr)) return Array();
+		if (is_null($cron_mgr)) {
+			$blank = Array();
+			return $blank;
+		}
 
 		// get all active future status jobs
 		$all_jobs = &$cron_mgr->getJobs(__CLASS__, false);
