@@ -1,7 +1,7 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.32 2003/11/24 03:58:53 gsherwood Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.33 2003/11/26 00:51:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 

@@ -1,7 +1,7 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive_edit_fns.inc,v 1.16 2003/11/18 15:37:26 brobertson Exp $
+* $Id: design_area_menu_recursive_edit_fns.inc,v 1.17 2003/11/26 00:50:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 

@@ -1,7 +1,7 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_management.inc,v 1.9 2003/11/18 15:37:28 brobertson Exp $
+* $Id: cron_manager_management.inc,v 1.10 2003/11/26 00:50:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 

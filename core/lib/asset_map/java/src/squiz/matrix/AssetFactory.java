@@ -1,6 +1,6 @@
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetFactory.java,v 1.2 2003/11/18 15:37:36 brobertson Exp $
+* $Id: AssetFactory.java,v 1.3 2003/11/26 00:51:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,7 +62,7 @@ import java.io.IOException;
  * which reloads asset data from MySource, as well as its child links.
  * </p>
  *
- * <p><code>$Id: AssetFactory.java,v 1.2 2003/11/18 15:37:36 brobertson Exp $</code></p>
+ * <p><code>$Id: AssetFactory.java,v 1.3 2003/11/26 00:51:13 gsherwood Exp $</code></p>
  *
  * @author		Dominic Wong <dwong@squiz.net>
  * @see			Asset

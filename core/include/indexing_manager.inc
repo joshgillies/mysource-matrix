@@ -2,7 +2,7 @@
 
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: indexing_manager.inc,v 1.8 2003/11/18 15:37:34 brobertson Exp $
+* $Id: indexing_manager.inc,v 1.9 2003/11/26 00:51:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 
 *
 * @author  Dominic Wong<dwong@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix
 */
 class Indexing_Manager extends MySource_Object 

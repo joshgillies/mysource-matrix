@@ -1,7 +1,7 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder_management.inc,v 1.10 2003/11/18 15:37:29 brobertson Exp $
+* $Id: trash_folder_management.inc,v 1.11 2003/11/26 00:51:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 

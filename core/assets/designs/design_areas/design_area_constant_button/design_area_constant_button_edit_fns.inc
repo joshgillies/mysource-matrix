@@ -1,7 +1,7 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_constant_button_edit_fns.inc,v 1.12 2003/11/25 23:47:25 gsherwood Exp $
+* $Id: design_area_constant_button_edit_fns.inc,v 1.13 2003/11/26 00:50:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 

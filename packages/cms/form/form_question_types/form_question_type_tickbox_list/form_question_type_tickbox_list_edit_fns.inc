@@ -1,7 +1,7 @@
 <?php
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.5 2003/11/18 15:43:37 brobertson Exp $
+* $Id: form_question_type_tickbox_list_edit_fns.inc,v 1.6 2003/11/26 00:51:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 

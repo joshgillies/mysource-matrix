@@ -1,6 +1,6 @@
 /**
 * +--------------------------------------------------------------------+
-* | MySource 3 - MySource Matrix                                       |
+* | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
 * | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
 * +--------------------------------------------------------------------+
@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: Asset.java,v 1.2 2003/11/18 15:37:36 brobertson Exp $
+* $Id: Asset.java,v 1.3 2003/11/26 00:51:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,7 +59,7 @@ import org.w3c.dom.NodeList;
  * <code>Asset</code> anywhere else.
  * </p>
  *
- * <p><code>$Id: Asset.java,v 1.2 2003/11/18 15:37:36 brobertson Exp $</code></p>
+ * <p><code>$Id: Asset.java,v 1.3 2003/11/26 00:51:13 gsherwood Exp $</code></p>
  * 
  * @author		Dominic Wong <dwong@squiz.net>
  * @version		$Version$
