@@ -431,7 +431,7 @@ class Cron_Job extends Asset
 		$exec_result = 0;
 		$exec_msg = '';
 
-		// First leet's see if we can find someone to run as
+		// First let's see if we can find someone to run as
 		$user = &$this->getRunningUser();
 		if (!is_null($user)) {
 
