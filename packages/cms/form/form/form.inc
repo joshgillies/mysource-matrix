@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.53.2.5.2.3 2005/01/19 04:23:43 lwright Exp $
+* $Id: form.inc,v 1.53.2.5.2.4 2005/01/20 04:07:53 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.53.2.5.2.3 $
+* @version $Revision: 1.53.2.5.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -411,7 +411,7 @@ class Form extends Bridge
 	* @access public
 	* @return array
 	*/
-	function getQuestionAssets() {
+	function &getQuestionAssets() {
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$result = Array();
 
@@ -425,7 +425,7 @@ class Form extends Bridge
 
 		return $result;
 
-	}//end getQuestionAssets
+	}//end getQuestionAssets()
 
 
 	/**
@@ -434,13 +434,13 @@ class Form extends Bridge
 	* @access public
 	* @return array
 	*/
-	function getAllQuestionAssets()
+	function &getAllQuestionAssets()
 	{
-		$all_questions = $this->getQuestionAssets();
+		$all_questions =& $this->getQuestionAssets();
 
 		$sections = &$this->getSections();
 		foreach ($sections as $section) {
-			$questions = $section->getQuestionAssets();
+			$questions =& $section->getQuestionAssets();
 			$all_questions = array_merge($all_questions, $questions);
 		}
 
