@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.133 2004/04/21 10:25:08 brobertson Exp $
+* $Id: asset_map.inc,v 1.134 2004/04/21 15:58:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -183,7 +183,7 @@ class Asset_Map
 		</object>
 		<?php
 
-	}//end embed_simple_asset_map()
+	}//end embed_asset_map()
 
 
 	/**
@@ -317,10 +317,10 @@ class Asset_Map
 		);
 		$root = &$output->addRoot('assets', '', $attrs);
 
-		$this->_getChildAssets($root, 1);
+		$this->_getChildAssets($root, $root_folder->id);
 
 		//// Add the root folder
-		//if (!$this->_addAssetToXML($root, 1, true)) {
+		//if (!$this->_addAssetToXML($root, $root_folder->id, true)) {
 	//		return;
 	//	}
 
@@ -394,7 +394,7 @@ class Asset_Map
 		if (!empty($userid_cond)) {
 			$sql .= ' LEFT JOIN sq_asset_permission p ON (
 							a.assetid = p.assetid AND
-							p.access =1 AND
+							p.access  = 1 AND
 							p.permission >= '.$db->quote(SQ_PERMISSION_READ).$userid_cond.'
 						)';
 		}
@@ -625,7 +625,7 @@ class Asset_Map
 
 				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 				if ($trash_folder->id == $attr['parent_assetid']) {
-					$this->_error('Unable to Add Asset, cant add an asset to the trash');
+					$this->_error('Unable to Add Asset, unable add an asset to the trash');
 					return;
 				}
 
