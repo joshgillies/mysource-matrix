@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.49 2003/11/26 00:50:58 gsherwood Exp $
+* $Id: site.inc,v 1.50 2003/12/03 04:52:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -443,13 +443,14 @@ class Site extends Folder
 		// we have found the design to use
 		if ($result) {
 			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
-			$design->paint($index_page);
+			if (SQ_IN_LIMBO) $design->paint($this);
+			else $design->paint($index_page);
 		// shit we can't find a design, oh well let's just print out our body
 		} else {
 			$index_page->printBody();
 		}
 
-	}// end printFrontend()
+	}//end printFrontend()
 
 
 	/**
