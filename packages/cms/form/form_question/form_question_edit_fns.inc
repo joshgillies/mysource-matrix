@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.12 2004/04/23 07:28:07 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.13 2004/04/28 02:10:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,6 +46,13 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	function Form_Question_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+		// override static screens - only display details because the others don't apply
+		$this->static_screens = Array(	'details'		=> Array(
+															'name'			=> 'Details',
+															'force_unlock'	=> true,
+															'lock_type'		=> 'none',
+															),
+									);
 
 	}// end Form_Question_Edit_Fns()
 
