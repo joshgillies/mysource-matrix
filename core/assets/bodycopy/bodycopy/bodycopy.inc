@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.5 2004/02/18 18:19:16 brobertson Exp $
+* $Id: bodycopy.inc,v 1.6 2004/04/14 00:51:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,10 +89,7 @@ class Bodycopy extends Asset
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 		// save a version of the bodycopy as it appears now
-		ob_start();
-		$this->printBody();
-		$output = ob_get_contents();
-		ob_end_clean();
+		$output = $this->getRawBodycopyContent();
 
 		$e = '/\\.\\/\\?a=([0-9]+)/';
 		$matches = Array();
@@ -257,7 +254,9 @@ class Bodycopy extends Asset
 					$sq_asset_url_list[$assetid] = $href;
 				}
 
-				include($this->data_path.'/.content_file.php');
+				$content = file_to_string($this->data_path.'/.content_file.php');
+				$content = replace_keywords($content, $this->keyword_replacements);
+				echo $content;
 			}
 		} else {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
