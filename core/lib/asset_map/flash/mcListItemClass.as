@@ -214,6 +214,8 @@ mcListItemClass.prototype.onAssetChange = function(asset)
 */
 mcListItemClass.prototype.select = function() 
 {
+	if (!this._active)
+		return;
 	this.selected = true;
 	this.text_field.setTextFormat(this.selectedTextFormat);
 
@@ -226,6 +228,9 @@ mcListItemClass.prototype.select = function()
 */
 mcListItemClass.prototype.unselect = function() 
 {
+	if (!this._active)
+		return;
+
 	this.selected = false;
 	this.text_field.setTextFormat(this.normalTextFormat);
 
@@ -241,7 +246,11 @@ mcListItemClass.prototype.unselect = function()
 */
 mcListItemClass.prototype.setActive = function(active)
 {
+	if (!active)
+		this.unselect();
+
 	this._active = active;
+
 	var text_format = this.text_field.getTextFormat();
 	text_format.color = (this._active) ? 0x000000 : 0x999999;
 	this.text_field.setTextFormat(text_format); 
