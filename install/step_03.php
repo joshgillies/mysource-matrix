@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.30.2.4 2004/03/02 16:00:41 brobertson Exp $
+* $Id: step_03.php,v 1.30.2.5 2004/03/04 16:54:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -110,6 +110,10 @@ $GLOBALS['SQ_SYSTEM_ASSETS'] = Array();
 $root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset(1, 'root_folder', true);
 // if there is no root folder assume that this section hasn't been run
 if (is_null($root_folder)) {
+
+	if (SQ_CONF_SYSTEM_ID != 0) {
+		trigger_error('Inorder to install '.SQ_SYSTEM_LONG_NAME.' the System Id needs to be set to 0', E_USER_ERROR);
+	}
 	
 	$root_folder = &create_root_folder();
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($root_folder->id, 'all');
