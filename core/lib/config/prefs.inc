@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: prefs.inc,v 1.1 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: prefs.inc,v 1.2 2004/06/18 13:17:55 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -89,7 +89,7 @@ class Prefs extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function paintBackend($o, $have_lock, $pref=null)
+	function paintBackend(&$o, $have_lock, $pref=null)
 	{
 		return false;
 
