@@ -407,11 +407,26 @@ class Asset_Edit_Interface extends Resolve_Object
 		$file = null;
 		if (isset($this->_edit_fns->static_screens[$active_screen])) {
 
+			// save the status for later so we can see if it changed
+			$old_status = $owner->status;
+
 			// process the system defined bit of this tab if we
 			// are not creating the asset
 			if (!$creating) {
 				$process_function = 'process'.ucfirst($active_screen);
 				if ($this->$process_function($owner, $o)) $ret_val = true;
+			}
+
+			if ($old_status != $owner->status) {
+				// the status changed, so they might want to know
+				// how the operation went...
+				?>
+				<script language="Javascript" type="text/javascript">
+					if (confirm("The status of '<?php echo $owner->name; ?>' has changed from <?php echo $owner->getStatusDescription($old_status); ?> to <?php echo $owner->getStatusDescription(); ?>. Do you want to view a dependant links report to view the status of the dependant assets below '<?php echo $owner->name; ?>'?")) {
+						document.location = '<?php echo $owner->getBackendHref('dependants'); ?>';
+					}
+				</script>
+				<?php
 			}
 
 			// if we dont have write access, dont process the rest of the screen
