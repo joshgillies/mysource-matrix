@@ -97,6 +97,7 @@ define('SQ_SC_LINK_ALL',          15); // short hand what all the main link type
 define('SQ_SC_LINK_FRONTEND_NAV',  1); // short hand for TYPE_1
 define('SQ_SC_LINK_BACKEND_NAV',   3); // short hand for TYPE_1 | TYPE_2
 define('SQ_SC_LINK_SIGNIFICANT',   7); // short hand for TYPE_1 | TYPE_2 | TYPE_3
+define('SQ_SC_LINK_WEB_PATHS',     7); // short hand for links affected by web path changes
 
 
 /*
