@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_table_props.php,v 1.11 2003/10/17 05:08:07 gsherwood Exp $
+* $Id: edit_table_props.php,v 1.12 2003/10/22 02:19:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -21,7 +21,8 @@ header("Pragma: no-cache");
 header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
 
 include(dirname(__FILE__)."/header.php");
-?> 
+?>
+<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib')?>/js/general.js"></script>
 <script language="JavaScript" type="text/javascript">
 
 	function popup_init() {
@@ -64,7 +65,7 @@ include(dirname(__FILE__)."/header.php");
 <div class="title">
 	<table border="0" cellspacing="0" cellpadding="0">
 		<tr>
-			<td><a href="javascript: owner.bodycopy_delete_table(document.main_form.bodycopy_name.value, document.main_form.tableid.value);"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png" width="16" height="16" border="0"></a></td>
+			<td><a href="javascript: owner.bodycopy_delete_table(document.main_form.bodycopy_name.value, document.main_form.tableid.value);" style="cursor: pointer;"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.png", "16", "16", "Delete this table");</script></a></td>
 			<td class="title" width="100%" align="right">Table Properties</td>
 		</tr>
 	</table>
