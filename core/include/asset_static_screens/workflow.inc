@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.3 2004/01/16 11:45:56 brobertson Exp $
+* $Id: workflow.inc,v 1.4 2004/03/18 03:43:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -382,7 +382,7 @@ function paintWorkflow(&$owner, &$o, &$ei)
 		$o->openField('New ?', 'new_line');
 			combo_box($prefix.'_workflow[new][access]', Array('' => '', '1' => 'Apply', '0' => 'Deny'), false, '');
 			echo ' Workflow schema ';
-			asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'));
+			asset_finder($prefix.'_workflow[new][schemaid]', 0, Array('workflow_schema' => 'D'), 'sq_sidenav', 'null', Array('clear'));
 		$o->closeField();
 	}
 

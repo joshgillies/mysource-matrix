@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.14 2003/12/17 04:43:25 mmcintyre Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.15 2004/03/18 03:43:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,7 +116,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 
 		if ($write_access) {
 			$o->openField('New Condition?');
-				asset_finder($prefix.'_new_condition', 0, Array('user' => 'D', 'user_group' => 'D'));
+				asset_finder($prefix.'_new_condition', 0, Array('user' => 'D', 'user_group' => 'D'), 'sq_sidenav', 'null', Array('clear'));
 			$o->closeField();
 		}
 

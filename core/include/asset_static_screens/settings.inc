@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.6 2004/03/17 10:22:18 brobertson Exp $
+* $Id: settings.inc,v 1.7 2004/03/18 03:43:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -356,7 +356,9 @@ function paintSettings(&$owner, &$o, &$ei)
 							echo '</i>';
 
 						} else {
-							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'));
+							$buttons = Array('clear');
+							if (!$new_user_design) $buttons[] = 'reset';
+							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'), 'sq_sidenav', 'null', $buttons);
 						}
 
 
