@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.327.2.3 2004/11/08 00:19:30 mmcintyre Exp $
+* $Id: asset.inc,v 1.327.2.4 2004/11/11 02:17:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2786,7 +2786,7 @@ class Asset extends MySource_Object
 			// if we are in workflow no editing allowed
 			// except by those users who can currently approve the asset
 			if ($this->status & SQ_SC_STATUS_PENDING) {
-				if ($perm < SQ_PERMISSION_ADMIN) {
+				if ($perm == SQ_PERMISSION_WRITE) {
 					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 					$publishers = $wfm->whoCanPublish($this->id);
 					if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) return true;
@@ -2797,7 +2797,6 @@ class Asset extends MySource_Object
 						return $this->_checkPermissionAccess(SQ_PERMISSION_ADMIN, $assetids);
 					}
 				}
-				if ($perm != SQ_PERMISSION_READ) return false;
 			}
 		}
 
