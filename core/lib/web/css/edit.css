@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.44 2005/01/20 13:10:35 brobertson Exp $
+* $Id: edit.css,v 1.45 2005/02/09 01:01:19 gsherwood Exp $
 *
 */
 
@@ -28,18 +28,18 @@ body {
 }
 
 body, p, td, ul, li, input, select, textarea {
-	color:			#000000;
+	color:				#000000;
 	font-family:		Arial, Verdana Helvetica, sans-serif;
-	font-size:		11px;
+	font-size:			11px;
 }
 
 a {
-	color:			black;
+	color:				black;
 	text-decoration:	underline;
 }
 
 a.hover {
-	color:			#4A3852;
+	color:				#4A3852;
 }
 
 
@@ -47,30 +47,30 @@ a.hover {
 /* HEADING STYLES */
 
 td.sq-backend-main-heading {
-	background-color:       #594165;
-	color:			#FFFFFF;
+	background-color:	#594165;
+	color:				#FFFFFF;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
-	font-size:		12px;
-	padding:		4px;
+	font-size:			12px;
+	padding:			4px;
 }
 
 .sq-backend-sub-heading {
 	background-color:	#594165;
-	color:			#FFFFFF;
+	color:				#FFFFFF;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:		9px;
-	padding:		0px;
+	font-size:			9px;
+	padding:			0px;
 	border-bottom:		1px solid #342939;
 }
 
 
 td.sq-backend-nav-history, a.sq-backend-nav-history {
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	padding:		4px;
+	padding:			4px;
 	background-color:	#C8BDCB;
-	color:			#000000;
-	font-size:		11px;
+	color:				#000000;
+	font-size:			11px;
 	text-decoration:	none;
 	font-weight:		bold;
 }
@@ -80,18 +80,18 @@ td.sq-backend-nav-history {
 }
 
 .sq-backend-asset-info {
-	border:			1px solid #FFFFFF;
-	padding:		3px;
-	margin-top:		3px;
+	border:				1px solid #FFFFFF;
+	padding:			3px;
+	margin-top:			3px;
 	background-color:	#725B7D;
-	color:			#FFFFFF;
-	font-size:		10px;
+	color:				#FFFFFF;
+	font-size:			10px;
 }
 
 .sq_asset_info_toggle {
-	color:			#FFFFFF;
+	color:				#FFFFFF;
 	text-decoration:	none;
-	font-size:		10px;
+	font-size:			10px;
 }
 
 
@@ -99,44 +99,44 @@ td.sq-backend-nav-history {
 /* GENERAL STYLES */
 
 .sq-backend-data, .sq-backend-data p, td.sq-backend-data, .sq-form-field {
-	color:			#000000;
+	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:		11px;
+	font-size:			11px;
 }
 
 .sq-backend-smallprint {
-	color:			#000000;
+	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:		11px;
+	font-size:			11px;
 	font-weight:		normal;
 }
 
 .sq-backend-section-note {
-	color:			#000;
-	font-family:	Arial, Verdana, Helvetica, sans-serif;
-	font-size:		11px;
-	font-weight:	normal;
-	padding:		5px;
-	background:		#E6FFCC;
-	border:         1px dotted black;
+	color:				#000000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	font-weight:		normal;
+	padding:			5px;
+	background:			#E6FFCC;
+	border:				1px dotted black;
 }
 
 .sq-backend-fineprint {
-	color:			#000000;
+	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:		10px;
+	font-size:			10px;
 }
 
 .sq-backend-warning {
-	color:			#FF0000;
+	color:				#FF0000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:		11px;
+	font-size:			11px;
 }
 
 .sq-backend-notice {
-	color:			#000000;
+	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:		11px;
+	font-size:			11px;
 	letter-spacing:		1px;
 }
 
@@ -146,19 +146,20 @@ td.sq-backend-nav-history {
 
 .sq-backend-header-item {
 	background-color:	#342939;
-	color:			#C2BFC4;
+	color:				#C2BFC4;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:		11px;
+	font-size:			11px;
 	text-decoration:	none;
 	padding-left:		3px;
 	padding-right:		3px;
 }
 
 .sq-backend-header-search-box {
-	background-color:	#C2BFC4;
-	border:		 		1px #000000 solid;
+	background-color:	#FFFFFF;
+	border:				1px #000000 solid;
 	padding-left:		3px;
 	padding-right:		3px;
+	margin-right:		5px;
 }
 
 
@@ -167,27 +168,27 @@ td.sq-backend-nav-history {
 
 .sq-backend-section-heading {
 	background-color:	#F4F4EB;
-	color:			#848479;
+	color:				#848479;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
-	font-size:		12px;
-	padding:		3px;
+	font-size:			12px;
+	padding:			3px;
 }
 
 .sq-backend-section-subheading {
 	background-color:	#FFFFFF;
-	color:			#33B9E6;
+	color:				#33B9E6;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
-	font-size:		11px;
-	padding:		3px;
+	font-size:			11px;
+	padding:			3px;
 }
 
 .sq-backend-field {
-	color:			#000000;
+	color:				#000000;
 	background-color:	#FFFFFF;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:		11px;
+	font-size:			11px;
 	font-weight:		bold;
 	vertical-align:		top;
 }
@@ -197,26 +198,26 @@ td.sq-backend-nav-history {
 /* LIMBO OUTPUTTER - SECTIONS AND FIELDS */
 
 .sq-limbo-section-heading {
-	color:			#848479;
+	color:				#848479;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
-	font-size:		12px;
-	padding:		3px;
-	border: 		1px solid black;
+	font-size:			12px;
+	padding:			3px;
+	border: 			1px solid black;
 }
 
 .sq-limbo-section-subheading {
-	color:			#33B9E6;
+	color:				#33B9E6;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
-	font-size:		11px;
-	padding:		3px;
+	font-size:			11px;
+	padding:			3px;
 }
 
 .sq-limbo-field {
-	color:			#000000;
+	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:		11px;
+	font-size:			11px;
 	font-weight:		bold;
 	vertical-align:		top;
 }
@@ -282,22 +283,22 @@ fieldset {
 /* LOCKING TABLE STYLES */
 
 .sq-backend-lock-table {
-	width:			100%;
-	border:			1px solid #003C79;
+	width:				100%;
+	border:				1px solid #003C79;
 	border-collapse:	collapse;
 }
 
 td.sq-backend-lock-table-header, td.sq-backend-lock-table-cell, td.sq-backend-lock-table-cell-alt {
 	background-color:	#FFFFFF;
 	vertical-align:		top;
-	color:			#000000;
+	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:		10px;
-	padding:		2px;
+	font-size:			10px;
+	padding:			2px;
 }
 
 td.sq-backend-lock-table-header {
-	font-size:		11px;
+	font-size:			11px;
 	font-weight:		bold;
 	background-color:	#7FBCE9;
 	border-bottom:		1px solid #003C79;
@@ -312,15 +313,15 @@ td.sq-backend-lock-table-cell-alt {
 /* LOCKING MESSAGE STYLES */
 
 .sq-backend-locked-by-user, .sq-backend-locked-by-someone-else, .sq-backend-unlocked {
-	font-size:		10px;
+	font-size:			10px;
 }
 
 .sq-backend-locked-by-someone-else {
-	color:			#C90404;
+	color:				#C90404;
 }
 
 .sq-backend-unlocked {
-	color:			#0066CB;
+	color:				#0066CB;
 }
 
 
@@ -328,7 +329,7 @@ td.sq-backend-lock-table-cell-alt {
 /* ASSET FINDER */
 
 .sq-form-asset-finder {
-	border:			1px dashed #D0D0D0;
+	border:				1px dashed #D0D0D0;
 }
 
 
@@ -336,25 +337,25 @@ td.sq-backend-lock-table-cell-alt {
 /* NEW MESSAGES POPUP STYLES */
 
 .sq-backend-new-message-table {
-	border:			2px solid #594165;
+	border:				2px solid #594165;
 	border-collapse:	collapse;
 	background-color:	#ECECEC;
-	width:			220px;
+	width:				220px;
 }
 
 .sq-backend-new-message-cell, .sq-backend-new-message-heading, .sq-backend-new-message-body {
-	color:			#342939;
+	color:				#342939;
 	background-color:	#FFFFFF;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:		10px;
+	font-size:			10px;
 	vertical-align:		top;
-	padding:		4px;
+	padding:			4px;
 	text-decoration:	none;
 	font-weight:		bold;
 }
 
 .sq-backend-new-message-body {
-	color:			#342939;
+	color:				#342939;
 	font-weight:		none;
 }
 
@@ -362,26 +363,26 @@ td.sq-backend-lock-table-cell-alt {
 /* POPUP BLOCKING MESSGAE */
 
 .sq-backend-popups-blocked-table {
-	border:			2px solid #790E09;
+	border:				2px solid #790E09;
 	border-collapse:	collapse;
 	background-color:	#FFFFFF;
-	width:			400px;
+	width:				400px;
 }
 
 .sq-backend-popups-blocked-cell, .sq-backend-popups-blocked-heading, .sq-backend-popups-blocked-body {
-	color:			#F8320F;
+	color:				#F8320F;
 	background-color:	#FFFFFF;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:		13px;
+	font-size:			13px;
 	vertical-align:		top;
-	padding:		4px;
+	padding:			4px;
 	text-decoration:	none;
 	font-weight:		bold;
 }
 
 .sq-backend-popups-blocked-body, .sq-backend-popups-blocked-cell {
 	font-weight:		boldest;
-	font-size:		10px;
+	font-size:			10px;
 }
 
 /* SEARCH FAILED POPUP STYLES */
