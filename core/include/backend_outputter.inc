@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.68 2003/11/21 05:29:14 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.69 2003/11/23 21:50:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -609,7 +609,6 @@ class Backend_Outputter
 		if ($this->_redirect) {
 			// save the messages so they come through on the next page
 			$_SESSION['backend_outputter_msgs'] = $this->_messages;
-			#$this->addOnLoad('if (prompt("blah", "'.addslashes($this->_redirect).'")) '.$this->_redirect_target.'.location = "'.addslashes($this->_redirect).'";');
 			$this->addOnLoad($this->_redirect_target.'.location = "'.addslashes($this->_redirect).'";');
 		}
 
@@ -674,35 +673,40 @@ class Backend_Outputter
 		?>
 			<script language="Javascript" type="text/javascript">
 			<!--
+				var SQ_DOCUMENT_LOADED = false;
+
 				function page_on_load() {
 
-			<?php
-				if (isset($_SESSION['backend_outputter_msgs'])) {
-					$this->_messages = array_merge($this->_messages, $_SESSION['backend_outputter_msgs']);
-					$_SESSION['backend_outputter_msgs'] = Array();
-				}
-				if (count($this->_messages)) {
-					require_once 'XML/Tree.php';
-					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-					$msgs = new XML_Tree();
-					$msgs_root = &$msgs->addRoot('messages');
-					foreach($this->_messages as $data) {
-						$msg_body = "<p>".htmlentities(nl2br($data['msg'])). "</p>";
-						$msg_body .= "<font color=\"#333333\">".$GLOBALS['SQ_SYSTEM']->datetime()."<font>";
-						$msgs_root->addChild('message', $msg_body, Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
-					}
-					?>
-					if (top.sidenav && top.sidenav.add_messages) {
-						top.sidenav.add_messages("<?php echo str_replace("\n", "\\n", addslashes($msgs->get())); ?>");
-					}
 					<?php
-				}// end if messages
+					if (isset($_SESSION['backend_outputter_msgs'])) {
+						$this->_messages = array_merge($this->_messages, $_SESSION['backend_outputter_msgs']);
+						$_SESSION['backend_outputter_msgs'] = Array();
+					}
+					if (count($this->_messages)) {
+						require_once 'XML/Tree.php';
+						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+						$msgs = new XML_Tree();
+						$msgs_root = &$msgs->addRoot('messages');
+						foreach($this->_messages as $data) {
+							$msg_body = "<p>".htmlentities(nl2br($data['msg'])). "</p>";
+							$msg_body .= "<font color=\"#333333\">".$GLOBALS['SQ_SYSTEM']->datetime()."<font>";
+							$msgs_root->addChild('message', $msg_body, Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
+						}
+						?>
+						if (top.sidenav && top.sidenav.add_messages) {
+							top.sidenav.add_messages("<?php echo str_replace("\n", "\\n", addslashes($msgs->get())); ?>");
+						}
+						<?php
+					}// end if messages
 
-				foreach($this->_on_load_calls as $call) {
-					echo "\n".$call;
-				}//end foreach
+					foreach($this->_on_load_calls as $call) {
+						echo "\n".$call;
+					}//end foreach
 
-			?>
+					?>
+
+					// let everyone know the document is loaded
+					SQ_DOCUMENT_LOADED = true;
 
 				}// end page_on_load()
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: limbo_outputter.inc,v 1.1 2003/11/21 05:28:45 gsherwood Exp $
+* $Id: limbo_outputter.inc,v 1.2 2003/11/23 21:50:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,6 +34,25 @@ class Limbo_Outputter extends Backend_Outputter
 		$this->Backend_Outputter();
 
 	}//end constructor
+
+
+	/**
+	* Allows you to add get vars to the action section of the form
+	*
+	* In limbo we dont want get vars though, so we will post all these
+	*
+	* @param string		$name		the name of the var
+	* @param string		$value		the value of the var
+	* @param boolean	$persistant	ignored
+	*
+	* @return void
+	* @access public
+	*/
+	function addFormActionGetVar($name, $value, $persistant=false)
+	{
+		return $this->addHiddenField($name, $value);
+
+	}//end addFormActionGetVar()
 
 
 	/**
@@ -92,6 +111,26 @@ class Limbo_Outputter extends Backend_Outputter
 		?>
 		<script language="Javascript" type="text/javascript">
 		<!--
+			// slip our own onLoad function into the onLoad event of the window
+			var SQ_DOCUMENT_LOADED = false;
+			var sqOtherOnLoad = (window.onload) ? window.onload :  new Function;
+			window.onload = function() { sqOtherOnLoad(); page_on_load(); }
+
+			function page_on_load() {
+
+				<?php
+				foreach($this->_on_load_calls as $call) {
+					echo "\n".$call;
+				}//end foreach
+
+				?>
+
+				// let everyone know the document is loaded
+				SQ_DOCUMENT_LOADED = true;
+
+			}// end page_on_load()
+
+
 			var SQ_FORM_SUBMITTED = false;
 			function form_on_submit() {
 				if (SQ_FORM_SUBMITTED) {
@@ -283,19 +322,21 @@ class Limbo_Outputter extends Backend_Outputter
 	*/
 	function _paintBodyHeader()
 	{
-		// if a redirect has been set - added an onLoad call to we redirect as normal
-		if ($this->_redirect) $this->addOnLoad($this->_redirect_target.'.location = "'.addslashes($this->_redirect).'";');
-		?>
-		<script language="Javascript" type="text/javascript">
-			<?php
-			// we dont actually have an onLoad function to call,
-			// so we'll do our best and js print some JS to run
-			foreach($this->_on_load_calls as $call) {
-				echo "\n".$call;
-			}
+		// if a redirect has been set - add an onLoad call so we redirect as normal
+		if ($this->_redirect) {
 			?>
-		</script>
+			<script language="Javascript" type="text/javascript">
+				<?php echo $this->_redirect_target; ?>.location = "<?php echo addslashes($this->_redirect); ?>";
+			</script>
+			<?php
+		}
+		?>
 
+		<!--
+			some special styles we need in limbo that dont get
+			overwritten by other stylsheets - thus the reason why we define
+			then within the source instead of in the backend css
+		-->
 		<style type="text/css">
 			#sq_backend_sections td {
 				border:			0px;
