@@ -17,7 +17,7 @@ require_once 'XML/Parser.php';
 *
 *    $array_paths = Array('root/elem_two_list/elem_two_item'); # for more info on this see $array_paths var below
 *    $xml_arr = new XML_Array($array_paths);
-*    $array   = $xml->getArrayFromFile($file);
+*    $array   = $xml_arr->getArrayFromFile($file);
 *    print_r($array);
 *
 * @author  Blair Robertson <blair@squiz.net>
