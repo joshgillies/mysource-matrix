@@ -40,7 +40,7 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 							'filename_only' => Array(
 								'added'     => '0.0.1',
 								'type'      => 'boolean',
-								'default'   => false
+								'default'   => 0
 							),
 							'type' => Array(
 								'added'     => '0.0.1',

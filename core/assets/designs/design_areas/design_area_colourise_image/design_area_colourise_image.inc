@@ -72,11 +72,14 @@ class Design_Area_Colourise_Image extends Design_Area
 	*/
 	function printArea(&$design) 
 	{
-		$edit_fns = $this->getEditFns();
-		$image = $edit_fns->createImage($this, $design);
-		if (!$image) return false;
+		if (empty($this->_tmp['image'])) {
+			$edit_fns = $this->getEditFns();
+			$this->_tmp['image'] = $edit_fns->createImage($this, $design);
+		}
 
-		$image = $this->type().'/'.$this->id.'/'.$image;
+		if (empty($this->_tmp['image'])) return false;
+
+		$image = $this->type().'/'.$this->id.'/'.$this->_tmp['image'];
 
 		// if they only want us to echo out the filename
 		if ($this->attr('filename_only')) {
