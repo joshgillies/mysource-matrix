@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_rollback_entries.php,v 1.2 2004/07/05 04:00:31 mmcintyre Exp $
+* $Id: purge_rollback_entries.php,v 1.3 2004/07/05 09:32:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,10 +42,10 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once 'XML/Tree.php';
 
 $tables = getRollbackTableNames();
-echo 'Enter the date to purge to in the format: YYYY-MM-DD HH:MM:SS :';
+echo 'Enter the date to purge to in the format: YYYY-MM-DD HH:MM:SS : ';
 $date = rtrim(fgets(STDIN, 4094));
 
-echo 'Delete all entries previous to '.date('d F Y h:i:s', strtotime($date)).'? y/n? ';
+echo 'Delete all entries previous to '.date('d F Y h:i:sA', strtotime($date)).'? y/n? ';
 $answer = rtrim(fgets(STDIN, 4094));
 
 if (strtolower($answer) != 'y' && strtolower($answer) != 'yes') {
@@ -57,8 +57,9 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
 foreach ($tables as $tablename) {	
-	$sql = 'DELETE FROM '.$tablename.' WHERE '.SQ_TABLE_PREFIX
-		.'effective_from < '.$db->quote($date);
+	$sql = 'DELETE FROM '.$tablename.' 
+			WHERE '.SQ_TABLE_PREFIX.'effective_from < '.$db->quote($date).'
+			  AND '.SQ_TABLE_PREFIX.'effective_to IS NOT NULL';
 	$result = $db->query($sql);
 
 	echo 'Deleting records from '.$tablename.'... ';
@@ -94,7 +95,7 @@ function getRollbackTableNames() {
 	for ($i = 0; $i < count($root->children); $i++) {
 		if ($root->children[$i]->attributes['require_rollback']) {
 			$table_name = $root->children[$i]->attributes['name'];
-			array_push($table_names, SQ_TABLE_PREFIX.'rollback_'.$table_name);
+			array_push($table_names, SQ_TABLE_ROLLBACK_PREFIX.$table_name);
 		}
 	}
 	return $table_names;
