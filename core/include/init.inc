@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.60.2.2 2004/02/11 16:50:34 brobertson Exp $
+* $Id: init.inc,v 1.60.2.3 2004/02/14 21:35:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -166,7 +166,8 @@ define('SQ_SC_STATUS_SAFE_EDITING', 448); // short hand for SQ_STATUS_EDITING | 
 
 // Load general functions, including the error handler
 require_once SQ_INCLUDE_PATH.'/general.inc';
-ini_set('display_errors', 1); // we'll manage whether to display the errors or not in the error_handler
+// we want all errors displayed by default, if you really don't want this unset after including this file
+ini_set('display_errors', 1); 
 set_error_handler('sq_error_handler');
 
 // If there is magic quotes, strip them out
