@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.169 2005/02/18 05:49:44 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.170 2005/02/18 06:03:56 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.169 $
+* @version $Revision: 1.170 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -121,7 +121,7 @@ class Asset_Map
 			break;
 			case 'complex':
 				$classname = 'AssetMap';
-				$jarname = 'assetmap';
+				$jarname = 'complexassetmap';
 			break;
 		}
 
@@ -138,7 +138,7 @@ class Asset_Map
 		<?php
 		ob_start();
 			?>
-			<applet id="sq_asset_map" width="<?php echo $width; ?>" height="%applet_height%" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>" MAYSCRIPT>
+			<applet id="sq_asset_map" width="<?php echo $width; ?>" height="%applet_height%" code="net/squiz/matrix/<?php echo ($type == 'simple') ? $jarname : 'assetmap'; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>" MAYSCRIPT>
 
 				<?php
 					if ($type == 'complex') {
