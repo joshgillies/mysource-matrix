@@ -20,17 +20,29 @@ function mcListItemClass()
 // Make it inherit from MovieClip
 mcListItemClass.prototype = new MovieClip();
 
-mcListItemClass.prototype.setInfo = function(parent_item_name, asset) 
+mcListItemClass.prototype.setParent = function(parent_item_name) 
 {
-//	trace('Set Assetid   : ' + asset.assetid);
-//	trace('Set type_code : ' + asset.type_code);
-//	trace('Set Text      : ' + asset.name);
 	this.parent_item_name = parent_item_name;
+}
+
+mcListItemClass.prototype.setAsset = function(asset) 
+{
+	this.setInfo(asset);
+	asset.addListener(this);
+}
+
+mcListItemClass.prototype.setInfo = function(asset) 
+{
 	this.assetid   = asset.assetid;
 	this.type_code = asset.type_code;
 	this.item_text = this._name + ' ' + asset.name;
 
-	this.kids_button.setState((asset.kids.length) ? "plus" : "none");
+	if (!asset.kids.length) {
+		this.setKidState("none");
+	} else if (!this.expanded()) {
+		this.setKidState("plus");
+	}
+
 }
 
 mcListItemClass.prototype.getKidState = function() 
@@ -90,6 +102,17 @@ mcListItemClass.prototype.getMouseButton = function()
 	}
 
 }
+
+/**
+* When the asset is changed update ourselves to reflect changes
+*
+* @param object Asset	asset	the asset that changed
+*
+*/
+mcListItemClass.prototype.onAssetChange = function(asset) {
+	this.setInfo(asset);
+}
+
 
 Object.registerClass("mcListItemID", mcListItemClass);
 

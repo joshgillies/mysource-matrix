@@ -30,7 +30,7 @@ function mcMenuContainerClass()
 	this._y = 0;
 
 	// Set ourselves up as a listener on the asset types, so we know when they have been loaded
-	_root.asset_types.addListener(this);
+	_root.asset_manager.addListener(this);
 
 	// Set ourselves up as a broadcaster, so others can be notified of menu items being pressed
     ASBroadcaster.initialize(this);
@@ -63,7 +63,7 @@ mcMenuContainerClass.prototype.create = function()
 	this.top_level = new Array();
 
 	var add_menu  = this._createItem("Add", "", 0);
-	this[add_menu].kids = this._recurseCreateAddMenu(_root.asset_types.getTopTypes(), 1);
+	this[add_menu].kids = this._recurseCreateAddMenu(_root.asset_manager.getTopTypes(), 1);
 	this.top_level.push(add_menu);
 
 	var fixed_tops = this._recurseCreateFromArray(this.static_items, 0);
@@ -81,7 +81,7 @@ mcMenuContainerClass.prototype._recurseCreateAddMenu = function(kids, depth)
 
 	for (var i = 0; i < kids.length; i++) {
 		trace('AddMenu : ' + kids[i]);
-		var type = _root.asset_types.types[kids[i]];
+		var type = _root.asset_manager.types[kids[i]];
 
 		// Create any kids, also a check to see if we have any valid kids
 		var item_kids = (type.sub_types.length) ? this._recurseCreateAddMenu(type.sub_types, depth + 1) : new Array();
@@ -186,9 +186,9 @@ mcMenuContainerClass.prototype.itemPress = function(item)
 	// Hide the Open Menu
 	this.hideKids();
 	trace('Item Press : ' + item.value);
-	var cmds = item.value.split("/", 3);
+	var cmds = item.value.split("/", 2);
 
-	this.broadcastMessage("onMenuItemPress", cmds[1], cmds[2]);
+	this.broadcastMessage("onMenuItemPress", cmds[0], cmds[1]);
 
 }// end itemPress()
 

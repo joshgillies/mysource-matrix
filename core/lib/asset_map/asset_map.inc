@@ -32,7 +32,8 @@ class Asset_Map
 	*/
 	function paint(&$backend)
 	{
-		$backend_url = $backend->getBackendUrl('asset_map_request')
+		$backend_url = $backend->getBackendUrl('asset_map_request');
+		$backend->out->addJsInclude(SQ_WWW_LIB_DIR.'/asset_map/flashExternalCall.js');
 
 		?> 
 
@@ -56,6 +57,17 @@ class Asset_Map
 				document.write('end sub\n');
 				document.write('</SCRIPT\> \n');
 			}
+
+
+
+
+			// Reload the passed assetid in the flash
+			function reload_asset(assetid) {
+				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
+				var asset_mapObj = document.asset_map;
+				flashExternalCall(asset_mapObj, 'reload_asset', {assetid: assetid});
+			}
+
 		//-->
 		</SCRIPT>
 		<object id="asset_map" width="100%" height="100%" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0">

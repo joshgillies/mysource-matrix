@@ -3,7 +3,8 @@
 * This class adds the ability to external function calls to be made from outside the
 * Flash player (eg in JS), uses the flashExternalCall.js
 */
-function ExternalCall() {
+function ExternalCall() 
+{
 
 	this.registered_cmds = {};
 	this.params    = {};
@@ -15,6 +16,9 @@ function ExternalCall() {
 	this.watch("add_param", externalCallWatch);
 	this.watch("exec",      externalCallWatch);
 
+
+	// Set ourselves up as a broadcaster
+    ASBroadcaster.initialize(this);
 
 }
 
@@ -39,7 +43,8 @@ ExternalCall.prototype.registerCmd = function(cmd_name, target_object, target_fn
 * @param string	new_val		the new value of the propery
 *
 */
-function externalCallWatch(property, old_val, new_val){
+function externalCallWatch(property, old_val, new_val)
+{
 	switch(property) {
 		case "add_param" :
 			if (this.cmd != "") {
@@ -51,16 +56,12 @@ function externalCallWatch(property, old_val, new_val){
 		break;
 		case "exec" :
 			if (this.cmd != "" && new_val == "true") {
-				if (this.registered_cmds[this.cmd] != undefined) {
-					// make the call to the execute function
-					var obj = this.registered_cmds[this.cmd].obj;
-					var fn = this.registered_cmds[this.cmd].fn;
-					obj[fn](this.params);
-
-					// reset the storage units
-					this.params = {};
-					this.cmd    = "";
-				}
+				trace("onExternalCall : " + this.cmd);
+				for(var i in this.params) trace("params -> " + i + " : " + this.params[i]);
+				this.broadcastMessage("onExternalCall", this.cmd, this.params);
+				// reset the storage units
+				this.params = {};
+				this.cmd    = "";
 			}
 
 		break;

@@ -7,16 +7,18 @@ Stage.align = "TL";
 #include "test.as"
 #include "stageResize.as"
 #include "general.as"
+#include "externalCall.as"
 #include "system.as"
 #include "serverExec.as"
 #include "assetType.as"
-#include "assetTypes.as"
 #include "asset.as"
+#include "assetManager.as"
 #include "mcMenuContainerClass.as"
 #include "mcMenuItemClass.as"
 #include "mcListContainerClass.as"
 #include "mcPlusMinus.as"
 #include "mcListItemClass.as"
+#include "mcActionsBarClass.as"
 
   ///////////////////////////////////////////////////
  // CONSTANTS                                     //
@@ -50,14 +52,16 @@ _root.dialog_box._visible = false;
 _root.dialog_box.swapDepths(21);
 _root.dialog_box.stop();
 
-server_exec = new ServerExec(server_exec_path);
+_root.server_exec = new ServerExec(server_exec_path);
 
-asset_types = new AssetTypes();
+_root.asset_manager = new AssetManager();
 
 // Now attach the menu
-_root.attachMovie("mcMenuContainerID", "menu_container", 1);
+_root.attachMovie("mcMenuContainerID", "menu_container", 2);
 // Now the list container
-_root.attachMovie("mcListContainerID", "list_container", 2);
+_root.attachMovie("mcListContainerID", "list_container", 1);
+// Now the actions bar
+_root.attachMovie("mcActionsBarID", "actions_bar", 3);
 
 // Call resize to setup intial sizes of things
 _root.stageResizeListener.onResize();

@@ -70,7 +70,8 @@ function array_search(arr, val) {
 * @param mixed val	the value to match
 *
 */
-function array_remove_element(arr, val) {
+function array_remove_element(arr, val) 
+{
 
 	var i = array_search(arr, val);
 	if (i != null) {
@@ -103,7 +104,8 @@ function array_copy(arr) {
 * @param Array arr2	
 *
 */
-function array_diff(arr1, arr2) {
+function array_diff(arr1, arr2) 
+{
 
 
 	var new_arr = new Array();
