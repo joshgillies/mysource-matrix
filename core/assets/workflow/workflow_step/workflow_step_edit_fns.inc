@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.21 2004/12/06 14:38:11 brobertson Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.22 2005/02/22 05:54:11 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineOptionInterface(&$asset, &$o)
+	function paintStep(&$asset, &$o)
 	{
 		$write_access = ($asset->writeAccess('attributes') && $asset->writeAccess('links'));
 		$prefix = $asset->getPrefix();
@@ -107,7 +107,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 					if (is_null($condition)) continue;
 					$edit_fns = $condition->getEditFns();
 					echo '<tr>';
-					if (!$edit_fns->paintInlineOptionInterface($condition, $o)) return false;
+					if (!$edit_fns->paintStepCondition($condition, $o)) return false;
 					if ($write_access) {
 						?><td align="center" class="sq-backend-table-cell"><?php
 						check_box($prefix.'_delete_conditions['.$link_data['linkid'].']')
@@ -124,10 +124,16 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 				asset_finder($prefix.'_new_condition', 0, Array('user' => 'D', 'user_group' => 'D'), 'sq_sidenav', false, 'null', Array('clear'));
 			$o->closeField();
 		}
+		$o->openField('Expiry Time');
+		$comparator_attr =& $asset->getAttribute('expiry_time');
+		$comparator_attr->paint($prefix.'_expiry_time', !$write_access);
+		echo '<p>If this step is not completed within this time a reminder e-mail will be sent to the asset administrators. Leave at &#147;0&#148; to disable this feature.</p>';
+		$o->closeField();
+
 
 		return true;
 
-	}//end paintInlineOptionInterface()
+	}//end paintStep()
 
 
 	/**
@@ -139,7 +145,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInlineOptionInterface(&$asset, &$o)
+	function processStep(&$asset, &$o)
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes') || !$asset->writeAccess('links')) return false;
@@ -166,6 +172,14 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+		// update expiry date
+		$expiry_time_attr =& $asset->getAttribute('expiry_time');
+		$expiry_time_attr->process($prefix.'_expiry_time');
+		if ($expiry_time_attr->processed) {
+			$asset->setAttrValue('expiry_time', $expiry_time_attr->value);
+			$updated = true;
+		}
+
 		if (!$asset->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -178,7 +192,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 				$condition = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 				if (is_null($condition)) continue;
 				$edit_fns = $condition->getEditFns();
-				if ($edit_fns->processInlineOptionInterface($condition, $o)) $updated = true;
+				if ($edit_fns->processStepCondition($condition, $o)) $updated = true;
 			}
 		}
 
@@ -203,7 +217,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 
 		return $updated;
 
-	}//end processInlineOptionInterface()
+	}//end processStep()
 
 
 	/**
@@ -220,10 +234,11 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	function generateWorkflowArray($asset, &$workflow_array)
 	{
 		$workflow_array = Array();
-		$workflow_array['conditions'] = Array();
-		$workflow_array['step_name']  = $asset->name;
-		$workflow_array['started']    = 0;
-		$workflow_array['completed']  = 0;
+		$workflow_array['conditions']  = Array();
+		$workflow_array['step_name']   = $asset->name;
+		$workflow_array['started']     = 0;
+		$workflow_array['expiry_time'] = $asset->attr('expiry_time');
+		$workflow_array['completed']   = 0;
 
 		// work out the logic expression
 		$logic = $asset->attr('logic');

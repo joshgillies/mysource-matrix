@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.14 2004/12/06 14:38:11 brobertson Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.15 2005/02/22 05:54:12 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineOptionInterface(&$asset, &$o)
+	function paintStepCondition(&$asset, &$o)
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$prefix = $asset->getPrefix();
@@ -117,7 +117,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}//end paintInlineOptionInterface()
+	}//end paintStepCondition()
 
 
 	/**
@@ -129,7 +129,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInlineOptionInterface(&$asset, &$o)
+	function processStepCondition(&$asset, &$o)
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return false;
@@ -169,7 +169,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}//end processInlineOptionInterface()
+	}//end processStepCondition()
 
 
 	/**

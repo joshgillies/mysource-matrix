@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.18 2004/12/06 14:38:11 brobertson Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.19 2005/02/22 05:54:11 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -134,7 +134,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 					$o->closeField();
 				}
 				$edit_fns = $step->getEditFns();
-				if (!$edit_fns->paintInlineOptionInterface($step, $o)) return false;
+				if (!$edit_fns->paintStep($step, $o)) return false;
 			$o->closeSection();
 
 			$i++;
@@ -167,7 +167,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			$step = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
 			if (is_null($step)) continue;
 			$edit_fns = $step->getEditFns();
-			if ($edit_fns->processInlineOptionInterface($step, $o)) $updated = true;
+			if ($edit_fns->processStep($step, $o)) $updated = true;
 		}
 
 		// delete any steps that need deleting
