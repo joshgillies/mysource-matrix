@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.219.2.4 2004/10/07 05:39:35 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.219.2.5 2004/11/11 17:35:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1159,7 +1159,7 @@ class Asset_Edit_Interface extends MySource_Object
 						// start buffering for this field
 						if ($get_field) ob_start();
 
-						$attr->paint($prefix, !(($field_access & SQ_EI_WRITE) && $limbo_access));
+						$attr->paint($prefix.'_'.$attr->id, !(($field_access & SQ_EI_WRITE) && $limbo_access));
 						if (($field_access & SQ_EI_WRITE) && $limbo_access) $print_commit_button = true;
 
 						if ($field->children[1]->name == 'note' && $field->children[1]->content) {
