@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.js,v 1.2 2004/02/02 06:22:28 gsherwood Exp $
+* $Id: asset_map.js,v 1.3 2004/04/01 07:04:03 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,26 +122,41 @@ function asset_map_DoFSCommand(command, args)
 
 
 /*
+* Reload the assetids represented in the flash
+*/
+//function reload_assets(assetids_xml)
+//{
+//	var asset_mapObj = document.asset_map;
+//	jsToFlashCall(asset_mapObj, 'reload_assets', {assetids_xml: assetids_xml});
+	
+	
+
+//}//end reload_assets()
+
+
+
+function reload_assets(assetids) {
+	var asset_mapObj = document.getElementById('sq_asset_map');
+	params = new Array();
+	params["assetids"] = assetids;
+	jsToJavaCall(asset_mapObj, "reload_assets", "assetsReloaded", params);
+}
+
+
+/*
 * Reload the passed assetid in the flash
 */
 function reload_asset(assetid)
 {
-	var asset_mapObj = document.asset_map;
+	var asset_mapObj = document.getElementById("sq_asset_map");
+	params = new Array();
+	params["assetids"] = assetid + ",";
+	jsToJavaCall(asset_mapObj, "reload_assets", "assetsReloaded", params);
 	//alert("Reload Assetid : " + assetid);
-	jsToFlashCall(asset_mapObj, 'reload_asset', {assetid: assetid});
+	//jsToFlashCall(asset_mapObj, 'reload_asset', {assetid: assetid});
 
 }//end reload_asset()
 
-
-/*
-* Reload the assetids represented in the flash
-*/
-function reload_assets(assetids_xml)
-{
-	var asset_mapObj = document.asset_map;
-	jsToFlashCall(asset_mapObj, 'reload_assets', {assetids_xml: assetids_xml});
-
-}//end reload_assets()
 
 
 /*
@@ -511,7 +526,9 @@ function flashToJsCall(arg)
 */
 function jsToJavaCall(asset_mapObj, type, command, params)
 {
+	//alert(params);
 	// it just doesn't get much easier than this
+
 	params = var_serialise(params);
 	asset_mapObj.jsToJavaCall(type, command, params);
 
