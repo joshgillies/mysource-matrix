@@ -20,7 +20,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2003/11/26 00:51:32 gsherwood Exp $
+* $Id: asset.xml,v 1.5 2004/06/11 02:14:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -40,5 +40,5 @@
 			<version>0.1</version>
 		</requirement>
 	</requirements>
-	<flash_menu_path>Pages</flash_menu_path>
+	<flash_menu_path>Search</flash_menu_path>
 </asset_info>
