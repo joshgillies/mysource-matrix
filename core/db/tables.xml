@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.40 2004/06/10 01:42:16 gsherwood Exp $
+* $Id: tables.xml,v 1.41 2004/06/21 23:09:14 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -473,10 +473,8 @@
 	<table name="asset_attribute_value" require_rollback="1">
 		<columns>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -529,10 +527,8 @@
 				<description />
 			</column>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -734,10 +730,8 @@
 				<description />
 			</column>
 			<column name="designid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
@@ -871,18 +865,14 @@
 	<table name="asset_metadata" require_rollback="1">
 		<columns>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
 			<column name="schemaid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default>0</default>
 				<description />
 			</column>
@@ -920,10 +910,8 @@
 				<description />
 			</column>
 			<column name="schemaid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default>0</default>
 				<description />
 			</column>
@@ -1089,10 +1077,8 @@
 				<description>Flag to indicate if the HIPO Job has started running yet</description>
 			</column>
 			<column name="userid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description>ID of the user that this job is being run by</description>
 			</column>
@@ -1161,10 +1147,8 @@
 				<description>Value of the keydata.</description>
 			</column>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description>ID of the asset to which this keydata applies to.</description>
 			</column>
@@ -1219,10 +1203,8 @@
 	<table name="asset_indexing_weightings" require_rollback="0">
 		<columns>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description>ID of the asset to which this component-weighting applies to.</description>
 			</column>
