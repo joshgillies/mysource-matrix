@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.2 2004/06/07 05:16:59 gsherwood Exp $
+* $Id: hipo_job_uninstall_patch.inc,v 1.3 2004/06/25 04:04:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -351,8 +351,8 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	/**
 	* Process the user's confirmation that they want to create the new link
 	*
-	* @param	array	&$step_data		the step data for this job
-	* @param	string	$prefix			prefix to be used with this job
+	* @param array	&$step_data		the step data for this job
+	* @param string	$prefix			prefix to be used with this job
 	*
 	* @access public
 	* @return boolean
@@ -383,8 +383,8 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	/**
 	* Checks the required system and asset versions for the patch
 	*
-	* @param	&array	$step_data		the step data for this job
-	* @param	string	$prefix			prefix to be used with this job
+	* @param array	&$step_data		the step data for this job
+	* @param string	$prefix			prefix to be used with this job
 	*
 	* @access public
 	* @return boolean
@@ -395,13 +395,31 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 
 		if (isset($patch_info['requirements']['system'])) {
 			// the system version must be exactly equal to what is defined
-			// in the patch or else the patchis patching an untested system
+			// in the patch or else the patch is unpatching an untested system
 			if ($patch_info['requirements']['system']['new_version'] != SQ_SYSTEM_VERSION) {
 				trigger_error('This patch can only be removed from version '.$patch_info['requirements']['system']['new_version'].' of the system (current version is '.SQ_SYSTEM_VERSION.')', E_USER_ERROR);
 				return false;
 			}
 		}
 		
+		if (isset($patch_info['requirements']['packages'])) {
+			foreach ($patch_info['requirements']['packages'] as $package_code => $versions) {
+				$package_path = SQ_PACKAGES_PATH.'/'.$package_code.'/package_manager_'.$package_code.'.inc';
+				if (!is_file($package_path)) {
+					trigger_error('This patch can only be removed from version '.$versions['new_version'].' of package "'.strtoupper($package_code).'" (package is not installed on this system)', E_USER_ERROR);
+					return false;
+				}
+				require_once $package_path;
+				$package_class = 'package_manager_'.$package_code;
+				$package = new $package_class();
+
+				if ($package->version != $versions['new_version']) {
+					trigger_error('This patch can only be removed from version '.$versions['new_version'].' of package  "'.strtoupper($package_code).'" (current version is '.$package->version.')', E_USER_ERROR);
+					return false;
+				}
+			}
+		}
+
 		if (isset($patch_info['requirements']['assets'])) {
 			foreach ($patch_info['requirements']['assets'] as $type_code => $versions) {
 				$installed_version = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'version');
@@ -422,8 +440,8 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	/**
 	* Check all files to be uninstalled to ensure they are valid
 	*
-	* @param	array	&$step_data		the step data for this job
-	* @param	string	$prefix			prefix to be used with this job
+	* @param array	&$step_data		the step data for this job
+	* @param string	$prefix			prefix to be used with this job
 	*
 	* @access public
 	* @return boolean
@@ -526,8 +544,8 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	/**
 	* Update files from the patch
 	*
-	* @param	array	&$step_data		the step data for this job
-	* @param	string	$prefix			prefix to be used with this job
+	* @param array	&$step_data		the step data for this job
+	* @param string	$prefix			prefix to be used with this job
 	*
 	* @access public
 	* @return boolean
@@ -537,6 +555,9 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 		$backup_path = SQ_DATA_PATH.'/private/maps/installed_patches/'.$patch_info['id'];
 
+		// need to reverse the new files (and dirs) we are deleting so we dont remove files
+		// before they are sceduled to be removed
+		$patch_info['new_files'] = array_reverse($patch_info['new_files']);
 		foreach ($patch_info['new_files'] as $path => $file_info) {
 			$from = SQ_SYSTEM_ROOT.'/'.$path;
 
@@ -588,8 +609,8 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	/**
 	* Run reverse update queries over the database
 	*
-	* @param	&array	$step_data		the step data for this job
-	* @param	string	$prefix			prefix to be used with this job
+	* @param array	&$step_data		the step data for this job
+	* @param string	$prefix			prefix to be used with this job
 	*
 	* @access public
 	* @return boolean
@@ -627,8 +648,8 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	*
 	* We dont die on errors because it's a bit too late for that
 	*
-	* @param	array	&$step_data		the step data for this job
-	* @param	string	$prefix			prefix to be used with this job
+	* @param array	&$step_data		the step data for this job
+	* @param string	$prefix			prefix to be used with this job
 	*
 	* @access public
 	* @return boolean
@@ -657,8 +678,8 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	* Note that no errors here actually kill the HIPO because its a little
 	* late to be backing out on the uninstall. We'll sort any errors out later (fingers crossed)
 	*
-	* @param	array	&$step_data		the step data for this job
-	* @param	string	$prefix			prefix to be used with this job
+	* @param array	&$step_data		the step data for this job
+	* @param string	$prefix			prefix to be used with this job
 	*
 	* @access public
 	* @return boolean

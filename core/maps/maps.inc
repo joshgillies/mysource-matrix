@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.3 2004/06/10 11:05:56 brobertson Exp $
+* $Id: maps.inc,v 1.4 2004/06/25 04:04:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -558,12 +558,17 @@ class Maps extends MySource_Object
 							else if (strtolower($require->name) == 'version') $version = $require->content;
 							else if (strtolower($require->name) == 'new_version') $new_version = $require->content;
 						}
-						if (empty($code) || empty($version) ||  empty($new_version)) continue;
+						if (empty($code)) continue;
 
 						switch (strtolower(trim($requirement->attributes['type']))) {
 							case 'system' :
 								$patch_info['requirements']['system']['old_version'] = $version;
 								$patch_info['requirements']['system']['new_version'] = $new_version;
+							break;
+
+							case 'package' :
+								$patch_info['requirements']['packages'][$code]['old_version'] = $version;
+								$patch_info['requirements']['packages'][$code]['new_version'] = $new_version;
 							break;
 
 							case 'asset'  :
@@ -597,7 +602,7 @@ class Maps extends MySource_Object
 						if (!isset($file->attributes['local_md5'])) {
 							$patch_info['new_files'][$name] = Array();
 							$patch_info['new_files'][$name]['md5'] = $file->attributes['md5'];
-						} if (!isset($file->attributes['md5'])) {
+						} else if (!isset($file->attributes['md5'])) {
 							$patch_info['deleted_files'][$name] = Array();
 							$patch_info['deleted_files'][$name]['local_md5'] = $file->attributes['local_md5'];
 						} else {

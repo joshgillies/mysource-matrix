@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.2 2004/06/07 05:16:38 gsherwood Exp $
+* $Id: hipo_job_install_patch.inc,v 1.3 2004/06/25 04:04:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -405,19 +405,59 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 
 		if (isset($patch_info['requirements']['system'])) {
 			// the system version must be exactly equal to what is defined
-			// in the patch or else the patchis patching an untested system
+			// in the patch or else the patch is patching an untested system
 			if ($patch_info['requirements']['system']['old_version'] != SQ_SYSTEM_VERSION) {
 				trigger_error('This patch can only be applied to version '.$patch_info['requirements']['system']['old_version'].' of the system (current version is '.SQ_SYSTEM_VERSION.')', E_USER_ERROR);
 				return false;
 			}
 		}
-		
+
+		if (isset($patch_info['requirements']['packages'])) {
+			foreach ($patch_info['requirements']['packages'] as $package_code => $versions) {
+				$package_path = SQ_PACKAGES_PATH.'/'.$package_code.'/package_manager_'.$package_code.'.inc';
+				$package_class = 'package_manager_'.$package_code;
+
+				if (empty($versions['old_version'])) {
+					// we are installing a new package, so a previous version should not be installed
+					if (is_file($package_path)) {
+						// package is already installed, get its version to report to the user
+						require_once $package_path;
+						$package = new $package_class();
+
+						trigger_error('This patch can only be applied to a system without a current "'.strtoupper($package_code).'" package (current system has version '.$package->version.' installed)', E_USER_ERROR);
+						return false;
+					}
+				} else {
+					if (!is_file($package_path)) {
+						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of package "'.strtoupper($package_code).'" (package is not installed on this system)', E_USER_ERROR);
+						return false;
+					}
+					require_once $package_path;
+					$package = new $package_class();
+
+					if ($package->version != $versions['old_version']) {
+						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of package "'.strtoupper($package_code).'" (current version is '.$package->version.')', E_USER_ERROR);
+						return false;
+					}
+				}
+			}
+		}
+
 		if (isset($patch_info['requirements']['assets'])) {
 			foreach ($patch_info['requirements']['assets'] as $type_code => $versions) {
-				$installed_version = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'version');
-				if ($installed_version != $versions['old_version']) {
-					trigger_error('This patch can only be applied to version '.$versions['old_version'].' of asset type "'.$type_code.'" (current version is '.$installed_version.')', E_USER_ERROR);
-					return false;
+				if (empty($versions['old_version'])) {
+					// we are installing a new assset type, so a previous version should not be installed
+					if ($GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
+						$installed_version = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'version');
+						trigger_error('This patch can only be applied to a system without a current "'.$type_code.'" asset type installed (current system has version '.$installed_version.' installed)', E_USER_ERROR);
+						return false;
+					}
+				} else {
+					$installed_version = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'version');
+					if ($installed_version != $versions['old_version']) {
+						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of asset type "'.$type_code.'" (current version is '.$installed_version.')', E_USER_ERROR);
+						return false;
+					}
 				}
 			}
 		}
@@ -442,12 +482,12 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 	{
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 		$patch_path = dirname($patch_info['file_path']);
-		
+
 		// check the new files that we will be installing
 		foreach ($patch_info['new_files'] as $path => $file_info) {
 			$to   = SQ_SYSTEM_ROOT.'/'.$path;
 			$from = $patch_path.'/'.$path;
-			
+
 			if (empty($file_info['md5'])) {
 				
 				// this should be a directory
@@ -455,7 +495,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 					trigger_error('Could not install new directory "'.$from.'" - directory does not exist in patch', E_USER_ERROR);
 					return false;
 				}
-				
+
 				if (!$this->_running_vars['option_ignore_file_checks']) {
 					// check that the directory does not already exist in the system
 					if (is_dir($to)) {
@@ -463,7 +503,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 						return false;
 					}
 				}
-				
+
 			} else {
 				// this should be a regular file
 				if (!is_file($from)) {
@@ -478,7 +518,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 						return false;
 					}
 				}
-				
+
 				// check the MD5 sum of the file to ensure it has not been changed since downloading
 				if ($file_info['md5'] != md5(file_get_contents($from))) {
 					trigger_error('Could not update file "'.$to.'" - MD5 strings did not match - downloded file may have been modified', E_USER_ERROR);
@@ -710,7 +750,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processInstallFiles()
 
 
@@ -741,13 +781,13 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 				return false;
 			}
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processDatabaseUpdates()
 
 
