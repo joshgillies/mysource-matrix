@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.255 2004/12/21 14:15:26 brobertson Exp $
+* $Id: asset_manager.inc,v 1.256 2004/12/23 05:35:58 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.255 $
+* @version $Revision: 1.256 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -1618,7 +1618,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Returns information for a link that this asset is the major asset in
+	* Get details of a link with the specified characteristics
 	*
 	* @param int			$assetid			id of the the $side_of_link asset
 	* @param int			$link_type			integer that should be a single integer of the SQ_LINK_* constants
@@ -1692,7 +1692,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Returns the link information for a specific link that this asset is the major asset in
+	* Get details of the link with specified linkid
 	*
 	* @param int	$linkid
 	* @param int	$assetid		id of the the $side_of_link asset
@@ -1740,16 +1740,16 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Returns information for a link or links that is/are between this asset and the passed
+	* Get details of the link(s) between the two specified assets
 	*
 	* @param int		$assetid			id of the the $side_of_link asset
-	* @param int		$other_assetid		the asset of the other $side_of_link
+	* @param int		$other_assetid		the asset on the other side of the link
 	* @param int		$link_types			integer that can be the product of bitwise operations
 	*										on the SQ_LINK_* constants
 	* @param string		$value				the value that is associated with this link
-	* @param string		$side_of_link		Which side of the link this (the current) asset
-	*										is on ('major' or 'minor')
-	* @param boolean	$force_array		force the results to return and array of links
+	* @param string		$side_of_link		Which side of the link the first assetid is on
+	*										('major' or 'minor')
+	* @param boolean	$force_array		force the results to return an array of links
 	*										even if there is only one link
 	*
 	* @return Array()	array of link info if only one link and force_array=false,
@@ -1797,7 +1797,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Return all links that this asset has to other assets
+	* Get all links matching the specified characteristics
 	*
 	* The query generated to get the links is actually contructed in the Asset Manager's
 	* generateGetLinksQuery function.
@@ -1873,9 +1873,9 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Returns all child links that the passed asset has
+	* Get details of the links from the specified asset to all its children
 	*
-	* @param string		$assetid	the assetid of the asset to find the child links
+	* @param string		$assetid	the assetid of the asset to find the child links for
 	* @param integer	$link_type	the type of links to get
 	*
 	* @access public
@@ -2457,7 +2457,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Return the number of links that this asset has as either a major or minor party
+	* Return the number of links in the system that involve the specified asset
 	*
 	* Can be restricted by either link type afnd/or asset type code
 	*
@@ -2531,7 +2531,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Creates a link between this asset and the passed asset, of a certain type
+	* Create a link between the two supplied assets
 	*
 	* @param object Asset	&$major		the major asset that we are linking from
 	* @param object Asset	&$minor		the minor asset that we are linking to
@@ -2901,11 +2901,11 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
+	* Returns TRUE if the supplied assets can be linked in the specified way
 	*
-	* @param object Asset	$major		the major asset that we are linking to
-	* @param object Asset	$minor		the minor asset that we are linking to
-	* @param string			$link_type	the type of link this is
+	* @param object Asset	$major		the major asset in the proposed link
+	* @param object Asset	$minor		the minor asset in the proposed link
+	* @param string			$link_type	the type of link that is proposed
 	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
 	*
 	* @return mixed TRUE or error message string
@@ -2974,8 +2974,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Checks whether a link of a certain type can be made to this asset
-	* Returns TRUE if link allowed and a string containing the error if it is not
+	* Returns TRUE if the supplied asset can have assets of the specified type linked under it
 	*
 	* @param object Asset	$major			the major asset that we are linking to
 	* @param string			$type_code		the type code that we want to check
@@ -3049,215 +3048,6 @@ class Asset_Manager extends MySource_Object
 		return true;
 
 	}//end canLinkToType()
-
-
-	/**
-	* Remove a link where this asset is the major player
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return boolean
-	* @access public
-	*/
-	function deleteAssetLink($linkid)
-	{
-		// first, we should try and find the link
-		$link = $this->getLinkById($linkid);
-		if (empty($link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
-			return false;
-		}
-
-		$major = &$this->getAsset($link['majorid'], $link['major_type_code']);
-		$minor = &$this->getAsset($link['minorid'], $link['minor_type_code']);
-		if (is_null($major) || is_null($minor)) {
-			return false;
-		}
-
-		// to delete a link we need to lock the old parent, but we need to make sure
-		// we dont unlock it if it was already locked
-		$lock_info = @$this->getLockInfo($major->id, 'links');
-		$parent_was_locked = !empty($lock_info);
-		if (!$this->acquireLock($major->id, 'links')) {
-			trigger_error('Could not delete asset link - "links" lock not acquired on major asset "'.$major->name.'"', E_USER_WARNING);
-			return 0;
-		}
-
-		// check if we are allowed to delete this link
-		if (($err_msg = $major->canDeleteLink($linkid)) !== true) {
-			trigger_error($err_msg, E_USER_WARNING);
-			return false;
-		}
-
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$minor = &$this->getAsset($link['minorid'], $link['minor_type_code']);
-		if (is_null($minor)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// if this is a significant link
-		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
-
-			$num_other_links = $this->countLinks($minor->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', true, $linkid);
-
-			// we create a new link to the trash if this is the last significant link
-			// being deleted and if we are not purging the trash
-			if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
-				// some assets may not be able to have their last significant link
-				// deleted, so lets check first before going ahead
-				if (!$minor->canDelete()) {
-					trigger_error($minor->name.' can not have its last significant link removed' , E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-
-				$trash_folder = &$this->getSystemAsset('trash_folder');
-				if (is_null($trash_folder)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-
-				// this asset is destined for the trash, so we need to set its permissions to
-				// whatever it is inheriting right now so it keeps them while in the trash
-				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
-				foreach ($perms as $perm) {
-					$all_permissions = $this->getPermission($minor->id, $perm, null, false, false, true);
-					foreach ($all_permissions as $userid => $granted) {
-						// we are deliberatly not checking for the return value here
-						// because if for some reason the permission can't be set that is really just
-						// bad luck
-						@$this->setPermission($minor->id, $userid, $perm, $granted);
-					}
-				}
-
-				if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-
-			//// UPDATE THE TREE ////
-
-			// update the parents to tell them that they are going to be one kid less
-			$sub_sql   = 'SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
-						  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ';
-			$sub_where = 't.linkid = '.$db->quote($linkid);
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
-			$sub_sql .= $sub_where;
-
-			// add a rollback entry for the tree
-			$values = Array('num_kids' => 'num_kids - 1');
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk_tree', $values, 'treeid IN ('.$sub_sql.')')) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			// we can delete all the links under these nodes because it will be a clean start
-			// when we insert into the gap's we create below
-			$sub_sql   = 'SELECT ct.treeid
-						  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt, '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ';
-			$sub_where = 'pt.linkid = '.$db->quote($linkid).'
-						  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
-						  AND ct.treeid > pt.treeid';
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'pt');
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ct');
-			$sub_sql .= $sub_where;
-
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lnk_tree', 'treeid in ('.$sub_sql.')')) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			// we are going to set the treeid nodes that this link is associated
-			// with to zero so that we can find it as a gap when we createLink() later on
-			$values = Array('linkid'   => $db->quote('0'),
-							'num_kids' => $db->quote('0')
-							);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk_tree', $values, 'linkid = '.$db->quote($linkid))) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-		}//end if significant link
-
-		// move 'em up, higher
-		$where_cond = ' majorid        = '.$db->quote($major->id).'
-						AND sort_order > '.$db->quote($link['sort_order']);
-		$values = Array('sort_order' => 'sort_order - 1');
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk', $values, $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		$where_cond = ' linkid  = '.$db->quote($linkid).'
-						AND majorid = '.$db->quote($major->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lnk', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// tell the assets that they have been updated
-		if (!$major->linksUpdated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-		if (!$minor->linksUpdated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// release locks depending on if the parent was locked before the link
-		if (!$parent_was_locked) {
-			if (!$this->releaseLock($major->id, 'links')) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-		}
-
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$message_body = '"'.$minor->name.'" was successfully unlinked from "'.$major->name.'"';
-		$message = $ms->newMessage(Array(), 'Asset Link Deleted', $message_body, 'asset.linking');
-		$message->parameters['majorid'] = $major->id;
-		$message->parameters['minorid'] = $minor->id;
-		$message->parameters['linkid']  = $linkid;
-		$message->send();
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-		$em->broadcastEvent($major, 'DeleteLink', Array('linkid' => $linkid));
-
-		return true;
-
-	}//end deleteAssetLink()
-
-
-	/**
-	* Determine if we can delete the passed link
-	*
-	* @param object Asset	$major	the major asset that we are linking to
-	* @param int			$linkid	the link id of the link to remove
-	*
-	* @return mixed TRUE or error msg string
-	* @access public
-	*/
-	function canDeleteLink(&$major, $linkid)
-	{
-		// if you dont have write access to the parent, you can't delete any links
-		if (!$major->writeAccess('links')) {
-			return 'Cannot delete link, permission denied';
-		}
-
-		return true;
-
-	}//end canDeleteLink()
 
 
 	/**
@@ -3359,7 +3149,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Move a link from one position in the assets links order to another
+	* Move a link from one position in the asset's links order to another
 	*
 	* @param int	$linkid		the link id of the link to move about
 	* @param int	$sort_order	the position in the links list that this link should take,
@@ -3572,6 +3362,272 @@ class Asset_Manager extends MySource_Object
 		return true;
 
 	}//end updateLink()
+
+	
+	/**
+	* Remove a link by id
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteAssetLink($linkid)
+	{
+		// first, we should try and find the link
+		$link = $this->getLinkById($linkid);
+		if (empty($link)) {
+			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			return false;
+		}
+
+		$major = &$this->getAsset($link['majorid'], $link['major_type_code']);
+		$minor = &$this->getAsset($link['minorid'], $link['minor_type_code']);
+		if (is_null($major) || is_null($minor)) {
+			return false;
+		}
+
+		// to delete a link we need to lock the old parent, but we need to make sure
+		// we dont unlock it if it was already locked
+		$lock_info = @$this->getLockInfo($major->id, 'links');
+		$parent_was_locked = !empty($lock_info);
+		if (!$this->acquireLock($major->id, 'links')) {
+			trigger_error('Could not delete asset link - "links" lock not acquired on major asset "'.$major->name.'"', E_USER_WARNING);
+			return 0;
+		}
+
+		// check if we are allowed to delete this link
+		if (($err_msg = $major->canDeleteLink($linkid)) !== true) {
+			trigger_error($err_msg, E_USER_WARNING);
+			return false;
+		}
+
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$minor = &$this->getAsset($link['minorid'], $link['minor_type_code']);
+		if (is_null($minor)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// if this is a significant link
+		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
+
+			$num_other_links = $this->countLinks($minor->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', true, $linkid);
+
+			// we create a new link to the trash if this is the last significant link
+			// being deleted and if we are not purging the trash
+			if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
+				// some assets may not be able to have their last significant link
+				// deleted, so lets check first before going ahead
+				if (!$minor->canDelete()) {
+					trigger_error($minor->name.' can not have its last significant link removed' , E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+				$trash_folder = &$this->getSystemAsset('trash_folder');
+				if (is_null($trash_folder)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+				// this asset is destined for the trash, so we need to set its permissions to
+				// whatever it is inheriting right now so it keeps them while in the trash
+				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
+				foreach ($perms as $perm) {
+					$all_permissions = $this->getPermission($minor->id, $perm, null, false, false, true);
+					foreach ($all_permissions as $userid => $granted) {
+						// we are deliberatly not checking for the return value here
+						// because if for some reason the permission can't be set that is really just
+						// bad luck
+						@$this->setPermission($minor->id, $userid, $perm, $granted);
+					}
+				}
+
+				if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+
+			//// UPDATE THE TREE ////
+
+			// update the parents to tell them that they are going to be one kid less
+			$sub_sql   = 'SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
+						  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ';
+			$sub_where = 't.linkid = '.$db->quote($linkid);
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
+			$sub_sql .= $sub_where;
+
+			// add a rollback entry for the tree
+			$values = Array('num_kids' => 'num_kids - 1');
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk_tree', $values, 'treeid IN ('.$sub_sql.')')) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+			// we can delete all the links under these nodes because it will be a clean start
+			// when we insert into the gap's we create below
+			$sub_sql   = 'SELECT ct.treeid
+						  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree pt, '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree ct ';
+			$sub_where = 'pt.linkid = '.$db->quote($linkid).'
+						  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
+						  AND ct.treeid > pt.treeid';
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'pt');
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ct');
+			$sub_sql .= $sub_where;
+
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lnk_tree', 'treeid in ('.$sub_sql.')')) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+			// we are going to set the treeid nodes that this link is associated
+			// with to zero so that we can find it as a gap when we createLink() later on
+			$values = Array('linkid'   => $db->quote('0'),
+							'num_kids' => $db->quote('0')
+							);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk_tree', $values, 'linkid = '.$db->quote($linkid))) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+		}//end if significant link
+
+		// move 'em up, higher
+		$where_cond = ' majorid        = '.$db->quote($major->id).'
+						AND sort_order > '.$db->quote($link['sort_order']);
+		$values = Array('sort_order' => 'sort_order - 1');
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk', $values, $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$where_cond = ' linkid  = '.$db->quote($linkid).'
+						AND majorid = '.$db->quote($major->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lnk', $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// tell the assets that they have been updated
+		if (!$major->linksUpdated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		if (!$minor->linksUpdated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// release locks depending on if the parent was locked before the link
+		if (!$parent_was_locked) {
+			if (!$this->releaseLock($major->id, 'links')) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$message_body = '"'.$minor->name.'" was successfully unlinked from "'.$major->name.'"';
+		$message = $ms->newMessage(Array(), 'Asset Link Deleted', $message_body, 'asset.linking');
+		$message->parameters['majorid'] = $major->id;
+		$message->parameters['minorid'] = $minor->id;
+		$message->parameters['linkid']  = $linkid;
+		$message->send();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($major, 'DeleteLink', Array('linkid' => $linkid));
+
+		return true;
+
+	}//end deleteAssetLink()
+
+
+	/**
+	* See whether we COULD send the specified asset to the trash IF we got the locks on its parents
+	*
+	* @param int	$assetid	The asset we want to trash
+	*
+	* @return bool|array	TRUE if we can trash, FALSE if assetid=0, Array(linkid=>problem) otherwise
+	* @access public
+	*/
+	function couldTrashAsset($assetid)
+	{
+		if (!$assetid) return false;
+		// We can trash the asset if we can delete all the parent links
+		$msgs = Array();
+		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', true, 'minor');
+		foreach ($parent_links as $id => $link_details) {
+			$asset =& $this->getAsset($link_details['majorid']);
+			if (true !== ($msg = $asset->couldDeleteLink($link_details['linkid']))) {
+				$msgs[$link_details['linkid']] = $msg;
+			}
+		}
+		return empty($msgs) ? true : $msgs;
+
+	}//end couldTrashAsset()
+
+
+	/** 
+	* Send the specified asset directly to the trash, where possible
+	*
+	* This deletes its links to all its current parents, and creates a link for it in the trash folder
+	* 
+	* @param int	$assetid	The asset to trash
+	*
+	* @return boolean	Whether the asset was successfully trashed
+	* @access public
+	*/
+	function trashAsset($assetid)
+	{
+		// first check that our parents are OK with it (always a good idea)
+		$parent_links = $this->getLinks($assetid, SQ_SC_LINK_ALL, '', true, 'minor');
+		$locked = Array();
+		foreach ($parent_links as $link_details) {
+			$asset =& $this->getAsset($link_details['majorid']);
+			// try to acquire the lock
+			if ($this->acquireLock($link_details['majorid'], 'links')) {
+				$locked[] = $link_details['majorid'];
+			} else {
+				trigger_error('Cannot trash asset #'.$assetid.' - could not acquire lock on parent '.$link_details['majorid'], E_USER_WARNING);
+				foreach ($locked as $aid) {
+					$this->releaseLock($aid, 'links');
+				}
+			}
+			if (true !== ($msg = $asset->canDeleteLink($link_details['linkid']))) {
+				trigger_error('Cannot trash asset #'.$assetid.' - link to parent asset #'.$link_details['majorid'].' cannot be deleted ('.$msg.')', E_USER_WARNING);
+				foreach ($locked as $aid) {
+					$this->releaseLock($aid, 'links');
+				}
+				return false;
+			}
+		}
+
+		foreach ($parent_links as $link_details) {
+			// deleteAssetLink will create the trash link when no other links remain
+			if (!$this->deleteAssetLink($link_details['linkid'])) {
+				trigger_error('Failed deleting link '.$link_details['linkid']);
+				foreach ($locked as $aid) {
+					$this->releaseLock($aid, 'links');
+				}
+				return false;
+			}
+		}
+		foreach ($locked as $aid) {
+			$this->releaseLock($aid, 'links');
+		}
+		return true;
+
+	}//end trashAsset()
 
 
 //--        PERMISSIONS        --//

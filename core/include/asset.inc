@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.342 2004/12/22 23:40:05 tbarrett Exp $
+* $Id: asset.inc,v 1.343 2004/12/23 05:35:58 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.342 $
+* @version $Revision: 1.343 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2079,7 +2079,7 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Determine if we can delete the passed link
+	* Determine if we can delete the passed link right now
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
@@ -2088,11 +2088,41 @@ class Asset extends MySource_Object
 	*/
 	function canDeleteLink($linkid)
 	{
-		if (($err_msg = $this->isDeletableLink($linkid)) !== true) return $err_msg;
-		if (!$this->id) return 'Asset Not Created';
-		return $GLOBALS['SQ_SYSTEM']->am->canDeleteLink($this, $linkid);
+		if (!$this->id) {
+			return 'Asset Not Created';
+		}
+		if (($err_msg = $this->isDeletableLink($linkid)) !== true) {
+			return $err_msg;
+		}
+		if (!$this->writeAccess('links')) {
+			return 'Cannot delete link, permission denied';
+		}
+		return true;
 
 	}//end canDeleteLink()
+
+
+	/**
+	* Determine if we COULD delete the passed link IF we acquired the lock on this asset
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return mixed TRUE or error msg string
+	* @access public
+	*/
+	function couldDeleteLink($linkid) {
+		if (!$this->id) {
+			return 'Asset Not Created';
+		}
+		if (($err_msg = $this->isDeletableLink($linkid)) !== true) {
+			return $err_msg;
+		}
+		if (!$this->writeAccess()) {
+			return 'Cannot delete link, permission denied';
+		}
+		return true;
+
+	}//end couldDeleteLink()
 
 
 	/**
@@ -2133,6 +2163,9 @@ class Asset extends MySource_Object
 		return $this->_updated();
 
 	}//end linksUpdated()
+
+	
+
 
 
 //--        ATTRIBUTES        --//
