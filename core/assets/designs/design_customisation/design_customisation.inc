@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.26 2004/08/20 06:46:18 amiller Exp $
+* $Id: design_customisation.inc,v 1.27 2004/08/23 00:14:49 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -371,7 +371,7 @@ class Design_Customisation extends Design
 	* @return void
 	* @access public
 	*/
-	function paint(&$ASSET, $FILE_URLS=Array())
+	function paint(&$ASSET, $FILE_URLS=Array() $CSS_URLS=Array())
 	{
 		// generate an array of all the URLs we are going to need for the files in this customisation
 		// that are inherited from the design we are customising
