@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: commenting.txt,v 1.5 2003/11/26 00:51:15 gsherwood Exp $
+* $Id: commenting.txt,v 1.6 2004/06/09 02:12:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,7 +139,7 @@ A complete example of a PHPDocumentor style commented function:
 * 				if less than zero places at end of list
 *
 * @return boolean
-* @access public
+* @access private
 */
 function _updateLink($linkid, $link_type=null, $value=null, $sort_order=null)
 {
