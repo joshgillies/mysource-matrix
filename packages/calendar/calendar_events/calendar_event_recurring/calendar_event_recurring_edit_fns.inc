@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.9 2004/08/03 04:51:29 tbarrett Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.10 2004/08/03 04:55:20 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $ - 1.0
+* @version $Revision: 1.10 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -113,7 +113,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 			  <tr>
 				<td colspan="2">
 				  <input type="radio" name="<?php echo $prefix; ?>_stop_date_selected" value="0" <?php echo ($stopdate ? '' : 'checked="checked" '); ?> onkeypress="this.click();" onclick="disableDateField('<?php echo $prefix; ?>_stop')" />Until further notice
-				  <br /><input type="radio" <?php echo ($stopdate ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_stop_date_selected" value="1" onkeypress="this.click();" onclick="enableDateField('<?php echo $prefix; ?>_stop')"" />Until <?php parent::printDateChooser($prefix.'_stop', '', '', $stopdate); ?>
+				  <br /><input type="radio" <?php echo ($stopdate ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_stop_date_selected" value="1" onkeypress="this.click();" onclick="enableDateField('<?php echo $prefix; ?>_stop')" />Until <?php parent::printDateChooser($prefix.'_stop', '', '', $stopdate); ?>
 				</td>
 			  </tr>
 			</table>
