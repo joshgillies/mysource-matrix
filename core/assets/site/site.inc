@@ -319,6 +319,27 @@ class Site extends Folder
 
 
 	/**
+	* Prints out the Frontend for this asset
+	* Extra checking here to make sure the user has read access to the index page
+	*
+	* @return void
+	* @access public
+	*/
+	function printFrontend()
+	{
+		$index_page = &$this->getSpecialPage('index');
+		if (is_null($index_page)) return;
+
+		if (!$index_page->readAccess()) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
+			return;
+		}
+
+		parent::printFrontend();
+	}//end printFrontend()
+
+
+	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
 	*
