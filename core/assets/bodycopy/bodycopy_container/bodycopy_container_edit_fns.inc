@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.4 2003/12/16 12:16:42 brobertson Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.5 2003/12/17 01:09:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -208,10 +208,8 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		preg_match_all($e, $output, $matches);
 		$replace_assetids = $matches[1];
 
-		$e = '/%([^%]+)%/';
-		$stripped_output = strip_tags($output);
-		preg_match_all($e, $stripped_output, $matches);
-		$keywords = $matches[1];
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		$keywords = retrieve_keywords_replacements($output);
 
 		if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
 			// this container currently has a system version floating around
@@ -255,6 +253,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		if (!empty($keywords)) {
+			bam($keywords);
 			foreach ($keywords as $keyword) {
 				$output = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|', '\\1<'.'?php echo (isset($keyword_replacements["'.$keyword.'"])) ? $keyword_replacements["'.$keyword.'"] : ""; ?'.'>\\4', $output);
 			}
