@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2004/09/15 07:06:31 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2004/12/21 17:15:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -80,7 +80,7 @@
 		</field>
 		<field attribute="required">
 			<display_name>Required</display_name>
-			<note />
+			<note>%description%</note>
 			<boolean true_text="Yes" false_text="No" />
 		</field>
 		<field attribute="frontend">
