@@ -47,12 +47,12 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			?>
 			<table border="0" cellspacing="1" cellpadding="3" width="100%" bgcolor="#DDDDDD">
 			<tr>
-				<td class="sq-backend-message-header"><b>From</b></td>
-				<td class="sq-backend-message-header"><b>Subject</b></td>
-				<td class="sq-backend-message-header"><b>Body</b></td>
-				<td class="sq-backend-message-header"><b>Sent</b></td>
-				<td class="sq-backend-message-header"><b>Priority</b></td>
-				<td class="sq-backend-message-header"><b>Read</b></td>
+				<td class="sq-backend-message-header">From</td>
+				<td class="sq-backend-message-header">Subject</td>
+				<td class="sq-backend-message-header">Body</td>
+				<td class="sq-backend-message-header">Sent</td>
+				<td class="sq-backend-message-header">Priority</td>
+				<td class="sq-backend-message-header">Read</td>
 				<td>&nbsp;</td>
 			</tr>
 			<?php
@@ -150,12 +150,12 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			?>
 			<table border="0" cellspacing="1" cellpadding="3" width="100%" bgcolor="#DDDDDD">
 			<tr>
-				<td class="sq-backend-message-header"><b>From</b></td>
-				<td class="sq-backend-message-header"><b>Subject</b></td>
-				<td class="sq-backend-message-header"><b>Body</b></td>
-				<td class="sq-backend-message-header"><b>Sent</b></td>
-				<td class="sq-backend-message-header"><b>Priority</b></td>
-				<td class="sq-backend-message-header"><b>Recover</b></td>
+				<td class="sq-backend-message-header">From</td>
+				<td class="sq-backend-message-header">Subject</td>
+				<td class="sq-backend-message-header">Body</td>
+				<td class="sq-backend-message-header">Sent</td>
+				<td class="sq-backend-message-header">Priority</td>
+				<td class="sq-backend-message-header">Recover</td>
 				<td>&nbsp;</td>
 			</tr>
 			<?php
