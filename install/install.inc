@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.25 2004/11/18 00:57:42 lwright Exp $
+* $Id: install.inc,v 1.26 2004/11/18 01:02:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -328,7 +328,7 @@ function install_core($package_list=Array())
 	}
 	
 	$result = $pm->installSystemAssets();
-	bam($result.' SYSTEM ASSETS WERE CREATED HERE');
+	
 	// 0 (zero) indicates success, but no system assets were created - suppress in this case
 	if ($result != 0) {
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
