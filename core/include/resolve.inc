@@ -1092,9 +1092,7 @@ class Resolve
 	*/
 	function datetime($timestamp=null)
 	{
-		$f = 'd/m/Y H:i:s';
-		return (is_null($timestamp)) ? date($f) : date($f, $timestamp);
-
+		return (is_null($timestamp)) ? date('d/m/Y H:i:s') : date('d/m/Y H:i:s', $timestamp);
 	}//end datetime()
 
 
@@ -1108,9 +1106,7 @@ class Resolve
 	*/
 	function date($timestamp=null)
 	{
-		$f = 'd/m/Y';
-		return (is_null($timestamp)) ? date($f) : date($f, $timestamp);
-
+		return (is_null($timestamp)) ? date('d/m/Y') : date('d/m/Y', $timestamp);
 	}//end date()
 
 
@@ -1124,9 +1120,7 @@ class Resolve
 	*/
 	function time($timestamp=null)
 	{
-		$f = 'H:i:s';
-		return (is_null($timestamp)) ? date($f) : date($f, $timestamp);
-
+		return (is_null($timestamp)) ? date('H:i:s') : date('H:i:s', $timestamp);
 	}//end time()
 
 }//end class
