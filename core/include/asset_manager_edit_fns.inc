@@ -132,7 +132,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 						$do_process_backend = false;
 					}
 
-					// try to aquire a lock on this asset?
+					// try to release a lock held on this asset?
 					if (isset($_POST['sq_manual_release_lock'])) {
 						$asset->releaseLock();
 						$do_process_backend = false;
@@ -172,6 +172,10 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 			case 'delete' :
 				$this->_deleteAsset();
+				break;
+
+			case 'forceably_aquire_lock' :
+				$this->_forceablyAquireLock();
 				break;
 
 			default   :
@@ -929,10 +933,93 @@ speed_check('FINISHED');
 			normal_button('cancel', 'Cancel', 'window.close()');
 			echo '&nbsp;';
 			submit_button('commit', 'Commit');
-			//$o->commitButton();
 		}
 
 	}// end _deleteAsset()
+
+
+	/**
+	* Looks after the warning interface for forceably aquire locks
+	*
+	* @access private
+	*/
+	function _forceablyAquireLock()
+	{
+		$o = &$this->backend->out;
+
+		if (isset($_GET['forceably_aquire_lock_assetid'])) {
+			// they have confirmed their intention to forceably aquire the lock on this asset
+			$asset = &$this->am->getAsset($_GET['forceably_aquire_lock_assetid']);
+			if (!@$asset->aquireLock(0, true)) {
+				$o->openSection('Note');
+				$o->openField('&nbsp;');
+				echo '<b>ERROR: Failed to forceably aquire the lock on "'.$asset->name.'"</b>';
+				$o->closeSection();
+				$o->openField('', 'commit');
+				normal_button('cancel', 'Cancel', 'window.close()');
+			} else {
+				?>
+				<script language="Javascript" type="text/javascript">
+					window.opener.top.main.main_form.submit();
+					window.close();
+				</script>
+				<?php
+			}
+			
+		} else {
+			$o->addFormActionGetVar('forceably_aquire_lock_assetid', $_GET['assetid']);
+			$asset = &$this->am->getAsset($_GET['assetid']);
+			if (is_null($asset)) {
+				trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
+				break;
+			}
+
+			$lock = $asset->getLockInfo(true, false);
+			if (empty($lock)) {
+				?>
+				<script language="Javascript" type="text/javascript">
+					alert('No lock is held on "<?php echo $asset->name ?>"');
+					window.close();
+				</script>
+				<?php
+			}
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+			$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_asset']);
+
+			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+			$expires_in = easy_time_total(($lock['expires'] - time()), true);
+			if (!$expires_in) $expires_in = '1 second';
+
+			$o->openSection('Note');
+			$o->openField('&nbsp;');
+			echo 'You are about to forceably aquire the lock on "'.$asset->name.'" currently held by "'.$user->name.'" at "'.$editing->name.'" and due to expire in '.$expires_in.'. <b>Any changes being made to "'.$asset->name.'" or any other asset in the locking chain (<i>see full list below</i>) will be lost.</b>';
+			$o->closeSection();
+
+			$o->openSection('Other Assets In This Lock Chain');
+			$o->openField('&nbsp;');
+			if (empty($lock['chained_assets'])) {
+				echo '<i>No other assets are in this lock chain.</i>';
+			} else {
+				echo '<ul>';
+				foreach ($lock['chained_assets'] as $chained_assetid => $chained_info) {
+					$chained_asset = &$this->am->getAsset($chained_assetid);
+					if (is_null($chained_asset)) {
+						trigger_error('Asset #'.$chained_assetid.' not found', E_USER_WARNING);
+						break;
+					}
+					echo '<li class="sq-backend-data">'.$chained_asset->name.'</li>';
+				}
+				echo '</ul>';
+			}
+			$o->closeSection();
+
+			$o->openField('', 'commit');
+			normal_button('cancel', 'Cancel', 'window.close()');
+			echo '&nbsp;';
+			submit_button('commit', 'Commit');
+		}
+
+	}// end _forceablyAquireLock()
 
 
 	/**
