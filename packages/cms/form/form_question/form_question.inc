@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.34 2004/09/22 00:34:29 arailean Exp $
+* $Id: form_question.inc,v 1.35 2004/10/11 06:45:47 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.34 $ - 1.0
+* @version $Revision: 1.35 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -90,7 +90,7 @@ class Form_Question extends Asset
 	/**
 	* Constructor
 	*
-	* @param int	$assetid	the asset id to be loaded
+	* @param int	$formid     the asset id to be loaded
 	* @param Array	$data		the shadow asset data that will construct this question
 	*
 	*/
