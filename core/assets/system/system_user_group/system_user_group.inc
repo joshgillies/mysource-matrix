@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_user_group.inc,v 1.18 2003/09/30 01:25:42 brobertson Exp $
+* $Id: system_user_group.inc,v 1.19 2003/10/13 05:20:57 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -162,6 +162,24 @@ class System_User_Group extends User_Group
 		return false;
 
 	}//end checkAccess()
+
+
+	/**
+	* Returns an array of all the permitted links type, the type asset and the cardinality
+	*
+	* @see Asset::_getAllowLinks()
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		return Array(SQ_LINK_TYPE_1 => Array('system_user' => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_2 => Array('system_user' => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_3 => Array(),
+					 SQ_LINK_NOTICE => Array()
+					);
+
+	}//end _getAllowedLinks()
+
 
 }//end class
 
