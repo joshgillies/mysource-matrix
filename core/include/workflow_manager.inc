@@ -61,7 +61,7 @@ class Workflow_Manager extends Resolve_Object
 	*
 	* @var array
 	*/
-	var $_valid_cond_logic = Array('=' => 'equal_to', '>=' => 'at_least');
+	var $_valid_cond_logic = Array('>=' => 'At least', 'all' => 'Whole group must approve');
 
 
 	/**
@@ -470,7 +470,7 @@ class Workflow_Manager extends Resolve_Object
 
 		$logic = trim((string)$logic);
 		if (!isset($this->_valid_cond_logic[$logic])) {
-			trigger_error("'$logic' is not a valid condition logic", E_USER_WARNING);
+			trigger_error("Cannot add step condition, '$logic' is not a valid condition logic", E_USER_WARNING);
 			return false;
 		}
 
@@ -480,15 +480,46 @@ class Workflow_Manager extends Resolve_Object
 			return false;
 		}
 
+		// work out the logic expression
 		$logic_num = (int)$logic_num;
-		if (!$logic_num) {
-			trigger_error("Cannot add step condition, logic number cannot be zero", E_USER_WARNING);
+		$require = $logic.(($logic_num) ? " $logic_num" : '');
+		$this->_steps[$stepid]['conditions'][$publisher] = Array('require' => $require, 'published_by' => Array());
+	
+		return true;
+	}
+
+
+	function setConditionLogic($stepid, $publisher, $logic='>=', $logic_num='1')
+	{
+		$stepid = (int)$stepid;
+		if (!$stepid) return false;
+
+		if (!isset($this->_steps[$stepid])) {
+			trigger_error("Cannot edit step condition logic, step $stepid does not exist", E_USER_WARNING);
+			return false;
+		}
+
+		$logic = trim((string)$logic);
+		if (!isset($this->_valid_cond_logic[$logic])) {
+			trigger_error("Cannot edit step condition logic, '$logic' is not a valid condition logic", E_USER_WARNING);
+			return false;
+		}
+
+		$publisher = (int)$publisher;
+		if (!isset($this->_steps[$stepid]['conditions'][$publisher])) {
+			trigger_error("Cannot edit step condition logic, publisher $publisher is not set in step $stepid", E_USER_WARNING);
+			return false;
+		}
+
+		$logic_num = (int)$logic_num;
+		if (!$logic_num && $logic != 'all') {
+			trigger_error("Cannot edit step condition logic, logic number cannot be zero", E_USER_WARNING);
 			return false;
 		}
 
 		// work out the logic expression
-		$require = $logic.' '.$logic_num;
-		$this->_steps[$stepid]['conditions'][$publisher] = Array('require' => $require, 'published_by' => Array());
+		$require = $logic.(($logic_num) ? " $logic_num" : '');
+		$this->_steps[$stepid]['conditions'][$publisher]['require'] = $require;
 	
 		return true;
 	}
