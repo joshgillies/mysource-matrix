@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.294 2004/05/26 06:08:21 lwright Exp $
+* $Id: asset.inc,v 1.295 2004/05/26 06:43:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3354,7 +3354,7 @@ class Asset extends MySource_Object
 	*/
 	function informChanges()
 	{
-		$em = $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'requestReindex');
 
 	}//end informChanges()
