@@ -963,7 +963,9 @@ class Backend_Outputter
 		$release_lock = (int)$release_lock;
 		$this->openField('', 'commit');
 		hidden_field('sq_release_lock', 0);
-		submit_button('commit', $value, 'this.form.sq_release_lock.value = \''.$release_lock.'\';');
+		hidden_field('sq_release_lock_on_submit', $release_lock);
+		hidden_field('sq_submit_pressed', 0);
+		normal_button('sq-commit-button', $value, 'sqSubmitEditForm()');
 
 	}//end commitButton()
 
