@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.2 2004/11/16 03:42:23 lwright Exp $
+* $Id: db_install.inc,v 1.3 2004/11/16 04:00:37 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -331,13 +331,13 @@ function db_install($xml_file, $quiet=false)
 		if (in_array($sequence_name, $cached_sequences)) continue;
 		$cached_sequences[] = $sequence_name;
 		
-		$result = $db->createSequence(SQ_TABLE_PREFIX.$sequence_name);;
-		if (DB::isError($result)) {
+		$result = $db->createSequence(SQ_TABLE_PREFIX.$sequence_name);
+		if (DB::isError($result) && ($result->getCode() != DB_ERROR_ALREADY_EXISTS)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-
+		
 	}// end for
 
 	$cached_sequences_string = '<'.'?php $sequences = '.var_export($cached_sequences, true).'; ?'.'>';
