@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing_management.inc,v 1.9 2004/01/20 03:29:22 gsherwood Exp $
+* $Id: page_asset_listing_management.inc,v 1.1 2004/01/20 03:41:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -26,23 +26,24 @@
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Page_Sub_Asset_Listing_Management
+* Page_Asset_Listing_Management
 *
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
+* @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Sub_Asset_Listing_Management extends Page_Management
+class Page_Asset_Listing_Management extends Page_Management
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Page_Sub_Asset_Listing_Management(&$pm)
+	function Page_Asset_Listing_Management(&$pm)
 	{
 		$this->Page_Management($pm);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing_edit_fns.inc,v 1.13 2004/01/20 03:29:22 gsherwood Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.1 2004/01/20 03:41:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -26,24 +26,25 @@
 require_once dirname(__FILE__).'/../../page/page_edit_fns.inc';
 
 /**
-* Page_Sub_Asset_Listing_Edit_Fns
+* Page_Asset_Listing_Edit_Fns
 *
 * Purpose
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
+* @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
+class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Page_Sub_Asset_Listing_Edit_Fns()
+	function Page_Asset_Listing_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
@@ -69,8 +70,8 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		$info = Array($link['minorid'] => 'contents');
 		$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
 
-		echo 'The contents of the sub asset listing format can be '.
-			'replaced into the <a href="'.$href[$link['minorid']].'">Page Contents Bodycopy</a> by using the %sub_asset_listing% keyword';
+		echo 'The contents of the asset listing format can be '.
+			'replaced into the <a href="'.$href[$link['minorid']].'">Page Contents Bodycopy</a> by using the %asset_listing% keyword';
 
 	}//end paintBodycopyInformation()
 

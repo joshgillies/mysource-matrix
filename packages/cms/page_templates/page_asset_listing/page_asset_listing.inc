@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing.inc,v 1.17 2004/01/20 03:29:22 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.1 2004/01/20 03:41:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -26,17 +26,18 @@
 require_once dirname(__FILE__).'/../../page/page.inc';
 
 /**
-* Page_Sub_Asset_Listing
+* Page_Asset_Listing
 *
 * Purpose
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
+* @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Sub_Asset_Listing extends Page
+class Page_Asset_Listing extends Page
 {
 
 	/**
@@ -45,7 +46,7 @@ class Page_Sub_Asset_Listing extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Sub_Asset_Listing($assetid=0)
+	function Page_Asset_Listing($assetid=0)
 	{
 		$this->_ser_attrs = true;
 		$this->Page($assetid);
@@ -165,13 +166,13 @@ class Page_Sub_Asset_Listing extends Page
 	function isDeletableLink($linkid)
 	{
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
-		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the page contents and the sub asset listing page';
+		if ($bodycopy_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the page contents and the asset listing page';
 
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'type_formats');
-		if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the type formats folder and the sub asset listing page';
+		if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the type formats folder and the asset listing page';
 
 		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'asset_formats');
-		if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the asset formats folder and the sub asset listing page';
+		if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the asset formats folder and the asset listing page';
 
 		return parent::isDeletableLink($linkid);
 
@@ -549,7 +550,7 @@ class Page_Sub_Asset_Listing extends Page
 
 
 		// the global replacement to print the asset listing
-		$replacements['sub_asset_listing'] = $global_contents;
+		$replacements['asset_listing'] = $global_contents;
 
 
 		// print the contents of page - replacing the global keywords
