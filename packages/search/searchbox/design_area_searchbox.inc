@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_searchbox.inc,v 1.4 2003/10/17 00:31:15 dwong Exp $
+* $Id: design_area_searchbox.inc,v 1.5 2003/10/17 00:51:20 dwong Exp $
 * $Name: not supported by cvs2svn $
 *
 */
@@ -14,7 +14,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -72,7 +72,7 @@ class Design_Area_Searchbox extends Design_Area
 
 		switch($var) {
 			case 'form_start':
-				echo '<form method="GET" action="'. $asset->getURL(). '">';
+				echo '<form method="GET" action="'. $asset->getURL(). '"><input type=hidden name="mode" value="results">';
 			break;
 			
 			case 'form_end':
