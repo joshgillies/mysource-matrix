@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.12 2004/02/19 02:42:04 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.13 2004/02/23 05:51:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -341,16 +341,14 @@ class Page_Asset_Listing extends Page
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 		if (empty($children)) return false;
 
-		
-		
-		
 
 		  /////////////////////////////
 		 //  REMOVE UNWANTED TYPES  //
 		/////////////////////////////
+		$past_start = false;
 		for (reset($children); null !== ($child_id = key($children)); next($children)) {
 			$child_data =& $children[$child_id];
-
+			
 			switch ($group_by) {
 				case 'number' :
 					$type_code =& $child_data;
@@ -361,10 +359,11 @@ class Page_Asset_Listing extends Page
 				break;
 
 				default :
+					$past_start = true;
 					continue;
 				break;
 			}//end switch
-
+			
 			if (!isset($wanted_types[$type_code])) {
 				$new_type_code = null;
 				foreach ($wanted_types as $wt => $inherit) {
@@ -377,11 +376,13 @@ class Page_Asset_Listing extends Page
 				if (is_null($new_type_code) || !isset($wanted_types[$new_type_code])) {
 					// this type is not required in the results
 					unset($children[$child_id]);
-					prev($children);
+					if ($past_start) prev($children);
 				} else {
 					$type_code = $new_type_code;
 				}
 			}
+
+			$past_start = true;
 		}
 
 
