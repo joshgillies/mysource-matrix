@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.233 2004/09/15 08:28:29 brobertson Exp $
+* $Id: asset_manager.inc,v 1.234 2004/09/17 03:41:32 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -996,9 +996,7 @@ class Asset_Manager extends MySource_Object
 		assert_valid_db_result($result);
 		return $result;
 
-	}//end getAttributeValuesByName
-
-
+	}//end getAttributeValuesByName()
 
 
 //--        CLONING        --//
