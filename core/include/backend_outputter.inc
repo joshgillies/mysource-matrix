@@ -673,7 +673,7 @@ class Backend_Outputter
 		}
 		?>
 
-		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
+		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();" style="width: 100%; height: 100%;">
 	<?php
 		foreach($this->_hidden_fields as $name => $value) {
 			hidden_field($name, $value);
