@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.3 2005/01/20 13:22:21 brobertson Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.4 2005/01/20 23:58:29 lwright Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -221,6 +221,68 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 		return true;
 
 	}//end processEcommerceQuestionLinks()
+	
+
+	 //temp draw-up just for future notice
+	 function paintExport(&$asset, &$o, $prefix)
+	 {
+		 if (!$asset->writeAccess('attributes')) return false;
+		 if (array_get_index($_POST, $prefix.'_export_switch', 0) == 1) $this->processExport(&$asset, &$o, $prefix);
+		 
+		 //paint option goes here
+		 echo hidden_field($prefix.'_export_switch', '0');
+		 
+		 echo normal_button($prefix.'_export', 'Download File', 'this.form.'.$prefix.'_export_switch.value = 1; this.form.submit(); SQ_FORM_SUBMITTED = false; this.form.'.$prefix.'_export_switch.value = 0; return true;');
+		 
+		 return true;
+
+	 }//end paintExport()
+	 
+	 
+	 function processExport(&$asset, &$o, $prefix)
+	 {
+		 //begin and populate order object
+		 header('Content-Type: application/xml');
+		 
+		 // defining the file as attachment forces most browsers to offer it for download
+		 header('Content-Disposition: attachment; filename=order-summary-'.$asset->id.'.xml;');
+		 
+		 echo '<orders>'."\n";
+		 
+		 //get each order
+		 $children_id = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'order', false);
+		 
+		 foreach ($children_id as $child_id => $assettype) {
+			//retrieve asset with this id
+			echo "\t".'<order id="'.$child_id.'">'."\n";
+		 
+			//get this orders children
+			$order_lines = $GLOBALS['SQ_SYSTEM']->am->getChildren($child_id, 'order_line', false);
+		 
+			foreach ($order_lines as $line_id => $assettype) {
+			
+				$child =& $GLOBALS['SQ_SYSTEM']->am->getAsset($line_id);
+			
+				//extract name quantity price etc
+				?>
+		<order_line id="<?php echo $child_id ?>">
+			<product id="<?php echo $child->attr('product_assetid'); ?>"></product>
+			<quantity><?php echo $child->attr('quantity'); ?></quantity>
+			<price><?php echo $child->attr('price'); ?></price>
+		</order_line>
+					<?php
+			}
+		 
+			echo "\t".'</order>'."\n";
+		
+		 }
+		 
+		 echo '</orders>'."\n";
+		 exit(0);
+		 
+		 return true;
+		 
+	 }//end processExport()
 
 
 }//end class

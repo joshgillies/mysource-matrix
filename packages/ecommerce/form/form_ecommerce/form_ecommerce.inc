@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.11 2005/01/13 22:27:12 gsherwood Exp $
+* $Id: form_ecommerce.inc,v 1.12 2005/01/20 23:58:29 lwright Exp $
 *
 */
 
 require_once SQ_PACKAGES_PATH.'/cms/form/form_email/form_email.inc';
 require_once SQ_FUDGE_PATH.'/general/www.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+require_once SQ_PACKAGES_PATH.'/ecommerce/orders/order/order.inc';
 
 /**
 * Form_Ecommerce
@@ -37,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -74,6 +75,21 @@ class Form_Ecommerce extends Form_Email
 		$this->Form_Email($assetid);
 
 	}//end constructor
+	
+	/**
+		* Returns an array of all the permitted link type, the type asset and
+	 * the cardinality
+	 *
+	 * @see Asset::_getAllowLinks()
+	 * @access private
+	 */
+	function _getAllowedLinks()
+	{
+		$order_links = parent::_getAllowedLinks();
+		$order_links[SQ_LINK_TYPE_3]['order'] = Array('card' => 'M');
+		return $order_links;
+		
+	}//end _getAllowedLinks()
 
 
 	/**
@@ -231,7 +247,20 @@ class Form_Ecommerce extends Form_Email
 
 	}//end printForm()
 
+	
+	/**
+	* creates a new submission object
+	*
+	* @access public
+	* @return object Order
+	*/
+	function &createSubmission()
+	{
+		return ($order =& $this->createOrder());
 
+	}//end createSubmission()
+	
+	
 	/**
 	* Generates and prints final receipt after payment processing
 	*
@@ -365,8 +394,25 @@ class Form_Ecommerce extends Form_Email
 			$cancel_button  = $this->attr('cancel_button_name');
 
 			echo '<br /><input type="button" value="'.$confirm_button.'" onclick="document.location.href=\''.$gateway_asset_url.'\'" /><input type="button" value="'.$cancel_button.'" onclick="document.location.href=\''.$_SERVER['PHP_SELF'].'\'">';
+			
+			//if there is an ecommerce_cart, we want to produce an order
+			if (isset($_SESSION['sq_cart_contents'])) {
+				//create a new order and link to this asset
+				$this->createOrder();
+			}
 
 		} else {
+			
+			//if there is an ecommerce_cart, we want to produce an order
+			if (isset($_SESSION['sq_cart_contents'])) {
+				//get the current order asset
+				$order =& $this->active_submission;
+
+				//add each orderline from the cart to this asset
+				$order->buildLinesFromCart($_SESSION['sq_cart_contents'], true);
+
+			}
+			
 			// if there's nothing to process, treat input as a normal form
 			unset($this->_tmp['order']);
 			$this->emailAndLog();
@@ -395,6 +441,39 @@ class Form_Ecommerce extends Form_Email
 		parent::printSummary($as_html);
 
 	}//end printSummary()
+
+
+	/**
+	 * creates a new Order object
+	 *
+	 * @access public
+	 * @return mixed (object Order|boolean)	The order object if created or
+	 *										false on fail
+	 */
+	function &createOrder()
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// create the Order asset
+		$order = new Order();
+		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		
+		$GLOBALS['SQ_INSTALL'] = true;
+		
+		//attempt to create the link to this asset
+		if (!$order->create($copy_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		$GLOBALS['SQ_INSTALL'] = false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		
+		
+		return $order;
+		
+	}//end createOrder()
 
 
 	/**
@@ -441,7 +520,7 @@ class Form_Ecommerce extends Form_Email
 	{
 		$total = 0;
 
-		$questions  = $this->getAllQuestionAssets();
+		$questions =& $this->getAllQuestionAssets();
 		$ecom_items = Array();
 
 		foreach ($questions as $id => $question) {
@@ -597,8 +676,7 @@ class Form_Ecommerce extends Form_Email
 		return true;
 
 	}//end logSubmission()
-
-
+	
 }//end class
 
 ?>
