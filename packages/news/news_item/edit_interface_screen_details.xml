@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2004/06/24 05:37:11 amiller Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/11/17 00:15:59 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -26,10 +26,21 @@
 <contents>
 	<section name="Details" write_access="write:attributes" limbo_access="1">
 		<field attribute="name">
-			<display_name>News Title</display_name>
+			<display_name>News headline</display_name>
 			<note />
 			<text width="35" height="1" />
 		</field>
+		<field attribute="contact_name">
+                        <display_name>Contact name</display_name>
+                        <note />
+                        <text width="35" height="1" />
+                </field>
+		<field attribute="contact_phone">
+                        <display_name>Contact phone</display_name>
+                        <note />
+                        <text width="35" height="1" />
+                </field>
+
 	</section>
 	<section name="Link" write_access="write:link_url" limbo_access="1">
 		<field attribute="link_url">
