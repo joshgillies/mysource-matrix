@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend_outputter.inc,v 1.54 2003/10/02 05:41:54 brobertson Exp $
+* $Id: backend_outputter.inc,v 1.55 2003/10/03 00:01:26 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -965,7 +965,7 @@ class Backend_Outputter
 				hidden_field('sq_release_lock', 0);
 				hidden_field('sq_release_lock_on_submit', $release_lock);
 				hidden_field('sq_submit_pressed', 0);
-				normal_button('sq_commit_button', $value, 'sqSubmitEditForm()');
+				normal_button('sq_commit_button', $value, 'sq_submit_edit_form()');
 			$this->closeField();
 		$this->closeSection();
 

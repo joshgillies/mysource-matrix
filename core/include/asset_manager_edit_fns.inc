@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager_edit_fns.inc,v 1.55 2003/10/02 05:44:18 brobertson Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.56 2003/10/03 00:02:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1175,7 +1175,7 @@ speed_check('FINISHED');
 				echo '<b><i>The security key entered was incorrect. The lock on "'.$asset->name.'" has not been forceably acquired. You may try again using the new security key displayed below.</i></b>';
 				$o->closeSection();
 			} else {
-				$o->addOnLoad('window.opener.top.main.main_form.sq_acquire_by_force.value = \'1\'; window.opener.top.main.main_form.sq_acquire_lock.value = \'1\'; window.opener.top.main.sqSubmitEditForm(); window.close();');
+				$o->addOnLoad('window.opener.top.main.main_form.sq_acquire_by_force.value = \'1\'; window.opener.top.main.main_form.sq_acquire_lock.value = \'1\'; window.opener.top.main.sq_submit_edit_form(); window.close();');
 				return;
 			}
 		}
@@ -1443,7 +1443,7 @@ speed_check('FINISHED');
 			<tr>
 				<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
 				<td class="sq-backend-data">
-					<script language="Javascript">sqPrintIcon("<?php echo $this->am->getAssetIconURL($type_code); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php echo $this->am->_asset_types[$type_code]['name'].' ('.$type_code.')';?>
+					<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->am->getAssetIconURL($type_code); ?>", "16", "16", "");</script>&nbsp;&nbsp;<?php echo $this->am->_asset_types[$type_code]['name'].' ('.$type_code.')';?>
 				</td>
 			</tr>
 		<?php

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: inbox_edit_fns.inc,v 1.22 2003/09/26 05:26:29 brobertson Exp $
+* $Id: inbox_edit_fns.inc,v 1.23 2003/10/03 00:00:01 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -124,21 +124,21 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				?>
 				<tr>
 					<td class="<?php echo $class ?>" nowrap>
-						<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/priority_<?php echo $data['priority'];?>.png", "16", "16", "");</script>
-						<script language="Javascript">sqPrintIcon("<?php echo $sender_img; ?>", "16", "16", "");</script>
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/priority_<?php echo $data['priority'];?>.png", "16", "16", "");</script>
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $sender_img; ?>", "16", "16", "");</script>
 						<a name="msg_<?php echo $data['messageid'];?>"></a>
 						&nbsp;<?php echo $data['from_name'];?>
 					</td>
 					<td class="<?php echo $class ?>">
-						<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_subject.png", "16", "16", "");</script>
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_subject.png", "16", "16", "");</script>
 						&nbsp;<a href="#" onClick="Javascript: showMessageBody('<?php echo $data['messageid'];?>'); return false;" style="text-decoration:none;"><?php echo $data['subject'];?></a>
 					</td>
 					<td class="<?php echo $class ?>" nowrap>
-						<script language="Javascript">sqPrintIcon("<?php echo $time_img; ?>", "16", "16", "");</script>
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $time_img; ?>", "16", "16", "");</script>
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
 					</td>
 					<td class="<?php echo $class ?>" nowrap>
-						<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_<?php echo (($data['status'] == SQ_MSG_UNREAD) ? 'un' : ''); ?>read.png", "16", "16", "");</script>&nbsp;
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_<?php echo (($data['status'] == SQ_MSG_UNREAD) ? 'un' : ''); ?>read.png", "16", "16", "");</script>&nbsp;
 						<?php
 						if ($asset->writeAccess()) {
 							?>
@@ -152,7 +152,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						if ($asset->writeAccess()) {
 							?>
 							<input type="checkbox" name="<?php echo $prefix.'_delete['.$data['messageid'].']'?>" value="1">
-							<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/delete.png", "16", "16", "");</script>
+							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/delete.png", "16", "16", "");</script>
 							&nbsp;&nbsp;Delete<?php
 						} else {
 							echo '&nbsp;';
@@ -176,10 +176,10 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			?>
 				<tr>
 					<td colspan="5" align="center" class="sq-backend-table-cell">
-					<input type="hidden" name="sq_internal_message_inbox_start" value="<?php echo $start_printing_at; ?>">
 					<?php
+					hidden_field('sq_internal_message_inbox_start', $start_printing_at);
 					if ($start_printing_at > 0) {
-						?><a style="text-decoration: none;" href="#" onClick="Javascript: document.main_form.sq_internal_message_inbox_start.value='<?php echo $start_printing_at - $num_per_page; ?>'; sqSubmitEditForm(true); return false;"><?php
+						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_inbox_start', '<?php echo $start_printing_at - $num_per_page; ?>'); sq_submit_edit_form(true); return false;"><?php
 					} else {
 						?><span style="color: #BBBBBB"><?php
 					}
@@ -196,7 +196,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					
 					<?php
 					if (($start_printing_at + $num_per_page) < $num_messages) {
-						?><a style="text-decoration: none;" href="#" onClick="Javascript: document.main_form.sq_internal_message_inbox_start.value='<?php echo $start_printing_at + $num_per_page; ?>'; sqSubmitEditForm(true); return false;"><?php
+						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_inbox_start', '<?php echo $start_printing_at + $num_per_page; ?>'); sq_submit_edit_form(true); return false;"><?php
 					} else {
 						?><span style="color: #BBBBBB"><?php
 					}
@@ -346,17 +346,17 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				?>
 				<tr>
 					<td class="<?php echo $class ?>" nowrap>
-						<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/priority_<?php echo $data['priority'];?>.png", "16", "16", "");</script>
-						<script language="Javascript">sqPrintIcon("<?php echo $sender_img; ?>", "16", "16", "");</script>
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/priority_<?php echo $data['priority'];?>.png", "16", "16", "");</script>
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $sender_img; ?>", "16", "16", "");</script>
 						<a name="msg_<?php echo $data['messageid'];?>"></a>
 						&nbsp;<?php echo $data['from_name'];?>
 					</td>
 					<td class="<?php echo $class ?>">
-						<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_subject.png", "16", "16", "");</script>
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_subject.png", "16", "16", "");</script>
 						&nbsp;<a class="sq-backend-table-cell" href="#" onClick="Javascript: showMessageBody('<?php echo $data['messageid'];?>'); return false;" style="text-decoration: none;"><?php echo $data['subject'];?></a>
 					</td>
 					<td class="<?php echo $class ?>" style="white-space: nowrap;">
-						<script language="Javascript">sqPrintIcon("<?php echo $time_img; ?>", "16", "16", "");</script>
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $time_img; ?>", "16", "16", "");</script>
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
 					</td>
 					<td class="<?php echo $class ?>" nowrap>
@@ -373,7 +373,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						if ($asset->writeAccess()) {
 							?>
 							<input type="checkbox" name="<?php echo $prefix.'_purge['.$data['messageid'].']'?>" value="1">
-							<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/delete.png", "16", "16", "");</script>
+							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/delete.png", "16", "16", "");</script>
 							&nbsp;&nbsp;Purge<?php
 						} else {
 							echo '&nbsp;';
@@ -397,10 +397,10 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			?>
 				<tr>
 					<td colspan="5" align="center" class="sq-backend-table-cell">
-					<input type="hidden" name="sq_internal_message_trash_start" value="<?php echo $start_printing_at; ?>">
 					<?php
+					hidden_field('sq_internal_message_trash_start', $start_printing_at);
 					if ($start_printing_at > 0) {
-						?><a style="text-decoration: none;" href="#" onClick="Javascript: document.main_form.sq_internal_message_trash_start.value='<?php echo $start_printing_at - $num_per_page; ?>'; sqSubmitEditForm(true); return false;"><?php
+						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_trash_start', '<?php echo $start_printing_at - $num_per_page; ?>'); sq_submit_edit_form(true); return false;"><?php
 					} else {
 						?><span style="color: #BBBBBB"><?php
 					}
@@ -417,7 +417,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					
 					<?php
 					if (($start_printing_at + $num_per_page) < $num_messages) {
-						?><a style="text-decoration: none;" href="#" onClick="Javascript: document.main_form.sq_internal_message_trash_start.value='<?php echo $start_printing_at + $num_per_page; ?>'; sqSubmitEditForm(true); return false;"><?php
+						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_trash_start', '<?php echo $start_printing_at + $num_per_page; ?>'); sq_submit_edit_form(true); return false;"><?php
 					} else {
 						?><span style="color: #BBBBBB"><?php
 					}
