@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.18 2004/07/14 10:15:17 brobertson Exp $
+* $Id: datetime_field.inc,v 1.19 2004/08/19 05:23:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -446,73 +446,73 @@ class DateTime_Field {
 	*/
 	function validateValue($value)
 	{
-		if(!is_array($value)) {
+		if (!is_array($value)) {
 			$value = trim($value);
 			$l = strlen($value);
 			$value = preg_replace("/^c(irc[a]?)?\.?[\s]*/i",'',$value);
 			$c = false;
-			if(($new_l = strlen($value)) != $l) {
+			if (($new_l = strlen($value)) != $l) {
 				$c = true;
 			}
-			if(!preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2} ([0-9\-]{2}\:?){3}( [01]?)?$/",$value)) { // Correct format?
-				if(preg_match("/^[0-9]{4}$/",$value)) { // Just a year?
+			if (!preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2} ([0-9\-]{2}\:?){3}( [01]?)?$/",$value)) { // Correct format?
+				if (preg_match("/^[0-9]{4}$/",$value)) { // Just a year?
 					$value .= '------ --:--:--';
-				} elseif(preg_match("/^[0-9]+$/",$value)) { // Timestamp?
+				} else if (preg_match("/^[0-9]+$/",$value)) { // Timestamp?
 					$value = date('Y-m-d H:i:s',$value);
 				} else {
 					$show = &$this->getParam('show');
 					// Okay lets try to parse this thing.
-					$v = array('y'=>-1,'m'=>-1,'d'=>-1,'h'=>-1,'i'=>-1,'s'=>-1);
+					$v = Array('y'=>-1,'m'=>-1,'d'=>-1,'h'=>-1,'i'=>-1,'s'=>-1);
 					// Dates
-					if(preg_match("/([0-9]{1,2})[\-\/]([0-9]{1,2})[\-\/]([0-9]{2,4})([^0-9].*|)$/",$value,$matches)) {
+					if (preg_match("/([0-9]{1,2})[\-\/]([0-9]{1,2})[\-\/]([0-9]{2,4})([^0-9].*|)$/",$value,$matches)) {
 						// Probably "dd/mm/yyyy" or "mm/dd/yyyy"
-						if($this->getParam('standard') == 'us') {
+						if ($this->getParam('standard') == 'us') {
 							$v['d'] = $matches[2]; $v['m'] = $matches[1];
 						} else {
 							$v['d'] = $matches[1]; $v['m'] = $matches[2];
 						}
 						$v['y'] = $matches[3];
-						if(strlen($v['y']) <= 2) $v['y'] += (($v['y']<20)?2000:1900);
-					} elseif(preg_match("/([0-9]{1,2})[\-\/]([0-9]{1,2})([^0-9].*|)$/",$value,$matches)) {
+						if (strlen($v['y']) <= 2) $v['y'] += (($v['y']<20)?2000:1900);
+					} else if (preg_match("/([0-9]{1,2})[\-\/]([0-9]{1,2})([^0-9].*|)$/",$value,$matches)) {
 						// Probably dd/mm
-						if($this->getParam('standard') == 'us') {
+						if ($this->getParam('standard') == 'us') {
 							$v['d'] = $matches[2]; $v['m'] = $matches[1];
 						} else {
 							$v['d'] = $matches[1]; $v['m'] = $matches[2];
 						}
-					} elseif(preg_match("/([0-9]{1,2})[\-\/]([0-9]{4})([^0-9].*|)$/",$value,$matches)) {
+					} else if (preg_match("/([0-9]{1,2})[\-\/]([0-9]{4})([^0-9].*|)$/",$value,$matches)) {
 						// Probably mm/yy
 						$v['m'] = $matches[1];
 						$v['y'] = $matches[2];
 					} else {
 						// Maybe a more verbal date.
-						if(preg_match("/([0-9]{1,2})?([\s\,]*)(jan(uary)?|feb(ruary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sep(tember)?|oct(ober)?|nov(ember)?|dec(ember)?)([\s\,]*)([0-9]{1,2})?([^0-9].*|)$/i",$value,$matches)) {
+						if (preg_match("/([0-9]{1,2})?([\s\,]*)(jan(uary)?|feb(ruary)?|mar(ch)?|apr(il)?|may|jun(e)?|jul(y)?|aug(ust)?|sep(tember)?|oct(ober)?|nov(ember)?|dec(ember)?)([\s\,]*)([0-9]{1,2})?([^0-9].*|)$/i",$value,$matches)) {
 							// textural month?
-							if(strlen($tmp =  $matches[3]) == 3) {
+							if (strlen($tmp =  $matches[3]) == 3) {
 								$v['m'] = $this->shortMonth($tmp,1);
 							} else {
 								$v['m'] = $this->longMonth($tmp,1);
 							}
 							// maybe the day?
-							if($matches[1])      $v['d'] = $matches[1];
-							elseif($matches[16]) $v['d'] = $matches[16];
+							if ($matches[1])      $v['d'] = $matches[1];
+							else if ($matches[16]) $v['d'] = $matches[16];
 						}
-						if(preg_match("/([0-9]{4})([^0-9].*|)$/",$value,$matches)) {
+						if (preg_match("/([0-9]{4})([^0-9].*|)$/",$value,$matches)) {
 							// four digit year?
 							$v['y'] = $matches[1];
 						}
-						if($v['d'] == -1 && preg_match("/([0-9]{1,2})(st|nd|rd|th)/i",$value,$matches)) {
+						if ($v['d'] == -1 && preg_match("/([0-9]{1,2})(st|nd|rd|th)/i",$value,$matches)) {
 							// 1st, 2nd, 3rd, 4th etc
 							$v['d'] = $matches[1];
 						}
 
 						// Times !
-						if(preg_match("/([0-9]{1,2})[\:\.]([0-9]{1,2})[\:\.]([0-9]{1,2})([^0-9].*|)$/",$value,$matches)) {
+						if (preg_match("/([0-9]{1,2})[\:\.]([0-9]{1,2})[\:\.]([0-9]{1,2})([^0-9].*|)$/",$value,$matches)) {
 							$v['h'] = $matches[1];
 							$v['i'] = $matches[2];
 							$v['s'] = $matches[3];
-						} elseif(preg_match("/([0-9]{1,2})[\:\.]([0-9]{1,2})([^0-9].*|)$/",$value,$matches)) {
-							if(in_array('s',$show) && !in_array('h',$show)) {
+						} else if (preg_match("/([0-9]{1,2})[\:\.]([0-9]{1,2})([^0-9].*|)$/",$value,$matches)) {
+							if (in_array('s',$show) && !in_array('h',$show)) {
 								$v['i'] = $matches[1];
 								$v['s'] = $matches[2];
 							} else {
@@ -520,12 +520,12 @@ class DateTime_Field {
 								$v['i'] = $matches[2];
 							}
 						}
-						if(preg_match("/([0-9]{1,2})([\s]*)(p\.?m\.?|a\.?m\.?)/i",$value,$matches)) {
-							if($v['h'] == -1) $v['h'] = $matches[1];
-							if(strtolower($matches[3][0]) == 'p') {
-								if($v['h'] <= 12) $v['h'] += 12;
+						if (preg_match("/([0-9]{1,2})([\s]*)(p\.?m\.?|a\.?m\.?)/i",$value,$matches)) {
+							if ($v['h'] == -1) $v['h'] = $matches[1];
+							if (strtolower($matches[3][0]) == 'p') {
+								if ($v['h'] <= 12) $v['h'] += 12;
 							} else {
-								if($v['h'] == 12) $v['h'] -= 12;
+								if ($v['h'] == 12) $v['h'] -= 12;
 							}
 						}
 
@@ -535,23 +535,28 @@ class DateTime_Field {
 			}
 
 			$value = $this->strToUnitsArray($value);
-			if($c) $value['c'] = 1;
+			if ($c) $value['c'] = 1;
 		}
+
 		// Now we can assume we have an array of units values to verify
 		$min = $this->getParam('min');
 		$max = $this->getParam('max');
 
 		$value_str = $this->unitsArraytoStr($value);
-		if (strcmp($value_str, $min) < 0) {
-			$value = $this->strToUnitsArray($min);
-		} elseif (strcmp($value_str, $max) > 0) {
-			$value = $this->strToUnitsArray($max);
+		if ($value_str != '---------- --:--:--') {
+			if (strcmp($value_str, $min) < 0) {
+				$value = $this->strToUnitsArray($min);
+			} else if (strcmp($value_str, $max) > 0) {
+				$value = $this->strToUnitsArray($max);
+			}
 		}
+
 		// DO CIRCA STUFF HERE ON DOWN
 		$validate_day_month = $value['y'] > 1901 && $value['y'] < 2038 && $value['m'] >= 0 && $value['d'] >= 0; // PHP limit
 		$value = $this->unitsArrayToStr($value);
-		// Ensures valid
-		if($validate_day_month) {
+
+		// ensures valid
+		if ($validate_day_month) {
 			$timestamp = mktime(
 							(int) substr($value,11,2),
 							(int) substr($value,14,2),
@@ -562,9 +567,11 @@ class DateTime_Field {
 						);
 			$value = date('Y-m-d', $timestamp).substr($value,10);
 		}
-		if(strlen($value) > 20 && !$this->getParam('allow_circa')) {
-			$value = substr($value,20);
+
+		if (strlen($value) > 20 && !$this->getParam('allow_circa')) {
+			$value = substr($value, 20);
 		}
+
 		return $value;
 
 	}//end validateValue()

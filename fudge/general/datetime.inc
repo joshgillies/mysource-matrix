@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.19 2004/08/09 10:00:49 brobertson Exp $
+* $Id: datetime.inc,v 1.20 2004/08/19 05:22:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,7 +65,7 @@ function easy_datetime($then='')
 * @return string
 * @access public
 */
-function easy_time_total($secs=0, $full_format=false)
+function easy_time_total($secs=0, $full_format=false, $return_array=false)
 {
 	if ($secs < 0) { 
 		$suffix = ' ago';
@@ -148,9 +148,10 @@ function easy_time_total($secs=0, $full_format=false)
 			$str .= $joiner.$num_seconds." second".(($num_seconds > 1) ? 's' : '');
 		}
 
-	// else they just want the normal "xx days xx:xx:xx xxxxx"
-	} else {
+	} else if (!$return_array) {
 
+		// they just want the normal "xx days xx:xx:xx xxxxx"
+		
 		$time_type = '';
 
 		if ($num_days) {
@@ -220,6 +221,17 @@ function easy_time_total($secs=0, $full_format=false)
 			$str .= ' '.((strstr($time_type, ':')) ? '('.trim($time_type).')' : trim($time_type));
 		}
 
+	} else {
+
+		// they want the numbers in array format
+		$return_value = Array('d' => 0, 'h' => 0, 'm' => 0, 's' => 0);
+		
+		if ($num_days) $return_value['d'] = $num_days;
+		if ($num_hours) $return_value['h'] = $num_hours;
+		if ($num_minutes) $return_value['m'] = $num_minutes;
+		if ($num_seconds) $return_value['s'] = $num_seconds;
+
+		return $return_value;
 	}
 
 	return $str.$suffix;
@@ -393,9 +405,9 @@ function weekday_dates_in_month($weekday, $month, $year)
 function iso8601_date_component($iso8601)
 {
 	if (!is_iso8601($iso8601)) return false;
-	if (substr($iso8601,0,10) == '----------') return false;	
-	return substr($iso8601,0,10); 
-	
+	if (substr($iso8601,0,10) == '----------') return false;
+	return substr($iso8601,0,10);
+
 }//end iso8601_date_component()
 
 
@@ -412,9 +424,9 @@ function iso8601_time_component($iso8601)
 {
 	if (!is_iso8601($iso8601)) return false;
 	if (strlen($iso8601) < 13) return false;
-	if (substr($iso8601,11) == '--:--:--') return false; 	
-	return substr($iso8601,11); 
-	
+	if (substr($iso8601,11) == '--:--:--') return false;
+	return substr($iso8601,11);
+
 }//end iso8601_time_component()
 
 
@@ -426,7 +438,8 @@ function iso8601_time_component($iso8601)
 * @return boolean
 * @access public
 */
-function is_iso8601($iso8601) {
+function is_iso8601($iso8601)
+{
 	return (boolean)preg_match("/^[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}([ T]([0-9\-]{2}\:?){3})?$/",$iso8601);
 	
 }//end is_iso8601()
