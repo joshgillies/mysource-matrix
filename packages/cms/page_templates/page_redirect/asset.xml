@@ -21,15 +21,15 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.7 2003/11/26 00:51:30 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset.xml,v 1.8 2005/01/14 17:54:26 brobertson Exp $
+*
 */
 -->
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
 	<type_code>page_redirect</type_code>
-	<version>0.1</version>
+	<version>0.2</version>
 	<name>Redirect Page</name>
 	<description>Redirect Page, a simple page template to redirect the user to another location</description>
 	<instantiable>yes</instantiable>

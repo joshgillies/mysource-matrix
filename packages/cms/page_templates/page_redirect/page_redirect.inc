@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.12 2004/12/06 14:41:40 brobertson Exp $
+* $Id: page_redirect.inc,v 1.13 2005/01/14 17:54:26 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -164,8 +164,15 @@ class Page_Redirect extends Page
 			return;
 		}
 
+		$url = '';
+
+		// See if we are given a query string value to look at
+		$qrystr_param = $this->attr('use_querystring_parameter');
+		if ($qrystr_param && isset($_GET[$qrystr_param]) && trim($_GET[$qrystr_param]) != '') {
+			$url = trim($_GET[$qrystr_param]);
+
 		// if there is no url, see if we have an asset selected
-		if (($url = $this->attr('redirect_url')) == '') {
+		} else if (($url = $this->attr('redirect_url')) == '') {
 			$redirect_asset = &$this->getRedirectAsset();
 			if (!is_null($redirect_asset)) {
 				if (($url = $redirect_asset->getURL()) == '') {
@@ -180,6 +187,17 @@ class Page_Redirect extends Page
 		}
 
 		$url .= trim($this->attr('url_suffix'));
+
+		// See if we need to append the query string and there is a query string
+		if ($this->attr('append_querystring') && !empty($_SERVER['QUERY_STRING'])) {
+			$url .= ((strpos($url, '?') === false) ? '?' : '&').$_SERVER['QUERY_STRING'];
+		}
+
+pre_echo($url);
+
+
+
+die();
 
 		if ($this->attr('new_window')) {
 

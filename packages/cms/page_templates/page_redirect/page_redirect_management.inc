@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_management.inc,v 1.12 2004/09/08 04:00:00 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_redirect_management.inc,v 1.13 2005/01/14 17:54:26 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,7 +55,7 @@ class Page_Redirect_Management extends Asset_Management
 											'added'       => '0.0.1',
 											'type'        => 'text',
 											'default'     => '',
-											'description' => 'Extra text to send as part of the URL query string',
+											'description' => 'Extra text to append as part of the URL',
 											),
 						'new_window' => Array(
 											'added'     => '0.0.1',
@@ -91,6 +91,21 @@ class Page_Redirect_Management extends Asset_Management
 											'added'      => '0.0.1',
 											'type'       => 'int',
 											'default'    => 0,
+											),
+						'append_querystring' => Array(
+											'added'			=> '0.2',
+											'type'			=> 'boolean',
+											'default'		=> false,
+											'parameters'	=> Array(
+																'allow_empty' => false,
+															),
+											'description'	=> 'Append inbound query string parameters to outbound destination url.',
+											),
+						'use_querystring_parameter' => Array(
+											'added'			=> '0.2',
+											'type'			=> 'text',
+											'default'		=> '',
+											'description'	=> 'Query string parameter name whose value is to be used as the redirect destination',
 											),
 					);
 
