@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_server.inc,v 1.7 2003/09/29 04:29:47 brobertson Exp $
+* $Id: hipo_server.inc,v 1.8 2003/09/29 06:27:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -415,7 +415,7 @@ print_r($output);
 
 				if (empty($client_data['taskid']) || empty($this->_tasks[$client_data['taskid']])) {
 					$output['result']  = 'error';
-					$output['content'] = 'No TaskID Supplied or invalid TaskID';
+					$output['msg']     = 'No TaskID Supplied or invalid TaskID';
 
 				} else {
 					$child_pid = $this->_tasks[$client_data->attributes['taskid']];
@@ -423,7 +423,7 @@ print_r($output);
 						$output['result']    = 'ack';
 					} else {
 						$output['result']  = 'error';
-						$output['content'] = 'Unable to send abort to forked process';
+						$output['msg']     = 'Unable to send abort to forked process';
 					}
 				}
 
