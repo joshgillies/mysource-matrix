@@ -6,7 +6,6 @@
 function ExternalCall() 
 {
 
-	this.registered_cmds = {};
 	this.params    = {};
 
 	this.cmd       = "";
@@ -19,19 +18,6 @@ function ExternalCall()
 	// Set ourselves up as a broadcaster
     ASBroadcaster.initialize(this);
 
-}
-
-/**
-* Registers a command that is recognised by this object
-*
-* @param string	cmd_name	command name to be recognised
-* @param object	target_obj	the object to run the target_fn on
-* @param string	target_fn	the name of the fn to run when a call occurs
-*
-*/
-ExternalCall.prototype.registerCmd = function(cmd_name, target_object, target_fn)
-{
-	this.registered_cmds[cmd_name] = {obj: target_object, fn: target_fn};
 }
 
 /**
