@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single_edit_fns.inc,v 1.1 2004/07/28 01:27:46 lwright Exp $
+* $Id: calendar_event_single_edit_fns.inc,v 1.2 2004/07/28 03:30:28 lwright Exp $
 * $prefix:  $
 */
 
 
-require_once  dirname(__FILE__).'/../../event/calendar_event_edit_fns.inc';
+require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.inc';
 
 /**
 * Page_Edit_Fns
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../event/calendar_event_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
