@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.41 2004/09/01 07:17:25 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.42 2004/09/02 00:23:37 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.41 $ - 1.0
+* @version $Revision: 1.42 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -277,7 +277,32 @@ class Page_Calendar extends Page_Asset_Listing
 										'default'=>'Link to the next period', 
 										'type'=>'inline');
 		return $keywords;
-	}
+
+	}//end getContentsKeywords()
+
+
+	/**
+	* Add valid keywords for this asset to an array of keywords when asked
+	*
+	* @param &object Asset	$asset	the asset that triggered the event
+	* @param Array			$vars	the vars that get submitted by the broadcaster
+	*								we add keywords to the $vars['keywords'] array
+	*
+	* @return boolean
+	* @access private
+	*/
+	function onRequestKeywords(&$broadcaster, $vars=Array())
+	{
+		parent::onRequestKeywords($broadcaster, $vars);
+		$vars['keywords']['event_link_begin'] = Array('name'    => 'Open Link to Event Display',
+											'default' => '&gt;open link&lt;',
+											'type'    => 'inline'
+											);
+		$vars['keywords']['event_link_end'] = Array('name'    => 'Close Link to Event Display',
+											'default' => '&gt;close link&lt;',
+											'type'    => 'inline'
+											);
+	}//end onRequestKeywords()
 
 	
 	/**
@@ -289,7 +314,8 @@ class Page_Calendar extends Page_Asset_Listing
 	function printHead()
 	{
 		echo '<link rel="stylesheet" type="text/css" href="' . sq_web_path('data').'/asset_types/page_calendar/css/calendar_default.css" />';
-	}
+
+	}//end printHead()
 
 
 	/**
@@ -364,7 +390,6 @@ class Page_Calendar extends Page_Asset_Listing
 		$format_bodycopy->setKeywordReplacements($replacements);
 		$format_bodycopy->printBody();
 
-
 	}//end printBody() 
 
 
@@ -384,7 +409,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$res .= '</div>';
 		return $res;
 
-	}
+	}//end getCalendarContents()
 
 
 	/**
@@ -833,7 +858,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		$res .= '</ul>';
 		return $res;
-	}
+	}//end _getTitleList()
 
 
 	/**
@@ -852,7 +877,8 @@ class Page_Calendar extends Page_Asset_Listing
 			$res .= $show_event_link ? '</a>' : '</div>';
 		}
 		return $res;
-	}
+
+	}//end _getMonthCellContents()
 
 
 	/**
@@ -955,7 +981,7 @@ class Page_Calendar extends Page_Asset_Listing
 					foreach($col_events['all_day'] as $assetid => $event) {
 						// get class to use for div
 						$event_class = $root_nodes[$event['root_node']]['class_name'];
-						echo '<div class="'.$event_class.' event">';
+						echo '<div style="margin-bottom: 1px" class="'.$event_class.' event">';
 						echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.strtok($assetid,':').'&amp;SQ_CALENDAR_DATE='.$event_link_date.'">' : '<span class="event '.$event_class.'">';
 						echo $event['name'];
 						echo $show_event_links ? '</a>' : '</span>';
@@ -1076,7 +1102,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		return $single_events + $recurring_events;
 
-	}
+	}//end getYearEvents()
 
 
 	/**
@@ -1125,7 +1151,9 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 		}
 		return $res;
-	}
+
+	}//end getYearEventsByMonth()
+
 
 	/**
 	* Get the events to show in year view for the specified year, separated into months and days
@@ -1173,7 +1201,8 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 		}
 		return $res;
-	}
+
+	}//end getYearEventsByMonthAndDay()
 
 
 	/**
@@ -1215,7 +1244,8 @@ class Page_Calendar extends Page_Asset_Listing
 		assert_valid_db_result($recurring_events);
 
 		return $single_events + $recurring_events;
-	}
+
+	}//end getMonthEvents
 
 
 	/**
@@ -1269,7 +1299,8 @@ class Page_Calendar extends Page_Asset_Listing
 
 		}
 		return $res;
-	}
+
+	}//end getMonthEventsByDay
 
 
 	/*
@@ -1494,7 +1525,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		return $res;
 
-	}
+	}//end getWeekEvents()
 
 
 	/*
@@ -1547,7 +1578,8 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 		}
 		return $res;
-	}
+
+	}//end getWeekEventsByDay()
 
 
 	/*
@@ -1596,7 +1628,8 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 		}
 		return $res;
-	}
+
+	}//end getWeekEventsByDayAndTime()
 
 
 	/**
@@ -1633,10 +1666,9 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 		}
 		
-
-		
 		return $res;
-	}
+
+	}//end getDayEvents()
 
 
 	/**
@@ -1681,7 +1713,8 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 		}
 		return $res;
-	}
+
+	}//end getDayEventsByTime()
 
 
 	/**
@@ -1729,7 +1762,8 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 		}
 		return $res;
-	}
+
+	}//end getDayEventsByRootNodeAndTime()
 
 
 //--        HELPER FUNCTIONS FOR EVENT EXTRACTION        --//
@@ -2043,31 +2077,6 @@ class Page_Calendar extends Page_Asset_Listing
 	
 	}//end _buildRecurringEventQuery()
 	
-	
-
-	/**
-	* Add valid keywords for this asset to an array of keywords when asked
-	*
-	* @param &object Asset	$asset	the asset that triggered the event
-	* @param Array			$vars	the vars that get submitted by the broadcaster
-	*								we add keywords to the $vars['keywords'] array
-	*
-	* @return boolean
-	* @access private
-	*/
-	function onRequestKeywords(&$broadcaster, $vars=Array())
-	{
-		parent::onRequestKeywords($broadcaster, $vars);
-		$vars['keywords']['event_link_begin'] = Array('name'    => 'Open Link to Event Display',
-											'default' => '&gt;open link&lt;',
-											'type'    => 'inline'
-											);
-		$vars['keywords']['event_link_end'] = Array('name'    => 'Close Link to Event Display',
-											'default' => '&gt;close link&lt;',
-											'type'    => 'inline'
-											);
-	}
-
 	
 	/**
 	* Generates a 'day/occurrence difference' query fragment
