@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.7 2004/01/19 06:00:20 gsherwood Exp $
+* $Id: page_site_map.inc,v 1.8 2004/02/05 05:56:47 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -155,6 +155,7 @@ class Page_Site_Map extends Page
 		<?php
 		// figure out the columns for the site map
 		$num_columns = ($this->attr('columns') > 0) ? $this->attr('columns') : 1;
+		if (empty($page_data)) return;
 		$num_pages = count(array_keys($page_data[$siteid]));
 
 		$num_chunks = ceil($num_pages / $num_columns);
