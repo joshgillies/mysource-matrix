@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.143 2004/06/15 04:47:45 gsherwood Exp $
+* $Id: asset_map.inc,v 1.144 2004/06/16 01:39:22 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,10 +108,19 @@ class Asset_Map
 		//-->
 		</script>
 
+		<table style="height: 100%; width=95%;">
+			<tr>
+				<td style="width=100%;"><img style="margin-left: 7px;" src="<?php echo sq_web_path('lib'); ?>/web/images/icons/asset_map/matrix_logo.gif" alt="MySource Matrix" /></td>
+			</tr>
+			<tr>
+				<td style="height: 100%; width=100%;">
 		<?php
 			$this->embed_asset_map('complex', '95%', '99%');	
-	
-
+		?>
+		</td>
+		</tr>
+		</table>
+		<?php
 
 	}//end paint()
 
