@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.20 2004/05/17 05:13:11 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.21 2004/06/21 23:54:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -126,17 +126,48 @@ class Form_Question_Type_Text extends Form_Question
 			$missing = true;
 		}
 
+		if ($this->attr('required')) {
+			$req_rule = Array('rule_code' => 'comparison', 'operator' => '!=', 'value' => '');
+			array_push($this->vars['rules']['value'], $req_rule);
+		}
+
 		parent::processForm();
 
-		if ($missing) {
-			$form->submission_errors[] = 'The question "'.$this->attr('name').'" must be answered';
-			return false;
+		if ($this->attr('required')) {
+			array_pop($this->vars['rules']['value']);
 		}
 		
 		return true;
 	
 	}//end processForm()
 
+	
+	/**
+	* writes JavaScript code for client side validation
+	* 
+	* This function assumes the skeleton of a JS validation function has been created around this code
+	* with a form variable named 'form' passed (this is done when generating the content file).
+	*
+	* @access public
+	* @return string the javascript code used for client-side validation
+	*/
+	function generateJSCode()
+	{
+		if ($this->attr('required')) {
+			$req_rule = Array('rule_code' => 'comparison', 'operator' => '!=', 'value' => '');
+			array_push($this->vars['rules']['value'], $req_rule);
+		}
+
+		$code = parent::generateJSCode();
+
+		if ($this->attr('required')) {
+			array_pop($this->vars['rules']['value']);
+		}
+
+		return $code;
+
+	}//end generateJSCode()
+	
 	
 	/**
 	* returns an array of the types of rules 
