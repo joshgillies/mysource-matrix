@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_asset.inc,v 1.10 2004/12/06 14:38:11 brobertson Exp $
+* $Id: hipo_job_clone_asset.inc,v 1.11 2005/02/15 11:58:05 brobertson Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -496,18 +496,10 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 			// need to find out the link type of the parent links. If ANY of
 			// them were type 2 links, make this link type type2 also for
 			// safety's sake
-			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, '', false, 'minor');
-
-			if (count($parent_links) > 0) {
-				foreach ($parent_links as $link_info) {
-					$link['link_type'] = $link_info['link_type'];
-					// leave the link type as type 2 if it has been set
-					if ($link_info['link_type'] == SQ_LINK_TYPE_2) {
-						 break;
-					}
-				}
+			$num_type_2s = $GLOBALS['SQ_SYSTEM']->am->countLinks($assetid, 'minor', SQ_LINK_TYPE_2);
+			if ($num_type_2s) {
+				$link['link_type'] = SQ_LINK_TYPE_2;
 			}
-
 
 			$link['sort_order']	= $this->_running_vars['to_parent_pos'];
 			$link['asset']		= &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
