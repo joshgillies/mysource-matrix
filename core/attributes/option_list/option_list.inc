@@ -18,10 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.13 2004/12/20 00:30:01 lwright Exp $
+* $Id: option_list.inc,v 1.14 2005/03/31 22:42:29 lwright Exp $
 *
 */
 
+
+require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 
 /**
 * Option List Asset Attribute
@@ -33,7 +35,7 @@
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -129,7 +131,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 					// already hidden?
 					if (divX.style.display != 'none') {
 						this_option = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
-	
+
 						// this is the one we want
 						if (divX.id == (box_name + "_" + index)) {
 							divX.style.display = 'none';
@@ -140,7 +142,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 					}
 					divX = divX.nextSibling;
 				}
-				
+
 				var new_value_content = '';
 
 				for (var i = 0; i < option_array.length; i++) {
