@@ -90,7 +90,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 		}
 
 		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
-		// we will be updating the lookups of
+		// we will be acquiring locks on
 		$dep_assets = Array();
 		$dep_assets = array_merge(Array($asset->id), $asset->getDependantChildren());
 		$this->_running_vars['todo_assetids'] = $dep_assets;
