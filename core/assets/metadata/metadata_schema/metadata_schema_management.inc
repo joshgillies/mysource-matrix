@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_management.inc,v 1.5 2003/11/26 00:50:58 gsherwood Exp $
+* $Id: metadata_schema_management.inc,v 1.6 2004/01/13 05:59:36 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,7 +48,18 @@ class Metadata_Schema_Management extends Asset_Management
 
 		$this->vars = Array('name' => Array(
 											'added'     => '0.1',
-											'type'      => 'text', 'default'   => ''
+											'type'      => 'text', 
+											'default'   => ''
+											),
+							'namespace' => Array(
+											'added'     => '0.1',
+											'type'      => 'text', 
+											'default'   => ''
+											),
+							'nsurl' => Array(
+											'added'     => '0.1',
+											'type'      => 'text', 
+											'default'   => ''
 											)
 							);
 	}//end constructor

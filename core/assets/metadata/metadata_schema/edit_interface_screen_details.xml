@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2003/11/26 00:50:58 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2004/01/13 05:59:36 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -58,6 +58,32 @@
 			<function_call>
 				<paint_function   name="paintRegenerate"   />
 				<process_function name="processRegenerate" />
+			</function_call>
+		</field>
+	</section>
+	<section name="XML Namespace settings" read_access="write:" write_access="write:">
+		<field>
+			<display_name></display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintDefaultXMLns"   />
+				<process_function name="processDefaultXMLns" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Namespace</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintNamespace"   />
+				<process_function name="processNamespace" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Namespace URI</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintNsURL"   />
+				<process_function name="processNsURL" />
 			</function_call>
 		</field>
 	</section>

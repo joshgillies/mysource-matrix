@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.15 2003/11/26 00:50:58 gsherwood Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.16 2004/01/13 05:59:36 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -366,6 +366,185 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 
 	}//end getMetadataFieldValues()
 
+
+	/** 
+	* Displays the checkbox saying that a default XML namespace definition shouild be used
+	*
+	* @param object	  &$rootid	 asset being painted
+	* @param object	  &$o		 some mysterious object
+	* @param String   $prefix	 prefix for the html doc element name
+	*						
+	* @return boolean
+	* @access private
+	*/
+	function paintDefaultXMLns(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if ($asset->writeAccess('')) {
+			?>
+			<p>
+				Check the box below if your schema is named <B>AGLS</B>, <B>DCL</B> or <B>EDNA</B>, and if you want to use default namespace definition for it, instead of entering custom values in the text input fields.</p>
+		<?php
+			check_box($prefix.'_default_ns');
+			echo '&nbsp;Use default XML namespace definitions (this will delete any custom values!)';
+		} else {
+			echo 'Permission Denied to change this property'; 
+
+		}
+		return true;
+
+	}//end paintDefaultXMLns()
+
+	
+	/** 
+	* Checks if client wants to use default XML namespace definition
+	*
+	* @param object	  &$rootid	 asset being painted
+	* @param object	  &$o		 some mysterious object
+	* @param String   $prefix	 prefix for the html doc element name
+	*						
+	* @return boolean
+	* @access private
+	*/
+	function processDefaultXMLns(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('')) return false;
+
+		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) { 
+			
+			$schema_name = strtolower($asset -> attr('name')); // getting schema name
+
+			if ($schema_name == "agls") {
+
+				$asset -> setAttrValue('namespace', 'xmlns:agls');
+				$asset -> setAttrValue('nsurl', 'http://www.naa.gov.au/recordkeeping/gov_online/agls/1.2');
+
+			} elseif ($schema_name == "dc") {
+
+				$asset -> setAttrValue('namespace', 'xmlns:dc');
+				$asset -> setAttrValue('nsurl', 'http://purl.org/dc/elements/1.1/');
+
+			} else { // in this case it's EDNA
+				
+				$asset -> setAttrValue('namespace', 'xmlns:edna');
+				$asset -> setAttrValue('nsurl', 'http://www.edna.edu.au/metadata/v1.1');
+
+			}
+
+		} // end if isset
+
+		return true;
+
+	}//end processDefaultXMLns()
+
+
+	/** 
+	* Displays the textbox containing namespace, accepts input from user
+	*
+	* @param object	  &$rootid	 asset being painted
+	* @param object	  &$o		 some mysterious object
+	* @param String   $prefix	 prefix for the html doc element name
+	*						
+	* @return boolean
+	* @access private
+	*/
+	function paintNamespace(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if ($asset->writeAccess('')) {
+
+			$namespace = &$asset->attr('namespace');
+
+			if (!isset($namespace)) {
+				text_box($prefix.'_namespace', '', 15);
+			} else {
+				text_box($prefix.'_namespace', $asset->attr('namespace'), 15);
+			}
+		
+		} else {
+			echo 'You don\'t have permission to change namespace'; 
+		}
+		return true;
+
+	}//end paintNamespace()
+
+
+	/** 
+	* Processes any values submitted via namespace textbox. If checkbox above 
+	* is checked, exit function because we will store default values instead.
+	*
+	* @param object	  &$rootid	 asset being painted
+	* @param object	  &$o		 some mysterious object
+	* @param String   $prefix	 prefix for the html doc element name
+	*						
+	* @return void
+	* @access private
+	*/
+	function processNamespace(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('')) return false;
+		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) return false;
+
+		if (isset($_POST[$prefix.'_namespace'])) {
+				$asset -> setAttrValue('namespace', $_POST[$prefix.'_namespace']);
+		}
+
+	}//end processNamespace()
+
+
+	/** 
+	* Displays textbox with XML namespace URI
+	*
+	* @param object	  &$rootid	 asset being painted
+	* @param object	  &$o		 some mysterious object
+	* @param String   $prefix	 prefix for the html doc element name
+	*						
+	* @return boolean
+	* @access private
+	*/
+	function paintNsURL(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if ($asset->writeAccess('')) {
+
+			$nsurl = &$asset->attr('nsurl');
+
+			if (!isset($nsurl)) {
+				text_box($prefix.'_nsurl', '', 80);
+			} else {
+				text_box($prefix.'_nsurl', $asset->attr('nsurl'), 80);
+			}
+		
+		} else {
+			echo 'You don\'t have permission to change namespace URI'; 
+		}
+		return true;
+
+	}//end paintNsURL()
+
+
+	/** 
+	* Stores the value in Namespace URI textbox if user 
+	* doesn't want to use default values
+	*
+	* @param object	  &$rootid	 asset being painted
+	* @param object	  &$o		 some mysterious object
+	* @param String   $prefix	 prefix for the html doc element name
+	*						
+	* @return void
+	* @access private
+	*/
+	function processNsURL(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('')) return false;
+		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) return false;
+
+		if (isset($_POST[$prefix.'_nsurl'])) {
+				$asset -> setAttrValue('nsurl', $_POST[$prefix.'_nsurl']);
+		}
+
+	}//end processNsURL()
 
 }//end class
 
