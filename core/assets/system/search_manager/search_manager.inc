@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.8 2004/02/20 00:35:09 gsherwood Exp $
+* $Id: search_manager.inc,v 1.9 2004/02/20 01:18:46 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.8 $ - 0.1
+* @version $Revision: 1.9 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -244,7 +244,7 @@ class Search_Manager extends Asset
 					} else {
 
 						// we are processing a date field
-						$value = $attr_info['words'][0];
+						$value = $word;
 
 						$myday = $value['d'];
 						if (strlen($myday) == 1) $myday = '0'.$myday;
@@ -269,8 +269,9 @@ class Search_Manager extends Asset
 						if (strlen($mysecond) == 1) $mysecond = '0'.$mysecond;
 						if (empty($mysecond) || $mysecond == '--') $mysecond = '__';
 
-						$like = $db->quote($myday.':'.$mymonth.':'.$myyear.':'.$myhour.':'.$myminute.':'.$mysecond);
+						$like = $myday.':'.$mymonth.':'.$myyear.':'.$myhour.':'.$myminute.':'.$mysecond;
 						if ($like == '__:__:__:__:__:__') continue;
+						$like = $db->quote($like);
 					}
 
 					$sql = $start_sql.'
@@ -291,7 +292,6 @@ class Search_Manager extends Asset
 				else $total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
 			}
 		}
-
 
 		  /////////////////////////////
 		 //  SEARCH EXCLUDE FIELDS  //
@@ -331,7 +331,9 @@ class Search_Manager extends Asset
 	*/
 	function combineAssetScores($asset_scores1, $asset_scores2, $logic='AND')
 	{
-		if (!is_array($asset_scores1) || !is_array($asset_scores2)) return Array();
+		if (!is_array($asset_scores1) && !is_array($asset_scores2)) return Array();
+		else if (!is_array($asset_scores2)) return $asset_scores1;
+		else if (!is_array($asset_scores1)) return $asset_scores2;
 
 		// find the intersection/union (depending on logic) of the assetids in field_asset_scores and results
 		$assets1 = array_keys($asset_scores1);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.29 2004/02/20 00:35:10 gsherwood Exp $
+* $Id: search_page.inc,v 1.30 2004/02/20 01:18:48 diarandine Exp $
 */
 
 require_once SQ_PACKAGES_PATH.'/cms/page/page.inc';
@@ -714,6 +714,7 @@ class Search_Page extends Page
 		foreach($queries as $query_var => $value) {
 
 			if ($value == '') continue;
+			$field = $fields[substr($query_var, 0, -6)];
 
 			if (!is_array($value)) {
 				$words = split(' +', strtolower($value));
@@ -731,11 +732,13 @@ class Search_Page extends Page
 					} // if this is an email
 				}
 			} else {
-				// if $value is array, still setting words
-				$words = $value;
+				// if $value is array and the field is a metadata field, then the
+				// metadata field is a datetime field and needs to have its value
+				// entered into an array - otherwise, the current $value array is fine
+				if ($field['type'] == 'metadata') $words = Array($value);
+				else $words = $value;
 			}
 
-			$field = $fields[substr($query_var, 0, -6)];
 			$search_info[$field['type']][$field['name']]['words'] = $words;
 			$search_info[$field['type']][$field['name']]['params'] = (isset($field['params'])) ? $field['params'] : Array();
 		}
