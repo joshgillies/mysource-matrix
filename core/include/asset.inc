@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.227 2003/10/01 06:17:47 gsherwood Exp $
+* $Id: asset.inc,v 1.228 2003/10/02 05:44:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -266,9 +266,9 @@ class Asset extends MySource_Object
 			$source_assetid = 0;
 			if ($link['dependant']) {
 				$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id);
-				$source_assetid = $lock['source_asset'];
+				$source_assetid = $lock['source_assetid'];
 			}
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, $source_assetid)) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, '', $source_assetid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
 				$ms->abortLog();
@@ -544,7 +544,7 @@ class Asset extends MySource_Object
 		}
 
 		// Lock the new dupe in the same chain as we are locked
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dupe->id, $lock['source_asset'])) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dupe->id, '', $lock['source_assetid'])) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
 		}
@@ -568,7 +568,7 @@ class Asset extends MySource_Object
 			// OK what we are going to do is make sure that the new parents lock is
 			// in the same chain as our current lock
 			$parent_lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id);
-			if (empty($parent_lock) || $parent_lock['source_asset'] != $lock['source_asset']) {
+			if (empty($parent_lock) || $parent_lock['source_assetid'] != $lock['source_assetid']) {
 
 				if (!empty($parent_lock)) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id)) {
@@ -577,7 +577,7 @@ class Asset extends MySource_Object
 					}
 				}
 
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, $lock['source_asset'])) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, '', $lock['source_assetid'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return $null;
 				}

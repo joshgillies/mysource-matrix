@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.153 2003/10/02 00:18:00 dwong Exp $
+* $Id: asset_edit_interface.inc,v 1.154 2003/10/02 05:44:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -227,7 +227,7 @@ class Asset_Edit_Interface extends MySource_Object
 							// this asset is currently locked
 							// so display message to the user
 							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-							$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_asset']);
+							$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
 
 							if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 							else $now = time();
@@ -2561,7 +2561,7 @@ class Asset_Edit_Interface extends MySource_Object
 			if (!empty($lock)) {
 				// this asset is currently locked
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-				$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_asset']);
+				$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
 
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 				$expires_in = easy_time_total(($lock['expires'] - time()));

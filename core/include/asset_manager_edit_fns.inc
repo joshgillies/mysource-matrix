@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager_edit_fns.inc,v 1.54 2003/10/01 06:18:14 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.55 2003/10/02 05:44:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -130,7 +130,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					$do_process_backend = true;
 
 					// try to acquire a lock on this asset?
-					if (isset($_POST['sq_acquire_lock']) && $_POST['sq_acquire_lock']) {
+					if (!empty($_POST['sq_acquire_lock'])) {
 						//// START HIPO PROCESSING ////
 						$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 						$vars = Array('assetid' => $asset->id, 'forceably_acquire' => (bool) $_POST['sq_acquire_by_force']);
@@ -140,7 +140,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					}
 
 					// try to release a lock on this asset?
-					if (isset($_POST['sq_manual_release_lock']) && $_POST['sq_manual_release_lock']) {
+					if (!empty($_POST['sq_manual_release_lock'])) {
 						$this->am->releaseLock($asset->id);
 						$do_process_backend = false;
 					}
@@ -152,7 +152,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 							// this asset is currently locked
 							$user = &$this->am->getAsset($lock['userid']);
 							if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-								if (false && isset($_POST['sq_release_lock']) && (int) $_POST['sq_release_lock'] == 1) {
+								if (isset($_POST['sq_release_lock']) && (int) $_POST['sq_release_lock'] == 1) {
 									// committing changes and releasing the lock
 									if (!$this->am->releaseLock($asset->id)) {
 										trigger_error('Failed to release lock on "'.$asset->name.'"', E_USER_WARNING);
@@ -622,7 +622,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			$attempted_assets[] = $assetid;
 
 			// attempt to acquire the lock for this asset
-			if (@$this->am->acquireLock($asset->id, $vars['assetid'])) {
+			if (@$this->am->acquireLock($asset->id, '', $vars['assetid'])) {
 				$vars['lock']['acquired_assets'][] = $asset->id;
 				$status_msg .= 'Lock Acquired for '.$asset->name."\n";
 	#speed_check("five");
@@ -1188,13 +1188,13 @@ speed_check('FINISHED');
 			break;
 		}
 
-		$lock = $this->am->getLockInfo($asset->id, true, false);
+		$lock = $this->am->getLockInfo($asset->id, '', true, false);
 		if (empty($lock)) {
 			$o->addOnLoad("alert('No lock is held on \"$asset->name\"'); window.close();");
 			return;
 		}
 		$user = &$this->am->getAsset($lock['userid']);
-		$editing = &$this->am->getAsset($lock['source_asset']);
+		$editing = &$this->am->getAsset($lock['source_assetid']);
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		$expires_in = easy_time_total(($lock['expires'] - time()), true);

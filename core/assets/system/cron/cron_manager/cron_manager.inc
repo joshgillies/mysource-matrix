@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: cron_manager.inc,v 1.20 2003/09/26 05:26:27 brobertson Exp $
+* $Id: cron_manager.inc,v 1.21 2003/10/02 05:45:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -384,7 +384,7 @@ class Cron_Manager extends Asset
 
 
 			// now update this last run time, so that we know for next time
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 0, true)) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, '', 0, true)) {
 				$this->setAttrValue('run_check', (int) $this->attr('run_check') + 1);
 				$this->saveAttributes();
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
@@ -421,7 +421,7 @@ class Cron_Manager extends Asset
 			}// end if
 
 			// now get the lock, set the running flag and reset the run_check
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0) && $this->saveAttributes()) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, '', 0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0) && $this->saveAttributes()) {
 
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 
@@ -514,7 +514,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 					// give it three seconds to get the lock
 					$lock_count = 0;
 					while(1) {
-						if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 0, true)) {
+						if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, '', 0, true)) {
 							break;
 						} elseif ($lock_count < 3) {
 							$lock_count++;
@@ -556,7 +556,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 				}// end while
 
 				// now update this last run time, so that we know for next time
-				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 0, true)) {
+				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, '', 0, true)) {
 					if ($this->setAttrValue('last_run', $this_run) && $this->setAttrValue('running', false) && $this->saveAttributes()) {
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 					} else {

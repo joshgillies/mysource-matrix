@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: trash_folder_edit_fns.inc,v 1.23 2003/09/26 05:26:29 brobertson Exp $
+* $Id: trash_folder_edit_fns.inc,v 1.24 2003/10/02 05:45:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -320,15 +320,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	{
 		// now we need to release all locks we acquired
 		$vars = $pb->getRunningVars();
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$where_cond = 'source_asset = '.$db->quote($vars['trash_id']);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lock', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$pb->abort();
-			return false;
-		}
-
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($vars['trash_id']);
 		$pb->setStatusMsg('');
 	}// end _purgeTrashStepDone()
 
@@ -360,7 +352,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 				if ($done_a_lock) break;
 				$assetid = $link_info['assetid'];
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, $vars['trash_id'])) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, '', $vars['trash_id'])) {
 					trigger_error('Purge aborted, unable to acquire lock for "'.$asset->name.'" for purging trash', E_USER_WARNING);
 					$pb->abort();
 					return;
