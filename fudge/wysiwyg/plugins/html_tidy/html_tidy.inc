@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.15 2004/03/04 22:54:49 gsherwood Exp $
+* $Id: html_tidy.inc,v 1.16 2004/04/06 14:03:02 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -114,17 +114,21 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 		/////////////////
 
 		// tidy the HTML produced using the HTMLTidy program
-		$tidy = Array();
 		$path_to_tidy = '/usr/local/bin/tidy';
-		$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
 
-		// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
-		// so HTMLTidy doesnt strip them out
-		if (!empty($this->_new_inline_tags)) $command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
-		
-		exec($command, $tidy);
-		if (empty($tidy)) return;
-		$html = implode("\n", $tidy);
+		if (is_executable($path_to_tidy)) {
+			$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
+
+			// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
+			// so HTMLTidy doesnt strip them out
+			if (!empty($this->_new_inline_tags)) $command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
+			
+			$tidy = Array();
+			exec($command, $tidy);
+			if (empty($tidy)) return;
+			$html = implode("\n", $tidy);
+			unset($tidy);
+		}
 
 
 		  ////////////////////
