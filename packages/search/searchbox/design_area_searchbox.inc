@@ -18,8 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.15 2004/12/03 15:38:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_searchbox.inc,v 1.16 2004/12/06 14:44:15 brobertson Exp $
 *
 */
 
@@ -34,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.15 $ - 1.0
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -145,6 +144,6 @@ class Design_Area_Searchbox extends Design_Area
 	}//end printVar()
 
 
-}//end classs
+}//end class
 
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.5 2004/11/10 02:43:09 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: matrix_apply_style.inc,v 1.6 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
-class Matrix_Apply_Style extends WYSIWYG_Plugin {
+class Matrix_Apply_Style extends WYSIWYG_Plugin
+{
 
 	/**
 	* A list of classess to show in the drop down
@@ -73,7 +74,7 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin {
 				if (file_exists($stylesheet_src)) {
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					$stylesheet = preg_replace('%[\r\n]+%',' ',file_to_string($stylesheet_src));
-					
+
 					$matches = Array();
 					preg_match_all("%\s*([^\{]+)\{[^\}]+\}%", $stylesheet, $matches);
 					$class_strings = $matches[1];
@@ -99,7 +100,7 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin {
 		$this->_add_button('formatblock','','','','');
 		if (!empty($this->_css_classes)) $this->_add_button('applystyle','','','','');
 
-	}//end contructor
+	}//end constructor
 
 
 	/**
@@ -246,7 +247,7 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin {
 			this._execCommand(txt, false, value);
 		break;
 		<?php
-	
+
 	}//end print_plugin_combo_selected()
 
 

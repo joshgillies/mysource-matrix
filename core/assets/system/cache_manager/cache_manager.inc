@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.4 2004/11/25 10:41:58 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: cache_manager.inc,v 1.5 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $ - 0.1
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,7 +104,7 @@ class Cache_Manager extends Asset
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
@@ -194,8 +194,8 @@ class Cache_Manager extends Asset
 		return $this->cache->save($assetid_code.':'.$cacheid_code, $contents, $expiry, $group);
 
 	}//end saveToCache()
-	
-	
+
+
 	/**
 	* Return the key suffix that represents a cached object based on cache levels
 	*
@@ -229,7 +229,7 @@ class Cache_Manager extends Asset
 					// note that we dont use the cache in rollback view mode so we dont have
 					// to run this query through the rollback functions
 					$sql = 'SELECT MAX(permission) FROM '.SQ_TABLE_PREFIX.'ast_perm
-							WHERE assetid = '.$db->quote($asset->id).' 
+							WHERE assetid = '.$db->quote($asset->id).'
 							  AND userid IN ('.implode(',', $userids).')
 							  AND granted = 1';
 
@@ -260,7 +260,7 @@ class Cache_Manager extends Asset
 
 		return $cache_key;
 
-	}//end getCacheKey()
+	}//end _getCacheKey()
 
 
 	/**
@@ -295,7 +295,7 @@ class Cache_Manager extends Asset
 
 	/**
 	* Check if caching is enabled for the specfied type code
-	* 
+	*
 	* If no type code is specified this function will check the system wide setting
 	*
 	* @param string	$type_code	the type_code to check to see if caching is enabled
@@ -314,7 +314,7 @@ class Cache_Manager extends Asset
 
 	/**
 	* Returns the expiry time for the specified type code.
-	* 
+	*
 	* If the expiry value for that type code has not been customised,
 	* then the default expiry is returned
 	*

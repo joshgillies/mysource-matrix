@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: justify_text.inc,v 1.7 2003/11/26 00:51:21 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: justify_text.inc,v 1.8 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -33,11 +33,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow text alignment
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class Justify_Text extends WYSIWYG_Plugin {
+class Justify_Text extends WYSIWYG_Plugin
+{
 
 
 	/**
@@ -56,7 +57,7 @@ class Justify_Text extends WYSIWYG_Plugin {
 
 	}//end consturctor
 
-	
+
 	/**
 	* Print keyboard shortcuts to align text
 	*

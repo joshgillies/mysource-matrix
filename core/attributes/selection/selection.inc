@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.32 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: selection.inc,v 1.33 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -55,7 +55,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Selection($attributeid=0, $value=null) 
+	function Asset_Attribute_Selection($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, $value);
 
@@ -108,14 +108,14 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		$searchStyles = Array();
 		$searchStyles['list'] = 'List';
 		$searchStyles['checkbox'] = 'Checkbox';
-		
+
 		if (!empty($this->name)) {
 			echo '<b>Selection Attribute " '.ucwords(str_replace('_', ' ', $this->name)).' " ('.$this->name.')</b><br />';
 		}
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;">Style</td>	
+				<td class="sq-backend-section-heading" style="width: 100px;">Style</td>
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) combo_box($prefix.'_style', $searchStyles, false, $this->_edit_params['style']);
@@ -183,7 +183,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		if (!empty($_POST[$prefix.'_columns'])) {
 			$this->_edit_params['columns'] = $_POST[$prefix.'_columns'];
 		}
-		
+
 		if (!empty($_POST[$prefix.'_empty'])) {
 			$this->_edit_params['empty_text'] = $_POST[$prefix.'_empty'];
 		}
@@ -249,7 +249,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 		if (!empty($this->_params['multiple']) && !is_Array($this->value)) {
 			$value = $this->_str2ar($this->value);
-		} else { 
+		} else {
 			$value = $this->value;
 		}
 
@@ -276,7 +276,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			}
 			return;
 		}
-		
+
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		// just have this so that we can check whether this field was posted or not
@@ -373,7 +373,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			}
 			$value = $this->_ar2str($return_value);
 		}
-		
+
 		return true;
 
 	}//end validateValue()
@@ -396,7 +396,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 
 	/**
-	* Returns an array of the current value with the individual selection values as keys 
+	* Returns an array of the current value with the individual selection values as keys
 	* and the display names as values
 	*
 	* @return Array(scalar => scalar)

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service_config.inc,v 1.12 2004/09/15 04:30:03 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: messaging_service_config.inc,v 1.13 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the messaging service config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Messaging_Service_Config extends Config
@@ -61,7 +61,7 @@ class Messaging_Service_Config extends Config
 	{
 		$this->Config();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/messaging_service.inc';
-		
+
 	}//end constructor
 
 

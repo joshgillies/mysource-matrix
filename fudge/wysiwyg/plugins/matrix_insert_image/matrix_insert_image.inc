@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_image.inc,v 1.19 2004/01/13 01:39:05 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: matrix_insert_image.inc,v 1.20 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using an image asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.20 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
-class matrix_insert_image extends wysiwyg_plugin {
+class matrix_insert_image extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor

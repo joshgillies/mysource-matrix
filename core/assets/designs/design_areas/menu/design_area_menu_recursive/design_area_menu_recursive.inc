@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive.inc,v 1.19 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_menu_recursive.inc,v 1.20 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,12 +51,12 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	function setAttrValue($name, $value)
 	{
 		// make sure the aligment is lower case
-		switch ($name) { 
+		switch ($name) {
 			case 'show_subs' :
 				trigger_error('The "'.$name.'" attribute has no effect in a "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').'", use the "min_num_levels" and "max_num_levels" attributes', E_USER_NOTICE);
 				break;
 
-		}// end switch
+		}//end switch
 
 		return parent::setAttrValue($name, $value);
 
@@ -84,7 +84,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 			$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$design->id] = true;
 		}
 
-	} // printStaticInitOutput()
+	}//end printStaticInitOutput()
 
 
 	/**
@@ -98,7 +98,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 	{
 		parent::printInitOutput($design);
 		$this->printRecursiveFn($design);
-	}// end printInitOutput()
+	}//end printInitOutput()
 
 
 	/**
@@ -170,16 +170,16 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 					'.$this->attr('id_name').'_recursive_fn($level + 1, $'.$this->attr('id_name').'_row[\'assetid\'], $'.$this->attr('id_name').'_urls[$'.$this->attr('id_name').'_row[\'assetid\']]);
 				} // end if
 
-			}// end for
+			}//end for
 			?', '>
 			</ul>
 			<', '?php
 
-		}// end '.$this->attr('id_name').'_recursive_fn()
+		}//end '.$this->attr('id_name').'_recursive_fn()
 
 		';
 
-	} // end printRecursiveFn()
+	}//end printRecursiveFn()
 
 
 	/**
@@ -218,7 +218,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 		} else {
 			echo '
 		$'.$this->attr('id_name').'_assetids = $'.$parent_menu->attr('id_name').'_assetids;';
-		}// end if
+		}//end if
 
 		echo '
 #pre_echo("NR:  ".$'.$this->attr('id_name').'_num_repeats);
@@ -253,7 +253,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 			unset($'.$this->attr('id_name').'_assetids);
 			$'.$this->attr('id_name').'_assetids = menu_get_assets('.$majorids.');
 
-		}// end for '.$this->attr('id_name').'_i
+		}//end for '.$this->attr('id_name').'_i
 
 		';
 
@@ -275,7 +275,7 @@ class Design_Area_Menu_Recursive extends Design_Area_Menu_Type
 		if ($var == 'asset_short_name' && $this->attr('ellipsis_length') > 0) {
 			$value_prefix = 'ellipsisize('.$value_prefix;
 			$value_suffix = $value_suffix.', '.$this->attr('ellipsis_length').' - (2 * $depth_count))';
-		}// end if
+		}//end if
 
 		parent::printVar($var, $args, $value_prefix, $value_suffix);
 	}//end printVar()

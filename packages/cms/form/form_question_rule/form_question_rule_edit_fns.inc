@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_edit_fns.inc,v 1.11 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_edit_fns.inc,v 1.12 2004/12/06 14:41:38 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -46,7 +46,7 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 	function Form_Question_Rule_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-	}
+	}//end constructor
 
 
 	/**
@@ -55,12 +55,12 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 	function paintInlineBackend(&$asset, &$o, $prefix)
 	{
 		return true;
-	}
+	}//end paintInlineBackend()
 
 
 	/**
 	* processes the section in the question to change the options of this rule
-	* 
+	*
 	* @param object Form				&$asset		the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o			the outputter class
 	* @param string						$prefix		prefix for the form elements
@@ -89,7 +89,7 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 
 	/**
 	* deletes rules
-	* 
+	*
 	* @param object Form				&$asset		the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o			the outputter class
 	* @param string						$prefix		prefix for the form elements
@@ -109,7 +109,7 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 				bam('here');
 				if (empty($link)) continue;
 				bam($link);
-				if (in_array($link['minorid'], $_POST['delete_rule'])) { 
+				if (in_array($link['minorid'], $_POST['delete_rule'])) {
 					$asset->deleteLink($link['linkid']);
 				}
 			}

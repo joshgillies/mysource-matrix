@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.78 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_manager_edit_fns.inc,v 1.79 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.79 $
 * @package MySource_Matrix
 */
 class Asset_Manager_Edit_Fns extends MySource_Object
@@ -184,7 +184,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 								trigger_error('Failed to re-acquire "'.$_POST['sq_lock_type'].'" lock on "'.$asset->name.'"', E_USER_WARNING);
 							}
 						}
-					}// end if
+					}//end if
 
 					// the backend of the asset has been processed so lets see if we have any HIPO
 					// jobs that need to be run
@@ -239,7 +239,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				return;
 			}
 		}
-		
+
 		$o->addFormActionGetVar('assetid', $_GET['assetid']);
 		$o->addFormActionGetVar('sq_lock_type', $_GET['sq_lock_type']);
 		$o->addFormActionGetVar('forceably_acquire_confirm', '1');
@@ -268,14 +268,14 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		?>
 			You are about to forceably acquire the following locks on "<?php echo $asset->name; ?>"<br>
 			<b>Any changes being made to "<?php echo $asset->name; ?>" or any other asset in the locking chain (<i>see full list below</i>) will be lost.</b>
-		<?php 
-		
+		<?php
+
 		$o->openField('&nbsp;');
 		?>
 		<table border="0">
 			<tr>
 				<td class="sq-backend-data">
-					To acquire the lock, enter the 8 character string you see below into the box supplied, 
+					To acquire the lock, enter the 8 character string you see below into the box supplied,
 					then press the Commit button
 				</td>
 			</tr>
@@ -345,14 +345,14 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 								continue;
 							}
 							echo '<li class="sq-backend-data">'.$chained_asset->name.'</li>';
-						}// end foreach
+						}//end foreach
 						echo '</ul>';
-					}// end if
+					}//end if
 				?>
 				</td>
 			</tr>
 		<?php
-		}// end foreach lock types
+		}//end foreach lock types
 		?>
 
 		</table>
@@ -478,7 +478,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	<?php
 		$o->closeSection();
 
-	}//end printAssetList()
+	}//end _printAssetTypeList()
 
 
 	function _recursePrintAssetList(&$offspring, $parent)

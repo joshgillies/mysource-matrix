@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect.inc,v 1.11 2004/06/16 06:11:30 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_redirect.inc,v 1.12 2004/12/06 14:41:40 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -99,7 +99,7 @@ class Page_Redirect extends Page
 
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
-	}// end getRedirectAsset()
+	}//end getRedirectAsset()
 
 
 	/**
@@ -145,7 +145,7 @@ class Page_Redirect extends Page
 
 		return true;
 
-	}// end getRedirectAsset()
+	}//end setRedirectAsset()
 
 
 	/**
@@ -172,7 +172,7 @@ class Page_Redirect extends Page
 					$url = current_url().'?a='.$redirect_asset->id;
 				}
 			}
-		}// end if
+		}//end if
 
 		if ($url == '') {
 			trigger_error('No URL or Asset selected for this "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').'"', E_USER_NOTICE);
@@ -223,7 +223,7 @@ class Page_Redirect extends Page
 
 		}
 
-	}// end printFrontend()
+	}//end printFrontend()
 
 
 	/**
@@ -239,7 +239,7 @@ class Page_Redirect extends Page
 	{
 		$this->printFrontend();
 
-	}// end printBody()
+	}//end printBody()
 
 }//end class
 

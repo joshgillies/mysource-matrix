@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout.inc,v 1.3 2004/04/20 00:02:37 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: layout.inc,v 1.4 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy/bodycopy.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,7 +123,7 @@ class Layout extends Bodycopy
 	function getLayoutKeywords()
 	{
 		if (empty($this->layout_keywords)) {
-			
+
 			$keywords = $this->getKeywords();
 			if (empty($keywords)) return Array();
 
@@ -134,7 +134,7 @@ class Layout extends Bodycopy
 			$this->layout_keywords['layout']			= Array();
 
 			foreach ($keywords as $keyword) {
-				
+
 				if (false !== (strpos($keyword, '-'))) {
 					list($screen, $tag) = explode('-', $keyword);
 					$screen = strtolower($screen);
@@ -152,9 +152,9 @@ class Layout extends Bodycopy
 						// check to see if we have a field or a section
 						if (strtoupper($type) != 'S' && strtoupper($type) != 'F') continue;
 						$tag = substr($tag, 2);
-						
+
 						if (!isset($this->layout_keywords['screens'][$screen])) $this->layout_keywords['screens'][$screen] = Array();
-						
+
 						// its a field
 						if (strtoupper($type) == 'F') {
 							if (!isset($this->layout_keywords['screens'][$screen]['fields'])) $this->layout_keywords['screens'][$screen]['fields'] = Array();
@@ -174,12 +174,12 @@ class Layout extends Bodycopy
 							$this->layout_keywords['entire_screens'][$screen] = $keyword;
 						}
 					}
-					
+
 				} else {
 					// this keyword is a custom keyword for the layout
 					$this->layout_keywords['layout'][] = $keyword;
 				}
-				
+
 			}//end foreach
 
 		}//end if

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder_edit_fns.inc,v 1.9 2003/11/26 00:51:01 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: root_folder_edit_fns.inc,v 1.10 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,7 +46,8 @@ class Root_Folder_Edit_Fns extends Folder_Edit_Fns
 	function Root_Folder_Edit_Fns()
 	{
 		$this->Folder_Edit_Fns();
-	}
+
+	}//end constructor
 
 }//end class
 ?>

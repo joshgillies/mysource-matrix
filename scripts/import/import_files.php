@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files.php,v 1.3 2004/12/03 15:59:56 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: import_files.php,v 1.4 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
@@ -30,7 +30,7 @@
 * be linked appropriately.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -60,9 +60,9 @@ foreach ($import_dirs as $import_dir) {
 
 	$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset(trim($import_dir));
 	if (is_null($parent_asset)) trigger_error("New parent asset #$parent_assetid does not exist\n", E_USER_ERROR);
-	
+
 	$import_link = Array('asset' => &$parent_asset, 'link_type' => SQ_LINK_TYPE_1);
-		
+
 	// get a list of all files in the import directory
 	require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 	$files = list_files($import_path);
@@ -86,20 +86,20 @@ foreach ($import_dirs as $import_dir) {
 				$new_asset_type = 'file';
 				break;
 		}
-				
+
 		// create an asset under the new parent of the correct type
 		$temp_info = Array('name' => $filename, 'tmp_name' => $import_path.'/'.$filename, 'non_uploaded_file' => true);
-	
+
 		$new_file = new $new_asset_type();
 		$new_file->_tmp['uploading_file'] = true;
 		$new_file->setAttrValue('name', $filename);
-	
+
 		if (!$new_file->create($import_link, $temp_info)) {
 			trigger_error('Failed to import '.$new_asset_type.' '.$filename, E_USER_WARNING);
 		} else {
 			bam('New '.$new_file->type().' asset created for file '.$filename.' - asset ID #'.$new_file->id);
 		}
-	
+
 		// now that we have created the asset we need to import the file itself
 		$edit_fns = $new_file->getEditFns();
 		if (!$edit_fns->processFileUpload($new_file, $GLOBALS['SQ_SYSTEM']->backend->out, $new_file->getPrefix(), $temp_info)) {

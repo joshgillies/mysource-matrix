@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.59 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: workflow_manager.inc,v 1.60 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *    Facilitate the managment of workflow for assets
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.60 $
 * @package MySource_Matrix
 */
 class Workflow_Manager extends MySource_Object
@@ -1021,7 +1021,7 @@ class Workflow_Manager extends MySource_Object
 
 		return $steps;
 
-	}//end isWorkflowComplete()
+	}//end getWorkflowCurrentSteps()
 
 
 	/**
@@ -1123,7 +1123,7 @@ class Workflow_Manager extends MySource_Object
 		unset($this->_tmp['schema_workflows'][$assetid]);
 		return true;
 
-	}//end cancelWorkflow()
+	}//end _clearWorkflow()
 
 
 	/**
@@ -1164,7 +1164,7 @@ class Workflow_Manager extends MySource_Object
 		$edit_fns = $asset->getEditFns();
 		return !isset($edit_fns->static_screens['workflow']);
 
-	}//end allowsWorkflow()
+	}//end silentWorkflowParty()
 
 
 }//end class

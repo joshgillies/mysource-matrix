@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: create_pages.php,v 1.2 2004/11/04 04:00:28 mnyeholt Exp $
-* $Name: not supported by cvs2svn $
+* $Id: create_pages.php,v 1.3 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
@@ -30,7 +30,7 @@
 *
 * @author  Avi Miller <avim@netspace.net.au>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -61,12 +61,12 @@ foreach ($pages as $pageline) {
 	$parent_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset(trim($parent_assetid));
 	if (is_null($parent_asset)) trigger_error("New parent asset #$parent_assetid does not exist\n", E_USER_ERROR);
 	$import_link = Array('asset' => &$parent_asset, 'link_type' => $link_type);
-	
+
 	$new_asset_type = trim($page_type);
-		
+
 	$new_page = new $new_asset_type();
 	$new_page->setAttrValue('name', trim($pagename));
-	
+
 	if (!$new_page->create($import_link)) {
 		trigger_error('Failed to import '.$new_asset_type.' '.trim($pagename), E_USER_WARNING);
 	} else {

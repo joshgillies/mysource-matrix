@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard_edit_fns.inc,v 1.2 2004/06/29 15:33:29 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_standard_edit_fns.inc,v 1.3 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,7 @@ class Page_Standard_Edit_Fns extends Page_Edit_Fns
 
 	}//end constructor
 
-	
+
 	/**
 	* Paint the interface for creating tables in the bodycopy
 	*

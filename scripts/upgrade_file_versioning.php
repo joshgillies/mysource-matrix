@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_file_versioning.php,v 1.7 2004/12/03 15:42:39 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: upgrade_file_versioning.php,v 1.8 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
 * Upgrade menu design areas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -43,7 +43,7 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
-	
+
 // check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
@@ -56,7 +56,7 @@ $db = &$GLOBALS['SQ_SYSTEM']->db;
 // rename each file versioning related table
 foreach (Array('file_versioning_file', 'file_versioning_file_history', 'file_versioning_file_lock') as $table_name) {
 	printName('Rename "'.$table_name.'"');
-	
+
 	// find out of the table exists by trying to run a query on it and see whether it
 	// returns a 'no such table' error. This should not be too much penalty because
 	// most optimisers recognise the impossible WHERE clause and short-circuit it
@@ -64,7 +64,7 @@ foreach (Array('file_versioning_file', 'file_versioning_file_history', 'file_ver
 	if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHTABLE)) {
 		// "No Such Table" error = the renamed table doesn't exist
 		$result = $db->query('ALTER TABLE fudge_'.$table_name.' RENAME TO '.SQ_TABLE_PREFIX.$table_name);
-		
+
 		if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHTABLE)) {
 			// old table does not exist!!
 			printUpdateStatus('FAIL DNE');
@@ -83,9 +83,9 @@ foreach (Array('file_versioning_file', 'file_versioning_file_history', 'file_ver
 		print '('.$result->getMessage().")\n";
 	} else {
 		// no error = table already exists!
-		printUpdateStatus('--');	
+		printUpdateStatus('--');
 	}
-	
+
 }
 
 printName('Change sequence name');
@@ -102,7 +102,7 @@ printUpdateStatus('OK');
 // "No Such Table" error = the renamed table doesn't exist
 printName('Drop repository field');
 $result = $db->query('ALTER TABLE '.SQ_TABLE_PREFIX.'file_versioning_file DROP COLUMN repository');
-	
+
 if (DB::isError($result) && ($result->getCode() == DB_ERROR_NOSUCHFIELD)) {
 	// reports 'field not exist' - fine
 	printUpdateStatus('--');
@@ -142,15 +142,15 @@ if (!file_exists(SQ_DATA_PATH.'/private/db/sequences.inc')) {
 ////////////////////////
 function printName($name)
 {
-	printf ('%s%'.(40 - strlen($name)).'s', $name, ''); 
-	
+	printf ('%s%'.(40 - strlen($name)).'s', $name, '');
+
 }//end printName()
 
 
 function printUpdateStatus($status)
 {
 	echo "[ $status ]\n";
-	
+
 }//end printUpdateStatus()
 
 

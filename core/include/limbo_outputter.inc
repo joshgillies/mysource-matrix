@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.12 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: limbo_outputter.inc,v 1.13 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 class Limbo_Outputter extends Backend_Outputter
@@ -129,7 +129,7 @@ class Limbo_Outputter extends Backend_Outputter
 		$this->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
 		$this->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
 		foreach ($this->_js_includes as $file) $this->_paintJsInclude($file);
-		
+
 		?>
 		<script language="Javascript" type="text/javascript">
 		<!--
@@ -228,18 +228,18 @@ class Limbo_Outputter extends Backend_Outputter
 									<td width="100%" valign="top" class="sq-backend-data">
 				<?php
 			break;
-	
+
 			case 'commit' :
 				?>
 				<tr>
 					<td width="100%" valign="top" class="sq-backend-data" style="text-align: right; border" colspan="3">
 				<?php
 			break;
-	
+
 			case 'blank' :
 				// a blank field to be used just for formatting
 			break;
-	
+
 			default :
 			?>
 				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
@@ -254,7 +254,7 @@ class Limbo_Outputter extends Backend_Outputter
 
 	}//end _nbOpenField()
 
-	
+
 	/**
 	* Opens a section without buffering
 	*
@@ -494,8 +494,8 @@ class Limbo_Outputter extends Backend_Outputter
 
 	}//end _paintBodyHeader()
 
-	
-	
+
+
 	/**
 	* Paint the footer of the page
 	*

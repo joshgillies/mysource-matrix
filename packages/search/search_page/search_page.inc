@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.66 2004/11/30 22:52:46 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: search_page.inc,v 1.67 2004/12/06 14:44:15 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66 $ - 1.0
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -109,8 +109,8 @@ class Search_Page extends Page
 		$this->Page($assetid);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -265,7 +265,7 @@ class Search_Page extends Page
 	{
 		if (isset($_REQUEST['search_button'])) $_REQUEST['mode'] = 'results';
 		$mode = array_get_index($_REQUEST, 'mode', '');
-		
+
 		if (empty($mode)) {
 			// we dont know what button was pressed, so see if we have any query vars
 			// that show evidence that a search has been performed without submitting
@@ -1483,7 +1483,7 @@ class Search_Page extends Page
 
 		// get the basic search settings based on the current category (if any)
 		$search_info = $this->populateBaseSearchInfo($category);
-		
+
 		foreach ($queries as $field_name => $value) {
 
 			if (empty($value)) continue;
@@ -1532,8 +1532,8 @@ class Search_Page extends Page
 		return $sm->processSearch($search_info);
 
 	}//end processSearch()
-	
-	
+
+
 	/**
 	* Get an array of all search terms that have been submitted
 	*

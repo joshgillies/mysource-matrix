@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.4 2004/10/19 01:04:00 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_field_select.inc,v 1.5 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,7 +67,7 @@ class Metadata_Field_Select extends Metadata_Field
 		if (!empty($edit_params)) $selection->_edit_params = $edit_params;
 		$selection->_params['options'] = $this->attr('select_options');
 		$selection->_params['multiple'] = $this->attr('multiple');
-		
+
 		$default = $this->attr('default');
 		if ($this->attr('multiple')) $default = explode('; ', $default);
 		$selection->setValue($default);

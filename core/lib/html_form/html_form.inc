@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.69 2004/12/06 00:57:33 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: html_form.inc,v 1.70 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.70 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -313,7 +313,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 	}
 	echo '</select>';
 
-}// end combo_box()
+}//end combo_box()
 
 
 /**
@@ -330,7 +330,8 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 * @return void
 * @access public
 */
-function colour_box($name, $default='000000', $allow_blanks=false, $button_text='*', $show_text_box=true, $show_current_colour=true, $show_change_colour=true) {
+function colour_box($name, $default='000000', $allow_blanks=false, $button_text='*', $show_text_box=true, $show_current_colour=true, $show_change_colour=true)
+{
 
 	$default = strtolower($default);
 	$default = preg_replace('/^#/', '', $default);
@@ -370,7 +371,7 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 		<?php
 	}
 
-}// end colour_box()
+}//end colour_box()
 
 
 /**
@@ -522,8 +523,8 @@ function get_file_upload_info($name)
 function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restrict_exts=true, $extensions=Array())
 {
 	$info = get_file_upload_info($name);
-	if     ($info === false) return false;
-	elseif (!count($info))   return '';
+	if ($info === false) return false;
+	if (!count($info))   return '';
 
 	$nice_name = str_replace('_', ' ', $name);
 
@@ -545,8 +546,8 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 		if (($restrict_exts && !$in_arr) || (!$restrict_exts && $in_arr)) {
 			trigger_error($ext.' files are not allowed for "'.$nice_name.'"', E_USER_WARNING);
 			return false;
-		}// end if
-	}// end if
+		}//end if
+	}//end if
 
 	//// Let's try and find out what our final destination file is going to be ////
 
@@ -582,7 +583,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 			trigger_error('Parent Directory "'.$parent.'" is not writable', E_USER_WARNING);
 			return false;
 		}
-	}// end dest exists
+	}//end dest exists
 
 	/**
 	******* Have left this out for now - BCR *******
@@ -703,7 +704,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	// don't display the buttons when in limbo
 	if (!SQ_IN_LIMBO) {
 		normal_button($safe_name.'_change_btn', 'Change', $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
-	
+
 		if (in_array('clear', $buttons)) {
 			normal_button($safe_name.'_clear_btn', 'Clear', $map_frame.'.asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
 		}
@@ -811,7 +812,7 @@ function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='F
 		</tr>
 		<tr>
 	<?php
-	}// end if
+	}//end if
 	?>
 			<td valign="top"><img id="sq_security_key" src="<?php echo $img_url; ?>" border="0" /></td>
 		</tr>
@@ -863,7 +864,7 @@ function var_to_hidden_field($var, $name='')
 		if ($name) hidden_field($name, $var);
 	}
 
-}// end var_to_hidden_field()
+}//end var_to_hidden_field()
 
 
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css_edit_fns.inc,v 1.2 2004/09/07 10:52:20 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_linked_css_edit_fns.inc,v 1.3 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -60,7 +60,7 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 			$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_getLinkedCSSInfo('minorid'));
 			if (!is_null($link_asset)) echo $link_asset->name, '(Id: #', $link_asset->id, ')';
 
-		}// end if
+		}//end if
 
 		return true;
 
@@ -93,12 +93,12 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 					echo '@import tag';
 					break;
 			}
-		}// end if
+		}//end if
 
 		return true;
 
 	}//end paintTagType()
-	
+
 	/**
 	* Prints the interface for selecting a tag type
 	*
@@ -126,11 +126,11 @@ class Design_Area_Linked_Css_Edit_Fns extends Design_Area_Edit_Fns
 			combo_box($prefix.'_media', $options, false, $asset->attr('media'));
 		} else {
 			echo $asset->attr('media');
-		}// end if
+		}//end if
 
 		return true;
 
-	}//end painMedia()
+	}//end paintMedia()
 
 
 	/**

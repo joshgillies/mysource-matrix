@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.11 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: workflow.inc,v 1.12 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -245,7 +245,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 						$user_logs = $ms->getLogs('asset.workflow.userlog', Array('assetid' => $owner->id));
 						usort($logs, Array('Messaging_Service', 'sortMessages'));
 						usort($user_logs, Array('Messaging_Service', 'sortMessages'));
-						
+
 						if (!empty($user_logs) || !empty($logs)) {
 							?>
 							<table class="sq-backend-table">
@@ -273,7 +273,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 										<?php
 									}
 								}//end if there are user workflow logs
-								
+
 								if (!empty($logs)) {
 									?>
 									<tr>

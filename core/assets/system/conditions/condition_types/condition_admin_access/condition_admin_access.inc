@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_admin_access.inc,v 1.3 2004/12/01 11:42:59 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: condition_admin_access.inc,v 1.4 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $ - 0.1
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,11 +49,11 @@ class Condition_Admin_Access extends Condition
 		$this->Condition($assetid);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Evaluate this condition
-	*	
+	*
 	* @param object Asset	&$asset	the asset to evaluate against
 	*
 	* @return boolean
@@ -67,12 +67,12 @@ class Condition_Admin_Access extends Condition
 		// next, check to see if the currently logged in user
 		// has write access
 		if (!$asset->adminAccess('')) return false;
-		
+
 		return true;
-		
+
 	}//end evaluate()
 
-	
+
 }//end class
 
 ?>

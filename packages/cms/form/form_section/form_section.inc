@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.30 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_section.inc,v 1.31 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -82,7 +82,7 @@ class Form_Section extends Bridge
 		$this->_ser_attrs = true;
 		$this->Bridge($assetid);
 
-	}//end Form_Section()
+	}//end constructor
 
 
 	/**
@@ -360,7 +360,7 @@ class Form_Section extends Bridge
 		$questions = $this->getQuestions();
 		return (isset($questions[$questionid])) ? $questions[$questionid] : Array();
 
-	}//end getQuestionById()
+	}//end getQuestionByID()
 
 
 	/**
@@ -556,7 +556,7 @@ class Form_Section extends Bridge
 	*                       );
 	*                       or alternately
 	*                       Array('all');
-	* 
+	*
 	* @return boolean
 	* @access public
 	* @see asset::cloneComponents()
@@ -564,28 +564,28 @@ class Form_Section extends Bridge
 	function cloneComponents(&$clone, $components)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;			
+			return false;
 		}
-		
+
 		if (in_array('attributes', $components) || in_array('all', $components)) {
 			$sort_order = $this->attr('sort_order');
 			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
-						
+
 			// save the information
 			$clone->setAttrValue('sort_order', $sort_order);
 			$clone->saveAttributes();
-			
+
 		}
-		
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-	
+
 	}//end cloneComponents()
-	
-	
+
+
 	/**
 	* returns the count of questions linked to this section
 	*
@@ -608,7 +608,8 @@ class Form_Section extends Bridge
 	* @access public
 	* @return boolean
 	*/
-	function processForm() {
+	function processForm()
+	{
 		$questions = &$this->getQuestions();
 		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$k);

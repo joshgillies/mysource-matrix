@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.24 2004/09/10 07:10:23 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: int.inc,v 1.25 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <int width="10" />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -95,18 +95,18 @@ class Asset_Attribute_Int extends Asset_Attribute
 		}
 
 		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
-		
+
 		$javascript ='
-			onFocus="javascript: this.__sq_init_value = this.value;" 
+			onFocus="javascript: this.__sq_init_value = this.value;"
 			onKeyUp="javascript:
 			my_value = parseInt(this.value, 10);
 			if (typeof sq_backup  == \'undefined\') {
 				sq_backup = '.$this->value.';
 			}
 
-			if (isNaN(my_value)) {  
-				this.value = this.__sq_init_value; 
-				alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\'); 
+			if (isNaN(my_value)) {
+				this.value = this.__sq_init_value;
+				alert(\'This is an integer field.\\nUnable to accept non-digit characters in this field.\');
 				this.value = sq_backup;
 			';
 

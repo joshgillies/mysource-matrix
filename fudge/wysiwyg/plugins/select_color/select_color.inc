@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: select_color.inc,v 1.10 2003/12/03 04:50:16 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: select_color.inc,v 1.11 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     set text and background colours
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class Select_Color extends WYSIWYG_Plugin {
+class Select_Color extends WYSIWYG_Plugin
+{
 
 	/**
 	* Constructor

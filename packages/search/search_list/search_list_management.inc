@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_management.inc,v 1.1 2004/08/19 05:52:22 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: search_list_management.inc,v 1.2 2004/12/06 14:44:15 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -45,19 +45,19 @@ class Search_List_Management extends Asset_Management
 	function Search_List_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-		
+
 		$this->vars['default_format']	= Array(
 											'added'     => '0.1',
 											'type'      => 'wysiwyg',
 											'default'   => '%search_term% ( %number_of_occurrences% )',
 										);
-										
+
 		$this->vars['search_field']	= Array(
 											'added'     => '0.1',
 											'type'      => 'text',
 											'default'   => '',
 										);
-		
+
 	}//end constructor
 
 

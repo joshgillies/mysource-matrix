@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.30 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_section_edit_fns.inc,v 1.31 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -49,9 +49,9 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		$this->Bridge_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
 
-	}//end Form_Section_Edit_Fns()
+	}//end constructor
 
-	
+
 	/**
 	* Paint the links to the questions in this section
 	*
@@ -104,7 +104,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 			  currentElement.innerHTML = nextElement.innerHTML;
 			  nextElement.innerHTML = temp;
 
-				
+
 
 			  // switch the 'checked for deletion' parameters
 			  temp = form.elements['<?php echo $prefix ?>_order[delete][' + (currentOrder+1) + ']'].checked;
@@ -183,7 +183,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 				$sort_order = $asset->attr('sort_order');
 
 				if (!empty($sort_order)) {
-					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
+					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this
 					// will allow sections to be sorted in later
 					$i = 0;
 					foreach ($sort_order as $sort_id => $assetid) {
@@ -196,7 +196,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 								<span name="<?php echo $prefix.'_order_o'.$sort_id ?>" id="<?php echo 	$prefix.'_order_o'.$sort_id ?>"><a href="<?php echo $href ?>"><?php	echo $q->attr('name')?></a></span><?php hidden_field($prefix.'_order[reorder]['.$sort_id.']', $assetid); ?>
 							</td>
 							<td class="sq-backend-table-cell">
-								<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><?php	
+								<span name="<?php echo $prefix.'_order_t'.$sort_id ?>" id="<?php echo 	$prefix.'_order_t'.$sort_id ?>"><?php
 									$q_type = str_replace('form_question_type', '', get_class($q));
 									$q_type = str_replace('_', ' ', $q_type);
 									$q_type = trim(ucwords($q_type));
@@ -225,7 +225,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		return true;
 
 	}//end paintQuestionLinks()
-	
+
 
 	/**
 	* Process the links to the questions in this section
@@ -248,18 +248,18 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 				unset($_POST[$prefix . '_order']['reorder'][$sort_order]);
 			}
 		}
-		
+
 		if (isset($_POST[$prefix . '_order']['reorder'])) {
 			$asset->setAttrValue('sort_order', $_POST[$prefix . '_order']['reorder']);
 			$asset->saveAttributes();
 		}
 
-		
+
 		// regen the content file
 		$asset->_updated();
 
 		return true;
-	
+
 	}//end processQuestionLinks()
 
 
@@ -287,10 +287,10 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 			$q = trim(ucwords($q));
 			$questions[$question] = $q;
 		}
-			
+
 		combo_box('question_type', $questions, false, '');
 		echo '&nbsp;';
-		
+
 		// create a dropdown box with some numbers for the number of questions to add
 		// start at zero, so if the (l)user presses commit without selecting anything
 		// it doesn't add a question
@@ -301,7 +301,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		}
 		combo_box('num_questions', $num, false, '');
 		return true;
-	
+
 	}//end paintAddQuestions()
 
 
@@ -319,19 +319,19 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 	{
 		$type   = (isset($_POST['question_type'])) ? $_POST['question_type'] : '';
 		$number = (isset($_POST['num_questions'])) ? $_POST['num_questions'] : '';
-		
+
 		// get the number of questions in the system allready
-		// so when we create the new ones,  we can give them an 
+		// so when we create the new ones,  we can give them an
 		// appropriate name
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$curr_question_count = $asset->getQuestionCount() + 1;
 
-		
+
 		if ($type && $number) {
-			
+
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-						
+
 			// create some questions
 			for ($i = 0; $i < $number; $i++) {
 				if (!$asset->attachQuestion($type)) {
@@ -341,7 +341,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 			}//end for
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		}//end if
-		
+
 		return true;
 
 	}//end processAddQuestions()
@@ -367,16 +367,16 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 	{
 		if (!isset($bodycopy)) {
 			$output = $this->generateGenericSection($asset);
-			
+
 		} //end if
 
-		// if there are any tags left that haven't been replaced, 
+		// if there are any tags left that haven't been replaced,
 		// we want to strip them out
 		$output = preg_replace('/%[^<>%]+%/', '', $output);
-	
+
 		create_directory($asset->data_path);
 		return string_to_file($output, $asset->data_path.'/content_file.php');
-	
+
 	}//end generateContentFile()
 
 
@@ -393,7 +393,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		$sort_order = $asset->attr('sort_order');
 		if (empty($sort_order)) return;
 
-		$output = '<h3>'.$asset->attr('name').'</h3>';	
+		$output = '<h3>'.$asset->attr('name').'</h3>';
 
 		$output .= '<table width="'.$asset->attr('section_width').'">';
 
@@ -401,7 +401,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 			$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			// skip over if asset doesn't exist anymore
 			if (is_null($q)) continue;
-			
+
 			$output .= '<tr>';
 			$output .= '<td valign="top"';
 			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
@@ -418,7 +418,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		return $output;
 
 	}//end generateGenericSection()
-	
 
-}//end class 
+
+}//end class
 ?>

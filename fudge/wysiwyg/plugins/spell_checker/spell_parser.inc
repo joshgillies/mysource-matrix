@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_parser.inc,v 1.10 2004/08/19 03:44:39 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: spell_parser.inc,v 1.11 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -30,11 +30,12 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-Class Spell_Parser {
+Class Spell_Parser
+{
 
 	/**
 	* Gets called when a start tag is parsed
@@ -55,7 +56,7 @@ Class Spell_Parser {
 		echo ' >';
 		return true;
 
-	}// end openHandler()
+	}//end openHandler()
 
 
 	/**
@@ -72,7 +73,7 @@ Class Spell_Parser {
 		echo '</'.$elem.'>';
 		return true;
 
-	}// end closeHandler()
+	}//end closeHandler()
 
 
 	/**
@@ -119,7 +120,7 @@ Class Spell_Parser {
 			return $retv;
 		}
 
-	}// end spellCallback()
+	}//end spellCallback()
 
 
 	/**
@@ -148,7 +149,7 @@ Class Spell_Parser {
 		}
 		return true;
 
-	}// end dataHandler()
+	}//end dataHandler()
 
 
 	/**
@@ -166,8 +167,8 @@ Class Spell_Parser {
 		$GLOBALS['spellerid'] = pspell_new_config($pspell_config);
 		return true;
 
-	}// end setLanguage
+	}//end setLanguage
 
-}// end class
+}//end class
 
 ?>

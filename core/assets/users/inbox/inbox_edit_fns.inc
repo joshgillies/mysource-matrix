@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.33 2004/11/18 05:06:22 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: inbox_edit_fns.inc,v 1.34 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -104,7 +104,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				function showMessageBody(messageid) {
 					var iframe = document.getElementById('sq_message_body');
 					if (iframe == null) return;
-					
+
 					var url='<?php echo $_SERVER['PHP_SELF']; ?>' + '?a=<?php echo $asset->id; ?>&msgid=' + messageid;
 					iframe.src = url;
 				}
@@ -160,7 +160,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				// work out the time of day icon
 				if (date('A',$data['sent']) == 'AM') $time_img = sq_web_path('lib').'/web/images/icons/internal_message/clock_day.png';
 				else $time_img = sq_web_path('lib').'/web/images/icons/internal_message/clock_night.png';
-				
+
 				// work out the sender icon
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
 				?>
@@ -231,7 +231,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					}
 					?>
 					&nbsp;<b>Page <?php echo round(($start_printing_at + $num_per_page) / $num_per_page); ?> of <?php echo round(($num_messages / $num_per_page) + 0.5); ?></b>&nbsp;
-					
+
 					<?php
 					if (($start_printing_at + $num_per_page) < $num_messages) {
 						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_inbox_start', '<?php echo $start_printing_at + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php
@@ -339,7 +339,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				function showMessageBody(messageid) {
 					var iframe = document.getElementById('sq_message_body');
 					if (iframe == null) return;
-					
+
 					var url='<?php echo $_SERVER['PHP_SELF']; ?>' + '?a=<?php echo $asset->id; ?>&msgid=' + messageid;
 					iframe.src = url;
 				}
@@ -391,7 +391,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				// work out the time of day icon
 				if (date('A',$data['sent']) == 'AM') $time_img = sq_web_path('lib').'/web/images/icons/internal_message/clock_day.png';
 				else $time_img = sq_web_path('lib').'/web/images/icons/internal_message/clock_night.png';
-				
+
 				// work out the sender icon
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
 
@@ -412,7 +412,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $time_img; ?>", "16", "16", "");</script>
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
 					</td>
-					
+
 					<?php
 					if ($write_access) {
 						?>
@@ -462,7 +462,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					}
 					?>
 					&nbsp;<b>Page <?php echo round(($start_printing_at + $num_per_page) / $num_per_page); ?> of <?php echo round(($num_messages / $num_per_page) + 0.5); ?></b>&nbsp;
-					
+
 					<?php
 					if (($start_printing_at + $num_per_page) < $num_messages) {
 						?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('sq_internal_message_trash_start', '<?php echo $start_printing_at + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php

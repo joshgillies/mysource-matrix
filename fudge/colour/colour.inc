@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour.inc,v 1.13 2004/12/03 15:43:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: colour.inc,v 1.14 2004/12/06 14:39:53 brobertson Exp $
+*
 */
 
 
@@ -30,22 +30,22 @@
 *     Colour manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14 $
 * @package Fudge
 * @subpackage Colour
 */
-class Colour 
+class Colour
 {
 
 	/**
-	* Returns a colour palette with colour names to hex colours or a specific hex colour for the passed name 
+	* Returns a colour palette with colour names to hex colours or a specific hex colour for the passed name
 	*
 	* @param string	$name	a specific name to find in the palette
 	*
 	* @return mixed Array() or string if a specific name is passed
 	* @access public
 	*/
-	function colourPalette($name=null) 
+	function colourPalette($name=null)
 	{
 		$palette = Array(
 					'aliceblue'				=> 'f0f8ff',
@@ -190,12 +190,12 @@ class Colour
 					'yellowgreen'			=> '9acd32'
 				);
 
-		if (is_null($name)) { 
+		if (is_null($name)) {
 			return $palette;
-		} else { 
+		} else {
 			return (empty($palette[$name])) ? '' : $palette[$name];
 		}
-	}// end colourPalette()
+	}//end colourPalette()
 
 
 	/**
@@ -226,7 +226,9 @@ class Colour
 				'b' => (($b >= 0) ? (($b <= 255) ? ((int) $b) : 255) : 0)
 			);
 		}
-	}
+
+	}//end rgb()
+
 
 	/**
 	* Create a CMYK colour
@@ -250,7 +252,9 @@ class Colour
 		);
 		Colour::cmykCorrect($output);
 		return $output;
-	}
+
+	}//end cmyk()
+
 
 	/**
 	* Create a HSV colour
@@ -266,7 +270,9 @@ class Colour
 	function hsv($h,$s,$v)
 	{
 		return Array('h' => $h, 's' => $s/100, 'v' => $v/100);
-	}
+
+	}//end hsv()
+
 
 	/**
 	* Converts CMYK to RGB - simple dodgy version
@@ -301,7 +307,9 @@ class Colour
 			$output['b'] = 0;
 
 		return $output;
-	}
+
+	}//end cmykToRgb()
+
 
 	/**
 	* Converts RGB to CMYK - simple dodgy version
@@ -341,7 +349,9 @@ class Colour
 		Colour::cmykCorrect($output);
 
 		return $output;
-	}
+
+	}//end rgbToCmyk()
+
 
 	/**
 	* CMYK Colour corrector
@@ -369,7 +379,9 @@ class Colour
 		$input['m'] -= $min;
 		$input['y'] -= $min;
 		$input['k'] += $min;
-	}
+
+	}//end cmykCorrect()
+
 
 	/**
 	* Inverts an RGB value
@@ -383,7 +395,9 @@ class Colour
 	function rgbInvert($i)
 	{
 		return Array('r' => (1 - $i['r']), 'g' => (1 - $i['g']), 'b' => (1 - $i['b']));
-	}
+
+	}//end rgbInvert()
+
 
 	/**
 	* Converts an RGB colour to a hex string for html colours
@@ -397,7 +411,8 @@ class Colour
 	function rgbToHtml($input)
 	{
 		return sprintf('%02x%02x%02x', $input['r'] * 255, $input['g'] * 255, $input['b'] * 255);
-	}
+
+	}//end rgbToHtml()
 
 	/**
 	* Converts an integer to a html code
@@ -411,7 +426,9 @@ class Colour
 	function intToHtml($input)
 	{
 		return sprintf('%06x', $input);
-	}
+
+	}//end intToHtml()
+
 
 	/**
 	* Converts an integer to an rgb colour
@@ -429,7 +446,8 @@ class Colour
 		$g = min(($input >> 8) % 256, 255);
 		$r = min($input >> 16, 255);
 		return Colour::rgb($r, $g, $b, $zero_to_one_range);
-	}
+
+	}//end intToRgb()
 
 	/**
 	* Converts a hex string/colour to a hex string
@@ -451,7 +469,8 @@ class Colour
 			}
 		}
 		return $input;
-	}
+
+	}//end htmlToHex()
 
 	/**
 	* Converts a hex string/colour to a RGB colour
@@ -472,7 +491,8 @@ class Colour
 			hexdec(substr($input, 4, 2)),
 			$zero_to_one_range
 		);
-	}
+
+	}//end htmlToRgb()
 
 	/**
 	* Converts a hex string/colour to an integer
@@ -486,7 +506,8 @@ class Colour
 	function htmlToInt($input)
 	{
 		return hexdec(Colour::htmlToHex($input));
-	}
+
+	}//end htmlToInt()
 
 	/**
 	* Converts a rbg colour to an integer
@@ -500,7 +521,8 @@ class Colour
 	function rgbToInt($input)
 	{
 		return Colour::htmlToInt(Colour::rgbToHtml($input));
-	}
+
+	}//end rgbToInt()
 
 	/**
 	* Converts an RGB colour to a HSV colour (Hue/Saturation/Value)
@@ -544,7 +566,8 @@ class Colour
 		$h *= 60; // degrees
 		if ($h < 0) $h += 360;
 		return Array('h' => $h, 's' => $s, 'v' => $v);
-	}
+
+	}//end rgbToHsv()
 
 	/**
 	* Converts an HSV colour to a RGB colour
@@ -609,7 +632,8 @@ class Colour
 				break;
 		}
 		return Array('r' => $r, 'g' => $g, 'b' => $b);
-	}
+
+	}//end hsvToRgb()
 
 	/**
 	* Converts a html colour to a HSV colour
@@ -623,7 +647,8 @@ class Colour
 	function htmlToHsv($input)
 	{
 		return Colour::rgbToHsv(Colour::htmlToRgb($input));
-	}
+
+	}//end htmlToHsv()
 
 	/**
 	* Converts a HSV colour to a html_colour
@@ -637,7 +662,8 @@ class Colour
 	function hsvToHtml($input)
 	{
 		return Colour::rgbToHtml(Colour::hsvToRgb($input));
-	}
+
+	}//end hsvToHtml()
 
 	/**
 	* Takes a colour and returns black or white, depending on which contrasts the most
@@ -659,7 +685,8 @@ class Colour
 		} else {
 			return 'ffffff';
 		}
-	}
+
+	}//end contrastingShade()
 
 	/**
 	* Takes a colour and returns a colour twice at light (half-way to white)
@@ -677,7 +704,8 @@ class Colour
 		$c['g'] += ((1 - $c['g']) / 2);
 		$c['b'] += ((1 - $c['b']) / 2);
 		return Colour::rgbToHtml($c);
-	}
+
+	}//end twiceAsLight()
 
 	/**
 	* Takes a colour and returns a colour twice at dark (half-way to black)
@@ -695,7 +723,8 @@ class Colour
 		$c['g'] /= 2;
 		$c['b'] /= 2;
 		return Colour::rgbToHtml($c);
-	}
+
+	}//end twiceAsDark()
 
 
 	/**
@@ -721,7 +750,8 @@ class Colour
 			$c['b'] += ($c['b'] * $amount);
 		}
 		return Colour::rgbToHtml($c);
-	}
+
+	}//end adjustBrightness()
 
 
 	/**
@@ -750,7 +780,8 @@ class Colour
 			$c['b'] = ( (($c['b'] > $avg) ? 1 : 0) * $amount) + ($c['b'] * (1 - $amount));
 		}
 		return Colour::rgbToHtml($c);
-	}
+
+	}//end adjustContrast()
 
 	/**
 	* Mixes two colours in the desired ratio
@@ -763,7 +794,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function mix($a, $b, $ratio = 0.5)
+	function mix($a, $b, $ratio=0.5)
 	{
 		$ratio = max(0,min(1,$ratio));
 		$a = Colour::htmlToRgb($a);
@@ -774,7 +805,8 @@ class Colour
 			'b' => $a['b'] * (1-$ratio)  +  $b['b'] * $ratio,
 		);
 		return Colour::rgbToHtml($c);
-	}
+
+	}//end mix()
 
 	/**
 	* Rotates a colour around the colour spectrum
@@ -789,7 +821,8 @@ class Colour
 	function hueRotate($input,$degrees)
 	{
 		return Colour::hsvAdjust($input, $degrees, 0, 0);
-	}
+
+	}//end hueRotate()
 
 	/**
 	* Adjusts the 'colourfulness' or how non-grey a colour is
@@ -804,7 +837,8 @@ class Colour
 	function adjustSaturate($input,$amount)
 	{
 		return Colour::hsvAdjust($input, 0, $amount, 0);
-	}
+
+	}//end adjustSaturate()
 
 	/**
 	* Adjusts the 'lightness' or value of a colour
@@ -819,7 +853,8 @@ class Colour
 	function adjustLightness($input,$amount)
 	{
 		return Colour::hsvAdjust($input, 0, 0, $amount);
-	}
+
+	}//end adjustLightness()
 
 
 	/**
@@ -834,7 +869,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function hsvAdjust($input,$h,$s,$v) 
+	function hsvAdjust($input,$h,$s,$v)
 	{
 		$hsv = Colour::htmlToHsv($input);
 		if ($h != 0) {
@@ -852,7 +887,8 @@ class Colour
 			else        $hsv['v'] += $v * $hsv['v'];
 		}
 		return Colour::hsvToHtml($hsv);
-	}
+
+	}//end hsvAdjust()
 
 	/**
 	* Takes two colours and returns a HSV array of values
@@ -879,7 +915,8 @@ class Colour
 		if ($b['v'] > $a['v'])	$r['v'] = $b['v'] / (1 - $a['v']) - $a['v'];
 		else					$r['v'] = ($b['v'] - $a['v']) / $a['v'];
 		return $r;
-	}
+
+	}//end hsvDifference()
 
 
 	/**
@@ -895,7 +932,7 @@ class Colour
 	* @access public
 	*
 	*/
-	function remap($input_html,$map,$tolerance = 0.2)
+	function remap($input_html,$map,$tolerance=0.2)
 	{
 		$tolerance = min(max($tolerance,0),1);
 		$input_hsv = Colour::htmlToHsv($input_html);
@@ -947,9 +984,9 @@ class Colour
 				$shift['s'] += $map_diff['s'] * $closeness['s'];
 				$shift['v'] += $map_diff['v'] * $closeness['v'];
 
-			}// end if
+			}//end if
 
-		}// end foreach
+		}//end foreach
 
 		// Trim this down again
 		if ($tolerance) {
@@ -960,7 +997,7 @@ class Colour
 
 		return Colour::hsvToHtml($input_hsv);
 
-	}// end remap()
+	}//end remap()
 
-}// end class
+}//end class
 ?>

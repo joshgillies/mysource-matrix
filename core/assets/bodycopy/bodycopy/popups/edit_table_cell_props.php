@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_cell_props.php,v 1.4 2004/02/18 18:19:16 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_table_cell_props.php,v 1.5 2004/12/06 14:38:07 brobertson Exp $
+*
 */
 
 /**
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -72,7 +72,7 @@ include(dirname(__FILE__)."/header.php");
 		owner.highlight_combo_value(f.type, data["content_type"]);
 
 	}// end popup_init()
-	
+
 	function save_props(f) {
 
 		var data = new Object();
@@ -202,4 +202,4 @@ include(dirname(__FILE__)."/header.php");
 </table>
 </form>
 
-<?php include(dirname(__FILE__)."/footer.php"); ?> 
+<?php include(dirname(__FILE__)."/footer.php"); ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.76 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design.inc,v 1.77 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,8 +50,8 @@ class Design extends Design_Area
 		$this->Design_Area($assetid);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -113,7 +113,7 @@ class Design extends Design_Area
 	* Moves a link from one place in this assets links order to another position
 	*
 	* @param int	$linkid		the link id of the link to move about
-	* @param string $sort_order	the position in the links list that this link should take, 
+	* @param string $sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
 	*
 	* @return boolean
@@ -129,7 +129,7 @@ class Design extends Design_Area
 
 
 	/**
-	* Called whenever any type of link is changed, allows caching of objects, links and other stuff 
+	* Called whenever any type of link is changed, allows caching of objects, links and other stuff
 	* to occur but not cause integrity issues during script execution
 	* returns true it it's successfull
 	*
@@ -174,7 +174,7 @@ class Design extends Design_Area
 			$dependant = '1';
 			return true;
 		}
-		
+
 		return false;
 
 	}//end prepareLink()
@@ -200,7 +200,7 @@ class Design extends Design_Area
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		$linkid = parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 		if (!$linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -240,7 +240,7 @@ class Design extends Design_Area
 			}//end foreach customisation
 
 		}//end if is_a file
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
@@ -296,7 +296,7 @@ class Design extends Design_Area
 
 			}//end foreach customisation
 		} //end is_a file
-		
+
 		if (!parent::deleteLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -356,7 +356,7 @@ class Design extends Design_Area
 				$return_values[$file_info['assetid']] = $file_info['name'];
 			}
 		}
-		
+
 		return $return_values;
 
 	}//end getStylesheets()
@@ -401,7 +401,7 @@ class Design extends Design_Area
 		if (empty($this->_tmp['design_areas'][$id_name])) {
 			if (!isset($this->_tmp['design_areas'])) $this->_tmp['design_areas'] = Array();
 			$link = $this->getDesignAreaLink($id_name);
-			
+
 			if (empty($link)) {
 				$this->_tmp['design_areas'][$id_name] = null;
 			} else {
@@ -442,8 +442,8 @@ class Design extends Design_Area
 			case 'edit' :
 				$this->_tmp['update_customisations'] = false;
 				if (parent::processBackend($o, $link)) {
-					// regenerate the design (if necessary), 
-					// but don't do the customisations if they have yet to be updated 
+					// regenerate the design (if necessary),
+					// but don't do the customisations if they have yet to be updated
 					// (they will be regenerated during the update process anyway)
 					if (isset($this->_tmp['generate_design']) && $this->_tmp['generate_design']) {
 						$this->generateDesignFile(!$this->_tmp['update_customisations']);
@@ -515,7 +515,7 @@ if (SQ_ROLLBACK_VIEW) $GLOBALS[\'SQ_SYSTEM\']->printRollbackWarning();
 
 ';
 			break;
-			
+
 			case 'css_header' :
 echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 	  Content (c) Copyright <?php echo SQ_CONF_SYSTEM_OWNER."\n"; ?>
@@ -527,7 +527,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 ';
 			break;
-			
+
 			case 'html_footer' :
 			break;
 
@@ -537,7 +537,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 				} else {
 					$res_exp = 'substr($ASSET_LINEAGE[0][\'url\'], strpos($ASSET_LINEAGE[0][\'url\'], \'/\'))';
 				}
-				
+
 				$aqs = (!empty($args['append_query_string']) && in_array($args['append_query_string'], Array('yes', 'true', '1')));
 				$sqs = (!empty($args['start_query_string']) && in_array($args['start_query_string'], Array('yes', 'true', '1')));
 
@@ -571,18 +571,18 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 					switch ($args['full_url']) {
 						case 'yes'  :
 						case 'true' :
-						case '1'    : 
+						case '1'    :
 							$link_fn = 'getUrl';
 						break;
 					}
 				}
-				
+
 				$aqs = false;
 				if (!empty($args['append_query_string'])) {
 					switch ($args['append_query_string']) {
 						case 'yes'  :
 						case 'true' :
-						case '1'    : 
+						case '1'    :
 							$aqs = true;
 						break;
 					}
@@ -593,7 +593,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 					switch ($args['start_query_string']) {
 						case 'yes'  :
 						case 'true' :
-						case '1'    : 
+						case '1'    :
 							$sqs = true;
 						break;
 					}
@@ -611,9 +611,9 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			case 'current_user' :
 				if (empty($args['attr'])) $args['attr'] = 'name';
 				switch ($args['attr']) {
-					case 'username'   : 
-					case 'first_name' : 
-					case 'last_name'  : 
+					case 'username'   :
+					case 'first_name' :
+					case 'last_name'  :
 						$attr = 'attr('.var_export((string) $args['attr'], true).')';
 						break;
 
@@ -631,11 +631,11 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			case 'file_path' :
 				echo '<','?php echo $FILE_URLS['.var_export((string) $args['filename'], true).'];?', '>';
 			break;
-			
+
 			case 'css_path' :
 				echo '<','?php echo $CSS_URLS['.var_export((string) $args['filename'], true).'];?', '>';
-			break;		
-			
+			break;
+
 			case 'asset_thumbnail' :
 					echo '<', '?php ';
 					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
@@ -645,7 +645,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 					echo '}'."\n";
 					echo '?', '>';
 			break;
-			
+
 			case 'asset_thumbnail_url' :
 					echo '<', '?php ';
 					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
@@ -655,7 +655,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 					echo '}'."\n";
 					echo '?', '>';
 			break;
-			
+
 			default :
 				parent::printVar($var, $args);
 
@@ -691,7 +691,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			if ($file_url == '') $file_url = $system_root_url.'/?a='.$minorid;
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}
-		
+
 		$DATA_PATH = sq_web_path('data'); // this works because we know that all design areas are not going to be restricted
 		$LIB_PATH  = sq_web_path('lib');
 

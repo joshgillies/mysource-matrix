@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_custom_image_edit_fns.inc,v 1.13 2003/12/16 18:22:17 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_custom_image_edit_fns.inc,v 1.14 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,7 +117,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 			trigger_error('Failed moving uploaded file to destination directory', E_USER_WARNING);
 			return false;
 		}
-		
+
 		if (!$asset->setAttrValue('image', $new_image)) return false;
 
 		return true;
@@ -184,7 +184,8 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		// remove the image attribute
 		unset($vars['image']);
 		return $vars;
-	}// end getSetableVars()
+
+	}//end getSetableVars()
 
 
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.13 2004/12/03 15:29:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_field_date_edit_fns.inc,v 1.14 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -270,7 +270,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 							'%asset_created%'   => 'Creation date',
 							'%asset_updated%'   => 'Last updated date',
 							'%asset_published%' => 'Last published date',
-							
+
 		);
 
 		echo "Selected keyword replacement will be used instead of any entered default date values<br />";
@@ -324,7 +324,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	function paintEpochSetup(&$asset, &$o, $prefix)
 	{
 		$field = $this->_getEpochDateTimeField($asset, $prefix);
-		
+
 		echo "Setup table below only affects how the field looks to the metadata editor,<br /> NOT how it is displayed in the META field of your web page.";
 
 		if ($asset->writeAccess('attributes')) {
@@ -385,7 +385,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 							'%asset_created%'   => 'Creation date',
 							'%asset_updated%'   => 'Last updated date',
 							'%asset_published%' => 'Last published date',
-							
+
 		);
 
 		$o->openField($field_name);
@@ -548,7 +548,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		if (isset($values['value'])) $default = $values['value'];
 		else $default = $field->attr('default');
-		
+
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
 		if (strpos($default, '%') === false) {
@@ -556,7 +556,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 			$field_value = $datetime_field->format();
 
 		} else {
-		
+
 			// strip off the last % sign from the end of $key string
 			$key = substr($default, 1, strlen($default) - 2);
 

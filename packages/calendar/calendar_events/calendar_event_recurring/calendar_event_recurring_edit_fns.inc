@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.15 2004/12/03 15:36:53 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.16 2004/12/06 14:40:32 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.15 $ - 1.0
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -49,7 +49,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 		$this->Asset_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
 
-	}//end Calendar_Event_Recurring_Edit_Fns()
+	}//end constructor
 
 
 	/**
@@ -68,7 +68,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 		if (!$freq) $freq = '   ';
 		$stop_date_attr = $asset->getAttribute('stop_date');
 		if (($stopdate = $stop_date_attr->getTimestamp()) == -1) $stopdate = FALSE;
-		
+
 		if ($asset->writeAccess('attributes')) {
 			?>
 		<script language="JavaScript" type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event_recurring/js/frequency_chooser.js'?>"></script>
@@ -81,7 +81,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				</td>
 
 				<td style="vertical-align: top; ">
-				  
+
 				  <div id="<?php echo $prefix; ?>DailyOptions" style="display: <?php echo (($freq{0} == 'D') ? 'block' : 'none') ?>">
 					<input type="radio" <?php echo ((($freq == 'DED') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DED" value="DED" />Every Day
 					<br /><input type="radio" <?php echo ((($freq != 'DED') && (substr($freq, 0, 3) == 'DED')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_DEDx" value="DEDx" />Every <input type="text" size="2" value="<?php echo trim(substr($freq, 3)); ?>" name="<?php echo $prefix; ?>_num_days" onkeypress="this.click();" onclick="checkBox('<?php echo $prefix?>_frequency_type_DEDx');" /> Days
@@ -89,8 +89,8 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				  </div>
 
 				  <div id="<?php echo $prefix; ?>WeeklyOptions" style="display: <?php echo (($freq{0} == 'W') ? 'block' : 'none') ?>">
-					<input type="radio" <?php echo ((($freq == 'WEW') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEW" value="WEW" />Every week on <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix ?>_week_day"></a> 
-					<br /><input type="radio" <?php echo ((($freq != 'WEW') && (substr($freq,0,3) == 'WEW')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEWx" value="WEWx" />Every <input type="text" size="2" value="<?php echo substr($freq, 3); ?>" name="<?php echo $prefix ?>_num_weeks" onkeypress="this.click();" onclick="checkBox('<?php echo $prefix?>_frequency_type_WEWx');" /> weeks on <a id="<?php echo $prefix ?>_week_day_4" href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();"></a> 
+					<input type="radio" <?php echo ((($freq == 'WEW') || !$freq) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEW" value="WEW" />Every week on <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix ?>_week_day"></a>
+					<br /><input type="radio" <?php echo ((($freq != 'WEW') && (substr($freq,0,3) == 'WEW')) ? 'checked="checked" ' : '')?> name="<?php echo $prefix; ?>_frequency_type" id="<?php echo $prefix; ?>_frequency_type_WEWx" value="WEWx" />Every <input type="text" size="2" value="<?php echo substr($freq, 3); ?>" name="<?php echo $prefix ?>_num_weeks" onkeypress="this.click();" onclick="checkBox('<?php echo $prefix?>_frequency_type_WEWx');" /> weeks on <a id="<?php echo $prefix ?>_week_day_4" href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();"></a>
 				  </div>
 
 				  <table border="0" cellpadding="0" cellspacing="0" id="<?php echo $prefix; ?>MonthlyOptions" style="display: <?php echo (($freq{0} == 'M') ? 'block' : 'none') ?>"><tr>
@@ -100,11 +100,11 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 					</td>
 					<td style="width: 60ex">
 					  <input type="radio" <?php echo ((($freq{0} != 'M') || (substr($freq, 0, 3) == 'MFN')) ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MFN" />On the <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_month_date_ord"></a>&nbsp;day of the month <span id="<?php echo $prefix; ?>_month_date_warning" style="display: none">(when it exists)</span><br />
-					  
+
 					  <input type="radio" <?php echo ((substr($freq, 0, 3) == 'MFW') ? 'checked="checked" ' : ''); ?>name="<?php echo $prefix; ?>_monthly_type" value="MFW" />On the <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_month_week_ord"></a>&nbsp;<a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_week_day_2"></a>&nbsp;of the month <span id="<?php echo $prefix; ?>_month_week_warning" style="display: none">(when it exists)</span><br />
-					  
+
 					  <input type="radio" <?php echo ((substr($freq, 0, 3) == 'MRN') ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MRN" />On the <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_reverse_month_date_ord"></a><a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();">last</a> day of the month <span id="<?php echo $prefix ?>_reverse_month_date_warning" style="display: none">(when it exists)</span><br />
-					  
+
 					  <input type="radio" <?php echo ((substr($freq, 0, 3) == 'MRW') ? 'checked="checked" ' : ''); ?> name="<?php echo $prefix; ?>_monthly_type" value="MRW" />On the <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_reverse_month_week_ord"></a><a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();">last</a> <a href="javascript: document.getElementById('<?php echo $prefix ?>_start_day').focus();" id="<?php echo $prefix; ?>_week_day_3"></a>&nbsp;of the month <span id="<?php echo $prefix; ?>_reverse_month_week_warning" style="display: none">(when it exists)</span>
 					</td>
 				  </tr></table>
@@ -126,9 +126,9 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 		} else {
 			echo $asset->getFriendlyFrequency();
 		}
-		
+
 		return true;
-					  
+
 	}//end printFrequencyField()
 
 
@@ -166,10 +166,10 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 			$res &= $asset->setAttrValue('stop_date', '---------- --:--:--');
 		}
 		$interval = '';
-		
+
 		// do this so it doesn't give undefined index errors in the switch if nothing is set
 		if (empty($_REQUEST[$prefix.'_frequency_type'])) $_REQUEST[$prefix.'_frequency_type'] = '';
-		
+
 		switch ($_REQUEST[$prefix.'_frequency_type']) {
 			case 'DED':
 			case 'DWD':
@@ -215,14 +215,14 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				} else {
 					trigger_error('You entered an invalid type of monthly frequency', E_USER_WARNING);
 					return false;
-				}	
+				}
 			break;
 
 			case '':
 				trigger_error('You did not select a  frequency type', E_USER_WARNING);
 				return false;
 			break;
-				
+
 			default:
 				trigger_error('You entered an invalid frequency type', E_USER_WARNING);
 				return false;
@@ -252,7 +252,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 			echo $asset->getFriendlyDatesAndTimes();
 		}
 		return true;
-		
+
 	}//end paintRecurringStartEndChooser()
 
 

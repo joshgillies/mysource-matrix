@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail.inc,v 1.15 2004/11/29 02:14:16 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: thumbnail.inc,v 1.16 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,7 +61,7 @@ class Thumbnail extends Image
 	function Thumbnail($assetid=0)
 	{
 		$this->Image($assetid);
-	
+
 	}//end constructor
 
 

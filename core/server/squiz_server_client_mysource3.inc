@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_client_mysource3.inc,v 1.1 2004/01/14 19:19:47 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: squiz_server_client_mysource3.inc,v 1.2 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_SERVER_SYSTEM_ROOT.'/code/squiz_server_client.inc';
 * so that individual users don't need to worry about that crap
 *
 * @author Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class Squiz_Server_Client_MySource3 extends Squiz_Server_Client
@@ -52,7 +52,7 @@ class Squiz_Server_Client_MySource3 extends Squiz_Server_Client
 	{
 		$this->Squiz_Server_Client($systemid, $domain, $port);
 
-	}// end constructor
+	}//end constructor
 
-}// end class
+}//end class
 ?>

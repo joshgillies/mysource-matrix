@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg_plugin.inc,v 1.14 2004/10/27 00:41:17 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: wysiwyg_plugin.inc,v 1.15 2004/12/06 14:39:53 brobertson Exp $
+*
 */
 
 
@@ -32,11 +32,12 @@
 *     of wysiwyg.inc
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.15 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class wysiwyg_plugin {
+class wysiwyg_plugin
+{
 
 	/**
 	* An array of buttons that the plugin wants printed on the toolbar
@@ -65,7 +66,7 @@ class wysiwyg_plugin {
 	/**
 	* Constructor
 	*
-	* @param object wysiwyg	$wysiwyg	A reference to the WYSIWYG that 
+	* @param object wysiwyg	$wysiwyg	A reference to the WYSIWYG that
 	*									this plugin is being created for
 	*
 	* @return object WYSIWYG_Plugin
@@ -77,7 +78,7 @@ class wysiwyg_plugin {
 
 	}//end constructor
 
-	
+
 	/**
 	* Adds a printable toolbar button to this plugin
 	*
@@ -146,7 +147,7 @@ class wysiwyg_plugin {
 
 	}//end _close_menu()
 
-	
+
 	/**
 	* Prints any JS variable needed by the WYSIWYG editor
 	* This code is output in the HTMLArea construtor - do not use script tags
@@ -346,7 +347,7 @@ class wysiwyg_plugin {
 
 	}//end print_plugin_form_submit()
 
-	
+
 	/**
 	* Prints an JS the plugin wants executed when an event is fired in the wysiwyg's iframe or div
 	* This code is in a function - do not use script tags
@@ -361,8 +362,8 @@ class wysiwyg_plugin {
 		return;
 
 	}//end print_plugin_event_handler()
-	
-	
+
+
 	/**
 	* Returns a path to a file in this plugin's directory
 	* This value can be passed to the _popupDialog function of the

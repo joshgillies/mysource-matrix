@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_edit_fns.inc,v 1.19 2004/11/29 02:14:16 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: thumbnail_edit_fns.inc,v 1.20 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,8 +62,8 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 		return true;
 
 	}//end paintFileUpload()
-	
-	
+
+
 	/**
 	* Prints info about the current uploaded file
 	*

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.6 2003/11/26 00:51:20 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: history.inc,v 1.7 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -36,11 +36,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     and not provide the functionality
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class history extends wysiwyg_plugin {
+class history extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor
@@ -49,7 +50,8 @@ class history extends wysiwyg_plugin {
 	* @returns object History
 	* @access  public
 	*/
-	function history() {
+	function history()
+	{
 		$this->_add_button('undo','Undo','Undo','false','12');
 		$this->_add_button('redo','Redo','Redo','false','13');
 	}

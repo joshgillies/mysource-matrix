@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_user.inc,v 1.33 2004/11/18 05:00:42 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: root_user.inc,v 1.34 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/system_user/system_user.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,7 +50,8 @@ class Root_User extends System_User
 	function Root_User($assetid=0)
 	{
 		$this->System_User($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
@@ -122,7 +123,7 @@ class Root_User extends System_User
 	function canClone()
 	{
 		return false;
-	
+
 	}//end canClone()
 
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.33 2004/12/03 15:29:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: cron_manager.inc,v 1.34 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -102,7 +102,7 @@ class Cron_Manager extends Asset
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
@@ -147,7 +147,7 @@ class Cron_Manager extends Asset
 	function canClone()
 	{
 		return false;
-	
+
 	}//end canClone()
 
 
@@ -203,7 +203,7 @@ class Cron_Manager extends Asset
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			trigger_error('Unable to set "'.$name.'". You can only set the attributes of the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' if you are the Root User', E_USER_WARNING);
 			return false;
-		}// end if
+		}//end if
 
 		// the refresh time has some restrictions on it, because otherwise painting the when box would be a pain
 		if ($name == 'refresh_time') {
@@ -230,11 +230,11 @@ class Cron_Manager extends Asset
 				trigger_error('You can only have a refresh time of under one hour if it divides evenly into one hour ('.$one_hour.' seconds)', E_USER_WARNING);
 				return false;
 			}
-		}// endi f
+		}//endi f
 
 		return parent::setAttrValue($name, $value);
 
-	}// end setAttrValue()
+	}//end setAttrValue()
 
 
 	/**
@@ -317,7 +317,7 @@ class Cron_Manager extends Asset
 			$job = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($job)) continue;
 			$jobs[] = &$job;
-		}// end foreach
+		}//end foreach
 
 		return $jobs;
 
@@ -360,7 +360,7 @@ class Cron_Manager extends Asset
 		}
 		return $refresh_time.' seconds';
 
-	}//end timeOfNextRun()
+	}//end readableRefreshTime()
 
 
 	/**
@@ -413,7 +413,7 @@ class Cron_Manager extends Asset
 
 				$msg->send();
 
-			}// end if run_check
+			}//end if run_check
 
 
 			// now update this last run time, so that we know for next time
@@ -438,7 +438,7 @@ class Cron_Manager extends Asset
 			$periods = floor($secs / $refresh_time);
 			$this_run = $epoch + ($refresh_time * $periods);
 
-			// if we only every day (or higher) we need to take into account the effects of 
+			// if we only every day (or higher) we need to take into account the effects of
 			// daylight savings
 			if ($refresh_time >= (60 * 60 * 24)) {
 				$epoch_in_dst = (date('I', $epoch)      == '1');
@@ -450,8 +450,8 @@ class Cron_Manager extends Asset
 					// then we need to add one hour to this run's time
 					// otherwise we need to drop an hour
 					$this_run += ($epoch_in_dst) ? +3600 : -3600;
-				}// end if
-			}// end if
+				}//end if
+			}//end if
 
 			// now get the lock, set the running flag and reset the run_check
 			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0) && $this->saveAttributes()) {
@@ -527,19 +527,19 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 									$ms->enqueueMessage($msg);
 
-								}// end if
+								}//end if
 
-							}// end if error
+							}//end if error
 
 						// they don't want another go but they don't want to be removed either ? just ignore them
 						} else {
 							$ignore_jobs[] = $cron_job->id;
 
-						}// end if
+						}//end if
 
 						$am->forgetAsset($cron_job);
 
-					}// end foreach
+					}//end foreach
 
 					// send all the messages for this run
 					$ms->closeQueue();
@@ -565,7 +565,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 							foreach ($remove_jobs as $linkid) {
 								$this->deleteLink($linkid);
 							}
-						}// end if
+						}//end if
 
 						$this->saveAttributes();
 
@@ -586,7 +586,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 					$jobs = $this->getJobsToRun($last_run, $this_run, $ignore_jobs);
 #pre_echo("JOBS : ".var_export($jobs, true));
 
-				}// end while
+				}//end while
 
 				// now update this last run time, so that we know for next time
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, true)) {
@@ -603,9 +603,9 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 			} else {
 				trigger_error('Unable to acquire lock and set running flag of "'.$this->name.'", aborting run', E_USER_WARNING);
 
-			}// end if aquire lock
+			}//end if aquire lock
 
-		}// end if already running
+		}//end if already running
 
 		ini_set('log_errors', $old_log_errors);
 		ini_set('error_log',  $old_error_log);
@@ -913,7 +913,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 			if (!isset($this->_tmp['running_errors'])) $this->_tmp['running_errors'] = '';
 			$this->_tmp['running_errors'] .= $str;
 
-		}// end error_reporting
+		}//end error_reporting
 
 		// if this is an irrercoverable error, send a distress email, delete ourselves and die
 		if ($terminate && empty($this->_tmp['terminate_error'])) {
@@ -938,9 +938,9 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 			exit(1);
 
-		}// end if
+		}//end if
 
-	}// end _errorHandler()
+	}//end _errorHandler()
 
 }//end class
 ?>

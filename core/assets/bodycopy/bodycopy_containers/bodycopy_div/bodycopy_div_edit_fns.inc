@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.19 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: bodycopy_div_edit_fns.inc,v 1.20 2004/12/06 14:38:07 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_container_edit_fns.inc';
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -355,7 +355,8 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function _updateCellType(&$asset, $new_type='') {
+	function _updateCellType(&$asset, $new_type='')
+	{
 
 		// dont change anything if the new type id blank
 		$new_type = trim($new_type);

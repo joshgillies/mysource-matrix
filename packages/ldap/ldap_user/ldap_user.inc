@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.7 2004/11/04 04:57:40 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: ldap_user.inc,v 1.8 2004/12/06 14:43:14 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -91,11 +91,11 @@ class Ldap_User extends Backend_User
 		// set variable values
 		$this->vars['dn']['value'] = $data['dn'];
 		$this->vars['dn']['type'] = 'text';
-		
+
 		if (isset($attrs['uid']) && isset($data[$attrs['uid']])) $this->vars['username']['value'] = $data[$attrs['uid']][0];
 		else $this->vars['username']['value'] = $data['dn'];
 		$this->vars['username']['type'] = 'text';
-		
+
 		if (isset($attrs['email']) && isset($data[$attrs['email']])) $this->vars['email']['value'] = $data[$attrs['email']][0];
 		else $this->vars['email']['value'] = '';
 		$this->vars['email']['type'] = 'text';
@@ -107,7 +107,7 @@ class Ldap_User extends Backend_User
 		if (isset($attrs['sn']) && isset($data[$attrs['sn']])) $this->vars['last_name']['value'] = $data[$attrs['sn']][0];
 		else $this->vars['last_name']['value'] = '';
 		$this->vars['last_name']['type'] = 'text';
-	
+
 	}//end constructor
 
 
@@ -166,11 +166,11 @@ class Ldap_User extends Backend_User
 	{
 		$info = $this->vars;
 		if (empty($info)) return;
-		
+
 		if (!$this->_ldapid) return Array();
 		$ldap_bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_ldapid, 'ldap_bridge');
 		if (is_null($ldap_bridge)) return Array();
-		
+
 		$show = $ldap_bridge->attr('user_attributes');
 		$show = $show['show'];
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.60 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: mysource.inc,v 1.61 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 */
 class MySource
@@ -123,7 +123,7 @@ class MySource
 	* @var object Asset
 	*/
 	var $frontend_asset;
-	
+
 	/**
 	* Whether the logged in user is the root user or not
 	*
@@ -175,7 +175,7 @@ class MySource
 		if (!SQ_PHP_CLI) {
 			session_name('SQ_SYSTEM_SESSION');
 			session_save_path(SQ_SYSTEM_ROOT.'/cache');
-			
+
 			$session_set = false;
 			if (isset($_GET['SESSION_KEY']) && isset($_GET['SESSION_ID'])) {
 				session_id($_GET['SESSION_ID']);
@@ -196,7 +196,7 @@ class MySource
 
 				exit();
 			}
-			
+
 			// process rollback view mode global actions here so setting the rollback vars below
 			if (!empty($_REQUEST['SQ_ACTION']) && strpos($_REQUEST['SQ_ACTION'], 'rollback_view') === 0) {
 				$this->_processGlobalActions();
@@ -216,10 +216,10 @@ class MySource
 			// but make sure that the person is coming from the same machine as they logged in on
 			// so get a reference to them
 			$this->user = null;
-			if (!empty($_SESSION['user_last_access']) 
+			if (!empty($_SESSION['user_last_access'])
 				&& time() < ((int) $_SESSION['user_last_access'] + SQ_CONF_MAX_IDLE_TIME)
 				&& !empty($_SESSION['userid'])) {
-				
+
 				// check to see if we are allowing fluctuating ip addresses
 				if (SQ_CONF_ALLOW_IP_CHANGE || ($_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR'])) {
 					// we mute errors trying to get the user because we will handle this gracefully later
@@ -241,7 +241,7 @@ class MySource
 		} else {
 			define('SQ_ROLLBACK_VIEW',        '0');
 			define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_PREFIX);
-		}// end if
+		}//end if
 
 		// process any global actions we have
 		if (!empty($_REQUEST['SQ_ACTION'])) $this->_processGlobalActions();
@@ -276,19 +276,19 @@ class MySource
 			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset((int) $_REQUEST['a']);
 			else $asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
 			if (is_null($asset)) {
-				
+
 				$protocol = current_protocol();
 				$url      = strip_url(current_url(false, true));
-			
+
 				$rm = &$this->am->getSystemAsset('remap_manager');
 				if (!$rm->loadRemapFromURL($protocol, $url)) {
-					
-					// okay, the remap manager could not remap this url, so 
+
+					// okay, the remap manager could not remap this url, so
 					// check to see if we can find a 404 page from a site matching this url
-					
+
 					$root_url = $this->am->getRootURL($url);
-					
-					// if we can get a site from the url, 
+
+					// if we can get a site from the url,
 					// try to delegate the 404 to its not found page
 
 					if (!empty($root_url)) {
@@ -311,7 +311,7 @@ class MySource
 						trigger_error('URL "'.$url.'" not found', E_USER_NOTICE);
 					}
 				}//end if !load remap
-				
+
 				exit(1);
 			}//end if is_null(asset)
 
@@ -376,22 +376,22 @@ class MySource
 					return;
 				}
 
-			}// end if
+			}//end if
 
-		}// end if
+		}//end if
 
 		// shit we can't find a design, something has well and truly F@#ked up,
 		// resort to our backup
 		if ($this->_msgs) echo implode('<br />', $this->_msgs);
 		require_once SQ_INCLUDE_PATH.'/login.inc';
 
-	}//end printLogin()
+	}//end paintLogin()
 
 
 	/**
 	* Returns a unique session key
 	*
-	* the key can be used to strengthen the sending of the 
+	* the key can be used to strengthen the sending of the
 	* session id as a $_GET variable
 	*
 	* @return string
@@ -424,7 +424,7 @@ class MySource
 				if (!isset($_POST['SQ_LOGIN_USERNAME']) || !isset($_POST['SQ_LOGIN_PASSWORD'])) return;
 				if (!is_null($this->user) && isset($_POST['SQ_LOGIN_USERNAME']) && $_POST['SQ_LOGIN_USERNAME'] == $this->user->attr('username')) return;
 
-				if (isset($_POST['SQ_LOGIN_KEY']) && isset($_POST['SQ_LOGIN_USERNAME']) && 
+				if (isset($_POST['SQ_LOGIN_KEY']) && isset($_POST['SQ_LOGIN_USERNAME']) &&
 					isset($_POST['SQ_LOGIN_PASSWORD']) && $this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
 
 					// get a list of all the installed authentication systems
@@ -512,7 +512,7 @@ class MySource
 
 			case 'rollback_view_start' :
 				$_SESSION['sq_rollback_view'] = Array();
-			
+
 				if (isset($_GET['assetid']) && isset($_GET['version'])) {
 					// work out when the version of the asset was created
 					$assetid = $_GET['assetid'];
@@ -703,7 +703,7 @@ class MySource
 			trigger_error('Failed setting current user, passed object is not a user', E_USER_WARNING);
 			return false;
 		}
-		
+
 		// they can only become current user if they can login
 		if (!$user->canLogin()) return false;
 
@@ -957,7 +957,7 @@ class MySource
 					}
 					// make sure all results are assoc arrays
 					$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
-				}// endif
+				}//endif
 
 				array_push($this->_db_stack, $conn);
 				$this->db = &$this->_db_conns[$conn];
@@ -976,19 +976,19 @@ class MySource
 						}
 						// make sure all results are assoc arrays
 						$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
-					}// endif
+					}//endif
 					array_push($this->_db_stack, $conn);
 					$this->db = &$this->_db_conns[$conn];
 
 				} else {
 					array_push($this->_db_stack, 'db');
 
-				}// end if
+				}//end if
 
 				break;
 			default :
 				trigger_error('Database Connection Type "'.$conn.'" unknown', E_USER_WARNING);
-		}// end switch
+		}//end switch
 
 	}//end changeDatabaseConnection()
 
@@ -1031,7 +1031,7 @@ class MySource
 			require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
 			$this->tm = new Transaction_Manager();
 		}
-		// Use this when there is a transaction problem to create a log and then run this from the cmd line 
+		// Use this when there is a transaction problem to create a log and then run this from the cmd line
 		// and look for the fn with the odd number of calls
 		// cat trans.log | awk '{ print $3 }' | sort | uniq -c # number of calls in a fn
 		// cat trans.log | awk '{ print $5 }' | sort | uniq -c # total number of each type of call
@@ -1261,11 +1261,11 @@ class MySource
 
 		$this->doTransaction('BEGIN');
 
-		// We need to add the rollback entries first, then actually update them as well as the live table 
-		// because otherwise there can be issues where part of the where condition is actually modified by the 
+		// We need to add the rollback entries first, then actually update them as well as the live table
+		// because otherwise there can be issues where part of the where condition is actually modified by the
 		// set commands, and therefore is not found by the insert-select in _addRollbackEntry().
 		// eg an update like this causes problems :
-		//       UPDATE sq_asset_link SET sort_order = sort_order - 1 
+		//       UPDATE sq_asset_link SET sort_order = sort_order - 1
 		//       WHERE majorid = '1' AND sort_order > '2'
 
 		// construct the update queries
@@ -1440,7 +1440,7 @@ class MySource
 		$select_sql = 'SELECT '.$select_col_string. ' FROM '.$select_from.' WHERE '.$where_cond;
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		
+
 		$this->doTransaction('BEGIN');
 		$result = db_extras_insert_select($this->db, $insert_sql, $select_sql);
 		assert_valid_db_result($result);
@@ -1519,7 +1519,7 @@ class MySource
 		$current_lock = $this->getLockInfo($lockid);
 
 		// is this asset already locked
-		if (!empty($current_lock)) { 
+		if (!empty($current_lock)) {
 			// the user is asking to acquire a lock they already had
 			// so just update the lock expiry date
 			if ($current_lock['userid'] == $this->currentUserid()) {
@@ -1527,8 +1527,8 @@ class MySource
 			} else {
 				$user = &$this->am->getAsset($current_lock['userid']);
 				return 'Cannot acquire lock, lock already held by "'.$user->name.'"';
-			}// end if
-		}// end if
+			}//end if
+		}//end if
 
 		// if we have no source, we are the asset aquiring the locks
 		if (empty($source_lockid)) $source_lockid = $lockid;
@@ -1539,13 +1539,13 @@ class MySource
 		}
 
 		$this->changeDatabaseConnection('db2');
-		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'lock 
-				(lockid, source_lockid, userid, expires) 
-				VALUES 
+		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'lock
+				(lockid, source_lockid, userid, expires)
+				VALUES
 				('.$this->db->quote($lockid).','.$this->db->quote($source_lockid).','.$this->db->quote($this->currentUserid()).','.$this->db->quote($expires).')';
 		$result = $this->db->query($sql);
 		$this->restoreDatabaseConnection();
-		if (DB::isError($result)) { 
+		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return 'Database Error';
 		}
@@ -1568,12 +1568,12 @@ class MySource
 		if (empty($current_lock)) return true;
 
 		$this->changeDatabaseConnection('db2');
-		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'lock 
+		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'lock
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
 		$result = $this->db->query($sql);
 		$this->restoreDatabaseConnection();
-		if (DB::isError($result)) { 
+		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return 'Database Error';
 		}
@@ -1606,13 +1606,13 @@ class MySource
 		}
 
 		$this->changeDatabaseConnection('db2');
-		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'lock 
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'lock
 				   SET expires = '.$this->db->quote($expires).'
 				WHERE source_lockid = '.$this->db->quote($current_lock['source_lockid']);
 
 		$result = $this->db->query($sql);
 		$this->restoreDatabaseConnection();
-		if (DB::isError($result)) { 
+		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return 'Database Error';
 		}
@@ -1634,9 +1634,9 @@ class MySource
 	function getLockInfo($lockid, $full_chain=false, $check_expires=true)
 	{
 		$this->changeDatabaseConnection('db2');
-	
+
 		$sql = 'SELECT lockid, source_lockid, userid, expires
-				FROM '.SQ_TABLE_PREFIX.'lock 
+				FROM '.SQ_TABLE_PREFIX.'lock
 				WHERE lockid = '.$this->db->quote($lockid);
 
 		$result = $this->db->getRow($sql);
@@ -1654,13 +1654,13 @@ class MySource
 					$this->restoreDatabaseConnection();
 					// this lock has expired
 					return Array();
-				}// end if
-			}// end if
-			
+				}//end if
+			}//end if
+
 			if ($full_chain) {
 				$result['chained_assets'] = Array();
 				$sql = 'SELECT lockid, source_lockid, userid, expires
-						FROM '.SQ_TABLE_PREFIX.'lock 
+						FROM '.SQ_TABLE_PREFIX.'lock
 						WHERE source_lockid = '.$this->db->quote($result['source_lockid']).'
 						  AND lockid <> '.$this->db->quote($lockid);
 				$chain = $this->db->getAll($sql);
@@ -1675,9 +1675,9 @@ class MySource
 					$result['chained_assets'][$lock_row['lockid']] = $lock_row;
 				}
 
-			}// end if
+			}//end if
 
-		}// endif 
+		}//endif
 
 		$this->restoreDatabaseConnection();
 		return $result;
@@ -1697,7 +1697,7 @@ class MySource
 	{
 		$this->_msgs[] = $msg;
 
-	}//addMessage()
+	}//end addMessage()
 
 
 	/**
@@ -1785,7 +1785,7 @@ class MySource
 		}
 
 		return $packages;
-	
+
 	}//end getInstalledPackages()
 
 

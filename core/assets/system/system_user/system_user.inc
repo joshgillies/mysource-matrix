@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_user.inc,v 1.7 2003/11/26 00:51:02 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_user.inc,v 1.8 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,8 @@ class System_User extends Backend_User
 	function System_User($assetid=0)
 	{
 		$this->Backend_User($assetid);
-	}
+
+	}//end constructor
 
 }//end class
 ?>

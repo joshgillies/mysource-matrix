@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor.inc,v 1.5 2004/12/03 15:37:42 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: esec_processor.inc,v 1.6 2004/12/06 14:42:21 brobertson Exp $
+*
 */
 
 /**
@@ -40,7 +40,7 @@
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -154,7 +154,11 @@ class Esec_Processor
 		'99' => 'reserved, will not be returned'
 	);
 
-	function Esec_Processor() 
+	/**
+	* Constructor
+	*
+	*/
+	function Esec_Processor()
 	{
 		$this->parameters = Array();
 		$this->response = Array();
@@ -166,6 +170,7 @@ class Esec_Processor
 
 	}//end constructor
 
+
 	/**
 	* sets parameter value by name
 	*
@@ -175,9 +180,11 @@ class Esec_Processor
 	* @access private
 	* @return void
 	*/
-	function set($name, $value) {
+	function set($name, $value)
+	{
 		$this->parameters[$name] = $value;
 	}//end set()
+
 
 	/**
 	* sets parameter value by name as an array
@@ -188,12 +195,14 @@ class Esec_Processor
 	* @access private
 	* @return void
 	*/
-	function set_Array($name, $value) {
+	function set_Array($name, $value)
+	{
 		if (!is_Array($this->parameters[$name])) {
 			$this->parameters[$name] = Array();
 		}
 		$this->parameters[$name][] = $value;
-	}//end set()
+	}//end set_Array()
+
 
 	/**
 	* returns parameter value by name
@@ -219,7 +228,7 @@ class Esec_Processor
 	* @access public
 	* @return void
 	*/
-	function setAmount($amount, $cents = false)
+	function setAmount($amount, $cents=false)
 	{
 		if ($cents) {
 			$amount = floor($amount);
@@ -278,7 +287,8 @@ class Esec_Processor
 	* @access public
 	* @return void
 	*/
-	function setCardType($type) {
+	function setCardType($type)
+	{
 		$this->set('EPS_CARDTYPE', $type);
 
 	}//end setCardType()
@@ -296,6 +306,7 @@ class Esec_Processor
 		$this->_url = $new_url;
 
 	}//end setURL()
+
 
 	/**
 	* Process the given Transaction
@@ -449,7 +460,8 @@ class Esec_Processor
 	* @access public
 	* @return void
 	*/
-	function setInfoEmail($email) {
+	function setInfoEmail($email)
+	{
 		$this->set('EPS_INFOEMAIL', 'mailto: '.$email);
 
 	}

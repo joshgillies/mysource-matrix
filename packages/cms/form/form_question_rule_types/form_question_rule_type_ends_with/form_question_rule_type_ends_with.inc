@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_ends_with.inc,v 1.7 2004/11/05 00:08:48 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_ends_with.inc,v 1.8 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,20 +48,20 @@ class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
 	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
-	function getOperators() 
+	function getOperators()
 	{
 		return Array(1 => 'Must End With...',
 			0 => 'Must Not End With...');
-	
+
 	}//end getOperators()
-	
-	
+
+
 	/**
 	* processes the form question and returns true if it is valid
 	*
 	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
 	* instantiated manually in code, this function MUST called statically.
-	* 
+	*
 	* @param object form_question	&$q_asset		reference to the question asset
 	* @param string					$operator		the operator being used to compare
 	* @param mixed					&$comparison	either a value or a form_question asset (based on
@@ -81,7 +81,7 @@ class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 		// at the end of the string.
 		// comparison sent is a question asset!!
 		if (is_a($comparison, 'form_question')) {
-			$valid = (strrpos($answer, $comparison->getValue()) === strlen($answer)-strlen($comparison->getValue())) ? 1 : 0;			
+			$valid = (strrpos($answer, $comparison->getValue()) === strlen($answer)-strlen($comparison->getValue())) ? 1 : 0;
 		} else {	// sent just a value
 			$valid = (strrpos($answer, $comparison) ===  strlen($answer)-strlen($comparison)) ? 1 : 0;
 		}
@@ -98,7 +98,7 @@ class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 			$q_asset->active_submission->setError($error);
 			return false;
 		}
-		
+
 	}//end processForm()
 
 
@@ -109,7 +109,7 @@ class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 	*
 	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
 	* instantiated manually in code, this function MUST called statically.
-	* 
+	*
 	* @param mixed	$answer			the answer being passed to us
 	* @param string	$operator		the operator being used to compare
 	* @param mixed	&$comparison	either a value or a form_question asset (based on
@@ -125,19 +125,19 @@ class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 		// at the end of the string.
 		// comparison sent is a question asset!!
 		if (is_a($comparison, 'form_question')) {
-			$valid = (strrpos($answer, $comparison->getValue()) === strlen($answer)-strlen($comparison->getValue())) ? 1 : 0;			
+			$valid = (strrpos($answer, $comparison->getValue()) === strlen($answer)-strlen($comparison->getValue())) ? 1 : 0;
 		} else {	// sent just a value
 			$valid = (strrpos($answer, $comparison) ===  strlen($answer)-strlen($comparison)) ? 1 : 0;
 		}
 
 		return ($valid == $operator);
-		
+
 	}//end valueTest()
 
 
 	/**
 	* writes JavaScript code for client side validation
-	* 
+	*
 	* This function assumes the skeleton of a JS validation function has been created around this code
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
@@ -184,7 +184,7 @@ class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 		return $contents;
 
 	}//end generateJSCode()
-	
-	
+
+
 }//end class
 ?>

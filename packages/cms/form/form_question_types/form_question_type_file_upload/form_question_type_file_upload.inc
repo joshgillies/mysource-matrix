@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.4 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_file_upload.inc,v 1.5 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,9 +51,9 @@ class Form_Question_Type_File_Upload extends Form_Question
 	{
 		$this->Form_Question($assetid, $data);
 
-	}//end Form_Question_Type_File_Upload()
+	}//end constructor
 
-	
+
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
@@ -106,15 +106,15 @@ class Form_Question_Type_File_Upload extends Form_Question
 	{
 		$missing = false;
 		$form =& $this->getMySection();
-		
+
 		$file = get_file_upload_info($this->id);
-		
+
 		// there was an error
 		if ($file === false) {
 			$form->active_submission->setError('There was an error uploading the file for File Upload question "'.$this->attr('name').'"');
 			return false;
 		}
-		
+
 		// no file uploaded
 		if (is_array($file) && empty($file) && $this->attr('required')) {
 			$form->active_submission->setError('No file uploaded for required File Upload question "'.$this->attr('name').'"');
@@ -122,12 +122,12 @@ class Form_Question_Type_File_Upload extends Form_Question
 		}
 
 		if (!parent::processForm()) return false;
-		
+
 		$create_loc = $this->attr('create_location');
 		$create_loc_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($create_loc);
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
-		
+
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		$existing_file = $db->getOne('select a.assetid from sq_asset a join sq_asset_link l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
 
@@ -144,50 +144,50 @@ class Form_Question_Type_File_Upload extends Form_Question
 
 				case 'R':
 					include_once SQ_FUDGE_PATH.'/general/file_system.inc';
-					while ($existing_file) {					
+					while ($existing_file) {
 						$file['name'] = increment_filename($file['name']);
 						$existing_file = $db->getOne('select a.assetid from sq_asset a join sq_asset_link l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
 					}
 				break;
 			}
 		}
-			
+
 		if (!$ok) return false;
-		
+
 		if ($existing_file) {
-		
+
 			$file_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($existing_file);
-		
+
 			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file_asset->id, 'attributes');
 			$edit_fns = $file_asset->getEditFns();
-			
-			if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $file)) {
-				if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
-				return false;
-			}
-			if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');		
-		
-		} else {
-			
-			$file_asset = new File();
-			
-			$file_asset->_tmp['uploading_file'] = true;
-			$file_asset->setAttrValue('name', $file['name']);
-			$link = Array('asset' => &$create_loc_asset, 'link_type' => SQ_LINK_TYPE_2);
-				
-			if (!$file_asset->create($link, $file)) return false;
-	
-			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file_asset->id, 'attributes');
-			$edit_fns = $file_asset->getEditFns();
-			
+
 			if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $file)) {
 				if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
 				return false;
 			}
 			if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
-			
+
+		} else {
+
+			$file_asset = new File();
+
+			$file_asset->_tmp['uploading_file'] = true;
+			$file_asset->setAttrValue('name', $file['name']);
+			$link = Array('asset' => &$create_loc_asset, 'link_type' => SQ_LINK_TYPE_2);
+
+			if (!$file_asset->create($link, $file)) return false;
+
+			$lock_status = $GLOBALS['SQ_SYSTEM']->am->acquireLock($file_asset->id, 'attributes');
+			$edit_fns = $file_asset->getEditFns();
+
+			if (!$edit_fns->processFileUpload($file_asset, $o, $file_asset->getPrefix(), $file)) {
+				if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
+				return false;
+			}
+			if ($lock_status === 1) $GLOBALS['SQ_SYSTEM']->am->releaseLock($file_asset->id, 'attributes');
+
 		}
-						
+
 		$summary = $file['name'].', type '.$file['type'].', '.easy_filesize($file['size']);
 
 		$form->active_submission->setAnswer($this->id, $file['name']);

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_management.inc,v 1.2 2004/11/17 00:15:59 amiller Exp $
-* $Name: not supported by cvs2svn $
+* $Id: news_item_management.inc,v 1.3 2004/12/06 14:43:35 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';

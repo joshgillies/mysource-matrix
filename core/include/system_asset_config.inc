@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.13 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_asset_config.inc,v 1.14 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation system asset config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 class System_Asset_Config extends Config
@@ -98,7 +98,7 @@ class System_Asset_Config extends Config
 
 					$package = $data['code_name'];
 
-					if ($package == '__core__') { 
+					if ($package == '__core__') {
 						require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
 						$class = 'package_manager_core';
 					} else {

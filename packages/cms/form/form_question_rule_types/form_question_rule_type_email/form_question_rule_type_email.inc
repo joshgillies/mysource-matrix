@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_email.inc,v 1.13 2004/11/05 00:08:48 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_email.inc,v 1.14 2004/12/06 14:41:38 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH .'/general/www.inc';
 *
 * @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,11 +48,11 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Rule_Type_Email($assetid=0) 
+	function Form_Question_Rule_Type_Email($assetid=0)
 	{
 		$this->Form_Question_Rule($assetid);
-	
-	}//end Form_Question_Rule_Type_Email()
+
+	}//end constructor
 
 
 	/**
@@ -73,8 +73,8 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 		return $attrs;
 
 	}//end getAttributes()
-	
-	
+
+
 	/**
 	* Returns a list of operators for this rule type
 	*
@@ -82,20 +82,20 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
 	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
-	function getOperators() 
+	function getOperators()
 	{
 		return Array(1 => 'Must Be a Valid E-mail Address',
 			0 => 'Must Not Be a Valid E-mail Address');
-	
+
 	}//end getOperators()
-	
-	
+
+
 	/**
 	* processes the form question and returns true if it is valid
 	*
 	* Because the Form Question Rule classes will not be instantiable, this function MUST called
 	* statically.
-	* 
+	*
 	* @param object form_question	&$q_asset		reference to the question asset
 	* @param string					$operator		the operator being used to compare
 	*
@@ -129,7 +129,7 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 	*
 	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
 	* instantiated manually in code, this function MUST called statically.
-	* 
+	*
 	* @param mixed	$answer			the answer being passed to us
 	* @param string	$operator		the operator being used to compare
 	*
@@ -144,10 +144,10 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 		return ($valid == $operator);
 
 	}//end valueTest()
-	
+
 	/**
 	* writes JavaScript code for client side validation
-	* 
+	*
 	* @param object form_question	&$q_asset		reference to the question asset
 	* @param string					$operator		the operator being used to compare
 	*

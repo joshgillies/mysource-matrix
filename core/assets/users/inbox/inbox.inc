@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.21 2004/11/18 05:06:22 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: inbox.inc,v 1.22 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,7 +137,7 @@ class Inbox extends Asset
 			return parent::_checkPermissionAccess($perm, $assetids);
 		}
 
-	}//end checkAccess()
+	}//end _checkPermissionAccess()
 
 
 	/**
@@ -167,7 +167,7 @@ class Inbox extends Asset
 	function printBody()
 	{
 		$edit = $this->getEditFns();
-		
+
 		if (isset($_REQUEST['msgid'])) {
 			// they want to print a single message
 			$edit->paintMessage($_REQUEST['msgid']);

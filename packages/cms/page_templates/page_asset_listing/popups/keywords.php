@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keywords.php,v 1.1 2004/01/20 03:41:45 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: keywords.php,v 1.2 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 -->
 <?php
 	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
 	if (!isset($_GET['type_code'])) return false;
-	
+
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset($_GET['type_code']);
 	$asset = new $_GET['type_code']();
 	$keywords = $asset->getAssetKeywords(true);

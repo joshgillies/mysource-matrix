@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_deleted_user_perms.php,v 1.4 2004/11/29 02:10:22 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_integrity_deleted_user_perms.php,v 1.5 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
@@ -27,7 +27,7 @@
 * exist)
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -49,7 +49,7 @@ if ($ROOT_ASSETID == 1) {
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
-	
+
 // check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
@@ -65,10 +65,10 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 
 $assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID);
 foreach ($assets as $assetid => $type_code) {
-	
+
 	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 	printAssetName($asset);
-	
+
 	// what is in the permissions table?
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
 	$sql = 'SELECT userid, permission FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_perm WHERE assetid='.$db->quote($asset->id);
@@ -91,7 +91,7 @@ foreach ($assets as $assetid => $type_code) {
 				$user_avail = !empty($asset_info);
 			}
 		}
-	
+
 		if (!$user_avail) $deletes[] = $db->quote($perm_info['userid']);
 	}
 
@@ -103,7 +103,7 @@ foreach ($assets as $assetid => $type_code) {
 		printUpdateStatus('--');
 	}
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-	
+
 }//end foreach
 
 
@@ -121,7 +121,7 @@ function printAssetName(&$asset)
 {
 	$str = $asset->name . ' [ # '. $asset->id. ' ]';
 	printf ('%s%'.(80 - strlen($str)).'s', $str,'');
-	
+
 }//end printAssetName()
 
 
@@ -136,7 +136,7 @@ function printAssetName(&$asset)
 function printUpdateStatus($status)
 {
 	echo "[ $status ]\n";
-	
+
 }//end printUpdateStatus()
 
 

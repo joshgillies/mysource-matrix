@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logged_in.inc,v 1.2 2004/12/01 11:43:51 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: condition_logged_in.inc,v 1.3 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.2 $ - 0.1
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,8 +49,8 @@ class Condition_Logged_In extends Condition
 		$this->Condition($assetid);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Evaluate this condition
 	*
@@ -60,10 +60,10 @@ class Condition_Logged_In extends Condition
 	function evaluate()
 	{
 		return (bool) $GLOBALS['SQ_SYSTEM']->currentUserId();
-		
+
 	}//end evaluate()
 
-	
+
 }//end class
 
 ?>

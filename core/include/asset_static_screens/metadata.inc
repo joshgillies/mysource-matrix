@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.8 2004/11/07 23:01:06 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata.inc,v 1.9 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -81,7 +81,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 
 		for ($j = 0; $j < $num_fields; $j++) {
 			$field = &$section->children[$j];
-			
+
 			$field_access = $ei->_getAccess($owner, $field);
 			if (!($field_access & SQ_EI_READ)) continue;
 

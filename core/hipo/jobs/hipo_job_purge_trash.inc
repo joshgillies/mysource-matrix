@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.18 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_job_purge_trash.inc,v 1.19 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -91,7 +91,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	function paintConfig(&$o, $class)
 	{
 		$write_access = $this->writeAccess();
-		
+
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Purge Trash Threshold');
 
@@ -125,7 +125,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	* Returns the current Threshold.
 	*
 	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
-	* 
+	*
 	* @return float
 	* @access public
 	*/
@@ -134,13 +134,13 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		if (SQ_HIPO_PURGE_TRASH_THRESHOLD == 0) return 0;
 		if (!isset($this->_running_vars['todo_assetids'])) return 0;
 		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_PURGE_TRASH_THRESHOLD) * 100);
-	
+
 	}//end getThreshold()
 
 
 	/**
 	* Performs the duties of this hipo, without showing any output on the frontend.
-	* 
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -164,7 +164,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	function prepare()
 	{
 		$trash = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-		
+
 		$children = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($trash->id);
 		$children = array_reverse($children);
 
@@ -191,7 +191,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$this->_running_vars['trash_id']       = $trash->id; // the asset id of the trash folder
 
 		return parent::prepare();
-	
+
 	}//end prepare()
 
 
@@ -219,7 +219,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				$step_data['message'] = 'Skipping "'.$asset->name.'" as it has already been deleted';
 			} else {
 				$assetid = $link_info['assetid'];
-				
+
 				if (in_array($assetid, $this->_running_vars['deleted_assets'])) {
 					// asset was already deleted
 					$step_data['message'] = 'Skipping link #'.$link_info['linkid'].' as it has already been deleted';
@@ -228,13 +228,13 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $link_info['type_code'], true);
 
 					$db = &$GLOBALS['SQ_SYSTEM']->db;
-					
-					$sql = 'SELECT t2.treeid, l1.linkid, l2.minorid, l2.link_type, l2.is_dependant 
-							FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l1 INNER JOIN 
+
+					$sql = 'SELECT t2.treeid, l1.linkid, l2.minorid, l2.link_type, l2.is_dependant
+							FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l1 INNER JOIN
 								 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t1 ON l1.linkid = t1.linkid,
 								 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l2 INNER JOIN
 								 '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t2 ON l2.linkid = t2.linkid,
-								 '.SQ_TABLE_RUNNING_PREFIX.'ast a 
+								 '.SQ_TABLE_RUNNING_PREFIX.'ast a
 							WHERE l1.minorid = '.$db->quote($asset->id).'
 							  AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid
 							  AND a.assetid=l2.minorid
@@ -247,7 +247,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
-					
+
 					$outside_links = Array();
 					$found_ourself = false;
 					$inside_links = Array();
@@ -262,20 +262,20 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 							if ($outside_link_info['minorid'] == $asset->id) $inside_links[] = $outside_link_info['linkid'];
 							continue;
 						}
-						
+
 						if ($found_ourself_this_run) {
 							$found_ourself = true;
 							// if we still have a linkid in our buffer, add it into the list
 							// of outside links so we dont lose it
 							if ($last_linkid) $outside_links[] = $last_linkid;
-							
+
 							// at this point, we know this link is not in the trash because we would have
 							// continued in the above IF statement, so add it to the buffer
 							$last_linkid = $outside_link_info['linkid'];
 						}
 
 						if (!$found_ourself) continue;
-						
+
 						// we dont care about dependant links because we want to
 						// go right to the top of the dependant tree
 						if ($outside_link_info['is_dependant']) continue;
@@ -291,7 +291,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 					if (!$inside_links) {
 						$step_data['message'] = 'Skipping asset #'.$asset->id.' as it no longer has any links inside the trash';
 					} else {
-					
+
 						// if the link we are deleting is also one of the outside
 						// links, then we leave this link alone
 						if (in_array($link_info['linkid'], $outside_links)) {
@@ -306,7 +306,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 								// this asset has more than one link, so just delete the link
 								$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($link_info['linkid'], $asset->id, 'minor');
-								
+
 								if (empty($link['majorid'])) {
 									// if the link does not exists it was probably deleted
 									// earlier, so we just skip this entry
@@ -318,7 +318,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 										return false;
 									}
-									
+
 									if (!$parent->deleteLink($link_info['linkid'])) {
 										trigger_error('Purge aborted, unable to delete link '.$link_info['linkid'].' between "'.$parent->name.'" and "'.$asset->name.'"', E_USER_WARNING);
 
@@ -333,7 +333,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 
 									$step_data['message'] = 'Deleting link #'.$link_info['linkid'];
 								}
-	
+
 							} else {
 
 								// we have an asset ready to delete, but we need to check with
@@ -343,7 +343,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 									return false;
 								}
-	
+
 								if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->_running_vars['trash_id'], 'all') || !$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all', $this->_running_vars['trash_id'])) {
 									trigger_error('Purge aborted, unable to lock the asset "'.$asset->name.'"', E_USER_WARNING);
 									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

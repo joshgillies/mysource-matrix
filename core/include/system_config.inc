@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.42 2004/12/06 03:16:50 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_config.inc,v 1.43 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the system config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 */
 class System_Config extends Config
@@ -89,10 +89,10 @@ class System_Config extends Config
 		// Internationalisation Settings
 		'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
 		'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
-		
+
 		// Allow IP to fluctuate ?
 		'SQ_CONF_ALLOW_IP_CHANGE'			=> Array('editable' => 1, 'default' => '0'),
-		
+
 		// Commit Button Text
 		'SQ_CONF_COMMIT_BUTTON_TEXT'		=> Array('editable' => 1, 'default' => 'Commit'),
 	);
@@ -128,7 +128,7 @@ class System_Config extends Config
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
 	* @param boolean 	$send_message		whether to send a message using the messaging system
-	
+
 	* @return boolean	indicates whether the file was written
 	* @access public
 	*/
@@ -154,7 +154,7 @@ class System_Config extends Config
 				unset($vars['SQ_CONF_BACKEND_SUFFIX']);
 				unset($vars['SQ_CONF_LIMBO_SUFFIX']);
 				unset($vars['SQ_CONF_ROLLBACK_ENABLED']);
-			}//end if 
+			}//end if
 
 			// Now do some validation
 			if (isset($vars['SQ_CONF_SYSTEM_ROOT_URLS'])) {
@@ -262,7 +262,7 @@ class System_Config extends Config
 
 
 	/**
-	* Does the current user have writeAccess() to this config ? 
+	* Does the current user have writeAccess() to this config ?
 	*
 	* @return boolean
 	* @access public
@@ -280,7 +280,7 @@ class System_Config extends Config
 	/**
 	* Paints the interface for our config options.
 	*
-	* If you (as a sub-class) put your config vars so that when they are submitted appear in 
+	* If you (as a sub-class) put your config vars so that when they are submitted appear in
 	* $_POST[get_class($this)] then you probably won't need to override processBackend()
 	*
 	* @param object Backend_Outputter	&$o			reference to the backend outputter
@@ -294,7 +294,7 @@ class System_Config extends Config
 		parent::paintBackend($o);
 
 		$write_access = $this->writeAccess();
-		
+
 		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 
 		$class = get_class($this);
@@ -337,7 +337,7 @@ class System_Config extends Config
 			}
 
 		$o->closeSection();
-		
+
 		$o->openSection('Rollback Settings');
 
 			$o->openField('Rollback Enabled', '', 'Rollback must be enabled and disabled using the "rollback_management.php" script in the MySource "scripts" directory');
@@ -444,7 +444,7 @@ class System_Config extends Config
 						set_hidden_field("<?php echo $class; ?>[SQ_CONF_DEBUG]", current_debug);
 
 					}// end set_conf_debug
-				
+
 				//-->
 				</script>
 				<?php
@@ -457,7 +457,7 @@ class System_Config extends Config
 				foreach ($this->debug_options as $bit => $desc) {
 					?>
 					<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo (SQ_CONF_DEBUG & $bit) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
-					<?php 
+					<?php
 					echo $desc, "<br />\n";
 				}
 
@@ -488,14 +488,14 @@ class System_Config extends Config
 		$o->openSection('Editing Interface Settings');
 
 			$o->openField('Commit Button Text', '', 'This setting renames the button used to commit edited information into the MySource Matrix system - default is \'Commit\'');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_CONF_COMMIT_BUTTON_TEXT]', !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT, 30);
 			} else {
 				echo !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT;
 			}
 
 		$o->closeSection();
-		
+
 		if ($write_access) $o->commitButton('', true);
 
 	}//end paintBackend()

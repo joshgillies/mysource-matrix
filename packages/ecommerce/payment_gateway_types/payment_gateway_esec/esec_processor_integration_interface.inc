@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_integration_interface.inc,v 1.2 2004/10/22 07:04:28 dofford Exp $
-* $Name: not supported by cvs2svn $
+* $Id: esec_processor_integration_interface.inc,v 1.3 2004/12/06 14:42:21 brobertson Exp $
+*
 */
 
 /**
@@ -41,7 +41,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -49,7 +49,7 @@ class Esec_Processor_Integration_Interface extends Esec_Processor
 {
 	var $_url = "https://sec.aba.net.au/cgi-bin/service/authint";
 
-	function Esec_Processor_Integration_Interface() 
+	function Esec_Processor_Integration_Interface()
 	{
 		parent::Esec_Processor();
 
@@ -100,7 +100,7 @@ class Esec_Processor_Integration_Interface extends Esec_Processor
 			list($name, $value) = explode("=", $line);
 			$this->response[$name] = $value;
 		}
-	
+
 		// return success status
 		if (substr($this->response['message'], 0, 3) == '200') {
 			$success = true;

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.26 2004/12/01 01:34:06 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: matrix_insert_link.inc,v 1.27 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -35,11 +35,12 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
-class matrix_insert_link extends wysiwyg_plugin {
+class matrix_insert_link extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor
@@ -54,7 +55,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 		$this->_add_button('matrixcreatelink','MatrixCreateLink','Insert Link','false','32');
 		$this->_add_button('matrixunlink','Unlink','Remove Link','false','33');
 
-	}//end constructor()
+	}//end constructor
 
 
 	/**
@@ -296,7 +297,8 @@ class matrix_insert_link extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_shortcuts() {
+	function print_plugin_shortcuts()
+	{
 		?>
 		case 'k':
 			this._matrixInsertLink();

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.18 2004/11/18 05:11:34 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_email_management.inc,v 1.19 2004/12/06 14:41:38 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,7 +48,7 @@ class Form_Email_Management extends Asset_Management
 
 		$this->vars = Array(
 						/// Receipt screen ///
-							
+
 							'receipt_emails_format' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'email_format',
@@ -67,7 +67,7 @@ class Form_Email_Management extends Asset_Management
 													'added'		=> '0.0.1',
 													'type'		=> 'selection',
 													'default'	=> 0,
-													'parameters'	=> Array(	
+													'parameters'	=> Array(
 														'options'	=> Array(
 															1	=> 'yes',
 															0	=> 'no',
@@ -90,14 +90,14 @@ class Form_Email_Management extends Asset_Management
 													'default'	=> '',
 
 									),//end receipt_subject
-							
+
 							'receipt_body' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'text',
 													'default'	=> '',
 
 									),//end receipt_subject
-							
+
 							'receipt_allow_html' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
@@ -106,7 +106,7 @@ class Form_Email_Management extends Asset_Management
 															'allow_empty' => false
 														),
 									),//end receipt_allow_html
-							
+
 							'receipt_send_answers' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',
@@ -115,14 +115,14 @@ class Form_Email_Management extends Asset_Management
 															'allow_empty' => false
 														),
 									),//end receipt_send_answers
-							
+
 							'recipient_emails_format' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'email_format',
 													'default'	=> Array(),
 
 									),//end recipient_emails
-									
+
 							'recipient_emails' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'text',
@@ -143,7 +143,7 @@ class Form_Email_Management extends Asset_Management
 													'default'	=> '',
 
 									),//end recipient_subject
-							
+
 							'recipient_allow_html' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'boolean',

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.8 2004/11/23 02:42:09 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_whats_new.inc,v 1.9 2004/12/06 14:41:40 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,8 +52,8 @@ class Page_Whats_New extends Page_Asset_Listing
 		$this->Page_Asset_Listing($assetid);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Get the list of asset that should be printed
 	*
@@ -73,7 +73,7 @@ class Page_Whats_New extends Page_Asset_Listing
 	function getAssetList()
 	{
 		$group_by = $this->attr('group_by');
-		
+
 		// this is the list of all type codes that we are going to show
 		// we pass this list to the getLinks and getChildren functions (below) to narrow
 		// the query down a bit
@@ -105,7 +105,7 @@ class Page_Whats_New extends Page_Asset_Listing
 		$children = Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		
+
 		// this is the field in the database that we are using the specify that something is "new"
 		$field = $this->attr('date_field');
 		$ranges = $this->attr('date_ranges');
@@ -117,10 +117,10 @@ class Page_Whats_New extends Page_Asset_Listing
 			require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
 			$id = $_REQUEST['asset_'.$this->id.'_date_range'];
 			$this->setAttrValue('num_per_page', 0); // If we're displaying a range, clear the pagination
-			
+
 			$from = new Asset_Attribute_DateTime();
 			$from->value = $ranges[$id]['oldest_date'];
-			
+
 			$to = new Asset_Attribute_DateTime();
 			$to->value = $ranges[$id]['newest_date'];
 		} else {
@@ -169,7 +169,7 @@ class Page_Whats_New extends Page_Asset_Listing
 				case 'letter' :
 					foreach ($links as $link_info) $children[$link_info['minorid']] = Array('type_code' => $link_info['minor_type_code'], 'first_letter' => $link_info['first_letter']);
 				break;
-				
+
 				case 'random' :
 					foreach ($links as $link_info) $children[$link_info['minorid']] = $link_info['minor_type_code'];
 				break;
@@ -207,12 +207,12 @@ class Page_Whats_New extends Page_Asset_Listing
 
 		// clean up after ourselves
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
-		
+
 		return $children;
 
 	}//end getAssetList()
-	
-	
+
+
 	/**
 	* Work out the unique cache key to represent the current page
 	*
@@ -228,7 +228,7 @@ class Page_Whats_New extends Page_Asset_Listing
 			// add our date range ID to the unique cache key
 			$cache_key .= ':'.$_REQUEST['asset_'.$this->id.'_date_range'];
 		}
-		
+
 		return $cache_key;
 
 	}//end _getCacheKey()

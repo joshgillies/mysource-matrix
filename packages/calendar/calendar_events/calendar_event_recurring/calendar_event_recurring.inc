@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.49 2004/12/03 15:36:53 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: calendar_event_recurring.inc,v 1.50 2004/12/06 14:40:32 brobertson Exp $
+*
 */
 
 require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.49 $ - 1.0
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -52,7 +52,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	{
 		$this->Calendar_Event($assetid);
 
-	}//end Calendar_Event_Recurring()
+	}//end constructor
 
 
 	/**
@@ -80,7 +80,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* returned.
 	*
 	* @param string	$after		the earliest date (YYYY-MM-DD) we are interested in
-	* @param string	$start		The date (YYYY-MM-DD) on which the event's first instance started 
+	* @param string	$start		The date (YYYY-MM-DD) on which the event's first instance started
 	* @param string	$freq_type	3-letter frequency code
 	* @param int	$interval	The frequency interval
 	* @param string	$stop		The date on which the event stops recurring
@@ -92,7 +92,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	function getFirstOccurrenceAfter($after=null, $start=null, $freq_type=null, $interval=null, $stop=null)
 	{
 		if (is_null($after)) $after = date('Y-m-d');
-		
+
 		// if we are calling statically make sure that we have all our arguments
 		if ((!(isset($this) && is_a($this, "Calendar_Event_Recurring"))) && (func_num_args() < 5)) {
 			trigger_error('If Calendar_Event_Recurring::getFirstOccurrenceAfter() is called statically it must be called using all 5 arguments', E_USER_ERROR);
@@ -111,19 +111,19 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		$seconds_per_day = 60 * 60 * 24;
 		if ($after <= $start) return $start;
-		
+
 		list($res_year,$res_month,$res_day) = sscanf($after, '%04d-%02d-%02d');
 		list($after_year,$after_month,$after_day) = sscanf($after, '%04d-%02d-%02d');
 		list($start_year,$start_month,$start_day) = sscanf($start, '%04d-%02d-%02d');
-		$month_diff = (12 * ($after_year - $start_year)) + $after_month - $start_month;			
-		
+		$month_diff = (12 * ($after_year - $start_year)) + $after_month - $start_month;
+
 		switch ($freq_type) {
-			case 'DED':				
+			case 'DED':
 				$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
 				$result = add_days_to_iso($start, $interval * $periods_so_far);
 			break;
 
-			case 'DWD':				
+			case 'DWD':
 				$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
 				$result = add_days_to_iso($start, $interval * $periods_so_far);
 				while (in_array(date('D', iso8601_ts($result)), Array('Sat', 'Sun'))) {
@@ -137,7 +137,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			break;
 
 			// Every 'x' months on the 'y'th day of the month
-			case 'MFN':					
+			case 'MFN':
 				if (($month_diff % $interval) != 0) {
 					increment_month($res_month, $res_year, ($interval - ($month_diff % $interval)));
 				} elseif ($res_day > $start_day) {
@@ -165,9 +165,9 @@ class Calendar_Event_Recurring extends Calendar_Event
 				}
 
 				$month_length = days_in_month($res_month, $res_year);
-				
+
 				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
-				while (date('w', iso8601_ts($result)) != $target_day_of_week) {				
+				while (date('w', iso8601_ts($result)) != $target_day_of_week) {
 					$res_day += (7 + $target_day_of_week - date('w', iso8601_ts($result)) - 1)  % 7 + 1;
 
 					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
@@ -193,12 +193,12 @@ class Calendar_Event_Recurring extends Calendar_Event
 				}
 
 				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,days_in_month($res_month, $res_year) - $target_days_from_end);
-					
+
 				while ((days_in_month($res_month, $res_year) - $target_days_from_end) < 0) {
 					increment_month($res_month, $res_year, $interval);
-					
+
 					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,days_in_month($res_month, $res_year) - $target_days_from_end);
-				}		
+				}
 			break;
 
 			// Every 'x' months on the 'y'th last weekday of the month
@@ -218,33 +218,33 @@ class Calendar_Event_Recurring extends Calendar_Event
 					//$min_day = $start_day;
 				}
 				$min_day = $after_day;
-					
+
 				$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
 				$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
-				
-				while (date('w', iso8601_ts($result)) != $target_day_of_week) {					
+
+				while (date('w', iso8601_ts($result)) != $target_day_of_week) {
 					//if ($res_month - $start_month > 2) die;
 					$res_day -= (7 + date('w', iso8601_ts($result)) - $target_day_of_week)  % 7;
-									
-					if (($res_day < $min_day) || ($result < $after)) {						
+
+					if (($res_day < $min_day) || ($result < $after)) {
 						// can't get the nth-last xday in this month, either because
 						// it's already passed or because it doesn't exist, so goto next month
 						increment_month($res_month, $res_year, $interval);
 						$res_day = days_in_month($res_month, $res_year) - ($target_weeks_from_end * 7);
 						$min_day = 1;
-						
+
 					}
 					$result = sprintf('%04d-%02d-%02d',$res_year,$res_month,$res_day);
 				}
 			break;
 		}
-		
+
 		if (!empty($stop) && ($result > $stop)) {
 			return false;
 		} else {
 			return $result;
 		}
-		
+
 	}//end getFirstOccurrenceAfter()
 
 
@@ -258,7 +258,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* @param string	$date		the date we're interested in, in YYYY-MM-DD format - default
 	*							is today's date (time can be passed in too but it will be
 	*							stripped)
-	* @param string	$start		The iso datetime at which the event's 1st instance started 
+	* @param string	$start		The iso datetime at which the event's 1st instance started
 	* @param string	$freq_type	3-letter frequency code
 	* @param int	$interval	The frequency interval
 	* @param string	$stop		The date after which recurrences should stop
@@ -273,7 +273,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		if (is_null($this) && (func_num_args() < 5)) {
 			trigger_error('If Calendar_Event_Recurring::hasOccurrenceOnDate() is called statically it must be called using all 5 arguments', E_USER_ERROR);
 		}
-		
+
 		// fill in defaults if we haven't been provided with all values
 		if (is_null($start)) {
 			// called on an object
@@ -282,7 +282,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$start = substr($this->attr('start_date'),0,10);
 			$stop = $this->attr('stop_date');
 		}
-		if (is_null($date)) $date = date('Y-m-d'); 
+		if (is_null($date)) $date = date('Y-m-d');
 		if (strpos($stop, '----------') !== false) $stop = null;
 
 		// dispose of trivial cases
@@ -320,7 +320,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			case 'WEWx':
 				// occurs if start_date and date are the same day of the week
 				// AND the number of weeks between start_date and date is a multiple of $interval
-				return ($date_components['wday'] == $start_components['wday']) 
+				return ($date_components['wday'] == $start_components['wday'])
 					&& (((($date_components['ds'] - $start_components['ds']) / 7) % $interval) == 0);
 			break;
 
@@ -332,14 +332,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 			case 'MFNx':
 				// occurs if date and start_date are the same day of the month
 				// AND the number of months in between is a multiple of $interval
-				return ($date_components['mday'] == $start_components['mday']) 
+				return ($date_components['mday'] == $start_components['mday'])
 					&& ((($date_components['ms'] - $start_components['ms']) % $interval) == 0);
 			break;
 
 			case 'MFW':
 				// occurs if date and start_date are the same day of the week
 				// AND they are in the same week of the month
-				return ($date_components['wday'] == $start_components['wday']) 
+				return ($date_components['wday'] == $start_components['wday'])
 					&& ($date_components['wdom'] == $start_components['wdom']);
 			break;
 
@@ -347,7 +347,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				// occurs if date and start_date are the same day of the week
 				// AND they are in the same week of the month
 				// AND the number of months in between is a multiple of $interval
-				return ($date_components['wday'] == $start_components['wday']) 
+				return ($date_components['wday'] == $start_components['wday'])
 					&& ($date_components['wdom'] == $start_components['wdom'])
 					&& ((($date_components['ms'] - $start_components['ms']) % $interval) == 0);
 			break;
@@ -367,7 +367,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			case 'MRW':
 				// occurs if date and start_date are the same day of the week...
 				// AND they are in the same week from the end of the month
-				return ($date_components['wday'] == $start_components['wday']) 
+				return ($date_components['wday'] == $start_components['wday'])
 					&& ($date_components['rwdom'] == $start_components['rwdom']);
 			break;
 
@@ -375,7 +375,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				// occurs if date and start_date are the same day of the week...
 				// AND they are in the same week from the end of the month
 				// AND the number of months between is a multiple of $interval
-				return ($date_components['wday'] == $start_components['wday']) 
+				return ($date_components['wday'] == $start_components['wday'])
 					&& ($date_components['rwdom'] == $start_components['rwdom'])
 					&& ((($date_components['ms'] - $start_components['ms']) % $interval) == 0);
 			break;
@@ -393,14 +393,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* instance that starts after $date.
 	*
 	* Return value is Array('start' => start date/time of instance,
-	*						'end' => end date/time of instance) 
+	*						'end' => end date/time of instance)
 	*
 	* @param string	$date	The date to find an instance with
 	*
 	* @return array
 	* @access public
 	*/
-	function getInstanceDates($date) 
+	function getInstanceDates($date)
 	{
 		$res = Array();
 		if ($this->hasOccurrenceOnDate($date)) {
@@ -411,15 +411,15 @@ class Calendar_Event_Recurring extends Calendar_Event
 				case 'D':
 					$first_occur = add_days_to_iso($date, -$period);
 				break;
-				
+
 				case 'W':
 					$first_occur = add_days_to_iso($date, -$period);
 				break;
-				
+
 				case 'M':
 					$first_occur = add_months_to_iso($date, -$period).'-'.date('d', $date);
 				break;
-				
+
 			}
 			$res['start'] = $this->getFirstOccurrenceAfter($first_occur);
 		}
@@ -430,15 +430,16 @@ class Calendar_Event_Recurring extends Calendar_Event
 		return $res;
 
 	}//end getInstanceDates()
-	
-	
+
+
 	/**
 	* Returns this event's frequency in an easy-to-understand format
 	*
 	* @return string
 	* @access public
 	*/
-	function getFriendlyFrequency() {
+	function getFriendlyFrequency()
+	{
 		$freq_type = substr($this->attr('frequency'), 0, 3);
 		$interval = substr($this->attr('frequency'), 3);
 		$monthly_type = '';
@@ -502,8 +503,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 			default:
 				$res = 'Unknown frequency type "'.$this->attr('frequency').'"';
 		}
-		
-		// set up final display string for monthly types 
+
+		// set up final display string for monthly types
 		if ($monthly_type) {
 			if ($interval) {
 				$res = "every $interval months, $monthly_type";
@@ -511,7 +512,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$res = "every month, $monthly_type";
 			}
 		}
-		
+
 		$stop_date_attr = $this->getAttribute('stop_date');
 		if (($stop_timestamp = $stop_date_attr->getTimestamp()) == -1) {
 			return "$res, until further notice";
@@ -581,7 +582,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 	}//end _getAllowedLinks()
 
-	
+
 	/**
 	* Return the keywords with their replacements
 	*
@@ -627,7 +628,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$keywords['instance_end_datetime'] = Array('value'=>'');
 			$keywords['cancel_link'] = Array('value'=>'');
 			$keywords['modify_link'] = Array('value'=>'');
-		}		
+		}
 
 		if ($descriptions) {
 			$keywords['event_frequency']['description'] = 'The frequency with which this event recurs';
@@ -635,7 +636,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$keywords['modify_link']['description'] = 'Link to modify this instance of the event';
 			$keywords['instance_start_datetime']['description'] = 'Start date/time of this instance of the event';
 			$keywords['instance_end_datetime']['description'] = 'End date/time of this instance of the event';
-			
+
 			// change the descriptions of Calendar Event's attributes just to make it clear
 			$keywords['event_start_datetime']['description'] = 'Start date/time of original instance';
 			$keywords['event_end_datetime']['description'] = 'End date/time of original instance';
@@ -672,21 +673,21 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*
 	* @return string
 	* @access private
-	*/	
+	*/
 	function _getCancelLink()
 	{
 		if (isset($_REQUEST['SQ_CALENDAR_DATE']))	return '<a href="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=cancel1&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'" onclick="return confirm(\'Are you sure you want to cancel this instance?\');">Cancel this instance</a>';
 		else return '(cancel link)';
 
 	}//end _getCancelLink()
-	
+
 
 	/**
 	* Return the link that the user can click to modify an instance of this event from the event view
 	*
 	* @return string
 	* @access private
-	*/	
+	*/
 	function _getModifyLink()
 	{
 		if (isset($_REQUEST['SQ_CALENDAR_DATE']))	return '<a href="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=modify1&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">Modify this instance</a>';
@@ -701,8 +702,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*
 	* @return string	HTML to show as the result of this action
 	* @access public
-	*/	
-	function processEventAction($action_name) 
+	*/
+	function processEventAction($action_name)
 	{
 		$res = '';
 		switch ($action_name) {
@@ -735,7 +736,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					return '';
 				}
 				$res = '<form method="POST" action="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=modify2&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'"><table cellpadding="4" border="0">';
-				
+
 				$res .= '<tr><td style="vertical-align: top">Start and End: </td><td>';
 				ob_start();
 					$edit_fns = $this->getEditFns();
@@ -747,7 +748,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$res .= '<tr><td style="vertical-align: top">Description: </td><td><textarea name="event_description">';
 				$res .= $this->attr('description');
 				$res .= '</textarea></td></tr>';
-				
+
 				$res .= '<tr><td colspan="2"><input type="submit" value="Add Modification" />&nbsp;&nbsp;<input type="button" value="Cancel" onclick="document.location=\''.$_SERVER['HTTP_REFERER'].'\'" /></td></tr></table></form>';
 
 			break;
@@ -756,7 +757,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				$occurrence_end_date = $this->getEndDate() ? date('Y-m-d', iso8601_ts($_REQUEST['SQ_CALENDAR_DATE'].' '.($this->getStartTime() ? $this->getStartTime() : ' 12:00:00')) + $this->getDuration()) : false;
 				// We can only avoid cancelling and rescheduling if the time components are all the same, ie if
 				// (start date field equals the occurrence start date)
-				// AND (event has start time AND start time field is equal to it) 
+				// AND (event has start time AND start time field is equal to it)
 				//		OR (event has no start time AND start time field is disabled)
 				// AND (occurrence has end date AND end date field is equal to it)
 				//		OR (event has no end date AND end date field is disabled)
@@ -765,9 +766,9 @@ class Calendar_Event_Recurring extends Calendar_Event
 				// ... in other words...
 
 				$start_dates_agree = ($_REQUEST['SQ_CALENDAR_DATE'] == sprintf('%04d-%02d-%02d', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day']));
-						
+
 				$start_times_agree = ((($start_time = $this->getStartTime()) && isset($_REQUEST['event_start_time_enabled']) &&  (sprintf('%02d:%02d', $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']) == $start_time)) || ((!$this->getStartTime()) && (!isset($_REQUEST['event_start_time_enabled']))));
-				
+
 				$end_dates_agree = ((($occurrence_end_date) && isset($_REQUEST['event_end_date_enabled']) && (sprintf('%04d-%02d-%02d', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day']) == $occurrence_end_date)) || ((!$occurrence_end_date && (!isset($_REQUEST['event_end_date_enabled'])))));
 
 				$end_times_agree = ((($end_time = $this->getEndTime()) && isset($_REQUEST['event_end_time_enabled']) &&  (sprintf('%02d:%02d', $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']) == $end_time)) || ((!$this->getEndTime()) && (!isset($_REQUEST['event_end_time_enabled']))));
@@ -775,7 +776,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$this->addModification($_REQUEST['SQ_CALENDAR_DATE'], $_REQUEST['event_description']);
 					$res = '<p>Event instance modified</p>';
 				} else {
-					$cancellation_event = $this->addCancellation($_REQUEST['SQ_CALENDAR_DATE'], '(rescheduled)'); 
+					$cancellation_event = $this->addCancellation($_REQUEST['SQ_CALENDAR_DATE'], '(rescheduled)');
 
 					if (!isset($_REQUEST['event_start_time_enabled'])) {
 						$_REQUEST['event_start_hours'] = '--';
@@ -785,12 +786,12 @@ class Calendar_Event_Recurring extends Calendar_Event
 					}
 					$start_date_string = sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day'],  $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']);
 
-					
+
 					if (!isset($_REQUEST['event_end_time_enabled'])) {
 						$_REQUEST['event_end_hours'] = '--';
 						$_REQUEST['event_end_minutes'] = '--';
 					} else {
-						if ($_REQUEST['event_end_is_pm'] && ($_REQUEST['event_end_hours'] != 12)) $_REQUEST['event_end_hours'] += 12;				
+						if ($_REQUEST['event_end_is_pm'] && ($_REQUEST['event_end_hours'] != 12)) $_REQUEST['event_end_hours'] += 12;
 					}
 					if (!isset($_REQUEST['event_end_enabled'])) {
 						$end_date_string = '---------- --:--:--';
@@ -799,10 +800,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 					} else {
 						$duration_secs = 60 * $_REQUEST['event_duration'] * (($_REQUEST['event_duration_type'] == 'i') ? 1 : 60);
 						$end_date_string = ts_iso8601(iso8601_ts($start_date_string + $duration_secs));
-					}						
+					}
 
 					$cancellation_event->addReplacement($start_date_string, $end_date_string ,  $_REQUEST['event_description']);
-					
+
 					$res = '<p>Event rescheduled</p>';
 				}
 			break;
@@ -815,7 +816,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 	}//end processEventAction()
 
-	
+
 
 	/**
 	* Add a cancellation event linked under this recurring event
@@ -828,7 +829,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function &addCancellation($date, $reason)
 	{
-		if (!$this->writeAccess('')) { 
+		if (!$this->writeAccess('')) {
 			trigger_error('You don\'t have sufficient access to create a cancellation for this event', SQ_USER_WARNING);
 			return false;
 		}
@@ -858,7 +859,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		}
 		return $cancellation_event;
 
-	}// end addCancellation()
+	}//end addCancellation()
 
 
 	/**
@@ -903,7 +904,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		}
 		return $modification_event;
 
-	}// end addModification()
+	}//end addModification()
 
 
 	/*
@@ -918,12 +919,12 @@ class Calendar_Event_Recurring extends Calendar_Event
 	function cacheCalendarData($updating=true)
 	{
 		$db = $GLOBALS['SQ_SYSTEM']->db;
-	
+
 		$date_values = Array();
 		foreach (Array('start_date', 'end_date') as $date_comp) {
 			$date_values += get_date_components($this->attr($date_comp), $date_comp.'_');
 		}
-		
+
 		// frequency field => as thy will be set in the standard attribute value table
 		$date_values['frequency'] = substr($this->attr('frequency'),0,3);
 		if (strlen($this->attr('frequency')) > 3) {
@@ -931,20 +932,20 @@ class Calendar_Event_Recurring extends Calendar_Event
 		} else {
 			$date_values['period'] = 1;
 		}
-		
+
 		// stop date
 		if (strtotime(substr($this->attr('stop_date'),0,10)) != -1) {
 			$date_values['stop_date'] = substr($this->attr('stop_date'),0,10);
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-	
+
 		// if updating attribute then we use
 		// rollbackUpdate('...', $date_values, $where)
 		if (!$updating) {
 			// set the asset ids
 			$date_values['assetid'] = $this->id;
-		
+
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('cal_date_val', $date_values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -952,23 +953,23 @@ class Calendar_Event_Recurring extends Calendar_Event
 		} else {
 			// now quote everything except null values
 			foreach (array_keys($date_values) as $key) {
-				$date_values[$key] = (is_null($date_values[$key]) ? 'null' : 	$db->quote($date_values[$key]));						
+				$date_values[$key] = (is_null($date_values[$key]) ? 'null' : 	$db->quote($date_values[$key]));
 			}
-		
+
 			// asset id becomes a where condition
 			$where = ' assetid = '.$db->quote($this->id);
-		
+
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('cal_date_val', $date_values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-			
+
 	}//end cacheCalendarData()
-	
+
 
 }//end class
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: help.inc,v 1.8 2004/10/21 04:49:05 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: help.inc,v 1.9 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -33,11 +33,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to provide help to the end user
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class Help extends WYSIWYG_Plugin {
+class Help extends WYSIWYG_Plugin
+{
 
 
 	/**

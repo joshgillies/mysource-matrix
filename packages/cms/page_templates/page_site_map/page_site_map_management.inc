@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_management.inc,v 1.7 2004/09/08 01:23:37 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_site_map_management.inc,v 1.8 2004/12/06 14:41:40 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -45,7 +45,7 @@ class Page_Site_Map_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		
+
 		$this->vars = Array(
 							'name'			=> Array (
 												'added'		=> '0.0.1',

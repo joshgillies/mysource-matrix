@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.5 2004/11/25 02:58:02 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: matrix_insert_anchor.inc,v 1.6 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -35,11 +35,12 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     an anchor in the editable document
 *
 * @author  Mark Brydon <mbrydon@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
-class matrix_insert_anchor extends wysiwyg_plugin {
+class matrix_insert_anchor extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor
@@ -52,7 +53,8 @@ class matrix_insert_anchor extends wysiwyg_plugin {
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
 		$this->_add_button('matrixcreateanchor','MatrixCreateAnchor','Insert Anchor','false','30');
-	}//end constructor()
+
+	}//end constructor
 
 
 	/**

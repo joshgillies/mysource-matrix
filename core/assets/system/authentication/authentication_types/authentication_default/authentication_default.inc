@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.3 2004/11/18 05:00:41 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: authentication_default.inc,v 1.4 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -89,7 +89,7 @@ class Authentication_Default extends Authentication
 
 		if ($result['assetid']) {
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
-			
+
 			if (is_null($user)) {
 				// no user was found with that username
 			} else if (!$user->comparePassword($password)) {

@@ -1,4 +1,3 @@
-
 <?php
 /**
 * +--------------------------------------------------------------------+
@@ -19,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.10 2004/11/04 04:57:39 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: ldap_bridge_edit_fns.inc,v 1.11 2004/12/06 14:43:14 brobertson Exp $
+*
 */
 
 
@@ -33,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -82,8 +81,8 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 									);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Paint a test connection to the LDAP bridge
 	*
@@ -191,8 +190,8 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 		return false;
 
 	}//end processAttributes()
-	
-	
+
+
 	/**
 	* Paint the interface for editing schema attributes
 	*
@@ -236,7 +235,7 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 				$show = false;
 				$display_name = (isset($current['hide'][$field_name])) ? $current['hide'][$field_name] : $field_name;
 			}
-			
+
 			?>
 			<tr>
 				<td class="sq-backend-table-cell"><b><?php echo $field_name; ?></b></td>
@@ -270,7 +269,7 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 			</tr>
 			<?php
 		}//end for
-		
+
 		?></table><?php
 
 		return $write_access;

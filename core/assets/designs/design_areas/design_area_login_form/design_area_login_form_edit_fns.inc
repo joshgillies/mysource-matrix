@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form_edit_fns.inc,v 1.10 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_login_form_edit_fns.inc,v 1.11 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,7 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 		if (!$this->_setVariables($asset, $contents)) return false;
 
 		$indexes = Array('login' => -1, 'logout' => -1);
-		// see if our page element has any sub's in it 
+		// see if our page element has any sub's in it
 		foreach ($contents as $index => $element) {
 			if ($element['_type'] != 'TAG') continue;
 			if ($element['operation'] != 'login_section' && $element['operation'] != 'logout_section') continue;
@@ -92,11 +92,11 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 										'self_terminating' => 1
 									);
 			// remove the other one
-			} else { 
+			} else {
 				array_splice($contents, $i, 1);
 			}
-		}// end foreach
-	
+		}//end foreach
+
 		$asset->setAttrValue('contents', $contents);
 
 		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
@@ -119,7 +119,7 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$asset->_tmp['painting_section'] = '';
 		return parent::_createDesignFileOutput($contents, $asset, $design);
-		
+
 	}//end _createDesignFileOutput()
 
 
@@ -142,42 +142,42 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 				$logout_contents = $asset->attr('logout_contents');
 				if (empty($login_contents) && empty($logout_contents)) return true;
 
-				echo '<', '?php 
+				echo '<', '?php
 				if (!empty($GLOBALS[\'SQ_LOGIN_FORM\'])) {
 					$'.$asset->attr('id_name').'_paint_login = ($GLOBALS[\'SQ_LOGIN_FORM\'][\'paint\'] == \'login\');
 				} else {
 					$'.$asset->attr('id_name').'_paint_login = !$GLOBALS[\'SQ_SYSTEM\']->currentUserId();
 				}
-				if (', ((empty($login_contents)) ? '!' : ''), '$'.$asset->attr('id_name').'_paint_login) { 
+				if (', ((empty($login_contents)) ? '!' : ''), '$'.$asset->attr('id_name').'_paint_login) {
 				?', '>';
 
 				if (!empty($login_contents)) {
 					$asset->_tmp['painting_section'] = 'login';
 					if (!$this->_outputContents($login_contents, $asset, $design)) return false;
 					$asset->_tmp['painting_section'] = '';
-				}// end if
+				}//end if
 
 				if (!empty($login_contents) && !empty($logout_contents)) {
-					echo '<', '?php 
-				} else { 
+					echo '<', '?php
+				} else {
 				?', '>';
-				}// end if
+				}//end if
 
 				if (!empty($logout_contents)) {
 					$asset->_tmp['painting_section'] = 'logout';
 					if (!$this->_outputContents($logout_contents, $asset, $design)) return false;
 					$asset->_tmp['painting_section'] = '';
-				}// end if
+				}//end if
 
 
-				echo '<', '?php 
-				}// end if 
+				echo '<', '?php
+				}//end if
 				?', '>';
 				return true;
 
 			default :
 				return parent::_outputElement($element, $asset, $design);
-		}// end switch
+		}//end switch
 
 	}//end _outputElement()
 
@@ -197,7 +197,7 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 		unset($vars['login_contents']);
 		unset($vars['logout_contents']);
 		return $vars;
-	}// end getSetableVars()
+	}//end getSetableVars()
 
 
 }//end class

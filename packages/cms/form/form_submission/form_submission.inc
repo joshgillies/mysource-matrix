@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.17 2004/11/04 23:43:44 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_submission.inc,v 1.18 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -45,24 +45,25 @@ class Form_Submission extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Submission($assetid=0) 
+	function Form_Submission($assetid=0)
 	{
 		$this->_ser_attrs = true;
 		return $this->Asset($assetid);
-	
-	}//end Form_Submission()
-	
-	
-	function create(&$link) {
+
+	}//end constructor
+
+
+	function create(&$link)
+	{
 		if (!($linkid = parent::create($link))) {
 			return 0;
 		}
-		
+
 		$this->saveAttributes();
-		
+
 		return $linkid;
-		
-	}//end create
+
+	}//end create()
 
 
 	/**
@@ -82,7 +83,7 @@ class Form_Submission extends Asset
 		return false;
 
 	}//end getAnswer()
-	
+
 
 	/**
 	* returns the name of an question
@@ -117,15 +118,15 @@ class Form_Submission extends Asset
 	{
 		$a = $this->attr('attributes');
 		if (empty($a['answers'])) $a['answers'] = Array();
-		
-		$a['answers'][$id]['answer'] = $value;		
-		
+
+		$a['answers'][$id]['answer'] = $value;
+
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
 		}
 
 		return true;
-	
+
 	}//end setAnswer()
 
 
@@ -143,15 +144,15 @@ class Form_Submission extends Asset
 		if (!isset($a['is_error']) || !$a['is_error']) $a['is_error'] = true;
 		if (!isset($a['errors'])) $a['errors'] = Array();
 		$a['errors'][] = $error;
-		
+
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
 		}
 		return true;
-	
+
 	}//end setError()
 
-	
+
 	/**
 	* get the form errors from the store
 	*
@@ -162,7 +163,7 @@ class Form_Submission extends Asset
 	{
 		$a = $this->attr('attributes');
 		return $a['errors'];
-	
+
 	}//end getErrors()
 
 
@@ -183,7 +184,7 @@ class Form_Submission extends Asset
 		}
 
 		return true;
-	
+
 	}//end flushErrors()
 
 
@@ -197,13 +198,13 @@ class Form_Submission extends Asset
 	{
 		$a = $this->attr('attributes');
 		return (isset($a['is_error']) && ($a['is_error'])) ? true : false;
-	
+
 	}//end isError()
 
 
 	/**
 	* returns the answers for question in the form:
-	* 
+	*
 	* @access public
 	* @return Array()
 	*/
@@ -228,7 +229,7 @@ class Form_Submission extends Asset
 	function setSummary($question_id, $name, $value)
 	{
 		$a = $this->attr('attributes');
-	
+
 		if (empty($a['summary'])) $a['summary'] = Array();
 
 		/*if (!isset($a['summary'][$section_id])) {
@@ -237,10 +238,10 @@ class Form_Submission extends Asset
 				'questions'		=> Array(),
 			);
 		}*/
-		
-		$a['summary'][$question_id]['answer']  = $value;		
+
+		$a['summary'][$question_id]['answer']  = $value;
 		$a['summary'][$question_id]['name']    = $name;
-		
+
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
 		}
@@ -261,10 +262,10 @@ class Form_Submission extends Asset
 	{
 		$a = $this->attr('attributes');
 		if (!$a) return false;
-		
+
 		if (is_null($q_id)) return $a['summary'];
 		else return $a['summary'][$q_id][$value];
-	
+
 	}//end getSummary()
 
 
@@ -289,15 +290,15 @@ class Form_Submission extends Asset
 		$this->saveAttributes();
 
 		return true;
- 
+
 	}//end setProcessed()
 
 
 	/**
 	* returns TRUE if a question has been processed
-	* 
+	*
 	* @param integer $question_id the question id to check
-	* 
+	*
 	* @access public
 	* @return boolean
 	*/
@@ -329,7 +330,7 @@ class Form_Submission extends Asset
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 
 		return $val;
-	
+
 	}//end saveAttributes()
 
 }//end class

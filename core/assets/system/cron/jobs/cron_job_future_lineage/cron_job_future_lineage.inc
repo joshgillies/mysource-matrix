@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.11 2004/12/03 15:29:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: cron_job_future_lineage.inc,v 1.12 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,7 +50,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	{
 		$this->_ser_attrs = true;
 		$this->Cron_Job($assetid);
-		
+
 	}//end constructor
 
 
@@ -107,9 +107,9 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		} else {
 			return 'Future Linking for "'.$minor->name.'" (#'.$minor->id.')';
 
-		}// end if
+		}//end if
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
@@ -174,7 +174,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		if ($name == 'type') {
 			trigger_error('You can\'t set the type of a future lineage cron job it can only be a one off event', E_USER_NOTICE);
 			return false;
-		}// end if
+		}//end if
 
 		return parent::setAttrValue($name, $value);
 
@@ -263,7 +263,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 					$str .= ' - '.$minor->name.' (#'.$minor->id.') from under '.$old_major->name.' (#'.$old_major->id.')';
 				}
 			}
-		} 
+		}
 
 		$new_major = &$this->getAssetInLink('major');
 
@@ -272,7 +272,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		if (!is_null($new_major)) {
 			$str .= 'Creating new link for '.$minor->name.' (#'.$minor->id.') under '.$new_major->name.' (#'.$new_major->id.')';
 		}
-		
+
 		return $str;
 
 	}//end readableDescription()
@@ -318,7 +318,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 				return $failed_ret_val;
 			}
 
-		}// end if
+		}//end if
 
 		$new_major = &$this->getAssetInLink('major');
 		if (!is_null($new_major)) {
@@ -394,14 +394,14 @@ class Cron_Job_Future_Lineage extends Cron_Job
 				$dates[$i] = $all_jobs[$i]->attr('when');
 			}
 
-		}// end for
+		}//end for
 
 		asort($dates, SORT_STRING);
 		$assets_jobs = Array();
 
 		foreach ($dates as $i => $date) {
 			$assets_jobs[] = &$all_jobs[$i];
-		}// end for
+		}//end for
 
 		return $assets_jobs;
 

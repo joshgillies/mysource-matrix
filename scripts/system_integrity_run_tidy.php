@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_run_tidy.php,v 1.2 2004/10/18 21:32:35 amiller Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_integrity_run_tidy.php,v 1.3 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
 * Go through all WYSIWYG content types and re-run HTML Tidy
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -49,7 +49,7 @@ if ($ROOT_ASSETID == 1) {
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
-	
+
 // check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
@@ -81,35 +81,35 @@ closedir($dh);
 // go through each wysiwyg in the system, lock it, validate it, unlock it
 $wysiwygids = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'content_type_wysiwyg', false);
 foreach ($wysiwygids as $wysiwygid => $type_code) {
-	
+
 	$wysiwyg = &$GLOBALS['SQ_SYSTEM']->am->getAsset($wysiwygid, $type_code);
 	printAssetName('WYSIWYG #'.$wysiwyg->id);
-	
+
 	// try to lock the WYSIWYG
 	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($wysiwyg->id, 'attributes')) {
 		printUpdateStatus('LOCKED');
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg);
 		continue;
 	}
-	
+
 	$old_html = $wysiwyg->attr('html');
-	
+
 			// If HTML Tidy is enabled, let's rock'n'roll
 		if (SQ_TOOL_HTML_TIDY_ENABLED) {
 
 			// tidy the HTML produced using the HTMLTidy program
 			$path_to_tidy = SQ_TOOL_HTML_TIDY_PATH;
-			
+
 			// is_executable doesn't exist on windows pre 5.0.0
 			if (function_exists('is_executable')) {
 				if (is_executable($path_to_tidy)) {
 					$command = "/bin/echo ".escapeshellarg($old_html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
-				
+
 					$tidy = Array();
 					exec($command, $tidy);
 					$new_html = implode("\n", $tidy);
 					unset($tidy);
-					
+
 					if (!$wysiwyg->setAttrValue('html', $new_html) || !$wysiwyg->saveAttributes()) {
 					printUpdateStatus('TIDY FAIL');
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg);
@@ -118,7 +118,7 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 				}
 			}
 		}
-	
+
 	// try to unlock the WYSIWYG
 	if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($wysiwyg->id, 'attributes')) {
 		printUpdateStatus('UNLOCK FAIL');
@@ -127,7 +127,7 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 	}
 
 	printUpdateStatus('TIDY PASS');
-	
+
 	// try to recreate the parent content_files (bodycopy container and bodycopy)
 	$parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($wysiwyg->id);
 	foreach ($parents as $parent) {
@@ -139,17 +139,17 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 		} else {
 			printAssetName($parent_asset->name.' (#'.$parent_asset->id.')');
 			printUpdateStatus('CONTENT PASS');
-			
+
 			// Clear the Cache for each asset
 			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-			
+
 			// get the group that is used as the first 2 digits of the
 			// cache directory names, and get the asset id code whics is used as
 			// the first string on each of the cache files
 
 			$assetid_code = md5($parent_asset->id);
 			$group = $cm->getAssetHash($assetid_code);
-			
+
 			foreach ($this->_running_vars['cache_dirs'] as $dir) {
 				if (substr($dir, 0, strlen($group)) == $group) {
 
@@ -169,12 +169,12 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 					closedir($dh);
 				}
 			}//end foreach
-			
+
 		}
 	}
 
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg);
-	
+
 }//end foreach
 
 
@@ -190,9 +190,9 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 */
 function printAssetName($name)
 {
-	printf ('%s%'.(30 - strlen($name)).'s', $name, ''); 
-	
-}//end printWYSIWYGName()
+	printf ('%s%'.(30 - strlen($name)).'s', $name, '');
+
+}//end printAssetName()
 
 
 /**
@@ -206,7 +206,7 @@ function printAssetName($name)
 function printUpdateStatus($status)
 {
 	echo " [ $status ] \n";
-	
+
 }//end printUpdateStatus()
 
 ?>

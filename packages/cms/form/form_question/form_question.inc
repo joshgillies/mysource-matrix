@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.41 2004/11/23 23:47:05 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question.inc,v 1.42 2004/12/06 14:41:38 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -134,7 +134,7 @@ class Form_Question extends Asset
 		$this->vars['question_type_code']['value'] = get_class($this);
 		$this->vars['question_type_code']['type'] = 'text';
 
-	}//end Form_Question()
+	}//end constructor
 
 
 	/**
@@ -294,7 +294,7 @@ class Form_Question extends Asset
 	* @access public
 	* @return string relating to the $val field as described above, or empty string if other
 	*/
-	function getVal($val = '')
+	function getVal($val='')
 	{
 		switch (strtolower($val)) {
 			case 'title' :
@@ -385,7 +385,7 @@ class Form_Question extends Asset
 	* @return mixed (Array | string) Array of selection options if an array is passed, or a single
 	*								 option if an int is passed
 	*/
-	function getAnswerByOffset($offset = 0)
+	function getAnswerByOffset($offset=0)
 	{
 		$options = $this->getOptions();
 		if (is_array($offset)) {
@@ -410,7 +410,7 @@ class Form_Question extends Asset
 	* @access public
 	* @return string
 	*/
-	function getOffsetByAnswer($answer = '')
+	function getOffsetByAnswer($answer='')
 	{
 		if (!$answer) return false;
 
@@ -476,7 +476,7 @@ class Form_Question extends Asset
 		$this->saveAttributes();
 		return $rules;
 
-	}//end getRules()
+	}//end addRule()
 
 
 	/**
@@ -532,7 +532,7 @@ class Form_Question extends Asset
 	* @access private
 	* @return string
 	*/
-	function _getName($short_name = false)
+	function _getName($short_name=false)
 	{
 		return $this->attr('name');
 

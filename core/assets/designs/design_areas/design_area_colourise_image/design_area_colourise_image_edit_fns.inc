@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image_edit_fns.inc,v 1.14 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_colourise_image_edit_fns.inc,v 1.15 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,11 +50,11 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _processContents(&$asset, $contents)
 	{
-		// blank out the colours array so that we don't end up remembering old values 
+		// blank out the colours array so that we don't end up remembering old values
 		$asset->setAttrValue('colours', Array());
 		return parent::_processContents($asset, $contents);
 
-	}// end _processContents()
+	}//end _processContents()
 
 
 	/**
@@ -95,9 +95,9 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 		$colours = $asset->attr('colours');
 
 		switch ($asset->attr('type')) {
-		
+
 			case 'greyscale' :
-				if (!isset($colours['black_colour']) || !isset($colours['white_colour'])) { 
+				if (!isset($colours['black_colour']) || !isset($colours['white_colour'])) {
 					trigger_error('Unable to colourise "'.$asset->attr('id_name').'", you need to set both the black_colour and white_colour attributes in order to greyscale colourise an image', E_USER_WARNING);
 					return '';
 				}
@@ -122,7 +122,7 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 
 			break;
 
-			default : 
+			default :
 				trigger_error('Unable to Colourise Image "'.$asset->attr('id_name').'",  type "'.$this->get_val('type').'" unknown.', E_USER_WARNING);
 
 		}//end switch
@@ -156,7 +156,7 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 			if (strstr($name, '_colour')) $vars[$name] = $data;
 		}
 		return $vars;
-	}// end getSetableVars()
+	}//end getSetableVars()
 
 }//end class
 ?>

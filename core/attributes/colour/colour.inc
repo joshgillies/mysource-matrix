@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour.inc,v 1.17 2004/09/10 07:10:23 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: colour.inc,v 1.18 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 
@@ -37,7 +37,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <colour />
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -52,14 +52,14 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Colour($attributeid=0, $value=null) 
+	function Asset_Attribute_Colour($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, $value);
 		if (!$attributeid) {
 			// Set Some default params for when we are loaded without an ID
 			$this->_params = Array('allow_blanks' => false);
 		}
-		
+
 	}//end constructor
 
 

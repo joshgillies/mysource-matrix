@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_head_management.inc,v 1.1 2004/08/19 06:41:32 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_head_management.inc,v 1.2 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Design_Area_Head_Management extends Asset_Management
 
 		$this->vars = Array();
 
-	}//end Design_Area_head_Management()
+	}//end constructor
 
 
 }//end class

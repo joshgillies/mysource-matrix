@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.7 2004/11/18 05:08:03 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_standard.inc,v 1.8 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,14 +158,14 @@ class Page_Standard extends Page
 	function paintBackend(&$o)
 	{
 		if (isset($_GET['sq_from_frontend'])) {
-			
+
 			$bodycopy = &$this->getBodycopy();
 			if (is_null($bodycopy)) {
 				trigger_error('Could not locate the bodycopy for standard page "'.$this->name.'"', E_USER_ERROR);
 				return false;
 			}
 			$o->addFormActionGetVar('assetid', $bodycopy->id);
-			
+
 			// fudge the navigation history a little
 			if (!isset($_SESSION['sq_nav_history'])) {
 				$_SESSION['sq_nav_history'] = Array();
@@ -221,7 +221,7 @@ class Page_Standard extends Page
 	function printLimbo()
 	{
 		$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
-		
+
 		if ($lm->hasLayout($this->type(), 'details')) {
 			parent::printLimbo();
 		} else {
@@ -264,7 +264,7 @@ class Page_Standard extends Page
 			// get the bodycopy
 			$bodycopy = &$this->getBodycopy();
 			if (is_null($bodycopy)) return $keydata;
-			
+
 			// preprocess
 			$contents = strtolower(strip_tags(html_entity_decode($bodycopy->getRawBodycopyContent())));
 			$comp_name = 'attr:'.$this->type().':contents';
@@ -321,9 +321,9 @@ class Page_Standard extends Page
 		$null = null;
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, '', 'major');
 		if (empty($link)) return $null;
-		
+
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-	
+
 	}//end getBodycopy()
 
 
@@ -395,7 +395,7 @@ class Page_Standard extends Page
 
 		return true;
 
-	}//end processCustomKeywordReplacements()
+	}//end processCustomKeywords()
 
 
 }//end class

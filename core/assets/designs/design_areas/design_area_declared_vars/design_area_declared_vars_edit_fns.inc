@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.19 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.20 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function _processContents(&$asset, $contents) 
+	function _processContents(&$asset, $contents)
 	{
 		$vars = Array();
 		$declared_vars = Array();
@@ -74,8 +74,8 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			if (!$GLOBALS['SQ_SYSTEM']->am->validAttributeType($element['attributes']['type'])) {
 				trigger_error('Declared Variable "'.$name.'" in "'.$asset->attr('id_name').'" is specified as unknown in Attribute Type "'.$element['attributes']['type'].'"', E_USER_WARNING);
 				return false;
-			}// end if
-			
+			}//end if
+
 			// check that the value is valid
 			require_once(SQ_ATTRIBUTES_PATH.'/'.$element['attributes']['type'].'/'.$element['attributes']['type'].'.inc');
 			$class = 'Asset_Attribute_'.$element['attributes']['type'];
@@ -83,21 +83,21 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			if (!$attr->validateValue($element['attributes']['value'])) {
 				trigger_error('Declared Variable "'.$name.'" in "'.$asset->attr('id_name').'" has an invalid value "'.$element['attributes']['value'].'" for an "'.$element['attributes']['type'].'" attribute type', E_USER_WARNING);
 				return false;
-			}// end if
+			}//end if
 
 			$declared_vars[$name] = Array(
 											'type'        => $element['attributes']['type'],
 											'value'       => $element['attributes']['value'],
 											'description' => $element['attributes']['description'],
 											);
-		}// end foreach
+		}//end foreach
 
 		// now make sure we save our changes
 		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
 		return $asset->setAttrValue('declared_vars', $declared_vars);
 
 		// NOTE: we deliberately don't set the 'contents' as is done in other design areas
-	
+
 	}//end _processContents()
 
 
@@ -116,11 +116,12 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			$text .= '<'.$this->tag_name.'_DECLARE name="'.htmlentities($name).'"';
 			foreach ($data as $k => $v) $text .= ' '.$k.'="'.htmlentities($v).'"';
 			$text .= " />\n";
-		}// end foreach
+		}//end foreach
 
 		return $text;
-	}// end createParseString()
-	
+
+	}//end createParseString()
+
 	/**
 	*
 	* @param object Asset				$asset	the asset whose interface we are painting
@@ -130,7 +131,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintDecVars(&$asset, &$o, $prefix) 
+	function paintDecVars(&$asset, &$o, $prefix)
 	{
 		$attrs = $asset->getDeclaredVarAttributes();
 		foreach ($attrs as $name => $attr) {
@@ -142,9 +143,10 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			}
 			if ($asset->vars['declared_vars']['value'][$name]['description']) $o->note($asset->vars['declared_vars']['value'][$name]['description']);
 
-		}// end foreach
+		}//end foreach
 
-	}// end paintSpecialisation()
+	}//end paintDecVars()
+
 
 	/**
 	*
@@ -155,7 +157,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processDecVars(&$asset, &$o, $prefix) 
+	function processDecVars(&$asset, &$o, $prefix)
 	{
 		$save = false;
 		$attrs = $asset->getDeclaredVarAttributes();
@@ -176,7 +178,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 			return false;
 		}
 
-	}// end processDecVars()
+	}//end processDecVars()
 
 
 }//end class

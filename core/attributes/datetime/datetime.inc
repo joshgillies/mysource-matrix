@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.24 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: datetime.inc,v 1.25 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 
@@ -46,7 +46,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *    </datetime>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -64,7 +64,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 								  'm' => 'months',
 								  'y' => 'years',
 								);
-								
+
 	/**
 	* Valid period age options for the datetime field
 	* @var array
@@ -81,7 +81,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_DateTime($attributeid=0, $value=null) 
+	function Asset_Attribute_DateTime($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, $value);
 
@@ -114,7 +114,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		if (!empty($node->attributes['max'])) $this->_edit_params['max'] = $node->attributes['max'];
 		if (!empty($node->attributes['allow_circa'])) $this->_edit_params['allow_circa'] = $node->attributes['allow_circa'];
 		if (!empty($node->attributes['print_format'])) $this->_edit_params['print_format'] = $node->attributes['print_format'];
-		
+
 		// what to print and how to show it (textbox or select box)
 		// need to do some more intense looking around for these options :)
 		$this->_edit_params['show']  = Array();
@@ -147,7 +147,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 				$this->_edit_params['style'][$u] = 's';
 			}
 		}
-		
+
 		return true;
 
 	}//end setEditParams()
@@ -164,21 +164,21 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	function paint($prefix, $read_only=false)
 	{
 		$using_single_date = is_iso8601($this->value);
-		
+
 		$period_num = '1';
 		$period_type = 'd';
 		$period_age = '-';
-		
+
 		if ($using_single_date) {
 			$date_field_value = $this->value;
-			
+
 			if ($date_field_value != '---------- --:--:--') {
 
 				// get the current value as a timestamp
 				// NOTE: we replace -- with ZERO because strtotime needs a full iso8601 date
 				// to get the timestamp - not just part of one
 				$timestamp = strtotime(str_replace('--', '0', $this->value));
-	
+
 				if ($timestamp < time()) {
 					$format = easy_time_total(time() - $timestamp, false, true);
 					if ($format['d'] > 0) {
@@ -196,7 +196,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 					}
 				}
 			}
-			
+
 		} else {
 			$matches = Array();
 			preg_match('|([\-\+])([0-9]+)(['.implode('', array_keys($this->_period_options)).'])|', $this->value, $matches);
@@ -210,7 +210,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			$this->_edit_params['print_format'] = $this->_params['print_format'];
 		}
 		$field = new Datetime_Field($prefix, $date_field_value, $this->_edit_params);
-		
+
 		if ($using_single_date) {
 			if ($read_only) {
 				echo $field->format();
@@ -243,7 +243,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 						if ($this->_edit_params['use_picker']) {
 							// print the JS calendar popup date selecta
 							require_once SQ_LIB_PATH.'/js_calendar/js_calendar.inc';
-				
+
 							$calendar = new JS_Calendar();
 							$calendar->changeSetting('onDayClick', 'datetime_set_date');
 							$calendar->paint($prefix, $prefix.'_cal_picker', true);
@@ -269,7 +269,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			if ($this->_edit_params['use_picker']) {
 				// print the JS calendar popup date selecta
 				require_once SQ_LIB_PATH.'/js_calendar/js_calendar.inc';
-	
+
 				$calendar = new JS_Calendar();
 				$calendar->changeSetting('onDayClick', 'datetime_set_date');
 				$calendar->paint($prefix, '', true);
@@ -294,7 +294,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 		}
 
 		$using_single_date = is_iso8601($this->value);
-		
+
 		if ($setting_single_date) {
 			$field_value = $this->value;
 			if (!$using_single_date) $field_value = '---------- --:--:--';

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.35 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_email.inc,v 1.36 2004/12/06 14:41:38 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -114,7 +114,7 @@ class Form_Email extends Form
 	* @access public
 	* @return string $information
 	*/
-	function getFormInfo($html = false)
+	function getFormInfo($html=false)
 	{
 		$info = parent::getFormInfo();
 		$title = 'Form Information';
@@ -146,7 +146,7 @@ class Form_Email extends Form
 	*                       );
 	*                       or alternately
 	*                       Array('all');
-	* 
+	*
 	* @return boolean
 	* @access public
 	* @see asset::cloneComponents()
@@ -154,13 +154,13 @@ class Form_Email extends Form
 	function cloneComponents(&$clone, $components)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;			
+			return false;
 		}
-		
-		if (in_array('attributes', $components) || in_array('all', $components)) {		
+
+		if (in_array('attributes', $components) || in_array('all', $components)) {
 			// send to a friend format
 			$recip = unserialize($this->attr('recipient_emails_format'));
 			$recip = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $recip);
@@ -173,22 +173,22 @@ class Form_Email extends Form
 				$sel[$key]['address'] = str_replace('%response_'.$this->id.'_', '%response_'.$clone->id.'_', $sel[$key]['address']);
 				$sel[$key]['assetid'] = str_replace($this->id.':q', $clone->id.':q', $sel[$key]['assetid']);
 			}
-			
+
 			// save the information
 			$clone->setAttrValue('recipient_emails_format', serialize($recip));
 			$clone->setAttrValue('receipt_emails_format', serialize($rec));
 			$clone->setAttrValue('staf_format', serialize($staf));
 			$clone->setAttrValue('selective_emails', $sel);
 			$clone->saveAttributes();
-			
+
 		}
-		
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-	
+
 	}//end cloneComponents()
 
-	
+
 	/**
 	* Mail a receipt to the user if a receipt email field has been assigned in Email Options
 	*

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.43 2004/11/18 05:00:42 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: root_folder.inc,v 1.44 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -146,7 +146,7 @@ class Root_Folder extends Folder
 	{
 		return ($short_name) ? '/' : 'Root Folder';
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
@@ -171,7 +171,7 @@ class Root_Folder extends Folder
 	function canClone()
 	{
 		return false;
-	
+
 	}//end canClone()
 
 
@@ -213,7 +213,7 @@ class Root_Folder extends Folder
 			return parent::_checkPermissionAccess($perm, $assetids);
 		}
 
-	}//end checkAccess()
+	}//end _checkPermissionAccess()
 
 
 	/**

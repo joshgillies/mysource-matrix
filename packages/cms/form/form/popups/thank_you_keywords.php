@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thank_you_keywords.php,v 1.1 2004/09/21 00:41:40 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: thank_you_keywords.php,v 1.2 2004/12/06 14:41:38 brobertson Exp $
+*
 */
 
 	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
 	require_once dirname(__FILE__).'/../../../../../core/lib/html_form/html_form.inc';
 	if (!isset($_GET['assetid'])) return false;
-	
+
 	assert_valid_assetid($_GET['assetid']);
 	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
 	if (!is_a($asset, 'form')) {
@@ -67,7 +67,7 @@
 
 		$o->openSection('Keyword List for \''.$asset->attr('name').'\' (#'.$asset->id.')');
 		$o->openField('&nbsp;');
-		
+
 		$questions = $asset->getQuestions();
 		$sections  = $asset->getSections();
 	?>
@@ -76,7 +76,7 @@
 		<p>
 		<fieldset>
 			<legend><b>Unattached Questions</b></legend>
-			<table border="0" width="100%">		
+			<table border="0" width="100%">
 				<?php
 					foreach ($questions as $q_id => $question) {
 						$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id.':q'.$q_id);
@@ -86,7 +86,7 @@
 			</table>
 		</fieldset>
 		</p>
-					
+
 			<?php
 				foreach ($sections as $section) { ?>
 				<p>
@@ -105,9 +105,9 @@
 						</table>
 					</fieldset>
 				</p>
-				<?php } ?>		
+				<?php } ?>
 
-				
+
 			</table>
 		</fieldset>
 		</p>

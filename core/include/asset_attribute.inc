@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.28 2004/11/18 04:39:52 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_attribute.inc,v 1.29 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 */
 class Asset_Attribute extends MySource_Object
@@ -135,7 +135,7 @@ class Asset_Attribute extends MySource_Object
 			if (!isset($this->_params[$name])) $this->_params[$name] = $default;
 		}
 
-	}//end contructor
+	}//end constructor
 
 
 	/**
@@ -175,7 +175,7 @@ class Asset_Attribute extends MySource_Object
 		// strip the 'Asset_Attribute_' off the front
 		return substr(get_class($this), 16);
 
-	}//end type();
+	}//end type()
 
 
 	/**
@@ -221,7 +221,7 @@ class Asset_Attribute extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function processEditParams($prefix)	
+	function processEditParams($prefix)
 	{
 		return true;
 

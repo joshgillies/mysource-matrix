@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.20 2004/11/18 05:10:23 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: search_page_management.inc,v 1.21 2004/12/06 14:44:15 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -122,7 +122,7 @@ class Search_Page_Management extends Asset_Management
 				'description'	=> 'Whether to include all or any fields.',
 				'parameters'	=> Array(
 					'options' => Array(
-						'AND'	=> 'Match on ALL fields', 
+						'AND'	=> 'Match on ALL fields',
 						'OR'	=> 'Match on at least ONE field',
 					),
 					'multiple' => false,
@@ -203,7 +203,7 @@ class Search_Page_Management extends Asset_Management
 			}
 			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.1');
 		}//end version 0.1 upgrade
-		
+
 		if ($current_version == '0.5') {
 			// version 0.5->0.6
 			// changed the format of the fields array
@@ -219,27 +219,27 @@ class Search_Page_Management extends Asset_Management
 				foreach ($fields as $field_name => $field_data) {
 					// strip out the additional name field
 					if (isset($field_data['name'])) unset($field_data['name']);
-					
+
 					// metadata fields need their params reworked
 					if ($field_data['type'] == 'metadata') {
 						$field_data['params'] = Array('assetid' => $field_data['params']['metadata_field']['assetid']);
 					}
-					
+
 					if ($field_data['type'] == 'asset_attrib') {
 						$new_params = Array();
 						$new_params['asset_type'] = $field_data['params']['searchtype'];
-						
+
 						// [0] - name, [1] - type, [2] - id
 						$attr_parts = explode('__', $field_data['params']['type_attr']);
 						$new_params['attrid'] = $attr_parts[2];
-		
+
 						$field_data['params'] = $new_params;
 					}
-					
+
 					$new_fields[$field_name] = $field_data;
 				}
 				$asset->setAttrValue('fields', $new_fields);
-				if (!$asset->saveAttributes()) { 
+				if (!$asset->saveAttributes()) {
 					trigger_error('Search Page Upgrade [to 0.6] failed - Couldn\'t save attributes', E_USER_WARNING);
 					return false;
 				}
@@ -252,8 +252,8 @@ class Search_Page_Management extends Asset_Management
 		return true;
 
 	}//end _upgrade()
-	
-	
+
+
 	/**
 	* Return an array with information about the events that this page is listening for
 	*

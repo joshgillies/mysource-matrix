@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.16 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: bodycopy.inc,v 1.17 2004/12/06 14:38:07 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -213,7 +213,8 @@ class Bodycopy extends Asset
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks() {
+	function _getAllowedLinks()
+	{
 
 		return Array(SQ_LINK_TYPE_2 => Array('bodycopy_container' => Array('card' => 'M', 'exclusive' => false)));
 
@@ -237,7 +238,7 @@ class Bodycopy extends Asset
 			default :
 				return parent::paintBackend($o);
 
-		}// end switch
+		}//end switch
 
 	}//end paintBackend()
 
@@ -258,7 +259,7 @@ class Bodycopy extends Asset
 			default :
 				return parent::printFrontend($o);
 
-		}// end switch
+		}//end switch
 
 	}//end printFrontend()
 
@@ -381,7 +382,7 @@ class Bodycopy extends Asset
 
 		return $keywords;
 
-	}//end getKeywords
+	}//end getKeywords()
 
 
 	/**

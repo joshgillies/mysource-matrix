@@ -18,10 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation_edit_fns.inc,v 1.5 2004/09/14 19:07:16 brobertson Exp $
-* $prefix:  $
+* $Id: calendar_event_cancellation_edit_fns.inc,v 1.6 2004/12/06 14:40:32 brobertson Exp $
+*
 */
-
 
 require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.inc';
 
@@ -32,7 +31,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -48,7 +47,7 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 	{
 		$this->Calendar_Event_Edit_Fns();
 
-	}//end Calendar_Event_Cancellation_Edit_Fns()
+	}//end constructor
 
 
 	/**
@@ -60,7 +59,7 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 	*
 	* @access public
 	*/
-	function paintDateTimeChooser(&$asset, &$o, $prefix) 
+	function paintDateTimeChooser(&$asset, &$o, $prefix)
 	{
 		if ($asset->writeAccess('attributes')) {
 			?>
@@ -89,7 +88,7 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 	* @return boolean	Whether the update was successful
 	* @access public
 	*/
-	function processDateTimeChooser(&$asset, &$o, $prefix) 
+	function processDateTimeChooser(&$asset, &$o, $prefix)
 	{
 		return $this->processStartEndChooser($asset, $o, $prefix);
 
@@ -129,8 +128,8 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 	*
 	* @return boolean	Whether the update was successful
 	* @access public
-	*/	
-	function processRecurringEventChooser(&$asset, &$o, $prefix) 
+	*/
+	function processRecurringEventChooser(&$asset, &$o, $prefix)
 	{
 		// not doing anything here; the field is processed in saveAttributes() because
 		// we need an ID first

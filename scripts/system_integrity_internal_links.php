@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_internal_links.php,v 1.1 2004/03/25 05:22:01 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_integrity_internal_links.php,v 1.2 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
 * Go through all WYSIWYG content types are ensure all ./?a=xx links are in the correct format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -48,7 +48,7 @@ if ($ROOT_ASSETID == 1) {
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
-	
+
 // check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
@@ -64,17 +64,17 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 // go trough each wysiwyg in the system, lock it, validate it, unlock it
 $wysiwygids = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'content_type_wysiwyg', false);
 foreach ($wysiwygids as $wysiwygid => $type_code) {
-	
+
 	$wysiwyg = &$GLOBALS['SQ_SYSTEM']->am->getAsset($wysiwygid, $type_code);
 	printWYSIWYGName('WYSIWYG #'.$wysiwyg->id);
-	
+
 	// try to lock the WYSIWYG
 	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($wysiwyg->id, 'attributes')) {
 		printUpdateStatus('LOCK');
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg);
 		continue;
 	}
-	
+
 	$old_html = $wysiwyg->attr('html');
 	$new_html = preg_replace('|http[s]?://[^\s]+(\?a=[0-9]+)|', './\\1', $old_html);
 	if (!$wysiwyg->setAttrValue('html', $new_html) || !$wysiwyg->saveAttributes()) {
@@ -82,7 +82,7 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($container);
 		continue;
 	}
-	
+
 	// try to unlock the WYSIWYG
 	if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($wysiwyg->id, 'attributes')) {
 		printUpdateStatus('!!');
@@ -92,7 +92,7 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 
 	printUpdateStatus('OK');
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg);
-	
+
 }//end foreach
 
 
@@ -108,8 +108,8 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 */
 function printWYSIWYGName($name)
 {
-	printf ('%s%'.(30 - strlen($name)).'s', $name, ''); 
-	
+	printf ('%s%'.(30 - strlen($name)).'s', $name, '');
+
 }//end printWYSIWYGName()
 
 
@@ -124,7 +124,7 @@ function printWYSIWYGName($name)
 function printUpdateStatus($status)
 {
 	echo "[ $status ]\n";
-	
+
 }//end printUpdateStatus()
 
 

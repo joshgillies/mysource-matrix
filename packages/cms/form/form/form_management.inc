@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.29 2004/11/18 05:11:34 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_management.inc,v 1.30 2004/12/06 14:41:38 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.29 $
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,20 +48,20 @@ class Form_Management extends Asset_Management
 
 		$this->vars = Array('name'					=> Array(
 															'added'     => '0.0.1',
-															'type'      => 'text',  
+															'type'      => 'text',
 															'default'   => '',
 															'update_fn' => ''
 															),
-										
+
 							'wizard'				=> Array(
 															'added'      => '0.0.1',
-															'type'       => 'boolean', 
+															'type'       => 'boolean',
 															'default'    => 0,
 															'parameters' => Array(
 																'allow_empty' => false
 																),
 															),
-								
+
 							'validate'				=> Array(
 															'added'      => '0.0.1',
 															'type'       => 'boolean',
@@ -70,7 +70,7 @@ class Form_Management extends Asset_Management
 																'allow_empty' => false
 																),
 															),
-	
+
 							'log_submissions'		=> Array(
 															'added'      => '0.0.1',
 															'type'       => 'boolean',
@@ -79,7 +79,7 @@ class Form_Management extends Asset_Management
 																'allow_empty' => false
 																),
 															),
-	
+
 							'show_results'			=> Array(
 															'added'      => '0.0.1',
 															'type'       => 'boolean',
@@ -88,7 +88,7 @@ class Form_Management extends Asset_Management
 																'allow_empty' => false
 																),
 															),
-	
+
 							'cookie_time'			=> Array(
 															'added'	=> '0.0.1',
 															'type'	=> 'selection',
@@ -231,7 +231,7 @@ class Form_Management extends Asset_Management
 															'default'	=> 0,
 															),
 							);
-							
+
 	}//end constructor
 
 
@@ -275,7 +275,7 @@ class Form_Management extends Asset_Management
 					 );
 
 	}//end _getFileList()
-	
-	
+
+
 }//end class
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.30 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_tickbox_list.inc,v 1.31 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -51,7 +51,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	{
 		$this->Form_Question($assetid,$data);
 
-	}//end Form_Question_Type_Tickbox_List()
+	}//end constructor
 
 
 	/**
@@ -95,7 +95,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @access public
 	* @return string
 	*/
-	function listBox($options, $multiple = false, $hor = false, $extras ='')
+	function listBox($options, $multiple=false, $hor=false, $extras='')
 	{
 		$type  = ($multiple) ? 'checkbox' : 'radio';
 		if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
@@ -225,7 +225,8 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	* @access public
 	* @return Array(string => string)
 	*/
-	function getAllowedRules() {
+	function getAllowedRules()
+	{
 		return Array('select_limit', 'selection');
 
 	}//end getAllowedRules()

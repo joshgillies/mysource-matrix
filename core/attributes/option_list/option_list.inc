@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.11 2004/11/08 03:35:18 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: option_list.inc,v 1.12 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@
 *    <option_list />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -69,22 +69,22 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 
 		$current_value = explode("\r\n", $this->value);
 		if (!is_array($current_value))             $current_value = Array();
-		
+
 		if ($read_only) {
 			echo implode('<br />', $current_value);
-		} else {	
+		} else {
 			$current_to_string = '';
 			$current_to = '';
 			$i = 0;
 
 			if (!empty($this->value)) {
-		
+
 				foreach ($current_value as $option) {
 					$current_to_string .= '<div id="'.$prefix.'_'.$i.'">[ <a href="#" onclick="Javascript: optionListRemoveOption('.$i.', \''.$prefix.'\', \'options\'); return false;">del</a> ] <span id="'.$prefix.'_content_'.$i.'">'.htmlspecialchars($option).'</span></div>';
 					$current_to .= $option."\r\n";
 					$i++;
 				}
-				
+
 			}
 
 		?>
@@ -96,7 +96,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				next_index = new Array();
 			}
 			next_index['<?php echo $prefix ?>'] = <?php echo $i ?>;
-		
+
 			function optionListAddOption(box_name, type) {
 				var value = document.getElementById(box_name + "_" + type);
 				var box = document.getElementById(box_name + "_new_" + type);
@@ -106,28 +106,28 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 
 				div.innerHTML += '<div id="' + box_name + '_' + next_index[box_name].toString() + '">[ <a href="#" onclick="Javascript: optionListRemoveOption(' + next_index[box_name].toString() + ', \'' + box_name + '\', \'' + type + '\'); return false;">del</a> ] <span id="' + box_name + '_content_' + next_index[box_name].toString() + '">' + box.value.replace('<', '&lt;').replace('>', '&gt;') + '</span></div>';
 				value.value   += box.value + "\r\n";
-				
+
 				next_index[box_name]++;
-				
+
 				box.value = "";
 				box.focus();
-			
+
 			}//end optionListAddOption()
 
 
 			function optionListRemoveOption(index, box_name, type) {
 				var div = document.getElementById(box_name + "_current_" + type);
 				var value = document.getElementById(box_name + "_" + type);
-				
+
 				arrIndex = 0;
 				option_array = new Array();
 
-				// get the first div in the list				
+				// get the first div in the list
 				divX = div.firstChild;
-				
+
 				while(divX != null) {
 					this_option = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
-				
+
 					// this is the one we want
 					if (divX.id == (box_name + "_" + index)) {
 						divX.style.display = 'none';
@@ -137,7 +137,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 					arrIndex++;
 					divX = divX.nextSibling;
 				}
-				
+
 				var new_value_content = '';
 
 				for (var i = 0; i < option_array.length; i++) {
@@ -145,16 +145,16 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 					if (typeof option != 'undefined') {
 						re = new RegExp("\\\[.*\\\] (.*)", "g");
 						this_option = option.replace(re, "\$1");
-	
+
 						new_value_content += this_option + "\r\n";
 					}
 				}
-				
+
 				value.value = new_value_content;
 
 
 			}//end optionListRemoveOption()
-			
+
 		</script>
 			<?php text_box($prefix.'_new_options', '', 50); ?>
 			[ <a href="#" onclick="Javascript: optionListAddOption('<?php echo $prefix ?>', 'options'); return false;">add</a> ]<br/>
@@ -193,7 +193,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				$value[] = $option;
 			}
 		}
-		
+
 		$this->processed = $this->setValue(implode("\r\n",$value));
 
 	}//end process()

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks_edit_fns.inc,v 1.9 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_menu_stalks_edit_fns.inc,v 1.10 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Design_Area_Menu_Stalks_Edit_Fns extends Design_Area_Menu_Recursive_Edit_F
 		unset($vars['show_subs']);
 		return $vars;
 
-	}// end getSetableVars()
+	}//end getSetableVars()
 
 
 	/**
@@ -119,15 +119,15 @@ class Design_Area_Menu_Stalks_Edit_Fns extends Design_Area_Menu_Recursive_Edit_F
 					$x2 = $w - 1;
 				}
 				ImageFilledRectangle($img, $x1, floor($h / 2), $x2, floor($h / 2), $fg);
-			}// end if
+			}//end if
 
 			if ($image_name == 'branch' || $image_name == 'stalk' ) {
 				ImageFilledRectangle($img, floor($w / 2), 0, floor($w / 2), $h - 1, $fg);
-			}// end if
+			}//end if
 
 			if ($image_name == 'endbranch') {
 				ImageFilledRectangle($img, floor($w / 2), 0, floor($w / 2), floor($h / 2), $fg);
-			}// end if
+			}//end if
 
 			if ($image_name == 'arrow') {
 				if ($direction == 'left') {
@@ -144,16 +144,16 @@ class Design_Area_Menu_Stalks_Edit_Fns extends Design_Area_Menu_Recursive_Edit_F
 								$x1,  $y1 + $asset->arrow_height, // x3, y3
 								);
 				ImageFilledPolygon($img, $points, 3, $fg);
-			}// end if
+			}//end if
 
 			ImagePng($img, $image_path.'/'.$image_name.'.png');
 			ImageDestroy($img);
 
-		}// end foreach
+		}//end foreach
 
 		return true;
 
-	}// end _createStalkImages();
+	}//end _createStalkImages()
 
 }//end class
 ?>

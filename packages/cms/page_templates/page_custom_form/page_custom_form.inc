@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.13 2004/11/24 02:47:59 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_custom_form.inc,v 1.14 2004/12/06 14:41:40 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -50,7 +50,7 @@ class Page_Custom_Form extends Page
 	{
 		$this->Page($assetid);
 
-	}// end Page_Custom_Form()
+	}//end constructor
 
 
 	/**
@@ -113,7 +113,7 @@ class Page_Custom_Form extends Page
 
 		return true;
 
-	}
+	}//end printFrontend()
 
 
 	/**
@@ -135,7 +135,7 @@ class Page_Custom_Form extends Page
 
 		return true;
 
-	} // end printBody()
+	}//end printBody()
 
-} // end class
+}//end class
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.25 2004/12/03 15:43:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: general.inc,v 1.26 2004/12/06 14:39:53 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.26 $
 * @package Fudge
 * @subpackage General
 */
@@ -140,7 +140,7 @@ function array_remove_element($v, &$a)
 		unset($a[array_search($v,$a)]);
 		return true;
 	}
-	
+
 }//end array_remove_element()
 
 
@@ -206,7 +206,7 @@ function ellipsisize($string, $length)
 	}
 	return $string;
 
-}// end ellipsisize()
+}//end ellipsisize()
 
 
 /**
@@ -372,7 +372,7 @@ function add_ordinal_suffix($num)
 
 /**
 * Return the supplied number with ordinal suffix as it would be used in a backwards count
-* 
+*
 * If the number is 1, an empty string is returned because you don't want to print
 * "the 1st last day of the month" for example.
 *
@@ -384,7 +384,7 @@ function add_ordinal_suffix($num)
 function add_reverse_ordinal_suffix($num)
 {
 	return ($num == 1) ? '' : add_ordinal_suffix($num);
-	
+
 }//end add_reverse_ordinal_suffix()
 
 ?>

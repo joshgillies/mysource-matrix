@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.30 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_customisation.inc,v 1.31 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -119,7 +119,7 @@ class Design_Customisation extends Design
 					}
 					$am->forgetAsset($new_minor);
 				}
-			}// end foreach $file_links
+			}//end foreach $file_links
 
 			$am->forgetAsset($design);
 		}
@@ -149,7 +149,7 @@ class Design_Customisation extends Design
 					}
 					$am->forgetAsset($new_minor);
 				}
-			}// end foreach $file_links
+			}//end foreach $file_links
 
 			$am->forgetAsset($design);
 		}
@@ -172,7 +172,8 @@ class Design_Customisation extends Design
 	* @return boolean
 	* @access public
 	*/
-	function deleteExistingLink($linkid) {
+	function deleteExistingLink($linkid)
+	{
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
@@ -261,18 +262,18 @@ class Design_Customisation extends Design
 								$this->_tmp['customised_areas'][]   = $our_link;
 							}
 							continue;
-						}// end if
-					}// end foreach
-				}// end foreach
-			}// end if
-		}// end if
+						}//end if
+					}//end foreach
+				}//end foreach
+			}//end if
+		}//end if
 
 		if (!isset($this->_tmp['customised_areas'])) $this->_tmp['customised_areas'] = Array();
 		if (!isset($this->_tmp['uncustomised_areas'])) $this->_tmp['uncustomised_areas'] = Array();
 
 		return $this->_tmp['customised_areas'];
 
-	}// end getCustomisedAreas()
+	}//end getCustomisedAreas()
 
 
 	/**
@@ -285,11 +286,11 @@ class Design_Customisation extends Design
 	{
 		if (!isset($this->_tmp['uncustomised_areas'])) {
 			$this->getCustomisedAreas();
-		}// end if
+		}//end if
 
 		return $this->_tmp['uncustomised_areas'];
 
-	}// end getUnCustomisedAreas()
+	}//end getUnCustomisedAreas()
 
 
 	/**
@@ -326,13 +327,13 @@ class Design_Customisation extends Design
 		// now remove any unused design area customisations
 		foreach ($remove_id_names as $id_name) {
 			if (!$this->deleteLink($this_da_links[$id_name]['linkid'])) return false;
-		}// end foreach
+		}//end foreach
 
 		foreach ($added_id_names as $id_name) {
 			$da = &$am->getAsset($parent_da_links[$id_name]['minorid'], $parent_da_links[$id_name]['minor_type_code'], true);
 			if (is_null($da)) continue;
 			$this->createLink($da, SQ_LINK_TYPE_3, $id_name, null, '1');
-		}// end foreach
+		}//end foreach
 
 		//// THIRD, let's update the customised, but not specialised, design areas ////
 
@@ -349,7 +350,7 @@ class Design_Customisation extends Design
 			$da->setAttrValue('contents', $parent_da->attr('contents'));
 			$da->saveAttributes();
 
-		}// end foreach
+		}//end foreach
 
 		//// AND FINALLY, regenerate our design file and update any of our customisations ////
 		$this->generateDesignFile(false); // not recursive because update customisations takes care of that
@@ -381,13 +382,13 @@ class Design_Customisation extends Design
 
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 		$file_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($file_link_ids));
-		
+
 		foreach ($file_link_info as $minorid => $file_info) {
 			$file_url = $file_link_urls[$minorid];
 			if ($file_url == '') $file_url = "Javascript: alert('This URL for \'".$file_info['name']."\' does not exist');";
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}
-		
+
 		// generate an array of all the URLs we are going to need for the attached CSS in this design
 		$css_link_ids = Array();
 		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'design_css', false);

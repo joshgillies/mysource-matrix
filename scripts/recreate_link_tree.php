@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: recreate_link_tree.php,v 1.7 2004/12/03 15:42:39 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: recreate_link_tree.php,v 1.8 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
@@ -30,7 +30,7 @@
 * 
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -64,7 +64,8 @@ foreach ($all as $data) {
 }
 
 
-function recurse_tree_create($majorid, $path) {
+function recurse_tree_create($majorid, $path)
+{
 	global $index, $db;
 	static $e = 0;
 	$e++;
@@ -85,7 +86,7 @@ function recurse_tree_create($majorid, $path) {
 		if (!empty($index[$data['minorid']])) recurse_tree_create($data['minorid'], $kid_path);
 	}
 	$e--;
-}
+}// end recurse_tree_create()
 
 recurse_tree_create(1, '');
 

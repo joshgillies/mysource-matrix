@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_ecommerce.inc,v 1.2 2004/10/17 23:23:59 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: package_manager_ecommerce.inc,v 1.3 2004/12/06 14:42:21 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/package_manager.inc';
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */

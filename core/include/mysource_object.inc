@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource_object.inc,v 1.5 2004/09/28 04:10:53 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: mysource_object.inc,v 1.6 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -27,21 +27,21 @@
 * MySource_Object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
-class MySource_Object 
+class MySource_Object
 {
 
 	/**
-	* Array to be used for temporary storage of any kind, 
+	* Array to be used for temporary storage of any kind,
 	* guaranteed not to be stored if object is serialised
 	*
 	* @var Array
 	* @see __sleep()
 	*/
 	var $_tmp;
-	
+
 
 	/**
 	* Constructor

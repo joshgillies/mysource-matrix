@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_folder.inc,v 1.3 2004/11/18 05:00:41 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: authentication_folder.inc,v 1.4 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,7 +90,7 @@ class Authentication_Folder extends Folder
 	function canClone()
 	{
 		return false;
-	
+
 	}//end canClone()
 
 
@@ -140,11 +140,11 @@ class Authentication_Folder extends Folder
 	* @param object Asset	$minor		the minor asset that we are linking to
 	* @param string			$link_type	the type of link this is
 	* @param string			$value		the value that is to be associated with this link
-	* @param string			$sort_order	the position in the links list that this link should take, 
+	* @param string			$sort_order	the position in the links list that this link should take,
 	*									if null or less than zero places at end of list
-	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the 
+	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the
 	*									asset that will be linked by this new link
-	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly 
+	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly
 	*									to the asset that will be linked by this new link
 	*
 	* @return int
@@ -175,7 +175,7 @@ class Authentication_Folder extends Folder
 		trigger_error('You cannot delete anything from the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 		return false;
 
-	}// end deleteLink()
+	}//end deleteLink()
 
 
 	/**
@@ -208,7 +208,7 @@ class Authentication_Folder extends Folder
 	* Returns true if the passed assetid has write access to this asset
 	*
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
-	*							permissions set for this asset, otherwise returns effective access based on locking 
+	*							permissions set for this asset, otherwise returns effective access based on locking
 	*							and status
 	* @param array	$assetids	An array of user_group and/or user ids to check for write access
 	*							If the array is empty, the current user will be checked

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_edit_fns.inc,v 1.3 2004/11/18 00:09:29 amiller Exp $
-* $Name: not supported by cvs2svn $
+* $Id: news_item_edit_fns.inc,v 1.4 2004/12/06 14:43:35 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -48,10 +48,10 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 		$this->static_screens['details']['lock_type'] = 'link_url';
 
 	}//end constructor
-	
+
 
 	/**
-	* Paint the interface for selecting the asset to link to 
+	* Paint the interface for selecting the asset to link to
 	*
 	* @param object Bodycopy			&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -74,11 +74,11 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 		}
 		return true;
 
-	}// end paintLinkAssetid()
-	
+	}//end paintLinkAssetid()
+
 
 	/**
-	* Process the interface for selecting the asset to link to 
+	* Process the interface for selecting the asset to link to
 	*
 	* @param object Bodycopy			&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -101,7 +101,7 @@ class News_Item_Edit_Fns extends Page_Edit_Fns
 
 		return $asset->setLinkAsset($link_asset);
 
-	}// end processLinkAssetid()
+	}//end processLinkAssetid()
 
 }//end class
 

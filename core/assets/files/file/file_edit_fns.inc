@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.46 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: file_edit_fns.inc,v 1.47 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,7 +94,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 				} else if (substr($post_size, -1) == 'm') {
 					$post_size = $post_size * 1024 * 1024;
 				}
-				
+
 				$mem_limit_size = strtolower(ini_get('memory_limit'));
 				if (substr($mem_limit_size, -1) == 'k') {
 					$mem_limit_size = $mem_limit_size * 1024;
@@ -120,7 +120,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*     name              => the filename without path (eg file.txt)
 	*     tmp_name          => the location of the file on the file system
 	*     non_uploaded_file => must equal TRUE
-	* 
+	*
 	* @param object File				&$asset	the file asset
 	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for form elements
@@ -133,7 +133,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess('attributes')) return false;
 		if (empty($info) && isset($_POST[$prefix.'_server_file']) && !empty($_POST[$prefix.'_server_file'])) return false;
-		
+
 		// assetid will not be set if we are creating
 		if (!$asset->id) return true;
 
@@ -142,7 +142,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			// return on failed or no upload
 			if ($info === false || empty($info)) return false;
 		}
-		
+
 		if (!$asset->validFile($info)) return false;
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
@@ -235,7 +235,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			trigger_error('Failed saving web paths', E_USER_WARNING);
 			return false;
 		}
-		
+
 		if (SQ_IN_LIMBO && $name_changed) {
 			// if we are in limbo and the name of the file has changed, the URL will also change
 			// so we need to redirect to the new limbo URL
@@ -245,8 +245,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		return $asset->_updated();
 
 	}//end processFileUpload()
-	
-		
+
+
 	/**
 	* Paint the interface for selecting a pre-uploaded file to use in this asset
 	*
@@ -278,12 +278,12 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @access public
 	* @return boolean	true if a file was processed
 	*/
-	function processFileChooser(&$asset, &$o, $prefix) 
+	function processFileChooser(&$asset, &$o, $prefix)
 	{
-		// don't try to do anything if the asset is not yet created - 
+		// don't try to do anything if the asset is not yet created -
 		// this function will get called again by File::create()
 		if (!$asset->id) return true;
-		
+
 		if ($asset->writeAccess('attributes') && isset($_POST[$prefix.'_server_file']) && (!empty($_POST[$prefix.'_server_file']))) {
 			$info = $this->getChosenFileInfo($prefix);
 			if ($this->processFileUpload($asset, $o, $prefix, $info)) {
@@ -298,7 +298,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 	/**
 	* Find out if there are any pre-uploaded files we can use
-	* 
+	*
 	* @param	&$asset		The asset that might use the files
 	*
 	* @access protected
@@ -308,7 +308,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	{
 		$preuploads = $this->getPreuploadOptions($asset);
 		return !empty($preuploads);
-	
+
 	}//end havePreUploadedFiles()
 
 
@@ -321,7 +321,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* Subclasses can override this to restrict file types
 	*
 	* @param	&$asset		The asset that might use the files
-	* 
+	*
 	* @access protected
 	* @return array		value => value to be used with combo_box
 	*/
@@ -354,7 +354,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			$info['non_uploaded_file'] = true;
 		}
 		return $info;
-	
+
 	}//end getChosenFileInfo()
 
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_management.inc,v 1.7 2003/12/16 12:13:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_management.inc,v 1.8 2004/12/06 14:41:38 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,7 +48,7 @@ class Form_Question_Rule_Management extends Asset_Management
 
 		$this->vars = Array('operator'	=>	Array(
 												'added'     => '0.0.1',
-												'type'      => 'text',  
+												'type'      => 'text',
 												'default'   => '',
 												),
 							'value'		=>	Array(

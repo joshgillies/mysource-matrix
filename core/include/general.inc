@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.62 2004/12/01 05:24:54 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: general.inc,v 1.63 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 /**
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 */
 
@@ -386,7 +386,7 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 		}
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 		// trim in case there's a /r in there
-		$url = (($inc_protocol) ? current_protocol().'://' : '').trim($root_urls[0]).'/';	
+		$url = (($inc_protocol) ? current_protocol().'://' : '').trim($root_urls[0]).'/';
 	}
 
 	return $url;

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if_edit_fns.inc,v 1.3 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_show_if_edit_fns.inc,v 1.4 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc';
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 		return $vars;
 
 	}//end getSetableVars()
-	
+
 
 	/**
 	* Loops through the contents array and creates the necessary objects
@@ -71,16 +71,16 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$then_element = false;
 		$else_element = false;
-		
+
 		if (!$this->_setVariables($asset, $contents)) return false;
-		
+
 		// Check if the provided condition exists on the system
 		$condition = $asset->attr('condition');
 		if (!$GLOBALS['SQ_SYSTEM']->am->installed('condition_'.$condition)) {
 			trigger_error('Condition '.$condition.' not found for asset "'.$asset->name.'" design area', E_USER_WARNING);
 			return false;
 		}
-		
+
 		// see if our asset element has any then/else elements in it
 		foreach ($contents as $index => $element) {
 			if ($element['_type'] != 'TAG') continue;
@@ -95,13 +95,13 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 						trigger_error('Cannot have more than one mysource_then section in "'.$asset->name.'" design area', E_USER_WARNING);
 						return false;
 					}
-				
+
 				$then_element = true;
-				
+
 				// Now we want to remove the Then section
 				array_splice($contents, $index, 1);
 				break;
-				
+
 				case 'else' :
 					if (!$else_element) {
 						if (!$asset->setAttrValue('else_contents', $element['contents'])) {
@@ -111,17 +111,17 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 						trigger_error('Cannot have more than one mysource_else section in "'.$asset->name.'" design area', E_USER_WARNING);
 						return false;
 					}
-					
+
 					$else_element = true;
-		
+
 					// Now we want to remove the Else section
 				array_splice($contents, $index, 1);
 				break;
-				
+
 			}// end switch
 
 		}//end foreach
-		
+
 		if (!$then_element && !$else_element) {
 			trigger_error('Must have at least a mysource_then or a mysource_else section in "'.$asset->name.'" design area', E_USER_WARNING);
 			return false;
@@ -131,8 +131,8 @@ class Design_Area_Show_If_Edit_Fns extends Design_Area_Edit_Fns
 		return $asset->saveAttributes();
 
 	}//end _processContents()
-	
-	
+
+
 	/**
 	* Used by _outputContents() to deal with a print tag
 	*

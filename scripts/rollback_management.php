@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.3 2004/11/29 02:10:21 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: rollback_management.php,v 1.4 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
@@ -28,7 +28,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -66,7 +66,7 @@ foreach ($options[0] as $option) {
 			if (empty($option[1])) usage();
 			$matches = Array();
 			if (!preg_match('|^(\d+)([hdwmy])$|', $option[1], $matches)) usage();
-			
+
 			$time_num = (int)$matches[1];
 			$time_units = '';
 			switch ($matches[2]) {
@@ -141,7 +141,7 @@ $db = &$GLOBALS['SQ_SYSTEM']->db;
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 foreach ($tables as $table) {
-	
+
 	if ($ENABLE_ROLLBACK) {
 		open_rollback_entries($table, $ROLLBACK_DATE);
 		continue;
@@ -172,14 +172,14 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 function close_rollback_entries($table_name, $date)
 {
 	global $db, $QUIET;
-	
+
 	$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' SET '.SQ_TABLE_PREFIX.'eff_to = '.$db->quote($date).
 		' WHERE '.SQ_TABLE_PREFIX.'eff_to IS NULL';
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
 	$affected_rows = $db->affectedRows();
 	assert_valid_db_result($affected_rows);
-	
+
 	if (!$QUIET) echo $affected_rows.' ENTRIES CLOSED IN '.SQ_TABLE_ROLLBACK_PREFIX.$table_name."\n";
 
 }//end close_rollback_entries()
@@ -207,7 +207,7 @@ function open_rollback_entries($table_name, $date)
 	assert_valid_db_result($result);
 	$affected_rows = $db->affectedRows();
 	assert_valid_db_result($affected_rows);
-	
+
 	if (!$QUIET) echo $affected_rows.' ENTRIES OPENED IN '.SQ_TABLE_ROLLBACK_PREFIX.$table_name."\n";
 
 }//end open_rollback_entries()
@@ -273,7 +273,7 @@ function delete_rollback_entries($table_name, $date)
 	assert_valid_db_result($result);
 	$affected_rows = $db->affectedRows();
 	assert_valid_db_result($affected_rows);
-	
+
 	if (!$QUIET) echo $affected_rows.' ENTRIES DELETED IN '.SQ_TABLE_ROLLBACK_PREFIX.$table_name."\n";
 
 }//end delete_rollback_entries()
@@ -314,7 +314,8 @@ function get_rollback_table_names()
 * @access public
 * @return void
 */
-function usage() {
+function usage()
+{
 	echo "\nUSAGE: rollback_management.php -s <system_root> [-d <date>] [-p <period>] [--enable-rollback] [--disable-rollback] [-q --quiet]\n".
 		"--enable-rollback  Enables rollback in MySource Matrix\n".
 		"--disable-rollback Disables rollback in MySource Matrix\n".
@@ -324,5 +325,5 @@ function usage() {
 		" h - hours\t\n d - days\t\n w - weeks\t\n m - months\t\n y - years\n".
 		"\nNOTE: only one of [-d -p --enable-rollback --disable-rollback] option is allowed to be specified\n";
 	exit();
-	
+
 }//end usage()

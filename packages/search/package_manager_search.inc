@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_search.inc,v 1.8 2004/11/18 05:10:22 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: package_manager_search.inc,v 1.9 2004/12/06 14:44:15 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/package_manager.inc';
@@ -28,11 +28,11 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 * Search_Manager
 *
 * Purpose
-*    Manages the install and upgrade of the Search package and Search assets, 
+*    Manages the install and upgrade of the Search package and Search assets,
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -76,7 +76,7 @@ class Package_Manager_Search extends Package_Manager
 	function &createSearchManager()
 	{
 		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
-	
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('search_manager');
 		$search_manager = new Search_Manager();
 		$search_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.56 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_management.inc,v 1.57 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.57 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -151,7 +151,7 @@ class Asset_Management extends MySource_Object
 
 		$type_code = $this->getAssetType();
 
-		// OK, first thing we are going to do is check that the parent type of this asset is the same between the 
+		// OK, first thing we are going to do is check that the parent type of this asset is the same between the
 		// asset.xml, actual asset class and the edit fns class
 
 		$asset_dir = SQ_SYSTEM_ROOT.'/'.$this->_pm->getTypeInfo($type_code,'dir');
@@ -290,7 +290,7 @@ class Asset_Management extends MySource_Object
 
 		return true;
 
-	}//end install()
+	}//end _install()
 
 
 	/**
@@ -350,7 +350,7 @@ class Asset_Management extends MySource_Object
 
 		return true;
 
-	}//end upgrade()
+	}//end _upgrade()
 
 
 	/**
@@ -376,7 +376,7 @@ class Asset_Management extends MySource_Object
 		$vars = array_values(array_unique(array_merge($parent_vars, array_keys($this->vars))));
 		return $vars;
 
-	}// end _getAllVars()
+	}//end _getAllVars()
 
 
 	/**
@@ -402,7 +402,7 @@ class Asset_Management extends MySource_Object
 	{
 		return Array();
 
-	} // end _getEventList()
+	}//end getEventList()
 
 
 	/**
@@ -538,13 +538,13 @@ class Asset_Management extends MySource_Object
 				$attr_info['parameters']           = unserialize($attr_default['parameters_val']);
 			}
 
-		}// end if parents using this name
+		}//end if parents using this name
 
 		// make sure this is a valid attribute type
 		if (!$this->_am->validAttributeType($attr_info['type'])) {
 			trigger_error('Attribute Type "'.$attr_info['type'].'" is not known (for the "'.$this->getAssetType().'" Asset Type) ' , E_USER_WARNING);
 			return false;
-		}// end if
+		}//end if
 
 		if (!$this->_validateAttributeDefault($attr_info['default_val'], $attr_info['type'], $attr_info['parameters'])) {
 			trigger_error('Default value of attribute "'.$name.'" is not valid for Asset Type "'.$this->getAssetType().'"' , E_USER_WARNING);
@@ -618,12 +618,12 @@ class Asset_Management extends MySource_Object
 		$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'ast_attr WHERE attrid='.$this->_db->quote($attributeid);
 		$result = $this->_db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		// get rid of it in our array
 		if (isset($this->vars[$name])) unset($this->vars[$name]);
-		
+
 		return true;
-		
+
 	}//end _deleteAttribute()
 
 
@@ -734,7 +734,7 @@ class Asset_Management extends MySource_Object
 
 			} // end if
 
-		}// end if
+		}//end if
 
 		return true;
 
@@ -758,7 +758,7 @@ class Asset_Management extends MySource_Object
 		if (!$this->_am->validAttributeType($this->vars[$name]['type'])) {
 			trigger_error('Attribute Type "'.$this->vars[$name]['type'].'" is not known (for the "'.$this->getAssetType().'" Asset Type) ' , E_USER_WARNING);
 			return false;
-		}// end if
+		}//end if
 
 		$description = empty($this->vars[$name]['description']) ? '' : $this->vars[$name]['description'];
 
@@ -917,11 +917,11 @@ class Asset_Management extends MySource_Object
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
-		}// end foreach
+		}//end foreach
 
 		return true;
 
-	} // end _setComponentWeightings()
+	}//end _setComponentWeightings()
 
 
 	/**
@@ -957,7 +957,7 @@ class Asset_Management extends MySource_Object
 
 		return $components;
 
-	}// end _getAllComponents()
+	}//end _getAllComponents()
 
 
 	/**

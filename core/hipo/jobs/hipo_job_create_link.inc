@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.23 2004/11/18 04:49:33 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_job_create_link.inc,v 1.24 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
@@ -41,7 +41,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -328,7 +328,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 											}
 										}
 										$lineage .= '<b>'.$link_lineage[($num_in_lineage-1)].'</b>';
-										
+
 										?>
 										<tr>
 											<td class="sq-backend-table-cell">
@@ -351,7 +351,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 		}//end if
 
 		$o->addHiddenField('form_submitted', 1);
-		
+
 		return true;
 
 	}//end paintConfirmation()
@@ -453,7 +453,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 		}
 
 		return true;
-	
+
 	}//end processConfirmation()
 
 
@@ -490,34 +490,34 @@ class HIPO_Job_Create_Link extends HIPO_Job
 		$o->openSection('Note');
 			$o->openField('&nbsp;');
 				$o->addHiddenField('link_completed', '0');
-				
+
 				if (isset($this->_running_vars['assetid'])) {
 					echo '<p><b>Asset "'.$asset->name.'" has been successfully linked under "'.$parent->name.'".</b></p>';
 				}
-				
+
 				?>
 
 				<p>The permissions, workflow schemas, and metadata schemas of "<?php echo $parent->name; ?>" are shown below.</p>
 
 				<p>To cascade the permissions, workflow schemas, and/or metadata schemas of "<?php echo $parent->name; ?>" to "<?php echo $asset->name; ?>" and its children, check the appropriate boxes below and press the <b><i>Next</i></b> button.</p>
-				
+
 				<p>If you do not wish to cascade any permissions or schemas, press the <b><i>Next</i></b> button without checking any boxes.</p>
 				<?php
 				$ei = &$parent->getEI();
-				
+
 				$ei->includeStaticScreen('permissions');
 				$pe = paintInlinePermissions($parent, $o, $ei);
-				
+
 				$ei->includeStaticScreen('workflow');
 				$wf = paintInlineWorkflow($parent, $o, $ei);
-				
+
 				$ei->includeStaticScreen('metadataSchemas');
 				$ms = paintInlineMetadataSchemas($parent, $o, $ei);
-				
+
 				$o->addHiddenField('form_submitted', 1);
 			$o->closeField();
 		$o->closeSection();
-		
+
 		$o->openSection('Cascade');
 			$o->openField('', 'cascade');
 				echo ($pe) ? 'Permissions'.check_box('cascade[]', 'cascade_pe').'<br />' : '';
@@ -525,7 +525,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 				echo ($wf) ? 'Workflow'.check_box('cascade[]', 'cascade_wf').'<br />' : '';
 			$o->closeField();
 		$o->closeSection();
-		
+
 		return true;
 
 	}//end paintInterface()
@@ -561,9 +561,9 @@ class HIPO_Job_Create_Link extends HIPO_Job
 		}
 
 		return true;
-	
+
 	}//end processInterface()
-	
+
 
 	/**
 	* To be run as Step 1. This will run the Update Lookups before retrieving user input about cascading permissions etc.

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_SSL_interface.inc,v 1.2 2004/12/03 15:37:42 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: esec_processor_SSL_interface.inc,v 1.3 2004/12/06 14:42:21 brobertson Exp $
+*
 */
 
 /**
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 * Esec payment gateway processing object.
 * Implements a 'Web Redirect Model' or 'Web Proxy Model' scenario
 *
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -46,7 +46,7 @@ class Esec_Processor_SSL_Interface extends Esec_Processor
 {
 	var $_url = "https://sec.aba.net.au/cgi-bin/service/authorise";
 
-	function Esec_Processor_SSL_Interface() 
+	function Esec_Processor_SSL_Interface()
 	{
 		parent::Esec_Processor();
 
@@ -59,7 +59,8 @@ class Esec_Processor_SSL_Interface extends Esec_Processor
 	* @access public
 	* @return string
 	*/
-	function generate_redirect_URL() {
+	function generate_redirect_URL()
+	{
 		$query_string = Array();
 		foreach ($this->parameters as $name => $value) {
 			if ($name == 'EPS_MERCHANT') {
@@ -89,7 +90,7 @@ class Esec_Processor_SSL_Interface extends Esec_Processor
 		foreach ($this->eps_v3plus_responses as $name) {
 			$this->response[$name] = $_REQUEST[$name];
 		}
-	
+
 		// return success status
 		if (substr($this->response['message'], 0, 3) == '200') {
 			$success = true;

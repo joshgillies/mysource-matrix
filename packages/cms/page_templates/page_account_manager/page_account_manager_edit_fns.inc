@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.10 2004/11/15 01:13:07 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_account_manager_edit_fns.inc,v 1.11 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -74,7 +74,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 			parent::paintAddCreateType($asset, $o, $prefix);
 		} else {
 			$user_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('user');
-		
+
 			$options = Array('user' => 'User');
 			foreach ($user_types as $type_code) {
 				$info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
@@ -87,7 +87,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 
 	}//end paintAddCreateType()
 
-	
+
 	/**
 	* Process the section for choosing the user type that is created
 	*
@@ -113,7 +113,7 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 		return false;
 
 	}//end processAddCreateType()
-	
+
 
 	/**
 	* Returns true if the account manager uses email validation

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.73 2004/11/18 05:06:22 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: user.inc,v 1.74 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -49,7 +49,7 @@ class User extends Asset
 	function User($assetid=0)
 	{
 		$this->Asset($assetid);
-	
+
 	}//end constructor
 
 
@@ -75,8 +75,8 @@ class User extends Asset
 		return parent::create($link);
 
 	}//end create()
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -127,12 +127,12 @@ class User extends Asset
 				trigger_error('Could not create user - "permissions" lock not acquired on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
 				return false;
 			}
-	
+
 			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($link['minorid'], $this->id, SQ_PERMISSION_READ, 1)) {
 				trigger_error('Could not create user - permission could not be set on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
 				return false;
 			}
-	
+
 			// try to unlock the asset
 			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['minorid'], 'permissions')) {
 				trigger_error('Could not create user - "permissions" lock not released on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
@@ -271,8 +271,8 @@ class User extends Asset
 		}
 
 	}//end _checkPermissionAccess()
-	
-	
+
+
 	/**
 	* Returns TRUE if we can delete the passed link, or a string with the error msg
 	*
@@ -288,7 +288,7 @@ class User extends Asset
 		// we dont want our inbox or workspace deleted
 		$inbox_link = $this->getInboxLink();
 		if ($inbox_link['linkid'] == $linkid) return 'You cant delete the link between a user and their inbox';
-		
+
 		$workspace_link = $this->getWorkspaceLink();
 		if ($workspace_link['linkid'] == $linkid) return 'You cant delete the link between a user and their workspace';
 
@@ -344,7 +344,7 @@ class User extends Asset
 	function getInboxLink()
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'inbox');
-		
+
 	}//end getInboxLink()
 
 
@@ -357,10 +357,10 @@ class User extends Asset
 	function getWorkspaceLink()
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'workspace');
-		
+
 	}//end getWorkspaceLink()
-	
-	
+
+
 	/**
 	* Returns this user's Workspace
 	*
@@ -371,19 +371,19 @@ class User extends Asset
 	{
 		$null = null;
 		$link = $this->getWorkspaceLink();
-		
+
 		if (empty($link)) {
 			trigger_error('User '.$this->name.' does not have a workspace', E_USER_WARNING);
 			return $null;
 		}
-		
+
 		$workspace = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
 		if (is_null($workspace)) {
 			trigger_error('User '.$this->name.' does not have a workspace', E_USER_WARNING);
 			return $null;
 		}
 		return $workspace;
-		
+
 	}//end getWorkspace()
 
 

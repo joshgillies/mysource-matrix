@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder.inc,v 1.5 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_template_builder.inc,v 1.6 2004/12/06 14:41:40 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -53,7 +53,7 @@ class Page_Template_Builder extends Page
 		$this->_ser_attrs = true;
 		$this->Page($assetid);
 
-	}//end Page_Template_Builder()
+	}//end constructor
 
 
 	/**
@@ -73,7 +73,7 @@ class Page_Template_Builder extends Page
 
 	}//end _createAdditional()
 
-	
+
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
@@ -81,13 +81,14 @@ class Page_Template_Builder extends Page
 	* @access private
 	* @see Asset::_getAllowLinks()
 	*/
-	function _getAllowedLinks() {
+	function _getAllowedLinks()
+	{
 
 		return Array(SQ_LINK_TYPE_2 => Array('bodycopy' => Array('card' => 'M', 'exclusive' => false)));
 
 	}//end _getAllowedLinks()
-	
-	
+
+
 	/**
 	* Creates a bodycopy linked underneath this asset with specified name, value and text
 	*
@@ -105,12 +106,12 @@ class Page_Template_Builder extends Page
 	function createBodycopy($name, $link_value, $bc_text='', $underneath=null)
 	{
 		if ($underneath == null) $underneath =& $this;
-	
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-	
+
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$bc_asset = new Bodycopy();
-		
+
 		$copy_link = Array('asset' => &$underneath, 'link_type' => SQ_LINK_TYPE_2, 'value' => $link_value, 'sort_order' => 1);
 		$bc_asset->setAttrValue('name', $name);
 		$attributes = Array('content' => $bc_text);
@@ -120,7 +121,7 @@ class Page_Template_Builder extends Page
 		}
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $bc_asset;
-	
+
 	}//end createBodycopy()
 
 
@@ -128,8 +129,8 @@ class Page_Template_Builder extends Page
 	{
 		$res = $this->attr('create_locations') + $this->getAdditionalCreateLocations();
 		return $res;
-	}
-	
+	}// end getCreateLocations()
+
 
 	/**
 	* Get a list of additional create locations from the REQUEST var
@@ -185,8 +186,8 @@ class Page_Template_Builder extends Page
 		return $res;
 
 	}//end getAdditionalCreateLocations()
-	
-	
+
+
 	/**
 	* Returns information about the question fields currently in the template bodycopy
 	*
@@ -205,15 +206,15 @@ class Page_Template_Builder extends Page
 	{
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'major', 'template');
 		$link =& reset($links);
-	
+
 		$bc_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
-		
+
 		$bc_text = $bc_asset->getRawBodycopyContent();
-	
+
 		preg_match_all('/#(.*)(((\[)(.*)\]|(\{)(.*)\}|(\()(.*)\)))?#/U', $bc_text, $matches, PREG_SET_ORDER);
 
 		$fields = Array();
-		
+
 		foreach ($matches as $bc_fields) {
 			switch (count($bc_fields)) {
 				// eg. #Text Field(50x3)#
@@ -237,7 +238,7 @@ class Page_Template_Builder extends Page
 									);
 				break;
 
-				// eg. #Single Selection[Option One|Option Two|Option Three]#				
+				// eg. #Single Selection[Option One|Option Two|Option Three]#
 				// everything specified - single selection field
 				case 6:
 					$fields[] = Array(	'name'   => $bc_fields[1],
@@ -247,7 +248,7 @@ class Page_Template_Builder extends Page
 										'is_select' => true,
 									);
 				break;
-				
+
 				// eg. #Multiple Selection{}# or #Single_Selection[]#
 				// bracket specified, no contents!!
 				case 5:
@@ -258,10 +259,10 @@ class Page_Template_Builder extends Page
 										'is_select' => true,
 									);
 				break;
-				
+
 				// eg. #Text Field#
 				// no bracket specified at all = freeform text with default 40x1 size
-				default:		
+				default:
 					$fields[] = Array(	'name'   => $bc_fields[1],
 										'type'	 => '',
 										'values' => Array(),
@@ -269,13 +270,13 @@ class Page_Template_Builder extends Page
 										'is_select' => false,
 									);
 				break;
-				
+
 			}//end switch
-			
+
 		}
-		
+
 		return $fields;
-	
+
 	}//end getQuestionFields()
 
 
@@ -308,7 +309,7 @@ class Page_Template_Builder extends Page
 				return false;
 			}
 		}
-	
+
 	}//end printBody()
 
 
@@ -331,7 +332,7 @@ class Page_Template_Builder extends Page
 		}
 		return true;
 
-	}//end _setCreateStatus()
+	}//end _setAssetStatus()
 
 
 	function paintPrintButton($content)
@@ -352,9 +353,9 @@ class Page_Template_Builder extends Page
 		</script>
 		<input type="button" value="Print" onclick="print_result()" />
 		<?php
-	}
-	
-	
+	}//end paintPrintButton()
+
+
 	/**
 	* Returns the output required to paint the default form
 	*
@@ -365,7 +366,7 @@ class Page_Template_Builder extends Page
 	{
 		$q_fields =& $this->getQuestionFields();
 		$prefix = $this->type().'_'.$this->id;
-		
+
 		$output = '<form action="'.replace_query_string_vars(Array()).'" method="post"><table>';
 		$parameter_map = &$this->getAttribute('parameter_map');
 		if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != null) {
@@ -375,11 +376,11 @@ class Page_Template_Builder extends Page
 		foreach ($q_fields as $q_field) {
 
 			$field_name = $prefix.'_'.strtolower(str_replace(' ','_',$q_field['name']));
-			
+
 			$output .= '<tr><td style="vertical-align: top">';
 			$output .= $q_field['name'];
 			$output .='</td><td style="vertical-align: top">';
-			
+
 			switch ($q_field['type']) {
 				// single select - drop down OR radio buttons if too long
 				case '[':
@@ -387,11 +388,11 @@ class Page_Template_Builder extends Page
 					foreach ($q_field['values'] as $q_value) {
 						$max_length = max($max_length, strlen($q_value));
 					}
-					
+
 					ob_start();
-					
+
 					if ($max_length > 39) {
-						foreach ($q_field['values'] as $key => $q_value) {				
+						foreach ($q_field['values'] as $key => $q_value) {
 							radio_button($field_name, $key, false);
 							echo $q_value.'<br/>';
 						}
@@ -401,18 +402,18 @@ class Page_Template_Builder extends Page
 					$output .= ob_get_contents();
 					ob_end_clean();
 				break;
-				
+
 				// multiple select, check boxes always
 				case '{':
 					ob_start();
-					foreach ($q_field['values'] as $key => $q_value) {				
+					foreach ($q_field['values'] as $key => $q_value) {
 						check_box($field_name.'[]', $key, false);
 						echo $q_value.'<br/>';
 					}
 					$output .= ob_get_contents();
 					ob_end_clean();
 				break;
-				
+
 				// freeform text - size specified
 				case '(':
 					ob_start();
@@ -432,14 +433,14 @@ class Page_Template_Builder extends Page
 					$output .= ob_get_contents();
 					ob_end_clean();
 				break;
-				
+
 				default:
 					$output .= '* Unknown *';
 				break;
-				
+
 			}//end switch
-											
-			
+
+
 			$output .= '</td></tr>';
 		}
 
@@ -450,12 +451,12 @@ class Page_Template_Builder extends Page
 		$output .= '<input type="reset" value="Clear">';
 		$output .= '</td></tr>';
 		$output .= '</table></form>';
-		
+
 		return $output;
-	
+
 	}//end paintDefaultForm()
-	
-	
+
+
 	/**
 	* Throws keyword replacements into the template bodycopy and returns the contents
 	*
@@ -466,23 +467,23 @@ class Page_Template_Builder extends Page
 	{
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'major', 'template');
 		$link =& reset($links);
-	
+
 		$bc_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
-		
+
 		$bc_text = $bc_asset->getRawBodycopyContent();
 
 		$q_fields = $this->getQuestionFields();
 		$prefix = $this->type().'_'.$this->id;
-				
+
 		foreach ($q_fields as $q_field) {
 			$rep = $q_field['raw'];
 			$field_name = $prefix.'_'.strtolower(str_replace(' ','_',$q_field['name']));
-			
+
 			if ($q_field['is_select']) {
 				$field_index = array_get_index($_POST, $field_name, null);
-				
+
 				if (!is_null($field_index)) {
-				
+
 					if (is_array($field_index)) {
 						if (count($field_index) == 0) {
 						} else if (count($field_index) == 1) {
@@ -494,7 +495,7 @@ class Page_Template_Builder extends Page
 							foreach ($field_index as $key => $value) {
 								$field_values[] = $q_field['values'][$value];
 							}
-							
+
 							$field_value = implode(', ', array_slice($field_values,0,-1));
 							// $value still contains the last known value within the foreach
 							$field_value .= ' and '.$q_field['values'][$value];
@@ -503,24 +504,24 @@ class Page_Template_Builder extends Page
 						// single selection field
 						$field_value = $q_field['values'][array_get_index($_POST, $field_name, '')];
 					}
-				
+
 				} else {
 					$field_value = '';
 				}
-				
+
 			} else {
 				// freeform field
 				$field_value = nl2br(htmlspecialchars(array_get_index($_POST, $field_name, '')));
 			}
-			
+
 			$bc_text = str_replace($rep, $field_value, $bc_text);
 		}
-		
+
 		return $bc_text;
-		
+
 	}//end getTemplateResult()
-	
-	
+
+
 }//end class
 
 ?>

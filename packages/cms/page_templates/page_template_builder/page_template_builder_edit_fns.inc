@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder_edit_fns.inc,v 1.4 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_template_builder_edit_fns.inc,v 1.5 2004/12/06 14:41:40 brobertson Exp $
+*
 */
 
 
@@ -34,13 +34,13 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 {
-	
+
 
 	/**
 	* Constructor
@@ -50,9 +50,9 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 	{
 		$this->Page_Edit_Fns();
 
-	}//end Page_Template_Builder_Edit_Fns()
+	}//end constructor
 
-	
+
 	/**
 	* Paint the 'Question Fields' field
 	*
@@ -105,7 +105,7 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 		</table>
 		</p>
 
-		<p>The fields defined in the current template bodycopy are listed below:	
+		<p>The fields defined in the current template bodycopy are listed below:
 		<table class="sq-backend-table">
 			<tr>
 				<td class="sq-backend-table-header">
@@ -131,24 +131,24 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 									case '[':
 										echo 'Select';
 									break;
-									
+
 									case '{':
 										echo 'Multiple Select';
 									break;
-									
+
 									case '(':
 									case '':
 										echo 'Freeform Text';
 									break;
-									
+
 									default:
 										echo '* Unknown *';
 									break;
-									
+
 								}//end switch
 							?></td>
 							<td class="sq-backend-table-cell">
-								<?php 
+								<?php
 								if ($qf['type'] == '(') {
 									echo $qf['values'][0].' column(s) x '.$qf['values'][1].' row(s)';
 								} else if ($qf['type'] == '') {
@@ -164,12 +164,12 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 				?>
 				</table></p>
 				<?php
-				
+
 		return true;
-		
+
 	}//end paintQuestionFields()
 
-	
+
 	/**
 	* Process Question Fields field - no processing done here
 	*
@@ -178,10 +178,10 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 	function processQuestionFields(&$asset, &$o, $prefix)
 	{
 		return true;
-		
+
 	}//end processQuestionFields()
 
-	
+
 	/**
 	* Redirect to the template bodycopy
 	*
@@ -211,12 +211,12 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 
 		return false;
 
-	}//end redirectToFormContents()
+	}//end redirectToTemplateBodycopy()
 
 
-	//--        CREATE LOCATIONS SCREEN         --//	
+	//--        CREATE LOCATIONS SCREEN         --//
 
-	
+
 	/**
 	* Paint the interface for choosing the locations to which all new assets will be linked
 	*
@@ -307,7 +307,7 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 			if ($new_location && !isset($new_locations[$new_location])) {
 				$new_locations[$new_location] = SQ_LINK_TYPE_2;
 			}
-		} 
+		}
 
 		// delete existing create locations
 		if (isset($_POST[$prefix.'_delete_location'])) {
@@ -371,7 +371,7 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 		$asset->setAttrValue('additional_location_parents', $new_parents);
 
 	}//end processAdditionalLocationParents()
-	
+
 
 }//end class
 ?>

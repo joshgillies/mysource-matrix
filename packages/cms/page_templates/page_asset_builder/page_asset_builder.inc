@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.42 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_asset_builder.inc,v 1.43 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Version$ - 1.4
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -343,7 +343,7 @@ class Page_Asset_Builder extends Page
 						unset($real_attribute);
 						unset($attribute);
 
-					}// end if
+					}//end if
 
 					if ($required_error) break;
 
@@ -417,7 +417,7 @@ class Page_Asset_Builder extends Page
 									continue;
 								}
 							}
-							
+
 							// we need to update lookups to make sure the URLs for the
 							// new create locations are set correctly
 							$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
@@ -533,11 +533,11 @@ class Page_Asset_Builder extends Page
 	*
 	* @access protected
 	* @return array(assetid => link_type)
-	*/	
+	*/
 	function getFixedCreateLocations()
 	{
 		return $this->attr('create_location');
-	
+
 	}//end getFixedCreateLocations()
 
 
@@ -606,7 +606,7 @@ class Page_Asset_Builder extends Page
 
 	}//end getRuleMatchCreateLocations()
 
-	
+
 	/**
 	* Get the relevant create locations for a new asset
 	*
@@ -618,7 +618,7 @@ class Page_Asset_Builder extends Page
 	function getCreateLocations($create_type)
 	{
 		if (is_array($selected_locs = $this->getSelectedCreateLocations())) {
-			return $this->getFixedCreateLocations() 
+			return $this->getFixedCreateLocations()
 				+ $selected_locs
 				+ $this->getRuleMatchCreateLocations($create_type)
 				+ $this->getAdditionalCreateLocations();
@@ -626,8 +626,8 @@ class Page_Asset_Builder extends Page
 			// failed to select some compulsory selectable locations
 			return false;
 		}
-	
-	}//end _getAllCreateLocations()
+
+	}//end getCreateLocations()
 
 
 	/**
@@ -768,7 +768,7 @@ class Page_Asset_Builder extends Page
 		$this->_replacements['created_asset_name']       = $this->_tmp['created_asset']->name;
 		$this->_replacements['created_asset_short_name'] = $this->_tmp['created_asset']->short_name;
 		$this->_replacements['created_asset_url']        = $this->_tmp['created_asset']->getURL();
-		
+
 	}//end _loadAssetReplacements()
 
 
@@ -792,9 +792,9 @@ class Page_Asset_Builder extends Page
 			$o->_paintJsInclude(sq_web_path('lib').'/js/general.js');
 			$o->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 			$o->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
-			$o->_paintJsInclude(sq_web_path('lib').'/js/edit.js');	
+			$o->_paintJsInclude(sq_web_path('lib').'/js/edit.js');
 
-			
+
 			// print the create interface for the asset
 			?><input type="hidden" name="asset_action" value="create"><?php
 			$create_types = $this->attr('create_type');
@@ -877,7 +877,7 @@ class Page_Asset_Builder extends Page
 
 			ob_start();
 				switch ($data['input_style']) {
-	
+
 					case 'dropdown':
 						if ($data['allow_empty'] && !$data['allow_multiple']) {
 							$options = Array(''=>'') + $options;
@@ -886,7 +886,7 @@ class Page_Asset_Builder extends Page
 						$height = $data['allow_multiple'] ? 4 : 1;
 						combo_box($code_name, $options, $data['allow_multiple'], $default,  $height);
 					break;
-	
+
 					case 'radio':
 						if ($data['allow_multiple']) {
 							// print checkboxes
@@ -907,7 +907,7 @@ class Page_Asset_Builder extends Page
 							}
 						}
 					break;
-	
+
 					default:
 						echo '(UNDEFINED INPUT STYLE ' . $data['input_style'] . ')';
 					break;
@@ -986,7 +986,7 @@ class Page_Asset_Builder extends Page
 
 			$this->_errors[] = $text_msg;
 
-		}// end error_reporting
+		}//end error_reporting
 
 		if ($terminate) exit(1);
 

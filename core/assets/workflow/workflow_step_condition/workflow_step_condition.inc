@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition.inc,v 1.6 2004/06/18 13:56:13 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: workflow_step_condition.inc,v 1.7 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -64,7 +64,7 @@ class Workflow_Step_Condition extends Asset
 	{
 		return 'Step Condition';
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**

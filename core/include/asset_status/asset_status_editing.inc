@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.22 2004/11/25 01:12:32 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_status_editing.inc,v 1.23 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                the workflow the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 */
 class Asset_Status_Editing extends Asset_Status
@@ -105,7 +105,7 @@ class Asset_Status_Editing extends Asset_Status
 					$statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
 				}
 			} else {
-				// so we have workflows, but none of them are running so lets see what will happen 
+				// so we have workflows, but none of them are running so lets see what will happen
 				// if this user approves to determine if they can live edit
 				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
 
@@ -113,7 +113,7 @@ class Asset_Status_Editing extends Asset_Status
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
-	
+
 					if ($wf_complete && $m_complete) $statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
 					else $statii[SQ_STATUS_EDITING_APPROVAL] = 'Apply for Approval';
 				} else {

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.13 2004/12/01 12:56:34 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_asset_listing_management.inc,v 1.14 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -135,10 +135,10 @@ class Page_Asset_Listing_Management extends Asset_Management
 										'default' => Array(),
 										'parameters' => Array(
 											'parameters'=> Array(
-												'root_node' => 'Replacement Root node for the listing', 
+												'root_node' => 'Replacement Root node for the listing',
 												)
 											)
-										);	
+										);
 
 	}//end constructor
 

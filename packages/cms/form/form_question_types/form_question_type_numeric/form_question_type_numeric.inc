@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric.inc,v 1.7 2004/11/28 22:03:05 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_numeric.inc,v 1.8 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,7 +52,7 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	{
 		$this->Form_Question_Type_Text($assetid, $data);
 
-	}//end Form_Question_Type_Numeric()
+	}//end constructor
 
 
 	/**
@@ -63,7 +63,8 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	* @access public
 	* @return Array(string => string)
 	*/
-	function getAllowedRules() {
+	function getAllowedRules()
+	{
 		return Array('comparison', 'integer', 'length');
 
 	}//end getAllowedRules()
@@ -86,7 +87,7 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 			if (!empty($val)) {
 				$req_rule = Array('rule_code' => 'numeric', 'operator' => 1);
 				array_push($this->vars['rules']['value'], $req_rule);
-	
+
 				// Add Force Integer if required
 				if ($this->attr('is_int')) {
 					$req_rule = Array('rule_code' => 'integer', 'operator' => 1);

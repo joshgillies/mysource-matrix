@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: format_font.inc,v 1.7 2003/11/26 00:51:19 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: format_font.inc,v 1.8 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -33,11 +33,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to change font size, family, and style
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class format_font extends wysiwyg_plugin {
+class format_font extends wysiwyg_plugin
+{
 
 
 	/**
@@ -47,7 +48,8 @@ class format_font extends wysiwyg_plugin {
 	* @returns object Format_Font
 	* @access  public
 	*/
-	function format_font() {
+	function format_font()
+	{
 		$this->_add_button('fontname','','','','');
 		$this->_add_button('fontsize','','','','');
 		$this->_add_button('formatblock','','','','');
@@ -60,7 +62,8 @@ class format_font extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_vars() {
+	function print_plugin_vars()
+	{
 		?>
 		this.config.fontname = {
 			"Arial":           'arial,helvetica,sans-serif',
@@ -104,7 +107,8 @@ class format_font extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_create_select() {
+	function print_plugin_create_select()
+	{
 		?>
 		case "fontsize":
 		case "fontname":
@@ -122,7 +126,8 @@ class format_font extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_update_toolbar() {
+	function print_plugin_update_toolbar()
+	{
 		?>
 		case "fontname":
 		case "fontsize":
@@ -158,7 +163,8 @@ class format_font extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_combo_selected() {
+	function print_plugin_combo_selected()
+	{
 		?>
 		case "fontname":
 		case "fontsize":
@@ -180,7 +186,8 @@ class format_font extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_shortcuts() {
+	function print_plugin_shortcuts()
+	{
 		?>
 		// headings
 		case '1':	// KEY heading 1
@@ -197,6 +204,6 @@ class format_font extends wysiwyg_plugin {
 		break;
 		<?php
 	}
-}
+}//end class
 
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.29 2004/12/03 15:29:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_schema_edit_fns.inc,v 1.30 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.30 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		$this->static_screens['details']['force_unlock'] = false;
 		$this->static_screens['details']['lock_type'] = 'content';
 
-	}//end construtor()
+	}//end constructor
 
 
 	/**
@@ -122,7 +122,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			check_box($prefix.'_regenerate');
 			echo '&nbsp;Regenerate metadata files';
 		} else {
-			echo 'Permission Denied to regenerate the metadata'; 
+			echo 'Permission Denied to regenerate the metadata';
 
 		}
 		return true;
@@ -328,7 +328,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything
 		if (!$frontend_option) return true;
-		
+
 		echo "<!-- $asset->name //-->\n\n";
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
@@ -406,13 +406,13 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	}//end getMetadataDefaultValues()
 
 
-	/** 
+	/**
 	* Displays the checkbox saying that a default XML namespace definition shouild be used
 	*
 	* @param object	  &$rootid	 asset being painted
 	* @param object	  &$o		 some mysterious object
 	* @param String   $prefix	 prefix for the html doc element name
-	*						
+	*
 	* @return boolean
 	* @access private
 	*/
@@ -427,21 +427,21 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			check_box($prefix.'_default_ns');
 			echo '&nbsp;<b>Use default XML namespace definitions:</b> If your schema has one of the standard names - \'<b>AGLS</b>\', \'<b>DC</b>\', \'<b>EDNA</b>\' - you can use a default namespace definition instead of entering the custom namespace and custom namespace URI into the fields below.';
 		} else {
-			echo 'Permission Denied to change this property'; 
+			echo 'Permission Denied to change this property';
 
 		}
 		return true;
 
 	}//end paintDefaultXMLns()
 
-	
-	/** 
+
+	/**
 	* Checks if client wants to use default XML namespace definition
 	*
 	* @param object	  &$rootid	 asset being painted
 	* @param object	  &$o		 some mysterious object
 	* @param String   $prefix	 prefix for the html doc element name
-	*						
+	*
 	* @return boolean
 	* @access private
 	*/
@@ -450,8 +450,8 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('')) return false;
 
-		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) { 
-			
+		if (isset($_POST[$prefix.'_default_ns']) && $_POST[$prefix.'_default_ns']) {
+
 			$schema_name = strtolower($asset -> attr('name')); // getting schema name
 
 			if ($schema_name == 'agls') {
@@ -460,7 +460,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			} elseif ($schema_name == 'dc') {
 				$asset -> setAttrValue('namespace', 'xmlns:dc');
 				$asset -> setAttrValue('nsurl', 'http://purl.org/dc/elements/1.1/');
-			} elseif ($schema_name == 'edna') { 
+			} elseif ($schema_name == 'edna') {
 				$asset -> setAttrValue('namespace', 'xmlns:edna');
 				$asset -> setAttrValue('nsurl', 'http://www.edna.edu.au/metadata/v1.1');
 			}
@@ -472,13 +472,13 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	}//end processDefaultXMLns()
 
 
-	/** 
+	/**
 	* Displays the textbox containing namespace, accepts input from user
 	*
 	* @param object	  &$rootid	 asset being painted
 	* @param object	  &$o		 some mysterious object
 	* @param String   $prefix	 prefix for the html doc element name
-	*						
+	*
 	* @return boolean
 	* @access private
 	*/
@@ -494,23 +494,23 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			} else {
 				text_box($prefix.'_namespace', $asset->attr('namespace'), 15);
 			}
-		
+
 		} else {
-			echo 'You don\'t have permission to change namespace'; 
+			echo 'You don\'t have permission to change namespace';
 		}
 		return true;
 
 	}//end paintNamespace()
 
 
-	/** 
-	* Processes any values submitted via namespace textbox. If checkbox above 
+	/**
+	* Processes any values submitted via namespace textbox. If checkbox above
 	* is checked, exit function because we will store default values instead.
 	*
 	* @param object	  &$rootid	 asset being painted
 	* @param object	  &$o		 some mysterious object
 	* @param String   $prefix	 prefix for the html doc element name
-	*						
+	*
 	* @return void
 	* @access private
 	*/
@@ -526,13 +526,13 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	}//end processNamespace()
 
 
-	/** 
+	/**
 	* Displays textbox with XML namespace URI
 	*
 	* @param object	  &$rootid	 asset being painted
 	* @param object	  &$o		 some mysterious object
 	* @param String   $prefix	 prefix for the html doc element name
-	*						
+	*
 	* @return boolean
 	* @access private
 	*/
@@ -548,23 +548,23 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			} else {
 				text_box($prefix.'_nsurl', $asset->attr('nsurl'), 80);
 			}
-		
+
 		} else {
-			echo 'You don\'t have permission to change namespace URI'; 
+			echo 'You don\'t have permission to change namespace URI';
 		}
 		return true;
 
 	}//end paintNsURL()
 
 
-	/** 
-	* Stores the value in Namespace URI textbox if user 
+	/**
+	* Stores the value in Namespace URI textbox if user
 	* doesn't want to use default values
 	*
 	* @param object	  &$rootid	 asset being painted
 	* @param object	  &$o		 some mysterious object
 	* @param String   $prefix	 prefix for the html doc element name
-	*						
+	*
 	* @return void
 	* @access private
 	*/

@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_edit_fns.inc,v 1.4 2004/03/02 04:21:19 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: layout_manager_edit_fns.inc,v 1.5 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,7 +43,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 
 	/**
 	* Constructor
-	* 
+	*
 	* @see Asset_Edit_Fns::Asset_Edit_Fns
 	*/
 	function Layout_Manager_Edit_Fns()
@@ -71,13 +71,13 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 		$layouts = array_diff($types, array_keys($asset->attr('layouts')));
 		asort($layouts);
-		
+
 		$uc_layouts = Array();
 		foreach ($layouts as $layout) {
 			$uc_layouts[$layout] = ucwords(str_replace('_',' ', $layout));
 		}
 		combo_box($prefix.'_layouts', $uc_layouts, true, '', 6);
-		
+
 		return true;
 
 	}//end paintAddLayout()
@@ -106,7 +106,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 			$asset->saveAttributes();
 		}
 		return true;
-	
+
 	}//end processAddLayout()
 
 
@@ -136,11 +136,11 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 			$uc_type_code = ucwords(str_replace('_', ' ', $type_code));
 			$o->openSection($uc_type_code);
 				$o->openField('');
-				
+
 				check_box($prefix.'_remove_type_code['.$type_code.']');
 				?>Remove Customisations for <?php
 				echo $uc_type_code;
-				
+
 				$o->closeField();
 				$o->openField('');
 
@@ -154,7 +154,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 							<td class="sq-backend-table-header" width="33%">Choose Layout</td>
 							<td align="center" class="sq-backend-table-header" width="33%">Remove</td>
 						</tr>
-						
+
 					<?php
 
 						// print the current screens that are defined for this type_code
@@ -165,7 +165,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 									<?php echo ucfirst($screen) ?>
 								</td>
 								<td class="sq-backend-table-cell">
-									<?php 
+									<?php
 										asset_finder($prefix.'_find['.$type_code.'@'.$screen.']', $assetid, Array('layout' => 'I'));
 									?>
 								</td>
@@ -202,7 +202,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 				}
 				// print a box to add more screens
 				combo_box($prefix.'_screens['.$type_code.']', $uc_screens, false, Array());
-		
+
 				$o->closeField();
 			$o->closeSection();
 

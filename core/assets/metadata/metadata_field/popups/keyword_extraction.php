@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_extraction.php,v 1.1 2004/07/05 03:43:34 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: keyword_extraction.php,v 1.2 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 	require_once dirname(__FILE__).'/../../../../../core/include/init.inc';
 	require_once dirname(__FILE__).'/../../../../../core/lib/html_form/html_form.inc';
 	if (!isset($_GET['assetid'])) return false;
-	
+
 	assert_valid_assetid($_GET['assetid']);
 	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['assetid']);
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.14 2004/12/03 15:43:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: dev.inc,v 1.15 2004/12/06 14:39:53 brobertson Exp $
+*
 */
 
 /**
@@ -29,7 +29,7 @@
 *     Generic functions that are useful for developers
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.15 $
 * @package Fudge
 * @subpackage dev
 */
@@ -227,7 +227,7 @@ function mem_check($print=null, $return_value=false, $start_over=false)
 		$MEM_CHECK_FIRST_HIT = 0;
 		$MEM_CHECK_LAST_HIT = 0;
 	}
-	
+
 	$hit = (int) (memory_get_usage() / 1024);
 	$mem = '';
 	if (is_null($print) || in_array('current', $print)) $mem = $hit.' KB';

@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.23 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: bodycopy_edit_fns.inc,v 1.24 2004/12/06 14:38:07 brobertson Exp $
+*
 */
 
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -192,7 +192,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				// not get called when we do a form.submit()
 				form.onsubmit();
 				form.submit();
-			}// end bodycopy_submit()
+			}//end bodycopy_submit()
 
 			function set_bodycopy_nested_doc() {
 				if (is_ie4up) {
@@ -258,14 +258,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				var scroll_top  = ((is_ie4up) ? document.body.scrollTop  : self.pageYOffset);
 				bodycopy_popup.move(null, scroll_top + top_offset);
 				bodycopy_popup.show();
-			}// end bodycopy_show_popup()
+			}//end bodycopy_show_popup()
 
 			function bodycopy_hide_popup() {
 				if (!bodycopy_initialised) { return; }
 				bodycopy_show_popup("blank.php");
 				bodycopy_popup_visible = false;
 				bodycopy_popup.hide();
-			}// end bodycopy_hide_popup()
+			}//end bodycopy_hide_popup()
 
 			// get the available cell types
 			var BODYCOPY_AVAILABLE_CONTENT_TYPES = null;
@@ -618,6 +618,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 	}//end deleteContainer()
 
-}//end class
+}// end class
+
 
 ?>

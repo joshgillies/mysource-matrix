@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: add_user_own_access.php,v 1.2 2004/12/03 15:42:39 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: add_user_own_access.php,v 1.3 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
@@ -27,7 +27,7 @@
 * exist)
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -49,7 +49,7 @@ if ($ROOT_ASSETID == 1) {
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
-	
+
 // check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
@@ -65,17 +65,17 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 // go trough each wysiwyg in the system, lock it, validate it, unlock it
 $assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'user', false);
 foreach ($assets as $assetid => $type_code) {
-	
+
 	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 	printAssetName($asset);
-	
+
 	// try to lock the asset
 	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'permissions')) {
 		printUpdateStatus('LOCK');
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		continue;
 	}
-	
+
 	// give the user read access to him/herself
 	if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($asset->id, $asset->id, SQ_PERMISSION_READ, 1)) {
 		printUpdateStatus('FAILED');
@@ -114,7 +114,7 @@ foreach ($assets as $assetid => $type_code) {
 
 	printUpdateStatus('OK');
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-	
+
 }//end foreach
 
 
@@ -132,7 +132,7 @@ function printAssetName(&$asset)
 {
 	$str = $asset->name . ' [ # '. $asset->id. ' ]';
 	printf ('%s%'.(40 - strlen($str)).'s', $str,'');
-	
+
 }//end printAssetName()
 
 
@@ -147,7 +147,7 @@ function printAssetName(&$asset)
 function printUpdateStatus($status)
 {
 	echo "[ $status ]\n";
-	
+
 }//end printUpdateStatus()
 
 

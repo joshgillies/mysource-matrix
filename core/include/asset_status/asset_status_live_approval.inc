@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.29 2004/11/03 23:57:06 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_status_live_approval.inc,v 1.30 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                   there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.30 $
 * @package MySource_Matrix
 */
 class Asset_Status_Live_Approval extends Asset_Status
@@ -112,7 +112,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
-	
+
 					if ($wf_complete && $m_complete) $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
 					else if (in_array($userid, $publishers)) $statii[SQ_STATUS_LIVE_APPROVAL] = 'Apply for Approval';
 				} else {

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.33 2004/12/03 15:43:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: wysiwyg.inc,v 1.34 2004/12/06 14:39:53 brobertson Exp $
+*
 */
 
 
@@ -33,11 +33,12 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.34 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class wysiwyg {
+class wysiwyg
+{
 
 	/**
 	* A unique name to identify this WYSIWYG editor
@@ -187,7 +188,7 @@ class wysiwyg {
 		global $ROOT_PATH;
 		$ROOT_PATH = realpath(dirname(__FILE__)).'/';
 
-	}//end constructor()
+	}//end constructor
 
 
 	/**

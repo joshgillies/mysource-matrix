@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.32 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: messaging_service.inc,v 1.33 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -42,7 +42,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -253,8 +253,8 @@ class Messaging_Service extends MySource_Object
 		return $this->_levels['logs'][count($this->_levels['logs']) - 1];
 
 	}//end logContents()
-	
-	
+
+
 //--        MESSAGES        --//
 
 
@@ -366,7 +366,7 @@ class Messaging_Service extends MySource_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		if (!is_null($get_user_name) && $get_user_name != 'name') 
+		if (!is_null($get_user_name) && $get_user_name != 'name')
 			$get_user_name = 'short_name';
 
 		$sql = 'SELECT m.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form_edit_fns.inc,v 1.7 2004/06/21 05:27:11 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_custom_form_edit_fns.inc,v 1.8 2004/12/06 14:41:40 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -46,7 +46,7 @@ class Page_Custom_Form_Edit_Fns extends Page_Edit_Fns
 	function Page_Custom_Form_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
-	}
+	}//end constructor
 
 
 	/**

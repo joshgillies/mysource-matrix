@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.inc,v 1.5 2003/12/16 12:42:56 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: spell_checker.inc,v 1.6 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -33,11 +33,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to allow the user to Check the spelling of the document
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class spell_checker extends wysiwyg_plugin {
+class spell_checker extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor

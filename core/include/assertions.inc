@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.11 2004/10/15 06:06:43 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: assertions.inc,v 1.12 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 /**
@@ -27,7 +27,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -261,7 +261,7 @@ function assert_array_contains($test, $expected, $msg='', $silent=false, $fatal=
 *
 * Does as for assertEquals() but the array or object contents are printed out instead of just 'Array'
 * or 'Object'. $test and $expected must be equal in both contents and order. Use when you are expecting
-* array elements to appear in an exact order (for example, asset lineages). 
+* array elements to appear in an exact order (for example, asset lineages).
 *
 * @param mixed		$test		the value to test
 * @param mixed		$expected	the expected value
@@ -448,7 +448,7 @@ function assert_valid_assetid($assetid, $msg='', $silent=false, $fatal=true)
 			}
 		}
 	}
-	
+
 	if (!$valid) {
 		if (empty($msg)) $msg = '['.gettype($assetid).'] "'.$assetid.'" is not a valid asset ID';
 		trigger_exception($msg, $silent, $fatal);

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.17 2004/11/23 05:43:04 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_datetime.inc,v 1.18 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,11 +47,11 @@ class Form_Question_Type_Datetime extends Form_Question
 	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
-	function Form_Question_Type_Datetime($assetid=0,$data=Array()) 
+	function Form_Question_Type_Datetime($assetid=0,$data=Array())
 	{
 		$this->Form_Question($assetid,$data);
 
-	}//end Form_Question_Type_Datetime()
+	}//end constructor
 
 
 	/**
@@ -78,7 +78,7 @@ class Form_Question_Type_Datetime extends Form_Question
 	* @access public
 	* @return string
 	*/
-	function getAnswer($content_file=true, $value='', $suffix='', $default = false)
+	function getAnswer($content_file=true, $value='', $suffix='', $default=false)
 	{
 		$extras = $this->attr('extra');
 		$name   = $this->id;
@@ -107,19 +107,19 @@ class Form_Question_Type_Datetime extends Form_Question
 			$parameters['allow_circa'] = $show_params['c'];
 
 			foreach ($elements as $attr => $t) {
-				$parameters['style'][$t] = ($text_params[$t] ? 't' : 's');	
+				$parameters['style'][$t] = ($text_params[$t] ? 't' : 's');
 				if ($show_params[$t]) $parameters['show'][] = $t;
 				if ($null_params[$t]) $parameters['null'][$t] = 1;
 			}
 		}
 
 		$dt_field = new Datetime_Field($this->id.$suffix, $value, $parameters);
-		
+
 		ob_start();
 		$dt_field->printField();
 		$html .= ob_get_contents();
 		ob_end_clean();
-				
+
 		// so we need to convert them back to proper php tags
 		return html_entity_decode($html);
 
@@ -143,7 +143,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		$parameters['min'] = '01-00-1970 00:00:00';
 		$parameters['max'] = '31-12-2035 23:59:59';
 		$parameters['show']['c'] = 0;
-	
+
 		foreach ($elements as $attr => $t) {
 			$parameters['style'][$t] = 's';
 			$parameters['show'][] = $t;
@@ -153,7 +153,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		return $parameters;
 
 	}//end getDefaultParameters()
-	
+
 
 	/**
 	* returns an array of the types of rules that are allowed upon this asset
@@ -163,9 +163,10 @@ class Form_Question_Type_Datetime extends Form_Question
 	* @access public
 	* @return Array(string => string)
 	*/
-	function getAllowedRules() {
+	function getAllowedRules()
+	{
 		return Array();
-	
+
 	}//end getAllowedRules()
 
 
@@ -188,15 +189,15 @@ class Form_Question_Type_Datetime extends Form_Question
 			$dt_field->processField();
 			$val = $_POST[$this->id.'value'];
 			$value = sprintf('%04s-%02s-%02s %02s:%02s:%02s', $val['y'], $val['m'], $val['d'], $val['h'], $val['i'], $val['s']).(!isset($val['c']) ? '' : (' '.($val['c'] ? '1' : '0')));
-			
+
 			$this->active_submission->setAnswer($this->id, $value);
 			$this->active_submission->setSummary($this->id, $this->attr('name'), $this->getSummary($value));
 
 			parent::processForm();
 		}
-		
+
 		return true;
-	
+
 	}//end processForm()
 
 
@@ -211,12 +212,12 @@ class Form_Question_Type_Datetime extends Form_Question
 	function getSummary($answer)
 	{
 		$allow_circa = false;
-		
+
 		$show_params = $this->attr('show');
 		if ($show_params['c']) {
 			$allow_circa = true;
 		}
-		
+
 		if ($allow_circa) {
 			list($date, $time, $circa) = explode(' ', $answer);
 		} else {
@@ -233,7 +234,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		$temp_date = mktime(0,0,0,$val['m'],$val['d'],2000);
 
 		return ($circa ? 'circa ' : '') . date('F jS', $temp_date). ', '. (int)$val['y'] . ' ' . $time;
-	
+
 	}//end getSummary()
 
 
@@ -276,7 +277,7 @@ class Form_Question_Type_Datetime extends Form_Question
 		return $contents;
 
 	}//end getXML()
-	
-	
+
+
 }//end class
 ?>

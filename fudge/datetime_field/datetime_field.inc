@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.26 2004/12/03 15:43:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: datetime_field.inc,v 1.27 2004/12/06 14:39:53 brobertson Exp $
+*
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -36,11 +36,12 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.27 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
-class DateTime_Field {
+class DateTime_Field
+{
 
 	/**
 	* The prefix for form fields
@@ -58,7 +59,7 @@ class DateTime_Field {
 	* Setting for the field (min, max values etc)
 	* <code>
 	* Array(
-	*	// datetime elements to show 
+	*	// datetime elements to show
 	* 	'show'			=> Array(['d'],['m'],['y'],['h'],['i'],['s'],['a']),
 	*	// style of each of the elements (s = select box, t = textbox)
 	* 	'style'			=> Array(
@@ -108,7 +109,7 @@ class DateTime_Field {
 		$this->value      = &$value;
 		$this->parameters = &$parameters;
 
-	}//end contructor
+	}//end constructor
 
 
 	/**
@@ -323,8 +324,8 @@ class DateTime_Field {
 					// just a morning or afternoon
 					} else {
 						$options = ($min < 12) ? Array('am'=>'am') : Array('pm'=>'pm');
-					} 
-					break;						
+					}
+					break;
 			}
 			combo_box($prefix.'['.$u.']', $options, false, $value, 0, $extras[$u]);
 			return;
@@ -335,7 +336,7 @@ class DateTime_Field {
 			} else {
 				$onchange = "value=parseInt(value);value=Math.min($max,Math.max($min,isNaN(value)?0:value));";
 			}
-			
+
 			// minutes value should always be 2 digits
 			if ($u == 'i') $value = sprintf('%02d', $value);
 
@@ -371,7 +372,7 @@ class DateTime_Field {
 		} else {
 			$use_am_pm = false;
 		}
-		
+
 		// seperate value into date and time
 		$ar_value = explode(' ',$value);
 		$date = (isset($ar_value[0])) ? $ar_value[0] : '';
@@ -579,7 +580,7 @@ class DateTime_Field {
 					$max = substr_replace($max, str_repeat('-', $substr_length), $value_substr[$value_part], $substr_length);
 				}
 			}
-			
+
 			if (strcmp($value_str, $min) < 0) {
 				$value = $this->strToUnitsArray($min);
 			} else if (strcmp($value_str, $max) > 0) {
@@ -691,7 +692,7 @@ class DateTime_Field {
 				$$u = $n;
 			}
 		}
-		
+
 		// Certain things we can't work out if the year is before 1970
 		$real_y = 0;
 		$c = 0;
@@ -732,7 +733,7 @@ class DateTime_Field {
 	* @access public
 	* @return string
 	*/
-	function printMinField() 
+	function printMinField()
 	{
 		$p = Array(
 			'min'       => '0000-01-01 00:00:00',
@@ -754,7 +755,7 @@ class DateTime_Field {
 	* @access public
 	* @return string
 	*/
-	function processMinField() 
+	function processMinField()
 	{
 		$p = Array(
 			'min'       => '0000-01-01 00:00:00',
@@ -775,7 +776,7 @@ class DateTime_Field {
 	* @access public
 	* @return string
 	*/
-	function printMaxField() 
+	function printMaxField()
 	{
 		$p = Array(
 			'min'       => '0000-01-01 00:00:00',
@@ -797,7 +798,7 @@ class DateTime_Field {
 	* @access public
 	* @return string
 	*/
-	function processMaxField() 
+	function processMaxField()
 	{
 		$p = Array(
 			'min'       => '0000-01-01 00:00:00',
@@ -820,7 +821,7 @@ class DateTime_Field {
 	* @access public
 	* @return string
 	*/
-	function printEditOptions($show=Array()) 
+	function printEditOptions($show=Array())
 	{
 		if (empty($show)) {
 			$show = Array('s','n','c','t'); // default set of fields to show
@@ -833,7 +834,7 @@ class DateTime_Field {
 		$c = &$this->getParam('allow_circa');
 		$t = &$this->getParam('standard');
 		?>
-		
+
 		<table cellspacing="0" cellpadding="2" border="1">
 			<tr><td>
 				<?php
@@ -846,11 +847,11 @@ class DateTime_Field {
 					}
 				?>
 			</td>
-			<?php	
-				foreach ($us as $k=>$v) { 
+			<?php
+				foreach ($us as $k=>$v) {
 				?>
 					<td align=center><b><?php echo $v; ?></b></td>
-			<?php } // end foreach
+			<?php }//end foreach
 			?>
 			</tr>
 
@@ -865,10 +866,10 @@ class DateTime_Field {
 			?>
 				<td align=center><input type=checkbox name="<?php echo $this->prefix; ?>_show[]" value=<?php echo $k; ?> <?php echo ((in_Array($k,$s))?'checked':''); ?>></b>
 				</td>
-			<?php } // end foreach 
+			<?php }//end foreach
 			?>
 			</tr>
-			<?php } // end if in_array
+			<?php }//end if in_array
 			?>
 
 			<?php
@@ -881,15 +882,15 @@ class DateTime_Field {
 					foreach ($us as $k=>$v) {
 				?><td align=center><input type=checkbox name="<?php echo $this->prefix; ?>_null[]" value=<?php echo $k; ?> <?php echo ((in_Array($k,$n))?'checked':''); ?>></b>
 				</td>
-			<?php } // end foreach
+			<?php }//end foreach
 			?>
 			</tr>
-			<?php } // end if in_array
+			<?php }//end if in_array
 			?>
 
 			<tr>
 				<td><b>Select box</b></td>
-			<?php 
+			<?php
 				foreach ($us as $k=>$v) { ?>
 				<td align=center>
 					<input type=radio name="<?php echo $this->prefix; ?>_style[<?php echo $k; ?>]" value=s <?php echo (($y[$k]=='s')?'checked':''); ?>></b>
@@ -899,7 +900,7 @@ class DateTime_Field {
 
 			<tr>
 				<td><b>Text box</b></td>
-			<?php 
+			<?php
 				foreach ($us as $k=>$v) { ?>
 				<td align=center>
 					<input type=radio name="<?php echo $this->prefix; ?>_style[<?php echo $k; ?>]" value=t <?php echo (($y[$k]=='t')?'checked':''); ?>></b>
@@ -929,8 +930,8 @@ class DateTime_Field {
 	*
 	* @access public
 	* @return string
-	*/	
-	function processEditOptions() 
+	*/
+	function processEditOptions()
 	{
 		$s = isset($_REQUEST[$this->prefix.'_show']) ? $_REQUEST[$this->prefix.'_show'] : Array();
 		$n = isset($_REQUEST[$this->prefix.'_null']) ? $_REQUEST[$this->prefix.'_null'] : Array();
@@ -946,7 +947,7 @@ class DateTime_Field {
 
 		$this->processMinField();
 		$this->processMaxField();
-	
+
 	return true;
 
 	}//end processEditOptions()
@@ -965,6 +966,6 @@ class DateTime_Field {
 	}//end isEmpty()
 
 
-}// end class
+}//end class
 
 ?>

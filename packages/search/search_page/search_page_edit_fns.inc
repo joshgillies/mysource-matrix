@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.30 2004/11/18 05:10:23 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: search_page_edit_fns.inc,v 1.31 2004/12/06 14:44:15 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.30 $ - 1.0
+* @version $Revision: 1.31 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -48,7 +48,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		$this->static_screens['details']['lock_type'] = 'content';
 		$this->static_screens['details']['force_unlock'] = false;
 
-	}//end Search_Page_Edit_Fns()
+	}//end constructor
 
 
 	/**
@@ -70,7 +70,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		if (!empty($category)) $link_value .= '_'.$category;
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, 'asset', false, $link_value);
 
-		if ($read_only) $write_access = false; 
+		if ($read_only) $write_access = false;
 		else $write_access = $asset->writeAccess('links');
 
 		if (!$write_access) {
@@ -156,7 +156,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	function paintStatus(&$asset, &$o, $prefix, $category='', $read_only=false)
 	{
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		if ($read_only) $write_access = false; 
+		if ($read_only) $write_access = false;
 		else $write_access = $asset->writeAccess('links');
 
 		if (empty($category)) {
@@ -183,7 +183,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 				echo '</ul>';
 			}
 		}
-		
+
 		return $write_access;
 
 	}//end paintStatus()
@@ -242,7 +242,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		);
 
 		$i = 0;
-		
+
 		$o->openSection('Standard Search Fields');
 		$o->openField('');
 		?>
@@ -287,7 +287,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			?>
 		</table>
 		<?php
-	
+
 		$o->closeField();
 		$o->closeSection();
 		$o->openSection('Attribute Search Fields');
@@ -321,7 +321,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 						if (!isset($field_data['params'])) $field_data['params'] = Array();
 						$search_types = $asset->attr('search_types');
 						$search_type = array_get_index($field_data['params'], 'asset_type', '0');
-		
+
 						if (!empty($search_types)) {
 							if ($write_access) {
 								$options = Array('' => '- type -');
@@ -341,11 +341,11 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 						} else {
 							$selected_attr = $field_data['params']['attrid'];
 						}
-		
+
 						if (!empty($search_type)) {
-							
+
 							$asset_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attrid', 'name'));
-		
+
 							if ($write_access) {
 								$type_attrs = Array('' => '- attribute -');
 								foreach ($asset_type_attrs as $attr_id => $attr_name) {
@@ -415,7 +415,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 											'published' => 'Published',
 											);
 						$date_type = array_get_index($field_data['params'], 'date_type', '');
-		
+
 						if ($write_access) {
 							combo_box($prefix.'_fields['.$i.'][params][date_type]', $date_types, false, $date_type);
 						} else {
@@ -442,7 +442,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			?>
 		</table>
 		<?php
-	
+
 		$o->closeField();
 		$o->closeSection();
 		$o->openSection('Metadata Search Fields');
@@ -551,7 +551,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 				if (isset($deleted_fields[$i])) continue;          // remove deleted fields
 				if ($field_data['name'] == '') continue;           // remove fields with no name
 				if (isset($fields[$field_data['name']])) continue; // ensure no duplicate names
-				
+
 				// metadata needs to rework the params array
 				if ($field_data['type'] == 'metadata') {
 					$fieldid = 0;
@@ -645,7 +645,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 
 		return true;
 
-	}//end paintTypes
+	}//end paintTypes()
 
 
 	/**
@@ -714,20 +714,20 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		foreach ($fields as $field) {
 
 			if ($field['type'] == 'asset_attrib') {
-	
+
 				if (!isset($field['params']['attrid'])) continue;
 				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($field['params']['attrid']);
 				if (is_null($attribute)) continue;
-				
+
 				// if this is a boolean or selection field, we want to make sure blank options are allowed
 				if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
 					$attribute->_params['allow_empty'] = true;
 				}
-	
+
 				if (!empty($search_styles) && isset($search_styles[$attribute->id])) {
 					$attribute->_edit_params = $search_styles[$attribute->id];
 				}
-	
+
 				echo '<p>';
 				$attribute->paintEditParams($prefix.'_'.$attribute->id, $write_access);
 				echo '</p>';
@@ -773,9 +773,9 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 
 		return true;
 
-	}//end processTypes()
-	
-	
+	}//end processStyles()
+
+
 	/**
 	* Paints the interface for selecting a search category to customise
 	*
@@ -817,8 +817,8 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		return false;
 
 	}//end paintChooseCategory()
-	
-	
+
+
 	/**
 	* Processes the interface for selecting a search category to customise
 	*
@@ -835,8 +835,8 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		return false;
 
 	}//end processChooseCategory()
-	
-	
+
+
 	/**
 	* Paints the interface for editing a search category
 	*
@@ -869,14 +869,14 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					echo $categories[$selected]['name'];
 				}
 			$o->closeField();
-			
+
 			if ($write_access) {
 				$o->openField('Delete ?');
 					check_box($prefix.'_delete_category');
 					echo 'Delete this category';
 				$o->closeField();
 			}
-			
+
 			$o->openSection('Category Specific Search Settings');
 				$o->openField('Root Asset');
 					$using_default = !isset($categories[$selected]['root_assetid']);
@@ -884,13 +884,13 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					$category = ($using_default) ? '' : $selected;
 					$this->paintRootAsset($asset, $o, $prefix, $category, $using_default);
 					if ($using_default) echo '</b>';
-					
+
 					if ($write_access) {
 						check_box($prefix.'_default_root_assetid', '1', $using_default);
 						echo ' Use default';
 					}
 				$o->closeField();
-				
+
 				$o->openField('Search Statuses');
 					$using_default = !isset($categories[$selected]['search_status']);
 					if ($write_access) {
@@ -911,12 +911,12 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			}
 
 		}//end if !empty()
-		
+
 		return $write_access;
 
 	}//end paintCustomiseCategory()
-	
-	
+
+
 	/**
 	* Processes the interface for editing a search category
 	*
@@ -936,9 +936,9 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 
 		if (isset($_REQUEST[$prefix.'_category'])) {
 			$category = $_REQUEST[$prefix.'_category'];
-			
+
 			if (!empty($category)) {
-			
+
 				// delete the category ?
 				if (isset($_POST[$prefix.'_delete_category']) && $_POST[$prefix.'_delete_category']) {
 					if (isset($categories[$category])) {
@@ -948,9 +948,9 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 						unset($categories[$category]);
 						$_REQUEST[$prefix.'_select_category'] = '';
 					}
-					
+
 				} else {
-				
+
 					// change the name of the category ?
 					if (isset($_POST[$prefix.'_category_name'])) {
 						$new_name = $_POST[$prefix.'_category_name'];
@@ -960,7 +960,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 							if ($old_key != $new_key) {
 								$categories[$new_key] = $categories[$old_key];
 								unset($categories[$old_key]);
-								
+
 								// change the root asset link
 								$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_NOTICE, '', false, 'root_'.$category);
 								if (!empty($root_link)) {
@@ -972,7 +972,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 						}//end if name changed
 						$categories[$category]['name'] = $new_name;
 					}//end if category name set
-					
+
 					$defaults = Array('root_assetid', 'search_status');
 					foreach ($defaults as $default) {
 						$using_default = false;
@@ -993,14 +993,14 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 								$this->processRootAsset($asset, $o, $prefix, $category);
 							}
 						}
-		
+
 						if (!$using_default) {
 							$new_value = '';
 							switch ($default) {
 								case 'root_assetid' :
 									$this->processRootAsset($asset, $o, $prefix, $category);
 								break;
-			
+
 								case 'search_status' :
 									$new_value = Array();
 									if (isset($_POST[$prefix.'_statuses'])) {
@@ -1011,11 +1011,11 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 									}
 								break;
 							}//end switch
-			
+
 							$categories[$category][$default] = $new_value;
 						}
 					}
-	
+
 					if (isset($categories[$category]) && empty($categories[$category])) unset($categories[$category]);
 					if (isset($categories[$category]['name']) && empty($categories[$category]['name'])) unset($categories[$category]);
 
@@ -1031,7 +1031,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					}
 				}
 			}//end if category is not empty
-			
+
 			if (isset($categories[''])) unset($categories['']);
 			return $asset->setAttrValue('categories', $categories);
 		}
@@ -1040,9 +1040,9 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	}//end processCustomiseCategory()
 
 
-	
-	
-	
+
+
+
 	/**
 	* Paints the interface to customise the search forms
 	*
@@ -1061,13 +1061,13 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		$sis_bodycopy_link    = &$asset->getFormatBodycopyLink('sis_form'); //search in search
 		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
-		
+
 		?>
 			<table>
 				<tr>
 					<td>Customise search form</td>
 					<td>
-						<?php 
+						<?php
 							if (!$write_access) {
 								echo ($search_customised) ? 'Yes' : 'No';
 							} else {
@@ -1079,7 +1079,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 				<tr>
 					<td>Customise search within search form</td>
 					<td>
-						<?php 
+						<?php
 							if (!$write_access) {
 								echo ($sis_customised) ? 'Yes' : 'No';
 							} else {
@@ -1119,17 +1119,17 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 
 		foreach ($forms as $form_name => $value) {
 			if (isset($_POST[$prefix.'_'.$value])) {
-				
+
 				if (is_null($format_folder)) {
 					// create the folder if it does not exist
-		
+
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 					$format_folder = new Folder();
 					$copy_link = Array('asset' => &$asset, 'value' => 'format_folder', 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-		
+
 					$format_folder->setAttrValue('name', 'Search Forms');
-		
+
 					if (!$format_folder->create($copy_link)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						trigger_error('Could not create the format folder', E_USER_WARNING);
@@ -1137,7 +1137,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					}
 					$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				}
-				
+
 				$bodycopy = &$asset->getFormatBodycopy($value);
 
 				if (is_null($bodycopy)) {
@@ -1182,7 +1182,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		// if none of the bodycopies are visible, the hide the folder as well
 		$folder_link_type = SQ_LINK_TYPE_3;
 		if ($bodycopies_visible) $folder_link_type = SQ_LINK_TYPE_2;
-		
+
 		$folder_link = $asset->getFormatFolderLink();
 		if (!empty($folder_link['link_type']) && $folder_link['link_type'] != $folder_link_type) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->updateLink($folder_link['linkid'], $folder_link_type)) {

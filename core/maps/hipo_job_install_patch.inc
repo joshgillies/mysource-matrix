@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.5 2004/11/10 06:48:34 mnyeholt Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_job_install_patch.inc,v 1.6 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -232,7 +232,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 	*/
 	function paintPleaseWait(&$step_data, &$o, $prefix)
 	{
-		
+
 		$o->openSection('Please Wait');
 			$o->openField('Please wait - '.strtolower($step_data['name']).'...');
 			$o->closeField();
@@ -259,7 +259,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 	{
 		$o->addHiddenField('form_submitted', 1);
 		$o->addOnLoad('setNextButtonStatus();');
-		
+
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 
 		$o->openSection('Important Notice');
@@ -286,7 +286,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 				<?php
 			$o->closeField();
 		$o->closeSection();
-		
+
 		$o->openSection('Install Options');
 			$o->openField('');
 				?>
@@ -315,13 +315,13 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 				<?php
 			$o->closeField();
 		$o->closeSection();
-		
+
 		$o->openSection('Please Note');
 			$o->openField('');
 				echo 'The details of the patch you have selected to install are shown below.<br />Please confirm that you wish to install this patch.';
 			$o->closeField();
 		$o->closeSection();
-		
+
 		$o->openSection('Patch Details');
 			$o->openField('Severity');
 				echo $patch_info['severity'];
@@ -342,7 +342,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 				echo $patch_info['patch_description'];
 			$o->closeField();
 		$o->closeSection();
-		
+
 		$o->openSection('Change Log');
 			$i = 1;
 			foreach ($patch_info['changelog'] as $change) {
@@ -352,7 +352,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 				$i++;
 			}
 		$o->closeSection();
-		
+
 		return true;
 
 	}//end paintConfirmation()
@@ -386,7 +386,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		}
 
 		return true;
-	
+
 	}//end processConfirmation()
 
 
@@ -403,22 +403,22 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 	{
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 
-		// To allow for a patch to be applied which doesn't change the 
+		// To allow for a patch to be applied which doesn't change the
 		// version number, any requirement that has a new_version == old_version
 		// will only check to make sure that the old version was at LEAST
-		// the required version. 
-		// For example, if your system is on RC2, but you want to patch 
+		// the required version.
+		// For example, if your system is on RC2, but you want to patch
 		// something that only needs RC1, the patch's requirement says
 		// old_version = RC1, new_version=RC1, which will make the system
 		// only check that the old version was at LEAST RC1. This lets us
 		// not need to update the version for something just to be able
 		// to add a patch (ie CMS is still version 0.1, nothing has changed)
-		
+
 		if (isset($patch_info['requirements']['system'])) {
-			
+
 			// if new and old are the same, check that old version is at least
 			// sq_system_version
-			if ($patch_info['requirements']['system']['old_version'] == 
+			if ($patch_info['requirements']['system']['old_version'] ==
 				$patch_info['requirements']['system']['new_version']) {
 				// if the current version is lower than the minimum required version
 				if (version_compare(SQ_SYSTEM_VERSION,$patch_info['requirements']['system']['old_version']) < 0) {
@@ -449,18 +449,18 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 						return false;
 					}
 				} else if ($versions['old_version'] == $versions['new_version']) {
-					// if the new and old versions are the same, make sure the 
+					// if the new and old versions are the same, make sure the
 					// package version is at least that of the required version.
 					require_once $package_path;
 					$package = new $package_class();
-					
+
 					// if the current version is lower than the minimum required version
 					// then the requirement fails.
 					if (version_compare($package->version,$versions['old_version']) < 0) {
 						trigger_error('This patch can only be applied to version '.$patch_info['requirements']['system']['old_version'].' of the system (current version is '.SQ_SYSTEM_VERSION.')', E_USER_ERROR);
 						return false;
 					}
-					
+
 				} else {
 					if (!is_file($package_path)) {
 						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of package "'.strtoupper($package_code).'" (current version is '.$package->version.')', E_USER_ERROR);
@@ -487,17 +487,17 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 						return false;
 					}
 				} else if ($versions['old_version'] == $versions['new_version']) {
-					// if the new and old versions are the same, make sure the 
+					// if the new and old versions are the same, make sure the
 					// asset version is at least that of the required version.
 					$installed_version = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'version');
-					
+
 					// if the current version is lower than the minimum required version
 					// then the requirement fails.
 					if (version_compare($installed_version,$versions['old_version']) < 0) {
 						trigger_error('This patch can only be applied to version '.$versions['old_version'].' of asset type "'.$type_code.'" (current version is '.$installed_version.')', E_USER_ERROR);
 						return false;
 					}
-					
+
 				} else {
 					$installed_version = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code, 'version');
 					if ($installed_version != $versions['old_version']) {
@@ -511,7 +511,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processCheckVersions()
 
 
@@ -535,7 +535,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 			$from = $patch_path.'/'.$path;
 
 			if (empty($file_info['md5'])) {
-				
+
 				// this should be a directory
 				if (!is_dir($from)) {
 					trigger_error('Could not install new directory "'.$from.'" - directory does not exist in patch', E_USER_ERROR);
@@ -627,7 +627,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processCheckFiles()
 
 
@@ -648,7 +648,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 		$patch_path = dirname($patch_info['file_path']);
 		$backup_path = SQ_DATA_PATH.'/private/maps/installed_patches/'.$patch_info['id'];
-		
+
 		// make the backup directory
 		require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
 		if (!is_dir($backup_path) && !create_directory($backup_path)) {
@@ -659,7 +659,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		foreach ($patch_info['new_files'] as $path => $file_info) {
 			$from = SQ_SYSTEM_ROOT.'/'.$path;
 			$to   = $backup_path.'/'.$path;
-			
+
 			// back up any new files if there is already a file in in the way
 			if (!empty($file_info['md5']) && is_file($to)) {
 				// try and create the backup directory for this file if it doesnt exist
@@ -693,7 +693,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 				if (is_file($to)) continue;
 				$from = $patch_path.'/'.$path;
 			}
-			
+
 			if (!copy($from, $to)) {
 				trigger_error('Failed to backup file "'.$from.'" - upgrade aborted', E_USER_ERROR);
 				return false;
@@ -718,7 +718,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 				if (is_file($to)) continue;
 				$from = $patch_path.'/'.$path;
 			}
-			
+
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			if (!copy_file($from, $to)) {
 				if (!$this->_running_vars['option_ignore_file_checks']) {
@@ -733,7 +733,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processBackupFiles()
 
 
@@ -754,7 +754,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		foreach ($patch_info['new_files'] as $path => $file_info) {
 			$to   = SQ_SYSTEM_ROOT.'/'.$path;
 			$from = $patch_path.'/'.$path;
-			
+
 			if (empty($file_info['md5'])) {
 				if (!mkdir($to)) {
 					trigger_error('Failed to install new directory "'.$path.'" - upgrade aborted', E_USER_ERROR);
@@ -839,7 +839,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 
 	/**
 	* Run step 3 of the install if required. Will analyse the files being
-	* added in this patch first to see if it should only selectively run 
+	* added in this patch first to see if it should only selectively run
 	* for certain packages.
 	*
 	* We dont die on errors because it's a bit too late for that
@@ -853,7 +853,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 	function processInstallScript(&$step_data, $prefix)
 	{
 		$package_reg = "|packages/(\w+)/(\w+)/.|is";
-		
+
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 
 		if ($patch_info['run_script'] === '1') {
@@ -867,7 +867,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processInstallScript()
 
 
@@ -900,7 +900,7 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processCleanUp()
 
 

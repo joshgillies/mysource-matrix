@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.5 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: file_versioning.inc,v 1.6 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 
@@ -39,7 +39,7 @@ define('FUDGE_FV_OLD_VERSION',      64);
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package Fudge
 * @subpackage File_Versioning
 */
@@ -79,7 +79,7 @@ class File_Versioning
 		$this->_dir = $dir;
 		$this->_db  = &$db;
 
-	}// end constructor
+	}//end constructor
 
 
 	/**
@@ -107,7 +107,7 @@ class File_Versioning
 			trigger_error('Unable to initialise File Version system, unable to create directory "'.$dir.'"', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
-		}// end if
+		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
@@ -162,7 +162,7 @@ class File_Versioning
 	*/
 	function _getFileInfoAtVersion($fileid, $version=null)
 	{
-		$sql = 'SELECT f.fileid, f.path, f.filename, 
+		$sql = 'SELECT f.fileid, f.path, f.filename,
 						h.version, h.from_date, h.to_date, h.file_size, h.md5, h.sha1, h.removal, h.extra_info
 				FROM '.SQ_TABLE_PREFIX.'file_vers_file f INNER JOIN '.SQ_TABLE_PREFIX.'file_vers_history h ON f.fileid = h.fileid
 				WHERE f.fileid = '.$this->_db->quote($fileid).'
@@ -252,7 +252,7 @@ class File_Versioning
 		if (empty($fileid)) return Array();
 		return $this->_getFileInfoAtVersion($fileid);
 
-	}// end _getFileInfoFromPath()
+	}//end _getFileInfoFromPath()
 
 
 	/**
@@ -366,7 +366,7 @@ class File_Versioning
 				return false;
 			}
 
-		}// end foreach
+		}//end foreach
 
 		$current_info = $this->_getFileInfoFromPath($rep_file);
 		// if there is a current file and it hasn't been "removed", you can't add a new file
@@ -396,7 +396,7 @@ class File_Versioning
 				return false;
 			}
 
-		}// end if
+		}//end if
 
 		if ($use_trans) {
 			$result = $this->_db->query('BEGIN');
@@ -428,7 +428,7 @@ class File_Versioning
 		} else {
 			$fileid = (int) $current_info['fileid'];
 
-		}// end if
+		}//end if
 
 		// get the lock now that we have inserted the details
 		if (!$this->_lockFile($fileid)) {
@@ -438,7 +438,7 @@ class File_Versioning
 				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			}
 			return false;
-		}// end if
+		}//end if
 
 		// update the repository file
 		$version = $this->_updateFile($fileid, $rep_path, $real_file, $extra_info);
@@ -460,7 +460,7 @@ class File_Versioning
 
 		return true;
 
-	}// end add()
+	}//end add()
 
 
 	/**
@@ -517,7 +517,7 @@ class File_Versioning
 				('.$this->_db->quote($fileid).', '.$this->_db->quote($version).',
 				'.$this->_db->quote($this->_tsIso8601($now)).', NULL,
 				'.$this->_db->quote($file_size).', '.$this->_db->quote($md5).',
-				'.$this->_db->quote($sha1).', '.$this->_db->quote($removal).', 
+				'.$this->_db->quote($sha1).', '.$this->_db->quote($removal).',
 				'.$this->_db->quote($extra_info).')';
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
@@ -533,18 +533,18 @@ class File_Versioning
 			if (!is_dir($rep_dir) && !create_directory($rep_dir)) {
 				trigger_error('Unable to create directory "'.$rep_dir.'"', E_USER_NOTICE);
 				return 0;
-			}// end if
+			}//end if
 
 			$rep_file = $rep_dir.'/'.basename($real_file).',ffv'.$version;
 			if (!copy($real_file, $rep_file)) {
 				return 0;
-			}// end if copy
+			}//end if copy
 
-		}// endif 
+		}//endif
 
 		return $version;
 
-	}// end _updateFile()
+	}//end _updateFile()
 
 
 	/**
@@ -581,15 +581,15 @@ class File_Versioning
 
 				// put the file back
 				rename($ffv_file.'.bup', $ffv_file);
-			}// end if ffv_file exists
+			}//end if ffv_file exists
 		} else {
 			trigger_error('Unable to create directory "'.$ffv_dir.'"', E_USER_NOTICE);
 
-		}// end if create ffv_dir
+		}//end if create ffv_dir
 
 		return false;
 
-	}// end _createFFVFile()
+	}//end _createFFVFile()
 
 
 	/**
@@ -638,7 +638,7 @@ class File_Versioning
 						  AND (to_date IS NULL OR to_date > '.$this->_db->quote($this->_tsIso8601($date)).')
 						ORDER BY version DESC';
 				$nice_date = $this->_tsIso8601($date);
-			}// end if
+			}//end if
 
 			$ver_info = $this->_db->getRow($sql);
 			if (DB::isError($ver_info)) {
@@ -651,7 +651,7 @@ class File_Versioning
 				trigger_error('File "'.$rep_file.'" does not have an available version for "'.$nice_date.'"', E_USER_NOTICE);
 				$this->_releaseFile($info['fileid']);
 				return false;
-			} 
+			}
 
 		// else make sure the set version is valid
 		} else {
@@ -673,7 +673,7 @@ class File_Versioning
 				return false;
 			}
 
-		}// end if
+		}//end if
 
 		$info['version']     = $ver_info['version'];
 		$info['removal']     = $ver_info['removal'];
@@ -682,7 +682,7 @@ class File_Versioning
 		$this->_releaseFile($info['fileid']);
 		return $info;
 
-	}// end _checkOutCheck()
+	}//end _checkOutCheck()
 
 
 	/**
@@ -713,7 +713,7 @@ class File_Versioning
 		// create the FFV file entry
 		if (!$this->_createFFVFile($dest_file, $info['fileid'], $info['version'])) {
 			return false;
-		}// end if
+		}//end if
 
 		// if this version is a removal then we are need to remove any existing files
 		if ($info['removal']) {
@@ -721,7 +721,7 @@ class File_Versioning
 				// remove the FFV file
 				unlink($dest_dir.'/.FFV/'.basename($rep_file));
 				return false;
-			}// end if
+			}//end if
 
 		// else copy the source to the destination
 		} else {
@@ -729,13 +729,13 @@ class File_Versioning
 				// remove the FFV file
 				unlink($dest_dir.'/.FFV/'.basename($rep_file));
 				return false;
-			}// end if
+			}//end if
 
-		}// end if
+		}//end if
 
 		return true;
 
-	}// end checkOut()
+	}//end checkOut()
 
 
 	/**
@@ -762,7 +762,7 @@ class File_Versioning
 		readfile($info['source_file']);
 		return true;
 
-	}// end output()
+	}//end output()
 
 
 	/**
@@ -807,7 +807,7 @@ class File_Versioning
 		$this->_releaseFile($info['fileid']);
 		return $ret_val;
 
-	}// end upToDate()
+	}//end upToDate()
 
 
 	/**
@@ -827,7 +827,7 @@ class File_Versioning
 				$ver_info['sha1']      != sha1_file($real_file)
 				);
 
-	}// end _fileModified()
+	}//end _fileModified()
 
 
 	/**
@@ -891,7 +891,7 @@ class File_Versioning
 			return FUDGE_FV_ERROR;
 		}
 
-		// if the version that this file is checked out as is not the current version then 
+		// if the version that this file is checked out as is not the current version then
 		// they are not allowed to commit this file
 		if ($curr_ver_info['version'] != $file_ver_info['version']) {
 			trigger_error('Unable to commit "'.$info['path'].'/'.$info['filename'].'", it is checked out as version #'.$file_ver_info['version'].', and needs to be updated to the latest version (#'.$curr_ver_info['version'].'), before committing can occur', E_USER_NOTICE);
@@ -931,7 +931,7 @@ class File_Versioning
 				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			}
 			return FUDGE_FV_ERROR;
-		}// end if
+		}//end if
 
 		$this->_releaseFile($info['fileid']);
 
@@ -945,7 +945,7 @@ class File_Versioning
 
 		return FUDGE_FV_OK;
 
-	}// end commit()
+	}//end commit()
 
 
 	/**
@@ -1009,7 +1009,7 @@ class File_Versioning
 			return FUDGE_FV_ERROR;
 		}
 
-		// if the version that this file is checked out as is not the current version then 
+		// if the version that this file is checked out as is not the current version then
 		// they are not allowed to remove this file
 		if ($curr_ver_info['version'] != $file_ver_info['version']) {
 			trigger_error('Unable to remove "'.$info['path'].'/'.$info['filename'].'", it is checked out as version #'.$file_ver_info['version'].', and needs to be updated to the latest version (#'.$curr_ver_info['version'].'), before removal can occur', E_USER_NOTICE);
@@ -1052,7 +1052,7 @@ class File_Versioning
 				if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			}
 			return FUDGE_FV_ERROR;
-		}// end if
+		}//end if
 
 		$this->_releaseFile($info['fileid']);
 
@@ -1066,7 +1066,7 @@ class File_Versioning
 
 		return FUDGE_FV_OK;
 
-	}// end remove()
+	}//end remove()
 
 
 	/**
@@ -1093,9 +1093,9 @@ class File_Versioning
 		clearstatcache(); // just in case :)
 		return ($file_removed) ? FUDGE_FV_OK : FUDGE_FV_ERROR;
 
-	}// end clearOut()
+	}//end clearOut()
 
 
-}// end class
+}//end class
 
 ?>

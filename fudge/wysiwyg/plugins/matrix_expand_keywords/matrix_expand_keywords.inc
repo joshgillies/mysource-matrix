@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.8 2004/11/15 01:00:10 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: matrix_expand_keywords.inc,v 1.9 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -32,11 +32,12 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class matrix_expand_keywords  extends wysiwyg_plugin {
+class matrix_expand_keywords  extends wysiwyg_plugin
+{
 
 	/**
 	* Prints an JS the plugin wants executed when a key is pressed in a WYSIWYG area
@@ -101,7 +102,7 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 		<?php
 		foreach ($abbrevs as $abbrev => $word) {
 			echo "        abbrevs['$abbrev'] = '$word';\n";
-		}		
+		}
 		?>
 
 		var stripTagsRE = /(<\S[^>]*>)|(\W)/g; // yes, for some reason this cannot have quotes around it
@@ -146,7 +147,7 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 			}
 		}
 
-		function getLastWord(editor) 
+		function getLastWord(editor)
 		{
 			var html = editor.getHTML().replace(stripTagsRE, " ");
 			// strip trailing spaces
@@ -156,9 +157,9 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 			return html.substring(html.lastIndexOf(" ")+1);
 		}
 
-		
+
 		</script>
-		<?php 
+		<?php
 
 	}//end paint_generic()
 

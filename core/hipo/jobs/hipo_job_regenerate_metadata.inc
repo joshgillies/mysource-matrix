@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.11 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.12 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
@@ -27,12 +27,12 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 /**
 * Highly Intensive Processing Object (HIPO) to regenerate pre-processed metadata files
 * for all assets that use the supplied schema
-* 
-* Initial Running Vars : 
+*
+* Initial Running Vars :
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -113,7 +113,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	function paintConfig(&$o, $class)
 	{
 		$write_access = $this->writeAccess();
-		
+
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Metadata Regeneration Threshold');
 
@@ -146,7 +146,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
-	* The Regenerate Metdata HIPO appends the ID of the schema that was updated so that any other 
+	* The Regenerate Metdata HIPO appends the ID of the schema that was updated so that any other
 	* regeneration jobs for this schema do not start while it is running.
 	*
 	* @return string
@@ -163,7 +163,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 	* Returns the current Threshold.
 	*
 	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
-	* 
+	*
 	* @return float
 	* @access public
 	*/
@@ -172,13 +172,13 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		if (SQ_HIPO_REGENERATE_METADATA_THRESHOLD == 0) return 0;
 		if (!isset($this->_running_vars['todo_assetids'])) return 0;
 		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_REGENERATE_METADATA_THRESHOLD) * 100);
-	
+
 	}//end getThreshold()
 
 
 	/**
 	* Performs the duties of this hipo, without showing any output on the frontend.
-	* 
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -211,7 +211,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		$this->_running_vars['done_assetids'] = Array();
 
 		return parent::prepare();
-	
+
 	}//end prepare()
 
 

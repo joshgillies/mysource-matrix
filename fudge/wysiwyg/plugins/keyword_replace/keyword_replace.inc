@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: keyword_replace.inc,v 1.8 2004/11/23 02:44:27 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: keyword_replace.inc,v 1.9 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to add keywords to the editor using a nice interface
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class Keyword_Replace extends WYSIWYG_Plugin {
+class Keyword_Replace extends WYSIWYG_Plugin
+{
 
 	/**
 	* Some text to put before and after the keyword
@@ -68,7 +69,7 @@ class Keyword_Replace extends WYSIWYG_Plugin {
 	{
 		$this->_add_button('addkeyword','','','','');
 
-	}//end contructor
+	}//end constructor
 
 
 	/**
@@ -135,7 +136,7 @@ class Keyword_Replace extends WYSIWYG_Plugin {
 			}
 		break;
 		<?php
-	
+
 	}//end print_plugin_combo_selected()
 
 

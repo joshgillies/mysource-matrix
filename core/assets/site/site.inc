@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.60 2004/11/18 05:08:03 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: site.inc,v 1.61 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.61 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -126,7 +126,7 @@ class Site extends Folder
 	function delete($release_lock=true)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		if (!$this->saveWebURLs(Array())) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -204,7 +204,7 @@ class Site extends Folder
 			$paths = explode('/', $save_urls[$save_urlid]['url']);
 			// remove the domain
 			array_shift($paths);
-			
+
 			foreach ($paths as $path) {
 				$clean_paths = make_valid_web_paths(Array($path));
 				$clean_path = (empty($clean_paths)) ? '' : $clean_paths[0];
@@ -466,20 +466,20 @@ class Site extends Folder
 
 	/**
 	* Paints an asset with the design that this site
-	* has currently applied to it. 
+	* has currently applied to it.
 	*
 	* If no design can be found fo
 	* this site, the page will be displayed without the design
 	*
 	* @param object &Asset $asset the asset to paint
-	* 
+	*
 	* @return void
 	* @access public
 	*/
 	function paintAsset(&$asset)
 	{
 		if (is_null($asset)) return;
-		
+
 		// check that the user has read access to the index page
 		if (!$asset->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
@@ -504,7 +504,7 @@ class Site extends Folder
 
 		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
 
-		
+
 		if (empty($result)) {
 			$sql = 'SELECT ld.designid, a.type_code
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
@@ -518,7 +518,7 @@ class Site extends Folder
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$sql .= $where.' LIMIT 1';
-		
+
 			$result = $db->getRow($sql);
 			assert_valid_db_result($result);
 		}
@@ -535,9 +535,9 @@ class Site extends Folder
 			// we can't find a design, oh well let's just print out our body
 			$asset->printBody();
 		}
-		
+
 	}//end paintAsset()
-	
+
 
 	/**
 	* Called by the design to print the body of this asset when in limbo

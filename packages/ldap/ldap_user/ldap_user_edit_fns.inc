@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_edit_fns.inc,v 1.5 2004/11/02 03:35:43 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: ldap_user_edit_fns.inc,v 1.6 2004/12/06 14:43:14 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user_edit_fns.inc
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -77,7 +77,7 @@ class Ldap_User_Edit_Fns extends Backend_User_Edit_Fns
 	{
 		$info = $asset->vars;
 		if (empty($info)) return;
-		
+
 		if (!$asset->_ldapid) return Array();
 		$ldap_bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_ldapid, 'ldap_bridge');
 		if (is_null($ldap_bridge)) return Array();
@@ -85,7 +85,7 @@ class Ldap_User_Edit_Fns extends Backend_User_Edit_Fns
 		$show = $ldap_bridge->attr('user_attributes');
 		if (!isset($show['show'])) $show = Array();
 		else $show = $show['show'];
-		
+
 		foreach ($info as $field_name => $field_data) {
 			if (!isset($show[$field_name])) continue;
 			$field_name = $show[$field_name];

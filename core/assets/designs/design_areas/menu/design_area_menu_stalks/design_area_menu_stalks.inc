@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.17 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_menu_stalks.inc,v 1.18 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -63,7 +63,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	function setAttrValue($name, $value)
 	{
 		// make sure the aligment is lower case
-		switch ($name) { 
+		switch ($name) {
 			case 'prefix_with_divider' :
 			case 'suffix_with_divider' :
 				trigger_error('The divider is not used by the "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').'" therefore the setting of "'.$name.'" has no effect', E_USER_NOTICE);
@@ -72,15 +72,15 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			case 'alignment' :
 				$value = strtolower($value);
 				break;
-			
-			case 'min_height' : 
+
+			case 'min_height' :
 				$value = (int) $value;
 				if ($value <= 0) {
 					trigger_error('The "'.$name.'" attribute must be set to a number greater than zero');
 					return false;
 				}
 				break;
-		}// end switch
+		}//end switch
 
 		return parent::setAttrValue($name, $value);
 
@@ -99,12 +99,12 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	{
 		$use_blanks  = !$this->attr('show_stalks');
 		$cell_class = '';
-		if ($this->settingExists('class')) { 
+		if ($this->settingExists('class')) {
 			ob_start();
 			$this->printVar('settings.class', Array());
 			$cell_class = ' class="'.ob_get_contents().'"';
 			ob_end_clean();
-		}// end if
+		}//end if
 
 
 		ob_start();
@@ -114,7 +114,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			echo '<', '?php echo $blank_src; ?', '>';
 		} else {
 			echo '<', '?php echo (($'.$this->attr('id_name').'_current_setting == \'current\') ? $stalk_prefix.\'arrow.png\' : $blank_src); ?', '>';
-			
+
 		}
 		echo '" width="'.$this->arrow_width.'" height="'.$this->attr('min_height').'"></td>';
 		$arrow_contents = ob_get_contents();
@@ -136,10 +136,10 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 		ob_end_clean();
 
 		// if we are using ellipsis, then we need to include general/general.inc
-		if ($this->attr('ellipsis_length') > 0) { 
+		if ($this->attr('ellipsis_length') > 0) {
 			echo 'require_once SQ_FUDGE_PATH.\'/general/general.inc\';';
 		}
-		
+
 		echo '
 
 		function '.$this->attr('id_name').'_recursive_fn($level, $parentid, $'.$this->attr('id_name').'_base_url, $depth=Array())
@@ -151,7 +151,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			$stalk_prefix = sq_web_path(\'data\').\'/assets/'.$this->type().'/'.$this->id.'/\';
 
 			// The indenting level, stalk on/off
-			$depth[] = true; 
+			$depth[] = true;
 			$depth_count = count($depth);
 
 			$'.$this->attr('id_name').'_lineage_assetid = (empty($RECURSIVE_MENU_ASSET_LINEAGE[$level + 1])) ? 0 : $RECURSIVE_MENU_ASSET_LINEAGE[$level + 1][\'assetid\'];
@@ -173,7 +173,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 				}
 				$'.$this->attr('id_name').'_current_setting = ($'.$this->attr('id_name').'_lineage_assetid == $'.$this->attr('id_name').'_row[\'assetid\']) ? $'.$this->attr('id_name').'_lineage_setting : \'normal\';
 #				pre_echo("CURRENT SETTING : ".$'.$this->attr('id_name').'_current_setting);
-			?', '> 
+			?', '>
 			<div align="'.$this->attr('alignment').'">
 			<table cellpadding="0" cellspacing="0" border="0" width="100%">
 				<tr>
@@ -200,23 +200,23 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 				';
 			}
 
-			echo '?', '> 
+			echo '?', '>
 					<td'.$cell_class.' valign="top"';
 
 					if ($use_blanks) {
 						echo '><img alt="" src="<', '?php echo $blank_src; ?', '>" width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'"></td>';
 					} else {
 						// if there is the need to a stalk
-						// and if we are at the end of a sub listing and 
+						// and if we are at the end of a sub listing and
 						// not it the indent closest to the text (which will have the end branch)
 						echo '<', '?php
 						if ($depth[$j] && !($end && ($j == $depth_count - 1)))
 							echo \' style="background-image:url(\', $stalk_prefix, \'stalk.png); background-repeat: repeat-y;"\';
 
 						?', '>><img alt="" src="<', '?php
-						if ($j != $depth_count - 1) { 
+						if ($j != $depth_count - 1) {
 							echo $blank_src.\'"\';
-						} elseif ($end) { 
+						} elseif ($end) {
 							echo $stalk_prefix, \'endbranch.png"\';
 						} else {
 							echo $stalk_prefix, \'branch.png"\';
@@ -224,16 +224,16 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 						?', '> width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'"></td>';
 
-					}// end if $use_blanks
+					}//end if $use_blanks
 		echo '
 				<', '?php
-				}// end for depth count
+				}//end for depth count
 
 			?', '>';
 
 			if ($this->attr('alignment') == 'left') echo $arrow_contents;
 
-		}// end indent
+		}//end indent
 
 		if ($this->attr('alignment') == 'left') echo $asset_contents;
 
@@ -264,13 +264,13 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 					'.$this->attr('id_name').'_recursive_fn($level + 1, $'.$this->attr('id_name').'_row[\'assetid\'], $'.$this->attr('id_name').'_urls[$'.$this->attr('id_name').'_row[\'assetid\']], $depth);
 				} // end if
 
-			}// end for
+			}//end for
 
-		}// end '.$this->attr('id_name').'_recursive_fn()
+		}//end '.$this->attr('id_name').'_recursive_fn()
 
 		';
 
-	} // end printRecursiveFn()
+	}//end printRecursiveFn()
 
 
 	/**

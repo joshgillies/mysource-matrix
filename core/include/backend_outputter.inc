@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.92 2004/12/06 03:16:02 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: backend_outputter.inc,v 1.93 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.92 $
+* @version $Revision: 1.93 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -196,7 +196,7 @@ class Backend_Outputter
 		$this->_buffering = (bool) $buffer;
 		return true;
 
-	}//end setBuffer()
+	}//end setBuffering()
 
 
 	/**
@@ -434,7 +434,7 @@ class Backend_Outputter
 		}
 		$this->_static_screens[$url] = $name;
 
-	}//end addTab()
+	}//end addStaticScreen()
 
 
 	/**
@@ -446,7 +446,7 @@ class Backend_Outputter
 	{
 		$this->_preload_imgs[] = $file;
 
-	}//end add_img_rollover()
+	}//end addPreloadImg()
 
 
 	/**
@@ -520,7 +520,7 @@ class Backend_Outputter
 					);
 		return $this->_openSection($init_arr);
 
-	}// end openSection()
+	}//end openSection()
 
 
 	/**
@@ -689,7 +689,7 @@ class Backend_Outputter
 				</td>
 			</tr>
 		<?php
-	}//end nbCloseSection()
+	}//end _nbCloseSection()
 
 
 	/**
@@ -911,7 +911,7 @@ class Backend_Outputter
 			for ($i = 0; $i < count($this->_contents); $i++) {
 				$this->_paintSection($this->_contents[$i]);
 			}
-		}// end if
+		}//end if
 
 		$this->_paintFooter();
 
@@ -1121,7 +1121,7 @@ class Backend_Outputter
 				<?php
 			}
 
-		}// end if
+		}//end if
 
 	}//end _paintHeader()
 
@@ -1177,7 +1177,7 @@ class Backend_Outputter
 					</tr>
 					<?php
 				}
-			} // endif
+			}//endif
 
 			// print the section seperator
 			?>
@@ -1274,7 +1274,7 @@ class Backend_Outputter
 					default :
 						trigger_error('Unknown Area Type : "'.$section['areas'][$j]['area_type'].'"', E_USER_ERROR);
 
-				}// end switch area type
+				}//end switch area type
 
 			}//end for
 
@@ -1368,7 +1368,7 @@ class Backend_Outputter
 					<div class="sq-backend-section-note"><strong>Section Note: </strong><?php echo $str ?></div>
 		<?php
 
-	}//end note()
+	}//end sectionNote()
 
 
 	/**
@@ -1387,7 +1387,7 @@ class Backend_Outputter
 		if (empty($value)) {
 			$value = !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT;
 		}
-		
+
 		$release_lock = (int) $release_lock;
 		$this->openSection(' ');
 			$this->openField('', 'commit');
@@ -1429,7 +1429,7 @@ class Backend_Outputter
 			echo '&nbsp;';
 		}
 
-	}//end printScreenMenu();
+	}//end printScreenMenu()
 
 
 	/**
@@ -1553,7 +1553,8 @@ class Backend_Outputter
 	function getCurrentSectionNumber()
 	{
 		return $this->_section_count;
-	}
+
+	}//end getCurrentSectionNumber()
 
 }//end class
 

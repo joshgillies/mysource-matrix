@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_size.inc,v 1.1 2004/11/09 04:16:12 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_file_size.inc,v 1.2 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -60,8 +60,8 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 		return $attrs;
 
 	}//end getAttributes()
-	
-	
+
+
 	/**
 	* Returns a list of operators for this rule type
 	*
@@ -69,23 +69,23 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
 	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
-	function getOperators() 
+	function getOperators()
 	{
 		$operators = Array(
 			'<=' => 'Must be no larger than ',
 			'>=' => 'Must be no smaller than ',
 		);
 		return $operators;
-	
+
 	}//end getOperators()
-	
-	
+
+
 	/**
 	* processes the form question and returns true if it is valid
 	*
 	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
 	* instantiated manually in code, this function MUST called statically.
-	* 
+	*
 	* @param object Form_Question	&$q_asset		reference to the question asset
 	* @param string					$operator		the operator being used to compare
 	* @param mixed					&$comparison	either a value or a form_question asset (based on
@@ -100,13 +100,13 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 	{
 		if (!$q_asset->active_submission) return false;
 		$answer = $_FILES[$q_asset->id];
-		
+
 		$operators = eval('return '.__CLASS__.'::getOperators();');
 
 		$filesize = $answer['size'];
 		$comparison = strtolower(trim($comparison));
 		$comp_value = floatval($comparison);
-		
+
 		// allow users to specify abbreviated forms of file size (kB, MB, GB)
 		// the conversion used is 1024 to the kByte, rather than the decimal 1000
 		if ((substr($comparison,-2) == 'kb') || (substr($comparison,-1) == 'k')) {
@@ -128,9 +128,9 @@ class Form_Question_Rule_Type_File_Size extends Form_Question_Rule
 			$q_asset->active_submission->setError($error);
 			return false;
 		}
-		
+
 	}//end processForm()
-	
-	
+
+
 }//end class
 ?>

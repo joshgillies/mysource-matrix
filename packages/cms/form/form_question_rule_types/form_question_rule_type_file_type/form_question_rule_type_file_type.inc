@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type.inc,v 1.1 2004/11/09 04:16:17 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_file_type.inc,v 1.2 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,11 +47,11 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Rule_Type_File_Type($assetid=0) 
+	function Form_Question_Rule_Type_File_Type($assetid=0)
 	{
 		$this->Form_Question_Rule($assetid);
-	
-	}//end Form_Question_Rule_Type_File_Type()
+
+	}//end constructor
 
 
 	/**
@@ -61,20 +61,20 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
 	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
-	function getOperators() 
+	function getOperators()
 	{
 		return Array(1 => 'Must be one of these extensions...',
 			0 => 'Must not be one of these extensions...');
-	
+
 	}//end getOperators()
-	
-	
+
+
 	/**
 	* processes the form question and returns true if it is valid
 	*
 	* Because the Form Question Rule classes will not be instantiable, this function MUST called
 	* statically.
-	* 
+	*
 	* @param object Form_Question	&$q_asset		reference to the question asset
 	* @param string					$operator		the operator being used to compare
 	* @param mixed					&$comparison	either a value or a form_question asset (based on
@@ -94,7 +94,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 		} else {
 			$extension = substr($answer, 1 + strrpos($answer, '.'));
 		}
-		
+
 		$valid = (strpos(strtolower($comparison), strtolower($extension)) !== false) ? 1 : 0;
 
 		if ($valid == $operator) {
@@ -105,7 +105,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 			$q_asset->active_submission->setError($error);
 			return false;
 		}
-	
+
 
 	}//end processForm()
 
@@ -119,7 +119,7 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 	* instantiated manually in code, this function MUST called statically.
 	*
 	* The value being tested in this case should be the file name of the uploaded file.
-	* 
+	*
 	* @param mixed	$answer			the answer being passed to us
 	* @param string	$operator		the operator being used to compare
 	* @param mixed	&$comparison	either a value or a form_question asset (based on
@@ -136,11 +136,11 @@ class Form_Question_Rule_Type_File_Type extends Form_Question_Rule
 		} else {
 			$extension = substr($answer, strrpos($answer, '.'));
 		}
-		
+
 		$valid = (strpos(strtolower($comparison), strtolower($answer)) !== false) ? 1 : 0;
 
 		return ($valid == $operator);
-	
+
 
 	}//end valueTest()
 

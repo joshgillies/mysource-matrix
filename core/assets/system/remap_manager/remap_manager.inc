@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.14 2004/11/25 11:35:24 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: remap_manager.inc,v 1.15 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.14 $ - 0.1
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -93,7 +93,7 @@ class Remap_Manager extends Asset
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
@@ -110,8 +110,8 @@ class Remap_Manager extends Asset
 		return $page_links;
 
 	}//end _getAllowedLinks()
-	
-	
+
+
 	/**
 	* Can this asset have its last significant link removed (putting it in the trash)?
 	*
@@ -134,10 +134,10 @@ class Remap_Manager extends Asset
 	function canClone()
 	{
 		return false;
-	
+
 	}//end canClone()
 
-	
+
 	/**
 	* Return a human readable description of the passed link
 	*
@@ -159,8 +159,8 @@ class Remap_Manager extends Asset
 		}
 
 	}//end describeLink()
-	
-	
+
+
 	/**
 	* Add a URL remap to the system
 	*
@@ -281,7 +281,7 @@ class Remap_Manager extends Asset
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$remap_url = $db->getOne($sql.$where);
-		
+
 		if (DB::isError($remap_url)) {
 			trigger_error($remap_url->getMessage().'<br/>'.$remap_url->getUserInfo(), E_USER_ERROR);
 		}
@@ -307,7 +307,7 @@ class Remap_Manager extends Asset
 
 
 	/**
-	* Returns the asset that has been chosen to 
+	* Returns the asset that has been chosen to
 	* delegate 404 Not found requests
 	*
 	* @return &object asset or null
@@ -322,8 +322,8 @@ class Remap_Manager extends Asset
 			$asset = null;
 		} else {
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_to_404['minorid']);
-		}	
-		
+		}
+
 		return $asset;
 
 	}//end getPageNotFoundAsset()
@@ -331,7 +331,7 @@ class Remap_Manager extends Asset
 
 	/**
 	* Paints the page not found asset
-	* 
+	*
 	* If a design can be found for the asset, it will
 	* be painted as well, otherwise justs the contents of
 	* the asset are painted.
@@ -343,10 +343,10 @@ class Remap_Manager extends Asset
 	{
 		$asset = &$this->getPageNotFoundAsset();
 		if (is_null($asset)) return false;
-		
+
 		// send a 404 header
 		header("HTTP/1.0 404 Not Found");
-		
+
 		$url = strip_url($this->getURL(), true);
 		$asset_url = strip_url($asset->getURL(null, true), true);
 
@@ -357,7 +357,7 @@ class Remap_Manager extends Asset
 		if (!is_null($design)) {
 			$design->paint($asset);
 			return true;
-		} 
+		}
 		// get the first design for this asset
 		$design = &$this->getDesign($asset);
 		if (!is_null($design)) {
@@ -367,11 +367,11 @@ class Remap_Manager extends Asset
 		// give up, and just paint the asset
 		// without a design
 		$asset->printFrontend();
-	
+
 		return true;
-	
+
 	}//end paintPageNotFoundRemap()
-	
+
 
 	/**
 	* Returns the design that this asset currently has applied to it.
@@ -389,7 +389,7 @@ class Remap_Manager extends Asset
 	{
 		$null = null;
 		if (is_null($asset)) return $null;
-		
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT ld.designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
@@ -399,26 +399,26 @@ class Remap_Manager extends Asset
 		$where ='l.assetid  = '.$db->quote($asset->id);
 		if (!is_null($url)) $where .= ' AND ld.url  LIKE '.$db->quote($url.'%');
 		$where .= ' AND ld.name    = '.$db->quote('system_design::frontend');
-		
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ld');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql .= $where.' LIMIT 1';
 
 		$result = $db->getRow($sql);
-		
+
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			return $null;
 		}
-		
+
 		if ($result) {
 			return $GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
 		}
 		return $null;
-	
+
 	}//end getDesign()
-	
+
 
 }//end class
 

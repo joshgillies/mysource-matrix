@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.9 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: db_install.inc,v 1.10 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 
@@ -28,14 +28,14 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage lib
 */
 
 
 /**
-* Takes an XML file with the table definitions and attempts to create the 
+* Takes an XML file with the table definitions and attempts to create the
 *
 * @param string				$xml_file		the text that should be displayed for the submit button
 * @param boolean			$quiet			if true then no echo out some progress strings
@@ -85,7 +85,7 @@ function db_install($xml_file, $quiet=false)
 		$require_rollback = (($table->attributes['require_rollback'] == 1) ? true : false);
 
 		$table_exists  = (!empty($cached_table_columns[$table_name])) || in_array(SQ_TABLE_PREFIX.$table_name, $tables_in_db);
-		
+
 		$table_changed = false;
 
 		// TODO: At some point in the future we could make it so that this script goes into an update and alter
@@ -197,14 +197,14 @@ function db_install($xml_file, $quiet=false)
 			}
 		} else {
 
-			
+
 //--        NORMAL TABLE DEFINITION        --//
 
 
 			ob_start();
 				echo 'CREATE TABLE '.SQ_TABLE_PREFIX.$table_name.' (';
 				echo $table_columns_string;
-	
+
 				echo $primary_key;
 				if (!empty($other_keys)) {
 					echo ',';
@@ -227,7 +227,7 @@ function db_install($xml_file, $quiet=false)
 					echo SQ_TABLE_PREFIX.'eff_from TIMESTAMP NOT NULL,';
 					echo SQ_TABLE_PREFIX.'eff_to   TIMESTAMP,';
 					echo $table_columns_string;
-		
+
 					echo $rollback_primary_key;
 					if (!empty($other_rollback_keys)) {
 						echo ',';
@@ -236,7 +236,7 @@ function db_install($xml_file, $quiet=false)
 					echo ')';
 					$table_sql = ob_get_contents();
 				ob_end_clean();
-	
+
 				$result = $db->query($table_sql);
 				assert_valid_db_result($result);
 			}
@@ -313,7 +313,7 @@ function db_install($xml_file, $quiet=false)
 
 		if (!in_array($sequence_name, $cached_sequences)) $cached_sequences[] = $sequence_name;
 		if (in_array(SQ_TABLE_PREFIX.$sequence_name.'_seq', $sequences_in_db)) continue;
-		
+
 		$result = $db->createSequence(SQ_TABLE_PREFIX.$sequence_name);
 		assert_valid_db_result($result);
 	}
@@ -327,7 +327,7 @@ function db_install($xml_file, $quiet=false)
 	unset($cached_sequences);
 	unset($cached_sequences_string);
 
-	
+
 //--        PGSQL GRANT_ACCESS()        --//
 
 

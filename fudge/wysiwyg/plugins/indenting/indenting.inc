@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: indenting.inc,v 1.6 2003/11/26 00:51:20 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: indenting.inc,v 1.7 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     indent of the select elements
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class indenting extends wysiwyg_plugin {
+class indenting extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor
@@ -47,7 +48,8 @@ class indenting extends wysiwyg_plugin {
 	* @returns object Indenting
 	* @access  public
 	*/
-	function indenting() {
+	function indenting()
+	{
 		$this->_add_button('outdent','Outdent','Decrease Indent','false','28');
 		$this->_add_button('indent','Indent','Increase Indent','false','29');
 	}

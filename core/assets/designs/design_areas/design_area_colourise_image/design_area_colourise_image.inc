@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image.inc,v 1.17 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_colourise_image.inc,v 1.18 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,9 +51,9 @@ class Design_Area_Colourise_Image extends Design_Area
 	function setAttrValue($name, $value)
 	{
 
-		// if this is one of the colour attributes then let's grab the value, add it the 
+		// if this is one of the colour attributes then let's grab the value, add it the
 		// $this->colours and then save that array
-		if ($name == 'black_colour' || $name == 'white_colour' 
+		if ($name == 'black_colour' || $name == 'white_colour'
 			|| stristr($name, 'from_colour') || stristr($name, 'to_colour')) {
 			$new_value = $this->vars['colours']['value'];
 			if (!is_array($new_value)) $new_value = Array();
@@ -77,14 +77,14 @@ class Design_Area_Colourise_Image extends Design_Area
 	* @return mixed
 	* @access public
 	*/
-	function attr($name) 
+	function attr($name)
 	{
 		if (empty($this->vars['colours']['value'][$name])) {
 			return parent::attr($name);
-		} else { 
+		} else {
 			return $this->vars['colours']['value'][$name];
 		}
-	}//end attr();
+	}//end attr()
 
 
 	/*
@@ -95,7 +95,7 @@ class Design_Area_Colourise_Image extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function printArea(&$design) 
+	function printArea(&$design)
 	{
 		$edit_fns = $this->getEditFns();
 		$image = $edit_fns->createImage($this, $design);

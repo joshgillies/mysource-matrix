@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_check_links.php,v 1.1 2004/03/31 01:36:33 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_integrity_check_links.php,v 1.2 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
 * Go through all WYSIWYG content types and ensure all ./?a=xx links are valid
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -54,7 +54,7 @@ if ($ROOT_ASSETID == 1) {
 // go trough each wysiwyg in the system and validate the links
 $wysiwygids = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'content_type_wysiwyg', false);
 foreach ($wysiwygids as $wysiwygid => $type_code) {
-	
+
 	$wysiwyg = &$GLOBALS['SQ_SYSTEM']->am->getAsset($wysiwygid, $type_code);
 	$html = $wysiwyg->attr('html');
 
@@ -63,7 +63,7 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 	$matches = Array();
 	preg_match_all($e, $html, $matches);
 	$internal_assetids = $matches[1];
-	
+
 	foreach ($internal_assetids as $assetid) {
 		printWYSIWYGName('WYSIWYG #'.$wysiwyg->id.' - LINK #'.$assetid);
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
@@ -80,7 +80,7 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 	}
 
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg);
-	
+
 }//end foreach
 
 
@@ -96,8 +96,8 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 */
 function printWYSIWYGName($name)
 {
-	printf ('%s%'.(35 - strlen($name)).'s', $name, ''); 
-	
+	printf ('%s%'.(35 - strlen($name)).'s', $name, '');
+
 }//end printWYSIWYGName()
 
 
@@ -112,7 +112,7 @@ function printWYSIWYGName($name)
 function printUpdateStatus($status)
 {
 	echo "[ $status ]\n";
-	
+
 }//end printUpdateStatus()
 
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.60 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: package_manager.inc,v 1.61 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -142,11 +142,11 @@ class Package_Manager extends MySource_Object
 	/**
 	* Checks to see if the installation/upgrade of this package is able to go ahead.
 	* Will return 'true' if all assets are okay, otherwise will return an array
-	* of assetids that failed requirements. 
+	* of assetids that failed requirements.
 	*
-	* @param Array $update_assets		An array of asset types to check 
+	* @param Array $update_assets		An array of asset types to check
 	*									details for. If empty, will check all assets
-	* @return mixed						
+	* @return mixed
 	* @access public
 	*/
 	function checkPackageDetails($update_assets=Array())
@@ -154,7 +154,7 @@ class Package_Manager extends MySource_Object
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		$deferred_assets = Array();
-		
+
 		for (reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
 			// Don't bother checking an asset that's not defined in the array.
 			if (!empty($update_assets) && !in_array($type_code, $update_assets)) {
@@ -168,7 +168,7 @@ class Package_Manager extends MySource_Object
 
 			if (!$result) {
 				trigger_error('Asset "'.$type_code.'" fails the "'.$req['type'].'" requirement for "'.$req['code'].' v'.$req['version'].'"'."\n".'As specified by '.$file.' and will be deferred', E_USER_WARNING);
-				// It failed the requirement, so we want to let the caller know what asset 
+				// It failed the requirement, so we want to let the caller know what asset
 				// failed so that it can be revisited at a later date if needbe
 				$deferred_assets[] = $type_code;
 				continue;
@@ -179,14 +179,14 @@ class Package_Manager extends MySource_Object
 			$parent_type = $this->assets[$type_code]['parent_type'];
 			if ($parent_type != 'asset' && !$am->installed($parent_type) && !isset($this->assets[$parent_type])) {
 				trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent_type.'"'."\n".'As specified by '.$file, E_USER_WARNING);
-				// It failed the requirement, so we want to let the caller know what asset 
+				// It failed the requirement, so we want to let the caller know what asset
 				// failed so that it can be revisited at a later date if needbe
 				$deferred_assets[] = $type_code;
 				continue;
 			}
 		}//end for
 
-		
+
 		return count($deferred_assets) ? $deferred_assets : true;
 
 	}//end checkPackageDetails()
@@ -195,7 +195,7 @@ class Package_Manager extends MySource_Object
 	/**
 	* Installs/Updates the passed package in the system
 	*
-	* @param Array $update_assets		An array of asset types to update 
+	* @param Array $update_assets		An array of asset types to update
 	*									details for. If empty, will do all assets
 	* @return mixed						success status, or an array of type codes
 	*									that has been deferred for later checking
@@ -210,24 +210,24 @@ class Package_Manager extends MySource_Object
 		if (is_bool($deferred) && !$deferred) {
 			return $deferred;
 		}
-		
+
 		// Make sure deferred is an array.
 		$deferred = is_array($deferred) ? $deferred : Array();
-		
+
 		$install_order = $this->_getInstallOrder($update_assets, $deferred);
 		if (!empty($install_order)) {
 
 			pre_echo('Installing '.get_class($this).':');
-			
+
 			$package_name = $this->getPackageName();
-	
+
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			// open the transaction
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-	
+
 			$exists = $db->getOne('SELECT code_name FROM '.SQ_TABLE_PREFIX.'pkg WHERE code_name = '.$db->quote($package_name));
 			if (DB::isError($exists)) trigger_error($exists->getMessage()."\n".$exists->getUserInfo(), E_USER_ERROR);
-	
+
 			if ($exists) {
 				$sql = 'UPDATE '.SQ_TABLE_PREFIX.'pkg
 						SET version     = '.$db->quote($this->version).',
@@ -241,32 +241,32 @@ class Package_Manager extends MySource_Object
 						('.$db->quote($package_name).', '.$db->quote($this->version).',
 						'.$db->quote($this->name).','.$db->quote($this->description).')';
 			}
-	
+
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				trigger_error($result->getMessage()."\n".$result->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
-	
+
 			for (reset($install_order); null !== ($k = key($install_order)); next($install_order)) {
 				$type_code =& $install_order[$k];
-	
+
 				// Don't bother checking an asset that's not defined in the update_assets array.
 				if (!empty($update_assets) && !in_array($type_code, $update_assets)) {
 					continue;
 				}
-				
-				// If the asset was found in the list of failed dependencies, 
+
+				// If the asset was found in the list of failed dependencies,
 				// then don't try installing it just yet, but install
-				// all other types as they may be vital to the dependency 
+				// all other types as they may be vital to the dependency
 				// resolution.
 				if (in_array($type_code, $deferred)) {
 					continue;
 				}
-				
+
 				echo "$k => $type_code \n";
-				
+
 				// now we simply call the management class for this object
 				$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$type_code.'_management.inc';
 				// include rather that require so that if it doesn't exist we can kill the transaction
@@ -280,15 +280,15 @@ class Package_Manager extends MySource_Object
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
-					
+
 				} else {
 					trigger_error('Asset "'.$type_code.'" does not have a management class defined for it in '.$file, E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
-	
+
 			}//end for
-			
+
 			// Commit the transaction if we got this far
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -382,23 +382,23 @@ class Package_Manager extends MySource_Object
 		while ($last_count = count($asset_types)) {
 
 			for ($i = 0; $i < count($asset_types); $i++) {
-				
+
 				$type_code = $asset_types[$i];
-				
+
 				if (!empty($update_assets) && !in_array($type_code, $update_assets)) {
 					unset($asset_types[$i]);
 					$asset_types = array_values($asset_types);
 					$i--;
 					continue;
 				}
-				
+
 				if (in_array($type_code, $deferred)) {
 					unset($asset_types[$i]);
 					$asset_types = array_values($asset_types);
 					$i--;
 					continue;
 				}
-				
+
 				$parent    = $this->assets[$type_code]['parent_type'];
 
 				$remove = false;
@@ -448,7 +448,7 @@ class Package_Manager extends MySource_Object
 	* Generates a segment of an XML document for the Asset_Map.inc to use to send to the
 	* flash
 	*
-	* @param Array $deferred			An array of asset types to defer this 
+	* @param Array $deferred			An array of asset types to defer this
 	* 									install
 	* @access private
 	*/
@@ -460,7 +460,7 @@ class Package_Manager extends MySource_Object
 
 		for (reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
 			if (in_array($type_code, $deferred)) continue;
-			
+
 			$attrs = Array(	'type_code'			=> $type_code,
 							'name'				=> $this->assets[$type_code]['name'],
 							'version'			=> $this->assets[$type_code]['version'],

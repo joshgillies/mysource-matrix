@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form.inc,v 1.71 2004/12/06 14:41:38 brobertson Exp $
+*
 */
 
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -73,7 +73,7 @@ class Form extends Bridge
 		$this->_ser_attrs = true;
 		$this->Bridge($assetid);
 
-	}//end Form()
+	}//end constructor
 
 
 	/**
@@ -176,7 +176,7 @@ class Form extends Bridge
 			if (is_null($sort_by)) {
 				$sort_by = 'sort_order';
 			}
-			
+
 			uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] < $b["'.$sort_by.'"];'));
 
 			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
@@ -187,7 +187,7 @@ class Form extends Bridge
 
 	}//end getLinks()
 
-	
+
 	/**
 	* Used by asset map to return a asset map-style link array
 	*
@@ -228,7 +228,7 @@ class Form extends Bridge
 			unset($link['is_exclusive']);
 
 		}
-		
+
 		return $links;
 
 	}//end getAssetMapLinks()
@@ -400,7 +400,8 @@ class Form extends Bridge
 	* @access public
 	* @return array
 	*/
-	function getQuestionAssets() {
+	function getQuestionAssets()
+	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$result = Array();
 
@@ -561,7 +562,7 @@ class Form extends Bridge
 		$questions = &$this->getQuestions();
 		return (isset($questions[$questionid])) ? $questions[$questionid] : Array();
 
-	}//end getQuestionById()
+	}//end getQuestionByID()
 
 
 	/**
@@ -699,7 +700,7 @@ class Form extends Bridge
 	*                       );
 	*                       or alternately
 	*                       Array('all');
-	* 
+	*
 	* @return boolean
 	* @access public
 	* @see asset::cloneComponents()
@@ -707,28 +708,28 @@ class Form extends Bridge
 	function cloneComponents(&$clone, $components)
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		if (!parent::cloneComponents($clone, $components)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;			
+			return false;
 		}
-		
+
 		if (in_Array('attributes', $components) || in_Array('all', $components)) {
 			$sort_order = $this->attr('sort_order');
 			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
-			
+
 			// save the information
 			$clone->setAttrValue('sort_order', $sort_order);
 			$clone->saveAttributes();
-			
+
 		}
-		
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-	
+
 	}//end cloneComponents()
-	
-	
+
+
 	/**
 	* print out headers or HTML that the asset requires to be printed before the design
 	*
@@ -745,18 +746,18 @@ class Form extends Bridge
 				$this->active_submission = &$GLOBALS['SQ_SYSTEM']->am->getAsset($submissionid, 'form_submission');
 			}
 		}
-		
+
 		// if the active submission does not yet exist, create it
 		if (!$this->active_submission) {
 			$this->active_submission = &$this->createSubmission();
 			$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
 		}
-	
+
 		return parent::printFrontend();
-		
+
 	}//end printFrontend()
-	
-	
+
+
 	/**
 	* Called by the design to print the body of this asset
 	*
@@ -774,10 +775,10 @@ class Form extends Bridge
 
 		$this->printStandard();
 		echo '</form>';
-		
+
 		$result = ob_get_contents();
 		ob_end_clean();
-		
+
 		echo $result;
 
 	}//end printBody()
@@ -989,7 +990,7 @@ class Form extends Bridge
 
 		return true;
 
-	}//end attachQuestion()
+	}//end createBodycopy()
 
 
 	/**
@@ -1030,7 +1031,7 @@ class Form extends Bridge
 	* @access public
 	* @return boolean
 	*/
-	function includeContentFile($type = 'standard')
+	function includeContentFile($type='standard')
 	{
 		if (!file_exists($this->data_path.'/content_file.php')) {
 			$edit = &$this->getEditFns();
@@ -1056,8 +1057,8 @@ class Form extends Bridge
 	*/
 	function processForm()
 	{
-		$this->active_submission->flushErrors();		
-		
+		$this->active_submission->flushErrors();
+
 		$questions = &$this->getQuestions();
 		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$key);
@@ -1074,7 +1075,7 @@ class Form extends Bridge
 		}
 
 		// bam ($this->active_submission);
-		
+
 		// check to see if there is an error with the form
 		$this->_tmp['is_error'] = $this->active_submission->isError();
 
@@ -1096,7 +1097,7 @@ class Form extends Bridge
 		// we want delete the cookie, so that when they come back to fill
 		// this form on another day, they start fresh, so set the number of days to -1
 		$this->setFormCookie(0, -1);
-		
+
 		ob_start();
 		$this->printSummary(true);
 		$summary_info = ob_get_contents();
@@ -1224,7 +1225,7 @@ class Form extends Bridge
 
 		return $contents;
 
-	}//end printXML()
+	}//end getXML()
 
 
 	/**
@@ -1235,10 +1236,10 @@ class Form extends Bridge
 	* @access public
 	* @return boolean
 	*/
-	function printSummary($html = false)
+	function printSummary($html=false)
 	{
 		echo ($html) ? '<table>' : '';
-		
+
 		// unattached questions first
 		$sort_order = $this->attr('sort_order');
 
@@ -1349,7 +1350,7 @@ class Form extends Bridge
 	* @access public
 	* @return boolean
 	*/
-	function logSubmission($log_id = null)
+	function logSubmission($log_id=null)
 	{
 		if (!$this->attr('log')) return false;
 
@@ -1387,7 +1388,7 @@ class Form extends Bridge
 
 	}//end logSubmission()
 
-	
+
 	/**
 	* creates a new submission object
 	*
@@ -1400,11 +1401,11 @@ class Form extends Bridge
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_submission');
-		
+
 		// create the form submission asset
 		$submission = new Form_Submission();
 		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 1, 'is_exclusive' => 1);
-		
+
 		if (!$submission->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -1413,9 +1414,9 @@ class Form extends Bridge
 
 		return $submission;
 
-	} // end createSubmission()
-	
-	
+	}//end createSubmission()
+
+
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*

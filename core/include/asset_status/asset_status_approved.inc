@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_approved.inc,v 1.14 2004/10/07 05:42:13 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_status_approved.inc,v 1.15 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *    APPROVED -> UNDER_CONSTRUCTION if the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class Asset_Status_Approved extends Asset_Status
@@ -117,7 +117,7 @@ class Asset_Status_Approved extends Asset_Status
 			// notify people that the asset has gone live
 			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) return false;
-			
+
 			// update the last published date
 			if (!$this->owner->setDate('published', time())) return false;
 		}

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.26 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_field_edit_fns.inc,v 1.27 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -185,7 +185,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			if (isset($_POST[$prefix.'_vc_name'][$vc_name]))  $new_vc_name  = trim($_POST[$prefix.'_vc_name'][$vc_name]);
 			if (isset($_POST[$prefix.'_vc_value'][$vc_name])) $new_vc_value = trim($_POST[$prefix.'_vc_value'][$vc_name]);
 			if (empty($new_vc_name)) continue;
-			
+
 			// change the default value of a value component
 			if ($vc_value != $new_vc_value) {
 				$current_vc[$vc_name] = $new_vc_value;
@@ -288,7 +288,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* Paint the interface for adjusting the weighting and/or including this in a search.
 	*
 	*/
-	function processWeighting(&$asset, &$o, $write_access) 
+	function processWeighting(&$asset, &$o, $write_access)
 	{
 		if (!isset($_POST['weighting_include'])) return false;
 
@@ -308,7 +308,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}//end paintWeighting()
+	}//end processWeighting()
 
 
 	/**
@@ -406,7 +406,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if (trim($asset->attr('scheme')) != '') echo ' scheme="'.$asset->attr('scheme').'"';
 
 		echo ' content="<?php echo $metadata_values[\''.$asset->name.'\']; ?>" />'."\n";
-		
+
 		if (trim($default) != '') {
 			$tag_value = $default;
 			if (trim($value_string) != '') $tag_value .= '; ';
@@ -462,8 +462,8 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end getMetadataFieldValues()
-	
-	
+
+
 	/**
 	* Get the default values for this field
 	*

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_edit_fns.inc,v 1.16 2004/12/03 15:29:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: cron_manager_edit_fns.inc,v 1.17 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		return $options;
 
-	}// end getWhenBoxHoursMins()
+	}//end getWhenBoxHoursMins()
 
 
 	/**
@@ -169,7 +169,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 							Delete ?
 						</td>
 						<?php
-						}// end if
+						}//end if
 					?>
 					</tr>
 				<?php
@@ -211,22 +211,22 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 								check_box($prefix.'_remove_jobs[]', $jobs[$i]->id);
 							} else {
 								echo '&nbsp;';
-							}// end if
+							}//end if
 						?>
 						</td>
 						<?php
-						}// end if
+						}//end if
 					?>
 					</tr>
 				<?php
-				}// end foreach
-			}// end for
+				}//end foreach
+			}//end for
 
 			?>
 			</table>
 			<?php
 
-		}// end if
+		}//end if
 
 		return true;
 
@@ -310,7 +310,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		return $field;
 
-	}// end _getEpochDateTimeField()
+	}//end _getEpochDateTimeField()
 
 
 	/**
@@ -332,13 +332,13 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 			$field->printField();
 		} else {
 			echo $field->format();
-		}// end if
+		}//end if
 
 		$attr = &$asset->getAttribute('epoch');
 		echo '<br/>&nbsp;';
 		$o->note($attr->description);
 
-	}// end paintEpoch()
+	}//end paintEpoch()
 
 
 	/**
@@ -362,12 +362,12 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 				$epoch = mktime($value_arr['h'], $value_arr['i'], $value_arr['s'], $value_arr['m'], $value_arr['d'], $value_arr['y']);
 				return $asset->setAttrValue('epoch', $epoch);
 
-			}// end if
-		}// end if
+			}//end if
+		}//end if
 
 		return false;
 
-	}// end processEpoch()
+	}//end processEpoch()
 
 
 	/**
@@ -383,7 +383,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	function paintLastRun(&$asset, &$o, $prefix)
 	{
 		echo $GLOBALS['SQ_SYSTEM']->datetime((int) $asset->attr('last_run'));
-	}// end paintLastRun()
+	}//end paintLastRun()
 
 
 	/**
@@ -401,7 +401,6 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		// if we have a suspicion of being in DeadLock, then allow them to override
 		if ($asset->attr('running') && (int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks')) {
 			$o->openField('<div class="sq-backend-warning" style="text-align: center;">POTENTIAL CRON MANAGER DEAD LOCK DETECTED</div>', 'new_line');
-			
 			if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
 				if ($asset->writeAccess('all')) {
 					?>
@@ -437,18 +436,18 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 						</tr>
 					</table>
 					<?php
-				} else { 
+				} else {
 					echo 'You must acquire the lock in order resolve this issue';
 				}
 			} else {
 				echo 'You must contact the root user to resolve this issue';
-			}// end if
+			}//end if
 
 		// else everything is OK
 		} else {
 			$o->openField('Cron Manager appears to be fine.', 'new_line');
 
-		}// end if run_check
+		}//end if run_check
 
 		return true;
 
@@ -479,13 +478,13 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 				} else {
 					trigger_error('The security key entered was incorrect.', E_USER_NOTICE);
-				}// end if
-			}// end if
-		}// endif
+				}//end if
+			}//end if
+		}//endif
 
 		return false;
 
-	}// end processDeadLockStatus()
+	}//end processDeadLockStatus()
 
 }//end class
 ?>

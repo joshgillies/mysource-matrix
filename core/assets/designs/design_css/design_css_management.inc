@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_management.inc,v 1.2 2004/09/07 10:52:21 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_css_management.inc,v 1.3 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,7 +51,7 @@ class Design_Css_Management extends Asset_Management
 									'type'    => 'text',
 									'default' => ''
 									);
-		
+
 	}//end constructor
 
 }//end class

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.9 2004/12/02 05:25:48 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_ecommerce.inc,v 1.10 2004/12/06 14:42:21 brobertson Exp $
+*
 */
 
 require_once SQ_PACKAGES_PATH.'/cms/form/form_email/form_email.inc';
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -73,7 +73,7 @@ class Form_Ecommerce extends Form_Email
 	{
 		$this->Form_Email($assetid);
 
-	}//end Form_Ecommerce()
+	}//end constructor
 
 
 	/**

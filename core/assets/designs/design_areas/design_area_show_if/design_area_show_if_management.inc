@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_show_if_management.inc,v 1.1 2004/11/10 02:44:42 amiller Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_show_if_management.inc,v 1.2 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,7 +77,7 @@ class Design_Area_Show_If_Management extends Asset_Management
 							),
 						);
 
-	}//end Design_Area_Body_Management()
+	}//end constructor
 
 
 }//end class

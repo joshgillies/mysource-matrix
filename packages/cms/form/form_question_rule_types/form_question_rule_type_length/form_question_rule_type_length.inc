@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_length.inc,v 1.6 2004/11/05 00:08:49 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_length.inc,v 1.7 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -96,7 +96,7 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
 	* instantiated manually in code, this function MUST called statically. (Hence also why we have
 	* manually pass question assets all the time - don't think static variables would work here)
-	* 
+	*
 	* @param object form_question	&$q_asset		reference to the question asset
 	* @param string					$operator		the operator being used to compare
 	* @param mixed					&$comparison	either a value or a form_question asset (based on
@@ -132,7 +132,7 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 			$q_asset->active_submission->setError($error);
 			return false;
 		}
-		
+
 	}//end processForm()
 
 
@@ -143,7 +143,7 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	*
 	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
 	* instantiated manually in code, this function MUST called statically.
-	* 
+	*
 	* @param mixed	$answer			the answer being passed to us
 	* @param string	$operator		the operator being used to compare
 	* @param mixed	&$comparison	either a value or a form_question asset (based on
@@ -165,10 +165,10 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 		}
 
 		return ($valid == $operator);
-		
+
 	}//end valueTest()
-	
-	
+
+
 	/**
 	* writes JavaScript code for client side validation
 	*
@@ -177,7 +177,7 @@ class Form_Question_Rule_Type_Length extends Form_Question_Rule
 	*
 	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
 	* instantiated manually in code, this function MUST called statically.
-	* 
+	*
 	* @param object form_question	&$q_asset		reference to the question asset
 	* @param string					$operator		the operator being used to compare
 	* @param mixed					&$comparison	either a value or a form_question asset (based on

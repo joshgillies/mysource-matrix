@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design.inc,v 1.8 2004/11/18 05:00:42 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: login_design.inc,v 1.9 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,11 +114,11 @@ class Login_Design extends Design
 		}
 
 		$ef = $this->getEditFns();
-		
+
 		$parse_file = $this->data_path.'/parse.txt';
 		$file_exists = file_exists($parse_file);
-		
-		// OK what we are doing here is making sure that our MySource tags match up with what is being 
+
+		// OK what we are doing here is making sure that our MySource tags match up with what is being
 		// expected by all design areas
 		$file_contents = str_replace(Array('<MySource', '</MySource'), Array('<'.$ef->tag_name, '</'.$ef->tag_name), $file_contents);
 		if (!string_to_file($file_contents, $parse_file)) {
@@ -126,7 +126,7 @@ class Login_Design extends Design
 			trigger_error('Unable to restore login design - save parse file contents failed', E_USER_WARNING);
 			return false;
 		}
-		
+
 		  /////////////////////
 		 // File Versioning //
 		/////////////////////
@@ -221,7 +221,7 @@ class Login_Design extends Design
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}// end restoreLoginDesign()
+	}//end restoreLoginDesign()
 
 
 	/**

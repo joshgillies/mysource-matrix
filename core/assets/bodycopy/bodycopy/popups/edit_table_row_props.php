@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_row_props.php,v 1.3 2004/02/18 18:19:16 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_table_row_props.php,v 1.4 2004/12/06 14:38:07 brobertson Exp $
+*
 */
 
 /**
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,9 +38,9 @@ header("Pragma: no-cache");
 header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
 
 include(dirname(__FILE__)."/header.php");
-?> 
+?>
 <script language="JavaScript" type="text/javascript">
-	
+
 	function popup_init() {
 
 		var data = owner.bodycopy_current_edit["data"]["attributes"];
@@ -91,4 +91,4 @@ include(dirname(__FILE__)."/header.php");
 	</tr>
 </table>
 </form>
-<?php include(dirname(__FILE__)."/footer.php"); ?> 
+<?php include(dirname(__FILE__)."/footer.php"); ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_array.inc,v 1.12 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: xml_array.inc,v 1.13 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 
@@ -46,7 +46,7 @@ require_once 'XML/Parser.php';
 * @author  Blair Robertson <blair@squiz.net>
 * @package MySource_Matrix
 * @subpackage lib
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 */
 class XML_Array extends XML_Parser
 {
@@ -109,9 +109,10 @@ class XML_Array extends XML_Parser
 	*
 	* @param array $arr_paths
 	*/
-	function XML_Array($arr_paths=Array()) {
+	function XML_Array($arr_paths=Array())
+	{
 		$this->setArrayPaths($arr_paths);
-	}
+	}//end constructor
 
 
 	/*
@@ -119,10 +120,11 @@ class XML_Array extends XML_Parser
 	*
 	* @access public
 	*/
-	function setArrayPaths ($arr_paths)
+	function setArrayPaths($arr_paths)
 	{
 		$this->_array_paths = $arr_paths;
-	}
+
+	}//end setArrayPaths()
 
 	/*
 	* Maps a xml file to a objects tree
@@ -130,7 +132,7 @@ class XML_Array extends XML_Parser
 	* @return mixed The objects tree (XML_tree or an Pear error)
 	* @access public
 	*/
-	function &getArrayFromFile ($filename, $arr_paths=Array())
+	function &getArrayFromFile($filename, $arr_paths=Array())
 	{
 		if (count($arr_paths)) $this->setArrayPaths($arr_paths);
 
@@ -146,9 +148,9 @@ class XML_Array extends XML_Parser
 			return $err;
 		}
 
-
 		return $this->_results;
-	}
+
+	}//end getArrayFromFile()
 
 	function getArrayFromString($str, $arr_paths=Array())
 	{
@@ -161,7 +163,8 @@ class XML_Array extends XML_Parser
 			return $err;
 		}
 		return $this->_results;
-	}
+
+	}//end getArrayFromString()
 
 	/*
 	* Do some initialisation before any parsing
@@ -181,7 +184,7 @@ class XML_Array extends XML_Parser
 		$this->_path_ptrs  = Array();
 		$this->_path_types = Array();
 
-	}
+	}//end _initParse()
 
 	/**
 	* Handler for the xml-data
@@ -214,7 +217,7 @@ class XML_Array extends XML_Parser
 			//  $parent->children[] = &new $this->_node_class(null, $this->cdata);
 			//}
 
-			// create this elements entry, need to check 
+			// create this elements entry, need to check
 			// if it exists here so that we don't overright multiple entry
 			// elements contents
 			if (!isset($parent[$elem]) || !is_array($parent[$elem])) {
@@ -227,7 +230,7 @@ class XML_Array extends XML_Parser
 			$this->_path[]       = $elem;
 			$this->_path_types[] = 's'; // every element start's out simple :)
 			$this->_path_ptrs[]  = &$parent[$elem];
-			
+
 			// OK, this element in one of possibly many with the same name
 			// so what we have to do is create an indexed array with each element under it
 			$path_str = implode('/', $this->_path);
@@ -251,7 +254,8 @@ class XML_Array extends XML_Parser
 		$this->_cdata = '';
 
 		return null;
-	}
+
+	}//end startHandler()
 
 	/**
 	* Handler for the xml-data
@@ -285,7 +289,7 @@ class XML_Array extends XML_Parser
 		}//end if
 
 		// OK, this element in one of possibly many with the same name
-		// so what we need to pop 2 elements of the ptr's array 
+		// so what we need to pop 2 elements of the ptr's array
 		// because we put 2 on in startHandler
 		$path_str = implode('/', $this->_path);
 		if (in_array($path_str, $this->_array_paths)) {
@@ -299,7 +303,7 @@ class XML_Array extends XML_Parser
 		$this->_cdata = '';
 		return null;
 
-	}
+	}//end endHandler()
 
 	/*
 	* The xml character data handler
@@ -314,7 +318,8 @@ class XML_Array extends XML_Parser
 		if (trim($data) != '') {
 			$this->_cdata .= $data;
 		}
-	}
+
+	}//end cdataHandler()
 
 	/*
 	* Close the parser and do any cleanup that is necessary
@@ -327,8 +332,10 @@ class XML_Array extends XML_Parser
 	function close()
 	{
 		if (!empty($this->parser) && is_resource($this->parser)) xml_parser_free($this->parser);
-	}
+
+	}//end close()
 
 
-}
+}//end class
+
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.9 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: bodycopy_table.inc,v 1.10 2004/12/06 14:38:07 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_container.inc';
@@ -32,7 +32,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,15 +70,15 @@ class Bodycopy_Table extends Bodycopy_Container
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
 		}
-		
+
 		// store this data for later use during the create process in _createAdditional()
 		$this->_tmp['bodycopy_create_data'] = $bc_data;
 
 		return parent::create($link);
 
 	}//end create()
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -96,7 +96,7 @@ class Bodycopy_Table extends Bodycopy_Container
 		unset($this->_tmp['bodycopy_create_data']);
 
 		if (!parent::_createAdditional($link)) return false;
-		
+
 		$num_rows = $bc_data['num_rows'];
 		$num_cols = $bc_data['num_cols'];
 
@@ -148,7 +148,7 @@ class Bodycopy_Table extends Bodycopy_Container
 
 		$old_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($old_assetid, $this->type());
 		$our_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, 'content_type', false);
-		
+
 		if (is_null($old_asset) || empty($our_links)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;

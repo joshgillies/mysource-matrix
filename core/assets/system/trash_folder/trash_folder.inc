@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.52 2004/11/18 05:00:42 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: trash_folder.inc,v 1.53 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,8 +80,8 @@ class Trash_Folder extends Folder
 		return $linkid;
 
 	}//end create()
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -121,7 +121,7 @@ class Trash_Folder extends Folder
 
 		parent::paintBackend($o);
 
-	}// end paintBackend()
+	}//end paintBackend()
 
 
 	/**
@@ -133,7 +133,7 @@ class Trash_Folder extends Folder
 	function canClone()
 	{
 		return false;
-	
+
 	}//end canClone()
 
 
@@ -212,7 +212,7 @@ class Trash_Folder extends Folder
 		if (!is_a($minor, 'Asset')) return 'Minor is not an asset';
 		return true;
 
-	}// end canCreateLink()
+	}//end canCreateLink()
 
 
 	/**
@@ -235,7 +235,7 @@ class Trash_Folder extends Folder
 	* Returns true if the passed assetid has write access to this asset
 	*
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
-	*							permissions set for this asset, otherwise returns effective access based on locking 
+	*							permissions set for this asset, otherwise returns effective access based on locking
 	*							and status
 	* @param Array	$assetids	An array of user_group and/or user ids to check for write access
 	*							If the array is empty, the current user will be checked

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country_edit_fns.inc,v 1.7 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_country_edit_fns.inc,v 1.8 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../form_question_type_select/form_question_type
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,8 +47,8 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 	function Form_Question_Type_Country_Edit_Fns()
 	{
 		$this->Form_Question_Edit_Fns();
-	
-	}//end Form_Question_Type_Country_Edit_Fns()
+
+	}//end constructor
 
 
 	/**
@@ -67,8 +67,8 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 		$options = $asset->getCompleteOptions();
 		$selected_options = $asset->attr('available');
 		//$selected_options = unserialize((count($asset->attr('available'))) ? $asset->attr('available') :  array_keys($options));
-		
-		
+
+
 		if (!$asset->writeAccess('attributes')) {
 			if (count($selected_options)) {
 				// gather all the names of the countries available
@@ -85,8 +85,8 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 		}
 
 		return $asset->writeAccess('attributes');
-	
-	}//end printAvailableCountries()
+
+	}//end paintAvailableCountries()
 
 
 	/**
@@ -111,7 +111,7 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 			}
 		}
 		return true;
-	
+
 	}//end processAvailableCountries()
 
 

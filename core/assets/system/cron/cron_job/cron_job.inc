@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.20 2004/12/03 15:29:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: cron_job.inc,v 1.21 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -39,7 +39,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -54,7 +54,8 @@ class Cron_Job extends Asset
 	function Cron_Job($assetid=0)
 	{
 		$this->Asset($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
@@ -104,7 +105,7 @@ class Cron_Job extends Asset
 	function canClone()
 	{
 		return false;
-	
+
 	}//end canClone()
 
 
@@ -147,7 +148,7 @@ class Cron_Job extends Asset
 	/**
 	* Can the current user forceably acquire the current lock on this asset?
 	*
-	* @param string		$lock_type		any valid lock type for this asset's type, 
+	* @param string		$lock_type		any valid lock type for this asset's type,
 	*									plus 'all' which will attempt to acquire all locks that this asset has
 	* @return boolean
 	* @access public
@@ -155,7 +156,8 @@ class Cron_Job extends Asset
 	function canForceablyAcquireLock($lock_type)
 	{
 		return false;
-	}
+
+	}//end canForceablyAcquireLock()
 
 
 	/**
@@ -201,11 +203,11 @@ class Cron_Job extends Asset
 				}
 			}
 
-		}// end if
+		}//end if
 
 		return parent::setAttrValue($name, $value);
 
-	}// end setAttrValue()
+	}//end setAttrValue()
 
 
 	/**
@@ -248,7 +250,7 @@ class Cron_Job extends Asset
 
 		return (bool) $this->createLink($user, SQ_LINK_NOTICE, 'running as');
 
-	}// end setRunningUser()
+	}//end setRunningUser()
 
 
 	/**
@@ -265,7 +267,7 @@ class Cron_Job extends Asset
 		if (empty($link)) return $null;
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
-	}// end getRunningUser()
+	}//end getRunningUser()
 
 
 	/**
@@ -290,7 +292,7 @@ class Cron_Job extends Asset
 				trigger_error('Cron Job when type "'.$type.'" not known', E_USER_NOTICE);
 			return '';
 		}
-	}// end whenTypeName()
+	}//end whenTypeName()
 
 
 	/**
@@ -315,9 +317,9 @@ class Cron_Job extends Asset
 			default :
 				trigger_error('Week Day "'.$wday.'" not known', E_USER_NOTICE);
 				return '';
-		}// end switch
+		}//end switch
 
-	}// end whenWeekDayName()
+	}//end whenWeekDayName()
 
 
 	/**
@@ -357,11 +359,11 @@ class Cron_Job extends Asset
 				$ret_val .= $when_arr['minute'].' minute past the hour';
 				break;
 
-		}// end switch
+		}//end switch
 
 		return $ret_val;
 
-	}// end readableWhen()
+	}//end readableWhen()
 
 
 	/**
@@ -406,13 +408,13 @@ class Cron_Job extends Asset
 					$when_arr['minute'] = substr($when_str, $offset, 2);
 					break;
 
-			}// end switch
+			}//end switch
 
-		}// end if
+		}//end if
 
 		return $when_arr;
 
-	}// end getWhenArr()
+	}//end getWhenArr()
 
 
 	/**
@@ -461,7 +463,7 @@ class Cron_Job extends Asset
 				// we can retry because the lock might be free by the time that we try again
 				$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
 
-			}// end if
+			}//end if
 
 		// else no running user
 		} else {
@@ -469,7 +471,7 @@ class Cron_Job extends Asset
 			// we can be removed because without the running user we can't do anything
 			$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
-		}// end if
+		}//end if
 
 		restore_error_handler();
 
@@ -529,7 +531,7 @@ class Cron_Job extends Asset
 			$msg->to[] = $root_user->id;
 			$msg->to[] = $sys_admins->id;
 
-		}// end if
+		}//end if
 
 		if (!empty($exec_msg)) {
 			$msg->body .= "\n".$exec_msg."\n";
@@ -545,7 +547,7 @@ class Cron_Job extends Asset
 
 		return $exec_result;
 
-	}// end run()
+	}//end run()
 
 
 	/**
@@ -614,7 +616,7 @@ class Cron_Job extends Asset
 			if (!isset($this->_tmp['running_errors'])) $this->_tmp['running_errors'] = '';
 			$this->_tmp['running_errors'] .= $str;
 
-		}// end error_reporting
+		}//end error_reporting
 
 		// if this is an irrercoverable error, send a distress email, delete ourselves and die
 		if ($terminate && empty($this->_tmp['terminate_error'])) {
@@ -642,9 +644,9 @@ class Cron_Job extends Asset
 
 			exit(1);
 
-		}// end if
+		}//end if
 
-	}// end _errorHandler()
+	}//end _errorHandler()
 
 
 	/**
@@ -665,7 +667,7 @@ class Cron_Job extends Asset
 		// we can be removed because we haven't been done
 		return SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
-	}// end _exec()
+	}//end _exec()
 
 
 	/**
@@ -774,7 +776,7 @@ class Cron_Job extends Asset
 							$add['days'] += days_in_month($i, $start['year']);
 						}
 
-					}// end if
+					}//end if
 
 					$add['days']    += $when['day']    - $start['mday'];
 					$add['hours']   += $when['hour']   - $start['hours'];
@@ -783,14 +785,14 @@ class Cron_Job extends Asset
 
 				break;
 
-		}// end switch
+		}//end switch
 
 		$add['hours']   += $add['days']  * 24;
 		$add['minutes'] += $add['hours'] * 60;
 
 		return $start_ts + ($add['minutes'] * 60);
 
-	}// end getNextRun()
+	}//end getNextRun()
 
 
 }//end class

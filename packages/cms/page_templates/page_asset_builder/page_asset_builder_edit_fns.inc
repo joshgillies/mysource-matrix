@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.24 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_asset_builder_edit_fns.inc,v 1.25 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Version$ - 1.4
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -199,7 +199,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					$options[$type_code] = $info['name'];
 				}
 			}
-			
+
 			asort($options);
 			$options = array_reverse($options, true);
 			$options[''] = '-- select asset type --';
@@ -237,7 +237,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		return false;
 
 	}//end processAddCreateType()
-	
+
 	/**
 	* Paint the interface for choosing the status of newly created assets
 	*
@@ -284,7 +284,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 
 
-//--        CREATE LOCATIONS SCREEN         --//	
+//--        CREATE LOCATIONS SCREEN         --//
 
 	/**
 	* Paint the interface for choosing the locations to which all new assets will be linked
@@ -385,9 +385,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				$link_type_name = link_type_name((int)$_POST[$prefix.'_new_link_type']);
 				if (!empty($link_type_name)) {
 					$new_locations[$new_location] = (int)$_POST[$prefix.'_new_link_type'];
-				} 
+				}
 			}
-		} 
+		}
 
 		// delete existing create locations
 		if (isset($_POST[$prefix.'_delete_location'])) {
@@ -413,8 +413,8 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*
 	* @return void
 	* @access public
-	*/	
-	function _paintSelectableLocationSet(&$asset, &$o, $prefix, $name, &$data) 
+	*/
+	function _paintSelectableLocationSet(&$asset, &$o, $prefix, $name, &$data)
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$code_name = str_replace(' ', '_', strtolower($name));
@@ -430,16 +430,16 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					<b>Location Options:</b>
 				</td>
 				<td class="sq-backend-table-cell">
-					<?php 
-						if ($write_access) {	
-							multiple_asset_finder($prefix.'_'.$code_name.'_location_options', array_keys($data['locations']), $this->location_types); 
+					<?php
+						if ($write_access) {
+							multiple_asset_finder($prefix.'_'.$code_name.'_location_options', array_keys($data['locations']), $this->location_types);
 						} else {
 							echo '<ul style="margin: 1px 15px;">';
 							foreach ($data['locations'] as $assetid => $name) {
 								echo '<li>'.$name.' (ID #'.$assetid.')</li>';
 							}
 							echo '</ul>';
-						}	
+						}
 					?>
 				</td>
 			</tr>
@@ -488,26 +488,26 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 						<tr>
 							<td style="width: 48%">
 								<?php if ($write_access) { ?>
-									<input type="checkbox" name="<?php echo $prefix.'_'.$code_name.'_allow_empty'; ?>" id="<?php echo $prefix.'_'.$code_name.'_allow_empty'; ?>" value="1"  class="sq-form-field"  <?php echo $data['allow_empty'] ? 'checked="checked"' : ''; ?> />  
+									<input type="checkbox" name="<?php echo $prefix.'_'.$code_name.'_allow_empty'; ?>" id="<?php echo $prefix.'_'.$code_name.'_allow_empty'; ?>" value="1"  class="sq-form-field"  <?php echo $data['allow_empty'] ? 'checked="checked"' : ''; ?> />
 								<?php } else { ?>
 									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $data['allow_empty'] ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
 								<?php } ?>
 								Allow No Selection &nbsp;&nbsp;&nbsp;&nbsp;
 							</td>
-	
+
 							<td style="width: 48%;">
 								<?php if ($write_access) { ?>
-									<input type="checkbox" name="<?php echo $prefix.'_'.$code_name.'_allow_multiple'; ?>" id="<?php echo $prefix.'_'.$code_name.'_allow_multiple'; ?>" value="1"  class="sq-form-field"  <?php echo $data['allow_multiple'] ? 'checked="checked"' : ''; ?> /> 
+									<input type="checkbox" name="<?php echo $prefix.'_'.$code_name.'_allow_multiple'; ?>" id="<?php echo $prefix.'_'.$code_name.'_allow_multiple'; ?>" value="1"  class="sq-form-field"  <?php echo $data['allow_multiple'] ? 'checked="checked"' : ''; ?> />
 								<?php } else { ?>
 									<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $data['allow_multiple'] ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
 								<?php } ?>
 								Allow Multiple Selections &nbsp;&nbsp;&nbsp;&nbsp;
 							</td>
-							
+
 							<td style="width: 4%; text-align: right">
 							<?php if ($write_access) { ?>
 								<input type="hidden" name="<?php echo $prefix.'_'.$code_name.'_delete' ?>" id="<?php echo $prefix.'_'.$code_name.'_delete' ?>" value="0"  class="sq-form-field" /><input type="button" value="Delete Set" onclick="if (confirm('Are you sure you want to delete this set of selectable create locations?')) { document.getElementById('<?php echo $prefix.'_'.$code_name.'_delete' ?>').value=1; form.submit(); }" />
-							<?php } ?>							
+							<?php } ?>
 							</td>
 						</tr>
 					</table>
@@ -564,7 +564,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processSelectableLocationSets(&$asset, &$o, $prefix)
 	{
-	
+
 		$sets = $asset->attr('create_location_optional');
 
 		// see if there is a set to delete altogether
@@ -577,7 +577,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 				return true; // when deleting a set, nothing else should be done.
 			}
-		}	
+		}
 
 		// update the details for existing sets
 		foreach ($sets as $name => $details) {
@@ -589,7 +589,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				foreach ($new_options as $option) {
 					if (($new_loc_id = $option['assetid']) && (!in_array($new_loc_id, array_keys($sets[$name]['locations'])))) {
 						$sets[$name]['locations'][$new_loc_id] = ''; // we'll get the name in a sec
-					} 
+					}
 				}
 			}
 
@@ -608,9 +608,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			if (in_array(($link_type = $_POST[$prefix.'_'.$code_name.'_link_type']), Array(SQ_LINK_TYPE_1, SQ_LINK_TYPE_2, SQ_LINK_TYPE_3, SQ_LINK_NOTICE))) {
 				$sets[$name]['link_type'] = $link_type;
 			}
-		}			
+		}
 
-		
+
 		// see if there is a new set to create
 		if ($_POST[$prefix.'_new_set_name']) {
 			$sets[$_POST[$prefix.'_new_set_name']] = Array('locations'		=> Array(),
@@ -648,7 +648,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			return false;
 		}
 		echo '<p><i><b>'.$this->location_messages['conditional'].'</b></i></p>';
-		
+
 		$write_access = $asset->writeAccess('attributes');
 		$current_rules = $asset->attr('create_location_rules');
 
@@ -692,7 +692,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 							echo '&nbsp;';
 							combo_box($prefix.'_rules['.$create_type.']['.$i.'][comparators]['.$j.']', $comparators, false, $rule['comparators'][$j]);
 							echo '&nbsp;';
-							text_box($prefix.'_rules['.$create_type.']['.$i.'][values]['.$j.']', $rule['values'][$j]); 
+							text_box($prefix.'_rules['.$create_type.']['.$i.'][values]['.$j.']', $rule['values'][$j]);
 							echo '</li>';
 						} else {
 							echo '<li><i>'.$attributes[$rule['attributes'][$j]].'</i> '.$comparators[$rule['comparators'][$j]].' "'.$rule['values'][$j].'"</li>';
@@ -758,7 +758,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					<tr>
 						<td class="sq-backend-table-header"><a id="<?php echo $prefix.'_'.$create_type; ?>_new_rule_link" href="#" onclick="document.getElementById('<?php echo $prefix.'_'.$create_type; ?>_new_rule_link').style.display='none'; document.getElementById('<?php echo $prefix.'_'.$create_type; ?>_new_rule_header').style.display='inline'; document.getElementById('<?php echo $prefix.'_'.$create_type; ?>_new_rule_body').style.display='block'; return false;"><b>New Rule</b></a><span style="display: none" id="<?php echo $prefix.'_'.$create_type; ?>_new_rule_header" style="display: none" ><b>New Rule</b></span></td>
 					</tr>
-						
+
 					<tr>
 						<td id="<?php echo $prefix.'_'.$create_type; ?>_new_rule_body" class="sq-backend-table-cell" style="display: none" >
 							If all these conditions are true...<br />
@@ -770,7 +770,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					echo '&nbsp;';
 					combo_box($prefix.'_rules['.$create_type.']['.$i.'][comparators]['.$j.']', $comparators, false, '');
 					echo '&nbsp;';
-					text_box($prefix.'_rules['.$create_type.']['.$i.'][values]['.$j.']', ''); 
+					text_box($prefix.'_rules['.$create_type.']['.$i.'][values]['.$j.']', '');
 				}
 				?>
 							</ul>
@@ -778,7 +778,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 							Link the asset to all these locations:<br />
 							<ul>
 								<li>
-				<?php 
+				<?php
 					asset_finder($prefix.'_rules['.$create_type.']['.$i.'][locations][0]', 0, $this->location_types); echo ' Link Type: ';
 					combo_box($prefix.'_rules['.$create_type.']['.$i.'][link_types][0]', $link_type_names, false, '');
 				?>
@@ -834,7 +834,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 					}
 				}
 				// remove the rule altogether if it's totally empty or the delete button was clicked
-				if ((isset($rule_data['delete']) && $rule_data['delete']) || (strlen(implode('', $rule_data['attributes'])) == 0)) { 	
+				if ((isset($rule_data['delete']) && $rule_data['delete']) || (strlen(implode('', $rule_data['attributes'])) == 0)) {
 					unset($rules[$create_type][$i]);
 				} else {
 					unset($rules[$create_type][$i]['delete']);
@@ -863,7 +863,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		echo '<p><i><b>'.$this->location_messages['additional'].'</b></i></p>';
 		return false;
 
-	}//end paintAdditionalLocationInfo()
+	}//end paintAdditionalLocationsInfo()
 
 
 	/**
@@ -880,7 +880,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	{
 		return true;
 
-	}//end paintAdditionalLocationInfo()
+	}//end processAdditionalLocationsInfo()
 
 
 
@@ -984,7 +984,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			{
 				newSelect = cloneSelect(document.getElementById(prefix+'_additional_location_types_0'), prefix);
 				clearButton = makeClearButton(newSelect.id);
-				elt.parentNode.insertBefore(document.createElement('br'), elt); 
+				elt.parentNode.insertBefore(document.createElement('br'), elt);
 				elt.parentNode.insertBefore(newSelect, elt);
 				elt.parentNode.insertBefore(clearButton, elt);
 			}
@@ -1010,7 +1010,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*
 	* @param	string	$prefix			The prefix for the list overall
 	* @param	int		$index			The array index to use for this entry in the list
-	* @param	array	$type_options	The asset type options to offer		
+	* @param	array	$type_options	The asset type options to offer
 	* @param	string	$current_value	The option that is currently selected
 	*
 	* @access	private
@@ -1067,24 +1067,24 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$current = $asset->attr('required_fields');
-		
+
 		foreach (array_keys($asset->attr('create_type')) as $create_type) {
-		
+
 			$attributes = Array();
 			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name'));
 			foreach ($attrs as $name) $attributes[$name] = ucwords(str_replace('_', ' ', $name));
-			
-			if (!isset($current[$create_type])) $current[$create_type] = Array();	
+
+			if (!isset($current[$create_type])) $current[$create_type] = Array();
 			$type_prefix = $prefix.'_'.$create_type;
-			
+
 			$type_name = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($create_type, 'name');
 			$o->openSection($type_name);
 			$o->openRaw();
-			
+
 			if (empty($current[$create_type])) {
 				echo 'No attributes are currently set to be required';
 			} else {
-				
+
 				?>
 				<table class="sq-backend-table">
 					<tr>
@@ -1126,9 +1126,9 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				</table>
 				<?php
 			}
-	
+
 			if ($write_access) {
-				
+
 				$new_required = Array('' => '-- select attribute --');
 				foreach ($attributes as $attr => $name) {
 					if (isset($current[$create_type][$attr])) continue;
@@ -1138,11 +1138,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 				echo '<br/><b>New required attribute ? </b>';
 				combo_box($type_prefix.'_new_required', $new_required, false, '');
 			}
-			
+
 			$o->closeRaw();
 			$o->closeSection();
-			
-		}// end for
+
+		}//end for
 
 		return $write_access;
 
@@ -1165,24 +1165,24 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		$required_fields = Array();
 
 		foreach (array_keys($asset->attr('create_type')) as $create_type) {
-		
+
 			if (!isset($current[$create_type])) $current[$create_type] = Array();
 			$type_prefix = $prefix.'_'.$create_type;
-			
+
 			// construct new required fields array removing deleted fields and updating error text
 			foreach ($current[$create_type] as $attr => $error_text) {
 				if (!isset($_POST[$type_prefix.'_delete_required'][$attr]) || !$_POST[$type_prefix.'_delete_required'][$attr]) {
 					$required_fields[$create_type][$attr] = (isset($_POST[$type_prefix.'_required_field'][$attr])) ? trim($_POST[$type_prefix.'_required_field'][$attr]) : $current[$create_type][$attr];
 				}
 			}
-	
+
 			// add new required field
 			if (isset($_POST[$type_prefix.'_new_required']) && !empty($_POST[$type_prefix.'_new_required'])) {
 				$new_required = $_POST[$type_prefix.'_new_required'];
 				if (!isset($required_fields[$create_type][$new_required])) $required_fields[$create_type][$new_required] = '';
 			}
 		}
-			
+
 		return $asset->setAttrValue('required_fields', $required_fields);
 
 	}//end processRequiredFields()
@@ -1217,7 +1217,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	{
 		return (count($asset->attr('create_type')) > 1);
 
-	}//end definesMultipleLocations()
+	}//end definesMultipleAssetTypes()
 
 
 }//end class

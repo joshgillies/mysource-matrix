@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.32 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_job_edit_permissions.inc,v 1.33 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
@@ -41,7 +41,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.33 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -122,7 +122,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function paintConfig(&$o, $class)
 	{
 		$write_access = $this->writeAccess();
-		
+
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Permissions Threshold');
 
@@ -175,7 +175,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* Returns the current Threshold.
 	*
 	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
-	* 
+	*
 	* @return float
 	* @access public
 	*/
@@ -184,13 +184,13 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		if (SQ_HIPO_PERMISSIONS_THRESHOLD == 0) return 0;
 		if (!isset($this->_running_vars['todo_assetids'])) return 0;
 		return ((count($this->_running_vars['todo_assetids']) / (SQ_HIPO_PERMISSIONS_THRESHOLD / count($this->_running_vars['permission_changes']))) * 100);
-	
+
 	}//end getThreshold()
 
 
 	/**
 	* Performs the duties of this hipo, without showing any output on the frontend.
-	* 
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -240,7 +240,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		unset($asset);
 
 		return parent::prepare();
-	}
+
+	}//end prepare()
 
 
 	/**
@@ -270,7 +271,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 							// use getAssetInfo() because deleting permissions
 							// held by deleted users (eg.LDAP) will cause an assertion
 							$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($set_data['userid']), 'user', false);
-	
+
 							// check that the passed userid is a user or user_group
 							if (empty($user_info)) {
 								$user_name = 'Unknown User';
@@ -332,7 +333,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			// add this assetid to the done array so we dont do it again
 			$this->_running_vars['done_assetids'][] = $assetid;
 
-		}// end if
+		}//end if
 
 		if (empty($this->_running_vars['todo_assetids'])) {
 			$step_data['percent_done'] = 100;

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.24 2004/10/06 01:00:22 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_status_pending_approval.inc,v 1.25 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           there is workflow running and the user is an admin
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 */
 class Asset_Status_Pending_Approval extends Asset_Status
@@ -107,7 +107,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
-	
+
 					if ($wf_complete && $m_complete) $statii[SQ_STATUS_APPROVED] = 'Approve';
 					else if (in_array($userid, $publishers)) $statii[SQ_STATUS_PENDING_APPROVAL] = 'Approve Changes';
 				} else {
@@ -144,7 +144,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 	function processStatusChange($new_status)
 	{
 		if (!parent::processStatusChange($new_status)) return false;
-		
+
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
@@ -159,7 +159,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 				// log an internal message
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-				if (!$wfm->silentWorkflowParty($this->owner->id)) { 
+				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
 					$log->subject = 'Asset Changes Rejected';
 					$log->body    = 'User "'.$user->name.'" has rejected the changes made to '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'". The status of "'.$this->owner->name.'" has reverted to '.get_status_description($new_status);
@@ -210,7 +210,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 
 					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-					if (!$wfm->silentWorkflowParty($this->owner->id)) { 
+					if (!$wfm->silentWorkflowParty($this->owner->id)) {
 						$log = $ms->newMessage();
 						$log->subject = 'Workflow Completed';
 						$log->body    = 'The workflow process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now approved and can be made live by an administrator.';

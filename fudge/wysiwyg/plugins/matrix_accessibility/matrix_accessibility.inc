@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_accessibility.inc,v 1.5 2004/09/23 00:43:21 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: matrix_accessibility.inc,v 1.6 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -35,11 +35,12 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     Triple-A level accessibility tags (e.g. abbr and acronym)
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
-class matrix_accessibility extends wysiwyg_plugin {
+class matrix_accessibility extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor
@@ -53,8 +54,9 @@ class matrix_accessibility extends wysiwyg_plugin {
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
 		$this->_add_button('matrixabbr','MatrixAbbr','Insert Abbreviation','false','55');
 		$this->_add_button('matrixacronym','MatrixAcronym','Insert Acronym','false','56');
-	}//end constructor()
-	
+
+	}//end constructor
+
 		/**
 	* Prints a generic insert image function that can be used by any editor
 	* A URL must be entered for the image you want to insert. Alt text must
@@ -140,13 +142,13 @@ class matrix_accessibility extends wysiwyg_plugin {
 
 					// convert all para tags to lowercase
 					var para_html = inside_html.replace(/(<\/?)P/gi, "$1p");
-					
+
 					// OK so we have some paragraph tags caught up in the mix, let's see what we can do with them
 					// because we don't want our href's going around paragraph tags
 					if (para_html.indexOf("<p") > -1) {
 
 						// if the position of the first tag is the same as the last then we have only one paragraph
-						// we don't want more than one paragraph because these can start or end from half-way through 
+						// we don't want more than one paragraph because these can start or end from half-way through
 						// a para, which would fuck up the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
 							alert("Please select only one paragraph to link at a time otherwise bad things happen.");
@@ -164,15 +166,15 @@ class matrix_accessibility extends wysiwyg_plugin {
 				var strPage = "<?php echo $this->get_popup_href('insert_abbr.php')?>?&title=" + escape(currArgs["title"]) + "&abbr=" + escape(inside_html) +"&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
 				this._popupDialog("matrixInsertAbbr", strPage, 400, 200, true, function(param) {
-					if (!param) { 
+					if (!param) {
 						// user must have pressed Cancel
 						return false;
 					}
-					
+
 					if (param["title"] != "") {
-						
+
 						if (param["abbr"] != inside_html) { inside_html = param["abbr"]; }
-						
+
 						var html = '<abbr title="' + param["title"] + '">' + inside_html + '</abbr>';
 
 						// replace with new URL
@@ -183,7 +185,7 @@ class matrix_accessibility extends wysiwyg_plugin {
 				}, null);
 
 			};
-			
+
 			// Called when the user clicks on "Insert Acronym" button
 			HTMLArea.prototype._matrixInsertAcronym = function() {
 				var editor = this; // for nested functions
@@ -252,13 +254,13 @@ class matrix_accessibility extends wysiwyg_plugin {
 
 					// convert all para tags to lowercase
 					var para_html = inside_html.replace(/(<\/?)P/gi, "$1p");
-					
+
 					// OK so we have some paragraph tags caught up in the mix, let's see what we can do with them
 					// because we don't want our href's going around paragraph tags
 					if (para_html.indexOf("<p") > -1) {
 
 						// if the position of the first tag is the same as the last then we have only one paragraph
-						// we don't want more than one paragraph because these can start or end from half-way through 
+						// we don't want more than one paragraph because these can start or end from half-way through
 						// a para, which would fuck up the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
 							alert("Please select only one paragraph to link at a time otherwise bad things happen.");
@@ -276,15 +278,15 @@ class matrix_accessibility extends wysiwyg_plugin {
 				var strPage = "<?php echo $this->get_popup_href('insert_acronym.php')?>?&title=" + escape(currArgs["title"]) + "&acronym=" + escape(inside_html) +"&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
 				this._popupDialog("matrixInsertAcronym", strPage, 400, 200, true, function(param) {
-					if (!param) { 
+					if (!param) {
 						// user must have pressed Cancel
 						return false;
 					}
 
 					if (param["title"] != "") {
-						
+
 						if (param["acronym"] != inside_html) { inside_html = param["acronym"]; }
-						
+
 						var html = '<acronym title="' + param["title"] + '">' + inside_html + '</acronym>';
 
 						// replace with new URL

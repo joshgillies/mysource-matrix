@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_linked_css.inc,v 1.6 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_linked_css.inc,v 1.7 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * Allows you to link to a CSS file or customisation from a standard design
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,7 +109,7 @@ class Design_Area_Linked_Css extends Design_Area
 		}
 		return (empty($this->_tmp['css_assetid'])) ? null : $this->_tmp['css_assetid'][$field];
 
-	}//end _getNestAssetInfo()
+	}//end _getLinkedCSSInfo()
 
 
 	/**
@@ -135,21 +135,21 @@ class Design_Area_Linked_Css extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function printArea(&$design) 
+	function printArea(&$design)
 	{
 		$assetid = (int) $this->_getLinkedCSSInfo('minorid');
 
 		// return true because it just means that they haven't set anything yet
 		if (empty($assetid)) return true;
-		
+
 		$tag_type = $this->attr('tag_type');
 		$media = $this->attr('media');
-		
+
 		echo '<', '?php
 		$linked_'.$this->attr('id_name').'_url = &$GLOBALS[\'SQ_SYSTEM\']->am->getAssetURL('.$assetid.');
-		if (!is_null($linked_'.$this->attr('id_name').'_url)) { 
+		if (!is_null($linked_'.$this->attr('id_name').'_url)) {
 		','?', '>';
-		
+
 		switch ($tag_type) {
 			case 'link_tag' :
 				echo '<link rel="stylesheet" type="text/css" href="', '<', '?php echo $linked_'.$this->attr('id_name').'_url; ?', '>', '"';
@@ -162,7 +162,7 @@ class Design_Area_Linked_Css extends Design_Area
 				break;
 		} //end switch
 
-		echo '<', '?php 
+		echo '<', '?php
 		} ?', '>';
 
 		return true;

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing.inc,v 1.6 2003/11/26 00:51:21 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: listing.inc,v 1.7 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     or bulleted lists
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class listing extends wysiwyg_plugin {
+class listing extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor
@@ -47,7 +48,8 @@ class listing extends wysiwyg_plugin {
 	* @returns object Listing
 	* @access  public
 	*/
-	function listing() {
+	function listing()
+	{
 		$this->_add_button('orderedlist','InsertOrderedList','Ordered List','false','26');
 		$this->_add_button('unorderedlist','InsertUnorderedList','Bulleted List','false','27');
 	}

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_request_vars.inc,v 1.2 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_request_vars.inc,v 1.3 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,30 +47,30 @@ class Design_Area_Request_Vars extends Design_Area
 	* @return mixed
 	* @access public
 	*/
-	/*function attr($name) 
+	/*function attr($name)
 	{
 		if (in_array($name, Array('method','id_name'))) {
 			return $this->vars[$name]['value'];
 		}
-	
+
 		switch ($this->vars['method']['value']) {
 			case 'get':
 				$target_vars =& $_GET;
 			break;
-			
+
 			case 'post':
 				$target_vars =& $_POST;
 			break;
-			
+
 			case 'request':
 			default:
 				$target_vars =& $_REQUEST;
 			break;
-			
+
 		}
-		
+
 		return array_get_index($target_vars, $name, '');
-		
+
 	}*///end attr()
 
 
@@ -82,7 +82,7 @@ class Design_Area_Request_Vars extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function printArea(&$design) 
+	function printArea(&$design)
 	{
 		return true;
 	}//end printArea()
@@ -102,22 +102,22 @@ class Design_Area_Request_Vars extends Design_Area
 			case 'get':
 				$target_vars = '$_GET';
 			break;
-			
+
 			case 'post':
 				$target_vars = '$_POST';
 			break;
-			
+
 			case 'request':
 			default:
 				$target_vars = '$_REQUEST';
 			break;
-			
+
 		}
-		
-		echo '<?php echo array_get_index('.$target_vars.', \''.addslashes($var).'\', \'\') ?>';	
+
+		echo '<?php echo array_get_index('.$target_vars.', \''.addslashes($var).'\', \'\') ?>';
 
 	}//end printVar()
-	
+
 
 }//end class
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_asset.inc,v 1.9 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_job_clone_asset.inc,v 1.10 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
@@ -29,7 +29,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -154,7 +154,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 	function paintConfig(&$o, $class)
 	{
 		$write_access = $this->writeAccess();
-		
+
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Clone Asset Threshold');
 
@@ -206,7 +206,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 	* Returns the current Threshold.
 	*
 	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
-	* 
+	*
 	* @return float
 	* @access public
 	*/
@@ -215,13 +215,13 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 		if (SQ_DUPE_ASSET_THRESHOLD == 0) return 0;
 		if (!isset($this->_running_vars['todo_assetids'])) return 0;
 		return ((count($this->_running_vars['todo_assetids']) / SQ_DUPE_ASSET_THRESHOLD) * 100);
-	
+
 	}//end getThreshold()
 
 
 	/**
 	* Performs the duties of this hipo, without showing any output on the frontend.
-	* 
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -250,11 +250,11 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 		}
 
 		/////// create some storage facilities ////////
-		
+
 		// a list of clone assets and the current position of the cloned asset getting processed
 		$this->_running_vars['clone']              = Array();
 		$this->_running_vars['clone']['pos']       = 0;
-		
+
 		// a map of old assetids => new assetids. This data is returned from
 		// a call to clone() in asset.inc and is used to remap assets
 		$this->_running_vars['clone']['asset_map'] = Array();
@@ -269,10 +269,10 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 		$todo_assetids = $this->_running_vars['assetid'];
 
 		return parent::prepare();
-	
+
 	}//end prepare()
 
-	
+
 	/**
 	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
 	*
@@ -321,7 +321,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 
 	/**
 	* Paints some option for the user to specify what assets are to cloned
-	* All dependant asset will be automatically cloned, so no interface will be 
+	* All dependant asset will be automatically cloned, so no interface will be
 	* supplied for duping dependant assets which should save some space.
 	*
 	* @param &Array								$step_data	a reference to the step data for this step
@@ -380,29 +380,29 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 			// make sure they are all in the proper order
 			ksort($_POST['clone_treeids'], SORT_STRING);
 			$clone_treeids = Array();
-			
+
 			for (reset($_POST['clone_treeids']); null !== ($treeid = key($_POST['clone_treeids'])); next($_POST['clone_treeids'])) {
 				$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
-			
+
 				// if this is a top level link or if this links parent link is selected
 				// then we can add it to the proper array
 				// this strips out any selections whose parents where selected
 				// and any dependent links (in hidden fields) whose parent wasn't selected
-			
+
 				if ($parent_treeid == '' || isset($clone_treeids[$parent_treeid])) {
-					
+
 					if (!isset($tree[$treeid])) {
 						continue;
 					}
 
 					$clone_treeids[$treeid] = $_POST['clone_treeids'][$treeid];
 					$dependant_treeid = $tree[$treeid]['dependant_treeid'];
-					
+
 					if (!isset($effective_clone_treeids[$dependant_treeid])) {
 						$effective_clone_treeids[$dependant_treeid] = Array();
 					}
 					$effective_clone_treeids[$dependant_treeid][] = $treeid;
-				
+
 				}// end if
 			}// end for
 
@@ -416,7 +416,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 					'dependants' => $effective_clone_treeids[$treeid],
 				);
 			}// end for
-		
+
 		}//end if
 
 		// create a unique list of assets that we will be aquiring locks/duplicating
@@ -444,7 +444,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 
 		// add the original clone to the assets list
 		$this->_running_vars['assets'][] = Array('assetid' => $this->_running_vars['assetid'], 'type_code' => $this->_running_vars['type_code']);
-		
+
 		foreach ($map as $assetid => $type_code) {
 			$this->_running_vars['assets'][] = Array('assetid' => $assetid, 'type_code' => $type_code);
 		}
@@ -472,32 +472,32 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 	*
 	* @return boolean
 	* @access public
-	*/ 
+	*/
 	function processCloneAssets(&$step_data, $prefix)
 	{
 		$treeid = '';
 		if (isset($this->_running_vars['effective_clone_treeids'][$this->_running_vars['clone']['pos']]['treeid'])) {
 			$treeid = $this->_running_vars['effective_clone_treeids'][$this->_running_vars['clone']['pos']]['treeid'];
 			$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
-		}		
+		}
 
 		// if there is a blank treeid then we must be duplicating the initialising asset
 		$link    = Array('asset' => null, 'link_type' => 0, 'sort_order' => -1, 'value' => '');
 		$assetid   = 0;
 		$type_code = '';
 		$old_linkid = 0;
-	
+
 		// if the treeid is blank we are duping the initating asset
 		if ($treeid == '') {
 			$assetid			= $this->_running_vars['assetid'];
 			$type_code			= $this->_running_vars['type_code'];
 			$link['link_type']	= SQ_LINK_TYPE_1;
-			
+
 			// need to find out the link type of the parent links. If ANY of
-			// them were type 2 links, make this link type type2 also for 
+			// them were type 2 links, make this link type type2 also for
 			// safety's sake
 			$parent_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_SC_LINK_ALL, '', false, 'minor');
-			
+
 			if (count($parent_links) > 0) {
 				foreach ($parent_links as $link_info) {
 					$link['link_type'] = $link_info['link_type'];
@@ -507,8 +507,8 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 					}
 				}
 			}
-						
-			
+
+
 			$link['sort_order']	= $this->_running_vars['to_parent_pos'];
 			$link['asset']		= &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
@@ -516,7 +516,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 		} else {
 			$assetid	= $this->_running_vars['tree'][$treeid]['assetid'];
 			$type_code	= $this->_running_vars['tree'][$treeid]['type_code'];
-			
+
 			if ($parent_treeid == '') {
 				$parent_assetid		= $this->_running_vars['assetid'];
 				$parent_type_code	= $this->_running_vars['type_code'];
@@ -524,13 +524,13 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 				$parent_assetid		= $this->_running_vars['tree'][$parent_treeid]['assetid'];
 				$parent_type_code	= $this->_running_vars['tree'][$parent_treeid]['type_code'];
 			}
-		
+
 			// now get the assetid for the cloned parent asset, not the original
 			if (isset($this->_running_vars['clone']['asset_map'][$parent_assetid])) {
 				$link['asset']	= &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['clone']['asset_map'][$parent_assetid], $parent_type_code);
 			}
 
-			
+
 			$link['link_type']	= $this->_running_vars['tree'][$treeid]['link_type'];
 			$link['sort_order']	= $this->_running_vars['tree'][$treeid]['sort_order'];
 			$link['value']		= $this->_running_vars['tree'][$treeid]['value'];
@@ -548,7 +548,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 		// then just link it to it's new parent
 		if (isset($this->_running_vars['clone']['asset_map'][$assetid])) {
 			$clone = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['clone']['asset_map'][$assetid], $type_code);
-		
+
 			if (is_null($clone)) {
 				trigger_error('Unable to find cloned asset for Asset Id #'.$assetid, E_USER_WARNING);
 				return false;
@@ -568,7 +568,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 		} else {
 
 			$orig = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
-			
+
 			if (is_null($orig)) {
 				trigger_error('Unable to find original asset, Asset Id #'.$assetid, E_USER_WARNING);
 				return false;
@@ -583,13 +583,13 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 				'permissions',
 			);
 			$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($orig, $link, $this->_running_vars['clone']['asset_map'], $components, true);
-		
+
 			if (is_null($clone)) {
 				trigger_error('Clone failed for Asset Id #'.$assetid, E_USER_WARNING);
 				return false;
 			}// end if
 
-		
+
 			// the web path of this asset may confict with the children
 			// of the parent asset that we are linking to, so check the integrity
 			// of the path before using it
@@ -608,11 +608,11 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 
 		if ($old_linkid) $this->_running_vars['clone']['link_map'][] = $old_linkid;
 
-		
+
 		if (count($this->_running_vars['effective_clone_treeids']) != 0) {
 			$step_data['percent_done'] = ($this->_running_vars['clone']['pos'] + 1) / count($this->_running_vars['effective_clone_treeids']) * 100;
 		}
-		
+
 		if (count($this->_running_vars['effective_clone_treeids']) > $this->_running_vars['clone']['pos'] + 1) {
 			$this->_running_vars['clone']['pos']++;
 		} else {
@@ -625,12 +625,12 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->_running_vars['assetid'], 'all');
 
 		return true;
-	
+
 	}//end processCloneAssets()
 
 
 	/**
-	* Remaps the new assets from their old assetid to their new assetid, 
+	* Remaps the new assets from their old assetid to their new assetid,
 	* using a map returned from the clone() function in asset.inc
 	*
 	* @param &Array		$step_data	a reference to the step data for this step
@@ -667,7 +667,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 			$step_data['complete'] = true;
 			$step_data['percent_done'] = 100;
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->_running_vars['assetid'], 'all');
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.6 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_css.inc,v 1.7 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 * in standard Designs
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,26 +66,26 @@ class Design_Css extends Design
 	function create(&$link)
 	{
 		$new_name = strtolower(trim($this->attr('id_name')));
-		
+
 		// no ampersands in css file name
 		$new_name = str_replace('&', '_and_',  $new_name);
-		
+
 		// no spaces in css file name
 		$new_name = preg_replace('/\\s+/', '_', $new_name);
-		
+
 		// taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 		$new_name = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $new_name);
-		
+
 		// ensure a virtual .css file extension
 		if (substr($new_name, -4) != '.css') $new_name = $new_name.'.css';
-		
+
 		$this->setAttrValue('id_name', $new_name);
-		
+
 		return parent::create($link);
 
 	}//end create()
-	
-	
+
+
 	/*
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
@@ -125,7 +125,7 @@ class Design_Css extends Design
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		$linkid = parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 		if (!$linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -165,7 +165,7 @@ class Design_Css extends Design
 			}//end foreach customisation
 
 		}//end if is_a file
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
@@ -215,7 +215,7 @@ class Design_Css extends Design
 							return false;
 						}
 					}
-				}// end foreach $file_links
+				}//end foreach $file_links
 
 				$am->forgetAsset($customisation);
 
@@ -245,7 +245,8 @@ class Design_Css extends Design
 	* @return boolean
 	* @access public
 	*/
-	function deleteExistingLink($linkid) {
+	function deleteExistingLink($linkid)
+	{
 		// first, we should try and find the link
 		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($delete_link)) {
@@ -268,8 +269,8 @@ class Design_Css extends Design
 		return true;
 
 	}//end deleteExistingLink()
-	
-	
+
+
 	/**
 	* Prints out the Frontend for this asset
 	* it's up to the kids to override
@@ -320,11 +321,11 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 
 ';
 			break;
-			
+
 			default :
 				parent::printVar($var, $args);
 
-		}// end switch
+		}//end switch
 
 	}//end printVar()
 
@@ -343,7 +344,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		$this->_tmp['generate_design'] = false;
 		return parent::processBackend($o, $link);
 
-	}// end processBackend()
+	}//end processBackend()
 
 
 	/**
@@ -364,7 +365,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		}
 
 	}//end getDesignAreaLink()
-	
+
 
 	/**
 	* Paints out our design

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.11 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.12 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -87,7 +87,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 					$divider_index = $index;
 				break;
 
-			}// end switch
+			}//end switch
 
 		}//end foreach
 
@@ -111,7 +111,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 											'self_terminating' => 1
 										);
 
-		}// end if
+		}//end if
 
 		// OK, so we have some divider contents, so extract it
 		if ($divider_index >= 0) {
@@ -128,12 +128,12 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 			// Now we want to remove the divider section
 			array_splice($contents, $divider_index, 1);
 
-		}// end if
+		}//end if
 
 		$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'][$asset->attr('id_name')] = true;
 		return $asset->setAttrValue('contents', $contents);
 
-	}// end _processContents()
+	}//end _processContents()
 
 
 	/**
@@ -156,7 +156,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 				// the home link is start the loop at a different position
 				$start_index = ($asset->attr('prefix_with_home_link')) ? 0 : 1;
 
-				
+
 				$total = 'count($ASSET_LINEAGE)';
 				// because the page lineage array contains the current page, all we need to do to have or not have
 				// the current link is end the loop at a different position
@@ -165,7 +165,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 				}
 
 				$levels_to_print = (int) $asset->attr('levels_to_print');
-				
+
 				if (is_int($levels_to_print)) {
 					// if we have pages to print, we just adjust the total count factor
 					if ($levels_to_print > 0) {
@@ -222,22 +222,22 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 					// if there is not divider at the end we need to check that we aren't at the end of the list
 					if (!$asset->attr('suffix_with_divider')) {
 					echo '
-						}// end if';
+						}//end if';
 					}
 
-				}// end if divider
+				}//end if divider
 
 				echo '
-				}// end for
+				}//end for
 				?','>';
 
 				return true;
 
 			default :
 				return parent::_outputElement($element, $asset, $design);
-		}// end switch
+		}//end switch
 
-	}// end _outputElement()
+	}//end _outputElement()
 
 
 }//end class

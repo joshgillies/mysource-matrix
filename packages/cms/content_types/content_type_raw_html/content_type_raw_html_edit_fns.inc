@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_edit_fns.inc,v 1.3 2004/09/30 04:37:36 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: content_type_raw_html_edit_fns.inc,v 1.4 2004/12/06 14:41:38 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -90,7 +90,7 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 
 			// encode PHP so it doesnt get executed
 			$html = str_replace('<?php', '&lt;?php', $html);
-			
+
 			$current_html = $asset->attr('html');
 			if ($html != $current_html) {
 				if ($asset->setAttrValue('html', $html)) return true;

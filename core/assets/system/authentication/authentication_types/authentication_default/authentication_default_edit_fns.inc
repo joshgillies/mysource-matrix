@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default_edit_fns.inc,v 1.1 2004/02/06 03:09:53 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: authentication_default_edit_fns.inc,v 1.2 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/authentication/authentication/authent
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,7 +48,7 @@ class Authentication_Default_Edit_Fns extends Authentication_Edit_Fns
 	{
 		$this->Authentication_Edit_Fns();
 
-	}//end constructor()
+	}//end constructor
 
 
 }//end class

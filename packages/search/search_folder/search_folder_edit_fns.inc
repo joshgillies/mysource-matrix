@@ -1,4 +1,3 @@
-
 <?php
 /**
 * +--------------------------------------------------------------------+
@@ -19,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.4 2004/08/09 10:30:50 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: search_folder_edit_fns.inc,v 1.5 2004/12/06 14:44:15 brobertson Exp $
+*
 */
 
 
@@ -33,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -48,7 +47,7 @@ class Search_Folder_Edit_Fns extends Bridge_Edit_Fns
 	function Search_Folder_Edit_Fns()
 	{
 		$this->Bridge_Edit_Fns();
-		
+
 		$this->static_screens = Array(	'details'		=> Array(
 															'name'			=> 'Details',
 															'force_unlock'	=> false,
@@ -99,7 +98,7 @@ class Search_Folder_Edit_Fns extends Bridge_Edit_Fns
 			if (!is_null($root_asset)) echo $root_asset->name . ' (Id: #' . $root_asset->id . ')';
 			else echo 'No search root has been selected. The whole system will be searched.';
 		}
-		
+
 		return $write_access;
 
 	}//end paintRoot()
@@ -159,7 +158,7 @@ class Search_Folder_Edit_Fns extends Bridge_Edit_Fns
 				echo $current;
 			}
 		}
-		
+
 		return $write_access;
 
 	}//end paintPhrase()
@@ -191,8 +190,8 @@ class Search_Folder_Edit_Fns extends Bridge_Edit_Fns
 		return $asset->setAttrValue('settings', $settings);
 
 	}//end processPhrase()
-	
-	
+
+
 	/**
 	* Paint the interface for selecting search logic
 	*
@@ -216,7 +215,7 @@ class Search_Folder_Edit_Fns extends Bridge_Edit_Fns
 			if ($current == 'or') echo 'Results include any terms';
 			else echo 'Results include all terms';
 		}
-		
+
 		return $write_access;
 
 	}//end paintLogic()
@@ -271,7 +270,7 @@ class Search_Folder_Edit_Fns extends Bridge_Edit_Fns
 		if ($write_access) {
 			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 			$statuses = get_constant_values('SQ_STATUS');
-		
+
 			$options = Array();
 			foreach ($statuses as $constant => $value) $options[$value] = get_status_description($value);
 
@@ -285,7 +284,7 @@ class Search_Folder_Edit_Fns extends Bridge_Edit_Fns
 				echo '</ul>';
 			}
 		}
-		
+
 		return $write_access;
 
 	}//end paintStatus()

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country_management.inc,v 1.7 2004/04/29 05:19:40 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_country_management.inc,v 1.8 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -49,22 +49,22 @@ class Form_Question_Type_Country_Management extends Asset_Management
 		$this->vars = Array(
 							'width' => Array(
 									'added'     => '0.0.1',
-									'type'      => 'text',  
+									'type'      => 'text',
 									'default'   => '30',
 									),
 							'height' => Array(
 									'added'     => '0.0.1',
-									'type'      => 'text',  
+									'type'      => 'text',
 									'default'   => '1',
 									),
 							'max' => Array(
 									'added'     => '0.0.1',
-									'type'      => 'text',  
+									'type'      => 'text',
 									'default'   => '300',
 									),
 							'extra'	=> Array(
 									'added'     => '0.0.1',
-									'type'      => 'text',  
+									'type'      => 'text',
 									'default'   => '',
 									),
 							'default' => Array(
@@ -80,7 +80,7 @@ class Form_Question_Type_Country_Management extends Asset_Management
 										'update_fn' => '',
 									),
 					);
-	}//end Form_Question_Type_Country_Management()
+	}//end constructor
 
 
 }//end class

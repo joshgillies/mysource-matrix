@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.8 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: details.inc,v 1.9 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once 'XML/Tree.php';
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -59,7 +59,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 	}
 
 	for ($i = 0; $i < count($root->children); $i++) {
-		
+
 		$section = &$root->children[$i];
 
 		// only do this if we are not painting a layout
@@ -88,7 +88,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					$o->openField($display_name);
 					if (!is_null($keywords) && isset($keywords['fields']['status_current'])) ob_start();
 					echo '<i>'.$owner->getStatusDescription().'</i>';
-				
+
 					// if there is a keyword replacement for this, add it to the replacements
 					if (!is_null($keywords) && isset($keywords['fields']['status_current'])) {
 						$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_current']] = ob_get_contents();
@@ -103,7 +103,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					else $display_name = $field->children[0]->content;
 					$o->openField($display_name);
 						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) ob_start();
-						
+
 						// if this asset is in workflow we do not let the change the status here
 						// because they need to go off to the workflow screen
 						$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -131,7 +131,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 					if (!empty($fs_jobs)) {
 						$o->openField('Future Statuses', 'new_line');
-						
+
 						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) ob_start();
 						?>
 						<table class="sq-backend-table">
@@ -167,7 +167,7 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 						?>
 						</table>
 						<?php
-						
+
 						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
 							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] = ob_get_contents();
 							ob_end_flush();
@@ -205,38 +205,38 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 
 				break;
-				
+
 				case 'thumbnail_change' :
-					
+
 					if ($owner->writeAccess('links')) {
-					
+
 						if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
 						else $display_name = $field->children[0]->content;
-						
+
 						$o->openField($display_name);
 							if (!is_null($keywords) && isset($keywords['fields']['thumbnail_change'])) ob_start();
-							
+
 							$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'thumbnail', true, 'thumbnail');
 							if (empty($link)) $link['minorid'] = 0;
 							asset_finder($prefix.'_thumbnail', $link['minorid'], Array('thumbnail' => 'I'));
-							
+
 							if (!is_null($keywords) && isset($keywords['fields']['thumbnail_change'])) {
 								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['thumbnail_change']] = ob_get_contents();
 								ob_end_flush();
 							}
 						$o->closeField();
 					}
-			
+
 				break;
-				
+
 				case 'thumbnail_current' :
-					
+
 					if ($field->children[0]->name != 'display_name') $display_name = 'Current';
 					else $display_name = $field->children[0]->content;
-					
+
 					$o->openField($display_name);
 						if (!is_null($keywords) && isset($keywords['fields']['thumbnail_current'])) ob_start();
-						
+
 						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($owner->id, SQ_LINK_NOTICE, 'thumbnail', true, 'thumbnail');
 						if (!empty($link)) {
 							$thumbnail = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
@@ -246,15 +246,15 @@ function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 						} else {
 							echo 'No thumbnail attached';
 						}
-						
+
 						if (!is_null($keywords) && isset($keywords['fields']['thumbnail_current'])) {
 							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['thumbnail_current']] = ob_get_contents();
 							ob_end_flush();
 						}
 					$o->closeField();
-			
+
 				break;
-				
+
 			}//end switch
 
 			if ($field->children[1]->name == 'note' && $field->children[1]->content) {
@@ -410,9 +410,9 @@ function processDetails(&$owner, &$o, &$ei)
 
 	}//end if is null cron mgr
 
-	
+
 	///// THUMBNAIL CHANGES ////
-	
+
 	if (isset($_POST[$prefix.'_thumbnail']['assetid'])) {
 		$thumbnail = $_POST[$prefix.'_thumbnail']['assetid'];
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dependants.inc,v 1.3 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: dependants.inc,v 1.4 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Dependants Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 */
 
@@ -198,7 +198,7 @@ function _recursePaintDependants(&$owner, &$asset, &$o, $levels=1, $print_stalks
 		}
 	}
 
-}//end _recursePaintDependants
+}//end _recursePaintDependants()
 
 
 /**

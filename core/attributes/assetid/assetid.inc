@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assetid.inc,v 1.6 2004/09/10 07:10:23 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: assetid.inc,v 1.7 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *    <assetid type_codes="user_group:I,backend_user:A,page:D" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -69,7 +69,7 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 	function setEditParams(&$node)
 	{
 		if (!parent::setEditParams($node)) return false;
-		
+
 		$this->_edit_params['type_codes'] = Array();
 		if (isset($node->attributes['type_codes'])) {
 			$codes = explode(',', $node->attributes['type_codes']);
@@ -108,7 +108,7 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		asset_finder($prefix, $this->value, $this->_edit_params['type_codes']);
 
-	}// end paint()
+	}//end paint()
 
 
 	/**
@@ -128,7 +128,7 @@ class Asset_Attribute_Assetid extends Asset_Attribute
 			$this->processed = false;
 		}
 
-	}// end process()
+	}//end process()
 
 
 	/**

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_management.inc,v 1.10 2004/11/05 00:08:51 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_section_management.inc,v 1.11 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,7 +48,7 @@ class Form_Section_Management extends Asset_Management
 
 		$this->vars = Array('name' => Array(
 												'added'     => '0.0.1',
-												'type'      => 'text',  
+												'type'      => 'text',
 												'default'   => '',
 												),
 							'sort_order' => Array(
@@ -63,17 +63,17 @@ class Form_Section_Management extends Asset_Management
 												),
 							'question_col_width' => Array(
 											'added'     => '0.0.1',
-											'type'      => 'html_width',  
+											'type'      => 'html_width',
 											'default'   => '40%',
 								),
 							'answer_col_width' => Array(
 											'added'     => '0.0.1',
-											'type'      => 'html_width',  
+											'type'      => 'html_width',
 											'default'   => '60%',
 								),
 							'section_width' => Array(
 											'added'     => '0.0.1',
-											'type'      => 'html_width',  
+											'type'      => 'html_width',
 											'default'   => '100%',
 								),
 							'next_questionid' => Array(
@@ -81,7 +81,7 @@ class Form_Section_Management extends Asset_Management
 											'type'		=> 'int',
 											'default'	=> 0,
 								),
-														
+
 				);
 		}//end constructor
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.26 2004/11/30 23:02:52 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: image_edit_fns.inc,v 1.27 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -65,7 +65,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 			echo '</p>';
 		}
 		return true;
-	
+
 	}//end paintFileUpload()
 
 
@@ -88,10 +88,10 @@ class Image_Edit_Fns extends File_Edit_Fns
 			$this->_paintApplet($asset, $o, $prefix);
 		}
 		return true;
-	
+
 	}//end paintCreateEditor()
 
-	
+
 	/**
 	* Process the results of the image editor in the create screen
 	*
@@ -180,8 +180,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 		}
 
 	}//end printExistingFileInfo()
-	
-	
+
+
 	/**
 	* Get the info on the pre-uploaded file chosen by the user
 	*
@@ -201,7 +201,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 			$info['tmp_name'] = SQ_TEMP_PATH.'/'.$_POST[$prefix.'_applet_temp_filename'];
 		}
 		return $info;
-		
+
 	}//end getChosenFileInfo()
 
 
@@ -211,11 +211,11 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* In this case we restrict the options to be valid image file types
 	*
 	* @param	&$asset		The asset that might use the files
-	* 
+	*
 	* @access protected
 	* @return array		value => value to be used with combo_box
 	*/
-	function getPreuploadOptions(&$asset)
+	function getPreUploadOptions(&$asset)
 	{
 		require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
 		$options = Array();
@@ -226,9 +226,9 @@ class Image_Edit_Fns extends File_Edit_Fns
 		}
 		return $options;
 
-	}//end getPreloadOptions()
-	
-	
+	}//end getPreUploadOptions()
+
+
 	/**
 	* Get a formatted string of extensions (eg 1,2,3 and 4)
 	*
@@ -241,10 +241,10 @@ class Image_Edit_Fns extends File_Edit_Fns
 	function _getExtensionString($extensions, $glue='and')
 	{
 		if (empty($extensions) || !is_array($extensions)) return '';
-		
+
 		$count = count($extensions);
 		$retval = '';
-		
+
 		for ($i = 0; $i < $count; $i++) {
 			$ext = $extensions[$i];
 			if ($i != 0 && ($i+1) == $count) {
@@ -255,7 +255,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 			}
 			$retval .= $ext;
 		}
-		
+
 		return $retval;
 
 	}//end _getExtensionString()
@@ -274,7 +274,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	* @access private
 	* @return boolean	true if the applet was printed OK
 	*/
-	function _paintApplet(&$asset, &$o, $prefix) 
+	function _paintApplet(&$asset, &$o, $prefix)
 	{
 		if (!file_exists(SQ_FUDGE_PATH.'/image_editor/imagej.jar')) return false;
 		$open_url = $asset->getURL();
@@ -283,7 +283,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 		?>
 
 		<script type="text/javascript"><!--
-			function getAppletResult() 
+			function getAppletResult()
 			{
 				var applet = document.getElementById('<?php echo $prefix; ?>_image_editor');
 				if (applet.parentNode.parentNode.style.display != 'none') {
@@ -313,10 +313,10 @@ class Image_Edit_Fns extends File_Edit_Fns
 		<input type="hidden" name="<?php echo $prefix; ?>_applet_filename" id="<?php echo $prefix; ?>_applet_filename" value="" />
 
 		<applet id="<?php echo $prefix; ?>_image_editor" name="<?php echo $prefix; ?>_image_editor" archive="<?php echo sq_web_path('fudge'); ?>/image_editor/imagej.jar?t=<?php echo time(); ?>" code="ij.ImageJ.class" width="90%" height="350">
-			<param name="SUBMIT_URL" 
+			<param name="SUBMIT_URL"
 				   value="<?php echo sq_web_path('lib'); ?>/web/accept_file_upload.php?SESSION_ID=<?php echo session_id(); ?>&SESSION_KEY=<?php echo $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(); ?>" />
 			<param name="FILE_FIELD_NAME" value="<?php echo $prefix; ?>" />
-		<?php 
+		<?php
 		if ($asset->id) {
 			?>
 			<param name="OPEN_URL" value="<?php echo $open_url; ?>" />

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file_edit_fns.inc,v 1.3 2004/11/29 02:14:16 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: pdf_file_edit_fns.inc,v 1.4 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,10 +52,10 @@ class PDF_File_Edit_Fns extends File_Edit_Fns
 	function _getExtensionString($extensions, $glue='and')
 	{
 		if (empty($extensions) || !is_array($extensions)) return '';
-		
+
 		$count = count($extensions);
 		$retval = '';
-		
+
 		for ($i = 0; $i < $count; $i++) {
 			$ext = $extensions[$i];
 			if ($i != 0 && ($i+1) == $count) {
@@ -66,7 +66,7 @@ class PDF_File_Edit_Fns extends File_Edit_Fns
 			}
 			$retval .= $ext;
 		}
-		
+
 		return $retval;
 
 	}//end _getExtensionString()
@@ -89,7 +89,7 @@ class PDF_File_Edit_Fns extends File_Edit_Fns
 			?><br/><span style="font-size: 10px">You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
 		}
 		return true;
-	
+
 	}//end paintFileUpload()
 
 

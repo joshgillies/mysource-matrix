@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.10 2004/11/07 22:48:30 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_field_select_edit_fns.inc,v 1.11 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -203,7 +203,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				text_box($prefix.'_new_val','');
 			$o->closeField();
 		}
-		
+
 		if (!empty($select_options)) {
 			// displaying default value if any values were actually saved in the array
 			$o->openField('Default Value');
@@ -231,7 +231,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess('attributes')) return false;
-		
+
 		$select_options = Array();
 		if (isset($_POST[$prefix.'_options'])) {
 			$option_changes = $_POST[$prefix.'_options'];
@@ -247,7 +247,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			$new_select_val  = trim($_POST[$prefix.'_new_val']);
 			$select_options[$new_select_key] = $new_select_val;
 		}
-			
+
 		// updating asset attribute value
 		$asset->setAttrValue('select_options', $select_options);
 
@@ -265,8 +265,8 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		return true;
 
 	}//end processSelection()
-	
-	
+
+
 	/**
 	* Paint the interface for setting selection edit params
 	*

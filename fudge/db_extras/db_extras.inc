@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.11 2004/12/03 15:43:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: db_extras.inc,v 1.12 2004/12/06 14:39:53 brobertson Exp $
+*
 */
 
 /**
@@ -30,7 +30,7 @@
 *     like Sub-Queries
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -87,14 +87,14 @@ function db_extras_subquery(&$db, $sql, $subs, $default_value=null)
 
 				if ($replace[$i] == '') $replace[$i] = $db->quote($default_value);
 
-			}// end for
+			}//end for
 
 			$sql = str_replace($find, $replace, $sql);
 			return $sql;
 
 	}//end switch
 
-}// end db_extras_subquery()
+}//end db_extras_subquery()
 
 
 /**
@@ -146,6 +146,6 @@ function db_extras_insert_select(&$db, $insert, $select)
 
 	}//end switch
 
-}// end db_extras_insert_select()
+}//end db_extras_insert_select()
 
 ?>

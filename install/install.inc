@@ -17,9 +17,9 @@
 * | enhancement to Squiz Pty Ltd for use and distribution under that   |
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
-* 
-* $Id: install.inc,v 1.28 2004/12/03 15:42:39 brobertson Exp $
-* $Name: not supported by cvs2svn $
+*
+* $Id: install.inc,v 1.29 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $version$ - 1.0
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -259,7 +259,7 @@ function uninstall_packages()
 
 	return true;
 
-}//end update_package_locations()
+}//end uninstall_packages()
 
 
 /**
@@ -425,14 +425,14 @@ function install_package($package, $package_assets=Array())
 		$message->send();
 		return $result;
 	}
-	
+
 	if (file_exists(SQ_PACKAGES_PATH.'/'.$package.'/tables.xml')) {
 		if (!db_install(SQ_PACKAGES_PATH.'/'.$package.'/tables.xml')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('PACKAGE TABLE INSTALL FAILURE', E_USER_ERROR);
 		}
 	}
-	
+
 	$message_body = strtoupper($package)." PACKAGE ".(($result) ? "DONE SUCCESSFULLY" : "FAILED");
 	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
 	$message->send();
@@ -447,7 +447,7 @@ function install_package($package, $package_assets=Array())
 	if ($result == -1) exit(1);
 	unset($pm);
 	return true;
-	
+
 }//end install_package()
 
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.6 2004/11/18 05:10:22 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: search_folder.inc,v 1.7 2004/12/06 14:44:15 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -79,17 +79,17 @@ class Search_Folder extends Bridge
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
 	{
 		assert_equals($assetid, $this->id, 'The Search Folder can only get its own links');
-		
+
 		if (!isset($this->_tmp['getLinks'])) {
 
 			$links = Array();
 			$settings = $this->attr('settings');
-			
+
 			$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
 			$search_info['limit'] = 100;
 			$search_info['logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
-			
+
 			if (empty($type_code)) {
 				$search_info['search_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
 			} else {
@@ -98,13 +98,13 @@ class Search_Folder extends Bridge
 			}
 			// if we have not selected to search any types, we are going to return no results
 			if (empty($search_info['search_types'])) return Array();
-	
+
 			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
 			// if we have not selected to search any statuses, we are going to return no results
 			if (empty($search_info['search_statuses'])) return Array();
-			
+
 			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
-	
+
 			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
@@ -114,10 +114,10 @@ class Search_Folder extends Bridge
 			}
 
 			if (empty($search_results)) return $links;
-			
+
 			$assetids = array_keys($search_results);
 			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
-			
+
 			$sort_order = 0;
 			foreach ($asset_info as $assetid => $info) {
 				$links[] = Array(
@@ -130,14 +130,14 @@ class Search_Folder extends Bridge
 								'is_dependant'    => '0',
 								'is_exclusive'    => '0',
 							);
-	
+
 				$sort_order++;
 			}
-			
+
 			$this->_tmp['getLinks'] = $links;
 
 		}//end if not cached
-	
+
 		return $this->_tmp['getLinks'];
 
 	}//end getLinks()
@@ -152,10 +152,10 @@ class Search_Folder extends Bridge
 	function getAssetMapLinks()
 	{
 		if (!isset($this->_tmp['getAssetMapLinks'])) {
-			
+
 			$links = Array();
 			$settings = $this->attr('settings');
-			
+
 			$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
 			$search_info['limit'] = 100;
@@ -163,11 +163,11 @@ class Search_Folder extends Bridge
 			$search_info['search_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
 			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
 			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
-			
+
 			// if we have not selected to search any types or statuses, we are going to return no results
 			if (empty($search_info['search_types'])) return Array();
 			if (empty($search_info['search_statuses'])) return Array();
-			
+
 			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
@@ -175,12 +175,12 @@ class Search_Folder extends Bridge
 				foreach ($words as $word) $search_info['include_all'][$word]['words'] = Array($word);
 				$search_results = $sm->processSearch($search_info);
 			}
-	
+
 			if (empty($search_results)) return $links;
-	
+
 			$assetids = array_keys($search_results);
 			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids);
-	
+
 			$sort_order = 0;
 			foreach ($asset_info as $assetid => $info) {
 				$links[] = Array(
@@ -197,14 +197,14 @@ class Search_Folder extends Bridge
 								'url'        => '',
 								'path'       => '',
 							);
-	
+
 				$sort_order++;
 			}
 
 			$this->_tmp['getAssetMapLinks'] = $links;
 
 		}//end if not cached
-	
+
 		return $this->_tmp['getAssetMapLinks'];
 
 	}//end getAssetMapLinks()

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload_management.inc,v 1.3 2004/11/09 22:19:19 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_file_upload_management.inc,v 1.4 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -54,16 +54,16 @@ class Form_Question_Type_File_Upload_Management extends Asset_Management
 								),
 							'required'			=> Array(
 									'added'     => '0.0.1',
-									'type'      => 'boolean',  
+									'type'      => 'boolean',
 									'default'   => false,
 									'parameters' => Array(
 															'allow_empty' => false
 														),
 									),
-									
+
 							'overwrite_rule'	=> Array(
 									'added'     => '0.0.1',
-									'type'      => 'selection',  
+									'type'      => 'selection',
 									'default'   => 'D',
 									'parameters'	=> Array(
 											'allow_empty' => false,
@@ -73,9 +73,9 @@ class Form_Question_Type_File_Upload_Management extends Asset_Management
 												'R'	=> 'Rename Uploaded File',
 												'D'	=> 'Raise a Submission Error',
 												),
-											),								
+											),
 									),
-																		
+
 							'extra'	=> Array(
 									'added'		=> '0.0.1',
 									'type'		=> 'text',
@@ -83,7 +83,7 @@ class Form_Question_Type_File_Upload_Management extends Asset_Management
 								),
 
 			);
-	}//end Form_Question_Type_File_Upload_Management()
+	}//end constructor
 
 
 }//end class

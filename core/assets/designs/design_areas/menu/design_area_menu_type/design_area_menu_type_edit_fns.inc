@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.38 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.39 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,14 +32,14 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 {
 
-	
+
 	/**
 	* Returns an array of vars that are setable, used to create the parseString
 	*
@@ -230,7 +230,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			if (empty($design_link)) return false;
 			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($design_link['majorid']);
 			if (is_null($design)) return false;
-			
+
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 			$sub = new $design_area();
 			$sub_link = Array('asset' => &$design, 'link_type' => SQ_LINK_TYPE_3, 'value' => $asset->attr('id_name').'__sub_menu', 'is_dependant' => 1);
@@ -282,7 +282,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 					$divider = '';
 				}
 
-				// should we start with a divider ? 
+				// should we start with a divider ?
 				if ($asset->attr('prefix_with_divider')) {
 					echo $divider;
 				}
@@ -313,7 +313,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 				}// end if
 
-				// if there is a divider to deal with and 
+				// if there is a divider to deal with and
 				// if there is not divider at the end we these vars
 				if ($divider != '' && !$asset->attr('suffix_with_divider')) {
 					echo '
@@ -340,7 +340,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 					// if there is not divider at the end we need to check that we aren't at the end of the list
 					if (!$asset->attr('suffix_with_divider')) {
-						echo '<', '?php 
+						echo '<', '?php
 							$'.$asset->attr('id_name').'_i++;
 							if ($'.$asset->attr('id_name').'_i != $'.$asset->attr('id_name').'_total - 1) {
 							?','>';
@@ -350,14 +350,14 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 					// if there is not divider at the end we need to check that we aren't at the end of the list
 					if (!$asset->attr('suffix_with_divider')) {
-						echo '<','?php 
+						echo '<','?php
 							}// end if
 						?','>';
 					}
 
 				}// end if divider
 
-				echo '<', '?php 
+				echo '<', '?php
 				}// end foreach '.$asset->attr('id_name').' data
 				?', '>';
 
@@ -375,8 +375,8 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		}// end switch
 
 	}//end _outputElement()
-	
-	
+
+
 	/**
 	* Prints the interface for setting the menu level
 	*
@@ -397,7 +397,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 								'0'  => 'Top',
 								'1'  => 'Sub',
 								);
-		
+
 		if ($write_access) {
 			combo_box($prefix.'_special_level', $special_levels, false, $asset->attr('level'));
 			echo ' or ';

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.42 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_asset_listing.inc,v 1.43 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -280,7 +280,7 @@ class Page_Asset_Listing extends Page
 
 		// we need a unique cache key to represent the current result page
 		$cache_key = $this->_getCacheKey();
-		
+
 		$cached_contents = '';
 		if (!empty($cache_key)) {
 			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
@@ -445,7 +445,7 @@ class Page_Asset_Listing extends Page
 
 			// the global replacement to print the asset listing
 			$replacements['asset_listing'] = $global_contents;
-			
+
 			$other_replacements = $this->getKeywordReplacements();
 			$replacements = array_merge($replacements, $other_replacements);
 
@@ -829,7 +829,7 @@ class Page_Asset_Listing extends Page
 				} else {
 					$is_default[] = $type_code;
 				}
-			}// end if
+			}//end if
 
 			if (in_array($type_code, $is_default)) {
 				if (!$default_format) {
@@ -992,7 +992,7 @@ class Page_Asset_Listing extends Page
 							'previous_page' => 'Previous Page Link',
 							'next_page'     => 'Next Page Link',
 							'page_list'     => 'Page List',
-		
+
 						);
 
 		return $keywords;

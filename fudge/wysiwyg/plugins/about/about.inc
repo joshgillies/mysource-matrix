@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: about.inc,v 1.10 2003/11/26 00:51:19 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: about.inc,v 1.11 2004/12/06 14:39:53 brobertson Exp $
+*
 */
 
 
@@ -33,11 +33,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to show an about box for the editor
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class about extends wysiwyg_plugin {
+class about extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor

@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit_table_orderer.php,v 1.3 2004/02/18 18:19:16 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: edit_table_orderer.php,v 1.4 2004/12/06 14:38:07 brobertson Exp $
+*
 */
 
 /**
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -38,7 +38,7 @@ header("Pragma: no-cache");
 header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
 
 include(dirname(__FILE__)."/header.php");
-?> 
+?>
 <script language="JavaScript" type="text/javascript">
 
 	var order_type = null;
@@ -53,7 +53,7 @@ include(dirname(__FILE__)."/header.php");
 		while(f.type_order.options.length) {
 			f.type_order.options[0] = null;
 		}
-			
+
 		for(var i = 0; i < type_order.length; i++) {
 			f.type_order.options[i] = new Option(type_order[i], i);
 		}
@@ -133,4 +133,4 @@ include(dirname(__FILE__)."/header.php");
 	</tr>
 </form>
 </table>
-<?php include(dirname(__FILE__)."/footer.php"); ?> 
+<?php include(dirname(__FILE__)."/footer.php"); ?>

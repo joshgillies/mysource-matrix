@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.6 2004/12/03 16:00:05 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: csv.inc,v 1.7 2004/12/06 14:39:53 brobertson Exp $
+*
 */
 
 
@@ -30,11 +30,12 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage CSV
 */
-class CSV {
+class CSV
+{
 
 	/**
 	* The path of the CSV file we are parsing/creating

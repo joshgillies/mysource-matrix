@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule.inc,v 1.14 2004/10/12 01:39:23 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule.inc,v 1.15 2004/12/06 14:41:38 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,11 +47,11 @@ class Form_Question_Rule extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Rule($assetid=0) 
+	function Form_Question_Rule($assetid=0)
 	{
 		$this->Asset($assetid);
 
-	}//end Form_Question_Rule()
+	}//end constructor
 
 
 	/**
@@ -76,7 +76,7 @@ class Form_Question_Rule extends Asset
 
 	}//end getAttributes()
 
-	
+
 	/**
 	* Returns a list of operators for this rule type
 	*
@@ -90,7 +90,7 @@ class Form_Question_Rule extends Asset
 
 	}//end getOperators()
 
-	
+
 	/**
 	* @abstract
 	*/
@@ -110,7 +110,7 @@ class Form_Question_Rule extends Asset
 
 	}//end valueTest()
 
-	
+
 	/**
 	* @abstract
 	*/
@@ -119,8 +119,8 @@ class Form_Question_Rule extends Asset
 		return '';
 
 	}//end generateJSCode()
-	
-	
+
+
 }//end class
 
 ?>

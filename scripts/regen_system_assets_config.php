@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: regen_system_assets_config.php,v 1.4 2003/11/26 00:51:16 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: regen_system_assets_config.php,v 1.5 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
@@ -27,7 +27,7 @@
 * that get updated and need this file generated
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -37,7 +37,7 @@ if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) $SYSTEM_ROOT = $_SERVER['argv'][1];
 	$err_msg = "You need to supply the path to the System Root as the first argument\n";
 
-} else { 
+} else {
 	if (isset($_GET['SYSTEM_ROOT'])) $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
 	$err_msg = '
 	<div style="background-color: red; color: white; font-weight: bold;">

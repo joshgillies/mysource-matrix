@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_edit_fns.inc,v 1.12 2004/06/16 06:11:30 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_redirect_edit_fns.inc,v 1.13 2004/12/06 14:41:40 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -52,7 +52,7 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Paint the interface for selecting the asset to redirect to 
+	* Paint the interface for selecting the asset to redirect to
 	*
 	* @param object Bodycopy			&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -75,11 +75,11 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 		}
 		return true;
 
-	}// end paintRedirectAssetid()
-	
+	}//end paintRedirectAssetid()
+
 
 	/**
-	* Process the interface for selecting the asset to redirect to 
+	* Process the interface for selecting the asset to redirect to
 	*
 	* @param object Bodycopy			&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
@@ -102,8 +102,8 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 
 		return $asset->setRedirectAsset($redirect_asset);
 
-	}// end processRedirectAssetid()
-	
+	}//end processRedirectAssetid()
+
 
 }//end class
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.75 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: file.inc,v 1.76 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,7 +69,7 @@ class File extends Asset
 	*                       );
 	*                       or alternately
 	*                       Array('all');
-	* 
+	*
 	* @return boolean
 	* @access public
 	* @see asset::cloneComponents()
@@ -86,7 +86,7 @@ class File extends Asset
 		}
 
 		return parent::cloneComponents($clone, $components);
-	
+
 	}//end cloneComponents()
 
 
@@ -104,7 +104,7 @@ class File extends Asset
 
 	}//end lockTypes()
 
-	
+
 	/**
 	* Saves a copy of this asset at this point in time
 	* This copy gets used when the asset is live and the user does not have write access
@@ -221,7 +221,8 @@ class File extends Asset
 		}
 
 		return parent::morph($new_type_code);
-	}
+
+	}//end morph()
 
 
 	/**
@@ -249,7 +250,7 @@ class File extends Asset
 
 		// update manually
 		unset($this->_tmp['IGNORE_UPDATE']);
-		if (!$this->_updated()) { 
+		if (!$this->_updated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -288,7 +289,7 @@ class File extends Asset
 				return false;
 			}
 		}
-		
+
 		if (!$this->validFile($info)) return false;
 
 		// check that we are not going to have web path conflicts
@@ -364,7 +365,7 @@ class File extends Asset
 	{
 		return $this->_checkFileState();
 
-	}// end permissionsUpdated()
+	}//end permissionsUpdated()
 
 
 	/**
@@ -505,9 +506,9 @@ class File extends Asset
 					$save_urls[$root_url] = Array('http' => $data['http'], 'https' => $data['https']);
 				}
 
-			}// end foreach
+			}//end foreach
 
-		}// end foreach
+		}//end foreach
 
 		foreach ($save_urls as $url => $url_data) {
 			$values = Array(
@@ -526,7 +527,7 @@ class File extends Asset
 			//       designs can be attached to a file anyway (well not at this time)
 			//       and it's one thing less to worry about updating for the moment
 
-		}// end foreach
+		}//end foreach
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
@@ -560,7 +561,7 @@ class File extends Asset
 		if (!isset($existing['size'])) $existing['size'] = '0';
 		$keywords['asset_file_size_in_bytes'] = Array('value' => $existing['size']);
 		$keywords['asset_file_size_readable'] = Array('value' => easy_filesize($existing['size']));
-		
+
 		if ($descriptions) {
 			$keywords['asset_file_size_in_bytes']['description'] = 'File size (in bytes)';
 			$keywords['asset_file_size_readable']['description'] = 'Asset size (in human-friendly format)';
@@ -569,8 +570,8 @@ class File extends Asset
 		return $keywords;
 
 	}//end getAssetKeywords()
-	
-	
+
+
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
@@ -609,9 +610,9 @@ class File extends Asset
 			default :
 				return parent::processBackend($o, $link);
 
-		}// end switch
+		}//end switch
 
-	}// end processBackend()
+	}//end processBackend()
 
 
 	/**
@@ -802,7 +803,7 @@ class File extends Asset
 			readfile($existing['path']);
 		}
 
-	}// end printFrontend()
+	}//end printFrontend()
 
 
 	/**

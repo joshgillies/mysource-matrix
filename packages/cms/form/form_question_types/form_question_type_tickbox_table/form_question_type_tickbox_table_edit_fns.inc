@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table_edit_fns.inc,v 1.3 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_tickbox_table_edit_fns.inc,v 1.4 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,7 +47,7 @@ class Form_Question_Type_Tickbox_Table_Edit_Fns extends Form_Question_Edit_Fns
 	{
 		$this->Form_Question_Edit_Fns();
 
-	}//end Form_Question_Type_Tickbox_Table_Edit_Fns()
+	}//end constructor
 
 
 	/**
@@ -60,7 +60,8 @@ class Form_Question_Type_Tickbox_Table_Edit_Fns extends Form_Question_Edit_Fns
 	* @access public
 	* @return boolean
 	*/
-	function paintQuestionInterface(&$asset, &$o, $prefix) {
+	function paintQuestionInterface(&$asset, &$o, $prefix)
+	{
 
 		$write_access = $asset->writeAccess('attributes');
 
@@ -87,7 +88,8 @@ class Form_Question_Type_Tickbox_Table_Edit_Fns extends Form_Question_Edit_Fns
 	* @access public
 	* @return boolean
 	*/
-	function processQuestionInterface(&$asset, &$o, $prefix) {
+	function processQuestionInterface(&$asset, &$o, $prefix)
+	{
 		$myprefix = $asset->getSafePrefix();
 
 		$table = array_get_index($_REQUEST,$myprefix,false);

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_management.inc,v 1.8 2004/09/08 01:25:14 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_schema_management.inc,v 1.9 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -48,17 +48,17 @@ class Metadata_Schema_Management extends Asset_Management
 
 		$this->vars = Array('name' => Array(
 											'added'     => '0.1',
-											'type'      => 'text', 
+											'type'      => 'text',
 											'default'   => ''
 											),
 							'namespace' => Array(
 											'added'     => '0.1',
-											'type'      => 'text', 
+											'type'      => 'text',
 											'default'   => ''
 											),
 							'nsurl' => Array(
 											'added'     => '0.1',
-											'type'      => 'text', 
+											'type'      => 'text',
 											'default'   => ''
 											),
 							'frontend' => Array(

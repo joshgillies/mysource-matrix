@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.35 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_job_acquire_lock.inc,v 1.36 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.36 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -93,7 +93,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	function paintConfig(&$o, $class)
 	{
 		$write_access = $this->writeAccess();
-		
+
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Acquire Lock Threshold');
 
@@ -107,7 +107,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 
 	}//end paintConfig()
 
-	
+
 	/**
 	* Sets some info about thresholds that this hipo requires.
 	*
@@ -122,7 +122,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 
 	}//end getConfigVars()
 
-	
+
 	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
@@ -152,13 +152,13 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	function setRunningVars($vars)
 	{
 		if (isset($vars['lock_type']) && isset($vars['assetid'])) {
-			// OK, the main reason that we are getting the lock types here is so that we don't end up 
+			// OK, the main reason that we are getting the lock types here is so that we don't end up
 			// with lock types in a child being locked that the parent doesn't have, because if they do then
 			// we end up with a source lockid that is not actually creatable
 			// EG. 'mail' lock is available in 'Inbox', but not 'User' and when you locked the user you would end
 			//     up with a lock 'asset.5.mail' and a source lock 'asset.4.mail' which is not available
 			// -- If this doesn't make sense ask me -- BCR
-			
+
 			if (is_array($vars['lock_type'])) {
 				$vars['lock_types'] = Array();
 				foreach ($vars['lock_type'] as $lock_type) {
@@ -179,7 +179,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	* Returns the current Threshold.
 	*
 	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
-	* 
+	*
 	* @return float
 	* @access public
 	*/
@@ -189,13 +189,13 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 		if (!isset($this->_running_vars['todo_assetids'])) return 0;
 		// note that we add 1 to the cound to take the root assetid into account
 		return (((count($this->_running_vars['todo_assetids']) + 1) / SQ_HIPO_ACQUIRE_LOCK_THRESHOLD) * 100);
-	
+
 	}//end getThreshold()
 
 
 	/**
 	* Performs the duties of this hipo, without showing any output on the frontend.
-	* 
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -267,7 +267,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 		unset($asset);
 
 		return parent::prepare();
-	
+
 	}//end prepare()
 
 

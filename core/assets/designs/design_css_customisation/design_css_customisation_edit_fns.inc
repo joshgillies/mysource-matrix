@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation_edit_fns.inc,v 1.4 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_css_customisation_edit_fns.inc,v 1.5 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_css/design_css_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,7 +159,7 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 			if (is_null($link)) continue;
 			$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], false);
 			if (is_null($da)) continue;
-			
+
 			$create_link = Array (	'asset'         => &$asset,
 									'link_type'     => SQ_LINK_TYPE_3,
 									'value'         => $link['value'],
@@ -238,14 +238,14 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 			$id_name = $da_link['value'];
 			// skip this design area if it is not in the list of design areas to update
 			if (empty($data[$id_name])) continue;
-			
+
 			// okay, this design area is in the list of design areas to update, but
 			// skip it if it is already link'dup correctly
 			if ($data[$id_name][0] == $da_link['minorid']) continue;
 
 			// remove the old link (the one from the original design)
 			if (!$asset->deleteLink($da_link['linkid'])) return false;
-			
+
 			// create the new link if required (wont be required if we created during a customisation)
 			$existing_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($asset->id, $data[$id_name][0]);
 			if (empty($existing_link)) {

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_edit_fns.inc,v 1.3 2004/12/03 15:29:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: report_asset_counter_edit_fns.inc,v 1.4 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -449,7 +449,7 @@ HEREDOC;
 		}
 		return false;
 
-	}//end paintAddFormat()
+	}//end processAddAssetType()
 
 
 }//end class

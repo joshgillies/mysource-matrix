@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.43 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_edit_fns.inc,v 1.44 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -562,7 +562,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* Can be used when there is no contents supplied in parse file
 	*
 	* @param object Asset	$asset			the asset to which we belong
-	* @param string			$content_type	the name that forms the filename 'default_'.$content_type.'_contents.html' 
+	* @param string			$content_type	the name that forms the filename 'default_'.$content_type.'_contents.html'
 	*										in the asset types directory
 	*
 	* @return Array()
@@ -729,10 +729,10 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		foreach ($asset->vars['contents']['value'] as $data) {
 			switch ($data['_type']) {
-				case 'HTML' : 
+				case 'HTML' :
 					$text .= $data['contents'];
 					break;
-				case 'TAG' : 
+				case 'TAG' :
 					$text .= '<'.$this->tag_name.'_'.strtoupper($data['operation']);
 					foreach ($data['attributes'] as $k => $v) $text .= ' '.$k.'="'.htmlentities($v).'"';
 					$text .= ' />';
@@ -770,7 +770,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 	/**
 	* Paint the interface for the specialising this design area
-	* 
+	*
 	* @param object Asset				$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element

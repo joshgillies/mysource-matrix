@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.8 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: word_doc.inc,v 1.9 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -111,20 +111,20 @@ class Word_Doc extends File
 		$file = $file_info['path'];
 
 		$indexer_path = dirname(__FILE__).'/files';
-			
+
 		$file = ereg_replace("\"","\\\"",$file);
 		$tmp_file = $this->data_path . '/doc_'.time();
 		copy($file,$tmp_file);
 
-		$output = '';		
+		$output = '';
 		if (SQ_TOOL_ANTIWORD_ENABLED) {
 			// Run a program that converts Word doc to text, set environment variable of bin_path
 			$cmd = 'HOME='.$indexer_path.' '.SQ_TOOL_ANTIWORD_PATH.' '.$tmp_file;
 			$output =`$cmd`;
 		}
-		
+
 		unlink($tmp_file);
-	
+
 		if (!$output) {
 			return $keydata;
 		}
@@ -142,7 +142,7 @@ class Word_Doc extends File
 		}
 
 		return $keydata;
-	
+
 	}//end getKeyData()
 
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder_management.inc,v 1.3 2004/12/03 02:53:27 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_template_builder_management.inc,v 1.4 2004/12/06 14:41:40 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -67,10 +67,10 @@ class Page_Template_Builder_Management extends Asset_Management
 							'create_locations' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'serialise',
-													'default'	=> Array(),					
+													'default'	=> Array(),
 									),
-									
-				
+
+
 							/// Map for connecting runtime data sources with parameters ///
 							'parameter_map' => Array(
 													'added'		=> '0.0.2',
@@ -90,7 +90,7 @@ class Page_Template_Builder_Management extends Asset_Management
 												),
 						);
 
-	}//end Page_Template_Builder_Management()
+	}//end constructor
 
 
 	/**

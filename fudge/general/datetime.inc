@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.33 2004/12/03 15:43:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: datetime.inc,v 1.34 2004/12/06 14:39:53 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.34 $
 * @package Fudge
 * @subpackage General
 */
@@ -67,7 +67,7 @@ function easy_datetime($then='')
 */
 function easy_time_total($secs=0, $full_format=false, $return_array=false)
 {
-	if ($secs < 0) { 
+	if ($secs < 0) {
 		$suffix = ' ago';
 		$secs = abs($secs);
 	} else {
@@ -151,7 +151,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false)
 	} else if (!$return_array) {
 
 		// they just want the normal "xx days xx:xx:xx xxxxx"
-		
+
 		$time_type = '';
 
 		if ($num_days) {
@@ -225,7 +225,7 @@ function easy_time_total($secs=0, $full_format=false, $return_array=false)
 
 		// they want the numbers in array format
 		$return_value = Array('d' => 0, 'h' => 0, 'm' => 0, 's' => 0);
-		
+
 		if ($num_days) $return_value['d'] = $num_days;
 		if ($num_hours) $return_value['h'] = $num_hours;
 		if ($num_minutes) $return_value['m'] = $num_minutes;
@@ -309,7 +309,7 @@ function days_in_month($month, $year)
 		case  9 : // Sept
 		case 11 : // Nov
 			return 30;
-		default : 
+		default :
 			trigger_error('UNKNOWN MONTH : '.$month, E_USER_ERROR);
 	}//end switch
 
@@ -328,19 +328,19 @@ function days_in_month($month, $year)
 *
 * @access public
 */
-function increment_date(&$day, &$month, &$year, $days_to_add=1) 
+function increment_date(&$day, &$month, &$year, $days_to_add=1)
 {
 	if ($days_to_add < 0) {
 		decrement_date($day, $month, $year, -$days_to_add);
 		return;
 	}
-	
+
 	$day += $days_to_add;
 	while ($day > days_in_month($month, $year)) {
 		$day = $day - days_in_month($month, $year);
 		increment_month($month, $year);
 	}
-	
+
 }//end increment_date()
 
 
@@ -362,13 +362,13 @@ function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
 		increment_date($day, $month, $year, -$days_to_sub);
 		return;
 	}
-	
+
 	$day = $day - $days_to_sub;
 	while ($day < 1) {
 		decrement_month($month, $year);
 		$day = days_in_month($month, $year) + $day;
 	}
-	
+
 }//end decrement_date()
 
 
@@ -383,19 +383,19 @@ function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
 *
 * @access public
 */
-function increment_month(&$month, &$year, $months_to_add=1) 
+function increment_month(&$month, &$year, $months_to_add=1)
 {
 	if ($months_to_add < 0) {
 		decrement_month($month, $year, -$months_to_add);
 		return;
 	}
-	
+
 	$month += $months_to_add;
 	while ($month > 12) {
 		$month = $month - 12;
 		$year++;
 	}
-	
+
 }//end increment_month()
 
 
@@ -410,19 +410,19 @@ function increment_month(&$month, &$year, $months_to_add=1)
 *
 * @access public
 */
-function decrement_month(&$month, &$year, $months_to_sub=1) 
+function decrement_month(&$month, &$year, $months_to_sub=1)
 {
 	if ($months_to_sub < 0) {
 		increment_month($month, $year, -$months_to_sub);
 		return;
 	}
-	
+
 	$month = $month - $months_to_sub;
 	while ($month < 1) {
 		$month = 12 + $month;
 		$year--;
 	}
-	
+
 }//end decrement_month()
 
 
@@ -435,12 +435,12 @@ function decrement_month(&$month, &$year, $months_to_sub=1)
 * @return string
 * @access public
 */
-function add_days_to_iso($iso, $days_to_add=1) 
+function add_days_to_iso($iso, $days_to_add=1)
 {
 	list($year,$month,$day) = sscanf($iso, '%04d-%02d-%02d');
 	increment_date($day, $month, $year, $days_to_add);
 	return sprintf('%04d-%02d-%02d', $year, $month, $day);
-	
+
 }//end add_days_to_iso()
 
 
@@ -453,12 +453,12 @@ function add_days_to_iso($iso, $days_to_add=1)
 * @return string
 * @access public
 */
-function add_months_to_iso($iso, $months_to_add=1) 
+function add_months_to_iso($iso, $months_to_add=1)
 {
 	list($year,$month) = explode('-', $iso);
 	increment_month($month, $year, $months_to_add);
 	return sprintf('%04d-%02d', $year, $month);
-	
+
 }//end add_months_to_iso()
 
 
@@ -469,7 +469,7 @@ function add_months_to_iso($iso, $months_to_add=1)
 * etc), and only the date components (ie. YYYY-MM-DD) will be used in the calculation.
 *
 * Order of arguments is important; if $higher < $lower than the result of this function
-* will be negative. 
+* will be negative.
 *
 * @param string	$higher	the higher/later ISO date
 * @param string $lower	the lower/earlier ISO date
@@ -481,10 +481,10 @@ function days_between_isos($higher, $lower)
 {
 	$higher_ts = iso8601_ts(substr($higher,0,10));
 	$lower_ts  = iso8601_ts(substr($lower,0,10));
-	
-	// using round() to remove any one-hour 
+
+	// using round() to remove any one-hour
 	return round(($higher_ts - $lower_ts) / 86400);
-	
+
 }//end days_between_isos()
 
 
@@ -496,13 +496,13 @@ function days_between_isos($higher, $lower)
 * @access public
 * @return string
 */
-function int_to_roman($num = 0) 
+function int_to_roman($num=0)
 {
 	$conv = Array(10 => Array('X', 'C', 'M'),
 				  5  => Array('V', 'L', 'D'),
 				  1  => Array('I', 'X', 'C'));
 	$roman = '';
-	
+
 	$num = (int) $num;
 
 	$digit  = (int) ($num / 1000);
@@ -544,7 +544,7 @@ function int_to_roman($num = 0)
 * @access public
 * @return Array()
 */
-function weekday_dates_in_month($weekday, $month, $year) 
+function weekday_dates_in_month($weekday, $month, $year)
 {
 	$day = mktime(0, 0, 0, (int) $month, 1, (int) $year);
 	$first_weekday = (int) date('w', $day);
@@ -565,13 +565,13 @@ function weekday_dates_in_month($weekday, $month, $year)
 
 
 /**
-* Returns the date component of an ISO8601 format date  
+* Returns the date component of an ISO8601 format date
 *
 * @param string	$iso8601	The date string to strip the date part from
 *
 * @return mixed (string|boolean)	the date part (still in ISO format, YYYY-MM-DD)
 *									OR false if date passed is not valid ISO date
-*									   or has a null date part 
+*									   or has a null date part
 * @access public
 */
 function iso8601_date_component($iso8601)
@@ -584,7 +584,7 @@ function iso8601_date_component($iso8601)
 
 
 /**
-* Returns the time component of an ISO8601 format date  
+* Returns the time component of an ISO8601 format date
 *
 * @param string	$iso8601	The date to strip the time from
 *
@@ -603,7 +603,7 @@ function iso8601_time_component($iso8601)
 
 
 /**
-* Returns true if passed string is a valid ISO8601 time with at least a full date  
+* Returns true if passed string is a valid ISO8601 time with at least a full date
 *
 * @param string	$iso8601	The date that we are going to check
 *
@@ -613,7 +613,7 @@ function iso8601_time_component($iso8601)
 function is_iso8601($iso8601)
 {
 	return (boolean)preg_match("/^\-?[0-9\-]{4}-[0-9\-]{2}-[0-9\-]{2}([ T]([0-9\-]{2}\:?){3})?$/",$iso8601);
-	
+
 }//end is_iso8601()
 
 ?>

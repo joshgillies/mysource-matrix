@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.12 2004/10/27 00:39:51 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.13 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -102,11 +102,11 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 				if ($iap || in_array('general', $ap))     $wysiwyg->add_plugin('general');
 				if ($iap || in_array('s_script', $ap))    $wysiwyg->add_plugin('s_script');
 			$wysiwyg->close_group();
-			
+
 			$wysiwyg->open_group();
 				if ($iap || in_array('matrix_apply_style', $ap)) $wysiwyg->add_plugin('matrix_apply_style');
 			$wysiwyg->close_group();
-			
+
 			if ($iap || in_array('justify_text', $ap)) $wysiwyg->add_plugin('justify_text');
 			if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
 				$wysiwyg->add_plugin('keyword_replace');
@@ -119,18 +119,18 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			if ($iap || in_array('listing', $ap))       $wysiwyg->add_plugin('listing');
 			if ($iap || in_array('table_editing', $ap)) $wysiwyg->add_plugin('table_editing');
 			if ($iap || in_array('select_color', $ap))  $wysiwyg->add_plugin('select_color');
-			
+
 			$wysiwyg->open_group();
 				if ($iap || in_array('matrix_insert_link', $ap) || in_array('insert_link', $ap))  $wysiwyg->add_plugin('matrix_insert_link');
 				if ($iap || in_array('matrix_insert_anchor', $ap) || in_array('insert_anchor', $ap))  $wysiwyg->add_plugin('matrix_insert_anchor');
 				if ($iap || in_array('matrix_insert_image', $ap) || in_array('insert_image', $ap)) $wysiwyg->add_plugin('matrix_insert_image');
 				if ($iap || in_array('matrix_embed_movie', $ap))  $wysiwyg->add_plugin('matrix_embed_movie');
 			$wysiwyg->close_group();
-			
+
 			$wysiwyg->open_group();
 				if ($iap || in_array('matrix_accessibility', $ap))  $wysiwyg->add_plugin('matrix_accessibility');
 			$wysiwyg->close_group();
-			
+
 			$wysiwyg->open_group();
 				if ($iap || in_array('spell_checker', $ap))  $wysiwyg->add_plugin('spell_checker');
 				if ($iap || in_array('text_indicator', $ap)) $wysiwyg->add_plugin('text_indicator');

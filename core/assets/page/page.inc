@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page.inc,v 1.6 2004/11/18 05:08:03 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page.inc,v 1.7 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,7 +137,7 @@ class Page extends Asset
 	function printBody()
 	{
 
-	}// end printBody()
+	}//end printBody()
 
 
 	/**

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.inc,v 1.10 2003/11/26 00:51:20 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: insert_image.inc,v 1.11 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class insert_image extends wysiwyg_plugin {
+class insert_image extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor
@@ -47,7 +48,8 @@ class insert_image extends wysiwyg_plugin {
 	* @returns object Insert_Image
 	* @access  public
 	*/
-	function insert_image() {
+	function insert_image()
+	{
 		$this->_add_button('insertimage','InsertImage','Insert Image','false','34');
 	}
 
@@ -60,7 +62,8 @@ class insert_image extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function paint_generic() {
+	function paint_generic()
+	{
 		?>
 		<script type="text/javascript" language="Javascript">
 			// Called when the user clicks on "InsertImage" button
@@ -97,8 +100,8 @@ class insert_image extends wysiwyg_plugin {
 						if (range.item(0).tagName == "IMG") {
 							is_image = true;
 							var image_tag = range.item(0);
-						}// end if IMG
-					}// end if length
+						}//end if IMG
+					}//end if length
 				}
 
 				// if there is an existing image, get its properties
@@ -160,7 +163,8 @@ class insert_image extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_button_click() {
+	function print_plugin_button_click()
+	{
 		?>
 		case "insertimage":
 			this._insertImage();

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.107 2004/12/03 01:11:35 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: backend.inc,v 1.108 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.107 $
+* @version $Revision: 1.108 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -54,7 +54,7 @@ class Backend extends MySource_Object
     {
         $this->MySource_Object();
 
-    }//end constructor()
+	}//end constructor
 
 
     /**

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.13 2004/09/15 04:30:03 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.14 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -153,7 +153,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		
+
 		$notify = (bool) array_get_index($_POST, $prefix.'_notify', false);
 		if (!$asset->setAttrValue('notify', $notify)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.9 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: linking.inc,v 1.10 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Linking Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -226,7 +226,7 @@ function paintLinking(&$owner, &$o, &$ei, $allow_edit=true)
 					<?php
 				$o->closeField();
 			}//end if future lineage jobs
-	
+
 			if ($write_access) {
 				$created = true;
 				$fl = new Cron_Job_Future_Lineage();

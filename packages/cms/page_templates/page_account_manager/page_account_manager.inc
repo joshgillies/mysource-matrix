@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.20 2004/11/23 02:42:09 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_account_manager.inc,v 1.21 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -200,7 +200,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			 //  EDIT DETAILS FORM  //
 			/////////////////////////
 			ob_start();
-			
+
 				if (!empty($lock_errors)) {
 					$this->_replacements['edit_details_lock_error'] = $this->attr('edit_details_lock_error');
 					$current_user->printBody();
@@ -276,11 +276,11 @@ class Page_Account_Manager extends Page_Asset_Builder
 					if (!empty($link)) {
 						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
-						// Figure out create locations.  
+						// Figure out create locations.
 						//    - Mandatory ones are easily looked up
-						//    - Rule-based ones are calculated from an 
+						//    - Rule-based ones are calculated from an
 						//      array of asset attribute values
-						//    - User-selected ones are read from amlocs 
+						//    - User-selected ones are read from amlocs
 						//      and checked for validity
 						$user_attributes = Array();
 						$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
@@ -295,8 +295,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 								if (isset($selectable_create_locations[$loc_id]) && ($selectable_create_locations[$loc_id] <= $link_type)) {
 									if (!isset($create_locations[$loc_id]) || ($create_locations[$loc_id] > $link_type))  {
 										$create_locations[$loc_id] = $link_type;
-									} 
-								} 
+									}
+								}
 							}
 						}
 
@@ -394,7 +394,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 							// (Mandatory and rule-based create locations can be worked out after validation).
 							// Locations passed through the URL will be checked at the other end to make sure
 							// nobody's tried to sneak in any other locations...
-							$selected_create_locations = $this->getSelectedCreateLocations();								
+							$selected_create_locations = $this->getSelectedCreateLocations();
 							if (!empty($selected_create_locations)) {
 								foreach ($selected_create_locations as $location => $link_type) $validation_url .= $location.':'.$link_type.'-';
 								$validation_url = trim($validation_url, '-');

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.19 2004/12/03 15:29:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: cron_job_future_status.inc,v 1.20 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Cron_Job_Future_Status extends Cron_Job
 			return 'Future Status for "'.$asset->name.'" (#'.$asset->id.')';
 		}
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
@@ -125,7 +125,7 @@ class Cron_Job_Future_Status extends Cron_Job
 
 	}//end canDelete()
 
-	
+
 	/**
 	* Set the value for the passed variable to the passed value
 	*
@@ -150,7 +150,7 @@ class Cron_Job_Future_Status extends Cron_Job
 				trigger_error('You can\'t set the type of a future status cron job it can only be a one off event', E_USER_NOTICE);
 				return false;
 				break;
-		}// end if
+		}//end if
 
 		return parent::setAttrValue($name, $value);
 
@@ -192,7 +192,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		if (empty($descs)) {
 			$descs['']  = '[Select Status]';
 			$statii = Cron_Job_Future_Status::_getAllStatii();
-			foreach ($statii as $value => $code) { 
+			foreach ($statii as $value => $code) {
 				$code = strtolower($code);
 				$status_code = 'asset_status_'.$code;
 				require_once SQ_INCLUDE_PATH.'/asset_status/'.$status_code.'.inc';
@@ -204,7 +204,7 @@ class Cron_Job_Future_Status extends Cron_Job
 
 	}//end _getAllStatiiDescs()
 
-	
+
 	/**
 	* Return the name of the status that this future status object is going to change the asset to
 	*
@@ -299,7 +299,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		// we can be removed because the error is beyound our control
 		return SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
-	}// end _exec()
+	}//end _exec()
 
 
 	/**
@@ -327,24 +327,24 @@ class Cron_Job_Future_Status extends Cron_Job
 
 		$dates = Array();
 		for ($i = 0, $total = count($all_jobs); $i < $total; $i++) {
-			
+
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($all_jobs[$i]->id, SQ_LINK_NOTICE, 'asset', false, 'updating');
 			if (!empty($link) && $link['minorid'] == $asset->id) {
 				$dates[$i] = $all_jobs[$i]->attr('when');
 			}
 
-		}// end for
+		}//end for
 
 		asort($dates, SORT_STRING);
 		$assets_jobs = Array();
 
 		foreach ($dates as $i => $date) {
 			$assets_jobs[] = &$all_jobs[$i];
-		}// end for
+		}//end for
 
 		return $assets_jobs;
 
-	}// end getActiveJobs()
+	}//end getActiveJobs()
 
 
 }//end class

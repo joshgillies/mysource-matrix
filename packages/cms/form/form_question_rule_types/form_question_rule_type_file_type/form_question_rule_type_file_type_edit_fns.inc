@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.1 2004/11/09 04:16:17 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_file_type_edit_fns.inc,v 1.2 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,9 +47,9 @@ class Form_Question_Rule_Type_File_Type_Edit_Fns extends Form_Question_Rule_Edit
 	function Form_Question_Rule_Type_File_Type_Edit_Fns()
 	{
 		$this->Form_Question_Rule_Edit_Fns();
-	
-	}//end Form_Question_Rule_Type_File_Type_Edit_Fns()
 
-	
+	}//end constructor
+
+
 }//end class
 ?>

@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: spell_checker.php,v 1.7 2004/01/16 11:17:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: spell_checker.php,v 1.8 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 /**
 * Spell Checker Popup for the WYSIWYG
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -38,9 +38,9 @@ header("Content-type: text/html; charset: utf-8");
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<style type="text/css">
-			.HA-spellcheck-error { 
-				border-bottom: 2px dotted #FF0000; 
-				cursor: pointer; 
+			.HA-spellcheck-error {
+				border-bottom: 2px dotted #FF0000;
+				cursor: pointer;
 			}
 
 			.HA-spellcheck-same {
@@ -48,12 +48,12 @@ header("Content-type: text/html; charset: utf-8");
 				font-weight: bold;
 			}
 
-			.HA-spellcheck-hover { 
-				color: #000000; 
+			.HA-spellcheck-hover {
+				color: #000000;
 			}
 
-			.HA-spellcheck-fixed { 
-				border-bottom: 1px dotted #0b8; 
+			.HA-spellcheck-fixed {
+				border-bottom: 1px dotted #0b8;
 			}
 
 			.HA-spellcheck-current {
@@ -62,21 +62,21 @@ header("Content-type: text/html; charset: utf-8");
 				font-weight: bold;
 			}
 
-			.HA-spellcheck-suggestions { 
-				display: none; 
+			.HA-spellcheck-suggestions {
+				display: none;
 			}
 
-			#HA-spellcheck-dictionaries { 
-				display: none; 
+			#HA-spellcheck-dictionaries {
+				display: none;
 			}
 
 			a:link, a:visited {
-				color: #55e; 
+				color: #55e;
 			}
 
 			body {
-				font-family: tahoma,verdana,sans-serif; 
-				font-size: 14px; 
+				font-family: tahoma,verdana,sans-serif;
+				font-size: 14px;
 				color: #666666;
 			}
 		</style>
@@ -119,7 +119,7 @@ header("Content-type: text/html; charset: utf-8");
 		$string_to_parse = stripslashes(utf8_decode($_POST['content']));
 
 		$parser->parse($string_to_parse);
-		
+
 		?>
 	<body>
 </html>

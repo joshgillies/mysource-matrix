@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_generate_report.inc,v 1.2 2004/11/08 03:42:02 mmcintyre Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_job_generate_report.inc,v 1.3 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
@@ -33,7 +33,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -113,7 +113,7 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 		$this->_running_vars['type_code'] = $asset->type();
 
 		return parent::prepare();
-	
+
 	}//end prepare()
 
 
@@ -132,7 +132,7 @@ class HIPO_Job_Generate_Report extends HIPO_Job
 	{
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid'], $this->_running_vars['type_code']);
 		$edit_fns = $asset->getEditFns();
-		
+
 		return $edit_fns->generateReport($this, $step_data, $prefix);
 
 	}//end processReport()

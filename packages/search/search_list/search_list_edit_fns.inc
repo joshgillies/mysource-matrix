@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_edit_fns.inc,v 1.2 2004/11/10 00:49:40 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: search_list_edit_fns.inc,v 1.3 2004/12/06 14:44:15 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -129,8 +129,8 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}
 
 	}//end processSearchPage()
-	
-	
+
+
 	/**
 	* Paint the interface for specifying the search field
 	*
@@ -148,7 +148,7 @@ class Search_List_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		if (!empty($search_page_link)) {
 			$search_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
 		}
-		
+
 		if (is_null($search_page)) {
 			echo 'You must select a search page before a search field can be set';
 			return false;

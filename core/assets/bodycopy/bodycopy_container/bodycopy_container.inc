@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.17 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: bodycopy_container.inc,v 1.18 2004/12/06 14:38:07 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,7 +92,7 @@ class Bodycopy_Container extends Asset
 			default :
 				return parent::paintBackend($o);
 
-		}// end switch
+		}//end switch
 
 	}//end paintBackend()
 
@@ -339,7 +339,7 @@ class Bodycopy_Container extends Asset
 			include($this->data_path.'/content_file.php');
 		}
 
-	}// end printBody()
+	}//end printBody()
 
 
 	/**

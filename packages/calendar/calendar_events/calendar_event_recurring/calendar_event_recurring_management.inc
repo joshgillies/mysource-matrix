@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_management.inc,v 1.2 2004/09/03 05:22:15 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: calendar_event_recurring_management.inc,v 1.3 2004/12/06 14:40:32 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -125,8 +125,8 @@ class Calendar_Event_Recurring_Management extends Asset_Management
 					 );
 
 	}//end _getFileList()
-	
-	
+
+
 }//end class
 
 ?>

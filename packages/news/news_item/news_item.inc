@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.7 2004/12/03 16:00:39 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: news_item.inc,v 1.8 2004/12/06 14:43:35 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * Purpose
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */
@@ -188,12 +188,12 @@ class News_Item extends Page
 
 		?>
 		<h1><?php echo $this->attr('name'); ?></h1>
-		<?php 
+		<?php
 		if (!$url == '') echo '</a>';
 		?>
 
 		<p><?php echo $this->attr('summary'); ?></p>
-		<p><?php echo $this->attr('body'); ?></p>		
+		<p><?php echo $this->attr('body'); ?></p>
 		<?php
 
 	}//end printBody()
@@ -220,7 +220,7 @@ class News_Item extends Page
 	function getAssetKeywords($descriptions=false)
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
-		
+
 		$keywords['asset_name_linked_to_link_url'] = Array();
 
 		if ($descriptions) {

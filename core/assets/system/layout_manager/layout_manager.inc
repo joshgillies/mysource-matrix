@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.10 2004/12/03 15:29:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: layout_manager.inc,v 1.11 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.10 $ - 0.1
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,7 +95,7 @@ class Layout_Manager extends Asset
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
@@ -110,7 +110,7 @@ class Layout_Manager extends Asset
 
 	}//end canDelete()
 
-	
+
 	/**
 	* Return FALSE always because we don't want to be able to clone a layout manager
 	*
@@ -120,7 +120,7 @@ class Layout_Manager extends Asset
 	function canClone()
 	{
 		return false;
-	
+
 	}//end canClone()
 
 
@@ -172,7 +172,7 @@ class Layout_Manager extends Asset
 			if (is_null($layout)) return $null;
 		}
 		return $layout;
-	
+
 	}//end getLayout()
 
 
@@ -189,17 +189,17 @@ class Layout_Manager extends Asset
 	{
 		$layouts = $this->attr('layouts');
 		$ancestor_type_code = '';
-		
+
 		$ancestors = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code, false);
 		foreach ($ancestors as $type) {
 			if (isset($layouts[$type])) {
-				if (!empty($screen) && !isset($layouts[$type][$screen])) continue; 
+				if (!empty($screen) && !isset($layouts[$type][$screen])) continue;
 				$ancestor_type_code = $type;
 				break;
 			}
 		}
 		return (!empty($ancestor_type_code)) ? $ancestor_type_code : null;
-	
+
 	}//end getAncestorLayoutTypeCode()
 
 
@@ -222,7 +222,7 @@ class Layout_Manager extends Asset
 			if (!isset($layouts[$type_code][$screen])) return false;
 		}
 		return true;
-	
+
 	}//end hasLayout()
 
 

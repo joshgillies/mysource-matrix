@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.38 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: general_occasional.inc,v 1.39 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 /**
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.39 $
 * @package MySource_Matrix
 */
 
@@ -202,14 +202,14 @@ function get_status_colour($status)
 			$colour = 'FF0000';
 		break;
 	}//end switch
-	
+
 	return $colour;
 
 }//end get_status_colour()
 
 
 /**
-* For encoding takes an integer and returns an SQ_CONF_ASSET_TREE_BASE base encoded string 
+* For encoding takes an integer and returns an SQ_CONF_ASSET_TREE_BASE base encoded string
 * of SQ_CONF_ASSET_TREE_SIZE chars long
 * For decoding takes a string created by this fn and returns an integer
 * Returns NULL on error
@@ -219,17 +219,17 @@ function get_status_colour($status)
 *
 * @return mixed string if encoding, int if decoding and NULL on error
 */
-function asset_link_treeid_convert($value, $encode) 
+function asset_link_treeid_convert($value, $encode)
 {
 	// These characters are chosen so as not to clash with any SQL control symbols - ie . * ^ \ [ ] { } ( ) < > ? & $
 	static $digits = Array(
-		 0 => '0',  1 => '1',  2 => '2',  3 => '3',  4 => '4',  5 => '5',  6 => '6',  7 => '7',  
-		 8 => '8',  9 => '9', 10 => 'A', 11 => 'B', 12 => 'C', 13 => 'D', 14 => 'E', 15 => 'F', 
-		16 => 'G', 17 => 'H', 18 => 'I', 19 => 'J', 20 => 'K', 21 => 'L', 22 => 'M', 23 => 'N', 
-		24 => 'O', 25 => 'P', 26 => 'Q', 27 => 'R', 28 => 'S', 29 => 'T', 30 => 'U', 31 => 'V', 
-		32 => 'W', 33 => 'X', 34 => 'Y', 35 => 'Z', 36 => '_', 37 => 'a', 38 => 'b', 39 => 'c', 
-		40 => 'd', 41 => 'e', 42 => 'f', 43 => 'g', 44 => 'h', 45 => 'i', 46 => 'j', 47 => 'k', 
-		48 => 'l', 49 => 'm', 50 => 'n', 51 => 'o', 52 => 'p', 53 => 'q', 54 => 'r', 55 => 's', 
+		 0 => '0',  1 => '1',  2 => '2',  3 => '3',  4 => '4',  5 => '5',  6 => '6',  7 => '7',
+		 8 => '8',  9 => '9', 10 => 'A', 11 => 'B', 12 => 'C', 13 => 'D', 14 => 'E', 15 => 'F',
+		16 => 'G', 17 => 'H', 18 => 'I', 19 => 'J', 20 => 'K', 21 => 'L', 22 => 'M', 23 => 'N',
+		24 => 'O', 25 => 'P', 26 => 'Q', 27 => 'R', 28 => 'S', 29 => 'T', 30 => 'U', 31 => 'V',
+		32 => 'W', 33 => 'X', 34 => 'Y', 35 => 'Z', 36 => '_', 37 => 'a', 38 => 'b', 39 => 'c',
+		40 => 'd', 41 => 'e', 42 => 'f', 43 => 'g', 44 => 'h', 45 => 'i', 46 => 'j', 47 => 'k',
+		48 => 'l', 49 => 'm', 50 => 'n', 51 => 'o', 52 => 'p', 53 => 'q', 54 => 'r', 55 => 's',
 		56 => 't', 57 => 'u', 58 => 'v', 59 => 'w', 60 => 'x', 61 => 'y', 62 => 'z', 63 => '~'
 		);
 
@@ -237,7 +237,7 @@ function asset_link_treeid_convert($value, $encode)
 	if ($encode) {
 		$str = '';
 		$i = (int) $value;
-		while ($i != 0) { 
+		while ($i != 0) {
 			$str = $digits[$i % SQ_CONF_ASSET_TREE_BASE].$str;
 			$i = floor($i / SQ_CONF_ASSET_TREE_BASE);
 		}
@@ -253,7 +253,7 @@ function asset_link_treeid_convert($value, $encode)
 		$str = (string) $value;
 		$len = strlen($str);
 		$x = pow(SQ_CONF_ASSET_TREE_BASE, $len - 1);
-		for ($i = 0; $i < $len; $i++) { 
+		for ($i = 0; $i < $len; $i++) {
 			if (($d = array_search($str{$i}, $digits)) === FALSE) return null;
 			$num += $x * $d;
 			$x = $x / SQ_CONF_ASSET_TREE_BASE;
@@ -295,10 +295,10 @@ function make_valid_web_paths($paths)
 
 		// no spaces in web paths
 		$path = preg_replace('/\\s+/', '_', $path);
-		
+
 		// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $path);
-		
+
 		// ignore blanks
 		if ($path !== '' && !in_Array($path, $valid_paths)) $valid_paths[] = $path;
 	}

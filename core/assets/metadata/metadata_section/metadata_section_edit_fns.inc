@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.22 2004/11/18 05:08:03 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_section_edit_fns.inc,v 1.23 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -117,7 +117,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 
 				// now getting available types list
 				$descendant_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('metadata_field');
-				
+
 				$contents = Array();
 				foreach ($descendant_types as  $type) {
 					// $te[2] - type of the field, which we need
@@ -167,7 +167,7 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 			$new_field_name = trim($_POST[$prefix.'_new_field']);
 			$new_field_type = trim($_POST[$prefix.'_field_type']);
 
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_field_type); 
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($new_field_type);
 			$new_field =& new $new_field_type();
 
 			$section_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1, 'is_exclusive' => 1);
@@ -335,8 +335,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 		return true;
 
 	}//end getMetadataFieldValues()
-	
-	
+
+
 	/**
 	* Get the default values for this section
 	*

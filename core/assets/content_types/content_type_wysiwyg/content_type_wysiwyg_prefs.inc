@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_prefs.inc,v 1.5 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: content_type_wysiwyg_prefs.inc,v 1.6 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 class Content_Type_WYSIWYG_Prefs extends Prefs
@@ -210,10 +210,10 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				$wysiwyg_plugins = $_POST['prefs']['SQ_WYSIWYG_PLUGINS'];
 				$plugin_list = '';
 				$all = true;
-				
+
 				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 				$all_plugins = list_dirs(SQ_FUDGE_PATH.'/wysiwyg/plugins');
-				
+
 				foreach ($all_plugins as $plugin_name) {
 					$plugin_path = SQ_FUDGE_PATH.'/wysiwyg/plugins/'.$plugin_name;
 					if (!is_file($plugin_path.'/'.$plugin_name.'.inc')) continue;
@@ -236,7 +236,7 @@ class Content_Type_WYSIWYG_Prefs extends Prefs
 				$this->pref_vars['SQ_THESAURUS']['default'] = $_POST['prefs']['SQ_THESAURUS']['assetid'];
 			}
 		}
-	
+
 		return true;
 
 	}//end processBackend()

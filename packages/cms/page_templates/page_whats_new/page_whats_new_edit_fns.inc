@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_edit_fns.inc,v 1.4 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_whats_new_edit_fns.inc,v 1.5 2004/12/06 14:41:40 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,7 +47,7 @@ class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function Page_Whats_New_Edit_Fns()
 	{
 		$this->Page_Asset_Listing_Edit_Fns();
-		
+
 	}//end constructor
 
 
@@ -94,7 +94,7 @@ class Page_Whats_New_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function processCurrentRanges(&$asset, &$o, $prefix)
 	{
 		return false;
-		
+
 	}//end processCurrentRanges()
 
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.18 2004/12/03 15:37:19 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_asset_builder_management.inc,v 1.19 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -75,8 +75,8 @@ class Page_Asset_Builder_Management extends Asset_Management
 															'type'      => 'serialise',
 															'default'   => Array(),
 														);
-														
-		
+
+
 
 		/**
 		* Sets of locations for the user to choose from when creating assets, with selection options
@@ -207,26 +207,26 @@ class Page_Asset_Builder_Management extends Asset_Management
 			$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_folder->id, $this->getAssetType(), false);
 			foreach ($children as $assetid => $type) {
-				
+
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
 
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) { 
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
 					trigger_error('Asset Builder Upgrade [from 0.2] Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
 					return false;
 				}
-				
+
 				$old_create_type = $asset->attr('create_type');
 				$create_type = Array($old_create_type => true);
 				$asset->setAttrValue('create_type', serialize($create_type));
-								
-				if (!$asset->saveAttributes()) { 
+
+				if (!$asset->saveAttributes()) {
 					trigger_error('Asset Builder Upgrade [from 0.2] Failed', _USER_WARNING);
 					return false;
 				}
-				
+
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
-			
+
 			}
 		}
 
@@ -243,7 +243,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
 
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) { 
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
 					trigger_error('Asset Builder Upgrade Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
 					return false;
 				}
@@ -251,34 +251,34 @@ class Page_Asset_Builder_Management extends Asset_Management
 				// 0.1->0.2 upgrades
 				$new_locations = Array();
 				$old_locations = $asset->attr('create_location_rules');
-				
+
 				$i = 0;
 				foreach ($old_locations as $rule_text => $locations) {
 					if (empty($rule_text)) continue;
 					$bits = explode(' && ', $rule_text);
-	
+
 					foreach ($bits as $bit) {
 						list($attr, $value) = explode('==', $bit);
 						$attr  = trim($attr, '$');
 						$value = trim($value, " '");
 						$new_locations[$i][$attr]['equals'] = $value;
 					}
-					
+
 					$new_locations[$i]['_create_locations_'] = array_keys($locations);
-					
+
 					$i++;
 				}
-				
-				$asset->setAttrValue('create_location_rules', $new_locations);				
-				
-				if (!$asset->saveAttributes()) { 
+
+				$asset->setAttrValue('create_location_rules', $new_locations);
+
+				if (!$asset->saveAttributes()) {
 					trigger_error('Asset Builder Upgrade Failed', E_USER_WARNING);
 					return false;
 				}
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes'); 
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
-			
+
 			bam('ASSET BUILDER UPGRADE COMPLETE - VERSION 0.1');
 		}//end version 0.1 upgrade
 
@@ -293,25 +293,25 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type);
 				if (is_null($asset)) continue;
 
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) { 
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
 					trigger_error('Asset Builder Upgrade [from 0.2] Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
 					return false;
 				}
-				
+
 				$create_locs = $asset->attr('create_location_rules');
 				$create_locs = Array($old_create_type => $create_locs);
-								
+
 				$asset->setAttrValue('create_location_rules', $create_locs);
-				
+
 				$required_fields = $asset->attr('required_fields');
 				$required_fields = Array($old_create_type => $required_fields);
-								
+
 				$asset->setAttrValue('required_fields', $required_fields);
-				if (!$asset->saveAttributes()) { 
+				if (!$asset->saveAttributes()) {
 					trigger_error('Asset Builder Upgrade [from 0.2] Failed', E_USER_WARNING);
 					return false;
 				}
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes'); 
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
 			$this->_upgrade03To04();
@@ -340,13 +340,13 @@ class Page_Asset_Builder_Management extends Asset_Management
 				if (is_null($asset)) continue;
 
 
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) { 
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'attributes')) {
 					trigger_error('Asset Builder Upgrade [to 0.4] Failed - Unable to Acquire Lock on "'.$asset->name.'" (#'.$asset->id.')', E_USER_WARNING);
 					return false;
 				}
-	
+
 				$old_link_type = $asset->attr('create_link_type');
-				
+
 				// convert the fixed create locations by adding the link types
 				$old_create_locations = $asset->attr('create_location');
 				if (!Array($old_create_locations)) $old_create_locations = Array(0 => $old_create_locations);
@@ -383,9 +383,9 @@ class Page_Asset_Builder_Management extends Asset_Management
 				foreach ($old_rules as $create_type => $type_rules) {
 					$create_location_rules[$create_type] = Array();
 					foreach ($type_rules as $i => $rule_details) {
-						$new_rule = Array('attributes' => Array(), 
-										  'comparators' => Array(), 
-										  'values' => Array(), 
+						$new_rule = Array('attributes' => Array(),
+										  'comparators' => Array(),
+										  'values' => Array(),
 										  'locations' => Array());
 						foreach ($rule_details as $attr_name => $conditions) {
 							if ($attr_name == '_create_locations_') continue;
@@ -408,7 +408,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				}
 				$asset->setAttrValue('create_location_rules', $create_location_rules);
 
-				if (!$asset->saveAttributes()) { 
+				if (!$asset->saveAttributes()) {
 					trigger_error('Asset Builder Upgrade [to 0.4] Failed - Couldn\'t save attributes', E_USER_WARNING);
 					return false;
 				}
@@ -417,16 +417,16 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$content_assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'content_type_wysiwyg');
 				foreach (array_keys($content_assetids) as $assetid) {
 					$content_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($content_asset->id, 'attributes')) { 
+					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($content_asset->id, 'attributes')) {
 						trigger_error('Asset Builder Upgrade [to 0.4] Failed - Unable to Acquire Lock on "'.$content_asset->name.'" (#'.$content_asset->id.')', E_USER_WARNING);
 						return false;
-					}					
+					}
 					$html = $content_asset->attr('html');
 					$html = str_replace('%create_location%', '%first_selectable_location_field%', $html);
 					$content_asset->setAttrValue('html', $html);
 					$content_asset->saveAttributes();
 					$content_asset->_updated();
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($content_asset->id, 'attributes'); 
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($content_asset->id, 'attributes');
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($content_asset);
 				}
 
@@ -434,19 +434,19 @@ class Page_Asset_Builder_Management extends Asset_Management
 				$container_assetids = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, 'bodycopy_container', false);
 				foreach (array_keys($container_assetids) as $assetid) {
 					$container_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($container_asset->id, 'attributes')) { 
+					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($container_asset->id, 'attributes')) {
 						trigger_error('Asset Builder Upgrade [to 0.4] Failed - Unable to Acquire Lock on "'.$container_asset->name.'" (#'.$container_asset->id.')', E_USER_WARNING);
 						return false;
-					}					
+					}
 					$container_asset->saveSystemVersion();
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($container_asset->id, 'attributes'); 
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($container_asset->id, 'attributes');
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($container_asset);
 				}
 
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes'); 
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'attributes');
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 
-				if (!$asset->saveAttributes()) { 
+				if (!$asset->saveAttributes()) {
 					trigger_error('Asset Builder Upgrade [to 0.4] Failed - Couldn\'t save attributes', E_USER_WARNING);
 					return false;
 				}

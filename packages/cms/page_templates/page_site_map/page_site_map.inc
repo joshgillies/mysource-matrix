@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.12 2004/08/19 05:46:24 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_site_map.inc,v 1.13 2004/12/06 14:41:40 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -104,8 +104,8 @@ class Page_Site_Map extends Page
 		}
 
 	}//end describeLink()
-	
-	
+
+
 	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
@@ -117,7 +117,7 @@ class Page_Site_Map extends Page
 	{
 		$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
 		$cached_contents = $cm->loadFromCache($this, 'site_map');
-		
+
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
 
@@ -126,7 +126,7 @@ class Page_Site_Map extends Page
 			if (!empty($root_link)) {
 				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
 			}
-	
+
 			if (is_null($root_asset)) {
 				// firstly, get the sites that this page belongs to
 				$site_info = $GLOBALS['SQ_SYSTEM']->am->getRootURL();
@@ -137,31 +137,31 @@ class Page_Site_Map extends Page
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 				unset($root_asset);
 			}
-	
+
 			$levels = ($this->attr('levels') != 0) ? $this->attr('levels') : null;
-	
+
 			$page_data = $GLOBALS['SQ_SYSTEM']->am->getAssetTree($siteid, $levels, array_keys($this->attr('exclude_list')));
-	
+
 			$assetids = Array();
-	
+
 			foreach ($page_data as $assetid => $data) {
 				$assetids[] = $assetid;
 				$assetids = array_merge($assetids, array_keys($data));
 			}
 			global $SQ_SITE_MAP_ASSET_URLS;
-	
+
 			$SQ_SITE_MAP_ASSET_URLS = $GLOBALS['SQ_SYSTEM']->am->getAssetURL($assetids);
-	
+
 			ob_start();
 				?>
 				<script language="javascript" type="text/javascript" src="<?php echo sq_web_path('lib').'/js/edit.js' ?>"></script>
-		
+
 				<?php
 				// figure out the columns for the site map
 				$num_columns = ($this->attr('columns') > 0) ? $this->attr('columns') : 1;
 				if (empty($page_data)) return;
 				$num_pages = count(array_keys($page_data[$siteid]));
-		
+
 				$num_chunks = ceil($num_pages / $num_columns);
 				// CHUNK chunk CHUNK chunk CHUNK it up!
 				$chunks = array_chunk($page_data[$siteid], $num_chunks, true);
@@ -169,7 +169,7 @@ class Page_Site_Map extends Page
 				?>
 				<table cellpadding="0" cellspacing="0" border="0">
 					 <tr>
-		
+
 					<?php
 					foreach ($chunks as $chunk) {
 						?><td valign="top"><?php
@@ -181,7 +181,7 @@ class Page_Site_Map extends Page
 						?></td><?php
 					}
 					?>
-		
+
 					</tr>
 				</table>
 				<?php
@@ -190,7 +190,7 @@ class Page_Site_Map extends Page
 			ob_end_clean();
 
 		}//end if cached
-		
+
 		echo $cached_contents;
 
 	}//end printBody()
@@ -258,7 +258,7 @@ class Page_Site_Map extends Page
 
 		return true;
 
-	}//end _printAssetTypeList()
+	}//end _recursePrintAssetTypeList()
 
 
 }//end class

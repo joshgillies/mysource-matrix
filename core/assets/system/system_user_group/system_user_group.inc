@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_user_group.inc,v 1.24 2004/11/18 05:00:42 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_user_group.inc,v 1.25 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,7 +90,7 @@ class System_User_Group extends User_Group
 	function canClone()
 	{
 		return false;
-	
+
 	}//end canClone()
 
 
@@ -166,7 +166,7 @@ class System_User_Group extends User_Group
 		if (($perm & SQ_PERMISSION_READ) && $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
 		return false;
 
-	}//end checkAccess()
+	}//end _checkPermissionAccess()
 
 
 	/**

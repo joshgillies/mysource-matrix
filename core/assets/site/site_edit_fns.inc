@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.45 2004/12/03 15:29:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: site_edit_fns.inc,v 1.46 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.46 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		for (reset($urls); null !== ($urlid = key($urls)); next($urls)) {
 			$this->_paintURL($o, $prefix, $urlid, $urls[$urlid], $wa);
 			$urlids[] = $urlid;
-		}// end for
+		}//end for
 
 		if ($wa) {
 			// paint a nice blank version
@@ -92,7 +92,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			// let's be a bit nice about this, and when they submit confirm that they know what they are doing
 			$o->addOnSubmit('if (!site_url_check()) return false;');
 
-		}// end if
+		}//end if
 
 		?>
 		</table>
@@ -114,7 +114,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 								found = true;
 								break;
 							}
-						}// end if
+						}//end if
 
 						// if nothing is checked, confirm deletion
 						if (!found) {
@@ -129,15 +129,15 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 						for (var i = 0; i < site_url_protos.length; i++) {
 							var proto = get_form_element("<?php echo $prefix; ?>_urls[" + urlid + "][protocols][" + i + "]");
 							proto.checked = false;
-						}// end if
+						}//end if
 
-					}// end if
+					}//end if
 
-				}// end for
+				}//end for
 
 				return true;
 
-			}// end site_url_check();
+			}//end site_url_check();
 
 		</script>
 		<?php
@@ -190,7 +190,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 					<?php echo strtoupper($this->protos[$k]); ?>
 				</td>
 			<?php
-			}// end for
+			}//end for
 		?>
 			</tr>
 		<?php
@@ -216,7 +216,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		$urls = Array();
 		for (reset($post); null !== ($urlid = key($post)); next($post)) {
-			
+
 			$url = trim($post[$urlid]['url']);
 			// if there is a url or some selected protocols, then let's save it
 			if ($url && !empty($post[$urlid]['protocols'])) {
@@ -238,7 +238,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		return true;
 
-	}//end processURLS()
+	}//end processURLs()
 
 
 	/**
@@ -268,9 +268,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			echo '</i>';
 			return false;
 		}
-		
+
 		asset_finder($prefix.'_'.$page_type, $selected);
-		
+
 		return true;
 
 	}//end paintPageSelection()
@@ -303,8 +303,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			if (!$asset->deleteLink($link['linkid'])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
-			}// end if
-		}// end if
+			}//end if
+		}//end if
 
 		if (!empty($_POST[$prefix.'_'.$page_type]['assetid'])) {
 			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_'.$page_type]['assetid']);
@@ -312,8 +312,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			if (!$asset->createLink($page, SQ_LINK_NOTICE, $page_type)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
-			}// end if
-		}// end if
+			}//end if
+		}//end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
@@ -335,7 +335,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	{
 		$this->paintPageSelection('index', $asset, $prefix);
 
-	}//end paintIndexPage
+	}//end paintIndexPage()
 
 
 	/**
@@ -369,7 +369,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	{
 		$this->paintPageSelection('forbidden', $asset, $prefix);
 
-	}//end paintForbiddenPage
+	}//end paintForbiddenPage()
 
 
 	/**
@@ -403,7 +403,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	{
 		$this->paintPageSelection('not_found', $asset, $prefix);
 
-	}//end paintNotFoundPage
+	}//end paintNotFoundPage()
 
 
 	/**

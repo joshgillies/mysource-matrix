@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.6 2004/11/10 06:48:34 mnyeholt Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_job_uninstall_patch.inc,v 1.7 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -232,7 +232,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	*/
 	function paintPleaseWait(&$step_data, &$o, $prefix)
 	{
-		
+
 		$o->openSection('Please Wait');
 			$o->openField('Please wait - '.strtolower($step_data['name']).'...');
 			$o->closeField();
@@ -259,7 +259,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	{
 		$o->addHiddenField('form_submitted', 1);
 		$o->addOnLoad('setNextButtonStatus();');
-		
+
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 
 		$o->openSection('Important Notice');
@@ -355,7 +355,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 				$i++;
 			}
 		$o->closeSection();
-		
+
 		return true;
 
 	}//end paintConfirmation()
@@ -389,7 +389,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		}
 
 		return true;
-	
+
 	}//end processConfirmation()
 
 
@@ -429,7 +429,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processCheckAssetTypes()
 
 
@@ -454,7 +454,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 				return false;
 			}
 		}
-		
+
 		if (isset($patch_info['requirements']['packages'])) {
 			foreach ($patch_info['requirements']['packages'] as $package_code => $versions) {
 				$package_path = SQ_PACKAGES_PATH.'/'.$package_code.'/package_manager_'.$package_code.'.inc';
@@ -486,7 +486,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processCheckVersions()
 
 
@@ -503,7 +503,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 	{
 		$patch_info  = $this->_getPatchDetails($this->_running_vars['patchid']);
 		$backup_path = SQ_DATA_PATH.'/private/maps/installed_patches/'.$patch_info['id'];
-		
+
 		// check the files that we will be removing
 		foreach ($patch_info['new_files'] as $path => $file_info) {
 			$from = SQ_SYSTEM_ROOT.'/'.$path;
@@ -526,7 +526,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 						trigger_error('Could not remove file "'.$from.'" - file does not exist in your MySource installation', E_USER_ERROR);
 						return false;
 					}
-					
+
 					// check the MD5 sum of the file to ensure it has not been changed since installing
 					if ($file_info['md5'] != md5(file_get_contents($from))) {
 						trigger_error('Could not remove file "'.$from.'" - MD5 strings did not match - local file may have been modified since being patched', E_USER_ERROR);
@@ -579,7 +579,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 					trigger_error('Could not restore file "'.$to.'" - a file with the same name exists in your MySource installation and it was removed in this patch', E_USER_ERROR);
 					return false;
 				}
-	
+
 				if ($file_info['local_md5'] != md5(file_get_contents($from))) {
 					trigger_error('Could not restore file "'.$to.'" - MD5 strings did not match - backup file may have been modified since being backed up', E_USER_ERROR);
 					return false;
@@ -590,7 +590,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processCheckFiles()
 
 
@@ -655,9 +655,9 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processInstallFiles()
-	
+
 
 	/**
 	* Run reverse update queries over the database
@@ -686,13 +686,13 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 				return false;
 			}
 		}
-		
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processDatabaseUpdates()
 
 
@@ -753,7 +753,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 			// dont actually die because we cant exactly abort at this point
 			// we'll sort it out later another way
 		}
-		
+
 		// remove the backup directory for this patch because we dont need that any more
 		require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
 		if (!delete_directory($backup_path)) {
@@ -765,7 +765,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		$step_data['percent_done'] = 100;
 		$step_data['complete']     = true;
 		return true;
-	
+
 	}//end processCleanUp()
 
 

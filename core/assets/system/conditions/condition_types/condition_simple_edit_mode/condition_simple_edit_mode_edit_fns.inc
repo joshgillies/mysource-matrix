@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_simple_edit_mode_edit_fns.inc,v 1.2 2004/12/01 11:45:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: condition_simple_edit_mode_edit_fns.inc,v 1.3 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_fns.inc';
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,14 +42,14 @@ class Condition_Simple_Edit_Mode_Edit_Fns extends Condition_Edit_Fns
 
 	/**
 	* Constructor
-	* 
+	*
 	* @see Asset_Edit_Fns::Asset_Edit_Fns
 	*/
 	function Condition_Simple_Edit_Mode_Edit_Fns()
 	{
 		$this->Condition_Edit_Fns();
 	}//end constructor
-	
-} //end class
+
+}//end class
 
 ?>

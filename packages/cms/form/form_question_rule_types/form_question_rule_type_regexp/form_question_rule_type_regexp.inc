@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_regexp.inc,v 1.12 2004/11/05 00:08:49 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_regexp.inc,v 1.13 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,11 +47,11 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form_Question_Rule_Type_Regexp($assetid=0) 
+	function Form_Question_Rule_Type_Regexp($assetid=0)
 	{
 		$this->Form_Question_Rule($assetid);
-	
-	}//end Form_Question_Rule_Type_Regexp()
+
+	}//end constructor
 
 
 	/**
@@ -73,8 +73,8 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 		return $attrs;
 
 	}//end getAttributes()
-	
-	
+
+
 	/**
 	* Returns a list of operators for this rule type
 	*
@@ -82,20 +82,20 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	* @return array (mixed => string) an array of descriptions indexed by operator id (which can be
 	*                                 anything, generally string or (int)0|1 for a boolean value)
 	*/
-	function getOperators() 
+	function getOperators()
 	{
 		return Array(1 => 'Must Match the Regular Expression...',
 			0 => 'Must Not Match the Regular Expression...');
-	
+
 	}//end getOperators()
-	
-	
+
+
 	/**
 	* processes the form question and returns true if it is valid
 	*
 	* Because the Form Question Rule classes will not be instantiable, this function MUST called
 	* statically.
-	* 
+	*
 	* @param object form_question	&$q_asset		reference to the question asset
 	* @param string					$operator		the operator being used to compare
 	* @param mixed					$comparison		value used to compare (no asset allowed here)
@@ -110,7 +110,7 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 
 		$comparison = str_replace('|', '\|', $comparison);
 		$pattern = "|".$comparison."|";
-		(preg_match($pattern, $answer)) ? $valid = 1 : $valid = 0; 
+		(preg_match($pattern, $answer)) ? $valid = 1 : $valid = 0;
 
 		if ($valid == $operator) {
 			return true;
@@ -121,8 +121,8 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 		}
 
 	}//end processForm()
-	
-	
+
+
 	/**
 	* processes a test on a single static value
 	*
@@ -130,7 +130,7 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	*
 	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
 	* instantiated manually in code, this function MUST called statically.
-	* 
+	*
 	* @param mixed	$answer			the answer being passed to us
 	* @param string	$operator		the operator being used to compare
 	* @param mixed	&$comparison	either a value or a form_question asset (based on
@@ -144,7 +144,7 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 	{
 		$comparison = str_replace('|', '\|', $comparison);
 		$pattern = "|".$comparison."|";
-		$valid = (preg_match($pattern, $answer)) ? 1 : 0; 
+		$valid = (preg_match($pattern, $answer)) ? 1 : 0;
 
 		return ($valid == $operator);
 
@@ -153,7 +153,7 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 
 	/**
 	* writes JavaScript code for client side validation
-	* 
+	*
 	* @param object form_question	&$q_asset		reference to the question asset
 	* @param string					$operator		the operator being used to compare
 	* @param mixed					$comparison		value used to compare (no asset allowed here)
@@ -181,7 +181,7 @@ class Form_Question_Rule_Type_Regexp extends Form_Question_Rule
 		return $code;
 
 	}//end generateJSCode()
-	
-	
+
+
 }//end class
 ?>

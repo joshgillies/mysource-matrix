@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text_indicator.inc,v 1.7 2003/11/26 00:51:23 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: text_indicator.inc,v 1.8 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -35,11 +35,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     Pure decoration - no real functionality.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class text_indicator extends wysiwyg_plugin {
+class text_indicator extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor
@@ -48,7 +49,8 @@ class text_indicator extends wysiwyg_plugin {
 	* @returns object Insert_Link
 	* @access  public
 	*/
-	function text_indicator() {
+	function text_indicator()
+	{
 		$this->_add_button('textindicator','','','','');
 	}
 
@@ -59,7 +61,8 @@ class text_indicator extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_update_toolbar() {
+	function print_plugin_update_toolbar()
+	{
 		?>
 		case "textindicator":
 			if (!text) {
@@ -89,7 +92,8 @@ class text_indicator extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_button_type() {
+	function print_plugin_button_type()
+	{
 		?>
 		case "textindicator":
 			el = document.createElement("span");

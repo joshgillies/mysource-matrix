@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_news.inc,v 1.1.1.1 2004/06/24 05:37:09 amiller Exp $
-* $Name: not supported by cvs2svn $
+* $Id: package_manager_news.inc,v 1.2 2004/12/06 14:43:35 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/package_manager.inc';
@@ -28,11 +28,11 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 * Package_Manager_News
 *
 * Purpose
-*    Manages the install and upgrade of the News package and News assets, 
+*    Manages the install and upgrade of the News package and News assets,
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Avi Miller <amiller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage news
 */

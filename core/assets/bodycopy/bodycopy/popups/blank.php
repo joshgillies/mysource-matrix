@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: blank.php,v 1.3 2004/02/18 18:19:16 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: blank.php,v 1.4 2004/12/06 14:38:07 brobertson Exp $
+*
 */
 
 /**
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -40,16 +40,16 @@ header("Pragma: no-cache");
 header("Expires: ". gmdate("D, d M Y H:i:s",time()-3600) . " GMT");
 
 require(dirname(__FILE__)."/header.php");
-?> 
+?>
 <script language="JavaScript" type="text/javascript">
 	function popup_init() {
-		// do nothing, just here so that we overright the popup_init() fn 
+		// do nothing, just here so that we overright the popup_init() fn
 		// that may have been set by a previous pop-up
 		// needed for Netscape
 	}// end popup_init()
 </script>
-<?php 
+<?php
 
-require(dirname(__FILE__)."/footer.php"); 
+require(dirname(__FILE__)."/footer.php");
 
 ?>

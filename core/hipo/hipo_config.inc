@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.21 2004/12/06 03:13:39 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_config.inc,v 1.22 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation and editing of the hipo config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 */
 class HIPO_Config extends Config
@@ -93,13 +93,13 @@ class HIPO_Config extends Config
 						$this->config_vars = array_merge($this->config_vars, $vars);
 					}
 				}
-			}// end while
+			}//end while
 
 			$d->close();
 
-		}// end if
+		}//end if
 
-	}//end _loadJobConfigVars();
+	}//end _loadJobConfigVars()
 
 
 	/**
@@ -129,7 +129,7 @@ class HIPO_Config extends Config
 			$this->_loadJobConfigVars();
 			return parent::save($vars, false);
 
-		}// end if
+		}//end if
 
 	}//end save()
 
@@ -241,13 +241,13 @@ class HIPO_Config extends Config
 						eval($type_code.'::paintConfig($o, $class);');
 					}
 				}
-			}// end while
+			}//end while
 
 			$d->close();
 
-		}// end if
+		}//end if
 
-	}//end paintJobsBackends();
+	}//end paintJobsBackends()
 
 
 }//end class

@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_change_dn.php,v 1.2 2004/11/17 00:17:42 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: ldap_change_dn.php,v 1.3 2004/12/06 14:43:14 brobertson Exp $
+*
 */
 
 /**
 * Alter the database to reflect that the DN of a user has changed
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage ldap
 */
@@ -44,7 +44,7 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
-	
+
 // check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
@@ -108,7 +108,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 	printActionStatus('OK');
-	
+
 	printActionName('Changing asset permissions (rollback)');
 		$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.'asset_permission
 				SET userid = '.$db->quote($new_dn).'
@@ -116,35 +116,35 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 	printActionStatus('OK');
-	
+
 	printActionName('Changing internal messages');
 		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'internal_message
 				SET userto = '.$db->quote($new_dn).'
 				WHERE userto = '.$db->quote($old_dn);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'internal_message
 				SET userfrom = '.$db->quote($new_dn).'
 				WHERE userfrom = '.$db->quote($old_dn);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 	printActionStatus('OK');
-	
+
 	printActionName('Changing internal messages (rollback)');
 		$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.'internal_message
 				SET userto = '.$db->quote($new_dn).'
 				WHERE userto = '.$db->quote($old_dn);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.'internal_message
 				SET userfrom = '.$db->quote($new_dn).'
 				WHERE userfrom = '.$db->quote($old_dn);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 	printActionStatus('OK');
-	
+
 	printActionName('Changing screen access');
 		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_editing_access
 				SET userid = '.$db->quote($new_dn).'
@@ -152,7 +152,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 	printActionStatus('OK');
-	
+
 	printActionName('Changing screen access (rollback)');
 		$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.'asset_editing_access
 				SET userid = '.$db->quote($new_dn).'
@@ -160,20 +160,20 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
 	printActionStatus('OK');
-	
+
 	printActionName('Changing locks');
 		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'lock
 				SET userid = '.$db->quote($new_dn).'
 				WHERE userid = '.$db->quote($old_dn);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'lock
 				SET lockid = '.$db->quote('asset.'.$new_dn).'
 				WHERE lockid = '.$db->quote('asset.'.$old_dn);
 		$result = $db->query($sql);
 		assert_valid_db_result($result);
-		
+
 		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'lock
 				SET source_lockid = '.$db->quote('asset.'.$new_dn).'
 				WHERE source_lockid = '.$db->quote('asset.'.$old_dn);
@@ -198,7 +198,7 @@ $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 function printActionName($str)
 {
 	printf ('%s%'.(40 - strlen($str)).'s', $str,'');
-	
+
 }//end printActionName()
 
 
@@ -213,7 +213,7 @@ function printActionName($str)
 function printActionStatus($status)
 {
 	echo "[ $status ]\n";
-	
+
 }//end printActionStatus()
 
 

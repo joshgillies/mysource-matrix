@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.11 2004/12/03 15:43:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: image.inc,v 1.12 2004/12/06 14:39:53 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once dirname(__FILE__).'/../general/file_system.inc';
 * Image manipulation functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.12 $
 * @package Fudge
 * @subpackage Image
 */
@@ -39,9 +39,9 @@ class Image
 {
 
 	/**
-	* Takes a link to an image file with an (assumed) greyscale palette 
-	* Then replaces the Black<->White with ColourA<->ColourB         
-	* And outputs an a new file                                      
+	* Takes a link to an image file with an (assumed) greyscale palette
+	* Then replaces the Black<->White with ColourA<->ColourB
+	* And outputs an a new file
 	*
 	* @param string	$input		the input image file
 	* @param string	$output		the output image file
@@ -51,7 +51,7 @@ class Image
 	* @access public
 	*
 	*/
-	function gradientPalette($input, $output, $colour_a, $colour_b) 
+	function gradientPalette($input, $output, $colour_a, $colour_b)
 	{
 		require_once dirname(__FILE__).'/../colour/colour.inc';
 
@@ -89,22 +89,22 @@ class Image
 		imageDestroy($image);
 		return $ret_val;
 
-	}// end gradientPalette()
+	}//end gradientPalette()
 
 	/**
-	* Takes a link to an image file with an (assumed) greyscale palette 
+	* Takes a link to an image file with an (assumed) greyscale palette
 	* $colour_map is an associative array whose 'key' colour in the image and replaces if with the 'value' colour.
 	* The colours are in the form of HTML colour codes e.g. '5627e8', 'goldenrod'
 	*
 	* @param string	$input		the input image file
 	* @param string	$output		the output image file
 	* @param Array	$colour_map	It find the 'key' colour in the image and replaced if with the 'value' colour. Colours are in hex string or html colour name
-	* @param float	$tolerance	
+	* @param float	$tolerance
 	*
 	* @access public
 	*
 	*/
-	function remapColour($input, $output, $colour_map, $tolerance=0.2) 
+	function remapColour($input, $output, $colour_map, $tolerance=0.2)
 	{
 		require_once dirname(__FILE__).'/../colour/colour.inc';
 
@@ -133,10 +133,10 @@ class Image
 		imageDestroy($image);
 		return $ret_val;
 
-	}// remapColour()
+	}//end remapColour()
 
 	/**
-	* Resizes an image 
+	* Resizes an image
 	*
 	* @param string	$input		the input image file
 	* @param string	$output		the output image file
@@ -147,7 +147,7 @@ class Image
 	* @access public
 	*
 	*/
-	function resize($input, $output, $w, $h) 
+	function resize($input, $output, $w, $h)
 	{
 
 		$scaler  = 'pnmscale';
@@ -164,7 +164,7 @@ class Image
 				$decoder = 'pngtopnm';
 				$encoder = 'pnmtopng';
 				break;
-			case 'jpg': 
+			case 'jpg':
 			case 'jpeg':
 				$decoder = 'djpeg';
 				$encoder = 'cjpeg';
@@ -199,13 +199,13 @@ class Image
 			return false;
 		}
 		return true;
-	}// end resize()
+	}//end resize()
 
 //	 ########################################################
 //	# Resizes an image using bicubic interpolation inside PHP
 //	# this doesn't appear to work without GD 2.0 or later
 //	function new_image_resize($input, $output, $new_w, $new_h) {
-//		
+//
 //		list($old_w, $old_h) = getimagesize($input);
 //
 //		if ($new_w <= 0) $new_w = $old_w;
@@ -228,7 +228,7 @@ class Image
 	* @return mixed int or false
 	* @access public
 	*/
-	function fromFile($input) 
+	function fromFile($input)
 	{
 		switch (get_file_type($input)) {
 			case 'gif' :
@@ -239,7 +239,7 @@ class Image
 				if ($image = ImageCreateFromPNG($input)) return $image;
 				else trigger_error('Unable to open PNG : '.$input);
 				break;
-			case 'jpg' : 
+			case 'jpg' :
 			case 'jpeg':
 				if ($image = ImageCreateFromJPEG($input)) return $image;
 				else trigger_error('Unable to open JPEG : '.$input);
@@ -262,7 +262,7 @@ class Image
 	* @return mixed int or false
 	* @access public
 	*/
-	function toFile($image, $output, $jpeg_quality=80) 
+	function toFile($image, $output, $jpeg_quality=80)
 	{
 		// Output result to file
 		switch (get_file_type($output)) {
@@ -284,7 +284,7 @@ class Image
 		trigger_error('Unable to output image : '.$output, E_USER_WARNING);
 		return false;
 
-	}// end toFile()
+	}//end toFile()
 
-}// end class
+}//end class
 ?>

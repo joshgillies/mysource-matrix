@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_found_in_edit_fns.inc,v 1.9 2004/05/05 07:10:12 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_found_in_edit_fns.inc,v 1.10 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,9 +47,9 @@ class Form_Question_Rule_Type_Found_In_Edit_Fns extends Form_Question_Rule_Edit_
 	function Form_Question_Rule_Type_Found_In_Edit_Fns()
 	{
 		$this->Form_Question_Rule_Edit_Fns();
-	
-	}//end Form_Question_Rule_Type_Found_In_Edit_Fns()
 
-	
+	}//end constructor
+
+
 }//end class
 ?>

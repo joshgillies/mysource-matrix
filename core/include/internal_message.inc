@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.39 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: internal_message.inc,v 1.40 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -586,14 +586,14 @@ class Internal_Message extends MySource_Object
 			// so we need to keep the ZERO id in the array
 			$send_to[] = 0;
 		}
-		
+
 		foreach ($this->to as $assetid) {
 			// skip the ZERO (system) assetid as it's already included
 			if ($assetid == 0) continue;
-			
+
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) continue;
-			
+
 			if (is_a($asset, 'user_group')) {
 				$send_to = array_merge($send_to, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false)));
 			} else if (is_a($asset, 'user')) {

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.27 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: hipo_job_edit_status.inc,v 1.28 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to change the status of an asset
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.28 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -85,7 +85,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	function paintConfig(&$o, $class)
 	{
 		$write_access = $this->writeAccess();
-		
+
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Edit Status Threshold');
 
@@ -137,7 +137,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 	* Returns the current Threshold.
 	*
 	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
-	* 
+	*
 	* @return float
 	* @access public
 	*/
@@ -146,7 +146,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		if (SQ_HIPO_EDIT_STATUS_THRESHOLD == 0) return 0;
 		if (!isset($this->_running_vars['todo_assetids'])) return 0;
 		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_EDIT_STATUS_THRESHOLD) * 100);
-	
+
 	}//end getThreshold()
 
 
@@ -173,7 +173,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 		// we will be edting the status of
-		
+
 		// if there is no dependants setting, or if it is true, get only dependants
 		if (!isset($this->_running_vars['dependants_only']) || !empty($this->_running_vars['dependants_only'])) {
 			$this->_running_vars['dependants_only'] = false;
@@ -194,7 +194,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		unset($asset);
 
 		return parent::prepare();
-	
+
 	}//end prepare()
 
 
@@ -213,11 +213,11 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		$ms =& $GLOBALS['SQ_SYSTEM']->getMessagingService();
 		return parent::load($code_name);
 
-	}// end load()
+	}//end load()
 
 	/**
 	* Performs the duties of this hipo, without showing any output on the frontend.
-	* 
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -248,7 +248,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		// process, so we'll open a new queue here
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openQueue();
-		
+
 		if (!parent::processServer($step_data, $prefix)) {
 			$ms->abortQueue();
 			return false;

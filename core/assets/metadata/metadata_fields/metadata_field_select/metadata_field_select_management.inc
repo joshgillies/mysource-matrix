@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_management.inc,v 1.3 2004/09/15 07:06:31 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_field_select_management.inc,v 1.4 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,7 +45,7 @@ class Metadata_Field_Select_Management extends Asset_Management
 	function Metadata_Field_Select_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-		
+
 		// additional attrs., that were not defined in parent
 		$this->vars = Array(
 							'select_options'	=> Array(

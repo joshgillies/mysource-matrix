@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_recursive_edit_fns.inc,v 1.19 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_menu_recursive_edit_fns.inc,v 1.20 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_t
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,7 +69,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 		// we just want to ignore any stupid sub menu's in our asset contents
 		trigger_error('You are unable to set sub menu\'s on the recursive menu type', E_USER_WARNING);
 		return false;
-	}// end _processSubMenu()
+	}//end _processSubMenu()
 
 
 	/**
@@ -107,7 +107,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 				$'.$asset->attr('id_name').'_base_url = $'.$parent_menu->attr('id_name').'_urls[$'.$parent_menu->attr('id_name').'_row[\'assetid\']];
 					';
 
-				}// end if
+				}//end if
 
 				echo '
 				'.$asset->attr('id_name').'_recursive_fn($'.$asset->attr('id_name').'_level, '.$parent_assetid_name.', $'.$asset->attr('id_name').'_base_url);
@@ -122,9 +122,9 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 
 			default :
 				return parent::_outputElement($element, $asset, $design);
-		}// end switch
+		}//end switch
 
-	}// end _outputElement()
+	}//end _outputElement()
 
 }//end class
 ?>

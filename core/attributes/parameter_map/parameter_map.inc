@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: parameter_map.inc,v 1.2 2004/11/30 05:15:37 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: parameter_map.inc,v 1.3 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
@@ -31,12 +31,12 @@ require_once dirname(dirname(__FILE__)).'/serialise/serialise.inc';
 *   Attributes of this type store and allow for the manipulation of mappings
 *   from runtime variable values (GET, POST etc) to certain parameters of
 *   an asset.  When declaring the attribute in the asset's management class
-*   you need to pass a parameter called 'parameters', which is a 
+*   you need to pass a parameter called 'parameters', which is a
 *   code => full_name array of the parameters you want to make mappable.
 *   When requesting the runtime value for a parameter you give its code.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -69,13 +69,13 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Parameter_Map($attributeid=0, $value=null) 
+	function Asset_Attribute_Parameter_Map($attributeid=0, $value=null)
 	{
 		if (!isset($this->_params['parameters'])) $this->_params['parameters'] = Array();
 		if ($value == null) $value = Array();
 		$this->Asset_Attribute_Serialise($attributeid, $value);
 
-	}// end constructor
+	}//end constructor
 
 
 	/**
@@ -125,7 +125,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 			<tr>
 				<td class="sq-backend-table-cell"><?php echo $this->_params['parameters'][$parameter]; ?></td>
 				<td class="sq-backend-table-cell">
-					<?php 
+					<?php
 						foreach ($sources as $index => $details) {
 							if (!$read_only) {
 								$this->_printSourceChooser($prefix.'['.$parameter.']['.$index.']', $details['source'], ($details['source'] != 'ASSET') ? $details['index'] : $details['attribute']);
@@ -153,7 +153,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 		?>
 		</table>
 		<?php
-		
+
 	}//end paint()
 
 
@@ -171,8 +171,8 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 	{
 		combo_box($prefix.'[source]', $this->_source_types, false, Array($source_type), 0, 'onchange="updateFieldChooser(this)" onkeyup="updateFieldChooser(this)"');
 		echo '&nbsp;';
-		text_box($prefix.'[index]', (($source_type == 'ASSET') ? '' : $component), '', '', false, 'style="width: 25ex; '.(($source_type == 'ASSET') ? 'display: none' : '').'"'); 
-		combo_box($prefix.'[attribute]', $this->_asset_attribute_options, false, Array($component), 0, 'style="width: 25ex; '.(($source_type != 'ASSET') ? 'display: none' : '').'"'); 
+		text_box($prefix.'[index]', (($source_type == 'ASSET') ? '' : $component), '', '', false, 'style="width: 25ex; '.(($source_type == 'ASSET') ? 'display: none' : '').'"');
+		combo_box($prefix.'[attribute]', $this->_asset_attribute_options, false, Array($component), 0, 'style="width: 25ex; '.(($source_type != 'ASSET') ? 'display: none' : '').'"');
 		if ($source_type != null) {
 			check_box($prefix.'[delete]');
 			echo '<label for="'.$prefix.'[delete]">Delete</label>';
@@ -181,7 +181,7 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 
 	}//end _printSourceChooser()
 
-	
+
 	/**
 	* Paints the field to choose a parameter for a new mapping
 	*
@@ -259,13 +259,13 @@ class Asset_Attribute_Parameter_Map extends Asset_Attribute_Serialise
 						return $_GET[$rule['index']];
 					}
 				break;
-				
+
 				case 'POST':
 					if (isset($_POST[$rule['index']])) {
 						return $_POST[$rule['index']];
 					}
 				break;
-				
+
 				case 'ASSET':
 					switch ($rule['attribute']) {
 						case 'assetid':

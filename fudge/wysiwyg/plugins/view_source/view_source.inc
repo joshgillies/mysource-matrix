@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: view_source.inc,v 1.8 2003/11/26 00:51:23 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: view_source.inc,v 1.9 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     switch between HTML source and editing views
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class View_Source extends Wysiwyg_Plugin {
+class View_Source extends Wysiwyg_Plugin
+{
 
 	/**
 	* Constructor

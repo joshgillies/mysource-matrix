@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_management.inc,v 1.5 2004/04/19 03:58:59 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_field_date_management.inc,v 1.6 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,12 +50,12 @@ class Metadata_Field_Date_Management extends Asset_Management
 		$this->vars = Array(
 							'offset'		=> Array(
 													'added'   => '0.1',
-													'type'    => 'text', 
+													'type'    => 'text',
 													'default' => ' ',
 													),
 							'format'		=> Array(
 													'added'   => '0.1',
-													'type'    => 'text', 
+													'type'    => 'text',
 													'default' => 'd/m/Y H:i:s',
 													),
 							'setup_params'	=> Array(

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.39 2004/12/03 15:33:23 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_edit_fns.inc,v 1.40 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -132,7 +132,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 		return $wa;
 
-	}// end paintPaths()
+	}//end paintPaths()
 
 
 	/**
@@ -156,7 +156,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 		return true;
 
-	}// end processPaths()
+	}//end processPaths()
 
 
 	/**
@@ -186,12 +186,12 @@ class Asset_Edit_Fns extends MySource_Object
 			$o->note('Force Secure (see Settings screen) is set on this asset, so if you think that there should other URLs registered you may need to check that the site(s) that this asset is has allowed the https protocol');
 		}
 
-	}// end paintURLs()
+	}//end paintURLs()
 
 
 	/**
 	* Paint the interface for setting weights
-	* 
+	*
 	* @param object Asset				&$owner	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form element
@@ -239,10 +239,10 @@ class Asset_Edit_Fns extends MySource_Object
 			$o->closeField();
 		}
 		return true;
-		
+
 	}//end paintWeights()
-	
-	
+
+
 	/**
 	* Process the weights posted in paintWeights
 	*
@@ -267,7 +267,7 @@ class Asset_Edit_Fns extends MySource_Object
 					$weighting = max("1", $weighting);
 				} else {
 					$weighting = '0';
-				}	
+				}
 			}
 			if (!isset($weightings[$component]['default']))
 				$weightings[$component]['default'] = '0';
@@ -276,10 +276,10 @@ class Asset_Edit_Fns extends MySource_Object
 		$owner->saveComponentWeightings($weightings);
 		$owner->informChanges();
 		return true;
-		
+
 	}//end processWeights()
-	
-	
+
+
 }//end class
 
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.3 2004/12/03 16:00:59 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: search_list.inc,v 1.4 2004/12/06 14:44:15 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -51,8 +51,8 @@ class Search_List extends Page_Asset_Listing
 		$this->Page_Asset_Listing($assetid);
 
 	}//end constructor
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -134,7 +134,7 @@ class Search_List extends Page_Asset_Listing
 
 		$results = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 		assert_valid_db_result($results);
-		
+
 		$children = Array();
 		foreach ($results as $word => $word_data) {
 			$children[$word]['num_values'] = count($word_data);
@@ -148,8 +148,8 @@ class Search_List extends Page_Asset_Listing
 		return $children;
 
 	}//end getAssetList()
-	
-	
+
+
 	/**
 	* Remove unwanted assets from the todo list
 	*
@@ -187,16 +187,16 @@ class Search_List extends Page_Asset_Listing
 			$search_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($search_page_link['minorid']);
 		}
 		if (is_null($search_page)) return;
-		
+
 		$format = $this->attr('default_format');
 		$search_url = $search_page->getURL().'?mode=results&queries_'.$this->_tmp['search_field_name'].'_query=';
-		
+
 		foreach ($todo as $word => $data) {
 
 			$keywords = Array('search_term' => '<a href="'.$search_url.$word.'">'.$word.'</a>',
 							  'number_of_occurrences' => $this->_tmp['search_terms'][$word]['num_values']
 							 );
-			
+
 			echo replace_keywords($format, $keywords);
 
 		}//end foreach todo

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image_management.inc,v 1.17 2004/09/08 03:59:59 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_colourise_image_management.inc,v 1.18 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -74,7 +74,7 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 								'default'		=> 'greyscale',
 								'parameters'	=> Array(
 									'options' => Array(
-										'greyscale'			=> 'Greyscale', 
+										'greyscale'			=> 'Greyscale',
 										'multiple_colours'	=> 'Multiple Colours',
 									),
 									'allow_empty' => false,

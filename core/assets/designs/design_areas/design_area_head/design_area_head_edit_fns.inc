@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_head_edit_fns.inc,v 1.1 2004/08/19 06:41:32 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_head_edit_fns.inc,v 1.2 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,14 +32,14 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area_head_Edit_Fns extends Design_Area_Edit_Fns
 {
 
-	
+
 }//end class
 
 ?>

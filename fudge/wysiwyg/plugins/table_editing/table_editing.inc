@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.17 2004/12/02 04:08:48 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: table_editing.inc,v 1.18 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     and manipulate tables
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.18 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class Table_Editing extends WYSIWYG_Plugin {
+class Table_Editing extends WYSIWYG_Plugin
+{
 
 	/**
 	* Constructor

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.13 2004/11/23 05:43:04 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_type_password.inc,v 1.14 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,11 +47,11 @@ class Form_Question_Type_Password extends Form_Question
 	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
-	function Form_Question_Type_Password($assetid=0,$data=Array()) 
+	function Form_Question_Type_Password($assetid=0,$data=Array())
 	{
 		$this->Form_Question($assetid, $data);
 
-	}//end Form_Question_Type_Password()
+	}//end constructor
 
 
 	/**
@@ -88,7 +88,7 @@ class Form_Question_Type_Password extends Form_Question
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
 		$value = '';
-		
+
 		ob_start();
 		password_box($name, $value, $width, $max, $extras);
 		if ($this->attr('verify')) {
@@ -97,7 +97,7 @@ class Form_Question_Type_Password extends Form_Question
 		}
 		$html = ob_get_contents();
 		ob_end_clean();
-		
+
 		// calling text_box will convert the open and close php tags into their html counter-parts
 		// so we need to convert them back to proper php tags
 
@@ -105,7 +105,7 @@ class Form_Question_Type_Password extends Form_Question
 
 	}//end getAnswer()
 
-	
+
 	/**
 	* process this question
 	*
@@ -120,7 +120,7 @@ class Form_Question_Type_Password extends Form_Question
 
 		$form = &$this->getMySection();
 		if (!$form->active_submission) return false;
-				
+
 		if (isset($_POST[$this->id.'_1'])) {
 			$val = $_POST[$this->id.'_1'];
 
@@ -142,9 +142,9 @@ class Form_Question_Type_Password extends Form_Question
 
 			parent::processForm();
 		}
-		
+
 		return true;
-	
+
 	}//end processForm()
 
 	/**
@@ -191,7 +191,7 @@ class Form_Question_Type_Password extends Form_Question
 		return $contents;
 
 	}//end getXML()
-	
-	
+
+
 }//end class
 ?>

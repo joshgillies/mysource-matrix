@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.36 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area.inc,v 1.37 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -102,7 +102,7 @@ class Design_Area extends Asset
 	{
 		return $this->attr('id_name');
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
@@ -120,7 +120,7 @@ class Design_Area extends Asset
 			$designs = &$this->getDesigns();
 			for ($i = 0, $max = count($designs); $i < $max; $i++) {
 				$designs[$i]->generateDesignFile(false);
-			}// end for
+			}//end for
 
 			return true;
 
@@ -128,9 +128,9 @@ class Design_Area extends Asset
 
 			return false;
 
-		}// end if
+		}//end if
 
-	}// end processBackend()
+	}//end processBackend()
 
 
 	/**
@@ -162,11 +162,11 @@ class Design_Area extends Asset
 		foreach ($this->vars['var_references']['value'] as $var_name => $info) {
 			if (!isset($var_refs[$info['id_name']])) $var_refs[$info['id_name']] = Array();
 			$var_refs[$info['id_name']][] = $info['var'];
-		}// end foreach
+		}//end foreach
 
 		return $var_refs;
 
-	}//end getVarReferences();
+	}//end getVarReferences()
 
 
 	/**
@@ -183,9 +183,9 @@ class Design_Area extends Asset
 			if (isset($var_ref_values[$info['id_name']][$info['var']])) {
 				$this->_tmp['var_reference_values'][$var_name] = $var_ref_values[$info['id_name']][$info['var']];
 			}
-		}// end foreach
+		}//end foreach
 
-	}//end setVarReferenceValues();
+	}//end setVarReferenceValues()
 
 
 	/**
@@ -204,7 +204,7 @@ class Design_Area extends Asset
 			return parent::attr($name);
 		}
 
-	}//end attr();
+	}//end attr()
 
 
 	/**
@@ -241,20 +241,20 @@ class Design_Area extends Asset
 	/**
 	* Escapes a simple var (if requested) that is going to be printed in the PHP
 	*
-	* @param string	$value	the value 
+	* @param string	$value	the value
 	* @param Array	$args	array of any extra arguments that existed in the print command
 	*
 	* @access public
 	*/
 	function _escapeVar($value, $args)
 	{
-		if (empty($args['escape']) || strtolower($args['escape']) == 'no') { 
+		if (empty($args['escape']) || strtolower($args['escape']) == 'no') {
 			return $value;
 		} else {
 			return 'addslashes('.$value.')';
 		}
 
-	}//end printVar()
+	}//end _escapeVar()
 
 
 }//end class

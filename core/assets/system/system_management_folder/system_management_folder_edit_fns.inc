@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder_edit_fns.inc,v 1.3 2003/11/26 00:51:02 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_management_folder_edit_fns.inc,v 1.4 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class System_Management_Folder_Edit_Fns extends Folder_Edit_Fns
 		unset($this->static_screens['settings']);
 		unset($this->static_screens['history']);
 
-	}
+	}//end constructor
 
 
 }//end class

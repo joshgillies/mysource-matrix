@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.54 2004/11/22 22:17:55 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: metadata_manager.inc,v 1.55 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -30,7 +30,7 @@
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 */
 require_once SQ_FUDGE_PATH.'/general/text.inc';
@@ -409,7 +409,7 @@ class Metadata_Manager extends MySource_Object
 		$edit_fns = $schema->getEditFns();
 		return $edit_fns->getMetadataDefaultValues($schema);
 
-	}//end getSchemaMetadata()
+	}//end getMetadataDefaultValues()
 
 
 	/**

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.inc,v 1.6 2003/11/26 00:51:21 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: insert_link.inc,v 1.7 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     a link in the editable document
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class insert_link extends wysiwyg_plugin {
+class insert_link extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor
@@ -47,7 +48,8 @@ class insert_link extends wysiwyg_plugin {
 	* @returns object Insert_Link
 	* @access  public
 	*/
-	function insert_link() {
+	function insert_link()
+	{
 		$this->_add_button('createlink','CreateLink','Insert Web Link','false','32');
 		$this->_add_button('unlink','Unlink','Remove Link','false','33');
 	}
@@ -60,7 +62,8 @@ class insert_link extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_button_click() {
+	function print_plugin_button_click()
+	{
 		?>
 		case "createlink":
 			this._execCommand(cmd, true);
@@ -76,7 +79,8 @@ class insert_link extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_exec_command() {
+	function print_plugin_exec_command()
+	{
 		?>
 		case "createlink":
 			if (HTMLArea.is_ie || !UI) {

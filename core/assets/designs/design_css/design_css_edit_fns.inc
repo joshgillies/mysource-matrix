@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.5 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_css_edit_fns.inc,v 1.6 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,8 +69,8 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		return (!is_null($contents) && $this->_processContents($asset, $contents) && $asset->saveAttributes());
 
 	}//end parseAndProcessFile()
-	
-	
+
+
 	/**
 	* Parses the string into an array recursively cut up into html and tag pieces
 	*
@@ -87,12 +87,12 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		// copyright and content-type information
 		$file_contents= "<".$this->tag_name."_PRINT id_name='__global__' var='css_header' />\n"
 						.$file_contents;
-						
+
 		return parent::_parseString($asset, $file_contents);
 
 	}//end _parseString()
-	
-	
+
+
 	/**
 	* Creates a new file asset, populates it, and links it to $asset
 	* @param object Asset	$asset	the asset to link the file to
@@ -121,8 +121,8 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		return parent::_processUploadedFile($asset, $info);
 
 	}//end _processUploadedFile()
-	
-	
+
+
 	/**
 	* Creates the (hopefully ;) single accumulated design file for this design
 	*
@@ -361,7 +361,7 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 			}
 		}
 		$am->forgetAsset($minor);
-		
+
 		// release the lock on the new object
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -373,8 +373,8 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		return true;
 
 	}//end processNewCustomisation()
-	
-	
+
+
 	/**
 	*
 	* @param object Asset				$asset	the asset whose interface we are painting

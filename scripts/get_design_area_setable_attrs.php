@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: get_design_area_setable_attrs.php,v 1.4 2004/12/03 15:42:39 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: get_design_area_setable_attrs.php,v 1.5 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
 * Small script to return the design areas setable attributes and their descriptions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -83,7 +83,7 @@ if (!SQ_PHP_CLI) {
 <html>
 <title>Settable Attributes for Instantiable Design Areas</title>
 <style type="text/css">
-	body, table, td, th { 
+	body, table, td, th {
 		font-family: verdana, arial, sans-serif;
 		font-size: 9pt;
 		background-color: #ffffff;
@@ -120,7 +120,7 @@ foreach ($design_areas as $type_code) {
 
 	if (SQ_PHP_CLI) {
 		echo $type_code, " ", str_repeat('-', 80 - (strlen($type_code) + 1)), "\n";
-	
+
 	} else {
 	?>
 		<table>
@@ -145,7 +145,7 @@ foreach ($design_areas as $type_code) {
 			if (!SQ_PHP_CLI) $desc .= '<pre>';
 			else $desc .= "\n";
 			$desc .= "Options : \n";
-			foreach ($attr->_params['options'] as $value => $text) { 
+			foreach ($attr->_params['options'] as $value => $text) {
 				$desc .= $value.' => '.$text."\n";
 			}
 			if (!SQ_PHP_CLI) $desc .= '</pre>';
@@ -153,7 +153,7 @@ foreach ($design_areas as $type_code) {
 
 		if (SQ_PHP_CLI) {
 			echo "\t", $var_name, "\t" , $info['type'], "\t", $desc, "\n";
-		
+
 		} else {
 		?>
 			<tr>
@@ -168,7 +168,7 @@ foreach ($design_areas as $type_code) {
 
 	if (SQ_PHP_CLI) {
 		echo str_repeat('-', 80), "\n";
-	
+
 	} else {
 	?>
 		</table>

@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_div.php,v 1.6 2004/06/24 03:29:37 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: insert_div.php,v 1.7 2004/12/06 14:38:07 brobertson Exp $
+*
 */
 
 /**
@@ -29,7 +29,7 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,4 +106,4 @@ include(dirname(__FILE__)."/header.php");
 </table>
 </form>
 
-<?php include(dirname(__FILE__)."/footer.php"); ?> 
+<?php include(dirname(__FILE__)."/footer.php"); ?>

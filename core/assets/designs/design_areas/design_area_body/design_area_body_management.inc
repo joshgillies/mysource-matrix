@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body_management.inc,v 1.7 2004/07/06 23:20:01 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: design_area_body_management.inc,v 1.8 2004/12/06 14:38:08 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,7 +56,7 @@ class Design_Area_Body_Management extends Asset_Management
 							),
 						);
 
-	}//end Design_Area_Body_Management()
+	}//end constructor
 
 
 }//end class

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.9 2004/12/06 03:16:50 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_config_edit_interface.inc,v 1.10 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@
 *    Looks after the editing of the system config
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 class System_Config_Edit_Interface extends MySource_Object
@@ -133,7 +133,7 @@ class System_Config_Edit_Interface extends MySource_Object
 						require_once SQ_INCLUDE_PATH.'/external_tools_config.inc';
 						$config = new External_Tools_Config();
 						break;
-						
+
 				}// end switch
 				if (!empty($_POST['config_posted'])) {
 					$config->processBackend($o);

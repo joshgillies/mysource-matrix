@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.25 2004/11/25 01:12:32 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_status_under_construction.inc,v 1.26 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
@@ -38,7 +38,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *                                           the workflow and all required metadata is complete
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.26 $
 * @package MySource_Matrix
 */
 class Asset_Status_Under_Construction extends Asset_Status
@@ -106,7 +106,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 					$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
 				}
 			} else {
-				// so we have workflows, but none of them are running so lets see what will happen 
+				// so we have workflows, but none of them are running so lets see what will happen
 				// if this user approves to determine if they can live edit
 				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
 
@@ -114,7 +114,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				if ($mm->allowsMetadata($this->owner->id)) {
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
-	
+
 					if ($wf_complete && $m_complete) $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
 					else $statii[SQ_STATUS_PENDING_APPROVAL] = 'Apply for Approval';
 				} else {
@@ -124,7 +124,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 					$statii[SQ_STATUS_PENDING_APPROVAL] = 'Apply for Approval';
 				}
 			}
-			
+
 		}//end if workflow running
 
 		return $statii;
@@ -163,8 +163,8 @@ class Asset_Status_Under_Construction extends Asset_Status
 				$ms   = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 				$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name');
-			
-				if (!$wfm->silentWorkflowParty($this->owner->id)) { 
+
+				if (!$wfm->silentWorkflowParty($this->owner->id)) {
 					$log = $ms->newMessage();
 					$log->subject = 'Workflow Started';
 					$log->body    = 'User "'.$user->name.'" has requested '.$asset_type.' "'.$this->owner->name.'" to go live from '.$this->getDescription().'.';
@@ -185,7 +185,7 @@ class Asset_Status_Under_Construction extends Asset_Status
 				// notify people that the asset has gone live
 				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 				if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) return false;
-			
+
 				// update the last published date
 				if (!$this->owner->setDate('published', time())) return false;
 				break;

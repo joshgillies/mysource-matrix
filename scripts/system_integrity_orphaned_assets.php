@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.4 2004/12/03 15:42:39 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_integrity_orphaned_assets.php,v 1.5 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
@@ -27,7 +27,7 @@
 * the minor) underneath a specified asset id, preferably a folder
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -60,7 +60,7 @@ if ($ROOT_ASSETID == 1) {
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
-	
+
 // check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
@@ -78,17 +78,17 @@ $db =& $GLOBALS['SQ_SYSTEM']->db;
 // go trough each wysiwyg in the system, lock it, validate it, unlock it
 $assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'asset', false);
 foreach ($assets as $assetid => $type_code) {
-	
+
 	$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $type_code);
 	printAssetName($asset);
-	
+
 	// try to lock the asset
 	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'links')) {
 		printUpdateStatus('LOCK');
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 		continue;
 	}
-	
+
 
 	$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_ALL, 'asset', false, 'minor');
 
@@ -106,7 +106,7 @@ foreach ($assets as $assetid => $type_code) {
 	$errors = false;
 
 	foreach (array_keys($links) as $linkid) {
-		$link =& $links[$linkid];	
+		$link =& $links[$linkid];
 		if ($link['linkid'] == 1) continue;
 
 		$major_asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($link['majorid']),'asset',false);
@@ -230,7 +230,7 @@ foreach ($assets as $assetid => $type_code) {
 		printUpdateStatus('--');
 	}
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-	
+
 }//end foreach
 
 
@@ -249,7 +249,7 @@ function printAssetName(&$asset)
 	$str = '[ #'.$asset->id.' ]'.$asset->name;
 	if (strlen($str) > 66) $str = substr($str, 0, 66).'...';
 	printf ('%s%'.(70 - strlen($str)).'s', $str,'');
-	
+
 }//end printAssetName()
 
 
@@ -264,7 +264,7 @@ function printAssetName(&$asset)
 function printUpdateStatus($status)
 {
 	echo "[ $status ]\n";
-	
+
 }//end printUpdateStatus()
 
 

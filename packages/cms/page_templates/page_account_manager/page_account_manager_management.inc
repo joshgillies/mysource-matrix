@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.16 2004/11/18 05:12:48 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_account_manager_management.inc,v 1.17 2004/12/06 14:41:39 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -85,7 +85,7 @@ class Page_Account_Manager_Management extends Asset_Management
 														'type'      => 'wysiwyg',
 														'default'   => '<p>Your account details have been updated.</p>',
 													);
-													
+
 		$this->vars['use_email_validation']		= Array(
 														'added'     => '0.1',
 														'type'      => 'boolean',

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.30 2004/11/15 03:49:28 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: html_tidy.inc,v 1.31 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -37,11 +37,12 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 * @author	Greg Sherwood		<greg@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.31 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class HTML_Tidy extends Wysiwyg_Plugin {
+class HTML_Tidy extends Wysiwyg_Plugin
+{
 
 	/**
 	* Speical inline tags that HTMLTidy needs to know about

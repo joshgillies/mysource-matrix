@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.233 2004/12/06 03:16:24 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_edit_interface.inc,v 1.234 2004/12/06 14:38:12 brobertson Exp $
+*
 */
 
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.233 $
+* @version $Revision: 1.234 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -128,9 +128,9 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 			if (!empty($root->children[$i]->attributes['default'])) $this->_default_screen = $code_name;
-		}// end for
+		}//end for
 
-	}// end constructor;
+	}//end constructor
 
 
 	/**
@@ -267,9 +267,9 @@ class Asset_Edit_Interface extends MySource_Object
 						}
 
 					}
-				}// end if
+				}//end if
 
-			}// end foreach lock types
+			}//end foreach lock types
 
 			if (SQ_IN_LIMBO && $do_the_limbo_lock) {
 
@@ -367,12 +367,12 @@ class Asset_Edit_Interface extends MySource_Object
 								<?php echo $expires_in; ?>
 								<?php
 
-							}// end if
+							}//end if
 							?>
 						</td>
 					</tr>
 				<?php
-				}// end foreach lock types
+				}//end foreach lock types
 				?>
 							</table>
 						</td>
@@ -403,7 +403,7 @@ class Asset_Edit_Interface extends MySource_Object
 						hidden_field('sq_lock_acquire_by_force', '0');
 						submit_button('sq_lock_acquire', 'Lock');
 						echo '&nbsp;';
-					}// end if
+					}//end if
 				}
 
 				if ($have_any_locks) {
@@ -425,7 +425,7 @@ class Asset_Edit_Interface extends MySource_Object
 				hidden_field('sq_lock_type', $screen_lock_type);
 			$o->closeRaw();
 
-		}// end if
+		}//end if
 
 		// We need to check if we are going to paint the layout here, so no static screens get printed
 		$paint_layout = false;
@@ -461,7 +461,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$active_screen_name = $this->_screens[$active_screen]['name'];
 
-		}// end if
+		}//end if
 
 
 		  ///////////////////
@@ -670,7 +670,7 @@ class Asset_Edit_Interface extends MySource_Object
 				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
 				$o->addStaticScreen($url, $data['name']);
 			}
-			
+
 			for (reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
 				if ($check_screen_restrictions && !isset($allowed_screens[$code])) continue;
 				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
@@ -781,7 +781,7 @@ class Asset_Edit_Interface extends MySource_Object
 										}
 									}
 
-								}// end if
+								}//end if
 
 								if ($field->children[1]->name == 'note' && $field->children[1]->content) {
 									echo '<br/>&nbsp;';
@@ -803,9 +803,9 @@ class Asset_Edit_Interface extends MySource_Object
 
 						}
 
-					}// end for fields
+					}//end for fields
 
-				}// end if section uses function call
+				}//end if section uses function call
 
 				if (!empty($section_note)) {
 					$o->sectionNote($section_note);
@@ -813,9 +813,9 @@ class Asset_Edit_Interface extends MySource_Object
 
 				$o->closeSection();
 
-			}// end for
+			}//end for
 
-		}// end if $file
+		}//end if $file
 
 		// we have printed an editable interface on a static screen - show the commit button
 		if ($print_commit_button) {
@@ -1065,7 +1065,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		return $print_commit_button;
 
-	}//end getStaticScreenKeywordReplacements()
+	}//end _getStaticScreenKeywordReplacements()
 
 
 	/**
@@ -1220,7 +1220,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 						$o->closeField();
 
-					}// end if
+					}//end if
 
 					if ($field->children[1]->name == 'note' && $field->children[1]->content) {
 						echo '<br/>&nbsp;';
@@ -1250,7 +1250,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		return $print_commit_button;
 
-	}//end getLayoutKeywordReplacements()
+	}//end _getLayoutKeywordReplacements()
 
 
 	/**
@@ -1351,7 +1351,7 @@ class Asset_Edit_Interface extends MySource_Object
 				$file = $this->_findFile('screen_'.$active_screen);
 				if (!$file) return false;
 
-			}// end if
+			}//end if
 
 			if ($file && $owner->writeAccess('')) {
 				$input = new XML_Tree($file);
@@ -1443,15 +1443,15 @@ class Asset_Edit_Interface extends MySource_Object
 									if ($this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix)) $ret_val = true;
 								}
 
-							}// end if
+							}//end if
 
-						}// end for fields
+						}//end for fields
 
-					}// end if section funcion call
+					}//end if section funcion call
 
-				}// end for
+				}//end for
 
-			}// end if $file
+			}//end if $file
 
 			if ($ret_val) {
 				// some attributes have been updated, so save the asset
@@ -1461,7 +1461,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		return $saved;
 
-	}//end process();
+	}//end process()
 
 
 	/**
@@ -1522,11 +1522,11 @@ class Asset_Edit_Interface extends MySource_Object
 							// meaning that this attribute is not to be written
 							break;
 
-					}// end switch
-				}// end if write access
-			}// end if preg
+					}//end switch
+				}//end if write access
+			}//end if preg
 
-		}// end if
+		}//end if
 
 		// if they have write access they have read access by definition
 		if ($access & SQ_EI_WRITE) {
@@ -1560,10 +1560,10 @@ class Asset_Edit_Interface extends MySource_Object
 							}
 						}
 
-				}// end switch
-			}// end if
+				}//end switch
+			}//end if
 
-		}// end if
+		}//end if
 
 		return $access;
 
@@ -1682,11 +1682,11 @@ class Asset_Edit_Interface extends MySource_Object
 				} else if ($field->children[1]->name == 'function_call') {
 					$fn_node = &$field->children[1]->children[(($painting) ? 0 : 1)];
 					$create_sections[$section->attributes['name']][] = $fn_node->attributes['name'];
-				}// end if
+				}//end if
 
-			}// end for
+			}//end for
 
-		}// end for
+		}//end for
 
 		return Array($create_sections, $root->attributes['screen']);
 

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.8 2004/12/06 03:13:47 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: maps.inc,v 1.9 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -126,7 +126,7 @@ class Maps extends MySource_Object
 				trigger_error('Active Screen "'.$active_screen.'" not known', E_USER_WARNING);
 		}//end switch
 
-	}//end paint()
+	}//end paintBackend()
 
 
 	/**
@@ -162,11 +162,11 @@ class Maps extends MySource_Object
 			while (false !== ($patchid = readdir($handle))) {
 				if (!preg_match('|^[0-9]{12}$|', $patchid)) continue;
 				$patch_details = $this->getPatchDetails($patchid);
-				
+
 				// is this an installed patch or not ?
 				if (isset($db_patches[$patchid])) {
 					$installed_date = date('F j, Y, g:i a', strtotime($db_patches[$patchid]));
-				
+
 					$installed_patches[$patchid] = Array(
 													'description' => $patch_details['patch_description'],
 													'installed'   => $installed_date,
@@ -189,9 +189,9 @@ class Maps extends MySource_Object
 			while (false !== ($patchid = readdir($handle))) {
 				if (!preg_match('|^[0-9]{12}$|', $patchid)) continue;
 				$patch_details = $this->getPatchDetails($patchid);
-				
+
 				if (!isset($db_patches[$patchid])) {
-				
+
 					$installed_patches[$patchid] = Array(
 													'description' => $patch_details['patch_description'],
 													'installed'   => 'unknown',
@@ -355,7 +355,7 @@ class Maps extends MySource_Object
 				$hh->queueHipo('hipo_job_install_patch', Array('patchid' => trim($patchid)), '', SQ_SYSTEM_ROOT.'/core/maps');
 			}
 		}
-		
+
 		// uninstall patches
 		if (isset($_POST['maps_uninstall_patch'])) {
 			foreach ($_POST['maps_uninstall_patch'] as $patchid => $on) {
@@ -368,8 +368,8 @@ class Maps extends MySource_Object
 		if (!empty($url)) $o->setRedirect($url);
 
 	}//end processPatches()
-	
-	
+
+
 	/**
 	* Paint a list of active locks
 	*
@@ -391,7 +391,7 @@ class Maps extends MySource_Object
 			trigger_error($db_locks->getMessage().'<br />'.$db_locks->getUserInfo(), E_USER_ERROR);
 		}
 
-		
+
 		if (empty($db_locks)) {
 			$o->openSection('Active Locks');
 				$o->openField('There are no active locks in the system');
@@ -399,28 +399,28 @@ class Maps extends MySource_Object
 			$o->openSection();
 			return true;
 		}
-		
+
 		$active_locks = Array();
 		$asset_info_ids = Array();
 		foreach ($db_locks as $lock) {
-			$lockid = $lock['lockid']; 
+			$lockid = $lock['lockid'];
 			if (substr($lockid, 0, 6) != 'asset.') continue;
 			$lockid = substr($lockid, 6);
 			$lock_type = substr($lockid, strrpos($lockid, '.') + 1);
 			$assetid = substr($lockid, 0, strrpos($lockid, '.'));
 			$active_locks[$lock['userid']]['locks'][$assetid][$lock_type] = $lock['expires'];
-			
+
 			if (!isset($active_locks[$lock['userid']]['num_locks'])) $active_locks[$lock['userid']]['num_locks'] = 0;
 			$active_locks[$lock['userid']]['num_locks']++;
-			
+
 			$asset_info_ids[$lock['userid']] = $lock['userid'];
 			$asset_info_ids[$assetid] = $assetid;
 		}
-		
+
 		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($asset_info_ids));
 
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-		
+
 		$o->openSection('Active Locks');
 			$o->openField('');
 				?>
@@ -528,7 +528,7 @@ class Maps extends MySource_Object
 	function getPatchDetails($patchid)
 	{
 		require_once 'XML/Tree.php';
-		
+
 		$patch_file = SQ_DATA_PATH.'/private/maps/downloaded_patches/'.$patchid.'/patch'.$patchid.'.xml';
 		$input = new XML_Tree($patch_file);
 		$root  = &$input->getTreeFromFile();
@@ -541,7 +541,7 @@ class Maps extends MySource_Object
 		$patch_info['reversible'] = $root->attributes['reversible'];
 		$patch_info['severity']   = $root->attributes['severity'];
 		$patch_info['run_script'] = $root->attributes['run_script'];
-		
+
 		foreach ($root->children as $node) {
 			switch (strtolower($node->name)) {
 				case 'requirements' :
@@ -578,7 +578,7 @@ class Maps extends MySource_Object
 						}
 					}
 				break;
-				
+
 				case 'runscriptfor'		   :
 					// If this is set, need to get all packages that need to
 					// have the script run for them.
@@ -586,7 +586,7 @@ class Maps extends MySource_Object
 					foreach ($node->children as $package) {
 						if (strtolower($package->name) != 'package') continue;
 						if (!isset($package->attributes['name'])) continue;
-						
+
 						$types = Array();
 						foreach ($package->children as $asset_type) {
 							$types[] = $asset_type->content;
@@ -594,7 +594,7 @@ class Maps extends MySource_Object
 						$patch_info['runscriptfor'][$package->attributes['name']] = $types;
 					}
 				break;
-				
+
 				case 'patch_description'   :
 				case 'reverse_description' :
 					$patch_info[strtolower($node->name)] = trim($node->content);

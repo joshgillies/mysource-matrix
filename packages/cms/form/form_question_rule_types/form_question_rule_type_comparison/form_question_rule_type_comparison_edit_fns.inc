@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison_edit_fns.inc,v 1.12 2004/05/05 07:10:12 lwright Exp $
-* $Name: not supported by cvs2svn $
+* $Id: form_question_rule_type_comparison_edit_fns.inc,v 1.13 2004/12/06 14:41:38 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -48,8 +48,8 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 	{
 		$this->Form_Question_Rule_Edit_Fns();
 
-	}//end Form_Question_Rule_Type_Comparison_Edit_Fns()
-	
+	}//end constructor
+
 
 }//end class
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_embed_movie.inc,v 1.17 2004/12/03 15:43:04 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: matrix_embed_movie.inc,v 1.18 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     in the editable document using a file asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
-class matrix_embed_movie extends wysiwyg_plugin {
+class matrix_embed_movie extends wysiwyg_plugin
+{
 
 	var $_img_url = '';
 
@@ -88,7 +89,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 					var fragment = this._doc.createDocumentFragment();
 					var div = this._doc.createElement("div");
 					div.innerHTML = this.getSelectedHTML();
-					while (div.firstChild) { 
+					while (div.firstChild) {
 						if (div.firstChild.tagName == "IMG" && div.firstChild.getAttribute('sq_embeded') == "1") {
 							is_file = true;
 							var embed_tag = div.firstChild;
@@ -112,7 +113,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 					auto_start    = embed_tag.getAttribute('auto_start');
 					show_controls = embed_tag.getAttribute('show_controls');
 					embed_loop    = embed_tag.getAttribute('embed_loop');
-					
+
 					// try getting the width and height from the style
 					style = embed_tag.style;
 					width  = style.width;
@@ -129,7 +130,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 					// failsafe
 					if (!width)  { width  = "" }
 					if (!height) { height = "" }
-					
+
 				}
 
 				var in_popup = '0';
@@ -139,7 +140,7 @@ class matrix_embed_movie extends wysiwyg_plugin {
 				strPage = "<?php echo $this->get_popup_href('embed_movie.php')?>?f_fileid=" + escape(fileid) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_auto_start=" + escape(auto_start) + "&f_show_controls=" + escape(show_controls) + "&f_embed_loop=" + escape(embed_loop) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
 				this._popupDialog("matrixEmbedMovie", strPage, 600, 480, true, function(param) {
-					if (!param) { 
+					if (!param) {
 						// user must have pressed Cancel
 						return false;
 					}
@@ -255,13 +256,13 @@ class matrix_embed_movie extends wysiwyg_plugin {
 			}
 
 			ob_start();
-			
+
 			?>
 			<sq_wysiwyg_embed_movie <?php echo $match; ?>>
 			<?php
 
 			switch (strtolower(get_file_type($filename))) {
-				
+
 				// Quicktime Movie
 				case 'mov' :
 					if (!isset($movie_vars['embed_loop']))    $movie_vars['embed_loop']    = '0';
@@ -288,24 +289,24 @@ class matrix_embed_movie extends wysiwyg_plugin {
 					if (!isset($movie_vars['embed_loop']))    $movie_vars['embed_loop']    = '0';
 					if (!isset($movie_vars['show_controls'])) $movie_vars['show_controls'] = '0';
 					if (!isset($movie_vars['auto_start']))    $movie_vars['auto_start']    = '0';
-					
+
 					?><object id="WinMedia" classid="CLSID:22d6f312-b0f6-11d0-94ab-0080c74c7e95"
 					  codebase= "http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=5,1,52,701"
-					  <?php echo $width; ?> <?php echo $height; ?> 
+					  <?php echo $width; ?> <?php echo $height; ?>
 					  standby="Loading Microsoft Windows Media Player components..." type="application/x-oleobject">
 						<param name="FileName"     value="./?a=<?php echo $fileid; ?>">
 						<param name="AutoStart"    value="<?php echo ($movie_vars['auto_start'])    ? 'true' : 'false'; ?>">
 						<param name="ShowControls" value="<?php echo ($movie_vars['show_controls']) ? 'true' : 'false'; ?>">
 						<param name="loop"         value="<?php echo ($movie_vars['embed_loop'])    ? 'true' : 'false';?>">
-						<embed type="application/x-mplayer2" 
-							pluginspage="http://www.microsoft.com/Windows/MediaPlayer/" 
-							src="./?a=<?php echo $fileid; ?>" 
-							name="MediaPlayer" 
-							AutoStart="<?php echo ($movie_vars['auto_start'])       ? 'true' : 'false'; ?>" 
-							ShowControls="<?php echo ($movie_vars['show_controls']) ? 'true' : 'false'; ?>" 
+						<embed type="application/x-mplayer2"
+							pluginspage="http://www.microsoft.com/Windows/MediaPlayer/"
+							src="./?a=<?php echo $fileid; ?>"
+							name="MediaPlayer"
+							AutoStart="<?php echo ($movie_vars['auto_start'])       ? 'true' : 'false'; ?>"
+							ShowControls="<?php echo ($movie_vars['show_controls']) ? 'true' : 'false'; ?>"
 							loop="<?php echo ($movie_vars['embed_loop'])            ? 'true' : 'false'; ?>"
-							<?php echo $width; ?> 
-							<?php echo $height; ?> 
+							<?php echo $width; ?>
+							<?php echo $height; ?>
 						></embed>
 					</object><?php
 				break;

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_prefs.inc,v 1.1 2004/11/29 02:12:40 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: file_prefs.inc,v 1.2 2004/12/06 14:38:09 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/prefs.inc';
 *    Looks after the creation the WYSIWYG preferences
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 class File_Prefs extends Prefs
@@ -76,7 +76,7 @@ class File_Prefs extends Prefs
 
 		if (is_null($pref) || $pref == 'SQ_FILE_MAX_SIZE') {
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			
+
 			// work out the max file size that PHP is allowing
 			$post_size = strtolower(ini_get('post_max_size'));
 			if (substr($post_size, -1) == 'k') {
@@ -84,7 +84,7 @@ class File_Prefs extends Prefs
 			} else if (substr($post_size, -1) == 'm') {
 				$post_size = $post_size * 1024 * 1024;
 			}
-			
+
 			$mem_limit_size = strtolower(ini_get('memory_limit'));
 			if (substr($mem_limit_size, -1) == 'k') {
 				$mem_limit_size = $mem_limit_size * 1024;
@@ -152,7 +152,7 @@ class File_Prefs extends Prefs
 				}
 			}
 		}
-	
+
 		return true;
 
 	}//end processBackend()

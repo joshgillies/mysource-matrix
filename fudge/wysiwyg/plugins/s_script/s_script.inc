@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: s_script.inc,v 1.6 2003/11/26 00:51:22 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: s_script.inc,v 1.7 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     and subscript text
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class s_script extends wysiwyg_plugin {
+class s_script extends wysiwyg_plugin
+{
 
 	/**
 	* Constructor
@@ -47,7 +48,8 @@ class s_script extends wysiwyg_plugin {
 	* @returns object S_Script
 	* @access  public
 	*/
-	function s_script() {
+	function s_script()
+	{
 		$this->_add_button('subscript','SubScript','Subscript','false','18');
 		$this->_add_button('superscript','SuperScript','SuperScript','false','19');
 	}

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: serialise.inc,v 1.8 2004/05/12 07:05:44 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: serialise.inc,v 1.9 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -47,11 +47,11 @@ class Asset_Attribute_Serialise extends Asset_Attribute
 	* @param mixed	$value			the current value for the element
 	*
 	*/
-	function Asset_Attribute_Serialise($attributeid=0, $value=null) 
+	function Asset_Attribute_Serialise($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, $value);
 
-	}// end constructor
+	}//end constructor
 
 
 	/**

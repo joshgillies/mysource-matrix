@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.10 2004/12/03 15:29:22 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: bodycopy_table_cell.inc,v 1.11 2004/12/06 14:38:07 brobertson Exp $
+*
 */
 
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -258,7 +258,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 		}
 
 		// print out the edit buttons
-		
+
 		print_bodycopy_icon("Javascript: bodycopy_edit_table_cell_properties('$prefix', $tableid, $rowid, $cellid);", 'Edit Cell '.($cellid + 1).' - '.($rowid+1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'cell_properties', '[Edit Cell Properties]');
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attributes['linkid'], $table->id);
@@ -273,7 +273,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 			$content_edit->paintBackendIcons($content_type, $content_prefix);
 		}
-		
+
 		return true;
 
 	}//end paintCell()
@@ -329,7 +329,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	* @return boolean
 	* @access private
 	*/
-	function _updateCellType(&$table, $new_type='') 
+	function _updateCellType(&$table, $new_type='')
 	{
 
 		// dont change anything if the new type id blank
@@ -378,6 +378,6 @@ class BodyCopy_Table_Cell extends MySource_Object
 	}//end printBackendJsData()
 
 
-}//end Class BodyCopy_Table_Cell
+}//end class
 
 ?>

@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_content_links.php,v 1.1 2004/03/25 05:22:59 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: system_integrity_content_links.php,v 1.2 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
 * Check the integrity of image/file asset NOTICE links in bodycopy contents
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -48,7 +48,7 @@ if ($ROOT_ASSETID == 1) {
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
-	
+
 // check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
@@ -64,24 +64,24 @@ if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
 // go trough each bodycopy_container in the system, lock it, validate it, unlock it
 $containerids = $GLOBALS['SQ_SYSTEM']->am->getChildren($ROOT_ASSETID, 'bodycopy_container', false);
 foreach ($containerids as $containerid => $type_code) {
-	
+
 	$container = &$GLOBALS['SQ_SYSTEM']->am->getAsset($containerid, $type_code);
 	printContainerName('Container #'.$container->id);
-	
+
 	// try to lock the container
 	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($container->id, 'links')) {
 		printUpdateStatus('LOCK');
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($container);
 		continue;
 	}
-	
+
 	$edit_fns = $container->getEditFns();
 	if (!$edit_fns->generateContentFile($container)) {
 		printUpdateStatus('FAILED');
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($container);
 		continue;
 	}
-	
+
 	// try to unlock the container
 	if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($container->id, 'links')) {
 		printUpdateStatus('!!');
@@ -90,7 +90,7 @@ foreach ($containerids as $containerid => $type_code) {
 	}
 	printUpdateStatus('OK');
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($container);
-	
+
 }//end foreach
 
 
@@ -106,8 +106,8 @@ foreach ($containerids as $containerid => $type_code) {
 */
 function printContainerName($name)
 {
-	printf ('%s%'.(30 - strlen($name)).'s', $name, ''); 
-	
+	printf ('%s%'.(30 - strlen($name)).'s', $name, '');
+
 }//end printContainerName()
 
 
@@ -122,7 +122,7 @@ function printContainerName($name)
 function printUpdateStatus($status)
 {
 	echo "[ $status ]\n";
-	
+
 }//end printUpdateStatus()
 
 

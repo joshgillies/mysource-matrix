@@ -19,8 +19,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.11 2004/12/03 15:17:42 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: remap_manager_edit_fns.inc,v 1.12 2004/12/06 14:38:10 brobertson Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $ - 1.0
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -43,7 +43,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 
 	/**
 	* Constructor
-	* 
+	*
 	* @see Asset_Edit_Fns::Asset_Edit_Fns
 	*/
 	function Remap_Manager_Edit_Fns()
@@ -181,7 +181,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 				return false;
 			}
 		}
-	
+
 	}//end processEditRemapURLs()
 
 
@@ -201,7 +201,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		The <i>Old URL</i> is the URL that you want remapped. The <i>New URL</i> is the URL that a user will be redirected to when they visit the <i>Old URL</i>.
 		<?php
 		$o->closeField();
-		
+
 		$o->openField('Old URL');
 			text_box($prefix.'_add_remap_old_url', '', 50);
 		$o->closeField();
@@ -364,8 +364,8 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 
 	}//end processAddPageNotFoundRemap()
-	
-	
+
+
 }//end class
 
 ?>

@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: format_text.inc,v 1.9 2004/10/13 03:57:55 dbaranovskiy Exp $
-* $Name: not supported by cvs2svn $
+* $Id: format_text.inc,v 1.10 2004/12/06 14:39:54 brobertson Exp $
+*
 */
 
 
@@ -34,11 +34,12 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     and strikethrough. Also has remove all formatting function
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.10 $
 * @package Fudge
 * @subpackage wysiwyg
 */
-class Format_Text extends WYSIWYG_Plugin {
+class Format_Text extends WYSIWYG_Plugin
+{
 
 
 	/**
@@ -48,7 +49,8 @@ class Format_Text extends WYSIWYG_Plugin {
 	* @returns object Format_Text
 	* @access  public
 	*/
-	function format_text() {
+	function format_text()
+	{
 		$this->_add_button('bold','Bold','Bold','false','14');
 		$this->_add_button('italic','Italic','Italic','false','15');
 		$this->_add_button('underline','Underline','Underline','false','16');
@@ -65,7 +67,8 @@ class Format_Text extends WYSIWYG_Plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_shortcuts() {
+	function print_plugin_shortcuts()
+	{
 		?>
 		case 'b':	// KEY bold
 			(!HTMLArea.is_ie) && (cmd = "bold");

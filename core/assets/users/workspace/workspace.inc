@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.24 2004/11/18 05:06:22 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: workspace.inc,v 1.25 2004/12/06 14:38:11 brobertson Exp $
+*
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,7 +78,7 @@ class Workspace extends Folder
 	function create(&$link)
 	{
 		$username = $link['asset']->attr('username');
-		
+
 		// check that we are not going to have web path conflicts
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_names = make_valid_web_paths(Array($username));
@@ -100,9 +100,9 @@ class Workspace extends Folder
 		$this->setAttrValue('name', '~'.$username);
 
 		return parent::create($link);
-		
+
 	}//end create()
-	
+
 
 	/**
 	* Gets the user that this workspace is attached to
@@ -148,7 +148,7 @@ class Workspace extends Folder
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
 		$user = &$this->_getUser();
-		
+
 		if (is_null($user)) {
 			return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		}
@@ -179,7 +179,7 @@ class Workspace extends Folder
 			return parent::_checkPermissionAccess($perm, $assetids);
 		}
 
-	}//end checkAccess()
+	}//end _checkPermissionAccess()
 
 
 	/**
@@ -191,7 +191,7 @@ class Workspace extends Folder
 	{
 		bam('WORKSPACE printBody(): NOT DONE YET');
 
-	}// end printBody()
+	}//end printBody()
 
 
 	/**
@@ -206,7 +206,7 @@ class Workspace extends Folder
 	{
 		return 'Workspace';
 
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
@@ -223,9 +223,9 @@ class Workspace extends Folder
 		if (empty($vars)) return false;
 		if (!isset($vars['username'])) return false;
 		if (!$this->setAttrValue('name', '~'.$vars['username'])) return false;
-		
+
 		return $this->saveAttributes(false);
-	
+
 	}//end onUsernameUpdated()
 
 
@@ -263,7 +263,7 @@ class Workspace extends Folder
 
 	}//end saveAttributes()
 
-	
+
 }//end class
 
 ?>

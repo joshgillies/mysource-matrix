@@ -18,15 +18,15 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_menu_design_areas.php,v 1.2 2004/05/03 05:33:38 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: upgrade_menu_design_areas.php,v 1.3 2004/12/06 14:38:13 brobertson Exp $
+*
 */
 
 /**
 * Upgrade menu design areas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -43,7 +43,7 @@ require_once $SYSTEM_ROOT.'/core/include/init.inc';
 // ask for the root password for the system
 echo 'Enter the root password for "'.SQ_CONF_SYSTEM_NAME.'": ';
 $root_password = rtrim(fgets(STDIN, 4094));
-	
+
 // check that the correct root password was entered
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 if (!$root_user->comparePassword($root_password)) {
@@ -66,21 +66,21 @@ $trash = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 ////////////////////////////////
 $menuids = $GLOBALS['SQ_SYSTEM']->am->getChildren('1', 'design_area_menu_type', false);
 foreach ($menuids as $menuid => $type_code) {
-	
+
 	$menu = &$GLOBALS['SQ_SYSTEM']->am->getAsset($menuid);
 	$id_name = $menu->attr('id_name').' (#'.$menu->id.')';
 	if (strpos($id_name, '__sub_menu') !== false) continue;
-	
+
 	// if this asset is in the trash, we dont have to do it
 	if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($menu->id, true)) continue;
-	
+
 	// if this menu design area doesnt have a sub menu design area, we dont have to do it
 	$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($menu->id, SQ_LINK_TYPE_3, 'design_area_menu_type', false);
 	if (empty($links)) {
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($menu);
 		continue;
 	}
-	
+
 	// okay, we got to here so this menu has subs - we're going for it!!
 	printName($id_name);
 
@@ -106,10 +106,10 @@ foreach ($menuids as $menuid => $type_code) {
 		if ($design->type() != 'design') continue;
 		$designs_to_reparse[] = $design->id;
 	}
-	
+
 	printUpdateStatus('OK');
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($menu);
-	
+
 }//end foreach
 
 
@@ -121,7 +121,7 @@ if (!empty($designs_to_reparse)) {
 	foreach (array_unique($designs_to_reparse) as $designid) {
 		$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid);
 		printName('Reparse design "'.$design->name.'"');
-		
+
 		// try to lock the design
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetid' => $designid, 'lock_type' => 'parsing', 'forceably_acquire' => false);
@@ -153,15 +153,15 @@ if (!empty($designs_to_reparse)) {
 ////////////////////////
 function printName($name)
 {
-	printf ('%s%'.(40 - strlen($name)).'s', $name, ''); 
-	
+	printf ('%s%'.(40 - strlen($name)).'s', $name, '');
+
 }//end printName()
 
 
 function printUpdateStatus($status)
 {
 	echo "[ $status ]\n";
-	
+
 }//end printUpdateStatus()
 
 
