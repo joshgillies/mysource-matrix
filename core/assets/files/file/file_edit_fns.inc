@@ -155,6 +155,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 					<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
 					<b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?><br/>
 					<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br/>
+					<input type="checkbox" name="<?php echo $prefix?>_delete_thumbnail" value="1">&nbsp;Remove Thumbnail<br/>
 					</p>
 				<?php
 			} else {
@@ -179,6 +180,15 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
 		$thumbid = (int) $_POST[$prefix.'_thumbid'];
+
+		if (isset($_POST[$prefix.'_delete_thumbnail'])) {
+			// they want to remove the thumbnail
+
+			// get the current thumbnail if there is one
+			$thumb_link = $asset->getLink(SQ_LINK_USES, 'thumbnail', true, 'thumbnail');
+			if (!$asset->deleteLink($thumb_link['linkid'])) return false;
+		}
+
 		if (!$thumbid) return true;
 
 		$thumb = $am->getAsset($thumbid, '', true);
