@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338 2004/12/03 15:33:23 brobertson Exp $
+* $Id: asset.inc,v 1.339 2004/12/15 05:36:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338 $
+* @version $Revision: 1.339 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2594,13 +2594,13 @@ class Asset extends MySource_Object
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
 	*							permissions set for this asset, otherwise returns effective access based on locking
 	*							and status
-	* @param Array	$assetids	An array of user_group and/or user ids to check for write access
+	* @param array	$assetids	An array of user_group and/or user ids to check for write access
 	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type, $assetids=Array())
+	function writeAccess($lock_type='', $assetids=Array())
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id || !empty($GLOBALS['SQ_INSTALL'])) return true;
@@ -2622,7 +2622,7 @@ class Asset extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function adminAccess($lock_type, $assetids=Array())
+	function adminAccess($lock_type='', $assetids=Array())
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id || !empty($GLOBALS['SQ_INSTALL']) || !empty($this->_tmp[__CLASS__.'_in_create_cascading'])) return true;
