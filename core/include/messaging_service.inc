@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.27 2004/08/09 09:06:37 brobertson Exp $
+* $Id: messaging_service.inc,v 1.28 2004/09/15 04:23:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,13 +47,14 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 */
 class Messaging_Service extends MySource_Object
 {
+
 	/**
 	* Temporary holder for messages added to queues and logs
 	*
 	* @var Array()
 	*/
-	var $_levels = Array(	'queues' => Array(),
-							'logs'   => Array()
+	var $_levels = Array('queues' => Array(),
+						 'logs'   => Array(),
 						);
 
 
