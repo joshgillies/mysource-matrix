@@ -46,30 +46,6 @@ class Design_Customisation extends Design
 
 
 	/**
-	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
-	*
-	* @param object Asset	$minor		the minor asset that we are linking to
-	* @param string			$link_type	the type of link this is
-	* @param string			$value		the value that is to be associated with this link
-	* @param string			$sort_order	the position in the links list that this link should take,
-	*									if null or less than zero places at end of list
-	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the
-	*									asset that will be linked by this new link
-	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly
-	*									to the asset that will be linked by this new link
-	*
-	* @return int
-	* @access public
-	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
-	{
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-
-	}//end createLink()
-
-
-	/**
 	* Removes a link where this asset is the major player
 	*
 	* @param int	$linkid	the link id of the link to remove
