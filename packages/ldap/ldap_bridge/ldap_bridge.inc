@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.16 2004/10/07 04:45:07 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.17 2004/11/04 04:57:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,7 +108,9 @@ class LDAP_Bridge extends Bridge
 		$asset = null;
 		if (empty($shadowid)) return $asset;
 		
-		$ldap = $this->connectToLdap();
+		$ldap = @$this->connectToLdap();
+			if (is_null($ldap->ptr)) return $asset;
+
 			$result = $ldap->search($shadowid,'(objectClass=*)', null, false, false);
 			if (!$result) return $asset;
 
@@ -184,7 +186,8 @@ class LDAP_Bridge extends Bridge
 			}
 
 			if (is_null($entries)) {
-				$ldap = $this->connectToLdap();
+				$ldap = @$this->connectToLdap();
+				if (is_null($ldap->ptr)) return Array();
 
 				if ($assetid == $this->id) $base_dn = $this->attr('root_dn');
 				else $base_dn = $assetid;
@@ -229,7 +232,7 @@ class LDAP_Bridge extends Bridge
 					$class = strtolower($class);
 					foreach ($this->_group_types as $key => $value) {
 						if ($class == $key) {
-							if (!isset($data[$attrs[$value]][0])) continue(3);
+							if (!isset($attrs[$value]) || !isset($data[$attrs[$value]][0])) continue(3);
 							$name = $data[$attrs[$value]][0];
 							$type = 'ldap_user_group';
 						}
@@ -239,7 +242,7 @@ class LDAP_Bridge extends Bridge
 					if (empty($type)) {
 						foreach ($this->_user_types as $key => $value) {
 							if ($class == $key) {
-								if (!isset($data[$attrs[$value]][0])) continue(2);
+								if (!isset($attrs[$value]) || !isset($data[$attrs[$value]][0])) continue(2);
 								$name = $data[$attrs[$value]][0];
 								$type = 'ldap_user';
 							}
@@ -297,7 +300,9 @@ class LDAP_Bridge extends Bridge
 		if (!in_array('user_group', $type_code)) return Array();
 
 		if (!isset($this->_tmp['getParents'][$assetid])) {
-			$ldap = $this->connectToLdap();
+			$ldap = @$this->connectToLdap();
+			if (is_null($ldap->ptr)) return Array();
+
 			$result = $ldap->search($assetid,'(objectClass=*)');
 			if (!$result) return $asset;
 			
@@ -378,7 +383,9 @@ class LDAP_Bridge extends Bridge
 			if (empty($type_code)) $type_code = Array();
 			else $type_code = Array($type_code);
 		}
-		$ldap = $this->connectToLdap();
+
+		$ldap = @$this->connectToLdap();
+		if (is_null($ldap->ptr)) return Array();
 
 		if ($assetid == $this->id) $base_dn = $this->attr('root_dn');
 		else $base_dn = $assetid;
