@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.73 2004/10/15 03:31:43 arailean Exp $
+* $Id: init.inc,v 1.74 2004/11/18 04:39:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,7 +28,7 @@
 * The file that needs to be included to do anything
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 */
 
@@ -55,7 +55,7 @@ define('SQ_PHP_CLI', (php_sapi_name() == 'cli'));
 */
 
 define('SQ_TABLE_PREFIX',          'sq_');
-define('SQ_TABLE_ROLLBACK_PREFIX', 'sq_rollback_');
+define('SQ_TABLE_ROLLBACK_PREFIX', 'sq_rb_');
 
 
 /*

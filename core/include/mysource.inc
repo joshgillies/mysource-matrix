@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.55 2004/11/16 03:40:56 lwright Exp $
+* $Id: mysource.inc,v 1.56 2004/11/18 04:39:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -344,7 +344,7 @@ class MySource
 			}
 
 			$sql = 'SELECT ld.designid, a.type_code
-					FROM '.SQ_TABLE_PREFIX.'asset_lookup_design ld INNER JOIN '.SQ_TABLE_PREFIX.'asset a ON ld.designid = a.assetid
+					FROM '.SQ_TABLE_PREFIX.'ast_lookup_design ld INNER JOIN '.SQ_TABLE_PREFIX.'ast a ON ld.designid = a.assetid
 					WHERE ld.url  = '.$db->quote(strip_url(current_url(false, true))).'
 					  AND ld.name = '.$db->quote('system_design::login');
 			$result = $db->getRow($sql);
@@ -512,8 +512,8 @@ class MySource
 
 					// note that we dont prep this query for rollback select
 					// because we are selecting directly from the rollback table
-					$sql = 'SELECT '.SQ_TABLE_PREFIX.'effective_from AS efrom
-							FROM '.SQ_TABLE_ROLLBACK_PREFIX.'asset
+					$sql = 'SELECT '.SQ_TABLE_PREFIX.'eff_from AS efrom
+							FROM '.SQ_TABLE_ROLLBACK_PREFIX.'ast
 							WHERE assetid = '.$this->db->quote($assetid).'
 							  AND version = '.$this->db->quote($version);
 
@@ -1132,9 +1132,9 @@ class MySource
 		$then = $_SESSION['sq_rollback_view']['rollback_time'];
 
 		if (!empty($where)) $where .= ' AND ';
-		$where .= $table_alias.SQ_TABLE_PREFIX.'effective_from <= '.$this->db->quote($then).'
-				  AND ('.$table_alias.SQ_TABLE_PREFIX.'effective_to IS NULL
-					   OR '.$table_alias.SQ_TABLE_PREFIX.'effective_to > '.$this->db->quote($then).')';
+		$where .= $table_alias.SQ_TABLE_PREFIX.'eff_from <= '.$this->db->quote($then).'
+				  AND ('.$table_alias.SQ_TABLE_PREFIX.'eff_to IS NULL
+					   OR '.$table_alias.SQ_TABLE_PREFIX.'eff_to > '.$this->db->quote($then).')';
 
 		return ' '.$prefix.' '.$where;
 
@@ -1176,28 +1176,28 @@ class MySource
 
 		$col_string = implode(', ', $table_cols);
 		$where_cond = trim($where_cond);
-		static $effective_from;
+		static $eff_from;
 
-		// $effective_from is declared as a static variable so that every time
-		// this function gets called through a script execution, the effective_from
+		// $eff_from is declared as a static variable so that every time
+		// this function gets called through a script execution, the eff_from
 		// time is always the same, and so rollback entries are in sync
-		if (empty($effective_from)) $effective_from = time();
-		$from_time = $effective_from;
+		if (empty($eff_from)) $eff_from = time();
+		$from_time = $eff_from;
 
 		$delete = ' DELETE FROM '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
-					WHERE '.SQ_TABLE_PREFIX.'effective_from = '.$this->db->quote(ts_iso8601($from_time)).'
+					WHERE '.SQ_TABLE_PREFIX.'eff_from = '.$this->db->quote(ts_iso8601($from_time)).'
 					  AND '.$where_cond;
-		// set the effective_to time of the latest rollback entry to the
-		// effective_from of the new entry
+		// set the eff_to time of the latest rollback entry to the
+		// eff_from of the new entry
 		$update = ' UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
-					SET '.SQ_TABLE_PREFIX.'effective_to = '.$this->db->quote(ts_iso8601($from_time)).'
-					WHERE '.SQ_TABLE_PREFIX.'effective_to IS NULL
+					SET '.SQ_TABLE_PREFIX.'eff_to = '.$this->db->quote(ts_iso8601($from_time)).'
+					WHERE '.SQ_TABLE_PREFIX.'eff_to IS NULL
 					  AND '.$where_cond;
 
 		// need an INSERT SELECT to add a rollback entry because we are basically just copying rows
 		// from the "live data" table to the rollback table
 		$insert = ' INSERT INTO '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
-					('.SQ_TABLE_PREFIX.'effective_from, '.SQ_TABLE_PREFIX.'effective_to, '.$col_string.') ';
+					('.SQ_TABLE_PREFIX.'eff_from, '.SQ_TABLE_PREFIX.'eff_to, '.$col_string.') ';
 		$select = ' SELECT '.$this->db->quote(ts_iso8601($from_time)).', NULL, '.$col_string.'
 					FROM '.SQ_TABLE_PREFIX.$table_name.'
 					WHERE '.$where_cond;
@@ -1210,7 +1210,7 @@ class MySource
 		$result = $this->db->query($delete);
 		assert_valid_db_result($result);
 
-		// replace the NULL value effective_to entries because we are adding our own now
+		// replace the NULL value eff_to entries because we are adding our own now
 		$result = $this->db->query($update);
 		assert_valid_db_result($result);
 
@@ -1267,7 +1267,7 @@ class MySource
 		} else {
 			$rollback_sql .= ' WHERE ';
 		}
-		$rollback_sql .= SQ_TABLE_PREFIX.'effective_to IS NULL';
+		$rollback_sql .= SQ_TABLE_PREFIX.'eff_to IS NULL';
 
 		// add the rollback entries for the rows are going to update
 		if (!$this->_addRollbackEntry($table_name, $where_cond)) {
@@ -1760,7 +1760,7 @@ class MySource
 	*/
 	function getInstalledPackages()
 	{
-		$sql = 'SELECT code_name, version, name, description FROM '.SQ_TABLE_PREFIX.'package';
+		$sql = 'SELECT code_name, version, name, description FROM '.SQ_TABLE_PREFIX.'pkg';
 		$packages = $this->db->getAll($sql);
 
 		if (DB::isError($packages)) {

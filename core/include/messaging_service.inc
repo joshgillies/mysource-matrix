@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.30 2004/11/16 23:06:33 gsherwood Exp $
+* $Id: messaging_service.inc,v 1.31 2004/11/18 04:39:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -369,7 +369,7 @@ class Messaging_Service extends MySource_Object
 		if (!is_null($get_user_name) && $get_user_name != 'name') 
 			$get_user_name = 'short_name';
 
-		$sql = 'SELECT m.messageid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';
+		$sql = 'SELECT m.msgid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.type, m.parameters';
 		if (is_string($get_user_name)) {
 			$sql .= ',
 					CASE
@@ -380,12 +380,14 @@ class Messaging_Service extends MySource_Object
 					' ELSE a.type_code END as type_code';
 		}
 
-		$sql  .= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message m';
+		$sql  .= ' FROM '.SQ_TABLE_PREFIX.'internal_msg m';
 		$where = 'm.userto = '.$db->quote($userid);
 
 		if (is_string($get_user_name)) {
-			$sql .= ' LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON m.userfrom = a.assetid';
+			$sql .= ' LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON m.userfrom = a.assetid';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		} else {
+			$where = 'WHERE '.$where;
 		}
 
 		if (!is_null($type)) $where .= ' AND m.type = '.$db->quote($type);
@@ -395,7 +397,7 @@ class Messaging_Service extends MySource_Object
 		}
 		if (!empty($messageids)) {
 			for($i = 0; $i < count($messageids); $i++) $messageids[$i] = $db->quote($messageids[$i]);
-			$where .= ' AND m.messageid IN ('.implode(', ', $messageids).')';
+			$where .= ' AND m.msgid IN ('.implode(', ', $messageids).')';
 		}
 		if (!empty($parameters)) {
 			foreach ($parameters as $param_key => $param_value) {
@@ -405,7 +407,6 @@ class Messaging_Service extends MySource_Object
 		if (!is_null($from)) $where .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
 		if (!is_null($to))   $where .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'm');
 		$sql .= ' '.$where.' ORDER BY m.sent DESC';
 
 		$result = $db->getAll($sql);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.225 2004/11/18 00:59:39 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.226 2004/11/18 04:39:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.225 $
+* @version $Revision: 1.226 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -114,7 +114,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		$this->_screens = Array();
-		for($i = 0; $i < count($root->children); $i++) {
+		for ($i = 0; $i < count($root->children); $i++) {
 			$code_name = strtolower(preg_replace('/[^a-z_]/', '', $root->children[$i]->attributes['code_name']));
 			if (!$code_name) continue;
 
@@ -122,7 +122,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$this->_screens[$code_name] = Array(
 												'name'			=> $root->children[$i]->attributes['display_name'],
-												'icon'			=> $root->children[$i]->attributes['icon'],
+												'use_tab'		=> ($root->children[$i]->attributes['use_tab'] == 'true') ? $root->children[$i]->attributes['use_tab'] : false,
 												'force_unlock'	=> ($force_unlock != '0'),
 												'lock_type'		=> (isset($root->children[$i]->attributes['lock_type'])) ? $root->children[$i]->attributes['lock_type'] : '',
 											);
@@ -157,7 +157,7 @@ class Asset_Edit_Interface extends MySource_Object
 	*/
 	function paint(&$owner, &$o, $creating)
 	{
-		// if we dont have read access, piss off
+		// if we dont have read access, go away
 		if ($owner->id && !$owner->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$owner->name.'</i>');
 			exit();
@@ -290,48 +290,46 @@ class Asset_Edit_Interface extends MySource_Object
 					$o->openSection('Locking / Editing');
 					$o->openField('&nbsp;');
 
-					?><div style="margin-bottom: 4px;"><?php
+					?><p style="margin-top: 5px;"><?php
 						if (!$have_all_locks) {
 							if ($need_force_locks) {
 								if ($can_force_locks) {
 									echo '<div class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</div>';
 								}
 							} else if ($full_write_access && $acquire_lock_access) {
-								echo 'Press the <i><b>Lock</b></i> button to lock "'.$owner->name.'" for editing. ';
+								echo 'Press the <span class="sq-backend-button-fake">Lock</span> button to lock "'.$owner->name.'" for editing. ';
 							}
 						}
-						if ($have_any_locks) echo 'Press the <i><b>Release Lock(s)</b></i> button to release the locks you hold on "'.$owner->name.'". ';
+						if ($have_any_locks) echo 'Press the <span class="sq-backend-button-fake">Release Lock(s)</span> button to release the locks you hold on "'.$owner->name.'". ';
 						?>
-						<b><a href="#" onClick="Javascript: sq_toggle_lock_info();" id="sq_lock_info_toggle">Show Lock Details</a></b>
-					</div>
+						<b><a href="#" onClick="Javascript: sq_toggle_lock_info();" id="sq_lock_info_toggle">Show Lock Details</a></b><br/><br/>
+					</p>
 
 					<div id="sq_lock_info" style="display: none;">
-					<table class="sq-backend-lock-table">
+					<table class="sq-backend-table">
 						<tr>
-							<td class="sq-backend-lock-table-header" style="width: 20px;">
+							<td class="sq-backend-table-header" style="width: 20px;">
 								<img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" />
 							</td>
-							<td class="sq-backend-lock-table-header" align="left" nowrap>
+							<td class="sq-backend-table-header" align="left" nowrap>
 								&nbsp;Lock Type
 							</td>
-							<td class="sq-backend-lock-table-header" width="100%">
+							<td class="sq-backend-table-header" width="100%">
 								&nbsp;
 							</td>
 						</tr>
 						<tr>
 							<td width="100%" colspan="3">
-								<table width="100%" cellspacing="1" cellpadding="0">
+								<table width="100%" cellspacing="0" cellpadding="0">
 					<?php
-				} else {
-					$o->openRaw('');
-				}
+//				} else {
+//					$o->openRaw('');
+//				}
 
-				$class = 'sq-backend-lock-table-cell-alt';
+				$class = 'sq-backend-table-cell-alt';
 				foreach($locks as $lock_type => $lock) {
-					if ($class == 'sq-backend-lock-table-cell') $class = 'sq-backend-lock-table-cell-alt';
-					else $class = 'sq-backend-lock-table-cell';
-
-				?>
+					$class = ($class == 'sq-backend-table-cell') ? 'sq-backend-table-cell-alt' : 'sq-backend-table-cell';
+					?>
 					<tr>
 						<td class="<?php echo $class; ?>" style="width: 20px;" align="center">
 							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
@@ -343,7 +341,7 @@ class Asset_Edit_Interface extends MySource_Object
 							<?php
 							if (empty($lock)) {
 								if ($full_write_access && $acquire_lock_access) {
-									echo '<p class="sq-backend-unlocked">Currently not held.</p>';
+									echo 'Currently not held.';
 								} else {
 									echo 'You do not have access to edit "'.$owner->name.'".';
 								}
@@ -366,10 +364,8 @@ class Asset_Edit_Interface extends MySource_Object
 								}
 
 								?>
-								<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
-									Held by user "<?php echo $user->name; ?>" at "<?php echo $editing->name; ?>".
-									<?php echo $expires_in; ?>
-								</p>
+								Held by user "<?php echo $user->name; ?>" at "<?php echo $editing->name; ?>".
+								<?php echo $expires_in; ?>
 								<?php
 
 							}// end if
@@ -421,7 +417,8 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 
 				if (strtolower($screen_lock_type) != 'none') $o->closeSection();
-				else $o->closeRaw();
+//				else $o->closeRaw();
+}
 
 			}//end if
 
@@ -668,16 +665,16 @@ class Asset_Edit_Interface extends MySource_Object
 		///////////////////
 		// add all the screens to the combo, but only if we aren't creating the object
 		if (!$creating) {
-			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
-				if ($check_screen_restrictions && !isset($allowed_screens[$code])) continue;
-				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
-			}
-
 			// add static screens for the asset
 			foreach ($this->_edit_fns->static_screens as $code_name => $data) {
 				if ($check_screen_restrictions && !isset($allowed_screens[$code_name])) continue;
 				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
-				$o->addStaticScreen($url, $data['name']);
+				$o->addStaticScreen($url, $data['name'], $data['use_tab']);
+			}
+			
+			for (reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
+				if ($check_screen_restrictions && !isset($allowed_screens[$code])) continue;
+				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name'], $this->_screens[$code]['use_tab']);
 			}
 		} else {
 			// if we are creating open the create file to see which fields we are supposed to print out
@@ -1571,18 +1568,24 @@ class Asset_Edit_Interface extends MySource_Object
 		for (reset($groups); NULL !== ($k = key($groups)); next($groups)) $groups[$k] = $db->quote($groups[$k]);
 
 		$sql = 'SELECT screen, section
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_editing_access ';
-		$where = 'userid IN ('.implode(',', $groups).')
-					AND type_code = '.$db->quote('0').'
-					OR type_code IN (
-									SELECT inherited_type_code
-									FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-									WHERE type_code = '.$db->quote($owner->type()).'
-									)';
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_edit_access ';
+		$where = 'userid IN ('.implode(',', $groups).')';
+
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		$where .= ' AND type_code = '.$db->quote('0').'
+					OR type_code IN (~SQ0~)';
+		$subs = Array( 'SELECT inhd_type_code
+						FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
+						WHERE type_code = '.$db->quote($owner->type()));
+		$where = db_extras_subquery($db, $where, $subs);
+		if (DB::isError($where)) trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$allowed_screens = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC, true);
-		assert_valid_db_result($allowed_screens);
+		if (DB::isError($allowed_screens)) {
+			trigger_error($allowed_screens->getMessage().'<br/>'.$allowed_screens->getUserInfo(), E_USER_ERROR);
+		}
 
 		return $allowed_screens;
 
@@ -1603,14 +1606,14 @@ class Asset_Edit_Interface extends MySource_Object
 		$file_name = 'edit_interface_'.$file_name.'.xml';
 
 		$file = '';
-		for ($i = 0; $i < count($this->_dirs); $i++) {
+		for($i = 0; $i < count($this->_dirs); $i++) {
 			if (file_exists($this->_dirs[$i].'/'.$file_name)) {
 				$file = $this->_dirs[$i].'/'.$file_name;
 				break;
 			}
 		}
 
-		if (!$file) {
+		if(!$file) {
 			trigger_error($file_name.' not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
 			return false;
 		}
@@ -1642,14 +1645,14 @@ class Asset_Edit_Interface extends MySource_Object
 			return Array($create_sections, '');
 		}
 
-		// loop over the sections
-		for ($i = 0; $i < count($root->children); $i++) {
+		// Loop over the sections
+		for($i = 0; $i < count($root->children); $i++) {
 			$section = &$root->children[$i];
 			if ($section->name != 'section') continue;
 
 			$create_sections[$section->attributes['name']] = Array();
-			// loop over the fields
-			for ($j = 0; $j < count($section->children); $j++) {
+			// Loop over the fields
+			for($j = 0; $j < count($section->children); $j++) {
 				$field = &$section->children[$j];
 				if ($field->name != 'field') continue;
 
@@ -1658,11 +1661,11 @@ class Asset_Edit_Interface extends MySource_Object
 				} else if ($field->children[1]->name == 'function_call') {
 					$fn_node = &$field->children[1]->children[(($painting) ? 0 : 1)];
 					$create_sections[$section->attributes['name']][] = $fn_node->attributes['name'];
-				}
+				}// end if
 
-			}//end for
+			}// end for
 
-		}//end for
+		}// end for
 
 		return Array($create_sections, $root->attributes['screen']);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.37 2004/07/23 07:15:59 mmcintyre Exp $
+* $Id: asset_edit_fns.inc,v 1.38 2004/11/18 04:42:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -208,8 +208,8 @@ class Asset_Edit_Fns extends MySource_Object
 			$o->openField($weightingData['description']);
 			$default = $weightingData['default'];
 			if (!$wa) {
-				if ($weightingData['weighting'] > 0) {
-					echo $weightingData['weighting'];
+				if ($weightingData['weight'] > 0) {
+					echo $weightingData['weight'];
 				} else {
 					echo "Not included in searching.";
 				}
@@ -222,16 +222,16 @@ class Asset_Edit_Fns extends MySource_Object
 
 				if ($default) {
 					echo "&nbsp;&nbsp;Weight: ";
-					echo $weightingData['weighting'];
-					$o->addHiddenField($prefix. "weightings[$component][weighting]", $weightingData['weighting']);
-					$o->addHiddenField($prefix. "include[$component][weighting]", ($weightingData['weighting'] > 0)?'1':'0');
+					echo $weightingData['weight'];
+					$o->addHiddenField($prefix. "weightings[$component][weight]", $weightingData['weight']);
+					$o->addHiddenField($prefix. "include[$component][weight]", ($weightingData['weight'] > 0)?'1':'0');
 				} else {
-					combo_box($prefix. "include[$component]", Array("0" => "Do not include in searches", "1" => "Include in searches"), false, ($weightingData['weighting'] > 0)?'1':'0');
-					if ($weightingData['weighting'] > 0) {
+					combo_box($prefix. "include[$component]", Array("0" => "Do not include in searches", "1" => "Include in searches"), false, ($weightingData['weight'] > 0)?'1':'0');
+					if ($weightingData['weight'] > 0) {
 						echo "&nbsp;&nbsp;Weight: ";
-						text_box ($prefix. "weightings[$component][weighting]", $weightingData['weighting'], 3);
+						text_box($prefix. "weightings[$component][weight]", $weightingData['weight'], 3);
 					} else {
-						$o->addHiddenField($prefix. "weightings[$component][weighting]", $weightingData['weighting']);
+						$o->addHiddenField($prefix. "weightings[$component][weight]", $weightingData['weight']);
 					}
 				}
 			}
@@ -261,7 +261,7 @@ class Asset_Edit_Fns extends MySource_Object
 		if (!$sm) return false;
 
 		foreach ($weightings as $component => $weightingData) {
-			$weighting =& $weightings[$component]['weighting'];
+			$weighting =& $weightings[$component]['weight'];
 			if (isset($included[$component])) {
 				if ($included[$component]) {
 					$weighting = max("1", $weighting);

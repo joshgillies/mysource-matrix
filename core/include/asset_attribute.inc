@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.27 2004/09/28 04:27:16 gsherwood Exp $
+* $Id: asset_attribute.inc,v 1.28 2004/11/18 04:39:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -105,9 +105,9 @@ class Asset_Attribute extends MySource_Object
 		if ($attributeid) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT attributeid, name, type, uniq, description, parameters_value, default_value
-					FROM '.SQ_TABLE_PREFIX.'asset_attribute
-					WHERE attributeid = '.$db->quote($attributeid);
+			$sql = 'SELECT attrid, name, type, uniq, description, parameters_val, default_val
+					FROM '.SQ_TABLE_PREFIX.'ast_attr
+					WHERE attrid = '.$db->quote($attributeid);
 
 			$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
 			assert_valid_db_result($result);
@@ -151,8 +151,8 @@ class Asset_Attribute extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT type FROM '.SQ_TABLE_PREFIX.'asset_attribute
-				WHERE attributeid = '.$db->quote($attributeid);
+		$sql = 'SELECT type FROM '.SQ_TABLE_PREFIX.'ast_attr
+				WHERE attrid = '.$db->quote($attributeid);
 
 		$type = $db->getOne($sql);
 		assert_valid_db_result($type);

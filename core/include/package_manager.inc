@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.57 2004/11/12 04:26:39 mnyeholt Exp $
+* $Id: package_manager.inc,v 1.58 2004/11/18 04:39:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -227,17 +227,17 @@ class Package_Manager extends MySource_Object
 			// open the transaction
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	
-			$exists = $db->getOne('SELECT code_name FROM '.SQ_TABLE_PREFIX.'package WHERE code_name = '.$db->quote($package_name));
+			$exists = $db->getOne('SELECT code_name FROM '.SQ_TABLE_PREFIX.'pkg WHERE code_name = '.$db->quote($package_name));
 			if (DB::isError($exists)) trigger_error($exists->getMessage()."\n".$exists->getUserInfo(), E_USER_ERROR);
 	
 			if ($exists) {
-				$sql = 'UPDATE '.SQ_TABLE_PREFIX.'package
+				$sql = 'UPDATE '.SQ_TABLE_PREFIX.'pkg
 						SET version     = '.$db->quote($this->version).',
 							name        = '.$db->quote($this->name).',
 							description = '.$db->quote($this->description).'
 						WHERE code_name = '.$db->quote($package_name);
 			} else {
-				$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'package
+				$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'pkg
 						(code_name, version, name, description)
 						VALUES
 						('.$db->quote($package_name).', '.$db->quote($this->version).',
@@ -552,7 +552,7 @@ class Package_Manager extends MySource_Object
 			$ok = false;
 			switch($req['@type']) {
 				case 'package' :
-					$installed_version = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT version FROM '.SQ_TABLE_PREFIX.'package WHERE code_name = '.$GLOBALS['SQ_SYSTEM']->db->quote($req['code']['value']));
+					$installed_version = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT version FROM '.SQ_TABLE_PREFIX.'pkg WHERE code_name = '.$GLOBALS['SQ_SYSTEM']->db->quote($req['code']['value']));
 					if (DB::isError($installed_version)) trigger_error($installed_version->getMessage()."\n".$installed_version->getUserInfo(), E_USER_ERROR);
 
 					if ($installed_version) {

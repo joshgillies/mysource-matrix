@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.52 2004/11/08 00:07:09 mmcintyre Exp $
+* $Id: metadata_manager.inc,v 1.53 2004/11/18 04:39:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,19 +106,19 @@ class Metadata_Manager extends MySource_Object
 	* Get an array of schemaIDs for all schemas applied and denied on an asset
 	*
 	* @param string		$assetid	the ID of the asset to get schemas for
-	* @param boolean	$access		type of access : null = all, true = applied, false = denied
+	* @param boolean	$granted	type of access : null = all, true = applied, false = denied
 	*
 	* @access public
-	* @return array( schemaid => access[1|0] )
+	* @return array( schemaid => granted[1|0] )
 	*/
-	function getSchemas($assetid, $access=null)
+	function getSchemas($assetid, $granted=null)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = '  SELECT DISTINCT schemaid, access
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_metadata ';
+		$sql = '  SELECT DISTINCT schemaid, granted
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata ';
 		$where = 'assetid = '.$db->quote($assetid);
-		if (!is_null($access)) $where .= ' AND access = '.$db->quote((($access) ? '1' : '0'));
+		if (!is_null($granted)) $where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$result = $db->getAll($sql.$where);
@@ -129,7 +129,7 @@ class Metadata_Manager extends MySource_Object
 
 		$schemas = Array();
 		foreach ($result as $data) {
-			if (is_null($access)) $schemas[$data['schemaid']] = $data['access'];
+			if (is_null($granted)) $schemas[$data['schemaid']] = $data['granted'];
 			else $schemas[] = $data['schemaid'];
 		}
 
@@ -143,12 +143,12 @@ class Metadata_Manager extends MySource_Object
 	*
 	* @param string		$assetid	the ID of the asset to set the schema on
 	* @param string		$schemaid	the ID of the schema to set
-	* @param boolean	$access		is this schema applied (TRUE) or denied (FALSE)?
+	* @param boolean	$granted	is this schema applied (TRUE) or denied (FALSE)?
 	*
 	* @access public
 	* @return boolean
 	*/
-	function setSchema($assetid, $schemaid, $access)
+	function setSchema($assetid, $schemaid, $granted)
 	{
 		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
@@ -177,13 +177,13 @@ class Metadata_Manager extends MySource_Object
 
 		// check if this schema is already set
 		if (isset($schemas[$schemaid])) {
-			if ((bool)$schemas[$schemaid] == $access) {
+			if ((bool)$schemas[$schemaid] == $granted) {
 				// schema is set with same access level
 				return true;
 			} else {
 				// schema is set but with the opposite access level
-				$new_access     = ($access) ? 'apply'  : 'deny';
-				$current_access = ($access) ? 'denied' : 'applied';
+				$new_access     = ($granted) ? 'apply'  : 'deny';
+				$current_access = ($granted) ? 'denied' : 'applied';
 
 				trigger_error('Could not '.$new_access.' metadata schema "'.$schema->name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access, E_USER_WARNING);
 				return false;
@@ -197,15 +197,15 @@ class Metadata_Manager extends MySource_Object
 		$values = Array('assetid'  => $asset->id,
 						'schemaid' => $schemaid,
 						'metadata' => '',
-						'access'   => (($access) ? '1' : '0')
+						'granted'  => (($granted) ? '1' : '0')
 						);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_metadata', $values)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_metadata', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// add defaults to the indexing service
-		if ($access) {
+		if ($granted) {
 			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $asset->id, 'schemaids' => Array($schemaid)));
 			$this->generateContentFile($assetid, false);
@@ -245,7 +245,7 @@ class Metadata_Manager extends MySource_Object
 		// delete and add rollback entries
 		$where = 'schemaid    = '.$db->quote($schemaid).'
 				  AND assetid = '.$db->quote($asset->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_metadata', $where)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_metadata', $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -264,19 +264,19 @@ class Metadata_Manager extends MySource_Object
 	* Get an array of assetIDs that have the passed schemaID applied or denied on them
 	*
 	* @param string		$schemaid	the ID of the schema to get assets for
-	* @param boolean	$access		type of access : null = all, true = applied, false = denied
+	* @param boolean	$granted	type of access : null = all, true = applied, false = denied
 	*
 	* @access public
-	* @return array( schemaid => access[1|0] )
+	* @return array( schemaid => granted[1|0] )
 	*/
-	function getSchemaAssets($schemaid, $access=null)
+	function getSchemaAssets($schemaid, $granted=null)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = '  SELECT DISTINCT assetid, access
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_metadata ';
+		$sql = '  SELECT DISTINCT assetid, granted
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata ';
 		$where = 'schemaid = '.$db->quote($schemaid);
-		if (!is_null($access)) $where .= ' AND access = '.$db->quote((($access) ? '1' : '0'));
+		if (!is_null($granted)) $where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$result = $db->getAll($sql.$where);
@@ -287,7 +287,7 @@ class Metadata_Manager extends MySource_Object
 
 		$assets = Array();
 		foreach ($result as $data) {
-			if (is_null($access)) $assets[$data['assetid']] = $data['access'];
+			if (is_null($granted)) $assets[$data['assetid']] = $data['granted'];
 			else $assets[] = $data['assetid'];
 		}
 
@@ -365,10 +365,10 @@ class Metadata_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = '  SELECT metadata
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_metadata ';
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata ';
 		$where = 'assetid = '.$db->quote($asset->id).'
 				    AND schemaid = '.$db->quote($schemaid).'
-				    AND access = 1';
+				    AND granted = 1';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$metadata = $db->getOne($sql.$where);
@@ -542,7 +542,7 @@ class Metadata_Manager extends MySource_Object
 		$values = Array('metadata' => $db->quote(serialize($metadata)));
 		$where = 'assetid = '.$db->quote($asset->id).'
 					AND schemaid = '.$db->quote($schema->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_metadata', $values, $where)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_metadata', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.334 2004/11/18 01:00:28 lwright Exp $
+* $Id: asset.inc,v 1.335 2004/11/18 04:39:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -206,14 +206,14 @@ class Asset extends MySource_Object
 	*   <li>TRUE if the asset was created but $link was empty</li>
 	* </ul>
 	*
-	* @param Array	&$link	information used to create the initial link<br/>
+	* @param array	&$link	information used to create the initial link<br/>
 	* <PRE>
-	* Array ('asset'      => [ref major asset to create link under],
-	*        'link_type'  => SQ_LINK_?,
-	*        'value'      => [link value],
-	*        'sort_order' => [link sort order],
-	*        'dependant'  => [0|1],
-	*        'exclusive'  => [0|1]
+	* Array ('asset'         => [ref major asset to create link under],
+	*        'link_type'     => SQ_LINK_?,
+	*        'value'         => [link value],
+	*        'sort_order'    => [link sort order],
+	*        'is_dependant'  => [0|1],
+	*        'is_exclusive'  => [0|1]
 	*        )
 	* </PRE>
 	*
@@ -230,15 +230,18 @@ class Asset extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		// let the system know that we are creating this asset so we dont
+		// do any updating of versions etc. until we are done
+		$this->_tmp['__creating__'] = true;
 
-		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
-		$assetid = $db->nextId('sq_sequence_asset');
+		$assetid = $db->nextId('sq_ast');
 		assert_valid_db_result($assetid);
 
 		$name   = ucwords(str_replace('_', ' ', $this->type())).' #'.$assetid;
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		$initial_version = '0.0.0';
+		$initial_version = '0.0.1';
 
 		$values = Array('assetid'          => $assetid,
 						'version'          => $initial_version,
@@ -253,8 +256,9 @@ class Asset extends MySource_Object
 						'published'        => null,
 						'published_userid' => null,
 						);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			unset($this->_tmp['__creating__']);
 			return false;
 		}
 
@@ -267,7 +271,7 @@ class Asset extends MySource_Object
 		$this->created_userid   = $userid;
 		$this->updated          = $now;
 		$this->updated_userid   = $userid;
-		$this->published        = null;	// because we've never been published before
+		$this->published        = null;
 		$this->published_userid = null;
 
 		// log what happened
@@ -281,23 +285,13 @@ class Asset extends MySource_Object
 		// so that they can actually do anything
 		// NOW normally this would require admin access but this is a very special case
 		$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
-			$ms->abortLog();
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-			$this->id = 0;
-			return false;
-		}
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) return $this->_abortCreate();
 
 		// only set the permission if there is a userid to set it for - otherwise we are going
 		// to be setting public write access
 		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, true)) {
-				$ms->abortLog();
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-				$this->id = 0;
-				return false;
+				return $this->_abortCreate();
 			}
 		}
 
@@ -309,59 +303,38 @@ class Asset extends MySource_Object
 		$message->send();
 
 		// set the attribute values that have been stored temporarily
-		// Now we should probably get all the locks to this asset so that we can do what is required
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes') || !$this->saveAttributes(true)) {
-			$ms->abortLog();
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-			$this->id = 0;
-			return false;
+			return $this->_abortCreate();
 		}
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 
 		$this->_loadVars();
 
-		if (!$this->_updated()) {
-			$ms->abortLog();
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-			$this->id = 0;
-			return false;
-		}
-
 		if (!empty($link)) {
 			// create the initial link
-			if (!isset($link['value']))      $link['value']      = '';
-			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
-			if (!isset($link['dependant']))  $link['dependant']  = 0;
-			if (!isset($link['exclusive']))  $link['exclusive']  = 0;
+			if (!isset($link['value']))         $link['value']         = '';
+			if (!isset($link['sort_order']))    $link['sort_order']    = -1;
+			if (!isset($link['is_dependant']))  $link['is_dependant']  = 0;
+			if (!isset($link['is_exclusive']))  $link['is_exclusive']  = 0;
 
 			$lock_info = @$GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
 			$parent_was_locked = !empty($lock_info);
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, 'links')) {
-				$ms->abortLog();
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-				$this->id = 0;
-				return false;
+				return $this->_abortCreate();
 			}
 
 			// if we are creating a dependant link, we need to make sure this new
 			// asset is locked in the same chain as the parent (ie, has the same source_assetid)
 			$source_assetid = 0;
-			if ($link['dependant']) {
+			if ($link['is_dependant']) {
 				$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
 				$source_assetid = $lock['source_assetid'];
 			}
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links', $source_assetid)) {
-				$ms->abortLog();
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-				$this->id = 0;
-				return false;
+				return $this->_abortCreate();
 			}
 
-			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
+			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['is_dependant'], $link['is_exclusive']);
 
 			// get the link so we can find out if it was dependant (cant rely on the info passed in
 			// because other assets may have changed what happens in createLink)
@@ -371,80 +344,105 @@ class Asset extends MySource_Object
 			$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
 
 			if (!$link['asset']->cloneComponents($this, Array('permissions', 'metadata_schemas', 'workflow'))) {
-				$ms->abortLog();
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-				$this->id = 0;
-				return false;
+				return $this->_abortCreate();
 			}
 			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 
-			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
-				$ms->abortLog();
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-				$this->id = 0;
-				return false;
-			}
+			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) return $this->_abortCreate();
 
 
 			// release locks depending on if the parent was locked before we were created
 			if (!$parent_was_locked) {
 				// parent was not locked, so unlock both the parent and us
 				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id, 'links')) {
-					$ms->abortLog();
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-					$this->id = 0;
-					return false;
+					return $this->_abortCreate();
 				}
-			} else if ($new_link['dependant']) {
+			} else if ($new_link['is_dependant']) {
 				// the parent was locked before we created this asset and the new asset
 				// is dependantly linked, so make sure we have all the locks of our parent
 				$parent_lock_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'all');
 				foreach (array_values($parent_lock_info) as $lock_details) {
 					if (empty($lock_details)) continue;
 					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, $lock_details['lock_type'], $lock_details['source_assetid'])) {
-							$ms->abortLog();
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-							$this->id = 0;
-							return false;
+							return $this->_abortCreate();
 					}
 				}
 			}
 
-			if (!$new_link['dependant']) {
+			if (!$new_link['is_dependant']) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links')) {
-					$ms->abortLog();
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-					$this->id = 0;
-					return false;
+					return $this->_abortCreate();
 				}
 			}
 
-			if (!$linkid) {
-				$ms->abortLog();
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-				$this->id = 0;
-				return false;
-			}
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$ms->closeLog();
+			if (!$linkid) return $this->_abortCreate();
+
+		}//end if creating link
+		
+		// perform any additional processing during the create - such as creating other assets
+		if (!$this->_createAdditional($link)) return $this->_abortCreate();
+
+		unset($this->_tmp['__creating__']);
+		if (!$this->_updated()) return $this->_abortCreate();
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$ms->closeLog();
+
+		if (!empty($link)) {
 			return (int) $linkid;
 		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			$ms->closeLog();
-
 			// index the asset with what we have so far
 			$this->informChanges();
-
 			return true;
 		}
 
 	}//end create()
+	
+	
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* For example, creating other child assets should be performed in this function
+	*
+	* @param array	&$link	information used to create the initial link<br/>
+	* <PRE>
+	* Array ('asset'         => [ref major asset to create link under],
+	*        'link_type'     => SQ_LINK_?,
+	*        'value'         => [link value],
+	*        'sort_order'    => [link sort order],
+	*        'is_dependant'  => [0|1],
+	*        'is_exclusive'  => [0|1]
+	*        )
+	* </PRE>
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		return true;
+
+	}//end _createAdditional()
+
+
+	/**
+	* Abort the creation of this asset
+	*
+	* The create log and DB transaction will also be aborted
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _abortCreate()
+	{
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->abortLog();
+		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+		unset($this->_tmp['__creating__']);
+		$this->id = 0;
+		return false;
+
+	}//end _abortCreate()
 
 
 	/**
@@ -453,6 +451,7 @@ class Asset extends MySource_Object
 	* @param int	$assetid	the asset ID to be loaded
 	*
 	* @access public
+	* @return void
 	*/
 	function load($assetid)
 	{
@@ -461,7 +460,7 @@ class Asset extends MySource_Object
 		// OK, the first thing to do is check we actually exist :)
 		$sql = 'SELECT assetid, type_code, version, name, short_name, status, languages, charset, force_secure,
 					created, created_userid, updated, updated_userid, published, published_userid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast ';
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
@@ -559,16 +558,16 @@ class Asset extends MySource_Object
 		if ($this->id) {
 			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
 			// DEFAULT VALUES IF WE DO
-			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
-					FROM '.SQ_TABLE_PREFIX.'asset_attribute atr
-					  LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v
-					    ON (atr.attributeid = v.attributeid AND v.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id)
+			$sql = 'SELECT atr.name, atr.attrid, atr.type, COALESCE(v.custom_val, atr.default_val) AS value
+					FROM '.SQ_TABLE_PREFIX.'ast_attr atr
+					  LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v
+					    ON (atr.attrid = v.attrid AND v.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id)
 						.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
 					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 		} else {
 			// else just load all defaults
-			$sql = 'SELECT atr.name, atr.attributeid, atr.type, atr.default_value AS value
-					FROM '.SQ_TABLE_PREFIX.'asset_attribute atr
+			$sql = 'SELECT atr.name, atr.attrid, atr.type, atr.default_val AS value
+					FROM '.SQ_TABLE_PREFIX.'ast_attr atr
 					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 		}// end if
 
@@ -661,24 +660,24 @@ class Asset extends MySource_Object
 
 		// delete from the asset table
 		$where_cond = 'assetid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset', $where_cond)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// delete the attributes
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_attribute_value', $where_cond)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_attr_val', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_attribute_unique_value', $where_cond)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_attr_uniq_val', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// delete any permissions we have assigned to us or are assigned to
 		$where_cond = 'assetid = '.$db->quote($this->id). 'OR userid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission', $where_cond)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_perm', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -729,7 +728,8 @@ class Asset extends MySource_Object
 	/**
 	* Determine if the current user be shown the system version or not
 	*
-	* You would want to show the system version if the asset is in safe edit and the user does not have write access.
+	* You would want to show the system version if the asset is in safe edit and the
+	* user does not have write access
 	*
 	* @return boolean
 	* @access public
@@ -779,7 +779,7 @@ class Asset extends MySource_Object
 	/**
 	* Save a copy of this asset at this point in time
 	*
-	* This copy gets used when the asset is live and the user does not have write access.
+	* This copy gets used when the asset is live and the user does not have write access
 	*
 	* @return boolean
 	* @access public
@@ -944,6 +944,8 @@ class Asset extends MySource_Object
 	*/
 	function _updated($update_parents=true)
 	{
+		if (isset($this->_tmp['__creating__']) && $this->_tmp['__creating__']) return true;
+		
 		$updated = time();
 		$updated_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$name         = $this->_getName();
@@ -965,7 +967,7 @@ class Asset extends MySource_Object
 							'updated'        => $db->quote(ts_iso8601($updated)),
 							'updated_userid' => $db->quote($updated_userid)
 							);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -991,7 +993,7 @@ class Asset extends MySource_Object
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		}// end if $this->id
+		}//end if $this->id
 
 		$this->name				= $name;
 		$this->short_name		= $short_name;
@@ -1097,7 +1099,7 @@ class Asset extends MySource_Object
 
 		$where = 'assetid = '.$db->quote($this->id);
 		$values = Array('version' => $db->quote($new_version));
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -1305,9 +1307,9 @@ class Asset extends MySource_Object
 
 		// is this new type one of our decendents or ancestors?
 		$sql = 'SELECT COUNT(*)
-				FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-				WHERE (inherited_type_code = '.$db->quote($this->type()).'  AND type_code = '.$db->quote($new_type_code).')
-				   OR (inherited_type_code = '.$db->quote($new_type_code).' AND type_code = '.$db->quote($this->type()).')';
+				FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
+				WHERE (inhd_type_code = '.$db->quote($this->type()).'  AND type_code = '.$db->quote($new_type_code).')
+				   OR (inhd_type_code = '.$db->quote($new_type_code).' AND type_code = '.$db->quote($this->type()).')';
 		if ($db->getOne($sql) == 0) {
 			trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'", "'.$new_type_code.'" is not in the "'.$this->type().'" asset type hierarchy.', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1324,7 +1326,7 @@ class Asset extends MySource_Object
 
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL);
 			foreach($links as $link) {
-				if ($GLOBALS['SQ_SYSTEM']->am->canLinkToType($tmp, $link['minor_type_code'], $link['link_type'], 0, $link['exclusive']) !== true) {
+				if ($GLOBALS['SQ_SYSTEM']->am->canLinkToType($tmp, $link['minor_type_code'], $link['link_type'], 0, $link['is_exclusive']) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'",<br>"'.$link['minor_type_code'].'" assets are not allowed to be "'.link_type_name($link['link_type']).'" linked to "'.$new_type_code.'" assets.', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1342,7 +1344,7 @@ class Asset extends MySource_Object
 			foreach($links as $link) {
 				$parent = &$am->getAsset($link['majorid'], $link['major_type_code']);
 				if (is_null($parent)) continue;
-				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'], $link['exclusive'])) !== true) {
+				if (($err_msg = $GLOBALS['SQ_SYSTEM']->am->canLinkToType($parent, $new_type_code, $link['link_type'], $link['linkid'], $link['is_exclusive'])) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'", "'.$parent->name.'" (Asset # '.$parent->id.') cannot be linked to the new Asset - ('.$err_msg.')', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1362,14 +1364,14 @@ class Asset extends MySource_Object
 
 		if ($common_var_list) {
 			foreach($common_var_list as $var_name) {
-				$current_id = $this->vars[$var_name]['attributeid'];
-				$new_id = $tmp->vars[$var_name]['attributeid'];
+				$current_id = $this->vars[$var_name]['attrid'];
+				$new_id = $tmp->vars[$var_name]['attrid'];
 
 				// now update attributeid
 				$where = 'assetid = '.$db->quote($this->id).'
-						  AND attributeid = '.$current_id;
-				$values = Array('attributeid' => $db->quote($new_id));
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_value', $values, $where)) {
+						  AND attrid = '.$current_id;
+				$values = Array('attrid' => $db->quote($new_id));
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_attr_val', $values, $where)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -1381,11 +1383,11 @@ class Asset extends MySource_Object
 
 		if ($deletes_var_list) {
 			$deletes_attributeids = '';
-			foreach($deletes_var_list as $var_name) $deletes_attributeids .= (($deletes_attributeids) ? ',' : '').$db->quote($this->vars[$var_name]['attributeid']);
+			foreach($deletes_var_list as $var_name) $deletes_attributeids .= (($deletes_attributeids) ? ',' : '').$db->quote($this->vars[$var_name]['attrid']);
 
 			$where_cond = ' assetid = '.$db->quote($this->id).'
-							AND attributeid IN ('.$deletes_attributeids.')';
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_attribute_value', $where_cond)) {
+							AND attrid IN ('.$deletes_attributeids.')';
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_attr_val', $where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -1393,7 +1395,7 @@ class Asset extends MySource_Object
 
 		$where = 'assetid = '.$db->quote($this->id);
 		$values = Array('type_code' => $db->quote($new_type_code));
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -1533,8 +1535,8 @@ class Asset extends MySource_Object
 			$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
 				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, null, false, false, true);
-				foreach ($set_perms as $userid => $access) {
-					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($clone->id, $userid, $perm, $access)) {
+				foreach ($set_perms as $userid => $granted) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($clone->id, $userid, $perm, $granted)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 						unset($GLOBALS['SQ_INSTALL']);
@@ -1572,8 +1574,8 @@ class Asset extends MySource_Object
 			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 			// apply the schemas and metadata from the cloner to the clonee
 			$schemas = $mm->getSchemas($this->id);
-			foreach ($schemas as $schemaid => $access) {
-				if (!$mm->setSchema($clone->id, $schemaid, $access)) {
+			foreach ($schemas as $schemaid => $granted) {
+				if (!$mm->setSchema($clone->id, $schemaid, $granted)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -1597,8 +1599,8 @@ class Asset extends MySource_Object
 		if (in_array('workflow', $components) || in_array('all', $components)) {
 			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			$schemas = $wfm->getSchemas($this->id);
-			foreach ($schemas as $schemaid => $access) {
-				if (!$wfm->setSchema($clone->id, $schemaid, $access)) {
+			foreach ($schemas as $schemaid => $granted) {
+				if (!$wfm->setSchema($clone->id, $schemaid, $granted)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -1722,7 +1724,7 @@ class Asset extends MySource_Object
 
 			$where = 'assetid = '.$db->quote($this->id);
 			$values = Array('status' => $db->quote($new_status));
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -1789,6 +1791,8 @@ class Asset extends MySource_Object
 			if ($date_type == 'created') {
 				$time = time();
 			} else {
+				// a null published date means that the asset has never been published
+				// so we also set the userid to null
 				$userid = null;
 			}
 		}
@@ -1805,7 +1809,7 @@ class Asset extends MySource_Object
 			$date_type.'_userid' => $db->quote($userid)
 		);
 
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -2123,16 +2127,16 @@ class Asset extends MySource_Object
 
 		$changedArray = Array();
 		foreach($this->_tmp['vars_set'] as $var_name => $var_data) {
-			$attr_id = $this->vars[$var_name]['attributeid'];
+			$attr_id = $this->vars[$var_name]['attrid'];
 
 			// if this is a unique attribute then let's make sure that this isn't already set
 			$owning_attributeid = 0;
 			$attribute = &$this->getAttribute($var_name);
 			if ($attribute->uniq) {
 
-				$sql = 'SELECT oa.attributeid
-						FROM '.SQ_TABLE_PREFIX.'asset_attribute a
-						  INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute oa ON (a.owning_type_code = oa.type_code AND a.name = oa.name)
+				$sql = 'SELECT oa.attrid
+						FROM '.SQ_TABLE_PREFIX.'ast_attr a
+						  INNER JOIN '.SQ_TABLE_PREFIX.'ast_attr oa ON (a.owning_type_code = oa.type_code AND a.name = oa.name)
 						WHERE a.name      = '.$db->quote($var_name).'
 						  AND a.type_code = '.$db->quote($this->type());
 
@@ -2178,9 +2182,9 @@ class Asset extends MySource_Object
 
 		// find any previous entries
 		$atrr_id_cond = 'IN ('.implode(', ', $attr_ids).')';
-		$sql   = 'SELECT attributeid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value ';
+		$sql   = 'SELECT attrid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val ';
 		$where = 'assetid = '.$db->quote($this->id).'
-					AND attributeid '.$atrr_id_cond;
+					AND attrid '.$atrr_id_cond;
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$existing = $db->getCol($sql.$where);
@@ -2202,11 +2206,12 @@ class Asset extends MySource_Object
 				if ($attribute->uniq) {
 
 					// update existing entry
-					$where = 'owning_attributeid = '.$db->quote($save_vars[$attr_id]['owning_attrid']).'
-								AND assetid = '.$db->quote($this->id);
+					$where = 'owning_attrid = '.$db->quote($save_vars[$attr_id]['owning_attrid']).'
+							    AND assetid = '.$db->quote($this->id);
 
-					$values = Array('custom_value' => $db->quote($attr_value));
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_unique_value', $values, $where)) {
+
+					$values = Array('custom_val' => $db->quote($attr_value));
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_attr_uniq_val', $values, $where)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$attribute->setValue($this->_tmp['vars_set'][$save_vars[$attr_id]['name']]['old_value']);
 						$ms->abortLog();
@@ -2220,11 +2225,11 @@ class Asset extends MySource_Object
 
 			}//end foreach
 
-			$value_cases = 'CASE attributeid '.$value_cases.' END';
+			$value_cases = 'CASE attrid '.$value_cases.' END';
 
-			$where = 'assetid = '.$db->quote($this->id).' AND attributeid '.$attr_id_cond;
-			$values = Array('custom_value' => $value_cases);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_value', $values, $where)) {
+			$where = 'assetid = '.$db->quote($this->id).' AND attrid '.$attr_id_cond;
+			$values = Array('custom_val' => $value_cases);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_attr_val', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$ms->abortLog();
 				return false;
@@ -2248,11 +2253,11 @@ class Asset extends MySource_Object
 				if ($attribute->uniq) {
 
 					// now insert new unique entry
-					$values = Array(  'owning_attributeid' => $save_vars[$attr_id]['owning_attrid'],
-									  'custom_value'       => $attr_value,
-									  'assetid'            => $this->id,
+					$values = Array(  'owning_attrid' => $save_vars[$attr_id]['owning_attrid'],
+									  'custom_val'    => $attr_value,
+									  'assetid'       => $this->id,
 									);
-						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_attribute_unique_value', $values)) {
+						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_attr_uniq_val', $values)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							$attribute->setValue($this->_tmp['vars_set'][$save_vars[$attr_id]['name']]['old_value']);
 							$ms->abortLog();
@@ -2264,15 +2269,18 @@ class Asset extends MySource_Object
 				$value_cases .= ' WHEN '.$db->quote($attr_id).' THEN '.$db->quote((string)$attr_value);
 			}//end foreach
 
-			$value_cases = 'CASE attributeid '.$value_cases.' END';
+			$value_cases = 'CASE attrid '.$value_cases.' END';
 
-			$where = 'attributeid '.$attr_id_cond;
-			$select_from = SQ_TABLE_PREFIX.'asset_attribute';
-			$values = Array('assetid'      => $this->id,
-							'attributeid'  => 'attributeid',
-							'custom_value' => $value_cases
-							);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_attribute_value', $select_from, $values, $where)) {
+			$where = 'attrid '.$attr_id_cond;
+			$select_from = SQ_TABLE_PREFIX.'ast_attr';
+
+			$values = Array(
+						'assetid'      => $this->id,
+						'attrid'       => 'attrid',
+						'custom_val'   => $value_cases
+					);
+
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('ast_attr_val', $select_from, $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$ms->abortLog();
 				return false;
@@ -2340,11 +2348,11 @@ class Asset extends MySource_Object
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT COUNT(*)
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_unique_value uv
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute oa ON uv.owning_attributeid = oa.attributeid
-						INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_uniq_val uv
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr oa ON uv.owning_attrid = oa.attrid
+						INNER JOIN '.SQ_TABLE_PREFIX.'ast_attr a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
 					  ';
-			$where = ' uv.custom_value = '.$db->quote($value).'
+			$where = ' uv.custom_val = '.$db->quote($value).'
 						AND a.name = '.$db->quote($name).'
 						AND a.type_code = '.$db->quote($this->type());
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'uv');
@@ -2413,7 +2421,7 @@ class Asset extends MySource_Object
 
 				require_once SQ_ATTRIBUTES_PATH.'/'.$this->vars[$name]['type'].'/'.$this->vars[$name]['type'].'.inc';
 				$attr_class = 'Asset_Attribute_'.$this->vars[$name]['type'];
-				$this->_tmp['attributes'][$name] = new $attr_class($this->vars[$name]['attributeid'], $this->vars[$name]['value']);
+				$this->_tmp['attributes'][$name] = new $attr_class($this->vars[$name]['attrid'], $this->vars[$name]['value']);
 				// make sure of the asset is correct
 				if (empty($this->_tmp['attributes'][$name]->id)) $this->_tmp['attributes'][$name] = null;
 
@@ -2447,7 +2455,8 @@ class Asset extends MySource_Object
 	function getAssetKeywords($descriptions=false)
 	{
 		$keywords = Array();
-		$default_keywords = Array(	'asset_name',
+		$default_keywords = Array(
+						'asset_name',
 						'asset_short_name',
 						'asset_version',
 						'asset_created',
@@ -2711,6 +2720,7 @@ class Asset extends MySource_Object
 
 	/**
 	* Returns true if at least one of the passed assetids has the passed permission
+	*
 	* Can perform effective access check based on current status, lock, workflow, and metadata
 	* NOTE: Only for write and above access
 	*
@@ -3118,7 +3128,7 @@ class Asset extends MySource_Object
 			$where = 'assetid = '.$db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT path
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_path '.$where.'
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_path '.$where.'
 					ORDER BY sort_order';
 
 			$result = $db->getCol($sql);
@@ -3178,7 +3188,7 @@ class Asset extends MySource_Object
 
 		// add a rollback entries for the old paths
 		$where = 'assetid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_path', $where)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_path', $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -3189,7 +3199,7 @@ class Asset extends MySource_Object
 			$values = Array('path'       => $path,
 							'assetid'    => $this->id,
 							'sort_order' => $sort_order);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_path', $values)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_path', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -3230,7 +3240,7 @@ class Asset extends MySource_Object
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT url, http, https, root_urlid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup ';
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup ';
 			$where = 'assetid = '.$db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
@@ -3265,8 +3275,8 @@ class Asset extends MySource_Object
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT l.url, ld.name, ld.designid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_design ld ON l.url = ld.url
 					';
 			$where = 'l.assetid = '.$db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -3310,7 +3320,7 @@ class Asset extends MySource_Object
 
 		// Remove all the old URLs
 		$sql = 'SELECT url, http, https
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 				'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l');
 
 		$old_urls = $db->getAll($sql);
@@ -3322,13 +3332,13 @@ class Asset extends MySource_Object
 		if (!empty($current_urls)) {
 			$where = 'url IN ('.implode(',', $current_urls).')';
 
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_design', $where)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_design', $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
 			$where = 'assetid = '.$db->quote($this->id);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup', $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -3381,7 +3391,7 @@ class Asset extends MySource_Object
 
 						$done_urls[$new_url] = $values;
 
-						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
+						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup', $values)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return false;
 						}
@@ -3399,7 +3409,7 @@ class Asset extends MySource_Object
 											'name'     => $name,
 											'designid' => $designid,
 											);
-							if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup_design', $values)) {
+							if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_design', $values)) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 								return false;
 							}
@@ -3469,22 +3479,22 @@ class Asset extends MySource_Object
 
 		// index attributes
 		$weightings = $this->getWeightings();
-		if (!isset($weightings['__name__']['weighting'])) $weightings['__name__']['weighting'] = 1;
-		if (!isset($weightings['__created__']['weighting'])) $weightings['__created__']['weighting'] = 1;
-		if (!isset($weightings['__updated__']['weighting'])) $weightings['__updated__']['weighting'] = 1;
-		if (!isset($weightings['__published__']['weighting'])) $weightings['__published__']['weighting'] = 1;
+		if (!isset($weightings['__name__']['weight'])) $weightings['__name__']['weight'] = 1;
+		if (!isset($weightings['__created__']['weight'])) $weightings['__created__']['weight'] = 1;
+		if (!isset($weightings['__updated__']['weight'])) $weightings['__updated__']['weight'] = 1;
+		if (!isset($weightings['__published__']['weight'])) $weightings['__published__']['weight'] = 1;
 
 		// index our name
 		$value = strtolower($this->name);
 		foreach (get_word_counts($value) as $word => $count) {
-			$this->buildKeyData($keydata, $word, 'text', '__name__', $count * $weightings['__name__']['weighting']);
+			$this->buildKeyData($keydata, $word, 'text', '__name__', $count * $weightings['__name__']['weight']);
 		}
 
 		// index our dates
-		$this->buildKeyData($keydata, ts_iso8601($this->created), 'datetime', '__created__', $weightings['__created__']['weighting']);
-		$this->buildKeyData($keydata, ts_iso8601($this->updated), 'datetime', '__updated__', $weightings['__updated__']['weighting']);
+		$this->buildKeyData($keydata, ts_iso8601($this->created), 'datetime', '__created__', $weightings['__created__']['weight']);
+		$this->buildKeyData($keydata, ts_iso8601($this->updated), 'datetime', '__updated__', $weightings['__updated__']['weight']);
 		if (!is_null($this->published)) {
-			$this->buildKeyData($keydata, ts_iso8601($this->published), 'datetime', '__published__', $weightings['__published__']['weighting']);
+			$this->buildKeyData($keydata, ts_iso8601($this->published), 'datetime', '__published__', $weightings['__published__']['weight']);
 		}
 
 		foreach ($this->vars as $var_name => $var_data) {
@@ -3499,7 +3509,7 @@ class Asset extends MySource_Object
 
 			$comp_name = 'attr:'.$this->type().':'.$var_name;
 			foreach ($values as $value => $count) {
-				$this->buildKeyData($keydata, $value, $var_data['type'], $comp_name, $count * $weightings[$var_name]['weighting']);
+				$this->buildKeyData($keydata, $value, $var_data['type'], $comp_name, $count * $weightings[$var_name]['weight']);
 			}
 		}
 
@@ -3546,9 +3556,9 @@ class Asset extends MySource_Object
 				$weighting = null;
 				if (!$weightings[$component]['default']) $dirty = true;
 			} else {
-				$weighting = $weighting_data['weighting'];
+				$weighting = $weighting_data['weight'];
 				$weightings[$component]['default'] = $weighting_data['default'];
-				if (!$dirty) $weightings[$component]['weighting'] = $weighting;
+				if (!$dirty) $weightings[$component]['weight'] = $weighting;
 			}
 			$sm->setComponentWeighting($this->id, $component, $weighting);
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.55 2004/11/17 00:18:44 mmcintyre Exp $
+* $Id: workflow_manager.inc,v 1.56 2004/11/18 04:39:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,23 +68,23 @@ class Workflow_Manager extends MySource_Object
 	* Can also optionally get running workflows only.
 	*
 	* @param int		$assetid	the ID of the asset to get schemas for
-	* @param boolean	$access		type of access : null = all, true = applied, false = denied
+	* @param boolean	$granted	type of access : null = all, true = applied, false = denied
 	* @param boolean	$running	only getting running workflows
 	*
 	* @access public
-	* @return array( schemaid => access[1|0] ) if $access is null OR array(schemaid) if it is set
+	* @return array( schemaid => granted[1|0] ) if $granted is null OR array(schemaid) if it is set
 	*/
-	function getSchemas($assetid, $access=null, $running=false)
+	function getSchemas($assetid, $granted=null, $running=false)
 	{
-		$storage_access = ((is_null($access)) ? 2 : (int) $access);
+		$storage_access = ((is_null($granted)) ? 2 : (int) $granted);
 		if (!isset($this->_tmp['schemas'][(int)$assetid][$storage_access][(int)$running])) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = '  SELECT DISTINCT schemaid, access
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow ';
+			$sql = '  SELECT DISTINCT schemaid, granted
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
 			$where = 'assetid = '.$db->quote($assetid);
-			if ($running) $where .= ' AND workflow IS NOT NULL';
-			if (!is_null($access) || $running) $where .= ' AND access = '.$db->quote((($access) ? '1' : '0'));
+			if ($running) $where .= ' AND wflow IS NOT NULL';
+			if (!is_null($granted) || $running) $where .= ' AND granted = '.$db->quote((($granted) ? '1' : '0'));
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$result = $db->getAll($sql.$where);
@@ -95,7 +95,7 @@ class Workflow_Manager extends MySource_Object
 
 			$schemas = Array();
 			foreach ($result as $data) {
-				if (is_null($access)) $schemas[$data['schemaid']] = $data['access'];
+				if (is_null($granted)) $schemas[$data['schemaid']] = $data['granted'];
 				else $schemas[] = $data['schemaid'];
 			}
 
@@ -112,16 +112,16 @@ class Workflow_Manager extends MySource_Object
 	*
 	* @param int		$assetid	the ID of the asset to set the schema on
 	* @param int		$schemaid	the ID of the schema to set
-	* @param boolean	$access		is this schema applied (TRUE) or denied (FALSE)?
+	* @param boolean	$granted	is this schema applied (TRUE) or denied (FALSE)?
 	*
 	* @access public
 	* @return boolean
 	*/
-	function setSchema($assetid, $schemaid, $access)
+	function setSchema($assetid, $schemaid, $granted)
 	{
 		$assetid  = (int)  $assetid;
 		$schemaid = (int)  $schemaid;
-		$access   = (bool) $access;
+		$granted  = (bool) $granted;
 
 		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
@@ -157,13 +157,13 @@ class Workflow_Manager extends MySource_Object
 
 		// check if this schema is already set
 		if (isset($schemas[$schemaid])) {
-			if ((bool)$schemas[$schemaid] == $access) {
+			if ((bool)$schemas[$schemaid] == $granted) {
 				// schema is set with same access level
 				return true;
 			} else {
 				// schema is set but with the opposite access level
-				$new_access     = ($access) ? 'apply'  : 'deny';
-				$current_access = ($access) ? 'denied' : 'applied';
+				$new_access     = ($granted) ? 'apply'  : 'deny';
+				$current_access = ($granted) ? 'denied' : 'applied';
 
 				trigger_error('Could not '.$new_access.' workflow schema "'.$schema->name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access, E_USER_WARNING);
 				return false;
@@ -176,10 +176,10 @@ class Workflow_Manager extends MySource_Object
 		// add the schema to the database
 		$values = Array('assetid'  => $asset->id,
 						'schemaid' => $schemaid,
-						'workflow' => NULL,
-						'access'   => (($access) ? '1' : '0')
+						'wflow'    => NULL,
+						'granted'  => (($granted) ? '1' : '0')
 						);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_workflow', $values)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_wflow', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -229,7 +229,7 @@ class Workflow_Manager extends MySource_Object
 		// delete and add rollback entries
 		$where = 'schemaid    = '.$db->quote($schemaid).'
 				  AND assetid = '.$db->quote($asset->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_workflow', $where)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_wflow', $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -273,10 +273,10 @@ class Workflow_Manager extends MySource_Object
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT schemaid, workflow
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow ';
+			$sql = 'SELECT schemaid, wflow
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow ';
 			$where = 'assetid = '.$db->quote($assetid).'
-						AND access = 1';
+						AND granted = 1';
 			if ($schemaid != 'all') $where .= ' AND schemaid = '.$db->quote($schemaid);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
@@ -346,10 +346,10 @@ class Workflow_Manager extends MySource_Object
 
 			if (!isset($workflow[$schema->name])) continue;
 
-			$values = Array('workflow' => $db->quote(serialize($workflow[$schema->name])));
+			$values = Array('wflow' => $db->quote(serialize($workflow[$schema->name])));
 			$where = 'assetid = '.$db->quote($asset->id).'
 					    AND schemaid = '.$db->quote($schema->id);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_wflow', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -663,10 +663,10 @@ class Workflow_Manager extends MySource_Object
 			$workflow =& $schema_workflows[$schemaid];
 			if ($this->_recordPublish($workflow, $publisher)) {
 				$new_workflow = serialize($workflow);
-				$values = Array('workflow' => $db->quote($new_workflow));
+				$values = Array('wflow' => $db->quote($new_workflow));
 				$where = 'assetid = '.$db->quote($assetid).'
 							AND schemaid = '.$db->quote($schemaid);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_wflow', $values, $where)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -909,10 +909,10 @@ class Workflow_Manager extends MySource_Object
 			if (empty($workflow['steps'])) continue;
 			$workflow = serialize($workflow);
 
-			$values = Array('workflow' => $db->quote($workflow));
+			$values = Array('wflow' => $db->quote($workflow));
 			$where = 'assetid = '.$db->quote($assetid).'
 					    AND schemaid = '.$db->quote($schemaid);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_wflow', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -1028,7 +1028,7 @@ class Workflow_Manager extends MySource_Object
 
 		if (!$this->_clearWorkflow($assetid)) return false;
 
-		// send internal messages to everyone who could approve before to let them know that someone did
+		// send internal messages to everyone who could approve before to let them know that someone cancelled
 		if (!$this->silentWorkflowParty($asset->id)) {
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$publishers = $this->whoCanPublish($asset->id);
@@ -1096,9 +1096,9 @@ class Workflow_Manager extends MySource_Object
 	function _clearWorkflow($assetid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$values = Array('workflow' => 'NULL');
+		$values = Array('wflow' => 'NULL');
 		$where = 'assetid = '.$db->quote($assetid);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_workflow', $values, $where)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_wflow', $values, $where)) {
 			trigger_error('Failed clearing workflow for asset #'.$assetid, E_USER_WARNING);
 			return false;
 		}

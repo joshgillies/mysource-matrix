@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.13 2004/09/28 06:23:48 gsherwood Exp $
+* $Id: event_manager.inc,v 1.14 2004/11/18 04:39:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *    Two Types of events can be listening/broadcasted:
 *
 *    1) Static Events - Events that are defined and registered at install time. These are assets that need to supply
-*       additional information about their relationship with the broadcaster (type_code, dependant, exclusive, link_types,
+*       additional information about their relationship with the broadcaster (type_code, is_dependant, is_exclusive, link_types,
 *       link values etc).
 *
 *    2) Runtime Events - Events that are defined and registered at runtime. These are events that are not limited to assets,
@@ -47,16 +47,16 @@
 *	{
 *		return Array(
 *				Array(
-*					'event_name'				 => 'contentsUpdated',
-*					'broadcast_type_code'		 => 'bodycopy_container',
-*					'broadcast_strict_type_code'	=> false,	// div, table cell etc
+*					'event_name'                    => 'contentsUpdated',
+*					'broadcast_type_code'           => 'bodycopy_container',
+*					'broadcast_strict_type_code'    => false,	// div, table cell etc
 *					'options'	=> Array(
-*						'side_of_link'					=> 'minor',	// side of link where the broadcaster exists
-*						'indirect'						=> true,
-*						'exclusive'						=> null,
-*						'dependant'						=> 1,
-*						'value'							=> '',
-*						'link_type'						=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+*						'side_of_link'      => 'minor',	// side of link where the broadcaster exists
+*						'indirect'          => true,
+*						'is_exclusive'      => null,
+*						'is_dependant'      => 1,
+*						'value'             => '',
+*						'link_type'         => SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
 *					),
 *				),
 *		);
@@ -282,9 +282,9 @@ class Event_Manager extends MySource_Object
 				// Global: all global events should be heard even if outside the chain
 				$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($listener_type_code, true);
 
-			} elseif ($options['indirect']) {
+			} else if ($options['indirect']) {
 
-				if ($options['dependant'] || $options['exclusive'] || $options['type_code']) {
+				if ($options['is_dependant'] || $options['is_exclusive'] || $options['type_code']) {
 					$assetids = $this->_getDiscreteAssets($broadcaster->id, $listener_type_code, $side_of_link, $options);
 				} else {
 
@@ -299,7 +299,7 @@ class Event_Manager extends MySource_Object
 				}
 
 			} else {
-				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($broadcaster->id, $options['link_type'], $listener_type_code, true, $options['side_of_link'], $options['value'], $options['dependant'], $options['exclusive']);
+				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($broadcaster->id, $options['link_type'], $listener_type_code, true, $options['side_of_link'], $options['value'], $options['is_dependant'], $options['is_exclusive']);
 				if (empty($links)) return false;
 
 				$assetids = Array();
@@ -352,12 +352,13 @@ class Event_Manager extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+
 		$sql = 'SELECT (t2.treeid || '.$db->quote('%').')
-				FROM '.SQ_TABLE_PREFIX.'asset_link l1
-				  INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
-				  .SQ_TABLE_PREFIX.'asset_link l2
-				  INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
-				  .SQ_TABLE_PREFIX.'asset a 
+				FROM '.SQ_TABLE_PREFIX.'ast_lnk l1
+				  INNER JOIN '.SQ_TABLE_PREFIX.'ast_lnk_tree t1 ON l1.linkid = t1.linkid, '
+				  .SQ_TABLE_PREFIX.'ast_lnk l2
+				  INNER JOIN '.SQ_TABLE_PREFIX.'ast_lnk_tree t2 ON l2.linkid = t2.linkid, '
+				  .SQ_TABLE_PREFIX.'ast a 
 				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).' 
 				  AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid 
 				  AND a.assetid=l2.'.$side_of_link.'id 
@@ -373,12 +374,13 @@ class Event_Manager extends MySource_Object
 		foreach ($result as $treeid) $treeid_string .= 't2.treeid LIKE '.$db->quote($treeid).' OR ';
 		$treeid_string = substr($treeid_string, 0, -4);
 
-		$sql = 'SELECT a.assetid, t2.treeid, a.type_code, l2.link_type, l2.dependant, l2.exclusive
-				FROM '.SQ_TABLE_PREFIX.'asset_link l1
-				  INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
-				  .SQ_TABLE_PREFIX.'asset_link l2
-				  INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
-				  .SQ_TABLE_PREFIX.'asset a
+
+		$sql = 'SELECT a.assetid, t2.treeid, a.type_code, l2.link_type, l2.is_dependant, l2.is_exclusive
+				FROM '.SQ_TABLE_PREFIX.'ast_lnk l1
+				  INNER JOIN '.SQ_TABLE_PREFIX.'ast_lnk_tree t1 ON l1.linkid = t1.linkid, '
+				  .SQ_TABLE_PREFIX.'ast_lnk l2
+				  INNER JOIN '.SQ_TABLE_PREFIX.'ast_lnk_tree t2 ON l2.linkid = t2.linkid, '
+				  .SQ_TABLE_PREFIX.'ast a
 				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).'
 					AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid
 					AND a.assetid = l2.'.$side_of_link.'id
@@ -419,10 +421,10 @@ class Event_Manager extends MySource_Object
 					}
 
 					$valid_assetid = true;
-					if ($valid_assetid && $info['value'] && $info['value'] != $test_info['value']) $valid_assetid = false;
-					if ($valid_assetid && !$test_info['dependant'] && $info['dependant'])          $valid_assetid = false;
-					if ($valid_assetid && !$test_info['exclusive'] && $info['exclusive'])          $valid_assetid = false;
-					if ($valid_assetid &&  $test_info['link_type'] &  $info['link_type'] <= 0)     $valid_assetid = false;
+					if ($valid_assetid && $info['value'] && $info['value'] != $test_info['value'])    $valid_assetid = false;
+					if ($valid_assetid && !$test_info['is_dependant'] && $info['is_dependant'])       $valid_assetid = false;
+					if ($valid_assetid && !$test_info['is_exclusive'] && $info['is_exclusive'])       $valid_assetid = false;
+					if ($valid_assetid &&  $test_info['link_type'] &  $info['link_type'] <= 0)        $valid_assetid = false;
 
 					if ($start_treeid && $valid_assetid) {
 						$assetids[] = $result[$i]['assetid'];
