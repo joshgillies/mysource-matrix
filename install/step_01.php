@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_01.php,v 1.19 2003/10/07 07:25:08 dwong Exp $
+* $Id: step_01.php,v 1.20 2003/10/13 02:15:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ define('SQ_CONF_DB_DSN', 'pgsql://dwong@unix+localhost/dom_resolve');
 define('SQ_CONF_DB2_DSN', 'pgsql://dwong@unix+localhost/dom_resolve');
 define('SQ_CONF_SYSTEM_ROOT_URLS', "dev.squiz.net/dom_resolvefx\nbeta.squiz.net/dom_resolvefx");
 define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
-define('SQ_CONF_ASSET_TREE_BASE', 64);
+define('SQ_CONF_ASSET_TREE_BASE', 36);
 define('SQ_CONF_ASSET_TREE_SIZE', 4);
 define('SQ_CONF_ROLLBACK_ENABLED', '0');
 define('SQ_CONF_INDEXING_ENABLED', '0');
