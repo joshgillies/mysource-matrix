@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.9 2003/11/26 00:51:30 gsherwood Exp $
+* $Id: page_custom_form.inc,v 1.10 2004/06/16 06:11:04 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once dirname(__FILE__).'/../../page/page.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 /**
 * Page_Custom_Form
