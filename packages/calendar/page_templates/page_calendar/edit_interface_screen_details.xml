@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.25 2005/03/10 01:31:29 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.26 2005/03/10 03:57:56 tbarrett Exp $
 *
 */
 -->
@@ -89,9 +89,9 @@
 			<selection /> 
 		</field>
 		<field attribute="enable_description_popups">
-			<display_name>Enable Description Popups</display_name>
-			<note>If you set this to 'yes', the description of an event will appear as a popup when you move the mouse pointer over the event in month, week or day view</note>
-			<boolean true_text="Yes" false_text="No" />
+			<display_name>Description Popups</display_name>
+			<note>If you enable description popups, the description of an event will appear as a popup when you move the mouse pointer over the event in month, week or day view</note>
+			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
 	</section>
 
@@ -126,9 +126,9 @@
 			<int width="6" />
 		</field>
 		<field attribute="month_links_to_week">
-			<display_name>Enable Week Links</display_name>
-			<note>If you set this to 'yes', the calendar-format month view will display a link to the relevant week view at the start of each row</note>
-			<boolean true_text="Yes" false_text="No" />
+			<display_name>Week Links</display_name>
+			<note>If you enable week links, the calendar-format month view will display a link to the relevant week view at the start of each row</note>
+			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
 	</section>
 
@@ -194,9 +194,9 @@
 			<assetid type_codes="page_asset_builder:D,page_appointment_builder:I" />
 		</field>
 		<field attribute="enable_event_dragging">
-			<display_name>Enable Drag-and-Drop editing?</display_name>
-			<note>If you set this to "yes", users with appropriate access will be able to drag single calendar events and drop them at another point in time.</note>
-			<boolean true_text="Yes" false_text="No" />
+			<display_name>Drag-and-Drop Editing</display_name>
+			<note>If you enable drag-and-drop editing, users with appropriate access will be able to drag single calendar events and drop them at another point in time.</note>
+			<boolean true_text="Enabled" false_text="Disabled" />
 		</field>
 	</section>
 
