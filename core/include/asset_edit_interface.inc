@@ -114,7 +114,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	function paint(&$owner, &$o, $creating)
 	{
 		// if we dont have read access, piss off
-		if (!$owner->readAccess()) {
+		if ($owner->id && !$owner->readAccess()) {
 			include SQ_INCLUDE_PATH.'/login.inc';
 			print_login('Login', 'You do not have permission to access <i>'.$owner->_getName(false).'</i>');
 			return;
@@ -280,7 +280,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	function process(&$owner, $creating)
 	{
 		// if we dont have read access, piss off
-		if (!$owner->writeAccess()) {
+		if ($owner->id && !$owner->writeAccess()) {
 			include SQ_INCLUDE_PATH.'/login.inc';
 			print_login('Login', 'You do not have permission to edit <i>'.$owner->_getName(false).'</i>');
 			return;
