@@ -18,6 +18,7 @@ class wysiwyg {
 
 	/**
 	* A unique name to identify this WYSIWYG editor
+	*
 	* @var string
 	* @see paint()
 	*/
@@ -26,6 +27,7 @@ class wysiwyg {
 	/**
 	* If the WYSIWYG should use an iframe or div to print/scale
 	* A div will scale better than an iframe
+	*
 	* @var string
 	* @see paint(), set_body_type()
 	*/
@@ -34,6 +36,7 @@ class wysiwyg {
 	/**
 	* Should the WYSIWYG initilise itself onLoad for the window?
 	* Set to 'no' if you want to init the WYSIWYG yourself
+	*
 	* @var string
 	* @see paint(), set_init_onload()
 	*/
@@ -41,6 +44,7 @@ class wysiwyg {
 
 	/**
 	* The relative path for web accessable files
+	*
 	* @var string
 	* @see paint()
 	*/
@@ -48,6 +52,7 @@ class wysiwyg {
 
 	/**
 	* The stylesheet to use in the editor
+	*
 	* @var string
 	* @see paint(), set_stylesheet()
 	*/
@@ -55,6 +60,7 @@ class wysiwyg {
 
 	/**
 	* The width of the WYSIWYG editor
+	*
 	* @var string
 	* @see print_config(), set_width()
 	*/
@@ -62,6 +68,7 @@ class wysiwyg {
 
 	/**
 	* The height of the WYSIWYG editor
+	*
 	* @var string
 	* @see print_config(), set_height();
 	*/
@@ -69,6 +76,7 @@ class wysiwyg {
 
 	/**
 	* Extra HTML code to add in the TEXTAREA tag
+	*
 	* @var string
 	* @see print_config(), set_textarea_extras();
 	*/
@@ -76,6 +84,7 @@ class wysiwyg {
 
 	/**
 	* The HTML to print in the editor
+	*
 	* @var string
 	* @see paint(), set_contents();
 	*/
@@ -83,6 +92,7 @@ class wysiwyg {
 
 	/**
 	* An array of plugins objects to provide functionality to the editor
+	*
 	* @var array
 	* @see add_plugin()
 	*/
@@ -92,6 +102,7 @@ class wysiwyg {
 	* Has this WYSIWYG printed its header info yet?
 	* We need this in case we have multiple WYSIWYG's on
 	* the same page. We dont want to print the JS more than once
+	*
 	* @var boolean
 	* @see paint()
 	*/
@@ -101,25 +112,28 @@ class wysiwyg {
 	/**
 	* Constructor
 	*
-	* @param   string $name A unique name for this WYSIWYG
-	* @returns object WYSIWYG
-	* @access  public
+	* @param string	$name A unique name for this WYSIWYG
+	*
+	* @access public
 	*/
-	function wysiwyg($name='wysiwyg', $web_path='') {
+	function wysiwyg($name='wysiwyg', $web_path='')
+	{
 		$this->name = $name;
 		$this->web_path = $web_path;
 		global $ROOT_PATH;
 		$ROOT_PATH = realpath(dirname(__FILE__)).'/';
-	}
+
+	}//end constructor()
 
 
 	/**
 	* Paints the JS needed for the WYSIWYG and the editable textarea
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function paint() {
+	function paint()
+	{
 		global $WYSIWYG_INIT;
 		if (!$WYSIWYG_INIT) {
 			?>
@@ -330,7 +344,7 @@ class wysiwyg {
 							// the image is loaded once and then the server is not hit again
 							document.write("<img src=\"" + editor.imgURL("toolbar.gif") + "\" id=\"" + buttonID + "\">");
 							var img = document.getElementById(buttonID);
-							
+
 							// work out where this button image is in the big toolbar image
 							var btnTop = Math.floor(btn[3] / 5);
 							var btnLeft = ((btn[3] - (btnTop * 5)) * 18);
@@ -338,11 +352,11 @@ class wysiwyg {
 							// using a single image, position each of the span tags for the buttons
 							el.style.position = "relative";
 							el.style.top = (HTMLArea.is_gecko ? -4 : 2);
-					
+
 							img.style.position = "absolute";
 							img.style.left = -1 * (btnLeft); // use the index to get the offset
 							img.style.top = -1 * (btnTop*20);
-							
+
 							img.style.clip = "rect("+(btnTop*20)+" "+(btnLeft+18)+" "+(btnTop*20+20)+" "+btnLeft+")"; // clipping rectangle
 
 							el.appendChild(img);
@@ -402,7 +416,7 @@ class wysiwyg {
 				// txt is the name of the button, as in config.toolbar
 				HTMLArea.prototype._buttonClicked = function(txt) {
 					var editor = this; // needed in nested functions
-					
+
 					this.focusEditor();
 
 					var btn = this.config.btnList[txt];
@@ -507,7 +521,7 @@ class wysiwyg {
 				};
 
 				 ////////////////////////////////////////////////////////////////////////
-				// because the editor automatically prepend the http:// business to 
+				// because the editor automatically prepend the http:// business to
 				// all relative urls, remove them from the html
 				HTMLArea.prototype.make_relative_hrefs = function(html_code) {
 
@@ -528,7 +542,7 @@ class wysiwyg {
 					re = new RegExp(current_location, "gi");
 					html = html.replace(re, "");
 
-					// links to assets in the backend 
+					// links to assets in the backend
 					e = 'http[s]?://<?php echo $_SERVER['HTTP_HOST'].$_SERVER["PHP_SELF"]?>?(\\?a=[0-9]+)';
 
 					re = new RegExp(e, "gi");
@@ -581,7 +595,8 @@ class wysiwyg {
 		?>
 			</script>
 		<?php
-	}
+
+	}//end paint()
 
 
 	/**
@@ -589,10 +604,11 @@ class wysiwyg {
 	* The config section is where the plugins define where
 	* and how they print
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_config() {
+	function print_config()
+	{
 			?>
 			<script type="text/javascript" language="Javascript">
 				HTMLArea.Config_<?php echo $this->name?> = function () {
@@ -619,7 +635,7 @@ class wysiwyg {
 					this.replaceNextLines = 0;
 					this.plainTextInput = 0;
 
-					this.toolbar = [ 
+					this.toolbar = [
 							<?php
 							if (!empty($this->plugins)) {
 								$buttons_done = 0;
@@ -647,7 +663,7 @@ class wysiwyg {
 							}
 							?>
 						];
-					
+
 					//      ID,             CMD,                         ToolTip,              In text mode?,   Image Position
 					this.btnList = {
 						<?php
@@ -673,139 +689,164 @@ class wysiwyg {
 				};
 			</script>
 			<?php
-	}
+
+	}//end print_config()
 
 
 	/**
 	* Prints the JS variables defined by each plugin
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_vars() {
+	function print_plugin_vars()
+	{
 		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_vars();
-	}
+
+	}//end print_plugin_vars()
 
 
 	/**
 	* Prints the keyboard shortcuts defined by each plugin
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_shortcuts() {
+	function print_plugin_shortcuts()
+	{
 		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_shortcuts();
-	}
+
+	}//end print_plugin_shortcuts()
 
 
 	/**
 	* Prints the code to get the options array for select box plugins
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_create_select() {
+	function print_plugin_create_select()
+	{
 		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_create_select();
-	}
+
+	}//end print_plugin_create_select()
 
 
 	/**
 	* Prints custom JS functions used by the plugins for each editor
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_functions() {
+	function print_plugin_functions()
+	{
 		foreach ($this->plugins as $name => $plugin) $plugin->paint();
-	}
+
+	}//end print_plugin_functions()
 
 
 	/**
 	* Prints JS functions used by the plugins that are generic
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_generic_functions() {
+	function print_plugin_generic_functions()
+	{
 		foreach ($this->plugins as $name => $plugin) $plugin->paint_generic();
-	}
+
+	}//end print_plugin_generic_functions()
 
 
 	/**
 	* Prints the JS executed on click for each plugin
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_button_clicks() {
+	function print_plugin_button_clicks()
+	{
 		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_button_click();
-	}
+
+	}//end print_plugin_button_clicks()
 
 
 	/**
 	* Prints the JS executed on select for select box plugins
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_combo_selected() {
+	function print_plugin_combo_selected()
+	{
 		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_combo_selected();
-	}
+
+	}//end print_plugin_combo_selected()
 
 
 	/**
 	* Prints the JS to create special types of buttons
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_button_type() {
+	function print_plugin_button_type()
+	{
 		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_button_type();
-	}
+
+	}//end print_plugin_button_type()
 
 
 	/**
 	* Prints the JS executed by each plugin when the toolbar is updated
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_update_toolbar() {
+	function print_plugin_update_toolbar()
+	{
 		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_update_toolbar();
-	}
+
+	}//end print_plugin_update_toolbar()
 
 
 	/**
 	* Prints any JS the plugin wants executed before the editable form element has its way
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_exec_commands() {
+	function print_plugin_exec_commands()
+	{
 		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_exec_command();
-	}
+
+	}//end print_plugin_exec_commands()
 
 
 	/**
 	* Prints any JS the plugin wants executed on returned HTML from getHTML
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_get_html() {
+	function print_plugin_get_html()
+	{
 		foreach ($this->plugins as $name => $plugin) $plugin->print_plugin_get_html();
-	}
+
+	}//end print_plugin_get_html()
 
 
 	/**
 	* Adds a plugin to the plugins array - adding functionality
 	* This must be done BEFORE calling the paint() function
 	*
-	* @param   string $name The unique name of this plugin
-	* @returns boolean
-	* @access  public
+	* @param string	$name	The unique name of this plugin
+	*
+	* @return boolean
+	* @access public
 	*/
-	function add_plugin($name) {
+	function add_plugin($name)
+	{
 		global $ROOT_PATH;
 		if (isset($this->plugins[$name])) return;
 		$filepath = $ROOT_PATH.'/plugins/'.$name.'/'.$name.'.inc';
@@ -813,106 +854,132 @@ class wysiwyg {
 		$plugin = new $name($this);
 		$this->plugins[$name] = $plugin;
 		return true;
-	}
+
+	}//end add_plugin()
 
 
 	/**
 	* Removes a plugin from the plugins array - removing functionality
 	* This must be done BEFORE calling the paint() function
 	*
-	* @param   string $name The unique name of this plugin
-	* @returns boolean
-	* @access  public
+	* @param string	$name	The unique name of this plugin
+	*
+	* @return boolean
+	* @access public
 	*/
-	function remove_plugin($name) {
+	function remove_plugin($name)
+	{
 		unset($this->plugins[$name]);
 		return true;
-	}
+
+	}//end remove_plugin()
 
 
 	/**
 	* Sets the body type of the WYSIWYG editor (iframe or div)
 	*
-	* @param   string $type The body type used to print/scale
-	* @returns void
-	* @access  public
+	* @param string	$type	The body type used to print/scale
+	*
+	* @return void
+	* @access public
 	*/
-	function set_body_type($type='iframe') {
+	function set_body_type($type='iframe')
+	{
 		$this->body_type = $type;
-	}
+
+	}//end set_body_type()
 
 
 	/**
 	* Sets weather the WYSIWYG initilises itself onLoad for the window
 	*
-	* @param   string $init Init or not (yes or no)
-	* @returns void
-	* @access  public
+	* @param string	$init	Init or not (yes or no)
+	*
+	* @return void
+	* @access public
 	*/
-	function set_init_onload($init='yes') {
+	function set_init_onload($init='yes')
+	{
 		$this->init_onload = trim(strtolower($init));
-	}
+
+	}//end set_init_onload()
 
 
 	/**
 	* Sets the width of the WYSIWYG editor
 	*
-	* @param   string $width The width of the editor
-	* @returns void
-	* @access  public
+	* @param string	$width	The width of the editor
+	*
+	* @return void
+	* @access public
 	*/
-	function set_width($width='auto') {
+	function set_width($width='auto')
+	{
 		$this->width = $width;
-	}
+
+	}//end set_width()
 
 
 	/**
 	* Sets the height of the WYSIWYG editor
 	*
-	* @param   string $height The height of the editor
-	* @returns void
-	* @access  public
+	* @param string	$height	The height of the editor
+	*
+	* @return void
+	* @access public
 	*/
-	function set_height($height='auto') {
+	function set_height($height='auto')
+	{
 		$this->height = $height;
-	}
+
+	}//end set_height()
 
 
 	/**
 	* Sets extra HTML you want in the TEXTAREA tag
 	* Usually would be used to set width and height
 	*
-	* @param   string $extras The extra HTML
-	* @returns void
-	* @access  public
+	* @param string	$extras	The extra HTML
+	*
+	* @return void
+	* @access public
 	*/
-	function set_textarea_extras($extras='') {
+	function set_textarea_extras($extras='')
+	{
 		$this->textarea_extras = trim($extras);
-	}
+
+	}//end set_textarea_extras()
 
 
 	/**
 	* Sets the initial contents of the WYSIWYG editor
 	*
-	* @param   string $content Some HTML content
-	* @returns void
-	* @access  public
+	* @param string	$content	Some HTML content
+	*
+	* @return void
+	* @access public
 	*/
-	function set_contents($contents) {
+	function set_contents($contents)
+	{
 		$this->contents = $contents;
-	}
+
+	}//end set_contents()
 
 
 	/**
 	* Sets the stylesheet for the WYSIWYG editor to use
 	*
-	* @param   string $stylesheet The href of the stylesheet
-	* @returns void
-	* @access  public
+	* @param string	$stylesheet	The href of the stylesheet
+	*
+	* @return void
+	* @access public
 	*/
-	function set_stylesheet($stylesheet) {
+	function set_stylesheet($stylesheet)
+	{
 		$this->stylesheet = $stylesheet;
-	}
-}
+
+	}//end set_stylesheet()
+
+}//end class
 
 ?>

@@ -20,12 +20,13 @@ class about extends wysiwyg_plugin {
 	* Constructor
 	* Adds an about button to the plugin
 	*
-	* @returns object About
-	* @access  public
+	* @access public
 	*/
-	function about() {
+	function about()
+	{
 		$this->_add_button('about','about','About this editor','true','0');
-	}
+
+	}//end constructor
 
 
 	/**
@@ -34,14 +35,16 @@ class about extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_button_click() {
+	function print_plugin_button_click()
+	{
 		?>
 		case "about":
 			this._popupDialog("<?php echo $this->get_popup_href('about.html')?>", 380, 185, null);
 		break;
 		<?php
-	}
 
-}
+	}//end print_plugin_button_click()
+
+}//end class
 
 ?>

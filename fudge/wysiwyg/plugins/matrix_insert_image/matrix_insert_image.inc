@@ -12,7 +12,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Fudge::wysiwyg
+* @package wysiwyg
 */
 class matrix_insert_image extends wysiwyg_plugin {
 
@@ -20,13 +20,14 @@ class matrix_insert_image extends wysiwyg_plugin {
 	* Constructor
 	* Adds the insert image button to this plugin
 	*
-	* @returns object Insert_Image
-	* @access  public
+	* @access public
 	*/
-	function matrix_insert_image(&$wysiwyg) {
+	function matrix_insert_image(&$wysiwyg)
+	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
 		$this->_add_button('matrixinsertimage','MatrixInsertImage','Insert Image','false','34');
-	}
+
+	}//end constructor
 
 
 	/**
@@ -37,7 +38,8 @@ class matrix_insert_image extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function paint_generic() {
+	function paint_generic()
+	{
 		?>
 		<script type="text/javascript" language="Javascript">
 			// Called when the user clicks on "InsertImage" button
@@ -131,7 +133,8 @@ class matrix_insert_image extends wysiwyg_plugin {
 			};
 		</script>
 		<?php
-	}
+
+	}//end paint_generic()
 
 
 	/**
@@ -140,14 +143,16 @@ class matrix_insert_image extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_button_click() {
+	function print_plugin_button_click()
+	{
 		?>
 		case "matrixinsertimage":
 			this._matrixinsertImage();
 			return;
 		break;
 		<?php
-	}
+
+	}//end print_plugin_button_click()
 }
 
 ?>
