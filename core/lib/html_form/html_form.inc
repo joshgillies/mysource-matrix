@@ -619,20 +619,21 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $top_obj='top', $d
 
 /**
 * Prints an interface for entering a security key genereted inside an image
-* Call process_security_key to check if the value entered was correct
+* Call validate_security_key() to check if the value entered was correct
 *
-* @param int	$key_len	the lenght of the random string to display in the image
-* @param int	$box_len	the width of the text box used to enter the security key shown
-* @param int	$zoom		each character will be randomly zoomed between x1 and this figure
-* @param string	$bg			the background colour of the image (eg FFFFFF)
-* @param string	$text		the colour of the text in the image (eg 000000)
-* @param string	$border		the colour of the border image (eg 000000)
-*							for no border, set to the same colour as the background
+* @param int		$key_len		the lenght of the random string to display in the image
+* @param int		$box_len		the width of the text box used to enter the security key shown
+* @param float		$zoom			each character will be randomly zoomed between x1 and this figure
+* @param boolean	$img_on_newline	whether the img should appear under the box or not
+* @param string		$bg				the background colour of the image (eg FFFFFF)
+* @param string		$text			the colour of the text in the image (eg 000000)
+* @param string		$border			the colour of the border image (eg 000000)
+*									for no border, set to the same colour as the background
 *
 * @return void
 * @access public
 */
-function security_key($key_len, $box_len, $zoom=1, $bg='FFFFFF', $text='000000', $border='000000')
+function security_key($key_len, $box_len, $zoom=1, $img_on_newline=false, $bg='FFFFFF', $text='000000', $border='000000')
 {
 	// generate a random security key string
 	require_once SQ_FUDGE_PATH.'/general/general.inc';
@@ -660,7 +661,15 @@ function security_key($key_len, $box_len, $zoom=1, $bg='FFFFFF', $text='000000',
 	<table border="0">
 		<tr>
 			<td valign="top"><?php echo text_box('SQ_SYSTEM_SECURITY_KEY_VALUE', '', $box_len); ?></td>
-			<td valign="top" width="100%"><img src="<?php echo $img_url; ?>" border="0"></td>
+	<?php 
+	if ($img_on_newline) {
+	?>
+		</tr>
+		<tr>
+	<?php
+	}// end if
+	?>
+			<td valign="top"><img src="<?php echo $img_url; ?>" border="0"></td>
 		</tr>
 	</table>
 	<?php
