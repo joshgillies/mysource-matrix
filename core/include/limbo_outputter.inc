@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: limbo_outputter.inc,v 1.2 2003/11/23 21:50:30 gsherwood Exp $
+* $Id: limbo_outputter.inc,v 1.3 2003/11/25 21:13:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,6 +58,7 @@ class Limbo_Outputter extends Backend_Outputter
 	/**
 	* Paint the cached limbo interface
 	*
+	* @return void
 	* @access public
 	*/
 	function paint()
@@ -71,15 +72,28 @@ class Limbo_Outputter extends Backend_Outputter
 		<div id="sq_backend_sections" style="width: 100%;">
 		<?php
 		if (!$this->_redirect) {
-			for($i = 0; $i < count($this->_contents); $i++) {
-				$this->_paintSection($this->_contents[$i]);
-			}
+			$this->paintSections();
 		}
 		?></div><?php
 
 		$this->_paintBodyFooter();
 
 	}//end paint()
+
+
+	/**
+	* Paint the sections within out contents
+	*
+	* @return void
+	* @access public
+	*/
+	function paintSections()
+	{
+		for($i = 0; $i < count($this->_contents); $i++) {
+			$this->_paintSection($this->_contents[$i]);
+		}
+
+	}//end paintSections()
 
 
 	/**
@@ -97,8 +111,6 @@ class Limbo_Outputter extends Backend_Outputter
 				header("Content-type: text/html; charset=$default_charset");
 			}
 		}
-
-		//$this->addFormActionGetVar('am_section', 'limbo', true);
 
 		$this->_paintCssInclude($this->filesPath('css/edit.css'));
 		foreach($this->_css_includes as $file) $this->_paintCssInclude($file);
