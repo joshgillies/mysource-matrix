@@ -4,4 +4,5 @@
 
 
 grep -rsn "[^&]\$GLOBALS\[.\?SQ_RESOLVE.\?\]->get" *
+grep -rsn "[^&]\$GLOBALS\[.\?SQ_RESOLVE.\?\]->am->getAsset(" *
 

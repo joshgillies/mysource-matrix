@@ -1,26 +1,36 @@
 +----------------------------------------------------------------------------------------+
-|                            SHORT TERM ( < 3 weeks )                                    |
+|                                     HIGH PRIORITY                                      |
 +----------------------------------------------------------------------------------------+
 
   CRITICAL :
     - Check the escaping of content in PEAR::XML_Tree_Node
 
+  - Flash Asset Tree
 
-
-  - Users_Group Asset
   - Attribute Types
     - In Asset have diff update case for diff types of attr
+
   - Unique Usernames (or attr values in general) across system
-  - Flash Asset Tree
-  - Update Asset last updated when setting an attribute
+
+  - URLs (System) Folder
+
   - Customising Asset's
     - Have Ability to "cast" objects from parent class to custom asset class
+
   - Enable removing of attributes from asset types in Asset_Management
+
+  - Users_Group Asset
   - Permissions_Group Asset
     - Same form as windows directory permissions ? 
       (ie permissions for as many groups and individuals as you want)
     - Permissions for links  (Read/Write/Delete ?)
     - Permissions for assets (Read/Write/Delete ?)
+
+
+  - HTML editing 
+    - in browser 
+	- external
+	  - with external how do we break page of content into individual assets for cells ?
 
   - CMS Package
     - Page
@@ -30,7 +40,7 @@
     - File
 
 +----------------------------------------------------------------------------------------+
-|                            MEDIUM TERM ( 3-7 weeks )                                   |
+|                                  MEDIUM  PRIORITY                                      |
 +----------------------------------------------------------------------------------------+
 
   - Design Areas (or their replacement)
@@ -38,13 +48,19 @@
     http://www.php.net/manual/en/language.references.return.php
     and points in http://phplens.com/lens/php-book/optimizing-debugging-php.php 
   - Global Stylesheets / Inheriting Designs ?
-  - RollBack...
+
+  - System Events = Broadcastor/Listener
+    - RollBack
+	- Caching
+	- System Replication
+	- Workflow ?
+
+  - XML Exporter/Importer for Assets
 
 +----------------------------------------------------------------------------------------+
-|                            LONG  TERM ( > 7 weeks )                                    |
+|                                  LOW     PRIORITY                                      |
 +----------------------------------------------------------------------------------------+
 
-  - Workflow Asset
   - User Preferences Config...
   - CVS Passwd Manager
 
