@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.188 2004/03/13 03:47:41 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.189 2004/03/14 02:57:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -764,7 +764,7 @@ class Asset_Manager extends MySource_Object
 	* Returns an array of information about assets of the passed codes
 	*
 	* @param array(int)		$assetids			an array of assets to limit
-	* @param array(string)	$type_code			an array of types codes to limit the results to
+	* @param array | string	$type_code			an array of types codes to limit the results to
 	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
 	*
 	* @return Array( int => Array() )
@@ -772,6 +772,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true)
 	{
+		if (!is_array($assetids)) return Array();
 		if (empty($assetids)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -799,14 +800,15 @@ class Asset_Manager extends MySource_Object
 								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
 				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($where))
+				if (DB::isError($where)) {
 					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+				}
 			}
 		}// end if
-
+		
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a '.$where.' ORDER BY a.assetid';
-
+		
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
