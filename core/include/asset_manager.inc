@@ -930,11 +930,13 @@ class Asset_Manager extends Resolve_Object
 				}
 				$index_page = $site->getSpecialPage('index');
 				if (!is_null($index_page)) {
-					$result[] = Array ('url'		=> $result[0]['url'],
+					$paths = $index_page->getWebPaths();
+					$result[] = Array (
+										'url'		=> $result[0]['url'].((empty($paths)) ? '' : '/'.$paths[0]),
 										'assetid'	=> $index_page->id,
 										$name_type	=> $index_page->$name_type,
 										'type_code'	=> $index_page->type()
-									);
+										);
 				}// end if
 			}// end if
 
