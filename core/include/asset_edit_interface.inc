@@ -208,7 +208,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				$expires_in = easy_time_total(($lock['expires'] - $now), true);
 				if (!$expires_in) $expires_in = '1 second';
 
-				echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". The lock is due to expire in '.$expires_in.'</p>';
+				echo '<p class="sq-backend-data">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". The lock is due to expire in '.$expires_in.'</p>';
 
 				if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
 
@@ -217,7 +217,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					// does the current user has a high
 					// enough level of access to forceably acquire the lock
 					if ($owner->canForceablyAcquireLock()) {
-						echo '<p class="sq-form-field">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</p>';
+						echo '<p class="sq-backend-data">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</p>';
 
 						// they aren't going to do this without a fight though
 						// they'll have to go thorough our popup window first
@@ -606,68 +606,59 @@ class Asset_Edit_Interface extends Resolve_Object
 							break;
 						case 'future_status' :
 
-							$o->openField('Future Statuses', 'new_line');
-							$fs_links = $owner->getLinks(SQ_LINK_NOTICE, 'cron_job_future_status', true, 'minor');
-							#pre_echo($fs_links);
-
-							$fs_jobs  = Array();
-							$fs_dates = Array();
-
-							foreach($fs_links as $link) {
-								$fs = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
-								if (is_null($fs)) continue;
-								$fs_jobs[$fs->id]  = &$fs;
-								$fs_dates[$fs->id] = &$fs->attr('when');
-							}
-
-							asort($fs_dates, SORT_STRING);
-
-							?>
-							<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
-								<tr>
-									<td bgcolor="#DDDDDD" class="sq-form-field" style="font-weight: bold;">
-										Status
-									</td>
-									<td bgcolor="#DDDDDD" class="sq-form-field" style="font-weight: bold;">
-										When
-									</td>
-								<?php
-									if ($owner->adminAccess()) {
-									?>
-									<td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field" style="font-weight: bold;">
-										Delete ?
-									</td>
-									<?php
-									}// end if
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
+							$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
+							if (!empty($fs_jobs)) {
+								#pre_echo($fs_links);
+								$o->openField('Future Statuses', 'new_line');
 								?>
-								</tr>
-							<?php
-
-							foreach($fs_dates as $id => $date) {
-							?>
-								<tr>
-									<td bgcolor="#DDDDDD" class="sq-form-field">
-										<?php echo $fs_jobs[$id]->statusName(); ?>
-									</td>
-									<td bgcolor="#DDDDDD" class="sq-form-field">
-										<?php echo $fs_jobs[$id]->readableWhen(); ?>
-									</td>
-								<?php
-									if ($owner->adminAccess()) {
-									?>
-									<td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field" style="font-weight: bold;">
-										Delete ?
-									</td>
+								<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+									<tr>
+										<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">
+											Status
+										</td>
+										<td bgcolor="#DDDDDD" class="sq-backend-field" style="font-weight: bold;">
+											When
+										</td>
 									<?php
-									}// end if
-								?>
-								</tr>
-							<?php
-							}// end foreach
+										if ($owner->adminAccess()) {
+										?>
+										<td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-field" style="font-weight: bold;">
+											Delete ?
+										</td>
+										<?php
+										}// end if
+									?>
+									</tr>
+								<?php
 
-							?>
-							</table>
-							<?php
+								for($i = 0; $i < count($fs_jobs); $i++) {
+								?>
+									<tr>
+										<td class="sq-backend-data">
+											<?php echo $fs_jobs[$i]->statusName(); ?>
+										</td>
+										<td class="sq-backend-data">
+											<?php echo $fs_jobs[$i]->readableWhen(); ?>
+										</td>
+									<?php
+										if ($owner->adminAccess()) {
+										?>
+										<td align="center" width="100" class="sq-backend-data">
+											X
+										</td>
+										<?php
+										}// end if
+									?>
+									</tr>
+								<?php
+								}// end foreach
+
+								?>
+								</table>
+								<?php
+
+							}// end if
 
 							if ($owner->writeAccess()) {
 								$o->openField('New Future Statuses', 'new_line');
@@ -826,18 +817,18 @@ class Asset_Edit_Interface extends Resolve_Object
 									<?php if ($owner->writeAccess()) {
 									?>
 									<tr>
-										<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
-										<td bgcolor="#DDDDDD" class="sq-form-field"><b>Delete ?</b></td>
+										<td bgcolor="#DDDDDD" class="sq-backend-data">&nbsp;</td>
+										<td bgcolor="#DDDDDD" class="sq-backend-data"><b>Delete ?</b></td>
 									</tr>
 									<?php } ?>
 								<?php
 								foreach ($current_langs as $lang_code) {
 									?>
 									<tr>
-										<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo $standards_lists_languages[$lang_code]; ?></td>
+										<td bgcolor="#F0F0F0" class="sq-backend-data"><?php echo $standards_lists_languages[$lang_code]; ?></td>
 										<?php if ($owner->writeAccess()) {
 										?>
-										<td bgcolor="#F0F0F0" class="sq-form-field" align="center"><?php check_box($prefix.'_rem_intl_language['.$lang_code.']'); ?></td>
+										<td bgcolor="#F0F0F0" class="sq-backend-data" align="center"><?php check_box($prefix.'_rem_intl_language['.$lang_code.']'); ?></td>
 										<?php } ?>
 									</tr>
 									<?php
@@ -884,7 +875,7 @@ class Asset_Edit_Interface extends Resolve_Object
 									echo '<i>An asset can only be morphed while Under Construction</i>';
 								} else {
 									$db = &$GLOBALS['SQ_SYSTEM']->db;
-									$am =& $GLOBALS['SQ_SYSTEM']->am;
+									$am = &$GLOBALS['SQ_SYSTEM']->am;
 									$user = &$am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 
 									$types = array_merge($am->getTypeAncestors($owner->type()), $am->getTypeDescendants($owner->type()));
@@ -1128,10 +1119,10 @@ class Asset_Edit_Interface extends Resolve_Object
 				?>
 					<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
 						<tr>
-							<td bgcolor="#DDDDDD" class="sq-form-field">
+							<td bgcolor="#DDDDDD" class="sq-backend-data">
 								<span style="font-weight: bold; color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Granted') ?></span>
 							</td>
-							<td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field" style="font-weight: bold;">
+							<td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data" style="font-weight: bold;">
 						<?php
 							if ($access == '1') {
 								echo ($admin_access) ? 'Revoke ? ' : 'Revoked ?';
@@ -1158,12 +1149,12 @@ class Asset_Edit_Interface extends Resolve_Object
 
 					?>
 						<tr>
-							<td bgcolor="#F0F0F0" class="sq-form-field">
+							<td bgcolor="#F0F0F0" class="sq-backend-data">
 						<?php
 							echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access'), ' was set at ', $loc_string;
 						?>
 							</td>
-							<td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field">
+							<td bgcolor="#F0F0F0" align="center" width="100" class="sq-backend-data">
 						<?php
 							// we are in grant section
 							if ($access == '1') {
@@ -1220,12 +1211,12 @@ class Asset_Edit_Interface extends Resolve_Object
 				?>
 					<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
 						<tr>
-							<td bgcolor="#DDDDDD" class="sq-form-field">
+							<td bgcolor="#DDDDDD" class="sq-backend-data">
 								<span style="font-weight: bold; color: <?php echo (($access == '0') ? 'red' : 'green'); ?>"><?php echo (($access == '0') ? 'Denied' : 'Granted') ?></span>
 							</td>
 							<?php
 							if ($admin_access) {
-								?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field" style="font-weight: bold;">Delete ?</td><?php
+								?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data" style="font-weight: bold;">Delete ?</td><?php
 							}
 							?>
 						</tr>
@@ -1237,14 +1228,14 @@ class Asset_Edit_Interface extends Resolve_Object
 						}
 					?>
 						<tr>
-							<td bgcolor="#F0F0F0" class="sq-form-field">
+							<td bgcolor="#F0F0F0" class="sq-backend-data">
 						<?php
 							echo (($userid) ? $user->name.' ['.$user->type().' : '.$userid.']' : 'Public Access');
 						?>
 							</td>
 						<?php
 							if ($admin_access) {
-								?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
+								?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-backend-data"><?php
 								check_box($prefix.'_permissions['.$perm.'][delete]['.$userid.']');
 								?></td><?php
 							}
@@ -1371,7 +1362,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			echo 'Any changes you make to the workflow will not affect the currently running workflows for the following assets:<ul>';
 			foreach ($inheriting_workflows as $assetid) {
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				echo '<li class="sq-form-field">'.$asset->name.'</li>';
+				echo '<li class="sq-backend-data">'.$asset->name.'</li>';
 			}
 			echo '</ul>';
 			$o->closeSection();
@@ -1427,9 +1418,9 @@ class Asset_Edit_Interface extends Resolve_Object
 					?>
 					<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
 						<tr>
-							<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
-							<td bgcolor="#DDDDDD" class="sq-form-field" width="270"><b>Group Logic</b></td>
-							<td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Complete ?</b></td>
+							<td bgcolor="#DDDDDD" class="sq-backend-data">&nbsp;</td>
+							<td bgcolor="#DDDDDD" class="sq-backend-data" width="270"><b>Group Logic</b></td>
+							<td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data"><b>Complete ?</b></td>
 						</tr>
 					<?php
 					foreach ($step_data['conditions'] as $pub => $cond_data) {
@@ -1437,8 +1428,8 @@ class Asset_Edit_Interface extends Resolve_Object
 						if (!$asset->id) continue;
 						?>
 						<tr>
-							<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
-							<td bgcolor="#F0F0F0" class="sq-form-field">
+							<td bgcolor="#F0F0F0" class="sq-backend-data"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
+							<td bgcolor="#F0F0F0" class="sq-backend-data">
 						<?php
 						if (isset($wfm->_valid_cond_logic[$cond_data['require']])) {
 							// a special type of require statement
@@ -1457,7 +1448,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 						?></td>
 
-							<td bgcolor="#F0F0F0" align="center" class="sq-form-field">
+							<td bgcolor="#F0F0F0" align="center" class="sq-backend-data">
 							<?php
 								if (isset($cond_data['complete']) && $cond_data['complete']) {
 									echo 'Yes';
@@ -1516,10 +1507,10 @@ class Asset_Edit_Interface extends Resolve_Object
 				?>
 				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
 					<tr>
-						<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+						<td bgcolor="#DDDDDD" class="sq-backend-data">&nbsp;</td>
 						<?php
 						if ($admin_access) {
-							?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Revoke ?</b></td><?php
+							?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data"><b>Revoke ?</b></td><?php
 						}
 						?>
 					</tr>
@@ -1532,7 +1523,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					if (is_null($asset)) continue;
 				?>
 					<tr>
-						<td bgcolor="#F0F0F0" class="sq-form-field">
+						<td bgcolor="#F0F0F0" class="sq-backend-data">
 						<?php
 							echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
 						?>
@@ -1540,7 +1531,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					<?php
 					if ($admin_access) {
 					?>
-						<td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field">
+						<td bgcolor="#F0F0F0" align="center" width="100" class="sq-backend-data">
 						<?php
 							check_box($prefix."_revoke[$assetid]");
 						?>
@@ -1562,10 +1553,10 @@ class Asset_Edit_Interface extends Resolve_Object
 				?>
 				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
 					<tr>
-						<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+						<td bgcolor="#DDDDDD" class="sq-backend-data">&nbsp;</td>
 						<?php
 						if ($admin_access) {
-							?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Reinstate ?</b></td><?php
+							?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-backend-data"><b>Reinstate ?</b></td><?php
 						}
 						?>
 					</tr>
@@ -1576,7 +1567,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					if (is_null($asset)) continue;
 					?>
 					<tr>
-						<td bgcolor="#F0F0F0" class="sq-form-field">
+						<td bgcolor="#F0F0F0" class="sq-backend-data">
 						<?php
 							echo 'Workflow inherited from '.$asset->name.' ['.$asset->type().' : '.$assetid.']';
 						?>
@@ -1584,7 +1575,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					<?php
 					if ($admin_access) {
 					?>
-						<td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field">
+						<td bgcolor="#F0F0F0" align="center" width="100" class="sq-backend-data">
 						<?php
 							check_box($prefix.'_unrevoke['.$assetid.']');
 						?>
@@ -1645,11 +1636,11 @@ class Asset_Edit_Interface extends Resolve_Object
 			?>
 			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
 				<tr>
-					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
-					<td bgcolor="#DDDDDD" class="sq-form-field" width="270"><b>Group Logic</b></td>
+					<td bgcolor="#DDDDDD" class="sq-backend-data">&nbsp;</td>
+					<td bgcolor="#DDDDDD" class="sq-backend-data" width="270"><b>Group Logic</b></td>
 					<?php
 					if ($admin_access) {
-						?><td bgcolor="#DDDDDD" align="center" width="70" class="sq-form-field"><b>Delete ?</b></td><?php
+						?><td bgcolor="#DDDDDD" align="center" width="70" class="sq-backend-data"><b>Delete ?</b></td><?php
 					}
 					?>
 				</tr>
@@ -1659,8 +1650,8 @@ class Asset_Edit_Interface extends Resolve_Object
 				if (!$asset->id) continue;
 				?>
 				<tr>
-					<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
-					<td bgcolor="#F0F0F0" class="sq-form-field">
+					<td bgcolor="#F0F0F0" class="sq-backend-data"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
+					<td bgcolor="#F0F0F0" class="sq-backend-data">
 				<?php
 				if (isset($wfm->_valid_cond_logic[$cond_data['require']])) {
 					// a special type of require statement
@@ -1690,7 +1681,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				?></td><?php
 
 				if ($admin_access) {
-					?><td bgcolor="#F0F0F0" align="center" class="sq-form-field"><?php
+					?><td bgcolor="#F0F0F0" align="center" class="sq-backend-data"><?php
 					check_box($prefix.'_steps['.$stepid.'][conditions]['.$pub.'][delete]')
 					?></td><?php
 				}
@@ -2192,7 +2183,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$o->openField('');
 		
 		if (SQ_ROLLBACK_VIEW) {
-			?><p class="sq-form-field"><b><i>The highlighted row in the version history is the current version of "<?php echo $owner->name; ?>" being viewed in rollback mode</i></b></p>
+			?><p class="sq-backend-data"><b><i>The highlighted row in the version history is the current version of "<?php echo $owner->name; ?>" being viewed in rollback mode</i></b></p>
 			<?php
 		}
 
@@ -2201,10 +2192,10 @@ class Asset_Edit_Interface extends Resolve_Object
 		?>
 		<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
 			<tr>
-				<td bgcolor="#DDDDDD" class="sq-form-field"><b>Version Duration</b></td>
-				<td bgcolor="#DDDDDD" class="sq-form-field"><b>Time Since Version</b></td>
-				<td bgcolor="#DDDDDD" class="sq-form-field" align="center"><b>Version</b></td>
-				<td bgcolor="#DDDDDD" class="sq-form-field" align="center"><b>View</b></td>
+				<td bgcolor="#DDDDDD" class="sq-backend-data"><b>Version Duration</b></td>
+				<td bgcolor="#DDDDDD" class="sq-backend-data"><b>Time Since Version</b></td>
+				<td bgcolor="#DDDDDD" class="sq-backend-data" align="center"><b>Version</b></td>
+				<td bgcolor="#DDDDDD" class="sq-backend-data" align="center"><b>View</b></td>
 			</tr>
 		<?php
 		
@@ -2235,10 +2226,10 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			?>
 			<tr>
-				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-form-field"><?php echo $from; ?> - <?php echo $to; ?></td>
-				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-form-field"><?php echo $ago; ?></td>
-				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-form-field" align="center"><?php echo $data['version']; ?></td>
-				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-form-field" align="center">
+				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-backend-data"><?php echo $from; ?> - <?php echo $to; ?></td>
+				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-backend-data"><?php echo $ago; ?></td>
+				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-backend-data" align="center"><?php echo $data['version']; ?></td>
+				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-backend-data" align="center">
 				<?php 
 					if ($show_view_btn) {
 						echo submit_button($prefix.'_rollback_mode', ' View ', 'this.form.'.$prefix.'_rollback_version.value = \''.$data['version'].'\'');
