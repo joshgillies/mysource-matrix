@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.44 2005/02/21 19:27:56 brobertson Exp $
+* $Id: search_manager.inc,v 1.45 2005/03/17 01:01:35 ndvries Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -406,10 +406,10 @@ class Search_Manager extends Asset
 		foreach ($results as $result) {
 			$weightings[$result['component']] =
 				Array(
-					'default'     => ($result['def'] == 't') ? 1 : 0,
-					'weight'      => $result['weight'],
-					'description' => $result['description'],
-				);
+					  'default'     => ($result['def'] == 't') ? 1 : 0,
+					  'weight'      => $result['weight'],
+					  'description' => $result['description'],
+					  );
 		}
 
 		return $weightings;
@@ -435,7 +435,7 @@ class Search_Manager extends Asset
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-		
+
 		$assetid = $vars['assetid'];
 
 		if (!empty($vars['schemaids'])) {
@@ -444,7 +444,7 @@ class Search_Manager extends Asset
 			$fieldids = $mm->getMetadataFields($mm->getSchemas($assetid, true));
 		}
 
-		foreach($fieldids as $fieldid => $field_type) {
+		foreach ($fieldids as $fieldid => $field_type) {
 			$this->flushKeyData($assetid, 'metadata:'.$fieldid);
 		}
 
@@ -597,7 +597,7 @@ class Search_Manager extends Asset
 	* @return array
 	* @access public
 	*/
-	function processSearch($search_info)
+	function processSearch($search_info, $include_context=false)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$total_asset_scores = null;
@@ -617,15 +617,20 @@ class Search_Manager extends Asset
 		// if searching is set by attribute then don't search in here - let
 		// other assets (ie. listing engine-derived assets) to handle it
 		if (isset($search_info['sort_by']) && $search_info['sort_by'] == '__attr__') $search_info['sort_by'] = '';
-		
+
 		  ///////////////////////////////////
 		 //  CONSTRUCT BASE SEARCH QUERY  //
 		///////////////////////////////////
 		$start_sql_array = $this->constructBaseSearchQuery($search_info);
+		$start_sql_array['select'] .= $include_context ? ', ai.component as source' : '';
+
 		$start_sql = implode(' ', $start_sql_array);
+
 		$group_by =  'GROUP BY ai.assetid';
+		$group_by .= $include_context ? ', ai.component' : '';
+
 		if (!empty($search_info['sort_by'])) $group_by .= ', sort_by';
-		
+
 
 		  ///////////////////////////////
 		 //  SEARCH ASSET ATTRIBUTES  //
@@ -635,7 +640,7 @@ class Search_Manager extends Asset
 			foreach ($search_info['asset_attrib'] as $attr_name => $attr_info) {
 
 				if ($attr_info['params']['asset_type'] == '') continue;
-				$attribute = $GLOBALS['SQ_SYSTEM']->am->getAttribute($attr_info['params']['attrid']);
+				$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($attr_info['params']['attrid']);
 				if (is_null($attribute)) continue;
 
 				$field_asset_scores = null;
@@ -760,7 +765,7 @@ class Search_Manager extends Asset
 						$sql = $start_sql.'
 							AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by;
 
-						$result = $db->getAssoc($sql);
+						$result = $include_context ? $db->getAll($sql) : $db->getAssoc($sql);
 						assert_valid_db_result($result);
 
 						$cm->saveToCache($this, $search_cache_key.'include_all'.$word, serialize($result));
@@ -893,6 +898,8 @@ class Search_Manager extends Asset
 
 		if (is_null($total_asset_scores)) {
 			$total_asset_scores = Array();
+		} else if ($include_context) {
+			return $total_asset_scores;
 		} else {
 			if (empty($search_info['sort_by'])) {
 				// sorting by relevance, so ensure the sort_by score is the same as the actual search score
@@ -975,17 +982,17 @@ class Search_Manager extends Asset
 					$normal_types[] = $db->quote($i);
 				}
 			}
-			
+
 			$type_code_cond = Array();
-			
-			if (!empty($inherited_types)) {				
+
+			if (!empty($inherited_types)) {
 				$type_code_cond[] = 'inhd_type_code IN ('.implode(', ', $inherited_types).')';
 			}
-			
-			if (!empty($normal_types)) {				
+
+			if (!empty($normal_types)) {
 				$type_code_cond[] = 'type_code IN ('.implode(', ', $normal_types).')';
 			}
-			
+
 			$type_code_cond = implode(' OR ', $type_code_cond);
 
 
@@ -1163,7 +1170,8 @@ class Search_Manager extends Asset
 
 		$sql = Array();
 
-		$sql['select'] = 'SELECT DISTINCT(ai.assetid), SUM(ai.score) as search_score, '.$sort_string.' AS sort_by';
+		$sql['select'] = 'SELECT ai.assetid, SUM(ai.score) as search_score, '.$sort_string.' AS sort_by';
+
 		$sql['from']   = 'FROM
 							'.SQ_TABLE_PREFIX.'sch_idx ai,
 							'.SQ_TABLE_PREFIX.'ast_lnk_tree alt1,
@@ -1204,17 +1212,17 @@ class Search_Manager extends Asset
 					$normal_types[] = $db->quote($i);
 				}
 			}
-			
+
 			$type_code_cond = Array();
-			
-			if (!empty($inherited_types)) {				
+
+			if (!empty($inherited_types)) {
 				$type_code_cond[] = 'inhd_type_code IN ('.implode(', ', $inherited_types).')';
 			}
-			
-			if (!empty($normal_types)) {				
+
+			if (!empty($normal_types)) {
 				$type_code_cond[] = 'type_code IN ('.implode(', ', $normal_types).')';
 			}
-			
+
 			$type_code_cond = implode(' OR ', $type_code_cond);
 
 			$sql['where'] .= ' AND a.type_code IN (
@@ -1296,7 +1304,6 @@ class Search_Manager extends Asset
 			}
 
 		}
-
 		return $out_asset_scores;
 
 	}//end combineAssetScores()
