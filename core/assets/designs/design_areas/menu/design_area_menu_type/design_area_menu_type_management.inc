@@ -39,11 +39,6 @@ class Design_Area_Menu_Type_Management extends Asset_Management
 								'default'		=> Array(),
 								'description'   => 'Comma or space separated list of type codes to restrict the menu to display, these types are not strict however so any sub-types of these will also be valid'
 							),
-							'temp' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'text',
-								'default'		=> ''
-							),
 						);
 
 	}//end constructor
