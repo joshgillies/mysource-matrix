@@ -4221,11 +4221,13 @@ class Asset extends Resolve_Object
 	* Will be called by parent assets recursively on their kids so not 'really' private
 	* and by the saveWebPaths() so that their transaction calls can wrap around it
 	*
+	* @param boolean	$cascade	update the lookups of our children as well?
+	*
 	* @return boolean
 	* @access private
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function _updateLookups()
+	function _updateLookups($cascade=true)
 	{
 		$paths = $this->getWebPaths();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -4283,17 +4285,19 @@ class Asset extends Resolve_Object
 
 		}// end if count paths
 
-		// recusively call the kids update
-		$kids = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'major');
-		for($i = 0; $i < count($kids); $i++) {
-			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
-			if (is_null($kid)) continue;
+		if($cascade) {
+			// recusively call the kids update
+			$kids = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'major');
+			for($i = 0; $i < count($kids); $i++) {
+				$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
+				if (is_null($kid)) continue;
 
-			if (!$kid->_updateLookups()) {
-				return false;
-			}
+				if (!$kid->_updateLookups()) {
+					return false;
+				}
 
-		}// end for kids
+			}// end for kids
+		}
 
 		return true;
 
