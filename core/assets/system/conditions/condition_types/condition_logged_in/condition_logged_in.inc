@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_logged_in.inc,v 1.3 2004/12/06 14:38:10 brobertson Exp $
+* $Id: condition_logged_in.inc,v 1.4 2005/02/21 19:26:11 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,7 +59,7 @@ class Condition_Logged_In extends Condition
 	*/
 	function evaluate()
 	{
-		return (bool) $GLOBALS['SQ_SYSTEM']->currentUserId();
+		return !$GLOBALS['SQ_SYSTEM']->userPublic();
 
 	}//end evaluate()
 

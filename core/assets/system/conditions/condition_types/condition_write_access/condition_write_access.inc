@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_write_access.inc,v 1.4 2004/12/06 14:38:10 brobertson Exp $
+* $Id: condition_write_access.inc,v 1.5 2005/02/21 19:26:11 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -62,7 +62,7 @@ class Condition_Write_Access extends Condition
 	function evaluate(&$asset)
 	{
 		// first, check if someone's logged in
-		if (!$GLOBALS['SQ_SYSTEM']->currentUserId()) return false;
+		if ($GLOBALS['SQ_SYSTEM']->userPublic()) return false;
 
 		// next, check to see if the currently logged in user
 		// has write access
