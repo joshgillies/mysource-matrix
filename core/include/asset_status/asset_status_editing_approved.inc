@@ -32,6 +32,20 @@ class Asset_Status_Editing_Approved extends Asset_Status_Approved
 
 
 	/**
+	* Returns a string used to describe this status
+	*
+	* @return string
+	* @access public
+	* @static
+	*/
+	function getDescription()
+	{
+		return 'Safe Edit Approved To Go Live';
+
+	}//end getDescription()
+
+
+	/**
 	* Returns an array of statii that the current user can set for this asset
 	* Value returned is a key => value array for a drop down
 	*
