@@ -194,19 +194,26 @@ class Designs_Folder extends Folder
 	* @param array		$assetids	An array of user_group and/or user ids to check for write access
 	*								If the array is empty, the current user will be checked
 	* @param boolean	$effective	effective access based on locking and status
+	* @param boolean	$editing	effective access based on live edit access
 	*
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($assetids=Array(), $effective=true)
+	function writeAccess($assetids=Array(), $effective=true, $editing=true)
 	{
-		// only root can write to this folder
+		// only root can write to this folder so we add this extra checking
+		// before going up to our parent to check access
 		if (empty($assetids)) {
-			return $GLOBALS['SQ_SYSTEM']->userRoot();
+			if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
+				return parent::writeAccess($assetids, $effective, $editing);
+			}
 		} else {
 			$root_user = &$GLOBALS['SQ_SYSTEM']->$am->getSystemAsset('root_user');
-			return in_array($root_user->id, $assetids);
+			if (in_array($root_user->id, $assetids)) {
+				return parent::writeAccess($assetids, $effective, $editing);
+			}
 		}
+		return false;
 	}//end writeAccess()
 
 
