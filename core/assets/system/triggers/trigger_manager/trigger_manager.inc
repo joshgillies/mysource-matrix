@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager.inc,v 1.9 2005/03/30 04:54:54 arailean Exp $
+* $Id: trigger_manager.inc,v 1.10 2005/04/05 00:31:04 arailean Exp $
 *
 */
 
@@ -51,7 +51,7 @@ require_once 'hash.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -230,6 +230,7 @@ class Trigger_Manager extends Asset
 
 		// execute each trigger
 		foreach ($candidate_trigger_ids as $trigger_id) {
+
 			$status_message = null;
 			// re-create a trigger
 			$trigger = $this->_loadTrigger($trigger_id);
@@ -321,8 +322,6 @@ class Trigger_Manager extends Asset
 		$tmp_treeid = $am->getAssetTreeids($state['assetid']);
 		if ($tmp_treeid) {
 			$state['treeid'] = $tmp_treeid;
-		} else {
-			$state['treeid'] = '';
 		}
 
 		return $state;
@@ -367,74 +366,114 @@ class Trigger_Manager extends Asset
 			return Array();
 		}
 
-		// obtain hash
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$PROPAGATE      = $db->quoteSmart(SQ_TRIG_TREE_PROPAGATE);
 		$NO_PROPAGATE   = $db->quoteSmart(SQ_TRIG_TREE_NO_PROPAGATE);
 
 		// compose the link_tree SQL block
-		$treeid_sql_array[] = "treeid = ''";
+		$treeid_sql_array[] = "treeid IS NULL";
 		if (empty($state_hash['treeid'])) {
 			$state_hash['treeid'] = Array();
 		}
 
-		foreach ($state_hash['treeid'] as $treeid) {
-			if (empty($treeid)) {
+		foreach ($state_hash['treeid'] as $current_treeid) {
+			if (empty($current_treeid)) {
 				continue;
 			}
 
-			$treeid = $db->quoteSmart($treeid);
+			$tree_length = strlen($current_treeid) - SQ_CONF_ASSET_TREE_SIZE;
+			$tree_length = $db->quoteSmart($tree_length);
+			$current_treeid = $db->quoteSmart($current_treeid);
 
-			$treeid_sql_array[] = '(tree_propagate = '.$PROPAGATE.'
-									AND (treeid != '.$treeid.'
-										 AND SUBSTR('.$treeid.', 1, LENGTH(treeid)) = treeid
-										 )
-									)
-									OR (tree_propagate = '.$NO_PROPAGATE.'
-										AND (treeid != '.$treeid.'
-											 AND SUBSTR('.$treeid.', 1, LENGTH(treeid)) = treeid
-											 AND LENGTH(treeid) = (LENGTH('.$treeid.') - '.SQ_CONF_ASSET_TREE_SIZE.')
-											 )
-										)';
+			$treeid_sql_array[] = '
+						(
+							(treeid != '.$current_treeid.' AND SUBSTR('.$current_treeid.', 1, LENGTH(treeid)) = treeid)
+							AND (
+								tree_propagate = '.$PROPAGATE.'
+								OR (tree_propagate = '.$NO_PROPAGATE.' AND LENGTH(treeid) = '.$tree_length.')
+							)
+						)';
+
 		}
-		$treeid_sql = implode($treeid_sql_array, ' OR ');
+		$treeid_sql = implode($treeid_sql_array, " OR ");
 
-		// parent hash
-		$parent_sql_array[] = '(parentid = \'\' AND parent_type = \'\')';
+
+		//// PARENTS
+		$parent_id_array = Array();
+		$parent_type_array = Array();
 
 		$parents = $state_hash['parents'];
 		foreach ($parents as $id => $type) {
-			$id = $db->quoteSmart($id);
-			$type = $db->quoteSmart($type);
-			$parent_sql_array[] = '(parentid = \'\' AND parent_type = '.$type.')';
-
-			$parent_sql_array[] = '(parentid = '.$id.' AND parent_type = \'\')';
+			$parent_id_array[]   = $db->quoteSmart($id);
+			$parent_type_array[] = $db->quoteSmart($type);
 		}
-		$parent_sql = implode($parent_sql_array, ' OR ');
 
-		// child hash
-		$child_sql_array[] = '(childid = \'\' AND child_type = \'\')';
+		// parent IDs
+		$parent_id_sql = 'parentid IS NULL';
+		if (!empty($parent_id_array)) {
+			$parent_id_sql .= ' OR parentid IN ('.implode(',', $parent_id_array).')';
+		}
+
+		// parent types
+		$parent_type_sql = 'parent_type IS NULL';
+		if (!empty($parent_type_array)) {
+			$parent_type_sql .= ' OR parent_type IN ('.implode(',', $parent_type_array).')';
+		}
+
+
+		//// CHILDREN
+		$child_id_array = Array();
+		$child_type_array = Array();
 
 		$children = $state_hash['children'];
 		foreach ($children as $id => $type) {
-			$id   = $db->quoteSmart($id);
-			$type = $db->quoteSmart($type);
-			$child_sql_array[] = '(childid = \'\' AND child_type = '.$type.')';
-
-			$child_sql_array[] = '(childid = '.$id.' AND child_type = \'\')';
+			$child_id_array[]   = $db->quoteSmart($id);
+			$child_type_array[] = $db->quoteSmart($type);
 		}
-		$child_sql = implode($child_sql_array, ' OR ');
+
+		// child IDs
+		$child_id_sql = 'childid IS NULL';
+		if (!empty($child_id_array)) {
+			$child_id_sql .= ' OR childid IN ('.implode(',', $child_id_array).')';
+		}
+
+		// child types
+		$child_type_sql = 'child_type IS NULL';
+		if (!empty($child_type_array)) {
+			$child_type_sql .= ' OR child_type IN ('.implode(',', $child_type_array).')';
+		}
+
+
+		// event
+		$event_sql = 'event IS NULL';
+		if (!is_null($state_hash['event'])) {
+			$event_sql .= ' OR event = '.$db->quoteSmart($state_hash['event']);
+		}
+
+		// broadcaster's asset ID
+		$assetid_sql = 'assetid IS NULL';
+		if (!is_null($state_hash['assetid'])) {
+			$assetid_sql .= ' OR assetid = '.$db->quoteSmart($state_hash['assetid']);
+		}
+
+		// broadcaster's asset Type
+		$asset_type_sql = 'asset_type IS NULL';
+		if (!is_null($state_hash['asset_type'])) {
+			$asset_type_sql .= ' OR asset_type = '.$db->quoteSmart($state_hash['asset_type']);
+		}
 
 		// compose query
-		$sql = 'SELECT DISTINCT "triggerid"
+		$sql = 'SELECT DISTINCT '.$db->quoteIdentifier('triggerid').'
 				FROM '.SQ_TABLE_PREFIX.'trig_hash
-				WHERE (event = '.$db->quoteSmart($state_hash['event']).' OR event = \'\')
-					AND (assetid = '.$db->quoteSmart($state_hash['assetid']).' OR assetid = \'\')
-					AND (asset_type = '.$db->quoteSmart($state_hash['asset_type']).' OR asset_type = \'\')
+				WHERE   ('.$event_sql.')
+					AND ('.$assetid_sql.')
+					AND ('.$asset_type_sql.')
 					AND ('.$treeid_sql.')
-					AND ('.$parent_sql.')
-					AND ('.$child_sql.')';
+					AND ('.$parent_id_sql.')
+					AND ('.$parent_type_sql.')
+					AND ('.$child_id_sql.')
+					AND ('.$child_type_sql.')';
 
 		// query the database
 		$result = $db->getCol($sql);
@@ -478,7 +517,7 @@ class Trigger_Manager extends Asset
 
 			// check condition
 			// dynamic substitution of static condition class
-			eval('$condition_success = '.$condition['type'].'::evaluate($condition[\'data\'], $state_data);');
+			eval('$condition_success = '.$condition['type'].'::evaluate($condition["data"], $state_data);');
 
 			// if condition fails return with Success
 			// (trigger does not need execution, false alarm but trigger did not fail)
