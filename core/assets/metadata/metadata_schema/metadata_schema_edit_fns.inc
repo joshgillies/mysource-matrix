@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.26 2004/07/07 04:24:36 lwright Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.27 2004/09/17 06:44:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -325,11 +325,11 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function generateMetadata(&$asset, &$values, &$tag_values, &$keywords)
 	{
-		echo "<!-- $asset->name //-->\n\n";
-
 		$frontend_option = $asset->attr('frontend');
 		// if we aren't printing this on the frontend then don't print anything
 		if (!$frontend_option) return true;
+		
+		echo "<!-- $asset->name //-->\n\n";
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
 		$valid_sections = Array();
@@ -379,6 +379,31 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		return true;
 
 	}//end getMetadataFieldValues()
+
+
+	/**
+	* Get the default values for this schema
+	*
+	* @param object Metadata_Schema	&$asset	the asset whose values we are getting
+	*
+	* @return array
+	* @access public
+	*/
+	function getMetadataDefaultValues(&$asset)
+	{
+		$values = Array();
+
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
+		foreach ($current_links as $link) {
+			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (is_null($section)) continue;
+			$edit_fns = $section->getEditFns();
+			$values['sections'][$section->name] = $edit_fns->getMetadataDefaultValues($section);
+		}
+
+		return $values;
+
+	}//end getMetadataDefaultValues()
 
 
 	/** 
