@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.61 2004/02/14 21:42:48 brobertson Exp $
+* $Id: init.inc,v 1.62 2004/02/16 02:11:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,7 +54,7 @@ define('SQ_PHP_CLI', (php_sapi_name() == 'cli'));
 * We mustn't forget to update this (until someone
 * comes up with an automated method)
 */
-define('SQ_SYSTEM_VERSION',        '3.0.0');
+define('SQ_SYSTEM_VERSION',        '3.1.0');
 define('SQ_SYSTEM_SHORT_NAME',     'MySource');
 define('SQ_SYSTEM_LONG_NAME',      'Squiz MySource v'.SQ_SYSTEM_VERSION.' (Matrix)');
 define('SQ_SYSTEM_URL',            'http://www.squiz.net/');
