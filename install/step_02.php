@@ -43,6 +43,8 @@ $cfg->save(Array(), false);
 
 $cached_table_columns = Array();
 
+$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 // check if we have already created the database by looking for the
 // table column cache file
 if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
@@ -54,8 +56,6 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 		trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_ERROR);
 		return;
 	}
-
-	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 	for($i = 0; $i < count($root->children); $i++) {
 		$table = &$root->children[$i];
