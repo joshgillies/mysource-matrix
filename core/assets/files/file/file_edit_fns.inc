@@ -161,7 +161,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($existing)) {
 				?> 
 					<p style="font-size: 7pt">
-					<b><a href="<?php echo $thumb->getURL()?>" target="_blank">Current Thumbnail</a></b><br/>
+					<b><a href="<?php echo current_url().'?a='.$thumb->id?>" target="_blank">Current Thumbnail</a></b><br/>
 					<b>Filename:</b> <?php echo $thumb->attr('name')?><br/>
 					<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
 					<b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?><br/>
