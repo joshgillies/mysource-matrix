@@ -104,3 +104,7 @@ function adjust_brightness (colour, brightness) {
 	return new_colour;
 
 }
+
+function logout() {
+	getURL('?SQ_ACTION=logout', '_top');
+}

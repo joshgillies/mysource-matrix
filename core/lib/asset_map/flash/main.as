@@ -42,6 +42,7 @@ XML.prototype.ignoreWhite = true;
 #include "serverExec.as"
 #include "assetManager.as"
 #include "mcHeaderClass.as"
+#include "mcToolBarClass.as"
 #include "mcTabsClass.as"
 #include "mcTabContentAreaTreeClass.as"
 #include "mcTabContentAreaMailBoxClass.as"
