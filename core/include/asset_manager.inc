@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.235 2004/09/21 04:34:58 lwright Exp $
+* $Id: asset_manager.inc,v 1.236 2004/09/21 04:47:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -993,7 +993,7 @@ class Asset_Manager extends MySource_Object
 	{
 		if (empty($assetids)) return Array();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT v.assetid, coalesce(v.custom_value, at.default_value) as val FROM sq_asset_attribute_value v JOIN sq_asset_attribute at ON at.attributeid=v.attributeid WHERE ';
+		$sql = 'SELECT v.assetid, coalesce(v.custom_value, at.default_value) as val FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute at ON at.attributeid=v.attributeid WHERE ';
 
 		// if asset type is set to 'asset' then skip owning type code checks
 		if ($asset_type != 'asset') $sql .= 'at.owning_type_code='.$db->quote($asset_type).' AND ';
