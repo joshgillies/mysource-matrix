@@ -30,7 +30,6 @@ class table_editing extends wysiwyg_plugin {
 		$this->_open_menu('tablefunctions', 'Table Functions','false','35');
 			$this->_add_button('inserttable','InsertTable','Insert Table','false','35');
 			$this->_add_button('tableproperties','TableProperties','Table Properties','false','36','table');
-			//$this->_add_button('showborders','ShowBorders','Show 0 borders','false','37');
 		$this->_close_menu('tablefunctions');
 		
 		$this->_open_menu('rowfunctions', 'Row Functions','false','38','tr');
@@ -57,6 +56,8 @@ class table_editing extends wysiwyg_plugin {
 			$this->_add_button('splitcell','SplitCell','Split Cell','false','51','td');
 			$this->_add_button('mergecells','MergeCells','Merge Cells','false','52','tr');
 		$this->_close_menu('cellfunctions');
+
+		$this->_add_button('showborders','ShowBorders','Show 0 borders','false','37');
 
 	}//end constructor
 
@@ -425,26 +426,36 @@ class table_editing extends wysiwyg_plugin {
 			HTMLArea.prototype._nullBorders = function(doc, status) {
 				// show table borders
 				if (!doc) return;
+				var borderStyle = "#ababab 1px dashed";
 				var edit_Tables = doc.getElementsByTagName("TABLE");
 
 				for (i=0; i < edit_Tables.length; i++) {
 					if (edit_Tables[i].border == '' || edit_Tables[i].border == '0' ) {
-						if (status == 'show' ) {
-							edit_Tables[i].style.border = "1px dotted #000000";
-						} else {
-							edit_Tables[i].style.border = "0px";
-						}
-					}
-					edit_Rows = edit_Tables[i].rows;
-					for (j=0; j < edit_Rows.length; j++) {
-						edit_Cells = edit_Rows[j].cells;
-						for (k=0; k < edit_Cells.length; k++) {
-							if (edit_Tables[i].border == '' || edit_Tables[i].border == '0' ) {
-								if (!edit_Cells[k].border || edit_Cells[k].border == '' || edit_Cells[k].border == '0' ) {
-									if (status == 'show' ) {
-										edit_Cells[k].style.border = "1px dotted #000000";
-									} else {
-										edit_Cells[k].removeAttribute("style");
+						edit_Rows = edit_Tables[i].rows;
+						for (j=0; j < edit_Rows.length; j++) {
+							edit_Cells = edit_Rows[j].cells;
+							for (k=0; k < edit_Cells.length; k++) {
+								if (status == 'show') {
+									edit_Cells[k].style.borderTop = borderStyle;
+									if (j == (edit_Rows.length -1)) {
+										edit_Cells[k].style.borderBottom = borderStyle;
+									}
+									edit_Cells[k].style.borderLeft = borderStyle;
+									if (k == (edit_Cells.length -1)) {
+										edit_Cells[k].style.borderRight = borderStyle;
+									}
+								} else {
+									if (edit_Cells[k].style.borderTop.toLowerCase() == borderStyle) {
+										edit_Cells[k].style.borderTop = "";
+									}
+									if (edit_Cells[k].style.borderBottom.toLowerCase() == borderStyle) {
+										edit_Cells[k].style.borderBottom = "";
+									}
+									if (edit_Cells[k].style.borderLeft.toLowerCase() == borderStyle) {
+										edit_Cells[k].style.borderLeft = "";
+									}
+									if (edit_Cells[k].style.borderRight.toLowerCase() == borderStyle) {
+										edit_Cells[k].style.borderRight = "";
 									}
 								}
 							}
@@ -467,6 +478,15 @@ class table_editing extends wysiwyg_plugin {
 		?>
 		case "inserttable":
 			this._insertTable();
+			if (this.config._showborders){
+				if (HTMLArea.is_ie) {
+					var doco = this._docContent;
+				} else {
+					var doco = this._iframe.contentWindow;
+				}
+				this._nullBorders(doco, 'show');
+				this.config._showborders = true;
+			}
 		break;
 
 		case "tableproperties":
@@ -490,6 +510,15 @@ class table_editing extends wysiwyg_plugin {
 			tr.parentNode.insertBefore(otr, /after/.test(cmd.toLowerCase()) ? tr.nextSibling : tr);
 			editor.forceRedraw();
 			editor.focusEditor();
+			if (this.config._showborders){
+				if (HTMLArea.is_ie) {
+					var doco = this._docContent;
+				} else {
+					var doco = this._iframe.contentWindow;
+				}
+				this._nullBorders(doco, 'show');
+				this.config._showborders = true;
+			}
 		break;
 
 		case "deleterow":
@@ -514,6 +543,15 @@ class table_editing extends wysiwyg_plugin {
 			this.splitRow(td);
 			editor.forceRedraw();
 			editor.updateToolbar();
+			if (this.config._showborders){
+				if (HTMLArea.is_ie) {
+					var doco = this._docContent;
+				} else {
+					var doco = this._iframe.contentWindow;
+				}
+				this._nullBorders(doco, 'show');
+				this.config._showborders = true;
+			}
 		break;
 
 		case "insertcolumnbefore":
@@ -530,7 +568,15 @@ class table_editing extends wysiwyg_plugin {
 				otd.innerHTML = mozbr;
 				tr.insertBefore(otd, ref);
 			}
-			editor.focusEditor();
+			if (this.config._showborders){
+				if (HTMLArea.is_ie) {
+					var doco = this._docContent;
+				} else {
+					var doco = this._iframe.contentWindow;
+				}
+				this._nullBorders(doco, 'show');
+				this.config._showborders = true;
+			}
 		break;
 
 		case "splitcolumn":
@@ -539,6 +585,15 @@ class table_editing extends wysiwyg_plugin {
 			this.splitCol(td);
 			editor.forceRedraw();
 			editor.updateToolbar();
+			if (this.config._showborders){
+				if (HTMLArea.is_ie) {
+					var doco = this._docContent;
+				} else {
+					var doco = this._iframe.contentWindow;
+				}
+				this._nullBorders(doco, 'show');
+				this.config._showborders = true;
+			}
 		break;
 
 		case "deletecolumn":
@@ -572,6 +627,15 @@ class table_editing extends wysiwyg_plugin {
 			tr.insertBefore(otd, /after/.test(cmd.toLowerCase()) ? td.nextSibling : td);
 			editor.forceRedraw();
 			editor.focusEditor();
+			if (this.config._showborders){
+				if (HTMLArea.is_ie) {
+					var doco = this._docContent;
+				} else {
+					var doco = this._iframe.contentWindow;
+				}
+				this._nullBorders(doco, 'show');
+				this.config._showborders = true;
+			}
 		break;
 
 		case "splitcell":
@@ -580,6 +644,15 @@ class table_editing extends wysiwyg_plugin {
 			this.splitCell(td);
 			editor.forceRedraw();
 			editor.updateToolbar();
+			if (this.config._showborders){
+				if (HTMLArea.is_ie) {
+					var doco = this._docContent;
+				} else {
+					var doco = this._iframe.contentWindow;
+				}
+				this._nullBorders(doco, 'show');
+				this.config._showborders = true;
+			}
 		break;
 
 		case "deletecell":
