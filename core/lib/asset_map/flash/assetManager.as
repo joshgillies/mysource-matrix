@@ -22,6 +22,7 @@ function AssetManager()
 	this.tmp = new Object();
 
 	// Set ourselves up as a listener for any external calls
+	// Used to refresh assets
 	_root.external_call.addListener(this);
 
 	// Set ourselves up as a broadcaster

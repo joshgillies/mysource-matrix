@@ -3,15 +3,17 @@ _root.test_pressed_count = 0;
 
 function testOnClick1(component)
 { 
+	trace("BCR");
+	_root.tabs.tree.startAssetFinder();
 //	trace('MENU SIZE : ' + _root.tabs.tree.menu_container._width + 'x' + _root.tabs.tree.menu_container._height);
 //	trace('scroll pane : ' + (_root.tabs.tree.scroll_pane instanceof MovieClip));
 
 //	_root.asset_manager.reloadAssets([1]);
 //	_root.asset_manager.reloadAsset(3);
 //	_root.dialog_box.show("TEst, Test", "Lorem "ipsum dolor" sit \"amet\", consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.  Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat. ");
-	for(var i = 0; i < 15; i++) {
-		_root.tabs.log.msgs_container.addMessages([{type: "notice", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
-	}
+//	for(var i = 0; i < 15; i++) {
+//		_root.tabs.log.msgs_container.addMessages([{type: "notice", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
+//	}
 
 //	var w = 100;
 //	var h = 50;

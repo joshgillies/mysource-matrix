@@ -14,15 +14,14 @@ function mcTabButtonClass()
 	this.dims = {w: 0, h: 0};
 
 	// create the text field
-	this.createTextField("label_text", 1, 0, 0, 0, 0);
+	this.createTextField("label_text", 1, this.h_gap, this.v_gap, 0, 0);
 	this.label_text.multiline = false;	// }
 	this.label_text.wordWrap  = false;	// } Using these 3 properties we have a text field that autosizes 
 	this.label_text.autoSize  = "left";	// } horizontally but not vertically
 	this.label_text.border     = false;
 	this.label_text.selectable = false;
 	this.label_text._visible   = true;
-	this.label_text._x = this.h_gap;
-	this.label_text._y = this.v_gap;
+
 }
 
 // Make it inherit from MovieClip

@@ -25,6 +25,7 @@ function mcMsgsBarClass()
 	this.msgs = new Array();
 
 	// Set ourselves up as a listener for any external calls
+	// Used to add new messages
 	_root.external_call.addListener(this);
 
 }// end constructor
