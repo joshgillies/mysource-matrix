@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.27 2004/09/03 17:47:15 brobertson Exp $
+* $Id: page_asset_builder.inc,v 1.28 2004/09/06 15:53:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -269,7 +269,7 @@ class Page_Asset_Builder extends Page
 	{
 		?>
 		<script type="text/javascript" language="javascript" src="<?php echo sq_web_path('lib');?>/html_form/html_form.js"></script>
-		<form name="asset_builder" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
+		<form name="asset_builder_<?php echo $this->id; ?>" method="POST" action="<?php echo $_SERVER['PHP_SELF']; ?>" enctype="multipart/form-data">
 			<?php
 			echo hidden_field('ASSET_BUILDER_ACTION', $this->_default_state);
 			$this->_printContents();
@@ -610,7 +610,7 @@ class Page_Asset_Builder extends Page
 				</tr>
 				<tr>
 					<td valign="top">&nbsp;</td>
-					<td valign="top"><?php echo submit_button('ASSET_BUILDER_ACTION', 'Login', 'this.form.action = "'.$_SERVER['PHP_SELF'].'?SQ_ACTION=login"; set_hidden_field("ASSET_BUILDER_ACTION", "login", document.asset_builder);'); ?></td>
+					<td valign="top"><?php echo submit_button('ASSET_BUILDER_ACTION', 'Login', 'this.form.action = "'.$_SERVER['PHP_SELF'].'?SQ_ACTION=login"; set_hidden_field("ASSET_BUILDER_ACTION", "login", this.form);'); ?></td>
 				</tr>
 			</table>
 
