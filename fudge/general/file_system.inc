@@ -315,4 +315,23 @@ function copy_directory($path, $new_path)
 
 
 
+/**
+* Copies a file, creates any parent directories needed first
+*
+* @param string	$from	path of source file
+* @param string	$to		path of destination file
+*
+* @return boolean
+* @access public
+*/
+function copy_file($from, $to)
+{
+	$to_path = substr($to, 0, strrpos($to, '/'));
+	if (!create_directory($to_path)) return false;
+
+	if (!copy ($from, $to)) return false;
+	return true;
+}// end create_directory()
+
+
 ?>
