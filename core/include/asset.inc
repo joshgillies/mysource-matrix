@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.287 2004/04/14 00:57:12 mmcintyre Exp $
+* $Id: asset.inc,v 1.288 2004/04/15 08:13:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2603,7 +2603,6 @@ class Asset extends MySource_Object
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-
 		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->currentUserId()) {
 
 			// if we are the root user, we can do anything

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.200 2004/04/13 01:03:39 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.201 2004/04/15 08:13:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -577,6 +577,8 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getAssetTypeAttributes($type_code, $details=Array('name', 'type'))
 	{
+		if (!is_string($type_code)) return Array();
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 
@@ -613,7 +615,7 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
-		if (empty($assetid)) {
+		if (empty($assetid) || is_object($assetid)) {
 			if (!$mute_errors) trigger_error('Could not get asset - assetid is empty', E_USER_WARNING);
 			$null = null; // do this because of return by reference
 			return $null;
@@ -632,6 +634,10 @@ class Asset_Manager extends MySource_Object
 
 				$real_assetid = $id_parts[0];
 				$asset = &$this->getAsset($real_assetid, '', $mute_errors);
+				if (!method_exists($asset, 'getAsset')) {
+					trigger_error('Shadow asset handler "'.$asset->name.'" can not get assets', E_USER_WARNING);
+					return $null;
+				}
 				$this->_assets[$assetid]['object'] = &$asset->getAsset($id_parts[1]);
 
 			} else {
@@ -721,6 +727,12 @@ class Asset_Manager extends MySource_Object
 	*/
 	function &getSystemAsset($name)
 	{
+		$null = null;
+		if (!is_string($name)) {
+			trigger_error('Invalid system asset name', E_USER_WARNING);
+			return $null;
+		}
+		
 		static $system_assets = null;
 		if (is_null($system_assets)) {
 			// include the system asset config file
@@ -729,7 +741,8 @@ class Asset_Manager extends MySource_Object
 		if (isset($system_assets[$name])) {
 			return $this->getAsset($system_assets[$name], $name);
 		} else {
-			trigger_error('System Asset Name "'.$name.'" not known', E_USER_ERROR);
+			trigger_error('System asset name "'.$name.'" not known', E_USER_WARNING);
+			return $null;
 		}
 
 	}//end getSystemAsset()
@@ -840,10 +853,12 @@ class Asset_Manager extends MySource_Object
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
+	* @return array
 	* @access public
 	*/
 	function getTypeAssetids($type_code, $strict=true, $include_type=false, $mute_errors=false)
 	{
+		if (!is_string($type_code)) return Array();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		if ($strict) {
@@ -1447,11 +1462,13 @@ class Asset_Manager extends MySource_Object
 	* @param boolean		$exclusive			The exclusive status for the link must be
 	*											this (if not null)
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getLink($assetid, $link_type, $type_code='', $strict_type_code=true, $value=null, $side_of_link='major', $exclusive=null)
 	{
+		if (is_object($assetid)) return Array();
+		
 		if ($side_of_link != 'major' && $side_of_link != 'minor')
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
 
@@ -1575,10 +1592,14 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getLinkByAsset($assetid, $other_assetid, $link_types=null, $value=null, $side_of_link='major', $force_array=false)
 	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
+		if ($side_of_link != 'major' && $side_of_link != 'minor') {
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
+		}
 
-		if (!$assetid) return Array();
+		if (!$assetid || is_object($assetid)) {
+			trigger_error('Cannot get link by assetid - no assetid giveb', E_USER_WARNING);
+			return Array();
+		}
 
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 

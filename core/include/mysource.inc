@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.43 2004/04/08 09:59:41 brobertson Exp $
+* $Id: mysource.inc,v 1.44 2004/04/15 08:13:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -645,7 +645,12 @@ class MySource
 	*/
 	function setCurrentUser(&$user)
 	{
-		// They can only become current user if they can login
+		if (!is_a($user, 'user')) {
+			trigger_error('Failed setting current user, passed object is not a user', E_USER_WARNING);
+			return false;
+		}
+		
+		// they can only become current user if they can login
 		if (!$user->canLogin()) return false;
 
 		if (!is_null($this->user)) {
