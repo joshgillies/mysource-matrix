@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication_basic.inc,v 1.1.2.13 2004/02/26 16:38:21 brobertson Exp $
+* $Id: replication_system_authentication_basic.inc,v 1.1.2.14 2004/04/08 16:34:01 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -151,7 +151,7 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 	*/
 	function _requestPhrase(&$rs)
 	{
-		$their_phrase = (SQ_REPLICATION_IS_MASTER) ? $this->slave_to_master_phrase : $this->master_to_slave_phrase;
+		$their_phrase = (SQ_CONF_REPLICATION_IS_MASTER) ? $this->slave_to_master_phrase : $this->master_to_slave_phrase;
 
 		if (true !== ($err_msg = $rs->transport->sendAndReceiveVar('Phrase:', $data=null, $headers=null))) {
 			trigger_error('Unable to Authenticate ('.$rs->name.' ['.$rs->transport->getPeerInfo().']) : '.$err_msg, E_USER_WARNING);
@@ -185,7 +185,7 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 	*/
 	function _sendPhrase(&$rs)
 	{
-		$our_phrase   = (SQ_REPLICATION_IS_MASTER) ? $this->master_to_slave_phrase : $this->slave_to_master_phrase;
+		$our_phrase   = (SQ_CONF_REPLICATION_IS_MASTER) ? $this->master_to_slave_phrase : $this->slave_to_master_phrase;
 
 		if (true !== ($err_msg = $rs->transport->receiveAndSendVar('Phrase:', $our_phrase))) {
 			trigger_error('Unable to Authenticate ('.$rs->name.' ['.$rs->transport->getPeerInfo().']) : '.$err_msg, E_USER_WARNING);
