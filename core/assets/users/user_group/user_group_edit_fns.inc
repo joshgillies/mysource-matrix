@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.15 2005/01/20 13:07:39 brobertson Exp $
+* $Id: user_group_edit_fns.inc,v 1.16 2005/02/01 11:33:37 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -151,11 +151,12 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	* on all asset types (the global unrestricted flag)
 	*
 	* @param object User_Group	&$asset	the user group asset
+	* @param string				$prefix	the prefix for this asset
 	*
 	* @return boolean
 	* @access public
 	*/
-	function isRestricted(&$asset)
+	function isRestricted(&$asset, $prefix)
 	{
 		$current = $this->getCurrentRestrictions($asset);
 		return !isset($current['0']['0']);

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.13 2004/12/06 14:44:15 brobertson Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.14 2005/02/01 11:36:47 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -228,11 +228,12 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	* Used to test if appropriate fields should be shown
 	*
 	* @param object		&$owner		the searchbox design area asset
+	* @param string		$prefix		the prefix for this asset
 	*
 	* @access public
 	* @return boolean
 	*/
-	function hasValidSearchPage(&$owner)
+	function hasValidSearchPage(&$owner, $prefix)
 	{
 		$assetid = $owner->attr('search_page_assetid');
 		if (!$assetid) return false;
@@ -249,11 +250,12 @@ class Design_Area_Searchbox_Edit_Fns extends Design_Area_Edit_Fns
 	* Used to test if appropriate fields should be shown
 	*
 	* @param object		&$owner		the searchbox design area asset
+	* @param string		$prefix		the prefix for this asset
 	*
 	* @access public
 	* @return boolean
 	*/
-	function isSubmitButton(&$owner)
+	function isSubmitButton(&$owner, $prefix)
 	{
 		return !$owner->attr('submit_button');
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.32 2005/01/19 12:40:33 brobertson Exp $
+* $Id: image_edit_fns.inc,v 1.33 2005/02/01 11:33:37 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -221,12 +221,13 @@ class Image_Edit_Fns extends File_Edit_Fns
 	/**
 	* Find out is there are any varieties
 	*
-	* @param object Image				&$asset	the file asset
+	* @param object Image	&$asset		the file asset
+	* @param string			$prefix		the prefix for this asset
 	*
 	* @access public
 	* @return boolean		true if edit interface to be printed
 	*/
-	function hasVarieties(&$asset)
+	function hasVarieties(&$asset, $prefix)
 	{
 		$varieties = $asset->attr('varieties');
 		return (!empty($varieties['data']));

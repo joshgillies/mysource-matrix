@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder_edit_fns.inc,v 1.32 2005/01/20 13:07:38 brobertson Exp $
+* $Id: trash_folder_edit_fns.inc,v 1.33 2005/02/01 11:33:37 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,10 +121,13 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Returns true if the current user can purge the trash
 	*
+	* @param object Asset	&$asset		The asset that we are using for this interface
+	* @param string			$prefix		the prefix for this asset
+	*
 	* @return boolean
 	* @access public
 	*/
-	function purgeAccess(&$asset)
+	function purgeAccess(&$asset, $prefix)
 	{
 		return $asset->purgeAccess();
 

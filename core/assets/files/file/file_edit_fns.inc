@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.50 2005/01/19 13:09:02 brobertson Exp $
+* $Id: file_edit_fns.inc,v 1.51 2005/02/01 11:33:37 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -298,12 +298,13 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Find out if there are any pre-uploaded files we can use
 	*
-	* @param	&$asset		The asset that might use the files
+	* @param object Asset	&$asset		The asset that might use the files
+	* @param string			$prefix		the prefix for this asset
 	*
 	* @access protected
 	* @return boolean	true if there are some files to use
 	*/
-	function havePreUploadedFiles(&$asset)
+	function havePreUploadedFiles(&$asset, $prefix)
 	{
 		$preuploads = $this->getPreuploadOptions($asset);
 		return !empty($preuploads);

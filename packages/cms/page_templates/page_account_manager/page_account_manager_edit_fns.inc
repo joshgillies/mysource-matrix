@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_edit_fns.inc,v 1.11 2004/12/06 14:41:39 brobertson Exp $
+* $Id: page_account_manager_edit_fns.inc,v 1.12 2005/02/01 11:31:35 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -118,10 +118,13 @@ class Page_Account_Manager_Edit_Fns extends Page_Asset_Builder_Edit_Fns
 	/**
 	* Returns true if the account manager uses email validation
 	*
+	* @param object Asset	&$asset		The asset that we are using for this interface
+	* @param string			$prefix		the prefix for this asset
+	*
 	* @return boolean
 	* @access public
 	*/
-	function usingEmailValidation(&$asset)
+	function usingEmailValidation(&$asset, $prefix)
 	{
 		return $asset->attr('use_email_validation');
 
