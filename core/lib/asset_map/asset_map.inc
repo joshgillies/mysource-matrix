@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.122 2004/04/02 04:41:16 gsherwood Exp $
+* $Id: asset_map.inc,v 1.123 2004/04/02 05:00:26 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -362,7 +362,7 @@ class Asset_Map
 		$output = new XML_Tree();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT DISTINCT(a.assetid), a.short_name, a.type_code, a.status, l.linkid, l.sort_order,
+		$sql = 'SELECT DISTINCT(a.assetid), a.short_name, a.type_code, a.status, l.linkid, l.link_type, l.sort_order,
 			lt.num_immediate_kids FROM '.SQ_TABLE_PREFIX.'asset a, '.SQ_TABLE_PREFIX.'asset_link l, '
 			.SQ_TABLE_PREFIX.'asset_link_tree lt
  			WHERE a.assetid = l.minorid 
@@ -389,6 +389,7 @@ class Asset_Map
 									'type_code' => $link_data['minor_type_code'],
 									'status' => $asset->status,
 									'linkid' => $link_data['linkid'],
+									'link_type' => $link_data['link_type'],
 									'num_immediate_kids' => count($asset_links),
 									'sort_order' => $link_data['sort_order'],
 								);
@@ -404,9 +405,10 @@ class Asset_Map
 			}
 
 			$attrs = Array(
-				'assetid'		=> urlencode($asset['assetid']),
-				'name'			=> urlencode($asset['short_name']),
+				'assetid'	=> urlencode($asset['assetid']),
+				'name'		=> urlencode($asset['short_name']),
 				'type_code'     => $asset['type_code'],
+				'link_type'     => $asset['link_type'],
 //				'accessible'	=> $asset[''],
 				'status'        => $asset['status'],
 				'linkid'        => $asset['linkid'],
