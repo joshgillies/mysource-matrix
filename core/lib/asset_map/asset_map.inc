@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.85 2003/10/13 00:21:13 brobertson Exp $
+* $Id: asset_map.inc,v 1.86 2003/10/13 01:20:02 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,6 +60,63 @@ class Asset_Map
 		?>
 		<script language="JavaScript" type="text/javascript">
 		<!--
+			var ASSET_MAP_FLASH_CHECKED = false;
+			var IE_FLASH_VERSION  = 6;
+			var MOZ_FLASH_VERSION = 7;
+			if (matches = navigator.userAgent.match(/MSIE ([0-9.]+)/)) {
+				if (matches[1] < '6.0') {
+					alert('You need to use Internet Explorer 6.0 or above for the communication between the Asset Map and the Javascript');
+				} else {
+					document.write('<SCR' + 'IPT LANGUAGE=VBScript\> \n'); //FS hide this from IE4.5 Mac by splitting the tag
+					document.write('on error resume next \n');
+					document.write('ASSET_MAP_FLASH_CHECKED = ( IsObject(CreateObject("ShockwaveFlash.ShockwaveFlash.' + IE_FLASH_VERSION + '")))\n');
+					document.write('</SCR' + 'IPT\> \n');
+					if (!ASSET_MAP_FLASH_CHECKED) {
+						alert('You need to use to have version ' + IE_FLASH_VERSION + ' of Flash installed for the communication between the Asset Map and the Javascript');
+					}
+				}
+
+			} else {
+
+				var firebird_re = /(Firebird)\/([0-9.]+)/;
+				var moz_re      = /^Mozilla\/5\.0.*rv:([^)]+)\)/;
+
+				if ((matches = navigator.userAgent.match(firebird_re)) || (matches = navigator.userAgent.match(moz_re))) {
+					if (matches[1] == 'Firebird' && matches[2] < '0.6.1') {
+						alert('You need to use Firebird 0.6.1 or above for the communication between the Asset Map and the Javascript');
+
+					} else if (matches[1] == 'Mozilla' && matches[2] < '1.4') {
+						alert('You need to use Mozilla 1.4 or above for the communication between the Asset Map and the Javascript');
+
+					} else {
+
+						var plugin = (navigator.mimeTypes && navigator.mimeTypes["application/x-shockwave-flash"]) ? navigator.mimeTypes["application/x-shockwave-flash"].enabledPlugin : 0;
+						if (plugin) {
+							var words = navigator.plugins["Shockwave Flash"].description.split(" ");
+							for (var i = 0; i < words.length; ++i)
+							{
+								if (isNaN(parseInt(words[i]))) continue;
+								var MM_PluginVersion = words[i]; 
+							}
+							ASSET_MAP_FLASH_CHECKED = (MM_PluginVersion >= MOZ_FLASH_VERSION);
+						}
+
+						if (!ASSET_MAP_FLASH_CHECKED) {
+							alert('You need to use to have version ' + MOZ_FLASH_VERSION + ' of Flash installed for the communication between the Asset Map and the Javascript');
+						}
+
+					}// end if
+
+				// we don't know about this browser, ah well may as well give it a go ...
+				} else {
+					alert('You are using an untested browser there is no guarantee that the communication between the Asset Map and the Javascript will be successful');
+					ASSET_MAP_FLASH_CHECKED = true;
+
+				}// end if
+
+			}// end if
+
+
 			var flash_InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
 			// Handle all the the FSCommand messages in a Flash movie
 			function asset_map_DoFSCommand(command, args)
@@ -166,7 +223,7 @@ class Asset_Map
 		//-->
 		</script>
 
-		<object id="asset_map" width="100%" height="99%" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0">
+		<object id="asset_map" width="100%" height="99%" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,0,0">
 			 <param name="movie"   value="<?php echo sq_web_path('lib'); ?>/asset_map/flash/asset_map.swf">
 			 <param name="quality" value="high">
 			 <param name="scale"   value="noscale">
