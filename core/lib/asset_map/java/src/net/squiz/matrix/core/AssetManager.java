@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetManager.java,v 1.3 2005/03/06 22:51:33 mmcintyre Exp $
+* $Id: AssetManager.java,v 1.4 2005/03/07 01:07:12 mmcintyre Exp $
 *
 */
 
@@ -234,8 +234,8 @@ public class AssetManager {
 
 	/*
 	 * Processes the current user XML element at init time
-	 * @param xmlNodes the xmlNodes that represent the current user
-	 etTypes*/
+	 * @param xmlNodes the xmlNodes that represent the current user Types
+	 */
 	private static void processCurrentUserXML(Element xmlNodes) {
 		currentUserid = getIdFromElement(xmlNodes);
 		currentUserType = xmlNodes.getAttribute("type_code");
@@ -248,26 +248,23 @@ public class AssetManager {
 		processAssetsXML(element, parent);
 	}
 	
-
-//	public static void refreshAsset(Asset parent) throws IOException {
-//		refreshAssets(new Asset[] { parent });
-//	}
-
-//	public static void refreshAsset(String assetid) throws IOException {
-//		refreshAssets(new String[] { assetid });
-//	}
-	
-	
-
-//	public static void refreshAssets(Asset[] parents) throws IOException {
-//		String[] assetids = new String[parents.length];
-//		for (int i = 0; i < parents.length; i++) {
-//			assetids[i] = parents[i].getId();
-//		}
-//		refreshAssets(assetids);
-//	}
-	
-	
+	/**
+	 * Performs a request to the matrix system for the specified assets. The
+	 * xml is returned in the following format.
+	 *
+	 * <pre>
+	 *    <assets>
+	 *       <asset ...>
+	 *          <asset ...>
+	 *          <asset ...>
+	 *       </asset>
+	 *     </assets>
+	 * </pre>
+	 *
+	 * @param assetids the list of assetids to refresh
+	 * @return the xml element for the specified assetids
+	 * @throws IOException if the request fails
+	 */
 	public static Element makeRefreshRequest(String[] assetids) throws IOException {
 		StringBuffer xml = new StringBuffer("<command action=\"get assets\">");
 		for (int i = 0; i < assetids.length; i++) {
@@ -326,8 +323,6 @@ public class AssetManager {
 	 */
 	public static void updateAsset(Element childElement, Asset parent) {
 		NodeList childNodes = (NodeList) childElement.getChildNodes();
-
-		// get the parent to update its information also
 		parent.processAssetXML(childElement);
 
 		// create a set of linkids so that we can remove any nodes
@@ -335,7 +330,7 @@ public class AssetManager {
 		List linkids = new ArrayList();
 		
 		// assets in the xml are in the correct order. We dont use the sort
-		// order because notice links and design links have a sort order, but
+		// order because notice links and type 3 links have a sort order, but
 		// are not shown in the tree.
 		int index = 0;
 		
@@ -374,7 +369,6 @@ public class AssetManager {
 
 	/**
 	 * Returns the <code>Asset</code> with the specifed assetid.
-	 *
 	 * @param assetid the asset of the wanted asset
 	 * @return the <code>Asset</code>
 	 */
@@ -384,7 +378,6 @@ public class AssetManager {
 
 	/**
 	 * Returns the asset type given a type code
-	 *
 	 * @param typeCode the type code of the wanted asset type
 	 * @return the asset type
 	 */
@@ -411,6 +404,27 @@ public class AssetManager {
 	public static MatrixTreeNode getRootFolderNode() {
 		return root;
 	}
+	
+	/**
+	 * Returns all the assetids of assets of the specified type.
+	 * @param typeCode the typeCode of the wanted assets
+	 * @return the assetids of the assets of the specified type
+	 * @see getAsset(String)
+	 * @see getAssetTypes()
+	 * @see getAssetType(String)
+	 */
+	public static String[] getAssetsOfType(String typeCode) {
+		Iterator iterator = assets.values().iterator();
+		List assets = new ArrayList();
+		while (iterator.hasNext()) {
+			Asset asset = (Asset) iterator.next();
+			if (asset.getType().getTypeCode().equals(typeCode)) {
+				assets.add(asset.getId());
+			}
+		}
+		return (String[]) assets.toArray(new String[assets.size()]);
+	}
+	
 
 	public static String[] getTypeCodeNames() {
 		Iterator assetTypesIterator = assetTypes.values().iterator();
