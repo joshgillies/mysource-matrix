@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.80 2003/11/26 00:51:10 gsherwood Exp $
+* $Id: backend.inc,v 1.81 2003/11/26 01:59:17 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,7 +83,7 @@ class Backend extends MySource_Object
 					$_REQUEST['limbo_assetid'] = $_REQUEST['assetid'];
 				} else {
 					$limbo_asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL();
-					if (is_null($limbo_asset)) break;
+					if (is_null($limbo_asset)) return;
 					$_REQUEST['limbo_assetid'] = $limbo_asset->id;
 				}
 			}
