@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+	<package>__core__</package>
+	<type_code>system_user_group</type_code>
+	<version>0.1</version>
+	<name>System Administrators</name>
+	<description>A user group to hold system administrators</description>
+	<instantiable>yes</instantiable>
+	<system_only>yes</system_only>
+	<parent_type>user_group</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>user_group</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+</asset_info>
