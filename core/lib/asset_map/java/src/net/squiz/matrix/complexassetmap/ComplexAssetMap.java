@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ComplexAssetMap.java,v 1.5 2004/11/12 02:42:18 mmcintyre Exp $
+* $Id: ComplexAssetMap.java,v 1.6 2004/11/21 22:57:38 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,8 +47,11 @@ public class ComplexAssetMap extends AssetMap /*implements KeyListener*/
 	/** The font used on tabs*/
 	public static final Font TAB_FONT = new Font("Tab Font", Font.PLAIN, 10);
 
+	/**
+	* The polling delay between each of the polling operations */
 	public static final int POLLING_DELAY = 2000;
 
+	/** Timer used to do polling operations */
 	private Timer timer;
 	
 	/**
@@ -158,7 +161,13 @@ public class ComplexAssetMap extends AssetMap /*implements KeyListener*/
 		getContentPane().add(tp);
 	}
 
+	/**
+	* Called on release
+	*/
 	public void stop() {
-		timer.start();
+		// OK, this is important. Without this, there are major issues
+		// on firefox browsers. The browser would crash without it on
+		// refreshes and going to pages outside of matrix
+		timer.stop();
 	}
 }
