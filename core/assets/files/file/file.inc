@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.68 2004/08/03 05:58:20 gsherwood Exp $
+* $Id: file.inc,v 1.69 2004/09/07 00:52:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 */
 class File extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -322,16 +323,22 @@ class File extends Asset
 
 
 	/**
-	* Set's the last updated info for this asset
+	* Set the last updated info for this asset
+	*
+	* Call this function when the asset has been changed in some way so we can indicated in the
+	* asset table when the asset was last changed and who by. This function will also increment the micro
+	* version number for the asset.
+	*
+	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
+	*									NOTE: this is passed to incrementVersion to let it know that the parents
+	*									should have their versions updated as well.
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _updated()
+	function _updated($update_parents=true)
 	{
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
-		if (!parent::_updated()) return false;
+		if (!parent::_updated($update_parents)) return false;
 
 		if ($this->status & SQ_SC_STATUS_SAFE_EDITING || !empty($this->_tmp['IGNORE_UPDATE'])) {
 			return true;
@@ -363,6 +370,8 @@ class File extends Asset
 	*/
 	function _checkFileState()
 	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
 		$existing = $this->_getExistingFile();
 		if (empty($existing)) return true;
 

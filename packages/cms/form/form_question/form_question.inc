@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.31 2004/08/27 01:55:22 gsherwood Exp $
+* $Id: form_question.inc,v 1.32 2004/09/07 00:52:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.31 $ - 1.0
+* @version $Revision: 1.32 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -241,24 +241,30 @@ class Form_Question extends Asset
 	
 	
 	/**
-	* gets called when anything in the question gets changed, so we can regenerate the section and form(s)
+	* Set the last updated info for this asset
 	*
-	* @see Asset::_updated()
+	* Call this function when the asset has been changed in some way so we can indicated in the
+	* asset table when the asset was last changed and who by. This function will also increment the micro
+	* version number for the asset.
+	*
+	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
+	*									NOTE: this is passed to incrementVersion to let it know that the parents
+	*									should have their versions updated as well.
 	*
 	* @return boolean
 	* @access private
 	*/
-	function _updated()
+	function _updated($update_parents=true)
 	{
 		// We should not be running our _updated() because we don't have anything in the asset table
 		// to update... but we should run our form/section's update, if only to increment the version
 		if (SQ_IN_BACKEND) {
 			$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
-			return $form->_updated();
+			return $form->_updated($update_parents);
 		}
 
 		return true;
-		
+
 	}//end _updated()
 
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.321 2004/09/02 04:43:47 gsherwood Exp $
+* $Id: asset.inc,v 1.322 2004/09/07 00:52:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -918,10 +918,14 @@ class Asset extends MySource_Object
 	* asset table when the asset was last changed and who by. This function will also increment the micro
 	* version number for the asset.
 	*
+	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
+	*									NOTE: this is passed to incrementVersion to let it know that the parents
+	*									should have their versions updated as well.
+	*
 	* @return boolean
 	* @access private
 	*/
-	function _updated()
+	function _updated($update_parents=true)
 	{
 		$updated = time();
 		$updated_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -948,21 +952,21 @@ class Asset extends MySource_Object
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-			
+
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($this, 'AssetUpdate',
-												  Array( 'old_name'         => $this->name,
-														 'new_name'         => $name,
-														 'old_short_name'   => $this->short_name,
-														 'new_short_name'   => $short_name,
-														 'old_updated' => $this->updated,
-														 'new_updated' => $updated,
-														 'old_updated_userid'  => $this->updated_userid,
-														 'new_updated_userid'  => $updated_userid
+												  Array( 'old_name'           => $this->name,
+														 'new_name'           => $name,
+														 'old_short_name'     => $this->short_name,
+														 'new_short_name'     => $short_name,
+														 'old_updated'        => $this->updated,
+														 'new_updated'        => $updated,
+														 'old_updated_userid' => $this->updated_userid,
+														 'new_updated_userid' => $updated_userid
 														));
 
 			// increment the micro version number
-			if (!$this->incrementVersion()) {
+			if (!$this->incrementVersion('micro', $update_parents)) {
 				trigger_error('Failed updating "'.$this->name.'", version not incremented', E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -1034,12 +1038,16 @@ class Asset extends MySource_Object
 	/**
 	* Increments the version number of the asset based on the part of the version passed in
 	*
-	* @param string	$number	the part of the version to update (major|minor|micro)
+	* @param string		$number			the part of the version to update (major|minor|micro)
+	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
+	*									NOTE: this is passed to incrementVersion to let it know that the parents
+	*									should have their versions updated as well.
+	*
 	*
 	* @return boolean
 	* @access public
 	*/
-	function incrementVersion($number='micro')
+	function incrementVersion($number='micro', $update_parents=true)
 	{
 		if (!$this->id) return false;
 
@@ -1077,20 +1085,22 @@ class Asset extends MySource_Object
 			return false;
 		}
 
-		// increment the micro version of all dependant parents because a 'part' of them
-		// has been updated - even though they havnt been updated directly
-		$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id);
-		foreach ($dependant_parents as $parentid) {
-			$dep_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
-			if (!is_null($dep_parent)) {
-				if (!$dep_parent->incrementVersion('micro')) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
-					trigger_error('Failed incrementing version of "'.$this->name.'" [#'.$this->id.'], version updated of dependant parent "'.$dep_parent->name.'" [#'.$dep_parent->id.'] failed.', E_USER_WARNING);
-					return false;
+		if ($update_parents) {
+			// increment the micro version of all dependant parents because a 'part' of them
+			// has been updated - even though they havnt been updated directly
+			$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id);
+			foreach ($dependant_parents as $parentid) {
+				$dep_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
+				if (!is_null($dep_parent)) {
+					if (!$dep_parent->_updated(false)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
+						trigger_error('Failed incrementing version of "'.$this->name.'" [#'.$this->id.'], version updated of dependant parent "'.$dep_parent->name.'" [#'.$dep_parent->id.'] failed.', E_USER_WARNING);
+						return false;
+					}
 				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
 			}
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
 		}
 
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.23 2004/08/18 23:40:38 lwright Exp $
+* $Id: form_section.inc,v 1.24 2004/09/07 00:52:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -461,16 +461,22 @@ class Form_Section extends Bridge
 
 	
 	/**
-	* gets called when things change (new links, delete links etc)
+	* Set the last updated info for this asset
 	*
-	* @see Asset::_updated
+	* Call this function when the asset has been changed in some way so we can indicated in the
+	* asset table when the asset was last changed and who by. This function will also increment the micro
+	* version number for the asset.
 	*
-	* @access private
+	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
+	*									NOTE: this is passed to incrementVersion to let it know that the parents
+	*									should have their versions updated as well.
+	*
 	* @return boolean
+	* @access private
 	*/
-	function _updated()
+	function _updated($update_parents=true)
 	{
-		if (!parent::_updated()) return false;
+		if (!parent::_updated($update_parents)) return false;
 		if (SQ_IN_BACKEND) {
 			return $this->fileRegeneration();
 		}
