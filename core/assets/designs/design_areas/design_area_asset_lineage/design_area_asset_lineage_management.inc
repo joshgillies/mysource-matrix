@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_page_lineage_management.inc,v 1.3 2003/09/26 05:26:25 brobertson Exp $
+* $Id: design_area_asset_lineage_management.inc,v 1.1 2003/10/13 09:53:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -10,7 +10,7 @@
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Design_Area_Menu_Page_Lineage_Management
+* Design_Area_Asset_Lineage_Management
 *
 * @see Asset_Management
 *
@@ -19,28 +19,28 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Design_Area_Menu_Page_Lineage_Management extends Asset_Management
+class Design_Area_Asset_Lineage_Management extends Asset_Management
 {
 	/**
 	* Constructor
 	*
 	*/
-	function Design_Area_Menu_Page_Lineage_Management(&$pm)
+	function Design_Area_Asset_Lineage_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-							'divider' => Array(
+							'divider_contents' => Array(
 								'added'			=> '0.0.1',
-								'type'			=> 'text',
-								'default'		=> ' : ',
-								'description'	=> 'The text that divides the pages in the lineage'
+								'type'			=> 'serialise',
+								'default'		=> Array(),
+								'description'   => 'The contents that divides the asset info in the output',
 							),
-							'class' => Array(
+							'asset_contents' => Array(
 								'added'			=> '0.0.1',
-								'type'			=> 'text',
-								'default'		=> '',
-								'description'	=> 'stylesheet class to use when printing the list'
+								'type'			=> 'serialise',
+								'default'		=> Array(),
+								'description'   => 'The contents that prints the asset info in the output',
 							),
 							'prefix_with_home_link' => Array(
 								'added'			=> '0.0.1',
@@ -65,12 +65,6 @@ class Design_Area_Menu_Page_Lineage_Management extends Asset_Management
 								'type'			=> 'boolean',
 								'default'		=> true,
 								'description'	=> 'whether or not to end the list with a divider'
-							),
-							'have_links' => Array(
-								'added'			=> '0.0.1',
-								'type'			=> 'boolean',
-								'default'		=> true,
-								'description'	=> 'whether or not to you want the page lineage to be hyperlinked'
 							),
 							'pages_to_print' => Array(
 								'added'			=> '0.0.1',
