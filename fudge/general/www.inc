@@ -66,4 +66,17 @@ function relative_href($from,$to)
 
 }// end relative_href()
 
+
+/**
+* Checks an email address for validity
+*
+* @param string	$e	the email address to check
+*
+* @return boolean
+* @access public
+*/
+function valid_email($e) {
+	return ereg("^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,4}$",$e);
+}
+
 ?>
