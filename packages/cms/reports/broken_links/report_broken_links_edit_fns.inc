@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.12 2005/03/17 05:17:44 arailean Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.13 2005/04/06 06:33:02 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *	Generate a report of broken links
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -124,12 +124,11 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 						$link_type = '';
 
 						$results = Array();
-						preg_match('|^\./\?a=([0-9]+)$|',$match, $results);
-
+						preg_match('|^\./\?a=([0-9]+)#?([^$]*)?|',$match, $results);
 						$validated_results = false;
 						if (!empty($results)) {
 							$link_type = 'internal';
-							$validated_results = $this->validateInternalLink($results[1]);
+							$validated_results = $this->validateInternalLink($results);
 						} else {
 							if (strpos(strtolower($match), 'mailto') === 0) {
 								$link_type = 'mailto';
@@ -198,14 +197,22 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 	/**
 	* Check the validity of an internal link
 	*
-	* @param string	$assetid	the id of the asset being linked to
+	* @param Array	$link	the internal link in the format:
+	*
+	*							Array
+	*							(
+	*								[0] => ./?a=123#anchor_name
+	*								[1] => 142
+	*								[2] => anchor_name
+	*							)
 	*
 	* @return array
 	* @access public
 	*/
-	function validateInternalLink($assetid)
+	function validateInternalLink($link)
 	{
 		$asset = null;
+		$assetid = $link[1];
 		if ($assetid) $asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
 
 		if (is_null($asset)) {
@@ -216,6 +223,22 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 			// the asset is in the trash
 			$description = 'Link points to an asset that is in the trash';
 			$valid = '0';
+		} else if (!empty($link[2])) {
+			$contents = $GLOBALS['SQ_SYSTEM']->am->getEditableContents($assetid);
+			$anchorExists = false;
+			foreach ($contents as $content) {
+				if (preg_match('/<a name="'.$link[2].'">/', $content, $matches)) {
+					$anchorExists = true;
+					break;
+				}
+			}
+			if (!$anchorExists) {
+				$valid = '0';
+				$description = 'Link points to valid asset, but the anchor "'.$link[2].'" does not exist';
+			} else {
+				$valid = '1';
+				$description = '';
+			}
 		} else {
 			$valid = '1';
 			$description = '';
@@ -356,10 +379,10 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 		}
 
 		$reported_links = Array(
-								'internal' => Array(),
-								'external' => Array(),
-								'mailto'   => Array(),
-								);
+							'internal'	=> Array(),
+							'external'	=> Array(),
+							'mailto'	=> Array(),
+						  );
 
 
 		foreach ($root->children as $asset_element) {
@@ -376,7 +399,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 
 							// get the assetid from the html link
 							if ($link->attributes['type'] == 'internal') {
-								$to_assetid = preg_replace('|\./\?a=([0-9]+)|', '\\1', $link_child->content);
+								$to_assetid = preg_replace('|\./\?a=([0-9]+).*|', '\\1', $link_child->content);
 								$new_link['data'] = $to_assetid;
 							} else {
 								$new_link['data'] = $link_child->content;
@@ -648,13 +671,13 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 		}
 
 		return Array(
-					 'assetid'     => $assetid,
-					 'type'        => $asset_type,
-					 'string'      => $asset_string,
-					 'bg'          => $asset_bg,
-					 'status'      => $asset_status,
-					 'backend_url' => $asset_url,
-					 );
+				'assetid'		=> $assetid,
+				'type'			=> $asset_type,
+				'string'		=> $asset_string,
+				'bg'			=> $asset_bg,
+				'status'		=> $asset_status,
+				'backend_url'	=> $asset_url,
+			   );
 
 	}//end _getAssetReportInfo()
 
