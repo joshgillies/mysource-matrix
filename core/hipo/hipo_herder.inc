@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.37 2004/05/18 23:13:15 lwright Exp $
+* $Id: hipo_herder.inc,v 1.38 2004/05/26 23:24:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -191,24 +191,19 @@ class HIPO_Herder extends MySource_Object
 			}
 			return true;
 		}
-		if (!$source_job->process()) {			
+		if (!$source_job->process()) {
 			$error_details = '';
-
-			trigger_error('HIPO failed to process; error report follows' . $error_details, E_USER_WARNING);
 
 			$o = &$this->getBackendOutputter();
 			$o->setFormData('', '');
 			$o->openRaw();
-			$source_job->_paintErrorReport();
+				$source_job->_paintErrorReport();
 			$o->closeRaw();
 			$o->paint();
 
 			$source_job->abort();
 
-
-
 			return false;
-
 		}
 
 		return true;
@@ -224,7 +219,6 @@ class HIPO_Herder extends MySource_Object
 	*/
 	function paintWeb()
 	{
-		//trigger_error('here', E_USER_ERROR);
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		if (empty($_GET['hipo_source_code_name'])) {
@@ -237,6 +231,19 @@ class HIPO_Herder extends MySource_Object
 			trigger_error('Unable to find a source job with the codename "'.$_GET['hipo_source_code_name'].'"', E_USER_WARNING);
 			return false;
 		}
+		
+		// if this job is completed but has errors, just paint the job to print the error
+		// report because we dont need the addtional content
+		if ($source_job->complete() && !empty($source_job->_hipo_vars['errors'])) {
+			$o = &$this->getBackendOutputter();
+			$o->setFormData('main_form', '');
+			$o->openRaw();
+			$source_job->paint($o);
+			$o->closeRaw();
+			$o->paint();
+			return;
+		}
+
 		$onload = '';
 		$delay  = false;
 		$auto_step = false;
@@ -251,10 +258,8 @@ class HIPO_Herder extends MySource_Object
 			$percent_done = 100;
 			$status_msg = 'HIPO Aborted';
 		} else {
-
 			$url = $this->getProcessURL($source_job->code_name);
 			$auto_step = $source_job->auto_step();
-
 			$percent_done = $source_job->percentDone();
 
 			if ($source_job->complete()) {
@@ -263,10 +268,8 @@ class HIPO_Herder extends MySource_Object
 				$delay = ($source_job->getRunningMode() == 'server');
 				$onload = 'document.'.$form_name.'.submit();';
 			}
-
 			$status_msg = $source_job->hipo_name.' HIPO '.(($source_job->complete()) ? 'Complete' : 'Progress');
-
-		} // end if
+		}
 
 		$o = &$this->getBackendOutputter();
 		$o->setFormData($form_name, $url);
@@ -292,11 +295,14 @@ class HIPO_Herder extends MySource_Object
 				if (confirm("Are you sure you want to cancel?")) {
 					document.<?php echo $form_name; ?>.cancel_hipo.value = "1";
 					document.<?php echo $form_name; ?>.submit();
-
 				} else {
-					next_page();
+					<?php
+					if ($source_job->getRunningMode() == 'server') {
+						?>next_page();<?php
+					}
+					?>
 				}
-			}// end send_abort();
+			}// end send_abort()
 		</script>
 		<?php
 	
@@ -377,7 +383,7 @@ class HIPO_Herder extends MySource_Object
 								<?php
 								foreach ($buttons_to_print as $btn_code => $btn_data) {
 									?><td valign="top" align="center"><?php
-									normal_button($btn_code, $btn_data['value'], $btn_data['action']);
+									normal_button($btn_code, $btn_data['value'], $btn_data['action'], 'class="sq-hipo-button-enabled"');
 									?></td><?php
 								}
 								?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.43 2004/05/18 23:13:15 lwright Exp $
+* $Id: hipo_job.inc,v 1.44 2004/05/26 23:24:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -306,6 +306,7 @@ class HIPO_Job extends MySource_Object
 	function getErrors()
 	{
 		return $this->_hipo_vars['errors'];
+
 	}//end getErrors()
 
 
@@ -422,7 +423,8 @@ class HIPO_Job extends MySource_Object
 	*/
 	function paintConfig(&$o, $class)
 	{
-	}// end paintConfig()
+
+	}//end paintConfig()
 
 
 	/**
@@ -642,7 +644,7 @@ class HIPO_Job extends MySource_Object
 		$null = null; // because we need to return by ref
 		return $null;
 
-	}// end _getSubJob();
+	}//end _getSubJob();
 
 
 	/**
@@ -654,7 +656,8 @@ class HIPO_Job extends MySource_Object
 	function getInitialiseMode()
 	{
 		return $this->_hipo_vars['initialise_mode'];
-	}// end getInitialiseMode();
+
+	}//end getInitialiseMode();
 
 	
 	/**
@@ -687,7 +690,7 @@ class HIPO_Job extends MySource_Object
 			return false;
 		}
 
-	}// end setRunningMode();
+	}//end setRunningMode();
 
 
 	/**
@@ -699,7 +702,8 @@ class HIPO_Job extends MySource_Object
 	function getRunningMode()
 	{
 		return $this->_hipo_vars['running_mode'];
-	}// end getRunningMode();
+
+	}//end getRunningMode();
 
 
 	/**
@@ -824,8 +828,9 @@ class HIPO_Job extends MySource_Object
 		// print the error report if there are errors
 		if ($this->complete() && !empty($this->_hipo_vars['errors'])) {
 			echo '<p>';
-			$this->_paintErrorReport();
+			$this->_paintErrorReport(true);
 			echo '</p>';
+			return;
 		}
 
 		if ($step_data) {
@@ -840,7 +845,7 @@ class HIPO_Job extends MySource_Object
 				$sub_job = &$this->_getSubJob();
 				if (!is_null($sub_job)) {
 					$o->closeRaw();
-					$sub_job->paint($o, true);
+						$sub_job->paint($o, true);
 					$o->openRaw();
 				}// end if
 
@@ -1017,14 +1022,11 @@ class HIPO_Job extends MySource_Object
 				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$hipo = &$hh->getJob($step_data['hipo_job']['code_name'], $step_data['hipo_job']['job_type']);
 				if (!is_null($hipo) && $hipo->process()) {
-
 					$step_data['running_mode'] = $hipo->getRunningMode();
 					$step_data['percent_done'] = $hipo->percentDone();
 					$step_data['complete']     = $hipo->complete();
 					$process_ok = true;
-
 				}
-
 
 			}// end if
 
@@ -1075,9 +1077,7 @@ class HIPO_Job extends MySource_Object
 			$init_hipo = new $job_type();
 
 			$init_hipo->setRunningVars($running_vars);
-			foreach($options as $k => $v) {
-				$init_hipo->setOption($k, $v);
-			}
+			foreach($options as $k => $v) $init_hipo->setOption($k, $v);
 
 			$code_name = $init_hipo->initialise($this->source_code_name);
 			if (!$code_name) return false;
@@ -1091,13 +1091,13 @@ class HIPO_Job extends MySource_Object
 			$hipo = &$hh->getJob($code_name, $job_type);
 			if (is_null($hipo)) return false;
 
-			while (!$step_data['complete'] && $step_data['running_mode'] == 'server'){
+			while (!$step_data['complete'] && $step_data['running_mode'] == 'server') {
 				if (!$hipo->process()) return false;
 				$step_data['running_mode'] = $hipo->getRunningMode();
 				$step_data['percent_done'] = $hipo->percentDone();
 				$step_data['complete']     = $hipo->complete();
 				$this->save();
-			}// end if
+			}
 
 			return true;
 
@@ -1217,7 +1217,16 @@ class HIPO_Job extends MySource_Object
 		<div align="center">
 		<table border="0" cellspacing="1" cellpadding="1" bgcolor="#000000" width="95%">
 			<tr>
-				<td bgcolor="#412F49" align="center" width="100%"><b><?php echo $this->hipo_name;?> HIPO Error Report</b></td>
+				<td bgcolor="#412F49" align="center" width="100%">
+					<span style="color: #FFFFFF;"><b><?php echo $this->hipo_name;?> HIPO Error Report</b><br />
+						<span style="font-size: 80%;">
+						<?php
+							if (!$this->complete()) echo '( HIPO job was not completed )';
+							else echo '( HIPO job was completed )';
+						?>
+						</span>
+					</span>
+				</td>
 			</tr>
 			<tr>
 				<td bgcolor="#9E86AA" width="100%">
@@ -1246,7 +1255,9 @@ class HIPO_Job extends MySource_Object
 				</td>
 			</tr>
 			<tr>
-				<td bgcolor="#412F49" align="center" width="100%"><b>End of Report</b></td>
+				<td bgcolor="#412F49" align="right">
+					<b><a style="color: #FFFFFF; text-decoration: none;" href="<?php echo $this->_options['on_complete_url']; ?>">Continue >>&nbsp;</a>
+				</td>
 			</tr>
 		</table>
 		</div>
