@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge.inc,v 1.3 2004/06/18 13:56:13 brobertson Exp $
+* $Id: bridge.inc,v 1.4 2005/01/13 22:02:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -156,7 +156,7 @@ class Bridge extends Asset
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
-	* @param int			$assetid			the id of the asset to get its children for
+	* @param string			$assetid			the id of the asset to get its children for
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
@@ -175,6 +175,23 @@ class Bridge extends Asset
 		return Array();
 
 	}//end getChildren()
+
+
+	/**
+	* Returns an array of assetid's + info in the order that they propogate out from the site url
+	*
+	* @param string	$assetid	the id of the last asset in the lineage
+	* @param string	$protocol	the protocol to match -> null means it is ignored
+	* @param string	$url		the urls to check for -> null defaults it to current url
+	*
+	* @return array
+	* @access public
+	*/
+	function getLineageFromURL($assetid, $protocol, $url)
+	{
+		return Array();
+
+	}//end getLineageFromURL()
 
 
 }//end class
