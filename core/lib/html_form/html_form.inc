@@ -39,7 +39,7 @@ function normal_button($name, $value, $on_click='', $extras='')
 {
 	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
-	echo '<input type="button" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
+	echo '<input type="button" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 }
 
 /**
