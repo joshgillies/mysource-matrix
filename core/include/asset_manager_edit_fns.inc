@@ -91,7 +91,9 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$success = $asset->processBackend($this->backend->out, $link);
 
-					if (!$success) {
+					if ($success) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+					} else {
 						// the asset was not created fully or linking failed
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					}
@@ -195,7 +197,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				$this->_forceablyAcquireLock();
 				break;
 
-			default   :
+			default :
 				$this->_printAssetTypeList();
 
 		}//end switch
