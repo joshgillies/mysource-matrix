@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.34 2004/01/16 05:43:36 gsherwood Exp $
+* $Id: mysource.inc,v 1.34.2.1 2004/01/21 18:45:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -114,6 +114,11 @@ class MySource
 	* @var object Event_Manager
 	*/
 	var $em;
+
+	/**
+	* @var object Replicator
+	*/
+	var $sr;
 
 	/**
 	* Object of logged in user
@@ -815,8 +820,8 @@ class MySource
 
 
 	/**
-	* Get the file versioning object so you can add/remove/commit/checkout file versions
-	* Always call this function to get the file versioning object, dont use $this->fv directly
+	* Get the HIPO Herder
+	* Always call this function to get the HIPO Herder object, dont use $this->hh directly
 	*
 	* @return object Hipo_Herder
 	* @access public
@@ -900,6 +905,25 @@ class MySource
 		return $this->em;
 
 	}//end getEvemtManager()
+
+
+	/**
+	* Get the Replicator
+	* Always call this function to get the file versioning object, dont use $this-> directly
+	*
+	* @return object Replicator
+	* @access public
+	*/
+	function &getSystemReplicator()
+	{
+		if(!isset($this->sr) || get_class($this->sr) != 'replicator') {
+			require_once SQ_SYSTEM_ROOT.'/core/replication/replicator.inc';
+			$this->sr = new Replicator();
+		}
+		return $this->sr;
+
+	}//end getSystemReplicator()
+
 
 
 //--        DATABASE        --//
