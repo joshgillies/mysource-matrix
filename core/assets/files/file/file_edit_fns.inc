@@ -46,7 +46,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($existing)) {
 			?> 
 				<p style="font-size: 7pt">
-				<b><a href="<?php echo $asset->getURL()?>" target="_blank">Current File</a></b><br/>
+				<b><a href="<?php echo current_url().'?a='.$asset->id?>" target="_blank">Current File</a></b><br/>
 				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
 				<?php
 				if ($existing['width'] && $existing['height']) {
@@ -73,7 +73,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
-		file_upload($prefix);
+		if ($asset->writeAccess()) {
+			file_upload($prefix);
+		}
 		$this->_printExistingFileInfo($asset);
 		return true;
 	}//end paintFileUpload()
@@ -92,6 +94,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
+		if (!$asset->writeAccess()) return false;
+
 		if (empty($info)) {
 			$info = get_file_upload_info($prefix);
 			// return on failed or no upload
@@ -174,9 +178,11 @@ class File_Edit_Fns extends Asset_Edit_Fns
 					</p>
 				<?php
 			}
+		} else {
+			echo 'No thumbnail attached<br/>';
 		}
 
-		asset_finder($prefix.'_thumbid', '', Array('thumbnail' => 'D'));
+		if ($asset->writeAccess()) asset_finder($prefix.'_thumbid', '', Array('thumbnail' => 'D'));
 	}//end paintThumbnail()
 
 
@@ -192,6 +198,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processThumbnail(&$asset, &$o, $prefix)
 	{
+		if (!$asset->writeAccess()) return false;
+		if (!isset($_POST[$prefix.'_thumbid'])) return false;
+
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
 		$thumbid = (int) $_POST[$prefix.'_thumbid'];

@@ -51,12 +51,14 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
-		file_upload($prefix);
+		if ($asset->writeAccess()) {
+			file_upload($prefix);
 
-		?>
-		<br/><span style="font-size: 7pt"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?>
-		<br/><b>Note:</b> Image size is restricted to a maximum of <?php echo $this->max_width.' x '.$this->max_height?> pixels</span>
-		<?php
+			?>
+			<br/><span style="font-size: 7pt"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?>
+			<br/><b>Note:</b> Image size is restricted to a maximum of <?php echo $this->max_width.' x '.$this->max_height?> pixels</span>
+			<?php
+		}
 
 		$this->_printExistingFileInfo($asset);
 		return true;
@@ -76,6 +78,8 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 	*/
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
+		if (!$asset->writeAccess()) return false;
+
 		if (empty($info)) {
 			$info = get_file_upload_info($prefix);
 			// return on failed or no upload
