@@ -80,6 +80,12 @@ td.sq-backend-field {
 	font-size: 11px;
 }
 
+.sq-form-asset-finder {
+	border-style: dashed; 
+	border-color: #d0d0d0; 
+	border-width: 1px;
+}
+
 td.sq-backend-data {
 	vertical-align: top;
 }
