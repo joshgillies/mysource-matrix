@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.62 2005/02/16 22:02:53 dbaranovskiy Exp $
+* $Id: metadata_manager.inc,v 1.63 2005/02/17 01:10:13 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -109,7 +109,7 @@ class Metadata_Manager extends MySource_Object
 	* @param boolean	$granted	type of access : null = all, true = applied, false = denied
 	*
 	* @access public
-	* @return array()	if $granted is null returns Array(schemaid)  
+	* @return array()	if $granted is null returns Array(schemaid)
 	*					otherwise returns Array(schemaid => granted[1|0])
 	*/
 	function getSchemas($assetid, $granted=null)
@@ -362,7 +362,7 @@ class Metadata_Manager extends MySource_Object
 		// And to think I didn't like it when this generating query got pulled out of the Asset_Manager::getChildren() :)
 		// Instead of doing any thinking...let them do it all for us and use it in our query
 		$sql = '  SELECT DISTINCT mv.fieldid, a.name, mv.value
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_value mv 
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata_value mv
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON mv.fieldid = a.assetid';
 		$where = '	mv.assetid = '.$db->quote($asset->id).'
 				AND (';
@@ -447,7 +447,7 @@ class Metadata_Manager extends MySource_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		
+
 		// the array of field values we are going to return
 		$field_values = Array();
 
@@ -568,7 +568,7 @@ class Metadata_Manager extends MySource_Object
 			for (reset($metadata); NULL !== ($fieldid = key($metadata)); next($metadata)) {
 
 				// we need to insert
-				if (!in_array($fieldid, $updates)) { 
+				if (!in_array($fieldid, $updates)) {
 
 					$values = Array('assetid'	=> $asset->id,
 									'fieldid'	=> $fieldid,
@@ -579,7 +579,7 @@ class Metadata_Manager extends MySource_Object
 						return false;
 					}
 
-				// we are updating 
+				// we are updating
 				} else {
 
 					$values = Array(
@@ -821,24 +821,25 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_created_short' :
 				case 'asset_updated_short' :
 				case 'asset_status_changed_short':
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d\', $metadata_asset->'.substr($keyword,6,7).');'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'Y-m-d\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_short') - strlen('asset_')).');'."\n";
 				break;
 
 				case 'asset_created_readable' :
 				case 'asset_updated_readable' :
 				case 'asset_status_changed_readable':
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'d M Y g:ia\', $metadata_asset->'.substr($keyword,6,7).');'."\n";
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = date(\'d M Y g:ia\', $metadata_asset->'.substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_readable') - strlen('asset_')).');'."\n";
 				break;
 
 				case 'asset_created_by_name' :
 				case 'asset_updated_by_name' :
 				case 'asset_status_changed_by_name':
-					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) {
-					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->'.substr($keyword,6,7).'_userid));
+					$field_name = substr($keyword, strlen('asset_'), strlen($keyword) - strlen('_by_name') - strlen('asset_'));
+					echo 'if (!isset($metadata_'.$field_name.'_by_user)) {
+					$asset_info = $GLOBALS[\'SQ_SYSTEM\']->am->getAssetInfo(Array($metadata_asset->'.$field_name.'_userid));
 					if (!empty($asset_info)) {
-					$metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid);'."\n}\n}\n";
-					echo 'if (!empty($metadata_'.substr($keyword,6,7).'_by_user)) { ';
-					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.substr($keyword,6,7).'_by_user->name;'."\n";
+					$metadata_'.$field_name.'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.$field_name.'_userid);'."\n}\n}\n";
+					echo 'if (!empty($metadata_'.$field_name.'_by_user)) { ';
+					echo '$metadata_replacements['.var_export($keyword, 1).'] = $metadata_'.$field_name.'_by_user->name;'."\n";
 					echo '} else {'."\n";
 					echo '$metadata_replacements['.var_export($keyword, 1).'] = \'System\';'."\n";
 					echo '}'."\n";
