@@ -77,7 +77,7 @@ class Asset extends Resolve_Object
 	*
 	* @var bool
 	*/
-	var $_ser_atrs = false;
+	var $_set_attrs = false;
 
 
 	/**
@@ -252,7 +252,7 @@ class Asset extends Resolve_Object
 		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br/>'.$this->vars->getUserInfo(), E_USER_ERROR);
 
-		if ($this->_ser_atrs && $this->vars) {
+		if ($this->_set_attrs && $this->vars) {
 			for(reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
 				if ($this->vars[$name]['type'] != 'serialise') continue;
 				$this->vars[$name]['value'] = @unserialize($this->vars[$name]['value']);
@@ -1497,7 +1497,7 @@ class Asset extends Resolve_Object
 
 		// if you dont have write access to this asset you cant create any links
 		if (!$GLOBALS['SQ_INSTALL'] && !$this->writeAccess()) {
-			return 'Cannot create link from "'.$this->name.'" to "'.$minor->name.'", permission denied';
+			return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied';
 		}
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -1577,14 +1577,14 @@ class Asset extends Resolve_Object
 	* @param string			$link_type	the type of link this is
 	* @param string			$value		the value that is to be associated with this link
 	* @param string			$sort_order	the position in the links list that this link should take, 
-	*									if less than zero places at end of list
+	*									if null or less than zero places at end of list
 	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the 
 	*									asset that will be linked by this new link
 	*
 	* @return int
 	* @access public
 	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0')
+	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0')
 	{
 
 		if (!$this->id) return 0;
@@ -1633,7 +1633,7 @@ class Asset extends Resolve_Object
 		}
 
 		$max = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
-		if ($sort_order > $max || $sort_order < 0) $sort_order = $max;
+		if (is_null($sort_order) || (int) $sort_order > (int) $max || (int) $sort_order < 0) $sort_order = (int) $max;
 
 		// sequences are cool, see the PEAR::DB docs for more info
 		$linkid = $db->nextId('sq_sequence_asset_link');
