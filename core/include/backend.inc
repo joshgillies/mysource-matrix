@@ -192,7 +192,11 @@ class Backend extends Resolve_Object
 			var REFRESH_UPDATE = <?php echo (int) SQ_CONF_REFRESH_INTERVAL ?>; // number of seconds before refreshing frame
 
 			function reloadFooter() {
-				REFRESH_LOCATION = '<?php echo $this->getBackendUrl('footer');?>&current_assetid=' + top.main.document.main_form.backend_assetid.value;
+				var current_assetid = '';
+				if (top.main.document && top.main.document.main_form && top.main.document.main_form.backend_assetid) {
+					current_assetid = top.main.document.main_form.backend_assetid.value;
+				}
+				REFRESH_LOCATION = '<?php echo $this->getBackendUrl('footer');?>&current_assetid=' + current_assetid;
 				document.location = REFRESH_LOCATION;
 			}
 		</script>
