@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.4 2004/09/15 01:25:28 mmcintyre Exp $
+* $Id: page_whats_new.inc,v 1.5 2004/10/13 05:43:51 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -238,7 +238,7 @@ class Page_Whats_New extends Page_Asset_Listing
 
 		foreach ($ranges as $id => $info) $names[$id] = $info['name'];
 		$selected = (isset($_REQUEST[$prefix.'_date_range']) ? $_REQUEST[$prefix.'_date_range'] : '');
-		$url = $this->getURL();
+		$url = $_SERVER['PHP_SELF'];
 
 		if (in_array('date_range_list', $keywords)) {
 			ob_start();
