@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_settings.xml,v 1.12 2004/11/16 02:37:33 gsherwood Exp $
+* $Id: edit_interface_static_screen_settings.xml,v 1.12.2.1 2004/12/07 05:54:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -32,6 +32,16 @@
 		<field code="version_update_version">
 			<display_name>Update Major Version ?</display_name>
 			<note>Check the box to increment the major version number of this asset</note>
+		</field>
+	</section>
+	<section name="Dates">
+		<field code="date_created_date">
+			<display_name>Created Date</display_name>
+			<note>Specify the date and user for the created date</note>
+		</field>
+		<field code="date_published_date">
+			<display_name>Published Date</display_name>
+			<note>Specify the date and user for the published date</note>
 		</field>
 	</section>
 	<section name="SSL">
