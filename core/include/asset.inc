@@ -261,6 +261,19 @@ class Asset extends Resolve_Object
 
 
 	/*
+	* Returns the link information for a specific link that this asset is the major asset in
+	* 
+	* @param int	linkid
+	*
+	* @access public
+	*/
+	function getLink($linkid)
+	{
+		return $GLOBALS['SQ_RESOLVE']->am->getLink($linkid, $this->id);			
+	}//end getLink()
+
+
+	/*
 	* Return all links to this asset 
 	*
 	* @param int    $link_types  integer that can be the product of bitwise operations on the SQ_LINK_* constants
@@ -275,6 +288,7 @@ class Asset extends Resolve_Object
 	*/
 	function getLinks($link_types, $asset_type='', $ret_type='T') 
 	{
+		error_log("Get Links for $this->id ($this->name) : $link_types, $asset_type, $ret_type");
 
 		$elem_types = bit_elements($link_types);
 		// OK, let's check what we already have cached, and only do a DB call for what we need
@@ -295,9 +309,9 @@ class Asset extends Resolve_Object
 					WHERE l.minorid   = a.assetid 
 					  AND l.majorid   = '.$db->quote($this->id).'
 					  AND (l.link_type & '.$db->quote($search_link_types).') > 0 '
-					.(empty($asset_type) ? 'ORDER BY a.type_code, l.sort_order' : ' AND a.type_code = '.$db->quote($asset_type));
+					.(empty($asset_type) ? 'ORDER BY l.sort_order, a.type_code' : ' AND a.type_code = '.$db->quote($asset_type));
 
-#			error_log("\n".$sql);
+			error_log("\n".$sql);
 
 			$result = $db->query($sql);
 			if (DB::isError($result)) 
@@ -312,8 +326,8 @@ class Asset extends Resolve_Object
 
 			// a bit of integrity
 			if (empty($asset_type)) {
-
 				foreach($elem_types as $link_type) $this->_tmp['links'][$link_type.'___GOT_ALL___'] = true;
+
 			} else {
 				foreach($elem_types as $link_type) {
 					if (!isset($this->_tmp['links'][$link_type][$asset_type])) {
@@ -370,33 +384,34 @@ class Asset extends Resolve_Object
 
 
 	/*
-	* Returns the number of links from this asset
+	* Returns the number of links that this asset has as either a major or minor party
 	*
-	* @param int    $link_types  integer that can be the product of bitwise operations on the SQ_LINK_* constants
-	* @param string $asset_type  the type of asset that is linked (eg 'Page', 'File', etc);
+	* @param int		$link_types		integer that can be the product of bitwise operations on the SQ_LINK_* constants
+	* @param string		$asset_type		the type of asset that is linked (eg 'Page', 'File', etc);
+	* @param boolean	$major			type of party that the asset is in the links major = true, minor = false
 	*
 	* @return int
 	* @access public
 	*/
-	function countLinks($link_types, $asset_type='') 
+	function countLinks($link_types, $asset_type='', $major=true) 
 	{
+		$party = ($major) ? 'major' : 'minor';
+
 
 		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
 		if (empty($asset_type)) {
 			$sql = 'SELECT COUNT(*)
 					FROM sq_asset_link l
-					WHERE l.majorid   = '.$db->quote($this->id).'
+					WHERE l.'.$party.'id   = '.$db->quote($this->id).'
 					  AND (link_type & '.$db->quote($link_types).') > 0';
 		} else {
 			$sql = 'SELECT COUNT(*)
 					FROM sq_asset_link l, sq_asset a
 					WHERE l.minorid   = a.assetid 
-					  AND l.majorid   = '.$db->quote($this->id).'
+					  AND l.'.$party.'id   = '.$db->quote($this->id).'
 					  AND (link_type & '.$db->quote($link_types).') > 0 
 					  AND a.type_code = '.$db->quote($asset_type);
 		}
-
-//			pre_echo($sql);
 
 		$result = $db->getOne($sql);
 		if (DB::isError($result)) 
@@ -417,6 +432,8 @@ class Asset extends Resolve_Object
 	function _linkChanged($link_type, $asset_type='') 
 	{
 
+		if (empty($this->_tmp['links'])) return;
+
 		if (empty($asset_type)) {
 			unset($this->_tmp['links'][$link_type]);
 		} else {
@@ -431,13 +448,14 @@ class Asset extends Resolve_Object
 
 	/*
 	* Creates a link between this asset and the passed asset, of a certain type
+	* and returns the linkid of the created link
 	*
 	* @param object Asset $minor  the minor asset that we are linking to
 	* @param string $link_type    the type of link this is
 	* @param string $value        the value that is to be associated with this link
 	* @param string $sort_order   the position in the links list that this link should take, if less than zero places at end of list
 	*
-	* @return boolean
+	* @return int
 	* @access public
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=-1) 
@@ -507,7 +525,7 @@ class Asset extends Resolve_Object
 
 
 		// sequences are cool, see the PEAR::DB docs for more info
-		$link = $db->nextid('sq_sequence_asset_link');
+		$linkid = $db->nextid('sq_sequence_asset_link');
 
 		$sql = 'INSERT INTO sq_asset_link
 				(linkid, majorid, minorid, link_type, value, sort_order, last_updated, last_userid)
@@ -515,7 +533,7 @@ class Asset extends Resolve_Object
 				('.$db->quote($linkid).', '.$db->quote($this->id).', '.$db->quote($minor->id).', '.$db->quote($link_type).', '
 				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(ts_iso8601(time())).', '.$db->quote($GLOBALS['SQ_RESOLVE']->currentUserId()).')';
 
-//		pre_echo($sql);
+		error_log($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -529,6 +547,8 @@ class Asset extends Resolve_Object
 				WHERE majorid     = '.$db->quote($this->id).'
 				  AND sort_order >= '.$db->quote($sort_order).'
 				  AND linkid != '.$db->quote($linkid);
+		error_log($sql);
+
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
@@ -537,7 +557,7 @@ class Asset extends Resolve_Object
 
 		$this->_linkChanged($link_type, get_class($minor));
 
-		return true;
+		return $linkid;
 
 	}//end createLink()
 
@@ -630,25 +650,14 @@ class Asset extends Resolve_Object
 	{
 
 		// First, we should try and find the link
-		$current_links  = $this->getLinks($link_type, get_class($minor));
-		error_log("CURRENT LINKS : ".array_contents($current_links));
-		$num_curr_links = count($current_links);
-		$i = 0;
-		for(; $i < $num_curr_links; $i++) {
-			if ($current_links[$i]['linkid'] == $linkid) {
-				break;
-			}
-		}//end for
-
-		if ($i >= $num_curr_links) {
+		$link = $this->getLink($linkid);
+		if (empty($link)) {
 			trigger_error('Existing Link #'.$linkid.' not found, unable to move link', E_USER_WARNING);
 			return false;
 		}
 
-		$old_sort_order = $current_links[$i]['sort_order'];
-
 		// dickhead check
-		if ($old_sort_order == $sort_order) {
+		if ($link['sort_order'] == $sort_order) {
 			return true;
 		}
 
@@ -686,20 +695,20 @@ class Asset extends Resolve_Object
 		}
 
 		// move 'em up, higher
-		if ($old_sort_order > $sort_order) {
+		if ($link['sort_order'] > $sort_order) {
 			$sql = 'UPDATE sq_asset_link
 					SET sort_order = sort_order + 1
 					WHERE majorid = '.$db->quote($this->id).'
 					  AND linkid != '.$db->quote($linkid).'
 					  AND sort_order >= '.$db->quote($sort_order).'
-					  AND sort_order <= '.$db->quote($old_sort_order);
+					  AND sort_order <= '.$db->quote($link['sort_order']);
 
 		} else {
 			$sql = 'UPDATE sq_asset_link
 					SET sort_order = sort_order - 1
 					WHERE majorid = '.$db->quote($this->id).'
 					  AND linkid != '.$db->quote($linkid).'
-					  AND sort_order >= '.$db->quote($old_sort_order).'
+					  AND sort_order >= '.$db->quote($link['sort_order']).'
 					  AND sort_order <= '.$db->quote($sort_order);
 		}
 
@@ -714,11 +723,73 @@ class Asset extends Resolve_Object
 
 		$db->query('COMMIT');
 
-		$this->_linkChanged($link_type, get_class($minor));
+		$this->_linkChanged($link['link_type']);
 
 		return true;
 
 	}//end moveLinkPos()
+
+
+	/*
+	* Removes a link where this asset is the major player
+	*
+	* @param int	$linkid		the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteLink($linkid) 
+	{
+
+		// First, we should try and find the link
+		$link = $this->getLink($linkid);
+		if (empty($link)) {
+			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			return false;
+		}
+
+		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+
+		// open the transaction
+		$db->query('BEGIN');
+
+		$sql = 'DELETE FROM sq_asset_link
+				WHERE linkid    = '.$db->quote($linkid).'
+				  AND majorid   = '.$db->quote($this->id);
+
+		error_log($sql);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			$db->query('ROLLBACK');
+			return false;
+		}
+
+		// move 'em up, higher
+		$sql = 'UPDATE sq_asset_link
+				SET sort_order = sort_order - 1
+				WHERE majorid    = '.$db->quote($this->id).'
+				  AND sort_order > '.$db->quote($link['sort_order']);
+
+		error_log($sql);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			$db->query('ROLLBACK');
+			return false;
+		}
+
+		$db->query('COMMIT');
+
+		$this->_linkChanged($link['link_type']);
+
+		return true;
+
+	}//end deleteLink()
+
+
 
 	/*
 	* Set the value for the passed variable to the passed value

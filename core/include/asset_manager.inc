@@ -316,6 +316,35 @@ class Asset_Manager extends Resolve_Object
 
 
 	/*
+	* Returns the link information for a specific link
+	* 
+	* @param int	linkid
+	*
+	* @access public
+	*/
+	function getLink($linkid, $majorid=0)
+	{
+
+		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$sql = 'SELECT linkid, majorid, minorid, link_type, value, sort_order, last_updated, last_userid
+				FROM sq_asset_link
+				WHERE linkid = '.$db->quote($linkid);
+
+		if ($majorid) $sql .= '  AND majorid = '.$db->quote($majorid);
+
+		error_log("\n".$sql);
+
+		$result = $db->getRow($sql);
+		if (DB::isError($result)) 
+			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+
+		return $result;
+			
+	}//end getLink()
+
+
+
+	/*
 	* prints out the interface for viewing and customising asset types
 	*
 	* @param object Backend $backend
