@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.54 2004/10/11 07:08:43 arailean Exp $
+* $Id: form.inc,v 1.55 2004/10/13 03:11:15 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1043,7 +1043,9 @@ class Form extends Bridge
 		} else {			// no bodycopy
 
 			// print the results if we need to
-			if ($this->attr('show_results')) $this->printSummary(true);
+			if ($this->attr('show_results')) {
+				echo $summary_info;
+			}
 
 		}
 
