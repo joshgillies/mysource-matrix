@@ -2,14 +2,13 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: regen_system_assets_config.php,v 1.1 2003/10/17 05:53:17 brobertson Exp $
+* $Id: regen_system_assets_config.php,v 1.2 2003/10/20 01:24:37 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
 /**
-* Install Step 3
-*
-* Purpose
+* This small script generates the systerm assets config for installed systems
+* that get updated and need this file generated
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
