@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.7 2004/11/21 23:15:28 gsherwood Exp $
+* $Id: db_install.inc,v 1.8 2004/12/03 00:33:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -215,35 +215,31 @@ function db_install($xml_file, $quiet=false)
 			ob_end_clean();
 
 			$result = $db->query($table_sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			assert_valid_db_result($result);
 
 
 //--        ROLLBACK TABLE DEFINITION        --//
 
 
 			if ($require_rollback) {
-			ob_start();
-				echo 'CREATE TABLE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' (';
-				echo SQ_TABLE_PREFIX.'eff_from TIMESTAMP NOT NULL,';
-				echo SQ_TABLE_PREFIX.'eff_to   TIMESTAMP,';
-				echo $table_columns_string;
+				ob_start();
+					echo 'CREATE TABLE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' (';
+					echo SQ_TABLE_PREFIX.'eff_from TIMESTAMP NOT NULL,';
+					echo SQ_TABLE_PREFIX.'eff_to   TIMESTAMP,';
+					echo $table_columns_string;
+		
+					echo $rollback_primary_key;
+					if (!empty($other_rollback_keys)) {
+						echo ',';
+						echo implode(',', $other_rollback_keys);
+					}
+					echo ')';
+					$table_sql = ob_get_contents();
+				ob_end_clean();
 	
-				echo $rollback_primary_key;
-				if (!empty($other_rollback_keys)) {
-					echo ',';
-					echo implode(',', $other_rollback_keys);
-				}
-				echo ')';
-				$table_sql = ob_get_contents();
-			ob_end_clean();
-
-			$result = $db->query($table_sql);
-			assert_valid_db_result($result);
-		}
+				$result = $db->query($table_sql);
+				assert_valid_db_result($result);
+			}
 
 
 //--        TABLE INDEXES        --//
@@ -251,30 +247,25 @@ function db_install($xml_file, $quiet=false)
 
 			// check for any indexes that need creating
 			$table_indexes = &$table->children[2]->children;
-			for($j = 0; $j < count($table_indexes); $j++) {
+			for ($j = 0; $j < count($table_indexes); $j++) {
 				$table_index = &$table_indexes[$j];
 
 				// work out the columns in this index
-				for($k = 0; $k < count($table_index->children); $k++) {
+				for ($k = 0; $k < count($table_index->children); $k++) {
 					$index_col_name = $table_index->children[$k]->attributes['name'];
 				}
 
-				$index_sql = 'CREATE INDEX '.SQ_TABLE_PREFIX.$table_name.'_'.$index_col_name.' ON '.SQ_TABLE_PREFIX.$table_name.' ('.$index_col_name.')';
+				// work out the name of the index
+				$index_name = array_get_index($table_index->attributes, 'name', $index_col_name);
+
+				$index_sql = 'CREATE INDEX '.SQ_TABLE_PREFIX.$table_name.'_'.$index_name.' ON '.SQ_TABLE_PREFIX.$table_name.' ('.$index_col_name.')';
 				$result = $db->query($index_sql);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
+				assert_valid_db_result($result);
 
 				if ($require_rollback) {
 					$index_sql = str_replace(SQ_TABLE_PREFIX, SQ_TABLE_ROLLBACK_PREFIX, $index_sql);
 					$result = $db->query($index_sql);
-					if (DB::isError($result)) {
-						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
+					assert_valid_db_result($result);
 				}
 			}//end for
 
@@ -324,11 +315,7 @@ function db_install($xml_file, $quiet=false)
 		if (in_array(SQ_TABLE_PREFIX.$sequence_name.'_seq', $sequences_in_db)) continue;
 		
 		$result = $db->createSequence(SQ_TABLE_PREFIX.$sequence_name);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		assert_valid_db_result($result);
 	}
 
 	$cached_sequences_string = '<'.'?php $sequences = '.var_export($cached_sequences, true).'; ?'.'>';
