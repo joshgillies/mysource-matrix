@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_approved.inc,v 1.10 2004/07/06 02:20:39 lwright Exp $
+* $Id: asset_status_approved.inc,v 1.11 2004/07/06 05:38:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -119,7 +119,6 @@ class Asset_Status_Approved extends Asset_Status
 				return false;
 			}
 		}
-		break;
 
 		return true;
 
