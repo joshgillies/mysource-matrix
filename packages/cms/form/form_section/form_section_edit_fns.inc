@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.21 2004/06/30 00:57:02 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.22 2004/07/07 01:00:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		$this->Bridge_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
 
-	} // end Form_Section_Edit_Fns()
+	}//end Form_Section_Edit_Fns()
 
 	
 	/**
@@ -60,16 +60,6 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 	* @param string						$prefix		prefix for the form elements
 	*
 	* @return boolean false if no questions in this section, true otherwise
-	* @access public
-	*/
-	/**
-	* Paint the links to the bodycopies in this section
-	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
-	*
-	* @return boolean
 	* @access public
 	*/
 	function paintQuestionLinks(&$asset, &$o, $prefix)
@@ -233,7 +223,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		<?php
 		return true;
 
-	} // end paintQuestionLinks()
+	}//end paintQuestionLinks()
 	
 
 	/**
@@ -269,7 +259,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 
 		return true;
 	
-	} // end processQuestionLinks()
+	}//end processQuestionLinks()
 
 
 	/**
@@ -311,7 +301,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		combo_box('num_questions', $num, false, '');
 		return true;
 	
-	} // end paintAddQuestions()
+	}//end paintAddQuestions()
 
 
 	/**
@@ -353,7 +343,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		
 		return true;
 
-	} // end processAddQuestions()
+	}//end processAddQuestions()
 
 
 	/**
@@ -374,70 +364,8 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 	*/
 	function generateContentFile(&$asset)
 	{
-//		$bodycopy = &$asset->getBodycopy('format');
-		
-		// if there is no bodycopy, we will assume that we are trying to generate the 
-		// content file at form creation time, so just return true (it will get generated later)
-		if (isset($bodycopy)) { //return true;
-
-		// check to see if the bodycopy attached to this form has any content
-//		if (!$bodycopy->isEmpty()) {
-
-//			ob_start();
-//			$bodycopy->printBody();
-//			$output = ob_get_contents(); 
-//			ob_end_clean();
-
-//			ob_start();
-//			$bodycopy->printBody();
-//			$output = ob_get_contents(); 
-//			ob_end_clean();
-			
-//			$replaced = true;
-//			if (!$output = $this->processSectionReplacements($asset, $output)) $replaced = false;
-//			if (!$output = $this->processQuestionReplacements($asset, $output)) $replaced = false;
-
-			// if output is the same as it was before replacements, trigger error
-//			if (!$replaced) {
-//				trigger_error('could not find any sections or questions to replace in the Format Bodycopy (Standard Mode)', E_USER_WARNING);
-//				return false;
-//			}
-		
-			// there should only be a keyword replacement for a submit button, 
-			// so only replace that with a submit button, anything else
-			// will get stripped out later
-
-//			$search = '%submit_button%';
-			
-			// if no title for the submit button is specified in the backend
-			// just use 'submit'
-
-//			$button_name = ($asset->attr('submit_button')) ? $asset->attr('submit_button') : 'Submit'; 
-
-//			ob_start();
-//			submit_button($asset->getPrefix().'_submit', $button_name);
-//			$replacement = ob_get_contents();
-//			ob_end_clean();
-			
-//			$output = str_replace($search, $replacement, $output);
-		
-		// no contents in the bodycopy
-		} else {
-			
-			// if there is no bodycopy contents, then just ask
-			// all the sections to print themselves
-			//$questions = &$asset->getQuestions();
-			$output = '';
-
-			/*for (reset($questions); null !== ($k = key($questions)); next($questions)) {
-				$question =& $questions[$k];
-				$q =& $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->id.':q'.$k);
-				$output .= $q->getAnswer(true);
-			}*/
-
-			$output .= $this->generateGenericSection($asset);
-
-			$i = 1; // used for indexing
+		if (!isset($bodycopy)) {
+			$output = $this->generateGenericSection($asset);
 			
 		} //end if
 
@@ -448,7 +376,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 		create_directory($asset->data_path);
 		return string_to_file($output, $asset->data_path.'/content_file.php');
 	
-	} // end generateContentFile()
+	}//end generateContentFile()
 
 
 	/**
@@ -486,7 +414,7 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 
 		return $output;
 
-	} // generateGenericSection()
+	}//end generateGenericSection()
 	
 
 }//end class 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.22 2004/07/07 00:34:47 gsherwood Exp $
+* $Id: form_email_edit_fns.inc,v 1.23 2004/07/07 01:00:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	{
 		$this->Form_Edit_Fns();
 
-	}//end constructor
+	}//end Form_Email_Edit_Fns()
 
 
 //--        SUBMISSIONS        --//
@@ -602,8 +602,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Paints the interface for selecting a field containing send to a friend entries
 	*
-	* @param &object Form_Email			$asset		the form involved
-	* @param &object Backend_Outputter	$o			the backend outputter
+	* @param object Form_Email			&$asset		the form involved
+	* @param object Backend_Outputter	&$o			the backend outputter
 	* @param string						$prefix		a unique prefix for variables
 	*
 	* @return boolean
@@ -623,8 +623,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Processes the interface for selecting a field containing a receipt email
 	*
-	* @param &object Form_Email			$asset		the form involved
-	* @param &object Backend_Outputter	$o			the backend outputter
+	* @param object Form_Email			&$asset		the form involved
+	* @param object Backend_Outputter	&$o			the backend outputter
 	* @param string						$prefix		a unique prefix for variables
 	*
 	* @return boolean
@@ -646,14 +646,14 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	}//end processReceiptField()
 
 
-//--        SEND TO A FRIEND STUFF        --//
+//--        SEND TO A FRIEND        --//
 
 
 	/**
 	* Paints the interface for selecting a field containing send to a friend entries
 	*
-	* @param &object Form_Email			$asset		the form involved
-	* @param &object Backend_Outputter	$o			the backend outputter
+	* @param object Form_Email			&$asset		the form involved
+	* @param object Backend_Outputter	&$o			the backend outputter
 	* @param string						$prefix		a unique prefix for variables
 	*
 	* @return boolean
@@ -673,8 +673,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	/**
 	* Processes the interface for selecting a field containing send to a friend entries
 	*
-	* @param &object Form_Email			$asset		the form involved
-	* @param &object Backend_Outputter	$o			the backend outputter
+	* @param object Form_Email			&$asset		the form involved
+	* @param object Backend_Outputter	&$o			the backend outputter
 	* @param string						$prefix		a unique prefix for variables
 	*
 	* @return boolean
@@ -1250,7 +1250,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 
 	/**
-	* Paint the dropdowns to add rules to this question
+	* Paint the dropdowns etc for the rule logic
+	*
+	* "When <all|any> rule parts are matched, send an <email type> email to <email address>
 	*
 	* @param object Form_Section		&$asset		the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o			the outputter class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.22 2004/06/22 00:02:42 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.23 2004/07/07 01:00:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,7 +54,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 															),
 									);
 
-	}// end Form_Question_Edit_Fns()
+	}//end Form_Question_Edit_Fns()
 
 
 	/**
@@ -99,8 +99,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 						?>
 					</tr>
 				<?php
-		$allowed_rules = &$asset->getAllowedRules();
-		$rules = &$asset->getRules();
+				$allowed_rules = &$asset->getAllowedRules();
+				$rules = &$asset->getRules();
 				if(!empty($rules)) {
 
 					// sort order is based upon shadow asset id (eg. '87:q1'), not just question id - this 	
@@ -261,7 +261,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		
 		return true;
 
-	}// end paintAddRule()
+	}//end paintAddRule()
 
 
 	/**
@@ -348,15 +348,12 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 			<?php
 
 		}// end if
-?>
+		?>
 
-<p>Locking for this asset is controlled by its parent form<?php if (is_a($section_asset, 'form_section')) { echo ' section'; } ?>. Click to access this asset: <?php 
-
-$href = $section_asset->getBackendHref('contents');
-?><a href="<?php echo $href?>"><?php echo $section_asset->_getName() ?></a></p><?php
+		<p>Locking for this asset is controlled by its parent form<?php if (is_a($section_asset, 'form_section')) { echo ' section'; } ?>. Click to access this asset: <?php $href = $section_asset->getBackendHref('contents'); ?><a href="<?php echo $href?>"><?php echo $section_asset->_getName() ?></a></p><?php
 		return true;
 
-	}// end paintLockMessage()
+	}//end paintLockMessage()
 
 
 	/**
@@ -373,8 +370,8 @@ $href = $section_asset->getBackendHref('contents');
 	{
 		return true;
 
-	}// end processLockMessage()
+	}//end processLockMessage()
 
 
-}// end class
+}//end class
 ?>

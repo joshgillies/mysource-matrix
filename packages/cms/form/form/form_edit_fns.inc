@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.35 2004/07/01 02:20:51 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.36 2004/07/07 01:00:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -430,7 +430,6 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$curr_question_count = $asset->getQuestionCount() + 1;
-
 		
 		if ($type && $number) {
 			
@@ -475,6 +474,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		combo_box('num_sections', $num, false, '');
 
 		return true;
+
 	}//end paintAddSections()
 
 
@@ -597,9 +597,11 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		} else {
 			$output .= '';
 		}
-			$sections = &$asset->getSections();
-			$output .= $this->generateGenericSection($asset);
-			$i = 1; // used for indexing
+		
+		$sections = &$asset->getSections();
+		$output .= $this->generateGenericSection($asset);
+		$i = 1; // used for indexing
+
 		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
 			$section =& $sections[$k];
 				// if there is a section index, add it to the ouput

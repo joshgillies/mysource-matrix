@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.20 2004/06/30 00:47:00 lwright Exp $
+* $Id: form_section.inc,v 1.21 2004/07/07 01:00:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -212,10 +212,7 @@ class Form_Section extends Bridge
 		
 		$children = Array();
 
-		//if (empty($this->_tmp['questions'])) {
 		$entries = $this->getQuestions();
-		//
-		//$entries = $this->_tmp['questions'];
 
 		foreach ($entries as $questionid => $data) {
 			$children[$this->id.':q'.$questionid] = $data['question_type_code'];
@@ -305,7 +302,7 @@ class Form_Section extends Bridge
 	/**
 	* attach a question to this form
 	* 
-	* @param Form_Question &$question the question object to attach
+	* @param object Form_Question	&$question	the question object to attach
 	*
 	* @access public
 	* @return boolean false if database problem or question already attached, true if sucessful
@@ -393,7 +390,7 @@ class Form_Section extends Bridge
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
 	* @return mixed int or false
@@ -410,7 +407,6 @@ class Form_Section extends Bridge
 
 			return false;
 		}
-
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
@@ -435,30 +431,6 @@ class Form_Section extends Bridge
 		return true;
 	
 	}//end _updated()
-
-
-	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return mixed TRUE or error msg string
-	* @access public
-	*/
-	function isDeletableLink($linkid)
-	{/*
-		// the only reason why we would object to this link being
-		// deleted is if it is the bodycopy linked to us
-		$main_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'main_bodycopy');
-		$looping_bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'looping_bodycopy');
-
-		if ($main_bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the main bodycopy and the custom form';
-
-		if ($looping_bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the looping bodycopy and the custom form';
-
-		return parent::isDeletableLink($linkid);
-	
-	*/}// end isDeletableLink()
 
 
 	/**
@@ -490,8 +462,7 @@ class Form_Section extends Bridge
 
 		// sometimes, we might not want to regen the form (eg. if the form is calling this function!)
 		if ($form_regen) {
-			// then, 
-			// get all the links of this guy's form parents
+			// then, get all the links of this guy's form parents
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form', false, 'minor');
 			
 			foreach ($links as $l) {
@@ -523,37 +494,7 @@ class Form_Section extends Bridge
 		$questions = &$this->getQuestions();
 		return count($questions);
 	
-	} // getQuestionCount()
-
-	
-	/**
-	* prints the body of this section
-	*
-	* @param int $submission the submission id for this form 
-	* @param bool $include signifies if the file is included or echoed
-	*
-	* @access public
-	*/
-	function printBody($include=true)
-	{/*
-		// get the asset manager for the questions to print out their values
-		// (they do this in the included file)
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$active_form =& $this->active_form;
-
-		if (!file_exists($this->data_path.'/content_file.php')) {
-			$edit = $this->getEditFns();
-			$edit->generateContentFile($this);
-		} 
-		if ($include) {
-			include($this->data_path.'/content_file.php');
-		} else {
-			if (file_exists($this->data_path.'/content_file.php')) {
-				echo file_to_string($this->data_path.'/content_file.php');
-			}
-		}
-
-	*/}// end printBody()
+	}//end getQuestionCount()
 
 	
 	/**
@@ -592,42 +533,6 @@ class Form_Section extends Bridge
 
 
 	/**
-	* returns the question index for a particular question (eg, 1, a, i, I)
-	* 
-	* @param integer $order the question order
-	*
-	* @access public
-	* @return string
-	*/
-	function getQuestionIndex($order)
-	{/*
-		$index = $this->question_index;
-		if (!$index) return '';
-
-		switch ($index) {
-			case '1':
-				return $order.'.';
-			break;
-			case '2':
-				$i = 96 + $order;
-				return chr($i).'.';
-			break;
-			case '3':
-				$i = 64 + $order;
-				return chr($i).'.';
-			break;
-			case '4':
-				return strtolower(int_to_roman($order)).'.';
-			break;
-			case '5':
-				return int_to_roman($order).'.';
-			break;
-
-		} // end switch
-	*/}//end getQuestionIndex()
-
-	
-	/**
 	* writes JavaScript code for client side validation
 	* 
 	* This function assumes the skeleton of a JS validation function has been created around this code
@@ -651,6 +556,7 @@ class Form_Section extends Bridge
 		return $code;
 
 	}//end generateJSCode()
+
 
 }//end class
 ?>

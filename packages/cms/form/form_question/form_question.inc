@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.29 2004/07/04 22:53:37 lwright Exp $
+* $Id: form_question.inc,v 1.30 2004/07/07 01:00:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.29 $ - 1.0
+* @version $Revision: 1.30 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -135,12 +135,6 @@ class Form_Question extends Asset
 		$this->vars['question_type_code']['value'] = get_class($this);
 		$this->vars['question_type_code']['type'] = 'text';
 
-		//$this->vars['name']['value'] = $data['name'];
-		//$this->vars['name']['type'] = 'text';
-
-		//$this->vars['note']['value'] = $data['note'];
-		//$this->vars['note']['type'] = 'text';
-
 	}//end Form_Question()
 
 
@@ -178,7 +172,7 @@ class Form_Question extends Asset
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
 
-		// prepare for the 
+		// prepare for the save
 		$saved_vars = $this->vars;
 
 		unset($saved_vars['question_type_code']);
@@ -218,16 +212,6 @@ class Form_Question extends Asset
 		$questions[$this->_questionid]['attributes'] = $saved_vars_ser;
 		
 		$form->setAttrValue('questions', $questions);
-
-/*
-		$where = 'assetid = '.$db->quote($this->_formid).' and attributeid = '.$db->quote($form->vars['questions']['attributeid']);
-		$values = Array('custom_value' => $db->quote(serialize($questions)));
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_value', $values, $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$ms->abortLog();
-			return false;
-		}
-*/
 
 		if (!$form->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -308,6 +292,7 @@ class Form_Question extends Asset
 			default:
 				return '';
 		}
+
 	}//end getVal()
 
 
@@ -411,7 +396,6 @@ class Form_Question extends Asset
 		$options = $this->getOptions();
 		if (in_array($answer, $options)) return array_search($answer, $options);
 
-
 	}//end getOffsetByAnswer()
 
 
@@ -439,15 +423,15 @@ class Form_Question extends Asset
 	* returns an array of the types of rules 
 	*
 	* Returned array is 'short name' => 'full name'
+	* this should be overridden with something like (substitute actual allowed rules)
+	* eg. return Array('regexp', 'comparison', 'numeric', 'found_in', 'contain', 'length', 'email',
+	* 'begins_with', 'ends_with', 'select_limit');
 	*
 	* @access public
 	* @return Array(string => string)
 	*/
 	function getAllowedRules()
 	{
-		// this should be overridden with something like (substitute actual allowed rules)
-		// eg. return Array('regexp', 'comparison', 'numeric', 'found_in', 'contain', 'length', 'email', 'begins_with', 'ends_with', 'select_limit');
-
 		return Array();
 	
 	}//end getAllowedRules()

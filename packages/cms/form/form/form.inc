@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.44 2004/07/07 00:24:40 lwright Exp $
+* $Id: form.inc,v 1.45 2004/07/07 01:00:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -274,7 +274,6 @@ class Form extends Bridge
 		if (is_a($asset, 'bridge') && ($assetid != $this->id)) {
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
 			$this->forgetAsset($asset);
-			//return $children;
 		} else {
 
 			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by);
@@ -284,13 +283,7 @@ class Form extends Bridge
 				$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
 				assert_valid_db_result($result);
 
-
-		/*if (!is_null($sort_by)) {
-			$children = Array();
-			foreach ($result as $assetid => $asset_info) $children[$assetid] = $asset_info['type_code'];
-		} else {*/
 				$children =& $result;
-		/*}*/
 			}
 		}
 
@@ -433,12 +426,9 @@ class Form extends Bridge
 			return false;
 		}
 
-		// INHERIT PERMISSIONS HERE!!
-
 		// acquire the lock on the new question
 		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id . ':q' . $new_key, 'all', $this->id, true);
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->id, 'all');
-
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
@@ -512,9 +502,7 @@ class Form extends Bridge
 	*/
 	function getQuestionByID($questionid)
 	{
-		//if (empty($this->tmp['questions'])) {
 		$questions = &$this->getQuestions();
-		//}
 		return (isset($questions[$questionid])) ? $questions[$questionid] : Array();
 
 	}//end getQuestionById()
@@ -613,6 +601,7 @@ class Form extends Bridge
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			$this->tmp['section_links'] = &$result;
 		}
+
 		return (!empty($this->tmp['section_links'])) ? $this->tmp['section_links'] : Array();
 
 	}//end getSectionLinks()
@@ -673,13 +662,8 @@ class Form extends Bridge
 
 		// check to see if the form has been submitted or not
 		if (isset($_POST[$prefix.'_submit'])) {
-			/*if (!$this->active_submission) {
-				$this->active_submission = &$this->createSubmission();
-				$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
-			}*/
 			
 			// flush any errors that exist in the submisssion asset
-			//$this->active_submission->flushErrors();
 			$this->processForm();
 			
 			// check to see if there is an error with the form
@@ -782,7 +766,6 @@ class Form extends Bridge
 			// let this section know what the current submission and errors arrays are
 			$posted_section->active_submission =& $this->active_submission;
 			$posted_section->submission_errors =& $this->submission_errors;
-			//$posted_section->active_form =& $this;
 		}
 		
 		return $posted_section->processForm();
@@ -940,25 +923,6 @@ class Form extends Bridge
 
 
 	/**
-	* prints the validating bodycopy
-	* 
-	* @access public
-	* @return boolean
-	*/
-	function validateForm()
-	{
-		$validate = &$this->getBodycopy('validate');
-		if (!is_null($validate)) $validate->printBody();
-
-		// print a summary of the answers
-		$this->printSummary(true);
-		
-		// set a hidden value so that we know that we have already validated the details
-	
-	}//end validateForm()
-
-
-	/**
 	* function to finish off form 
 	*
 	* @access public
@@ -966,10 +930,6 @@ class Form extends Bridge
 	*/
 	function finishForm()
 	{
-		// we want delete the cookie, so that when they come back to fill
-		// this form on another day, they start fresh, so set the number of days to -1
-		//$this->setFormCookie(0, -1);
-		
 		$tyb = &$this->getBodycopy('Thank You');
 					
 		ob_start();
@@ -1004,8 +964,6 @@ class Form extends Bridge
 	*/
 	function printErrors()
 	{
-		//if (!$this->active_submission) return false;
-
 		if(empty($this->submission_errors)) return false;
 
 		?>
@@ -1098,22 +1056,7 @@ class Form extends Bridge
 	*/
 	function printSummary($html = false)
 	{
-		//$summary = $this->active_submission->getSummary();
-		//if (empty($summary)) return false;
-
 		echo ($html) ? '<table>' : '';
-		/*foreach ($summary as $id => $s_info) {
-			echo ($html) ? '<tr><td colspan="2">' : '';
-			echo $s_info['section_name'];
-			echo ($html) ? '</td></tr>' : '\n\n';
-			foreach ($s_info['questions'] as $id => $q_info) {
-				echo ($html) ? '<tr><td><li>' : '';
-				echo $q_info['name'];
-				echo ($html) ? ': </li></td><td>' : ' : ';
-				echo $q_info['answer'];
-				echo ($html) ? '</td></tr>' : '\n';
-			}
-		}*/
 
 		// unattached questions first
 		$sort_order = $this->attr('sort_order');
@@ -1139,7 +1082,6 @@ class Form extends Bridge
 			echo ($html) ? '<tr><td colspan="2">' : "\n";
 			echo $section->attr('name');
 			echo ($html) ? '</td></tr>' : "\n\n";
-
 
 			$sort_order = $section->attr('sort_order');
 
@@ -1187,56 +1129,6 @@ class Form extends Bridge
 
 
 	/**
-	* returns the section index for a section
-	*
-	* @param $order the order of the section (if ommited, the posted order is used)
-	*
-	* @access public
-	* @return string
-	*/
-	function getSectionIndex($order = '')
-	{
-		$index = $this->attr('section_index');
-		if (!$index) return '';
-		
-		if (!$order) {
-			$order = (isset($_POST['section'])) ? $_POST['section'] + 1 : 1;
-		}
-
-		switch ($index) {
-			// numbers
-			case '1': 		
-				return $order.'.';	
-			break;
-			
-			// lowercase letters
-			case '2': 
-				$i = 96 + $order;
-				return chr($i).'.';
-			break;
-			
-			// uppercase letters
-			case '3': 	
-				$i = 64 + $order;
-				return chr($i).'.';	
-			break;
-			
-			// lowercase Roman Numerals
-			case '4': 
-				return strtolower(int_to_roman($order)).'.';
-			break;
-			
-			// uppercase Roman Numerals
-			case '5': 
-				return int_to_roman($order).'.';
-			break;
-
-		} // end switch
-
-	}//end getSectionIndex()
-	
-
-	/**
 	* writes JavaScript code for client side validation
 	* 
 	* This function assumes the skeleton of a JS validation function has been created around this code
@@ -1256,13 +1148,11 @@ class Form extends Bridge
 		foreach ($questions as $q_id => $question) {
 			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
 			$q_code = $q_asset->generateJSCode();
-			
 			$code .= $q_code . (empty($q_code) ? "" : "\n");
 		}
 
 		foreach ($sections as $section) {
 			$s_code = $section->generateJSCode();
-			
 			$code .= $s_code . (empty($s_code) ? "" : "\n");
 		}
 
@@ -1287,10 +1177,9 @@ class Form extends Bridge
 
 		$log_path = $this->data_path.'/submission_logs';		// log path
 
-		if (!is_dir($log_path)) {
+		if (!is_dir($log_path)) {	// doesn't exist = create it
 			mkdir($log_path);
 		}
-
 
 		$filename_base = $log_path.'/log_';
 
