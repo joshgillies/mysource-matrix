@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.290 2004/04/19 01:11:14 gsherwood Exp $
+* $Id: asset.inc,v 1.291 2004/04/21 05:36:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1459,6 +1459,7 @@ class Asset extends MySource_Object
 		// access to save attributes, schemas etc later on
 
 		if (in_array('permissions', $components) || in_array('all', $components)) {
+			$old_sq_install = (isset($GLOBALS['SQ_INSTALL'])) ? $GLOBALS['SQ_INSTALL'] : null;
 			$GLOBALS['SQ_INSTALL'] = true;
 			$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
@@ -1473,7 +1474,8 @@ class Asset extends MySource_Object
 				}
 			}//end foreach
 			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
-			unset($GLOBALS['SQ_INSTALL']);
+			if (is_null($old_sq_install)) unset($GLOBALS['SQ_INSTALL']);
+			else $GLOBALS['SQ_INSTALL'] = $old_sq_install;
 		}//end if permissions
 
 
