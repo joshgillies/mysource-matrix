@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.5 2004/06/28 16:25:13 brobertson Exp $
+* $Id: install.inc,v 1.6 2004/06/28 17:38:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -377,7 +377,7 @@ function generate_global_preferences()
 {
 	// we need to install any event listeners here, now that we have installed all the asset types.
 	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
-	bam($packages);
+
 	$preferences = Array();
 	if (is_file(SQ_DATA_PATH.'/private/conf/preferences.inc')) include SQ_DATA_PATH.'/private/conf/preferences.inc';
 	
