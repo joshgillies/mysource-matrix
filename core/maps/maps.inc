@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.10 2005/02/04 02:45:19 mnyeholt Exp $
+* $Id: maps.inc,v 1.11 2005/02/04 03:16:40 mnyeholt Exp $
 *
 */
 
@@ -36,7 +36,7 @@ define('SQ_MAPS_INSTALLED'  , 'I');
 *    Looks aftet the automated patching of the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage MAPS
 */
@@ -188,10 +188,8 @@ class Maps extends MySource_Object
 		if ($handle = opendir(SQ_DATA_PATH.'/private/maps/installed_patches')) {
 			while (false !== ($patchid = readdir($handle))) {
 				if (!preg_match('|^[0-9]{12}$|', $patchid)) continue;
-				$patch_details = $this->getPatchDetails($patchid);
 
 				if (!isset($db_patches[$patchid])) {
-
 					$installed_patches[$patchid] = Array(
 													'description' => $patch_details['patch_description'],
 													'installed'   => 'unknown',
@@ -361,7 +359,7 @@ class Maps extends MySource_Object
 				if ($this->_deletePatch($patchid)) {
 					$deleted[$patchid] = 1;
 				} else {
-					trigger_error("Deletion of patch $patchid failed.");
+					trigger_error("Deletion of patch $patchid failed.", E_USER_WARNING);
 				}
 			}
 		}
@@ -594,6 +592,7 @@ class Maps extends MySource_Object
 		require_once 'XML/Tree.php';
 
 		$patch_file = SQ_DATA_PATH.'/private/maps/downloaded_patches/'.$patchid.'/patch'.$patchid.'.xml';
+		
 		$input = new XML_Tree($patch_file);
 		$root  = &$input->getTreeFromFile();
 		if (PEAR::isError($root)) {
