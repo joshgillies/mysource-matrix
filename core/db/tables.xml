@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.48 2004/09/02 05:12:31 gsherwood Exp $
+* $Id: tables.xml,v 1.49 2004/09/07 00:10:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -532,6 +532,270 @@
 				<column name="assetid" />
 			</index>
 		</indexes>
+	</table>
+	<table name="calendar_date_value" require_rollback="1">
+		<columns>
+			<column name="assetid" allow_null="0">
+				<type>VARCHAR(15)</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="frequency" allow_null="1">
+				<type>CHAR(3)</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="period" allow_null="0">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_seconds" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_minutes" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_hours" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_mday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_rmday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_wday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_wdom" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_rwdom" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_mon" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_year" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_yday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_ryday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="start_date_ts" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_ds" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="start_date_ms" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_seconds" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="end_date_minutes" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="end_date_hours" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="end_date_mday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="end_date_rmday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="end_date_wday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="end_date_wdom" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="end_date_rwdom" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="end_date_mon" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>TINYINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="end_date_year" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="end_date_yday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="end_date_ryday" allow_null="1">
+				<type>SMALLINT</type>
+				<type_variations>
+					<mysql>SMALLINT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="end_date_ts" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_ds" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="end_date_ms" allow_null="1">
+				<type>INT</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="stop_date" allow_null="0">
+				<type>CHAR(10)</type>
+				<type_variations />
+				<default>----------</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="assetid" />
+			</primary_key>
+		</keys>
+		<indexes />
 	</table>
 	<table name="asset_attribute_unique_value" require_rollback="1">
 		<columns>
