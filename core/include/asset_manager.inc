@@ -519,6 +519,133 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 
 
 	/**
+	* Returns a reference to the asset that has the passed url
+	* If no url is passed the current (aka PHP_SELF) one is used
+	*
+	* @param string		$protocol		the protocol to match -> null means it is ignored
+	* @param string		$url			the urls to check for -> null defaults it to current url
+	* @param boolean	$exact_match	when true only returns an asset if there is an exact match on the url,
+	*									if false searches back along the URL path for the asset that matches
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't
+	*									use the '@' operator when returning by reference
+	*
+	* @return object Asset | null
+	* @access public
+	*/
+	function &getAssetFromURL($protocol=null, $url=null, $exact_match=true, $mute_errors=false)
+	{
+
+		if (is_null($url)) $url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+		// remove any trailing slashes
+		$url = preg_replace('/\/+$/', '', $url);
+
+		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$url_condition = '';
+		if ($exact_match) {
+			$url_condition = ' = '.$db->quote($url);
+
+		} else {
+			$sections = explode('/', $url);
+			$option  = '';
+			$url_condition = ' IN (';
+			foreach($sections as $piece) {
+				$url_condition .= (($option) ? ',' : '').$db->quote($option.$piece);
+				$option .= $piece.'/';
+			}
+			$url_condition .= ') ';
+		}// end if
+
+		$extra_table = '';
+		$extra_where = '';
+		if (!is_null($protocol)) {
+			$extra_table = ' INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid';
+			$extra_where = ' AND u.'.$protocol.' = '.$db->quote(1);
+		}
+
+		$sql = 'SELECT l.url, l.assetid
+				FROM sq_asset_lookup l '.$extra_table.'
+				WHERE l.url '.$url_condition.'
+				'.$extra_where.'
+				ORDER BY CHARACTER_LENGTH(l.url) DESC
+				LIMIT 1';
+		$row = $db->getRow($sql);
+		if (DB::isError($row)) trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_ERROR);
+
+		// URL not found
+		if (empty($row)) {
+			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
+			if (!$mute_errors) trigger_error('Unable to find an Asset for the URL "'.$fancy_url.'"', E_USER_WARNING);
+			$null = null; // 'cause we are meant to return by reference
+			return $null;
+
+		} else {
+			return $this->getAsset($row['assetid'], '', $mute_errors);
+		}// end if
+
+	}//end getAssetFromURL()
+
+	/**
+	* Returns an array of assetid's in the order that they propogate out from the site url
+	* If no url is passed the current (aka PHP_SELF) one is used
+	*
+	* @param string		$protocol	the protocol to match -> null means it is ignored
+	* @param string		$url		the urls to check for -> null defaults it to current url
+	*
+	* @return Array
+	* @access public
+	*/
+	function getLineageFromURL($protocol=null, $url=null)
+	{
+
+		if (is_null($url)) $url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+		// remove any trailing slashes
+		$url = preg_replace('/\/+$/', '', $url);
+
+		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sections = explode('/', $url);
+		$option  = '';
+		$url_condition = ' IN (';
+		foreach($sections as $piece) {
+			$url_condition .= (($option) ? ',' : '').$db->quote($option.$piece);
+			$option .= $piece.'/';
+		}
+		$url_condition .= ') ';
+
+		$extra_table = '';
+		$extra_where = '';
+		if (!is_null($protocol)) {
+			$extra_table = ', sq_asset_url u';
+			$extra_where = ' AND l.root_urlid = u.urlid AND u.'.$protocol.' = '.$db->quote(1);
+		}
+
+		$sql = 'SELECT l.url, l.assetid, a.name, a.type_code
+				FROM sq_asset_lookup l, sq_asset a '.$extra_table.'
+				WHERE l.url '.$url_condition.'
+				AND l.assetid = a.assetid
+				'.$extra_where.'
+				ORDER BY CHARACTER_LENGTH(l.url) ASC';
+		$result = $db->getAll($sql);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+		// No urls found or we only found some of the parents, but not the passed url
+		if (empty($result) || $result[count($result) - 1]['url'] != $url) {
+			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
+			trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'"', E_USER_WARNING);
+			return null;
+
+		} else {
+			return $result;
+		}// end if
+
+	}//end getLineageFromURL()
+
+	/**
 	* Prints out the interface for viewing and customising asset types
 	*
 	* @param object Backend &$backend
@@ -610,18 +737,36 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 			case 'duplicate' :
 
 				$o->addFormActionGetVar('assetid', $_GET['assetid']);
-
 				$asset = &$this->getAsset($_GET['assetid']);
 				if (is_null($asset)) {
 					trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
 					break;
 				}
 
-				$o->setHeading('Duplicate : '.$asset->name);
-				$o->openSection('Options');
-				$o->openField('');
+				require_once SQ_LIB_PATH.'/progress_bar/progress_bar.inc';
+				$pb = new Progress_Bar($o->getCurrentLocation(), $this, '_dupeInit', '_dupeInitPaint', '_dupeExec', '_dupeDone');
+
 				pre_echo($_GET);
 				pre_echo($_POST);
+				pre_echo($GLOBALS['SQ_SYSTEM']->datetime());
+				$pb->run();
+
+				if ($pb->inPopup()) {
+					$o->openRaw();
+				} else {
+					$o->setHeading('Duplicate : '.$asset->name);
+					$o->openSection('Options');
+					$o->openField('');
+				}
+
+				$pb->paint();
+
+				if ($pb->inPopup()) {
+					$o->closeRaw();
+				} else {
+					$o->closeSection();
+					$o->commitButton();
+				}
 				break;
 
 
@@ -631,6 +776,68 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 		}//end switch
 
 	}//end paintBackend();
+
+
+	/**
+	*/
+	function _dupeInit(&$pb)
+	{
+		$vars = $pb->getRunningVars();
+		pre_echo("VARS : ");
+		pre_echo($vars);
+		if (empty($vars)) {
+			$vars = Array(	'assetid'			=> $_GET['assetid'],
+							'to_parent_assetid' => $_GET['to_parent_assetid'],
+							'to_parent_pos'		=> $_GET['to_parent_pos']
+						);
+		}
+		pre_echo("VARS : ");
+		pre_echo($vars);
+		$vars['test'] = empty($vars['test']) ? 1 : ($vars['test'] + 1);
+		pre_echo("TEST : ".$vars['test']);
+
+		$pb->setRunningVars($vars);
+
+		#return ($vars['test'] >= 3);
+		return true;
+
+	}
+
+	/**
+	*/
+	function _dupeInitPaint(&$pb)
+	{
+		echo "SUBMIT AGAIN";
+	}
+
+	/**
+	*/
+	function _dupeExec(&$pb)
+	{
+		$vars = $pb->getRunningVars();
+		$vars['run_num'] = empty($vars['run_num']) ? 1 : ($vars['run_num'] + 1);
+
+		pre_echo("RUN NUM : ".$vars['run_num']);
+
+		sleep(1);
+
+		$pb->setTitle('Run Number : '.$vars['run_num']);
+		$pb->setStatusMsg('Running'.str_repeat('.', $vars['run_num']));
+		$pb->setPercent($vars['run_num'] / 5);
+		$pb->setRunningVars($vars);
+	}
+
+	/**
+	*/
+	function _dupeDone(&$pb)
+	{
+		$vars = $pb->getRunningVars();
+		pre_echo("ALL DONE");
+		pre_echo($vars);
+		$pb->setTitle('Finished');
+		$pb->setStatusMsg('Finished');
+	}
+
 
 
 	/**
@@ -814,135 +1021,6 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 	<?php
 
 	}//end _printAssetList()
-
-
-	/**
-	* Returns a reference to the asset that has the passed url
-	* If no url is passed the current (aka PHP_SELF) one is used
-	*
-	* @param string		$protocol		the protocol to match -> null means it is ignored
-	* @param string		$url			the urls to check for -> null defaults it to current url
-	* @param boolean	$exact_match	when true only returns an asset if there is an exact match on the url,
-	*									if false searches back along the URL path for the asset that matches
-	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't
-	*									use the '@' operator when returning by reference
-	*
-	* @return object Asset | null
-	* @access public
-	*/
-	function &getAssetFromURL($protocol=null, $url=null, $exact_match=true, $mute_errors=false)
-	{
-
-		if (is_null($url)) $url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
-		// remove any trailing slashes
-		$url = preg_replace('/\/+$/', '', $url);
-
-		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$url_condition = '';
-		if ($exact_match) {
-			$url_condition = ' = '.$db->quote($url);
-
-		} else {
-			$sections = explode('/', $url);
-			$option  = '';
-			$url_condition = ' IN (';
-			foreach($sections as $piece) {
-				$url_condition .= (($option) ? ',' : '').$db->quote($option.$piece);
-				$option .= $piece.'/';
-			}
-			$url_condition .= ') ';
-		}// end if
-
-		$extra_table = '';
-		$extra_where = '';
-		if (!is_null($protocol)) {
-			$extra_table = ' INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid';
-			$extra_where = ' AND u.'.$protocol.' = '.$db->quote(1);
-		}
-
-		$sql = 'SELECT l.url, l.assetid
-				FROM sq_asset_lookup l '.$extra_table.'
-				WHERE l.url '.$url_condition.'
-				'.$extra_where.'
-				ORDER BY CHARACTER_LENGTH(l.url) DESC
-				LIMIT 1';
-		$row = $db->getRow($sql);
-		if (DB::isError($row)) trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_ERROR);
-
-		// URL not found
-		if (empty($row)) {
-			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
-			if (!$mute_errors) trigger_error('Unable to find an Asset for the URL "'.$fancy_url.'"', E_USER_WARNING);
-			$null = null; // 'cause we are meant to return by reference
-			return $null;
-
-		} else {
-			return $this->getAsset($row['assetid'], '', $mute_errors);
-		}// end if
-
-	}//end getAssetFromURL()
-
-
-	/**
-	* Returns an array of assetid's in the order that they propogate out from the site url
-	* If no url is passed the current (aka PHP_SELF) one is used
-	*
-	* @param string		$protocol	the protocol to match -> null means it is ignored
-	* @param string		$url		the urls to check for -> null defaults it to current url
-	*
-	* @return Array
-	* @access public
-	*/
-	function getLineageFromURL($protocol=null, $url=null)
-	{
-
-		if (is_null($url)) $url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
-		// remove any trailing slashes
-		$url = preg_replace('/\/+$/', '', $url);
-
-		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sections = explode('/', $url);
-		$option  = '';
-		$url_condition = ' IN (';
-		foreach($sections as $piece) {
-			$url_condition .= (($option) ? ',' : '').$db->quote($option.$piece);
-			$option .= $piece.'/';
-		}
-		$url_condition .= ') ';
-
-		$extra_table = '';
-		$extra_where = '';
-		if (!is_null($protocol)) {
-			$extra_table = ', sq_asset_url u';
-			$extra_where = ' AND l.root_urlid = u.urlid AND u.'.$protocol.' = '.$db->quote(1);
-		}
-
-		$sql = 'SELECT l.url, l.assetid, a.name, a.type_code
-				FROM sq_asset_lookup l, sq_asset a '.$extra_table.'
-				WHERE l.url '.$url_condition.'
-				AND l.assetid = a.assetid
-				'.$extra_where.'
-				ORDER BY CHARACTER_LENGTH(l.url) ASC';
-		$result = $db->getAll($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
-		// No urls found or we only found some of the parents, but not the passed url
-		if (empty($result) || $result[count($result) - 1]['url'] != $url) {
-			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
-			trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'"', E_USER_WARNING);
-			return null;
-
-		} else {
-			return $result;
-		}// end if
-
-	}//end getLineageFromURL()
 
 }//end class
 ?>
