@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.34.2.6 2004/03/03 19:19:44 brobertson Exp $
+* $Id: mysource.inc,v 1.34.2.7 2004/03/08 17:44:32 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1128,7 +1128,8 @@ class MySource
 		if (!empty($where)) $where .= ' AND ';
 		$where .= $table_alias.SQ_TABLE_PREFIX.'effective_from <= '.$this->db->quote($then).'
 				  AND ('.$table_alias.SQ_TABLE_PREFIX.'effective_to IS NULL
-					   OR '.$table_alias.SQ_TABLE_PREFIX.'effective_to > '.$this->db->quote($then).')';
+					   OR '.$table_alias.SQ_TABLE_PREFIX.'effective_to > '.$this->db->quote($then).')
+				  AND '.$table_alias.SQ_TABLE_PREFIX.'deletion = '.$this->db->quote('0');
 
 		return ' '.$prefix.' '.$where;
 
@@ -1140,15 +1141,16 @@ class MySource
 	* to the rollback table. It will handle the time of the rollback across script execution
 	* as well as any conflicts in the times
 	*
-	* @param string	$table_name	the base name of the table (without prefixes)
-	*							eg. asset, workflow etc
-	* @param string	$where_cond	a string to tack onto the WHERE clause of the queries
-	*							to limit the rows have rollback entries created for
+	* @param string		$table_name	the base name of the table (without prefixes)
+	*								eg. asset, workflow etc
+	* @param string		$where_cond	a string to tack onto the WHERE clause of the queries
+	*								to limit the rows have rollback entries created for
+	* @param boolean	$deletion	whether this rollback entry is because of a delete command or not
 	*
 	* @return boolean
-	* @access public
+	* @access private
 	*/
-	function addRollbackEntry($table_name, $where_cond)
+	function _addRollbackEntry($table_name, $where_cond, $deletion)
 	{
 		// if we are in rollback view, pretend e did our job but really just slack off
 		if (SQ_ROLLBACK_VIEW) return true;
@@ -1192,8 +1194,8 @@ class MySource
 		// need an INSERT SELECT to add a rollback entry because we are basically just copying rows
 		// from the "live data" table to the rollback table
 		$insert = ' INSERT INTO '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
-					('.SQ_TABLE_PREFIX.'effective_from, '.SQ_TABLE_PREFIX.'effective_to, '.$col_string.') ';
-		$select = ' SELECT '.$this->db->quote(ts_iso8601($from_time)).', NULL, '.$col_string.'
+					('.SQ_TABLE_PREFIX.'effective_from, '.SQ_TABLE_PREFIX.'effective_to, '.SQ_TABLE_PREFIX.'deletion, '.$col_string.') ';
+		$select = ' SELECT '.$this->db->quote(ts_iso8601($from_time)).', NULL, '.$this->db->quote(($deletion) ? '1' : '0').', '.$col_string.'
 					FROM sq_'.$table_name.'
 					WHERE '.$where_cond;
 
@@ -1228,7 +1230,7 @@ class MySource
 		$this->doTransaction('COMMIT');
 		return true;
 
-	}//end addRollbackEntry()
+	}//end _addRollbackEntry()
 
 
 	/**
@@ -1268,7 +1270,7 @@ class MySource
 		}
 
 		// add the rollback entries for the rows we updated
-		if (!$this->addRollbackEntry($table_name, $where_cond)) {
+		if (!$this->_addRollbackEntry($table_name, $where_cond, false)) {
 			$this->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -1335,7 +1337,7 @@ class MySource
 		}
 
 		// add the rollback entries for the inserted rows
-		if (!$this->addRollbackEntry($table_name, $where_cond)) {
+		if (!$this->_addRollbackEntry($table_name, $where_cond, false)) {
 			$this->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -1437,7 +1439,7 @@ class MySource
 		}
 
 		// add the rollback entries for the inserted rows
-		if (!$this->addRollbackEntry($table_name, $where_clause)) {
+		if (!$this->_addRollbackEntry($table_name, $where_clause, false)) {
 			$this->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -1468,7 +1470,7 @@ class MySource
 		$this->doTransaction('BEGIN');
 
 		// add the rollback entries for the rows we are going to delete
-		if (!$this->addRollbackEntry($table_name, $where_cond)) {
+		if (!$this->_addRollbackEntry($table_name, $where_cond, true)) {
 			$this->doTransaction('ROLLBACK');
 			return false;
 		}
