@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.17 2003/10/30 23:54:21 dwong Exp $
+* $Id: mysource.inc,v 1.18 2003/11/10 02:57:17 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,6 +86,11 @@ class MySource
 	* @var object File_Versioning
 	*/
 	var $fv;
+
+	/**
+	* @var object Event_Manager
+	*/
+	var $em;
 
 	/**
 	* Object of logged in user
@@ -618,55 +623,6 @@ class MySource
 	}//end userSystemAdmin()
 
 
-//--        EVENTS        --//
-
-
-	/**
-	* Allows an object to listen to an event in the system and be notifies of it
-	* Internally, classes boradcast events which the objects listening get
-	* notified of
-	*
-	* @param object	&$object	the object that is listening (use $this for yourself)
-	* @param array	$events		an array of events that the object wants to listen to
-	*
-	* @return boolean
-	* @access public
-	*/
-	function addEventListener(&$object, $events=Array())
-	{
-		if (empty($events)) return;
-		$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'][] = &$object;
-		$obj_index = count($GLOBALS['SQ_EVENT_LISTENER_OBJECTS']) -1;
-		foreach ($events as $event) $GLOBALS['SQ_EVENT_LISTENERS'][trim($event)][$obj_index] = true;
-		return true;
-
-	}//end addEventListener()
-
-
-	/**
-	* Returns date time string for the passed timestamp
-	* Object listening have their onEVENT functions called
-	*
-	* @param string	$event		the event to boradcast for
-	* @param array	$event_data	some data that event functions can use
-	*
-	* @return boolean
-	* @access public
-	*/
-	function broadcastEvent($event, $event_data=Array())
-	{
-		$function_name = 'on'.$event;
-		if (empty($GLOBALS['SQ_EVENT_LISTENERS'][trim($event)])) return;
-		foreach ($GLOBALS['SQ_EVENT_LISTENERS'][trim($event)] as $obj_index => $true) {
-			$object = &$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'][$obj_index];
-			if (!method_exists($object,$function_name)) continue;
-			$object->$function_name($event_data);
-		}
-		return true;
-
-	}//end broadcastEvent()
-
-
 //--        GET MANAGERS        --//
 
 
@@ -761,6 +717,7 @@ class MySource
 
 	}//end getWorkflowManager()
 
+
 	/**
 	* Get the indexing manager 
 	*
@@ -776,6 +733,23 @@ class MySource
 		return $this->im;
 
 	}//end getIndexingManager()
+
+
+	/**
+	* get the Event Manager
+	*
+	* @access public
+	* @return object Event_Manager
+	*/
+	function &getEventManager()
+	{
+		if(!isset($this->em) || get_class($this->em) != 'event_manager') {
+			require_once SQ_INCLUDE_PATH.'/event_manager.inc';
+			$this->em = new Event_Manager();
+		}
+		return $this->em;
+
+	} // end getEvemtManager()
 
 
 //--        DATABASE        --//
