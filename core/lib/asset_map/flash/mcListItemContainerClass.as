@@ -410,16 +410,27 @@ mcListItemContainerClass.prototype.refreshDisplay = function(start_i)
 	for(var i = start_i; i < this.items_order.length; i++) {
 		// set for future use
 		this.items_order[i].branch_count = branch_count;
-		this[this.items_order[i].name].setPos(i);
-		this[this.items_order[i].name]._visible = true;
-		this[this.items_order[i].name].refresh();
+		var item = this[this.items_order[i].name];
+		item.setPos(i);
+
+		var active;
+		if (this._active_type_codes.length == 0 || (this._active_type_codes.search(item.type_code) != null)) {
+			active = true;
+		} else {
+			active = false;
+		}
+		trace(item + ": " + active);
+		item.setActive(active);
+
+		item._visible = true;
+		item.refresh();
 
 		// if we have come across an end branch,
 		// and if we aren't at the last item
 		// and if this element has no kids, then we add the branch gap
 		if (this.items_order[i].end_branch) {
 			if (i < this.items_order.length - 1) {
-				var this_indent = this[this.items_order[i].name].indent;
+				var this_indent = item.indent;
 				var next_indent = this[this.items_order[i + 1].name].indent;
 				if (this_indent != (next_indent - 1)) {
 					branch_count++;
@@ -447,9 +458,15 @@ mcListItemContainerClass.prototype.restrictActiveTypes = function(type_codes)
 
 	for(var i = 0; i < this.items_order.length; i++) {
 		// if there are no type codes or this is one of the active type_codes, set it so
-		var active = (this._active_type_codes.length == 0 || this._active_type_codes.search(this[this.items_order[i].name].type_code) !== null);
-		trace(this.items_order[i].name + " : " + (this._active_type_codes.length == 0) + " || " + (this._active_type_codes.search(this[this.items_order[i].name].type_code) !== null));
-		this[this.items_order[i].name].setActive(active);
+		var item = this[this.items_order[i].name];
+		var active = false;
+		if (this._active_type_codes.length == 0) {
+			active = true;
+		} else if (this._active_type_codes.search(item.type_code) !== null) {
+			active = true;
+		}
+		trace(item.name + " : " + (this._active_type_codes.length == 0) + " || " + (this._active_type_codes.search(item.type_code) !== null));
+		item.setActive(active);
 	}// end for
 
 }// end restrictActiveTypes()
