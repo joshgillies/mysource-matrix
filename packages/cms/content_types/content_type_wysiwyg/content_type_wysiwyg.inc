@@ -8,7 +8,7 @@ require_once dirname(__FILE__).'/../../content_type/content_type.inc';
 * Purpose
 *
 *
-* @author  Greg Sherwoood <greg@squiz.net>
+* @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package Resolve_Packages
 * @subpackage cms
@@ -28,6 +28,17 @@ class Content_Type_WYSIWYG extends Content_Type
 
 	}//end constructor
 
+	/**
+	* returns true if there is no content in the wysiwyg
+	*
+	* @access public
+	* @return boolean
+	*/
+	function isEmpty() 
+	{
+		$html = trim($this->attr('html'));
+		return empty($html);
+	} // isEmpty()
 
 }//end class
 

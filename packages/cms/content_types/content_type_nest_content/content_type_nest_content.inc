@@ -28,6 +28,17 @@ class Content_Type_Nest_Content extends Content_Type
 
 	}//end constructor
 
+	/**
+	* returns true if there is no nested assetid associated with this content type
+	*
+	* @access public
+	* @return boolean
+	*/
+	function isEmpty()
+	{
+		return (empty($this->attr('nested_assetid'));
+	} // isEmpty()
+
 }//end class
 
 ?>

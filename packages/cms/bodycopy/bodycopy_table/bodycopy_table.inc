@@ -368,6 +368,26 @@ class Bodycopy_Table extends Asset
 	}//end _getName();
 
 
+	/**
+	* returns true if there is no content in the bodycopy
+	*
+	* @access public
+	* @return boolean
+	*/
+	function isEmpty()
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$content_types = $this->getLinks(SQ_LINK_TYPE_2, 'content_type', false);
+		foreach ($content_types as $type) {
+			$ct = &$am->getAsset($type['minorid'], $type['type_code']);
+			if (!$ct->isEmpty()) {
+				return false;
+			}
+		}
+		return true;
+	} // end isEmpty()
+
+
 }//end class
 
 ?>

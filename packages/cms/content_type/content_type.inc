@@ -80,5 +80,15 @@ class Content_Type extends Asset
 	}//end _getName();
 
 
+	/**
+	* @abstract
+	*/
+	function isEmpty()
+	{
+		return true;
+
+	} // end isEmpty()
+
+
 }//end class
 ?>
