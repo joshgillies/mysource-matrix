@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.68 2004/11/28 22:08:56 lwright Exp $
+* $Id: form.inc,v 1.69 2004/12/03 03:18:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1403,7 +1403,7 @@ class Form extends Bridge
 		
 		// create the form submission asset
 		$submission = new Form_Submission();
-		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'dependant' => 1, 'exclusive' => 1);
+		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 1, 'is_exclusive' => 1);
 		
 		if (!$submission->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
