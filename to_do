@@ -19,8 +19,12 @@
 
   - URLs (System) Folder / Site Asset
 
-  - Customising Asset's
-    - Have Ability to "cast" objects from parent class to custom asset class
+  - Designs
+    - Global Stylesheets / Inheriting Designs ?
+    - Design Areas (or their replacement)
+      Taking into account last comment on 
+      http://www.php.net/manual/en/language.references.return.php
+      and points in http://phplens.com/lens/php-book/optimizing-debugging-php.php 
 
   - Enable removing of attributes from asset types in Asset_Management
 
@@ -47,11 +51,8 @@
 |                                  MEDIUM  PRIORITY                                      |
 +----------------------------------------------------------------------------------------+
 
-  - Design Areas (or their replacement)
-    Taking into account last comment on 
-    http://www.php.net/manual/en/language.references.return.php
-    and points in http://phplens.com/lens/php-book/optimizing-debugging-php.php 
-  - Global Stylesheets / Inheriting Designs ?
+  - Customising Asset's
+    - Have Ability to "cast" objects from parent class to custom asset class
 
   - System Events = Broadcastor/Listener
     - RollBack
