@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.44.2.1 2004/12/09 06:17:24 gsherwood Exp $
+* $Id: form_edit_fns.inc,v 1.44.2.2 2004/12/21 01:06:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.44.2.1 $
+* @version $Revision: 1.44.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -582,32 +582,6 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 		// if there is no bodycopy contents, then just ask
 		// all the sections to print themselves
 		$output = '<'.'?php $form_asset=$GLOBALS["SQ_SYSTEM"]->am->getAsset('.$asset->id.'); ?'.'>'."\n";
-		if ($asset->attr('use_client_side')) {
-			ob_start();				// start vacumming up all the lovely ja code
-			?><script language="JavaScript">
-			function beforeSubmit_<?php echo $asset->getPrefix() ?>(form) {
-				var submission_errors = new Array();
-				i = 0;
-					<?php
-					echo $asset->generateJSCode();
-				?>
-					if (submission_errors.length > 0) {
-					var errors_list = "The following errors must be corrected before the form can be submitted:\n";
-					for(x in submission_errors) {
-						errors_list += submission_errors[x] + "\n";
-					}
-					alert(errors_list);
-					return false;
-				}
-				return true;
-			}
-			</script>
-		<?php
-			$output .= ob_get_contents();		// get the contents
-			ob_end_clean();						// no more buffering
-		} else {
-			$output .= '';
-		}
 
 		$sections = &$asset->getSections();
 		$output .= $this->generateGenericSection($asset);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.41.2.2 2004/12/21 00:05:48 lwright Exp $
+* $Id: form_question.inc,v 1.41.2.3 2004/12/21 01:06:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.41.2.2 $
+* @version $Revision: 1.41.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -645,16 +645,16 @@ class Form_Question extends Asset
 			$rule =& $rules[$k];
 			$type_code = 'form_question_rule_type_' . $rule['rule_code'];
 
-			if (!empty($rule['comparison_question_id'])) {
-				$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
-			} else {
-				$comparison = $rule['value'];
-			}
-
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 			$attributes = eval('return '.$type_code.'::getAttributes();');
 
 			if (!$attributes['no_comparison']) {		// comparison value required!
+				if (!empty($rule['comparison_question_id'])) {
+					$comparison = &$GLOBALS['SQ_SYSTEM']->am->getAsset($rule['comparison_question_id']);
+				} else {
+					$comparison = $rule['value'];
+				}
+
 				$code .= eval('return '.$type_code.'::generateJSCode($this, $rule["operator"], $comparison);');
 			} else {
 				$code .= eval('return '.$type_code.'::generateJSCode($this, $rule["operator"]);');
