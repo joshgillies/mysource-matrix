@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.16 2004/05/13 00:43:22 gsherwood Exp $
+* $Id: cron_job_future_status.inc,v 1.17 2004/05/26 23:40:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -282,7 +282,7 @@ class Cron_Job_Future_Status extends Cron_Job
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $asset->id, 'new_status' => $this->attr('status'));
 			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
-			if (empty($this->_errors)) {
+			if (empty($status_errors)) {
 				// all OK, and we can be removed because we have done our one off task
 				$msg = 'Altered Status of "'.$asset->name.'" (#'.$asset->id.') from "'.$descs[$old_status].'" to "'.$descs[$asset->status].'"';
 				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
