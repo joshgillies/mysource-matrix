@@ -2227,7 +2227,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				$ago = 'Most Recent';
 			} else {
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				$ago = easy_time_total(time() - strtotime($to), true);
+				$ago = easy_time_total(time() - strtotime($from), true);
 				list($fd, $ft) = explode(' ', $from);
 				list($td, $tt) = explode(' ', $to);
 				if ($fd == $td) $to = $tt;
