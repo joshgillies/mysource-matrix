@@ -1,0 +1,187 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: cron_job_expired_workflow.inc,v 1.1 2005/02/22 22:38:50 dbaranovskiy Exp $
+*
+*/
+
+
+require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
+require_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+
+/**
+* Cron_Job_Expired_WorkFlow
+*
+* Purpose
+*	Checks all the running workflows in the system and send messages to admins
+*	of assets that have been in a workflow step for too long (ie longer than the
+*	step expiry time defined in the workflow schema)
+*
+*	Note that this is a singleton asset - when the asset type is installed it creates a single
+*	instance of itself under the cron manager, which should remain there always.
+*
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Cron_Job_Expired_WorkFlow extends Cron_Job
+{
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Cron_Job_Expired_WorkFlow($assetid=0)
+	{
+		$this->Cron_Job($assetid);
+
+	}//end constructor
+
+
+	/**
+	* Return name of the asset
+	*
+	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	*
+	* @see Asset::_getName()
+	* @return string
+	* @access private
+	*/
+	function _getName($short_name=false)
+	{
+		return 'Expired Workflow Cron Job';
+
+	}//end _getName()
+
+
+	/**
+	* Can this asset have its last significant link removed (putting it in the trash)?
+	*
+	* For the expired workflow cron job, NO!  There must always be exactly one of these here.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canDelete()
+	{
+		return false;
+
+	}//end canDelete()
+
+
+	/**
+	* Run this cron job
+	*
+	* Looks at all the currently-running workflows and processes any whose current step has
+	* expired since the last run of the cron manager
+	*
+	* @param string	$msg	accepted by reference, used to return any messages about completion etc from _exec
+	*
+	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
+	* @see Cron_Job::_exec(), Cron_Job::run()
+	* @access private
+	*/
+	function _exec(&$msg)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT w.*, a.name 
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_wflow w
+				NATURAL JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a
+				WHERE w.wflow IS NOT NULL
+					AND w.granted = '.$db->quote('1');
+		$rows = $db->getAll($sql);
+		assert_valid_db_result($rows);
+		$now = time();
+		$cm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+		$last_run = $cm->attr('last_run');
+		foreach ($rows as $row) {
+			$workflow = unserialize($row['wflow']);
+			foreach ($workflow['steps'] as $step) {
+				if (!$step['completed'] && ($step['started'] != 0) && ($step['expiry_time'] != 0)) {
+					$exp_time = $step['started'] + $step['expiry_time'];
+					if (($exp_time < $now) && ($exp_time > $last_run)) {
+						// workflow step has expired since the last cron run
+						$this->_processExpiredWorkflowStep($row['assetid'], $row['name'], $workflow['schema_name'], $step);
+						break;
+					}
+				}
+			}
+			
+		}
+		unset($rows);
+		return SQ_CRON_JOB_COMPLETED;
+
+	}//end _exec()
+
+
+	/**
+	* Deal with a workflow step that has been running for longer than its expiry time
+	*
+	* To do this we find the administrators of the asset and send them a message
+	* explaining the situation.
+	*
+	* @access private
+	* @return void
+	*/
+	function _processExpiredWorkflowStep($assetid, $asset_name, $schema_name, $step_data) 
+	{
+		if (Workflow_Manager::silentWorkflowParty($assetid)) return;
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$subject = 'Stale Workflow Step';
+		$hrefs = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref(Array($assetid => 'workflow'));
+		$href = str_replace('./', '', current($hrefs));
+		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+		$url = 'http://'.current($root_urls).'/'.$href;
+		$body = 'Asset "'.$asset_name.'" [#'.$assetid.'] has been in step "'.$step_data['step_name'].'" of workflow schema "'.$schema_name.'" since '.easy_datetime($step_data['started']).', and has exceeded the '.easy_time_total($step_data['expiry_time']).' within which this step is meant to be completed.  You may want to consider intervening to progress this workflow by visiting the asset\'s <SQ_MSG_LINK href="'.$url.'">workflow screen</SQ_MSG_LINK>.';
+		$type = 'asset.workflow.stale';
+		$admins = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, SQ_PERMISSION_ADMIN, true, false, true);
+		$msg = $ms->newMessage($admins, $subject, $body, $type);
+		$msg->send();
+
+	}//end _processExpiredWorkflow()
+
+
+	/**
+	* Runs this job
+	*
+	* This method is overridden because we want to make sure the cron manager never deletes the
+	* expired_workflow cron job
+	*
+	* @return int	bitmask of the SQ_CRON_JOB_* constants to tell the cron manager what to do
+	* @access public
+	*/	
+	function run() 
+	{
+		$res = parent::run();
+		if ($res & SQ_CRON_JOB_REMOVE) {
+			$res = $res - SQ_CRON_JOB_REMOVE;
+		}
+		return $res;
+
+	}//end run()
+
+}//end class
+
+
+
+?>
