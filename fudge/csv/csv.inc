@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.1 2004/01/05 08:48:14 gsherwood Exp $
+* $Id: csv.inc,v 1.2 2004/05/17 05:17:49 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -230,14 +230,20 @@ class CSV {
 		}
 		if($this->field_headers) {
 			$line = $this->formatLine($this->field_headers, $this->deliminator);
-			if($fp) fputs($fp, $line."\n");
-			else echo $line."\n";
+			if(isset($fp)) {
+				fputs($fp, $line."\n");
+			} else {
+				echo $line."\n";
+			}
 		}
 
 		foreach($this->values as $value) {
 			$line = $this->formatLine($value, $this->deliminator);
-			if($fp) fputs($fp, $line."\n");
-			else echo $line."\n";
+			if(isset($fp)) {
+				fputs($fp, $line."\n");
+			} else {
+				echo $line."\n";
+			}
 		}
 
 	}//end export()
