@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.142 2005/01/06 04:39:54 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.143 2005/01/06 05:37:34 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.142 $
+* @version $Revision: 1.143 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1473,9 +1473,15 @@ class Page_Calendar extends Page_Asset_Listing
 							statusBarMsg('Events cannot be dragged in or out of the "other" column');
 							return false;
 						}
+						toggleFlashing(movingElt.id);
 						var locationName = (new_loc != '') ? columnNames[String(new_loc)] + ' on ' : '';
-						return confirm('Move this event to ' + locationName + new_date 
-							+ ((new_time != 'allday') ? (' at ' + new_time) : '') + '?');
+						if (!confirm('Move this event to ' + locationName + new_date 
+							+ ((new_time != 'allday') ? (' at ' + new_time) : '') + '?')) {
+							toggleFlashing(movingElt.id);
+							return false;
+						} else {
+							return true;
+						}
 
 					}
 

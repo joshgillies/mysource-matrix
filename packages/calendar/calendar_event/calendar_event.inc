@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.39 2005/01/06 04:39:54 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.40 2005/01/06 05:37:33 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -269,8 +269,6 @@ class Calendar_Event extends Asset
 
 		// Cannot have an end time if you have no start time
 		if ($end_has_time && (!$start_has_time)) {
-			bam('Start: '.$this->attr('start_date'));
-			bam('End: '.$this->attr('end_date'));
 			trigger_error('You have specified an end time but not a start time.  Please specify a start time.', E_USER_WARNING);
 			return false;
 		}
