@@ -435,8 +435,6 @@ class Asset_Manager extends Resolve_Object
 	* Returns an array of all assets types that are descendants for the passed asset
 	*
 	* @param string		$type_code		the code name for the asset that you want to check
-	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
-	*									even though it's an unistantiable object
 	*
 	* @access public
 	*/
