@@ -126,35 +126,24 @@ class Design extends Design_Area
 	*/
 	function processBackend(&$o, &$link)
 	{
-
 		switch($_POST['asset_action']) {
-			case 'create' :
-				$ei = &$this->getEI();
-				$ei->process($this, $o, true);
-
-				$id_name = $this->getAttribute('id_name');
-				if ($id_name->processed) {
-					return $this->create($link, $id_name->value);
-				} else {
-					return false;
-				}
-				break;
-
-			default :
-				$this->_tmp['regenerate_design'] = false;
+			case 'edit' :
 				$this->_tmp['update_customisations'] = false;
-				$processed = parent::processBackend($o, $link);
-				if ($processed) {
-
+				if (parent::processBackend($o, $link)) {
 					// regenerate the design, 
 					// but don't do the customisations if they have yet to be updated 
 					// (they will be regenerated during the update process anyway)
-					if ($this->_tmp['regenerate_design'])     $this->generateDesignFile(!$this->_tmp['update_customisations']);
+					$this->generateDesignFile(!$this->_tmp['update_customisations']);
 					if ($this->_tmp['update_customisations']) $this->_updateCustomisations();
-					
+
+					return true;
+
 				}// end if
 
-				return $processed;
+				return false;
+
+			default :
+				return parent::processBackend($o, $link);
 
 		}// end switch
 

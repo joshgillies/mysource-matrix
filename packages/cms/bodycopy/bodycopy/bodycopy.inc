@@ -26,37 +26,46 @@ class Bodycopy extends Asset
 		$this->Asset($assetid);
 	}
 
-	/*
+	/**
 	* Create this asset
 	*
-	* @param array(string)	&$link	information used to create the initial link
-	* @param string			$name	the name of this folder
+	* @param array()	&$link	information used to create the initial link
 	*
-	* @return boolean
+	* @see Asset::create()
+	* @return int|false
 	* @access public
 	*/
-	function create(&$link, $name='BodyCopy')
+	function create(&$link)
 	{
-		$name = trim($name);
+		$name = trim($this->attr('name'));
 
 		if ($name == '') {
 			trigger_error('Unable to create a Bodycopy with a blank name', E_USER_WARNING);
 			return false;
 		}
 
-		if (parent::create($link)) {
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$linkid = parent::create($link);
 
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_table');
-			$bodycopy_table =& new Bodycopy_Table();
-			$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_UNITE, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
-			if (!$bodycopy_table->create($copy_link, 'Table 1')) return false;
-			$this->setAttrValue('name', $name);
-			
-			return true;
+		if (!$linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
 
-		}//end if
+		// create an table
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_table');
+		$bodycopy_table =& new Bodycopy_Table();
+		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_UNITE, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
+		$bodycopy_table->setAttrValue('name', 'Table 1');
+		if (!$bodycopy_table->create($copy_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
 
-		return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
 
 	}//end create()
 
@@ -123,10 +132,10 @@ class Bodycopy extends Asset
 	function printBody()
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		
+
 		// get all the tables linked to this bodycopy
 		$tables = $this->getLinks(SQ_LINK_UNITE, 'bodycopy_table');
-		
+
 		// paint each table
 		foreach ($tables as $table_data) {
 			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);

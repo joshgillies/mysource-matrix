@@ -135,7 +135,6 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		if ($save) {
 			// now make sure we save our changes
 			$asset->setAttrValue('declared_vars', $declared_vars);
-			$asset->_tmp['regenerate_design'] = true;
 			return true;
 		} else {
 			return false;

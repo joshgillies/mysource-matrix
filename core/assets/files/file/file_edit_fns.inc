@@ -1,7 +1,6 @@
 <?php
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
-require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * File_Edit_Fns
@@ -73,11 +72,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
-		// assetid will not be set if we are creating
-		if (!$asset->id) $prefix = 'new_file';
-
 		file_upload($prefix);
-
 		$this->_printExistingFileInfo($asset);
 		return true;
 	}//end paintFileUpload()
@@ -96,19 +91,16 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
-		// assetid will not be set if we are creating
-		if (!$asset->id) return false;
-
 		if (empty($info)) {
 			$info = get_file_upload_info($prefix);
-
 			// return on failed or no upload
 			if ($info === false || empty($info)) return false;
-			if (!$info['name'] || !is_uploaded_file($info['tmp_name'])) return false;
 		}
 
+		// assetid will not be set if we are creating
+		if (!$asset->id) return true;
+
 		$name = $info['name'];
-		$ext = strtolower(substr(strrchr($name,'.'), 1));
 
 		// make sure the new web path is not already is use
 		if (!@$asset->saveWebPaths(Array($name))) {

@@ -30,34 +30,37 @@ class Page_Standard extends Page
 	/**
 	* Create this asset
 	*
-	* @param array(string)	&$link	information used to create the initial link
-	* @param string	$name	the name of this page
+	* @param array()	&$link	information used to create the initial link
 	*
-	* @return boolean
+	* @see Asset::create()
+	* @return int|false
 	* @access public
 	*/
-	function create(&$link, $name)
+	function create(&$link)
 	{
-		$name = trim($name);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$linkid = parent::create($link);
 
-		if ($name == '') {
-			trigger_error('Unable to create a Standard Page with a blank name', E_USER_WARNING);
+		if (!$linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
 			return false;
 		}
 
-		if (parent::create($link, $name)) {
-			
-			// add a bodycopy to this page when creating
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-			$bodycopy = new Bodycopy();
-			$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE, 'dependant' => 1);
-			if (!$bodycopy->create($copy_link, 'Page Contents')) return false;
-			
-			return true;
+		// add a bodycopy to this page when creating
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$bodycopy = new Bodycopy();
+		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE, 'dependant' => 1);
 
-		}//end if
+		$bodycopy->setAttrValue('name', 'Page Contents');
+		if (!$bodycopy->create($copy_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
 
-		return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
 
 	}//end create()
 

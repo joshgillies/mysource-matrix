@@ -60,7 +60,6 @@ class Design_Area_Constant_Button_Edit_Fns extends Design_Area_Edit_Fns
 
 		if ($asset->attr('assetid') == $_POST[$prefix.'_assetid']) return false;
 
-		$asset->_tmp['regenerate_design'] = true;
 		return $asset->setAttrValue('assetid', (int) $_POST[$prefix.'_assetid']);
 
 	}//end processAssetidLink()

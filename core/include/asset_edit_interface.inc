@@ -116,6 +116,19 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
+	* Returns the prefix that will be used by paint() and process()
+	*
+	* @param object	Asset				$owner		the asset whose interface we are painting
+	*
+	* @access  public
+	*/
+	function getPrefix(&$owner)
+	{
+		return $owner->type().'_'.$owner->id;
+	}
+
+
+	/**
 	* Paint's out the interface for the currently selected frame
 	*
 	* @param object	Asset				$owner		the asset whose interface we are painting
@@ -207,7 +220,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		// if we are creating open the create file to see which fields we are supposed to print out
 		if ($creating) {
-			list($create_sections, $active_screen) = $this->_getCreateSections();
+			list($create_sections, $active_screen) = $this->_getCreateSections(true);
 			if (!count($create_sections)) return;
 		}
 
@@ -256,7 +269,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			}
 
 			// prefix for all the form vars
-			$prefix = $owner->type().'_'.$owner->id;
+			$prefix = $this->getPrefix($owner);
 
 			// Loop over the sections
 			for($i = 0; $i < count($root->children); $i++) {
@@ -306,7 +319,6 @@ class Asset_Edit_Interface extends Resolve_Object
 						} else if ($field->children[2]->name == 'function_call') {
 
 							$paint_node = &$field->children[2]->children[0];
-
 							// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
 							if ($field->name != 'field' || ($creating && !in_array($paint_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
 
@@ -348,29 +360,28 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
-	* Processes the results of the form posting, returns an array of the attribute names that
-	* where processed
+	* Processes the results of the form posting, returns true anything was processed/changed
 	*
 	* @param object Asset				$owner		the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o			the outputter class
 	* @param boolean					$creating	whether we are creating or editing
 	*
-	* @return Array()
+	* @return boolean
 	* @access public
 	*/
 	function process(&$owner, &$o, $creating)
 	{
 		// if there are no screens or tabs, piss off
-		if (!count($this->_screens) && empty($this->_edit_fns->tabs)) return;
+		if (!count($this->_screens) && empty($this->_edit_fns->tabs)) return false;
 
-		$processed = Array();
+		$ret_val = false;
 		$create_sections = Array();
 		$active_screen = (empty($_GET['asset_ei_screen'])) ? 'details' : $_GET['asset_ei_screen'];
 
 		// if we are creating open the create file to see which fields we are supposed to print out
 		if ($creating) {
-			list($create_sections, $active_screen) = $this->_getCreateSections();
-			if (!count($create_sections)) return $processed;
+			list($create_sections, $active_screen) = $this->_getCreateSections(false);
+			if (!count($create_sections)) return false;
 		}// end if creating
 
 		// check the active screen for special system defined tabs
@@ -381,11 +392,11 @@ class Asset_Edit_Interface extends Resolve_Object
 			// are not creating the asset
 			if (!$creating) {
 				$process_function = 'process'.ucfirst($active_screen);
-				$this->$process_function($owner, $o);
+				if ($this->$process_function($owner, $o)) $ret_val = true;
 			}
 
 			// if we dont have write access, dont process the rest of the screen
-			if ($owner->id && !$owner->writeAccess()) return Array();
+			if ($owner->id && !$owner->writeAccess()) return $ret_val;
 
 			// try and find the file to print user defined
 			$file = @$this->_findFile('tab_'.$active_screen);
@@ -396,18 +407,18 @@ class Asset_Edit_Interface extends Resolve_Object
 			if ($owner->id && !$owner->writeAccess(Array(), false)) {
 				include SQ_INCLUDE_PATH.'/login.inc';
 				print_login('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
-				return Array();
+				return false;
 			}
 
 			// must be a normal screen
 			if (empty($_GET['asset_ei_screen']) || empty($this->_screens[$_GET['asset_ei_screen']])) {
 				trigger_error('Active Screen unknown unable to process', E_USER_WARNING);
-				return $processed;
+				return false;
 			}
 
 			// try and find the file to print user defined
 			$file = $this->_findFile('screen_'.$active_screen);
-			if(!$file) return $processed;
+			if(!$file) return false;
 
 		}// end if
 
@@ -416,11 +427,11 @@ class Asset_Edit_Interface extends Resolve_Object
 			$root  = &$input->getTreeFromFile();
 			if (PEAR::isError($root)) {
 				trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-				return $processed;
+				return false;
 			}
 
 			// prefix for all the form vars
-			$prefix = $owner->type().'_'.$owner->id;
+			$prefix = $this->getPrefix($owner);
 			
 			// Loop over the sections
 			for($i = 0; $i < count($root->children); $i++) {
@@ -441,7 +452,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
 						trigger_error('Function not found for processing section "'.$section->attributes['name'].'"', E_USER_WARNING);
 					} else {
-						$this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix);
+						if ($this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix)) $ret_val = true;
 					}
 
 				// they must just be normal fields
@@ -459,7 +470,9 @@ class Asset_Edit_Interface extends Resolve_Object
 							if (!$attr->setEditParams($field->children[2])) continue;
 
 							$attr->process($prefix);
-							if ($attr->processed) $processed[] = $attr->name;
+							if ($attr->processed && $owner->setAttrValue($attr->name, $attr->value)) {
+								$ret_val = true;
+							}
 
 						} else if ($field->children[2]->name == 'function_call') {
 
@@ -475,7 +488,7 @@ class Asset_Edit_Interface extends Resolve_Object
 							} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
 								trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[0]->content.'"', E_USER_WARNING);
 							} else {
-								$this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix);
+								if ($this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix)) $ret_val = true;
 							}
 
 						}// end if
@@ -488,7 +501,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		}// end if $file
 
-		return $processed;
+		return $ret_val;
 
 	}// end process();
 
@@ -503,7 +516,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function paintDetails(&$owner, &$o)
 	{
-		$prefix = $owner->type().'_'.$owner->id;
+		$prefix = $this->getPrefix($owner);
 
 		$o->openSection('Status');
 
@@ -526,18 +539,22 @@ class Asset_Edit_Interface extends Resolve_Object
 
 	/**
 	* Processes the interface for editing details
+	* returns true if there is a change
 	*
 	* @param object	Asset				$owner	the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o			the outputter class
 	*
 	* @access public
+	* @return boolean
 	*/
 	function processDetails(&$owner, &$o)
 	{
-		$prefix = $owner->type().'_'.$owner->id;
+		$prefix = $this->getPrefix($owner);
 
 		if (isset($_POST[$prefix.'_change_status']) && $_POST[$prefix.'_change_status'] > 0) {
-			$owner->processStatusChange($_POST[$prefix.'_change_status']);
+			return $owner->processStatusChange($_POST[$prefix.'_change_status']);
+		} else {
+			return false;
 		}
 	}//end processDetails()
 
@@ -552,7 +569,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function paintPermissions(&$owner, &$o)
 	{
-		$prefix = $owner->type().'_'.$owner->id;
+		$prefix = $this->getPrefix($owner);
 		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
 
 		$admin_access = $owner->adminAccess();
@@ -732,11 +749,13 @@ class Asset_Edit_Interface extends Resolve_Object
 
 	/**
 	* Processes the interface for managing permissions
+	* returns true if there is a change
 	*
 	* @param object	Asset				$owner	the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o			the outputter class
 	*
 	* @access public
+	* @return boolean
 	*/
 	function processPermissions(&$owner, &$o)
 	{
@@ -750,7 +769,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		// if we dont have effective admin access, dont process anything
 		if (!$owner->adminAccess()) return false;
 
-		$prefix = $owner->type().'_'.$owner->id;
+		$prefix = $this->getPrefix($owner);
 		$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
 
 		foreach ($perms as $title => $perm) {
@@ -799,6 +818,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		}
 
 		return true;
+
 	}//end processPermissions()
 
 
@@ -812,7 +832,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function paintWorkflow(&$owner, &$o)
 	{
-		$prefix = $owner->type().'_'.$owner->id.'_workflow';
+		$prefix = $this->getPrefix($owner).'_workflow';
 
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($owner, true, false, true);
@@ -1158,6 +1178,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 	/**
 	* Processes the interface for managing workflow
+	* returns true if there is a change
 	*
 	* @param object	Asset				$owner	the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o			the outputter class
@@ -1181,7 +1202,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$wfm = new Workflow_Manager($owner);
 		if ($wfm->state == 'running') return false;
 
-		$prefix = $owner->type().'_'.$owner->id.'_workflow';
+		$prefix = $this->getPrefix($owner).'_workflow';
 		
 		// unrevoke inherited workflow
 		if (isset($_POST[$prefix.'_unrevoke'])) {
@@ -1397,10 +1418,12 @@ class Asset_Edit_Interface extends Resolve_Object
 	* Returns the Sections and fields that are to be used in a create interface
 	* and the screen that these belong to
 	*
+	* @param boolean	$painting	if we are painting or processing
+	*
 	* @return Array
 	* @access private
 	*/
-	function _getCreateSections()
+	function _getCreateSections($painting)
 	{
 		$create_sections = Array();
 
@@ -1427,8 +1450,8 @@ class Asset_Edit_Interface extends Resolve_Object
 				if (!empty($field->attributes['attribute'])) {
 					$create_sections[$section->attributes['name']][] = $field->attributes['attribute'];
 				} else if ($field->children[1]->name == 'function_call') {
-					$process_node = &$field->children[1]->children[0];
-					$create_sections[$section->attributes['name']][] = $process_node->attributes['name'];
+					$fn_node = &$field->children[1]->children[(($painting) ? 0 : 1)];
+					$create_sections[$section->attributes['name']][] = $fn_node->attributes['name'];
 				}// end if
 
 			}// end for

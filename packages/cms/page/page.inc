@@ -21,7 +21,7 @@ class Page extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page($assetid=0) 
+	function Page($assetid=0)
 	{
 		$this->Asset($assetid);
 	}
@@ -30,32 +30,38 @@ class Page extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array(string)	&$link	information used to create the initial link
-	* @param string			$name	the name of this page
+	* @param array()	&$link	information used to create the initial link
 	*
-	* @return boolean
+	* @see Asset::create()
+	* @return int|false
 	* @access public
 	*/
-	function create(&$link, $name)
+	function create(&$link)
 	{
-		$name = trim($name);
+		$name = trim($this->attr('name'));
 
 		if ($name == '') {
-			trigger_error('Unable to create a Page with a blank name', E_USER_WARNING);
+			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
 		}
 
-		if (parent::create($link)) {
-			
-			// short and long names are the same to begin with
-			$this->setAttrValue('short_name', $name);
-			$this->setAttrValue('name', $name);
-			
-			return true;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$linkid = parent::create($link);
+		if (!$linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
 
-		}//end if
+		// short and long names are the same to begin with
+		if (!$this->setAttrValue('short_name', $name)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
 
-		return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
 
 	}//end create()
 
@@ -75,38 +81,6 @@ class Page extends Asset
 					);
 
 	}//end _getAllowedLinks()
-
-
-	/**
-	* Processes a backend submission from this asset, returns true if all OK
-	*
-	* @param object Backend_Outputter	$o
-	* @param array(string)				&$link	information used to create the initial link
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processBackend(&$o, &$link)
-	{
-		switch($_POST['asset_action']) {
-			case 'create' :
-				$ei = &$this->getEI();
-				$ei->process($this, $o, true);
-
-				$name = $this->getAttribute('name');
-				if ($name->processed) {
-					return $this->create($link, $name->value);
-				} else {
-					return false;
-				}
-				break;
-
-			default :
-				return parent::processBackend($o, $link);
-
-		}// end switch
-
-	}// end processBackend()
 
 
 	/**

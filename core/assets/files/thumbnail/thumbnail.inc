@@ -1,7 +1,6 @@
 <?php
 
 require_once SQ_CORE_PACKAGE_PATH.'/image/image.inc';
-require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Thumbnail
@@ -26,31 +25,6 @@ class Thumbnail extends Image
 	{
 		$this->Image($assetid);
 	}//end constructor
-
-
-	/**
-	* Create this asset
-	*
-	* @param array(string)	&$link	information used to create the initial link
-	* @param string			$name	the name of this file
-	*
-	* @return boolean
-	* @access public
-	*/
-	function create(&$link, $name)
-	{
-		$name = trim($name);
-
-		if ($name == '') {
-			trigger_error('Unable to create an Thumbnail with a blank name', E_USER_WARNING);
-			return false;
-		}
-
-		if (parent::create($link, $name)) return true;
-
-		return false;
-
-	}//end create()
 
 
 	/**

@@ -23,7 +23,7 @@ class Bodycopy_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array('name' => Array('added'     => '0.0.1',
-											'type'      => 'text',  'default'   => '',
+											'type'      => 'text',  'default'   => 'BodyCopy',
 											'update_fn' => ''
 											)
 							);

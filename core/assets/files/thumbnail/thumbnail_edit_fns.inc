@@ -50,9 +50,6 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
-		// assetid will not be set if we are creating
-		if (!$asset->id) $prefix = 'new_file';
-
 		file_upload($prefix);
 
 		?>
@@ -78,27 +75,21 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 	*/
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
-		// assetid will not be set if we are creating
-		if (!$asset->id) return false;
-
 		if (empty($info)) {
 			$info = get_file_upload_info($prefix);
-
 			// return on failed or no upload
 			if ($info === false || empty($info)) return false;
-			if (!$info['name'] || !is_uploaded_file($info['tmp_name'])) return false;
 		}
 
 		// check that the image dimensions are not greater than our limits
-		$size = getimagesize($info['tmp_name']);
-		if ($size[0] > $this->max_width || $size[1] > $this->max_height) {
+		$size = @getimagesize($info['tmp_name']);
+		if (!empty($size) && ($size[0] > $this->max_width || $size[1] > $this->max_height)) {
 			trigger_error('Uploaded file was too large. You may only upload a file no more than '.$this->max_width.' x '.$this->max_height.' pixels', E_USER_WARNING);
 			return false;
 		}
 
-		if (!parent::processFileUpload($asset, $prefix, $info)) return false;
+		return parent::processFileUpload($asset, $o, $prefix, $info);
 
-		return true;
 	}//end processFileUpload()
 
 }//end class

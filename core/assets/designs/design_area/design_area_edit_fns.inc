@@ -731,7 +731,6 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		pre_echo($contents);
 		if (!is_null($contents) && $this->_processContents($asset, $contents)) {
 			pre_echo("PROCESS OK");
-			$asset->_tmp['regenerate_design'] = true;
 			return $asset->setAttrValue('specialised', 1);
 		}
 

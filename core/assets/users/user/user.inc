@@ -31,44 +31,59 @@ class User extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array(string)	&$link		information used to create the initial link
-	* @param string			$username	the unique username
-	* @param string			$password
-	* @param string			$first_name
-	* @param string			$last_name
-	* @param string			$email
+	* @param array()	&$link	information used to create the initial link
 	*
-	* @return boolean
+	* @see Asset::create()
+	* @return int|false
 	* @access public
 	*/
-	function create(&$link, $username, $password, $first_name='', $last_name='', $email='')
+	function create(&$link)
 	{
 
-		if (parent::create($link)) {
+		$username = trim($this->attr('username'));
+		$password = $this->attr('password');
 
-			$this->setAttrValue('username',   $username);
-			$this->setAttrValue('password',   $password);
-			$this->setAttrValue('first_name', $first_name);
-			$this->setAttrValue('last_name',  $last_name);
-			$this->setAttrValue('email',      $email);
+		if ($username == '' || $password = '') {
+			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' without a username and password', E_USER_WARNING);
+			return false;
+		}
 
-			$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE, 'dependant' => 1);
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$linkid = parent::create($link);
 
-			// create an inbox
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
-			$inbox = new Inbox();
-			if (!$inbox->create($user_link)) return false;
+		if (!$linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
 
-			// create a workspace
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('workspace');
-			$workspace = new Workspace();
-			if (!$workspace->create($user_link, 'Workspace')) return false;
+		$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE, 'dependant' => 1);
 
-			return true;
+		// create an inbox
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
+		$inbox = new Inbox();
+		if (!$inbox->create($user_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
-		}//end if
+		// create a workspace
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('workspace');
+		$workspace = new Workspace();
+		$workspace->setAttrValue('name', 'Workspace');
+		if (!$workspace->create($user_link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
-		return false;
+		if (!$this->grantPermission($this->id, SQ_PERMISSION_ADMIN)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
 
 	}//end create()
 
@@ -88,14 +103,20 @@ class User extends Asset
 					);
 	}//end _getAllowedLinks()
 
+
 	/**
 	* Set the value for the passed variable to the passed value
 	* Overwritten here to check inputs (username and password) and to
 	* encrypt password before setting value
 	*
+	* @param string		$name				the name of the attribute
+	* @param string		$value				the new value of the attribute
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	function setAttrValue($name, $value, $dont_run_updated=false)
 	{
 
 		trigger_error('CHECK USER INPUTS FOR USERNAME, PASSWORD ETC', E_USER_NOTICE);
@@ -104,7 +125,7 @@ class User extends Asset
 			$value = crypt($value); // let salt be generated
 		}
 
-		return parent::setAttrValue($name, $value);
+		return parent::setAttrValue($name, $value, $dont_run_updated);
 
 	}//end setAttrValue()
 
@@ -260,46 +281,6 @@ class User extends Asset
 
 		
 	}// end printBody()
-
-
-	/**
-	* Processes a backend submission from this asset, returns true if all OK
-	*
-	* @param object Backend_Outputter	$o
-	* @param array(string)				&$link	information used to create the initial link
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processBackend(&$o, &$link)
-	{
-		switch($_POST['asset_action']) {
-			case 'create' :
-				$ei = &$this->getEI();
-				$ei->process($this, $o, true);
-
-				$username = $this->getAttribute('username');
-				$password = $this->getAttribute('password');
-				if ($username->processed && $password->processed) {
-					if (!$this->create($link, $username->value, $password->value)) return false;
-				
-					// users get admin permission of themselves so they
-					// can edit their details, manage their workspace, check their
-					// internal messages etc etc
-					return $this->grantPermission($this->id, SQ_PERMISSION_ADMIN);
-				} else {
-					return false;
-				}
-
-				break;
-
-			default :
-				return parent::processBackend($o, $link);
-
-		}// end switch
-
-	}// end processBackend()
-
 
 }//end class
 ?>

@@ -36,12 +36,13 @@ class Trash_Folder extends Folder
 	}
 
 
-	/*
+	/**
 	* Create this asset
 	*
-	* @param array(string)	&$link	information used to create the initial link
+	* @param array()	&$link	information used to create the initial link
 	*
-	* @return boolean
+	* @see Asset::create()
+	* @return int|false
 	* @access public
 	*/
 	function create(&$link)
@@ -59,8 +60,10 @@ class Trash_Folder extends Folder
 			trigger_error('Unable to create another Trash Folder, you are only allowed one', E_USER_WARNING);
 			return false;
 		}
-		
-		$ret_val = parent::create($link, 'Trash');
+
+		$this->setAttrValue('name', 'Trash');
+
+		$ret_val = parent::create($link);
 		$this->_in_create = false;
 		return $ret_val;
 
@@ -102,19 +105,24 @@ class Trash_Folder extends Folder
 	}//end morph()
 
 
-	/*
+	/**
 	* Set the value for the passed variable to the passed value
 	*
+	* @param string		$name				the name of the attribute
+	* @param string		$value				the new value of the attribute
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value) {
-
+	function setAttrValue($name, $value, $dont_run_updated=false)
+	{
 		if ($name == 'name' && !$this->_in_create) {
 			trigger_error('You are not able to alter the name for the trash folder', E_USER_WARNING);
 			return false;
 		}
 
-		return parent::setAttrValue($name, $value);
+		return parent::setAttrValue($name, $value, $dont_run_updated);
 
 	}//end setAttrValue()
 

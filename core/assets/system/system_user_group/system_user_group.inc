@@ -39,9 +39,10 @@ class System_User_Group extends User_Group
 	/**
 	* Create this asset
 	*
-	* @param array(string)	&$link	information used to create the initial link
+	* @param array()	&$link	information used to create the initial link
 	*
-	* @return boolean
+	* @see Asset::create()
+	* @return int|false
 	* @access public
 	*/
 	function create(&$link)
@@ -59,7 +60,8 @@ class System_User_Group extends User_Group
 			return false;
 		}
 		
-		$ret_val = parent::create($link, 'System Administrators');
+		$this->setAttrValue('name', 'System Administrators'); 
+		$ret_val = parent::create($link);
 		$this->_in_create = false;
 		return $ret_val;
 
@@ -103,16 +105,22 @@ class System_User_Group extends User_Group
 	/**
 	* Set the value for the passed variable to the passed value
 	*
+	* @param string		$name				the name of the attribute
+	* @param string		$value				the new value of the attribute
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value) {
+	function setAttrValue($name, $value, $dont_run_updated=false)
+	{
 
 		if ($name == 'name' && !$this->_in_create) {
-			trigger_error('You are not able to alter the name for the system administrators user group', E_USER_WARNING);
+			trigger_error('You are not able to alter the name for the System Administrators User Group', E_USER_WARNING);
 			return false;
 		}
 
-		return parent::setAttrValue($name, $value);
+		return parent::setAttrValue($name, $value, $dont_run_updated);
 
 	}//end setAttrValue()
 

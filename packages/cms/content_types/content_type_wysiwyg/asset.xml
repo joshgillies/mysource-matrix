@@ -5,7 +5,7 @@
 	<package>cms</package>
 	<type_code>content_type_wysiwyg</type_code>
 	<version>0.1</version>
-	<name>WYSIWYG</name>
+	<name>WYSIWYG Content Type</name>
 	<description>WYSIWYG Content Type, edit cell contents using a WYSIWYG editor</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

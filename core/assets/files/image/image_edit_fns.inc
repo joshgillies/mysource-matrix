@@ -67,9 +67,6 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
-		// assetid will not be set if we are creating
-		if (!$asset->id) $prefix = 'new_file';
-		
 		file_upload($prefix);
 
 		?><br/><span style="font-size: 7pt"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
@@ -92,27 +89,22 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*/
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
-		// assetid will not be set if we are creating
-		if (!$asset->id) return false;
-
 		if (empty($info)) {
 			$info = get_file_upload_info($prefix);
-
 			// return on failed or no upload
 			if ($info === false || empty($info)) return false;
-			if (!$info['name'] || !is_uploaded_file($info['tmp_name'])) return false;
 		}
 
 		// check that the extension is allowed
-		$ext = strtolower(substr(strrchr($info['name'],'.'), 1));
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$ext = get_file_type($info['name']);
 		if (!in_array($ext, $asset->allowed_extensions)) {
 			trigger_error('Uploaded file was not an image, You may only upload files of type '.$this->_getExtensionString($asset->allowed_extensions), E_USER_WARNING);
 			return false;
 		}
 
-		if (!parent::processFileUpload($asset, $prefix, $info)) return false;
+		return parent::processFileUpload($asset, $o, $prefix, $info);
 
-		return true;
 	}//end processFileUpload()
 
 }//end class

@@ -30,28 +30,22 @@ class Folder extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array(string)	&$link	information used to create the initial link
-	* @param string			$name	the name of this folder
+	* @param array()	&$link	information used to create the initial link
 	*
-	* @return boolean
+	* @see Asset::create()
+	* @return int|false
 	* @access public
 	*/
-	function create(&$link, $name)
+	function create(&$link)
 	{
-		$name = trim($name);
+		$name = trim($this->attr('name'));
 
 		if ($name == '') {
-			trigger_error('Unable to create a Folder with a blank name', E_USER_WARNING);
+			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
 		}
 
-		if (parent::create($link)) {
-
-			return $this->setAttrValue('name',   $name);
-
-		}//end if
-
-		return false;
+		return parent::create($link);
 
 	}//end create()
 
@@ -87,38 +81,6 @@ class Folder extends Asset
 
 	}//end _getAllowedLinks()
 
-
-	/**
-	* Processes a backend submission from this asset, returns true if all OK
-	*
-	* @param object Backend_Outputter	$o
-	* @param array(string)				&$link	information used to create the initial link
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processBackend(&$o, &$link)
-	{
-
-		switch($_POST['asset_action']) {
-			case 'create' :
-				$ei = &$this->getEI();
-				$ei->process($this, $o, true);
-
-				$name = $this->getAttribute('name');
-				if ($name->processed) {
-					return $this->create($link, $name->value);
-				} else {
-					return false;
-				}
-				break;
-
-			default :
-				return parent::processBackend($o, $link);
-
-		}// end switch
-
-	}// end processBackend()
 
 }//end class
 ?>

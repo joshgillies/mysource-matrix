@@ -52,7 +52,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function processParseFile(&$asset, &$o, $prefix)
 	{
 		$parse_file = $asset->data_path.'/parse.txt';
-
+		$changes = false;
 		if (commit_file_upload($prefix.'_parse_file', $parse_file, true)) {
 			// tell the asset to update the customisation at the end of the interface processing
 			$asset->_tmp['update_customisations'] = true;
@@ -62,12 +62,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$contents = $this->_parseString($str);
 
 			if (!is_null($contents) && $this->_processContents($asset, $contents)) {
-				$asset->_tmp['regenerate_design'] = true;
-			} else {
-				return false;
+				$changes = true;
 			}
 		}
-		return true;
+		return $changes;
 	}// end processParseFile()
 
 	/**
@@ -202,7 +200,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 				$da = new $design_area();
 				$da_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_USES, 'value' => $id_name, 'dependant' => '1');
-				if (!$da->create($da_link, $id_name)) {
+				$da->setAttrValue('id_name', $id_name);
+				if (!$da->create($da_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -434,13 +433,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processCurrentFiles(&$asset, &$o, $prefix)
 	{
-		if (empty($_POST[$prefix.'_remove_files'])) return;
-		$asset->_tmp['regenerate_design'] = true;
+		if (empty($_POST[$prefix.'_remove_files'])) return false;
+		$changes = false;
 		foreach($_POST[$prefix.'_remove_files'] as $file) {
 			$full_file = $asset->data_path.'/files/'.$file;
 			unlink($full_file);
+			$changes = true;
 		}
-		return true;
+		return $changes;
 
 	}// end processCurrentFiles()
 
@@ -479,11 +479,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// attempt to create it (if it doesn't already exist)
 		if (!create_directory($files_dir)) return false;
 
+		$changes = false;
+
 		for($i = 0; $i < 2; $i++) {
 			$info = get_file_upload_info($prefix.'_assoc_file_'.$i);
 			if (empty($info)) continue;
-
-			$asset->_tmp['regenerate_design'] = true;
 
 			// if this is a tar archive, extract it
 			if (preg_match('/\\.tar\\.gz$/', $info['name'])
@@ -514,21 +514,26 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 						$result = $tar_ball->extractList($files, $files_dir, $remove_path);
 						if (PEAR::isError($result)) {
 							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-							return;
+							break;
+						} else {
+							$changes = true;
 						}
+
 					}// end foreach
 
 				}// end if
 
 			// just move it to the right place
 			} else {
-					commit_file_upload($prefix.'_assoc_file_'.$i, $files_dir, true);
+				if (commit_file_upload($prefix.'_assoc_file_'.$i, $files_dir, true)) {
+					$changes = true;
+				}
 
 			}// end switch
 
 		}// end for
 
-		return true;
+		return $changes;
 
 	}// end processNewFiles()
 
@@ -560,7 +565,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function processNewCustomisation(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_new_customisation']) || !($new_name = trim($_POST[$prefix.'_new_customisation_name']))) {
-			trigger_error(__CLASS__.' '.__LINE__);return false;
+			return false;
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -571,33 +576,31 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$dupe = &$asset->duplicate($create_link, $map, false, false);
 		if (is_null($dupe)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error(__CLASS__.' '.__LINE__);return false;
+			return false;
 		}
-
-		$GLOBALS['SQ_SYSTEM']->am->registerAsset($da);
 
 		$GLOBALS['SQ_SYSTEM']->am->registerAsset($da);
 
 		// Aquire a lock on the new object
 		if (!$dupe->aquireLock()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error(__CLASS__.' '.__LINE__);return false;
+			return false;
 		}
 
 		// Now let's morph the dupe into a design customisation
 		if (!$dupe->morph('design_customisation')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error(__CLASS__.' '.__LINE__);return false;
+			return false;
 		}
 
 		// and link it back to ourselves
 		if (!$asset->createLink($dupe, SQ_LINK_UNITE, 'customisation', null, '1')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error(__CLASS__.' '.__LINE__);return false;
+			return false;
 		}
 		if (!$dupe->setAttrValue('id_name', $new_name)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error(__CLASS__.' '.__LINE__);return false;
+			return false;
 		}
 		
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -609,17 +612,17 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if (is_null($da)) continue;
 			if (!$dupe->createLink($da, SQ_LINK_USES, $link['value'], null, '1')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error(__CLASS__.' '.__LINE__);return false;
+				return false;
 			}
 		}// end foreach
 
 		// Aquire a lock on the new object
 		if (!$dupe->releaseLock()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error(__CLASS__.' '.__LINE__);return false;
+			return false;
 		}
 
-		trigger_error(__CLASS__.' '.__LINE__);$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 

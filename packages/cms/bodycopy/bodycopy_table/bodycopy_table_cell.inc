@@ -61,7 +61,8 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($full_type);
 		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_EXCLUSIVE, 'dependant' => 1);
 		$content_type = new $full_type();
-		$this->attributes['linkid'] = $content_type->create($content_link, 'Row '.($rowid+1).' Cell '.($cellid+1));
+		$content_type->setAttrValue('name', 'Row '.($rowid+1).' Cell '.($cellid+1));
+		$this->attributes['linkid'] = $content_type->create($content_link);
 		if (!$this->attributes['linkid']) return false;
 		$this->attributes['content_type'] = $type;
 		return true;

@@ -28,6 +28,29 @@ class Content_Type extends Asset
 
 
 	/**
+	* Create this asset
+	*
+	* @param array()	&$link	information used to create the initial link
+	*
+	* @see Asset::create()
+	* @return int|false
+	* @access public
+	*/
+	function create(&$link)
+	{
+		$name = trim($this->attr('name'));
+
+		if ($name == '') {
+			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
+			return false;
+		}
+
+		return parent::create($link);
+
+	}//end create()
+
+
+	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()
@@ -38,7 +61,6 @@ class Content_Type extends Asset
 		return Array();
 
 	}//end _getAllowedLinks()
-
 
 
 	/**

@@ -65,13 +65,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		}// end foreach
 
-		if ($data) {
-			if ($this->_updateDesignAreaLink($asset, $data)) {
-				$asset->_tmp['regenerate_design'] = true;
-			} else {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}// end if
+		if ($data && !$this->_updateDesignAreaLink($asset, $data)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
 		}// end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -136,13 +132,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 
 		}// end foreach
 
-		if ($data) {
-			if ($this->_updateDesignAreaLink($asset, $data)) {
-				$asset->_tmp['regenerate_design'] = true;
-			} else {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}// end if
+		if ($data && !$this->_updateDesignAreaLink($asset, $data)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
 		}// end if
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');

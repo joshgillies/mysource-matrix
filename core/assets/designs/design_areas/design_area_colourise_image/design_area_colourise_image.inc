@@ -18,13 +18,14 @@ class Design_Area_Colourise_Image extends Design_Area
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string	$name	the name of the attribute
-	* @param string	$value	the new value of the attribute
+	* @param string		$name				the name of the attribute
+	* @param string		$value				the new value of the attribute
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value) 
+	function setAttrValue($name, $value, $dont_run_updated=false)
 	{
 
 		// if this is one of the colour attributes then let's grab the value, add it the 
@@ -40,7 +41,7 @@ class Design_Area_Colourise_Image extends Design_Area
 
 		if ($name == 'type' && $value != 'multiple_colours') $value = 'greyscale';
 
-		return parent::setAttrValue($name, $value);
+		return parent::setAttrValue($name, $value, $dont_run_updated);
 
 	}//end setAttrValue()
 

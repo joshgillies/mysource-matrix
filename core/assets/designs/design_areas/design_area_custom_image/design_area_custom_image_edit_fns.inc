@@ -96,7 +96,6 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 		
 		if (!$asset->setAttrValue('image', $new_image)) return false;
 
-		$asset->_tmp['regenerate_design'] = true;
 		return true;
 
 	}//end processImageUpload()

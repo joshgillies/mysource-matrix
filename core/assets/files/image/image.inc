@@ -1,7 +1,6 @@
 <?php
 
 require_once SQ_CORE_PACKAGE_PATH.'/file/file.inc';
-require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Image
@@ -34,30 +33,6 @@ class Image extends File
 		$this->File($assetid);
 	}//end constructor
 
-
-	/**
-	* Create this asset
-	*
-	* @param string			$name	the name of this file
-	* @param array(string)	&$link	information used to create the initial link
-	*
-	* @return boolean
-	* @access public
-	*/
-	function create(&$link, $name)
-	{
-		$name = trim($name);
-
-		if ($name == '') {
-			trigger_error('Unable to create an Image with a blank name', E_USER_WARNING);
-			return false;
-		}
-
-		if (parent::create($link, $name)) return true;
-
-		return false;
-
-	}//end create()
 
 }//end class
 ?>

@@ -5,7 +5,7 @@
 	<package>cms</package>
 	<type_code>content_type_nest_content</type_code>
 	<version>0.1</version>
-	<name>Nest Content</name>
+	<name>Nest Content Content Type</name>
 	<description>Nest Content Content Type, nest the contents of another asset in a table cell</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>

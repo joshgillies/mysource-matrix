@@ -31,28 +31,22 @@ class Design_Area extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array(string)	&$link	information used to create the initial link
-	* @param string $id_name   the name of this design area
+	* @param array()	&$link	information used to create the initial link
 	*
-	* @return boolean
+	* @see Asset::create()
+	* @return int|false
 	* @access public
 	*/
-	function create(&$link, $id_name)
+	function create(&$link)
 	{
-		$id_name = trim($id_name);
+		$id_name = trim($this->attr('id_name'));
 
 		if ($id_name == '') {
-			trigger_error('Unable to create a Design Area with a blank id', E_USER_WARNING);
+			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank id', E_USER_WARNING);
 			return false;
 		}
 
-		if (parent::create($link)) {
-
-			return $this->setAttrValue('id_name', $id_name);
-
-		}//end if
-
-		return false;
+		return parent::create($link);
 
 	}//end create()
 
@@ -80,16 +74,20 @@ class Design_Area extends Asset
 	*/
 	function processBackend(&$o, &$link)
 	{
-		$this->_tmp['regenerate_design'] = false;
-		$processed = parent::processBackend($o, $link);
-		if ($processed && (!empty($this->_tmp['process_attributes']) || $this->_tmp['regenerate_design'])) {
+		if (parent::processBackend($o, $link)) {
+
 			$designs = &$this->getDesigns();
 			for($i = 0, $max = count($designs); $i < $max; $i++) {
 				$designs[$i]->generateDesignFile(false);
 			}// end for
-		}// end if
 
-		return $processed;
+			return true;
+
+		} else {
+
+			return false;
+
+		}// end if
 
 	}// end processBackend()
 

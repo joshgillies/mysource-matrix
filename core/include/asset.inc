@@ -17,19 +17,19 @@ class Asset extends Resolve_Object
 	* The unique ID for this asset
 	* @var int
 	*/
-	var $id;
+	var $id = 0;
 
 	/**
 	* String representation of this attribute
 	* @var string
 	*/
-	var $name;
+	var $name = '';
 
 	/**
 	* Short String representation of this attribute
 	* @var string
 	*/
-	var $short_name;
+	var $short_name = '';
 
 	/**
 	* Current status of the asset (live, under contrustion etc)
@@ -53,7 +53,7 @@ class Asset extends Resolve_Object
 	* The Vars that belong to this asset
 	* @var Array('var_name' => Array('attributeid' => $attributeid, 'value' = $value))
 	*/
-	var $vars;
+	var $vars = Array();
 
 	/**
 	* Whether or not this asset is restricted
@@ -121,12 +121,11 @@ class Asset extends Resolve_Object
 	*						'link_type' => SQ_LINK_?, 'value' => [link value], 
 	*						'sort_order' => [link sort order], 'dependant' = [0|1])
 	*
-	* @return boolean | int
+	* @return int|false
 	* @access public
 	*/
 	function create(&$link)
 	{
-
 		if (!empty($link)) {
 			// make sure the initial link information is passed in
 			if (!isset($link['asset']))     trigger_error('Cant create asset without an asset to link to', E_USER_ERROR);
@@ -134,6 +133,8 @@ class Asset extends Resolve_Object
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
 		$assetid = $db->nextId('sq_sequence_asset');
@@ -151,6 +152,7 @@ class Asset extends Resolve_Object
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
@@ -161,8 +163,30 @@ class Asset extends Resolve_Object
 		$this->last_updated = $now;
 		$this->last_userid  = $userid;
 
+		if (!empty($this->_tmp['vars_set'])) {
+			$save_vars = Array();
+			foreach($this->_tmp['vars_set'] as $var_name) {
+				$save_vars[$var_name] = $this->vars[$var_name]['value'];
+			}
+		}
+
 		$this->_loadVars();
-		$this->_updated();
+
+		if (!empty($this->_tmp['vars_set'])) {
+			foreach($save_vars as $var_name => $var_value) {
+				if (!$this->setAttrValue($var_name, $var_value, true)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$this->id = 0;
+					return false;
+				}
+			}
+			unset($this->_tmp['vars_set']);
+		}// end if
+
+		if (!$this->_updated()) { 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
 		if (!empty($link)) {
 			// create the initial link
@@ -172,8 +196,15 @@ class Asset extends Resolve_Object
 			$link['asset']->aquireLock();
 			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant']);
 			$link['asset']->releaseLock();
-			return $linkid;
+			if (!$linkid) { 
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$this->id = 0;
+				return false;
+			}
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return (int) $linkid;
 		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
 		}
 
@@ -270,45 +301,51 @@ class Asset extends Resolve_Object
 	function _updated()
 	{
 
-		$now    = time();
-		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		$name       = $this->_getName();
-		$short_name = $this->_getName(true);
+		$last_updated	= time();
+		$last_userid	= $GLOBALS['SQ_SYSTEM']->currentUserId();
+		$name			= $this->_getName();
+		$short_name		= $this->_getName(true);
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'UPDATE sq_asset
-				SET name         = '.$db->quote($name).',
-					short_name   = '.$db->quote($short_name).',
-					last_updated = '.$db->quote(ts_iso8601($now)).',
-					last_userid  = '.$db->quote($userid).'
-				WHERE assetid = '.$db->quote($this->id);
+		// if we have an ID hit the DB
+		if ($this->id) { 
 
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'UPDATE sq_asset
+					SET name         = '.$db->quote($name).',
+						short_name   = '.$db->quote($short_name).',
+						last_updated = '.$db->quote(ts_iso8601($last_updated)).',
+						last_userid  = '.$db->quote($last_userid).'
+					WHERE assetid = '.$db->quote($this->id);
 
-		$old_name         = $this->name;
-		$old_short_name   = $this->short_name;
-		$old_last_updated = $this->last_updated;
-		$old_last_userid  = $this->last_userid;
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
+			$old_name         = $this->name;
+			$old_short_name   = $this->short_name;
+			$old_last_updated = $this->last_updated;
+			$old_last_userid  = $this->last_userid;
+
+			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetUpdate', Array( 'assetid'          => $this->id,
+																		'old_name'         => $this->name,
+																		'new_name'         => $name,
+																		'old_short_name'   => $this->short_name,
+																		'new_short_name'   => $short_name,
+																		'old_last_updated' => $this->last_updated,
+																		'new_last_updated' => $last_updated,
+																		'old_last_userid'  => $this->last_userid,
+																		'new_last_userid'  => $last_userid
+																	   ));
+
+		}// end if $this->id
 
 		$this->name         = $name;
 		$this->short_name   = $short_name;
-		$this->last_updated = $now;
-		$this->last_userid  = $userid;
-
-		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetUpdate', Array( 'assetid'          => $this->id,
-																	'old_name'         => $old_name,
-																	'new_name'         => $this->name,
-																	'old_short_name'   => $old_short_name,
-																	'new_short_name'   => $this->short_name,
-																	'old_last_updated' => $this,
-																	'new_last_updated' => $this->last_updated,
-																	'old_last_userid'  => $old_last_userid,
-																	'new_last_userid'  => $this->last_userid
-																   ));
+		$this->last_updated = $last_updated;
+		$this->last_userid  = $last_userid;
+		
 		return true;
 
 	}//end _updated();
@@ -615,6 +652,7 @@ class Asset extends Resolve_Object
 		}
 
 		return true;
+
 	}//end processStatusChange()
 
 
@@ -1854,7 +1892,7 @@ class Asset extends Resolve_Object
 							  AND ct.treeid LIKE '.$db->quote($minor_treeid.'%').'
 							  AND ct.treeid > '.$db->quote($minor_treeid);
 
-pre_echo($select);
+#pre_echo($select);
 
 				$result = db_extras_insert_select($db, $insert, $select);
 				if (DB::isError($result)) {
@@ -2310,15 +2348,15 @@ pre_echo($select);
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string	$name	the name of the attribute
-	* @param string	$value	the new value of the attribute
+	* @param string		$name				the name of the attribute
+	* @param string		$value				the new value of the attribute
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value)
+	function setAttrValue($name, $value, $dont_run_updated=false)
 	{
-
 		if (empty($this->vars[$name])) {
 			trigger_error('Attribute "'.$name.'" not found for Asset of type "'.$this->type().'"', E_USER_WARNING);
 			return false;
@@ -2332,6 +2370,7 @@ pre_echo($select);
 		if ($this->vars[$name]['value'] == $value) return true;
 
 		$save_value = $value;
+		$old_value  = $this->vars[$name]['value'];
 
 		// if this is a seriliaze attribute, unserilize it
 		// now so that $save_value is the serialized version
@@ -2341,57 +2380,71 @@ pre_echo($select);
 			$value = unserialize($value);
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		// if we have an id then we need to update the database
+		if ($this->id) {
 
-		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$attributeid = $this->vars[$name]['attributeid'];
+			// open the transaction
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// delete previous entry, if any
-		$sql = 'SELECT count(*) FROM sq_asset_attribute_value
-				WHERE assetid = '.$db->quote($this->id).'
-				  AND attributeid = '.$db->quote($attributeid);
+			$attributeid = $this->vars[$name]['attributeid'];
 
-		$count = $db->getOne($sql);
-		if (DB::isError($count)) {
-			trigger_error($count->getMessage().'<br/>'.$count->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
-
-		if ($count) {
-			// now insert new entry
-			$sql = 'UPDATE sq_asset_attribute_value
-					SET custom_value = '.$db->quote($save_value).'
+			// find any previous entry
+			$sql = 'SELECT COUNT(*) FROM sq_asset_attribute_value
 					WHERE assetid = '.$db->quote($this->id).'
 					  AND attributeid = '.$db->quote($attributeid);
 
-		} else {
-			// now insert new entry
-			$sql = 'INSERT INTO sq_asset_attribute_value
-					(assetid, attributeid, custom_value)
-					VALUES
-					('.$db->quote($this->id).', '.$db->quote($attributeid).', '.$db->quote($save_value).')';
+			$count = $db->getOne($sql);
+			if (DB::isError($count)) {
+				trigger_error($count->getMessage().'<br/>'.$count->getUserInfo(), E_USER_WARNING);
+				$attribute->setValue($old_value);
+				return false;
+			}
 
-		}// end if
+			if ($count) {
+				// now insert new entry
+				$sql = 'UPDATE sq_asset_attribute_value
+						SET custom_value = '.$db->quote($save_value).'
+						WHERE assetid = '.$db->quote($this->id).'
+						  AND attributeid = '.$db->quote($attributeid);
 
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+			} else {
+				// now insert new entry
+				$sql = 'INSERT INTO sq_asset_attribute_value
+						(assetid, attributeid, custom_value)
+						VALUES
+						('.$db->quote($this->id).', '.$db->quote($attributeid).', '.$db->quote($save_value).')';
+
+			}// end if
+
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$attribute->setValue($old_value);
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
+		}// end if this->id
 
 		$this->vars[$name]['value'] = $value;
 
 		// tell, the asset it has updated
-		if (!$this->_updated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		if (!$dont_run_updated && !$this->_updated()) {
+			$this->vars[$name]['value'] = $old_value;
+			$attribute->setValue($old_value);
+			if ($this->id) $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
+		if (!$this->id) {
+			if (!isset($this->_tmp['vars_set'])) $this->_tmp['vars_set'] = Array();
+			$this->_tmp['vars_set'][] = $name;
+		}
+
 		// If we get this far, then it's all OK
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		if ($this->id) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -2483,6 +2536,7 @@ pre_echo($select);
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// add the permission into the database
 		$sql = 'INSERT INTO sq_asset_permission
@@ -2493,13 +2547,20 @@ pre_echo($select);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// clear the permission cache
 		unset($this->_tmp['permission_cache']);
-		$this->_updated();
+		if (!$this->_updated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
+
 	}//end grantPermission()
 
 
@@ -2531,6 +2592,8 @@ pre_echo($select);
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// add the permission into the database
 		$sql = 'DELETE FROM sq_asset_permission
 				WHERE assetid = '.$db->quote($this->id).'
@@ -2541,13 +2604,20 @@ pre_echo($select);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// clear the permission cache
 		unset($this->_tmp['permission_cache']);
-		$this->_updated();
+		if (!$this->_updated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
+
 	}//end revokePermission()
 
 
@@ -2564,7 +2634,7 @@ pre_echo($select);
 	{
 
 		$assetid = (int) $assetid;
-		$current = &$this->getRevokedPermission($permission);
+		$current = $this->getRevokedPermission($permission);
 		if (in_array($assetid, array_keys($current))) return false;
 
 		// if we dont have an assetid, we are revoking public access
@@ -2583,6 +2653,7 @@ pre_echo($select);
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// add the permission into the database
 		$sql = 'INSERT INTO sq_asset_permission
@@ -2593,13 +2664,20 @@ pre_echo($select);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// clear the permission cache
 		unset($this->_tmp['permission_cache']);
-		$this->_updated();
+		if (!$this->_updated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
+
 	}//end revokeInheritedPermission()
 
 
@@ -2616,7 +2694,7 @@ pre_echo($select);
 	{
 
 		$assetid = (int) $assetid;
-		$current = &$this->getRevokedPermission($permission);
+		$current = $this->getRevokedPermission($permission);
 		if (!in_array($assetid, array_keys($current))) return false;
 
 		if ($permission != SQ_PERMISSION_WORKFLOW) {
@@ -2635,6 +2713,7 @@ pre_echo($select);
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// reomve the permission from the database
 		$sql = 'DELETE FROM sq_asset_permission
@@ -2646,12 +2725,18 @@ pre_echo($select);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// clear the permission cache
 		unset($this->_tmp['permission_cache']);
-		$this->_updated();
+		if (!$this->_updated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 	}//end reinstateRevokedPermission()
 
@@ -3093,19 +3178,20 @@ pre_echo($select);
 	function processBackend(&$o, &$link)
 	{
 		$ei = &$this->getEI();
-		$this->_tmp['process_attributes'] = $ei->process($this, $o, false);
 
-		foreach($this->_tmp['process_attributes'] as $name) {
-			$attr = &$this->getAttribute($name, true);
-			if (is_null($attr)) continue;
+		switch($_POST['asset_action']) {
+			case 'create' :
+				if ($ei->process($this, $o, true)) {
+					return (bool) $this->create($link);
+				} else {
+					return false;
+				}
+				break;
 
-			if ($attr->processed) {
-				$this->setAttrValue($name, $attr->value);
-			}
+			default :
+				return $ei->process($this, $o, false);
 
-		}// end for
-
-		return true;
+		}// end switch
 
 	}// end processBackend()
 

@@ -41,12 +41,11 @@ class Root_User extends System_User
 	* Create this asset
 	*
 	* @param array(string)	&$link	information used to create the initial link
-	* @param string			$email
 	*
 	* @return boolean
 	* @access public
 	*/
-	function create(&$link, $email='')
+	function create(&$link)
 	{
 
 		$this->_in_create = true;
@@ -62,7 +61,12 @@ class Root_User extends System_User
 			return false;
 		}
 		
-		$ret_val = parent::create($link, 'root', 'root', 'Root', 'User', $email);
+		$this->setAttrValue('username',   'root');
+		$this->setAttrValue('password',   'root');
+		$this->setAttrValue('first_name', 'Root');
+		$this->setAttrValue('last_name',  'User');
+
+		$ret_val = parent::create($link);
 		$this->_in_create = false;
 		return $ret_val;
 
@@ -84,16 +88,22 @@ class Root_User extends System_User
 	/**
 	* Set the value for the passed variable to the passed value
 	*
+	* @param string		$name				the name of the attribute
+	* @param string		$value				the new value of the attribute
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value) {
+	function setAttrValue($name, $value, $dont_run_updated=false)
+	{
 
 		if ($name == 'username' && !$this->_in_create) {
 			trigger_error('You are not able to alter the username for the root user', E_USER_WARNING);
 			return false;
 		}
 
-		return parent::setAttrValue($name, $value);
+		return parent::setAttrValue($name, $value, $dont_run_updated);
 
 	}//end setAttrValue()
 

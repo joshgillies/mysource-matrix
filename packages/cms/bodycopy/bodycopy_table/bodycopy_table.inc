@@ -32,45 +32,56 @@ class Bodycopy_Table extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array(string)	&$link		information used to create the initial link
-	* @param string			$name		the name of this table
-	* @param int			$num_rows	the number of rows to create
-	* @param int			$num_cols	the number of columns to create
-	* @param array			$attributes	attributes to apply to the table
+	* @param array()	&$link		information used to create the initial link
+	* @param int		$num_rows	the number of rows to create
+	* @param int		$num_cols	the number of columns to create
 	*
-	* @return boolean
+	* @see Asset::create()
+	* @return int|false
 	* @access public
 	*/
-	function create(&$link, $name, $num_rows=1, $num_cols=1, $attributes=Array())
+	function create(&$link, $num_rows=1, $num_cols=1)
 	{
-		$name = trim($name);
+		$name = trim($this->attr('name'));
 
 		if ($name == '') {
 			trigger_error('Unable to create a BodyCopy Table with a blank name', E_USER_WARNING);
 			return false;
 		}
 
-		if (parent::create($link)) {
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$linkid = parent::create($link);
 
-			for ($i = 0; $i < $num_rows; $i++) {
-				$rows[$i] = Array();
-				$rows[$i]['attributes'] = Array();
-				$rows[$i]['cells']		= Array();
-				for ($x = 0; $x < $num_cols; $x++) {
-					$rows[$i]['cells'][$x]	= new Bodycopy_Table_Cell();
-					$rows[$i]['cells'][$x]->setContentType($this, 'wysiwyg', $i, $x);
+		if (!$linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+
+		for ($i = 0; $i < $num_rows; $i++) {
+			$rows[$i] = Array();
+			$rows[$i]['attributes'] = Array();
+			$rows[$i]['cells']		= Array();
+			for ($x = 0; $x < $num_cols; $x++) {
+				$rows[$i]['cells'][$x]	= new Bodycopy_Table_Cell();
+				// short and long names are the same to begin with
+				if (!$rows[$i]['cells'][$x]->setContentType($this, 'wysiwyg', $i, $x)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$this->id = 0;
+					return false;
 				}
 			}
+		}
 
-			$this->setAttrValue('name', $name);
-			$this->setAttrValue('rows',$rows);
-			$this->setAttrValue('attributes',$attributes);
-			
-			return true;
+		// short and long names are the same to begin with
+		if (!$this->setAttrValue('rows',$rows)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
 
-		}//end if
-
-		return false;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
 
 	}//end create()
 

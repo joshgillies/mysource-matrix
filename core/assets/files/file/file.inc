@@ -31,34 +31,30 @@ class File extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array(string)	&$link	information used to create the initial link
-	* @param string			$name	the name of this file
+	* @param array()	&$link	information used to create the initial link
 	*
-	* @return boolean
+	* @see Asset::create()
+	* @return int|false
 	* @access public
 	*/
-	function create(&$link, $name)
+	function create(&$link)
 	{
-		$name = trim($name);
+		$name = trim($this->attr('name'));
 
 		if ($name == '') {
-			trigger_error('Unable to create a File with a blank name', E_USER_WARNING);
+			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
 		}
 
 		// check that a file was uploaded at least and that it succeeded
-		$info = get_file_upload_info('new_file');
-		if ($info === false || empty($info) || !$info['name'] || !is_uploaded_file($info['tmp_name'])) {
-			trigger_error('File upload failed. Unable to create File', E_USER_WARNING);
+		$ei = $this->getEI();
+		$info = get_file_upload_info($ei->getPrefix($this));
+		if ($info === false || empty($info)) {
+			trigger_error('File upload failed. Unable to create '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 			return false;
 		}
 
-		if (parent::create($link)) {
-			$this->setAttrValue('name', $name);
-			return true;
-		}
-
-		return false;
+		return parent::create($link);
 
 	}//end create()
 
@@ -95,12 +91,20 @@ class File extends Asset
 			case 'create' :
 				$this->_tmp['uploading_file'] = 1;
 				$ei = &$this->getEI();
-				$ei->process($this, $o, true);
+				if (!$ei->process($this, $o, true)) return false;
 
-				if (!$this->create($link, 'temp')) return false;
-				$edit = $this->getEditFns();
-				unset($this->_tmp['uploading_file']);
-				return $edit->processFileUpload($this, $o, 'new_file');
+				$prefix = $ei->getPrefix($this);
+
+				$this->setAttrValue('name', 'temp');
+				$linkid = $this->create($link);
+
+				if ($linkid) {
+					$edit = $this->getEditFns();
+					unset($this->_tmp['uploading_file']);
+					return $edit->processFileUpload($this, $o, $prefix);
+				} else {
+					return false;
+				}
 				break;
 
 			default :
@@ -116,13 +120,14 @@ class File extends Asset
 	* If the user changes the name of this file, we also need
 	* to update the file system
 	*
-	* @param string	$name	the name of the attribute
-	* @param string	$value	the new value of the attribute
+	* @param string		$name				the name of the attribute
+	* @param string		$value				the new value of the attribute
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, &$value)
+	function setAttrValue($name, $value, $dont_run_updated=false)
 	{
 		$uploading_file = (!empty($this->_tmp['uploading_file'])) ? true : false;
 		if ($name == 'name' && !$uploading_file) {
@@ -141,15 +146,15 @@ class File extends Asset
 			}
 		}
 
-		if (parent::setAttrValue($name, $value) && $name == 'name' && !$uploading_file) {
+		if (parent::setAttrValue($name, $value, $dont_run_updated) && $name == 'name' && !$uploading_file) {
 			if (!@$this->saveWebPaths(Array($value))) {
 				trigger_error('Failed updating web path. Path already exists?', E_USER_WARNING);
-				parent::setAttrValue($name, $old_filename);
+				parent::setAttrValue($name, $old_filename, $dont_run_updated);
 				return false;
 			}
 			if (!rename($this->data_path.'/'.$old_filename, $this->data_path.'/'.$value)) {
 				trigger_error('Failed renaming file, try again.', E_USER_WARNING);
-				parent::setAttrValue($name, $old_filename);
+				parent::setAttrValue($name, $old_filename, $dont_run_updated);
 				return false;
 			}
 		}
