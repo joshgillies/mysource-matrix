@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: system_config.inc,v 1.4 2003/09/26 05:26:31 brobertson Exp $
+* $Id: system_config.inc,v 1.5 2003/10/02 05:39:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,22 +35,34 @@ class System_Config extends Config
 		'SQ_CONF_ASSET_TREE_BASE'			=> Array('editable' => 0, 'default' => 64),
 		'SQ_CONF_ASSET_TREE_SIZE'			=> Array('editable' => 0, 'default' =>  4),
 
+		'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 0, 'default' => '0'),
 
 
+//// START EDITABLE SETTINGS ////
+		// System Settings
 		'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'The System'),
 		'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
-		'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => 6000),
-		'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => 3),
-		'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
-		'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
-		'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
-		'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
-		'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 1, 'default' => '0'),
-		'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
-		'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
+
+		// Email Settings
 		'SQ_CONF_DEFAULT_EMAIL'				=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_TECH_EMAIL'				=> Array('editable' => 1, 'default' => ''),
+
+		// Session/Login Settings
+		'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => 3),
+		'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => 6000),
+
+		// Interval Settings
+		'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
+		'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
+
+		// Error Settings
+		'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
+		'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
+
+		// Internationalisation Settings
+		'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
+		'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
 	);
 
 
@@ -60,8 +72,54 @@ class System_Config extends Config
 	*/
 	function System_Config()
 	{
-		$this->Config(SQ_DATA_PATH.'/private/conf/main.inc');
+		$this->Config();
+		$this->config_file = SQ_DATA_PATH.'/private/conf/main.inc';
 	}
+
+
+	/**
+	* Rewrites the conf file with current variables
+	*
+	* @param Array		$vars				the array with any new values (that are allowed to be edited) Array('[config_var_name]' => [scalar value])
+	* @param boolean	$backup_existing	whether we should backup the existing config file first
+	*
+	* @return boolean	indicates whether the file was written
+	* @access public
+	*/
+	function save($vars, $backup_existing=false)
+	{
+
+		if (empty($GLOBALS['SQ_INSTALL'])) {
+
+			$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
+			// if we dont have the lock, piss off
+			if (empty($lock) || $GLOBALS['SQ_SYSTEM']->currentUserId() != $lock['userid']) {
+				trigger_error('To save the System Config, you need to be currently holding the lock', E_USER_WARNING);
+				return false;
+			}
+
+			$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+			$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+			// if we dont have access, piss off
+			if (!$is_admin) {
+				trigger_error('You need to be either the Root User or a System Administrator to save the System Config', E_USER_WARNING);
+				return false;
+			}
+
+			// Now just make sure they aren't trying to set anything that they shouldn't
+			if (!$is_root) {
+				unset($vars['SQ_CONF_MAX_LOGIN_ATTEMPTS']);
+				unset($vars['SQ_CONF_MAX_IDLE_TIME']);
+				unset($vars['SQ_CONF_LOG_ERRORS']);
+				unset($vars['SQ_CONF_ERRORS_HIDE_FRONTEND']);
+			}//end if 
+
+		}// end if
+
+		return parent::save($vars, $backup_existing);
+
+	}// end save()
 
 
 	/**
@@ -70,12 +128,14 @@ class System_Config extends Config
 	*
 	* @param string $name	the config var name
 	* @param mixed  $value	the value that the config var has
+	*
+	* @return boolean	whether the value is valid or not
 	*/
 	function _paintConfigVar($var_name, $value)
 	{
 		switch($var_name) {
 			case 'SQ_CONF_PEAR_PATH' :
-				parent::_paintConfigVar($var_name, $value);
+				if (!parent::_paintConfigVar($var_name, $value)) return false;
 				if ($value) {
 					$sep = (substr(PHP_OS, 0, 3) == 'WIN') ? ';' : ':';
 
@@ -86,20 +146,22 @@ class System_Config extends Config
 					echo "\$inc_dir = (substr(\$inc_dir, 0, 2) == '.".$sep."') ? '.".$sep.$value.$sep."'.substr(\$inc_dir, 2) : '".$value.$sep."'.\$inc_dir;\n";
 					echo "ini_set('include_path', \$inc_dir);\n\n";
 				}
+				return true;
 				break;
 
 			case 'SQ_CONF_LOG_ERRORS' :
-				parent::_paintConfigVar($var_name, $value);
+				if (!parent::_paintConfigVar($var_name, $value)) return false;
 				// NOTE: if they don't want to log errors we will leave
 				//       them with whatever their PHP settings are
 				if ($value) {
 					echo "ini_set('log_errors', '1');\n";
 					echo "ini_set('error_log',  SQ_DATA_PATH.'/private/logs/error.log');\n";
 				}
+				return true;
 				break;
 
 			default :
-				parent::_paintConfigVar($var_name, $value);
+				return parent::_paintConfigVar($var_name, $value);
 
 		}// end switch
 
@@ -111,516 +173,226 @@ class System_Config extends Config
 	*
 	* @param object Backend	$backend	Reference to the backend object
 	*/
-	function paintBackend(&$backend) {
+	function paintBackend(&$backend)
+	{
+		$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
+		$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+
+		// if we dont have access, piss off
+		if (!$is_admin) {
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>System Config</i>');
+			exit();
+		}
+
+		$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
+		$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$o = &$backend->out;
 
+		if (!empty($_POST['config_posted'])) {
 
-/*
-		#$this->save(get_defined_constants());
-		 ###################################################
-		# SECUIRTY - Only let in those who have permission
-		if (!$SESSION->logged_in()) {
-			$SESSION->login_screen($backend->title,"You must be logged in and have permission to edit <i>$this->system_name</i> in order to proceed.");
-		}
-
-		if (!superuser('web') && !superuser('user')) {
-			$SESSION->login_screen($backend->title,"You do not have permission to view or edit the system config of <i>$this->system_name</i>.");
-		}
-
-		$backend->set_active_menu_item('config');
-
-		# Only privileged users can mess around here
-		if (superuser('web') || superuser('user')) {
-			global $action;
-
-			#############################
-			# get users database object
-			#############################
-			#
-			$users_system = &get_users_system();
-			$db = &$users_system->db;
-
-			##################
-			# process $action
-			##################
-			#
-			switch($action) {
-
-				case 'Commit':
-
-					global  $system_name,$system_owner,$webmaster_email,$jupload_path,$web_db_details,
-							$user_db_details,$max_login_attempts,$max_idle_time,
-							$delete_superuser_ids, $delete_webmaster_ids, $delete_usermaster_ids,
-							$superuser_search, $webmaster_search, $usermaster_search,
-							$log_visitors, $log_remote_hosts, $virtual_paths, $backend_suffix, $strict_url_matching,
-							$default_language, $default_charset, $moderate_caching, $illegal_filetypes, $check_db_mbstrings,
-							$site_backend_dhtml_navigation, $backend_message_box_focus, $backend_log_messages,
-							$user_db_details, $user_authentication, $default_table_cell_type, $batch_delete, $batch_dupe;
-
-					if(user_root()) {
-
-						####################
-						# delete superusers
-						####################
-						#
-						if (count($delete_superuser_ids)) {
-							$sql = "SELECT login
-									  FROM user
-									 WHERE userid IN ('".implode("','", $delete_superuser_ids)."')";
-
-							$superusers = $db->single_column($sql);
-							foreach($superusers as $login) {
-								$backend->add_message($this->delete_superuser($login));
-							}
-						}
-
-						#################
-						# add superusers
-						#################
-						#
-						$user_searches = split("[ \t\r\n\,]+", $superuser_search);
-						foreach($user_searches as $login) {
-							# security & empty var check
-							if (trim($login) != '') {
-								# make sure user exists before adding
-								if ($user_row = $users_system->find_user($login)) {
-									$backend->add_message($this->add_superuser($user_row['login']));
-								}
-								else {
-									$backend->add_message("Could not add superuser: $login. User does not exist");
-								}
-							}
-						}# end foreach
-
-
-						###############################
-						# update web database details
-						###############################
-						#
-						$backend->add_message($this->set_web_db_details($web_db_details['name'],
-																		$web_db_details['host'],
-																		$web_db_details['login'],
-																		$web_db_details['password'],
-																		$web_db_details['querylog']));
-
-						###############################
-						# update user database details
-						###############################
-						#
-
-						$backend->add_message($this->set_user_db_details(
-								$user_db_details['name'],
-								$user_db_details['host'],
-								$user_db_details['login'],
-								$user_db_details['password'],
-								$user_db_details['querylog']
-						));
-
-
-						$backend->add_message($this->set_user_authentication($user_authentication));
-
-					}#end if user_root
-
-
-
-					if(superuser()) {
-
-						#####################
-						# delete web masters
-						#####################
-						#
-						if (count($delete_webmaster_ids)) {
-							$sql = "SELECT login
-									  FROM user
-									 WHERE userid IN ('".implode("','", $delete_webmaster_ids)."')";
-
-							$webmasters = $db->single_column($sql);
-							foreach($webmasters as $login) {
-								$backend->add_message($this->delete_web_master($login));
-							}
-						}
-
-						######################
-						# delete user masters
-						######################
-						#
-						if (count($delete_usermaster_ids)) {
-							$sql = "SELECT login
-									  FROM user
-									 WHERE userid IN ('".implode("','", $delete_usermaster_ids)."')";
-
-							$usermasters = $db->single_column($sql);
-							foreach($usermasters as $login) {
-							  if (superuser()) {
-								$backend->add_message($this->delete_user_master($login));
-							  }
-							}
-						}
-
-						##################
-						# add web masters
-						##################
-						#
-						$user_searches = split("[ \t\r\n\,]+", $webmaster_search);
-						foreach($user_searches as $login) {
-							# security and empty var check
-							if (trim($login) != '') {
-								# check user exists
-								if ($user_row = $users_system->find_user($login)) {
-									$backend->add_message($this->add_web_master($user_row['login']));
-								}
-								else {
-									$backend->add_message("Could not add web master: $login. User does not exist");
-								}
-							}
-						}# end foreach
-
-						###################
-						# add user masters
-						###################
-						#
-						$user_searches = split("[ \t\r\n\,]+", $usermaster_search);
-						foreach($user_searches as $login) {
-							# security and empty string check
-							if (trim($login) != '') {
-								# user exists in first place?
-								if ($user_row = $users_system->find_user($login)) {
-									$backend->add_message($this->add_user_master($user_row['login']));
-								}
-								else {
-									$backend->add_message("Could not add user master: $login. User does not exist");
-								}
-							}
-						}# end foreach
-
-
-						# Update other config vars
-						$backend->add_message($this->set_system_name(($system_name)));
-						$backend->add_message($this->set_system_owner(($system_owner)));
-						$backend->add_message($this->set_webmaster_email(($webmaster_email)));
-						$backend->add_message($this->set_backend_message_box_focus(($backend_message_box_focus)));
-
-						$backend->add_message($this->set_backend_log_messages(($backend_log_messages)));
-
-						$upload_result = process_image_upload('backend_brand_image', get_data_path(true, 'backend_brand_image'), false);
-						$backend->add_message($upload_result['message']);
-						$image = get_image(get_data_path(true, 'backend_brand_image'));
-						if ($image) {
-							$image_size = getImageSize($image);
-							$image = '<img src="'.data_href(basename($image)).'" '.$image_size[3].' border="0">';
-						}
-						$backend->add_message($this->set_backend_brand_image($image));
-
-						$backend->add_message($this->set_jupload_path($jupload_path));
-
-					}#end if superuser
-
-					if (superuser()) {
-						$backend->add_message($this->set_max_login_attempts(($max_login_attempts)));
-						$backend->add_message($this->set_max_idle_time(($max_idle_time)));
-						$backend->add_message($this->set_log_visitors(($log_visitors)));
-						$backend->add_message($this->set_log_remote_hosts(($log_remote_hosts)));
-						$backend->add_message($this->set_batch_delete(($batch_delete)));
-						$backend->add_message($this->set_batch_dupe(($batch_dupe)));
-					}
-
-					if(superuser('web')) {
-
-						$backend->add_message($this->set_default_table_cell_type(($default_table_cell_type)));
-						$backend->add_message($this->set_default_language((implode(',',$default_language))));
-						$backend->add_message($this->set_default_charset(($default_charset)));
-						$backend->add_message($this->set_moderate_caching(($moderate_caching)));
-
-						$backend->add_message($this->set_illegal_filetypes(($illegal_filetypes)));
-						$backend->add_message($this->set_check_db_mbstrings(($check_db_mbstrings)));
-						$backend->add_message($this->set_site_backend_dhtml_navigation(($site_backend_dhtml_navigation)));
-					}
-
-					if(superuser()) {
-						#if($this->virtual_paths) {
-						$backend->add_message($this->set_backend_suffix(($backend_suffix)));
-						#}
-						$backend->add_message($this->set_virtual_paths(($virtual_paths)));
-						$backend->add_message($this->set_strict_url_matching(($strict_url_matching)));
-					}
-					break;
-
+			$saved = false;
+			if (!empty($_POST['sq_submit_pressed'])) {
+				$saved = $this->save($_POST['config']);
 			}
-			if($action) {
-				$this->clear_cache($this->id);
-				$this->save_to_cache($this->id);
-				$backend->add_message($this->conf_updated());
-			}
-		}
 
-*/
+			if (!empty($_POST['sq_release_lock']) || !empty($_POST['sq_manual_release_lock'])) {
+				$GLOBALS['SQ_SYSTEM']->releaseLock(get_class($this));
+			}
+
+			// if there is no lock currently and we want it
+			if (!empty($_POST['sq_acquire_lock'])) {
+				$GLOBALS['SQ_SYSTEM']->acquireLock(get_class($this));
+			}
+
+			// if the save was successful, we need to redirect because the constants
+			// that are already defined cannot be redefined in this script execution
+			if ($saved) {
+				$o->setRedirect($o->getCurrentLocation());
+				return;
+			} 
+
+			// just to make sure 
+			$lock      = $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
+			$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
+
+		}// endif
 
 		$o->setHeading('System Configuration', 'create');
-		$o->setSubHeading(SQ_CONF_SYSTEM_NAME);
-		$o->addHiddenField('action');
+		$o->addHiddenField('config_posted', '1');
 
-/*
-		 ########################################
-		# this stuff comes from the config file
-		$superusers  = &$this->superusers['all'];
-		$webmasters  = &$this->superusers['web'];
-		$usermasters = &$this->superusers['user'];
-*/
+		// lets tell the user if the asset is locked for editing
+		// or if they can lock it to edit it
+		$o->openSection('Locking / Editing');
+		$o->openField('&nbsp;');
+
+		?>
+		<table border="0" cellspacing="3" cellpadding="1">
+			<tr>
+				<td valign="top" width="30">
+					<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
+				</td>
+				<td valign="top">
+					<?php
+					if (!empty($lock)) {
+						// this asset is currently locked
+						// so display message to the user
+						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+
+						$now = time();
+
+						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+						$expires_in = easy_time_total(($lock['expires'] - $now), true);
+						if (!$expires_in) $expires_in = '1 second';
+						$expires_in = 'The lock is due to expire in '.$expires_in;
+
+						echo '<p class="sq-backend-locked">System Configuration is currently locked for editing by user "'.$user->name.'". <br>'.$expires_in.'.</p>';
+
+					} else {
+						echo '<p class="sq-backend-unlocked">The System Configuration is currently Unlocked.</p>';
+					}
+					?>
+				</td>
+				<td valign="top">
+					<?php
+					if (!empty($lock)) {
+						if ($have_lock) {
+							submit_button('sq_manual_release_lock', 'Release Lock');
+						}
+					} else {
+						submit_button('sq_acquire_lock', 'Lock');
+					}
+					?>
+				</td>
+			</tr>
+		</table>
+		<?php
+
+		$o->closeSection();
 
 		$o->openSection('System Settings');
-		$o->openField('System Name');
-		if(true || superuser()) {
-			text_box('config[SQ_CONF_SYSTEM_NAME]', SQ_CONF_SYSTEM_NAME, 30);
-		} else {
-			echo SQ_CONF_SYSTEM_NAME;
-		}
 
-		$o->openField('System Owner');
-		if(true || superuser()) {
-			text_box('config[SQ_CONF_SYSTEM_OWNER]', SQ_CONF_SYSTEM_OWNER, 30);
-		} else {
-			echo SQ_CONF_SYSTEM_OWNER;
-		}
+			$o->openField('System Name');
+			if($have_lock) {
+				text_box('config[SQ_CONF_SYSTEM_NAME]', SQ_CONF_SYSTEM_NAME, 30);
+			} else {
+				echo SQ_CONF_SYSTEM_NAME;
+			}
 
-		$o->openField('System Root URLs');
-		if(true || superuser()) {
-			text_area('config[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 40, 4);
-		} else {
-			echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
-		}
+			$o->openField('System Owner');
+			if($have_lock) {
+				text_box('config[SQ_CONF_SYSTEM_OWNER]', SQ_CONF_SYSTEM_OWNER, 30);
+			} else {
+				echo SQ_CONF_SYSTEM_OWNER;
+			}
+
+			$o->openField('System Root URLs');
+			if($have_lock) {
+				text_area('config[SQ_CONF_SYSTEM_ROOT_URLS]', SQ_CONF_SYSTEM_ROOT_URLS, 40, 4);
+			} else {
+				echo nl2br(SQ_CONF_SYSTEM_ROOT_URLS);
+			}
 
 		$o->closeSection();
 
+		$o->openSection('Email Settings');
 
-
-/*
-		$o->open_field('Backend Message Box Focus');
-		if (superuser()) {
-			combo_box('config[SQ_CONF_SYSTEM_NAME]',array('1'=>'On','0'=>'Off'),);
-		} else {
-			echo (($this->backend_message_box_focus)?'On':'Off');
-		}
-		echo('<span class=smallprint><br/>This determines whether the message box in the backend pops up over the current window or not</span>');
-
-		$backend->open_field('Backend Log Messages','one_liner');
-		if (trim(strtolower(getenv('MySource_BackendLogMessages'))) != 'on') {
-			echo '<span class=smallprint>This feature is not available with your current configuration.</span>';
-		} else {
-			if (superuser()) {
-				echo text_box('backend_log_messages',$this->backend_log_messages,30,'','class=data');
+			$o->openField('Default Email');
+			if($have_lock) {
+				text_box('config[SQ_CONF_DEFAULT_EMAIL]', SQ_CONF_DEFAULT_EMAIL, 50);
 			} else {
-				echo $this->backend_log_messages;
+				echo SQ_CONF_DEFAULT_EMAIL;
 			}
-			echo '<span class=smallprint><br/>/path/to/log/file or leave blank for no logging.</span>';
-		}
 
-		$backend->open_field('Backend Brand Image','one_liner');
-		if (superuser()) {
-			echo image_upload('backend_brand_image', get_data_path(true, 'backend_brand_image'), data_href(), 20000, 200, 100, true);
-		} else {
-			echo $this->backend_brand_image;
-		}
+			$o->openField('Tech Email');
+			if($have_lock) {
+				text_box('config[SQ_CONF_TECH_EMAIL]', SQ_CONF_TECH_EMAIL, 50);
+			} else {
+				echo SQ_CONF_TECH_EMAIL;
+			}
 
-		$backend->open_field('JUpload Path','one_liner');
-		echo text_box('jupload_path',$this->jupload_path,40,100);
-		echo '<span class=smallprint><br/>If you have configured tomcat or another Java Servlet handler on your server and have enabled the squizlib/jupload directory, enter the appropriate path here (from the browsers POV).<br/>E.g. <i>http://beta.squiz.net/agi_test_jupload/</i><br/><b>Leave this field blank if you cannot or do not wish to use the Java uploader.</b></span>';
+		$o->closeSection();
 
-		 ##############
-		# super-users
-		if (user_root()) {
-
-			if (count($superusers)) {
-
-				$backend->open_field('Current Super Users ('.count($superusers).'):');
-
-				$sql = "SELECT userid, login, CONCAT(firstname, ' ', surname) as name, email
-						FROM user
-						WHERE login IN ('".implode("','", $superusers)."')
-						ORDER BY surname, firstname";
-				$superusers  = $db->associative_array($sql);
-
-				$users_system->display_users_table(array_keys($superusers), ((user_root())?'delete_superuser_ids':''), 'Delete?','super_page_counter');
-			}#end if count(superusers)
-
-			$backend->open_field('Add Super Users:<br/><span class=smallprint>(logins/emails)</span>');
-			echo text_area(superuser_search,'',30,3,3000,'class=backend_data');
-
-		}#end if user_root
-*/
-
-		// login and session timeout configuration
 		$o->openSection('Login/Session Settings');
-		$o->openField('Max Login Attempts', '', 'Zero (0) is unlimited attempts');
-		if(true || superuser()) {
-			text_box('config[SQ_CONF_MAX_LOGIN_ATTEMPTS]', SQ_CONF_MAX_LOGIN_ATTEMPTS, 5, 5);
-		} else {
-			echo SQ_CONF_MAX_LOGIN_ATTEMPTS;
-		}
 
-		$o->openField('Max Idle Time', '', 'In seconds - Min: 60 or zero (0) for unlimited idle time');
-		if(true || superuser()) {
-			echo text_box('config[SQ_CONF_MAX_IDLE_TIME]', SQ_CONF_MAX_IDLE_TIME, 10, 10);
-		} else {
-			echo SQ_CONF_MAX_IDLE_TIME;
-		}
-
-		$o->closeSection();
-
-/*
-		$o->open_field('Log Visitors','one_liner');
-		if (trim(strtolower(getenv('MySource_LogVisitors'))) != 'on') {
-			echo '<span class=smallprint>This feature is not available with your current configuration.</span>';
-		} else {
-			if(superuser()) {
-				echo combo_box('log_visitors', array('1'=>'On','0'=>'Off'), $this->log_visitors);
+			$o->openField('Max Login Attempts', '', 'Zero (0) is unlimited attempts');
+			if($have_lock && $is_root) {
+				text_box('config[SQ_CONF_MAX_LOGIN_ATTEMPTS]', SQ_CONF_MAX_LOGIN_ATTEMPTS, 5, 5);
 			} else {
-				echo (($this->log_visitors) ? 'Yes' : 'No');
+				echo SQ_CONF_MAX_LOGIN_ATTEMPTS;
 			}
-			echo('<span class=smallprint><br/>Turning on this setting, enables logging of sessions, page hits and file hits.<br/><i>NOTE: On high traffic sites enabling this option can cause the database server to crash due to the huge amounts of data being stored</i></span>');
-		}
 
-		$backend->open_field('Log Remote Hosts','one_liner');
-		if(superuser()) {
-			echo combo_box('log_remote_hosts',array('1'=>'On','0'=>'Off'),$this->log_remote_hosts);
-		} else {
-			echo (($this->log_remote_hosts)?'Yes':'No');
-		}
-		echo('<span class=smallprint><br/>If pages sometimes take a very long time to load at the beginning of a session, turn this option off. If on, the <i>hostname</i> of the user is logged, which can be used to figure out their ISP and country of origin.<br/>Only effective if Log Visitors in enabled</span>');
-*/
+			$o->openField('Max Idle Time', '', 'In seconds - Min: 60 or zero (0) for unlimited idle time');
 
-/*
-		 ############
-		# WEB SYSTEM
-		$o->openSection('Web System Settings');
-
-		$backend->open_field('Virtual Paths','one_liner');
-		if (superuser()) {
-			echo combo_box('virtual_paths',array('1'=>'On','0'=>'Off'),$this->virtual_paths);
-		} else {
-			echo (($this->virtual_paths)?'On':'Off');
-		}
-		$backend->open_field('Backend Suffix','one_liner');
-		#if(superuser() && $this->virtual_paths) {
-		echo '<span class=backend_data>/</span>';
-		echo text_box('backend_suffix',$this->backend_suffix,15,255,'class=backend_data');
-		echo ('<span class=smallprint><br/>This must correspond with your web server configuration.</span>');
-		#} else {
-		#	echo "<span class=backend_data>/$this->backend_suffix</span>";
-		#}
-
-		$backend->open_field('Batch Page Delete','one_liner');
-		if(superuser()) {
-			echo text_box('batch_delete',(($this->batch_delete)?$this->batch_delete:'10'), 10, 10,'class=data');
-		} else {
-			echo (($this->batch_delete)?$this->batch_delete:'10');
-		}
-		echo ('<span class=smallprint><br/>The number of pages to delete at a time when deleting a page or site. Set this to a low number if your deleting is timing out.</span>');
-
-		$backend->open_field('Batch Page Dupe','one_liner');
-		if(superuser()) {
-			echo text_box('batch_dupe',(($this->batch_dupe)?$this->batch_dupe:'10'), 10, 10,'class=data');
-		} else {
-			echo (($this->batch_dupe)?$this->batch_dupe:'10');
-		}
-		echo ('<span class=smallprint><br/>The number of pages to dupe at a time when duping a page or site. Set this to a low number if your duping is timing out.</span>');
-
-		$backend->open_field('Strict URL Matching','one_liner');
-		if (superuser()) {
-			echo combo_box('strict_url_matching',array('1'=>'On','0'=>'Off'),$this->strict_url_matching);
-		} else {
-			echo (($this->strict_url_matching)?'On':'Off');
-		}
-		echo ('<span class=smallprint><br/>This decides whether the system will try to match the closest URL for or display the \'Page Not Found\'.</span>');
-
-		$backend->open_field('Moderate Caching','one_liner');
-		if (superuser()) {
-			echo combo_box('moderate_caching',array('1'=>'On','0'=>'Off'),$this->moderate_caching);
-		} else {
-			echo (($this->moderate_caching)?'On':'Off');
-		}
-		echo ('<span class=smallprint><br/>MySource can attempt to control web caching in browsers and proxies using HTTP headers. You may switch this off to use the PHP defaults, however, but these tend to discourage caching which can lead to increased traffic and download time.</span>');
-
-		$backend->open_field('Illegal Filetypes','one_liner');
-		if (superuser()) {
-			echo text_area('illegal_filetypes',$this->illegal_filetypes,40,3);
-		} else {
-			echo $this->illegal_filetypes;
-		}
-		echo ('<span class=smallprint><br/>List the file extensions that you do not want MySource users to be able to upload, and use to potentially exploit your server. (all lower-case - uppercase files will also be rejected)</span>');
-
-		# DEFAULT TABLE CELL TYPE
-		if (superuser('web')) {
-			$backend->open_field('Default Table Cell Type','one_liner');
-			echo combo_box('default_table_cell_type',array('richtext'=>'Rich Text','wysiwyg'=>'WYSIWYG','rawhtml'=>'Raw HTML'),$this->default_table_cell_type);
-		}
-
-		# LANGUAGE
-		$backend->open_field('Frontend Language','one_liner');
-		$languages_config = &get_config('languages');
-		if(superuser()) {
-			if($this->default_language) {
-				echo $languages_config->name_list($this->default_language).'<br/>';
+			if($have_lock && $is_root) {
+				text_box('config[SQ_CONF_MAX_IDLE_TIME]', SQ_CONF_MAX_IDLE_TIME, 10, 10);
+			} else {
+				echo SQ_CONF_MAX_IDLE_TIME;
 			}
-			echo multiple_combo_box('default_language',$languages_config->languages,explode(',',$this->default_language),'class=backend_data', '', 4);
-		} else {
-			echo '<span class=backend_data>'.$languages_config->name_list($this->default_language).'</span>';
-		}
-		echo('<span class=smallprint><br/>This is the default language used on the frontend. It may be overridden by individual sites and pages.</span>');
-
-		# CHARACTER SETS
-		$backend->open_field('Character Set','one_liner');
-		if(superuser()) {
-			$charsets_config = &get_config('charsets');
-			echo combo_box('default_charset',array(''=>'-- Browser Default --')+$charsets_config->charsets,$this->default_charset, 'class=backend_data');
-		} else {
-			$languages_config = &get_config('charsets');
-			echo "<span class=backend_data>{$charsets_config->charsets[$this->default_charset]}</span>";
-		}
-		echo('<span class=smallprint><br/>This is the default character set used in the backend and the frontend. It may be overridden by individual sites and pages.</span>');
-		echo('<span class=smallprint><br/><input type=checkbox name=check_db_mbstrings[] value=web '.((in_array('web',$this->check_db_mbstrings))?'checked':'').'> Validate data coming out of the <b>web</b> database is in this character set and uncorrupted.<br/><input type=checkbox name=check_db_mbstrings[] value=users '.((in_array('users',$this->check_db_mbstrings))?'checked':'').'> Validate data coming out of the <b>users</b> database is in this character set and uncorrupted.</span>');
-		echo('<span class=warning style="font-size: 10px;"><br/><b>Warning: These settings are only necessary for multi-byte character sets.</b> You must have the <i>mbstring</i> module for PHP installed for these two options to work correctly. Only a few character sets are supported (generally Japanese ones).</span>');
-
-		$backend->open_field('Site Backend DHTML Navigation','one_liner');
-		if (superuser('web')) {
-			echo combo_box('site_backend_dhtml_navigation',array('1'=>'On','0'=>'Off'),$this->site_backend_dhtml_navigation);
-		} else {
-			echo (($this->site_backend_dhtml_navigation)?'On':'Off');
-		}
-
-*/
-/*
-		 ##############
-		# web-masters
-		if (superuser()) {
-			if (count($webmasters)) {
-				$backend->open_field('Current Web Masters ('.count($webmasters).'):', 'top');
-
-				$sql = "SELECT userid, login, CONCAT(firstname, ' ', surname) as name, email
-						FROM user
-						WHERE login IN ('".implode("','", $webmasters)."')
-						ORDER BY surname, firstname";
-
-				$webmasters = $db->associative_array($sql);
-
-				$users_system->display_users_table(array_keys($webmasters), 'delete_webmaster_ids','Delete?','web_page_counter');
-			}#end if count(webmasters)
-			$backend->open_field('Add Web Masters:<br/><span class=smallprint>(logins/emails)</span>',  'top');
-			echo text_area(webmaster_search,'',30,3,3000,'class=backend_data');
-		}#end if superuser
-*/
-
-		if (true || superuser()) {
-			$o->openSection('Packages');
-			$o->openField('List', 'top');
-			//$XTRAS->paintBackend($backend);
-		}
 
 		$o->closeSection();
 
-		if(true || superuser('web')) {
-			$backend->print_commit_button('Commit',"if (confirm('Commit this information to the system?')) { document.edit.action.value='Commit';document.edit.submit(); }");
+
+		$o->openSection('Intervals');
+
+			$o->openField('Refresh Interval', '', 'How long (in seconds) between refreshes of the top (header) frame - this frame keeps the lock on long edits and checks for new mail');
+			if($have_lock) {
+				text_box('config[SQ_CONF_REFRESH_INTERVAL]', SQ_CONF_REFRESH_INTERVAL, 5, 5);
+			} else {
+				echo SQ_CONF_REFRESH_INTERVAL;
+			}
+
+			$o->openField('Lock Length', '', 'The length of time after which a lock is considered to have expired. In seconds - Min: 60');
+			if($have_lock) {
+				text_box('config[SQ_CONF_LOCK_LENGTH]', SQ_CONF_LOCK_LENGTH, 5, 5);
+			} else {
+				echo SQ_CONF_LOCK_LENGTH;
+			}
+
+		$o->closeSection();
+
+
+		$o->openSection('Error Settings');
+
+			$o->openField('Log Errors');
+			if($have_lock && $is_root) {
+				combo_box('config[SQ_CONF_LOG_ERRORS]', Array(true => 'Yes', false => 'No'), false, SQ_CONF_LOG_ERRORS);
+			} else {
+				echo (SQ_CONF_LOG_ERRORS) ? 'Yes' : 'No';
+			}
+
+			$o->openField('Hide Errors on the Frontend');
+			if($have_lock && $is_root) {
+				combo_box('config[SQ_CONF_ERRORS_HIDE_FRONTEND]', Array(true => 'Yes', false => 'No'), false, SQ_CONF_ERRORS_HIDE_FRONTEND);
+			} else {
+				echo (SQ_CONF_ERRORS_HIDE_FRONTEND) ? 'Yes' : 'No';
+			}
+
+		$o->closeSection();
+
+		$o->openSection('Internationalisation Settings');
+
+			$o->openField('Default Frontend Language');
+			require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
+			if($have_lock) {
+				combo_box('config[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE]', $standards_lists_languages, false, SQ_CONF_DEFAULT_FRONTEND_LANGUAGE);
+			} else {
+				echo $standards_lists_languages[SQ_CONF_DEFAULT_FRONTEND_LANGUAGE];
+			}
+
+			$o->openField('Default Character Set');
+			require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
+			if($have_lock) {
+				combo_box('config[SQ_CONF_DEFAULT_CHARACTER_SET]', $standards_lists_character_sets, false, SQ_CONF_DEFAULT_CHARACTER_SET);
+			} else {
+				echo $standards_lists_character_sets[SQ_CONF_DEFAULT_CHARACTER_SET];
+			}
+
+		$o->closeSection();
+
+		if ($have_lock) {
+			$o->commitButton('Commit', true);
 		}
 
 	}//end print_backend()
