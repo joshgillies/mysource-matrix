@@ -136,7 +136,7 @@ class Asset extends Resolve_Object
 	* </ul>
 	*
 	* @param Array	&$link	information used to create the initial link<br/>
-	* <pre>
+	* <PRE>
 	* Array ('asset'      => [ref major asset to create link under],
 	*        'link_type'  => SQ_LINK_?,
 	*        'value'      => [link value],
@@ -144,7 +144,7 @@ class Asset extends Resolve_Object
 	*        'dependant'  => [0|1],
 	*        'exclusive'  => [0|1]
 	*        )
-	* </pre>
+	* </PRE>
 	*
 	* @return mixed int or false
 	* @access public
@@ -619,7 +619,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Get an array of all assets types that this asset extends from
+	* Get an array of all assets types that the asset extends from
 	*
 	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
 	*									even though it's an unistantiable object
@@ -635,7 +635,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Get all asset ids that are above this asset in the various trees in which it exists
+	* Get all asset IDs that are above the asset in the various trees in which it exists
 	*
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
@@ -655,7 +655,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Get all asset ids that are below this asset in the various trees in which it exists
+	* Get all asset IDs that are below the asset in the various trees in which it exists
 	*
 	* @param string|array	$type_code			the type of asset that is linked
 	*											(eg 'Page', 'File', etc)
@@ -688,8 +688,9 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Loads the asset from the cached version
-	* The cached version is saved when the asset status becomes SQ_STATUS_LIVE
+	* Load the asset from the system version
+	*
+	* The system version is saved when the asset status becomes SQ_STATUS_LIVE
 	*
 	* @return boolean
 	* @access public
@@ -713,7 +714,8 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Saves a copy of this asset at this point in time
+	* Save a copy of this asset at this point in time
+	*
 	* This copy gets used when the asset is live and the user does not have write access
 	*
 	* @return boolean
@@ -763,7 +765,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Clears the directory for saving the system version
+	* Clear the directory for saving the system version
 	*
 	* @return boolean
 	* @access public
@@ -1318,11 +1320,11 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Remaps existing assetids used to new ones, for ourselves and all our dependants
+	* Remap existing assetids used to new ones for ourselves and all our dependants
 	*
 	* @param array	&$map	a map of the form Array([old asset id] => [new asset id]);
 	*
-	* @return bool
+	* @return boolean
 	* @access public
 	*/
 	function remapAssetids($map)
@@ -1348,8 +1350,9 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Morph's this asset to either one of it's parent type or one of it's children types
-	* Only succeeds if $type_code asset's is allowed to link to all children that this asset has
+	* Morph the asset to either one of its parent types or one of its children types
+	*
+	* Only succeeds if $type_code assets are allowed to link to all children that this asset has.
 	*
 	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
 	*
@@ -2710,7 +2713,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
+	* Determine if we can delete the passed link
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
@@ -2725,7 +2728,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Removes a link where this asset is the major player
+	* Remove a link where this asset is the major player
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*
@@ -2906,15 +2909,6 @@ class Asset extends Resolve_Object
 			}
 		}
 
-// if this is a significant link, it's time to refresh the permissions lookup
-//if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
-//	//// UPDATE OUR PERMISSIONS LOOKUP'S ////
-//	if (!$this->_refreshPermissionLookups()) {
-//		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-//		return 0;
-//	}
-//}
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $this->id, 'linkid' => $linkid));
 
@@ -3011,7 +3005,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Moves a link from one place in this assets links order to another position
+	* Move a link from one position in the assets links order to another
 	*
 	* @param int	$linkid		the link id of the link to move about
 	* @param int	$sort_order	the position in the links list that this link should take,
@@ -3036,9 +3030,10 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Called whenever any type of link is changed, allows caching of objects, links and other stuff
-	* to occur but not cause integrity issues during script execution
-	* returns true it it's successfull
+	* Allow any required processesing to occur when any link is updated for the asset
+	*
+	* Called whenever any type of link is changed. Allows caching of objects, links and other stuff
+	* to occur but not cause integrity issues during script execution.
 	*
 	* @return boolean
 	* @access private
@@ -3053,9 +3048,10 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Updates the details of an existing link
-	* If any of the detail vars are NULL they aren't updated
-	* NOTE: No transaction stuff is put around the SQL calls in the fn, that sould be done externally
+	* Update the details of an existing link
+	*
+	* If any of the detail vars are NULL they are not updated.<br/>
+	* <b>NOTE:</b> No transaction stuff is put around the SQL calls in the fn. That sould be done externally.
 	*
 	* @param int	$linkid		the link id of the link to update
 	* @param int	$link_type
@@ -3191,7 +3187,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Set the value for the passed variable to the passed value
+	* Set the value of an attribute
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
@@ -3301,7 +3297,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Easy way to get the value of an attribute
+	* Get the value of an attribute
 	*
 	* @param string	$name the name of the attribute whos value you want to get
 	*
@@ -4314,4 +4310,5 @@ class Asset extends Resolve_Object
 
 
 }//end class
+
 ?>
