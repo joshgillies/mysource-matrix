@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.11 2004/05/05 07:10:12 lwright Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.12 2004/05/06 04:41:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -102,7 +102,11 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 				$error = $q_asset->name.' '.$operators[$operator].
 			' '.$comparison->_getName().' in '.$comparison->getMySectionName().' (\''.$comparison->getValue().'\')';
 			} else {
-				$error = $this->my_question->name.' '.$operators[$operator].' '.$comparison;
+				if ($q_asset->isSelection()) {
+					$options = &$q_asset->getOptions();
+					$comparison = '"'.$options[(int)$comparison].'"';
+				}
+				$error = $q_asset->name.' '.$operators[$operator].' '.$comparison;
 			}
 			$q_asset->submission_errors[] = $error;
 			return false;
@@ -149,6 +153,10 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 						' '.$comparison->_getName().' in '.$comparison->getMySectionName().'
 						(\''.$compare_value.'\')';
 			} else {
+				if ($q_asset->isSelection()) {
+					$options = &$q_asset->getOptions();
+					$compare_value = '"'.$options[(int)$comparison].'"';
+				}
 				$error = $q_asset->name.' '.$operators[$operator].' '.$compare_value;
 			}
 		$code .= 'submission_errors[i] = "'.addslashes($error).'"; i++;'; // add submission error
