@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.76 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design.inc,v 1.76.2.1 2005/02/08 06:05:21 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -506,7 +506,7 @@ echo '<!--   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
   (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
   Page generated: <?php echo date(\'d F Y\')."\n"; ?>
 -->
-<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
+<script type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
 
 <?php
 if (SQ_IN_LIMBO && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend) && !is_null($GLOBALS[\'SQ_SYSTEM\']->backend->out)) $GLOBALS[\'SQ_SYSTEM\']->backend->out->_paintHeader();
