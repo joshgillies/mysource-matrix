@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.17 2004/02/23 05:52:35 diarandine Exp $
+* $Id: selection.inc,v 1.18 2004/02/23 06:18:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -90,10 +90,11 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 
 	/**
-	* Print the interface for changing some params
+	* Print the interface for changing edit params
 	*
-	* @param string		$prefix		prefix for the form element
+	* @param string		$prefix		prefix for the form elements
 	*
+	* @return void
 	* @access public
 	*/
 	function paintEditParams($prefix, $write_access=false)
@@ -103,63 +104,48 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		$searchStyles['checkbox'] = 'Checkbox';
 
 		?>
-		<table class='sq-backend-table'>
-		<tr>
-			<td colspan="3" class="sq-backend-table-header"><?php echo $this->name; ?></td>
-		</tr>
-		<tr>
-			<td class="sq-backend-section-heading">Style</td>
-			<td class="sq-backend-section-heading">Height</td>
-			<td class="sq-backend-section-heading">Columns</td>
-		</tr>
-		<tr>
-			<td class="sq-backend-table-cell">
-			<?
-				if ($write_access) {
-					combo_box($prefix.'_' . $this->name . '_style', $searchStyles, false, $this->_edit_params['style']);
-				} else {
-					echo $this->_edit_params['style'];
-				}
-			?>
-			</td>
-			<td class="sq-backend-table-cell">
-			<?
-				if ($write_access) {
-					text_box($prefix.'_' . $this->name . '_height', $this->_edit_params['height']);
-				} else {
-					echo $this->_edit_params['height'];
-				}
-			?>
-			</td>
-			<td class="sq-backend-table-cell">
-			<?
-				if ($write_access) {
-					text_box($prefix.'_' . $this->name . '_columns', $this->_edit_params['columns']);
-				} else {
-					echo $this->_edit_params['columns'];
-				}
-			?>
-			</td>
-		</tr>
+		<table class="sq-backend-table">
+			<tr>
+				<td colspan="3" class="sq-backend-table-header"><?php echo $this->name; ?></td>
+			</tr>
+			<tr>
+				<td class="sq-backend-section-heading">Style</td>
+				<td class="sq-backend-section-heading">Height</td>
+				<td class="sq-backend-section-heading">Columns</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) combo_box($prefix.'_' . $this->name . '_style', $searchStyles, false, $this->_edit_params['style']);
+					else echo $this->_edit_params['style'];
+					?>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) text_box($prefix.'_' . $this->name . '_height', $this->_edit_params['height']);
+					else echo $this->_edit_params['height'];
+					?>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) text_box($prefix.'_' . $this->name . '_columns', $this->_edit_params['columns']);
+					else echo $this->_edit_params['columns'];
+					?>
+				</td>
+			</tr>
 		</table>
-		<?
+		<?php
 
 	}//end paintEditParams()
 
 
 	/**
-	* process the interface for changing some params
+	* Process the interface for changing edit params
 	*
-	* @param string		$prefix		prefix for the form element
+	* @param string		$prefix		prefix for the form elements
+	*
+	* @return array
 	* @access public
-	*
-	* @return Array		structure of the return array must be:
-	*
-	*			attr_name => Array( key1 => value1,
-	*								key2 => value2,
-	*								key3 => value3
-	*						)
-	*
 	*/
 	function processEditParams($prefix)
 	{

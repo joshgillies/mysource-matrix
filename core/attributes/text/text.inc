@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.19 2004/02/23 05:53:32 diarandine Exp $
+* $Id: text.inc,v 1.20 2004/02/23 06:18:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,62 +61,51 @@ class Asset_Attribute_Text extends Asset_Attribute
 
 
 	/**
-	* Print the interface for changing some params
+	* Print the interface for changing edit params
 	*
-	* @param string		$prefix		prefix for the form element
+	* @param string		$prefix		prefix for the form elements
 	*
+	* @return void
 	* @access public
 	*/
 	function paintEditParams($prefix, $write_access=false)
 	{
 		?>
-		<table class='sq-backend-table'>
-		<tr>
-			<td colspan="2" class="sq-backend-table-header"><?php echo $this->name; ?></td>
-		</tr>
-		<tr>
-			<td class="sq-backend-section-heading">Width</td>
-			<td class="sq-backend-section-heading">Height</td>
-		</tr>
-		<tr>
-			<td class="sq-backend-table-cell">
-			<?
-			if ($write_access) {
-				text_box($prefix.'_' . $this->name . '_width', $this->_edit_params['width']);
-			} else {
-				echo $this->_edit_params['width'];
-			}
-			?>
-			</td>
-			<td class="sq-backend-table-cell">
-			<?
-			if ($write_access) {
-				text_box($prefix.'_' . $this->name . '_height', $this->_edit_params['height']);
-			} else {
-				echo $this->_edit_params['height'];
-			}
-			?>
-			</td>
-		</tr>
+		<table class="sq-backend-table">
+			<tr>
+				<td colspan="2" class="sq-backend-table-header"><?php echo $this->name; ?></td>
+			</tr>
+			<tr>
+				<td class="sq-backend-section-heading">Width</td>
+				<td class="sq-backend-section-heading">Height</td>
+			</tr>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) text_box($prefix.'_' . $this->name . '_width', $this->_edit_params['width']);
+					else echo $this->_edit_params['width'];
+					?>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) text_box($prefix.'_' . $this->name . '_height', $this->_edit_params['height']);
+					else echo $this->_edit_params['height'];
+					?>
+				</td>
+			</tr>
 		</table>
-		<?
+		<?php
 
 	}//end paintEditParams()
 
 
 	/**
-	* process the interface for changing some params
+	* Process the interface for changing edit params
 	*
-	* @param string		$prefix		prefix for the form element
+	* @param string		$prefix		prefix for the form elements
+	*
+	* @return array
 	* @access public
-	*
-	* @return Array		structure of the return array must be:
-	*
-	*			attr_name => Array( key1 => value1,
-	*								key2 => value2,
-	*								key3 => value3
-	*						)
-	*
 	*/
 	function processEditParams($prefix)
 	{
