@@ -50,7 +50,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 		if (!isset($_GET['am_section'])) {
 			// we might be comming here from the frontend
-			$url_asset = &$this->am->getAssetFromURL(current_protocol());
+			$url_asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
 			if (is_null($url_asset)) {
 				$_GET['am_section'] = '';
 			} else {
