@@ -1,0 +1,160 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: tables.xml,v 1.1.2.1 2004/03/03 19:43:11 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<schema>
+	<tables>
+		<table name="file_versioning_file" require_rollback="0">
+			<columns>
+				<column name="fileid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="path" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description>The directory suffix from the repository root that this file is situated in</description>
+				</column>
+				<column name="filename" allow_null="0">
+					<type>VARCHAR(150)</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="fileid" />
+				</primary_key>
+				<unique_key>
+					<column name="path" />
+					<column name="filename" />
+				</unique_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="file_versioning_file_history" require_rollback="0">
+			<columns>
+				<column name="fileid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="version" allow_null="0">
+					<type>INT</type>
+					<type_variations>
+						<mysql>INT UNSIGNED</mysql>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="from_date" allow_null="0">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<mysql>DATETIME</mysql>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="to_date" allow_null="1">
+					<type>TIMESTAMP</type>
+					<type_variations>
+						<mysql>DATETIME</mysql>
+					</type_variations>
+					<default>NULL</default>
+					<description />
+				</column>
+				<column name="file_size" allow_null="0">
+					<type>INT</type>
+					<type_variations>
+						<mysql>INT UNSIGNED</mysql>
+					</type_variations>
+					<default />
+					<description />
+				</column>
+				<column name="md5" allow_null="0">
+					<type>CHAR(32)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="sha1" allow_null="0">
+					<type>CHAR(40)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="removal" allow_null="0">
+					<type>CHAR(1)</type>
+					<type_variations />
+					<default>'0'</default>
+					<description>Was this version a removed version ?</description>
+				</column>
+				<column name="extra_info" allow_null="0">
+					<type>TEXT</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="fileid" />
+					<column name="version" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="from_date" />
+				</index>
+				<index>
+					<column name="to_date" />
+				</index>
+			</indexes>
+		</table>
+		<table name="file_versioning_file_lock" require_rollback="0">
+			<columns>
+				<column name="fileid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />>
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="fileid" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+	</tables>
+	<sequences>
+		<sequence name="sequence_file_versioning_file" />
+	</sequences>
+</schema>
