@@ -18,77 +18,97 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_management.inc,v 1.2 2004/11/30 01:29:10 arailean Exp $
+* $Id: metadata_field_thesaurus_management.inc,v 1.1 2004/11/30 01:29:10 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
+
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Thesaurus_Management
+* Metadata_Field_Thesaurus_Management
 *
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
-class Thesaurus_Management extends Asset_Management
+class Metadata_Field_Thesaurus_Management extends Asset_Management
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Thesaurus_Management(&$pm)
+	function Metadata_Field_Thesaurus_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+
+		// additional attrs., that were not defined in parent
 		$this->vars = Array(
-			'name' => Array(
-				'added'       => '0.0.1',
-				'type'        => 'text',
-				'default'   => '',
-				'description' => 'The full name of the page',
+			'thesaurus_assetid' => Array(
+				'added'			=> '0.1',
+				'type'			=> 'assetid',
+				'default'		=> '',
+				'description'   => 'Thesaurus asset which will supply the data to this metadata field.',
 			),
 
-			'import_timestamp'=> Array(
+			'allow_manual' => Array(
 				'added'       => '0.0.1',
-				'type'        => 'text',
-				'default'     => '',
-				'description' => 'Date and Time of last Thesaurus import',
+				'type'        => 'boolean',
+				'default'     => false,
+				'description' => 'Whether to allow for manual input of this field',
+				'parameters' => Array(
+						'allow_empty' => false
+					),
 			),
 
-			'active' => Array(
+			'force_thesaurus' => Array(
 				'added'       => '0.0.1',
 				'type'        => 'boolean',
 				'default'   => false,
+				'description' => 'If set to true will only accept values from the thesaurus, to be used with allow_manual',
+				'parameters' => Array(
+						'allow_empty' => false
+					),
 			),
 
-			'relations' => Array(
-				'added'      => '0.0.1',
-				'type'		 => 'serialise',
-				'default'	 => Array(),
-				'description'=> 'Cached listing of all the relations in this thesaurus in the form [name => id]',
-			),
-
-			'relation_settings' => Array(
-				'added'      => '0.0.1',
-				'type'		 => 'serialise',
-				'default'	 => Array(),
-				'description'=> 'Information required for the built-in relations to function.',
-			),
-
-			'builtin_relations' => Array(
-				'added'      => '0.0.1',
-				'type'		 => 'serialise',
-				'default'	 => Array(),
-				'description'=> 'Mapping from built-in relation type to the relation id as stored in the database. Also serves as an indication of whether or not a certain relation is enabled.',
-			),
 		);
 
 	}//end constructor
+
+
+	/**
+	* Gets a list of all files
+	*
+	* @access private
+	* @return array(string)
+	*/
+	function _getFileList()
+	{
+		return Array(
+			'files/browser.html',
+			'files/thesaurus_browser.js',
+			'files/images/1x1.gif',
+			'files/images/arrowl.gif',
+			'files/images/arrowr.gif',
+			'files/images/minus.gif',
+			'files/images/plus.gif',
+			'files/images/thesaurus_button.gif',
+			'files/images/bs.png',
+			'files/images/lbs.png',
+			'files/images/ls.png',
+			'files/images/lts.png',
+			'files/images/rbs.png',
+			'files/images/rs.png',
+			'files/images/rts.png',
+			'files/images/rts2.png',
+			'files/images/ts.png',
+		);
+
+	}//end _getFileList()
 
 }//end class
 

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' ?>
-<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+<?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
 
 <!--
 /**
@@ -21,20 +21,20 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.2 2004/11/30 01:29:10 arailean Exp $
+* $Id: asset.xml,v 1.1 2004/11/30 01:29:10 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
-<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
 	<package>lexicon</package>
-	<type_code>thesaurus</type_code>
-	<version>0.1</version>
-	<name>Thesaurus</name>
-	<description>Asset for storing word relationships</description>
+	<type_code>metadata_field_thesaurus</type_code>
+	<version>0.2</version>
+	<name>Metadata Thesaurus Field</name>
+	<description>Metadata Field for Thesaurus browsing. Allows for insertion of metadata values from the Thesaurus.</description>
 	<instantiable>yes</instantiable>
-	<allowed_access>backend_user</allowed_access>
-	<parent_type>asset</parent_type>
-	<requirements></requirements>
-	<flash_menu_path>Lexicon</flash_menu_path>
+	<allowed_access>system</allowed_access>
+	<parent_type>metadata_field</parent_type>
+	<requirements />
+	<flash_menu_path/>
 </asset_info>

@@ -1,0 +1,167 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: tables.xml,v 1.1 2004/11/30 01:29:10 arailean Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<schema>
+   <tables>
+	   <table name="lex_thes_ent" require_rollback="0">
+		   <columns>
+			   <column name="id" allow_null="0">
+				   <type>INTEGER</type>
+				   <type_variations />
+				   <default />
+				   <description />
+			   </column>
+			   <column name="name" allow_null="0">
+				   <type>VARCHAR(255)</type>
+				   <type_variations />
+				   <default />
+				   <description />
+			   </column>
+			   <column name="description" allow_null="1">
+				   <type>VARCHAR(255)</type>
+				   <type_variations />
+				   <default />
+				   <description />
+			   </column>
+			   <column name="thes_id" allow_null="0">
+				   <type>INTEGER</type>
+				   <type_variations />
+				   <default />
+				   <description>Thesaurus Asset ID</description>
+			   </column>
+		   </columns>
+		   <keys>
+			   <primary_key>
+				   <column name="id" />
+			   </primary_key>
+			   <unique_key>
+				   <column name="name" />
+				   <column name="thes_id" />
+			   </unique_key>
+		   </keys>
+		   <indexes>
+			   <index>
+				   <column name="thes_id" />
+			   </index>
+			   <index>
+				   <column name="name" />
+			   </index>
+		   </indexes>
+	   </table>
+	   <table name="lex_thes_rel" require_rollback="0">
+		   <columns>
+			   <column name="id" allow_null="0">
+				   <type>INTEGER</type>
+				   <type_variations />
+				   <default />
+				   <description />
+			   </column>
+			   <column name="name" allow_null="0">
+				   <type>VARCHAR(255)</type>
+				   <type_variations />
+				   <default />
+				   <description />
+			   </column>
+			   <column name="thes_id" allow_null="0">
+				   <type>INTEGER</type>
+				   <type_variations />
+				   <default />
+				   <description>Thesaurus Asset ID</description>
+			   </column>
+		   </columns>
+		   <keys>
+			   <primary_key>
+				   <column name="id" />
+			   </primary_key>
+			   <unique_key>
+				   <column name="name" />
+				   <column name="thes_id" />
+			   </unique_key>
+		   </keys>
+		   <indexes>
+			   <index>
+				   <column name="thes_id" />
+			   </index>
+			   <index>
+				   <column name="name" />
+			   </index>
+		   </indexes>
+	   </table>
+	   <table name="lex_thes_ent_rel" require_rollback="0">
+		   <columns>
+			   <column name="pnt_ent_id" allow_null="0">
+				   <type>INTEGER</type>
+				   <type_variations />
+				   <default />
+				   <description>Entity id foreign key</description>
+			   </column>
+			   <column name="cld_ent_id" allow_null="0">
+				   <type>INTEGER</type>
+				   <type_variations />
+				   <default />
+				   <description>Entity id foreign key</description>
+			   </column>
+			   <column name="rel_id" allow_null="0">
+				   <type>INTEGER</type>
+				   <type_variations />
+				   <default />
+				   <description>Relation id foreign key</description>
+			   </column>
+			   <column name="thes_id" allow_null="0">
+				   <type>INTEGER</type>
+				   <type_variations />
+				   <default />
+				   <description>Thesaurus Asset ID</description>
+			   </column>
+		   </columns>
+		   <keys>
+			   <primary_key>
+				   <column name="pnt_ent_id" />
+				   <column name="cld_ent_id" />
+				   <column name="rel_id" />
+				   <column name="thes_id" />
+			   </primary_key>
+		   </keys>
+		   <indexes>
+			   <index>
+				   <column name="pnt_ent_id" />
+			   </index>
+			   <index>
+				   <column name="cld_ent_id" />
+			   </index>
+			   <index>
+				   <column name="rel_id" />
+			   </index>
+			   <index>
+				   <column name="thes_id" />
+			   </index>
+		   </indexes>
+	   </table>
+   </tables>
+   <sequences>
+	   <sequence name="lex_thes_ent_id" />
+	   <sequence name="lex_thes_rel_id" />
+   </sequences>
+</schema>
