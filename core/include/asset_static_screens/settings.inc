@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.15.2.2 2004/12/30 02:47:55 tbarrett Exp $
+* $Id: settings.inc,v 1.15.2.3 2005/04/01 06:33:09 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -450,7 +450,6 @@ function paintSettings(&$owner, &$o, &$ei)
 						$o->openField(($designid) ? 'Change ?' : 'New ?');
 
 						if (!$owner->writeAccess('links')) {
-							$created = true;
 							echo '<i>';
 							if (!$designid) {
 								echo 'None';
@@ -461,6 +460,7 @@ function paintSettings(&$owner, &$o, &$ei)
 							echo '</i>';
 
 						} else {
+							$created = true;
 							$buttons = Array('clear');
 							if (!$new_user_design) $buttons[] = 'reset';
 							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'), 'sq_sidenav', false, 'null', $buttons);
