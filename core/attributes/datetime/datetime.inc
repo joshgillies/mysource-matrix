@@ -132,7 +132,6 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 				$this->processed = false;
 			}
 		} else {
-			bam('error');
 			$this->processed = false;
 		}
 	}// end process()
