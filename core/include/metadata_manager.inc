@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.53 2004/11/18 04:39:52 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.54 2004/11/22 22:17:55 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -367,8 +367,8 @@ class Metadata_Manager extends MySource_Object
 		$sql = '  SELECT metadata
 				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_metadata ';
 		$where = 'assetid = '.$db->quote($asset->id).'
-				    AND schemaid = '.$db->quote($schemaid).'
-				    AND granted = 1';
+					AND schemaid = '.$db->quote($schemaid).'
+					AND granted = 1';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$metadata = $db->getOne($sql.$where);
@@ -942,7 +942,7 @@ class Metadata_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$where_cond = 'assetid='.$db->quote($assetid);
 
-		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_metadata', $where_cond);
+		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_metadata', $where_cond);
 
 	}//end purgeMetadata()
 
