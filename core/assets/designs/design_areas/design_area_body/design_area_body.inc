@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.11 2004/08/02 05:15:13 lwright Exp $
+* $Id: design_area_body.inc,v 1.12 2004/08/11 23:15:48 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,7 +58,7 @@ class Design_Area_Body extends Design_Area
 					 '$ASSET->printBody();',
 				     '$body = ob_get_contents();',
 					 'ob_end_clean();',
-					 '$body = preg_replace(\'|\<img([^\>]*)\>|\',\'\',$body);',
+					 '$body = preg_replace(\'|\<img([^\>]*)\>|U\',\'\',$body);',
 					 '$body = preg_replace(\'|\\<embed(.*)\>(.*)</embed>|\',\'\',$body);',
 					 '$body = preg_replace(\'|\\<object(.*)\>(.*)</object>|\',\'\',$body);',
 				     'echo $body;';
