@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus.inc,v 1.1 2004/11/30 01:29:10 arailean Exp $
+* $Id: metadata_field_thesaurus.inc,v 1.2 2004/12/02 03:40:58 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -57,7 +57,7 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 	* @param $o object    bakcend outputter
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function paintBackend(&$o)
 	{
