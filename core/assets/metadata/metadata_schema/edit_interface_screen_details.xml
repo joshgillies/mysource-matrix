@@ -6,4 +6,24 @@
 			<text width="12" height="1" />
 		</field>
 	</section>
+	<section name="Sections Defined For This Metadata Schema">
+		<field>
+			<display_name></display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintSections"   />
+				<process_function name="processSections" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Create New Section" read_access="write">
+		<field>
+			<display_name></display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintNewSection"   />
+				<process_function name="processNewSection" />
+			</function_call>
+		</field>
+	</section>
 </contents>

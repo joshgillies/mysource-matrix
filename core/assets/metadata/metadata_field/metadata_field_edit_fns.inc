@@ -23,6 +23,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	function Metadata_Field_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end constructor
 
@@ -170,7 +171,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineEditInterface(&$asset, &$o, $values, $write_access)
+	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
 	{
 		$prefix = $asset->getPrefix();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -257,7 +258,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}//end paintInlineEditInterface()
+	}//end paintInlineValueInterface()
 
 
 	/**
@@ -269,7 +270,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInlineEditInterface(&$asset, &$new_values)
+	function processInlineValueInterface(&$asset, &$new_values)
 	{
 		$prefix = $asset->getPrefix();
 
@@ -292,7 +293,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		return true;
 
-	}//end processInlineEditInterface()
+	}//end processInlineValueInterface()
 
 
 	/**

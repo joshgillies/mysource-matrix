@@ -6,14 +6,4 @@
 			<text width="12" height="1" />
 		</field>
 	</section>
-	<section name="Fields">
-		<field>
-			<display_name>New?</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintFields"   />
-				<process_function name="processFields" />
-			</function_call>
-		</field>
-	</section>
 </contents>

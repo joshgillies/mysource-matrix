@@ -8,7 +8,7 @@
 	<name>Metadata Section</name>
 	<description>Metadata Section, group metadata fields into sections</description>
 	<instantiable>yes</instantiable>
-	<allowed_access>backend_user</allowed_access>
+	<allowed_access>system</allowed_access>
 	<parent_type>folder</parent_type>
 	<requirements />
 </asset_info>

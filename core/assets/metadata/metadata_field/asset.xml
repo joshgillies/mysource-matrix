@@ -8,7 +8,7 @@
 	<name>Metadata Field</name>
 	<description>Metadata Field, define a metadata field for use in a schema</description>
 	<instantiable>yes</instantiable>
-	<allowed_access>backend_user</allowed_access>
+	<allowed_access>system</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements />
 </asset_info>

@@ -9,6 +9,6 @@
 	<description>Metadata Schema, define a schema for metadata to be attached to assets in the system</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
-	<parent_type>asset</parent_type>
+	<parent_type>folder</parent_type>
 	<requirements />
 </asset_info>

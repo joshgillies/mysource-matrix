@@ -23,105 +23,122 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	function Metadata_Section_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+		$this->static_screens['details']['force_unlock'] = false;
 
 	}//end constructor
 
 
 	/**
-	* Paint the interface for creating and deleting metadata fields
+	* Paint the interface for editing metadata fields
 	*
-	* @param object Metadata_Section	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object Metadata_Section	&$asset			the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o				the outputter class
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintFields(&$asset, &$o, $prefix)
+	function paintInlineOptionInterface(&$asset, &$o)
 	{
-		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$write_access = $asset->writeAccess();
-
-		if ($write_access) {
-			text_box($prefix.'_new_field', '', 30);
-		} else {
-			echo '<i>You do not have permission to create a new metadata field</i>';
-		}
-		$o->closeField();
+		$prefix = $asset->getPrefix();
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true, true);
 		if (!empty($current_links)) {
-			$o->openField('Current');
 			$assetids = Array();
 			foreach ($current_links as $link) $assetids[$link['minorid']] = 'details';
 			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
 			$asset_href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($assetids);
-			?>
-			<table border="0" cellspacing="0" cellpadding="3">
+
+			$o->openField('Fields');
+				?>
+				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+					<tr>
+						<td bgcolor="#DDDDDD" class="sq-backend-smallprint"><b>Field Name</b></td>
+						<td bgcolor="#DDDDDD" align="center" width="150" class="sq-backend-smallprint"><b>Edit Field</b></td>
+						<?php
+						if ($write_access) {
+							?><td bgcolor="#DDDDDD" align="center" width="70" class="sq-backend-smallprint"><b>Delete ?</b></td><?php
+						}
+						?>
+					</tr>
 				<?php
-				foreach ($asset_info as $asset_data) {
+				foreach ($current_links as $link_data) {
+					$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid']);
+					if (is_null($field)) continue;
+					$edit_fns = $field->getEditFns();
 					?>
 					<tr>
-						<td valign="top" class="sq-backend-data" style="background: #DDDDDD"><b><a href="<?php echo $asset_href[$asset_data['assetid']]; ?>"><?php echo $asset_data['name']; ?></a></b></td>
-						<?php if ($write_access) { ?>
-							<td valign="top" class="sq-backend-data"><?php check_box($prefix.'_field_delete['.$asset_data['assetid'].']'); ?> Delete?</td>
-						<?php } ?>
-					</tr>
+						<td bgcolor="#F0F0F0" align="left" class="sq-backend-data"><?php echo $field->name;?></td>
+						<td bgcolor="#F0F0F0" align="center" class="sq-backend-data">[ <a href="<?php echo $asset_href[$field->id];?>">Go To Edit Interface</a> ]</td>
 					<?php
+					if ($write_access) {
+						?><td bgcolor="#F0F0F0" align="center" class="sq-backend-data"><?php
+						check_box($prefix.'_delete_fields['.$link_data['linkid'].']')
+						?></td><?php
+					}
+					echo '</tr>';
 				}
-				?>
-			</table>
-			<?php
+				?></table><?php
+			$o->closeField();
+		}
+
+		if ($write_access) {
+			$o->openField('New Field?');
+				require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+				echo 'Create a new field called ';
+				text_box($prefix.'_new_field', '', 20);
+			$o->closeField();
 		}
 
 		return true;
 
-	}//end paintFields()
+	}//end paintInlineOptionInterface()
 
 
 	/**
-	* Processes the interface for creating and deleting metadata fields
+	* Process the interface for editing metadata fields
 	*
-	* @param object Metadata_Section	$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param object Metadata_Section	&$asset			the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o				the outputter class
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processFields(&$asset, &$o, $prefix)
+	function processInlineOptionInterface(&$asset, &$o)
 	{
 		// need to have write access to make any changes
 		if (!$asset->writeAccess()) return false;
 
+		$prefix = $asset->getPrefix();
 		$updated = false;
 
-		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true, true);
-		$assetids = Array();
-		foreach ($current_links as $link) $assetids[$link['minorid']] = $link['linkid'];
-		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($assetids));
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// delete existing fields ?
-		foreach ($asset_info as $asset_data) {
-			if (isset($_POST[$prefix.'_field_delete'][$asset_data['assetid']]) && $_POST[$prefix.'_field_delete'][$asset_data['assetid']]) {
-				if ($asset->deleteLink($assetids[$asset_data['assetid']])) $updated = true;
-				continue;
+		// delete any fields that need deleting
+		if (isset($_POST[$prefix.'_delete_fields'])) {
+			$delete_fields = $_POST[$prefix.'_delete_fields'];
+			foreach ($delete_fields as $linkid => $on) {
+				if ($asset->deleteLink($linkid)) $updated = true;
 			}
 		}
 
-		// create a new field ?
+		// create a new field?
 		if (isset($_POST[$prefix.'_new_field']) && trim($_POST[$prefix.'_new_field']) != '') {
 			$new_field_name = trim($_POST[$prefix.'_new_field']);
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('metadata_field');
 			$new_field =& new Metadata_Field();
-			$section_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => -1, 'dependant' => 1, 'exclusive' => 1);
+			$section_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'dependant' => 1, 'exclusive' => 1);
 			$new_field->setAttrValue('name', $new_field_name);
 			if ($new_field->create($section_link)) $updated = true;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return $updated;
 
-	}//end processFields()
+		return true;
+
+	}//end processInlineOptionInterface()
 
 
 	/**
@@ -136,7 +153,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintInlineEditInterface(&$asset, &$o, $values, $write_access)
+	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
 	{
 		$o->openSection($asset->name);
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
@@ -145,13 +162,13 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 			if (is_null($field)) continue;
 			$edit_fns = $field->getEditFns();
 			if (!isset($values['fields'][$field->name])) $values['fields'][$field->name] = Array();
-			if (!$edit_fns->paintInlineEditInterface($field, $o, $values['fields'][$field->name], $write_access)) return false;
+			if (!$edit_fns->paintInlineValueInterface($field, $o, $values['fields'][$field->name], $write_access)) return false;
 		}
 		$o->closeSection();
 
 		return true;
 
-	}//end paintInlineEditInterface()
+	}//end paintInlineValueInterface()
 
 
 	/**
@@ -163,7 +180,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processInlineEditInterface(&$asset, &$new_values)
+	function processInlineValueInterface(&$asset, &$new_values)
 	{
 		$new_values[$asset->name] = Array();
 		$new_values[$asset->name]['fields'] = Array();
@@ -172,16 +189,16 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($field)) continue;
 			$edit_fns = $field->getEditFns();
-			if (!$edit_fns->processInlineEditInterface($field, $new_values[$asset->name]['fields'])) return false;
+			if (!$edit_fns->processInlineValueInterface($field, $new_values[$asset->name]['fields'])) return false;
 		}
 
 		return true;
 
-	}//end processInlineEditInterface()
+	}//end processInlineValueInterface()
 
 
 	/**
-	* Output the complete metadata tag for this section
+	* Output the complete metadata tags for this section
 	*
 	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
 	* @param array					$values		the current metadata values
