@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.129 2004/12/09 00:08:39 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.130 2004/12/10 06:39:33 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.129 $
+* @version $Revision: 1.130 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1726,7 +1726,8 @@ class Page_Calendar extends Page_Asset_Listing
 			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
 			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
 		}
-
+		$start_date_comparator = create_function('$a, $b', 'return ($a[\'start_date_ts\'] > $b[\'start_date_ts\']);');
+		uasort($res, $start_date_comparator);
 		return $res;
 
 	}//end getWeekEvents()
