@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.264 2003/12/12 03:34:21 gsherwood Exp $
+* $Id: asset.inc,v 1.265 2003/12/18 04:39:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3136,29 +3136,35 @@ class Asset extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+
 		// Remove all the old URLs
-		$subs = Array( 'SELECT url
-						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
-						'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l'));
+		$sql = 'SELECT url, http, https
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+				'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l');
 
-		$where = 'url IN (~SQ0~)';
-		$where = db_extras_subquery($db, $where, $subs);
-		if (DB::isError($where)) {
-			trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+		$old_urls = $db->getAll($sql);
+		if (DB::isError($old_urls)) {
+			trigger_error($old_urls->getMessage().'<br/>'.$old_urls->getUserInfo(), E_USER_ERROR);
 		}
 
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_design', $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+		$current_urls = Array();
+		foreach ($old_urls as $url_data) $current_urls[] = $db->quote($url_data['url']);
+
+		if (!empty($current_urls)) {
+			$where = 'url IN ('.implode(',', $current_urls).')';
+
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_design', $where)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+			$where = 'assetid = '.$db->quote($this->id);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
 		}
 
-		$where = 'assetid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
 
 		// if we have paths then do some url inserting
 		if (!empty($paths)) {
@@ -3190,8 +3196,7 @@ class Asset extends MySource_Object
 				for($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
 					for($k = 0; $k < $num_paths; $k++) {
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
-						if (in_array($new_url, $done_urls)) continue;
-						$done_urls[] = $new_url;
+						if (isset($done_urls[$new_url])) continue;
 
 						$http  = ($this->force_secure) ? '0' : $parent_urls[$j]['http'];
 						$https = $parent_urls[$j]['https'];
@@ -3204,6 +3209,9 @@ class Asset extends MySource_Object
 										'https'      => $https,
 										'root_urlid' => $parent_urls[$j]['root_urlid'],
 										);
+						
+						$done_urls[$new_url] = $values;
+
 						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return false;
@@ -3233,6 +3241,17 @@ class Asset extends MySource_Object
 				}// end for parent_urls
 
 			}// end for parents
+
+			foreach ($old_urls as $url_data) {
+				$old_url = $url_data['url'];
+				if (!isset($done_urls[$old_url])) {
+					$rm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+					$new_url = array_shift(array_keys($done_urls));
+
+					if ($url_data['http']) $rm->addRemapURL('http://'.$old_url, 'http://'.$new_url);
+					if ($url_data['https']) $rm->addRemapURL('https://'.$old_url, 'https://'.$new_url);
+				}
+			}
 
 		}// end if count paths
 
