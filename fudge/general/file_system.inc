@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.26 2004/10/11 06:28:26 arailean Exp $
+* $Id: file_system.inc,v 1.27 2004/10/14 03:58:32 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,7 +80,7 @@ function is_image($filename)
 *
 * @param string $filename	the filename whose contents to return
 *
-* @return string|false
+* @return mixed [string|false]
 * @access public
 */
 function file_to_string($filename)
