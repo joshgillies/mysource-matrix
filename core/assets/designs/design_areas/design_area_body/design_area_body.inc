@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.7 2003/11/18 15:37:24 brobertson Exp $
+* $Id: design_area_body.inc,v 1.8 2003/11/21 05:28:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 */
 class Design_Area_Body extends Design_Area
 {
+
 	/*
 	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
 	*
@@ -46,11 +47,14 @@ class Design_Area_Body extends Design_Area
 	* @return boolean
 	* @access public
 	*/
-	function printArea(&$design) 
+	function printArea(&$design)
 	{
-		echo '<', '?php $ASSET->printBody(); ?', '>';
+		echo '<','?php if (SQ_IN_LIMBO) $ASSET->printLimbo(); else $ASSET->printBody(); ?','>';
 		return true;
+
 	}//end printArea()
 
+
 }//end class
+
 ?>
