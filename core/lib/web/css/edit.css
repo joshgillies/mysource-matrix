@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.28 2003/11/26 00:51:14 gsherwood Exp $
+* $Id: edit.css,v 1.29 2003/12/17 01:13:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -203,6 +203,7 @@ td.sq-backend-table-header, td.sq-backend-table-cell, td.sq-backend-table-cell-a
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			10px;
 	padding:			4px;
+	border-bottom:		1px dotted #F0F0F0;
 }
 
 td.sq-backend-table-header {
