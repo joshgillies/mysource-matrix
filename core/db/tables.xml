@@ -425,6 +425,45 @@
 		</keys>
 		<indexes />
 	</table>
+	<table name="asset_attribute_unique_value" require_rollback="1">
+		<columns>
+			<column name="assetid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="owning_attributeid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="custom_value" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>VARCHAR(247)</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="assetid" />
+				<column name="owning_attributeid" />
+			</primary_key>
+			<unique_key>
+				<column name="owning_attributeid" />
+				<column name="custom_value" />
+			</unique_key>
+		</keys>
+		<indexes />
+	</table>
 	<table name="asset_type_inherited" require_rollback="0">
 		<columns>
 			<column name="inherited_type_code" allow_null="0">
