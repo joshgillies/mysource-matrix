@@ -123,7 +123,7 @@ class File extends Asset
 	* @param int	$real_status	the new status is not always the status that gets
 	*								set because of workflow and other things, so this
 	*								status represents the actual status that will be set
-	*								if known (will only be know if this function was called
+	*								if known (will only be known if this function was called
 	*								from a dependant parent)
 	*
 	* @return boolean
@@ -146,16 +146,22 @@ class File extends Asset
 			// if we have cancelled our safe edit, we need to put things
 			// back to how they were
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		} else if ($this->status == SQ_STATUS_LIVE && ($old_status & SQ_STATUS_SAFE_EDITING)) {
-			// if we have just gone live from safe editing, we need to
-			// move the latest version of the file to the unrestricted
-			// directory to make it live
+		} else if ($this->status == SQ_STATUS_LIVE) {
+			// if we have just gone live, so we need to move the latest version 
+			// of the file to the unrestricted directory to make it live
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			
 			// clear out our unrestricted data directory
-			if (!clear_directory($this->data_path_public)) {
-				trigger_error('Failed processing status change for file "'.$this->name.'", could not clear unrestricted data directory', E_USER_WARNING);
-				return false;
+			if (is_dir($this->data_path_public)) {
+				if (!clear_directory($this->data_path_public)) {
+					trigger_error('Failed processing status change for file "'.$this->name.'", could not clear public data directory', E_USER_WARNING);
+					return false;
+				}
+			} else {
+				if (!create_directory($this->data_path_public)) {
+					trigger_error('Failed processing status change for file "'.$this->name.'", could not created public data directory', E_USER_WARNING);
+					return false;
+				}
 			}
 
 			$existing = $this->_getExistingFile();
@@ -164,7 +170,7 @@ class File extends Asset
 
 			// and move our file over
 			if (!move_file($restricted, $unrestricted)) {
-				trigger_error('Failed processing status change for file "'.$this->name.'", could mvoe file to unrestricted data directory', E_USER_WARNING);
+				trigger_error('Failed processing status change for file "'.$this->name.'", could move file to public data directory', E_USER_WARNING);
 				return false;
 			}
 		}

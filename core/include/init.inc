@@ -108,14 +108,17 @@ define('SQ_PERMISSION_ADMIN',    3); // admin access
 */
 define('SQ_STATUS_UNDER_CONSTRUCTION',  1); // asset is under construction
 define('SQ_STATUS_PENDING_APPROVAL',    2); // asset is currently in workflow
-define('SQ_STATUS_LIVE',                4); // asset is live
-define('SQ_STATUS_EDITING',             8); // asset is currently safe editing
-define('SQ_STATUS_EDITING_APPROVAL',   16); // asset is currently in workflow from safe edit
+define('SQ_STATUS_APPROVED',            4); // asset is approved waiting to go live from under construction
+define('SQ_STATUS_LIVE',                8); // asset is live
+define('SQ_STATUS_EDITING',            16); // asset is currently safe editing
+define('SQ_STATUS_EDITING_APPROVAL',   32); // asset is currently in workflow from safe edit
+define('SQ_STATUS_EDITING_APPROVED',   64); // asset is approved waiting to go live from safe edit
 
-define('SQ_STATUS_NOT_LIVE',      3); // short hand for SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_PENDING_APPROVAL
-define('SQ_STATUS_CAN_APPROVE',   9); // short hand for SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_EDITING
-define('SQ_STATUS_SAFE_EDITING', 24); // short hand for SQ_STATUS_EDITING | SQ_STATUS_EDITING_APPROVAL
-define('SQ_STATUS_PENDING',      18); // short hand for SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_EDITING_APPROVAL
+define('SQ_STATUS_NOT_LIVE',       3); // short hand for SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_PENDING_APPROVAL
+define('SQ_STATUS_CAN_APPROVE',   17); // short hand for SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_EDITING
+define('SQ_STATUS_PENDING',       34); // short hand for SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_EDITING_APPROVAL
+define('SQ_STATUS_ALL_APPROVED',  68); // short hand for SQ_STATUS_APPROVED | SQ_STATUS_EDITING_APPROVED
+define('SQ_STATUS_SAFE_EDITING', 112); // short hand for SQ_STATUS_EDITING | SQ_STATUS_EDITING_APPROVAL | SQ_STATUS_EDITING_APPROVED
 
 
 // Load general functions, including the error handler
