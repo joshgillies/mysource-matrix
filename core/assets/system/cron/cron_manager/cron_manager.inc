@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.31 2004/11/18 05:00:42 gsherwood Exp $
+* $Id: cron_manager.inc,v 1.32 2004/11/25 10:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 
 /**
