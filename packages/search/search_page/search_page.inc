@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.80 2005/02/15 00:10:28 lwright Exp $
+* $Id: search_page.inc,v 1.81 2005/02/15 02:41:11 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1777,11 +1777,9 @@ class Search_Page extends Listing_Engine
 	function getFormatBodycopyLink($link_value)
 	{
 		$format_folder = &$this->getFormatFolder();
-		error_log(var_export($format_folder,true));
 		if (is_null($format_folder)) return Array();
 
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($format_folder->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'bodycopy', true, 'major', $link_value);
-		error_log(var_export($link,true));
 		return (!empty($link)) ? $link[0] : Array();
 
 	}//end getFormatBodycopyLink()
@@ -1903,7 +1901,6 @@ class Search_Page extends Listing_Engine
 		// work out if forms are customised
 		$search_bodycopy_link = &$this->getFormatBodycopyLink('search_form');
 		$sis_bodycopy_link    = &$this->getFormatBodycopyLink('sis_form'); //search in search
-		error_log(var_export($search_bodycopy_link,true));
 		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 				

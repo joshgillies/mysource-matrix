@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.40 2005/02/15 00:01:06 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.41 2005/02/15 02:41:12 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1059,7 +1059,6 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 
 		$search_bodycopy_link = &$asset->getFormatBodycopyLink('search_form');
 		$sis_bodycopy_link    = &$asset->getFormatBodycopyLink('sis_form'); //search in search
-		error_log(var_export($search_bodycopy_link,true));
 		$search_customised    = !empty($search_bodycopy_link) && $search_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 		$sis_customised       = !empty($sis_bodycopy_link) && $sis_bodycopy_link['link_type'] != SQ_LINK_TYPE_3;
 
