@@ -2412,38 +2412,9 @@ class Asset_Edit_Interface extends MySource_Object
 		$o->openSection('Enter Metadata Values');
 			$o->openField('&nbsp;');
 			?>
-			<span class="sq-backend-data">
-			You can use these keyword replacements in all editable fields on this screen.
-			<ul>
-			<li class="sq-backend-data"><b>%asset_name%</b> - Full name of the asset</li>
-			<li class="sq-backend-data"><b>%asset_short_name%</b> - Short name of the asset</li>
-			<li class="sq-backend-data"><b>%asset_version%</b> - Version of the asset being displayed</li>
-			<li class="sq-backend-data"><b>%asset_url%</b> - URL of the asset</li>
-			</ul>
-
-			<ul>
-			<li class="sq-backend-data"><b>%asset_created%</b> - Date/Time the asset was created (YYYY-MM-DD HH-MM-SS)</li>
-			<li class="sq-backend-data"><b>%asset_created_by_name%</b> - Full name of the user that created this asset</li>
-			<li class="sq-backend-data"><b>%asset_created_by_first_name%</b> - First name of the user that created this asset</li>
-			<li class="sq-backend-data"><b>%asset_created_by_last_name%</b> - Surname of the user that created this asset</li>
-			<li class="sq-backend-data"><b>%asset_created_by_email%</b> - Email of the user that created this asset</li>
-			</ul>
-
-			<ul>
-			<li class="sq-backend-data"><b>%asset_updated%</b> - Date/Time the asset was last updated (YYYY-MM-DD HH-MM-SS)</li>
-			<li class="sq-backend-data"><b>%asset_updated_by_name%</b> - Full name of the user that last updated this asset</li>
-			<li class="sq-backend-data"><b>%asset_updated_by_first_name%</b> - First name of the user that last updated this asset</li>
-			<li class="sq-backend-data"><b>%asset_updated_by_last_name%</b> - Surname of the user that last updated this asset</li>
-			<li class="sq-backend-data"><b>%asset_updated_by_email%</b> - Email of the user that last updated this asset</li>
-			</ul>
-
-			<ul>
-			<li class="sq-backend-data"><b>%asset_read_permission%</b> - Comma seperated list of the full names of users with read access</li>
-			<li class="sq-backend-data"><b>%asset_write_permission%</b> - Comma seperated list of the full names of users with write access</li>
-			<li class="sq-backend-data"><b>%asset_admin_permission%</b> - Comma seperated list of the full names of users with administrator access</li>
-			</ul>
-
-			<br/>
+			You can use keyword replacements in place of values for metadata fields on this page.<br/>
+			For a complete list of available keyword replacements <a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">click here</a>
+			<br/><br/>
 			<span style="color:#FF0000"> * </span>denotes a required field
 			<?php
 			$o->closeField();

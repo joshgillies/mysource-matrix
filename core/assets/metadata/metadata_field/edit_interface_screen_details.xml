@@ -1,5 +1,13 @@
 <contents>
 	<section name="Details">
+		<field>
+			<display_name></display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintKeywordInstructions"   />
+				<process_function name="processKeywordInstructions" />
+			</function_call>
+		</field>
 		<field attribute="name">
 			<display_name>Field Name</display_name>
 			<note />

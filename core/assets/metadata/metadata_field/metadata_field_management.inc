@@ -58,6 +58,21 @@ class Metadata_Field_Management extends Asset_Management
 							);
 	}//end constructor
 
+
+	/**
+	* Gets a list of all metadata files that we want web accessable
+	*
+	* @access private
+	* @return array(string)
+	*/
+	function _getFileList()
+	{
+		return Array(
+					 'popups/keywords.html',
+					 );
+
+	}//end _getFileList()
+
 }//end class
 
 ?>

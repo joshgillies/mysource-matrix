@@ -29,6 +29,45 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
+	* Paint the interface for viewing keyword instructions
+	*
+	* @param object Metadata_Field		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintKeywordInstructions(&$asset, &$o, $prefix)
+	{
+		?>
+		<b>You can use keyword replacements in place of values for this metadata field.<br/>
+		These values can be used in the main <i>Default</i> value of the field as well as in the values of any <i>Value Components</i> the field has defined.<br/>For a complete list of available keyword replacements <a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">click here </a></b><?php
+
+	}//end paintKeywordInstructions()
+
+
+	/**
+	* Processes the interface forview keyword instructions
+	*
+	* Note that keyword instructions are not processed so this function always
+	* returns false
+	*
+	* @param object Metadata_Field		$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean (false always)
+	* @access public
+	*/
+	function processKeywordInstructions(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processKeywordInstructions()
+
+
+	/**
 	* Paint the interface for editing value components
 	*
 	* @param object Metadata_Field		&$asset	the asset whose interface we are painting
