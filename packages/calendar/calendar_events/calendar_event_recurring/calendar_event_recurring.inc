@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.7 2004/08/02 00:09:37 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.8 2004/08/02 00:48:10 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -142,7 +142,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			case 'MRN':
 				$res_month = date('m', $after);
 				$res_year = date('Y', $after);
-				$target_days_from_end = days_in_month(date('n', $start_ts)) - date('j', $start_ts));
+				$target_days_from_end = days_in_month(date('n', $start_ts)) - date('j', $start_ts);
 
 				$month_diff = (12 * (date('Y', $after) - date('Y', $start_ts))) + $res_month - date('n', $start_ts);
 				if (($month_diff % $interval) != 0)
