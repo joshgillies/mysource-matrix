@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.8 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.9 2005/03/01 04:15:21 arailean Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard  <rhoward@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -637,11 +637,11 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		switch ($screen) {
 			case 'list':
-				$status = $this->_processSubScreenList($tm, $request_data);
+				$status = $this->_processSubScreenList($tm, $request_data, $write_access);
 			break;
 
 			case 'edit':
-				$status = $this->_processSubScreenEdit($tm, $request_data);
+				$status = $this->_processSubScreenEdit($tm, $request_data, $write_access);
 			break;
 			default:
 				return $status;
@@ -662,7 +662,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @access private
 	*/
-	function _processSubScreenList(&$tm, $request_data)
+	function _processSubScreenList(&$tm, $request_data, $write_access=false)
 	{
 		// edit request
 		$edit_id = array_get_index($request_data, 'edit_id', false);
