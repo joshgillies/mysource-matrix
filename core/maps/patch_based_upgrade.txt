@@ -1,0 +1,49 @@
+PATCH BASED UPGRADE SYSTEM
+----------------------------------------------------
+
+Patches will be TAR files that are downloaded by the CMS and are extracted to a temporary directory (probaby somehwere in the data directory). Each patch MUST update the version of the CMS so that patches can be associated with versions and the patching system can work out the order in which to patch a system from one version to another.
+
+Patches will consist of:
+	- a changelog that can be displayed to the user before installing (DONE) + link to Squiz for a detailed change list
+	- new files and directories that need to be installed (DONE)
+		- includes files that are being replaced (DONE)
+	- an XML file of database changes that need to be made (DONE)
+		- with appropriate queries for each supported DB type (DONE)
+		- possibly contain sudo queries that can be constructed by the patching system for the current DB
+	- an XML file defining what files are to be added and removed (DONE)
+		- for added files, the location from the system root must be provided as well as the files actual location in the patches temporary directory (DONE)
+		- for removed files, only the path from the system root is required (DONE)
+	- an MD5 sum for each replaced file that can be checked to ensure the file has not been changed locally (DONE)
+	- an upgrade script that the CMS will run to make any additional changes that the patching system is not designed to cope with
+		- may also be needed for upgrades to the patching system itself so patching system files can be replaced by the upgrade script
+		
+		
+The patch system will ensure there are no users using the CMS during an upgrade by:
+	- only allowing the root user to patch a system
+	- showing the root user a list of all locks currently active in the system and who has them
+	- offering the ability to send internal messages to users who currently have locks
+	- showing a popup message to all users in the backend telling them the system is being upgrade
+		- message should tell them to save changes and log out
+		- message may be able to help them release their locks
+	- showing a message to any user that accesses the system without a lock letting them know that the system is being ugraded
+		- these users cannot acquire locks while the system is being upgraded - they only see a blank page warning message (similiar to the old page not found screen in mysource)
+	- when a user commits a screen - the system will release their locks regardless of system lock settings
+		- the user will be informed that their changes have been saved but they cannot continue work until after the upgrade has been completed
+		
+		
+The process of patching will go something like this:
+	- the root user will log into the backend
+	- they will go to a patching screen
+	- a list of available patches will be downloaded from Squiz
+		- the current version of the system will be sent to Squiz to work out what patches are available from this version onwards (no point showing patches that have already been installed)
+		- some patches will be dependant on other patches - the patch screen will show this
+	- the list of patches will be displayed to the user
+		- each patch will also show a condensed changelog
+		- each patch will show a severity (critical, recommended etc etc)
+	- the user will select which patches they want to install
+	- the patching system will download the selected patches from Squiz
+	- the patches will be extracted to a temporary directory
+	- the system will set a flag letting everyone know that the system is being upgrade
+	- the system will wait for all locks to be released before proceeding with the upgrade
+	- each patch will be installed in order so after each patch the system will be in a stable state
+	- patch may run step 3 (or other scripts) after its done to install new assets

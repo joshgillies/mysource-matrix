@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.88 2004/04/22 04:29:12 gsherwood Exp $
+* $Id: backend.inc,v 1.89 2004/05/28 01:24:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -526,6 +526,15 @@ class Backend extends MySource_Object
 
 						if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
 							$options[] = Array(
+											'url'    => $this->getBackendUrl('main').'&backend_section=maps',
+											'target' => 'sq_main',
+											'title'  => 'Automated Patching System',
+											'icon'   => 'maps.png',
+											);
+						}
+
+						if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
+							$options[] = Array(
 											'url'    => $this->getBackendUrl('main').'&backend_section=hipo_herder',
 											'target' => 'sq_main',
 											'title'  => 'HIPO Herder',
@@ -707,6 +716,12 @@ class Backend extends MySource_Object
 				require_once SQ_INCLUDE_PATH.'/system_config_edit_interface.inc';
 				$cfg_ei = new System_Config_Edit_Interface();
 				$cfg_ei->paint($this);
+			break;
+
+			case 'maps' :
+				require_once SQ_SYSTEM_ROOT.'/core/maps/maps.inc';
+				$maps = new Maps();
+				$maps->paintBackend($this);
 			break;
 
 			case 'hipo_herder' :

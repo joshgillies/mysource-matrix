@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.37 2004/04/02 02:22:55 gsherwood Exp $
+* $Id: tables.xml,v 1.38 2004/05/28 01:24:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -1350,5 +1350,28 @@
 				<column name="source_lockid" />
 			</index>
 		</indexes>
+	</table>
+	<table name="patches" require_rollback="0">
+		<columns>
+			<column name="patchid" allow_null="0">
+				<type>VARCHAR(255)</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="installed" allow_null="0">
+				<type>TIMESTAMP</type>
+				<type_variations>
+					<mysql>DATETIME</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="patchid" />
+			</primary_key>
+		</keys>
 	</table>
 </tables>

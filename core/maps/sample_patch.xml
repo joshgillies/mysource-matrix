@@ -1,0 +1,85 @@
+<!--
+	This file must be named patchXXXXXXXXXXXX.xml
+	where XXXXXXXXXXXX is the date the patch was released in the form yyyymmddhhii
+	eg. patch200405241541.xml was release on the
+	24th of May, 2004 @ 3:41pm
+	
+	Each patch must have a severity. This is plain text and presented to the user as is.
+	Each patch must define if it is reversable or not using the reversable attribute.
+	Each patch must define if it requires step_03.php to be run using the run_script attribute.
+-->
+<patch severity="Blah" reversible="1" run_script="1">
+	<patch_description>
+		This is where you tell the user a little about what the patch will do.
+	</patch_description>
+	<reverse_description>
+		This is where you tell the user about what the effects are of reversing this patch
+	</reverse_description>
+	<changelog>
+		<!--
+			The change log should be brief.
+			A more detailed one can be provided on the web site.
+		-->
+		<change>This is the first change</change>
+		<change>This is the second change</change>
+		<change>Lots more changes</change>
+	</changelog>
+	<files>
+		<!--
+			This is a directory being added.
+			It has an empty md5 attribute to state that it is a new directory.
+			There is no local_md5 attribute because there is no local directory yet.
+		-->
+		<file md5="">
+			core/include/new_backend.inc
+		</file>
+		<!--
+			This is a file being added.
+			It has an md5 attribute to define the MD5 for the file that will be added (included with the patch).
+			There is no local_md5 attribute because there is no local file to replace.
+		-->
+		<file md5="1880c3de2ecbdbc510b5ec455296567c">
+			core/include/new_backend.inc
+		</file>
+		<!--
+			This is a file being modified.
+			It has an md5 attribute to define the MD5 for the new version of the file (included with the patch).
+			It has an local_md5 attribute to define the MD5 for the version of the local file being replaced.
+		-->
+		<file local_md5="1880c3de2ecbdbc510b5ec455296567c" md5="1880c3de2ecbdbc510b5ec455296567c">
+			core/include/new_backend.inc
+		</file>
+		<!--
+			This is a file being deleted.
+			It has a local_md5 attribute to define the MD5 for the file that will be deleted.
+			There is no md5 attribute because there is no file included in the patch.
+		-->
+		<file local_md5="1880c3de2ecbdbc510b5ec455296567c">
+			core/include/new_backend.inc
+		</file>
+	</files>
+	<queries>
+		<!--
+			All queries must define a db attribute to let MAPS know what DB the query should be run on.
+			You may use db="all" if it is a generic query that can be run.
+			The db attribute needs to be a PEAR:DB DSN prefix.
+			NOTE: You dont need to add the semi colon on the end
+			
+			For the normal and rollback tabel prefix, use:
+			TABLE_PREFIX_ for thr normal table prefix
+			ROLLBACK_PREFIX_ for the rollback table prefix
+		-->
+		<query db="mysql">DROP DATABASE mysql</query>
+		<query db="pgsql">INSERT INTO TABLE_PREFIX_comments (comment) VALUES ('transactions rock')</query>
+		<query db="all">SELECT * FROM ROLLBACK_PREFIX_supported_dbs</query>
+	</queries>
+	<reverse_queries>
+		<!--
+			These are the queries that will be run if the patch is reversed.
+			The same rules apply as for the normal queries (above)
+		-->
+		<query db="mysql">DROP DATABASE mysql</query>
+		<query db="pgsql">INSERT INTO TABLE_PREFIX_comments (comment) VALUES ('transactions rock')</query>
+		<query db="all">SELECT * FROM ROLLBACK_PREFIX_supported_dbs</query>
+	</reverse_queries>
+</patch>
