@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design.inc,v 1.9 2004/12/06 14:38:10 brobertson Exp $
+* $Id: login_design.inc,v 1.10 2005/01/25 00:27:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -195,8 +195,10 @@ class Login_Design extends Design
 		if (!$this->processStatusChange(SQ_STATUS_LIVE)) {
 			trigger_error('Login design failed setting status to LIVE', E_USER_WARNING);
 		}
-		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, 0, SQ_PERMISSION_READ, '1')) {
-			trigger_error('Login design failed setting public read permission', E_USER_WARNING);
+		
+		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetidByName('public_user');
+		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $public_userid, SQ_PERMISSION_READ, '1')) {
+			trigger_error('Login design failed setting public user read permission', E_USER_WARNING);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
@@ -211,7 +213,7 @@ class Login_Design extends Design
 			if (!$dep_asset->processStatusChange(SQ_STATUS_LIVE)) {
 				trigger_error('Login design failed setting status to LIVE for asset "'.$dep_asset->name.'" (#'.$dep_asset->id.')', E_USER_WARNING);
 			}
-			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($dep_asset->id, 0, SQ_PERMISSION_READ, '1')) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($dep_asset->id, $public_userid, SQ_PERMISSION_READ, '1')) {
 				trigger_error('Login design failed setting public read permission for asset "'.$dep_asset->name.'" (#'.$dep_asset->id.')', E_USER_WARNING);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($dep_asset->id, 'permissions');

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.75 2005/01/13 22:22:24 gsherwood Exp $
+* $Id: user.inc,v 1.76 2005/01/25 00:27:27 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,7 +67,7 @@ class User extends Asset
 		$username = trim($this->attr('username'));
 		$password = $this->attr('password');
 
-		if ($username == '' || $password == '') {
+		if (!$this->_catchBlankUserNamePass($username, $password)) {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' without a username and password', E_USER_WARNING);
 			return false;
 		}
@@ -177,9 +177,8 @@ class User extends Asset
 		// if this is the password, encrypt it
 		if ($name == 'password') {
 			$value = crypt($value); // let salt be generated
-
 		} else if ($name == 'username') {
-			if (trim($value) == '') {
+			if (!$this->_catchBlankSetUserName($value)) {
 				trigger_error('Username cannot be blank', E_USER_WARNING);
 				return false;
 			}
@@ -318,6 +317,23 @@ class User extends Asset
 
 
 	/**
+	* Check if this user can be set as the current user
+	*
+	* By default this is tied to whether the user can log in or not, but
+	* sometimes this is not what we want (eg. a public user needs to be set
+	* as current user but should not login).
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canSetAsCurrentUser()
+	{
+		return $this->canLogin();
+	
+	}//end canSetAsCurrentUser()
+	
+	
+	/**
 	* Gets an array of groups that this user is in
 	*
 	* The result is stored in the session for faster access
@@ -418,6 +434,41 @@ class User extends Asset
 	}//end printBody()
 
 
+	/**
+	* Catches blank username/password combination made during create()
+	*
+	* Override this and return true if a specific subclass wants to skip this check
+	* 
+	* @param string	$username	the passed user name
+	* @param string $password	the passed pass
+	*
+	* @return boolean	true == valid
+	* @access public
+	*/
+	function _catchBlankUserNamePass($username, $password)
+	{
+		return ($username != '') && ($password != '');
+		
+	}//end _catchBlankUserNamePass()
+	
+	
+	/**
+	* Catches blank username being set during setAttrValue()
+	*
+	* Override this and return true if a specific subclass wants to skip this check
+	*
+	* @param string	$username	the passed user name
+	* 
+	* @return boolean	true == valid
+	* @access public
+	*/
+	function _catchBlankSetUserName($username)
+	{
+		return trim($username) != '';
+		
+	}//end _catchBlankSetUserName()
+
+	
 }//end class
 
 ?>

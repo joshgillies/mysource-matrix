@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.53 2004/12/06 14:38:10 brobertson Exp $
+* $Id: trash_folder.inc,v 1.54 2005/01/25 00:27:26 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -97,7 +97,8 @@ class Trash_Folder extends Folder
 		if (!parent::_createAdditional($link)) return false;
 
 		// set public read access in the DB so it comes up in the asset map
-		return $GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, 0, SQ_PERMISSION_READ, true);
+		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetidByName('public_user');
+		return $GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $public_userid, SQ_PERMISSION_READ, true);
 
 	}//end _createAdditional()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.14 2004/12/06 14:38:07 brobertson Exp $
+* $Id: package_manager_core.inc,v 1.15 2005/01/25 00:27:22 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -167,8 +167,9 @@ class Package_Manager_Core extends Package_Manager
 	{
 		return Array(
 					'root_folder',
-					'trash_folder',
+					'public_user',
 					'system_management_folder',
+					'trash_folder',
 					'system_user_group',
 					'root_user',
 					'authentication_folder',
@@ -215,7 +216,7 @@ class Package_Manager_Core extends Package_Manager
 		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['root_folder']);
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('trash_folder');
-		$trash_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		$trash_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1, 'sort_order' => 0);
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('trash_folder');
 		$trash_folder = new Trash_Folder();
 		if (!$trash_folder->create($trash_link)) trigger_error('TRASH FOLDER NOT CREATED', E_USER_ERROR);
@@ -225,6 +226,41 @@ class Package_Manager_Core extends Package_Manager
 		return $trash_folder;
 
 	}//end createTrashFolder()
+
+
+	/**
+	* Create the public access user system asset
+	*
+	* @return object Public_User
+	* @access public
+	*/
+	function &createPublicUser()
+	{
+		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['root_folder']);
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('public_user');
+		$public_user = new Public_User();
+		$public_user_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1);
+		if (!$public_user->create($public_user_link)) trigger_error('PUBLIC ACCESS USER NOT CREATED', E_USER_ERROR);
+		pre_echo('Public Access User Asset Id : '.$public_user->id);
+
+		$GLOBALS['SQ_SYSTEM_ASSETS']['public_user'] = $public_user->id;
+		
+		// we will also turn all 'zero' permissions into the public user's
+		// while we're at it
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$where = 'userid = '.$GLOBALS['SQ_SYSTEM']->db->quote(0);
+		$values = Array('userid' => $public_user->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_perm', $values, $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			
+		return $public_user;
+
+	}//end createPublicUser()
 
 
 	/**
@@ -239,7 +275,7 @@ class Package_Manager_Core extends Package_Manager
 
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('system_management_folder');
 		$system_management_folder = new System_Management_Folder();
-		$system_management_folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
+		$system_management_folder_link = Array('asset' => &$root_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1, 'sort_order' => 0);
 		if (!$system_management_folder->create($system_management_folder_link)) trigger_error('SYSTEM MANAGEMENT FOLDER NOT CREATED', E_USER_ERROR);
 		pre_echo('System Management Asset Id : '.$system_management_folder->id);
 

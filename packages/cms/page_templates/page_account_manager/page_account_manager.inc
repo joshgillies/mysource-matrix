@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.21 2004/12/06 14:41:39 brobertson Exp $
+* $Id: page_account_manager.inc,v 1.22 2005/01/25 00:27:28 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -160,7 +160,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		parent::printBody();
 
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
-		if (!is_null($current_user) && !SQ_IN_LIMBO) {
+		if ((!is_null($current_user) && !is_a($current_user, 'public_user')) && !SQ_IN_LIMBO) {
 			// this person is logged in - so redirect them to limbo where they can edit their details
 			$redirect_url = strip_url(current_url()).'/'.SQ_CONF_LIMBO_SUFFIX.'/?ignore_frames=1';
 			?>
@@ -189,7 +189,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
 		$this->_current_state = 'logged_in';
 
-		if (!is_null($current_user)) {
+		if (!is_null($current_user) && !is_a($current_user, 'public_user')) {
 			// try and acquire a lock on the current user so they can edit their details
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $current_user->id, 'lock_type' => 'attributes', 'forceably_acquire' => false);
@@ -498,7 +498,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		if (SQ_IN_LIMBO) {
 			$current_user = &$GLOBALS['SQ_SYSTEM']->user;
 
-			if (!is_null($current_user)) {
+			if (!is_null($current_user) && !is_a($current_user, 'public_user')) {
 				if ($current_user->processBackend($o, $link)) {
 					$this->_replacements['edit_details_success'] = $this->attr('edit_details_success');
 				}

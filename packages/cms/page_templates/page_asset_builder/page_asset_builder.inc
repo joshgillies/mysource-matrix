@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.46 2005/01/13 22:30:06 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.47 2005/01/25 00:27:28 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -237,7 +237,7 @@ class Page_Asset_Builder extends Page
 		}
 
 		if (empty($this->_current_state)) {
-			if (is_null($current_user)) {
+			if (is_null($current_user) || is_a($current_user, 'public_user')) {
 				// this person is not logged in, so we should let them log in
 				$this->_current_state = 'not_logged_in';
 				$this->_loadLoginReplacements();

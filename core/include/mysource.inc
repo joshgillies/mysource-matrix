@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.67 2005/01/19 16:50:52 brobertson Exp $
+* $Id: mysource.inc,v 1.68 2005/01/25 00:27:27 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix
 */
 class MySource
@@ -216,6 +216,8 @@ class MySource
 			// but make sure that the person is coming from the same machine as they logged in on
 			// so get a reference to them
 			$this->user = null;
+			$this->setCurrentUser($this->getPublicUser());
+
 			if (!empty($_SESSION['user_last_access'])
 				&& time() < ((int) $_SESSION['user_last_access'] + SQ_CONF_MAX_IDLE_TIME)
 				&& !empty($_SESSION['userid'])) {
@@ -230,6 +232,11 @@ class MySource
 			if (is_null($this->user)) {
 				$_SESSION['userid']            = 0;
 				$_SESSION['user_type_code']    = '';
+				$_SESSION['user_is_root']      = false;
+				$_SESSION['user_is_sys_admin'] = false;
+			}
+			
+			if (is_a($this->user, 'public_user')) {
 				$_SESSION['user_is_root']      = false;
 				$_SESSION['user_is_sys_admin'] = false;
 			}
@@ -275,7 +282,7 @@ class MySource
 			}
 
 		// we are on the frontend
-		} else {
+		} else {		
 			// check for ./?a=xx type urls or normal
 			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset($_REQUEST['a']);
 			else $asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
@@ -709,7 +716,7 @@ class MySource
 		}
 
 		// they can only become current user if they can login
-		if (!$user->canLogin()) return false;
+		if (!$user->canSetAsCurrentUser()) return false;
 
 		if (!is_null($this->user)) {
 			if (!isset($this->_tmp['current_user_cache'])) $this->_tmp['current_user_cache'] = Array();
@@ -742,7 +749,7 @@ class MySource
 		}
 
 		// They can only become current user if they can login
-		if (is_null($user) || !$user->canLogin()) {
+		if (is_null($user) || !$user->canSetAsCurrentUser()) {
 			unset($this->user); // unset ref first so we don't blow away other references to the user
 			$this->user = null;
 			$this->_user_is_root      = false;
@@ -783,6 +790,20 @@ class MySource
 		return ($this->user) ? $this->user->id : 0;
 
 	}//end currentUserId()
+
+
+	/**
+	* Returns the userid of the public access user, if it exists in the system
+	*
+	* @return string	userid or zero if not found for some reason
+	* @access public
+	*/
+	function getPublicUser()
+	{
+		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetidByName('public_user');
+		return $this->am->getAsset($public_userid);
+
+	}//end getPublicUser()
 
 
 	/**

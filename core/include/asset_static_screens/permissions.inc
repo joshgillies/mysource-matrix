@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.11 2005/01/20 13:10:34 brobertson Exp $
+* $Id: permissions.inc,v 1.12 2005/01/25 00:27:27 lwright Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 */
 
@@ -296,17 +296,19 @@ function processPermissions(&$owner, &$o, &$ei)
 
 		$post_data = $_POST[$prefix.'_permissions'][$perm];
 
+		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetidByName('public_user');
+
 		// grant public access
 		if (isset($post_data['public_access']['granted']) && $post_data['public_access']['granted'] != '') {
 			if ($cascade_changes) {
 				// cascading public access of some kind, so queue it up for the HIPO
 				$permission_vars[$perm][] = Array('granted'         => (int)$post_data['public_access']['granted'],
-												  'userid'          => 0,
+												  'userid'          => $public_userid,
 												  'previous_access' => null,
 												  );
 			} else {
 				// lets do this ourselves
-				if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, 0, $perm, $post_data['public_access']['granted'])) return false;
+				if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, $public_userid, $perm, $post_data['public_access']['granted'])) return false;
 			}
 		}
 

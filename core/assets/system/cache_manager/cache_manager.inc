@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.5 2004/12/06 14:38:09 brobertson Exp $
+* $Id: cache_manager.inc,v 1.6 2005/01/25 00:27:26 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -212,7 +212,7 @@ class Cache_Manager extends Asset
 	{
 		$cache_key = '';
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
-		if (is_null($current_user)) {
+		if (is_null($current_user) || is_a($current_user, 'public_user')) {
 			// if your not logged in and public level caching is on - you get the public copy
 			if ($this->attr('public_caching')) $cache_key = 'public';
 		} else {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.351 2005/01/20 22:47:08 gsherwood Exp $
+* $Id: asset.inc,v 1.352 2005/01/25 00:27:27 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.351 $
+* @version $Revision: 1.352 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2794,9 +2794,10 @@ class Asset extends MySource_Object
 	* @access public
 	*/
 	function effectiveUnrestricted()
-	{
+	{	
 		// This is not readAccess() because if this is false we don't refer to the writeAccess() setting
-		return ($this->status >= SQ_STATUS_LIVE && $this->_checkPermissionAccess(SQ_PERMISSION_READ, Array('0')));
+		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetidByName('public_user');
+		return ($this->status >= SQ_STATUS_LIVE && $this->_checkPermissionAccess(SQ_PERMISSION_READ, Array($public_userid)));
 
 	}//end effectiveUnrestricted()
 
@@ -2866,19 +2867,22 @@ class Asset extends MySource_Object
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->currentUserId()) {
-
-			// if we are the root user, we can do anything
-			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
-
-			// if we are a system administrator, we can do anything
-			// unless an asset overwrites this function
-			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-
-			// use the current user and their groups
-			$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
-			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
-		}
+		if (empty($assetids)) {
+			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {		
+				// if we are the root user, we can do anything
+				if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+					
+				// if we are a system administrator, we can do anything
+				// unless an asset overwrites this function
+				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
+	
+				// use the current user and their groups
+				$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
+				$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+			} else {
+				$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
+			}
+		}	
 
 		if (!$GLOBALS['SQ_PURGING_TRASH']) {
 			// if we are in workflow no editing allowed
@@ -2897,7 +2901,7 @@ class Asset extends MySource_Object
 				}
 			}
 		}
-
+		
 		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, true);
 		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, false, false);
 
@@ -2906,9 +2910,6 @@ class Asset extends MySource_Object
 			$revoked = array_intersect($assetids, $revokes);
 			if (!empty($revoked)) return false;
 		}
-
-		// is public access granted?
-		if (in_array('0', $grants)) return true;
 
 		// have they been granted access?
 		$common = array_intersect($assetids, $grants);
