@@ -577,7 +577,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
-	* Reads the write_access and read_access attributes of the passed node and returns 
+	* Reads the write_access and read_access attributes of the passed node and returns
 	* at bitmask that can be used with the SQ_EI_READ and SQ_EI_WRITE constants
 	*
 	* @param object Asset			$owner			the asset whose interface we are painting
@@ -819,11 +819,23 @@ class Asset_Edit_Interface extends Resolve_Object
 			if (!empty($_POST[$prefix.'_remove_fs'])) {
 				$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 				if (!empty($fs_jobs)) {
-					for($i = 0; $i < count($fs_jobs); $i++) {
-						if (in_array($fs_jobs[$i]->id, $_POST[$prefix.'_remove_fs'])) {
-							$cron_mgr->removeJob($fs_jobs[$i]);
-						}// end if
-					}// end for
+
+					if ($cron_mgr->acquireLock()) {
+						for($i = 0; $i < count($fs_jobs); $i++) {
+							if (in_array($fs_jobs[$i]->id, $_POST[$prefix.'_remove_fs'])) {
+								if ($cron_mgr->removeJob($fs_jobs[$i])) {
+									$future_status_processed = true;
+								}
+							}// end if
+						}// end for
+
+						$cron_mgr->releaseLock();
+
+					} else {
+						trigger_error('Unable to acquire the lock on the Cron Manager, unable to remove jobs', E_USER_NOTICE);
+
+					}// end if
+
 				}// end if
 			}// end if
 
@@ -835,10 +847,18 @@ class Asset_Edit_Interface extends Resolve_Object
 				if ($edit_fns->processOneLineBackend($fs, $o, $prefix.'_new_fs')) {
 					if (!is_null($cron_mgr)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-						if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user) && $fs->setAssetToUpdate($owner)) {
-							$fs->releaseLock();
-							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-							$future_status_processed = true;
+						if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user)) {
+							if ($fs->acquireLock()) {
+								if ($fs->setAssetToUpdate($owner)) {
+									$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+									$future_status_processed = true;
+									$fs->releaseLock();
+								} else {
+									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								}
+							} else {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							}
 						} else {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						}
@@ -2303,7 +2323,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		$o->openSection('Version History');
 		$o->openField('');
-		
+
 		if (SQ_ROLLBACK_VIEW) {
 			?><p class="sq-backend-data"><b><i>The highlighted row in the version history is the current version of "<?php echo $owner->name; ?>" being viewed in rollback mode</i></b></p>
 			<?php
@@ -2320,7 +2340,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				<td bgcolor="#DDDDDD" class="sq-backend-data" align="center"><b>View</b></td>
 			</tr>
 		<?php
-		
+
 		foreach ($result as $data) {
 			$from = $data['efrom'];
 			$to   = $data['eto'];
@@ -2352,7 +2372,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-backend-data"><?php echo $ago; ?></td>
 				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-backend-data" align="center"><?php echo $data['version']; ?></td>
 				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-backend-data" align="center">
-				<?php 
+				<?php
 					if ($show_view_btn) {
 						echo submit_button($prefix.'_rollback_mode', ' View ', 'this.form.'.$prefix.'_rollback_version.value = \''.$data['version'].'\'');
 					} else {
