@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_management.inc,v 1.2 2005/01/20 13:18:39 brobertson Exp $
+* $Id: content_type_raw_html_management.inc,v 1.3 2005/02/11 04:58:24 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -49,6 +49,20 @@ class Content_Type_Raw_HTML_Management extends Asset_Management
 
 	}//end constructor
 
+
+	/**
+	* Gets a list of all metadata files that we want web accessable
+	*
+	* @access private
+	* @return array(string)
+	*/
+	function _getFileList()
+	{
+		return Array(
+					 'js/raw_html_insert_keyword.js',
+					 );
+
+	}//end _getFileList()
 
 }//end class
 
