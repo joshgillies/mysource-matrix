@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.19 2004/09/01 02:47:25 lwright Exp $
+* $Id: calendar_event.inc,v 1.20 2004/09/01 04:10:28 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.19 $ - 1.0
+* @version $Revision: 1.20 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -303,9 +303,11 @@ class Calendar_Event extends Asset
 			return false;			
 		}
 		
-		if (!$clone->cacheCalendarData(false)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+		if (in_array('all', $components) || in_array('attributes', $components)) {
+			if (!$clone->cacheCalendarData(false)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
 		}
 		
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
@@ -541,6 +543,24 @@ class Calendar_Event extends Asset
 		<?php
 
 	}//end printBody()
+
+
+	/**
+	* Process the specified action on this event, and return whatever html the action wants to show
+	*
+	* This version does nothing and should be overridden by child classes
+	*
+	* @param string	$action_name	The action to perform, eg 'cancel'
+	*
+	* @return string	HTML to show as the result of this action
+	* @access public
+	*/	
+	function processEventAction($action_name) 
+	{
+		trigger_error($action_name.' is an unknown action for this type of event', E_USER_WARNING);	
+		return '';
+
+	}//end processEventAction();		
 
 
 	/*
