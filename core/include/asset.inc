@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.245 2003/10/22 01:17:18 gsherwood Exp $
+* $Id: asset.inc,v 1.246 2003/10/22 04:15:54 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3059,21 +3059,20 @@ class Asset extends MySource_Object
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$schemaids = $mm->getSchemas($this->id, 1);
 
-		$keyData = $mm->getMetadataKeyData($this->id, $schemaids);
+		$keydata = $mm->getMetadataKeyData($this->id, $schemaids);
 
 		$weightings = $this->getWeightings();
 		// supply name
 		if (!$component || $component == 'name') {
 			$value = $this->name;
 			foreach (get_word_counts($value) as $word => $count) {
-				$this->buildKeyData($keyData, $word, 'text', "name", $count * $weightings['name']['weighting']);
+				$this->buildKeyData($keydata, $word, 'text', "name", $count * $weightings['name']['weighting']);
 			}
 		}
 
-		return $keyData;
+		return $keydata;
 
 	}//end getKeyData()
-
 
 	/**
 	* Informs the indexing service that this asset's contents have changed, and
