@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.66 2004/04/13 02:29:13 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.67 2004/04/19 01:09:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -832,7 +832,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$map = Array();
 		$create_link = Array();
 
-		$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes'), false);
+		$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions'), false);
 		if (is_null($clone)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.23 2004/04/07 02:53:36 gsherwood Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.24 2004/04/19 01:09:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,19 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design_edit_fns.inc';
 */
 class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 {
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Design_Customisation_Edit_Fns()
+	{
+		$this->Design_Edit_Fns();
+		$this->static_screens['details']['lock_type'] = 'all';
+
+	}//end constructor
+
 
 	/**
 	* Paints the interface for customising the design areas
@@ -156,7 +169,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 								 );
 
 			// First let's duplicate the DA, ignoring the directory with the files
-			$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($da, $create_link, $map, Array('attributes'), true);
+			$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($da, $create_link, $map, Array('attributes', 'permissions'), true);
 			if (is_null($clone)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
