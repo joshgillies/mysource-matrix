@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: purge_rollback_entries.php,v 1.1 2004/07/05 02:01:52 mmcintyre Exp $
+* $Id: purge_rollback_entries.php,v 1.2 2004/07/05 04:00:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,9 +54,9 @@ if (strtolower($answer) != 'y' && strtolower($answer) != 'yes') {
 }
 
 $GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-foreach ($tables as $tablename) {
-	$db = &$GLOBALS['SQ_SYSTEM']->db;
+foreach ($tables as $tablename) {	
 	$sql = 'DELETE FROM '.$tablename.' WHERE '.SQ_TABLE_PREFIX
 		.'effective_from < '.$db->quote($date);
 	$result = $db->query($sql);
