@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='16', $height='16'){
 	?>
 	<a href="<?php echo $href?>" onmouseover="javascript: show_tooltip(event, '<?php echo addslashes(htmlspecialchars($heading))?>', '<?php echo addslashes(htmlspecialchars($desc))?>', null, 'bodycopyToolTipDiv'); return true;" onmouseout="javascript:hide_tooltip(); return true;" >
-	<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/<?php echo $icon?>", "<?php echo $width?>", "<?php echo $height?>", "");</script>
+	<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/<?php echo $icon?>.png", "<?php echo $width?>", "<?php echo $height?>", "");</script>
 	</a><?php
 }// end print_bodycopy_icon()
 
@@ -359,7 +359,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					if (initialisedEditors[editor._uniqueID] == null) {
 						initialisedEditors[editor._uniqueID] = true;
 						editor.generate();
-						editor.updateToolbar(false);
+						//editor.updateToolbar(false);
 						setDesignMode = false;
 					} else if (editor._initialised != true) {
 						return;
