@@ -14,6 +14,8 @@ CREATE TABLE sq_asset (
   name           VARCHAR(255)      NOT NULL DEFAULT '',
   short_name     VARCHAR(255)      NOT NULL DEFAULT '',
   status         SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+  languages      VARCHAR(50)       NOT NULL DEFAULT '',
+  charset        VARCHAR(50)       NOT NULL DEFAULT '',
   type_code      VARCHAR(100)      NOT NULL,
   last_updated   DATETIME          NOT NULL,
   last_userid    INT      UNSIGNED NOT NULL,

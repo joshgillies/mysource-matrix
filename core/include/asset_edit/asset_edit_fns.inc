@@ -32,6 +32,9 @@ class Asset_Edit_Fns extends Resolve_Object
 													  ),
 								'linking'     => Array('name' => 'Linking',
 													   'force_unlock' => true
+													  ),
+								'settings'    => Array('name' => 'Settings',
+													   'force_unlock' => false
 													  )
 								);
 

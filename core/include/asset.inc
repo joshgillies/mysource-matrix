@@ -38,6 +38,18 @@ class Asset extends Resolve_Object
 	var $status;
 
 	/**
+	* Current languages set for the asset
+	* @var string
+	*/
+	var $languages;
+
+	/**
+	* Current character set of the asset
+	* @var string
+	*/
+	var $charset;
+
+	/**
 	* Timestamp of when this asset was last updated
 	* @var int
 	*/
@@ -734,7 +746,7 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// OK, the first thing to do is check we actually exist :)
-		$sql = 'SELECT assetid, name, short_name, status, type_code, last_updated, last_userid
+		$sql = 'SELECT assetid, name, short_name, status, languages, charset, type_code, last_updated, last_userid
 				FROM sq_asset
 				WHERE assetid = '.$db->quote($assetid);
 		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
@@ -742,7 +754,15 @@ class Asset extends Resolve_Object
 
 		if (is_null($result)) return;
 
-		list($this->id, $this->name, $this->short_name, $this->status, $type_code, $this->last_updated, $this->last_userid) = $result;
+		list($this->id,
+			 $this->name,
+			 $this->short_name,
+			 $this->status,
+			 $this->languages,
+			 $this->charset,
+			 $type_code,
+			 $this->last_updated,
+			 $this->last_userid) = $result;
 		$this->last_updated = iso8601_ts($this->last_updated);
 		unset($result);
 
@@ -844,6 +864,8 @@ class Asset extends Resolve_Object
 			$sql = 'UPDATE sq_asset
 					SET name         = '.$db->quote($name).',
 						short_name   = '.$db->quote($short_name).',
+						languages    = '.$db->quote($this->languages).',
+						charset      = '.$db->quote($this->charset).',
 						last_updated = '.$db->quote(ts_iso8601($last_updated)).',
 						last_userid  = '.$db->quote($last_userid).'
 					WHERE assetid = '.$db->quote($this->id);
@@ -859,16 +881,17 @@ class Asset extends Resolve_Object
 			$old_last_updated = $this->last_updated;
 			$old_last_userid  = $this->last_userid;
 
-			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetUpdate', Array( 'assetid'          => $this->id,
-																		'old_name'         => $this->name,
-																		'new_name'         => $name,
-																		'old_short_name'   => $this->short_name,
-																		'new_short_name'   => $short_name,
-																		'old_last_updated' => $this->last_updated,
-																		'new_last_updated' => $last_updated,
-																		'old_last_userid'  => $this->last_userid,
-																		'new_last_userid'  => $last_userid
-																	   ));
+			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetUpdate', 
+												  Array( 'assetid'          => $this->id,
+														 'old_name'         => $this->name,
+														 'new_name'         => $name,
+														 'old_short_name'   => $this->short_name,
+														 'new_short_name'   => $short_name,
+														 'old_last_updated' => $this->last_updated,
+														 'new_last_updated' => $last_updated,
+														 'old_last_userid'  => $this->last_userid,
+														 'new_last_userid'  => $last_userid
+														));
 
 		}// end if $this->id
 
@@ -1279,9 +1302,83 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Gets the default languages of the asset as an array
+	*
+	* @return array(string)
+	* @access public
+	*/
+	function get_languages()
+	{
+		$langs = trim($this->languages, ', ');
+		if ($langs == '') return Array();
+		return explode(',', $langs);
+
+	}//end get_languages()
+
+
+	/**
+	* Set the default languages of the asset
+	*
+	* @param array	$languages	an array of languages to set for the asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function set_languages($languages)
+	{
+		require_once SQ_FUDGE_PATH.'/general/general.inc';
+		$set_languages = gpc_stripslashes(implode(',',$languages));
+		$set_languages = trim($set_languages, ', ');
+		if($set_languages == $this->languages) return false;
+
+		$old_languages = $this->languages;
+		$this->languages = $set_languages;
+		if (!$this->_updated()) {
+			trigger_error('Failed setting languages for "'.$this->name.'"', E_USER_WARNING);
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetLanguageUpdate',
+											   Array( 'assetid'       => $this->id,
+													  'old_languages' => $old_languages,
+													  'new_languages' => $this->languages,
+													));
+		return true;
+
+	}//end set_languages()
+
+
+	/**
+	* Set the default character set of the asset
+	*
+	* @param string	$charset	the character set to set for the asset
+	*
+	* @return boolean
+	* @access public
+	*/
+	function set_charset($charset)
+	{
+		if($charset == $this->charset) return false;
+		$old_charset = $this->charset;
+		$this->charset = $charset;
+		if (!$this->_updated()) {
+			trigger_error('Failed setting character set for "'.$this->name.'"', E_USER_WARNING);
+			return false;
+		}
+		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetCharsetUpdate',
+											   Array( 'assetid'     => $this->id,
+													  'old_charset' => $old_charset,
+													  'new_charset' => $this->charset,
+													));
+		return true;
+
+	}//end set_charset()
+
+
+	/**
 	* Remaps existing assetids used by this asset to new ones
 	*
-	* @param Array	&$map	a map of the form Array([old asset id] => [new asset id]);
+	* @param array	&$map	a map of the form Array([old asset id] => [new asset id]);
 	*
 	* @return bool
 	* @access public
@@ -2051,10 +2148,12 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// check for web path conflicts with the new parents children
-		$paths = $minor->getWebPaths();
-		$bad_paths = $this->_webPathsInUse($paths);
-		if (!empty($bad_paths)) {
-			return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), path(s) "'.implode('", "', $bad_paths).'" already in use by one of the siblings of "'.$this->name.'"';
+		if ($link_type & SQ_LINK_FRONTEND_NAV) {
+			$paths = $minor->getWebPaths();
+			$bad_paths = $this->_webPathsInUse($paths);
+			if (!empty($bad_paths)) {
+				return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), path(s) "'.implode('", "', $bad_paths).'" already in use by one of the siblings of "'.$this->name.'"';
+			}
 		}
 
 		// if this link is a significant link, then we need to make sure that this
@@ -2968,8 +3067,10 @@ class Asset extends Resolve_Object
 
 		if ($link_type_changed) {
 
-			// We need to make sure that we aren't going to have to be fucking about with tree to get the update working
-			// so because the tree only contains significant links if the significant state has changed barf
+			// We need to make sure that we aren't going to have to be fucking 
+			// about with tree to get the update working
+			// so because the tree only contains significant links if the 
+			// significant state has changed... barf
 			$current_is_sig = (bool) ((int) $link['link_type'] & SQ_LINK_SIGNIFICANT);
 			$new_is_sig     = (bool) ($link_type & SQ_LINK_SIGNIFICANT);
 			if ($current_is_sig !== $new_is_sig) {
@@ -2982,9 +3083,21 @@ class Asset extends Resolve_Object
 				trigger_error('Unable to update link #'.$linkid.' ('.$err_msg.')', E_USER_WARNING);
 				return false;
 			}
+
+			// check for web path conflicts with the new parents children
+			// if the old link is not a frontend nav link but the new one is
+			if (!($link['link_type'] & SQ_LINK_FRONTEND_NAV) && ($link_type & SQ_LINK_FRONTEND_NAV)) {
+				$paths = $minor->getWebPaths();
+				$bad_paths = $this->_webPathsInUse($paths);
+				if (!empty($bad_paths)) {
+					trigger_error('Cannot update link #'.$linkid.', path(s) "'.implode('", "', $bad_paths).'" already in use by one of the siblings of "'.$this->name.'"', U_USER_WARNING);
+					return false;
+				}
+			}
+
 			$set_clauses[] = 'link_type = '.$db->quote($link_type);
 
-		}
+		}// end if link_type_changed
 
 		if ($value_changed) {
 			$set_clauses[] = 'value = '.$db->quote($value);
@@ -3023,8 +3136,9 @@ class Asset extends Resolve_Object
 		}
 
 		if ($link_type_changed) {
-			// if this is a frontend nav link or if the old link type was, then we need to inform the asset to update it's lookups
-			if (($link_type & SQ_LINK_SIGNIFICANT) || ((int) $link['link_type'] & SQ_LINK_SIGNIFICANT)) {
+			// if this is a frontend nav link or if the old link type was, 
+			// then we need to inform the asset to update it's lookups
+			if (($link_type & SQ_LINK_FRONTEND_NAV) || ((int) $link['link_type'] & SQ_LINK_FRONTEND_NAV)) {
 				if (!$minor->updateLookups()) {
 					return false;
 				}
@@ -3857,6 +3971,7 @@ class Asset extends Resolve_Object
 	* @param array		$assetids	an array of user_group and/or user ids to check for write access
 	*								If the array is empty, the current user will be checked
 	* @param boolean	$effective	effective access based on locking and status
+	* @param boolean	$editing	effective access based on live edit access
 	*
 	* @return boolean
 	* @access public
@@ -4028,6 +4143,9 @@ class Asset extends Resolve_Object
 			return;
 		}
 
+		if($this->charset) header("Content-type: text/html; charset=$this->charset");
+		if($this->languages) header("Content-language: $this->languages");
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url(current_url(false));
 		$sql = 'SELECT l.designid, a.type_code
@@ -4075,6 +4193,7 @@ class Asset extends Resolve_Object
 	function paintBackend(&$o)
 	{
 		$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
+		if ($this->charset) $o->setCharset($this->charset);
 		$ei = &$this->getEI();
 		$ei->paint($this, $o, empty($this->id));
 
@@ -4232,7 +4351,7 @@ class Asset extends Resolve_Object
 			// now we need to check that none of our parents have
 			// any nav kids that are also using this path name
 			$siblingids = Array();
-			$parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
+			$parents = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'minor');
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
@@ -4307,7 +4426,7 @@ class Asset extends Resolve_Object
 
 		// get all our nav siblings
 		$siblingids = Array();
-		$my_kids = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'major');
+		$my_kids = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'major');
 		for($j = 0; $j < count($my_kids); $j++) {
 			if ($my_kids[$j]['minorid'] == $this->id) continue;
 			$siblingids[] = $db->quote($my_kids[$j]['minorid']);
@@ -4440,7 +4559,7 @@ class Asset extends Resolve_Object
 			$design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false);
 			$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
-			$parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
+			$parents = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'minor');
 			$done_urls = Array();
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
@@ -4471,7 +4590,7 @@ class Asset extends Resolve_Object
 
 		}// end if count paths
 
-		$kids = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'major');
+		$kids = $this->getLinks(SQ_LINK_FRONTEND_NAV, '', null, 'major');
 		for($i = 0; $i < count($kids); $i++) {
 			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;

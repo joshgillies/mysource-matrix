@@ -1,0 +1,12 @@
+<contents>
+	<section name="Internationalisation">
+		<field code="intl_languages">
+			<display_name>Languages</display_name>
+			<note />
+		</field>
+		<field code="intl_character_set">
+			<display_name>Character Set</display_name>
+			<note />
+		</field>
+	</section>
+</contents>

@@ -636,6 +636,170 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
+	* Paints the interface for editing various settings
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	*
+	* @access public
+	*/
+	function paintSettings(&$owner, &$o)
+	{
+		if(!($file = $this->_findFile('static_screen_settings'))) return;
+
+		$prefix = $this->getPrefix($owner);
+
+		if ($file) {
+			$input = new XML_Tree($file);
+			$root  = &$input->getTreeFromFile();
+			if (PEAR::isError($root)) {
+				trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+				return;
+			}
+
+			for($i = 0; $i < count($root->children); $i++) {
+				$section = &$root->children[$i];
+
+				$o->openSection($section->attributes['name']);
+
+				if (!($num_fields = count($section->children))) continue;
+				for($j = 0; $j < $num_fields; $j++) {
+					$field = &$section->children[$j];
+
+					switch (strtolower($field->attributes['code'])) {
+						case 'intl_languages' :
+							if ($field->children[0]->name != 'display_name') $display_name = 'Languages';
+							else $display_name = $field->children[0]->content;
+							$o->openSection($display_name);
+
+							require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
+
+							if ($owner->writeAccess()) {
+								$standards_lists_languages = array_reverse($standards_lists_languages);
+								$standards_lists_languages[''] = '';
+								$standards_lists_languages = array_reverse($standards_lists_languages);
+								$o->openField('Add Language ?');
+								combo_box($prefix.'_add_intl_language', $standards_lists_languages, false, '');
+							}
+
+							$o->openField('Current');
+							$current_langs = $owner->get_languages();
+							if (!empty($current_langs)) {
+								sort($current_langs);
+								?>
+								<table border="0">
+									<?php if ($owner->writeAccess()) {
+									?>
+									<tr>
+										<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+										<td bgcolor="#DDDDDD" class="sq-form-field"><b>Delete ?</b></td>
+									</tr>
+									<?php } ?>
+								<?php
+								foreach ($current_langs as $lang_code) {
+									?>
+									<tr>
+										<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo $standards_lists_languages[$lang_code]; ?></td>
+										<?php if ($owner->writeAccess()) {
+										?>
+										<td bgcolor="#F0F0F0" class="sq-form-field" align="center"><?php check_box($prefix.'_rem_intl_language['.$lang_code.']'); ?></td>
+										<?php } ?>
+									</tr>
+									<?php
+								}
+								?></table><?php
+							} else {
+								echo '<i>No languages are currently set for "'.$owner->name.'"</i>';
+							}
+							$o->closeSection();
+							break;
+						case 'intl_character_set' :
+							if ($field->children[0]->name != 'display_name') $display_name = 'Character Set';
+							else $display_name = $field->children[0]->content;
+							$o->openSection($display_name);
+							$o->openField('Current');
+							require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
+							
+							if ($owner->writeAccess()) {
+								$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
+								$standards_lists_character_sets[''] = '** Use System Default **';
+								$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
+								combo_box($prefix.'_intl_character_set', $standards_lists_character_sets, false, $owner->charset);
+							} else {
+								if (isset($standards_lists_character_sets[$owner->charset])) {
+									echo $standards_lists_character_sets[$owner->charset];
+								} elseif ($owner->charset == '') {
+									echo '<i>No character set is currently set for "'.$owner->name.'"</i>';
+								} else {
+									echo '<i>Unkown character set "'.$owner->charset.'" is currently set for "'.$owner->name.'"</i>';
+								}
+							}
+							break;
+						default :
+							continue;
+							break;
+					}
+
+					if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+						$o->note($field->children[1]->content);
+					}
+				}// end for
+
+				$o->closeSection();
+
+			}// end for
+
+		}// end if file
+
+	}//end paintSettings()
+
+
+	/**
+	* Processes the interface for editing various settings
+	* returns true if there is a change
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	*
+	* @access public
+	* @return boolean
+	*/
+	function processSettings(&$owner, &$o)
+	{
+		$prefix = $this->getPrefix($owner);
+
+		//// LANGUAGES ////
+		$current_langs = $owner->get_languages();
+		$set_languages = Array();
+
+		if (!isset($_POST[$prefix.'_rem_intl_language'])) $_POST[$prefix.'_rem_intl_language'] = Array();
+
+		// add a new language
+		if (isset($_POST[$prefix.'_add_intl_language']) && !empty($_POST[$prefix.'_add_intl_language'])) {
+			$new_language = $_POST[$prefix.'_add_intl_language'];
+			if (!in_array($new_language, $current_langs)) $set_languages[] = $new_language;
+		}
+
+		// check for delete languages
+		foreach ($current_langs as $lang_code) {
+			if (!isset($_POST[$prefix.'_rem_intl_language'][$lang_code])) $set_languages[] = $lang_code;
+		}
+
+		$owner->set_languages($set_languages);
+
+
+		//// CHARACTER SET ////
+		if (isset($_POST[$prefix.'_intl_character_set'])) {
+			$new_charset = $_POST[$prefix.'_intl_character_set'];
+			$owner->set_charset($new_charset);
+		}
+
+		return false;
+	}//end processSettings()
+
+
+
+	/**
 	* Returns an array of permissions that we would be inheriting if we hadn't set a specific entry ourselves
 	*
 	* @param object	Asset	$owner	the asset whose interface we are painting

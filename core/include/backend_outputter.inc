@@ -86,6 +86,8 @@ class Backend_Outputter
 	var $_section_count = 0;
 	var $_field_count   = 0;
 
+	var $_charset = '';
+
 
 	/**
 	* Constructor
@@ -327,6 +329,19 @@ class Backend_Outputter
 
 
 	/**
+	* Set the character set for the page
+	*
+	* @param string $charset the character set to use
+	*
+	* @access public
+	*/
+	function setCharset($charset)
+	{
+		$this->_charset = $charset;
+	}//end setCharset()
+
+
+	/**
 	* Opens a section of the page for raw output
 	*
 	* @access public
@@ -563,22 +578,22 @@ class Backend_Outputter
 		<html>
 		<head>
 			<title><?php echo $this->_heading;?></title>
-			<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-		<?php
+			<?php
+			
+			if($this->_charset) {
+				header("Content-type: text/html; charset=$this->_charset");
+			} else {
+				$default_charset = 'iso-8859-1';
+				header("Content-type: text/html; charset=$default_charset");
+			}
+
 			$this->_paintCssInclude($this->filesPath('css/edit.css'));
-			foreach($this->_css_includes as $file) {
-				$this->_paintCssInclude($file);
-			}//end foreach
+			foreach($this->_css_includes as $file) $this->_paintCssInclude($file);
 
 			$this->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 			$this->_paintJsInclude(sq_web_path('lib').'/js/general.js');
 			$this->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
-			//$this->_paintJsInclude($this->filesPath('/js/general.js'));
-			//$this->_paintJsInclude($this->filesPath('/js/edit.js'));
-			//$this->_paintJsInclude(sq_web_path('lib').'/js/general.js');
-			foreach($this->_js_includes as $file) {
-				$this->_paintJsInclude($file);
-			}//end foreach
+			foreach($this->_js_includes as $file) $this->_paintJsInclude($file);
 		?>
 			<script language="Javascript" type="text/javascript">
 			<!--
