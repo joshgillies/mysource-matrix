@@ -477,15 +477,16 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if (empty($_POST[$prefix.'_new_customisation']) || !($new_name = trim($_POST[$prefix.'_new_customisation_name']))) return false;
 
-		// First let's duplicate ourselves, ignoring the directory with the files
-		$dupe = &$asset->duplicate(false);
+		// First let's duplicate ourselves, ignoring dependants and the directory with the files
+		$map = Array();
+		$create_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_UNITE, 'value' => 'customisation');
+		$dupe = &$asset->duplicate($create_link, $map, false, false);
 		if (is_null($dupe)) return false;
 
 		// Now let's morph the dupe into a design customisation
 		if (!$dupe->morph('design_customisation')) return false;
 
 		// and link it back to ourselves
-		$asset->createLink($dupe, SQ_LINK_UNITE, 'customisation');
 		$dupe->setAttrValue('id_name', $new_name);
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;

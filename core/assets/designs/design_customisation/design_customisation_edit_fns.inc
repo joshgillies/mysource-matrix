@@ -120,7 +120,9 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			if (is_null($da)) continue;
 
 			// First let's duplicate the DA, ignoring the directory with the files
-			$dupe = &$da->duplicate(false);
+			$map  = Array();
+			$create_link = Array(); // because we have to bugger about with this a bit, don't link it anywhere yet
+			$dupe = &$da->duplicate($create_link, $map, true, false);
 			if (is_null($dupe)) return false;
 
 			$data[$id_name] = $dupe->id;
