@@ -83,7 +83,7 @@ HTMLArea.prototype.generate = function () {
 		html += "<style> body { " + editor.config.bodyStyle + " } </style>\n";
 		html += "</head>\n";
 		html += "<body>\n";
-		html += editor._textArea.value;
+		html += unescape(editor._textArea.value);
 		html += "</body>\n";
 		html += "</html>";
 		doc.write(html);
@@ -112,7 +112,7 @@ HTMLArea.prototype.generate = function () {
 		editor._doc.innerHTML = editor._textArea.value;
 		editor._doc.style.width  = "100%";
 		editor._doc.style.height = "100%";
-		editor._doc.innerHTML = editor._textArea.value;
+		editor._doc.innerHTML = unescape(editor._textArea.value);
 		if (HTMLArea.is_ie) { editor._doc.contentEditable = true; }
 		// intercept some events; for updating the toolbar & keyboard handlers
 		HTMLArea._addEvents
