@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.24 2005/03/10 01:31:25 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.25 2005/03/22 04:28:15 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -54,10 +54,16 @@ function build_single_event_query_base(&$trees)
 	$type_codes = array_merge($type_codes, quoted_descendants('calendar_event_cancellation'));
 	$type_codes = array_merge($type_codes, quoted_descendants('calendar_event_modification'));
 
-	$sql = 'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, p.granted as access, cd.* FROM '.build_join_statements().' WHERE a.type_code IN ( '.implode(',', $type_codes).') AND (a.status >= '.$db->quote(SQ_STATUS_LIVE).")\n";;
+	$sql = 'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.*';
+	if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
+		$sql .= ', p.granted as access';
+	}
+	$sql .= "\n".'FROM '.build_join_statements()."\n";
+	$sql .= 'WHERE a.type_code IN ( '.implode(',', $type_codes).') '."\n";
+	$sql .= "\t".'AND (a.status >= '.$db->quote(SQ_STATUS_LIVE).")\n\t";;
 
 	if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
 			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
@@ -80,7 +86,8 @@ function build_single_event_query_base(&$trees)
 
 function build_join_statements()
 {
-	return '(('.SQ_TABLE_RUNNING_PREFIX.'ast a INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p ON a.assetid = p.assetid) join ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l join '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX.'cal_date_val cd on a.assetid = cd.assetid';
+	$base = ($GLOBALS['SQ_SYSTEM']->userSystemAdmin() || $GLOBALS['SQ_SYSTEM']->userRoot()) ? SQ_TABLE_RUNNING_PREFIX.'ast a' : '('.SQ_TABLE_RUNNING_PREFIX.'ast a NATURAL JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_perm p)';
+	return '('.$base.' JOIN ('.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t ON l.linkid = t.linkid) ON l.minorid = a.assetid) JOIN '.SQ_TABLE_RUNNING_PREFIX.'cal_date_val cd ON a.assetid = cd.assetid';
 
 }//end build_join_statements()
 
@@ -116,10 +123,14 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 	$type_codes = quoted_descendants('calendar_event_recurring');
 
 	$sql =
-	'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).") as root_node, p.granted as access, cd.* \nFROM ". build_join_statements()." \nWHERE (a.type_code IN (".implode(',', $type_codes).')) AND (a.status >= '.$db->quote(SQ_STATUS_LIVE).")\n";
+	'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, cd.*';
+	if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
+		$sql .= ', p.granted as access';
+	}
+	$sql .= "\nFROM ". build_join_statements()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n\tAND (a.status >= ".$db->quote(SQ_STATUS_LIVE).")\n";
 
 	if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+		if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin() && !$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
 			array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
 			for (reset($userids); NULL !== ($i = key($userids)); next($userids)) {
@@ -692,7 +703,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 				// the time is too early or late in the day to be shown
 				return;
 			}
-		}		
+		}
 		$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
 		$result_list[$assetid.':'.$i] = Array();
 		for (reset($event); null !== ($k = key($event)); next($event)) {
@@ -886,9 +897,9 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 				// fully-specified but falls within a single day
 				$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
 				$start_date = date('Y-m-d', $start_time);
-				if (($start_date >= $first_day) && ($start_date <= $last_day) && 
-						(is_null($event_start_dts) || 
-						 (($event_start_dts >= $day_start_dts) && ($event_start_dts < $day_end_dts)) || 
+				if (($start_date >= $first_day) && ($start_date <= $last_day) &&
+						(is_null($event_start_dts) ||
+						 (($event_start_dts >= $day_start_dts) && ($event_start_dts < $day_end_dts)) ||
 						 (($event_end_dts <= $day_end_dts) && ($event_end_dts > $day_start_dts)) ||
 						 (($event_start_dts < $day_start_dts) && ($event_end_dts > $day_end_dts))
 						)
@@ -920,7 +931,7 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 			// end date not specified, so it's either just a date or a point in time
 			$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
 			$start_date = date('Y-m-d', $start_time);
-			
+
 			if (($start_date >= $first_day) && ($start_date <= $last_day)) {
 				$result_list[$assetid.':'.$i] = Array();
 				for (reset($event); null !== ($k = key($event)); next($event)) {
@@ -941,8 +952,8 @@ function expand_recurring_event(&$result_list, &$event, $assetid, $first_day, $l
 				} else {
 					$event[$assetid.':'.$i]['start_date_ts'] = strtotime($start_date);
 					$event[$assetid.':'.$i]['end_date_ts'] = strtotime($end_date);
-				}				
-				
+				}
+
 				$i++;
 			}
 
@@ -1053,7 +1064,7 @@ function get_date_components($iso, $prefix='')
 			if (is_null($this_date['hours']) && (!is_null($this_date['minutes']) || !is_null($this_date['seconds']))) {
 				// hours null in the middle of the time - no valid time
 				$this_date['ts'] = null;
-			} elseif (is_null($this_date['minutes']) && !is_null($this_date['seconds']))  {
+			} else if (is_null($this_date['minutes']) && !is_null($this_date['seconds']))  {
 				// minutes null in the middle of the time - no valid time
 				$this_date['ts'] = null;
 			} else {
@@ -1106,13 +1117,13 @@ function get_date_components($iso, $prefix='')
 
 /**
 * Get the daystamp value for the supplied date
-* 
+*
 * @param int|string	$value	The date to convert, either a timestamp or ISO-format date
 *
 * @return int	The day-stamp
 * @access public
 */
-function get_ds($value) 
+function get_ds($value)
 {
 	if (is_numeric($value)) {
 		// timestamp
@@ -1123,18 +1134,18 @@ function get_ds($value)
 		return round(iso8601_ts($value) / 86400);
 	}
 
-}//end get_ds();
+}//end get_ds()
 
 
 /**
 * Get the monthstamp value for the supplied date
-* 
+*
 * @param int|string	$value	The date to convert, either a timestamp or ISO-format date
 *
 * @return int	The monthstamp
 * @access public
 */
-function get_ms($value) 
+function get_ms($value)
 {
 	if (is_numeric($value)) {
 		// convert timestamp to ISO
@@ -1143,7 +1154,7 @@ function get_ms($value)
 	list($year, $month) = sscanf($value, '%04d-%02d');
 	return ($year * 12) + $month;
 
-}//end get_ms();
+}//end get_ms()
 
 
 /**
@@ -1170,3 +1181,5 @@ function quoted_descendants($type_code)
 
 }//end quoted_descendants()
 
+
+?>
