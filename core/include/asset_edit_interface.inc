@@ -1687,7 +1687,12 @@ class Asset_Edit_Interface extends Resolve_Object
 							$cond_logic = $cond_data['require'];
 							$cond_logic_num = '';
 						} else {
-							list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['logic']);
+							if ($step_data['logic'] != '') {
+								list($step_logic, $step_logic_num) = explode(' ', $step_data['logic']);
+							} else {
+								$step_logic = '';
+								$step_logic_num = '';
+							}
 						}
 
 						if (is_a($asset, 'user')) {
