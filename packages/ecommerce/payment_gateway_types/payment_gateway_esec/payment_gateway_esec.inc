@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.5 2004/10/17 23:33:14 dbaranovskiy Exp $
+* $Id: payment_gateway_esec.inc,v 1.6 2004/10/18 01:30:37 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -46,7 +46,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	* basic output function. root of output process
 	*
 	* @access public
-	* @return void
+	* @return
 	*/
 	function printBody()
 	{
@@ -76,7 +76,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	* makes form for entering credit card details
 	*
 	* @access public
-	* @return string
+	* @return
 	*/
 	function makeCreditCardForm()
 	{
@@ -183,7 +183,7 @@ FORMBODY;
 	* process credit card details to gateway
 	*
 	* @access public
-	* @return boolean
+	* @return
 	*/
 	function processPayment()
 	{
@@ -222,7 +222,19 @@ FORMBODY;
 			}
 
 			$response['STATUS'] = $status;
-			$response['CARDNO'] = (strlen($card_info['number']) < 16)?'****-****-****-****':'****-****-****-'.substr($card_info['number'],12);
+			// preparing card number; should contain only 4 last digits
+			$cardno = '';
+			$cardlength = strlen($card_info['number']);
+			if ($cardlength < 16) {
+				for ($i = 0; $i < $cardlength - 4; $i++) {
+					$cardno .= '*';
+				}
+				$cardno .= substr($card_info['number'], $i);
+			} else {
+				$cardno = '****-****-****-'.substr($card_info['number'],12);
+			}
+			$response['CARDNO'] = $cardno;
+
 			$_SESSION['SQ_ECOM_RESPONSE']   = $response;
 		}
 
@@ -232,10 +244,10 @@ FORMBODY;
 
 
 	/**
-	* returns back to e-commerce form that called gateway
+	* returns back to e-commerce form, which called gateway
 	*
 	* @access public
-	* @return void
+	* @return
 	*/
 	function goBackToCaller()
 	{
