@@ -68,7 +68,7 @@ function stripslashes_array(&$array, $strip_keys=false)
 *
 * @return Array()
 */
-function random_password($length) 
+function random_password($length)
 {
 	if (!$length) $length = 8;
 	$consonants = 'bcdfghjklmnpqrstvwyz';
@@ -142,5 +142,89 @@ function increment_name($name='', $spacer='')
 	if(!$int) return substr($name,0,$j+1).$spacer.(2).$trailing_whitespace;
 	return substr($name,0,$j+1).($int+1).$trailing_whitespace;
 }//end increment_name()
+
+
+/**
+* Outputs a PNG image, of the text string entered, to be used as a security key
+* The letters are each displayed in a random font and are zoomed to a random size
+* based on the zoom factor entered
+*
+* @param string	$word	the word to display in the image
+* @param int	$w		the width of the image (final width will be $w * $zoom)
+* @param int	$h		the height of the image (final height will be $h * $zoom)
+* @param string	$bg		the background colour of the image (eg FFFFFF)
+* @param string	$text	the colour of the text in the image (eg 000000)
+* @param string	$border	the colour of the border image (eg 000000)
+*						for no border, set to the same colour as the background
+* @param int	$zoom	each character will be randomly zoomed between x1 and this figure
+*
+* @return string
+*/
+function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border='000000', $zoom=1)
+{
+	if (!empty($word)) {
+		// cache control for this image
+		header('Cache-Control:');
+		header('Pragma: cache');
+		header('Expires: '. gmdate('D, d M Y H:i:s',time() -1000) . ' GMT');
+		header("Content-type: image/png");
+
+		// create an image we will use to print the characters on and then
+		// another image $zoom times bigger where we will print the larger
+		// zoomed text for easier reading
+		$test_im  = @imagecreate($w, $h) or die ("Cannot Initialize new GD image stream");
+		$final_im = @imagecreate(($w * $zoom), ($h * $zoom)) or die ("Cannot Initialize new GD image stream");
+
+		// create some colours we will use in the image
+		// NOTE: The first colour allocated is used for the background
+		$r = hexdec(substr($bg, 0, 2));
+		$g = hexdec(substr($bg, 2, 2));
+		$b = hexdec(substr($bg, 4, 2));
+		$bg_colour = imagecolorallocate($test_im, $r, $g, $b);
+		$bg_colour = imagecolorallocate($final_im, $r, $g, $b);
+
+		$r = hexdec(substr($text, 0, 2));
+		$g = hexdec(substr($text, 2, 2));
+		$b = hexdec(substr($text, 4, 2));
+		$text_colour = imagecolorallocate($test_im, $r, $g, $b);
+		$text_colour = imagecolorallocate($final_im, $r, $g, $b);
+
+		$r = hexdec(substr($border, 0, 2));
+		$g = hexdec(substr($border, 2, 2));
+		$b = hexdec(substr($border, 4, 2));
+		$border_colour = imagecolorallocate($test_im, $r, $g, $b);
+		$border_colour = imagecolorallocate($final_im, $r, $g, $b);
+
+		$x_pos = 5;
+		$y_pos = 5;
+		$chars = preg_split('//', $word, -1, PREG_SPLIT_NO_EMPTY);
+
+		foreach ($chars as $char) {
+			// print the character in either type 3, 4 or 5 inbuilt font
+			imagestring ($test_im, rand(3, 5), $x_pos, $y_pos, $char, $text_colour);
+
+			// work out the new dimensions of the character after zooming
+			$new_w = rand(10, (10 * $zoom));
+			$new_h = rand(15, (10 * $zoom));
+
+			// copy the character we printed above and resize it onto the final
+			// image to zoom the characet randomly in width and height based on $zoom
+			imagecopyresized($final_im, $test_im, ($x_pos * $zoom), ($y_pos * $zoom), $x_pos, $y_pos, $new_w, $new_h, 10, 15);
+
+			// increase the x position
+			$x_pos += 10;
+		}
+
+		// draw a border around the outside
+		imagerectangle($final_im, 0, 0, $w * $zoom -1, $h * $zoom -1, $border_colour);
+
+		// output the image
+		imagepng($final_im);
+
+		// cleanup
+		imagedestroy($test_im);
+		imagedestroy($final_im);
+	}
+}//end security_key_image()
 
 ?>
