@@ -30,7 +30,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 												'process_function' => 'processPermissions',
 												),
 						'running_mode'     => 'server',
-						'auto_step'        => false,
+						'auto_step'        => true,
 						'percent_done'     => 0,
 						'complete'         => false,
 						'message'          => '',

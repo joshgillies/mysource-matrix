@@ -30,7 +30,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 												'process_function' => 'processLocking',
 												),
 						'running_mode'     => 'server',
-						'auto_step'        => false,
+						'auto_step'        => true,
 						'percent_done'     => 0,
 						'complete'         => false,
 						'message'          => '',
