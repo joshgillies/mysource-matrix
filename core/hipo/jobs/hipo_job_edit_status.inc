@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.20 2004/02/16 00:38:09 gsherwood Exp $
+* $Id: hipo_job_edit_status.inc,v 1.21 2004/02/23 03:15:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -172,7 +172,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 		// we will be edting the status of
-		$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+		$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
 		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
 		$this->_running_vars['done_root']     = false;
