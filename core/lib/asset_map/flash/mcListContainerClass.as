@@ -179,7 +179,7 @@ mcListContainerClass.prototype.onMenuItemPress = function(action, info)
 */
 mcListContainerClass.prototype.processAddAsset = function(parent_item_name, parent_assetid, relative_pos) 
 {
-	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to pos " + parent_assetid + ". Where ? " + relative_pos);
+	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to under parent : " + parent_assetid + ". at pos " + relative_pos);
 
 	var xml = new XML();
 	var cmd_elem = xml.createElement("command");
@@ -187,7 +187,7 @@ mcListContainerClass.prototype.processAddAsset = function(parent_item_name, pare
 	cmd_elem.attributes.cmd     = "add";
 	cmd_elem.attributes.type_code      = this.tmp.exec_action.type_code;
 	cmd_elem.attributes.parent_assetid = parent_assetid;
-	cmd_elem.attributes.pos            = pos;
+	cmd_elem.attributes.pos            = relative_pos;
 	xml.appendChild(cmd_elem);
 
 	trace(xml);
