@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.350 2005/01/20 13:10:34 brobertson Exp $
+* $Id: asset.inc,v 1.351 2005/01/20 22:47:08 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.350 $
+* @version $Revision: 1.351 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2143,7 +2143,7 @@ class Asset extends MySource_Object
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
 		if (empty($link)) {
-			trigger_error('Unable cannot delete link, Link #'.$linkid.' does not exist', E_USER_NOTICE);
+			trigger_error('Unable to delete link, Link #'.$linkid.' does not exist', E_USER_NOTICE);
 			return false;
 		} else {
 			return $GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($linkid);
