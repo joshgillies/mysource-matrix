@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.8 2005/02/15 23:58:33 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.9 2005/02/16 00:04:43 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -176,8 +176,8 @@ class Listing_Engine_Management extends Asset_Management
 				$result = $this->_hoardAttribute($attr_name, 'page_asset_listing');
 			}
 			
-			foreach($result as $resultid => $result_info) {
-				$attributes[$resultid] = $result_info;
+			foreach($result as $result_info) {
+				$attributes[$result_info['assetid']] = $result_info;
 			}
 		}
 		
@@ -244,7 +244,7 @@ class Listing_Engine_Management extends Asset_Management
 		
 		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr WHERE name = '.$db->quote($attr_name).' AND owning_type_code = '.$db->quote($from);
 		
-		$result = $db->getAssoc($sql);
+		$result = $db->getAll($sql);
 		assert_valid_db_result($result);
 		
 		return $result;
