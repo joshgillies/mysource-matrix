@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.135 2004/04/21 23:20:24 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.136 2004/04/22 05:23:11 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -154,22 +154,9 @@ class Asset_Map
 				$classname = 'ComplexAssetMap';
 				$jarname = 'complexassetmap';
 			break;
-
-			$classname = 'AssetMap';
-			$jarname = 'assetmap';
 		}
 		
-		$includes = Array($jarname.'.jar', 'crimson.jar', 'dom.jar', 'sax.jar', 'jaxp-api.jar');
-		$full_includes = Array();
-		
-		foreach ($includes as $include) {
-			$full_includes[] = sq_web_path('lib').'/asset_map/java/'.$include;
-		}
-		
-		$includes_str = implode(',', $full_includes);
-		
-		$width = 250;
-		$height = 600;
+		// TODO: <embed> tags for moz and netscape
 
 		// we want to use current_url()
 		require_once SQ_INCLUDE_PATH."/general.inc";
@@ -181,23 +168,17 @@ class Asset_Map
 		<object id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" classid="CLSID:8AD9C840-044E-11d1-B3E9-00805F499D93">
 			<param name="code" value="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" />
 			<param name="level" value="5" />
-			<param name="archive" value="<?php echo $includes_str ?>" />
+			<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" />
 			<param name="BASE_URL" value="<?php echo clean_url(current_url(true, true)); ?>" />
 			<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
 			
 			<comment>
-				<embed id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" type="application/x-java-applet;version=1.3" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo $includes_str ?>" BASE_URL="<?php echo clean_url(current_url(true, true)); ?>"
+				<embed id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" type="application/x-java-applet;version=1.4" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" BASE_URL="<?php echo clean_url(current_url(true, true)); ?>"
 				 BACKEND_SUFFIX="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" MAYSCRIPT>
 					<noembed>
 						Java is not installed on your system
 					</noembed>
 				</embed>
-				<appet id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" type="application/x-java-applet;version=1.3" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo $includes_str ?>" BASE_URL="<?php echo clean_url(current_url(true, true)); ?>"
-				 BACKEND_SUFFIX="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" MAYSCRIPT>
-					<noembed>
-						Java is not installed on your system
-					</noembed>
-				</applet>
 			</comment>
 		</object>
 		<?php
