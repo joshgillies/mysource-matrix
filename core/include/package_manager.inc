@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.38 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: package_manager.inc,v 1.39 2003/12/16 16:38:29 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,9 +84,6 @@ class Package_Manager extends MySource_Object
 	*/
 	function Package_Manager($package)
 	{
-		// ignore CVS directories
-		if ($package == 'CVS') return;
-
 		$this->MySource_Object();
 
 		// OK, if this is the "core" package then we just need to fiddle with the path
@@ -530,10 +527,11 @@ class Package_Manager extends MySource_Object
 
 	/**
 	* Returns an array of all assets types that are parents for the passed asset
-	* that is in the this package
+	* that is in the this package, in the order Array ('parent', 'grand-parent', 'great-grand-parent', ..., 'asset')
 	*
 	* @param string $type_code  the code name for the asset that you want to check
 	*
+	* @return Array(string)
 	* @access public
 	*/
 	function getTypeAncestors($type_code)
