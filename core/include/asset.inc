@@ -454,6 +454,7 @@ class Asset extends Resolve_Object
 		for($i = 0; $i < $num_curr_links; $i++) {
 			// it already exists, so we don't need to do anything
 			if ($current_links[$i]['minorid'] == $minor->id && $current_links[$i]['value'] == $value) {
+				trigger_error('Link Already Exists', E_USER_WARNING);
 				return true;
 			}
 		}//end for
@@ -522,8 +523,11 @@ class Asset extends Resolve_Object
 		// move the sort_order for all the other assets up one
 		$sql = 'UPDATE sq_asset_link
 				SET sort_order = sort_order + 1
-				WHERE majorid = '.$db->quote($this->id).'
-				  AND sort_order > '.$db->quote($sort_order);
+				WHERE majorid    = '.$db->quote($this->id).'
+				  AND sort_order >= '.$db->quote($sort_order).'
+				  AND NOT (minorid = '.$db->quote($minor->id).' 
+							AND link_type = '.$db->quote($link_type).'
+							AND value = '.$db->quote($value).')';
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
@@ -632,19 +636,26 @@ class Asset extends Resolve_Object
 		}
 
 		// First, we should try and find the link
-		$current_links = $this->getLinks($link_type, get_class($minor));
+		$current_links  = $this->getLinks($link_type, get_class($minor));
+		error_log("CURRENT LINKS : ".array_contents($current_links));
 		$num_curr_links = count($current_links);
 		$i = 0;
 		for(; $i < $num_curr_links; $i++) {
-			if ($current_links[$i]['minorid'] == $minor->id && $current_links[$i]['value'] == $value) {
+			if ($current_links[$i]['minorid'] == $minor->id 
+					&& $current_links[$i]['value'] == $value) {
 				break;
 			}
 		}//end for
 
+		if ($i >= $num_curr_links) {
+			trigger_error('Existing Link not Found, unable to move link', E_USER_WARNING);
+			return false;
+		}
+
 		$old_sort_order = $current_links[$i]['sort_order'];
 
 		// dickhead check
-		if ($old_link['sort_order'] == $sort_order) {
+		if ($old_sort_order == $sort_order) {
 			return true;
 		}
 
@@ -652,7 +663,6 @@ class Asset extends Resolve_Object
 
 		// open the transaction
 		$db->query('BEGIN');
-
 
 		$sql = 'SELECT COUNT(*) as count, MAX(sort_order) as max
 				FROM sq_asset_link
@@ -663,48 +673,61 @@ class Asset extends Resolve_Object
 			$db->query('ROLLBACK');
 			return false;
 		}
-		$max = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
+		$max = ($row['count'] > 0) ? (int) $row['max'] : 0;
 
 		if ($sort_order > $max || $sort_order < 0) $sort_order = $max;
 
 		$sql = '';
 
+		$sql = 'UPDATE sq_asset_link
+				SET sort_order   = '.$db->quote($sort_order).',
+				    last_userid  = '.$db->quote($GLOBALS['SQ_RESOLVE']->currentUserId()).',
+				    last_updated = '.$db->quote(ts_iso8601(time())).'
+				WHERE majorid   = '.$db->quote($this->id).'
+				  AND minorid   = '.$db->quote($minor->id).'
+				  AND link_type = '.$db->quote($link_type).'
+				  AND value     = '.$db->quote($value);
+
+		error_log($sql);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			$db->query('ROLLBACK');
+			return false;
+		}
+
+
 		// move 'em up, higher
-		if ($old_sort_order < $sort_order) {
+		if ($old_sort_order > $sort_order) {
 			$sql = 'UPDATE sq_asset_link
 					SET sort_order = sort_order + 1
 					WHERE majorid = '.$db->quote($this->id).'
 					  AND sort_order >= '.$db->quote($sort_order).'
-					  AND sort_order < '.$db->quote($old_sort_order);
+					  AND sort_order <= '.$db->quote($old_sort_order);
 
 		} else {
 			$sql = 'UPDATE sq_asset_link
 					SET sort_order = sort_order - 1
 					WHERE majorid = '.$db->quote($this->id).'
 					  AND sort_order >= '.$db->quote($old_sort_order).'
-					  AND sort_order < '.$db->quote($sort_order);
+					  AND sort_order <= '.$db->quote($sort_order);
 		}
+
+		$sql .= ' AND NOT (minorid = '.$db->quote($minor->id).'
+							AND link_type = '.$db->quote($link_type).'
+							AND value = '.$db->quote($value).')';
+
+		error_log($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			$db->query('ROLLBACK');
 			return false;
 		}
 
-		$sql = 'UPDATE sq_asset_link
-				SET sort_order = '.$db->quote($sort_order).'
-				WHERE majorid   = '.$db->quote($this->id).'
-				  AND minorid   = '.$db->quote($minor->id).'
-				  AND link_type = '.$db->quote($link_type).'
-				  AND value     = '.$db->quote($value);
-
-//		pre_echo($sql);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		$db->query('COMMIT');
 
 		$this->_linkChanged($link_type, get_class($minor));
 
