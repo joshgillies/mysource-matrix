@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.284 2004/03/24 23:35:32 gsherwood Exp $
+* $Id: asset.inc,v 1.285 2004/03/25 10:15:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -589,10 +589,6 @@ class Asset extends MySource_Object
 			return false;
 		}
 		
-		$this-readAccess();
-		
-		
-
 		// check that the trash link is the only significant link left
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor');
 		if (count($links) != 1) {
