@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.94 2004/08/23 04:07:03 gsherwood Exp $
+* $Id: backend.inc,v 1.95 2004/08/31 14:31:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -700,7 +700,7 @@ class Backend extends MySource_Object
 				<td valign="top"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/top.gif'); ?>" width="9" height="25" border="0" alt="" /></td>
 			</tr>
 			<tr height="100%">
-				<td valign="middle"><a class="sq-backend-header-item" href="#" onClick="Javascript: resizeFrame()"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/bar.gif'); ?>" width="9" height="72" border="0" alt="<<" /></a></td>
+				<td valign="middle"><a class="sq-backend-header-item" style="padding: 0px;" href="#" onClick="Javascript: resizeFrame()"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/bar.gif'); ?>" width="9" height="72" border="0" alt="<<" /></a></td>
 			</tr>
 		</table>
 		<script language="Javascript" type="text/javascript">
