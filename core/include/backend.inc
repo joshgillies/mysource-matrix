@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.109 2005/01/17 18:03:11 brobertson Exp $
+* $Id: backend.inc,v 1.110 2005/01/20 00:34:41 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.109 $
+* @version $Revision: 1.110 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -307,7 +307,7 @@ class Backend extends MySource_Object
 
             $where = 'updated > '.$db->quote(ts_iso8601($_SESSION['backend_header_last_refresh']));
             $where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-            $sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
+            $sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast '.$where;
 
             $updated_assetids = $db->getCol($sql);
             if (!DB::isError($updated_assetids) && !empty($updated_assetids)) {
