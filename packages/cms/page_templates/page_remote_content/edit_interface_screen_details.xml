@@ -1,0 +1,86 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2004/09/01 01:42:28 arailean Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+
+	<section name="Details" write_access="write:attributes">
+
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+			<text width="35" height="1" />
+		</field>
+
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+			<text width="25" height="1" />
+		</field>
+
+	</section>
+
+
+	<section name="Location" write_access="write:attributes">
+
+		<field attribute="remote_url">
+			<display_name>Remote URL</display_name>
+			<note>This is the URL to grab the contents from. This is most likely a webpage, but will work for FTP or news as well.</note>
+			<text width="80" height="1" />
+		</field>
+
+		<field attribute="load_links">
+			<display_name>Replace Links</display_name>
+			<note>Select this option if you want links in the target page to open within the remote page.</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+
+	</section>
+
+
+	<section name="Transaction Modifiers" write_access="write:attributes">
+
+		<field attribute="start_tag">
+			<display_name>Start Tag</display_name>
+			<note>
+			Content on the remote page will be discarded until this tag is reached. You can use standard HTML elements or define your own tag to use (for examle &lt;--start--&gt;).
+			</note>
+			<text width="35" height="1" />
+		</field>
+
+		<field attribute="end_tag">
+			<display_name>End Tag</display_name>
+			<note>After the Start Tag has been encountered, all the content on the remote page will be captures until this tag is reached. You can use standard HTML elements or define your own tag to use (for examle &lt;--end--&gt;). If this tag is not found, everything is captured till the end of page.</note>
+			<text width="35" height="1" />
+		</field>
+
+		<field attribute="timeout">
+			<display_name>Timeout in seconds</display_name>
+			<note>If the content cannot be retrieved within the specified period, an error message will be displayed. This value must be non-negative. If you try to submit a negative number, it will be changed to the default value.</note>
+			<int width="5" />
+		</field>
+
+	</section>
+
+</contents>

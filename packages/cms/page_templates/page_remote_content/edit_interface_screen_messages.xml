@@ -1,0 +1,55 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_messages.xml,v 1.1 2004/09/01 01:42:28 arailean Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+
+	<section name="Unavailable Content" write_access="write:attributes">
+
+		<field attribute="display_error">
+			<display_name>Display Error Message</display_name>
+			<note>Choose whether you want the error message displayed.</note>
+			<boolean true_text="Yes" false_text="No" />
+		</field>
+		
+		<field attribute="error_message">
+			<display_name>Error Message</display_name>
+			<note>This message is displayed if an error occurs while capturing remote content.</note>
+			<wysiwyg style="div" width="100%" height="100" />
+		</field>
+
+	</section>
+
+	<section name="Binary Files" write_access="write:attributes">
+		
+		<field attribute="binary_message">
+			<display_name>Binary File Message</display_name>
+			<note>Site viewers will see this message if they follow a link to a binary file. Use the %remote_url% keyword replacement to make the url appear in the text of the message.</note>
+			<wysiwyg style="div" width="100%" height="100" />
+		</field>
+
+	</section>
+
+
+</contents>
