@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.24 2004/09/15 04:30:03 gsherwood Exp $
+* $Id: asset_status_live_approval.inc,v 1.25 2004/09/17 07:50:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -110,10 +110,17 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 				// we also need to check what if all the required metadata fields are completed
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				$m_complete = $mm->requiredFieldsComplete($this->owner->id);
-
-				if ($wf_complete && $m_complete) $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-				else if (in_array($userid, $publishers)) $statii[SQ_STATUS_LIVE_APPROVAL] = 'Approve Review';
+				if ($mm->allowsMetadata($this->owner->id)) {
+					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
+	
+					if ($wf_complete && $m_complete) $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+					else if (in_array($userid, $publishers)) $statii[SQ_STATUS_LIVE_APPROVAL] = 'Approve Review';
+				} else {
+					// this asset needs to allow both statuses because it cant check metadata requirements
+					// due to it not allowing metadata
+					$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+					$statii[SQ_STATUS_LIVE_APPROVAL] = 'Approve Review';
+				}
 
 				$statii[SQ_STATUS_EDITING] = 'Safe Edit';
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_pending_approval.inc,v 1.22 2004/07/08 02:01:27 lwright Exp $
+* $Id: asset_status_pending_approval.inc,v 1.23 2004/09/17 07:50:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -105,10 +105,17 @@ class Asset_Status_Pending_Approval extends Asset_Status
 
 				// we also need to check what if all the required metadata fields are completed
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				$m_complete = $mm->requiredFieldsComplete($this->owner->id);
-
-				if ($wf_complete && $m_complete) $statii[SQ_STATUS_APPROVED] = 'Approve';
-				else if (in_array($userid, $publishers)) $statii[SQ_STATUS_PENDING_APPROVAL] = 'Approve Changes';
+				if ($mm->allowsMetadata($this->owner->id)) {
+					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
+	
+					if ($wf_complete && $m_complete) $statii[SQ_STATUS_APPROVED] = 'Approve';
+					else if (in_array($userid, $publishers)) $statii[SQ_STATUS_PENDING_APPROVAL] = 'Approve Changes';
+				} else {
+					// this asset needs to allow both statuses because it cant check metadata requirements
+					// due to it not allowing metadata
+					$statii[SQ_STATUS_APPROVED] = 'Approve';
+					$statii[SQ_STATUS_PENDING_APPROVAL] = 'Approve Changes';
+				}
 
 				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Reject Changes';
 			} else if ($admin_access) {
