@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.8 2003/10/14 02:10:41 mmcintyre Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.9 2003/10/15 00:41:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,6 +79,10 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 			$schema_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'dependant' => 1);
 			$new_step->setAttrValue('name', $new_step_name);
 			if (!$new_step->create($schema_link)) return false;
+
+			// the new step is created so lock it for editing
+			$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_step->id, 'attributes');
+			$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_step->id, 'links');
 		}
 
 		return true;
