@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.10 2004/12/06 14:38:13 brobertson Exp $
+* $Id: db_install.inc,v 1.11 2005/02/17 04:29:14 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -49,6 +49,7 @@ function db_install($xml_file, $quiet=false)
 	require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 	$data_path = SQ_DATA_PATH.'/private/db';
+	$new_table_names = Array();
 
 	$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -151,6 +152,7 @@ function db_install($xml_file, $quiet=false)
 
 		$table_columns_string = ob_get_contents();
 		ob_end_clean();
+		$table_columns_string = substr($table_columns_string,0,strlen($table_columns_string)-1);
 
 		// work out the keys
 		$primary_key = '';
@@ -177,8 +179,8 @@ function db_install($xml_file, $quiet=false)
 			switch (strtolower($table_key->name)) {
 				case 'primary_key' :
 					// a primary key for the table
-					$primary_key = 'PRIMARY KEY('.implode(',',$key_columns).')';
-					$rollback_primary_key = 'PRIMARY KEY('.SQ_TABLE_PREFIX.'eff_from, '.implode(', ',$key_columns).')';
+					$primary_key = ',PRIMARY KEY('.implode(',',$key_columns).')';
+					$rollback_primary_key = ',PRIMARY KEY('.SQ_TABLE_PREFIX.'eff_from, '.implode(', ',$key_columns).')';
 				break;
 				case 'unique_key' :
 					$other_keys[] = 'UNIQUE('.implode(', ',$key_columns).')';
@@ -213,6 +215,8 @@ function db_install($xml_file, $quiet=false)
 				echo ')';
 				$table_sql = ob_get_contents();
 			ob_end_clean();
+
+			$new_table_names[] = $table_name;
 
 			$result = $db->query($table_sql);
 			assert_valid_db_result($result);
@@ -283,8 +287,10 @@ function db_install($xml_file, $quiet=false)
 	unset($cached_table_columns);
 	unset($cached_table_columns_string);
 
-	if (!$quiet) pre_echo('TABLE CREATION COMPLETE');
-
+	if (!$quiet) {
+		$table_names = empty($new_table_names)?"No new tables added":"New Tables:\n".implode($new_table_names,"\n");
+		pre_echo("TABLE CREATION COMPLETE\n".$table_names);
+	}
 
 //--        SEQUENCES        --//
 
