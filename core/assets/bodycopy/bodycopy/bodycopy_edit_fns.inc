@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.19 2004/11/08 00:34:28 mmcintyre Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.20 2004/11/11 04:47:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -580,6 +580,11 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$new_container->setAttrValue('name', 'New '.ucfirst($type));
 		$new_container->setAttrValue('attributes', $bc_data['attributes']);
 		$retval = (bool) $new_container->create($copy_link, $bc_data);
+		if ($retval) {
+			// try and update the name to be unique - but dont stress if we couldn't update it
+			$new_container->setAttrValue('name', 'New '.ucfirst($type).' '.$new_container->id);
+			$new_container->saveAttributes();
+		}
 
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($new_container);
 		return $retval;

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.6 2004/09/01 15:26:13 brobertson Exp $
+* $Id: bodycopy_div.inc,v 1.7 2004/11/11 04:47:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,9 +81,12 @@ class Bodycopy_Div extends Bodycopy_Container
 			return false;
 		}
 
-		// set the name to what they entered - if they entered anything
+		// set the name to what they entered - if they entered anything, otherwise use a default unique name
+		$acquire_lock = empty($bc_data);
 		if (isset($bc_data['attributes']['identifier']) && trim($bc_data['attributes']['identifier']) != '') {
 			$this->setAttrValue('name', $bc_data['attributes']['identifier']);
+		} else {
+			$this->setAttrValue('name', $this->attr('name').' '.$this->id);
 		}
 
 		// create a wysiwyg content type
@@ -97,8 +100,20 @@ class Bodycopy_Div extends Bodycopy_Container
 			return false;
 		}
 
+		if ($acquire_lock && !$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+		
 		$edit_fns = $this->getEditFns();
 		if (!$this->saveAttributes() || !$edit_fns->generateContentFile($this)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+		
+		if ($acquire_lock && !$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'atttributes')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
 			return false;
