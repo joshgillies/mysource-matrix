@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.17 2004/07/14 14:48:05 brobertson Exp $
+* $Id: datetime.inc,v 1.18 2004/08/11 01:01:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -219,4 +219,5 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 
 
 }//end class
+
 ?>
