@@ -53,15 +53,14 @@ class Workflow_Manager extends Resolve_Object
 	*
 	* @var array
 	*/
-	var $_valid_step_logic = Array('any' => 'at least one condition in this step must be met', 
-													  'all'   => 'all conditions in this step must be met');
+	var $_valid_step_logic = Array('>='  => 'At least', 'all' => 'All');
 
 	/**
 	* Logic strings that are valid for conditions
 	*
 	* @var array
 	*/
-	var $_valid_cond_logic = Array('>=' => 'At least', 'all' => 'Whole group must approve');
+	var $_valid_cond_logic = Array('>=' => 'At least', 'all' => 'All');
 
 
 	/**
@@ -102,9 +101,11 @@ class Workflow_Manager extends Resolve_Object
 			$users    = $this->_asset->getPermission(SQ_PERMISSION_WORKFLOW, false);
 			$inherits = $this->_asset->getInheritedPermission(SQ_PERMISSION_WORKFLOW, array_keys($users));
 			$inherited = $inherits + $users;
-			foreach ($inherited[0] as $assetid => $workflow) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$this->_inherited_workflows[$assetid] =& new Workflow_Manager($asset, false);
+			if (isset($inherited[0])) {
+				foreach ($inherited[0] as $assetid => $workflow) {
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					$this->_inherited_workflows[$assetid] =& new Workflow_Manager($asset, false);
+				}
 			}
 		}
 
@@ -155,14 +156,18 @@ class Workflow_Manager extends Resolve_Object
 
 		// run through and work out what step we are up to
 		$workflow =& $this->_current_workflows['running'][$workflowid];
+		$continue = false;
 		for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
 			$step_data =& $workflow['steps'][$stepid];
+			
 			$workflow['current_step'] = $stepid;
 			$continue = false;
+			$completed_conds = 0;
+
 			for (reset($step_data['conditions']); null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 				$cond_data =& $step_data['conditions'][$pub];
 
-				if (!isset($cond_data['published_by']))  $cond_data['published_by'] = Array();
+				if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
 				if(empty($cond_data['published_by'])) {
 					// nobody has approved this, so it cant be finished
 					if ($step_data['logic'] == 'all') {
@@ -190,17 +195,29 @@ class Workflow_Manager extends Resolve_Object
 					$cond_string = 'if ('.count($cond_data['published_by']).' '.$cond_data['require'].') { $complete = true; }';
 				}
 				eval($cond_string);
-			
+
 				if ($complete) {
 					// this condition has been completed
 					$continue = true;
-					if ($step_data['logic'] == 'any') break;
+					$completed_conds++;
+					if ($step_data['logic'] == 'all') continue;
+
+					$completed = false;
+					$logic_string = 'if ('.$completed_conds.' '.$step_data['logic'].' ) { $completed = true; }';
+					eval($logic_string);
+
+					if ($completed) break;
 					else continue;
 				}
 			}
 			if (!$continue) break;
 		}
-		if ($continue) $workflow['current_step'] = 0;
+		if ($continue) {
+			$completed = false;
+			$logic_string = 'if ('.$completed_conds.' '.$step_data['logic'].' ) { $completed = true; }';
+			eval($logic_string);
+			if ($completed) $workflow['current_step'] = 0;
+		}
 	}
 
 
@@ -404,7 +421,7 @@ class Workflow_Manager extends Resolve_Object
 		$stepid = count($this->_steps) + 1;
 
 		$this->_steps[$stepid] = Array();
-		$this->_steps[$stepid]['logic'] = 'any';
+		$this->_steps[$stepid]['logic'] = '>= 1';
 		$this->_steps[$stepid]['conditions'] = Array();
 
 		return $stepid;
@@ -436,29 +453,37 @@ class Workflow_Manager extends Resolve_Object
 	}
 
 
-	function setStepLogic($stepid, $logic)
+	function setStepLogic($stepid, $logic='>=', $logic_num=1)
 	{
 		$stepid = (int)$stepid;
 		if (!$stepid) return false;
 
 		if (!isset($this->_steps[$stepid])) {
-			trigger_error("Cannot change step logic, step $stepid does not exist", E_USER_WARNING);
+			trigger_error("Cannot edit step logic, step $stepid does not exist", E_USER_WARNING);
 			return false;
 		}
 
 		$logic = trim((string)$logic);
 		if (!in_array($logic, array_keys($this->_valid_step_logic))) {
-			trigger_error("'$logic' is not a valid step logic", E_USER_WARNING);
+			trigger_error("Cannot edit step logic, '$logic' is not a valid step logic", E_USER_WARNING);
 			return false;
 		}
 
+		$logic_num = (int)$logic_num;
+		if (!$logic_num && $logic != 'all') {
+			trigger_error("Cannot edit step logic, logic number cannot be zero", E_USER_WARNING);
+			return false;
+		}
+
+		// work out the logic expression
+		$logic = $logic.(($logic_num) ? " $logic_num" : '');
 		$this->_steps[$stepid]['logic'] = $logic;
 
 		return true;
 	}
 
 
-	function addCondition($stepid, $publisher, $logic='>=', $logic_num='1')
+	function addCondition($stepid, $publisher, $logic='>=', $logic_num=1)
 	{
 		$stepid = (int)$stepid;
 		if (!$stepid) return false;
@@ -489,7 +514,7 @@ class Workflow_Manager extends Resolve_Object
 	}
 
 
-	function setConditionLogic($stepid, $publisher, $logic='>=', $logic_num='1')
+	function setConditionLogic($stepid, $publisher, $logic='>=', $logic_num=1)
 	{
 		$stepid = (int)$stepid;
 		if (!$stepid) return false;
