@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.49 2005/01/20 01:52:06 amiller Exp $
+* $Id: page_asset_listing.inc,v 1.50 2005/01/20 23:02:03 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.49 $
+* @version $Revision: 1.50 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -103,9 +103,9 @@ class Page_Asset_Listing extends Page
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
 		$sub_assets= Array(
-			'type_formats'  => 'folder',
-			'asset_formats' => 'folder',
-			'page_contents' => 'bodycopy',
+			'type_formats'     => 'folder',
+			'position_formats' => 'folder',
+			'page_contents'    => 'bodycopy',
 		);
 
 		$type_formats = null;
@@ -217,7 +217,7 @@ class Page_Asset_Listing extends Page
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'type_formats');
 		if ($folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the type formats folder and the asset listing page';
 
-		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'asset_formats');
+		$asset_folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'position_formats');
 		if ($asset_folder_link['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cannot delete the link between the asset formats folder and the asset listing page';
 
 		return parent::isDeletableLink($linkid);
@@ -263,6 +263,34 @@ class Page_Asset_Listing extends Page
 		return $folder;
 
 	}//end getFolder()
+
+
+	/**
+	* Get a list of all formats of a certain type
+	*
+	* The results of this function are cached for the length of the script execution
+	*
+	* @param string	$type	the value on the link for the formats folder
+	*
+	* @access public
+	* @return array
+	*/
+	function getFormats($type='type_formats')
+	{
+		if (!isset($this->_tmp['formats'][$type])) {
+			$folder = &$this->getFolder($type);
+			$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true);
+			if (empty($format_links)) return Array();
+			
+			$formats = Array();
+			foreach ($format_links as $link_data) {
+				$formats[$link_data['minorid']] = $link_data['value'];
+			}
+			$this->_tmp['formats'][$type] = $formats;
+		}
+		return $this->_tmp['formats'][$type];
+
+	}//end getFormats()
 
 
 	/**
@@ -542,37 +570,26 @@ class Page_Asset_Listing extends Page
 			return Array();
 		}
 
-		// get the root assets whose sub-assets/children we are displaying
+		// get the root asset whose sub-assets/children we are displaying
 		// This may come from the parameter map, but the dynamic value must be a child of the static value
-		// if there are no root assets, we will use ourselves and print our children
-		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
-		foreach ($root_links as $root_link) $root_asset_ids[] = (int)$root_link['minorid'];
-
+		// if there is no root asset, we will use ourselves and print our children
+		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
+		$root_asset_id = empty($root_link) ? $this->id : $root_link['minorid'];
 		$parameter_map = &$this->getAttribute('parameter_map');
-		$dynamic_root = $parameter_map->getParameterValue('root_node');
-		
-		// check if we have a dynamic parameter -- if so, let's do some security checks
-		if (!is_null($dynamic_root)) {
-			$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
-			
-			// first, check to see if the dynamic parameter specified is already one of the root nodes
-			// if so, just use that single root node
-			if (in_array($dynamic_root, $root_asset_ids)) {
-				unset($root_asset_ids);
-				$root_asset_ids[] = $dynamic_root;
-			}
-			
-			// otherwise, check to see if the dynamic parameter specified is a child of one of the root
-			// nodes. If so, use the dynamic parameter as the root node; otherwise return an error.
-			$matching_root_ids = array_intersect(array_keys($dynamic_parents), $root_asset_ids);
-			if (empty($matching_root_ids)) {
+		if ((null != ($dynamic_root = $parameter_map->getParameterValue('root_node'))) && (in_array($root_asset_id, array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root))))) {
+			$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dynamic_root);
+		} else {
+			if ($dynamic_root != null) {
 				trigger_error('Supplied root node is in an unauthorised part of the system.  Defaulting to static root node', E_USER_WARNING);
+			}
+			if ($root_asset_id == $this->id) {
+				$root_asset =& $this;
 			} else {
-				unset($root_asset_ids);
-				$root_asset_ids[] = $dynamic_root;
+				$root_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($root_link['minorid'], $root_link['minor_type_code']);
+				if (is_null($root_asset)) return Array();
 			}
 		}
-		
+
 		// this is what we are going to sort the reults by (passed directly to the getLinks
 		// and getChildren functions)
 		// must be a column in the asset table (null = no sorting)
@@ -590,35 +607,27 @@ class Page_Asset_Listing extends Page
 
 			$side_of_link = ($this->attr('direction') == 'down') ? 'major' : 'minor';
 			$link_type = ($side_of_link == 'major') ? 'minor' : 'major';
-			$links = Array();
-
 			switch ($group_by) {
 				case 'number' :
-					foreach ($root_asset_ids as $root_asset_id) {
-						$links = array_merge($links, $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $sort_by, SQ_PERMISSION_READ));
-					}
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $sort_by, SQ_PERMISSION_READ);
 					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
-					$assets_to_list = $this->sortAssetList($assets_to_list, $sort_by, array_keys($wanted_types));
+					if ($this->attr('reverse_sort')) $assets_to_list = array_reverse($assets_to_list, true);
 				break;
 
 				case 'letter' :
-					foreach ($root_asset_ids as $root_asset_id) {
-						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $sort_by, SQ_PERMISSION_READ);
-						if (empty($query)) return Array();
-						$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
+					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, $sort_by, SQ_PERMISSION_READ);
+					if (empty($query)) return Array();
+					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 
-						$db = &$GLOBALS['SQ_SYSTEM']->db;
-						$new_links = $db->getAll(implode(' ', $query));
-						assert_valid_db_result($new_links);
-						$links = array_merge($links, $new_links);
-					}
+					$db = &$GLOBALS['SQ_SYSTEM']->db;
+					$links = $db->getAll(implode(' ', $query));
+					assert_valid_db_result($links);
+
 					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = Array('type_code' => $link_info[$link_type.'_type_code'], 'first_letter' => $link_info['first_letter']);
 				break;
 
 				case 'random' :
-					foreach ($root_asset_ids as $root_asset_id) {
-						$links = array_merge($links, $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset_id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, null, SQ_PERMISSION_READ));
-					}
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, $side_of_link, null, null, null, null, SQ_PERMISSION_READ);
 					foreach ($links as $link_info) $assets_to_list[$link_info[$link_type.'id']] = $link_info[$link_type.'_type_code'];
 				break;
 			}//end switch
@@ -628,82 +637,44 @@ class Page_Asset_Listing extends Page
 			switch ($group_by) {
 				case 'number' :
 					if ($this->attr('direction') == 'down') {
-						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
-						}
+						$assets_to_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
 					} else {
-						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
-						}
+						$assets_to_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset->id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
 					}
 					if ($this->attr('reverse_sort')) $assets_to_list = array_reverse($assets_to_list, true);
 				break;
 
 				case 'letter' :
-					foreach ($root_asset_ids as $root_asset_id) {
-						if ($this->attr('direction') == 'down') {
-							$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
-							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
-						} else {
-							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset_id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
-						}
-						if (empty($query)) return Array();
-						$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
-	
-						$db = &$GLOBALS['SQ_SYSTEM']->db;
-						$new_assets_to_list = $db->getAssoc(implode(' ', $query));
-						assert_valid_db_result($new_assets_to_list);
-						$assets_to_list = $assets_to_list + $new_assets_to_list;
+					if ($this->attr('direction') == 'down') {
+						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
+					} else {
+						$query = $GLOBALS['SQ_SYSTEM']->am->generateGetParentsQuery($root_asset->id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
 					}
+					if (empty($query)) return Array();
+					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
+
+					$db = &$GLOBALS['SQ_SYSTEM']->db;
+					$assets_to_list = $db->getAssoc(implode(' ', $query));
+					assert_valid_db_result($assets_to_list);
 				break;
 
 				case 'random' :
 					if ($this->attr('direction') == 'down') {
-						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset_id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
-						}
+						$assets_to_list = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
 					} else {
-						foreach ($root_asset_ids as $root_asset_id) {
-							$assets_to_list = $assets_to_list + $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset_id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
-						}
+						$assets_to_list = $GLOBALS['SQ_SYSTEM']->am->getParents($root_asset->id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
 					}
 				break;
 			}//end switch
 
 		}//end if subs_only
 
+		// clean up after ourselves
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
+
 		return $assets_to_list;
 
 	}//end getAssetList()
-	
-	
-	/**
-	* Sort the list of assets
-	*
-	* @param 	array 		$asset_list 		an array of assets to be sorted
-	* @param 	string 		$sort_by   			the sort order
-	* @param	boolean		$reverse_sort		whether to reverse the sort order
-	* @param    array | string	$type_code		List of type_codes to restrict the search
-	* @return 	array
-	*/
-	function sortAssetList($asset_list, $sort_by, $type_code=Array())
-	{
-		if ((!is_array($asset_list)) || (empty($asset_list))) return false;
-		if (count($asset_list) == 1) return $asset_list;
-
-		$asset_ids = array_keys($asset_list);
-		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset_ids, $type_code);
-		
-		foreach ($asset_ids as $asset_id) $sort_assets[$asset_id] = strtolower($asset_info[$asset_id][$sort_by]);
-		(!$this->attr('reverse_sort')) ? asort($sort_assets) : arsort($sort_assets);
-				
-		$sorted_assets = array_keys($sort_assets);
-		foreach($sorted_assets as $asset) $assets_to_list[$asset] = $asset_info[$asset]['minor_type_code'];
-		
-		return $assets_to_list;
-			
-	}//end generateAssetList()
 
 
 	/**
@@ -849,9 +820,9 @@ class Page_Asset_Listing extends Page
 	*						value of getAssetList()
 	*
 	* @return void
-	* @access protected
+	* @access public
 	* @see getAssetList()
-	* @see _printAsset()
+	* @see _printAssetList()
 	*/
 	function printAssetList($todo)
 	{
@@ -863,19 +834,50 @@ class Page_Asset_Listing extends Page
 		$this->_tmp['is_default']     = Array();
 		$this->_tmp['needs_asset']    = Array();
 		$this->_tmp['assets_info']    = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
-		
+
 		$type_folder = &$this->getFolder('type_formats');
 		$this->_tmp['type_folder_id'] = $type_folder->id;
 
+		$this->_tmp['position_formats'] = Array();
+		$position_folder = &$this->getFolder('position_formats');
+		$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($position_folder->id, SQ_LINK_TYPE_2, 'bodycopy', true);
+		foreach ($format_links as $link_data) {
+			$position = substr($link_data['value'], 9);
+			$this->_tmp['position_formats'][$position] = $link_data['minorid'];
+		}
+
+		$this->_printAssetList();
+
+	}//end printAssetList()
+
+
+	/**
+	* Called by printAssetList to take care of the layout of the asset list
+	*
+	* This method ensures the list is printed in columns if required, and keeps
+	* track of what position in the list we are printing
+	*
+	* @param array	&$todo	an array of assets to list in the same format as the return
+	*						value of getAssetList()
+	*
+	* @return void
+	* @access private
+	* @see printAssetList()
+	* @see _printAsset()
+	*/
+	function _printAssetList($todo)
+	{
 		$column_layout = $this->attr('column_layout');
 		$using_columns = (count($column_layout) > 1 || $column_layout['0'] > 1);
 		
+		$list_position = 1;
+
 		if ($using_columns) {
 			$num_rows = max(array_keys($column_layout)) + 1;
 			$num_columns = max(array_values($column_layout));
 
 			$current_row = 1;
-		
+
 			echo '<table width="100%">';
 			
 			for (reset($todo); null !== ($assetid = key($todo));) {
@@ -893,9 +895,10 @@ class Page_Asset_Listing extends Page
 						if ($assetid == null) {
 							echo '&nbsp;';
 						} else {
-							$this->_printAsset($assetid, $todo[$assetid]);
+							$this->_printAsset($assetid, $todo[$assetid], $list_position);
 							next($todo);
 							$assetid = key($todo);
+							$list_position++;
 						}
 						?>
 					</td>
@@ -909,91 +912,115 @@ class Page_Asset_Listing extends Page
 		} else {
 			foreach ($todo as $assetid => $type_code) {
 				if (!isset($wanted_types[$type_code])) continue;
-				$this->_printAsset($assetid, $type_code);
+				$this->_printAsset($assetid, $type_code, $list_position);
+				$list_position++;
 			}
 		}
 
-	}//end printAssetList()
+	}//end _printAssetList();
 
 
 	/**
 	* Print a single asset from the list
 	*
-	* @param string	$assetid	the ID of the asset we are printing
-	* @param string	$type_code	the type code of the asset we are printing
+	* @param string	$assetid		the ID of the asset we are printing
+	* @param string	$type_code		the type code of the asset we are printing
+	* @param int	$list_position	the position of this asset in the list
 	*
 	* @return void
 	* @access private
 	* @see printAssetList()
 	*/
-	function _printAsset($assetid, $type_code)
+	function _printAsset($assetid, $type_code, $list_position)
 	{
 		$mm         = null;
 		$contents   = '';
 		$keywords   = Array();
-		$customised = $this->attr('customised');
+		$customised = $this->getFormats('type_formats');
 
 		$asset_info_fields = Array('assetid','type_code','version','name','short_name',
 								   'status','languages','charset','force_secure','created',
 								   'created_userid','updated','updated_userid','published','published_userid');
 
-		if (!isset($this->_tmp['formats'][$type_code])) {
-			if (in_array($type_code, $customised)) {
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
-				// maybe they deleted the bodycopy
-				if (!$link) {
-					$key = array_search($type_code, $customised, true);
-					unset($customised[$key]);
-					$this->_tmp['is_default'][] = $type_code;
+		// check to see if there is a specific position format for us
+		if (isset($this->_tmp['position_formats'][$list_position])) {
+			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_tmp['position_formats'][$list_position], 'bodycopy');
+			if (!is_null($bodycopy)) {
+				$contents = $bodycopy->getRawBodycopyContent();
+				// see whether the keywords in it require asset loading or not
+				$bc_keywords = retrieve_keywords_replacements($contents);
+				$this_needs_asset = false;
+				foreach ($bc_keywords as $keyword) {
+					if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
+						$this_needs_asset = true;
+						break;
+					}
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
+			}
+		}//end if has position format
+
+
+		if ($contents == '') {
+
+			// our format will be based on type code
+		
+			if (!isset($this->_tmp['formats'][$type_code])) {
+				if (in_array($type_code, $customised)) {
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
+
+					if (!$link) {
+						// use the default format
+						$this->_tmp['is_default'][] = $type_code;
+					} else {
+						$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+						if (!is_null($bodycopy)) {
+							// get the format for this type
+							$this->_tmp['formats'][$type_code] = $bodycopy->getRawBodycopyContent();
+							// see whether the keywords in it require asset loading or not
+							$bc_keywords = retrieve_keywords_replacements($this->_tmp['formats'][$type_code]);
+							$this->_tmp['needs_asset'][$type_code] = false;
+							foreach ($bc_keywords as $keyword) {
+								if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
+									$this->_tmp['needs_asset'][$type_code] = true;
+									break;
+								}
+							}
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
+						}
+					}
 				} else {
+					$this->_tmp['is_default'][] = $type_code;
+				}
+			}//end if type_code format not loaded
+	
+			if (in_array($type_code, $this->_tmp['is_default'])) {
+				if (!$this->_tmp['default_format']) {
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
 					$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 					if (!is_null($bodycopy)) {
-						// get the format for this type
-						$this->_tmp['formats'][$type_code] = $bodycopy->getRawBodycopyContent();
+						// get the bodycopy content
+						$this->_tmp['default_format'] = $bodycopy->getRawBodycopyContent();
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 						// see whether the keywords in it require asset loading or not
-						$bc_keywords = retrieve_keywords_replacements($this->_tmp['formats'][$type_code]);
-						$this->_tmp['needs_asset'][$type_code] = false;
+						$bc_keywords = retrieve_keywords_replacements($this->_tmp['default_format']);
+						$this->_tmp['needs_asset']['default'] = false;
 						foreach ($bc_keywords as $keyword) {
 							if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
-								$this->_tmp['needs_asset'][$type_code] = true;
+								$this->_tmp['needs_asset']['default'] = true;
 								break;
 							}
 						}
-						// if we're not going to load the asset, make sure we have assetinfo instead
-						if (!$this->_tmp['needs_asset'][$type_code] && empty($this->_tmp['assets_info'])) $this->_tmp['assets_info'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 					}
 				}
+				$contents = $this->_tmp['default_format'];
+				$this_needs_asset = $this->_tmp['needs_asset']['default'];
 			} else {
-				$this->_tmp['is_default'][] = $type_code;
-			}
-		}//end if type_code format not loaded
+				$contents = $this->_tmp['formats'][$type_code];
+				$this_needs_asset = $this->_tmp['needs_asset'][$type_code];
+			}//end if using default format
 
-		if (in_array($type_code, $this->_tmp['is_default'])) {
-			if (!$this->_tmp['default_format']) {
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
-				$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
-				if (!is_null($bodycopy)) {
-					// get the bodycopy content
-					$this->_tmp['default_format'] = $bodycopy->getRawBodycopyContent();
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
-					// see whether the keywords in it require asset loading or not
-					$bc_keywords = retrieve_keywords_replacements($this->_tmp['default_format']);
-					$this->_tmp['needs_asset']['default'] = false;
-					foreach ($bc_keywords as $keyword) {
-						if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
-							$this->_tmp['needs_asset']['default'] = true;
-							break;
-						}
-					}
-				}
-			}
-			$contents = $this->_tmp['default_format'];
-			$this_needs_asset = $this->_tmp['needs_asset']['default'];
-		} else {
-			$contents = $this->_tmp['formats'][$type_code];
-			$this_needs_asset = $this->_tmp['needs_asset'][$type_code];
-		}//end if using default format
+		}//end if ($contents == '')
 
 		if ($this_needs_asset) {
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);

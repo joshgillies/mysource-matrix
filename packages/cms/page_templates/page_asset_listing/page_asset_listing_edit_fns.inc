@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.11 2005/01/20 13:18:40 brobertson Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.12 2005/01/20 23:02:03 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,26 +55,63 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Paint some information about replacing keywords
+	* Paint links to the defaut formats
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object Asset				&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintBodycopyInformation(&$asset, &$o, $prefix)
+	function paintDefaultFormatLinks(&$asset, &$o, $prefix)
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
-		if (empty($link)) return false;
-		$info = Array($link['minorid'] => 'contents');
-		$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header">Edit Format</td>
+				<td class="sq-backend-table-header">Note</td>
+			</tr>
+			<?php
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+			if (!empty($link)) {
+				$info = Array($link['minorid'] => 'contents');
+				$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
+				?>
+				<tr>
+					<td class="sq-backend-table-cell">
+						<a href="<?php echo $href[$link['minorid']]; ?>">Page Contents Bodycopy</a>
+					</td>
+					<td class="sq-backend-table-cell">
+						This format defines the layout of the page. Ensure you use the %asset_listing% keyword to include the list of assets on the page.
+					</td>
+				</tr>
+				<?php
+			}
+			
+			$folder = &$asset->getFolder('type_formats');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
+			if (!empty($link)) {
+				$info = Array($link['minorid'] => 'contents');
+				$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
+				?>
+				<tr>
+					<td class="sq-backend-table-cell">
+						<a href="<?php echo $href[$link['minorid']]; ?>">Default Asset Format</a>
+					</td>
+					<td class="sq-backend-table-cell">
+						This is the default format for all assets in the list if they do not have a customised format for their asset type or position.
+					</td>
+				</tr>
+				<?php
+			}
+			?>
+		</table>
+		<?php
 
-		echo 'The contents of the asset listing format can be '.
-			'replaced into the <a href="'.$href[$link['minorid']].'">Page Contents Bodycopy</a> by using the %asset_listing% keyword';
+		return false;
 
-	}//end paintBodycopyInformation()
+	}//end paintDefaultFormatLinks()
 
 
 	/**
@@ -83,49 +120,303 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processBodycopyInformation()
+	function processDefaultFormatLinks()
 	{
 		return false;
 
-	}//end processBodycopyInformation()
+	}//end processDefaultFormatLinks()
 
 
 	/**
-	* Paint a link to the default format
+	* Paint the interface for editing custom type formats
 	*
-	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object Asset				&$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintDefaultFormatLink(&$asset, &$o, $prefix)
+	function paintTypeFormats(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('links');
+		$types = $asset->attr('types');
+		$formats = $asset->getFormats('type_formats');
+
+		if (count($formats) > 1) {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">Asset Type</td>
+					<td class="sq-backend-table-header">Edit Format</td>
+					<?php
+					if ($write_access) {
+						?>
+						<td class="sq-backend-table-header">Delete?</td>
+						<?php
+					}
+					?>
+				</tr>
+				<?php
+				foreach ($formats as $minorid => $value) {
+					if ($value == 'default_format') continue;
+	
+					$info = Array($minorid => 'contents');
+					$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info)
+					?>
+					<tr>
+						<td class="sq-backend-table-cell" style="width: 200px;">
+							<?php
+							echo ucwords(str_replace('_',' ', $value));
+							?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php
+							echo '<a href="'.$href[$minorid].'">'.ucwords(str_replace('_',' ', $value)).' Format</a>';
+							?>
+						</td>
+						<?php
+						if ($write_access) {
+							?>
+							<td class="sq-backend-table-cell" style="width: 100px;">
+								<?php
+								check_box($prefix.'_delete_type['.$value.']');
+								?>
+							</td>
+							<?php
+						}
+						?>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+			</table>
+			<?php
+		} else {
+			echo 'There are no custom type formats defined';
+		}//end if cutomised formats
+		
+		if ($write_access) {
+			$new_format_options = Array('' => '');
+			foreach ($types as $type => $inherit) {
+				if (in_array($type, $formats)) continue;
+				$new_format_options[$type] = ucwords(str_replace('_',' ', $type));
+			}
+			if (count($new_format_options) > 1) {
+				echo '<p><b>New Type Format: <b>';
+				combo_box($prefix.'_new_type', $new_format_options, false, '');
+				echo '</p>';
+			}
+		}
+		return false;
+
+	}//end paintTypeFormats()
+
+
+	/**
+	* Process the interface for editing custom type formats
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processTypeFormats(&$asset, &$o, $prefix)
 	{
 		$folder = &$asset->getFolder('type_formats');
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
-		if (empty($link)) return false;
+		$types = $asset->attr('types');
+		
+		$deleted_formats = array_get_index($_POST, $prefix.'_delete_type', Array());
+		$new_type = array_get_index($_POST, $prefix.'_new_type', '');
+		if (isset($deleted_formats[$new_type])) {
+			trigger_error('You cant delete a format and create it at the same time. The current type format for type'.$new_type.' has not been deleted.', E_USER_WARNING);
+			unset($deleted_formats[$new_type]);
+			$new_type = '';
+		}
 
-		$info = Array($link['minorid'] => 'contents');
-		$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
-		echo '<a href="'.$href[$link['minorid']].'">Edit the Default Format</a>';
+		foreach ($deleted_formats as $type => $on) {
+			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
+			if (empty($current_link)) {
+				trigger_error('Failed deleting format for type '.$type.', couldnt get format bodycopy link', E_USER_WARNING);
+			} else {
+				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($current_link['linkid'])) {
+					trigger_error('Failed deleting format for type '.$type, E_USER_WARNING);
+				}
+			}
+		}
 
-		return true;
+		// check that the new type is valid
+		if ($new_type != '' && !isset($types[$new_type])) {
+			trigger_error('Cannot customtise the format of type '.$new_type.', type is not valid', E_USER_WARNING);
+			$new_type = '';
+		}
 
-	}//end paintDefaultFormatLink()
+		if ($new_type != '') {
+			// check that this type isnt already customised
+			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $new_type);
+			if (empty($current_link)) {
+				// create a new format bodycopy for this type
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+	
+				$copy_link = Array('asset' => &$folder, 'value' => $new_type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+	
+				$bodycopy = new Bodycopy();
+				$bodycopy->setAttrValue('name', ucwords(str_replace('_',' ', $new_type)).' Format');
+	
+				if (!$bodycopy->create($copy_link)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			} else {
+				trigger_error('Cannot customise type '.$new_type.', it is already customised', E_USER_WARNING);
+			}
+		}
+		if (isset($asset->_tmp['formats']['type_formats'])) unset($asset->_tmp['formats']['type_formats']);
+		return false;
+
+	}//end processTypeFormats()
 
 
 	/**
-	* Does nothing
+	* Paint the interface for editing custom position formats
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDefaultFormatLink()
+	function paintPositionFormats(&$asset, &$o, $prefix)
 	{
+		$write_access = $asset->writeAccess('links');
+		$formats = $asset->getFormats('position_formats');
+
+		if (!empty($formats)) {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">Position</td>
+					<td class="sq-backend-table-header">Edit Format</td>
+					<?php
+					if ($write_access) {
+						?><td class="sq-backend-table-header">Delete?</td><?php
+					}
+					?>
+				</tr>
+				<?php
+				foreach ($formats as $minorid => $value) {
+					$info = Array($minorid => 'contents');
+					$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
+					$position = substr($value, 9);
+					?>
+					<tr>
+						<td class="sq-backend-table-cell" style="width: 200px;">
+							<?php
+							echo $position;
+							?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php
+							echo '<a href="'.$href[$minorid].'">Position '.$position.' Format</a>';
+							?>
+						</td>
+						<?php
+						if ($write_access) {
+							?>
+							<td class="sq-backend-table-cell" style="width: 100px;">
+								<?php
+								check_box($prefix.'_delete_position['.$position.']');
+								?>
+							</td>
+							<?php
+						}
+						?>
+					</tr>
+					<?php
+				}//end foreach
+				?>
+			</table>
+			<?php
+		} else {
+			echo 'There are no custom position formats defined';
+		}
+		
+		if ($write_access) {
+			echo '<p><b>New Position Format: </b>';
+			text_box($prefix.'_new_position', '', 5);
+			echo '</p>';
+		}
+
+		return $write_access;
+
+	}//end paintPositionFormats()
+
+
+	/**
+	* Process the interface for editing custom position formats
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processPositionFormats(&$asset, &$o, $prefix)
+	{
+		$folder = &$asset->getFolder('position_formats');
+		
+		$deleted_formats = array_get_index($_POST, $prefix.'_delete_position', Array());
+		$new_position = (int) array_get_index($_POST, $prefix.'_new_position', 0);
+		if (isset($deleted_formats[$new_position])) {
+			trigger_error('You cant delete a format and create it at the same time. The current list position format for position '.$new_position.' has not been deleted.', E_USER_WARNING);
+			unset($deleted_formats[$new_position]);
+			$new_position = 0;
+		}
+
+		foreach ($deleted_formats as $position => $on) {
+			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'position_'.$position);
+			if (empty($current_link)) {
+				trigger_error('Failed deleting format for position '.$position.', couldnt get format bodycopy link', E_USER_WARNING);
+			} else {
+				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($current_link['linkid'])) {
+					trigger_error('Failed deleting format for position '.$position, E_USER_WARNING);
+				}
+			}
+		}
+
+		if ($new_position > 0) {
+			// check that this position isnt already customised
+			$current_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'position_'.$new_position);
+			if (empty($current_link)) {
+
+				// create a new format bodycopy for this list position
+				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+	
+				$copy_link = Array('asset' => &$folder, 'value' => 'position_'.$new_position, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+	
+				$bodycopy = new Bodycopy();
+				$bodycopy->setAttrValue('name', 'Position '.$new_position.' Format');
+	
+				if (!$bodycopy->create($copy_link)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			} else {
+				trigger_error('Cannot customise list position '.$new_position.', it is already customised', E_USER_WARNING);
+			}
+		}
+		if (isset($asset->_tmp['formats']['position_formats'])) unset($asset->_tmp['formats']['position_formats']);
 		return false;
 
-	}//end processDefaultFormatLink()
+	}//end processPositionFormats()
 
 
 	/**
@@ -140,7 +431,7 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintRootNode(&$asset, &$o, $prefix)
 	{
-		//get root links
+		// get root links
 		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
 		$root_asset_ids = Array();
 		foreach ($root_links as $root_link) {
@@ -152,37 +443,35 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 
 		?>
 		<table class="sq-backend-table">
-			<tr>
-				<td class="sq-backend-table-header">Root nodes</td>
-			</tr>
-		<?php
-		
-		$l = 1;
-		foreach ($root_links as $root_link) {
-		?>
-			<tr>
-				<td class="sq-backend-table-cell">
-		<?php
-				if ($write_access) {
-					asset_finder($prefix.'_root_nodes['.$l.']', $root_link['minorid']);
-				} else {
-					echo $root_info[$root_link['minorid']]['name'].' [# '.$root_link['minorid'].']';
-				}
-		?>
-				</td> 
-		<?php
-		$l++;
-		}//end foreach
-		
-		if ($write_access) {
-			?>
-			<tr>
-				<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_root_nodes['.$l.']', 0); ?></td>
-			</tr>
 			<?php
-		}
-		?>
-		 </table> <?php
+			$l = 1;
+			foreach ($root_links as $root_link) {
+				?>
+				<tr>
+					<td class="sq-backend-table-cell">
+						<?php
+						if ($write_access) {
+							asset_finder($prefix.'_root_nodes['.$l.']', $root_link['minorid']);
+						} else {
+							echo $root_info[$root_link['minorid']]['name'].' [# '.$root_link['minorid'].']';
+						}
+						?>
+					</td>
+				</tr>
+				<?php
+				$l++;
+			}//end foreach
+		
+			if ($write_access) {
+				?>
+				<tr>
+					<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_root_nodes['.$l.']', 0); ?></td>
+				</tr>
+				<?php
+			}
+			?>
+		</table>
+		<?php
 
 		return $write_access;
 
@@ -219,24 +508,24 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 				if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($root_link['linkid'])) {
 					$ok = false;
 				}
-			}//end if
-		}//end foreach
+			}
+		}
 		
 		// now, create the new node links
 		foreach ($new_root_nodes as $index => $node) {
-				//first test to see if the node already exists -- if so, ignore it
-				foreach($root_links as $root_link) {
-					if ($root_link['minorid'] == $node['assetid']) continue 2;
+			//first test to see if the node already exists -- if so, ignore it
+			foreach($root_links as $root_link) {
+				if ($root_link['minorid'] == $node['assetid']) continue 2;
+			}
+			// otherwise, create the appropriate notice link
+			if ($node['assetid'] != 0) {
+				$new_root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
+				if (!$asset->createLink($new_root, SQ_LINK_NOTICE, 'root')) {
+					$ok = false;
+					trigger_error('Failed adding new root node "'.$new_root->name.'" [#'.$new_root->id.']', E_USER_WARNING);
 				}
-				// otherwise, create the appropriate notice link
-				if ($node['assetid'] != 0) {
-					$new_root = &$GLOBALS['SQ_SYSTEM']->am->getAsset($node['assetid']);
-					if (!$asset->createLink($new_root, SQ_LINK_NOTICE, 'root')) {
-						$ok = false;
-						trigger_error('Failed adding new root node "'.$new_root->name.'" [#'.$new_root->id.']', E_USER_WARNING);
-					}
-				}
-		}//end foreach
+			}
+		}
 		
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -264,45 +553,25 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('content');
 		$folder = &$asset->getFolder('type_formats');
 
-		// do a check to see if any of the bodycopies have been removed manually
-		$customised = $asset->attr('customised');
-		if (!empty($customised)) {
-			$deleted = false;
-			foreach ($customised as $type) {
-				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
-				if (empty($link)) {
-					$deleted = true;
-					$key = array_search($type, $customised, true);
-					unset($customised[$key]);
-				}
-			}
-			if ($deleted) {
-				$asset->setAttrValue('customised', $customised);
-				$asset->saveAttributes();
-			}
-		}
-
 		$types = $asset->attr('types');
 		if (empty($types)) {
-			echo 'There are no Types Defined';
+			echo 'There are no types defined';
 			return false;
 		}
 
 		?>
 		<table class="sq-backend-table">
-		<tr>
-			<td class="sq-backend-table-header">Asset Type</td>
-			<td class="sq-backend-table-header">Inherit Types</td>
-			<td class="sq-backend-table-header">Edit Format</td>
-			<?php
-			if ($write_access) {
-				?>
-				<td class="sq-backend-table-header">Customise</td>
-				<td class="sq-backend-table-header">Remove?</td>
+			<tr>
+				<td class="sq-backend-table-header">Asset Type</td>
+				<td class="sq-backend-table-header">Inherit Types</td>
 				<?php
-			}
-			?>
-		</tr>
+				if ($write_access) {
+					?>
+					<td class="sq-backend-table-header">Remove?</td>
+					<?php
+				}
+				?>
+			</tr>
 			<?php
 			foreach ($types as $type => $inherit) {
 				?>
@@ -321,30 +590,9 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 						}
 						?>
 					</td>
-					<td class="sq-backend-table-cell">
-						<?php
-							$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
-							$is_customised = false;
-							if (!empty($link)) {
-								$is_customised = true;
-								$info = Array($link['minorid'] => 'contents');
-								$href = $GLOBALS['SQ_SYSTEM']->am->getAssetBackendHref($info);
-
-								$content = '<a href="'.$href[$link['minorid']].'">'.ucwords(str_replace('_',' ', $type)).' Format</a>';
-							} else {
-								$content = 'Default Format';
-							}
-							echo $content;
-						?>
-					</td>
 					<?php
 					if ($write_access) {
 						?>
-						<td class="sq-backend-table-cell">
-							<?php
-							check_box($prefix.'_customise[]', $type, $is_customised);
-							?>
-						</td>
 						<td class="sq-backend-table-cell">
 							<?php
 							check_box($prefix.'_remove[]', $type, false);
@@ -355,8 +603,8 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 					?>
 				</tr>
 				<?php
-			}
-		?>
+			}//end foreach $types
+			?>
 		</table>
 		<?php
 
@@ -375,30 +623,24 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processCurrentAssetTypes(&$asset, &$o, $prefix)
 	{
-		$customised = $asset->attr('customised');
 		$types = $asset->attr('types');
 		$folder = &$asset->getFolder('type_formats');
+		$formats = $asset->getFormats('type_formats');
 
 		// we are looking to see if any types have been removed
-		if (isset($_POST[$prefix.'_remove'])) {
+		$removed = array_get_index($_POST, $prefix.'_remove', Array());
+		foreach ($removed as $type) {
+			if (isset($types[$type])) {
+				unset($types[$type]);
 
-			foreach ($_POST[$prefix.'_remove'] as $type) {
-				if (isset($types[$type])) {
-					unset($types[$type]);
-
-					// remove from the customise list if its in here
-					if (in_array($type, $customised)) {
-						$key = array_search($type, $customised, true);
-						unset($customised[$key]);
-
-						// we also want to send the bodycopy to the trash
-						$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
-						if (empty($link)) {
-							trigger_error('Format for type '.$type.' not found', E_USER_WARNING);
-						}
-						// back up in your trash with the resurection
-						$folder->deleteLink($link['linkid']);
+				if (in_array($type, $formats)) {
+					// we also want to send the bodycopy to the trash
+					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $type);
+					if (empty($link)) {
+						trigger_error('Format for type '.$type.' not found', E_USER_WARNING);
 					}
+					// back up in your trash with the resurection
+					$folder->deleteLink($link['linkid']);
 				}
 			}
 		}
@@ -411,47 +653,37 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		$asset->setAttrValue('types', $types);
 
 
-		if (isset($_POST[$prefix.'_customise'])) {
+		$customised = array_get_index($_POST, $prefix.'_customise', Array());
+		foreach ($customised as $type) {
+			if (in_array($type, $formats)) continue;
+			if (in_array($type, $removed)) continue;
 
-			if (empty($_POST[$prefix.'_customise'])) return false;
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 
-			foreach ($_POST[$prefix.'_customise'] as $type) {
-				if (in_array($type, $customised)) continue;
+			$copy_link = Array('asset' => &$folder, 'value' => $type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-				if (isset($_POST[$prefix.'_remove']) && in_array($type, $_POST[$prefix.'_remove'])) continue;
+			$bodycopy = new Bodycopy();
+			$bodycopy->setAttrValue('name', ucwords(str_replace('_',' ', $type)).' Format');
+			if (!$bodycopy->create($copy_link)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
 
-				$customised[] = $type;
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		}
 
-				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-				$bodycopy = new Bodycopy();
-				$copy_link = Array('asset' => &$folder, 'value' => $type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		foreach ($formats as $minorid => $value) {
+			if ($value == 'default_format') continue;
+			if (in_array($value, $customised)) continue;
+			if (in_array($value, $removed)) continue;
 
-				$bodycopy->setAttrValue('name', ucwords(str_replace('_',' ', $type)).' Format');
-
-				if (!$bodycopy->create($copy_link)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', false, $value);
+			if (!$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($link['linkid'])) {
+				trigger_error('Failed deleting customised type format for "'.$value.'"', E_USER_WARNING);
 			}
 		}
 
-		if (!empty($customised)) {
-			foreach ($customised as $type) {
-				if (!isset($_POST[$prefix.'_customise']) || !in_array($type, $_POST[$prefix.'_customise'])) {
-
-					if (isset($_POST[$prefix.'_remove']) && in_array($type, $_POST[$prefix.'_remove'])) continue;
-
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', false, $type);
-					$asset->deleteLink($link['linkid']);
-					$key = array_search($type, $customised, true);
-					unset($customised[$key]);
-				}
-			}
-		}
-
-		$asset->setAttrValue('customised', $customised);
 		return true;
 
 	}//end processCurrentAssetTypes()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2005/01/20 13:18:40 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2005/01/20 23:02:03 gsherwood Exp $
 *
 */
 -->
@@ -36,29 +36,9 @@
 			<text width="25" height="1" />
 		</field>
 	</section>
-	<section name="Body Keyword Replacement">
-		<field>
-			<display_name>Body Keyword Replacement</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintBodycopyInformation"  />
-				<process_function name="processBodycopyInformation" />
-			</function_call>
-		</field>
-	</section>
-	<section name="Default Format">
-		<field>
-			<display_name>Edit Default Format</display_name>
-			<note></note>
-			<function_call>
-				<paint_function   name="paintDefaultFormatLink"  />
-				<process_function name="processDefaultFormatLink" />
-			</function_call>
-		</field>
-	</section>
 	<section name="List Settings" write_access="write:content">
 		<field>
-			<display_name>Root Node</display_name>
+			<display_name>Root Nodes</display_name>
 			<note>Leave blank to list the sub assets/children of this asset listing page</note>
 			<function_call>
 				<paint_function   name="paintRootNode"  />
@@ -72,7 +52,7 @@
 		</field>
 		<field attribute="direction">
 			<display_name>Lookup Direction</display_name>
-			<note>Select 'Up the tree' to list assets above the root node, or 'Down the tree' to list assets below.</note>
+			<note>Select 'Up the tree' to list assets above the root nodes, or 'Down the tree' to list assets below.</note>
 			<selection style="list" />
 		</field>
 		<field attribute="group_by">

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.16 2005/01/17 21:59:21 gsherwood Exp $
+* $Id: page_asset_listing_management.inc,v 1.17 2005/01/20 23:02:03 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,12 +47,6 @@ class Page_Asset_Listing_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars['types']		= Array(
-										'added'   => '0.1',
-										'type'    => 'serialise',
-										'default' => Array(),
-										);
-
-		$this->vars['customised']	= Array(
 										'added'   => '0.1',
 										'type'    => 'serialise',
 										'default' => Array(),
