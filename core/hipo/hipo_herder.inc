@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.34 2004/02/11 21:43:55 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.35 2004/04/15 03:58:59 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -191,9 +191,22 @@ class HIPO_Herder extends MySource_Object
 			}
 			return true;
 		}
-		if (!$source_job->process()) {
-			trigger_error('HIPO failed to process', E_USER_WARNING);
+		if (!$source_job->process()) {			
+			$error_details = '';
+
+			trigger_error('HIPO failed to process; error report follows' . $error_details, E_USER_WARNING);
+
+			$o = &$this->getBackendOutputter();
+			$o->setFormData('', '');
+			$o->openRaw();
+			$source_job->_paintErrorReport();
+			$o->closeRaw();
+			$o->paint();
+
 			$source_job->abort();
+
+
+
 			return false;
 
 		}
@@ -227,6 +240,7 @@ class HIPO_Herder extends MySource_Object
 		$onload = '';
 		$delay  = false;
 		$auto_step = false;
+		$fatal_errors = false;
 		$form_name = 'main_form';
 
 		// if the source job is null it means that an abort finally finished
@@ -237,7 +251,6 @@ class HIPO_Herder extends MySource_Object
 			$auto_step = true;
 			$percent_done = 100;
 			$status_msg = 'HIPO Aborted';
-
 		} else {
 
 			$url = $this->getProcessURL($source_job->code_name);
@@ -252,7 +265,7 @@ class HIPO_Herder extends MySource_Object
 				$onload = 'document.'.$form_name.'.submit();';
 			}
 
-			$status_msg = $source_job->hipo_name.' HIPO '.($source_job->complete()) ? 'Complete' : 'Progress';
+			$status_msg = $source_job->hipo_name.' HIPO '.(($source_job->complete()) ? 'Complete' : 'Progress');
 
 		} // end if
 
