@@ -467,10 +467,15 @@ class Asset_Edit_Interface extends Resolve_Object
 							if (is_null($attr)) continue;
 							if (!$attr->setEditParams($field->children[2])) continue;
 
+							$revert_attr = $attr;
 							$attr->process($prefix);
 							if ($attr->processed && $owner->setAttrValue($attr->name, $attr->value)) {
 								$ret_val = true;
+							} else {
+								// processing failed so revert to old version
+								$attr = $revert_attr;
 							}
+							unset($revert_attr);
 
 						} else if ($field->children[2]->name == 'function_call') {
 
