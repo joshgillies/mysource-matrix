@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.123 2003/10/03 04:34:43 brobertson Exp $
+* $Id: asset_manager.inc,v 1.124 2003/10/07 03:59:47 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1372,6 +1372,159 @@ class Asset_Manager extends MySource_Object
 		return $children;
 
 	}// end getDependantChildren()
+
+
+	/**
+	* Return an array of asset ids in the order that they propogate out from the passed in assetIDs
+	*
+	* The array returned for each asset is in the following format:
+	* <PRE>
+	* Array('assetid'    => '155',
+    *       'majorid'    => '151',
+    *       'type_code'  => 'page_standard',
+    *       'status'     => '2',
+    *       'name'       => '(( page2 ))',
+    *       'short_name' => '(( page2 ))',
+    *       'path'       => 'page2',
+    *       'sort_order' => '0'
+	* )
+	* </PRE>
+	*
+	* @param int|Array(int)	$majorids		the majorids to traverse the tree from
+	* @param integer		$levels			the number of levels to traverse (if null, traverse all levels)
+	* @param Array			$exclude_list	an array of assetid to exclude from the tree
+	* @param integer		$link_type		the type of wanted links
+	*
+	* @access public
+	* @return Array()
+	*/
+	function  getAssetTree($majorids, $levels=null, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV)
+	{
+		$tree_data = Array();
+		if (!is_array($majorids)) $majorids = Array($majorids);
+		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type);
+		return $tree_data;
+	
+	}// end getAssetTree()
+
+
+	/**
+	* does the work for getAssetTree
+	*
+	* @param int|Array(int)	$majorids		the majorids to traverse the tree from
+	* @param &Array			$tree_data		the data that is created recursively
+	* @param integer		$levels			the number of levels to traverse (if null, traverse all levels)
+	* @param Array			$exclude_list	an array of assetid to exclude from the tree
+	* @param integer		$link_type		the type of wanted links
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _getAssetTree($majorids, &$tree_data, $levels, $exclude_list, $link_type)
+	{
+		// Stuff that is only needed once per design file
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$assetids  = Array();
+		$majorids_str = '';
+		$exclude_str = implode(',', $exclude_list);
+		foreach($majorids as $id) {
+			if (empty($tree_data[$id])) {
+				$majorids_str .= $id.',';
+			} else {
+				foreach($tree_data[$id] as $row) {
+					$assetids[] = (int) $row['assetid'];
+				}
+			}
+		}
+		
+		if (empty($majorids_str)) return $assetids;
+		static $USERIDS_COND = null;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		if (is_null($USERIDS_COND)) {
+			// if they are logged in add their parents to the list
+			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+				if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					$USERIDS_COND = '';
+				} else {
+					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+					$USERIDS_COND = 'AND p.userid  IN ('.implode(',', $userids).')';
+				}
+			} else {
+				// public users
+				$USERIDS_COND = 'AND p.userid = 0';
+			}
+
+			if (!empty($USERIDS_COND)) {
+				$USERIDS_COND .= '
+					GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path
+					HAVING MIN(p.access) = 1';
+			}
+		}
+
+		$sql    = 'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
+				   FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a
+					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON a.assetid = l.minorid
+					 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_path pt ON a.assetid = pt.assetid ';
+		if (!empty($USERIDS_COND)) {
+		$sql   .= '
+				INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p ON a.assetid = p.assetid ';
+		}
+		$where  = 'l.majorid IN ('.substr($majorids_str, 0, -1).')
+					 AND (l.link_type & '.$db->quote($link_type).') > 0 ';
+		if (!empty($exclude_list)) {
+			$where .= 'AND a.assetid NOT IN ('.$exclude_str.')';
+		}
+		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		if (!empty($USERIDS_COND)) {
+			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p');
+		}
+		$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+		$where .= ' '.$USERIDS_COND .'
+				   ORDER BY l.majorid, l.sort_order';
+
+		$result = $db->query($sql.$where);
+
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		}
+
+		$assetids = Array();
+		while (DB_OK === $result->fetchInto($row)) {
+			if (!($row['status'] & (SQ_STATUS_LIVE | SQ_STATUS_LIVE_APPROVAL))) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($row['assetid']);
+				$read_access = $asset->readAccess();
+				
+				$row['name'] = $asset->name;
+				$row['short_name'] = $asset->short_name;
+
+				if ($row['status'] & SQ_SC_STATUS_NOT_LIVE) {
+					// somewhere between under construction and live so we show this by altering the name
+					$row['name']       = '(( '.$row['name'].' ))';
+					$row['short_name'] = '(( '.$row['short_name'].' ))';
+				}
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+				unset($asset);
+				if (!$read_access) continue;
+			}
+			$assetids[] = (int) $row['assetid'];
+			if (!isset($tree_data[$row['majorid']])) $tree_data[$row['majorid']] = Array();
+			$tree_data[$row['majorid']][$row['assetid']] = $row;
+
+		}
+		$result->free();
+
+		if (!empty($assetids) && ($levels > 1 || is_null($levels))) {
+			$levels--;
+			$this->_getAssetTree($assetids, $tree_data, $levels, $exclude_list, $link_type);
+		}
+		return true;
+	
+	}// end _getAssetTree
 
 
 	/**
