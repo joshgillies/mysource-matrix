@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.236 2003/10/15 00:09:47 dwong Exp $
+* $Id: asset.inc,v 1.237 2003/10/15 09:16:52 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2263,7 +2263,7 @@ class Asset extends MySource_Object
 	function adminAccess($lock_type, $assetids=Array())
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
-		if (!$this->id || !empty($this->_tmp[__CLASS__.'_in_create_setting_permissions'])) return true;
+		if (!$this->id || !empty($GLOBALS['SQ_INSTALL']) || !empty($this->_tmp[__CLASS__.'_in_create_setting_permissions'])) return true;
 		if ($lock_type == 'attributes' && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
 		return $this->checkAccess(SQ_PERMISSION_ADMIN, $lock_type, $assetids);
 
@@ -2306,14 +2306,15 @@ class Asset extends MySource_Object
 
 	/**
 	* Returns true if this asset is effectivly readable by everyone
-	* This function is really just shorthand for getting public read access
+	* 
 	*
 	* @return boolean
 	* @access public
 	*/
 	function effectiveUnrestricted()
 	{
-		return $this->readAccess(Array(0));
+		// This is not readAccess() because if this is false we don't refer to the writeAccess() setting
+		return ($this->status >= SQ_STATUS_LIVE && $this->_checkPermissionAccess(SQ_PERMISSION_READ, Array('0')));
 
 	}//end effectiveUnrestricted()
 
