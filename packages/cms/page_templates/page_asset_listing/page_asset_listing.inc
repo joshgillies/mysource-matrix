@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.46 2005/01/13 22:32:27 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.47 2005/01/17 21:59:21 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -537,7 +537,10 @@ class Page_Asset_Listing extends Page
 		// the query down a bit
 		// if there are no types to list, we cant list anything
 		$wanted_types = $this->attr('types');
-		if (empty($wanted_types)) return Array();
+		if (empty($wanted_types)) {
+			trigger_error('No type settings have been configured for this page - no assets will be listed', E_USER_NOTICE);
+			return Array();
+		}
 
 		// get the root asset whose sub-assets/children we are displaying
 		// This may come from the parameter map, but the dynamic value must be a child of the static value
@@ -791,137 +794,191 @@ class Page_Asset_Listing extends Page
 	* @return void
 	* @access protected
 	* @see getAssetList()
+	* @see _printAsset()
 	*/
 	function printAssetList($todo)
 	{
 		$wanted_types = $this->attr('types');
 		if (empty($wanted_types)) return;
 
-		$formats         = Array();
-		$is_default      = Array();
-		$needs_asset     = Array();
-		$assets_info     = Array();
-		$folder          = &$this->getFolder('type_formats');
-		$type_folder_id  = $folder->id;
-		$default_format  = '';
-		$customised      = $this->attr('customised');
-		$mm              = NULL;
-		$keywords        = Array();
+		$this->_tmp['formats']        = Array();
+		$this->_tmp['default_format'] = '';
+		$this->_tmp['is_default']     = Array();
+		$this->_tmp['needs_asset']    = Array();
+		$this->_tmp['assets_info']    = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+		
+		$type_folder = &$this->getFolder('type_formats');
+		$this->_tmp['type_folder_id'] = $type_folder->id;
+
+		$column_layout = $this->attr('column_layout');
+		$using_columns = (count($column_layout) > 0 || $column_layout['0'] > 1);
+		
+		if ($using_columns) {
+			$num_rows = max(array_keys($column_layout)) + 1;
+			$num_columns = max(array_values($column_layout));
+
+			$current_row = 1;
+		
+			echo '<table width="100%">';
+			
+			for (reset($todo); null !== ($assetid = key($todo));) {
+
+				echo '<tr>';
+				$cols_in_row = array_get_index($column_layout, $current_row, $column_layout['0']);
+				$each_colspan = (int)($num_columns / $cols_in_row);
+				$first_colspan = $each_colspan + $num_columns - ($cols_in_row * $each_colspan);
+
+				for ($c = 1; $c <= $cols_in_row; $c++) {
+					$colspan = ($c == 1) ? $first_colspan : $each_colspan;
+					?>
+					<td<?php echo ($colspan > 1) ? ' colspan="'.$colspan.'"' : ''; ?>>
+						<?php
+						if ($assetid == null) {
+							echo '&nbsp;';
+						} else {
+							$this->_printAsset($assetid, $todo[$assetid]);
+							next($todo);
+							$assetid = key($todo);
+						}
+						?>
+					</td>
+					<?php
+				}
+				echo '</tr>';
+				$current_row++;
+			}//end for
+
+			echo '</table>';
+		} else {
+			foreach ($todo as $assetid => $type_code) {
+				if (!isset($wanted_types[$type_code])) continue;
+				$this->_printAsset($assetid, $type_code);
+			}
+		}
+
+	}//end printAssetList()
+
+
+	/**
+	* Print a single asset from the list
+	*
+	* @param string	$assetid	the ID of the asset we are printing
+	* @param string	$type_code	the type code of the asset we are printing
+	*
+	* @return void
+	* @access private
+	* @see printAssetList()
+	*/
+	function _printAsset($assetid, $type_code)
+	{
+		$mm         = null;
+		$contents   = '';
+		$keywords   = Array();
+		$customised = $this->attr('customised');
 
 		$asset_info_fields = Array('assetid','type_code','version','name','short_name',
 								   'status','languages','charset','force_secure','created',
 								   'created_userid','updated','updated_userid','published','published_userid');
 
-
-		foreach ($todo as $assetid => $type_code) {
-
-			$contents = '';
-
-			if (!isset($wanted_types[$type_code])) continue;
-
-			if (!isset($formats[$type_code])) {
-				if (in_array($type_code, $customised)) {
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($type_folder_id, SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
-					// maybe they deleted the bodycopy
-					if (!$link) {
-						$key = array_search($type_code, $customised, true);
-						unset($customised[$key]);
-						$is_default[] = $type_code;
-					} else {
-						$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
-						if (!is_null($bodycopy)) {
-							// get the format for this type
-							$formats[$type_code] = $bodycopy->getRawBodycopyContent();
-							// see whether the keywords in it require asset loading or not
-							$bc_keywords = retrieve_keywords_replacements($formats[$type_code]);
-							$needs_asset[$type_code] = false;
-							foreach ($bc_keywords as $keyword) {
-								if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
-									$needs_asset[$type_code] = true;
-									break;
-								}
-							}
-							// if we're not going to load the asset, make sure we have assetinfo instead
-							if (!$needs_asset[$type_code] && empty($assets_info)) $assets_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
-							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
-						}
-					}
+		if (!isset($this->_tmp['formats'][$type_code])) {
+			if (in_array($type_code, $customised)) {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, $type_code);
+				// maybe they deleted the bodycopy
+				if (!$link) {
+					$key = array_search($type_code, $customised, true);
+					unset($customised[$key]);
+					$this->_tmp['is_default'][] = $type_code;
 				} else {
-					$is_default[] = $type_code;
-				}
-			}//end if type_code format not loaded
-
-			if (in_array($type_code, $is_default)) {
-				if (!$default_format) {
-					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($type_folder_id, SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
 					$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 					if (!is_null($bodycopy)) {
-						// get the bodycopy content
-						$default_format = $bodycopy->getRawBodycopyContent();
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
+						// get the format for this type
+						$this->_tmp['formats'][$type_code] = $bodycopy->getRawBodycopyContent();
 						// see whether the keywords in it require asset loading or not
-						$bc_keywords = retrieve_keywords_replacements($default_format);
-						$needs_asset['default'] = false;
+						$bc_keywords = retrieve_keywords_replacements($this->_tmp['formats'][$type_code]);
+						$this->_tmp['needs_asset'][$type_code] = false;
 						foreach ($bc_keywords as $keyword) {
 							if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
-								$needs_asset['default'] = true;
+								$this->_tmp['needs_asset'][$type_code] = true;
 								break;
 							}
 						}
 						// if we're not going to load the asset, make sure we have assetinfo instead
-						if (!$needs_asset['default'] && empty($assets_info)) $assets_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+						if (!$this->_tmp['needs_asset'][$type_code] && empty($this->_tmp['assets_info'])) $this->_tmp['assets_info'] = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($todo));
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 					}
 				}
-				$contents = $default_format;
-				$this_needs_asset = $needs_asset['default'];
 			} else {
-				$contents = $formats[$type_code];
-				$this_needs_asset = $needs_asset[$type_code];
-			}//end if using default format
+				$this->_tmp['is_default'][] = $type_code;
+			}
+		}//end if type_code format not loaded
 
-			if ($this_needs_asset) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (is_null($asset)) continue;
-				$keywords = $asset->getAssetKeywords();
-
-				if (preg_match('|%asset_contents%|is', $contents)) {
-					ob_start();
-						$asset->printBody();
-						$keywords['asset_contents']['value'] = ob_get_contents();
-					ob_end_clean();
-				}
-
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-				unset($asset);
-			} else {
-				$keywords = Array();
-				foreach ($assets_info[$assetid] as $field => $value) {
-					$keywords['asset_'.$field]['value'] = $value;
-				}
-			}//end if needs asset
-
-			if (preg_match_all('|%asset_metadata_([^%]+)%|is', $contents, $matches)) {
-				if (is_null($mm)) $mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				// get all the metadata keywords for this asset
-				$metadata_keywords = $mm->getMetadataFieldValues($assetid, $matches[1]);
-
-				foreach ($metadata_keywords as $field => $value) {
-					$keywords['asset_metadata_'.$field]['value'] = $value;
+		if (in_array($type_code, $this->_tmp['is_default'])) {
+			if (!$this->_tmp['default_format']) {
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
+				$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
+				if (!is_null($bodycopy)) {
+					// get the bodycopy content
+					$this->_tmp['default_format'] = $bodycopy->getRawBodycopyContent();
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
+					// see whether the keywords in it require asset loading or not
+					$bc_keywords = retrieve_keywords_replacements($this->_tmp['default_format']);
+					$this->_tmp['needs_asset']['default'] = false;
+					foreach ($bc_keywords as $keyword) {
+						if (!(strpos($keyword, 'asset_') === 0) || ((strpos($keyword, 'asset_metadata_') !== 0) && (!in_array(substr($keyword, 6), $asset_info_fields)))) {
+							$this->_tmp['needs_asset']['default'] = true;
+							break;
+						}
+					}
 				}
 			}
+			$contents = $this->_tmp['default_format'];
+			$this_needs_asset = $this->_tmp['needs_asset']['default'];
+		} else {
+			$contents = $this->_tmp['formats'][$type_code];
+			$this_needs_asset = $this->_tmp['needs_asset'][$type_code];
+		}//end if using default format
 
-			$keywords['page_href']['value'] = $this->getHref();
+		if ($this_needs_asset) {
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (is_null($asset)) continue;
+			$keywords = $asset->getAssetKeywords();
 
-			foreach ($keywords as $keyword => $info) {
-				$contents = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|is', '\\1%'.$keyword.'%\\4', $contents);
-				$contents = str_replace("%{$keyword}%", $info['value'], $contents);
+			if (preg_match('|%asset_contents%|is', $contents)) {
+				ob_start();
+					$asset->printBody();
+					$keywords['asset_contents']['value'] = ob_get_contents();
+				ob_end_clean();
 			}
 
-			echo $contents;
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
+		} else {
+			$keywords = Array();
+			foreach ($this->_tmp['assets_info'][$assetid] as $field => $value) {
+				$keywords['asset_'.$field]['value'] = $value;
+			}
+		}//end if needs asset
 
-		}//end foreach todo
+		if (preg_match_all('|%asset_metadata_([^%]+)%|is', $contents, $matches)) {
+			if (is_null($mm)) $mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			// get all the metadata keywords for this asset
+			$metadata_keywords = $mm->getMetadataFieldValues($assetid, $matches[1]);
 
-	}//end printAssetList()
+			foreach ($metadata_keywords as $field => $value) {
+				$keywords['asset_metadata_'.$field]['value'] = $value;
+			}
+		}
+
+		$keywords['page_href']['value'] = $this->getHref();
+
+		foreach ($keywords as $keyword => $info) {
+			$contents = preg_replace('|%((<([^>]+?)>)+)?'.$keyword.'((<([^>]+?)>)+)?%|is', '\\1%'.$keyword.'%\\4', $contents);
+			$contents = str_replace("%{$keyword}%", $info['value'], $contents);
+		}
+
+		echo $contents;
+
+	}//end _printAsset()
 
 
 	/**

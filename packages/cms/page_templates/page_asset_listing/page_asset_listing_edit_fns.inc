@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.8 2004/12/06 17:31:50 brobertson Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.9 2005/01/17 21:59:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 */
 class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -463,6 +464,214 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		return false;
 
 	}//end processAddAssetType()
+
+
+	/**
+	* Paints the interface for setting the number of columns to display per row
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintColumnSettings(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$current = $asset->attr('column_layout');
+		
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header">Row</td>
+				<td class="sq-backend-table-header">Column(s)</td>
+				<?php
+				if ($write_access) {
+					?>
+					<td class="sq-backend-table-header">Delete ?</td>
+					<?php
+				}
+				?>
+			</tr>
+			<?php
+			if (count($current) > 1) {
+				foreach ($current as $row => $columns) {
+					if ($row == 0) continue;
+					?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo $row; ?></td>
+						<td class="sq-backend-table-cell">
+							<?php
+							if ($write_access) {
+								text_box($prefix.'_columns['.$row.']', $columns, 5);
+							} else {
+								echo $columns;
+							}
+							?>
+						</td>
+						<?php
+						if ($write_access) {
+							?>
+							<td class="sq-backend-table-cell">
+								<?php check_box($prefix.'_delete_row['.$row.']'); ?>
+							</td>
+							<?php
+						}
+					?>
+					</tr>
+					<?php
+				}//end foreach
+			}//end if
+
+			?>
+			<tr>
+				<td class="sq-backend-table-cell">All remaining</td>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) {
+						text_box($prefix.'_columns[0]', $current['0'], 5);
+					} else {
+						echo $current['0'];
+					}
+					?>
+				</td>
+				<?php
+				if ($write_access) {
+					?><td class="sq-backend-table-cell">&nbsp;</td><?php
+				}
+				?>
+			</tr>
+		</table>
+		<?php
+
+		if ($write_access) {
+			$o->closeField();
+			$o->openField('Customise Row');
+				echo 'row ';
+				text_box($prefix.'_new_row', '', 5);
+				echo ' columns ';
+				text_box($prefix.'_new_column', '', 5);
+			// field closed by asset_edit_interface
+		}
+
+		return $write_access;
+
+	}//end paintColumnSettings()
+
+
+	/**
+	* Processes the interface for setting the number of columns to display per row
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function processColumnSettings(&$asset, &$o, $prefix)
+	{
+		// change existing column settings
+		$column_layout = array_get_index($_POST, $prefix.'_columns', Array());
+		$deleted_rows  = array_get_index($_POST, $prefix.'_delete_row', Array());
+		foreach ($deleted_rows as $row => $on) {
+			if (isset($column_layout[$row])) unset($column_layout[$row]);
+		}
+		
+		// add a new column setting
+		$new_row = (int)array_get_index($_POST, $prefix.'_new_row', 0);
+		$new_column = (int)array_get_index($_POST, $prefix.'_new_column', 0);
+		if ($new_row > 0) {
+			if ($new_column > 0) {
+				if (!isset($column_layout[$new_row])) {
+					$column_layout[$new_row] = $new_column;
+				} else {
+					trigger_error('Failed adding customisation for row '.$new_row.', row has already been customised', E_USER_WARNING);
+				}
+			} else {
+				trigger_error('Failed adding customisation for row '.$new_row.', number of columns must be greater than zero', E_USER_WARNING);
+			}
+		}
+		
+		return $asset->setAttrValue('column_layout', $column_layout);
+
+	}//end processColumnSettings()
+
+
+	/**
+	* Paints the interface for previewing the column layout
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintColumnPreview(&$asset, &$o, $prefix)
+	{
+		$column_layout = $asset->attr('column_layout');
+		$num_per_page  = $asset->attr('num_per_page');
+
+		$num_rows = max(array_keys($column_layout)) + 1;
+		$num_columns = max(array_values($column_layout));
+		
+		?>
+		<table class="sq-backend-table">
+			<?php
+			$cell_num = 1;
+			for ($i = 1; $i <= $num_rows; $i++) {
+				echo '<tr>';
+				$cols_in_row = array_get_index($column_layout, $i, $column_layout['0']);
+				$each_colspan = (int)($num_columns / $cols_in_row);
+				$first_colspan = $each_colspan + $num_columns - ($cols_in_row * $each_colspan);
+
+				for ($c = 1; $c <= $cols_in_row; $c++) {
+					$colspan = ($c == 1) ? $first_colspan : $each_colspan;
+					$class = 'sq-backend-table-cell';
+					if ($num_per_page > 0 && $cell_num > $num_per_page) $class .= '-alt';
+					?>
+					<td class="<?php echo $class; ?>" style="<?php echo ($c < $cols_in_row) ? ' border-right: 1px solid #CCCCCC;' : ''; ?>"<?php echo ($colspan > 1) ? ' colspan="'.$colspan.'"' : ''; ?>>
+						<b><?php echo $cell_num; ?></b>
+					</td>
+					<?php
+					$cell_num++;
+				}
+				echo '</tr>';
+			}
+			?>
+			<tr>
+				<td class="sq-backend-table-cell" style="text-align: center;" colspan="<?php echo $num_columns; ?>">
+					All remaining rows will have <?php echo $column_layout[0]; ?> column(s)
+					<?php
+					if ($num_per_page > 0 && $cell_num > $num_per_page) {
+						echo '<br /><b>Note: This asset has been configured to list '.$num_per_page.' assets per page, so the highlighted cells will not be displayed</b>';
+					}
+					?>
+				</td>
+			</tr>
+		</table>
+		<?php
+
+	}//end paintColumnPreview()
+
+
+	/**
+	* Processes the interface for previewing the column layout
+	*
+	* @param object	Asset				&$rootid	asset being painted
+	* @param object Backend_Outputter	&$o			backend outputter
+	* @param string						$prefix		prefix for form elements
+	*
+	* @return void
+	* @access public
+	*/
+	function processColumnPreview(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processColumnPreview()
 
 
 }//end class
