@@ -143,7 +143,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	*/
 	function paint(&$table, $prefix=false)
 	{
-		echo '<td';
+		echo "\t\t<td";
 		foreach($this->attributes as $name => $val) {
 			if ($val == '') continue;
 			if ($name == 'linkid') continue;
@@ -162,9 +162,17 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 			$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 			$content_edit->paintBackend($content_type, $content_prefix);
 		} else {
+			ob_start();
 			$content_edit->paint($content_type);
+			$cell_content = ob_get_contents();
+			ob_end_clean();
+
+			// format contents for pretty HTML
+			$cell_content = preg_replace("/^/", "\t\t\t", $cell_content);
+			$cell_content = preg_replace("/\n/", "\n\t\t\t", $cell_content);
+			echo $cell_content;
 		}
-		echo "\n</td>\n";
+		echo "\n\t\t</td>\n";
 	}
 
 

@@ -131,7 +131,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 		}
 
-		echo "<table{$attribute_list} background=\"$bgimage\">\n";
+		echo "\n<table{$attribute_list} background=\"$bgimage\">\n";
 
 		for($i = 0; $i < count($table_rows); $i++) {
 			$attribute_list = '';
@@ -140,12 +140,12 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
 
-			echo "<tr{$attribute_list}>\n";
+			echo "\t<tr{$attribute_list}>\n";
 			// now print the cell contents
 			for($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
 				$table_rows[$i]['cells'][$x]->paint($asset);
 			}
-			echo "</tr>\n";
+			echo "\t</tr>\n";
 		}
 
 		echo "</table>\n";
