@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.14 2003/11/26 00:51:23 gsherwood Exp $
+* $Id: table_editing.inc,v 1.15 2004/01/20 23:55:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 * @package Fudge
 * @subpackage wysiwyg
 */
-class table_editing extends wysiwyg_plugin {
+class Table_Editing extends WYSIWYG_Plugin {
 
 	/**
 	* Constructor
@@ -47,7 +47,7 @@ class table_editing extends wysiwyg_plugin {
 	* @returns object Table_Editing
 	* @access  public
 	*/
-	function table_editing(&$wysiwyg)
+	function Table_Editing(&$wysiwyg)
 	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
 		$this->_open_menu('tablefunctions', 'Table Functions','false','35');
@@ -105,7 +105,8 @@ class table_editing extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function paint_generic() {
+	function paint_generic()
+	{
 		?>
 		<script type="text/javascript" language="Javascript">
 			// helper function that clears the content in a table row
@@ -471,7 +472,8 @@ class table_editing extends wysiwyg_plugin {
 			};
 		</script>
 		<?php
-	}
+
+	}//end paint_generic()
 
 
 	/**
@@ -480,7 +482,8 @@ class table_editing extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_button_click() {
+	function print_plugin_button_click()
+	{
 		?>
 		case "inserttable":
 			this._insertTable();
@@ -766,7 +769,8 @@ class table_editing extends wysiwyg_plugin {
 			}
 		break;
 		<?php
-	}
+
+	}//end print_plugin_button_click()
 
 
 	/**
@@ -775,7 +779,8 @@ class table_editing extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_update_toolbar() {
+	function print_plugin_update_toolbar()
+	{
 		?>
 		case "showborders":
 			if (this.config._showborders){
@@ -785,7 +790,10 @@ class table_editing extends wysiwyg_plugin {
 			}
 		break;
 		<?php
-	}
-}
+
+	}//end print_plugin_update_toolbar()
+
+
+}//end class
 
 ?>

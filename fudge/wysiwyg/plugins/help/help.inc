@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: help.inc,v 1.6 2003/11/26 00:51:20 gsherwood Exp $
+* $Id: help.inc,v 1.7 2004/01/20 23:55:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,33 +37,39 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 * @package Fudge
 * @subpackage wysiwyg
 */
-class help extends wysiwyg_plugin {
+class Help extends WYSIWYG_Plugin {
+
 
 	/**
 	* Constructor
-	* Adds a help button to the plugin
 	*
-	* @returns object Help
-	* @access  public
+	* Adds a help button to the toolbar
+	*
 	*/
-	function help() {
+	function Help()
+	{
 		$this->_add_button('help','showhelp','Help using editor','true','1');
-	}
+
+	}//end constructor
 
 
 	/**
 	* Help is not implemented at this time
 	*
-	* @returns void
-	* @access  public
+	* @return void
+	* @access public
 	*/
-	function print_plugin_button_click() {
+	function print_plugin_button_click()
+	{
 		?>
 		case "showhelp":
 			alert("Help not implemented");
 		break;
 		<?php
-	}
-}
+
+	}//end print_plugin_button_click()
+
+
+}//end class
 
 ?>

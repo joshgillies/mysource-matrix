@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg_plugin.inc,v 1.12 2003/11/26 00:51:19 gsherwood Exp $
+* $Id: wysiwyg_plugin.inc,v 1.13 2004/01/20 23:55:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,7 +71,7 @@ class wysiwyg_plugin {
 	* @return object WYSIWYG_Plugin
 	* @access public
 	*/
-	function wysiwyg_plugin(&$wysiwyg)
+	function WYSIWYG_Plugin(&$wysiwyg)
 	{
 		$this->wysiwyg =& $wysiwyg;
 
@@ -361,6 +361,7 @@ class wysiwyg_plugin {
 		return $classname.'/'.$filename;
 
 	}//end get_popup_href()
+
 
 }//end class
 
