@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.7 2004/05/05 07:10:13 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.8 2004/05/06 04:16:31 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -222,6 +222,38 @@ class Form_Question_Type_Datetime extends Form_Question
 		return true;
 	
 	}//end processForm()
+
+
+	/**
+	* returns the answer for this question for the summary, generally overriden by children
+	*
+	* @param $answer the answer of the question
+	*
+	* @access public
+	* @return string
+	*/
+	function getSummary($answer)
+	{
+		$allow_circa = false;
+		
+		$show_params = $this->attr('show');
+		if ($show_params['c']) {
+			$allow_circa = true;
+		}
+
+		if ($allow_circa) {
+			list($date, $time, $circa) = explode(' ', $answer);
+		} else {
+			list($date, $time) = explode(' ', $answer);
+			$circa = 0;
+		}
+
+		$timestamp = iso8601_ts($date . ' ' . $time);
+
+		return ($circa ? 'circa ' : '') . date('l, F jS, Y H:i:s', $timestamp);
+	
+	}//end getSummary()
+
 
 }//end class
 ?>
