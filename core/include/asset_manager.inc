@@ -41,6 +41,9 @@ class Asset_Manager extends Resolve_Object
 	}//end constructor
 
 
+//--        ASSET TYPES        --//
+
+
 	/**
 	* Loads all the assets types into the asset array
 	*
@@ -171,12 +174,12 @@ class Asset_Manager extends Resolve_Object
 	function getTypeInfo($type_code, $field='')
 	{
 		$do_query = false;
-		
+
 		// multiple typecodes
 		if (is_array($type_code)) {
 
 			if (empty($type_code)) return Array();
-			
+
 			// we want to create a query with only the type_codes that
 			// we do not have cached, but keep the type_code array intact for
 			// looping through later
@@ -185,7 +188,7 @@ class Asset_Manager extends Resolve_Object
 			// if there are multiple type_codes we need to select the type_code as well
 			// as the field from the database so we know what field belongs to what typecode
 			$columns = 'type_code, '.$field;
-			
+
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			for($i = 0; $i < count($type_code); $i++) {
 				if (!isset($this->_asset_types[$type_code[$i]])) {
@@ -203,7 +206,7 @@ class Asset_Manager extends Resolve_Object
 				}
 			}// end for
 			$type_code_cond = 'IN ('.implode(', ', $tmp).')';
-		
+
 		// just a single typecode
 		} else {
 			$columns = $field;
@@ -225,7 +228,7 @@ class Asset_Manager extends Resolve_Object
 					FROM '.SQ_TABLE_PREFIX.'asset_type
 					WHERE type_code '.$type_code_cond;
 			$result = $db->getAll($sql);
-			
+
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 			if (is_array($type_code)) {
 				for ($i = 0; $i < count($result); $i++) {
@@ -240,8 +243,8 @@ class Asset_Manager extends Resolve_Object
 		if (is_array($type_code)) {
 			$type_codes = Array();
 			foreach ($type_code as $code) {
-				($field) 
-					? $type_codes[$code] = $this->_asset_types[$code][$field] 
+				($field)
+					? $type_codes[$code] = $this->_asset_types[$code][$field]
 					: $type_codes[$code] = $this->_asset_types[$code];
 			}
 			return $type_codes;
@@ -351,8 +354,8 @@ class Asset_Manager extends Resolve_Object
 		}// end if
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT a.assetid, at.inherited_type_code 
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a INNER JOIN '.SQ_TABLE_PREFIX.'asset_type_inherited at ON a.type_code = at.type_code 
+		$sql = 'SELECT a.assetid, at.inherited_type_code
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a INNER JOIN '.SQ_TABLE_PREFIX.'asset_type_inherited at ON a.type_code = at.type_code
 				'.$where.' ORDER BY a.assetid';
 
 		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
@@ -526,13 +529,16 @@ class Asset_Manager extends Resolve_Object
 	}//end getTypeDescendants()
 
 
+//--        HERITAGE        --//
+
+
 	/**
 	* Get all asset ids that are above the passed assetid in the various trees in which it exists
 	*
 	* @param int			$assetid			the id of the asset to get its parents for
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) 
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc)
 	*											if an array returns link if matches any of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
 	* @access public
@@ -598,11 +604,11 @@ class Asset_Manager extends Resolve_Object
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
 	* @param int			$assetid			the id of the asset to get its children for
-	* @param string|array	$type_code			the type of asset that is linked 
-	*											(eg 'Page', 'File', etc) 
-	*											if an array returns link if matches any 
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
 	* @return Array	returns an array of assetids
@@ -686,11 +692,11 @@ class Asset_Manager extends Resolve_Object
 	* Get all dependant children of an asset in the various tress in which it exists
 	*
 	* @param int			$assetid			the id of the asset to get its children for
-	* @param string|array	$type_code			the type of asset that is linked 
-	*											(eg 'Page', 'File', etc) 
-	*											if an array returns link if matches any 
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
 	* @return Array	returns an array of assetids
@@ -741,7 +747,7 @@ class Asset_Manager extends Resolve_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$where = 'l.minorid = '.$db->quote($assetid).' 
+		$where = 'l.minorid = '.$db->quote($assetid).'
 				  AND t.treeid '.(($exclusively) ? 'NOT ' : '').'LIKE (~SQ0~)';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -776,12 +782,15 @@ class Asset_Manager extends Resolve_Object
 	}//end assetInTrash()
 
 
+//--        ASSET FACTORY        --//
+
+
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
 	* @param int		$assetid		the asset id to be loaded
 	* @param string		$type_code		if this exists then this object is used to
-	*									load the asset, if not then the DB is queried 
+	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
@@ -859,7 +868,7 @@ class Asset_Manager extends Resolve_Object
 	/**
 	* Returns a reference to a system asset
 	*
-	* @param string	$name	the name of the system asset 
+	* @param string	$name	the name of the system asset
 	*						'root_folder', 'trash_folder', 'system_user_group',
 	*						'root_user', 'designs_folder', 'login_design', 'cron_manager'
 	*
@@ -910,7 +919,7 @@ class Asset_Manager extends Resolve_Object
 		// so lets check for that
 		$parents = $asset->getLinks(SQ_SC_LINK_SIGNIFICANT, '', null, 'minor', '', 1);
 		for($i = 0; $i < count($parents); $i++) if ($parents[$i]['majorid'] <= SQ_NUM_RESERVED_ASSETIDS) return false;
-		
+
 		return true;
 
 	}//end canPurgeAsset()
@@ -960,17 +969,20 @@ class Asset_Manager extends Resolve_Object
 	}//end getTypeAssetids()
 
 
+//--        URL's & HREF's        --//
+
+
 	/**
 	* Returns a reference to the asset that has the passed url
 	* If no url is passed the current (aka PHP_SELF) one is used
 	*
 	* @param string		$protocol		the protocol to match -> null means it is ignored
 	* @param string		$url			the urls to check for -> null defaults it to current url
-	* @param boolean	$exact_match	when true only returns an asset if there is an exact 
+	* @param boolean	$exact_match	when true only returns an asset if there is an exact
 	*									match on the url,
-	*									if false searches back along the URL path for the 
+	*									if false searches back along the URL path for the
 	*									asset that matches
-	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because 
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
 	* @return mixed object Asset or null
@@ -1154,22 +1166,6 @@ class Asset_Manager extends Resolve_Object
 
 
 	/**
-	* Prints out the interface for viewing and customising asset types
-	*
-	* @param object Backend &$backend
-	*
-	* @access public
-	*/
-	function paintBackend(&$backend)
-	{
-		require_once SQ_INCLUDE_PATH.'/asset_manager_edit_fns.inc';
-		$edit_fns =& new Asset_Manager_Edit_Fns($this, $backend);
-		$edit_fns->paintBackend();
-
-	}//end paintBackend()
-
-
-	/**
 	* Returns the URL for an asset, closest to the $base_url
 	*
 	* @param int | array(int)	$assetids			the id of the asset you want the url for or an array
@@ -1223,7 +1219,7 @@ class Asset_Manager extends Resolve_Object
 
 		// now hit the database for the rest of them
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		
+
 		$the_rest = array_diff($assetids, array_keys($return_urls));
 		$assetid_cond_array = $the_rest;
 		for($i = 0; $i < count($the_rest); $i++) $assetid_cond_array[$i] = $db->quote($assetid_cond_array[$i]);
@@ -1235,7 +1231,7 @@ class Asset_Manager extends Resolve_Object
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'u');
 		$sql = 'SELECT l.assetid, l.url, u.http, (';
-		
+
 		$str = '';
 		// so much for SQL standards...
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
@@ -1334,7 +1330,7 @@ class Asset_Manager extends Resolve_Object
 		foreach ($urls as $assetid => $url) {
 			if ($url != '') {
 				require_once SQ_FUDGE_PATH.'/general/www.inc';
-				// deliberatley don't strip url here because if there is any trailing slashes then 
+				// deliberatley don't strip url here because if there is any trailing slashes then
 				// relative_href will work to accomodate them
 				$this->_tmp['hrefs'][$assetid][$base_url] = relative_href(current_url(), $url);
 			} else {
@@ -1353,7 +1349,7 @@ class Asset_Manager extends Resolve_Object
 
 
 	/**
-	* Returns the href(s) of an asset based on its assetid and the wanted screen 
+	* Returns the href(s) of an asset based on its assetid and the wanted screen
 	*
 	* @param array(mixed) $assetinfo an array of asset info in the form assetid => screen code name
 	*
@@ -1371,6 +1367,25 @@ class Asset_Manager extends Resolve_Object
 		return $return_hrefs;
 
 	}// end getAssetBackendHref()
+
+
+//--        PAINTING        --//
+
+
+	/**
+	* Prints out the interface for viewing and customising asset types
+	*
+	* @param object Backend &$backend
+	*
+	* @access public
+	*/
+	function paintBackend(&$backend)
+	{
+		require_once SQ_INCLUDE_PATH.'/asset_manager_edit_fns.inc';
+		$edit_fns =& new Asset_Manager_Edit_Fns($this, $backend);
+		$edit_fns->paintBackend();
+
+	}//end paintBackend()
 
 
 }//end class
