@@ -666,7 +666,8 @@ class Asset extends Resolve_Object
 	*
 	* @param int	$link_types			integer that can be the product of bitwise operations on the SQ_LINK_* constants
 	* @param string	$type_code			the type of asset that is linked (eg 'Page', 'File', etc);
-	* @param bool	$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param bool	$strict_type_code	whether we are finding assets that are just a $type_code or 
+	*									$type_code and any of it's sub-classes
 	* @param string $side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
 	* @param string $value				The value for all the links must equal this (if not null)
 	*
@@ -1656,6 +1657,7 @@ class Asset extends Resolve_Object
 	function grantPermission($assetid, $permission)
 	{
 
+		$assetid = (int) $assetid;
 		$current = &$this->getPermission($permission, false);
 		if (in_array($assetid, array_keys($current))) return false;
 
@@ -1685,6 +1687,19 @@ class Asset extends Resolve_Object
 
 		// add the permission to the cached version
 		$current[$assetid][] = $this->id;
+
+		// now add to effective permissions
+		if (isset($this->_tmp['effective_permissions'])) {
+			for(reset($this->_tmp['effective_permissions']);
+														null !== ($perm = key($this->_tmp['effective_permissions']));
+														next($this->_tmp['effective_permissions'])) {
+				if ($perm > $permission) continue;
+				if (!isset($this->_tmp['effective_permissions'][$perm])) continue;
+				$effective =& $this->_tmp['effective_permissions'][$perm];
+				if (isset($effective[$assetid])) $effective[$assetid] = Array();
+				$effective[$assetid][] = $this->id;
+			}
+		}
 
 		return true;
 	}//end grantPermission()
@@ -1733,6 +1748,29 @@ class Asset extends Resolve_Object
 		// remove the permission from the cached version
 		for (reset($current[$assetid]); null !== ($k = key($current[$assetid])); next($current[$assetid])) {
 			if ($current[$assetid][$k] == $this->id) unset($current[$assetid][$k]);
+		}
+		if(empty($current[$assetid])) unset($current[$assetid]);
+
+		// now remove from effective permissions
+		if (isset($this->_tmp['effective_permissions'])) {
+			for(reset($this->_tmp['effective_permissions']);
+														null !== ($perm = key($this->_tmp['effective_permissions']));
+														next($this->_tmp['effective_permissions'])) {
+				if ($perm > $permission) continue;
+				if (!isset($this->_tmp['effective_permissions'][$perm])) continue;
+				$effective =& $this->_tmp['effective_permissions'][$perm];
+				if (isset($effective[$assetid])) {
+					for (reset($effective[$assetid]); null !== ($k = key($effective[$assetid])); next($effective[$assetid])) {
+						if ($effective[$assetid][$k] == $this->id) {
+							unset($effective[$assetid][$k]);
+							// we break here because if there are multiple values
+							// because we do actually need them for effective permissions
+							break;
+						}
+					}
+					if(empty($effective[$assetid])) unset($effective[$assetid]);
+				}
+			}
 		}
 
 		return true;
@@ -1806,6 +1844,7 @@ class Asset extends Resolve_Object
 		}
 		
 		$perms = array_keys($this->getPermission($perm));
+		if (in_array('0', $perms)) return true;
 		$common = array_intersect($assetids, $perms);
 		return (!empty($common));
 	}//end checkAccess()
