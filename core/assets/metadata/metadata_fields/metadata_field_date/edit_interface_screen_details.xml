@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2004/02/26 03:05:16 diarandine Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2004/04/19 03:58:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -36,6 +36,14 @@
 			<function_call>
 				<paint_function   name="paintEpoch" />
 				<process_function name="processEpoch" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Offset</display_name>
+			<note>Type, in plain text, and offset for this field (if any). For example, "+ 1 year" or "- 1 day"</note>
+			<function_call>
+				<paint_function   name="paintOffset" />
+				<process_function name="processOffset" />
 			</function_call>
 		</field>
 		<field>
