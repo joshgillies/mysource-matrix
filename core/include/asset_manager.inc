@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.227 2004/08/11 01:07:50 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.228 2004/08/27 01:56:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1081,6 +1081,10 @@ class Asset_Manager extends MySource_Object
 	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=true)
 	{
 		$null = null;
+		
+		// if the source asset is actually a shadow asset, skip it
+		$id_parts = explode(':', $source->id);
+		if (isset($id_parts[1])) return $null;
 
 		// make sure this type of asset can be cloned
 		if (!$source->canClone()) {
@@ -1103,6 +1107,7 @@ class Asset_Manager extends MySource_Object
 
 		// OK now that we are linked up let's our dependants
 		if ($clone_dependants) {
+
 			$dependant_links = $this->getLinks($source->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 
 			if (!empty($dependant_links)) {
@@ -1122,18 +1127,23 @@ class Asset_Manager extends MySource_Object
 						if (is_null($cloned_child)) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return $null;
-						}// end if
+						}
 
 						$linkid = $clone->createLink($cloned_child, $data['link_type'], $data['value'], $data['sort_order'], '1', $data['exclusive']);
 						if (!$linkid) {
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return $null;
-						}// end if
+						}
 
 					// otherwise clone and link
 					} else {
 						$child = &$this->getAsset($data['minorid'], $data['minor_type_code']);
 						if (is_null($child)) continue;
+
+						// skip shadow assets
+						$id_parts = explode(':', $child->id);
+						if (isset($id_parts[1])) continue;
+
 						$create_link['link_type']	= $data['link_type'];
 						$create_link['value']		= $data['value'];
 						$create_link['sort_order']	= $data['sort_order'];
