@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.3 2004/07/25 23:48:32 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.4 2004/07/26 04:01:01 lwright Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -68,7 +68,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintSingleStartEndChooser(&$asset, &$o, $prefix) 
 	{
-		if ($asset->writeAccess('content'))
+		if ($asset->writeAccess('attributes'))
 			$this->paintStartEndChooser($asset, $prefix, '');
 		else
 			echo $asset->getFriendlyDatesAndTimes();
