@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.45 2004/07/15 06:16:39 lwright Exp $
+* $Id: search_page.inc,v 1.46 2004/08/02 23:25:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.45 $ - 1.0
+* @version $Revision: 1.46 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -847,6 +847,7 @@ class Search_Page extends Page
 		$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
 		$search_info['root_assetid'] = empty($root_link) ? 0 : $root_link['minorid'];
 		$search_info['search_types'] = $this->attr('search_types');
+		$search_info['search_statuses'] = $this->attr('search_status');
 
 		return $sm->processSearch($search_info);
 

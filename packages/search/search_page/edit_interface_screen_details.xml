@@ -18,30 +18,38 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.11 2004/06/18 01:33:21 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.12 2004/08/02 23:25:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 <contents>
 	<section name="Details">
-		<field read_access="" write_access="write:attributes" attribute="name">
+		<field write_access="write:attributes" attribute="name">
 			<display_name>Name</display_name>
 			<note />
 			<text width="15" />
 		</field>
-		<field read_access="" write_access="write:attributes" attribute="short_name">
+		<field write_access="write:attributes" attribute="short_name">
 			<display_name>Short Name</display_name>
 			<note />
 			<text width="15" />
 		</field>
 	</section>
 	<section name="Search Parameters">
-		<field read_access="" write_access="write:links">
+		<field write_access="write:links">
 			<display_name>Root Asset</display_name>
 			<note>Searches will be restricted to trees rooted at this asset.</note>
 			<function_call>
 				<paint_function   name="paintRootAsset" />
 				<process_function name="processRootAsset" />
+			</function_call>
+		</field>
+		<field write_access="write:attributes">
+			<display_name>Search Statuses</display_name>
+			<note>Searches will be restricted to assets with these statuses.</note>
+			<function_call>
+				<paint_function   name="paintStatus" />
+				<process_function name="processStatus" />
 			</function_call>
 		</field>
 	</section>

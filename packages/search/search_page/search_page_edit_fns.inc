@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.24 2004/06/18 01:33:21 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.25 2004/08/02 23:25:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.24 $ - 1.0
+* @version $Revision: 1.25 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -126,6 +126,75 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		}
 
 	}//end processRootAsset()
+
+
+	/**
+	* Paint the interface for selecting searched statuses
+	*
+	* @param object Asset				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintStatus(&$asset, &$o, $prefix)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$write_access = $asset->writeAccess('attributes');
+
+		$current = $asset->attr('search_status');
+		if ($write_access) {
+			require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+			$statuses = get_constant_values('SQ_STATUS');
+
+			$options = Array();
+			foreach ($statuses as $constant => $value) $options[$value] = get_status_description($value);
+
+			combo_box($prefix.'_statuses', $options, true, $current);
+		} else {
+			if (empty($current)) {
+				echo 'No statuses are selected. Only LIVE assets will be searched.';
+			} else {
+				echo '<ul>';
+				foreach ($current as $status) echo '<li>'.get_status_description($status).'</li>';
+				echo '</ul>';
+			}
+		}
+		
+		return $write_access;
+
+	}//end paintStatus()
+
+
+	/**
+	* Processes the interface for selecting searched statuses
+	*
+	* @param object Asset				&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processStatus(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$statuses = Array();
+		if (isset($_POST[$prefix.'_statuses'])) {
+			foreach ($_POST[$prefix.'_statuses'] as $status) {
+				$statuses[] = $status;
+			}
+			$statuses = array_unique($statuses);
+		} else {
+			$statuses = Array();
+		}
+
+		return $asset->setAttrValue('search_status', $statuses);
+
+	}//end processStatus()
 
 
 	/**
