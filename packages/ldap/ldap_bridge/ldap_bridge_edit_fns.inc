@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.7.2.1 2004/10/07 04:48:49 gsherwood Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.7.2.2 2004/11/02 04:00:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,7 +104,7 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 						  'fn'    => 'First Name',
 						  'sn'    => 'Last Name',
 						  'email' => 'Email Address',
-						  'mo'    => 'Group Memebership',
+						  'mo'    => 'Group Membership',
 						  'ou'    => 'Group Name',
 						);
 
