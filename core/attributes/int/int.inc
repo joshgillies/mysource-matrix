@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.21 2004/09/01 06:31:47 arailean Exp $
+* $Id: int.inc,v 1.22 2004/09/01 15:16:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,7 +94,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 			return;
 		}
 
-		$allow_negative = array_get_index($this->_params,'allow_negative',true);
+		$allow_negative = array_get_index($this->_params, 'allow_negative', true);
 		
 		$javascript ='
 			onFocus="javascript: this.__sq_init_value = this.value;" 
