@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.9 2004/08/02 00:53:24 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.10 2004/08/02 06:29:03 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $ - 1.0
+* @version $Revision: 1.10 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -400,7 +400,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function printBody()
 	{
-		include_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>

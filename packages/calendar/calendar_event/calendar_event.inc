@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.3 2004/07/30 04:42:41 lwright Exp $
+* $Id: calendar_event.inc,v 1.4 2004/08/02 06:29:03 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH . '/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -418,7 +418,7 @@ class Calendar_Event extends Asset
 	*/
 	function printBody()
 	{
-		include_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>

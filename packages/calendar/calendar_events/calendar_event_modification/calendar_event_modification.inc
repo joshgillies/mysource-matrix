@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.7 2004/07/29 05:17:10 tbarrett Exp $
+* $Id: calendar_event_modification.inc,v 1.8 2004/08/02 06:29:03 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -170,7 +170,7 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		$root_url = array_values($GLOBALS['SQ_SYSTEM']->am->getRootURL());
 		if (is_array($root_url)) $root_url = $root_url[0];
-		include_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 			<tr>
