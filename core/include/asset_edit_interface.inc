@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.202 2004/03/25 11:04:15 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.203 2004/04/08 11:46:54 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -621,7 +621,7 @@ class Asset_Edit_Interface extends MySource_Object
 		/////////////////////
 		// set correct page headings based on what we are doing
 		if (!$creating) {
-			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').' - '.$owner->name.' (v. '.$owner->version.')';
+			$page_heading = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').' - '.$owner->name.' (#'.$owner->id.', v. '.$owner->version.')';
 		} else {
 			$page_heading = 'Create new '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name');
 		}
