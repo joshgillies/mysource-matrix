@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_edit_fns.inc,v 1.21 2004/12/23 23:14:08 lwright Exp $
+* $Id: thumbnail_edit_fns.inc,v 1.22 2005/01/17 17:44:57 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/image/image_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 	*/
 	function printExistingFileInfo(&$asset)
 	{
-		$existing = $asset->_getExistingFile();
+		$existing = $asset->getExistingFile();
 		if (!empty($existing)) {
 			?>
 			<table cellspacing="0" cellpadding="2" >

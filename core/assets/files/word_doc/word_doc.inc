@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.9 2004/12/06 14:38:09 brobertson Exp $
+* $Id: word_doc.inc,v 1.10 2005/01/17 17:42:10 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -106,7 +106,7 @@ class Word_Doc extends File
 	{
 		$keydata = parent::getKeyData();
 
-		$file_info = $this->_getExistingFile();
+		$file_info = $this->getExistingFile();
 		if (empty($file_info)) return $keydata;
 		$file = $file_info['path'];
 
