@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.14 2004/12/06 14:38:12 brobertson Exp $
+* $Id: system_asset_config.inc,v 1.15 2005/01/06 12:35:26 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *    Looks after the creation system asset config
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix
 */
 class System_Asset_Config extends Config
@@ -80,12 +80,13 @@ class System_Asset_Config extends Config
 	*
 	* This allows extra things to be added for special cases
 	*
-	* @param string $name	the config var name
-	* @param mixed  $value	the value that the config var has
+	* @param string		$name	the config var name
+	* @param mixed		$value	the value that the config var has
+	* @param boolean	$var_export	whether to run the value through var_export or not
 	*
-	* @return boolean whether the value is valid or not
+	* @return boolean	whether the value is valid or not
 	*/
-	function _paintConfigVar($var_name, $value)
+	function _paintConfigVar($var_name, $value, $var_export=true)
 	{
 		switch ($var_name) {
 			case 'PRINT_SYSTEM_ASSETS' :
@@ -126,7 +127,7 @@ class System_Asset_Config extends Config
 			break;
 
 			default :
-				return parent::_paintConfigVar($var_name, $value);
+				return parent::_paintConfigVar($var_name, $value, $var_export);
 
 		}// end switch
 
