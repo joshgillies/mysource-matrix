@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_management.inc,v 1.8 2004/02/03 03:27:42 diarandine Exp $
+* $Id: metadata_field_management.inc,v 1.9 2004/07/05 03:43:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,6 +92,7 @@ class Metadata_Field_Management extends Asset_Management
 	{
 		return Array(
 					 'popups/keywords.html',
+					 'popups/keyword_extraction.php',
 					 );
 
 	}//end _getFileList()

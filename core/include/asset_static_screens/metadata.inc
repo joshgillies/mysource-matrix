@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.4 2004/04/22 03:38:54 gsherwood Exp $
+* $Id: metadata.inc,v 1.5 2004/07/05 03:43:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -120,7 +120,11 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 						?>
 						You can use keyword replacements in place of values for metadata fields on this page.<br/>
 						For a complete list of available keyword replacements <a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">click here</a>
+						<?php $sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+							if (!empty($sm)) { ?>
 						<br/><br/>
+						If indexing is enabled in the Search Manager, you can generate a list of keywords from the index using
+		<a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keyword_extraction.php?assetid=<?php echo $owner->id ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320'); return false;">keyword extraction</a>.<?php } ?><br/><br/>
 						<span style="color:#FF0000"> * </span>denotes a required field
 						<?php
 						
