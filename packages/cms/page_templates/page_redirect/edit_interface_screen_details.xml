@@ -1,5 +1,15 @@
 <contents>
-	<section name="Redirect Details">
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Page Name</display_name>
+			<note />
+			<text width="12" height="1" />
+		</field>
+		<field attribute="short_name">
+			<display_name>Page Short Name</display_name>
+			<note />
+			<text width="12" height="1" />
+		</field>
 		<field attribute="redirect_url">
 			<display_name>URL</display_name>
 			<note />
