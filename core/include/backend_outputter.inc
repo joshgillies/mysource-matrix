@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.82 2004/08/23 04:07:03 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.83 2004/09/02 05:38:43 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -994,18 +994,26 @@ class Backend_Outputter
 							parent.frames["sq_sidenav"].add_messages("<?php echo str_replace(Array("\r\n", "\n", "\r"), "\\n", addslashes($msgs->get())); ?>");
 						}
 						<?php
-					}// end if messages
+					}//end if messages
 
 					foreach($this->_on_load_calls as $call) {
 						echo "\n".$call;
-					}//end foreach
+					}
 
 					?>
 
 					// let everyone know the document is loaded
 					SQ_DOCUMENT_LOADED = true;
 
-				}// end page_on_load()
+				}//end page_on_load()
+
+
+				function page_on_unload() {
+
+					parent.frames['sq_sidenav'].asset_finder_onunload();
+
+				}//end page_on_load()
+
 
 				var SQ_FORM_SUBMITTED = false;
 				function form_on_submit() {
@@ -1016,30 +1024,28 @@ class Backend_Outputter
 
 			<?php
 				foreach($this->_on_submit_calls as $call) {
-				?>
-					<?php echo $call;?>;
-				<?php
-				}//end foreach
+					echo $call.";\n";
+				}
 			?>
 
 					// basically if they get this far then we can submit
 					SQ_FORM_SUBMITTED = true;
 					return true;
 
-				}// end form_on_submit()
+				}//end form_on_submit()
 
 			<?php
 				foreach($this->_preload_imgs as $file) {
-				?>
+					?>
 					preload_image('<?php echo $file;?>');
-				<?php
+					<?php
 				}//end foreach
 			?>
 
 			// -->
 			</script>
 		</head>
-		<body bgcolor="#FFFFFF" onLoad="javascript: page_on_load();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
+		<body bgcolor="#FFFFFF" onLoad="javascript: page_on_load();" onUnLoad="javascript: page_on_unload();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
 
 		<form action="<?php echo $this->_action.$this->_anchor;?>" id="main_form" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
