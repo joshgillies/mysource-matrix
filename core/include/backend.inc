@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.90 2004/06/02 02:41:16 gsherwood Exp $
+* $Id: backend.inc,v 1.91 2004/06/08 16:37:11 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -308,15 +308,9 @@ class Backend extends MySource_Object
 
 			$updated_assetids = $db->getCol($sql);
 			if (!DB::isError($updated_assetids) && !empty($updated_assetids)) {
-				require_once 'XML/Tree.php';
-				$xml = new XML_Tree();
-				$xml_root = &$xml->addRoot('assets');
-				foreach($updated_assetids as $assetid) {
-					$xml_root->addChild('asset', '', Array('assetid' => $assetid));
-				}
 				$this->out->addOnLoad('
 					if (parent.frames["sq_sidenav"].reload_assets) {
-						parent.frames["sq_sidenav"].reload_assets("'.str_replace("\n", "\\n", addslashes($xml->get())).'");
+						parent.frames["sq_sidenav"].reload_assets("'.addslashes(implode(',', $updated_assetids)).'");
 					}
 				');
 			}// end if
