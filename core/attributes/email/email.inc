@@ -66,11 +66,12 @@ class Asset_Attribute_Email extends Asset_Attribute_Text
 
 		if ($this->value) {
 			trigger_error('Do email validation here', E_USER_NOTICE);
-			if (!true) {
+			$validated = true;
+			if (!$validated) {
 				$this->processed = false;
 				$this->value = $old_value;
 			}
-		}
+		}// end if
 
 	}// end process()
 
