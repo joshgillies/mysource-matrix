@@ -145,7 +145,6 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// delete existing uploaded file if it exists
-		$old_file_info = $asset->_getExistingFile();
 		if (is_file($asset->data_path.'/'.$asset->attr('name'))) {
 			if (!unlink($asset->data_path.'/'.$asset->attr('name'))) {
 				trigger_error('Failed deleting existing file', E_USER_WARNING);
@@ -165,7 +164,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			$file_status = $fv->upToDate($asset->data_path.'/'.$name);
 			if (FUDGE_FV_MODIFIED & $file_status) {
 				if (!$fv->commit($asset->data_path.'/'.$name, '', false)) {
-					trigger_error('Failed adding file version', E_USER_WARNING);
+					trigger_error('Failed committing file version', E_USER_WARNING);
 					return false;
 				}
 			}
