@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.50 2004/12/31 00:09:37 mnyeholt Exp $
+* $Id: step_03.php,v 1.51 2004/12/31 00:20:36 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,10 +33,18 @@
 *
 * You may specify several --package= entries. If the packagename is followed by
 * a hyphen, entries after the hyphen will be taken to be asset types.
+*
+* 	php step_03.php /system/root --package=core-page,page_standard
+* 
+* Would only update the page and page_standard assets within the core package.
+* 
+* 	php step_03.php /system/root --package=core --package=cms
+* 
+* Would update all the asset types for core and cms only. 
 * 
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix
 * @subpackage install
 */
