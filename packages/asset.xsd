@@ -26,7 +26,7 @@
 		<xsd:restriction base="xsd:string" />
 	</xsd:simpleType>
 
-	<xsd:simpleType name="dtype_instantiable">
+	<xsd:simpleType name="dtype_yes_no">
 		<xsd:restriction base="xsd:string">
 			<xsd:enumeration value="yes"/>
 			<xsd:enumeration value="no"/>
@@ -62,7 +62,8 @@
 			<xsd:element name="version"      type="dtype_version"/>
 			<xsd:element name="name"         type="dtype_name"/>
 			<xsd:element name="description"  type="dtype_description"/>
-			<xsd:element name="instantiable" type="dtype_instantiable"/>
+			<xsd:element name="instantiable" type="dtype_yes_no"/>
+			<xsd:element name="system_only"  type="dtype_yes_no"/>
 			<xsd:element name="parent_type"  type="dtype_type_code"/>
 			<xsd:element name="requirements" type="dtype_requirements"/>
 		</xsd:sequence>

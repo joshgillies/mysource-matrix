@@ -92,12 +92,13 @@ class Asset_Management extends Resolve_Object
 
 		$info = $this->_pm->getInfo($type_code);
 		$sql = 'INSERT INTO sq_asset_type
-				(type_code, version, name, description, instantiable, parent_type, level, dir, customisation)
+				(type_code, version, name, description, instantiable, system_only, parent_type, level, dir, customisation)
 				VALUES
 				('.$this->_db->quote($type_code).', '.$this->_db->quote($info['version']).', 
 				'.$this->_db->quote($info['name']).', '.$this->_db->quote($info['description']).',
-				'.$this->_db->quote($info['instantiable']).', '.$this->_db->quote($info['parent_type']).',
-				'.$this->_db->quote($level).', '.$this->_db->quote($info['dir']).', 0)';
+				'.$this->_db->quote($info['instantiable']).', '.$this->_db->quote($info['system_only']).', 
+				'.$this->_db->quote($info['parent_type']).', '.$this->_db->quote($level).', 
+				'.$this->_db->quote($info['dir']).', 0)';
 //		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
@@ -129,6 +130,7 @@ class Asset_Management extends Resolve_Object
 					name    = '.$this->_db->quote($info['name']).',
 					description  = '.$this->_db->quote($info['description']).',
 					instantiable = '.$this->_db->quote($info['instantiable']).',
+					system_only  = '.$this->_db->quote($info['system_only']).',
 					parent_type  = '.$this->_db->quote($info['parent_type']).',
 					level   = '.$this->_db->quote($level).',
 					dir     = '.$this->_db->quote($info['dir']).'
@@ -433,7 +435,8 @@ class Asset_Management extends Resolve_Object
 																	'name'         => $info['name']['value'],
 																	'version'      => $info['version']['value'],
 																	'description'  => $info['description']['value'],
-																	'instantiable' => ($info['instantiable']['value'] == 'yes'),
+																	'instantiable' => ($info['instantiable']['value'] == 'yes') ? 1 : 0,
+																	'system_only'  => ($info['system_only']['value']  == 'yes') ? 1 : 0,
 																	'parent_type'  => $info['parent_type']['value']
 																);
 

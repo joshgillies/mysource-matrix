@@ -8,6 +8,7 @@
 	<name>Page</name>
 	<description>Page Object, if you want to display anything chances are you're going to use this</description>
 	<instantiable>yes</instantiable>
+	<system_only>no</system_only>
 	<parent_type>asset</parent_type>
 	<requirements>
 		<requirement type="system">

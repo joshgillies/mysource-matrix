@@ -8,6 +8,7 @@
 	<name>Bulkmail Page Template</name>
 	<description>Lorem 'ipsum dolor' sit "amet", consectetuer adipiscing elit, sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat volutpat.  Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper suscipit lobortis nisl ut aliquip ex ea commodo consequat.</description>
 	<instantiable>yes</instantiable>
+	<system_only>yes</system_only>
 	<parent_type>page_template</parent_type>
 	<requirements>
 		<requirement type="package">

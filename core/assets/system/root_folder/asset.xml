@@ -8,6 +8,7 @@
 	<name>Root Folder</name>
 	<description>Root Folder, the root object to which everything is essentially linked</description>
 	<instantiable>yes</instantiable>
+	<system_only>yes</system_only>
 	<parent_type>folder</parent_type>
 	<requirements>
 		<requirement type="asset">

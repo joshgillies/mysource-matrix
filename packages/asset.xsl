@@ -76,6 +76,14 @@
 				</tr>
 				<tr>
 					<td class="title">
+						System Only allowed to create :
+					</td>
+					<td class="data">
+						<xsl:value-of select="asset_info/system_only" />
+					</td>
+				</tr>
+				<tr>
+					<td class="title">
 						Type :
 					</td>
 					<td class="data">

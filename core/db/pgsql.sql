@@ -39,6 +39,7 @@ CREATE TABLE sq_asset_type (
   name          VARCHAR(100) NOT NULL DEFAULT '',
   description   VARCHAR(255) NOT NULL DEFAULT '',
   instantiable  CHAR(1)      NOT NULL DEFAULT '0',
+  system_only   CHAR(1)      NOT NULL DEFAULT '1',
   parent_type   VARCHAR(100) NOT NULL DEFAULT 'asset',
   level         SMALLINT     NOT NULL,
   dir           VARCHAR(255) NOT NULL DEFAULT 'asset',
