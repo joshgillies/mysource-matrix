@@ -293,20 +293,151 @@ class Asset extends Resolve_Object
 
 	}//end create()
 
-	
+
 	/**
-	* Creates a duplicate of this asset
+	* Load the asset represented by the passed asset ID
+	*
+	* @param int	$assetid	the asset ID to be loaded
+	*
+	* @access public
+	*/
+	function load($assetid)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// OK, the first thing to do is check we actually exist :)
+		$sql = 'SELECT assetid, version, name, short_name, status, languages, charset, type_code, last_updated, last_userid
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
+		$where = 'assetid = '.$db->quote($assetid);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		$result = $db->getRow($sql.$where, null, DB_FETCHMODE_ORDERED);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+		if (is_null($result)) return;
+
+		list($this->id,
+			 $this->version,
+			 $this->name,
+			 $this->short_name,
+			 $this->status,
+			 $this->languages,
+			 $this->charset,
+			 $type_code,
+			 $this->last_updated,
+			 $this->last_userid) = $result;
+		$this->last_updated = iso8601_ts($this->last_updated);
+		unset($result);
+
+		// make sure the asset we are loading is of the same type as our class
+		if ($type_code != $this->type()) {
+			trigger_error('Asset #'.$assetid.' is not a '.$this->type(), E_USER_WARNING);
+			$this->id = null;
+			$this->last_updated = null;
+			$this->last_userid  = null;
+			return;
+		}
+
+		if ($this->useSystemVersion()) {
+			$this->_loadDataPaths();
+			if (!$this->loadSystemVersion()) {
+				trigger_error('Asset #'.$assetid.' failed loading from cache', E_USER_WARNING);
+				return;
+			}
+			$this->_loadDataPaths();
+		} else {
+			$this->_loadVars();
+		}
+
+	}//end load()
+
+
+	/**
+	* Setup the data paths for the asset
+	*
+	* Also takes into account if we are using a system version
+	*
+	* @access private
+	* @return void
+	*/
+	function _loadDataPaths()
+	{
+		$this->data_path_suffix = 'assets/'.$this->type().'/'.$this->id;
+		$this->data_path = SQ_DATA_PATH.'/private/'.$this->data_path_suffix;
+		$this->data_path_public = SQ_DATA_PATH.'/public/'.$this->data_path_suffix;
+		if ($this->useSystemVersion()) $this->data_path .= '/.sq_system';
+
+	}//end _loadDataPaths()
+
+
+	/**
+	* Load the vars for this asset/ asset type into the vars array
+	*
+	* If the asset has no asset ID, this function just loads the default values for the asset type.
+	*
+	* @access private
+	* @return void
+	*/
+	function _loadVars()
+	{
+		// let's setup the data path
+		$this->_loadDataPaths();
+
+		// Right, now we need to get any values that this asset has customised
+		$this->vars = Array();
+
+		$sql = '';
+		// if we have an id then we need to load with current vars
+		if ($this->id) {
+			$where = 'a.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
+			// DEFAULT VALUES IF WE DO
+			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a
+							INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute atr ON a.type_code = atr.type_code
+							LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v 
+								ON (atr.attributeid = v.attributeid AND a.assetid = v.assetid
+									'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
+					'.$where;
+		// else just load all defaults
+		} else {
+			$sql = 'SELECT atr.name, atr.attributeid, atr.type, atr.default_value AS value
+					FROM '.SQ_TABLE_PREFIX.'asset_attribute atr
+					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
+		}// end if
+
+		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br/>'.$this->vars->getUserInfo(), E_USER_ERROR);
+
+		if ($this->_ser_attrs && $this->vars) {
+			for(reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
+				if ($this->vars[$name]['type'] != 'serialise') continue;
+				$this->vars[$name]['value'] = @unserialize($this->vars[$name]['value']);
+			}
+		}
+
+	}//end _loadVars()
+
+
+	/**
+	* Create a duplicate of this asset
 	*
 	* The only child assets that are duplicated are the ones that are <i>DEPENDANTLY</i> linked to this asset.
 	* <i>NO OTHER</i> linked assets are duplicated.
 	*
 	* @param Array	&$link				information used to create the initial link,
-	*									Array ('asset' => [ref major asset to create link under],
-	*									'link_type' => SQ_LINK_?, 'value' => [link value],
-	*									'sort_order' => [link sort order], 'dependant' = [boolean],
-										'exclusive' = [boolean])
+	* <PRE>
+	* Array ('asset'      => [ref major asset to create link under],
+	*        'link_type'  => SQ_LINK_?,
+	*        'value'      => [link value],
+	*        'sort_order' => [link sort order],
+	*        'dependant'  => [0|1],
+	*        'exclusive'  => [0|1]
+	*        )
+	* </PRE>
 	* @param Array	&$dupe_map			a map for that can be used for re-indexing data held in
-	*									assets of the form Array([old asset id] => [new asset id]);
+	*									assets of the form Array([old asset id] => [new asset id])
 	* @param bool	$dupe_dependants	whether or not to duplicate any assets that are dependantly
 	*									linked to this asset, only works if $link is not empty
 	* @param bool	$dupe_directory		whether or not to duplicate this assets data directory
@@ -479,7 +610,8 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Determines whether this asset can have its last significant link removed
+	* Determine whether this asset can have its last significant link removed
+	*
 	* This function is most commonly called when moving the asset to the trash.
 	*
 	* @return boolean
@@ -493,7 +625,9 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Deletes this asset from the trash
+	* Delete this asset from the trash
+	*
+	* Note that the asset <i>MUST</i> be in the trash to delete it <i>FROM</i> the trash.
 	*
 	* @param boolean	$release_lock	should we realease the lock after deleting
 	*
@@ -574,108 +708,9 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Returns a name to use to describe this instance of this asset
+	* Determine if the current user be shown the system version or not
 	*
-	* This function should be overridden by children as it is used to set the <i>name</i> and <i>short_name</i>
-	* for this asset when updating
-	*
-	* @param boolean	$short_name	whether or not we are after the shortname or the full name
-	*
-	* @return string
-	* @access private
-	* @see _updated
-	*/
-	function _getName($short_name=false)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' #'.$this->id;
-
-	}//end _getName()
-
-
-	/**
-	* Generate a prefix to be used by paint() and process()
-	*
-	* @param object	Asset	$owner	the asset whose interface we are painting
-	*
-	* @access public
-	*/
-	function getPrefix()
-	{
-		return $this->type().'_'.$this->id;
-	}
-
-
-	/**
-	* Get the type of this asset
-	*
-	* @return string
-	* @access public
-	*/
-	function type()
-	{
-		return get_class($this);
-
-	}//end type()
-
-
-	/**
-	* Get an array of all assets types that the asset extends from
-	*
-	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
-	*									even though it's an unistantiable object
-	*
-	* @see Asset_Manager::getTypeAncestors()
-	* @access public
-	*/
-	function getTypeAncestors($include_asset=true)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->type(), $include_asset);
-
-	}//end getTypeAncestors()
-
-
-	/**
-	* Get all asset IDs that are above the asset in the various trees in which it exists
-	*
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	*
-	* @return array(int)
-	* @access public
-	*/
-	function getParents($type_code='', $strict_type_code=true)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);
-
-	}//end getParents()
-
-
-	/**
-	* Get all asset IDs that are below the asset in the various trees in which it exists
-	*
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	*
-	* @return array(int)
-	* @access public
-	*/
-	function getChildren($type_code='', $strict_type_code=true)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, $type_code, $strict_type_code);
-
-	}//end getChildren()
-
-
-	/**
-	* Should the current user be shown the cached version or not
+	* You would want to show the system version if the asset is in safe edit and the user does not have write access.
 	*
 	* @return boolean
 	* @access public
@@ -690,7 +725,7 @@ class Asset extends Resolve_Object
 	/**
 	* Load the asset from the system version
 	*
-	* The system version is saved when the asset status becomes SQ_STATUS_LIVE
+	* The system version is saved when the asset status becomes SQ_STATUS_LIVE.
 	*
 	* @return boolean
 	* @access public
@@ -716,7 +751,7 @@ class Asset extends Resolve_Object
 	/**
 	* Save a copy of this asset at this point in time
 	*
-	* This copy gets used when the asset is live and the user does not have write access
+	* This copy gets used when the asset is live and the user does not have write access.
 	*
 	* @return boolean
 	* @access public
@@ -797,7 +832,10 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Replaces the editing version with the system (live) version
+	* Replace the editing version with the system (live) version
+	*
+	* This is what happens when you cancel a safe edit. The database version (latest and greatest) is replaced
+	* with the system version that is currently being show to non-editors.
 	*
 	* @return boolean
 	* @access public
@@ -852,130 +890,11 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Load the asset represented by the passed asset id
+	* Set the last updated info for this asset
 	*
-	* @param int	$assetid	the asset id to be loaded
-	*
-	* @access public
-	*/
-	function load($assetid)
-	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// OK, the first thing to do is check we actually exist :)
-		$sql = 'SELECT assetid, version, name, short_name, status, languages, charset, type_code, last_updated, last_userid
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
-		$where = 'assetid = '.$db->quote($assetid);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-		$result = $db->getRow($sql.$where, null, DB_FETCHMODE_ORDERED);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
-		if (is_null($result)) return;
-
-		list($this->id,
-			 $this->version,
-			 $this->name,
-			 $this->short_name,
-			 $this->status,
-			 $this->languages,
-			 $this->charset,
-			 $type_code,
-			 $this->last_updated,
-			 $this->last_userid) = $result;
-		$this->last_updated = iso8601_ts($this->last_updated);
-		unset($result);
-
-		// make sure the asset we are loading is of the same type as our class
-		if ($type_code != $this->type()) {
-			trigger_error('Asset #'.$assetid.' is not a '.$this->type(), E_USER_WARNING);
-			$this->id = null;
-			$this->last_updated = null;
-			$this->last_userid  = null;
-			return;
-		}
-
-		if ($this->useSystemVersion()) {
-			$this->_loadDataPaths();
-			if (!$this->loadSystemVersion()) {
-				trigger_error('Asset #'.$assetid.' failed loading from cache', E_USER_WARNING);
-				return;
-			}
-			$this->_loadDataPaths();
-		} else {
-			$this->_loadVars();
-		}
-
-	}//end load()
-
-
-	/**
-	* Sets up the data paths for this asset
-	* Also takes into account if we are using a system version
-	*
-	* @access private
-	*/
-	function _loadDataPaths()
-	{
-		$this->data_path_suffix = 'assets/'.$this->type().'/'.$this->id;
-		$this->data_path = SQ_DATA_PATH.'/private/'.$this->data_path_suffix;
-		$this->data_path_public = SQ_DATA_PATH.'/public/'.$this->data_path_suffix;
-		if ($this->useSystemVersion()) $this->data_path .= '/.sq_system';
-
-	}//end _loadDataPaths()
-
-
-	/**
-	* Loads the vars for this asset/ asset type into the vars array
-	*
-	* @access private
-	*/
-	function _loadVars()
-	{
-		// let's setup the data path
-		$this->_loadDataPaths();
-
-		// Right, now we need to get any values that this asset has customised
-		$this->vars = Array();
-
-		$sql = '';
-		// if we have an id then we need to load with current vars
-		if ($this->id) {
-			$where = 'a.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
-			// DEFAULT VALUES IF WE DO
-			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a
-							INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute atr ON a.type_code = atr.type_code
-							LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v 
-								ON (atr.attributeid = v.attributeid AND a.assetid = v.assetid
-									'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
-					'.$where;
-		// else just load all defaults
-		} else {
-			$sql = 'SELECT atr.name, atr.attributeid, atr.type, atr.default_value AS value
-					FROM '.SQ_TABLE_PREFIX.'asset_attribute atr
-					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
-		}// end if
-
-#pre_echo($sql);
-
-		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
-		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br/>'.$this->vars->getUserInfo(), E_USER_ERROR);
-
-		if ($this->_ser_attrs && $this->vars) {
-			for(reset($this->vars); NULL !== ($name = key($this->vars)); next($this->vars)) {
-				if ($this->vars[$name]['type'] != 'serialise') continue;
-				$this->vars[$name]['value'] = @unserialize($this->vars[$name]['value']);
-			}
-		}
-
-	}//end _loadVars()
-
-
-	/**
-	* Set's the last updated info for this asset
+	* Call this function when the asset has been changed in some way so we can indicated in the
+	* asset table when the asset was last changed and who by. This function will also increment the micro
+	* version number for the asset.
 	*
 	* @return boolean
 	* @access private
@@ -1037,7 +956,111 @@ class Asset extends Resolve_Object
 
 		return true;
 
-	}//end _updated();
+	}//end _updated()
+
+
+	/**
+	* Return a name to use to describe this instance of the asset
+	*
+	* This function should be overridden by children as it is used to set the <i>name</i> and <i>short_name</i>
+	* values for this asset when updating.
+	*
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	*
+	* @return string
+	* @access private
+	* @see _updated
+	*/
+	function _getName($short_name=false)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' #'.$this->id;
+
+	}//end _getName()
+
+
+	/**
+	* Generate a prefix to be used by paint() and process()
+	*
+	* @param object	Asset	$owner	the asset whose interface we are painting
+	*
+	* @return string
+	* @access public
+	*/
+	function getPrefix()
+	{
+		return $this->type().'_'.$this->id;
+
+	}//end getPrefix()
+
+
+	/**
+	* Get the type of the asset
+	*
+	* @return string
+	* @access public
+	*/
+	function type()
+	{
+		return get_class($this);
+
+	}//end type()
+
+
+	/**
+	* Get an array of all assets types that the asset extends from
+	*
+	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
+	*									even though it's an unistantiable object
+	*
+	* @return array()
+	* @access public
+	* @see Asset_Manager::getTypeAncestors()
+	*/
+	function getTypeAncestors($include_asset=true)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->type(), $include_asset);
+
+	}//end getTypeAncestors()
+
+
+	/**
+	* Get all asset IDs that are above the asset in the various trees in which it exists
+	*
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getParents($type_code='', $strict_type_code=true)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);
+
+	}//end getParents()
+
+
+	/**
+	* Get all asset IDs that are below the asset in the various trees in which it exists
+	*
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getChildren($type_code='', $strict_type_code=true)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, $type_code, $strict_type_code);
+
+	}//end getChildren()
 
 
 	/**
@@ -3526,7 +3549,7 @@ class Asset extends Resolve_Object
 	* Deletes a permission with the passed user or user_group
 	*
 	* @param int	$userid			the id of the user or user_group to remove the permission from
-	* @param string	$permission		the permission code you are adding
+	* @param string	$permission		the permission code you are deleting
 	*
 	* @return boolean
 	* @access public
