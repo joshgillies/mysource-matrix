@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.6 2005/01/19 17:28:57 brobertson Exp $
+* $Id: image_variety.inc,v 1.7 2005/01/19 21:56:17 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -351,7 +351,7 @@ class Image_Variety extends Asset
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 
 		$filename = $this->attr('filename');
-		if (!$filename) continue;
+		if (!$filename) return false;
 		$unrestricted = $this->data_path_public.'/'.$filename;
 
 		// if we should be storing our file in the public
