@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.11 2005/02/16 13:28:48 brobertson Exp $
+* $Id: image_variety.inc,v 1.12 2005/02/21 11:40:09 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,8 +61,8 @@ class Image_Variety extends Asset
 	function Image_Variety($assetid=0, $data=Array())
 	{
 		$this->Asset();
-		if (!$assetid) return;
 
+		if (!$assetid) return;
 		list($this->_imageid, $this->_varietyid) = explode(':v', $assetid);
 
 		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
@@ -110,6 +110,8 @@ class Image_Variety extends Asset
 				if (trim($this->attr('name')) != '') {
 					trigger_error('You cannot change the name of a variety', E_USER_WARNING);
 					return false;
+				} elseif (trim($value) == '') {
+					trigger_error('You cannot set a blank name for a variety', E_USER_WARNING);
 				} else {
 					// make sure the name is valid for a web path
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
