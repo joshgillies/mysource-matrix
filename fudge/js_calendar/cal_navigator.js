@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cal_navigator.js,v 1.5 2004/09/13 02:13:19 dbaranovskiy Exp $
+* $Id: cal_navigator.js,v 1.6 2004/09/13 02:29:26 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,13 +50,15 @@ function Calendar(varname, divname, width, height, year, month, day)
 	this.mon_names = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
 	this.day_names = new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
 	this.day_name_length = 2;
-	this.popup = false;
-	this.imageURL = null;
-	this.fadeit = true;
+	this.popup = false;		//is the cal popup
+	this.imageURL = null;		//URL of image if it popup
+	this.fadeit = true;		//fade cal on show or not
+	this.scrollit = true;		//if fadeit == false scroll cal on show
 	
 	this.first_time = true;
 	this.time = null;
 	this.fade = 0;
+	this.scroll = 0;
 
 	this.output	= c_output;
 	this.draw	= c_draw;
@@ -69,6 +71,8 @@ function Calendar(varname, divname, width, height, year, month, day)
 	this.today	= c_today;
 	this.fadeOn	= c_fadeOn;
 	this.fadeOff	= c_fadeOff;
+	this.scrollOn	= c_scrollOn;
+	this.scrollOff	= c_scrollOff;
 
 	this.dayClick	= c_dayClick;
 	this.weekClick	= c_weekClick;
@@ -125,13 +129,17 @@ function c_show(e)
 		shadow.style.left	= cal_left.substring(0, cal_left.length - 2) - 6 + "px";
 		shadow.style.width	= cal_width + "px";
 		shadow.style.height	= cal_height + "px";
-		if (this.fadeit) shadow.style.visibility	= "hidden";
+		if (this.fadeit || this.scrollit) shadow.style.visibility	= "hidden";
 		else shadow.style.visibility	= "visible";
 	}
-//	div.style.clip =  "rect(0px, "+cal_width+"px, "+(500)+"px, 0px)";
+	
 	if (this.fadeit) {
 		this.fade = 0;
 		this.fadeOn();
+	} else
+	if (this.scrollit) {
+		this.scroll = 0;
+		this.scrollOn();
 	}
 	div.style.visibility = "visible";
 
@@ -152,9 +160,13 @@ function c_hide()
 	if (this.fadeit) {
 		this.fade = 96;
 		this.fadeOff();
+	} else
+	if (this.scrollit) {
+		this.scroll = 96;
+		this.scrollOff();
 	} else div.style.visibility = "hidden";
 	if (document.body.insertAdjacentHTML){
-		if (!this.fadeit) document.getElementById('ie_'+this.divname+'_iframe').style.visibility = "hidden";
+		if (!this.fadeit && !this.scrollit) document.getElementById('ie_'+this.divname+'_iframe').style.visibility = "hidden";
 		document.getElementById('ie_'+this.divname+'_shadow').style.visibility = "hidden";
 	}
 
@@ -162,11 +174,65 @@ function c_hide()
 
 
 /**
-* Description
+* ScrollOn the calendar
 *
-* @param
 *
 * @return
+* @access public
+*/
+function c_scrollOn()
+{
+	clearTimeout(this.time);
+	var div = document.getElementById(this.divname);
+	div.style.visibility = "visible";
+	var cal_height = div.offsetHeight;
+	var cal_width  = div.offsetWidth;
+	if (this.scroll >= 100) {
+		this.time = null; 
+		div.style.clip =  "rect(0px, "+cal_width+"px, "+cal_height+"px, 0px)";
+		if (document.body.insertAdjacentHTML){
+			document.getElementById('ie_'+this.divname+'_iframe').style.visibility = "visible";
+			document.getElementById('ie_'+this.divname+'_shadow').style.visibility = "visible";
+		}
+		return;
+	}
+	div.style.clip =  "rect(0px, "+(this.scroll*cal_width/100)+"px, "+(this.scroll*cal_height/100)+"px, 0px)";
+	this.scroll+=4;
+	this.time = setTimeout(this.varname+".scrollOn()",1);
+}//end c_scrollOn()
+
+
+/**
+* ScrollOff the calendar
+*
+*
+* @access public
+*/
+function c_scrollOff()
+{
+	clearTimeout(this.time);
+	var div = document.getElementById(this.divname);
+	var cal_height = div.offsetHeight;
+	var cal_width  = div.offsetWidth;
+	if (this.scroll <= 0) {
+		this.time = null; 
+		div.style.visibility = "hidden"; 
+		if (document.body.insertAdjacentHTML){
+			document.getElementById('ie_'+this.divname+'_iframe').style.visibility = "hidden";
+			document.getElementById('ie_'+this.divname+'_shadow').style.visibility = "hidden";
+		}
+		return;
+	}
+	div.style.clip =  "rect(0px, "+(this.scroll*cal_width/100)+"px, "+(this.scroll*cal_height/100)+"px, 0px)";
+	this.scroll-=4;
+	this.time = setTimeout(this.varname+".scrollOff()",1);
+}//end c_scrollOff()
+
+
+/**
+* Fade calendar from not transparent to transparent
+*
+*
 * @access public
 */
 function c_fadeOn()
@@ -193,11 +259,9 @@ function c_fadeOn()
 
 
 /**
-* Description
+* Fade calendar from transparent to not
 *
-* @param
 *
-* @return
 * @access public
 */
 function c_fadeOff()
@@ -218,7 +282,7 @@ function c_fadeOff()
 	this.fade-=4;
 	this.time = setTimeout(this.varname+".fadeOff()",1);
 	
-}//end c_fadeOn()
+}//end c_fadeOff()
 
 
 /**
