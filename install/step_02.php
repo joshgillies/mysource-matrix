@@ -15,6 +15,11 @@ $GLOBALS['SQ_RESOLVE']->am = new Asset_Manager();
 
 /* INSTALL CORE */
 
+// Create any necessary sequences
+$GLOBALS['SQ_RESOLVE']->db->createSequence('sq_sequence_asset');
+$GLOBALS['SQ_RESOLVE']->db->createSequence('sq_sequence_asset_link');
+$GLOBALS['SQ_RESOLVE']->db->createSequence('sq_sequence_asset_attribute');
+
 include_once(SQ_INCLUDE_PATH.'/package_manager.inc');
 $pm = new Package_Manager('__core__');
 if (!$pm->updatePackageDetails()) exit(1);
