@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.41 2005/03/01 10:39:13 brobertson Exp $
+* $Id: cron_manager.inc,v 1.42 2005/03/14 02:56:44 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -777,13 +777,13 @@ class Cron_Manager extends Asset
 
 		$one_off = preg_replace('/%[ABCD]%/', 'OO=', $build_up['one_off']['all']);
 
-		$every_time = '(COALESCE(av.custom_val, at.default_val)) LIKE '.$db->quote('ET=%');
+		$every_time = '(COALESCE(av.custom_val, at.default_val)) = '.$db->quote('ET=');
 
 		$sql   = 'SELECT l.linkid, a.assetid, a.type_code
 				  FROM (sq_ast_lnk l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid)
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr at ON at.type_code = a.type_code
-						LEFT OUTER JOIN '.SQ_TABLE_PREFIX.'ast_attr_val av ON av.assetid = a.assetid ';
+						LEFT OUTER JOIN '.SQ_TABLE_PREFIX.'ast_attr_val av ON (av.assetid = a.assetid AND av.attrid = at.attrid)';
 		$where = 'l.majorid = '.$db->quote($this->id).'
 				  AND a.type_code IN (
 									SELECT type_code
