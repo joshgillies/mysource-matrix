@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.7 2003/11/26 00:51:30 gsherwood Exp $
+* $Id: asset.xml,v 1.8 2004/11/02 22:25:32 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -31,7 +31,7 @@
 	<type_code>page_custom_form</type_code>
 	<version>0.1</version>
 	<name>Custom Form</name>
-	<description>Custom Form is a powerfull form building template</description>
+	<description>Custom Form is a powerful form-building template</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
 	<parent_type>page</parent_type>
