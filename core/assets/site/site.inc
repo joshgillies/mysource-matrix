@@ -207,6 +207,7 @@ class Site extends Folder
 
 		unset($this->_tmp['urls_info']);
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}// end saveWebURLs()
