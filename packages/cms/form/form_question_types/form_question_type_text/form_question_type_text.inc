@@ -122,16 +122,14 @@ class Form_Question_Type_Text extends Form_Question
 	* @param &$object $submission the current submission object
 	*
 	* @access public
-	* @return boolean
+	* @return void
 	*/
 	function getValue(&$submission)
 	{
 		if ($submission) {
 			$answer = $submission->getAnswer($this->id);
 			if ($answer) echo $answer;
-			return true;
 		}
-		return false;
 	
 	} // end getValue()
 
@@ -158,7 +156,6 @@ class Form_Question_Type_Text extends Form_Question
 		return true;
 	
 	} // end processForm()
-
 
 }//end class
 ?>
