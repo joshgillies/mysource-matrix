@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.2 2004/06/24 06:03:21 amiller Exp $
+* $Id: news_item.inc,v 1.3 2004/06/24 06:08:27 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -226,7 +226,7 @@ class News_Item extends Page
 		$link_asset = &$this->getLinkAsset();
 
 		if (is_null($link_asset)) {
-			$url = $this->attr('link_url').$this->attr('url_suffix');
+			$url = 'http://'.$this->attr('link_url').'?'.$this->attr('url_suffix');
 		} else {
 			$url = $link_asset->getURL();
 			if ($url == '') {
