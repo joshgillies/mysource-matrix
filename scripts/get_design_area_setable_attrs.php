@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: get_design_area_setable_attrs.php,v 1.1 2003/12/12 14:54:39 brobertson Exp $
+* $Id: get_design_area_setable_attrs.php,v 1.2 2003/12/15 15:22:36 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,17 +60,28 @@ $design_area_types = $am->getTypeDescendants('design_area');
 $design_types = $am->getTypeDescendants('design');
 $design_types[] = 'design';
 
-//pre_echo($design_area_types);
-//pre_echo($design_types);
+#pre_echo($design_area_types);
+#pre_echo($design_types);
 
-$design_areas = array_diff($design_area_types, $design_types);
+// remove the 'design' asset type and any decendants
+$all_design_area_types = array_diff($design_area_types, $design_types);
+
+$design_areas = Array();
+// now remove all design areas that are not instantiable
+foreach($all_design_area_types as $type_code) {
+	#pre_echo($type_code.' : '.$am->getTypeInfo($type_code, 'instantiable'));
+	if($am->getTypeInfo($type_code, 'instantiable')) $design_areas[] = $type_code;
+}
+
 sort($design_areas);
 
-//pre_echo($design_areas);
+
+#pre_echo($design_areas);
 
 if (!SQ_PHP_CLI) {
 ?>
 <html>
+<title>Settable Attributes for Instantiable Design Areas</title>
 <style type="text/css">
 	body, table, td, th { 
 		font-family: verdana, arial, sans-serif;
