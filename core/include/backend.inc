@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.115 2005/03/16 05:02:23 ndvries Exp $
+* $Id: backend.inc,v 1.116 2005/03/18 05:15:07 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.115 $
+* @version $Revision: 1.116 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -597,13 +597,6 @@ class Backend extends MySource_Object
 											   'title'  => 'System Configuration',
 											   'icon'   => 'system_config.png',
 											   );
-							$options[] = Array(
-											   'url'    => $this->getBackendUrl('main').'&backend_section=tools',
-											   'target' => 'sq_main',
-											   'title'  => 'Tools',
-											   'icon'   => 'whereami.png',
-											   );
-
 						}
 
 						if ($GLOBALS['SQ_SYSTEM']->userRoot()) {
@@ -614,6 +607,13 @@ class Backend extends MySource_Object
 											   'icon'   => 'maps.png',
 											   );
 						}
+
+						$options[] = Array(
+										   'url'    => $this->getBackendUrl('main').'&backend_section=tools',
+										   'target' => 'sq_main',
+										   'title'  => 'Tools',
+										   'icon'   => 'whereami.png',
+										   );
 
 						$options[] = Array(
 										   'url'    => $this->getBackendUrl('main').'&backend_section=hipo_herder',
