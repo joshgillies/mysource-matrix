@@ -18,19 +18,20 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.16 2003/12/28 22:11:46 gsherwood Exp $
+* $Id: search_page.inc,v 1.17 2003/12/28 22:37:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 /**
 * Search_Page
 *
-* Page template for searching.
+* Page template for searching
 *
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.16 $ - 1.0
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Revision: 1.17 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -77,6 +78,7 @@ class Search_Page extends Page
 												),
 						'result_element' => Array(
 							'score'						=> Array('description' => 'Result score', 'type' => 'inline'),
+							'result_number'				=> Array('description' => 'No.', 'type' => 'inline'),
 							'asset_id'					=> Array('description' => 'Asset ID', 'type' => 'inline'),
 							'asset_name'				=> Array('description' => 'Name of the asset', 'type' => 'inline'),
 							'asset_name_linked'			=> Array('description' => 'Name of the asset (linked)', 'type' => 'inline'),
@@ -388,13 +390,16 @@ class Search_Page extends Page
 
 		foreach ($keywords as $keyword) {
 			$replacement =& $replaces[$keyword];
+
 			switch ($keyword) {
 				case 'result_list':
 					$replacement = '';
 					$sub_resultids = array_slice(array_keys($results), $current_result_page * $results_per_page, $results_per_page);
+					$result_num = $current_result_page * $results_per_page;
 					foreach ($sub_resultids as $assetid) {
+						$result_num++;
 						$score = $results[$assetid];
-						$replacement .= $this->getBodycopyContents('result_element', $this->getResultElementBodyReplacements($assetid, $score));
+						$replacement .= $this->getBodycopyContents('result_element', $this->getResultElementBodyReplacements($assetid, $score, $result_num));
 					}
 				break;
 
@@ -477,13 +482,14 @@ class Search_Page extends Page
 	/**
 	* Keyword-replaces for the result element
 	*
-	* @param int		$assetid	the Asset ID of the result element
-	* @param Array		$score		the score
+	* @param int		$assetid		the asset ID of the result element
+	* @param int		$score			the score
+	* @param int		$result_num		the order of the result in the result list
 	*
 	* @return void
 	* @access private
 	*/
-	function getResultElementBodyReplacements($assetid, $score)
+	function getResultElementBodyReplacements($assetid, $score, $result_num)
 	{
 		$bodycopy =& $this->getBodycopy('result_element');
 		$keywords = $bodycopy->getKeywords();
@@ -497,6 +503,10 @@ class Search_Page extends Page
 			switch ($keyword) {
 				case 'score':
 					$replacement = $score;
+				break;
+
+				case 'result_number':
+					$replacement = $result_num;
 				break;
 
 				case 'asset_id':
