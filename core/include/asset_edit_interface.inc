@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.215 2004/07/23 04:29:58 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.216 2004/08/18 23:20:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -762,7 +762,7 @@ class Asset_Edit_Interface extends MySource_Object
 							$attr = &$owner->getAttribute($field->attributes['attribute']);
 							if (is_null($attr)) continue;
 							if (!$attr->setEditParams($field->children[2])) continue;
-							$attr->paint($prefix, !($field_access & SQ_EI_WRITE));
+							$attr->paint($prefix.'_'.$attr->id, !($field_access & SQ_EI_WRITE));
 							if ($field_access & SQ_EI_WRITE) $print_commit_button = true;
 
 							if ($field->children[1]->name == 'note' && $field->children[1]->content) {
@@ -1396,7 +1396,7 @@ class Asset_Edit_Interface extends MySource_Object
 								if (!$attr->setEditParams($field->children[2])) continue;
 
 								$revert_attr = $attr;
-								$attr->process($prefix);
+								$attr->process($prefix.'_'.$attr->id);
 								if ($attr->processed && $owner->setAttrValue($attr->name, $attr->value)) {
 									$ret_val = true;
 								} else {
