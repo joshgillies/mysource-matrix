@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: dev.inc,v 1.11 2004/02/27 05:27:28 gsherwood Exp $
+* $Id: dev.inc,v 1.12 2004/03/17 03:34:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -205,25 +205,36 @@ function speed_check($str="")
 * Returns or prints out the memory usage for the current script
 *
 * @param bool	$return_value	whether to return the value or just print it
+* @param bool	$start_over		clear current memory stats amd start fresh
+* @param array	$print			an array of parts to print (current, change, total)
 *
 * @return string
 * @access public
 */
-function mem_check($return_value=false)
+function mem_check($print=null, $return_value=false, $start_over=false)
 {
 	global $MEM_CHECK_FIRST_HIT, $MEM_CHECK_LAST_HIT;
+	if ($start_over) {
+		$MEM_CHECK_FIRST_HIT = 0;
+		$MEM_CHECK_LAST_HIT = 0;
+	}
 	
 	$hit = (int) (memory_get_usage() / 1024);
-	$mem = $hit.' KB';
+	$mem = '';
+	if (is_null($print) || in_array('current', $print)) $mem = $hit.' KB';
 
 	if($MEM_CHECK_LAST_HIT) {
-		if($hit > $MEM_CHECK_LAST_HIT) $mem .= " (+ ".($hit - $MEM_CHECK_LAST_HIT).")";
-		if($hit < $MEM_CHECK_LAST_HIT) $mem .= " (- ".($MEM_CHECK_LAST_HIT - $hit).")";
+		if (is_null($print) || in_array('change', $print)) {
+			if($hit > $MEM_CHECK_LAST_HIT) $mem .= " (+ ".($hit - $MEM_CHECK_LAST_HIT)." KB)";
+			if($hit < $MEM_CHECK_LAST_HIT) $mem .= " (- ".($MEM_CHECK_LAST_HIT - $hit)." KB)";
+		}
 	}
 
 	if($MEM_CHECK_FIRST_HIT) {
-		if($hit > $MEM_CHECK_FIRST_HIT) $mem .= " [+ ".($hit - $MEM_CHECK_FIRST_HIT)." TOTAL]";
-		if($hit < $MEM_CHECK_FIRST_HIT) $mem .= " [- ".($MEM_CHECK_FIRST_HIT - $hit)." TOTAL]";
+		if (is_null($print) || in_array('total', $print)) {
+			if($hit > $MEM_CHECK_FIRST_HIT) $mem .= " [+ ".($hit - $MEM_CHECK_FIRST_HIT)." KB TOTAL]";
+			if($hit < $MEM_CHECK_FIRST_HIT) $mem .= " [- ".($MEM_CHECK_FIRST_HIT - $hit)." KB TOTAL]";
+		}
 	} else {
 		$MEM_CHECK_FIRST_HIT = $hit;
 	}
