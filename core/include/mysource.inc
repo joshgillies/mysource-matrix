@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.34.2.9 2004/03/18 11:53:17 brobertson Exp $
+* $Id: mysource.inc,v 1.34.2.10 2004/03/26 16:41:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -264,7 +264,7 @@ class MySource
 				$url      = strip_url(current_url(false, true));
 			
 				$rm = &$this->am->getSystemAsset('remap_manager');
-				if (!$rm->loadRemapFromURL(current_protocol(), $url)) {
+				if (!$rm->loadRemapFromURL($protocol, $url)) {
 					
 					// okay, the remap manager could not remap this url, so 
 					// check to see if we can find a 404 page from a site matching this url
@@ -471,6 +471,8 @@ class MySource
 			break;
 
 			case 'rollback_view_start' :
+				$_SESSION['sq_rollback_view'] = Array();
+			
 				if (isset($_GET['assetid']) && isset($_GET['version'])) {
 					// work out when the version of the asset was created
 					$assetid = $_GET['assetid'];
@@ -486,7 +488,7 @@ class MySource
 					$then = $this->db->getOne($sql);
 					if (DB::isError($then)) {
 						trigger_error($then->getMessage().'<br/>'.$then->getUserInfo(), E_USER_WARNING);
-						return Array();
+						return;
 					}
 
 					$this->startRollbackView(iso8601_ts($then));

@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_required.xml,v 1.1.2.1 2004/02/18 12:30:08 brobertson Exp $
+* $Id: edit_interface_screen_required.xml,v 1.1.2.2 2004/03/26 16:41:54 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Required Fields" write_access="write:attributes">
+	<section name="Required Attributes" write_access="write:attributes">
 		<field>
 			<display_name />
 			<note />

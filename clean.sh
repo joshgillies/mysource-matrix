@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.12.2.1 2004/02/21 13:24:49 brobertson Exp $
+#* $Id: clean.sh,v 1.12.2.2 2004/03/26 16:41:50 brobertson Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
@@ -99,7 +99,7 @@ esac
 
 # now just run step 2 again
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_02.php" "${SYSTEM_ROOT}"
-if [ "$?" = "0" ]; then
+if [ "$?" == "0" ]; then
 	php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
 fi
 

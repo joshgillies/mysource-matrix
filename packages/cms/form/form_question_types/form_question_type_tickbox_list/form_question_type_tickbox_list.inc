@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.7 2003/11/26 00:51:29 gsherwood Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.7.2.1 2004/03/26 16:41:54 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,32 +52,6 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		$this->Asset($assetid);
 	
 	} // end Form_Question_Type_Tickbox_List()
-
-
-	/**
-	* Create this asset
-	*
-	* @param array()	&$link	information used to create the initial link
-	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
-	*/
-	function create(&$link)
-	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
-
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	}//end create()
 
 
 	/**

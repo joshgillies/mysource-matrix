@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.12.2.2 2004/03/02 18:35:51 brobertson Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.12.2.3 2004/03/26 16:41:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,6 +47,9 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 		$this->Asset_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
 		$this->static_screens['details']['lock_type'] = 'content';
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['metadata']);
 
 
 	}//end construtor()

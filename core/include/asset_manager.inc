@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.164.2.7 2004/03/18 15:28:39 brobertson Exp $
+* $Id: asset_manager.inc,v 1.164.2.8 2004/03/26 16:41:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -366,7 +366,7 @@ class Asset_Manager extends MySource_Object
 
 		$type_codes = Array();
 		$allowed_access = trim($allowed_access);
-		if (!empty($ignore_allowed_access)) {
+		if (!empty($allowed_access)) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT type_code
 					FROM '.SQ_TABLE_PREFIX.'asset_type
@@ -614,6 +614,7 @@ class Asset_Manager extends MySource_Object
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
 		if (empty($assetid)) {
+			if (!$mute_errors) trigger_error('Could not get asset - assetid is empty', E_USER_WARNING);
 			$null = null; // do this because of return by reference
 			return $null;
 		}
@@ -625,7 +626,6 @@ class Asset_Manager extends MySource_Object
 			$this->_assets[$store_key] = Array();
 			$this->_assets[$store_key]['object'] = null;
 			$this->_assets[$store_key]['count']  = 0;
-
 
 			// check if we are getting links for a shadow asset, and palm the request off to the
 			// handler of the shadow asset if we are
@@ -693,7 +693,8 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Unregisters the passed object from the store
+	* Tell the asset manager that you have finished with the asset, when everyone has finished with the
+	* asset is is removed from the asset store
 	*
 	* @param object Asset	&$obj	the asset to be unregistered
 	*
@@ -760,7 +761,7 @@ class Asset_Manager extends MySource_Object
 		// system assets, but it may be dependantly linked to one
 		// so lets check for that
 		$parents = $this->getDependantParents($asset->id);
-		for($i = 0; $i < count($parents); $i++) if (in_array($parents[$i]['majorid'], $system_asset_ids)) return false;
+		foreach ($parents as $parentid) if (in_array($parentid, $system_asset_ids)) return false;
 
 		return true;
 
@@ -812,10 +813,9 @@ class Asset_Manager extends MySource_Object
 				}
 			}
 		}// end if
-		
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql = 'SELECT * FROM '.$GLOBALS['SQ_TABLE_RUNNING_PREFIX'].'asset a '.$where.' ORDER BY a.assetid';
-		
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -823,7 +823,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		$return_result = Array();
-		foreach ($result as $assetid => $row) {
+		foreach (array_values($result) as $row) {
 			foreach ($row as $name => $value) {
 				$return_result[$row['assetid']][$name] = $value;
 			}
@@ -887,7 +887,7 @@ class Asset_Manager extends MySource_Object
 	* The only child assets that are cloned are the ones that are <i>DEPENDANTLY</i> linked to this asset.
 	* <i>NO OTHER</i> linked assets are cloned.
 	*
-	* @param object Asset	&$source			the source asset that we are creating a clone of	
+	* @param object Asset	&$source			the source asset that we are creating a clone of
 	* @param Array			&$link				information used to create the initial link,
 	* <PRE>
 	* Array ('asset'      => [ref major asset to create link under],
@@ -982,7 +982,7 @@ class Asset_Manager extends MySource_Object
 						return $null;
 					}
 				}
-			
+
 				if (!$this->acquireLock($link['asset']->id, 'links', $lock['links']['source_assetid'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return $null;
@@ -1003,7 +1003,7 @@ class Asset_Manager extends MySource_Object
 		foreach ($orig_links as $orig_link) {
 			$asset = &$this->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
 			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['dependant'], $link['exclusive']);
-			
+
 			if (!$linkid) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -1024,10 +1024,10 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Creats a clone of an asset and clones the required components of the source asset
 	*
-	* if $clone_dependants is set the true, the dependants of the source asset will be cloned, 
+	* if $clone_dependants is set the true, the dependants of the source asset will be cloned,
 	* and the specified components will be cloned to them as well.
 	*
-	* @param object Asset	&$source			the source asset that we are creating a clone of	
+	* @param object Asset	&$source			the source asset that we are creating a clone of
 	* @param Array			&$link				information used to create the initial link,
 	* <PRE>
 	* Array ('asset'      => [ref major asset to create link under],
@@ -1040,7 +1040,7 @@ class Asset_Manager extends MySource_Object
 	* </PRE>
 	* @param Array			&$clone_map			a map for that can be used for re-indexing data held in
 	*												assets of the form Array([old asset id] => [new asset id])
-	* @param array			$components	the wanted components to clone, 
+	* @param array			$components	the wanted components to clone,
 	* <PRE>
 	* Array(
 	*     'attributes',
@@ -1055,14 +1055,15 @@ class Asset_Manager extends MySource_Object
 	* <PRE>
 	* Array('all');
 	* </PRE>
-	* @param boolean		$clone_dependants	if TRUE the dependants of the source asset will be cloned 
+	* @param boolean		$clone_dependants	if TRUE the dependants of the source asset will be cloned
 	*												and will have their sources components cloned
 	*
 	* @return &object Asset the clone of the source
 	* @access public
 	*/
-	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=true) {
-		
+	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=true)
+	{
+
 		// make sure this type of asset can be cloned
 		if (!$source->canClone()) {
 			trigger_error($source->type().' asset types cannot be cloned', E_USER_WARNING);
@@ -1118,7 +1119,7 @@ class Asset_Manager extends MySource_Object
 						$create_link['value']		= $data['value'];
 						$create_link['sort_order']	= $data['sort_order'];
 						$create_link['exclusive']	= $data['exclusive'];
-						
+
 						$cloned_child = &$this->cloneAsset($child, $create_link, $clone_map, $components, $clone_dependants);
 
 						if (is_null($cloned_child)) {
@@ -1138,7 +1139,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return $clone;
-	
+
 	}//end cloneAsset()
 
 
@@ -1325,10 +1326,10 @@ class Asset_Manager extends MySource_Object
 
 		$success = true;
 
-		foreach($current_locks as $lock_type => $lock) {
+		foreach(array_keys($current_locks) as $lock_type) {
 
 			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.'.'.$lock_type, $expires))) {
-				trigger_error('Cannot update lock on "'.$asset->name.'", '.$err_msg, E_USER_NOTICE);
+				trigger_error('Cannot update lock on asset #'.$assetid.', '.$err_msg, E_USER_NOTICE);
 				$success = false;
 				break;
 			}
@@ -1825,7 +1826,7 @@ class Asset_Manager extends MySource_Object
 		foreach ($asset_links as $link_data) $link_info[$link_data['majorid']][] = $link_data;
 
 		$link_lineages = Array();
-		foreach ($result as $treeid => $link_tree) {
+		foreach (array_values($result) as $link_tree) {
 
 			// work out some values we are going to need
 			$parent_data = $link_tree[count($link_tree) -1];
@@ -2013,7 +2014,7 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return Array(int => string)	an array of assetids and their type code
+	* @return Array()	an array of the form Array([assetid] => [type_code])
 	* @access public
 	*/
 	function getDependantChildren($assetid, $type_code='', $strict_type_code=true)
@@ -2022,7 +2023,6 @@ class Asset_Manager extends MySource_Object
 
 		$asset = &$this->getAsset($assetid);
 		if (!is_null($asset)) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', null, 1);
 			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
@@ -2031,7 +2031,7 @@ class Asset_Manager extends MySource_Object
 				$children = $children + $this->getDependantChildren($dependant_links[$k]['minorid'],$type_code, $strict_type_code);
 			}
 
-			$this->forgetAsset($assetid);
+			$this->forgetAsset($asset);
 		}
 
 		unset($asset);
@@ -2051,7 +2051,7 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
-	* @return Array	returns an array of assetids
+	* @return Array()	returns an array of assetids
 	* @access public
 	*/
 	function getDependantParents($assetid, $type_code='', $strict_type_code=true)
@@ -2060,8 +2060,7 @@ class Asset_Manager extends MySource_Object
 
 		$asset = &$this->getAsset($assetid);
 		if (!is_null($asset)) {
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
+			
 			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'minor', null, 1);
 			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
 				$parentid = $dependant_links[$k]['majorid'];
@@ -2069,7 +2068,7 @@ class Asset_Manager extends MySource_Object
 				$parents = array_merge($parents, $this->getDependantParents($parentid, $type_code, $strict_type_code));
 			}
 
-			$this->forgetAsset($assetid);
+			$this->forgetAsset($asset);
 		}
 
 		unset($asset);
@@ -2113,7 +2112,7 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* does the work for getAssetTree
+	* Does the work for getAssetTree
 	*
 	* @param string|Array(string)	$majorids		the majorids to traverse the tree from
 	* @param &Array					$tree_data		the data that is created recursively
@@ -2150,8 +2149,6 @@ class Asset_Manager extends MySource_Object
 
 		if (empty($majorids_str)) return $assetids;
 		static $USERIDS_COND = null;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		if (is_null($USERIDS_COND)) {
 			// if they are logged in add their parents to the list
@@ -3049,7 +3046,7 @@ class Asset_Manager extends MySource_Object
 			$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
 			if (DB::isError($where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($sql->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
+				trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 
@@ -3228,8 +3225,6 @@ class Asset_Manager extends MySource_Object
 			trigger_error('Unable to Move Asset, minor (Asset #"'.$link['minorid'].'") not found', E_USER_WARNING);
 			return 0;
 		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -3536,8 +3531,11 @@ class Asset_Manager extends MySource_Object
 		$ret_val = Array();
 		foreach($this->_tmp['permission_cache'][$store_key][$storage_name] as $data) {
 
-			if      ($access === false && $data['access'] != '0') continue;
-			else if ($access === true  && $data['access'] != '1') continue;
+			if ($access === false && $data['access'] != '0') {
+				continue;
+			} else if ($access === true  && $data['access'] != '1') {
+				continue;
+			}
 
 			// return all info
 			if ($all_info) {
@@ -3628,7 +3626,6 @@ class Asset_Manager extends MySource_Object
 			return false;
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// add the permission into the database
@@ -3987,6 +3984,7 @@ class Asset_Manager extends MySource_Object
 
 		if (is_null($base_url)) $base_url = current_url(false);
 
+		$matches = Array();
 		if (!preg_match('/^(([a-z]+):\/\/)?(.*)$/', strip_url($base_url), $matches)) return ($return_array) ? Array() : '';
 		$protocol = ($matches[2] == '') ? current_protocol() : (($matches[2] == 'https') ? 'https' : 'http');
 		$base_url = $matches[3];
@@ -4025,7 +4023,7 @@ class Asset_Manager extends MySource_Object
 			$str = '';
 			// so much for SQL standards...
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
-			foreach($url_bits as $i => $bit) {
+			foreach(array_values($url_bits) as $bit) {
 				$str .= $bit.'/';
 				$sql .= ' +
 				(CASE WHEN SUBSTRING('.$concat.' FROM 1 FOR '.strlen($str).') = '.$db->quote($str).' THEN 1 ELSE 0 END)';

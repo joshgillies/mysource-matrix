@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.4 2004/01/16 11:45:56 brobertson Exp $
+* $Id: details.inc,v 1.4.2.1 2004/03/26 16:41:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -248,6 +248,9 @@ function _paintStatusChange(&$owner, &$o, $prefix)
 		$statii[0] = '';
 		$statii = array_reverse($statii, true);
 		combo_box($prefix.'_change_status', $statii, false, 0);
+		echo '&nbsp;';
+		check_box($prefix.'_change_status_all_children');
+		echo ' Cascade Status Change';
 	}
 
 	return $statii;
@@ -268,12 +271,10 @@ function _paintStatusChange(&$owner, &$o, $prefix)
 function _processStatusChange(&$owner, &$o, $prefix)
 {
 	if (isset($_POST[$prefix.'_change_status']) && (int) $_POST[$prefix.'_change_status'] > 0) {
-
-		//// START HIPO PROCESSING ////
+		$dependants_only = (isset($_POST[$prefix.'_change_status_all_children']) && $_POST[$prefix.'_change_status_all_children']) ? false : true;
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetid' => $owner->id, 'new_status' => $_POST[$prefix.'_change_status']);
+		$vars = Array('assetid' => $owner->id, 'new_status' => $_POST[$prefix.'_change_status'], 'dependants_only' => $dependants_only);
 		$hh->queueHipo('hipo_job_edit_status', $vars);
-		////  END HIPO PROCESSING  ////
 	}
 
 }//end _processStatusChange()

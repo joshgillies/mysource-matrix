@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/02/06 03:12:38 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1.2.1 2004/03/26 16:44:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -32,6 +32,11 @@
 		</field>
 	</section>
 	<section name="Connection Details" write_access="admin:attributes">
+		<field attribute="system_type">
+			<display_name>System Type</display_name>
+			<note>The type of your LDAP directory</note>
+			<selection style="list" />
+		</field>
 		<field attribute="host">
 			<display_name>Host</display_name>
 			<note>The hostname used to connect to the LDAP directory</note>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.6 2003/12/17 04:41:58 mmcintyre Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.6.2.1 2004/03/26 16:41:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,6 +46,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 	function Cron_Job_Future_Lineage_Edit_Fns()
 	{
 		$this->Cron_Job_Edit_Fns();
+
 	}//end constructor
 
 
@@ -64,7 +65,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 		$major = &$asset->getAssetInLink('major');
 		$minor = &$asset->getAssetInLink('minor');
 
-		$o->openSection(($asset->id) ? $asset->name : 'New Future Lineage');
+		$o->openSection(($asset->id) ? $asset->name : 'New Future Linking');
 		$o->openField('Delete Link');
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_SIGNIFICANT, '', true, 'minor');
 		$link_options = Array(0 => '');
@@ -88,7 +89,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 		$o->openField('New Link Parent');
 		if ($asset->writeAccess('links')) {
-			asset_finder($prefix.'_major_assetid', ((is_null($major)) ? 0 : $major->id));
+			asset_finder($prefix.'_major_assetid', ((is_null($major)) ? 0 : $major->id), Array(), 'sq_sidenav', 'null', Array('clear'));
 		} else {
 			if (is_null($major)) {
 				echo '<a href="'.$major->getBackendHref().'">'.$major->name.' (#'.$major->id.')</a>';

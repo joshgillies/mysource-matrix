@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3.2.1 2004/02/18 12:30:08 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3.2.2 2004/03/26 16:41:54 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -72,7 +72,7 @@
 		</field>
 		<field attribute="group_by">
 			<display_name>List Format</display_name>
-			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.&lt;br/&gt;An A-Z listing displays assets grouped by the first letter of their name or short name (select 'Name' or 'Short Name' from the 'Sort By' list to define the name to use).</note>
+			<note>A standard list displays all assets on a single page or can be broken up into multiple pages.&lt;br/&gt;An A-Z listing displays assets grouped by the first letter of their name or short name, as defined by the 'Sort By' field.</note>
 			<selection style="list" />
 		</field>
 		<field attribute="prev_page_text">

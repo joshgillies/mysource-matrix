@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.3 2004/02/10 16:35:43 brobertson Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.3.2.1 2004/03/26 16:44:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -147,6 +147,85 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 		return false;
 
 	}//end processAttributes()
+	
+	
+	/**
+	* Paint the interface for editing schema attributes
+	*
+	* @param object LDAP_Bridge			&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintUserSetup(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$current = $asset->attr('user_attributes');
+		
+		// connect through the bridge and find out what type of information
+		// we get back for the users
+		$user = &$asset->getAsset($asset->attr('bind_dn'));
+		if (is_null($user)) {
+			trigger_error('Failed getting user attributes from LDAP directory', E_USER_WARNING);
+			return;
+		}
+
+		$info = $user->getUserData();
+		for ($i = 0; $i < $info['count']; $i++) {
+			$field_name = $info[$i];
+			if (isset($current['show'][$field_name])) {
+				$show = true;
+				$display_name = $current['show'][$field_name];
+			} else {
+				$show = false;
+				$display_name = (isset($current['hide'][$field_name])) ? $current['hide'][$field_name] : $field_name;
+			}
+			$o->openField($field_name);
+				if ($write_access) {
+					text_box($prefix.'_user_attribute_fields['.$field_name.'][name]', $display_name);
+					echo ' ';
+					check_box($prefix.'_user_attribute_fields['.$field_name.'][show]', 1, $show);
+					echo ' display this attribute';
+				} else {
+					if ($show) {
+						echo 'Being displayed as <i>'.$display_name.'</i>';
+					} else {
+						echo 'Not displayed';
+					}
+				}
+			$o->closeField();
+		}
+		
+
+		return $write_access;
+
+	}//end paintUserSetup()
+
+
+	/**
+	* Processes the interface for editing schema attributes
+	*
+	* @param object LDAP_Bridge			&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processUserSetup(&$asset, &$o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_user_attribute_fields'])) return false;
+		$user_attributes = Array('show' => Array(), 'hide' => Array());
+		foreach ($_POST[$prefix.'_user_attribute_fields'] as $field_name => $field_data) {
+			$show_hide = (isset($field_data['show']) && $field_data['show']) ? 'show' : 'hide';
+			$user_attributes[$show_hide][$field_name] = $field_data['name'];
+		}
+		return $asset->setAttrValue('user_attributes', $user_attributes);
+
+	}//end processUserSetup()
 
 
 }//end class

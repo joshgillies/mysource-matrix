@@ -18,13 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bridge.inc,v 1.1.2.2 2004/03/02 18:35:51 brobertson Exp $
+* $Id: bridge.inc,v 1.1.2.3 2004/03/26 16:41:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
 require_once SQ_INCLUDE_PATH.'/asset.inc';
-require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 
 /**
 * Bridge

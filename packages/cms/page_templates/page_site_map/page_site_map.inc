@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.6.2.1 2004/02/18 12:30:09 brobertson Exp $
+* $Id: page_site_map.inc,v 1.6.2.2 2004/03/26 16:41:54 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,32 +66,6 @@ class Page_Site_Map extends Page
 		return $page_links;
 
 	}//end _getAllowedLinks()
-
-
-	/**
-	* Create this asset
-	*
-	* @param array()	&$link	information used to create the initial link
-	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
-	*/
-	function create(&$link)
-	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
-
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	}//end create()
 
 
 	/**

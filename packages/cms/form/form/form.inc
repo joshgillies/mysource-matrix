@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.16 2003/11/26 00:51:26 gsherwood Exp $
+* $Id: form.inc,v 1.16.2.1 2004/03/26 16:41:54 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -322,7 +322,6 @@ class Form extends Asset
 	*/
 	function printBody()
 	{
-		speed_check();
 		$prefix = $this->getPrefix(); 
 		$submission = '';
 
@@ -344,7 +343,6 @@ class Form extends Asset
 			$this->printStandard();
 		}
 		echo ?></form><?php
-		speed_check();
 
 	} // end printBody()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.2.2.3 2004/03/02 18:35:51 brobertson Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.2.2.4 2004/03/26 16:41:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -137,8 +137,8 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				?>
 				<table class="sq-backend-table">
 					<tr>
-						<td class="sq-backend-table-header">Select Box Key</td>
-						<td class="sq-backend-table-header">Select Box Value</td>
+						<td class="sq-backend-table-header">Option Key</td>
+						<td class="sq-backend-table-header">Option Value</td>
 						<?php
 						if ($write_access) {
 							?><td class="sq-backend-table-header">Delete ?</td><?php

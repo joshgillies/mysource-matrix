@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.7.2.5 2004/03/16 16:55:34 brobertson Exp $
+* $Id: search_manager.inc,v 1.7.2.6 2004/03/26 16:41:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.7.2.5 $ - 0.1
+* @version $Revision: 1.7.2.6 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -164,19 +164,21 @@ class Search_Manager extends Asset
 							AND ap.assetid  = ai.assetid
 							AND a.status  >= '.$db->quote(SQ_STATUS_LIVE);
 
-		$type_code_cond = '';
-		$type_codes = array_keys($search_info['search_types']);
-		for($i = 0; $i < count($type_codes); $i++) $type_codes[$i] = $db->quote($type_codes[$i]);
-		$type_code_cond = 'IN ('.implode(', ', $type_codes).')';
+		if (!empty($search_info['search_types'])) {
+			for(reset($search_info['search_types']); NULL !== ($i = key($search_info['search_types'])); next($search_info['search_types'])) {
+				$search_info['search_types'][$i] = $db->quote($search_info['search_types'][$i]);
+			}
+			$type_code_cond = 'IN ('.implode(', ', $search_info['search_types']).')';
 
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		$start_sql .= ' AND a.type_code IN (~SQ0~)';
-		$subs = Array( 'SELECT type_code
-						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-						WHERE inherited_type_code '.$type_code_cond );
-		$start_sql = db_extras_subquery($db, $start_sql, $subs);
-		if (DB::isError($start_sql)) {
-			trigger_error($start_sql->getMessage().'<br/>'.$start_sql->getUserInfo(), E_USER_ERROR);
+			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+			$start_sql .= ' AND a.type_code IN (~SQ0~)';
+			$subs = Array( 'SELECT type_code
+							FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+							WHERE inherited_type_code '.$type_code_cond );
+			$start_sql = db_extras_subquery($db, $start_sql, $subs);
+			if (DB::isError($start_sql)) {
+				trigger_error($start_sql->getMessage().'<br/>'.$start_sql->getUserInfo(), E_USER_ERROR);
+			}
 		}
 
 		$userid_cond = '';
@@ -241,7 +243,7 @@ class Search_Manager extends Asset
 					$sql = $start_sql.'
 						AND (ai.value LIKE '.$db->quote('%'.$word.'%').')
 						GROUP BY ai.assetid';
-					
+
 					$result = $db->getAssoc($sql);
 					if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.43.2.3 2004/03/18 15:32:51 brobertson Exp $
+* $Id: workflow_manager.inc,v 1.43.2.4 2004/03/26 16:41:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -143,6 +143,13 @@ class Workflow_Manager extends MySource_Object
 			return false;
 		}
 
+		// check for any running schemas - because if the asset is in workflow we cant do anything
+		$running_schemas = $this->getSchemas($assetid, true, true);
+		if (!empty($running_schemas)) {
+			trigger_error('Cannot set workflow schema for "'.$asset->name.'", workflow is currently running', E_USER_WARNING);
+			return false;
+		}
+
 		// get the current schemas that are set
 		$schemas = $this->getSchemas($assetid);
 
@@ -201,6 +208,13 @@ class Workflow_Manager extends MySource_Object
 
 		if (!$asset->adminAccess('workflow')) {
 			trigger_error('Cannot delete workflow schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			return false;
+		}
+		
+		// check for any running schemas - because if the asset is in workflow we cant do anything
+		$running_schemas = $this->getSchemas($assetid, true, true);
+		if (!empty($running_schemas)) {
+			trigger_error('Cannot delete workflow schema for "'.$asset->name.'", workflow is currently running', E_USER_WARNING);
 			return false;
 		}
 

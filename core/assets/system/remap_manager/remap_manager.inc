@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.2.2.5 2004/03/18 15:39:39 brobertson Exp $
+* $Id: remap_manager.inc,v 1.2.2.6 2004/03/26 16:41:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2.2.5 $ - 0.1
+* @version $Revision: 1.2.2.6 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -246,7 +246,6 @@ class Remap_Manager extends Asset
 
 		// if we have a remap url, display it
 		if (!empty($remap_url)) {
-			header("HTTP/1.0 301 Moved Permanently");
 			?>
 			<html>
 				<head>

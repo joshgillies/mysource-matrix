@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.3 2004/01/16 11:45:56 brobertson Exp $
+* $Id: settings.inc,v 1.3.2.1 2004/03/26 16:41:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -279,48 +279,31 @@ function paintSettings(&$owner, &$o, &$ei)
 
 					foreach($our_designs as $design_name => $designid) {
 
+						$matches = Array();
 						preg_match('/^(system|user)_design::(.*)$/', $design_name, $matches);
 						$system_design   = ($matches[1] == 'system');
 						$new_user_design = (!$system_design && $design_name == 'user_design::' && !$designid && $owner->writeAccess('links'));
 						if (!$system_design && $design_name == 'user_design::' && !$new_user_design) continue;
 
 						if (!$new_user_design) {
-							$display_name = ucwords($matches[1]).' Defined - '.ucwords($matches[2]).' Design';
+							$display_name = ucwords($matches[1]).' Defined - '.ucwords(str_replace('_', ' ', $matches[2])).' Design';
 						} else {
 							$display_name = 'Create New User Defined Design';
 						}
 						$o->openSection($display_name);
 
 						if ($new_user_design) {
-							$o->openField('Name');
+							$o->openField('Design Code');
 							text_box($prefix.'_designs['.$design_name.'][name]', '', 20, 30);
 						} else {
 							hidden_field($prefix.'_designs['.$design_name.'][name]', $design_name);
-						}
-
-						$o->openField('Current');
-
-						if (!$owner->writeAccess('links')) {
-							$created = true;
-							echo '<i>';
-							if (!$designid) {
-								echo 'None';
-							} else {
-								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
-								echo $design->name.' (Id : #'.$design->id.')';
+							if ($matches[1] == 'user') {
+								$o->openField('Design Code');
+									echo $matches[2];
+								$o->closeField();
 							}
-							echo '</i>';
-
-						} else {
-							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'));
 						}
 
-
-						if ($system_design && isset($system_designs[$design_name])) {
-							$o->note($system_designs[$design_name]);
-						}
-
-						$o->closeField();
 						if (!$new_user_design) {
 
 							$effective_designs = Array();
@@ -329,8 +312,7 @@ function paintSettings(&$owner, &$o, &$ei)
 								$effective_designs[$url] = $designs[$design_name];
 							}
 
-
-							$o->openField('Effective');
+							$o->openField('Current');
 
 							if (!empty($effective_designs)) {
 								?>
@@ -359,6 +341,33 @@ function paintSettings(&$owner, &$o, &$ei)
 
 							$o->closeField();
 						}// endif
+						
+						$o->openField('New ?');
+
+						if (!$owner->writeAccess('links')) {
+							$created = true;
+							echo '<i>';
+							if (!$designid) {
+								echo 'None';
+							} else {
+								$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid, '', true);
+								echo $design->name.' (Id : #'.$design->id.')';
+							}
+							echo '</i>';
+
+						} else {
+							$buttons = Array('clear');
+							if (!$new_user_design) $buttons[] = 'reset';
+							asset_finder($prefix.'_designs['.$design_name.'][designid]', $designid, Array('design' => 'D'), 'sq_sidenav', 'null', $buttons);
+						}
+
+
+						if ($system_design && isset($system_designs[$design_name])) {
+							$o->note($system_designs[$design_name]);
+						}
+
+						$o->closeField();
+						
 						$o->closeSection();
 
 					}// end foreach

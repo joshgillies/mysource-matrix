@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema.inc,v 1.8.2.4 2004/03/02 18:35:51 brobertson Exp $
+* $Id: metadata_schema.inc,v 1.8.2.5 2004/03/26 16:41:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,44 +64,6 @@ class Metadata_Schema extends Folder
 		return $lock_types;
 
 	}//end lockTypes()
-
-
-	/**
-	* Create this asset
-	*
-	* @param array()	&$link	information used to create the initial link
-	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
-	*/
-	function create(&$link)
-	{
-		$name = trim($this->attr('name'));
-
-		if ($name == '') {
-			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
-			return false;
-		}
-
-		return parent::create($link);
-
-	}//end create()
-
-
-	/**
-	* Returns name of the asset
-	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
-	*
-	* @see Asset::_getName()
-	* @access public
-	*/
-	function _getName($short_name=false)
-	{
-		return $this->attr('name');
-
-	}//end _getName();
 
 
 	/**

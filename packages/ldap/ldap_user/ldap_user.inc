@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.1 2004/02/06 03:12:38 gsherwood Exp $
+* $Id: ldap_user.inc,v 1.1.2.1 2004/03/26 16:44:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 */
 class Ldap_User extends Backend_User
 {
+	
+	var $_ldapid = 0;
 
 
 	/**
@@ -52,6 +54,7 @@ class Ldap_User extends Backend_User
 		if (!$ldapid || empty($data)) return;
 		$ldap = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ldapid, 'ldap_bridge');
 		if (is_null($ldap)) return;
+		$this->_ldapid = $ldapid;
 
 		// the attribute mappings to the LDAP schemas
 		$attrs = $ldap->attr('attributes');
@@ -146,12 +149,21 @@ class Ldap_User extends Backend_User
 	{
 		$info = $this->getUserData();
 		if (empty($info)) return;
+		
+		if (!$this->_ldapid) return Array();
+		$ldap_bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_ldapid, 'ldap_bridge');
+		if (is_null($ldap_bridge)) return Array();
+		
+		$show = $ldap_bridge->attr('user_attributes');
+		$show = $show['show'];
 
 		?>
 		<table border="0" cellspacing="2" cellpadding="2">
 		<?php
 			for ($i = 0; $i < $info['count']; $i++) {
-				$field_name = $info[$i];
+				if (!isset($show[$info[$i]])) continue;
+				$field_name = $show[$info[$i]];
+
 				if ($info[$info[$i]]['count'] > 1) $field_name .= ' ('.$info[$info[$i]]['count'].' values)';
 				unset($info[$info[$i]]['count']);
 				?>
