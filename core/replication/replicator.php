@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator.php,v 1.1.2.1 2004/02/13 17:18:58 brobertson Exp $
+* $Id: replicator.php,v 1.1.2.2 2004/02/24 15:48:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,6 @@
 */
 ini_set('memory_limit', '8M');
 ini_set('display_errors', '1');
-ini_set('error_log', dirname(dirname(dirname(__FILE__))).'/cache/error.log');
 require_once dirname(dirname(__FILE__)).'/include/init.inc';
 
 $root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
