@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.31 2004/10/18 23:21:52 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.32 2004/11/10 22:33:20 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 /**
 * Page_Asset_Builder
 *
-* Purpose
+* Build Assets from the frontend
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
@@ -359,7 +359,7 @@ class Page_Asset_Builder extends Page
 					 //  CREATE LOCATIONS  //
 					////////////////////////
 
-					if (($create_locations = $this->_getCreateLocations($create_type)) === FALSE) return false;
+					if (($create_locations = $this->getCreateLocations($create_type)) === FALSE) return false;
 
 					// if we dont have any create locations, there is no point in continuing with this charade
 					// whoever set this up may think they want to build asset on the frontend, but they dont really
@@ -458,18 +458,101 @@ class Page_Asset_Builder extends Page
 
 
 	/**
-	* Work out the create locations for a new asset
+	* Get the selectable create locations that the user has actually selected for the new asset
 	*
-	* @param string	$create_type	the type of asset we are getting create locations for
-	* @param array	$attributes		an array of attributes to use for rule comparison
-	*								leave empty to use the submitted form vars
+	* @param string		$create_type	The type of the asset being created
+	* @param array		$attributes		The attributes of the new asset.  (If blank, attributes read from POST)
 	*
-	* @return array					parentid => link_type
-	* @access private
+	* @access protected
+	* @return array(assetid => link_type)
 	*/
-	function _getCreateLocations($create_type, $attributes=Array())
+	function getSelectedCreateLocations()
 	{
+		$all_selected_locations = Array();
+		foreach ($this->attr('create_location_optional') as $set_name => $details) {
+			$selected_locations = Array();
+			$code_name = str_replace(' ', '_', strtolower($set_name));
+			if (isset($_POST[$code_name])) {
+				if ($details['allow_multiple'] && is_array($_POST[$code_name])) {
+					foreach ($_POST[$code_name] as $location_id) {
+						// add it to the list
+						$selected_locations[] = $location_id;
+					}
+					// check the list options are valid
+					$selected_locations = array_intersect($selected_locations, array_keys($details['locations']));
+					// add them to the collection
+					foreach ($selected_locations as $location_id) $all_selected_locations[(int)$location_id] = (int)$details['link_type'];
+				} else {
+					// if it's valid, add it to the list
+					if (in_array($_POST[$code_name], array_keys($details['locations']))) {
+						$all_selected_locations[(int)$_POST[$code_name]] = (int)$details['link_type'];
+					}
+				}
+			} elseif (!$details['allow_empty']) {
+				trigger_error('You must select an option from the '.$set_name.' field', E_USER_WARNING);
+				return false;
+			}
+		}
+		return $all_selected_locations;
 
+	}//end getSelectedCreateLocations()
+
+
+	/**
+	* Get all the create locations that could ever be selected by the user, with their max link type
+	*
+	* @access protected
+	* @return array		array(assetid => link_type)
+	*/
+	function getAllSelectableCreateLocations()
+	{
+		$res = Array();
+		$selectable_sets = $this->attr('create_location_optional');
+		if (is_array($selectable_sets)) {
+			foreach ($selectable_sets as $set_name => $set_details) {
+				foreach ($set_details['locations'] as $loc => $name) {
+					if (isset($res[$loc])) {
+						$res[$loc] = min($res[$loc], $set_details['link_type']);
+					} else {
+						$res[$loc] = $set_details['link_type'];
+					}
+				}
+			}
+		}
+		return $res;
+	}
+
+
+	/**
+	* Get the fixed create locations
+	*
+	* Just included for completeness & consistency
+	*
+	* @param string		$create_type	The type of the asset being created
+	* @param array		$attributes		The attributes of the new asset.  (If blank, attributes read from POST)
+	*
+	* @access protected
+	* @return array(assetid => link_type)
+	*/	
+	function getFixedCreateLocations()
+	{
+		return $this->attr('create_location');
+	
+	}//end getFixedCreateLocations()
+
+
+	/**
+	* Get the create locations determined by rule matches
+	*
+	* @param string		$create_type	The type of the asset being created
+	* @param array		$attributes		The attributes of the new asset.  (If blank, attributes read from POST)
+	*
+	* @access protected
+	* @return array(assetid => link_type)
+	*/
+	function getRuleMatchCreateLocations($create_type, $attributes=Array())
+	{
+		$all_rule_match_locations = Array();
 		if (empty($attributes)) {
 			$create_type = $_POST['ASSET_BUILDER_CREATE_TYPE'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
@@ -478,38 +561,7 @@ class Page_Asset_Builder extends Page
 			unset($temp_asset);
 		}
 
-		// start with the fixed create locations
-		$create_locations = $this->attr('create_location');
-
-		// add selected create locations if we are using the submitted form vars
-		if (empty($attributes)) {
-			foreach ($this->attr('create_location_optional') as $name => $details) {
-				$selected_locations = Array();
-				$code_name = str_replace(' ', '_', strtolower($name));
-				if (isset($_POST[$code_name])) {
-					if ($details['allow_multiple'] && is_array($_POST[$code_name])) {
-						foreach ($_POST[$code_name] as $location_id) {
-							// add it to the list
-							$selected_locations[] = $location_id;
-						}
-						// check the list options are valid
-						$selected_locations = array_intersect($selected_locations, array_keys($details['locations']));
-						// add them to the collection
-						foreach ($selected_locations as $location_id) $create_locations[(int)$location_id] = (int)$details['link_type'];
-					} else {
-						// if it's valid, add it to the list
-						if (in_array($_POST[$code_name], array_keys($details['locations']))) {
-							$create_locations[(int)$_POST[$code_name]] = (int)$details['link_type'];
-						}
-					}
-				} elseif (!$details['allow_empty']) {
-					trigger_error("You must select an option from the $name field", E_USER_ERROR);
-					return false;
-				}
-			}
-		}
-
-		// now check what rules dictate where the asset should be created
+		// check what rules dictate where the asset should be created
 		$location_rules = $this->attr('create_location_rules');
 		if (!empty($location_rules[$create_type])) {
 			foreach ($location_rules[$create_type] as $i => $rule) {
@@ -544,14 +596,34 @@ class Page_Asset_Builder extends Page
 
 				if ($pass) {
 					foreach ($rule['locations'] as $index => $assetid) {
-						$create_locations[$assetid] = $rule['link_types'][$index];
+						$all_rule_match_locations[$assetid] = $rule['link_types'][$index];
 					}
 				}
 			}
 		}
-		return $create_locations;
+		return $all_rule_match_locations;
+	}
 
-	}//end _getCreateLocations()
+	
+	/**
+	* Get the relevant create locations for a new asset
+	*
+	* @param string	$create_type	the type of asset we are getting create locations for
+	*
+	* @return array					parentid => link_type
+	* @access protected
+	*/
+	function getCreateLocations($create_type)
+	{
+		if (is_array($selected_locs = $this->getSelectedCreateLocations())) {
+			return $this->getFixedCreateLocations() 
+				+ $selected_locs
+				+ $this->getRuleMatchCreateLocations($create_type);
+		} else {
+			return false; // failed to select some compulsory selectable locations
+		}
+	
+	}//end _getAllCreateLocations()
 
 
 	/**
@@ -879,8 +951,7 @@ class Page_Asset_Builder extends Page
 		foreach ($this->_available_keywords as $keyword) {
 			$name = ucwords(str_replace('_', ' ', $keyword));
 			$type = 'inline';
-			if ($keyword == 'create_location') {
-			} else if (substr($keyword, -5) == '_form') {
+			if (substr($keyword, -5) == '_form') {
 				$default = $name;
 				$type = 'block';
 			} else {
@@ -888,16 +959,7 @@ class Page_Asset_Builder extends Page
 			}
 			$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
 		}
-		$dropdown_default = '<select><option>%name% Option 1</option><option>%name% Option 2</option></select>';
-		$radio_default = '<input type="radio" />%name% Option 1 <br /><input type="radio" />%name% Option 2 <br />';
-
-		foreach ($this->attr('create_location_optional') as $name => $data) {
-			$kw_name = str_replace(' ', '_', strtolower($name)).'_field';
-			$keywords[$kw_name] = Array('name' => $name.' Field',
-										'default' => str_replace('%name%', $name, (($data['input_style'] == 'dropdown') ? $dropdown_default : $radio_default)),
-										'type' => 'special');
-		}
-
+		
 		$keywords['created_assetid'] = Array('name' => 'Created Asset ID', 'default' => 'Created Asset ID', 'type' => 'inline');
 		$keywords['created_asset_name'] = Array('name' => 'Created Asset Name', 'default' => 'Created Asset Name', 'type' => 'inline');
 		$keywords['created_asset_short_name'] = Array('name' => 'Created Asset Short Name', 'default' => 'Created Asset Short Name', 'type' => 'inline');
@@ -905,7 +967,31 @@ class Page_Asset_Builder extends Page
 
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
 
+		$vars['keywords'] = array_merge($vars['keywords'], $this->getSelectableLocationKeywords());
+
 	}//end onRequestKeywords()
+
+
+	/**
+	* Get the keyword replacements used to select selectable create locations
+	*
+	* @access protected
+	* @return array		(keyword => replacement)
+	*/
+	function getSelectableLocationKeywords()
+	{
+		$keywords = Array();
+		$dropdown_default = '<select><option>%name% Option 1</option><option>%name% Option 2</option></select>';
+		$radio_default = '<input type="radio" />%name% Option 1 <br /><input type="radio" />%name% Option 2 <br />';
+		foreach ($this->attr('create_location_optional') as $name => $data) {
+			$kw_name = str_replace(' ', '_', strtolower($name)).'_field';
+			$keywords[$kw_name] = Array('name' => $name.' Field',
+									'default' => str_replace('%name%', $name, (($data['input_style'] == 'dropdown') ? $dropdown_default : $radio_default)),
+									'type' => 'special');
+		}
+		return $keywords;
+	}
+
 
 
 }//end class
