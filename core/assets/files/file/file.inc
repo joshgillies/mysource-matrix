@@ -588,8 +588,8 @@ class File extends Asset
 	function getURL($base_url=null, $ignore_rollback=false)
 	{
 		if (SQ_ROLLBACK_VIEW) {
-			if (is_null($base_url)) $base_url = current_url(false);
-			$base_url = strip_url($base_url, true);
+			if (is_null($base_url)) $base_url = current_url();
+			$base_url = strip_url($base_url, false);
 			return $base_url.'/?a='.$this->id;
 		} else {
 			return parent::getURL($base_url, $ignore_rollback);
