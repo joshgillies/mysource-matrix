@@ -26,8 +26,9 @@ class User_Management extends Asset_Management
 		$this->vars =	Array(
 							'username' => Array(
 								'added'     => '0.1',
-								'type'      => 'text', 
+								'type'      => 'text',
 								'default'   => '',
+								'uniq'      => true,
 							),
 							'password' => Array(
 								'added'     => '0.1',

@@ -112,7 +112,7 @@ class User extends Asset
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run 
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
 	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
@@ -129,28 +129,6 @@ class User extends Asset
 			}
 
 			if ($this->vars[$name]['value'] == $value) return true;
-			
-			if ($name == 'username') {
-				$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-				$where = 'a.name = '.$db->quote('username').'
-						  AND custom_value='.$db->quote($value);
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'v');
-				$sql = 'SELECT COUNT(*)
-						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v
-						  INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute a ON v.attributeid = a.attributeid
-						'.$where;
-
-				$result = $db->getOne($sql);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-				}
-
-				if ($result > 0) {
-					trigger_error('Failed creating user, username "'.$value.'" already exists', E_USER_WARNING);
-					return false;
-				}
-			}
 		}
 
 		return parent::setAttrValue($name, $value, $dont_run_updated);
@@ -207,7 +185,7 @@ class User extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$where = 'a.type_code IN (~SQ0~) 
+		$where = 'a.type_code IN (~SQ0~)
 				  AND at.name         = '.$db->quote('username').'
 				  AND at.attributeid  = av.attributeid
 				  AND av.assetid      = a.assetid
@@ -218,8 +196,8 @@ class User extends Asset
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a, '.SQ_TABLE_PREFIX.'asset_attribute at, '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av
 				'.$where;
 
-		$subs = Array( 'SELECT type_code 
-						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited 
+		$subs = Array( 'SELECT type_code
+						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 						WHERE inherited_type_code = '.$db->quote($type_code)
 						);
 
@@ -339,7 +317,7 @@ class User extends Asset
 				break;
 		}
 
-		
+
 	}// end printBody()
 
 }//end class
