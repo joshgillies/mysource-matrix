@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.6 2003/11/26 00:51:00 gsherwood Exp $
+* $Id: asset.xml,v 1.7 2003/12/15 15:24:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -32,7 +32,7 @@
 	<version>0.1</version>
 	<name>Future Asset Lineage Cron Job</name>
 	<description>Allows the scheduling of the lineage of an asset to be automatically updated by the system at a point in time</description>
-	<instantiable>no</instantiable>
+	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
 	<parent_type>cron_job</parent_type>
 	<requirements />
