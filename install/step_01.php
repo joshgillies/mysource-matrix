@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_01.php,v 1.17 2003/09/26 05:26:34 brobertson Exp $
+* $Id: step_01.php,v 1.18 2003/10/02 05:35:33 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -22,6 +22,7 @@ define('SQ_INCLUDE_PATH',  SQ_SYSTEM_ROOT.'/core/include');
 define('SQ_LIB_PATH',      SQ_SYSTEM_ROOT.'/core/lib');
 define('SQ_DATA_PATH',     SQ_SYSTEM_ROOT.'/data');
 define('SQ_FUDGE_PATH',    SQ_SYSTEM_ROOT.'/fudge');
+$GLOBALS['SQ_INSTALL'] = true;
 
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/system_config.inc';
@@ -42,5 +43,6 @@ trigger_error('Need to chmod cache and data directories', E_USER_NOTICE);
 
 $cfg = new System_Config();
 $cfg->save(Array(), true);
+$GLOBALS['SQ_INSTALL'] = false;
 
 ?>

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_03.php,v 1.10 2003/09/26 05:26:34 brobertson Exp $
+* $Id: step_03.php,v 1.11 2003/10/02 05:35:33 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,6 +44,14 @@ if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.PHP_VERSION, E_USER_ERROR);
 }
 
+// Let everyone know we are installing
+$GLOBALS['SQ_INSTALL'] = true;
+
+// Re-generate the System Config to make sure that we get any new defines that may have been issued
+require_once SQ_INCLUDE_PATH.'/system_config.inc';
+$cfg = new System_Config();
+$cfg->save(Array(), false);
+
 // Re-generate the HIPO Config to make sure that we get any new defines that may have been issued
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
 $hipo_cfg = new HIPO_Config();
@@ -58,9 +66,6 @@ $ms_cfg->save(Array(), false);
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
 /* INSTALL CORE */
-
-// Let everyone know we are installing
-$GLOBALS['SQ_INSTALL'] = true;
 
 require_once(SQ_INCLUDE_PATH.'/package_manager.inc');
 $pm = new Package_Manager('__core__');
