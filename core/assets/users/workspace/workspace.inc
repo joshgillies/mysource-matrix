@@ -78,12 +78,12 @@ class Workspace extends Folder
 			// this is the workspace of a sysadmin so they need to
 			// be root or the sysadmin themselves
 			if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
-			if ($user->id == $GLOBALS['SQ_SYSTEM']->user->id) return true;
+			if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
 			return false;
 		} else {
 			// any other user's workspace
 			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-			if ($user->id == $GLOBALS['SQ_SYSTEM']->user->id) return true;
+			if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
 		}
 
 		return false;

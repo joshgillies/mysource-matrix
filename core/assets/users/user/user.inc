@@ -99,8 +99,8 @@ class User extends Asset
 	function _getAllowedLinks()
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array('inbox'     => Array('card' => '1', 'exclusive' => true),
-											 'workspace' => Array('card' => '1', 'exclusive' => true)),
+					 SQ_LINK_TYPE_2 => Array('inbox'     => Array('card' => 1, 'exclusive' => true),
+											 'workspace' => Array('card' => 1, 'exclusive' => true)),
 					 SQ_LINK_TYPE_3 => Array(),
 					 SQ_LINK_NOTICE => Array()
 					);
@@ -258,12 +258,12 @@ class User extends Asset
 				// this is a sysadmin so they need to
 				// be root or the sysadmin themselves
 				if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
-				if ($this->id == $GLOBALS['SQ_SYSTEM']->user->id) return true;
+				if ($this->id == $GLOBALS['SQ_SYSTEM']->curretUserId()) return true;
 				return false;
 			} else {
 				// any other user's details
 				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-				if ($this->id == $GLOBALS['SQ_SYSTEM']->user->id) return true;
+				if ($this->id == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
 			}
 
 			return false;

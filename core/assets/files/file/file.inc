@@ -266,7 +266,7 @@ class File extends Asset
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
 					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array('thumbnail' => Array('card' => '1', 'exclusive' => false)),
+					 SQ_LINK_TYPE_3 => Array('thumbnail' => Array('card' => 1, 'exclusive' => false)),
 					 SQ_LINK_NOTICE => Array()
 					);
 

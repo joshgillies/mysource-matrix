@@ -78,12 +78,12 @@ class Inbox extends Asset
 			// this is the inbox of a sysadmin so they need to
 			// be root or the sysadmin themselves
 			if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
-			if ($user->id == $GLOBALS['SQ_SYSTEM']->user->id) return true;
+			if ($user->id == $GLOBALS['SQ_SYSTEM']->curretUserId()) return true;
 			return false;
 		} else {
 			// any other user's inbox
 			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-			if ($user->id == $GLOBALS['SQ_SYSTEM']->user->id) return true;
+			if ($user->id == $GLOBALS['SQ_SYSTEM']->curretUserId()) return true;
 		}
 
 		return false;

@@ -57,7 +57,7 @@ class Design_Area_Nest_Content extends Design_Area
 		return Array(SQ_LINK_TYPE_1 => Array(),
 					 SQ_LINK_TYPE_2 => Array(),
 					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array('asset' => Array('card' => '1', 'exclusive' => false))
+					 SQ_LINK_NOTICE => Array('asset' => Array('card' => 1, 'exclusive' => false))
 					);
 
 	}//end _getAllowedLinks()
