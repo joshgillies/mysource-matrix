@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.93 2004/09/28 06:35:25 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.94 2004/09/30 04:27:17 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.93 $ - 1.0
+* @version $Revision: 1.94 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1888,7 +1888,7 @@ class Page_Calendar extends Page_Asset_Listing
 				if ($db->phptype == 'mysql') {
 					$make_timestamp_func = create_function('$y, $m, $d', 'return "UNIX_TIMESTAMP(CONCAT($y,\'-\',$m,\'-\',$d))";');
 				} else {
-					$make_timestamp_func = create_function('$y, $m, $d', 'return "EXTRACT(epoch from TIMESTAMP (\'$y\' || \'-\' || \'$m\' || \'-\' || \'$d\'))";');
+					$make_timestamp_func = create_function('$y, $m, $d', 'return "EXTRACT(epoch from DATE (\'$y\' || \'-\' || \'$m\' || \'-\' || \'$d\'))";');
 				}
 
 				if (($now['wday'] != 0) && ($now['wday'] != 6)) {
@@ -1922,7 +1922,7 @@ class Page_Calendar extends Page_Asset_Listing
 							((frequency = '.$db->quote('MFN').') 
 							   AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.$make_timestamp_func('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', 'start_date_mday').') / 86400)))
 							OR ((frequency = '.$db->quote('MRN').')
-								AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.$make_timestamp_func('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', '((start_date_mday + 3) - (FLOOR((start_date_mday + 3) / 31) * (start_date_mday + 3) % 31))').') / 86400)))
+								AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.$make_timestamp_func('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', '((start_date_mday + 3) - (FLOOR((start_date_mday + 3) / 31) * ((start_date_mday + 3) % 31)))').') / 86400)))
 							OR ((frequency = '.$db->quote('MFW').')
 								AND ((end_date_ds - start_date_ds + 1) >= ROUND(('.$db->quote($now['ts']).' - '.$make_timestamp_func('FLOOR((('.$now['year'].' * 12) + '.($now['mon']-1).' - (end_date_ms - start_date_ms)) / 12)', '(('.$now['mon'].' + 10 - (('.($now['ms']-1).' - start_date_ms) % period)) % 12) + 1', '(7 * start_date_wdom) - (FLOOR((7 * start_date_wdom) / 31) * ((7 * start_date_wdom) % 31))').') / 86400)))
 							OR ((frequency = '.$db->quote('MRW').')
