@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.5 2005/01/19 16:22:46 brobertson Exp $
+* $Id: image_variety.inc,v 1.6 2005/01/19 17:28:57 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -243,10 +243,6 @@ class Image_Variety extends Asset
 		// if either are blank calc the other to scale
 		if     ($d_width  == 0) $d_width  = round((int) $source_image_info['width']  * ($d_height / (int) $source_image_info['height']));
 		elseif ($d_height == 0) $d_height = round((int) $source_image_info['height'] * ($d_width  / (int) $source_image_info['width']));
-
-
-		trigger_error(__FUNCTION__.'::'.__LINE__.' >>> '.$d_old_filename.' != '.$d_new_filename);
-
 
 		// if the filename has changed then we need to remove the old file
 		if ($d_old_filename != $d_new_filename) {
