@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: file_versioning.inc,v 1.3 2003/09/26 05:26:36 brobertson Exp $
+* $Id: file_versioning.inc,v 1.4 2003/10/15 09:15:01 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -12,8 +12,8 @@ define('FUDGE_FV_ERROR',             2);
 define('FUDGE_FV_NOT_CHECKED_OUT',   4);
 define('FUDGE_FV_MODIFIED',          8);
 define('FUDGE_FV_NOT_MODIFIED',     16);
-define('FUDGE_FV_UP_TO_DATE',       32);
-define('FUDGE_FV_OUT_OF_DATE',      64);
+define('FUDGE_FV_CURRENT_VERSION',  32);
+define('FUDGE_FV_OLD_VERSION',      64);
 
 
 /**
@@ -820,7 +820,7 @@ class File_Versioning
 			return FUDGE_FV_ERROR;
 		}
 
-		$ret_val = ($curr_ver_info['version'] > $file_ver_info['version']) ? FUDGE_FV_OUT_OF_DATE : FUDGE_FV_UP_TO_DATE;
+		$ret_val = ($curr_ver_info['version'] > $file_ver_info['version']) ? FUDGE_FV_OLD_VERSION : FUDGE_FV_CURRENT_VERSION;
 
 		// check to see if the file has been modified
 		$ret_val |= ($this->_fileModified($file_ver_info, $real_file)) ? FUDGE_FV_MODIFIED : FUDGE_FV_NOT_MODIFIED;
@@ -1087,6 +1087,33 @@ class File_Versioning
 		return FUDGE_FV_OK;
 
 	}// end remove()
+
+
+	/**
+	* Essentially the opposite of checkOut(), removes a checked out real file and any FFV info that was in the directory for it
+	*
+	* @param string	$real_file	the checked out filename (ie the path to it on the filesystem)
+	*
+	* @return int FUDGE_FV_NOT_CHECKED_OUT|FUDGE_FV_ERROR|FUDGE_FV_OK
+	* @access public
+	*/
+	function clearOut($real_file)
+	{
+		$info = $this->_getFileInfoFromRealFile($real_file);
+		if (!is_array($info)) {
+			if ($info == FUDGE_FV_ERROR) {
+				trigger_error('Error occured getting file information, unable to run '.__FUNCTION__.'()', E_USER_WARNING);
+			}
+			return $info;
+		}
+
+		// remove the FFV and real files
+		if (!unlink(dirname($real_file).'/.FFV/'.basename($real_file))) return FUDGE_FV_ERROR;
+		$file_removed = unlink($real_file);
+		clearstatcache(); // just in case :)
+		return ($file_removed) ? FUDGE_FV_OK : FUDGE_FV_ERROR;
+
+	}// end clearOut()
 
 
 }// end class
