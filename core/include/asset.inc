@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.372 2005/03/02 16:25:18 brobertson Exp $
+* $Id: asset.inc,v 1.373 2005/03/02 23:36:19 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.372 $
+* @version $Revision: 1.373 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -713,14 +713,14 @@ class Asset extends MySource_Object
 		}
 
 		// delete any metadata values this asset might have
-		$mm = $GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		if (!$mm->purgeMetadata($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// delete any workflow values that this asset might have
-		$wm = $GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+		$wm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		if (!$wm->purgeWorkflow($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
