@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_herder.inc,v 1.24 2003/10/20 23:35:51 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.25 2003/10/30 03:41:23 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,6 +30,9 @@ class HIPO_Herder extends MySource_Object
 	*/
 	var $_queued_jobs = Array();
 
+
+	var $ho;
+
 	/**
 	* Constructor
 	*
@@ -37,6 +40,23 @@ class HIPO_Herder extends MySource_Object
 	function HIPO_Herder()
 	{
 	}//end constructor
+
+
+	/**
+	* backend outputter for hipos
+	*
+	* @return object Hipo_Backend_Outputter
+	* @access public
+	*/
+	function &getBackendOutputter()
+	{
+		if(!isset($this->ho) || get_class($this->ho) != 'hipo_backend_outputter') {
+			require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_backend_outputter.inc';
+			$this->ho = new Hipo_Backend_Outputter();
+		}
+		return $this->ho;
+
+	}//end getBackendOutputter()
 
 
 	/**
