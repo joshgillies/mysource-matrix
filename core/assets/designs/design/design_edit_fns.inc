@@ -354,11 +354,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$da->setVarReferenceValues($da_ref_values);
 		}// end foreach
 
-
-		$pre_str = '<?php
-		$FILE_PREFIX = $DATA_PATH.\'/'.addslashes($asset->webFileSuffix('')).'\';
+		$pre_str = '
+		<?php
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
-		?>';
+		?>
+		';
 
 		$str = '';
 		ob_start();
@@ -420,97 +420,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentFiles(&$asset, &$o, $prefix)
-	{
-		$files_dir = $asset->data_path_public.'/files';
-		$files = Array();
-		$d = @dir($files_dir);
-		if ($d !== FALSE) {
-			while (false !== ($entry = $d->read())) {
-				if (is_dir($d->path.'/'.$entry)) continue;
-				if (is_file($d->path.'/'.$entry)) {
-					$files[] = $entry;
-				}
-			}
-			$d->close();
-			sort($files);
-		}
-		?>
-		<table cellspacing="2" cellpadding="2" border="0">
-			<tr>
-				<td class="sq-backend-data"><i>File</i></td>
-				<td class="sq-backend-data"><i>Last Modified</i></td>
-		<?php if ($asset->writeAccess()) { ?>
-				<td class="sq-backend-data"><i>Remove ?</i></td>
-		<?php }// end if ?>
-			</tr>
- 		<?php
-		foreach($files as $file) {
-			$mod_time = filemtime($files_dir.'/'.$file);
-		?>
-			<tr>
-				<td class="sq-backend-data">
-					<a href="<?php echo sq_web_path('data').$asset->webFileSuffix($file); ?>" target="_blank"><?php echo $file; ?></a>
-				</td>
-				<td class="sq-backend-data">
-					<?php echo $GLOBALS['SQ_SYSTEM']->datetime($mod_time); ?>
-				</td>
-			<?php if ($asset->writeAccess()) { ?>
-				<td class="sq-backend-data" align="center">
-					<input type="checkbox" name="<?php echo $prefix; ?>_remove_files[]" value="<?php echo $file; ?>">
-				</td>
-			<?php }// end if ?>
-			</tr>
-		<?php
-
-		}// end for
-
-		if (empty($files)) {
-		?>
-			<tr>
-				<td class="sq-backend-data" colspan="3">No Files Uploaded</td>
-			</tr>
-		<?php
-		}// end if
-		?>
-		</table>
-		<?php
-
-	}// end paintCurrentFiles()
-
-
-	/**
-	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processCurrentFiles(&$asset, &$o, $prefix)
-	{
-		if (empty($_POST[$prefix.'_remove_files'])) return false;
-		$changes = false;
-		foreach($_POST[$prefix.'_remove_files'] as $file) {
-			$full_file = $asset->data_path_public.'/files/'.$file;
-			unlink($full_file);
-			$changes = true;
-		}
-		return $changes;
-
-	}// end processCurrentFiles()
-
-
-	/**
-	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
 	function paintNewFiles(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess()) return false;
@@ -534,10 +443,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	function processNewFiles(&$asset, &$o, $prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
-		$files_dir = $asset->data_path_public.'/files';
-		// attempt to create it (if it doesn't already exist)
-		if (!create_directory($files_dir)) return false;
 
 		$changes = false;
 
@@ -567,35 +472,68 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 					}// end foreach
 
 					foreach($extract_list as $remove_path => $files) {
-#						pre_echo($files);
-#						pre_echo($remove_path);
-#						pre_echo('----------------');
+						// extract the files from the tar archive to a temporary directory
+						$files_dir = $asset->data_path.'/.temp_files';
+						if (!create_directory($files_dir)) return false;
+						if (!clear_directory($files_dir)) return false;
 
 						$result = $tar_ball->extractList($files, $files_dir, $remove_path);
 						if (PEAR::isError($result)) {
 							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 							break;
 						} else {
-							$changes = true;
+							$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
+							$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
+
+							foreach ($files as $filename) {
+								$filename = preg_replace('|^'.$remove_path.'/|', '', $filename);
+								$temp_path = $files_dir.'/'.$filename;
+								$temp_info = Array('name' => $filename, 'tmp_name' => $temp_path);
+								$temp_info['non_uploaded_file'] = true;
+								if ($this->_processUploadedFile($asset, $temp_info)) $changes = true;
+							}
 						}
+
+						delete_directory($files_dir);
 
 					}// end foreach
 
 				}// end if
 
-			// just move it to the right place
+			// just create the file asset
 			} else {
-				if (commit_file_upload($prefix.'_assoc_file_'.$i, $files_dir, true)) {
-					$changes = true;
-				}
 
-			}// end switch
+				if ($this->_processUploadedFile($asset, $info)) $changes = true;
+
+			}// end if tar archive
 
 		}// end for
 
 		return $changes;
 
 	}// end processNewFiles()
+
+
+	function _processUploadedFile(&$asset, $info=Array())
+	{
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
+		$new_file =& new File();
+
+		$new_file->_tmp['uploading_file'] = true;
+		$new_file->setAttrValue('name', $info['name']);
+		$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
+
+		if ($new_file->create($design_link, $info)) {
+			$new_file->acquireLock();
+			$edit_fns = $new_file->getEditFns();
+			if ($edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info)) {
+				return true;
+			}
+		}
+
+		return false;
+
+	}//end _processUploadedFile()
 
 
 	/**
@@ -678,6 +616,16 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				return false;
 			}
 		}// end foreach
+
+		// set an initial web path
+		$initial_path = strtolower($new_name);
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $asset->_webPathsInUse($valid_paths, $dupe->id, true);
+		if (!$dupe->saveWebPaths($good_paths)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
 		// Acquire a lock on the new object
 		if (!$dupe->releaseLock()) {

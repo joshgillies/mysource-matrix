@@ -15,6 +15,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 */
 class Design extends Design_Area
 {
+
 	/**
 	* Constructor
 	*
@@ -31,13 +32,15 @@ class Design extends Design_Area
 	/*
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
+	* @return array
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array('design_customisation' => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_2 => Array('design_customisation' => Array('card' => 'M', 'exclusive' => false),
+											 'file'					=> Array('card' => 'M', 'exclusive' => false)),
 					 SQ_LINK_TYPE_3 => Array('design_area'          => Array('card' => 'M', 'exclusive' => false)),
 					 SQ_LINK_NOTICE => Array()
 					);
@@ -46,10 +49,59 @@ class Design extends Design_Area
 
 
 	/**
+	* Create this asset
+	*
+	* @param array()	&$link	information used to create the initial link
+	*
+	* @see Asset::create()
+	* @return mixed int or false
+	* @access public
+	*/
+	function create(&$link)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$linkid = parent::create($link);
+		if (!$linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+
+		// set an initial web path
+		$initial_path = strtolower($this->name);
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $link['asset']->_webPathsInUse($valid_paths, $this->id, true);
+		if (!$this->saveWebPaths($good_paths)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return $linkid;
+
+	}//end create()
+
+
+	/**
+	* Prints out the Frontend for this asset
+	* it's up to the kids to override
+	*
+	* @return void
+	* @access public
+	*/
+	function printFrontend()
+	{
+	}//end printFrontend()
+
+
+	/**
 	* Moves a link from one place in this assets links order to another position
 	*
 	* @param int	$linkid		the link id of the link to move about
-	* @param string $sort_order	the position in the links list that this link should take, if less than zero places at end of list
+	* @param string $sort_order	the position in the links list that this link should take, 
+	*							if less than zero places at end of list
 	*
 	* @return boolean
 	* @access public
@@ -83,6 +135,128 @@ class Design extends Design_Area
 
 
 	/**
+	* Creates a link between this asset and the passed asset, of a certain type
+	* and returns the linkid of the created link
+	*
+	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param string			$link_type	the type of link this is
+	* @param string			$value		the value that is to be associated with this link
+	* @param string			$sort_order	the position in the links list that this link should take,
+	*									if null or less than zero places at end of list
+	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the
+	*									asset that will be linked by this new link
+	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly
+	*									to the asset that will be linked by this new link
+	*
+	* @return int
+	* @access public
+	*/
+	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		if (is_a($minor, 'file')) {
+
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+			$customisation_links = &$this->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+			foreach($customisation_links as $link) {
+				$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
+				if (is_null($customisation)) continue;
+
+				$file_link_ids = Array();
+				$file_links = $customisation->getLinks(SQ_LINK_TYPE_2, 'file', false);
+				foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+				$file_link_info = $am->getAssetInfo(array_unique($file_link_ids));
+
+				// is there already a direct file with the same name
+				$insert_link = true;
+				foreach ($file_link_info as $info) if ($info['name'] == $minor->name) $insert_link = false;
+
+				if ($insert_link) {
+					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
+						trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+						$am->unRegisterAsset($customisation);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+				}
+
+				$am->unRegisterAsset($customisation);
+
+			}//end foreach customisation
+
+		}//end if is_a file
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end createLink()
+
+
+	/**
+	* Removes a link where this asset is the major player
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteLink($linkid)
+	{
+		// first, we should try and find the link
+		$delete_link = $this->getLinkById($linkid);
+		if (empty($delete_link)) {
+			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			return false;
+		}
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$customisation_links = &$this->getLinks(SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
+		foreach($customisation_links as $link) {
+			$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
+			if (is_null($customisation)) continue;
+
+			$file_link_ids = Array();
+			$file_links = $customisation->getLinks(SQ_LINK_TYPE_3, 'file', false);
+			foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+
+			foreach ($file_links as $link) {
+				if ($link['minorid'] == $delete_link['minorid']) {
+					// found the link to delete
+					if (!$customisation->deleteLink($link['linkid'])) {
+						trigger_error('Failed deleting file link from customisation', E_USER_WARNING);
+						$am->unRegisterAsset($customisation);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+				}
+			}// end foreach $file_links
+
+			$am->unRegisterAsset($customisation);
+
+		}//end foreach customisation
+
+		if (!parent::deleteLink($linkid)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end deleteLink()
+
+
+	/**
 	* Returns the link information for the design area with the given id_name or all design area links
 	*
 	* @param string	$id_name	the id of the design area to get
@@ -98,6 +272,7 @@ class Design extends Design_Area
 		} else {
 			return @$this->getLinks(SQ_LINK_TYPE_3, 'design_area', false);
 		}
+
 	}//end getDesignAreaLink()
 
 
@@ -163,6 +338,7 @@ class Design extends Design_Area
 	/**
 	* Updates each of our customisations from ourselves
 	*
+	* @return void
 	* @access private
 	*/
 	function _updateCustomisations()
@@ -184,6 +360,7 @@ class Design extends Design_Area
 	* @param string	$var	the name of the var to print out
 	* @param Array	$args	array of any extra arguments that existed in the print command
 	*
+	* @return void
 	* @access public
 	*/
 	function printVar($var, $args)
@@ -245,7 +422,7 @@ class Design extends Design_Area
 
 
 			case 'file_path' :
-				echo '<','?php echo $DATA_PATH;?', '>/', $this->webFileSuffix($args['filename']);
+				echo '<','?php echo $FILE_URLS[\''.$args['filename'].'\'];?', '>';
 				break;
 
 			default :
@@ -261,10 +438,29 @@ class Design extends Design_Area
 	*
 	* @param object Asset	$ASSET	the asset that we are going to print the body for
 	*
+	* @return void
 	* @access public
 	*/
-	function paint(&$ASSET)
+	function paint(&$ASSET, $FILE_URLS=Array())
 	{
+		inject_beef();
+		// generate an array of all the URLs we are going to need for the files in this design
+		$file_link_ids = Array();
+		$file_links = $this->getLinks(SQ_LINK_TYPE_2, 'file', false);
+		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+
+		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
+		$file_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($file_link_ids));
+
+		$system_root_url = sq_web_path('root_url');
+		foreach ($file_link_info as $minorid => $file_info) {
+			$file_url = $file_link_urls[$minorid];
+			if ($file_url == '') $file_url = "Javascript: alert('This URL for \'".$file_info['name']."\' does not exist');";
+			$FILE_URLS[$file_info['name']] = $system_root_url.'/?a='.$minorid;
+		}
+		bam($FILE_URLS);
+		inject_beef();
+
 		$DATA_PATH = sq_web_path('data'); // this works because we know that all design areas are not going to be restricted
 		$LIB_PATH  = sq_web_path('lib');
 
@@ -281,9 +477,9 @@ class Design extends Design_Area
 		}
 
 		// Now we just include the design file to get it to print
-		speed_check();
+		inject_beef();
 		require_once($file_path);
-		speed_check();
+		inject_beef();
 
 	}//end paint()
 
@@ -293,6 +489,7 @@ class Design extends Design_Area
 	*
 	* @param bool	$do_customisations	Generate design files for any customisations
 	*
+	* @return void
 	* @access public
 	*/
 	function generateDesignFile($do_customisations=true)

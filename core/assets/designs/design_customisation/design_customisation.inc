@@ -22,10 +22,111 @@ class Design_Customisation extends Design
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Design_Customisation($assetid=0) 
+	function Design_Customisation($assetid=0)
 	{
 		$this->Design($assetid);
-	}
+
+	}//end constructor
+
+
+	/*
+	* Returns an array of all the permitted links type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		$links = parent::_getAllowedLinks();
+		$links[SQ_LINK_TYPE_3]['file'] = Array('card' => 'M', 'exclusive' => false);
+		return $links;
+
+	}//end _getAllowedLinks()
+
+
+	/**
+	* Creates a link between this asset and the passed asset, of a certain type
+	* and returns the linkid of the created link
+	*
+	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param string			$link_type	the type of link this is
+	* @param string			$value		the value that is to be associated with this link
+	* @param string			$sort_order	the position in the links list that this link should take,
+	*									if null or less than zero places at end of list
+	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the
+	*									asset that will be linked by this new link
+	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly
+	*									to the asset that will be linked by this new link
+	*
+	* @return int
+	* @access public
+	*/
+	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
+	{
+		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
+
+	}//end createLink()
+
+
+	/**
+	* Removes a link where this asset is the major player
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteLink($linkid)
+	{
+		// first, we should try and find the link
+		$delete_link = $this->getLinkById($linkid);
+		if (empty($delete_link)) {
+			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			return false;
+		}
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['type_code']);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!parent::deleteLink($linkid)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$design =& $this->getParentDesign();
+
+		// go through all the links of the design we are customisaing and find a file
+		// linked to it with the same name as the one we just deleted so it can take its place
+		$file_link_ids = Array();
+		$file_links = $design->getLinks(SQ_LINK_TYPE_2, 'file', false);
+		foreach ($file_links as $link) $file_link_ids[$link['minorid']] = $link['linkid'];
+		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($file_link_ids));
+
+		foreach ($file_link_info as $info) {
+			if ($info['name'] == $minor->name) {
+				// found the link to create
+				$new_minor = &$am->getAsset($info['assetid']);
+				if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
+					trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+					$am->unRegisterAsset($design);
+					$am->unRegisterAsset($new_minor);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+				$am->unRegisterAsset($new_minor);
+			}
+		}// end foreach $file_links
+
+		$am->unRegisterAsset($design);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end deleteLink()
+
 
 	/**
 	* Called whenever any type of link is changed, allows caching of objects, links and other stuff
@@ -42,7 +143,9 @@ class Design_Customisation extends Design
 		unset($this->_tmp['customised_areas']);
 		unset($this->_tmp['uncustomised_areas']);
 		return true;
+
 	}//end _linksUpdated()
+
 
 	/**
 	* Returns the parent design/design_customisation that this customisation is customising
@@ -50,13 +153,14 @@ class Design_Customisation extends Design
 	* @return mixed object Design or null
 	* @access public
 	*/
-	function &getParentDesign() 
+	function &getParentDesign()
 	{
 		if (empty($this->_tmp['parent_design'])) {
 			$parent_link = $this->getLink(SQ_LINK_TYPE_2, 'design', false, 'customisation', 'minor');
 			$this->_tmp['parent_design'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid'], $parent_link['type_code']);
 		}
 		return $this->_tmp['parent_design'];
+
 	}//end getParentDesign()
 
 
@@ -66,9 +170,8 @@ class Design_Customisation extends Design
 	* @return Array(string)
 	* @access public
 	*/
-	function getCustomisedAreas() 
+	function getCustomisedAreas()
 	{
-
 		if (!isset($this->_tmp['customised_areas'])) {
 			$parent = &$this->getParentDesign();
 			if (is_null($parent)) return Array();
@@ -108,7 +211,7 @@ class Design_Customisation extends Design
 	* @return Array(string)
 	* @access public
 	*/
-	function getUnCustomisedAreas() 
+	function getUnCustomisedAreas()
 	{
 		if (!isset($this->_tmp['uncustomised_areas'])) {
 			$this->getCustomisedAreas();
@@ -120,7 +223,7 @@ class Design_Customisation extends Design
 
 
 	/**
-	* Updates this customisation from our parent, 
+	* Updates this customisation from our parent,
 	* ie. Updates our contents array and the contents arrays for any customised but NOT specialised design areas
 	*     No need to do the uncustomised design areas because they would be done by our parent
 	*     No need to do the specialised design areas because, bugger ya, you specialised them so you're on your own
@@ -130,7 +233,7 @@ class Design_Customisation extends Design
 	* @return bool
 	* @access protected
 	*/
-	function updateFromParent(&$parent) 
+	function updateFromParent(&$parent)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
@@ -152,7 +255,7 @@ class Design_Customisation extends Design
 
 		// now remove any unused design area customisations
 		foreach($remove_id_names as $id_name) {
-			if (!$this->deleteLink($existing_id_names[$id_name])) return false;
+			if (!$this->deleteLink($this_da_links[$id_name]['linkid'])) return false;
 		}// end foreach
 
 		foreach($added_id_names as $id_name) {
@@ -187,8 +290,44 @@ class Design_Customisation extends Design
 
 
 	/**
+	* Paints out our design
+	*
+	* @param object Asset	$ASSET	the asset that we are going to print the body for
+	*
+	* @return void
+	* @access public
+	*/
+	function paint(&$ASSET, $FILE_URLS=Array())
+	{
+		// generate an array of all the URLs we are going to need for the files in this customisation
+		// that are inherited from the design we are customising
+		$file_link_ids = Array();
+		$parent_link = $this->getLinks(SQ_LINK_TYPE_2, 'design', true, 'minor');
+		if (!empty($parent_link)) {
+			$parent_design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link[0]['majorid']);
+			if (!is_null($parent_design)) {
+				$file_links = $parent_design->getLinks(SQ_LINK_TYPE_2, 'file', false);
+				foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+			}
+		}
+
+		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
+		$file_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($file_link_ids));
+
+		foreach ($file_link_info as $minorid => $file_info) {
+			$file_url = $file_link_urls[$minorid];
+			if ($file_url == '') $file_url = "Javascript: alert('This URL for \'".$file_info['name']."\' does not exist');";
+			$FILE_URLS[$file_info['name']] = $file_url;
+		}
+
+		return parent::paint($ASSET, $FILE_URLS);
+
+	}//end paint()
+
+
+	/**
 	* Returns the file system path to the directory holding uploaded files
-	* Because we are a customisation, the path that we return is the one that the 
+	* Because we are a customisation, the path that we return is the one that the
 	* original "Design" object has
 	*
 	* @param string	$filename	the filename to return the path to
@@ -197,7 +336,7 @@ class Design_Customisation extends Design
 	* @access public
 	* @see Design::filePath()
 	*/
-	function filePath($filename) 
+	function filePath($filename)
 	{
 		$full_path = $this->data_path.'/files/'.$filename;
 		// if we have this file then use our path

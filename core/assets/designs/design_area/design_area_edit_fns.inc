@@ -58,7 +58,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// and adjustment of it so that it works.
 		// Using the supplied image root go through all the
 		// images, scripts and stylesheets and replace their image root with a
-		// tag to print the FILE_PREFIX
+		// tag to print their URL
 
 		//// DEAL WITH SCRIPTS AND IMAGES ////
 

@@ -26,14 +26,6 @@
 	</section>
 	<section name="Customise Associated Files">
 		<field>
-			<display_name>Currently&lt;br /&gt;Customised</display_name>
-			<note/>
-			<function_call>
-				<paint_function   name="paintCurrentFiles"   />
-				<process_function name="processCurrentFiles" />
-			</function_call>
-		</field>
-		<field>
 			<display_name>New</display_name>
 			<note>Uploading a tar archive (.tar) or a gzipped tar archive (.tag.gz or .tgz) will result in those archives being extracted and their files being placed in the files directory</note>
 			<function_call>

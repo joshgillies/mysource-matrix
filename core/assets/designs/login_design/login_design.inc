@@ -24,6 +24,7 @@ class Login_Design extends Design
 	function Login_Design($assetid=0)
 	{
 		$this->Design_Area($assetid);
+
 	}//end constructor
 
 
@@ -40,10 +41,10 @@ class Login_Design extends Design
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		$sql = 'SELECT count(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
 		$where = 'type_code = '.$db->quote($this->type());
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT count(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
-		$exists = $db->getOne($sql);
+		$exists = $db->getOne($sql.$where);
 		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
 
 		if ($exists) {
@@ -66,7 +67,6 @@ class Login_Design extends Design
 
 		}// end if
 
-
 	}//end create()
 
 
@@ -76,7 +76,7 @@ class Login_Design extends Design
 	* @return boolean
 	* @access public
 	*/
-	function restoreLoginDesign() 
+	function restoreLoginDesign()
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -97,10 +97,35 @@ class Login_Design extends Design
 			return false;
 		}
 
-		if (!copy_directory($source_dir.'/files', $this->data_path_public.'/files')) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
+		// attach the files that we need for the login design
+		$ef = $this->getEditFns();
+		if ($handle = opendir($source_dir.'/files')) {
+			while (false !== ($file = readdir($handle))) {
+				// skip some "files" that we dont want to attach
+				if ($file == '.' || $file == '..' || strtoupper($file) == 'CVS') continue;
+				$info = Array();
+				$info['name'] = $file;
+				$info['tmp_name'] = $source_dir.'/files/'.$file;
+				$info['non_uploaded_file'] = true;
+				if (!$ef->_processUploadedFile($this, $info)) {
+					trigger_error('Failed attaching file "'.$file.'" to login design', E_USER_WARNING);
+				}
+			}
+			closedir($handle);
 		}
+
+		// make ourselves, and all our files, LIVE
+		if (!$this->processStatusChange(SQ_STATUS_LIVE)) {
+			trigger_error('Login design failed setting status to LIVE', E_USER_WARNING);
+		}
+		if (!$this->setPermission(0, SQ_PERMISSION_READ, '1')) {
+			trigger_error('Login design failed setting public read permission', E_USER_WARNING);
+		}
+
+#if (!copy_directory($source_dir.'/files', $this->data_path_public.'/files')) {
+#	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+#	return false;
+#}
 
 		$edit_fns = $this->getEditFns();
 		// First process the design
@@ -130,6 +155,7 @@ class Login_Design extends Design
 		// can't have any customisations
 		unset($ret_val[SQ_LINK_TYPE_2]['design_customisation']);
 		return $ret_val;
+
 	}//end _getAllowedLinks()
 
 

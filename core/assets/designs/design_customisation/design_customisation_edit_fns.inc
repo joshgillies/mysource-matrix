@@ -144,6 +144,26 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	}// end processUnCustomisedDesignAreas()
 
 
+	function _processUploadedFile($info=Array())
+	{
+		// if we already have a file with the same name TYPE_3 linked to us,
+		// delete this link so we link up this new file
+		$existing_ids = Array();
+		$existing = $asset->getLinks(SQ_LINK_TYPE_3, 'file', false);
+		foreach ($existing as $link) $existing_ids[$link['minorid']] = $link['linkid'];
+		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
+		foreach ($existing_info as $existing_info) {
+			// if the name is the same, delete the link
+			if ($existing_info['name'] == $info['name']) {
+				$linkid = $existing_ids[$existing_info['assetid']];
+				$asset->deleteLink($linkid);
+			}
+		}
+
+		return parent::_processUploadedFile($info);
+
+	}//end _processUploadedFile()
+
 
 	/**
 	* Recursivly updates all links to a design area from under this asset

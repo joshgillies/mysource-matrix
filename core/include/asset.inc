@@ -236,8 +236,16 @@ class Asset extends Resolve_Object
 
 			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
 
-			// dont need to release the lock when creating
-			// because chances are they want to edit it anyway
+			if (!$this->releaseLock()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$this->id = 0;
+				return false;
+			}
+			if (!$link['asset']->releaseLock()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$this->id = 0;
+				return false;
+			}
 
 			if (!$linkid) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -494,6 +502,13 @@ class Asset extends Resolve_Object
 			}
 		}
 
+		// remove web paths
+		if (!$this->saveWebPaths(Array())) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// delete from the asset table
 		$where_cond = 'assetid = '.$db->quote($this->id);
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2149,7 +2164,7 @@ class Asset extends Resolve_Object
 
 		// if you dont have write access to this asset you cant create any links
 		if (!$GLOBALS['SQ_INSTALL'] && !$this->writeAccess(Array(), true, false)) {
-			return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied';
+			return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied (no write access to "'.$this->name.'")';
 		}
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
@@ -2166,9 +2181,9 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// check for web path conflicts with the new parents children
-		if ($link_type & SQ_SC_LINK_FRONTEND_NAV) {
+		if ($link_type & SQ_SC_LINK_WEB_PATHS) {
 			$paths = $minor->getWebPaths();
-			$bad_paths = $this->_webPathsInUse($paths);
+			$bad_paths = $this->_webPathsInUse($paths, $minor->id);
 			if (!empty($bad_paths)) {
 				return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), path(s) "'.implode('", "', $bad_paths).'" already in use by one of the siblings of "'.$this->name.'"';
 			}
@@ -2179,10 +2194,11 @@ class Asset extends Resolve_Object
 		// and that we aren't moving under ourselves
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 			//// Check for exclusive ////
+			$sql = 'SELECT majorid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link ';
 			$where = 'minorid       = '.$db->quote($minor->id).'
 					  AND exclusive = '.$db->quote('1');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$sql = 'SELECT majorid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link '.$where;
+			$sql .= $where;
 
 			$majorid = $db->getOne($sql);
 			if (DB::isError($majorid)) {
@@ -2671,8 +2687,8 @@ class Asset extends Resolve_Object
 			return 0;
 		}
 
-		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
-		if ($link_type & SQ_SC_LINK_FRONTEND_NAV) {
+		// if this is a web path link, then we need to inform the asset to update it's lookups
+		if ($link_type & SQ_SC_LINK_WEB_PATHS) {
 			if (!$minor->updateLookups()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
@@ -2909,8 +2925,8 @@ class Asset extends Resolve_Object
 			return 0;
 		}
 
-		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
-		if ($link['link_type'] & SQ_SC_LINK_FRONTEND_NAV) {
+		// if this is a web path link, then we need to inform the asset to update it's lookups
+		if ($link['link_type'] & SQ_SC_LINK_WEB_PATHS) {
 			if (!$minor->updateLookups()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
@@ -3118,10 +3134,10 @@ class Asset extends Resolve_Object
 			}
 
 			// check for web path conflicts with the new parents children
-			// if the old link is not a frontend nav link but the new one is
-			if (!($link['link_type'] & SQ_SC_LINK_FRONTEND_NAV) && ($link_type & SQ_SC_LINK_FRONTEND_NAV)) {
+			// if the old link is not a web path link but the new one is
+			if (!($link['link_type'] & SQ_SC_LINK_WEB_PATHS) && ($link_type & SQ_SC_LINK_WEB_PATHS)) {
 				$paths = $minor->getWebPaths();
-				$bad_paths = $this->_webPathsInUse($paths);
+				$bad_paths = $this->_webPathsInUse($paths, $minor->id);
 				if (!empty($bad_paths)) {
 					trigger_error('Cannot update link #'.$linkid.', path(s) "'.implode('", "', $bad_paths).'" already in use by one of the siblings of "'.$this->name.'"', U_USER_WARNING);
 					return false;
@@ -3162,9 +3178,9 @@ class Asset extends Resolve_Object
 		}
 
 		if ($link_type_changed) {
-			// if this is a frontend nav link or if the old link type was,
+			// if this is a web path link or if the old link type was,
 			// then we need to inform the asset to update it's lookups
-			if (($link_type & SQ_SC_LINK_FRONTEND_NAV) || ((int) $link['link_type'] & SQ_SC_LINK_FRONTEND_NAV)) {
+			if (($link_type & SQ_SC_LINK_WEB_PATHS) || ((int) $link['link_type'] & SQ_SC_LINK_WEB_PATHS)) {
 				if (!$minor->updateLookups()) {
 					return false;
 				}
@@ -4398,7 +4414,7 @@ class Asset extends Resolve_Object
 
 		// make sure these paths are compliant
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$save_paths = makeValidWebPaths($paths);
+		$save_paths = make_valid_web_paths($paths);
 
 		// if there is no difference in the arrays (including in the sort order - the index),
 		// then there is nothing to do
@@ -4412,11 +4428,11 @@ class Asset extends Resolve_Object
 			// now we need to check that none of our parents have
 			// any nav kids that are also using this path name
 			$siblingids = Array();
-			$parents = $this->getLinks(SQ_SC_LINK_FRONTEND_NAV, '', null, 'minor');
+			$parents = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
 			for($i = 0; $i < count($parents); $i++) {
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
-				$bad_paths = $parent->_webPathsInUse($inserts);
+				$bad_paths = $parent->_webPathsInUse($inserts, $this->id);
 				if (!empty($bad_paths)) {
 					trigger_error('Path(s) "'.implode('", "', $bad_paths).'" already in use by one of the siblings of "'.$parent->name.'"', E_USER_WARNING);
 					return false;
@@ -4466,13 +4482,14 @@ class Asset extends Resolve_Object
 	* Returns an array of the passed web paths that are currently in use by any of our siblings
 	*
 	* @param array		$paths					array of web paths to check
+	* @param int		$ignore_assetid			ignore this assetid when checking
 	* @param boolean	$return_alternatives	return all paths but replace the bad paths
 	*											with a valid alternative
 	*
 	* @return array(string)
 	* @access protected
 	*/
-	function _webPathsInUse($paths=Array(), $return_alternatives=false)
+	function _webPathsInUse($paths=Array(), $ignore_assetid=0, $return_alternatives=false)
 	{
 		if (empty($paths)) return Array();
 		$return_paths = Array();
@@ -4481,9 +4498,9 @@ class Asset extends Resolve_Object
 
 		// get all our nav siblings
 		$siblingids = Array();
-		$my_kids = $this->getLinks(SQ_SC_LINK_FRONTEND_NAV, '', null, 'major');
+		$my_kids = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'major');
 		for($j = 0; $j < count($my_kids); $j++) {
-			if ($my_kids[$j]['minorid'] == $this->id) continue;
+			if ($my_kids[$j]['minorid'] == $ignore_assetid) continue;
 			$siblingids[] = $db->quote($my_kids[$j]['minorid']);
 		}
 
@@ -4614,10 +4631,13 @@ class Asset extends Resolve_Object
 
 			$design_link = $this->getLink(SQ_LINK_TYPE_3, 'design', false);
 			$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
+			$parents = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
 
-			$parents = $this->getLinks(SQ_SC_LINK_FRONTEND_NAV, '', null, 'minor');
-			$done_urls = Array();
+			$done_urls    = Array();
+			$done_parents = Array();
+			
 			for($i = 0; $i < count($parents); $i++) {
+				if (in_array($parents[$i]['majorid'], $done_parents)) continue;
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
 				if (is_null($parent)) continue;
 
@@ -4640,11 +4660,13 @@ class Asset extends Resolve_Object
 					}// end for paths
 				}// end for parent_urls
 
+				$done_parents[] = $parent->id;
+
 			}// end for parents
 
 		}// end if count paths
 
-		$kids = $this->getLinks(SQ_SC_LINK_FRONTEND_NAV, '', null, 'major');
+		$kids = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'major');
 		for($i = 0; $i < count($kids); $i++) {
 			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
 			if (is_null($kid)) continue;
