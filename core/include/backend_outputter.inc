@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.93 2004/12/06 14:38:12 brobertson Exp $
+* $Id: backend_outputter.inc,v 1.94 2004/12/16 07:00:27 tbarrett Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *    there will only ever be one instance of this object
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.93 $
+* @version $Revision: 1.94 $
 * @package MySource_Matrix
 */
 class Backend_Outputter
@@ -1029,6 +1029,9 @@ class Backend_Outputter
 
 					// basically if they get this far then we can submit
 					SQ_FORM_SUBMITTED = true;
+
+					// disable all submit buttons
+					disable_buttons();
 					return true;
 
 				}//end form_on_submit()
@@ -1394,7 +1397,9 @@ class Backend_Outputter
 				hidden_field('sq_lock_release', 0);
 				hidden_field('sq_lock_release_on_submit', $release_lock);
 				$this->addOnSubmit('set_hidden_field(\'sq_lock_release\',  get_form_element_value(\'sq_lock_release_on_submit\'));');
-				normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); }', 'accesskey="s"');
+				
+				normal_button('sq_commit_button', $value, 'if (submit_form) { submit_form(this.form); } else { this.form.submit(); this.disabled = \'disabled\'; } ', 'accesskey="s"');
+				
 			$this->closeField();
 		$this->closeSection();
 
