@@ -3269,7 +3269,7 @@ class Asset extends Resolve_Object
 		// update existing custom attribute values
 		if (!empty($existing)) {
 
-			$atrr_id_cond = 'IN ('.implode(', ', $existing).')';
+			$attr_id_cond = 'IN ('.implode(', ', $existing).')';
 			$value_cases = '';
 			foreach ($existing as $attr_id) {
 
@@ -3292,12 +3292,12 @@ class Asset extends Resolve_Object
 
 				}// end if
 
-				$value_cases .= 'WHEN attributeid = '.$db->quote($attr_id).'
-								 THEN '.$db->quote($attr_value);
+				$value_cases .= '
+								WHEN '.$db->quote($attr_id).' THEN '.$db->quote($attr_value);
 
 			}//end foreach
 
-			$value_cases = 'CASE '.$value_cases.' END';
+			$value_cases = 'CASE attributeid '.$value_cases.' END';
 
 			$where = 'assetid = '.$db->quote($this->id).' AND attributeid '.$attr_id_cond;
 			$values = Array('custom_value' => $value_cases);
@@ -3336,11 +3336,10 @@ class Asset extends Resolve_Object
 
 				}// end if
 
-				$value_cases .= ' WHEN attributeid = '.$db->quote($attr_id).'
-								  THEN '.$db->quote($attr_value);
+				$value_cases .= ' WHEN '.$db->quote($attr_id).' THEN '.$db->quote($attr_value);
 			}//end foreach
 
-			$value_cases = 'CASE '.$value_cases.' END';
+			$value_cases = 'CASE attributeid '.$value_cases.' END';
 
 			$where = 'attributeid '.$attr_id_cond;
 			$select_from = SQ_TABLE_PREFIX.'asset_attribute';
