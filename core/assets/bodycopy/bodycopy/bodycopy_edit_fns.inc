@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.16 2004/09/06 05:25:19 dbaranovskiy Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.17 2004/09/07 09:36:03 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -328,8 +328,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		<?php
 		// print JS functions for each of the container types we have installed
-		$container_types = $am->getAssetTypeHierarchy('bodycopy_container');
-		foreach ($container_types as $type => $type_data) {
+		$container_types = $am->getTypeDescendants('bodycopy_container');
+		foreach ($container_types as $type) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
 			$type_asset = new $type();
 			$edit_fns = $type_asset->getEditFns();
@@ -338,11 +338,12 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		$container_type_options = Array();
 		$default = '';
-		foreach ($container_types as $type => $type_data) {
+		foreach ($container_types as $type) {
 			$code = strtolower(substr($type,9));
-			$container_type_options[$code] = ucfirst(substr($type,9));
+			$container_type_options[$code] = ucwords(str_replace('_', ' ', substr($type,9)));
 			if (empty($default)) $default = $code;
 		}
+		asort($container_type_options);
 		echo hidden_field($prefix.'_insert_container_type', $default);
 		?>
 
