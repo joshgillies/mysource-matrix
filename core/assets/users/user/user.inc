@@ -50,11 +50,11 @@ class User extends Asset
 			$this->setAttribute('email',      $email);
 			return true;
 
-		}#end if
+		}//end if
 
 		return false;
 
-	}#end create()
+	}//end create()
 
 	/*
 	* Set the value for the passed variable to the passed value
@@ -66,12 +66,12 @@ class User extends Asset
 		trigger_error('CHECK USER INPUTS FOR USERNAME, PASSWORD ETC');
 
 		if ($name == 'password') {
-			$value = crypt($value); # let salt be generated
+			$value = crypt($value); // let salt be generated
 		}
 
 		return parent::setAttribute($name, $value);
 
-	}#end setAttribute()
+	}//end setAttribute()
 
 	/*
 	* returns whether the passed password is this users
@@ -88,17 +88,61 @@ class User extends Asset
 
 		return (crypt($entered_password,$password) == $password);
 
-	}#end comparePassword()
+	}//end comparePassword()
 
 	/*
 	* Returns name of the user
 	*
-	* @ see Asset::_getName()
+	* @see Asset::_getName()
 	* @access public
 	*/
 	function _getName() {
 		return $this->attr('first_name').' '.$this->attr('last_name');
-	}#end _getName();
+	}//end _getName();
 
-}#end class
+	/*
+	* Attempts to find a user that matches the passed username and login, returning it's assetid
+	*
+	* @param string	$username
+	* @param string	$password
+	*
+	* @return int
+	* @access public
+	*/
+	function find($username, $password) {
+		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
+
+		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+
+		$sql = 'SELECT a.assetid
+				FROM sq_asset a, sq_asset_attribute at, sq_asset_attribute_value av
+				WHERE at.type_code = '.$db->quote('user').'
+				  AND a.type_code IN (~SQ0~) 
+				  AND at.name     = '.$db->quote('username').'
+				  AND at.attributeid = av.attributeid
+				  AND av.assetid  = a.assetid
+				  and av.value    = '.$db->quote($username);
+
+		$subs = Array( 'SELECT type_code FROM sq_asset_type_inherited 
+						WHERE inherited_type_code = '.$db->quote('user').'
+						   OR type_code = '.$db->quote('user'));
+
+		$sql = db_extras_subquery($db, $sql, $subs);
+
+		$result = $db->getOne($sql);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+
+		if (!$result) return 0;
+
+		$asset = $GLOBALS['SQ_RESOLVE']->am->getAsset($result);
+		if (is_null($asset) || !$asset->comparePassword($password)) {
+			return 0;
+		}
+
+		return $result;
+
+	}//end find();
+
+
+}//end class
 ?>
