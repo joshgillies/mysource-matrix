@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_management.inc,v 1.43 2003/10/21 06:22:51 dwong Exp $
+* $Id: asset_management.inc,v 1.44 2003/10/21 08:03:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -281,6 +281,10 @@ class Asset_Management extends MySource_Object
 				if (!$this->_addAttribute($name)) return false;
 			}
 		}//end for
+
+		// now add the component weightings
+		$this->_setComponentWeightings($this->components);
+
 		return true;
 
 	}//end upgrade()
@@ -732,6 +736,7 @@ class Asset_Management extends MySource_Object
 
 	}//end _updateCustomAttribute()
 
+
 	/**
 	*  Sets the default weightings for this asset type's components
 	* 
@@ -740,24 +745,23 @@ class Asset_Management extends MySource_Object
 	* @access private
 	* @return void
 	*/
-	function _setComponentWeightings($componentWeightings)
+	function _setComponentWeightings($component_weightings)
 	{
-		$typeCode = $this->getAssetType();
+		$type_code = $this->getAssetType();
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		// clear all weightings for this typecode
+		// clear all weightings for this type_code
 		$sql = 'DELETE FROM '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default 
-				WHERE type_code = ' . $db->quote($typeCode) ;
+				WHERE type_code = ' . $db->quote($type_code) ;
 
 		$db->query($sql);
-		foreach ($componentWeightings as $component => $weighting) {
-			if (strlen($component) == 0)
-				continue;
+		foreach ($component_weightings as $component => $weighting) {
+			if (strlen($component) == 0) continue;
 
 			$sql = 'INSERT INTO '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default
 					(type_code, component, description, weighting)
 					VALUES (' . 
-						$db->quote($typeCode)					. ', ' .
+						$db->quote($type_code)					. ', ' .
 						$db->quote($component)					. ', ' .
 						$db->quote($weighting['description'])	. ', ' .
 						$db->quote($weighting['default_weighting']) . 
