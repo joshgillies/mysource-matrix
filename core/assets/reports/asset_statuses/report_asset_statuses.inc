@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_statuses.inc,v 1.2 2005/02/18 05:29:08 dbaranovskiy Exp $
+* $Id: report_asset_statuses.inc,v 1.3 2005/02/21 03:07:03 tbarrett Exp $
 *
 */
 
@@ -87,6 +87,7 @@ class Report_Asset_Statuses extends Report
 			usort($root->children, $cmp_func);
 			foreach ($root->children as $asset_node) {
 				$assetid = $asset_node->attributes['assetid'];
+				if ($assetid == $this->id) continue;
 				$name = $asset_node->attributes['name'];
 				$type_code = $asset_node->attributes['type_code'];
 				$status = $asset_node->children[0]->attributes['value'];
@@ -168,6 +169,7 @@ class Report_Asset_Statuses extends Report
 			usort($root->children, $cmp_func);
 			foreach ($root->children as $asset_node) {
 				$assetid = $asset_node->attributes['assetid'];
+				if ($assetid == $this->id) continue;
 				$type_code = $asset_node->attributes['type_code'];
 
 				$links[] = Array(
