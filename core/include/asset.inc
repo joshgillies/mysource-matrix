@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.338.2.4 2004/12/24 02:29:44 gsherwood Exp $
+* $Id: asset.inc,v 1.338.2.5 2004/12/24 03:23:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.338.2.4 $
+* @version $Revision: 1.338.2.5 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1963,10 +1963,14 @@ class Asset extends MySource_Object
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-				 SQ_LINK_TYPE_2 => Array(),
-				 SQ_LINK_TYPE_3 => Array('design' => Array('card' => 'M', 'exclusive' => false)),
-				 SQ_LINK_NOTICE => Array('thumbnail' => Array('card' => 1, 'exclusive' => false))
+		return Array(
+					 SQ_LINK_TYPE_1 => Array(),
+					 SQ_LINK_TYPE_2 => Array(),
+					 SQ_LINK_TYPE_3 => Array(),
+					 SQ_LINK_NOTICE => Array(
+											 'thumbnail' => Array('card' => 1, 'exclusive' => false),
+											 'design' => Array('card' => 'M', 'exclusive' => false),
+											 ),
 			);
 
 	}//end _getAllowedLinks()
