@@ -1,0 +1,52 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_hcl_details.xml,v 1.1 2004/01/13 05:53:59 diarandine Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="HCL Schemas list" read_access="write:links">
+		<field>
+			<display_name>HCL Schemas</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintHCLSchemas"  />
+				<process_function name="processHCLSchemas" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Additional properties" read_access="write:links">
+		<field>
+			<display_name>Root node</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintRootNode"  />
+				<process_function name="processRootNode" />
+			</function_call>
+		</field>
+		<field attribute="type">
+			<display_name>List type</display_name>
+			<note></note>
+			<selection style="list" />
+		</field>
+	</section>
+</contents>
