@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_select.inc,v 1.6 2003/09/28 22:58:13 mmcintyre Exp $
+* $Id: form_question_type_select.inc,v 1.7 2003/10/13 05:26:33 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -97,7 +97,7 @@ class Form_Question_Type_Select extends Form_Question
 			// use the class name, as we might be getting extended by a child class
 			$class = get_class($this);
 			$html  = '<'.'?php $q = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$this->id.$suffix.', \''.$class.'\'); ?'.'>';
-			$html .= '<'.'?php $q->active_submission =& $this->active_submission; combo_box($q->id, $q->getOptions(), $q->attr(\'multiple\'), $q->getValue($this->active_submission), $q->attr(\'height\'), $q->attr(\'extra\')) ?'.'>';
+			$html .= '<'.'?php $q->active_submission =& $this->active_submission; combo_box($q->id, $q->getOptions(), $q->attr(\'multiple\'), $q->getValue(), $q->attr(\'height\'), $q->attr(\'extra\')) ?'.'>';
 		} else {
 			ob_start();
 			combo_box($this->id.$suffix, $this->getOptions(), $this->attr('multiple'), $value, $this->attr('height'), '');
@@ -113,8 +113,6 @@ class Form_Question_Type_Select extends Form_Question
 	/**
 	* returns the current value of this question
 	*
-	* @param &object $submission the current submission object
-	*
 	* @access public
 	* @return mixed
 	*/
@@ -122,15 +120,7 @@ class Form_Question_Type_Select extends Form_Question
 	{
 		if ($this->active_submission) {
 			$answer = $this->active_submission->getAnswer($this->id);
-			if ($answer) {
-				if (is_array($answer)) {
-					foreach ($answer as $a) {
-					}
-				} else {
-					return $this->getAnswerByOffset($answer);
-				}
-			}
-
+			if ($answer) return $this->getAnswerByOffset($answer);
 		} 
 		return $this->attr('default');
 	
@@ -177,8 +167,6 @@ class Form_Question_Type_Select extends Form_Question
 	/**
 	* process this question in the form
 	*
-	* @param &object $submission the submission object
-	*
 	* @access public
 	* @return boolean
 	*/
@@ -218,9 +206,9 @@ class Form_Question_Type_Select extends Form_Question
 				$ans_str[] = $this->getAnswerByOffset($a);
 			}
 			return implode(', ', $ans_str);
-		} else {
-			return $this->getAnswerByOffset($answer);
-		}
+		} 
+		return $this->getAnswerByOffset($answer);
+
 	} // end getSummary()
 
 
