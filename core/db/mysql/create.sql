@@ -10,12 +10,13 @@ CREATE TABLE sq_package (
 
 DROP TABLE IF EXISTS sq_asset;
 CREATE TABLE sq_asset (
-  assetid        INT    UNSIGNED NOT NULL,
-  name           VARCHAR(255) NOT NULL DEFAULT '',
-  short_name     VARCHAR(255) NOT NULL DEFAULT '',
-  type_code      VARCHAR(100) NOT NULL,
-  last_updated   DATETIME     NOT NULL,
-  last_userid    INT    UNSIGNED NOT NULL,
+  assetid        INT      UNSIGNED NOT NULL,
+  name           VARCHAR(255)      NOT NULL DEFAULT '',
+  short_name     VARCHAR(255)      NOT NULL DEFAULT '',
+  status         SMALLINT UNSIGNED NOT NULL DEFAULT 1,
+  type_code      VARCHAR(100)      NOT NULL,
+  last_updated   DATETIME          NOT NULL,
+  last_userid    INT      UNSIGNED NOT NULL,
   PRIMARY KEY (assetid),
   KEY         (type_code)
 );

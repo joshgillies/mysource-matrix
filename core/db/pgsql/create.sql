@@ -14,6 +14,7 @@ CREATE TABLE sq_asset (
   assetid        INT          NOT NULL,
   name           VARCHAR(255) NOT NULL DEFAULT '',
   short_name     VARCHAR(255) NOT NULL DEFAULT '',
+  status         INT          NOT NULL DEFAULT 1,
   type_code      VARCHAR(100) NOT NULL,
   last_updated   TIMESTAMP    NOT NULL,
   last_userid    INT          NOT NULL,
