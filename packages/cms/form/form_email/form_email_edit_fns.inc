@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.15 2004/05/17 06:44:15 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.16 2004/05/18 09:58:57 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -354,11 +354,11 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$export_type = isset($_POST[$prefix.'_export_format']) ? $_POST[$prefix.'_export_format'] : '';
 		switch($export_type) {
 			case 'csv':
-				$this->processExportCSV(&$asset, &$o, $prefix);
+				$this->processExportCSV($asset, $o, $prefix);
 				break;
 
 			case 'xml':
-				$this->processExportXML(&$asset, &$o, $prefix);
+				$this->processExportXML($asset, $o, $prefix);
 				break;
 		}
 
