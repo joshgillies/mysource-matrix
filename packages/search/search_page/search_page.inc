@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.82 2005/03/02 04:07:52 arailean Exp $
+* $Id: search_page.inc,v 1.83 2005/03/10 18:03:29 brobertson Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.82 $
+* @version $Revision: 1.83 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -971,7 +971,7 @@ class Search_Page extends Listing_Engine
 			break;
 
 			case 'results_per_page' :
-				$results_per_page = array_get_index($_REQUEST, 'results_per_page', $this->attr('results_per_page'));
+				$results_per_page = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
 				$replacement = '<input type="text" onchange="
 					document.search_form.results_per_page.value = this.value;
 				" value="'.$results_per_page.'" size="5" />';
