@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.157 2004/08/18 23:18:19 gsherwood Exp $
+* $Id: asset_map.inc,v 1.158 2004/08/19 00:48:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -285,20 +285,20 @@ class Asset_Map
 		$output = new XML_Tree();
 
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
-		
+
 		$user_attrs = Array(
 			'assetid'   => $current_user->id,
 			'type_code' => $current_user->type(),
 			'name'	    => $current_user->name,
 		);
 		$root = &$output->addRoot('current_user', '', $user_attrs);
-		
+
 		// just get the root's XML not the tree's, because it is part of bigger things and we dont want the version info
 		$current_user_xml = $root->get();
 		
 		$workspace = &$current_user->getWorkspace();
 		$workspace_xml = '';
-		
+
 		if (!is_null($workspace)) {
 			$workspace_link = $current_user->getWorkspaceLink();
 			$workspace_attrs = Array(
@@ -312,7 +312,7 @@ class Asset_Map
 			$root = &$output->addRoot('workspace', '', $workspace_attrs);
 			$workspace_xml = $root->get();
 		}
-		
+
 		$root_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_folder');
 		$attrs = Array(
 			'assetid'   => $root_folder->id,
@@ -325,29 +325,29 @@ class Asset_Map
 
 		// just get the root's XML not the tree's, because it is part of bigger things and we dont want the version info
 		$assets_xml = $root->get();
-
+		
 		header("Content-Type: text/xml");
 		ob_start();
-		echo "<initialisation>\n";
-		echo "<asset_types>\n";
-		$dir = SQ_DATA_PATH.'/private/asset_map';
-		
-		if ($d = @opendir($dir)) {
-			while (($file = readdir($d)) !== false) {
-				if (substr($file, -4) == '.xml') {
-					@readfile($dir.'/'.$file);
+			echo "<initialisation>\n";
+			echo "<asset_types>\n";
+			$dir = SQ_DATA_PATH.'/private/asset_map';
+			
+			if ($d = @opendir($dir)) {
+				while (($file = readdir($d)) !== false) {
+					if (substr($file, -4) == '.xml') {
+						@readfile($dir.'/'.$file);
+					}
 				}
-			}
-			closedir($d);
-		}// end if
-		echo "</asset_types>\n";
-
-		echo $current_user_xml;
-		echo $workspace_xml;
-		echo $assets_xml;
-
-		echo "</initialisation>\n";
-		$out = ob_get_contents();
+				closedir($d);
+			}// end if
+			echo "</asset_types>\n";
+	
+			echo $current_user_xml;
+			echo $workspace_xml;
+			echo $assets_xml;
+	
+			echo "</initialisation>\n";
+			$out = ob_get_contents();
 		ob_end_clean();
 		echo $out;
 
@@ -401,7 +401,7 @@ class Asset_Map
 						WHEN '.$db->quote('1').' THEN '.$db->quote($primary_protocol).'
 						WHEN '.$db->quote('0').' THEN '.$db->quote($secondary_protocol).'
 					END AS protocol';
-		if (!empty($userid_cond)) $sql .= ', MAX(p.permission) AS accessible';
+		if (!empty($userid_cond)) $sql .= ', p.permission AS accessible';
 		
 		$u_where = 'a.assetid = u.assetid';
 		$u_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($u_where, 'u', 'ON');
@@ -442,7 +442,7 @@ class Asset_Map
 		if (DB::isError($db_result)) {
 			return $this->_error('Could not load child assets for assetid '.$assetid.' '.$db_result->getMessage());
 		}
-		
+
 		$result = Array();
 		foreach ($db_result as $db_assetid => $db_data) {
 			$result[$db_assetid] = $db_data[0];
