@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: int.inc,v 1.16 2004/05/28 06:40:39 lwright Exp $
+* $Id: int.inc,v 1.17 2004/06/04 06:27:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -150,6 +150,7 @@ class Asset_Attribute_Int extends Asset_Attribute
 	*/
 	function getKeyData()
 	{
+		if (empty($this->value)) return Array();
 		return Array($this->value => 1);
 
 	}//end getKeyData()
