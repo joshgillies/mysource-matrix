@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.53 2004/03/12 04:48:40 gsherwood Exp $
+* $Id: html_form.inc,v 1.54 2004/03/18 03:42:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -599,11 +599,12 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 								if this is an empty string, then the asset_finder will look for the asset map
 								in the frame where it was loaded
 * @param string	$done_fn		a function to call when the asset finder is finished
+* @param array	$buttons		an array of which additional buttons to print (clear, reset)
 *
 * @return void
 * @access public
 */
-function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sidenav', $done_fn='null')
+function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sidenav', $done_fn='null', $buttons=Array('clear', 'reset'))
 {
 	$finder_frame = (empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
 	
@@ -661,8 +662,13 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 
 	text_box($safe_name.'_label', $label, 30, 0, false, 'class="sq-form-asset-finder" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
 	normal_button($safe_name.'_change_btn', 'Change', $map_frame.'.asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes).'\', '.$done_fn.');');
-	normal_button($safe_name.'_clear_btn', 'Clear', $map_frame.'.asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
-	normal_button($safe_name.'_reset_btn', 'Reset', $map_frame.'.asset_finder_reset_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
+	
+	if (in_array('clear', $buttons)) {
+		normal_button($safe_name.'_clear_btn', 'Clear', $map_frame.'.asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
+	}
+	if (in_array('reset', $buttons)) {
+		normal_button($safe_name.'_reset_btn', 'Reset', $map_frame.'.asset_finder_reset_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
+	}
 
 }//end asset_finder()
 
