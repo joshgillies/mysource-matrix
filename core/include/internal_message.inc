@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.31 2004/02/03 01:06:02 gsherwood Exp $
+* $Id: internal_message.inc,v 1.32 2004/06/07 02:16:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -157,6 +157,10 @@ class Internal_Message extends MySource_Object
 	*/
 	function send()
 	{
+		// make sure we have the required fields
+		assert_not_empty(trim($this->subject), 'Could not send internal message with empty subject');
+		assert_not_empty(trim($this->body),    'Could not send internal message with empty body');
+
 		// lets work out what action should be conducted on this type of message
 		// ie. should it be sent to the flash, logged, mailed etc
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
