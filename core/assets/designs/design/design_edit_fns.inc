@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.71 2004/08/21 08:18:53 amiller Exp $
+* $Id: design_edit_fns.inc,v 1.72 2004/08/27 05:36:23 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,6 +108,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (commit_file_upload($prefix.'_parse_file', $parse_file, true)) {
 			// tell the asset to update the customisation at the end of the interface processing
 			$asset->_tmp['update_customisations'] = true;
+			$asset->_tmp['generate_design'] = true;
 			$changes = $this->parseAndProcessFile($asset);
 
 			// if we are overwriting our current parse file, we need to add a new version to the repository
@@ -179,6 +180,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (isset($_POST[$prefix.'_reparse'])) {
 			if($this->parseAndProcessFile($asset)) {
 				$asset->_tmp['update_customisations'] = true;
+				$asset->_tmp['generate_design'] = true;
 				return true;
 			}
 		}
@@ -251,6 +253,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if (string_to_file($new_file, $parse_file)) {
 				// tell the asset to update the customisation at the end of the interface processing
 				$asset->_tmp['update_customisations'] = true;
+				$asset->_tmp['generate_design'] = true;
 				$changes = $this->parseAndProcessFile($asset);
 
 				// add a new version to the repository

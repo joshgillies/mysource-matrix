@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.70 2004/08/20 06:46:18 amiller Exp $
+* $Id: design.inc,v 1.71 2004/08/27 05:36:22 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -525,11 +525,13 @@ class Design extends Design_Area
 			case 'edit' :
 				$this->_tmp['update_customisations'] = false;
 				if (parent::processBackend($o, $link)) {
-					// regenerate the design, 
+					// regenerate the design (if necessary), 
 					// but don't do the customisations if they have yet to be updated 
 					// (they will be regenerated during the update process anyway)
-					$this->generateDesignFile(!$this->_tmp['update_customisations']);
-					if ($this->_tmp['update_customisations']) $this->_updateCustomisations();
+					if (isset($this->_tmp['generate_design']) && $this->_tmp['generate_design']) {
+						$this->generateDesignFile(!$this->_tmp['update_customisations']);
+						if ($this->_tmp['update_customisations']) $this->_updateCustomisations();
+					}
 
 					return true;
 
