@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_tables.js,v 1.2 2004/02/18 18:19:16 brobertson Exp $
+* $Id: bodycopy_edit_tables.js,v 1.3 2004/05/26 06:54:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,7 +40,7 @@ function bodycopy_save_insert_table(cols, rows, attributes) {
 }// end bodycopy_save_insert_table()
 
 function bodycopy_delete_table(bodycopy_name, tableid) {
-	if (confirm('Are you sure you want to delete this table?') && confirm('Really Sure? This is irreversible.')) {
+	if (confirm('Are you sure you want to delete this table?')) {
 		var data = new Object();
 		data["containerid"] = tableid;
 		bodycopy_submit("delete_container", bodycopy_name, data);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_divs.js,v 1.3 2004/02/18 18:19:16 brobertson Exp $
+* $Id: bodycopy_edit_divs.js,v 1.4 2004/05/26 06:54:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ function bodycopy_save_insert_div(attributes) {
 }// end bodycopy_save_insert_div()
 
 function bodycopy_delete_div(bodycopy_name, divid) {
-	if (confirm('Are you sure you want to delete this DIV?') && confirm('Really Sure? This is irreversible.')) {
+	if (confirm('Are you sure you want to delete this DIV?')) {
 		var data = new Object();
 		data["containerid"] = divid;
 		bodycopy_submit("delete_container", bodycopy_name, data);
