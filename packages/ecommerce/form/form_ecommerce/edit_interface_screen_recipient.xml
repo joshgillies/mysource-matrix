@@ -1,0 +1,90 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_recipient.xml,v 1.1.1.1 2004/10/13 01:31:47 arailean Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Keyword Replacements">
+		<field>
+			<display_name>Note</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintKeywordReplacementText"   />
+				<process_function name="processKeywordReplacementText" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Recipient Options">
+		<field attribute="recipient_emails_format">
+			<display_name>Recipient Emails</display_name>
+			<note>If the 'To' field is empty then no e-mails will be sent. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
+			&lt;ul&gt;
+			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
+			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+			<email_format />
+		</field>
+	</section>
+	<section name="Receipt Options">
+		<field>
+			<display_name>Receipt Email Field</display_name>
+			<note>The address entered in this field will be used to send receipt e-mails. You may select from fields of E-mail Address type only. If this field is empty no receipt e-mails will be sent.</note>
+			<function_call>
+				<paint_function   name="paintReceiptField"   />
+				<process_function name="processReceiptField" />
+			</function_call>
+		</field>
+		<field attribute="receipt_emails_format">
+			<display_name>Receipt Emails</display_name>
+			<note>Note that the receipt will always be sent to the address entered in the e-mail field specified above. You can use the 'To' address to specify additional email addresses that the receipt should also be sent to. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
+			&lt;ul&gt;
+			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
+			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+			<email_format />
+		</field>
+	</section>
+	<section name="Send To A Friend">
+		<field>
+			<display_name>Email Source</display_name>
+			<note>Any text field (preferably a multiple-line one) can be used for this field. It will be expected to contain e-mail addresses, separated by white space (ie. a space or a newline), a comma or a semi-colon. If this field is empty no friend e-mails will be sent.</note>
+			<function_call>
+				<paint_function   name="paintSTAFField"   />
+				<process_function name="processSTAFField" />
+			</function_call>
+		</field>
+		<field attribute="staf_format">
+			<display_name>Email Format</display_name>
+			<note>Note that the receipt will always be sent to the addresses entered in the e-mail field specified above. You can use the 'To' address to specify additional email addresses that the receipt should also be sent to. In addition to the keyword replacements pointed to at the top of this screen, you may use the following keywords in any of the above fields:&lt;br /&gt;
+			&lt;ul&gt;
+			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
+			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
+			&lt;li&gt;%referral_url% - the URL that the user was viewing before comming to this form&lt;/li&gt;
+			&lt;/ul&gt;
+			</note>
+			<email_format />
+		</field>
+	</section>
+</contents>
