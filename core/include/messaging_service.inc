@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.28 2004/09/15 04:23:22 gsherwood Exp $
+* $Id: messaging_service.inc,v 1.29 2004/09/28 04:26:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -102,14 +102,12 @@ class Messaging_Service extends MySource_Object
 		if (empty($this->_levels['queues'])) {
 			// this is the last queue
 			return $this->send($msgs);
-
 		} else {
 			foreach($msgs as $msg) {
 				array_push($this->_levels['queues'][count($this->_levels['queues']) - 1], $msg);
 			}
 			return true;
-
-		}// end if
+		}
 
 	}//end closeQueue()
 
@@ -207,7 +205,7 @@ class Messaging_Service extends MySource_Object
 			}
 			return true;
 
-		}// end if
+		}//end if
 
 	}//end closeLog()
 
@@ -254,7 +252,7 @@ class Messaging_Service extends MySource_Object
 	{
 		return $this->_levels['logs'][count($this->_levels['logs']) - 1];
 
-	}//end queueContents()
+	}//end logContents()
 	
 	
 //--        MESSAGES        --//
@@ -411,12 +409,9 @@ class Messaging_Service extends MySource_Object
 		$sql .= ' '.$where.' ORDER BY m.sent DESC';
 
 		$result = $db->getAll($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		assert_valid_db_result($result);
 
-		for($i = 0, $total = count($result); $i < $total; $i++) {
+		for ($i = 0, $total = count($result); $i < $total; $i++) {
 			$result[$i]['sent'] = iso8601_ts($result[$i]['sent']);
 
 			// if we are showing the from name, check that any messages from shadow
@@ -460,7 +455,7 @@ class Messaging_Service extends MySource_Object
 	/**
 	* Returns the message object for the passed id
 	*
-	* @param int	$messageid		id of the message the you want to get
+	* @param int	$messageid	id of the message the you want to get
 	*
 	* @return object Internal_Message	NULL on error or Internal_Message
 	* @access public
