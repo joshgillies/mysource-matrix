@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.134 2003/10/13 06:37:33 brobertson Exp $
+* $Id: asset_manager.inc,v 1.135 2003/10/13 09:53:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3297,11 +3297,15 @@ class Asset_Manager extends MySource_Object
 
 		if (!is_null($protocol)) {
 			$where .= ' AND l.'.$protocol.' = '.$db->quote('1');
+			$protocol_select = $db->quote($protocol).' as protocol';
+		} else {
+			$curr_proto = current_protocol();
+			$protocol_select = 'CASE WHEN l.'.$curr_proto.' = '.$db->quote('1').' THEN '.$db->quote($curr_proto).' ELSE '.$db->quote(($curr_proto == 'http') ? 'https' : 'http').' END as protocol';
 		}
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT l.url, l.assetid, a.'.$name_type.', a.type_code
+		$sql = 'SELECT l.url, l.assetid, a.'.$name_type.', a.type_code, '.$protocol_select.'
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.assetid = a.assetid
 				'.$where.'
 				ORDER BY l.url ASC';
@@ -3331,7 +3335,8 @@ class Asset_Manager extends MySource_Object
 										'url'		=> $result[0]['url'].((empty($paths)) ? '' : '/'.$paths[0]),
 										'assetid'	=> $index_page->id,
 										$name_type	=> $index_page->$name_type,
-										'type_code'	=> $index_page->type()
+										'type_code'	=> $index_page->type(),
+										'protocol'  => current_protocol(),
 										);
 				}// end if
 			}// end if
