@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.11 2004/10/21 04:40:21 dbaranovskiy Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.12 2004/10/27 00:39:51 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,6 +140,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 
 			// html_tidy needs to be last so other plugins can set options
 			if ($iap || in_array('html_tidy', $ap)) $wysiwyg->add_plugin('html_tidy');
+
+			if ($iap || in_array('matrix_expand_keywords', $ap)) $wysiwyg->add_plugin('matrix_expand_keywords');
 
 			// contents must be set AFTER all plugins are loaded
 			$wysiwyg->set_contents($html);
