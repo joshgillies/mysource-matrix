@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_nest_content_edit_fns.inc,v 1.3 2003/09/26 05:26:25 brobertson Exp $
+* $Id: design_area_nest_content_edit_fns.inc,v 1.4 2003/10/08 00:50:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,6 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintAssetid(&$asset, &$o, $prefix)
 	{
-
 		if ($asset->writeAccess()) {
 			$type_codes = $asset->attr('type_codes');
 			$type_code_restrictions = Array();
@@ -49,7 +48,9 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 			if (!is_null($link_asset)) echo $link_asset->name, '(Id: #', $link_asset->id, ')';
 
 		}// end if
+
 		return true;
+
 	}//end paintAssetid()
 
 
@@ -76,7 +77,6 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 
 		// remove the old link first
 		if ($old_linkid = $asset->_getNestAssetInfo('linkid')) {
-		pre_echo("DELETE $old_linkid");
 			if (!$asset->deleteLink($old_linkid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -90,7 +90,6 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-		pre_echo("CREATE $old_linkid");
 			if (!$asset->createLink($link_asset, SQ_LINK_NOTICE, 'nest_content_asset')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -99,10 +98,11 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 
 		// If we get this far, then it's all OK
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
 		return true;
 
 	}//end processAssetid()
 
-
 }//end class
+
 ?>
