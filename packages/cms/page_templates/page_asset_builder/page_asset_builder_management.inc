@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.16 2004/11/18 05:12:48 gsherwood Exp $
+* $Id: page_asset_builder_management.inc,v 1.17 2004/11/26 05:59:34 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -147,6 +147,18 @@ class Page_Asset_Builder_Management extends Asset_Management
 															'added'		=> '0.5',
 															'type'		=> 'serialise',
 															'default'	=> Array(),
+														);
+
+		/* Map for connecting runtime data sources with parameters */
+		$this->vars['parameter_map']					= Array(
+															'added'		=> '0.6',
+															'type'		=> 'parameter_map',
+															'parameters' => Array(
+																				'parameters' => Array(
+																					'additional_locations' => 'Additional Create Locations',
+																				)
+																			),
+															'default' => Array(),
 														);
 
 	}//end constructor

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_locations.xml,v 1.4 2004/11/12 04:36:25 tbarrett Exp $
+* $Id: edit_interface_screen_locations.xml,v 1.5 2004/11/26 05:59:34 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -55,17 +55,22 @@
 		</field>
 	</section>
 	<section name="Additional Create Locations" write_access="write:attributes">
-		<field>
+		<field format="new_line">
 			<display_name />
 			<note />
 			<function_call>
-				<paint_function		name="paintAdditionalLocationInfo" />
-				<process_function	name="processAdditionalLocationInfo" />
+				<paint_function   name="paintAdditionalLocationsInfo"   />
+				<process_function name="processAdditionalLocationsInfo" />
 			</function_call>
+		</field>
+		<field attribute="parameter_map">
+			<display_name>Additional Location Data Sources</display_name>
+			<note />
+			<parameter_map />
 		</field>
 		<field>
 			<display_name>Permitted Tree Locations</display_name>
-			<note>Create locations passed through the query will only be processed if they or one of their ancestor assets is listed above.</note>
+			<note>Create locations gathered from the data sources above will only be processed if they or one of their ancestor assets is listed above.</note>
 			<function_call>
 				<paint_function		name="paintAdditionalLocationParents" />
 				<process_function	name="processAdditionalLocationParents" />
@@ -73,7 +78,7 @@
 		</field>
 		<field>
 			<display_name>Permitted Asset Types</display_name>
-			<note>Create locations passed through the query will only be processed if their asset type or one of its ancestor types is listed above.</note>
+			<note>Create locations gathered from the data sources above will only be processed if their asset type or one of its ancestor types is listed above.</note>
 			<function_call>
 				<paint_function		name="paintAdditionalLocationTypes" />
 				<process_function	name="processAdditionalLocationTypes" />

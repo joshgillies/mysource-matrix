@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.22 2004/11/23 02:35:01 lwright Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.23 2004/11/26 05:59:34 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 								'fixed'			=> 'All assets created will be linked under the following locations',
 								'selectable'	=> 'When creating a new asset, the user will asked to choose a location from each of the sets below',
 								'conditional'   => 'New assets will be linked under additional locations according to the rules below',
-								'additional'	=> 'If the variable ASSET_BUILDER_ADDITIONAL_LOCATIONS is set in the request, with value in the format </i>assetid;assetid;assetid <i>or </i>assetid-linktype;assetid-linktype<i> etc, and the assets referenced satisfy the following conditions, the created asset will also be linked under those locations',
+								'additional'	=> 'If you specify some data sources to get additional location data from, and the assetids supplied by those data sources at runtime satisfy the conditions below, the created asset will be linked under those locations as well.  Lists of locations can be supplied in the format assetid;assetid;assetid or assetid-linktype;assetid-linktype;',
 							);
 
 	/**
@@ -847,6 +847,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 	}//end processConditionalCreateLocations()
 
+
 	/**
 	* Paints info about additional create locations
 	*
@@ -857,7 +858,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintAdditionalLocationInfo(&$asset, &$o, $prefix)
+	function paintAdditionalLocationsInfo(&$asset, &$o, $prefix)
 	{
 		echo '<p><i><b>'.$this->location_messages['additional'].'</b></i></p>';
 		return false;
@@ -875,7 +876,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processAdditionalLocationInfo(&$asset, &$o, $prefix)
+	function processAdditionalLocationsInfo(&$asset, &$o, $prefix)
 	{
 		return true;
 
