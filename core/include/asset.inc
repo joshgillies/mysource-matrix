@@ -456,6 +456,24 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
+		// now try and clear the data directories for this asset
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		if (is_dir($this->data_path)) {
+			if (!delete_directory($this->data_path)) {
+				trigger_error('Failed deleteing asset "'.$this->name.'", could not delete restricted data directory', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+
+		if (is_dir($this->data_path_unrestricted)) {
+			if (!delete_directory($this->data_path_unrestricted)) {
+				trigger_error('Failed deleteing asset "'.$this->name.'", could not delete restricted data directory', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
