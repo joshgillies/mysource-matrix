@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.42 2005/02/25 10:09:37 mkeehan Exp $
+* $Id: form_email_edit_fns.inc,v 1.43 2005/02/25 13:07:46 mkeehan Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -480,9 +480,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				}//end if file's datestamp in range
 
 			}//end while reading directories
-
-		}//end if handle opened
 		closedir($handle);
+		}//end if handle opened
+		
 
 		if ($header_row) {
 			$csv->setFieldHeaders($headers);
