@@ -2,20 +2,20 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2003/09/26 05:26:27 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2003/10/14 03:40:11 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Details">
+	<section name="Details" write_access="write:attributes">
 		<field attribute="name">
 			<display_name>Site Name</display_name>
 			<note />
 			<text width="12" height="1" />
 		</field>
 	</section>
-	<section name="Special Page Links">
+	<section name="Special Page Links" write_access="write:links">
 		<field>
 			<display_name>Index</display_name>
 			<note>The Asset that gets printed by default when no additional path is provided</note>
