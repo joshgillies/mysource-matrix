@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design.inc,v 1.55 2003/11/07 01:43:26 gsherwood Exp $
+* $Id: design.inc,v 1.56 2003/11/07 04:56:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -281,7 +281,7 @@ class Design extends Design_Area
 	function getStylesheets()
 	{
 		$file_link_ids = Array();
-		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'file', false);
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
 		foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
 		$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($file_link_ids));
 
