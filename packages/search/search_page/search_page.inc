@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.37 2004/03/15 03:12:30 gsherwood Exp $
+* $Id: search_page.inc,v 1.38 2004/03/15 04:49:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.37 $ - 1.0
+* @version $Revision: 1.38 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -528,6 +528,11 @@ class Search_Page extends Page
 
 		$total_pages = ceil(count($results) / $results_per_page);
 
+		$queries = '';
+		foreach ($_REQUEST['queries'] as $q_name => $q_value) {
+			$queries .= '&queries%5B'.urlencode($q_name).'%5D='.urlencode($q_value);
+		}
+
 		foreach ($keywords as $keyword) {
 			$replacement =& $replaces[$keyword];
 
@@ -564,13 +569,7 @@ class Search_Page extends Page
 						if ($i == $current_result_page) {
 							$replacement .= "<b>".($i + 1)."</b>";
 						} else {
-
-							$js = '
-								document.search_form.current_result_page.value = '.$i.';
-								document.search_form.submit();
-								return false;
-							';
-							$replacement .= "<a href=\"". $this->getURL(). "\" onClick='$js'>".($i + 1)."</a>";
+							$replacement .= '<a href="'.$this->getURL().'?mode=results&current_result_page='.$i.'&results_per_page='.$results_per_page.$queries.'">'.($i + 1)."</a>";
 						}
 					}
 				break;
@@ -580,13 +579,7 @@ class Search_Page extends Page
 						$replacement = 'Previous';
 						break;
 					}
-
-					$js = '
-						document.search_form.current_result_page.value--;
-						document.search_form.submit();
-						return false;
-					';
-					$replacement = '<a href="'. $this->getURL() .'" onClick=\''.$js .'\'>Previous</a>';
+					$replacement .= '<a href="'.$this->getURL().'?mode=results&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries.'">Previous</a>';
 				break;
 
 				case 'next_result_page_link':
@@ -594,13 +587,7 @@ class Search_Page extends Page
 						$replacement = 'Next';
 						break;
 					}
-
-					$js = '
-						document.search_form.current_result_page.value++;
-						document.search_form.submit();
-						return false;
-					';
-					$replacement = '<a href="'. $this->getURL() .'" onClick=\''.$js .'\'>Next</a>';
+					$replacement .= '<a href="'.$this->getURL().'?mode=results&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries.'">Next</a>';
 				break;
 
 				case 'initial_layout':
