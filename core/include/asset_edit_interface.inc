@@ -175,7 +175,17 @@ class Asset_Edit_Interface extends Resolve_Object
 		}
 
 		$create_sections = Array();
-		$active_screen = (empty($_GET['asset_ei_screen'])) ? 'details' : $_GET['asset_ei_screen'];
+		if (empty($_GET['asset_ei_screen'])) {
+			if ($GLOBALS['FROM_FRONTEND'] && !empty($this->_default_screen)) {
+				$active_screen = $this->_default_screen;
+			} else {
+				$active_screen = 'details';
+			}
+			$_GET['asset_ei_screen'] = $active_screen;
+		} else {
+			$active_screen = $_GET['asset_ei_screen'];
+		}
+		
 
 		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
 
@@ -195,18 +205,6 @@ class Asset_Edit_Interface extends Resolve_Object
 			$o->openField('&nbsp;');
 
 			$lock = $owner->getLockInfo();
-
-			// firstly, if the current user does not have access to
-			// live edit then they cant do anything
-			//if ($owner->status == SQ_STATUS_LIVE && !$owner->liveEditAccess(false)) {
-			//	$write_access = false;
-			//	if (!empty($lock)) {
-			//		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-			//		if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
-			//			echo '<b>NOTE: You currently have "'.$owner->name.'" locked for editing but you do not have access to live edit "'.$owner->name.'".</b>';
-			//		}
-			//	}
-			//}
 
 			if (!empty($lock)) {
 				// this asset is currently locked
@@ -237,11 +235,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				}
 			} else if ($full_write_access) {
 				$write_access = false;
-				//if ($owner->liveEditAccess(false)) {
-					submit_button('sq_aquire_lock', 'Aquire Lock');
-				//} else {
-				//	echo 'You cannot aquire a lock at this time as you do not have access to live edit "'.$owner->name.'".';
-				//}
+				submit_button('sq_aquire_lock', 'Aquire Lock');
 			} else {
 				echo 'You do not have access to edit "'.$owner->name.'".';
 			}

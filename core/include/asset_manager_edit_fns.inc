@@ -48,7 +48,18 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 	{
 		$o = &$this->backend->out;
 
-		if (!isset($_GET['am_section'])) $_GET['am_section'] = '';
+		if (!isset($_GET['am_section'])) {
+			// we might be comming here from the frontend
+			$url_asset = &$this->am->getAssetFromURL(current_protocol());
+			if (is_null($url_asset)) {
+				$_GET['am_section'] = '';
+			} else {
+				$_GET['assetid']    = $url_asset->id;
+				$_GET['am_section'] = 'edit_asset';
+				$GLOBALS['FROM_FRONTEND'] = true;
+			}
+		}
+
 		$o->addFormActionGetVar('am_section', $_GET['am_section']);
 		$o->addHiddenField('am_form_submitted', '1');
 

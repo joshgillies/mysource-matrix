@@ -121,6 +121,31 @@ class Page_Standard extends Page
 
 
 	/**
+	* Prints out the backend interface for the asset
+	*
+	* @param object Backend_Outputter $o
+	*
+	* @access public
+	*/
+	function paintBackend(&$o)
+	{
+		if ($GLOBALS['FROM_FRONTEND']) {
+			// get the bodycopy attached to us
+			$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
+			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
+			if (is_null($bodycopy)) {
+				trigger_error('Could not locate the bodycopy for standard page "'.$this->name.'"', E_USER_ERROR);
+				return false;
+			}
+			$o->addFormActionGetVar('assetid', $bodycopy->id);
+			$bodycopy->paintBackend($o);
+		} else {
+			parent::paintBackend($o);
+		}
+	}// end paintBackend()
+
+
+	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
 	*
