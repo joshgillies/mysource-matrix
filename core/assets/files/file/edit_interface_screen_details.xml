@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2004/06/08 02:37:57 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2004/07/23 07:07:40 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -36,14 +36,6 @@
 			<function_call>
 				<paint_function   name="paintFileUpload"   />
 				<process_function name="processFileUpload" />
-			</function_call>
-		</field>
-		<field limbo_access="0">
-			<display_name>Thumbnail</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintThumbnail"   />
-				<process_function name="processThumbnail" />
 			</function_call>
 		</field>
 	</section>
