@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.67 2004/11/23 23:38:13 lwright Exp $
+* $Id: form.inc,v 1.68 2004/11/28 22:08:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -678,7 +678,8 @@ class Form extends Bridge
 	*/
 	function setFormCookie($id, $days=0)
 	{
-		return setcookie('SQ_FORM_'.$this->getPrefix(), $id, time() + 60 * 60 * 24 * $days);
+		$_SESSION['SQ_FORM_'.$this->getPrefix()] = $id;
+		return true;
 
 	}//end setFormCookie()
 
@@ -738,8 +739,8 @@ class Form extends Bridge
 	{
 		$prefix = $this->getPrefix();
 		// try to get the form cookie and gather the active submission
-		if (isset($_COOKIE['SQ_FORM_'.$prefix])) {
-			$submissionid = $_COOKIE['SQ_FORM_'.$prefix];
+		if (isset($_SESSION['SQ_FORM_'.$prefix])) {
+			$submissionid = $_SESSION['SQ_FORM_'.$prefix];
 			if ($submissionid) {
 				$this->active_submission = &$GLOBALS['SQ_SYSTEM']->am->getAsset($submissionid, 'form_submission');
 			}
