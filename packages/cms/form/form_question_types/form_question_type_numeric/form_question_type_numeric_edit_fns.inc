@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric_edit_fns.inc,v 1.1 2004/04/28 01:58:40 lwright Exp $
+* $Id: form_question_type_numeric_edit_fns.inc,v 1.2 2004/04/28 02:41:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once dirname(__FILE__).'/../form_question_type_text/form_question_type_t
 class Form_Question_Type_Numeric_Edit_Fns extends Form_Question_Type_Text_Edit_Fns
 {
 
+
 	/**
 	* Constructor
 	*
@@ -46,7 +47,8 @@ class Form_Question_Type_Numeric_Edit_Fns extends Form_Question_Type_Text_Edit_F
 	function Form_Question_Type_Numeric_Edit_Fns()
 	{
 		$this->Form_Question_Type_Text_Edit_Fns();
-	}
+	} // end Form_Question_Type_Numeric_Edit_Fns()
+
 
 }//end class
 ?>
