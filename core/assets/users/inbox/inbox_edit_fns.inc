@@ -86,7 +86,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				<td class="sq-backend-table-header">SUBJECT</td>
 				<td class="sq-backend-table-header">SENT</td>
 				<td class="sq-backend-table-header">READ</td>
-				<td>&nbsp;</td>
+				<td class="sq-backend-table-header">&nbsp;</td>
 			</tr>
 			<?php
 			$alt = false;
@@ -177,7 +177,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						?><span style="color: #BBBBBB"><?php
 					}
 					?>
-					<< Previous Page >>
+					<< Previous Page
 					<?php
 					if ($start_printing_at > 0) {
 						?></a><?php
@@ -194,7 +194,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						?><span style="color: #BBBBBB"><?php
 					}
 					?>
-					<< Next Page >>
+					Next Page >>
 					<?php
 					if (($start_printing_at + $num_per_page) < $num_messages) {
 						?></a><?php
@@ -398,7 +398,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						?><span style="color: #BBBBBB"><?php
 					}
 					?>
-					<< Previous Page >>
+					<< Previous Page
 					<?php
 					if ($start_printing_at > 0) {
 						?></a><?php
@@ -415,7 +415,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						?><span style="color: #BBBBBB"><?php
 					}
 					?>
-					<< Next Page >>
+					Next Page >>
 					<?php
 					if (($start_printing_at + $num_per_page) < $num_messages) {
 						?></a><?php
