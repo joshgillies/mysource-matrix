@@ -679,7 +679,22 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 			$parent->aquireLock();
 			$parent->deleteLink($link['linkid']);
 			$parent->releaseLock();
-			echo 'done';
+			$trash = &$this->am->getSystemAsset('trash_folder');
+
+			// action is done, close the window and refresh the asset map
+			require_once 'XML/Tree.php';
+			$xml = new XML_Tree();
+			$xml_root = &$xml->addRoot('assets');
+			$xml_root->addChild('asset', '', Array('assetid' => $parent->id));
+			$xml_root->addChild('asset', '', Array('assetid' => $trash->id));
+			?>
+			<script language="Javascript" type="text/javascript">
+				if (window.opener.top.sidenav && window.opener.top.sidenav.reload_asset) {
+					window.opener.top.sidenav.reload_assets("<?php echo str_replace("\n", "\\n", addslashes($xml->get())); ?>");
+				}
+				window.close();
+			</script>
+			<?php
 		} else {
 			$o->addFormActionGetVar('delete_assetid', $_GET['assetid']);
 			$o->addFormActionGetVar('delete_linkid', $_GET['linkid']);
