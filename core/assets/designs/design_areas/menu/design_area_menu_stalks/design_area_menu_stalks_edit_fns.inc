@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks_edit_fns.inc,v 1.7 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: design_area_menu_stalks_edit_fns.inc,v 1.8 2003/12/16 18:19:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,26 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 */
 class Design_Area_Menu_Stalks_Edit_Fns extends Design_Area_Menu_Recursive_Edit_Fns
 {
+
+	/**
+	* Returns an array of vars that are setable, used to create the parseString
+	*
+	* @param object Asset	$asset	the asset whose interface we are painting
+	*
+	* @return Array
+	* @access public
+	* @see Design_Area_Edit_Fns::createParseString()
+	*/
+	function getSetableVars(&$asset)
+	{
+		$vars = parent::getSetableVars($asset);
+		unset($vars['prefix_with_divider']);
+		unset($vars['suffix_with_divider']);
+		unset($vars['show_subs']);
+		return $vars;
+
+	}// end getSetableVars()
+
 
 	/**
 	* Creates the stalk images for this asset, based upon what the current settings are

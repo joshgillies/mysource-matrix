@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks_management.inc,v 1.6 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: design_area_menu_stalks_management.inc,v 1.7 2003/12/16 18:19:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,7 +63,7 @@ class Design_Area_Menu_Stalks_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'int',
 								'default'		=> 0,
-								'description'	=> 'The length of a page name before ellipsis are printed - blank or zero means full name always printed'
+								'description'	=> 'The length of a asset name before ellipsis are printed - blank or zero means full name always printed'
 							),
 							'word_wrap' => Array(
 								'added'			=> '0.0.1',
@@ -81,7 +81,7 @@ class Design_Area_Menu_Stalks_Management extends Asset_Management
 								'added'			=> '0.0.1',
 								'type'			=> 'int',
 								'default'		=> 9,
-								'description'	=> 'The minimum height for in each entry row, used for centreing '
+								'description'	=> 'The minimum height for in each entry row. Controls the size of the stalk images and is used for centreing the stalks vertically with the contents of the &lt;MySource_ASSET&gt; tag'
 							),
 							'show_stalks' => Array(
 								'added'			=> '0.0.1',

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.12 2003/11/26 05:21:52 gsherwood Exp $
+* $Id: design_area_menu_stalks.inc,v 1.13 2003/12/16 18:19:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,17 +64,24 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 	{
 		// make sure the aligment is lower case
 		switch($name) { 
+			case 'prefix_with_divider' :
+			case 'suffix_with_divider' :
+				trigger_error('The divider is not used by the "'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').'" therefore the setting of "'.$name.'" has no effect', E_USER_NOTICE);
+				break;
+
 			case 'alignment' :
 				$value = strtolower($value);
 				break;
 			
 			case 'min_height' : 
+				$value = (int) $value;
 				if ($value <= 0) {
 					trigger_error('The "'.$name.'" attribute must be set to a number greater than zero');
 					return false;
 				}
 				break;
 		}// end switch
+
 		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
@@ -116,13 +123,14 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 
 		ob_start();
-		if ($page_contents = $this->attr('page_contents')) {
+		if ($asset_contents = $this->attr('asset_contents')) {
 			$edit_fns = $this->getEditFns();
-			if (!$edit_fns->_outputContents($page_contents, $this, $design)) {
-				return false;
-			}
+			$this->_tmp['outputting_asset_section'] = true;
+			if (!$edit_fns->_outputContents($asset_contents, $this, $design)) return false;
+			unset($this->_tmp['outputting_asset_section']);
 		}//	end if
-		$page_contents = '
+
+		$asset_contents = '
 				<td'.$cell_class.(($this->attr('word_wrap')) ? '' : ' nowrap').' width="100%" valign="top" align="'.$this->attr('alignment').'">'.ob_get_contents().'</td>
 		';
 		ob_end_clean();
@@ -171,7 +179,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 				<tr>
 			';
 
-		if ($this->attr('alignment') == 'right') echo $page_contents;
+		if ($this->attr('alignment') == 'right') echo $asset_contents;
 
 		if ($this->attr('indent')) {
 
@@ -227,7 +235,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 		}// end indent
 
-		if ($this->attr('alignment') == 'left') echo $page_contents;
+		if ($this->attr('alignment') == 'left') echo $asset_contents;
 
 		echo '
 
@@ -257,9 +265,6 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 				} // end if
 
 			}// end for
-			?', '>
-			</ul>
-			<', '?php
 
 		}// end '.$this->attr('id_name').'_recursive_fn()
 
