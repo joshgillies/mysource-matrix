@@ -439,6 +439,54 @@ class Workflow_Manager extends Resolve_Object
 
 
 	/**
+	* Pretend this user has approved the workflow to see what the resulting state will be
+	* Use this to find out if the user is allowed to live edit
+	*
+	* @param int	$publisher	the id of the user who we are testing approval for
+	*
+	* @return string
+	* @access public
+	*/
+	function testPublish($publisher)
+	{
+		// remember what the old vars were
+		$old_cw = $this->current_workflows;
+		$old_state = $this->state;
+
+		if ($this->state != 'running') {
+			// we dont actually have anu running
+			// workflows, so lets pretend we do
+			$workflows_todo = Array();
+			if (!empty($this->inherited_workflows)) {
+				foreach ($this->inherited_workflows as $assetid => $workflow) {
+					if (empty($workflow->steps)) continue;
+					$workflows_todo[$assetid] = $workflow->steps;
+				}
+			}
+			$workflows_todo[$this->_asset->id] = $this->steps;
+
+			if (empty($workflows_todo)) return $this->state;
+
+			foreach ($workflows_todo as $assetid => $steps) {
+				$workflowid = "{$this->_asset->id}~{$assetid}";
+				$this->current_workflows['running'][$workflowid]['steps'] = $steps;
+				$this->current_workflows['running'][$workflowid]['current_step'] = 1;
+			}
+		}
+
+		$this->recordPublish($publisher);
+		$new_state = $this->state;
+		
+		// set the vars back to their original values
+		// because we dont want to change anything
+		$this->current_workflows = $old_cw;
+		$this->state = $old_state;
+
+		return $new_state;
+	}//end testPublish()
+
+
+	/**
 	* Starts the workflow by writing out all workflows to the running table
 	*
 	* @return boolean
