@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.12 2004/11/23 05:43:42 lwright Exp $
+* $Id: page_custom_form.inc,v 1.13 2004/11/24 02:47:59 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -46,7 +46,7 @@ class Page_Custom_Form extends Page
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Page_Custom_Form($assetid=0) 
+	function Page_Custom_Form($assetid=0)
 	{
 		$this->Page($assetid);
 
@@ -102,7 +102,7 @@ class Page_Custom_Form extends Page
 	*/
 	function printFrontend()
 	{
-		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form_email', true, '', 'major');
+		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form', false, '', 'major');
 		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['minor_type_code']);
 
 		if (is_null($form)) {
@@ -112,10 +112,10 @@ class Page_Custom_Form extends Page
 		$form->printFrontend();
 
 		return true;
-		
+
 	}
-	
-	
+
+
 	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
