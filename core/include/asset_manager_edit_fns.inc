@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.75 2004/06/09 04:50:06 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.76 2004/06/22 01:22:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -378,13 +378,12 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	{
 		$o = &$this->backend->out;
 
-		//$o->addCrummingLink('Asset Types', $o->getCurrentLocation());
-		$o->setHeading('Assets Types', '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/asset_tree.png').'", "20", "20", "HIPO Icon");</script>');
+		$o->setHeading('Asset Types', '<script language="JavaScript" type="text/javascript">sq_print_icon("'.$o->filesPath('/images/icons/header/asset_tree.png').'", "20", "20", "HIPO Icon");</script>');
 
 		$o->addHiddenField('am_action');
 		$o->addHiddenField('am_new_type_code');
 
-		$o->openSection('Assets Types');
+		$o->openSection('Asset Types');
 		$o->openField('', 'new_line');
 
 
@@ -397,7 +396,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 		for (reset($offspring); null !== ($type_code = key($offspring)); next($offspring)) {
 			sort($offspring[$type_code]);
-		}//end for
+		}
 
 	?>
 		<script language="JavaScript" type="text/javascript">
