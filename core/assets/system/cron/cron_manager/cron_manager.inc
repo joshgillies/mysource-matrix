@@ -364,7 +364,7 @@ class Cron_Manager extends Asset
 		$old_error_log  = ini_set('error_log',  SQ_DATA_PATH.'/'.$this->error_log_path);
 		set_error_handler(Array(&$this, '_errorHandler'));
 
-		if (!empty($GLOBALS['SQ_SYSTEM']->tm) && $GLOBALS['SQ_SYSTEM']->tm->inTransaction()) {
+		if (!empty($GLOBALS['SQ_SYSTEM']->tm) && $GLOBALS['SQ_SYSTEM']->tm->inTransaction('db')) {
 			trigger_error('The Cron Manager should not be run() while nested within any transactions.<br>This stops each job from being independant of each other', E_USER_WARNING);
 			return;
 		}
