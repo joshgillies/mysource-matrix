@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.160 2003/10/14 05:31:34 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.161 2003/10/15 02:12:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1965,7 +1965,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 								} else {
 									// do some extra checking
 									if (is_a($asset, 'user')) {
-										echo ((in_array($asset->id, $cond_data['published_by'])) ? '<span style="color:#008800"><b>Yes</b></span>' : '&nbsp;');
+										echo ((isset($cond_data['published_by'][$asset->id])) ? '<span style="color:#008800"><b>Yes</b></span>' : '&nbsp;');
 									} else {
 										if ($cond_logic_num) $user_count = $cond_logic_num;
 										else $user_count = count($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false));
@@ -2129,7 +2129,10 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 		// process a status change on this screen if workflow is running
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($owner->id, true, true);
-		if (!empty($running_schemas)) $this->_processStatusChange($owner, $o, $prefix);
+		if (!empty($running_schemas)) {
+			$this->_processStatusChange($owner, $o, $prefix);
+			$updated = true;
+		}
 
 		// first we need to process any messages that may have been submitted
 		if (isset($_POST[$prefix.'_workflow_new_log_message'])) {
