@@ -214,8 +214,11 @@ class Asset_Edit_Interface extends Resolve_Object
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 				$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_asset']);
 
+				if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+				else $now = time();
+
 				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				$expires_in = easy_time_total(($lock['expires'] - time()), true);
+				$expires_in = easy_time_total(($lock['expires'] - $now), true);
 				if (!$expires_in) $expires_in = '1 second';
 
 				echo '<p class="sq-form-field">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". The lock is due to expire in '.$expires_in.'</p>';
