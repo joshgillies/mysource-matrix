@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.16 2004/12/24 02:29:37 gsherwood Exp $
+* $Id: settings.inc,v 1.17 2004/12/29 00:30:30 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,7 +46,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintSettings(&$owner, &$o, &$ei)
 {
-	if (!($file = $ei->_findFile('static_screen_settings'))) return;
+	if (!($file = $ei->findFile('static_screen_settings'))) return;
 	$prefix = $owner->getPrefix();
 
 	$created = false;

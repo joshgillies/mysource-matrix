@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.10 2004/12/21 15:24:36 brobertson Exp $
+* $Id: metadata.inc,v 1.11 2004/12/29 00:30:30 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -45,7 +45,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 {
-	if (!($file = $ei->_findFile('static_screen_metadata'))) return false;
+	if (!($file = $ei->findFile('static_screen_metadata'))) return false;
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;

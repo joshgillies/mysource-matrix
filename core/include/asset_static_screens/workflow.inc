@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.13 2004/12/23 22:42:07 gsherwood Exp $
+* $Id: workflow.inc,v 1.14 2004/12/29 00:30:30 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix
 */
 
@@ -127,7 +127,7 @@ function paintInlineWorkflow(&$owner, &$o, &$ei)
 */
 function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 {
-	if (!($file = $ei->_findFile('static_screen_workflow'))) return false;
+	if (!($file = $ei->findFile('static_screen_workflow'))) return false;
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;

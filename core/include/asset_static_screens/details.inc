@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.10 2004/12/15 05:37:27 gsherwood Exp $
+* $Id: details.inc,v 1.11 2004/12/29 00:30:30 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Details Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix
 */
 
@@ -46,7 +46,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 {
-	if (!($file = $ei->_findFile('static_screen_details'))) return false;
+	if (!($file = $ei->findFile('static_screen_details'))) return false;
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
