@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.23 2005/02/07 22:36:23 dbaranovskiy Exp $
+* $Id: inbox.inc,v 1.24 2005/02/08 11:21:57 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -159,6 +159,14 @@ class Inbox extends Asset
 	}//end printFrontend()
 
 
+	/**
+	* Prints out the backend interface for the asset
+	* it's up to the kids to override
+	*
+	* @param object Backend_Outputter $o
+	*
+	* @access public
+	*/
 	function paintBackend(&$o)
 	{
 		if (isset($_REQUEST['gettrash'])) {
@@ -174,8 +182,11 @@ class Inbox extends Asset
 			echo '</root>';
 			exit();
 		}
-		parent::paintBackend(&$o);
-	}
+
+		parent::paintBackend($o);
+
+	}//end paintBackend()
+
 
 	/**
 	* Called by the design to print the body of this asset
