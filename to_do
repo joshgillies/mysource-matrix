@@ -54,6 +54,9 @@
 |                                  MEDIUM  PRIORITY                                      |
 +----------------------------------------------------------------------------------------+
 
+  - Optimisations
+    - Every where a getAsset() call is made attempt to pass it the type of the asset
+
   - Customising Asset's
     - Have Ability to "cast" objects from parent class to custom asset class
 
