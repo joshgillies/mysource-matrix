@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.41 2003/12/03 23:12:35 gsherwood Exp $
+* $Id: site_edit_fns.inc,v 1.42 2004/03/12 05:17:05 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -268,24 +268,9 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			echo '</i>';
 			return false;
 		}
-
-		$pages = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', false);
-
-		if (!count($pages)) {
-			echo '<i>There are no Pages that are children of this site.</i>';
-			hidden_field($prefix.'_'.$page_type, '0');
-			return false;
-		}
-
-		$contents = Array('' => '');
-		foreach($pages as $info) {
-			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($info['minorid'], $info['minor_type_code'], true);
-			if (is_null($page)) continue;
-			$contents[$page->id] = $page->name;
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($page);
-		}
-
-		combo_box($prefix.'_'.$page_type, $contents, false, $selected);
+		
+		asset_finder($prefix.'_'.$page_type, $selected);
+		
 		return true;
 
 	}//end paintPageSelection()
@@ -307,7 +292,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 		$link = $asset->getSpecialPageLink($page_type);
 		// if there has been no change, then there is nothing to do
-		if (!empty($link) && $link['minorid'] == $_POST[$prefix.'_'.$page_type]) {
+		if (!empty($link) && $link['minorid'] == $_POST[$prefix.'_'.$page_type]['assetid']) {
 			return true;
 		}
 
@@ -316,13 +301,15 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		// if there is a current link, we need to delete it
 		if (!empty($link)) {
 			if (!$asset->deleteLink($link['linkid'])) {
+				bam('could not delete link');
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}// end if
 		}// end if
 
-		if (!empty($_POST[$prefix.'_'.$page_type])) {
-			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_'.$page_type]);
+		if (!empty($_POST[$prefix.'_'.$page_type]['assetid'])) {
+			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_'.$page_type]['assetid']);
+
 			if (!$asset->createLink($page, SQ_LINK_TYPE_3, $page_type)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
