@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_trigger_batch_events.inc,v 1.1 2005/02/25 01:21:35 rhoward Exp $
+* $Id: hipo_job_trigger_batch_events.inc,v 1.2 2005/02/28 01:22:46 rhoward Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -231,7 +231,6 @@ class HIPO_Job_Trigger_Batch_Events extends HIPO_Job
 		$current_event = array_pop($this->_running_vars['current_events']);
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['current_assetid']);
 		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent($current_event, $asset);
-		error_log('Asset -> '.$this->_running_vars['current_assetid'].', Event -> '.$current_event);
 
 		$step_data['message'] = 'Broadcasting Event '.$current_event.' from Asset #'.$this->_running_vars['current_assetid'];
 		$step_data['percent_done'] += $this->_running_vars['step_value'];

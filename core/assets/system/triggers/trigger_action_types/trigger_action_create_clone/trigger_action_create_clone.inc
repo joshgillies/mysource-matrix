@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.3 2005/02/24 01:20:59 gsherwood Exp $
+* $Id: trigger_action_create_clone.inc,v 1.4 2005/02/28 01:22:46 rhoward Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,11 +47,12 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	* The settings used by this action are in the form:
 	* <PRE>
 	* Array(
-	* 		'assetid'      => int,    // the assetid to link to
-	* 		'link_type'    => int,    // the type of link, eg. type_1, type_2, type_3 or notice
-	* 		'value'        => string, // optional, the value associated with a link
-	* 		'is_dependant' => int,    // optional, whether the link is dependant
-	* 		'is_exclusive' => int     // optional, whether the link is exclusive
+	* 		'assetid'             => int,    // the assetid to link to
+	* 		'link_type'           => int,    // the type of link, eg. type_1, type_2, type_3 or notice
+	* 		'disallow_duplicates' => int,    // if '1', then a new clone will not be created if an asset with the same name and link_type to the target exists.
+	* 		'value'               => string, // optional, the value associated with a link
+	* 		'is_dependant'        => int,    // optional, whether the link is dependant
+	* 		'is_exclusive'        => int,    // optional, whether the link is exclusive
 	* 		);
 	* </PRE>
 	*
@@ -73,8 +74,9 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		}
 
 		// check the optional settings, assign defaults
-		$is_dependant = array_get_index($settings, 'is_dependant', 0);
-		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
+		$is_dependant        = array_get_index($settings, 'is_dependant', 0);
+		$is_exclusive        = array_get_index($settings, 'is_exclusive', 0);
+		$disallow_duplicates = array_get_index($settings, 'disallow_duplicates', 0);
 
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
@@ -89,6 +91,21 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 
 		$major = &$am->getAsset($settings['assetid']);
 		$minor = &$state['asset'];
+
+		if ($disallow_duplicates) {
+			// get all the children of the target asset, check whether an asset
+			// with the same name, short_name and type_code already exists
+			$children = $am->getChildren($settings['assetid']);
+			foreach ($children as $childid => $child_type) {
+				$name = $am->getAssetInfo(Array($childid), Array(), true, 'name');
+				$short_name = $am->getAssetInfo(Array($childid), Array(), true, 'short_name');
+				$type_code = $am->getAssetInfo(Array($childid), Array(), true, 'type_code');
+				if ($name[$childid] == $minor->name && $short_name[$childid] == $minor->short_name && $type_code[$childid] = $minor->type()) {
+					// a copy of the clone already exists
+					return true;
+				}
+			}
+		}
 
 		// the new link
 		$link = Array(
@@ -132,11 +149,12 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	function getInterface($settings, $prefix)
 	{
 		// check settings, set defaults if necessary
-		$selected_assetid   = array_get_index($settings, 'assetid', 0);
-		$selected_link_type = array_get_index($settings, 'link_type', SQ_LINK_TYPE_1);
-		$value              = array_get_index($settings, 'value', '');
-		$is_dependant       = array_get_index($settings, 'is_dependant', 0);
-		$is_exclusive       = array_get_index($settings, 'is_exclusive', 0);
+		$selected_assetid    = array_get_index($settings, 'assetid', 0);
+		$selected_link_type  = array_get_index($settings, 'link_type', SQ_LINK_TYPE_1);
+		$value               = array_get_index($settings, 'value', '');
+		$is_dependant        = array_get_index($settings, 'is_dependant', 0);
+		$is_exclusive        = array_get_index($settings, 'is_exclusive', 0);
+		$disallow_duplicates = array_get_index($settings, 'disallow_duplicates', 0);
 
 		// check if the selected asset is valid
 		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_assetid)) {
@@ -162,7 +180,9 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 			echo ' and ';
 			$is_exclusive_list = Array(0 => 'Non-exclusively', 1 => 'Exclusively');
 			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive);
-			echo 'to the parent.';
+			echo 'to the parent.<br />';
+			check_box($prefix.'[disallow_duplicates]', '1', $disallow_duplicates);
+			echo ' Do not create if a clone with the same name and link type exists.';
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -195,9 +215,10 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		$settings['link_type'] = $request_data['link_type'];
 
 		// optional fields
-		$settings['value']        = array_get_index($request_data, 'value', '');
-		$settings['is_dependant'] = array_get_index($request_data, 'is_dependant', 0);
-		$settings['is_exclusive'] = array_get_index($request_data, 'is_exclusive', 0);
+		$settings['value']               = array_get_index($request_data, 'value', '');
+		$settings['is_dependant']        = array_get_index($request_data, 'is_dependant', 0);
+		$settings['is_exclusive']        = array_get_index($request_data, 'is_exclusive', 0);
+		$settings['disallow_duplicates'] = array_get_index($request_data, 'disallow_duplicates', 0);
 
 		return true;
 
