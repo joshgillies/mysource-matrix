@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_edit_fns.inc,v 1.4 2004/10/07 04:44:35 gsherwood Exp $
+* $Id: ldap_user_edit_fns.inc,v 1.5 2004/11/02 03:35:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,6 +88,7 @@ class Ldap_User_Edit_Fns extends Backend_User_Edit_Fns
 		
 		foreach ($info as $field_name => $field_data) {
 			if (!isset($show[$field_name])) continue;
+			$field_name = $show[$field_name];
 			$count = count($field_data);
 			if ($count > 1) $field_name .= ' ('.$count.' values)';
 			$o->openField($field_name);
