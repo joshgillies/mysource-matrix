@@ -60,7 +60,7 @@ class Trash_Folder extends Folder
 		$this->_in_create = false;
 		return $ret_val;
 
-	}#end create()
+	}//end create()
 
 	/*
 	* Set the value for the passed variable to the passed value
@@ -76,7 +76,7 @@ class Trash_Folder extends Folder
 
 		return parent::setAttribute($name, $value);
 
-	}#end setAttribute()
+	}//end setAttribute()
 
 
 	/*
@@ -125,20 +125,24 @@ class Trash_Folder extends Folder
 		if (DB::isError($result)) 
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
 
-
 		$ret_arr = Array();
-		if ($ret_type == 'T') {
-			while (NULL !== ($row = $result->fetchRow())) {
+		$by_type = ($ret_type == 'T');
+		$count   = 0;
+		while (NULL !== ($row = $result->fetchRow())) {
+			// make the link id the negative of the assetid as this will be unique in the trash anyway
+			$row['linkid']     =  -1 * (int) $row['minorid']; 
+			$row['link_type']  = SQ_LINK_UNITE;
+			$row['value']      = '';
+			$row['sort_order'] = $count++;
+			if ($by_type) {
 				if (!isset($ret_arr[$row['type_code']])) $ret_arr[$row['type_code']] = Array();
 				$ret_arr[$row['type_code']][] = $row;
-			}//end while
-		} else {
-			while (NULL !== ($row = $result->fetchRow())) {
+			} else {
 				$ret_arr[] = $row;
-			}//end while
-		}
-
+			}
+		}//end while
 		$result->free();
+
 		return $ret_arr;
 
 	}//end getLinks()
@@ -211,14 +215,8 @@ class Trash_Folder extends Folder
 			return false;
 		}
 
-		// does the minor still have links ?
-		if ($minor->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE) > 0) {
-			return false;
-
-		} else {
-			return true;
-
-		}// end if
+		// is the minor linked to any thing
+		return ($minor->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', false) == 0);
 
 	}// end createLink();
 
@@ -255,6 +253,43 @@ class Trash_Folder extends Folder
 	}//end moveLinkPos()
 
 
+	/*
+	* In normal asset's this deletes a link between this asset on the passed linkid
+	* In the trash no links are created, so none can be deleted, 
+	* the linkid is checked to see if it is negative (ie from getLinks() above)
+	* and if the asset now has a link, true is returned
+	*
+	* Removes a link where this asset is the major player
+	*
+	* @param int	$linkid		the link id of the link to remove
+	*
+	* @see Asset::getLinks()
+	* @see Asset::deleteLink()
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteLink($linkid) {
 
-}#end class
+		$linkid = (int) $linkid;
+
+		if ($linkid >= 0) {
+			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			return false;
+		}
+
+		$assetid = abs($linkid);
+		$asset = &$GLOBALS['SQ_RESOLVE']->getAsset($assetid);
+		if (is_null($asset)) {
+			trigger_error('Linked asset could not be found, unable to delete link', E_USER_WARNING);
+			return false;
+		}
+
+
+		// is the asset linked to any thing
+		return ($asset->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', false) > 0);
+
+	}// end deleteLink();
+
+}//end class
 ?>
