@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: internal_message.inc,v 1.19 2003/09/30 02:25:17 brobertson Exp $
+* $Id: internal_message.inc,v 1.20 2003/10/07 02:37:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -471,6 +471,7 @@ class Internal_Message extends MySource_Object
 					break;
 
 				case 'config' :
+				case 'hipo'   :
 					// send config changes to the DEFAULT and TECH emails and to the Root User
 					$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 					$this->to = Array(0, $root_user->id);
