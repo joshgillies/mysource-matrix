@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_management.inc,v 1.7 2004/06/02 00:26:30 gsherwood Exp $
+* $Id: workflow_step_condition_management.inc,v 1.8 2004/06/02 17:31:48 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,16 +47,19 @@ class Workflow_Step_Condition_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array('userid'    => Array(
-											'added' => '0.1',
-											'type'  => 'assetid', 'default' => ''
+											'added'   => '0.1',
+											'type'    => 'assetid', 
+											'default' => 0,
 											),
 							'logic'     => Array(
-											'added' => '0.1',
-											'type'  => 'text', 'default' => '>='
+											'added'		=> '0.1',
+											'type'		=> 'text', 
+											'default'	=> '>=',
 											),
 							'logic_num' => Array(
-											'added' => '0.1',
-											'type'  => 'int', 'default' => '1'
+											'added'		=> '0.1',
+											'type'		=> 'int', 
+											'default'	=> '1',
 											)
 							);
 	}//end constructor
