@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.25 2004/10/18 22:47:19 arailean Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.26 2004/10/18 22:53:57 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -102,15 +102,16 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		$name  = $this->id;
 
 		$html  = '';
-		$html .= "<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\">\n";
+		$html .= "<table>\n";
 		$html .= ($hor) ? "<tr>\n" : '';
 
 		$defaults = isset($this->active_submission[$this->id]) ? $this->active_submission[$this->id] : $this->attr('default');
 		if (!is_array($defaults)) $defaults = Array();
 		foreach ($options as $key => $value) {
-			$html .= ($hor) ? "<td nowrap>\n" : "<tr><td>\n";
+			$html .= ($hor) ? "<td nowrap=\"nowrap\">\n" : "<tr><td>\n";
 			$html .= '<input type="'.$type.'" ';
 			$html .= 'name="'.$this->id.(($multiple) ? '[]' : '').'" ';
+			$html .= 'id="'.$this->id.'_'.$key.'"';
 			$html .= 'value="'.htmlspecialchars($key).'"';
 
 			if (in_array($key, $defaults)) {
@@ -118,7 +119,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			}
 
 			$html .= $extras.' />';
-			$html .= '&nbsp;<span onclick="this.previousSibling.previousSibling.checked = (!this.previousSibling.previousSibling.checked || this.previousSibling.previousSibling.type==\'radio\')">'.$value.'</span>';
+			$html .= '&nbsp;<label for="'.$this->id.'_'.$key.'">'.$value.'</label>';
 			$html .= ($hor) ? "</td>\n" : "</td></tr>";
 		}
 
