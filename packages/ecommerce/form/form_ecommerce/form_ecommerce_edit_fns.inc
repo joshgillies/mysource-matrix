@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.1.1.1 2004/10/13 01:31:47 arailean Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.2 2004/10/13 06:46:11 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -61,7 +61,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 		if (!empty($questions)) {
 			foreach ($questions as $q_id => $question) {
 				// if the type is allowed, add it to the list
-				if ($asset->_isAllowedQuestionType($question['question_type_code']))Purpose {
+				if ($asset->_isAllowedQuestionType($question['question_type_code'])) {
 					$id = $asset->id.':q'.$q_id;
 					$all_questions[$id]['name'] = $question['attributes']['name'];
 					// determine if this question is in our list
