@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.48 2003/11/26 00:51:03 gsherwood Exp $
+* $Id: trash_folder.inc,v 1.49 2004/01/20 02:42:51 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -95,8 +95,8 @@ class Trash_Folder extends Folder
 	{
 		$prefix = $this->getPrefix($this);
 		if (isset($_REQUEST[$prefix.'_purge_complete']) && (int)$_REQUEST[$prefix.'_purge_complete'] === 1) {
-			$o->addOnLoad('	if (top.sidenav && top.sidenav.reload_asset) {
-								top.sidenav.reload_asset("'.$this->id.'");
+			$o->addOnLoad('	if (parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].reload_asset) {
+								parent.frames["sq_sidenav"].reload_asset("'.$this->id.'");
 							}');
 		}
 

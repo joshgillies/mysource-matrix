@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.10 2004/01/19 00:52:44 gsherwood Exp $
+* $Id: hipo_job_create_link.inc,v 1.11 2004/01/20 02:38:22 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -205,6 +205,13 @@ class HIPO_Job_Create_Link extends HIPO_Job
 		return parent::initialise($source_code_name);
 
 	}//end initialise()
+
+
+	function getHipoThreshold()
+	{
+		if (!isset($this->_running_vars)) return false;
+
+	}
 
 
 	/**
@@ -674,9 +681,9 @@ class HIPO_Job_Create_Link extends HIPO_Job
 	*/
 	function paintRefresh(&$step_data, &$o, $prefix)
 	{
-		$o->addOnLoad('if (window.opener.top.sidenav && window.opener.top.sidenav.reload_asset) window.opener.top.sidenav.reload_asset("'.$this->_running_vars['parentid'].'");');
+		$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_asset) window.opener.parent.frames["sq_sidenav"].reload_asset("'.$this->_running_vars['parentid'].'");');
 		if (isset($this->_running_vars['old_parentid'])) {
-			$o->addOnLoad('if (window.opener.top.sidenav && window.opener.top.sidenav.reload_asset) window.opener.top.sidenav.reload_asset("'.$this->_running_vars['old_parentid'].'");');
+			$o->addOnLoad('if (window.opener.parent.frames["sq_sidenav"] && window.opener.parent.frames["sq_sidenav"].reload_asset) window.opener.parent.frames["sq_sidenav"].reload_asset("'.$this->_running_vars['old_parentid'].'");');
 		}
 
 		return true;

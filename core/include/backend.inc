@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.82 2004/01/05 21:49:46 gsherwood Exp $
+* $Id: backend.inc,v 1.83 2004/01/20 02:37:18 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -224,18 +224,18 @@ class Backend extends MySource_Object
 			if (SQ_IN_LIMBO) {
 				?>
 				<frameset rows="28,*" frameborder="0" border="0">
-					<frame src="<?php echo $frame_urls['header']; ?>" name="header" scrolling="no" marginwidth="0" marginheight="0">
-					<frame src="<?php echo $frame_urls['main']; ?>" name="main" marginwidth="0" marginheight="0" scrolling="yes">
+					<frame src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0">
+					<frame src="<?php echo $frame_urls['main']; ?>" name="sq_main" marginwidth="0" marginheight="0" scrolling="yes">
 				</frameset>
 				<?php
 			} else {
 				?>
 				<frameset rows="28,*" frameborder="0" border="0">
-					<frame src="<?php echo $frame_urls['header']; ?>" name="header" scrolling="no" marginwidth="0" marginheight="0">
+					<frame src="<?php echo $frame_urls['header']; ?>" name="sq_header" scrolling="no" marginwidth="0" marginheight="0">
 					<frameset cols="230,10,*" frameborder="0" border="0" id ="main_frameset">
-						<frame src="<?php echo $frame_urls['sidenav']; ?>" name="sidenav" scrolling="no" marginwidth="0" marginheight="0">
-						<frame src="<?php echo $frame_urls['resizer']; ?>" name="resizer" scrolling="no" marginwidth="0" marginheight="0">
-						<frame src="<?php echo $frame_urls['main']; ?>" name="main" marginwidth="0" marginheight="0" scrolling="yes">
+						<frame src="<?php echo $frame_urls['sidenav']; ?>" name="sq_sidenav" scrolling="no" marginwidth="0" marginheight="0">
+						<frame src="<?php echo $frame_urls['resizer']; ?>" name="sq_resizer" scrolling="no" marginwidth="0" marginheight="0">
+						<frame src="<?php echo $frame_urls['main']; ?>" name="sq_main" marginwidth="0" marginheight="0" scrolling="yes">
 					</frameset>
 				</frameset>
 				<?php
@@ -264,9 +264,9 @@ class Backend extends MySource_Object
 			function reloadHeader() {
 				var current_assetid = '';
 				var lock_type = '';
-				if (top.main && top.main.get_form_element_value && top.main.SQ_DOCUMENT_LOADED) {
-					current_assetid = top.main.get_form_element_value('backend_assetid');
-					lock_type       = top.main.get_form_element_value('sq_lock_type');
+				if (parent.frames["sq_main"] && parent.frames["sq_main"].get_form_element_value && parent.frames["sq_main"].SQ_DOCUMENT_LOADED) {
+					current_assetid = parent.frames["sq_main"].get_form_element_value('backend_assetid');
+					lock_type       = parent.frames["sq_main"].get_form_element_value('sq_lock_type');
 				}
 				var url = '<?php echo $this->getBackendUrl('header');?>'
 									+ '&current_assetid=' + current_assetid
@@ -296,8 +296,8 @@ class Backend extends MySource_Object
 					$xml_root->addChild('asset', '', Array('assetid' => $assetid));
 				}
 				$this->out->addOnLoad('
-					if (top.sidenav.reload_assets) {
-						top.sidenav.reload_assets("'.str_replace("\n", "\\n", addslashes($xml->get())).'");
+					if (parent.frames["sq_sidenav"].reload_assets) {
+						parent.frames["sq_sidenav"].reload_assets("'.str_replace("\n", "\\n", addslashes($xml->get())).'");
 					}
 				');
 			}// end if
@@ -330,10 +330,10 @@ class Backend extends MySource_Object
 				<tr>
 					<td rowspan="2" valign="middle" class="sq-backend-new-message-cell"><img src="'.$this->out->filesPath('/images/icons/mail.png').'" width="31" height="33" border="0" alt="" /></td>
 					<td class="sq-backend-new-message-heading" nowrap>New Messages</td>
-					<td class="sq-backend-new-message-heading" align="right">[<a class="sq-backend-new-message-body" href="#" onClick="Javascript: parent.top.header.cancelMsgDiv(); return false;">x</a>]</td>
+					<td class="sq-backend-new-message-heading" align="right">[<a class="sq-backend-new-message-body" href="#" onClick="Javascript: parent.frames[\'sq_header\'].cancelMsgDiv(); return false;">x</a>]</td>
 				</tr>
 				<tr>
-					<td class="sq-backend-new-message-body" nowrap colspan="2"><a class="sq-backend-new-message-body" href="#" onClick="Javascript: if (parent.top.sidenav && parent.top.sidenav.refresh_internal_messages) { parent.top.header.last_messages_clicked = \'1\'; parent.top.sidenav.refresh_internal_messages(); }; return false;">'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'</a></td>
+					<td class="sq-backend-new-message-body" nowrap colspan="2"><a class="sq-backend-new-message-body" href="#" onClick="Javascript: if (parent.frames[\'sq_sidenav\'] && parent.frames[\'sq_sidenav\'].refresh_internal_messages) { parent.frames[\'sq_header\'].last_messages_clicked = \'1\'; parent.frames[\'sq_sidenav\'].refresh_internal_messages(); }; return false;">'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'</a></td>
 				</tr>
 			</table>
 			';
@@ -393,8 +393,8 @@ class Backend extends MySource_Object
 					}
 					msgDiv.style.display = "block";
 					counter = msgDiv.offsetHeight;
-					divTop = (counter * -1) + top.main.document.body.scrollTop;
-					divLeft = top.main.document.body.offsetWidth + top.main.document.body.scrollLeft - msgDiv.offsetWidth - 20;
+					divTop = (counter * -1) + parent.frames["sq_main"].document.body.scrollTop;
+					divLeft = parent.frames["sq_main"].document.body.offsetWidth + parent.frames["sq_main"].document.body.scrollLeft - msgDiv.offsetWidth - 20;
 					msgDiv.style.top = divTop + "px";
 					msgDiv.style.left = divLeft + "px";
 
@@ -423,19 +423,19 @@ class Backend extends MySource_Object
 					}
 				}
 
-				if (top.main.document.body && top.main.SQ_DOCUMENT_LOADED) {
-					msgDiv = top.main.document.getElementById("new_message_popup");
-					screenMenu = top.main.document.getElementById("sq_screen_menu");
-					screenMenuFiller = top.main.document.getElementById("sq_screen_menu_filler");
+				if (parent.frames["sq_main"].document.body && parent.frames["sq_main"].SQ_DOCUMENT_LOADED) {
+					msgDiv = parent.frames["sq_main"].document.getElementById("new_message_popup");
+					screenMenu = parent.frames["sq_main"].document.getElementById("sq_screen_menu");
+					screenMenuFiller = parent.frames["sq_main"].document.getElementById("sq_screen_menu_filler");
 					if (msgDiv == null) {
-						msgDiv = top.main.document.createElement("div");
+						msgDiv = parent.frames["sq_main"].document.createElement("div");
 						msgDiv.id = "new_message_popup";
 						msgDiv.style.position = "absolute";
 						msgDiv.style.display = "block";
 						msgDiv.style.top = "-1000px";
 						msgDiv.style.left = "-1000px";
 						msgDiv.style.zIndex = "10";
-						top.main.document.body.appendChild(msgDiv);
+						parent.frames["sq_main"].document.body.appendChild(msgDiv);
 					}
 
 					// set the contents of the div
@@ -469,10 +469,10 @@ class Backend extends MySource_Object
 						$options[] = Array(
 									'url'     => '#',
 									'onclick' => 'Javascript:
-									if (top.main && top.main.get_form_element_value) {
-										var sq_link_path = top.main.get_form_element_value("sq_link_path");
-										if (sq_link_path && top.sidenav && top.sidenav.select_path) {
-											top.sidenav.select_path(sq_link_path);
+									if (parent.frames["sq_main"] && parent.frames["sq_main"].get_form_element_value) {
+										var sq_link_path = parent.frames["sq_main"].get_form_element_value("sq_link_path");
+										if (sq_link_path && parent.frames["sq_sidenav"] && parent.frames["sq_sidenav"].select_path) {
+											parent.frames["sq_sidenav"].select_path(sq_link_path);
 										}
 									}
 									return false;
@@ -484,8 +484,8 @@ class Backend extends MySource_Object
 						$options[] = Array(
 									'url'     => '#',
 									'onclick' => 'Javascript:
-									if (top.main && top.main.get_form_element_value) {
-										var sq_preview_url = top.main.get_form_element_value("sq_preview_url");
+									if (parent.frames["sq_main"] && parent.frames["sq_main"].get_form_element_value) {
+										var sq_preview_url = parent.frames["sq_main"].get_form_element_value("sq_preview_url");
 										if (sq_preview_url) {
 											window.open(sq_preview_url, "sq_preview_window");
 										} else {
@@ -680,7 +680,7 @@ class Backend extends MySource_Object
 		// and redirects the user to the frameset version if they are not
 		if (!isset($_REQUEST['ignore_frames']) || !$_REQUEST['ignore_frames']) {
 			$redirect_url = strip_url(current_url()).'/?sq_redirect_url='.urlencode($_SERVER['REQUEST_URI']);
-			$this->out->addOnLoad('if (!parent.top.header) { sq_redirect("'.$redirect_url.'"); } ');
+			$this->out->addOnLoad('if (!parent.frames["sq_header"]) { sq_redirect("'.$redirect_url.'"); } ');
 		}
 
 		switch($_REQUEST['backend_section']) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.29 2003/12/01 05:17:14 gsherwood Exp $
+* $Id: inbox_edit_fns.inc,v 1.30 2004/01/20 02:43:27 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -284,7 +284,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		$o->addOnLoad('if (top.sidenav && top.sidenav.refresh_internal_messages) top.sidenav.refresh_internal_messages();');
+		$o->addOnLoad('if (parent.frames["sidenav"] && parent.frames["sidenav"].refresh_internal_messages) parent.frames["sidenav"].refresh_internal_messages();');
 
 		return true;
 
