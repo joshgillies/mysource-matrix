@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.20 2004/08/26 00:50:07 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.21 2004/08/27 00:41:43 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.20 $ - 1.0
+* @version $Revision: 1.21 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -548,7 +548,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	
 		$date_values = Array();
 		foreach(Array('start_date', 'end_date') as $date_comp) {
-			$this->_splitAttributeDate($date_values, $date_comp, $this->attr($date_comp), $date_comp.'_');
+			$date_values += $this->getDateComponents($this->attr($date_comp), $date_comp.'_');
 		}
 		
 		// frequency field => as thy will be set in the standard attribute value table
