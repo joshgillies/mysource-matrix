@@ -58,7 +58,7 @@ class Root_User extends System_User
 		$this->setAttrValue('last_name',  'User');
 
 		$ret_val = parent::create($link);
-		$this->_tmp[__CLASS__.'_in_create'] = false;
+		unset($this->_tmp[__CLASS__.'_in_create']);
 		return $ret_val;
 
 	}//end create()

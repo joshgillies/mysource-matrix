@@ -53,7 +53,7 @@ class System_User_Group extends User_Group
 		
 		$this->setAttrValue('name', 'System Administrators'); 
 		$ret_val = parent::create($link);
-		$this->_tmp[__CLASS__.'_in_create'] = false;
+		unset($this->_tmp[__CLASS__.'_in_create']);
 		return $ret_val;
 
 	}//end create()
