@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.40 2004/03/02 04:21:19 mmcintyre Exp $
+* $Id: root_folder.inc,v 1.41 2004/06/18 13:13:55 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -98,11 +98,11 @@ class Root_Folder extends Folder
 							'minorid'        => 1,
 							'link_type'      => SQ_LINK_TYPE_1,
 							'value'          => '',
-							'sort_order'     => 1,
+							'sort_order'     => 0,
 							'dependant'      => 1,
 							'exclusive'      => 1,
 							'updated'        => ts_iso8601(time()),
-							'updated_userid' => 0
+							'updated_userid' => 0,
 							);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
