@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_edit_fns.inc,v 1.36 2003/10/10 06:49:27 brobertson Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.37 2003/10/16 01:49:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,26 +48,6 @@ function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='1
 */
 class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 {
-
-	/**
-	* An array of tab code names and their display names
-	* @var Array()
-	*/
-	var $static_screens = Array('details'     => Array('name' => 'Details',
-													   'force_unlock' => true
-													  ),
-								'dependants'  => Array('name' => 'Dependants',
-													   'force_unlock' => true
-													  ),
-								'history'     => Array('name' => 'History',
-													   'force_unlock' => true
-													  ),
-								'logs'        => Array('name' => 'Logs',
-													   'force_unlock' => true
-													  ),
-								);
-
-
 	/**
 	* Constructor
 	*
@@ -75,6 +55,13 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	function Bodycopy_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+
+		unset($this->static_screens['permissions']);
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['metadata']);
+		unset($this->static_screens['linking']);
+		unset($this->static_screens['settings']);
 
 	}//end constructor
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: content_type_edit_fns.inc,v 1.15 2003/09/26 05:26:40 brobertson Exp $
+* $Id: content_type_edit_fns.inc,v 1.16 2003/10/16 01:50:00 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -24,28 +24,20 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 {
 
 	/**
-	* An array of tab code names and their display names
-	* @var Array()
-	*/
-	var $static_screens = Array('details'     => Array('name' => 'Details',
-													   'force_unlock' => true
-													  ),
-								'dependants'  => Array('name' => 'Dependants',
-													   'force_unlock' => true
-													  ),
-								'logs'        => Array('name' => 'Logs',
-													   'force_unlock' => true
-													  ),
-								);
-
-
-	/**
 	* Constructor
 	*
 	*/
 	function Content_Type_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+
+		unset($this->static_screens['permissions']);
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['metadata']);
+		unset($this->static_screens['linking']);
+		unset($this->static_screens['settings']);
+		unset($this->static_screens['history']);
 
 	}//end constructor
 

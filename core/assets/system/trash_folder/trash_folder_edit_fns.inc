@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: trash_folder_edit_fns.inc,v 1.25 2003/10/10 06:49:24 brobertson Exp $
+* $Id: trash_folder_edit_fns.inc,v 1.26 2003/10/16 01:50:32 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -24,25 +24,24 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 {
 
 	/**
-	* An array of tab code names and their display names
-	* @var Array()
-	*/
-	var $static_screens = Array('details' => Array('name' => 'Purge Trash',
-												   'force_unlock' => true
-												   ),
-								'logs'    => Array('name' => 'Logs',
-												   'force_unlock' => true
-												  ),
-								);
-
-
-	/**
 	* Constructor
 	*
 	*/
 	function Trash_Folder_Edit_Fns()
 	{
 		$this->Folder_Edit_Fns();
+
+		$this->static_screens['details']['name'] = 'Purge Trash';
+		$this->static_screens['details']['lock_type'] = 'all';
+		unset($this->static_screens['permissions']);
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['metadata']);
+		unset($this->static_screens['dependants']);
+		unset($this->static_screens['linking']);
+		unset($this->static_screens['settings']);
+		unset($this->static_screens['history']);
+
 	}//end constructor
 
 
