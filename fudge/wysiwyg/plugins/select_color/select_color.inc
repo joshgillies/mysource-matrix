@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: select_color.inc,v 1.9 2003/11/26 00:51:22 gsherwood Exp $
+* $Id: select_color.inc,v 1.10 2003/12/03 04:50:16 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 * @package Fudge
 * @subpackage wysiwyg
 */
-class select_color extends wysiwyg_plugin {
+class Select_Color extends WYSIWYG_Plugin {
 
 	/**
 	* Constructor
@@ -49,10 +49,10 @@ class select_color extends wysiwyg_plugin {
 	*/
 	function select_color()
 	{
-		$this->_add_button('forecolor','ForeColor','Font Color','false','20');
+		$this->_add_button('forecolor','foreColor','Text Color','false','20');
 		$this->_add_button('backcolor','BackColor','Background Color','false','21');
 
-	}//end select_color()
+	}//end constructor
 
 
 	/**
@@ -68,7 +68,21 @@ class select_color extends wysiwyg_plugin {
 		case "backcolor":
 			this._popupDialog("selectColor", "<?php echo $this->get_popup_href('select_color.html')?>", 238, 182, true, function(color) {
 				if (color) {
-					editor._execCommand(cmd, false, "#" + color);
+					var current_span = editor.getClosest("span");
+					if (current_span) {
+						editor.selectNodeContents(current_span);
+						if (cmd.toLowerCase() == "forecolor") {
+							current_span.style.color = color;
+						} else {
+							current_span.style.backgroundColor = color;
+						}
+					} else {
+						// if the value is not the no_style default, add the span tags
+						// to apply the stlye to the selected text - otherwise we ignore it
+						var colorType = "color";
+						if (cmd.toLowerCase() == "backcolor") { colorType = "background-color"; }
+						editor.surroundHTML("<span style=\"" + colorType + ":#" + color + ";\">", "</span>");
+					}
 				}
 			}, HTMLArea._colorToRgb(this._doc.queryCommandValue(btn[0])));
 		break;
@@ -76,7 +90,7 @@ class select_color extends wysiwyg_plugin {
 
 	}//end print_plugin_button_click()
 
-	
+
 	/**
 	* Highlight the selected text or change the font colour
 	*
@@ -94,7 +108,9 @@ class select_color extends wysiwyg_plugin {
 			}
 		break;
 		<?php
+
 	}//end print_plugin_exec_command()
+
 
 }//end class
 
