@@ -3,6 +3,9 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 
 /**
 * Highly Intensive Processing Object (HIPO) to update lookups
+* 
+* Initial Running Vars : 
+*    assetids	-	an array of id's of assets that we will be starting the update from
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
@@ -62,7 +65,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	*/
 	function _getCodeName()
 	{
-		return parent::_getCodeName().$this->_running_vars['assetid'];
+		return parent::_getCodeName().'-'.implode(',', $this->_running_vars['assetids']);
 
 	}//end _getCodeName()
 
@@ -81,24 +84,19 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 	function initialise($source_code_name=null)
 	{
 		// to start updating lookups, we need to have an asset id to start updating lookups at
-		if (!isset($this->_running_vars['assetid'])) {
-			trigger_error('Cannot initialise Update Lookups HIPO, no start asset ID specified', E_USER_WARNING);
+		if (empty($this->_running_vars['assetids'])) {
+			trigger_error('Cannot initialise Update Lookups HIPO, no start asset IDs specified', E_USER_WARNING);
 			return false;
 		}
 
-		// so we have an assetid to start at, but make sure it is a valid assetid
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
-		if (is_null($asset)) {
-			trigger_error('Cannot initialise Update Lookups HIPO, invalid start asset ID specified ('.$this->_running_vars['assetid'].')', E_USER_WARNING);
-			return false;
+		$todo_assetids = $this->_running_vars['assetids'];
+		foreach($this->_running_vars['assetids'] as $assetid) {
+			$todo_assets[] = $assetid;
+			$todo_assets = array_merge($todo_assets, $GLOBALS['SQ_SYSTEM']->am->getChildren($assetid));
 		}
 
-		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
-		// we will be updating the lookups of
-		$child_assets = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id));
-		$this->_running_vars['todo_assetids'] = $child_assets;
+		$this->_running_vars['todo_assetids'] = array_unique($todo_assets);
 		$this->_running_vars['done_assetids'] = Array();
-		unset($asset);
 
 		return parent::initialise($source_code_name);
 
