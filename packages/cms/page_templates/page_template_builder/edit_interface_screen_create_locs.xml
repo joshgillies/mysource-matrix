@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_create_locs.xml,v 1.1 2004/11/18 00:49:24 lwright Exp $
+* $Id: edit_interface_screen_create_locs.xml,v 1.2 2004/12/03 02:53:27 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -31,6 +31,21 @@
 			<function_call>
 				<paint_function   name="paintFixedCreateLocations"   />
 				<process_function name="processFixedCreateLocations" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Additional Create Locations" write_access="write:attributes">
+		<field attribute="parameter_map">
+			<display_name>Additional Location Data Sources</display_name>
+			<note />
+			<parameter_map />
+		</field>
+		<field>
+			<display_name>Permitted Tree Locations</display_name>
+			<note>Create locations gathered from the data sources above will only be processed if they or one of their ancestor assets is listed above.</note>
+			<function_call>
+				<paint_function		name="paintAdditionalLocationParents" />
+				<process_function	name="processAdditionalLocationParents" />
 			</function_call>
 		</field>
 	</section>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder.inc,v 1.3 2004/11/30 00:32:40 tbarrett Exp $
+* $Id: page_template_builder.inc,v 1.4 2004/12/03 02:53:27 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -113,41 +113,79 @@ class Page_Template_Builder extends Page
 		
 		$copy_link = Array('asset' => &$underneath, 'link_type' => SQ_LINK_TYPE_2, 'value' => $link_value, 'sort_order' => 1);
 		$bc_asset->setAttrValue('name', $name);
-		$attributes = Array();
-		
+		$attributes = Array('content' => $bc_text);
 		if (!$bc_asset->create($copy_link, $attributes)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		
-		// not setting any bodycopy text?
-		if ($bc_text == '') {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
-		}
-		
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($bc_asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
-		$link =& reset($links);
-		
-		$container_assetid = $link['minorid'];
-		$container =& $GLOBALS['SQ_SYSTEM']->am->getAsset($container_assetid);
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($container_assetid, SQ_LINK_TYPE_2, 'content_type', false);
-		$link =& reset($links);
-		
-		$ct_assetid = $link['minorid'];
-		$content_type =& $GLOBALS['SQ_SYSTEM']->am->getAsset($ct_assetid);
-		$GLOBALS['SQ_SYSTEM']->am->acquireLock($content_type->id, 'attributes', $content_type->id);
-		$content_type->setAttrValue('html', $bc_text);
-		$content_type->saveAttributes();
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($content_type->id, 'attributes');
-		$cont_edit_fns =& $container->getEditFns();
-		$cont_edit_fns->generateContentFile($container);
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		
-		return true;
+		return $bc_asset;
 	
 	}//end createBodycopy()
 
+
+	function getCreateLocations()
+	{
+		$res = $this->attr('create_locations') + $this->getAdditionalCreateLocations();
+		return $res;
+	}
+	
+
+	/**
+	* Get a list of additional create locations from the REQUEST var
+	*
+	* Also ensures the passed additional locations are valid by checking the allowed
+	* additional create locations that have been set in the asset
+	*
+	* @return array(parentid => link_type)
+	* @access protected
+	*/
+	function getAdditionalCreateLocations()
+	{
+		$res = Array();
+		if (isset($_REQUEST['ADDITIONAL_LOCATIONS']) && !empty($_REQUEST['ADDITIONAL_LOCATIONS'])) {
+			// set the assetids and link types from the query
+			foreach (explode(';', $_REQUEST['ADDITIONAL_LOCATIONS']) as $loc_code) {
+				if (false === strpos($loc_code, '-')) {
+					$link_type = SQ_LINK_TYPE_1;
+					$loc_id = $loc_code;
+				} else {
+					list($loc_id, $link_type) = explode('-', $loc_code);
+				}
+				if (!isset($res[$loc_id]) || ($res[$loc_id] > $link_type)) {
+					$res[$loc_id] = $link_type;
+				}
+			}
+			// check that the types and tree locations are valid
+			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($res));
+			/* Uncomment to enable type checking
+			$valid_types = $this->attr('additional_location_types');
+			*/
+			$valid_parents = $this->attr('additional_location_parents');
+			foreach ($infos as $assetid => $info) {
+				/*
+				uncomment this bit when you want to enable parent type checking
+				if (!in_array($info['type_code'], $valid_types)) {
+					$matches = array_intersect($GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($info['type_code']), $valid_types);
+					if (empty($matches)) {
+						unset($res[$assetid]);
+					} else {
+						// save us looking it up again
+						$valid_types[] = $info['type_code'];
+					}
+				}
+				*/
+				if (!in_array($assetid, $valid_parents)) {
+					$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($assetid);
+					$matches = array_intersect($GLOBALS['SQ_SYSTEM']->am->getParents($assetid), $valid_parents);
+					if (empty($matches)) unset($res[$assetid]);
+				}
+			}
+		}
+		return $res;
+
+	}//end getAdditionalCreateLocations()
+	
 	
 	/**
 	* Returns information about the question fields currently in the template bodycopy
@@ -252,15 +290,69 @@ class Page_Template_Builder extends Page
 		if (!isset($_POST['SQ_TEMPLATE_COMMIT'])) {
 			echo $this->paintDefaultForm();
 		} else {
-			$reps = $this->setReplacements();
-			echo $reps;
-			foreach($this->attr('create_locations') as $assetid => $link_type) {
+			// process
+			$res = $this->getTemplateResult();
+			echo $res;
+			echo $this->paintPrintButton($res);
+			$bc_asset = null;
+			foreach($this->getCreateLocations() as $assetid => $link_type) {
 				$under_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				$this->createBodycopy(date('d M Y H:i:s'), '', $reps, $under_asset);
+				if (is_null($bc_asset)) {
+					$bc_asset =& $this->createBodycopy(date('d M Y H:i:s'), '', $res, $under_asset);
+				} else {
+					$GLOBALS['SQ_SYSTEM']->am->createAssetLink($under_asset, $bc_asset, SQ_LINK_TYPE_2);
+				}
+			}
+			if (true !== ($status_result = $this->_setAssetStatus($bc_asset))) {
+				trigger_error('Error setting status: '.implode(",\n", $status_result), E_USER_WARNING);
+				return false;
 			}
 		}
 	
 	}//end printBody()
+
+
+	/**
+	* Set the status of the newly created asset
+	*
+	* @param object Asset	&$new_asset		the newly created asset
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _setAssetStatus(&$new_asset)
+	{
+		$create_status = $this->attr('create_status');
+		if ($new_asset->status != $create_status) {
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array('assetid' => $new_asset->id, 'new_status' => $create_status);
+			$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
+			return (!empty($status_errors) ? $status_errors : true);
+		}
+		return true;
+
+	}//end _setCreateStatus()
+
+
+	function paintPrintButton($content)
+	{
+		?>
+		<script type="text/javascript">
+		<!--
+			function print_result() {
+				var alert_win = window.open('', 'Print_Preview', 'resizable=yes,scrollbars=yes,width=800,height=500');
+				alert_win.document.open();
+				alert_win.document.writeln('<html><body style="margin: 25mm; width: 160mm; height: 247mm;">');
+				alert_win.document.writeln('<?php echo str_replace("\r", '', str_replace("\n", '\\n', addslashes($content))); ?>');
+				alert_win.document.writeln("</body></html>");
+				alert_win.document.close();
+				alert_win.print();
+			}
+		// -->
+		</script>
+		<input type="button" value="Print" onclick="print_result()" />
+		<?php
+	}
 	
 	
 	/**
@@ -274,15 +366,19 @@ class Page_Template_Builder extends Page
 		$q_fields =& $this->getQuestionFields();
 		$prefix = $this->type().'_'.$this->id;
 		
-		$output = '<form action="'.$_SERVER['PHP_SELF'].'" method="post"><table>';
+		$output = '<form action="'.replace_query_string_vars(Array()).'" method="post"><table>';
+		$parameter_map = &$this->getAttribute('parameter_map');
+		if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != null) {
+			$output .= '<input type="hidden" name="ADDITIONAL_LOCATIONS" value="'.$additional_locs.'" />';
+		}
 
 		foreach($q_fields as $q_field) {
 
 			$field_name = $prefix.'_'.strtolower(str_replace(' ','_',$q_field['name']));
 			
-			$output .= '<tr><td>';
+			$output .= '<tr><td style="vertical-align: top">';
 			$output .= $q_field['name'];
-			$output .='</td><td>';
+			$output .='</td><td style="vertical-align: top">';
 			
 			switch ($q_field['type']) {
 				// single select - drop down OR radio buttons if too long
@@ -366,7 +462,7 @@ class Page_Template_Builder extends Page
 	* @return string
 	* @access public
 	*/
-	function setReplacements()
+	function getTemplateResult()
 	{
 		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'major', 'template');
 		$link =& reset($links);
@@ -422,7 +518,7 @@ class Page_Template_Builder extends Page
 		
 		return $bc_text;
 		
-	}//end setReplacements()
+	}//end getTemplateResult()
 	
 	
 }//end class

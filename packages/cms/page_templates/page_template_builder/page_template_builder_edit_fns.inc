@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder_edit_fns.inc,v 1.2 2004/11/30 00:17:09 tbarrett Exp $
+* $Id: page_template_builder_edit_fns.inc,v 1.3 2004/12/03 02:53:27 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -321,6 +321,57 @@ class Page_Template_Builder_Edit_Fns extends Page_Edit_Fns
 
 	}//end processFixedCreateLocations()
 
+
+
+	/**
+	* Paints the interface for saying where additional create locations can come from
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAdditionalLocationParents(&$asset, &$o, $prefix)
+	{
+		if ($asset->writeAccess('attributes')) {
+			multiple_asset_finder($prefix.'_additional_location_parents', $asset->attr('additional_location_parents'), Array());
+		} else {
+			$infos = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($asset->attr('additional_location_parents'));
+			echo '<ul style="margin: 1px 15px;">';
+			foreach ($infos as $assetid => $info) {
+				echo '<li>'.$info['name'].' (ID #'.$assetid.')</li>';
+			}
+			echo '</ul>';
+		}
+		return true;
+
+	}//end paintAdditionalLocationParents()
+
+
+	/**
+	* Processes the interface for saying where additional create locations can come from
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAdditionalLocationParents(&$asset, &$o, $prefix)
+	{
+		$new_parents = Array();
+		if (isset($_POST[$prefix.'_additional_location_parents']) && is_array($_POST[$prefix.'_additional_location_parents'])) {
+			foreach ($_POST[$prefix.'_additional_location_parents'] as $parent) {
+				if ($parent['assetid']) $new_parents[] = $parent['assetid'];
+			}
+		}
+		$asset->setAttrValue('additional_location_parents', $new_parents);
+
+	}//end processAdditionalLocationParents()
 	
+
 }//end class
 ?>

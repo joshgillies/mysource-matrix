@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder_management.inc,v 1.2 2004/11/18 05:12:48 gsherwood Exp $
+* $Id: page_template_builder_management.inc,v 1.3 2004/12/03 02:53:27 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,15 +47,48 @@ class Page_Template_Builder_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-						/// Create Locations ///
-							
+							/// Create Status ///
+							'create_status' => Array(
+												 'added'       => '0.1',
+												 'type'        => 'selection',
+												 'default'     => (string)SQ_STATUS_UNDER_CONSTRUCTION,
+												 'description' => 'Status of created bodycopies',
+												 'parameters'  => Array(
+																	'options' => Array(
+																				   (string)SQ_STATUS_UNDER_CONSTRUCTION => 'Under Construction',
+																				   (string)SQ_STATUS_LIVE               => 'Live',
+																				   (string)SQ_STATUS_ARCHIVED           => 'Archived',
+																				 ),
+																	'multiple' => false,
+																	'allow_empty' => false,
+																  ),
+									           ),
+							/// Create Locations ///
 							'create_locations' => Array(
 													'added'		=> '0.0.1',
 													'type'		=> 'serialise',
 													'default'	=> Array(),					
 									),
 									
-							);//end vars
+				
+							/// Map for connecting runtime data sources with parameters ///
+							'parameter_map' => Array(
+													'added'		=> '0.0.2',
+													'type'		=> 'parameter_map',
+													'parameters' => Array(
+																		'parameters' => Array(
+																			'additional_locations' => 'Additional Create Locations',
+																		)
+																	),
+													'default' => Array(),
+												),
+							/// Additional (query-fed) create locations must be children of one of these ///
+							'additional_location_parents' => Array(
+													'added'		=> '0.1',
+													'type'		=> 'serialise',
+													'default'	=> Array(),
+												),
+						);
 
 	}//end Page_Template_Builder_Management()
 
