@@ -246,21 +246,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		$design_area_links = $asset->getDesignAreaLink();
 
-		pre_echo('------- Design : '.$asset->attr('id_name').' ------------');
-
 		foreach($design_area_links as $link) {
 			$da = &$asset->getDesignArea($link['value']);
 			if (is_null($da)) continue;
 			$vars = Array();
-#			pre_echo('------- '.$da->attr('id_name').' ------------');
-#			pre_echo($da->var_references);
 			foreach($da->vars['var_references']['value'] as $var_name => $info) {
 				$var_da = &$asset->getDesignArea($info['id_name']);
 				if (is_null($var_da)) continue;
 				$vars[$var_name] = $var_da->attr($info['var']);
 			}// end foreach
-#			pre_echo('-------------------');
-#			pre_echo($vars);
 			$da->setVarReferenceValues($vars);
 		}// end foreach
 
@@ -276,9 +270,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 		ob_end_clean();
 
-#		pre_echo("STR : \n".$str);
 		if (!$str) return false;
-		pre_echo("STR EXISTS");
 
 
 		$str = $pre_str."\n".$str;
@@ -286,7 +278,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		create_directory($asset->data_path);
 		$file = $asset->data_path.'/design_file.php';
-		pre_echo($file);
 		return string_to_file($str, $file);
 
 	}// end createDesignFile()
@@ -436,9 +427,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 					}// end foreach
 
 					foreach($extract_list as $remove_path => $files) {
-						pre_echo($files);
-						pre_echo($remove_path);
-						pre_echo('----------------');
+#						pre_echo($files);
+#						pre_echo($remove_path);
+#						pre_echo('----------------');
 
 						$result = $tar_ball->extractList($files, $files_dir, $remove_path);
 						if (PEAR::isError($result)) {

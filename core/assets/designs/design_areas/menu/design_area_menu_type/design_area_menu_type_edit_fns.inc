@@ -66,7 +66,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 				$sub_index = $sub_element_index;
 
-				pre_echo("FOUND THE SUB : $sub_index");
+#				pre_echo("FOUND THE SUB : $sub_index");
 
 				// right so we have a sub menu, let's check it out
 
@@ -97,7 +97,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 		}//end foreach
 
-		pre_echo("$asset->name ..... PAGE INDEX : $page_index, SUB INDEX : $sub_index");
+#		pre_echo("$asset->name ..... PAGE INDEX : $page_index, SUB INDEX : $sub_index");
 
 		// OK, so we have a working sub menu, add it in
 		if ($sub_menu_processed && $page_index >= 0 && $sub_index >= 0) {
@@ -138,7 +138,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		$sub = &$asset->getSubMenu();
 		// nup ? create one now
 		if (is_null($sub)) {
-			pre_echo("CREATE SUB ....");
+#			pre_echo("CREATE SUB ....");
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 			$sub = new $design_area();
 			if (!$sub->create($asset->attr('id_name').'__sub_menu')) return false;
@@ -179,7 +179,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 		echo '<', '?php
 		$PAGE_LINEAGE = $am->getLineageFromURL();
-		pre_echo($PAGE_LINEAGE);
 		?', '>';
 		$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN'] = true;
 
