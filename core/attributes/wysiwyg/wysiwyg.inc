@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.2 2003/11/26 00:51:08 gsherwood Exp $
+* $Id: wysiwyg.inc,v 1.3 2004/03/02 04:13:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,6 +54,11 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	{
 		$this->Asset_Attribute_Text($attributeid, $value);
 
+		// set default edit parameters
+		$this->_edit_params['style']  = 'div';
+		$this->_edit_params['width']  = '100%';
+		$this->_edit_params['height'] = '300';
+
 	}//end constructor
 
 
@@ -69,9 +74,9 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	{
 		if (!parent::setEditParams($node)) return false;
 
-		$this->_edit_params['style']  = isset($node->attributes['style'])  ? $node->attributes['style']  : 'div';
-		$this->_edit_params['width']  = isset($node->attributes['width'])  ? $node->attributes['width']  : '100%';
-		$this->_edit_params['height'] = isset($node->attributes['height']) ? $node->attributes['height'] : '300';
+		if (isset($node->attributes['style']))  $this->_edit_params['style']  = $node->attributes['style'];
+		if (isset($node->attributes['width']))  $this->_edit_params['width']  = $node->attributes['width'];
+		if (isset($node->attributes['height'])) $this->_edit_params['height'] = $node->attributes['height'];
 
 		return true;
 
@@ -88,42 +93,79 @@ class Asset_Attribute_WYSIWYG extends Asset_Attribute_Text
 	*/
 	function &_createEditor($prefix)
 	{
+		// allowed plugins (shortened to $ap for easier use below)
+		$ap = explode('|', $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg', 'SQ_WYSIWYG_PLUGINS'));
+		// ignore allowed plugins (shortened to $iap for easier use);
+		$iap = in_array('all', $ap);
+
 		$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
+
 		$wysiwyg->set_body_type($this->_edit_params['style']);
 		$wysiwyg->set_init_onload(false);
 		$wysiwyg->set_show_status_bar(false);
 		$wysiwyg->set_width($this->_edit_params['width']);
 		$wysiwyg->set_height($this->_edit_params['height']);
-		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'(\?a=[0-9]+)', './$1');
-		$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?$1');
+
+		$base_php_self = str_replace('/'.SQ_CONF_BACKEND_SUFFIX, '', $_SERVER['PHP_SELF']);
+		$base_php_self = str_replace('/'.SQ_CONF_LIMBO_SUFFIX, '', $base_php_self);
+		$base_php_self = rtrim($base_php_self, '/ ');
+
+		$wysiwyg->add_relative_href_check('(http[s]?://'.$_SERVER['HTTP_HOST'].')'.$_SERVER['PHP_SELF'], '$1'.$base_php_self);
+		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?(\?a=[0-9]+)', './$1');
+		$wysiwyg->add_relative_href_check('([^.][^/])(\?a=[0-9]+)', '$1./$2');
+		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?%([a-zA-Z_\-0-9]+)%', '%$1%');
+		$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$base_php_self.'/?$1');
+
+		// get the keyword replacements
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		$keywords = Array();
+		$keyword_vars = Array('keywords' => &$keywords);
+		$em->broadcastEvent($asset, 'requestKeywords', $keyword_vars);
 
 		$wysiwyg->open_group();
-			$wysiwyg->add_plugin('format_text');
-			$wysiwyg->add_plugin('general');
+			if ($iap || in_array('format_text', $ap)) $wysiwyg->add_plugin('format_text');
+			if ($iap || in_array('format_font', $ap)) $wysiwyg->add_plugin('format_font');
+			if ($iap || in_array('general', $ap))     $wysiwyg->add_plugin('general');
+			if ($iap || in_array('s_script', $ap))    $wysiwyg->add_plugin('s_script');
 		$wysiwyg->close_group();
+		
 		$wysiwyg->open_group();
-			$wysiwyg->add_plugin('matrix_apply_style');
+			if ($iap || in_array('matrix_apply_style', $ap)) $wysiwyg->add_plugin('matrix_apply_style');
 		$wysiwyg->close_group();
-		$wysiwyg->add_plugin('justify_text');
-		$wysiwyg->add_plugin('indenting');
-		$wysiwyg->add_plugin('listing');
-		$wysiwyg->add_plugin('table_editing');
-		$wysiwyg->add_plugin('select_color');
+		
+		if ($iap || in_array('justify_text', $ap)) $wysiwyg->add_plugin('justify_text');
+		if (($iap || in_array('keyword_replace', $ap)) && !empty($keywords)) {
+			$wysiwyg->add_plugin('keyword_replace');
+			$keyword_replace = &$wysiwyg->get_plugin('keyword_replace');
+			$keyword_replace->keyword_tag = '%';
+			$keyword_replace->keywords = $keywords;
+		}
+		if ($iap || in_array('history', $ap))      $wysiwyg->add_plugin('history');
+		if ($iap || in_array('indenting', $ap))     $wysiwyg->add_plugin('indenting');
+		if ($iap || in_array('listing', $ap))       $wysiwyg->add_plugin('listing');
+		if ($iap || in_array('table_editing', $ap)) $wysiwyg->add_plugin('table_editing');
+		if ($iap || in_array('select_color', $ap))  $wysiwyg->add_plugin('select_color');
+		
 		$wysiwyg->open_group();
-			$wysiwyg->add_plugin('matrix_insert_link');
-			$wysiwyg->add_plugin('matrix_insert_image');
-			$wysiwyg->add_plugin('matrix_embed_movie');
+			if ($iap || in_array('matrix_insert_link', $ap) || in_array('insert_link', $ap))  $wysiwyg->add_plugin('matrix_insert_link');
+			if ($iap || in_array('matrix_insert_image', $ap) || in_array('insert_image', $ap)) $wysiwyg->add_plugin('matrix_insert_image');
+			if ($iap || in_array('matrix_embed_movie', $ap))  $wysiwyg->add_plugin('matrix_embed_movie');
 		$wysiwyg->close_group();
+		
 		$wysiwyg->open_group();
-			$wysiwyg->add_plugin('spell_checker');
-			$wysiwyg->add_plugin('view_source');
-			$wysiwyg->add_plugin('popup_editor');
+			if ($iap || in_array('spell_checker', $ap))  $wysiwyg->add_plugin('spell_checker');
+			if ($iap || in_array('text_indicator', $ap)) $wysiwyg->add_plugin('text_indicator');
+			if ($iap || in_array('view_source', $ap))    $wysiwyg->add_plugin('view_source');
+			if ($iap || in_array('popup_editor', $ap))   $wysiwyg->add_plugin('popup_editor');
+			if ($iap || in_array('help', $ap))           $wysiwyg->add_plugin('help');
 		$wysiwyg->close_group();
 
 		// html_tidy needs to be last so other plugins can set options
-		$wysiwyg->add_plugin('html_tidy');
+		if ($iap || in_array('html_tidy', $ap)) $wysiwyg->add_plugin('html_tidy');
+
 		// contents must be set AFTER all plugins are loaded
 		$wysiwyg->set_contents($this->value);
+
 		return $wysiwyg;
 
 	}//end _createEditor()
