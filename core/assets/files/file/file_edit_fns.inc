@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.39.2.1 2004/03/02 18:35:51 brobertson Exp $
+* $Id: file_edit_fns.inc,v 1.39.2.2 2004/03/03 19:39:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -165,7 +165,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			// a new file with a new name means we need to remove the old
 			// one from the repository (NOTE that this doesnt actually 'remove' the
 			// files from the repository - just marks the branch as complete)
-			if (!$fv->remove($existing['path'], '', false)) {
+			if (!$fv->remove($existing['path'])) {
 				trigger_error('Failed removing file from repository', E_USER_WARNING);
 				return false;
 			}
@@ -191,14 +191,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->name == $name && !empty($existing)) {
 			$file_status = $fv->upToDate($asset->data_path.'/'.$name);
 			if (FUDGE_FV_MODIFIED & $file_status) {
-				if (!$fv->commit($asset->data_path.'/'.$name, '', false)) {
+				if (!$fv->commit($asset->data_path.'/'.$name)) {
 					trigger_error('Failed committing file version', E_USER_WARNING);
 					return false;
 				}
 			}
 		} else {
 			// attempt to add the file to the repository
-			if (!$fv->add($asset->data_path_suffix, $asset->data_path.'/'.$name, '', false)) {
+			if (!$fv->add($asset->data_path_suffix, $asset->data_path.'/'.$name)) {
 				trigger_error('Failed adding file version', E_USER_WARNING);
 				return false;
 			}

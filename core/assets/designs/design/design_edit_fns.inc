@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.60.2.2 2004/03/02 16:00:38 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.60.2.3 2004/03/03 19:39:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,14 +108,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			// if we are overwriting our current parse file, we need to add a new version to the repository
 			if ($new_version) {
 				$file_status = $fv->upToDate($parse_file);
-				if (FUDGE_FV_MODIFIED & $file_status) {
-					if (!$fv->commit($parse_file, '', false)) {
+				if (SQ_FV_MODIFIED & $file_status) {
+					if (!$fv->commit($parse_file)) {
 						trigger_error('Failed committing file version', E_USER_WARNING);
 					}
 				}
 			} else {
 				// attempt to add the parse file to the repository
-				if (!$fv->add($asset->data_path_suffix, $parse_file, '', false)) {
+				if (!$fv->add($asset->data_path_suffix, $parse_file)) {
 					trigger_error('Failed adding parse file version', E_USER_WARNING);
 				}
 			}
@@ -250,8 +250,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 				// add a new version to the repository
 				$file_status = $fv->upToDate($parse_file);
-				if (FUDGE_FV_MODIFIED & $file_status) {
-					if (!$fv->commit($parse_file, '', false)) {
+				if (SQ_FV_MODIFIED & $file_status) {
+					if (!$fv->commit($parse_file)) {
 						trigger_error('Failed committing file version', E_USER_WARNING);
 					}
 				} else {
@@ -600,15 +600,15 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		if ($new_file) {
 			// attempt to add the file to the repository
-			if (!$fv->add($asset->data_path_suffix, $file, '', false)) {
+			if (!$fv->add($asset->data_path_suffix, $file)) {
 				trigger_error('Failed adding design file version', E_USER_WARNING);
 				return false;
 			}
 		} else {
 			// updating existing file
 			$file_status = $fv->upToDate($file);
-			if (FUDGE_FV_MODIFIED & $file_status) {
-				if (!$fv->commit($file, '', false)) {
+			if (SQ_FV_MODIFIED & $file_status) {
+				if (!$fv->commit($file)) {
 					trigger_error('Failed committing design file version', E_USER_WARNING);
 					return false;
 				}

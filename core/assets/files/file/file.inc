@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.57.2.1 2004/03/02 16:00:39 brobertson Exp $
+* $Id: file.inc,v 1.57.2.2 2004/03/03 19:39:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -381,7 +381,7 @@ class File extends Asset
 
 			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			// if there is no current file or if the current file is out of date, check out a fresh copy
-			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
+			if ($fv->upToDate($unrestricted) & (SQ_FV_NOT_CHECKED_OUT | SQ_FV_OLD_VERSION)) {
 				if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
 					$changed = true;
 				} else {
@@ -393,7 +393,7 @@ class File extends Asset
 			// need to make sure our file is in the NOT in the public data directory
 			if (is_file($unrestricted)) {
 				$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-				if ($fv->clearOut($unrestricted) & FUDGE_FV_OK) {
+				if ($fv->clearOut($unrestricted) & SQ_FV_OK) {
 					$changed = true;
 				} else {
 					trigger_error('Update failed deleting file from public data directory', E_USER_WARNING);
@@ -617,14 +617,14 @@ class File extends Asset
 
 				// we are renaming the file, so we need to remove the old name from
 				// the repository and add the new one in
-				if (!$fv->remove($data_path.'/'.$old_filename, '', false)) {
+				if (!$fv->remove($data_path.'/'.$old_filename)) {
 					trigger_error('Failed removing file from repository', E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
 				}
 
 				// attempt to add a new version of the file to the repository
-				if (!$fv->add($this->data_path_suffix, $this->data_path.'/'.$new_filename, '', false)) {
+				if (!$fv->add($this->data_path_suffix, $this->data_path.'/'.$new_filename)) {
 					trigger_error('Failed adding file version', E_USER_WARNING);
 					parent::setAttrValue('name', $old_filename);
 					return false;
