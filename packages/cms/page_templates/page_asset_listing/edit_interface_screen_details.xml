@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2004/12/01 12:56:34 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2004/12/01 15:22:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -121,9 +121,11 @@
 			&lt;br/&gt;If the listing type is Random, this defines how many assets are randomly displayed ('0' displays a single asset).</note>
 			<int width="5" />
 		</field>
-		<field attribute="parameter_map">
-			<display_name>Dynamic Parameters</display_name>
-			<note></note>
+	</section>
+	<section name="Dynamic Parameters" write_access="write:attributes">
+		<field attribute="parameter_map" format="new_line">
+			<display_name></display_name>
+			<note />
 			<parameter_map />
 		</field>
 	</section>
