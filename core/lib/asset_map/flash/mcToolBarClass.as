@@ -9,6 +9,22 @@ function mcToolBarClass() {
 		_root.tabs.mail.msgs_container.refreshMail();
 	}
 
+	this.refresh_icon.onRollOver = function() {
+		this._parent._parent.toolbar_help._visible = true;
+		this._parent._parent.toolbar_help.text = "Full Refresh";
+		this._parent._parent.refresh();
+	}
+
+	this.logout_icon.onRollOver = function() {
+		this._parent._parent.toolbar_help._visible = true;
+		this._parent._parent.toolbar_help.text = "Logout";
+		this._parent._parent.refresh();
+	}
+
+	this.refresh_icon.onRollOut = this.refresh_icon.onRollOut = function() {
+		this._parent._parent.toolbar_help._visible = false;
+	}
+
 	this.icons = new Array();
 
 	this.icons.push(this.logout_icon, this.refresh_icon);
