@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.79 2005/02/28 03:41:15 gsherwood Exp $
+* $Id: user.inc,v 1.80 2005/03/01 05:46:04 gsherwood Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -143,8 +143,8 @@ class User extends Asset
 				return false;
 			}
 		}
-		
-				// set an initial web path
+
+		// set an initial web path
 		$initial_path = strtolower($this->attr('username'));
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
@@ -340,9 +340,9 @@ class User extends Asset
 	function canSetAsCurrentUser()
 	{
 		return $this->canLogin();
-	
+
 	}//end canSetAsCurrentUser()
-	
+
 
 	/**
 	* Gets an array of groups that this user is in
@@ -358,10 +358,10 @@ class User extends Asset
 			$_SESSION['sq_user_groups'] = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
 		}
 		return $_SESSION['sq_user_groups'];
-		
+
 	}//end getGroups()
 
-	
+
 	/**
 	* Gets an array of groups that satisfy user conditions
 	*
@@ -376,10 +376,9 @@ class User extends Asset
 		$groups = Array();
 		$groupids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'user_group', true);
 
-		foreach($groupids as $key => $value) {
-			
+		foreach ($groupids as $key => $value) {
 			// if we pass the conditions, let us belong to this group
-			if($this->_belongsToGroup($key)) {
+			if ($this->_belongsToGroup($key)) {
 				array_push($groups, intval($key));
 			}
 		}
@@ -388,7 +387,7 @@ class User extends Asset
 
 	}//end getUserGroups()
 
-	
+
 	/**
 	* Verify if a user belongs to a given group
 	*
@@ -405,23 +404,23 @@ class User extends Asset
 
 		// if this group isnt in the restrictions array
 		// then we just belong to it and so return
-		if(!in_array($group_assetid, array_keys($restrictions))) {
+		if (!in_array($group_assetid, array_keys($restrictions))) {
 			return true;
 		}
 
 		// for each restriction associated to this group
-		foreach($restrictions[$group_assetid] as $restriction) {
-			
+		foreach ($restrictions[$group_assetid] as $restriction) {
+
 			// grab the condition name, make an object
 			$condition_type_code = $restriction['name'];
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type_code);
 			$condition = new $condition_type_code();
-			
+
 			$match = $condition->evaluate($this, $restriction['condition_data']);
-					
+
 			// they don't match up, then get the hell out of mah group!!
-			if($match != $restriction['match']) return false;
-			
+			if ($match != $restriction['match']) return false;
+
 		}
 
 		// if we got this far, we've passed all restrictions
@@ -513,11 +512,11 @@ class User extends Asset
 	}//end printBody()
 
 
-		/**
+	/**
 	* Catches blank username/password combination made during create()
 	*
 	* Override this and return true if a specific subclass wants to skip this check
-	* 
+	*
 	* @param string	$username	the passed user name
 	* @param string $password	the passed pass
 	*
@@ -527,27 +526,27 @@ class User extends Asset
 	function _catchBlankUserNamePass($username, $password)
 	{
 		return (($username != '') && ($password != ''));
-		
+
 	}//end _catchBlankUserNamePass()
-	
-	
+
+
 	/**
 	* Catches blank username being set during setAttrValue()
 	*
 	* Override this and return true if a specific subclass wants to skip this check
 	*
 	* @param string	$username	the passed user name
-	* 
+	*
 	* @return boolean	overridden so always returns true
 	* @access public
 	*/
 	function _catchBlankSetUserName($username)
 	{
 		return ($username != '');
-		
+
 	}//end _catchBlankSetUserName()
-	
-	
+
+
 }//end class
 
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_management.inc,v 1.23 2005/02/22 22:57:35 lwright Exp $
+* $Id: user_management.inc,v 1.24 2005/03/01 05:46:04 gsherwood Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class User_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,59 +47,58 @@ class User_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars =	Array(
-							'username' => Array(
-								'added'     => '0.1',
-								'type'      => 'text',
-								'default'   => '',
-								'uniq'      => true,
-							),
-							'password' => Array(
-								'added'     => '0.1',
-								'type'      => 'password',
-								'default'   => '',
-							),
-							'first_name' => Array(
-								'added'     => '0.1',
-								'type'      => 'text',
-								'default'   => '',
-							),
-							'last_name' => Array(
-								'added'     => '0.1',
-								'type'      => 'text',
-								'default'   => '',
-							),
-							'email'     => Array(
-								'added'     => '0.1',
-								'type'      => 'email',
-								'default'   => '',
-							),
-							
-							'restrictions'  => Array(
-								'added' => '0.2',
-								'type'  => 'serialise',
-								'default'   => Array(),
-							),
-						);
+		$this->vars = Array(
+							'username'     => Array(
+													'added'   => '0.1',
+													'type'    => 'text',
+													'default' => '',
+													'uniq'    => true,
+													),
+							'password'     => Array(
+													'added'   => '0.1',
+													'type'    => 'password',
+													'default' => '',
+													),
+							'first_name'   => Array(
+													'added'   => '0.1',
+													'type'    => 'text',
+													'default' => '',
+													),
+							'last_name'    => Array(
+													'added'   => '0.1',
+													'type'    => 'text',
+													'default' => '',
+													),
+							'email'        => Array(
+													'added'   => '0.1',
+													'type'    => 'email',
+													'default' => '',
+													),
+							'restrictions' => Array(
+													'added'   => '0.2',
+													'type'    => 'serialise',
+													'default' => Array(),
+													),
+							);
 
 		$this->components = Array(
-								'username' => Array (
-									'description'       => 'Username',
-									'default_weighting' => '1',
-								),
-								'first_name' => Array (
-									'description'       => 'First Name',
-									'default_weighting' => '1',
-								),
-								'last_name' => Array (
-									'description'       => 'Last Name',
-									'default_weighting' => '1',
-								),
-								'email' => Array (
-									'description'       => 'Email Address',
-									'default_weighting' => '1',
-								),
-							);
+								  'username'   => Array(
+														'description'       => 'Username',
+														'default_weighting' => '1',
+														),
+								  'first_name' => Array(
+														'description'       => 'First Name',
+														'default_weighting' => '1',
+														),
+								  'last_name'  => Array(
+														'description'       => 'Last Name',
+														'default_weighting' => '1',
+														),
+								  'email'      => Array(
+														'description'       => 'Email Address',
+														'default_weighting' => '1',
+														),
+								  );
 
 	}//end constructor
 
