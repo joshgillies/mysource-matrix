@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.23 2004/01/19 00:53:04 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.24 2004/01/20 01:30:56 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -450,7 +450,6 @@ class Metadata_Manager extends MySource_Object
 					} else {
 						$value = $field->attr('default');
 					}
-
 					$keywords = retrieve_keywords_replacements($value);
 
 					$replacements = $this->generateKeywordReplacements($asset, $keywords, false);
@@ -460,13 +459,15 @@ class Metadata_Manager extends MySource_Object
 					$value = replace_keywords($value, $replacements);
 
 					$word_counts = get_word_counts($value);
+
+					$force_processing = 1; // TEST: will tell the function to process values in any case
+
 					foreach ($word_counts as $word => $count) {
-						$asset->buildKeyData($keydata, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count);
+						$asset->buildKeyData($keydata, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count, $force_processing);
 					}
 				}
 			}
 		}
-
 		return $keydata;
 
 	}//end getMetadataKeyData()
