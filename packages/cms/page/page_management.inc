@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_management.inc,v 1.11 2003/11/26 00:51:30 gsherwood Exp $
+* $Id: page_management.inc,v 1.12 2003/12/12 01:30:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,24 +47,28 @@ class Page_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array('name' => Array(
-												'added'     => '0.0.1',
-												'type'      => 'text',  'default'   => '',
-												'update_fn' => ''
+												'added'       => '0.0.1',
+												'type'        => 'text',  'default'   => '',
+												'description' => 'The full name of the page',
+												'update_fn'   => '',
 												),
 							'short_name' => Array(
-												'added'     => '0.0.1',
-												'type'      => 'text',  'default'   => '',
-												'update_fn' => ''
+												'added'       => '0.0.1',
+												'type'        => 'text',  'default'   => '',
+												'description' => 'The short name of the page (often used in menus)',
+												'update_fn'   => '',
 												)
 							);
 
 		$this->components['name']['default_weighting'] = '1';
 		$this->components['short_name'] = Array (
-			'description'		=> 'Short name',
-			'default_weighting'	=> '1',
-		);
+											'description'      => 'Short name',
+											'default_weighting' => '1',
+											);
 
 	}//end constructor
 
+
 }//end class
+
 ?>
