@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.3 2005/02/24 05:27:17 dbaranovskiy Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.4 2005/02/24 10:15:50 brobertson Exp $
 *
 */
 
@@ -29,14 +29,14 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * <pre>
 * Initial Running Vars :
-*    array(int)           assetid           - the assetids with whose children we are going to attempt to lock
+*    array(int)           assetids          - the assetids with whose children we are going to attempt to lock
 *    array(string)|string lock_type         - the type of lock(s) to get (see Asset_Manager::acquireLock())
 *    bool                 dependants_only   - whether dependants only or all children, defaults to true
 *    bool                 forceably_acquire - whether to attempt to forceably acquire the lock or not,  defaults to false
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
