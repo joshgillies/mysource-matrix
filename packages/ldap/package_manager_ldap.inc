@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_ldap.inc,v 1.1 2004/02/10 16:37:45 brobertson Exp $
+* $Id: package_manager_ldap.inc,v 1.2 2004/05/18 16:24:57 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,8 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *
 * @author  Blair Robertson <brobertson@squiz.net>
 * @version $Version$ - 1.0
-* @package MySource_Matrix
+* @package MySource_Matrix_Packages
+* @subpackage ldap
 */
 class Package_Manager_LDAP extends Package_Manager
 {

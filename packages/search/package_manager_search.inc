@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_search.inc,v 1.3 2004/05/13 22:32:02 lwright Exp $
+* $Id: package_manager_search.inc,v 1.4 2004/05/18 16:25:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,8 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *
 * @author  Blair Robertson <brobertson@squiz.net>
 * @version $Version$ - 1.0
-* @package MySource_Matrix
+* @package MySource_Matrix_Packages
+* @subpackage search
 */
 class Package_Manager_Search extends Package_Manager
 {
