@@ -40,7 +40,6 @@ class Asset_Map
 					  '&action_bar_frame='.rawurlencode('main');
 
 		?>
-		<br>
 		<script language="JavaScript" type="text/javascript">
 		<!--
 			var flash_InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
