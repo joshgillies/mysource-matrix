@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select.inc,v 1.2 2004/09/15 07:06:31 gsherwood Exp $
+* $Id: metadata_field_select.inc,v 1.3 2004/09/30 01:10:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,7 +63,8 @@ class Metadata_Field_Select extends Metadata_Field
 		require_once SQ_ATTRIBUTES_PATH.'/selection/selection.inc';
 
 		$selection = new Asset_Attribute_Selection();
-		$selection->_edit_params = $this->attr('edit_params');
+		$edit_params = $this->attr('edit_params');
+		if (!empty($edit_paras)) $selection->_edit_params = $edit_params;
 		$selection->_params['options'] = $this->attr('select_options');
 		$selection->_params['multiple'] = $this->attr('multiple');
 		
