@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.126 2004/04/02 07:25:35 gsherwood Exp $
+* $Id: asset_map.inc,v 1.127 2004/04/02 08:21:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -380,7 +380,6 @@ class Asset_Map
 					   l.linkid, l.link_type, l.sort_order,
 					   lt.num_immediate_kids';
 		if (!empty($userid_cond)) $sql .= ', MAX(p.permission) AS accessible';
-		else $sql .= ', \'1\' AS accessible';
 		
 		$sql .= ' FROM '.SQ_TABLE_PREFIX.'asset a';
 		if (!empty($userid_cond)) {
@@ -435,7 +434,7 @@ class Asset_Map
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset['assetid'], SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 				$asset['num_immediate_kids'] = count($links);
 			}
-
+			if (!isset($asset['accessible'])) $asset['accessible'] = 1;
 			$attrs = Array(
 				'assetid'       => urlencode($asset['assetid']),
 				'name'          => urlencode($asset['short_name']),
