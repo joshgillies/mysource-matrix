@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemContainerClass.as,v 1.20 2003/10/17 06:32:56 dwong Exp $
+* $Id: mcListItemContainerClass.as,v 1.21 2003/10/20 00:27:29 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -196,28 +196,28 @@ mcListItemContainerClass.prototype._recurseDisplayKids = function(parent_assetid
 */
 mcListItemContainerClass.prototype._createItem = function(parent_name, item_name, link)
 {
-	if (this[item_name] == undefined) {
+	if (this[item_name] != undefined) 
+		return;
 
-		this.num_items++;
-		var linkid = link.linkid;
-		var indent = (_root.asset_manager.asset_links[linkid].majorid > 1) ? this[parent_name].indent + 1 : 0;
-		var assetid = _root.asset_manager.asset_links[linkid].minorid;
+	this.num_items++;
+	var linkid = link.linkid;
+	var indent = (_root.asset_manager.asset_links[linkid].majorid > 1) ? this[parent_name].indent + 1 : 0;
+	var assetid = _root.asset_manager.asset_links[linkid].minorid;
 
-		this.attachMovie("mcListItemID", item_name, this.num_items);
-		this[item_name]._visible = false;
+	this.attachMovie("mcListItemID", item_name, this.num_items);
+	this[item_name]._visible = false;
 
-		this[item_name].setParent(parent_name);
-		this[item_name].setAsset(_root.asset_manager.assets[assetid]);
-		this[item_name].setLink(link);
-		this[item_name].setIndent(indent);
-		var active = (this._active_type_codes.length == 0 || this._active_type_codes.search(this[item_name].type_code) !== null);
-		this[item_name].setActive(active);
-		this[item_name].setShowColours(this.status_view);
+	this[item_name].setParent(parent_name);
+	this[item_name].setAsset(_root.asset_manager.assets[assetid]);
+	this[item_name].setLink(link);
+	this[item_name].setIndent(indent);
+	var active = (this._active_type_codes.length == 0 || this._active_type_codes.search(this[item_name].type_code) !== null);
+	this[item_name].setActive(active);
+	this[item_name].setShowColours(this.status_view);
 
-		if (this.asset_list_items[assetid] == undefined) this.asset_list_items[assetid] = new Array();
-		this.asset_list_items[assetid].push(item_name);
+	if (this.asset_list_items[assetid] == undefined) this.asset_list_items[assetid] = new Array();
+	this.asset_list_items[assetid].push(item_name);
 
-	}// end if
 
 }// end _createItem()
 
@@ -342,7 +342,7 @@ mcListItemContainerClass.prototype._recurseHideKids = function(parent_assetid, p
 */
 mcListItemContainerClass.prototype.onAssetsReload = function(assetids, new_assets, old_assets)
 {
-	trace ("onAssetReload");
+//	trace ("onAssetReload");
 	var linkids = Array();
 	for (linkid in _root.asset_manager.asset_links) {
 		if (parseInt(linkid)  > 0) {
@@ -350,7 +350,7 @@ mcListItemContainerClass.prototype.onAssetsReload = function(assetids, new_asset
 			linkids.push(linkid);
 		}
 	}
-	trace ("linkids: " + linkids);
+//	trace ("linkids: " + linkids);
 	for(var j = 0; j < assetids.length; j++) {
 
 		var assetid = assetids[j];
@@ -427,7 +427,8 @@ mcListItemContainerClass.prototype._reloadAssetListItem = function(assetid, item
 		// insert any child items that have just been added
 		for(var j = 0; j < inserts.length; j++) {
 			var kid_name = item_name + "_" + inserts[j];
-			this._createItem(item_name, kid_name, inserts[j]);
+			var link = _root.asset_manager.asset_links[inserts[j]];
+			this._createItem(item_name, kid_name, link);
 			this._insertItem(pos + 1, kid_name, false);
 
 		}// end for
