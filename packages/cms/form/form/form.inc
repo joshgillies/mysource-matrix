@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.28 2004/05/10 00:18:19 lwright Exp $
+* $Id: form.inc,v 1.29 2004/05/12 05:58:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -353,6 +353,12 @@ class Form extends Bridge
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+
+		// acquire the lock on the new question
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id . ':q' . $new_key, 'attributes', $this->id, true);
+		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->id, 'all');
+
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
