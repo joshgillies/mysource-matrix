@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.23 2004/03/24 06:26:31 gsherwood Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.24 2004/04/19 01:44:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,7 +64,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	function paintNewSection(&$asset, &$o, $prefix)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		echo 'Section Name ';
+		echo '<b>Section Name</b> ';
 		text_box($prefix.'_new_section', '', 20);
 		return true;
 
