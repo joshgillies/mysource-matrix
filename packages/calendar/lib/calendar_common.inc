@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.9 2004/11/22 05:37:13 lwright Exp $
+* $Id: calendar_common.inc,v 1.10 2004/12/03 03:32:14 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -116,7 +116,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 	$type_codes = quoted_descendants('calendar_event_recurring');
 
 	$sql =
-	'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).") as root_node, p.granted as access, cd.* \nFROM ". build_join_statements()." \nWHERE (a.type_code = ".implode(',', $type_codes).") \n";
+	'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).") as root_node, p.granted as access, cd.* \nFROM ". build_join_statements()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n";
 
 	if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
