@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.16 2004/08/20 02:35:28 lwright Exp $
+* $Id: page_calendar.inc,v 1.17 2004/08/20 04:31:15 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,13 +28,13 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
-* Page_Account_Manager
+* Page_Calendar
 *
 * Purpose
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.16 $ - 1.0
+* @version $Revision: 1.17 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -106,6 +106,20 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	var $month_names_short = Array('', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec');
 
+	/**
+	* An array of keywords that this asset makes available for use along with a default replacement
+	* @var Array(keyword => Array('name' => short description, 'default' => default replacement, 'type' => '[inline|block]'))
+	*/
+	var $_available_keywords = Array('calendar_contents' => Array(
+										'name' => 'The calendar content for the current view',
+										'default' => '(calendar content)',
+										'type' => 'block'),
+									 'calendar_title' => Array(
+										'name' => 'The calendar title for the current view',
+										'default' => 'Calendar Title',
+										'type' => 'inline')
+									);
+	
 
 	/**
 	* Constructor
@@ -131,6 +145,7 @@ class Page_Calendar extends Page_Asset_Listing
 		echo '<link rel="stylesheet" type="text/css" href="' . sq_web_path('data').'/asset_types/page_calendar/css/calendar_default.css" />';
 	}
 
+
 	/**
 	* Called by the design to print the body of this asset
 	* 
@@ -139,6 +154,21 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function printBody()
 	{
+
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents'); 
+		if (empty($bodycopy_link)) return false;
+
+		$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		if (is_null($format_bodycopy)) return false;
+
+		$replacements = retrieve_keywords_replacements($format_bodycopy->getRawBodycopyContent());
+		if (!in_array('calendar_contents', $replacements)) {
+			// there is no calendar_contents keyword in the contents, so we dont
+			// need to do all the extra processing for the listing
+			$format_bodycopy->printBody();
+			return true;
+		}
+
 		// If we get a valid and available view type in the request, use it; otherwise use the initial view attribute.
 		$enabled_views = $this->attr('enabled_views');
 		$cal_view = (isset($_REQUEST['SQ_CALENDAR_VIEW']) && !empty($enabled_views[$_REQUEST['SQ_CALENDAR_VIEW']])) ? $_REQUEST['SQ_CALENDAR_VIEW'] : $this->attr('initial_view');
@@ -158,8 +188,14 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 		}
 
-		eval('$this->print'.ucfirst($cal_view).'View(\''.$cal_date.'\');');
-		return true;
+		$func = 'get'.ucfirst($cal_view).'View';
+		$replacements['calendar_contents'] = $this->$func($cal_date);
+		$replacements['calendar_title'] = $this->getViewTitle($cal_view, $cal_date);
+
+		// print the contents of page - replacing the global keywords
+		$format_bodycopy->setKeywordReplacements($replacements);
+		$format_bodycopy->printBody();
+
 
 	}//end printBody() 
 
@@ -169,15 +205,15 @@ class Page_Calendar extends Page_Asset_Listing
 
 
 	/**
-	* print a yearly view for the year containing the specified day
+	* Get the contents of the year view for the year containing the specified day
 	*
 	* @return void
 	* @access public
 	*/
-	function printYearView($date)
+	function getYearView($date)
 	{
+		ob_start();
 		list($year, $month, $day) = explode('-', $date);
-		echo "<h2>Year View for $year</h2>";
 		$week_start_day = $this->attr('week_starts_on');
 		$enabled_views = $this->attr('enabled_views');
 		$drill_down_view = $this->attr('year_drill_down_view');
@@ -254,20 +290,23 @@ class Page_Calendar extends Page_Asset_Listing
 		?>
 		</table>
 		<?
+		$res = ob_get_contents();
+		ob_end_clean();
+		return $res;
 		
-	}//end printYearView()
+	}//end getYearView();
 
 
 	/**
-	* print a monthly view with for the month containing the specified day
+	* Get the contents of the monthly view with for the month containing the specified day
 	*
 	* @return void
 	* @access public
 	*/
-	function printMonthView($date)
+	function getMonthView($date)
 	{
+		ob_start();
 		list($year, $month, $day) = explode('-', $date);
-		echo "<h2>Month View for $date</h2>";
 		$week_start_day = $this->attr('week_starts_on');
 		$root_nodes = $this->attr('root_nodes');
 		$root_node_keys = array_keys($root_nodes);
@@ -299,7 +338,7 @@ class Page_Calendar extends Page_Asset_Listing
 		// print blank days if necessrary
 		$i = 0;
 		$blank_days = (date('w', strtotime("$year-".sprintf('%02d', $month).'-01')) + 7 - $week_start_day) % 7;
-		for ($i = 0; $i < $blank_days-1; $i++) {
+		for ($i = 0; $i < $blank_days; $i++) {
 		?>
 				<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
 		<?php
@@ -373,20 +412,24 @@ class Page_Calendar extends Page_Asset_Listing
 			echo '</tr>';
 		}
 		echo '</table>';
+
+		$res = ob_get_contents();
+		ob_end_clean();
+		return $res;
 		
-	}//end printMonthView()
+	}//end getMonthView()
 
 
 	/**
-	* print a weekly view for the week containing the specified day
+	* Get the contents of the week view for the week containing the specified day
 	*
 	* @return void
 	* @access public
 	*/
-	function printWeekView($date)
+	function getWeekView($date)
 	{
+		ob_start();
 		list($year, $month, $day) = explode('-', $date);
-		echo "<h2>Week View for $date</h2>";
 
 		// get the list of columns using the week-starts-on and week-days-to-show attributes
 		$week_start_day = $this->attr('week_starts_on');
@@ -407,24 +450,31 @@ class Page_Calendar extends Page_Asset_Listing
 			$ordered_days = array_flip($ordered_days);
 			$today_index = $ordered_days[date('w', strtotime($date))];
 			foreach ($columns as $id => $name) {
-				$target_date = date('Y-m-d', strtotime((($ordered_days[$id] < $today_index) ? 'last ' : '') . $name));
+				$target_time = strtotime((($ordered_days[$id] < $today_index) ? 'last ' : '') . $name, strtotime($date));
+				$target_date = date('Y-m-d', $target_time);
 				$column_links[$id] = $this->getHref().'?SQ_CALENDAR_VIEW=day&SQ_CALENDAR_DATE='.$target_date;
+				$columns[$id] .= ' ' . add_ordinal_suffix(date('j', $target_time));
 			}
 		}
 
 		$this->_printTimedTable('week', Array(), $columns, $column_links, $enabled_views['event']);
+
+		$res = ob_get_contents();
+		ob_end_clean();
+		return $res;
 		
-	}//end printWeekView()
+	}//end getWeekView()
 
 
 	/**
-	* print a day view for the specified day
+	* Get the contents of the day view for the specified day
 	*
 	* @return void
 	* @access public
 	*/
-	function printDayView($date)
+	function getDayView($date)
 	{
+		ob_start();
 		$root_nodes = $this->attr('root_nodes');
 		$columns = ((count($root_nodes > 1) && $this->attr('columnise_day_view_by_root_node'))) ? array_keys($root_nodes) : Array();
 		if (!empty($columns)) {
@@ -434,26 +484,47 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 
 		list($year, $month, $day) = explode('-', $date);
-		?>
-		<h2>Day View for <?php echo $date; ?></h2>
-		<?php
 		$enabled_views = $this->attr('enabled_views');
 		$this->_printTimedTable('day', Array(), $new_cols, Array(), $enabled_views['event']);
 
-	}//end printDayView()
+		$res = ob_get_contents();
+		ob_end_clean();
+		return $res;
+
+	}//end getDayView()
 
 
 	/**
-	* print the details of the specified event by itself
+	* Get the contents of the details of the specified event by itself
 	*
 	* @return void
 	* @access public
 	*/
-	function printEventView($event_id)
+	function getEventView($event_id)
 	{
-		echo "<h2>Event View for Event $event_id</h2>";
+		ob_start();
+		$res = ob_get_contents();
+		ob_end_clean();
+		return $res;
 
-	}//end printEventView
+
+	}//end getEventView
+
+
+
+	function getViewTitle($view, $date) 
+	{
+		$title_formats = $this->attr('view_title_formats');
+		if ($view == 'event') {
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($date);
+			return str_replace(Array('t', 'i'), Array($asset->attr('name'), $date), $title_formats['event']);
+		} elseif ($view == 'week') {
+			// convert the date into the first day of the week's date
+			$week_start_day = $this->day_names_full[$this->attr('week_starts_on')];
+			if (date('l',strtotime('date')) != $week_start_day) $date = date('Y-m-d', strtotime('last '.$week_start_day, strtotime($date)));
+		}		
+		return date($title_formats[$view], strtotime($date));
+	}
 
 
 //--        HELPER FUNCTIONS FOR VIEW PRINTING FUNCTIONS        --//
@@ -526,7 +597,7 @@ class Page_Calendar extends Page_Asset_Listing
 		list($end_hour, $end_mins) = explode(':', $this->attr('day_ends_at'));
 		while (($current_hour < $end_hour) || ($current_mins < $end_mins)) {
 			?>
-			<tr style="height: <?php echo $partition_height; ?>ex">
+			<tr style="height: <?php echo $partition_height; ?>ex; <?php echo (!empty($column_links)) ? 'cursor: pointer; cursor: hand' : ''; ?>">
 				<th class="timeLabel"><?php echo $current_hour.':'.sprintf('%02d', $current_mins); ?></th>
 			<?php
 			foreach ($columns as $id => $name) {

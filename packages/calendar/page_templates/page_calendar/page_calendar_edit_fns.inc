@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.9 2004/08/20 00:29:43 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.10 2004/08/20 04:31:15 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $ - 1.0
+* @version $Revision: 1.10 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -550,8 +550,190 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		return false;
 
 	}//end processYearDrillDownView()
+
+
+	/**
+	* Paint the interface that lets you specify the date format for the day view's title
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDayTitleFormat(&$asset, &$o, $prefix)
+	{
+		return $this->_paintTitleFormat('day', $asset, $o, $prefix);
+
+	}//end paintDayTitleFormat()
+
+
+	/**
+	* Process the interface that lets you specify the date format for the day view's title
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDayTitleFormat(&$asset, &$o, $prefix)
+	{
+		return $this->_processTitleFormat('day', $asset, $o, $prefix);
+
+	}//end paintDayTitleFormat()
 	
 
+	/**
+	* Paint the interface that lets you specify the date format for the week view's title
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintWeekTitleFormat(&$asset, &$o, $prefix)
+	{
+		return $this->_paintTitleFormat('week', $asset, $o, $prefix);
+
+	}//end paintweekTitleFormat()
+
+
+	/**
+	* Process the interface that lets you specify the date format for the week view's title
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processWeekTitleFormat(&$asset, &$o, $prefix)
+	{
+		return $this->_processTitleFormat('week', $asset, $o, $prefix);
+
+	}//end paintweekTitleFormat()
+	
+
+	/**
+	* Paint the interface that lets you specify the date format for the month view's title
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintMonthTitleFormat(&$asset, &$o, $prefix)
+	{
+		return $this->_paintTitleFormat('month', $asset, $o, $prefix);
+
+	}//end paintmonthTitleFormat()
+
+
+	/**
+	* Process the interface that lets you specify the date format for the month view's title
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processMonthTitleFormat(&$asset, &$o, $prefix)
+	{
+		return $this->_processTitleFormat('month', $asset, $o, $prefix);
+
+	}//end paintmonthTitleFormat()
+	
+
+	/**
+	* Paint the interface that lets you specify the date format for the year view's title
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintYearTitleFormat(&$asset, &$o, $prefix)
+	{
+		return $this->_paintTitleFormat('year', $asset, $o, $prefix);
+
+	}//end paintyearTitleFormat()
+
+
+	/**
+	* Process the interface that lets you specify the date format for the year view's title
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processYearTitleFormat(&$asset, &$o, $prefix)
+	{
+		return $this->_processTitleFormat('year', $asset, $o, $prefix);
+
+	}//end paintyearTitleFormat()
+
+
+	/**
+	* Generic function to paint the interface for specifying a view's title format
+	*
+	* @param string						$view	the view this is the interface for
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _paintTitleFormat($view, &$asset, &$o, $prefix)
+	{
+		$title_formats = $asset->attr('view_title_formats');
+		//bam($title_formats);
+		text_box($prefix.'_title_format_'.$view, $title_formats[$view]);
+		?><div class="sq-backend-smallprint">The date format to use in this view's title, expressed using the date format symbols from the <a target="_blank" href="http://au.php.net/manual/en/function.date.php">PHP date function</a><?php
+		return true;
+
+	}//end _paintTitleFormat()
+
+
+	/**
+	* Generic function to process the interface for specifying a view's title format
+	*
+	* @param string						$view	the view this is the interface for
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _processTitleFormat($view, &$asset, &$o, $prefix)
+	{
+		if (isset($_POST[$prefix.'_title_format_'.$view])) {
+			$title_formats = $asset->attr('view_title_formats');
+			$title_formats[$view] = $_POST[$prefix.'_title_format_'.$view];
+			$asset->setAttrValue('view_title_formats', $title_formats);
+			return true;
+		} else {
+			return false;
+		}
+	}//end _processTitleFormat()
+
+	
 }//end class
 
 ?>

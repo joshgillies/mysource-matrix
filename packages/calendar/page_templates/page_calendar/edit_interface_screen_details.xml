@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.5 2004/08/20 00:29:43 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.6 2004/08/20 04:31:15 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -75,6 +75,14 @@
 
 	<section name="Settings for Year View" write_access="write:attributes">
 		<field>
+			<display_name>Title Format</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintYearTitleFormat" />
+				<process_function name="processYearTitleFormat" />
+			</function_call>
+		</field>
+		<field>
 			<display_name>drill-down view</display_name>
 			<note>When a user clicks on a day in year view they will be taken to this view.  (In other views, the drill-down view is always the next-smallest of the enabled views.  In year view, clicking on a month name will always take you to the month view if it's enabled.)</note>
 			<function_call>
@@ -84,10 +92,29 @@
 		</field>
 	</section>
 
+	<section name="Settings for Month View" write_access="write:attributes">
+		<field>
+			<display_name>Title Format</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintMonthTitleFormat" />
+				<process_function name="processMonthTitleFormat" />
+			</function_call>
+		</field>
+	</section>
+
 	<section name="Settings for Week View" write_access="write:attributes">
 		<field>
+			<display_name>Title Format</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintWeekTitleFormat" />
+				<process_function name="processWeekTitleFormat" />
+			</function_call>
+		</field>
+		<field>
 			<display_name>Days to include in week</display_name> 
-			<note>Days that are not enabled here will not be shown in week view.  The order of the days is controlled by the 'First Day in Week' setting above.</note>
+			<note>Only days enabled here will be displayed in week view.  <br />The order in which the days are displayed is controlled by the 'First Day in Week' setting above.</note>
 			<function_call>
 				<paint_function	name="paintWeekDays" />
 				<process_function name="processWeekDays" />
@@ -130,6 +157,14 @@
 	</section>
 
 	<section name="Settings for Day View" write_access="write:attributes">
+		<field>
+			<display_name>Title Format</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintDayTitleFormat" />
+				<process_function name="processDayTitleFormat" />
+			</function_call>
+		</field>
 		<field attribute="columnise_day_view_by_root_node">
 			<display_name>Columnise by root node</display_name> 
 			<note>Whether to put entries in the day view into columns according to their root node</note>

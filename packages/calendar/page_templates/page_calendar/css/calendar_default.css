@@ -98,7 +98,7 @@ table#week { border: 2px solid purple; background-color: #eeeeee; border-collaps
 /* header cells */
 #week th { background-color: #dddddd }
 #week th.timeLabel { width: 6ex; }
-#week th.columnLabel { vertical-align: middle; cursor: pointer; cursor: hand }
+#week th.columnLabel { vertical-align: middle; font-weight: bold; color: red }
 #week th.columnLabel a, #week th.columnLabel a:visited, #week th.columnLabel a:hover { text-decoration: none; font-weight: bold; color: red }
 
 /* Event DIVs (root-node-specific classes will also apply) */

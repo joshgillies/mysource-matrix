@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.6 2004/08/20 00:01:51 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.7 2004/08/20 04:31:15 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -168,6 +168,20 @@ class Page_Calendar_Management extends Asset_Management
 													'type'      => 'text',
 													'default'   => 'day'
 												);
+
+		// Date format for calendar view titles
+		$this->vars['view_title_formats'] = Array(
+													'added'     => '0.1',
+													'type'      => 'serialise',
+													'default'   => Array(
+																		'year'	=> 'Y',
+																		'month'	=> 'F Y',
+																		'week'	=> 'F Y',
+																		'day'	=> 'jS F Y',
+																		'event'	=> 't'
+																	)
+												  );
+
 		
 	}//end Page_Calendar_Management()
 
