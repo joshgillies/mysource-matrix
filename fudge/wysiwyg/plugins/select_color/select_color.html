@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: select_color.html,v 1.7 2003/09/26 05:26:38 brobertson Exp $
+* $Id: select_color.html,v 1.8 2003/10/15 05:12:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -26,19 +26,24 @@
 
 				var color = window.dialogArguments;
 				color = ValidateColor(color) || '000000';
-				View(color); // set default color
+				Set(color); // set default color
 			}
 
 			function View(color) { // preview color
 				document.getElementById("ColorPreview").style.backgroundColor = '#' + color;
-				document.getElementById("ColorHex").value = '#' + color;
 			}
 
 			function Set(string) { // select color
 				var color = ValidateColor(string);
+				View(color); // show selected color
+				document.getElementById("ColorHex").value = '#' + color;
+			}
+
+			function onOK() {
+				var color = ValidateColor(document.getElementById("ColorHex").value);
 				if (color == null) {
 					// invalid color
-					alert("Invalid color code: " + string);
+					alert("Invalid color code: " + color);
 				} else {
 					// valid color
 					View(color); // show selected color
@@ -68,8 +73,17 @@
 		<form method="get" style="margin:0px; padding:0px" onSubmit="Set(document.getElementById('ColorHex').value); return false;">
 			<table border="0px" cellspacing="0px" cellpadding="4" width="100%">
 				<tr>
-					<td bgcolor="#F0F0F0" valign=center><div style="background-color: #000000; padding: 1; height: 21px; width: 50px"><div id="ColorPreview" style="height: 100%; width: 100%"></div></div></td>
-					<td bgcolor="#F0F0F0" valign=center><input type="text" name="ColorHex" id="ColorHex" value="" size=15 style="font-size: 12px"></td>
+					<td bgcolor="#F0F0F0" valign=center>
+						<div style="background-color: #000000; padding: 1; height: 21px; width: 50px">
+							<div id="ColorPreview" style="height: 100%; width: 100%"></div>
+						</div>
+					</td>
+					<td bgcolor="#F0F0F0" valign=center>
+						<input type="text" name="ColorHex" id="ColorHex" value="" size=15 style="font-size: 12px">
+					</td>
+					<td bgcolor="#F0F0F0" valign=center>
+						<button type="button" name="ok" onclick="return onOK();">OK</button>
+					</td>
 					<td bgcolor="#F0F0F0" width=100%></td>
 				</tr>
 			</table>
