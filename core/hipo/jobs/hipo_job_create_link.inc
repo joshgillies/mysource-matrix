@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.16 2004/02/27 03:35:16 gsherwood Exp $
+* $Id: hipo_job_create_link.inc,v 1.17 2004/02/27 03:48:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -266,6 +266,9 @@ class HIPO_Job_Create_Link extends HIPO_Job
 							<tr>
 								<td valign="top">
 									<?php
+									$o->addJsInclude(sq_web_path('lib').'/asset_map/javaExternalCall.js');
+									$o->addJsInclude(sq_web_path('fudge').'/var_serialise/var_serialise.js');
+									$o->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
 									include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 									$asset_map = new Asset_Map();
 									$asset_map->embed_asset_map('simple');
