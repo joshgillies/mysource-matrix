@@ -123,6 +123,7 @@ class HIPO_Server extends HIPO_Server_Common
 						continue;
 					}
 
+					error_log('System "'.$systemid.'" loaded');
 					$this->_systems[$systemid] = $system_root;
 
 				}// end foreach
@@ -282,7 +283,7 @@ class HIPO_Server extends HIPO_Server_Common
 				break;
 			case SIGUSR2:
 				error_log('Caught SIGUSR2 in '.posix_getpid().' ... Print_R of Object');
-				error_log(print_r($this->_tasks, true));
+				error_log(print_r($this, true));
 				break;
 			case SIGCHLD:
 				// reap any and all zombie children
