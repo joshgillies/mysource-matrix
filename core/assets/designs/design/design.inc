@@ -297,7 +297,7 @@ class Design extends Design_Area
 	*/
 	function filePath($filename)
 	{
-		return $this->data_path_unrestricted.'/files/'.$filename;
+		return $this->data_path_public.'/files/'.$filename;
 	}//end filePath()
 
 	/**
@@ -311,7 +311,7 @@ class Design extends Design_Area
 	*/
 	function webFileSuffix($filename)
 	{
-		return $this->type().'/'.$this->id.'/files/'.$filename;
+		return 'assets/'.$this->type().'/'.$this->id.'/files/'.$filename;
 	}//end webFilesSuffix()
 
 }//end class

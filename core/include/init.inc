@@ -50,7 +50,7 @@ define('SQ_WEB_PATH',			SQ_SYSTEM_ROOT.'/core/web');
 define('SQ_FUDGE_PATH',			SQ_SYSTEM_ROOT.'/fudge');
 
 // include the main system config file
-require_once SQ_DATA_PATH.'/conf/main.inc';
+require_once SQ_DATA_PATH.'/private/conf/main.inc';
 
 
 // Load general everyday handy functions for developers
@@ -66,7 +66,7 @@ if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
 
 // the current output type for the system, can be changed during run-time (eg to XML)
 // main use is so that the error_reporter doesn't barf in HTML to something expecting XML
-$GLOBALS['SQ_OUTPUT_TYPE'] = 'html';
+if (!isset($GLOBALS['SQ_OUTPUT_TYPE'])) $GLOBALS['SQ_OUTPUT_TYPE'] = 'html';
 
 // we are not installing anything
 $GLOBALS['SQ_INSTALL'] = false;

@@ -112,7 +112,7 @@ class Asset_Management extends Resolve_Object
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		
-		$to_dir_path = SQ_DATA_PATH.'/unrestricted/'.$this->getAssetType().'/files';
+		$to_dir_path = SQ_DATA_PATH.'/public/asset_types/'.$this->getAssetType();
 		$from_dir_path = SQ_SYSTEM_ROOT.'/'.$this->_pm->getTypeInfo($this->getAssetType(),'dir');
 		
 		# create the directory to store these files if it doesnt exist

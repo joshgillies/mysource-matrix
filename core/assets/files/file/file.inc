@@ -67,7 +67,7 @@ class File extends Asset
 		// copy our file over to the restricted directory so we can work on it in security
 		$existing = $this->_getExistingFile();
 		$restricted = $this->data_path.'/'.$existing['filename'];
-		$unrestricted = $this->data_path_unrestricted.'/'.$existing['filename'];
+		$unrestricted = $this->data_path_public.'/'.$existing['filename'];
 		if (!copy_file($unrestricted, $restricted)) {
 			trigger_error('Failed saving file "'.$this->name.'" to cache, file copy to unrestricted data directory failed', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -153,14 +153,14 @@ class File extends Asset
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			
 			// clear out our unrestricted data directory
-			if (!clear_directory($this->data_path_unrestricted)) {
+			if (!clear_directory($this->data_path_public)) {
 				trigger_error('Failed processing status change for file "'.$this->name.'", could not clear unrestricted data directory', E_USER_WARNING);
 				return false;
 			}
 
 			$existing = $this->_getExistingFile();
 			$restricted = $this->data_path.'/'.$existing['filename'];
-			$unrestricted = $this->data_path_unrestricted.'/'.$existing['filename'];
+			$unrestricted = $this->data_path_public.'/'.$existing['filename'];
 
 			// and move our file over
 			if (!move_file($restricted, $unrestricted)) {
@@ -261,7 +261,7 @@ class File extends Asset
 		$existing = $this->_getExistingFile();
 		if (!empty($existing)) {
 			$restricted = $this->data_path.'/'.$existing['filename'];
-			$unrestricted = $this->data_path_unrestricted.'/'.$existing['filename'];
+			$unrestricted = $this->data_path_public.'/'.$existing['filename'];
 
 			if ($this->effectiveUnrestricted()) {
 				// we should be storing our file in the unrestrcited
@@ -441,7 +441,7 @@ class File extends Asset
 		if (is_file($this->data_path.'/'.$this->attr('name'))) {
 			$data_path = $this->data_path;
 		} else {
-			$data_path = $this->data_path_unrestricted;
+			$data_path = $this->data_path_public;
 		}
 	
 		$uploading_file = (!empty($this->_tmp['uploading_file'])) ? true : false;
@@ -520,7 +520,7 @@ class File extends Asset
 		if (is_file($this->data_path.'/'.$this->attr('name'))) {
 			$path = $this->data_path.'/'.$this->attr('name');
 		} else {
-			$path = $this->data_path_unrestricted.'/'.$this->attr('name');
+			$path = $this->data_path_public.'/'.$this->attr('name');
 		}
 
 		if (is_file($path)) {

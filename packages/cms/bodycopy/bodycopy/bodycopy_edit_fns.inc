@@ -23,7 +23,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 */
 function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='20', $height='20'){
 	?>
-	<a href="<?php echo $href?>" onmouseover="javascript: show_tooltip(event, '<?php echo addslashes(htmlspecialchars($heading))?>', '<?php echo addslashes(htmlspecialchars($desc))?>', null, 'bodycopyToolTipDiv'); return true;" onmouseout="javascript:hide_tooltip(); return true;" ><img src="<?php echo sq_web_path('data')?>/bodycopy/files/images/icons/<?php echo $icon?>.gif" width="<?php echo $width?>" height="<?php echo $height?>" border="0" <?php echo $extra?>></a><?php
+	<a href="<?php echo $href?>" onmouseover="javascript: show_tooltip(event, '<?php echo addslashes(htmlspecialchars($heading))?>', '<?php echo addslashes(htmlspecialchars($desc))?>', null, 'bodycopyToolTipDiv'); return true;" onmouseout="javascript:hide_tooltip(); return true;" ><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/<?php echo $icon?>.gif" width="<?php echo $width?>" height="<?php echo $height?>" border="0" <?php echo $extra?>></a><?php
 }// end print_bodycopy_icon()
 
 
@@ -136,7 +136,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<input type="hidden" name="bodycopy_name"   value="">
 		<input type="hidden" name="bodycopy_data"   value="">
 
-		<script language="JavaScript" src="<?php echo sq_web_path('data').'/bodycopy/files/js/bodycopy_edit_tables.js'?>"></script>
+		<script language="JavaScript" src="<?php echo sq_web_path('data').'/asset_types/bodycopy/js/bodycopy_edit_tables.js'?>"></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js'?>"	></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/detect.js';?>"					></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/layer_handler.js';?>"				></script>

@@ -38,7 +38,7 @@ class Design_Area_Menu_Stalks_Edit_Fns extends Design_Area_Menu_Recursive_Edit_F
 
 		$direction = ($asset->attr('alignment') == 'left') ? 'right' : 'left';
 
-		$image_path = $asset->data_path;
+		$image_path = $asset->data_path_public;
 
 		//------------------------------------//
 

@@ -76,21 +76,21 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 			return false;
 		}
 
-		create_directory($asset->data_path);
+		create_directory($asset->data_path_public);
 
 		$old_image = $asset->attr('image');
 		$new_image = $info['name'];
 
 		// delete existing uploaded file if it exists
-		if ($old_image && $old_image != $new_image && file_exists($asset->data_path.'/'.$old_image)) {
-			if (!unlink($asset->data_path.'/'.$old_image)) {
+		if ($old_image && $old_image != $new_image && file_exists($asset->data_path_public.'/'.$old_image)) {
+			if (!unlink($asset->data_path_public.'/'.$old_image)) {
 				trigger_error('Failed deleting existing file', E_USER_WARNING);
 				return false;
 			}
 		}
 
 		// copy over the new uploaded file
-		if (!move_uploaded_file($info['tmp_name'], $asset->data_path.'/'.$info['name'])) {
+		if (!move_uploaded_file($info['tmp_name'], $asset->data_path_public.'/'.$info['name'])) {
 			trigger_error('Failed moving uploaded file to destination directory', E_USER_WARNING);
 			return false;
 		}
@@ -114,13 +114,13 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	function paintCurrentImage(&$asset, &$o, $prefix)
 	{
 		$image = $asset->attr('image');
-		if (empty($image) || !file_exists($asset->data_path.'/'.$image)) {
+		if (empty($image) || !file_exists($asset->data_path_public.'/'.$image)) {
 		?>
 			No Image Uploaded
 		<?php
 		} else {
 		?>
-			<a href="<?php echo sq_web_path('data').'/'.$asset->type().'/'.$asset->id.'/'.$image; ?>" target="_blank"><?php echo $image; ?></a>
+			<a href="<?php echo sq_web_path('data').'/assets/'.$asset->type().'/'.$asset->id.'/'.$image; ?>" target="_blank"><?php echo $image; ?></a>
 		<?php
 		}
 		return true;

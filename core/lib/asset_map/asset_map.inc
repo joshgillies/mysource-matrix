@@ -307,7 +307,7 @@ class Asset_Map
 		header("Content-Type: text/xml");
 		echo "<initialisation>\n";
 		echo "<asset_types>\n";
-		$dir = SQ_DATA_PATH.'/asset_map';
+		$dir = SQ_DATA_PATH.'/private/asset_map';
 		if ($d = @opendir($dir)) {
 			while (($file = readdir($d)) !== false) {
 				if (substr($file, -4) == '.xml') {

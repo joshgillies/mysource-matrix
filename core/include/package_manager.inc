@@ -410,7 +410,7 @@ class Package_Manager extends Resolve_Object
 
 		}// end for
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-		return string_to_file($str, SQ_DATA_PATH.'/asset_map/'.$this->package.'.xml');
+		return string_to_file($str, SQ_DATA_PATH.'/private/asset_map/'.$this->package.'.xml');
 
 	}//end _createAssetMapScreensXML()
 

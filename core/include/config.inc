@@ -92,7 +92,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 	function Config() 
 	{
 		$this->Resolve_Object();
-		$this->config_file = SQ_DATA_PATH.'/conf/main.inc';
+		$this->config_file = SQ_DATA_PATH.'/private/conf/main.inc';
 	}
 
 	/**

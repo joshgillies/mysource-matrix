@@ -88,7 +88,7 @@ class Login_Design extends Design
 			return false;
 		}
 
-		if (!create_directory($this->data_path_unrestricted)) {
+		if (!create_directory($this->data_path_public)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -99,7 +99,7 @@ class Login_Design extends Design
 			return false;
 		}
 
-		if (!copy_directory($source_dir.'/files', $this->data_path_unrestricted.'/files')) {
+		if (!copy_directory($source_dir.'/files', $this->data_path_public.'/files')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}

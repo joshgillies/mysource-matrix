@@ -71,7 +71,7 @@ class Asset extends Resolve_Object
 	*
 	* @var string
 	*/
-	var $data_path_unrestricted = '';
+	var $data_path_public = '';
 
 	/**
 	* Whether this asset has serialise attributes or not, basically a performance var
@@ -448,8 +448,8 @@ class Asset extends Resolve_Object
 			}
 		}
 
-		if (is_dir($this->data_path_unrestricted)) {
-			if (!delete_directory($this->data_path_unrestricted)) {
+		if (is_dir($this->data_path_public)) {
+			if (!delete_directory($this->data_path_public)) {
 				trigger_error('Failed deleteing asset "'.$this->name.'", could not delete restricted data directory', E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -777,8 +777,8 @@ class Asset extends Resolve_Object
 	*/
 	function _loadDataPaths()
 	{
-		$this->data_path = SQ_DATA_PATH.'/restricted/'.$this->type().'/'.$this->id;
-		$this->data_path_unrestricted = SQ_DATA_PATH.'/unrestricted/'.$this->type().'/'.$this->id;
+		$this->data_path = SQ_DATA_PATH.'/private/assets/'.$this->type().'/'.$this->id;
+		$this->data_path_public = SQ_DATA_PATH.'/public/assets/'.$this->type().'/'.$this->id;
 		if ($this->useSystemVersion()) $this->data_path .= '/.sq_system';
 
 	}//end _loadDataPaths()
@@ -2646,8 +2646,17 @@ class Asset extends Resolve_Object
 				// whatever it is inheriting right now so it keeps the while in the trash
 				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
 				foreach ($perms as $perm) {
-					$userids = $minor->getPermission($perm, true, false);
-					foreach($userids as $userid) $minor->grantPermission($userid, $perm);
+					$all_permissions = $minor->getPermission($perm, null, false, true, false, true);
+					foreach($all_permissions as $userid => $data) {
+						if (empty($data)) continue;
+						$accesses = array_unique($data);
+						foreach($accesses as $access) {
+							if (!$minor->setPermission($userid, $perm, $access)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return false;
+							}
+						}
+					}
 				}
 
 				if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {

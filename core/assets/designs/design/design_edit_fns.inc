@@ -38,12 +38,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			file_upload($prefix.'_parse_file');
 		}
 
-		if (file_exists($asset->data_path.'/parse.txt')) {
-		?>
-			<a href="<?php echo sq_web_path('data').'/'.$asset->type().'/'.$asset->id; ?>/parse.txt" target="_blank">Current Parse File</a>
-		<?php
-		}// endif
-
 	}// end paintParseFile()
 
 
@@ -112,10 +106,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$temp = explode('<head>', $file_contents, 2);
 		if (sizeof($temp) > 1) {
 			$file_contents= $temp[0]
-							."<head>\n<".SQ_SYSTEM_SHORT_NAME."_PRINT id_name='__global__' var='html_header' />\n"
+							."<head>\n<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n"
 							.$temp[1];
 		} else {
-			$file_contents= "<".SQ_SYSTEM_SHORT_NAME."_PRINT id_name='__global__' var='html_header' />\n"
+			$file_contents= "<".$this->tag_name."_PRINT id_name='__global__' var='html_header' />\n"
 							.$file_contents;
 		}
 
@@ -125,10 +119,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$temp = explode('</body>', $file_contents, 2);
 		if (sizeof($temp) > 1) {
 			$file_contents= $temp[0]
-							."\n<".SQ_SYSTEM_SHORT_NAME."_PRINT id_name='__global__' var='html_footer' />\n</body>"
+							."\n<".$this->tag_name."_PRINT id_name='__global__' var='html_footer' />\n</body>"
 							.$temp[1];
 		} else {
-			$file_contents= $file_contents."\n<".SQ_SYSTEM_SHORT_NAME."_PRINT id_name='__global__' var='html_footer' />";
+			$file_contents= $file_contents."\n<".$this->tag_name."_PRINT id_name='__global__' var='html_footer' />";
 		}
 
 		return parent::_parseString($file_contents);
@@ -392,7 +386,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintCurrentFiles(&$asset, &$o, $prefix)
 	{
-		$files_dir = $asset->data_path.'/files';
+		$files_dir = $asset->data_path_public.'/files';
 		$files = Array();
 		$d = @dir($files_dir);
 		if ($d !== FALSE) {
@@ -462,7 +456,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (empty($_POST[$prefix.'_remove_files'])) return false;
 		$changes = false;
 		foreach($_POST[$prefix.'_remove_files'] as $file) {
-			$full_file = $asset->data_path.'/files/'.$file;
+			$full_file = $asset->data_path_public.'/files/'.$file;
 			unlink($full_file);
 			$changes = true;
 		}
@@ -501,7 +495,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		$files_dir = $asset->data_path.'/files';
+		$files_dir = $asset->data_path_public.'/files';
 		// attempt to create it (if it doesn't already exist)
 		if (!create_directory($files_dir)) return false;
 

@@ -88,7 +88,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$text = '';
 		foreach($asset->vars['declared_vars']['value'] as $name => $data) {
-			$text .= '<'.SQ_SYSTEM_SHORT_NAME.'_DECLARE name="'.htmlentities($name).'"';
+			$text .= '<'.$this->tag_name.'_DECLARE name="'.htmlentities($name).'"';
 			foreach($data as $k => $v) $text .= ' '.$k.'="'.htmlentities($v).'"';
 			$text .= " />\n";
 		}// end foreach

@@ -56,7 +56,7 @@ include(dirname(__FILE__)."/header.php");
 	<input type="hidden" name="tableid" value="">
 	<tr>
 		<td nowrap align="left">
-		<a href="javascript: owner.bodycopy_delete_table(document.main_form.bodycopy_name.value, document.main_form.tableid.value);"><img src="<?php echo sq_web_path('data')?>/bodycopy/files/images/icons/delete.gif" width="20" height="20" border="0"></a></td>
+		<a href="javascript: owner.bodycopy_delete_table(document.main_form.bodycopy_name.value, document.main_form.tableid.value);"><img src="<?php echo sq_web_path('data')?>/asset_types/bodycopy/images/icons/delete.gif" width="20" height="20" border="0"></a></td>
 		<td nowrap class="bodycopy-popup-heading">Edit Table Properties&nbsp;</td>
 	</tr>
 	<tr>

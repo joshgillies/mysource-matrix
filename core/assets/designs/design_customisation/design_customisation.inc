@@ -228,7 +228,7 @@ class Design_Customisation extends Design
 	function webFileSuffix($filename)
 	{
 		// if we have this file then use our path
-		if (file_exists($this->data_path.'/files/'.$filename)) {
+		if (file_exists($this->data_path_public.'/files/'.$filename)) {
 			return parent::webFileSuffix($filename);
 
 		// otherwise, let's hope the parent has this file
