@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date.inc,v 1.3 2005/01/20 13:07:34 brobertson Exp $
+* $Id: metadata_field_date.inc,v 1.4 2005/02/16 22:51:02 dbaranovskiy Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field.inc';
 *
 *
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,11 +56,11 @@ class Metadata_Field_Date extends Metadata_Field
 	* Generate an array of current values for the passed metadata field names
 	*
 	* @param object Asset			&$asset		the asset whose field values we are getting
-	* @param string					$value_str	the current value for this field in the asset (NOT $asset) 
+	* @param string					$value_str	the current value for this field in the asset (NOT $asset)
 	*											NULL means that there is no current value set
 	*
 	* @access public
-	* @return string	the metadata value for the passed asset 
+	* @return string	the metadata value for the passed asset
 	*/
 	function getMetadataValue(&$asset, $value_str)
 	{
@@ -75,7 +75,7 @@ class Metadata_Field_Date extends Metadata_Field
 			Metadata_Field::decodeValueString($value_str, $value, $value_components);
 		}
 
-		if ($value{0} == '%') {
+		if (substr($value, 0, 1) == '%') {
 
 			// strip off the last % sign from the end of $key string
 			$key = substr($value, 1, -1);
