@@ -1,9 +1,9 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu2/design_area_menu2_type/design_area_menu2_type_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_type/design_area_menu_type_edit_fns.inc';
 
 /**
-* Design_Area_Menu2_Recursive_Edit_Fns
+* Design_Area_Menu_Recursive_Edit_Fns
 *
 * Purpose
 *
@@ -13,7 +13,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu2/design_area_menu2
 * @package Resolve_Packages
 * @subpackage __core__
 */
-class Design_Area_Menu2_Recursive_Edit_Fns extends Design_Area_Menu2_Type_Edit_Fns
+class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 {
 
 	/**
@@ -39,7 +39,7 @@ class Design_Area_Menu2_Recursive_Edit_Fns extends Design_Area_Menu2_Type_Edit_F
 	*
 	* @return boolean
 	* @access private
-	* @see Design_Area_Menu2_Type_Edit_Fns::_processContents();
+	* @see Design_Area_Menu_Type_Edit_Fns::_processContents();
 	*/
 	function _processSubMenu(&$asset, &$contents)
 	{

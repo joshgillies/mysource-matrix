@@ -3,16 +3,16 @@
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>__core__</package>
-	<type_code>design_area_menu2_stalks</type_code>
+	<type_code>design_area_menu_stalks</type_code>
 	<version>0.1</version>
 	<name>Normal Menu Design Area</name>
 	<description>Most customisable menuing design area, used for majority of menus</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
-	<parent_type>design_area_menu2_recursive</parent_type>
+	<parent_type>design_area_menu_recursive</parent_type>
 	<requirements>
 		<requirement type="asset">
-			<code>design_area_menu2_recursive</code>
+			<code>design_area_menu_recursive</code>
 			<version>0.1</version>
 		</requirement>
 	</requirements>

@@ -1,9 +1,9 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu2/design_area_menu2_recursive/design_area_menu2_recursive_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_recursive/design_area_menu_recursive_edit_fns.inc';
 
 /**
-* Design_Area_Menu2_Stalks_Edit_Fns
+* Design_Area_Menu_Stalks_Edit_Fns
 *
 * Purpose
 *
@@ -13,7 +13,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu2/design_area_menu2
 * @package Resolve_Packages
 * @subpackage __core__
 */
-class Design_Area_Menu2_Stalks_Edit_Fns extends Design_Area_Menu2_Recursive_Edit_Fns
+class Design_Area_Menu_Stalks_Edit_Fns extends Design_Area_Menu_Recursive_Edit_Fns
 {
 
 	/**

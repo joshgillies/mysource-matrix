@@ -3,7 +3,7 @@
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Design_Area_Menu2_Normal_Management
+* Design_Area_Menu_Normal_Management
 *
 * @see Asset_Management
 *
@@ -12,7 +12,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @package Resolve_Packages
 * @subpackage __core__
 */
-class Design_Area_Menu2_Normal_Management extends Asset_Management
+class Design_Area_Menu_Normal_Management extends Asset_Management
 {
 }//end class
 ?>

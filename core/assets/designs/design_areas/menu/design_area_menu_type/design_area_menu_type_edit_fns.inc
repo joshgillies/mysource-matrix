@@ -3,7 +3,7 @@
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc';
 
 /**
-* Design_Area_Menu2_Type_Edit_Fns
+* Design_Area_Menu_Type_Edit_Fns
 *
 * Purpose
 *
@@ -13,7 +13,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 * @package Resolve_Packages
 * @subpackage __core__
 */
-class Design_Area_Menu2_Type_Edit_Fns extends Design_Area_Edit_Fns
+class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 {
 
 	/**
@@ -83,7 +83,7 @@ class Design_Area_Menu2_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 						// first let's make sure that we are actually going to create a menu section type
 						$design_area_parent_types = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($design_area);
-						if (!in_array('design_area_menu2_type', $design_area_parent_types)) {
+						if (!in_array('design_area_menu_type', $design_area_parent_types)) {
 							trigger_error('Only Design Area Menu Types can be used in the sub section of the menu section "'.$asset->name.'"', E_USER_WARNING);
 							return false;
 						}
@@ -194,7 +194,7 @@ class Design_Area_Menu2_Type_Edit_Fns extends Design_Area_Edit_Fns
 			}//	end if
 
 			// we don't need to go any higher than this class
-			if ($parent_types[$i] == 'design_area_menu2_type') break;
+			if ($parent_types[$i] == 'design_area_menu_type') break;
 
 		}// end for
 
@@ -232,7 +232,7 @@ class Design_Area_Menu2_Type_Edit_Fns extends Design_Area_Edit_Fns
 		// if the current sub is a different type of menu type then morph it to the correct one
 		if ($design_area != $sub->type()) {
 			// first up
-			if (!$sub->morph('design_area_menu2_type')) return false;
+			if (!$sub->morph('design_area_menu_type')) return false;
 			// then down
 			if (!$sub->morph($design_area)) return false;
 			if (!$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu')) return false;

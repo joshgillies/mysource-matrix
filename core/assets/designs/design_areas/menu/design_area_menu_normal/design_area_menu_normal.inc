@@ -1,9 +1,9 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu2/design_area_menu2_type/design_area_menu2_type.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_type/design_area_menu_type.inc';
 
 /**
-* Design_Area_Menu2_Normal
+* Design_Area_Menu_Normal
 *
 * Purpose
 *
@@ -13,7 +13,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu2/design_area_menu2
 * @package Resolve_Packages
 * @subpackage __core__
 */
-class Design_Area_Menu2_Normal extends Design_Area_Menu2_Type
+class Design_Area_Menu_Normal extends Design_Area_Menu_Type
 {
 	/**
 	* Outputs the way for this menu type to get their information and place it in the

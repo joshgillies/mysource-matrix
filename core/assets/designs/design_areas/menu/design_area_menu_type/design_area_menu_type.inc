@@ -3,7 +3,7 @@
 require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 
 /**
-* Design_Area_Menu2_Type
+* Design_Area_Menu_Type
 *
 * Purpose
 *
@@ -13,7 +13,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 * @package Resolve_Packages
 * @subpackage __core__
 */
-class Design_Area_Menu2_Type extends Design_Area
+class Design_Area_Menu_Type extends Design_Area
 {
 
 	/*
@@ -27,7 +27,7 @@ class Design_Area_Menu2_Type extends Design_Area
 		return Array(SQ_LINK_EXCLUSIVE	=> Array(),
 					 SQ_LINK_TYPE_1		=> Array(),
 					 SQ_LINK_TYPE_2		=> Array(),
-					 SQ_LINK_TYPE_3		=> Array('design_area_menu2_type' => 'M'),
+					 SQ_LINK_TYPE_3		=> Array('design_area_menu_type' => 'M'),
 					 SQ_LINK_NOTICE		=> Array()
 					);
 
@@ -194,7 +194,7 @@ class Design_Area_Menu2_Type extends Design_Area
 	function getSubMenuLink() 
 	{
 		if (!isset($this->_tmp['sub_menu_link'])) {
-			$this->_tmp['sub_menu_link'] = $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu2_type', false, 'sub_menu');
+			$this->_tmp['sub_menu_link'] = $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu');
 		}
 		return $this->_tmp['sub_menu_link'];
 	}//end getSubMenuLink()
@@ -203,7 +203,7 @@ class Design_Area_Menu2_Type extends Design_Area
 	/*
 	* Returns the sub menu for this menu (if any)
 	*
-	* @return Design_Area_Menu2_Type | null
+	* @return Design_Area_Menu_Type | null
 	* @access public
 	*/
 	function &getSubMenu() 
@@ -222,13 +222,13 @@ class Design_Area_Menu2_Type extends Design_Area
 	/*
 	* Returns the parent menu for this menu (assuming it is a sub menu)
 	*
-	* @return Design_Area_Menu2_Type | null
+	* @return Design_Area_Menu_Type | null
 	* @access public
 	*/
 	function &getParentMenu()
 	{
 		if (!isset($this->_tmp['parent_menu_link'])) {
-			$this->_tmp['parent_menu_link'] = $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu2_type', false, 'sub_menu', 'minor');
+			$this->_tmp['parent_menu_link'] = $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu', 'minor');
 		}
 		if (empty($this->_tmp['parent_menu_link'])) {
 			$null = null;
