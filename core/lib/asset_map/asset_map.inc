@@ -636,49 +636,23 @@ class Asset_Map
 				return;
 			}
 
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			// First let's try and create the new link, if there are any issues then it will cryout for us
-			// We dont create the link if we are moving to trash though because the deleteLink call
-			// will handle that for us
+			// if we are moving to the trash, so we need to check if this is the last significant link we
+			// are deleting so we can warn of side effects
 			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-			if ($new_parent->id != $trash_folder->id) {
-				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($new_parent->id)) {
-					$this->_error('Unable to Move Asset, new parent (Asset #"'.$new_parent->id.'") is in the trash');
-					return;
-				}
-
-				$new_parent->aquireLock();
-				$linkid = $new_parent->createLink($asset, $link['link_type'], '', $input->root->attributes['to_parent_pos']);
-				$new_parent->releaseLock();
-				if (!$linkid) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return;
-				}
-			} else {
-				// we are moving to the trash, so we need to
-				// check if this is the last significant link we
-				// are deleting so we can warn of side effects
+			if ($new_parent->id == $trash_folder->id) {
 				$num_other_links = $asset->countLinks('minor', SQ_LINK_SIGNIFICANT, '', true, $link['linkid']);
 				if (!$num_other_links) {
 					$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=delete&assetid='.$asset->id.'&linkid='.$link['linkid'];
 					$output = new XML_Tree();
 					$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
 					$this->_send($output);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return;
 				}
 			}
 
-			// Now let's try and delete the old link
-			$old_parent->aquireLock();
-			$deleted = $old_parent->deleteLink($link['linkid']);
-			$old_parent->releaseLock();
-			if (!$deleted) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return;
-			}
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			// Now let's move the link
+			$moved = $old_parent->moveLink($link['linkid'], $new_parent->id, $link['link_type'], $input->root->attributes['to_parent_pos']);
+			if (!$moved) return;
 
 		}// end if
 

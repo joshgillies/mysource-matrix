@@ -2438,6 +2438,88 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Move a link to a new parent
+	*
+	* @param int	$linkid			the link id of the link to move
+	* @param int	$to_parentid	the asset id of the new parent asset
+	* @param int	$link_type		the type of the new link
+	* @param int	$to_parent_pos	the position under the new parent
+	*
+	* @return boolean
+	* @access public
+	*/
+	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
+	{
+
+		// first, we should try and find the link
+		$link = $this->getLinkById($linkid);
+		if (empty($link)) {
+			trigger_error('Existing Link #'.$linkid.' not found, unable to move link', E_USER_WARNING);
+			return false;
+		}
+
+		// now check that the new parent exists
+		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($to_parentid);
+		if (!$new_parent->id) {
+			trigger_error('Unable to Move Asset, new parent (Asset #"'.$to_parentid.'") not found', E_USER_WARNING);
+			return false;
+		}
+
+		// cant link to the new parent if it is in the trash
+		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($new_parent->id)) {
+			trigger_error('Unable to Move Asset, new parent (Asset #"'.$new_parent->id.'") is in the trash');
+			return;
+		}
+
+		// if you dont have write access to this asset you cant delete any links
+		if (!$this->writeAccess(Array(), false)) {
+			trigger_error('Unable to Move Asset, permission denied to old parent "'.$this->name.'"', E_USER_WARNING);
+			return false;
+		}
+
+		// if you dont have write access to the new parent asset you cant create any links
+		if (!$new_parent->writeAccess(Array(), false)) {
+			trigger_error('Unable to Move Asset, permission denied to new parent "'.$new_parent->name.'"', E_USER_WARNING);
+			return false;
+		}
+
+		// this is the asset we are moving
+		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		if (!$minor->id) {
+			trigger_error('Unable to Move Asset, minor (Asset #"'.$link['minorid'].'") not found', E_USER_WARNING);
+			return false;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$new_parent->aquireLock();
+		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
+		$new_parent->releaseLock();
+		if (!$new_linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// Now let's try and delete the old link
+		$this->aquireLock();
+		$deleted = $this->deleteLink($linkid);
+		$this->releaseLock();
+		if (!$deleted) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end moveLink()
+
+
+	/**
 	* Set the value for the passed variable to the passed value
 	*
 	* @param string		$name				the name of the attribute
