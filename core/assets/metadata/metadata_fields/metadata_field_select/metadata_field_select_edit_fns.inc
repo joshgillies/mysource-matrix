@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.4 2004/03/24 07:01:30 gsherwood Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.5 2004/06/28 06:05:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 */
 class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -133,22 +134,20 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		$default = $asset->attr('default');
 
 		if (!empty($select_options)) {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">Option Key</td>
+					<td class="sq-backend-table-header">Option Value</td>
+					<?php
+					if ($write_access) {
+						?><td class="sq-backend-table-header">Delete ?</td><?php
+					}
+					?>
+				</tr>
+			<?php
 
-				?>
-				<table class="sq-backend-table">
-					<tr>
-						<td class="sq-backend-table-header">Option Key</td>
-						<td class="sq-backend-table-header">Option Value</td>
-						<?php
-						if ($write_access) {
-							?><td class="sq-backend-table-header">Delete ?</td><?php
-						}
-						?>
-					</tr>
-				<?php
-
-				foreach ($select_options as $option_key => $option_value) {
-
+			foreach ($select_options as $option_key => $option_value) {
 				?>
 				<tr>
 					<td class="sq-backend-table-cell"><?php echo $option_key; ?></td>
@@ -160,10 +159,10 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 					?>
 				</tr>
 				<?php
-
-				} // end foreach select_options
-
-				?></table><?php
+			}//end foreach select_options
+			?>
+			</table>
+			<?php
 
 			// displaying default value if any values were actually saved in the array
 			$o->openField('Default Value');
@@ -176,7 +175,7 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		} else {
 			echo 'There are currently no select box options';
-		} // end if empty
+		}//end if empty
 
 		// now adding two fields for new entry (key => value)
 		if ($write_access) {
@@ -210,20 +209,15 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		$select_options = $asset->attr('select_options');
-		
 		$update = false;
 
-		// 1). Deleting checked items
-
+		// delete checked items
 		if (isset($_POST[$prefix.'_options'])) {
-			foreach ($_POST[$prefix.'_options'] as $option_key) {
-				unset($select_options[$option_key]);
-			}
+			foreach ($_POST[$prefix.'_options'] as $option_key) unset($select_options[$option_key]);
 			$update = true;
 		}
 
-		// 2). now get the new submitted values (if any) and add them to array
-
+		// now get the new submitted values (if any) and add them to array
 		if (!empty($_POST[$prefix.'_select_key']) && !empty($_POST[$prefix.'_select_val'])) {
 			$new_select_key  = trim($_POST[$prefix.'_select_key']);
 			$new_select_val  = trim($_POST[$prefix.'_select_val']);
@@ -232,14 +226,19 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 			$update = true;
 		}
 			
-		// 3). Updating asset attribute value
-		if ($update) {
-			$asset->setAttrValue('select_options', $select_options);
-		} 
+		// updating asset attribute value
+		if ($update) $asset->setAttrValue('select_options', $select_options);
 
-		// 4). Saving default value anyway
-		$new_default = trim($_POST[$prefix.'_default']);
-		$asset->setAttrValue('default', $new_default); // saving anyway
+		// saving default value
+		$new_default = '';
+		if (!empty($select_options) && isset($_POST[$prefix.'_default'])) {
+			$new_default = trim($_POST[$prefix.'_default']);
+		} else {
+			if (!empty($select_options)) {
+				$new_default = array_shift(array_keys($select_options));
+			}
+		}
+		$asset->setAttrValue('default', $new_default);
 
 		return true;
 
