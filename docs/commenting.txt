@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: commenting.txt,v 1.6 2004/06/09 02:12:10 gsherwood Exp $
+* $Id: commenting.txt,v 1.7 2004/11/18 05:08:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -162,12 +162,12 @@ A more complex example:
 *
 * @param Array	&$link	information used to create the initial link<br/>
 * <PRE>
-* Array ('asset'      => [ref major asset to create link under],
-*        'link_type'  => SQ_LINK_?,
-*        'value'      => [link value],
-*        'sort_order' => [link sort order],
-*        'dependant'  => [0|1],
-*        'exclusive'  => [0|1]
+* Array ('asset'         => [ref major asset to create link under],
+*        'link_type'     => SQ_LINK_?,
+*        'value'         => [link value],
+*        'sort_order'    => [link sort order],
+*        'is_dependant'  => [0|1],
+*        'is_exclusive'  => [0|1]
 *        )
 * </PRE>
 *
