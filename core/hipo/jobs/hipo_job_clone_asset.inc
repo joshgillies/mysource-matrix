@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_asset.inc,v 1.2 2004/03/02 04:24:03 mmcintyre Exp $
+* $Id: hipo_job_clone_asset.inc,v 1.3 2004/08/02 05:33:01 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -668,6 +668,24 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 			$assetid			= $this->_running_vars['assetid'];
 			$type_code			= $this->_running_vars['type_code'];
 			$link['link_type']	= SQ_LINK_TYPE_1;
+			
+			// need to find out the link type of the parent links. If ANY of
+			// them were type 2 links, make this link type type2 also for 
+			// safety's sake
+			$allLinks = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE;
+			$parent_links = &$GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, $allLinks, '', false, 'minor');
+			
+			if (count($parent_links) > 0) {
+				foreach ($parent_links as $link_info) {
+					$link['link_type'] = $link_info['link_type'];
+					// leave the link type as type 2 if it has been set
+					if ($link_info['link_type'] == SQ_LINK_TYPE_2) {
+						 break;
+					}
+				}
+			}
+						
+			
 			$link['sort_order']	= $this->_running_vars['to_parent_pos'];
 			$link['asset']		= &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['to_parent_assetid']);
 
@@ -689,6 +707,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 				$link['asset']	= &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['clone']['asset_map'][$parent_assetid], $parent_type_code);
 			}
 
+			
 			$link['link_type']	= $this->_running_vars['tree'][$treeid]['link_type'];
 			$link['sort_order']	= $this->_running_vars['tree'][$treeid]['sort_order'];
 			$link['value']		= $this->_running_vars['tree'][$treeid]['value'];
