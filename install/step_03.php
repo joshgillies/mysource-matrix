@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.54 2005/01/28 04:18:02 gsherwood Exp $
+* $Id: step_03.php,v 1.55 2005/02/08 23:03:38 lwright Exp $
 *
 */
 
@@ -43,7 +43,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.54 $
+* @version $Revision: 1.55 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -114,24 +114,35 @@ if (!isset($package_list)) {
 
 uninstall_asset_types();
 uninstall_packages();
-install_core($package_list);
-$deferred = install_packages($package_list);
-// if there were deferred packages, try to reinstall them.
-if (is_array($deferred)) {
-	// try and install the deferred packages again in a loop until the result
-	// package is the same as the install package, at which point we know
-	// the dependency has failed.
-	$deferred = install_deferred($deferred);
+
+$run_install = true;
+
+while ($run_install) {
+	$search_installed = $GLOBALS['SQ_SYSTEM']->am->installed('search_manager');
+
+	install_core($package_list);
+	$deferred = install_packages($package_list);
+	// if there were deferred packages, try to reinstall them.
 	if (is_array($deferred)) {
-		trigger_error('The following assets could not be installed due to dependency failures (see previous warnings for details): '."\n".format_deferred_packages($deferred), E_USER_ERROR);
+		// try and install the deferred packages again in a loop until the result
+		// package is the same as the install package, at which point we know
+		// the dependency has failed.
+		$deferred = install_deferred($deferred);
+		if (is_array($deferred)) {
+			trigger_error('The following assets could not be installed due to dependency failures (see previous warnings for details): '."\n".format_deferred_packages($deferred), E_USER_ERROR);
+		}
 	}
-}
+	
+	if (!$search_installed && $GLOBALS['SQ_SYSTEM']->am->installed('search_manager')) {
+		bam('Search manager was installed for the first time - need to restart asset install to initialise weightings...');
+	} else {
+		$run_install = false;
+	}
+}//end while install should keep running
 
 install_authentication_types();
 generate_global_preferences();
 install_event_listeners();
-// need to run the install packages twice for the search manager (this needs fixing)
-install_packages($package_list);
 cache_asset_types();
 
 unset($GLOBALS['SQ_INSTALL']);
