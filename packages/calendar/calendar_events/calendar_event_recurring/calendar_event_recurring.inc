@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.30 2004/09/02 23:06:38 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.31 2004/09/03 05:22:15 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.30 $ - 1.0
+* @version $Revision: 1.31 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -318,7 +318,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 			case 'MFN':
 				// occurs if date and start_date are the same day of the month
-				return substr($start_date, 8, 2) == substr($date, 8, 2);
+				return substr($start, 8, 2) == substr($date, 8, 2);
 			break;
 
 			case 'MFNx':

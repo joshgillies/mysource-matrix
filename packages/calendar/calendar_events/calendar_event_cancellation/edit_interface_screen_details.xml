@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/07/29 03:16:02 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/09/03 05:22:15 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -44,7 +44,7 @@
 		<field attribute="description">
 			<display_name>Reason for cancellation</display_name>
 			<note />
-			<text width="40" height="3" />
+			<wysiwyg style="div" width="40" height="3" />
 		</field>
 	</section>
 </contents>

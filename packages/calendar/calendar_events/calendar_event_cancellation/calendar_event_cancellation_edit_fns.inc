@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation_edit_fns.inc,v 1.2 2004/08/02 07:04:22 lwright Exp $
+* $Id: calendar_event_cancellation_edit_fns.inc,v 1.3 2004/09/03 05:22:15 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -66,9 +66,9 @@ class Calendar_Event_Cancellation_Edit_Fns extends Calendar_Event_Edit_Fns
 			?>
 			<script language="JavaScript" type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event/js/date_chooser.js'?>"></script>
 			<?php
-			$start_date_attr = $asset->getAttribute('start_date');
-			if (($ts = $start_date_attr->getTimestamp()) == -1) $ts = 0;
-			$this->printDateChooser($prefix.'_start', '', $ts);
+			$ts = iso8601_ts($asset->attr('start_date'));
+			if ($ts == -1) $ts = 0;
+			$this->printDateChooser($prefix.'_start', '', '', $ts);
 			?>
 			<br />This must be a date on which the recurring event occurs
 			<?

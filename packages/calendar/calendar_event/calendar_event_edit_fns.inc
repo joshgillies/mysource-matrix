@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.14 2004/09/02 05:45:47 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.15 2004/09/03 05:22:27 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.14 $ - 1.0
+* @version $Revision: 1.15 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -194,7 +194,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function printDateChooser($prefix, $onkeyup_code, $onchange_code, $timestamp)
+	function printDateChooser($prefix, $onkeyup_code, $onchange_code, $timestamp=0)
 	{
 		$disabled_text = ($timestamp === false) ? ' disabled="disabled" ' : '';
 		if (!$timestamp) $timestamp = time();
