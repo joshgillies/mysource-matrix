@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.118 2005/03/23 23:31:32 ndvries Exp $
+* $Id: backend.inc,v 1.119 2005/03/23 23:40:37 ndvries Exp $
 *
 */
 
@@ -32,7 +32,7 @@
 *    from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.118 $
+* @version $Revision: 1.119 $
 * @package MySource_Matrix
 */
 class Backend extends MySource_Object
@@ -917,7 +917,8 @@ class Backend extends MySource_Object
 					hidden = true;
 				} else {
 					fset.cols = lastSize;
-					resizeApplet(lastSize);
+					colVars = lastSize.split(/,/g);
+					resizeApplet(colVars[0]*1);
 					hidden = false;
 				}
 			}
