@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_edit_fns.inc,v 1.34 2003/10/03 00:03:25 brobertson Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.35 2003/10/09 06:53:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -682,7 +682,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$new_table = new Bodycopy_Table();
 		$new_table->setAttrValue('name', 'New Table');
 		$new_table->setAttrValue('attributes', $attributes);
-		return (bool) $new_table->create($copy_link, $num_rows, $num_cols);
+		$retval = (bool) $new_table->create($copy_link, $num_rows, $num_cols);
+		$am->forgetAsset($new_table);
+		return $retval;
 
 	}//end insertTable()
 
