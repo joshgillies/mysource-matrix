@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.32 2004/06/23 15:12:26 brobertson Exp $
+* $Id: general_occasional.inc,v 1.33 2004/07/06 03:27:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,6 +158,54 @@ function get_status_description($status)
 	return $status_object->getDescription();
 
 }//end get_status_description()
+
+
+/**
+* Returns a colour representing the passed status
+*
+* @param int	$status	the status to get the colour for
+*
+* @return string
+* @access public
+*/
+function get_status_colour($status)
+{
+	switch ($status) {
+		case SQ_STATUS_ARCHIVED :
+			$colour = '655240';
+		break;
+		case SQ_STATUS_UNDER_CONSTRUCTION :
+			$colour = 'BCE2F5';
+		break;
+		case SQ_STATUS_PENDING_APPROVAL :
+			$colour = 'DCD2E6';
+		break;
+		case SQ_STATUS_APPROVED :
+			$colour = 'F4D425';
+		break;
+		case SQ_STATUS_LIVE :
+			$colour = 'DBF18A';
+		break;
+		case SQ_STATUS_LIVE_APPROVAL :
+			$colour = 'DCD2E6';
+		break;
+		case SQ_STATUS_EDITING :
+			$colour = 'F25C86';
+		break;
+		case SQ_STATUS_EDITING_APPROVAL :
+			$colour = 'CCCCCC';
+		break;
+		case SQ_STATUS_EDITING_APPROVED :
+			$colour = 'FF9A00';
+		break;
+		default :
+			$colour = 'FF0000';
+		break;
+	}//end switch
+	
+	return $colour;
+
+}//end get_status_colour()
 
 
 /**
