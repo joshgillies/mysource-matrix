@@ -744,14 +744,23 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 				}
 
 				require_once SQ_LIB_PATH.'/progress_bar/progress_bar.inc';
-				$pb = new Progress_Bar($o->getCurrentLocation(), $this, '_dupeInit', '_dupeInitPaint', '_dupeExec', '_dupeDone');
+				$pb = new Progress_Bar($o->getCurrentLocation(), $this);
+				if (!$pb->loaded) {
+					$pb->setFns('_dupeInit', '_dupeInitPaint', '_dupeDone');
+					$pb->setOption('auto_close', false);
 
-				pre_echo($_GET);
-				pre_echo($_POST);
-				pre_echo($GLOBALS['SQ_SYSTEM']->datetime());
+					$pb->addStep('Obtain Locks', '_dupeObtainLocks');
+					$pb->addStep('Duplicate', '_dupeExec');
+					$pb->addStep('Release Locks', '_dupeReleaseLocks', '_dupeReleaseLocksInit');
+				}
+
+//				$vars = get_object_vars($pb);
+//				unset($vars['_obj']);
+//				pre_echo($vars);
+
 				$pb->run();
 
-				if ($pb->inPopup()) {
+				if ($pb->inPopUp()) {
 					$o->openRaw();
 				} else {
 					$o->setHeading('Duplicate : '.$asset->name);
@@ -761,7 +770,7 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 
 				$pb->paint();
 
-				if ($pb->inPopup()) {
+				if ($pb->inPopUp()) {
 					$o->closeRaw();
 				} else {
 					$o->closeSection();
@@ -812,30 +821,82 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 
 	/**
 	*/
+	function _dupeObtainLocks(&$pb)
+	{
+		$vars = $pb->getRunningVars();
+		$vars['locks_run_num'] = empty($vars['locks_run_num']) ? 1 : ($vars['locks_run_num'] + 1);
+
+//		pre_echo("RUN NUM : ".$vars['locks_run_num']);
+
+		sleep(1);
+
+		$pb->setStatusMsg('Locking'.str_repeat('.', $vars['locks_run_num']));
+		$pb->setPercent($vars['locks_run_num'] / 3);
+//		pre_echo("CURRENT STEP : ");
+//		pre_echo($pb->_steps[$pb->_step]);
+		$pb->setRunningVars($vars);
+	}
+
+	/**
+	*/
 	function _dupeExec(&$pb)
 	{
 		$vars = $pb->getRunningVars();
 		$vars['run_num'] = empty($vars['run_num']) ? 1 : ($vars['run_num'] + 1);
 
-		pre_echo("RUN NUM : ".$vars['run_num']);
+//		pre_echo("RUN NUM : ".$vars['run_num']);
+
+		sleep(2);
+
+		$pb->setStatusMsg('Running'.str_repeat('.', $vars['run_num']));
+		$pb->setPercent($vars['run_num'] / 5);
+//		pre_echo("CURRENT STEP : ");
+//		pre_echo($pb->_steps[$pb->_step]);
+		$pb->setRunningVars($vars);
+	}
+
+	/**
+	*/
+	function _dupeReleaseLocksInit(&$pb)
+	{
+		$vars = $pb->getRunningVars();
+		$vars['locks_run_num'] = 0;
+
+//		pre_echo("INIT DUPE RELEASE LOCKS RUN NUM : ".$vars['locks_run_num']);
 
 		sleep(1);
 
-		$pb->setTitle('Run Number : '.$vars['run_num']);
-		$pb->setStatusMsg('Running'.str_repeat('.', $vars['run_num']));
-		$pb->setPercent($vars['run_num'] / 5);
+		$pb->setStatusMsg('Initialising...');
+		$pb->setRunningVars($vars);
+		return true;
+	}
+
+	/**
+	*/
+	function _dupeReleaseLocks(&$pb)
+	{
+		$vars = $pb->getRunningVars();
+		$vars['locks_run_num'] = empty($vars['locks_run_num']) ? 1 : ($vars['locks_run_num'] + 1);
+
+//		pre_echo("RUN NUM : ".$vars['locks_run_num']);
+
+		sleep(1);
+
+		$pb->setStatusMsg('Unlocking'.str_repeat('.', $vars['locks_run_num']));
+		$pb->setPercent($vars['locks_run_num'] / 3);
+//		pre_echo("CURRENT STEP : ");
+//		pre_echo($pb->_steps[$pb->_step]);
 		$pb->setRunningVars($vars);
 	}
+
 
 	/**
 	*/
 	function _dupeDone(&$pb)
 	{
 		$vars = $pb->getRunningVars();
-		pre_echo("ALL DONE");
-		pre_echo($vars);
-		$pb->setTitle('Finished');
-		$pb->setStatusMsg('Finished');
+//		pre_echo("ALL DONE");
+//		pre_echo($vars);
 	}
 
 
