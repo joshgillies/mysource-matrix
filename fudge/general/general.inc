@@ -16,18 +16,15 @@
 * Strips the slashes from a variable if magic quotes is set for GPC
 * Handle normal variables and arrays 
 *
-* @param mixed $var
+* @param mixed $var	the var to cleanup
 *
 * @return mixed
 */
 function gpc_stripslashes($var) 
 {
 	if (get_magic_quotes_gpc()) {
-		if (is_array($var)) {
-			stripslashes_array($var, true);
-		} else {
-			$var = stripslashes($var);
-		}#end if
+		if (is_array($var)) stripslashes_array($var, true);
+		else $var = stripslashes($var);
 	}
 	return $var;
 }
