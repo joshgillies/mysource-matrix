@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.30 2004/08/05 00:01:24 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.31 2004/09/09 23:53:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,6 +106,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_value = explode('-',iso8601_date_component($from_value));
 		$to_value = explode('-',iso8601_date_component($to_value));
 
+		if ((count($from_value) < 3) || (count($to_value) < 3)) return false;
+		
 		// convert the ISO times to time stamps but manually because we can't be sure
 		// about the h:m:s section of the above times
 		$from_ts = mktime(0,0,0,$from_value[1],$from_value[2],$from_value[0]);
@@ -131,7 +133,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		</tr>
 		<?php
 
-		// search in the sub-logs directory for files that fit in the date range
+		// search in the sub-logs directory for files that fit in the date range				
+		
 		if ($handle = opendir($log_path)) {
 			while (false !== ($file = readdir($handle))) {
 				if ($file == '.' || $file == '..') continue;			
