@@ -5,6 +5,7 @@ function Asset()
 	this.assetid    = 0;
 	this.type_code  = "";
 	this.name       = "";
+	this.accessible  = true;
 	this.links      = new Array(); // array of linkids
 
 
@@ -22,16 +23,17 @@ Asset.prototype.toString = function()
 	return  "AssetId: " + this.assetid + 
 			", Type Code: " + this.type_code + 
 			", Name: " + this.name + 
+			", Accessible : " + this.accessible + 
 			", Links: " + this.links;
 }
 
-Asset.prototype.setInfo = function(assetid, type_code, name, links)
+Asset.prototype.setInfo = function(assetid, type_code, name, accessible, links)
 {
-
-	if (assetid   != undefined && assetid   != null) this.assetid   = assetid;
-	if (type_code != undefined && type_code != null) this.type_code = type_code;
-	if (name      != undefined && name      != null) this.name      = name;
-	if (links     != undefined && links     != null) this.links     = links;
+	if (assetid    != undefined && assetid    != null) this.assetid    = assetid;
+	if (type_code  != undefined && type_code  != null) this.type_code  = type_code;
+	if (name       != undefined && name       != null) this.name       = name;
+	if (accessible != undefined && accessible != null) this.accessible = (accessible == "1") ? true : false;
+	if (links      != undefined && links      != null) this.links      = links;
 	this.broadcastMessage("onAssetChange", this);
 }
 
@@ -39,10 +41,11 @@ Asset.prototype.setInfo = function(assetid, type_code, name, links)
 Asset.prototype.clone = function()
 {
 	var copy = new Asset();
-	copy.assetid   = this.assetid;
-	copy.type_code = this.type_code;
-	copy.name      = this.name;
-	copy.links     = this.links.clone();
+	copy.assetid    = this.assetid;
+	copy.type_code  = this.type_code;
+	copy.name       = this.name;
+	copy.accessible = this.accessible;
+	copy.links      = this.links.clone();
 
 	return copy;
 }

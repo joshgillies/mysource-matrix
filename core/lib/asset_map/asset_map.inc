@@ -185,16 +185,16 @@ class Asset_Map
 
 
 		switch($root->attributes['action']) {
+			case 'initalise' :
+				$this->_doInitialise($input);
+				break;
+
 			case 'get assets' :
 				$this->_getAssets($input);
 				break;
 
 			case 'menu items' :
 				$this->_getMenuItems($input);
-				break;
-
-			case 'get asset types' :
-				$this->_getAssetTypes($input);
 				break;
 
 			case 'get url' :
@@ -217,6 +217,56 @@ class Asset_Map
 
 	}//end _printAssetMapXML()
 
+	/*
+	* Get's all the asset types and the root folder and the current user asset's
+	*
+	* @param object XML_Tree $input	the request info from the Flash
+	*
+	* @access private
+	*/
+	function _doInitialise(&$input) 
+	{
+
+		$output = new XML_Tree();
+		$root = &$output->addRoot('current_user', '', Array('assetid' => $GLOBALS['SQ_SYSTEM']->currentUserId()));
+
+		// just get the root's XML not the tree's, because it is part of bigger things and we dont want the version info
+		$current_user_xml = $root->get();
+
+		$root = &$output->addRoot('assets', '');
+		// Add the root folder
+		if (!$this->_addAssetToXML($root, 1, true)) {
+			return;
+		}
+
+		// Add the Current User
+		if (!$this->_addAssetToXML($root, $GLOBALS['SQ_SYSTEM']->currentUserId(), false)) {
+			return;
+		}
+
+		// just get the root's XML not the tree's, because it is part of bigger things and we dont want the version info
+		$assets_xml = $root->get();
+
+		header("Content-Type: text/xml");
+		echo "<initialisation>\n";
+		echo "<asset_types>\n";
+		$dir = SQ_DATA_PATH.'/asset_map';
+		if ($d = @opendir($dir)) {
+			while (($file = readdir($d)) !== false) {
+				if (substr($file, -4) == '.xml') {
+					@readfile($dir.'/'.$file);
+				}
+			}// end while
+			closedir($d);
+		}// end if
+		echo "</asset_types>\n";
+
+		echo $current_user_xml;
+		echo $assets_xml;
+
+		echo "</initialisation>\n";
+		
+	}// end _doInitialise()
 
 	/*
 	* Processes the get assets request
@@ -289,28 +339,32 @@ class Asset_Map
 			return false;
 		}
 		$attrs = Array('assetid' => $asset->id, 
-						'name'   => '[CS] '.$asset->short_name, 
-						'type_code' => $asset->type()
+						'name'   => '['.$asset->id. '] '.$asset->short_name, 
+						'type_code'  => $asset->type(),
+						'accessible' => $asset->readAccess()
 						);
 		$asset_node = &$root->addChild('asset', '', $attrs);
-		// we only want EXCLUSIVE or UNITE links
-		$links = $asset->getLinks(SQ_LINK_NAV, '', null);
-		if (count($links)) {
-			for($j = 0; $j < count($links); $j++) {
-				$kid_node = &$asset_node->addChild('child', '', Array('linkid' => $links[$j]['linkid'], 'minorid' => $links[$j]['minorid'], 'link_type' => $links[$j]['link_type']));
-			}
 
-			if ($load_new_links) {
-				$kids = Array();
-				for($j = 0; $j < count($links); $j++) $kids[] = $links[$j]['minorid'];
-				$new_kids = array_values(array_diff($kids, $current_kids)); // array_values to get indexed array
-				for($j = 0; $j < count($new_kids); $j++) {
-					if (!$this->_addAssetToXML($root, $new_kids[$j], false)) {
-						return false;
-					}
+		if ($asset->readAccess()) {
+			// we only want EXCLUSIVE or UNITE links
+			$links = $asset->getLinks(SQ_LINK_NAV, '', null);
+			if (count($links)) {
+				for($j = 0; $j < count($links); $j++) {
+					$kid_node = &$asset_node->addChild('child', '', Array('linkid' => $links[$j]['linkid'], 'minorid' => $links[$j]['minorid'], 'link_type' => $links[$j]['link_type']));
 				}
 
-			}
+				if ($load_new_links) {
+					$kids = Array();
+					for($j = 0; $j < count($links); $j++) $kids[] = $links[$j]['minorid'];
+					$new_kids = array_values(array_diff($kids, $current_kids)); // array_values to get indexed array
+					for($j = 0; $j < count($new_kids); $j++) {
+						if (!$this->_addAssetToXML($root, $new_kids[$j], false)) {
+							return false;
+						}
+					}// end for
+
+				}// end if
+			}// end if
 		}// end if
 
 		return true;
@@ -446,33 +500,6 @@ class Asset_Map
 		$this->_send($output);
 
 	}// end _getURL()
-
-	/*
-	* Processes the asset types request
-	*
-	* @param object XML_Tree $input	the request info from the Flash
-	*
-	* @access private
-	*/
-	function _getAssetTypes(&$input) 
-	{
-		header("Content-Type: text/xml");
-		echo '<asset_types>';
-	
-		$dir = SQ_DATA_PATH.'/asset_map';
-		if ($d = @opendir($dir)) {
-			while (($file = readdir($d)) !== false) {
-				if (substr($file, -4) == '.xml') {
-					@readfile($dir.'/'.$file);
-				}
-			}// end while
-			closedir($d);
-		}// end if
-
-		echo '</asset_types>';
-
-	}// end _getAssetTypes()
-
 
 	/*
 	* Attempts to move an asset from one position to another

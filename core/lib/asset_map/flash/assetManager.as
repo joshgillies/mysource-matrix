@@ -9,7 +9,7 @@
 function AssetManager()
 {
 	// holds all the asset types that are available in the system
-	this.types  = new Object();
+	this.asset_types  = new Object();
 
 	// holds all the assets that have been referenced
 	this.assets = new Object();
@@ -17,6 +17,8 @@ function AssetManager()
 	// holds all the assets links that have been referenced
 	this.asset_links = new Object();
 
+	// holds the current users assetid
+	this.current_userid = 0;
 
 	// a temp object that can hold any run-time data
 	this.tmp = new Object();
@@ -38,12 +40,12 @@ AssetManager.prototype.init = function()
 {
 	var xml = new XML();
 	var cmd_elem = xml.createElement("command");
-	cmd_elem.attributes.action = "get asset types";
+	cmd_elem.attributes.action = "initalise";
 	xml.appendChild(cmd_elem);
 
 	// start the loading process
-	var exec_indentifier = _root.server_exec.init_exec(xml, this, "loadTypesFromXML", "asset_types");
-	_root.server_exec.exec(exec_indentifier, "Loading Assets Types");
+	var exec_indentifier = _root.server_exec.init_exec(xml, this, "initFromXML", "initialisation");
+	_root.server_exec.exec(exec_indentifier, "Initialising Asset Manager");
 
 }
 
@@ -54,11 +56,22 @@ AssetManager.prototype.init = function()
 * @param object XML xml   the xml object that contain the information that we need
 *
 */
-AssetManager.prototype.loadTypesFromXML = function(xml, exec_indentifier) 
+AssetManager.prototype.initFromXML = function(xml, exec_indentifier) 
 {
-	for (var i = 0; i < xml.firstChild.childNodes.length; i++) {
+	if (xml.firstChild.childNodes[0].nodeName.toLowerCase() != "asset_types")	return;
+	if (xml.firstChild.childNodes[1].nodeName.toLowerCase() != "current_user")	return;
+	if (xml.firstChild.childNodes[2].nodeName.toLowerCase() != "assets")		return;
+
+	if (xml.firstChild.childNodes[1].attributes.assetid == undefined
+	    || xml.firstChild.childNodes[1].attributes.assetid == "") return;
+	this.current_userid = xml.firstChild.childNodes[1].attributes.assetid;
+	
+	var asset_types = xml.firstChild.childNodes[0];
+	var assets = xml.firstChild.childNodes[2];
+
+	for (var i = 0; i < asset_types.childNodes.length; i++) {
 		// get a reference to the child node
-		var type_node = xml.firstChild.childNodes[i];
+		var type_node = asset_types.childNodes[i];
 		if (type_node.nodeName.toLowerCase() == "type") {
 
 			var edit_screens = new Array();
@@ -67,11 +80,11 @@ AssetManager.prototype.loadTypesFromXML = function(xml, exec_indentifier)
 			}
 
 
-			this.types[type_node.attributes.type_code] = new AssetType(type_node.attributes.type_code,
+			this.asset_types[type_node.attributes.type_code] = new AssetType(type_node.attributes.type_code,
 																		type_node.attributes.name,
 																		type_node.attributes.version,
 																		type_node.attributes.instantiable,
-																		type_node.attributes.system_only,
+																		type_node.attributes.allowed_access,
 																		type_node.attributes.parent_type,
 																		edit_screens);
 
@@ -79,15 +92,15 @@ AssetManager.prototype.loadTypesFromXML = function(xml, exec_indentifier)
 	}//end for
 
 	// make sure that all the asset types know about their sub types
-	for (var type_code in this.types) {
-		if (this.types[type_code].parent_type != "asset") {
-			this.types[this.types[type_code].parent_type].sub_types.push(type_code);
+	for (var type_code in this.asset_types) {
+		if (this.asset_types[type_code].parent_type != "asset") {
+			this.asset_types[this.asset_types[type_code].parent_type].sub_types.push(type_code);
 		}
 	}
 
-//	for (var type_code in this.types) trace(this.types[type_code]);
 
-	this.broadcastMessage("onAssetTypesLoaded");
+	this._createAssetsFromXML(assets);
+	this.broadcastMessage("onAssetManagerInitialised");
 
 }// end loadTypesFromXML()
 
@@ -102,8 +115,8 @@ AssetManager.prototype.getTopTypes = function()
 
 	var top_level = new Array();
 
-	for (var type_code in this.types) {
-		if (this.types[type_code].parent_type == "asset") {
+	for (var type_code in this.asset_types) {
+		if (this.asset_types[type_code].parent_type == "asset") {
 			top_level.push(type_code);
 		}
 	}
@@ -194,16 +207,38 @@ AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_
 */
 AssetManager.prototype.loadAssetsFromXML = function(xml, exec_indentifier) 
 {
+	var changes = this._createAssetsFromXML(xml.firstChild);
 
-	var old_assets = new Object();
-	var new_assets = new Object();
+	if (this.tmp.load_assets[exec_indentifier].force_reload) {
+		this.tmp.load_assets[exec_indentifier].obj[this.tmp.load_assets[exec_indentifier].fn](this.tmp.load_assets[exec_indentifier].params, changes.new_assets, changes.old_assets);
+	} else {
+		this.tmp.load_assets[exec_indentifier].obj[this.tmp.load_assets[exec_indentifier].fn](this.tmp.load_assets[exec_indentifier].params);
+	}
 
-	for (var i = 0; i < xml.firstChild.childNodes.length; i++) {
+	delete this.tmp.load_assets[exec_indentifier];
+
+}// end loadAssetsFromXML()
+
+
+/**
+* Called to create the asset objects from the passed XML node tree
+* Returns a object containing the old versions of assets and their new versions
+*
+* @param object XML_Node	assets_node		XML node whose children are asset nodes
+*
+* @return object (old_assets, new_assets)
+*
+*/
+AssetManager.prototype._createAssetsFromXML = function(assets_node) 
+{
+
+	var changes = {old_assets: {}, new_assets: {}};
+
+	for (var i = 0; i < assets_node.childNodes.length; i++) {
 		// get a reference to the child node
-		var asset_node = xml.firstChild.childNodes[i];
+		var asset_node = assets_node.childNodes[i];
 		if (asset_node.nodeName.toLowerCase() == "asset") {
 			var assetid = asset_node.attributes.assetid;
-
 
 			var links = new Array();
 
@@ -222,26 +257,23 @@ AssetManager.prototype.loadAssetsFromXML = function(xml, exec_indentifier)
 
 			// take backup before we update
 			} else {
-				old_assets[assetid] = this.assets[assetid].clone();
+				changes.old_assets[assetid] = this.assets[assetid].clone();
 			}
 
-			this.assets[assetid].setInfo(assetid, asset_node.attributes.type_code, asset_node.attributes.name, links);
+			this.assets[assetid].setInfo(	assetid, 
+											asset_node.attributes.type_code, 
+											asset_node.attributes.name, 
+											asset_node.attributes.accessible, 
+											links);
 
-			new_assets[assetid] = this.assets[assetid];
+			changes.new_assets[assetid] = this.assets[assetid];
 
 		}//end if
 	}//end for
 
-	if (this.tmp.load_assets[exec_indentifier].force_reload) {
-		this.tmp.load_assets[exec_indentifier].obj[this.tmp.load_assets[exec_indentifier].fn](this.tmp.load_assets[exec_indentifier].params, new_assets, old_assets);
-	} else {
-		this.tmp.load_assets[exec_indentifier].obj[this.tmp.load_assets[exec_indentifier].fn](this.tmp.load_assets[exec_indentifier].params);
-	}
+	return changes;
 
-	delete this.tmp.load_assets[exec_indentifier];
-
-}// end loadAssets()
-
+}// end _createAssetsFromXML()
 
 
 /**

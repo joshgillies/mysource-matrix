@@ -51,7 +51,7 @@ mcMenuContainerClass.prototype = new NestedMouseMovieClip(true, NestedMouseMovie
 * We can then run create()
 *
 */
-mcMenuContainerClass.prototype.onAssetTypesLoaded = function()
+mcMenuContainerClass.prototype.onAssetManagerInitialised = function()
 {
 	this.create();
 }
@@ -95,13 +95,14 @@ mcMenuContainerClass.prototype._recurseCreateAddMenu = function(kids, depth)
 	var item_names = new Array();
 
 	for (var i = 0; i < kids.length; i++) {
-		var type = _root.asset_manager.types[kids[i]];
+		var type = _root.asset_manager.asset_types[kids[i]];
 
 		// Create any kids, also a check to see if we have any valid kids
 		var item_kids = (type.sub_types.length) ? this._recurseCreateAddMenu(type.sub_types, depth + 1) : new Array();
+		var createable = type.createable();
 
 		// no point, if you can't create an instance and there are no kids
-		if (!type.createable() && !item_kids.length) continue;
+		if (!createable && !item_kids.length) continue;
 
 		// OK, what this is all about is that if there are sub types, 
 		// then we need append " Types" to the name and remove any value
@@ -111,7 +112,7 @@ mcMenuContainerClass.prototype._recurseCreateAddMenu = function(kids, depth)
 		var item_name = "";
 		// if we have kids and we can create an instance of ourselves, then we need to add
 		// ourselves to the top of our kids list, so that we can be selected normally
-		if (item_kids.length && type.createable()) {
+		if (item_kids.length && createable) {
 			item_name = this._createItem(name + " Types", "", depth);
 			item_kids.unshift(this._createItem(name, value, depth + 1));
 		} else {

@@ -13,6 +13,7 @@ function mcListItemClass()
 	this.pos       = 0;
 	this.indent    = 0;
 
+	this._accessible = false;
 	this._active = true;
 
 	// the current state that the buttons is in (normal, selected)
@@ -65,12 +66,16 @@ mcListItemClass.prototype.setAsset = function(asset)
 
 mcListItemClass.prototype.setInfo = function(asset) 
 {
-	this.assetid   = asset.assetid;
-	this.type_code = asset.type_code;
-	//this.text_field.text = this._name + " [" + this.assetid + "] " + asset.name;
-	this.text_field.text = " [" + this.assetid + "] " + asset.name;
+	this.assetid     = asset.assetid;
+	this.type_code   = asset.type_code;
+	this._accessible = asset.accessible;
+	this.text_field.text = asset.name;
 
-	if (asset.links.length > 0) {
+	var text_format = this.text_field.getTextFormat();
+	text_format.italic = !this._accessible;
+	this.text_field.setTextFormat(text_format); 
+
+	if (asset.accessible && asset.links.length > 0) {
 		this.setKidState((this.expanded()) ? "minus" : "plus");
 	} else {
 		this.setKidState("none");
@@ -146,8 +151,8 @@ mcListItemClass.prototype.hideKids = function()
 */
 mcListItemClass.prototype.startMove = function() 
 {
-	// if we aren't active we can't move
-	if (!this._active) return;
+	// if we aren't accessible or active we can't move
+	if (!this._accessible || !this._active) return;
 	this._parent.startMove();
 }
 
@@ -211,7 +216,6 @@ mcListItemClass.prototype.unselect = function()
 */
 mcListItemClass.prototype.setActive = function(active)
 {
-	trace("SET ACTIVE : " + active);
 	this._active = active;
 	var text_format = this.text_field.getTextFormat();
 	text_format.color = (this._active) ? 0x000000 : 0x999999;
@@ -225,6 +229,8 @@ mcListItemClass.prototype.setActive = function(active)
 */
 mcListItemClass.prototype.onPress = function()
 {
+	if (!this._accessible) return false;
+
 	this._parent.selectItem(this);
 	// try the kids, but it they don't want it then set the interval for the actions bar
 	if (!super.onPress() && this._active) {
@@ -238,6 +244,7 @@ mcListItemClass.prototype.onPress = function()
 */
 mcListItemClass.prototype.showActionsBar = function()
 {
+	if (!this._accessible) return;
 	clearInterval(this.actions_bar_interval);
 	this.actions_bar_interval = 0;
 	this._parent._parent.showActionsBar();
@@ -248,6 +255,7 @@ mcListItemClass.prototype.showActionsBar = function()
 */
 mcListItemClass.prototype.onRelease = function()
 {
+	if (!this._accessible) return false;
 	if (this.actions_bar_interval) {
 		clearInterval(this.actions_bar_interval);
 		this.actions_bar_interval = 0;
@@ -261,6 +269,7 @@ mcListItemClass.prototype.onRelease = function()
 */
 mcListItemClass.prototype.onReleaseOutside = function()
 {
+	if (!this._accessible) return false;
 	if (this.actions_bar_interval) {
 		clearInterval(this.actions_bar_interval);
 		this.actions_bar_interval = 0;

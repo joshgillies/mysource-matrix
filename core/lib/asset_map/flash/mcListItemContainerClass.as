@@ -50,34 +50,10 @@ mcListItemContainerClass.prototype = new NestedMouseMovieClip(false, NestedMouse
 * Event fired when the Asset Types object has finished recieving all the asset types from the server
 * We can then run init()
 */
-mcListItemContainerClass.prototype.onAssetTypesLoaded = function()
-{
-	this.init();
-}
-
-/**
-* Loads the list container, by getting the root folder and showing it's kids
-*
-* @access public
-*/
-mcListItemContainerClass.prototype.init = function()
-{
-
-	_root.asset_manager.loadAssets([1], this, "initLoaded", {}, true);
-
-}// end init()
-
-
-/**
-* continuation of init() after the root folder has been loaded
-*
-* @access private
-*/
-mcListItemContainerClass.prototype.initLoaded = function(params, new_assets, old_assets)
+mcListItemContainerClass.prototype.onAssetManagerInitialised = function()
 {
 	this.showKids('1', this.item_prefix);
-}// end initLoaded()
-
+}
 
 /**
 * Called by the mcListItem's on the pressing of the plus button

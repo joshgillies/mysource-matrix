@@ -102,7 +102,7 @@ mcListContainerClass.prototype.showActionsBar = function()
 		this.actions_bar.show(['use_me'], ['Use Me'], this._xmouse - 5, this._ymouse - 5);
 	} else {
 
-		var asset_type = _root.asset_manager.types[this.list.selected_item.type_code];
+		var asset_type = _root.asset_manager.asset_types[this.list.selected_item.type_code];
 		var actions = new Array();
 		var labels  = new Array();
 
