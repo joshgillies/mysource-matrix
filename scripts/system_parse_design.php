@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_design.php,v 1.2 2005/03/16 17:38:04 brobertson Exp $
+* $Id: system_parse_design.php,v 1.3 2005/03/22 16:48:28 gnoel Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade menu design areas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -66,8 +66,8 @@ if (!is_a($design, 'design')) {
 printName('Acquiring Locks for design "'.$design->name.'"');
 
 // try to lock the design
-$vars = Array('assetid' => $design->id, 'lock_type' => 'all', 'forceably_acquire' => false);
-$errors = $hh->freestyleHipo('hipo_job_acquire_lock', $vars);
+$vars = Array('assetids' => Array($design->id), 'lock_type' => 'all', 'forceably_acquire' => false);
+$errors = $hh->freestyleHipo('hipo_job_acquire_locks', $vars);
 if (!empty($errors)) {
 	printUpdateStatus('LOCK FAILED');
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
@@ -108,8 +108,8 @@ foreach($customisation_links as $link) {
 	$customisation = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 	if (is_null($customisation)) continue;
 	printName('Reparse design customisation "'.$customisation->name.'"');
-	$vars = Array('assetid' => $customisation->id, 'lock_type' => 'all', 'forceably_acquire' => false);
-	$errors = $hh->freestyleHipo('hipo_job_acquire_lock', $vars);
+	$vars = Array('assetids' => Array($customisation->id), 'lock_type' => 'all', 'forceably_acquire' => false);
+	$errors = $hh->freestyleHipo('hipo_job_acquire_locks', $vars);
 	if (!empty($errors)) {
 		printUpdateStatus('LOCK FAILED');
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
@@ -154,7 +154,6 @@ function printUpdateStatus($status)
 	echo "[ $status ]\n";
 
 }//end printUpdateStatus()
-
 
 ?>
 
