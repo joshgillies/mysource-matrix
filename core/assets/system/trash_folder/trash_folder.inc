@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.52 2004/11/18 05:00:42 gsherwood Exp $
+* $Id: trash_folder.inc,v 1.52.2.1 2005/03/14 23:30:03 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -243,7 +243,7 @@ class Trash_Folder extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($lock_type, $assetids=Array())
+	function writeAccess($lock_type='', $assetids=Array())
 	{
 		return true;
 
