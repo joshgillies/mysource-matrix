@@ -27,13 +27,13 @@ if (is_null($cron_mgr)) {
 }
 
 if (!empty($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'RESET_RUNNING') {
-	if (!$cron_mgr->acquireLock(0, true)) {
+	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 0, true)) {
 		trigger_error('Unable to acquire lock of "'.$cron_mgr->name.'", aborting run', E_USER_ERROR);
 	}
 	if (!$cron_mgr->setAttrValue('running', false)) {
 		trigger_error('SET RUNNING FAILED', E_USER_ERROR);
 	}
-	$cron_mgr->releaseLock();
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id);
 }
 
 $cron_mgr->run();

@@ -228,9 +228,9 @@ class Asset extends Resolve_Object
 			if (!isset($link['dependant']))  $link['dependant']  = 0;
 			if (!isset($link['exclusive']))  $link['exclusive']  = 0;
 
-			$lock_info = $link['asset']->getLockInfo();
+			$lock_info = @$GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id);
 			$parent_was_locked = !empty($lock_info);
-			if (!$link['asset']->acquireLock()) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
 				return false;
@@ -240,10 +240,10 @@ class Asset extends Resolve_Object
 			// asset is locked in the same chain as the parent (ie, has the same source_assetid)
 			$source_assetid = 0;
 			if ($link['dependant']) {
-				$lock = $link['asset']->getLockInfo();
+				$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id);
 				$source_assetid = $lock['source_asset'];
 			}
-			if (!$this->acquireLock($source_assetid)) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, $source_assetid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
 				return false;
@@ -270,14 +270,14 @@ class Asset extends Resolve_Object
 			// release locks depending on if the parent was locked before we were created
 			if (!$parent_was_locked) {
 				// parent was not locked, so unlock both the parent and us
-				if (!$link['asset']->releaseLock()) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$this->id = 0;
 					return false;
 				}
 			}
 			if (!$new_link['dependant']) {
-				if (!$this->releaseLock()) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$this->id = 0;
 					return false;
@@ -465,7 +465,7 @@ class Asset extends Resolve_Object
 		$null = null; // needed because we return by reference
 		if (!$this->id) return $null;
 
-		$lock = $this->getLockInfo();
+		$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id);
 		if (empty($lock)) {
 			trigger_error('You need to acquire a lock on this asset before it can be duplicated', E_USER_WARNING);
 			return $null;
@@ -509,7 +509,7 @@ class Asset extends Resolve_Object
 		}
 
 		// Lock the new dupe in the same chain as we are locked
-		if (!$dupe->acquireLock($lock['source_asset'])) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dupe->id, $lock['source_asset'])) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
 		}
@@ -531,17 +531,17 @@ class Asset extends Resolve_Object
 
 			// OK what we are going to do is make sure that the new parents lock is
 			// in the same chain as our current lock
-			$parent_lock = $link['asset']->getLockInfo();
+			$parent_lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id);
 			if (empty($parent_lock) || $parent_lock['source_asset'] != $lock['source_asset']) {
 
 				if (!empty($parent_lock)) {
-					if (!$link['asset']->releaseLock()) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return $null;
 					}
 				}
 
-				if (!$link['asset']->acquireLock($lock['source_asset'])) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, $lock['source_asset'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return $null;
 				}
@@ -673,7 +673,7 @@ class Asset extends Resolve_Object
 		if ($release_lock) {
 			// we are about to go to the big asset manager in the sky,
 			// so we wont be needing worldly things such as locks
-			if (!$this->releaseLock()) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id)) {
 				trigger_error('Delete failed, the lock on "'.$this->name.'" could not be released', E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -1562,10 +1562,10 @@ class Asset extends Resolve_Object
 	*/
 	function canForceablyAcquireLock()
 	{
-		$current_lock = $this->getLockInfo();
+		$current_lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id);
 		if (empty($current_lock)) return false;
 
-		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
+		$user = &$this->getAsset($current_lock['userid']);
 
 		$can_acquire_lock = false;
 
@@ -1586,299 +1586,6 @@ class Asset extends Resolve_Object
 		return $can_acquire_lock;
 
 	}//end canForceablyAcquireLock()
-
-
-	/**
-	* Acquires a lock on this asset
-	*
-	* If expires is set to NULL, the lock will be acquired indefinitely
-	* (ie. it will never expire).
-	*
-	* @param int		$source		the id of the asset that started this locking process
-	* @param boolean	$force		attempt to forcibly acquire (if allowed)
-	* @param int|NULL	$expires	when the lock expires (timestamp or NULL)
-	*
-	* @return boolean
-	* @access public
-	*/
-	function acquireLock($source=0, $force=false, $expires=0)
-	{
-		$current_lock = $this->getLockInfo();
-
-		if (!empty($current_lock) && $current_lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-			// the user is asking to acquire a lock they already had
-			// so just update the lock expiry date
-			$this->updateLock($expires);
-			return true;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		if(!empty($current_lock) && $force && $this->canForceablyAcquireLock()) {
-			// special case where the current user is actually
-			// removing the current lock and taking it for themselves
-			$where = 'source_asset = '.$db->quote($current_lock['source_asset']);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lock '.$where;
-			$locked_ids = $db->getCol($sql);
-			if (DB::isError($locked_ids)) {
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				trigger_error($locked_ids->getMessage().'<br/>'.$locked_ids->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-
-			if (!$this->releaseLock()) {
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return false;
-			}
-
-			// send an internal message
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$ms->openQueue();
-			$current_user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
-
-			foreach ($locked_ids as $locked) {
-				$locked_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locked);
-
-				// create a new message object and populate it, before adding to
-				// the message queue in the internal messaging system to sending later
-				$message = $ms->newMessage();
-				$message->subject = 'Asset Lock Forceably Acquired';
-				$message->body = 'User "'.$current_user->name.'" has forceably acquired the lock on '.$locked_asset->type().' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
-				$message->to = $locked_asset->getPermission(SQ_PERMISSION_ADMIN, true);
-				$message->to[] = $user->id;
-				$message->from = 0; // a system message
-
-				$ms->enqueueMessage($message);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($locked_asset);
-			}
-
-			// close the queue of messages we opened, which sends all the messages in the queue
-			$ms->closeQueue();
-
-			// refresh the lock info
-			$current_lock = $this->getLockInfo();
-
-		}// end if
-
-		// is this asset already locked
-		if (!empty($current_lock)) {
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
-			trigger_error('Cannot acquire lock on "'.$this->name.'", lock already held by "'.$user->name.'"', E_USER_NOTICE);
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
-		}
-
-		// if we have no source, we are the asset aquiring the locks
-		if (empty($source)) $source = $this->id;
-		
-		if (is_null($expires)) {
-			$expires = NULL;
-		} else {
-			$expires = (!$expires) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
-			$expires = ts_iso8601($expires);
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// now try and get the lock on ourself
-		$values = Array('assetid'      => $this->id,
-						'source_asset' => $source,
-						'userid'       => $GLOBALS['SQ_SYSTEM']->currentUserid(),
-						'expires'      => $expires
-						);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lock', $values)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return true;
-
-	}//end acquireLock()
-
-
-	/**
-	* Release the locks that this asset holds
-	*
-	* @return boolean
-	* @access public
-	*/
-	function releaseLock()
-	{
-		$current_lock = $this->getLockInfo(false, false);
-		if (empty($current_lock)) return true;
-
-		// is this asset already locked by someone else and we can't forceably acquire it, piss off
-		if ((int) $current_lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid() && !$this->canForceablyAcquireLock()) {
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
-			trigger_error('You cannot release a lock that you do not own, the lock on "'.$this->name.'" is held by "'.$user->name.'"', E_USER_WARNING);
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$where_cond = 'source_asset = '.$db->quote($current_lock['source_asset']);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lock', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return true;
-
-	}//end releaseLock()
-
-
-	/**
-	* Updates the expiry date of the lock on this asset
-	*
-	* If the current lock is being held indefinitely (ie. expires = NULL), the lock
-	* expiry time will not be updated but the function will return true. You must release
-	* an indefinite lock before updating its expiry date.
-	*
-	* @param int		$source		the id of the asset that started this locking process
-	* @param int|NULL	$expires	when the lock expires (timestamp or NULL)
-	*
-	* @return boolean
-	* @access public
-	*/
-	function updateLock($expires=0)
-	{
-		$current_lock = $this->getLockInfo();
-		if (empty($current_lock)) return true;
-		if (empty($current_lock['expires'])) return true;
-
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		if (is_null($expires)) {
-			$expires = 'NULL';
-		} else {
-			$expires = (!$expires) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
-			$expires = ts_iso8601($expires);
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$where = 'source_asset = '.$db->quote($current_lock['source_asset']);
-		$values = Array('expires' => $db->quote($expires));
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_lock', $values, $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return true;
-
-	}//end updateLock()
-
-
-	/**
-	* Returns an array of information about the current lock on this asset (if any)
-	*
-	* @param boolean	$full_chain		return the info for every asset in the lock chain
-	* @param boolean	$check_expires	check the expiry date and cleanup the lock if it has expired
-	*
-	* @return array
-	* @access public
-	*/
-	function getLockInfo($full_chain=false, $check_expires=true)
-	{
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// just get the lock for this asset
-		$where = 'assetid = '.$db->quote($this->id);
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT assetid, source_asset, userid, expires
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lock '.$where;
-
-		$result = $db->getRow($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return Array();
-		}
-
-		if (!empty($result) && $check_expires && !empty($result['expires'])) {
-			$result['expires'] = iso8601_ts($result['expires']);
-			if ($result['expires'] < time()) {
-				// this lock has expired
-				if ($this->cleanupLocks()) {
-					$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-					return Array();
-				}
-			}
-		}
-
-		if ($full_chain && !empty($result)) {
-			$result['chained_assets'] = Array();
-			$source_assetid = $result['source_asset'];
-			$where = 'source_asset = '.$db->quote($source_assetid).'
-					  AND assetid <> '.$db->quote($this->id);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$sql = 'SELECT assetid, source_asset, userid, expires
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lock '.$where;
-
-			$to_do = $db->getAll($sql);
-			if (DB::isError($to_do)) {
-				trigger_error($to_do->getMessage().'<br/>'.$to_do->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-				return Array();
-			}
-
-			foreach ($to_do as $lock_row) {
-				if (empty($lock_row['expires'])) $lock_row['expires'] = NULL;
-				else $lock_row['expires'] = iso8601_ts($lock_row['expires']);
-				$result['chained_assets'][$lock_row['assetid']] = $lock_row;
-			}
-		}
-
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return $result;
-
-	}//end getLockInfo()
-
-
-	/**
-	* Deletes the lock on this asset if it is expired
-	*
-	* @return array
-	* @access public
-	*/
-	function cleanupLocks()
-	{
-		$current_lock = $this->getLockInfo(false, false);
-		if (empty($current_lock)) return true;
-
-		$now = date('Y-m-d H:i:s');
-		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$where_cond = ' source_asset = '.$db->quote($current_lock['source_asset']).'
-						AND expires < '.$db->quote($now).'
-						AND expires IS NOT NULL';
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lock', $where_cond)) {
-			$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
-		return true;
-
-	}//end cleanupLocks()
 
 
 	/**
@@ -3031,24 +2738,24 @@ class Asset extends Resolve_Object
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!$new_parent->acquireLock()) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_parent->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
-		$new_parent->releaseLock();
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_parent->id);
 		if (!$new_linkid) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		// Now let's try and delete the old link
-		if (!$this->acquireLock()) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 		$deleted = $this->deleteLink($linkid);
-		$this->releaseLock();
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 		if (!$deleted) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -3916,13 +3623,12 @@ class Asset extends Resolve_Object
 			// effective access is only valid for the current user
 			if (!empty($assetids)) return false;
 
-			$lock = $this->getLockInfo();
+			$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id);
 			// if there is no lock you can't edit
 			if (empty($lock)) return false;
 
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 			// if the lock is not owned by the current user they can't edit
-			if ($user->id != $GLOBALS['SQ_SYSTEM']->currentUserid()) return false;
+			if ($lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid()) return false;
 
 			// otherwise they can edit if they have permission access
 			return $this->_checkPermissionAccess($perm);

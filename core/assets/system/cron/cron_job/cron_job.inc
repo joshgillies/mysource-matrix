@@ -436,7 +436,7 @@ class Cron_Job extends Asset
 		if (!is_null($user)) {
 
 			// Now let's get the lock
-			if ($this->acquireLock()) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id)) {
 
 				if ($GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
 
@@ -452,7 +452,7 @@ class Cron_Job extends Asset
 					$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
 				}
 
-				$this->releaseLock();
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 
 			// else acquireLock failed
 			} else {

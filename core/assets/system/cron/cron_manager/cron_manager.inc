@@ -135,31 +135,6 @@ class Cron_Manager extends Asset
 
 
 	/**
-	* Acquires a lock on this asset and its dependant assets
-	*
-	* @param int		$source		the id of the asset that started this locking process
-	* @param boolean	$force		attempt to forcibly acquire (if allowed)
-	* @param int|NULL	$expires	when the lock expires (timestamp or NULL)
-	* @param boolean	$wait		whether this function should keep trying to acquire
-	*								(forces it to wait 1 sec, then try again)
-	*
-	* @return boolean
-	* @access public
-	*/
-	function acquireLock($source=0, $force=false, $expires=0, $wait=false)
-	{
-		if (parent::acquireLock($source, $force, $expires)) return true;
-		while($wait) {
-			sleep(1);
-			if (parent::acquireLock($source, $force, $expires, $wait)) return true;
-
-		}
-		return false;
-
-	}// end acquireLock()
-
-
-	/**
 	* Moves a link from one place in this assets links order to another position
 	*
 	* @param int	$linkid		the link id of the link to move about
@@ -249,11 +224,11 @@ class Cron_Manager extends Asset
 
 		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'exclusive' => '1');
 		if ($job->create($link)) {
-			if ($job->acquireLock() && $job->setRunningUser($user)) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($job->id) && $job->setRunningUser($user)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 				return true;
 			}
-			$job->releaseLock();
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($job->id);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -404,9 +379,9 @@ class Cron_Manager extends Asset
 
 
 			// now update this last run time, so that we know for next time
-			if ($this->acquireLock(0, true, null, true)) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 0, true)) {
 				$this->setAttrValue('run_check', (int) $this->attr('run_check') + 1);
-				$this->releaseLock();
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 
 			} else {
 				trigger_error('Unable to acquire lock of "'.$this->name.'"', E_USER_WARNING);
@@ -440,9 +415,9 @@ class Cron_Manager extends Asset
 			}// end if
 
 			// now get the lock, set the running flag and reset the run_check
-			if ($this->acquireLock(0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0)) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0)) {
 
-				$this->releaseLock();
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -530,8 +505,21 @@ class Cron_Manager extends Asset
 					// send all the messages for this run
 					$ms->closeQueue();
 
+					// give it three seconds to get the lock
+					$lock_count = 0;
+					while(1) {
+						if ($acquired = parent::acquireLock($this->id, 0, true)) {
+							break;
+						} elseif ($lock_count < 3) {
+							$lock_count++;
+							sleep(1);
+						} else {
+							break;
+						}
+					};
+
 					// now update this last run time, so that we know for next time
-					if ($this->acquireLock(0, true, null, true)) {
+					if ($acquired) {
 
 						$this->setAttrValue('run_check', 0);
 						if (!empty($remove_jobs)) {
@@ -540,7 +528,7 @@ class Cron_Manager extends Asset
 							}
 						}// end if
 
-						$this->releaseLock();
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 
 					} else {
 						trigger_error('Unable to acquire lock of "'.$this->name.'", aborting run', E_USER_WARNING);
@@ -560,9 +548,9 @@ class Cron_Manager extends Asset
 				}// end while
 
 				// now update this last run time, so that we know for next time
-				if ($this->acquireLock(0, true)) {
+				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 0, true)) {
 					if ($this->setAttrValue('last_run', $this_run) && $this->setAttrValue('running', false)) {
-						$this->releaseLock();
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 					} else {
 						trigger_error('Unable to unset the last run and/or running flag of "'.$this->name.'", aborting run', E_USER_WARNING);
 					}

@@ -143,13 +143,13 @@ if (is_null($root_folder)) {
 		trigger_error('Major Problem: The new Login Design Asset was not given assetid #9. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
 
-	$cron_manager->releaseLock();
-	$login_design->releaseLock();
-	$designs_folder->releaseLock();
-	$root_user->releaseLock();
-	$system_group->releaseLock();
-	$trash_folder->releaseLock();
-	$root_folder->releaseLock();
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_manager->id);
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($login_design->id);
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($designs_folder->id);
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_user->id);
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($system_group->id);
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($trash_folder->id);
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_folder->id);
 
 	$sql = 'SELECT MAX(assetid) FROM sq_asset';
 	$num_assets = $db->getOne($sql);

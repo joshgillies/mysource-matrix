@@ -201,8 +201,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			$o->openSection('Locking / Editing');
 			$o->openField('&nbsp;');
 
-			$lock = $owner->getLockInfo();
-
+			$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id);
 			if (!empty($lock)) {
 				// this asset is currently locked
 				// so display message to the user
@@ -872,7 +871,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 				if (!empty($fs_jobs)) {
 
-					if ($cron_mgr->acquireLock()) {
+					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id)) {
 						for($i = 0; $i < count($fs_jobs); $i++) {
 							if (in_array($fs_jobs[$i]->id, $_POST[$prefix.'_remove_fs'])) {
 								if ($cron_mgr->removeJob($fs_jobs[$i])) {
@@ -881,7 +880,7 @@ class Asset_Edit_Interface extends Resolve_Object
 							}// end if
 						}// end for
 
-						$cron_mgr->releaseLock();
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id);
 
 					} else {
 						trigger_error('Unable to acquire the lock on the Cron Manager, unable to remove jobs', E_USER_NOTICE);
@@ -900,11 +899,11 @@ class Asset_Edit_Interface extends Resolve_Object
 					if (!is_null($cron_mgr)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 						if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user)) {
-							if ($fs->acquireLock()) {
+							if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id)) {
 								if ($fs->setAssetToUpdate($owner)) {
 									$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 									$is_updated = true;
-									$fs->releaseLock();
+									$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id);
 								} else {
 									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 								}
@@ -2064,7 +2063,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$o->openField('&nbsp;');
 
 		$lock_message = '';
-		$lock = $owner->getLockInfo();
+		$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id);
 		if (!empty($lock)) {
 			// this asset is currently locked
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
@@ -2148,7 +2147,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			$bg = ($end) ? '' : $stalk;
 
 			$lock_message = '';
-			$lock = $dep_asset->getLockInfo();
+			$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($dep_asset->id);
 			if (!empty($lock)) {
 				// this asset is currently locked
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);

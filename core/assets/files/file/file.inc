@@ -426,12 +426,12 @@ class File extends Asset
 				$linkid = $this->create($link);
 
 				if ($linkid) {
-					$this->acquireLock();
+					$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id);
 					$edit = $this->getEditFns();
 					$this->_tmp['uploading_file'] = 1;
 					$ret_val = $edit->processFileUpload($this, $o, $prefix);
 					$this->saveAttributes();
-					$this->releaseLock();
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 					return $ret_val;
 				}
 

@@ -238,12 +238,9 @@ class Backend extends Resolve_Object
 		
 		// refresh lock held on current page
 		if (isset($_GET['current_assetid']) && !empty($_GET['current_assetid'])) {
-			$current_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['current_assetid'], '', true);
-			if ($current_asset->id) {
-				$lock = $current_asset->getLockInfo();
-				if (!empty($lock)) {
-					if ($lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) $current_asset->updateLock();
-				}
+			$lock = @$GLOBALS['SQ_SYSTEM']->am->getLockInfo($_GET['current_assetid']);
+			if (!empty($lock) && $lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
+				$GLOBALS['SQ_SYSTEM']->am->updateLock($_GET['current_assetid']);
 			}
 		}
 

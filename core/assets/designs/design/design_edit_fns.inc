@@ -707,13 +707,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
 
 		if ($new_file->create($design_link, $info)) {
-			$new_file->acquireLock();
+			$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id);
 			$edit_fns = $new_file->getEditFns();
 			if ($edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info)) {
-				$new_file->releaseLock();
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id);
 				return true;
 			}
-			$new_file->releaseLock();
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id);
 		}
 
 		return false;
@@ -768,7 +768,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->am->rememberAsset($da);
 
 		// Acquire a lock on the new object
-		if (!$dupe->acquireLock()) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dupe->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -827,7 +827,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$am->forgetAsset($minor);
 
 		// release the lock on the new object
-		if (!$dupe->releaseLock()) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($dupe->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}

@@ -114,7 +114,7 @@ class Login_Design extends Design
 			closedir($handle);
 		}
 
-		if (!$this->acquireLock()) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -127,12 +127,12 @@ class Login_Design extends Design
 			trigger_error('Login design failed setting public read permission', E_USER_WARNING);
 		}
 
-		$this->releaseLock();
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 
 		$file_links = $this->getLinks(SQ_LINK_TYPE_2, 'file', false);
 		foreach ($file_links as $link) {
 			$file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
-			if (!$file->acquireLock()) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($file->id)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -142,7 +142,7 @@ class Login_Design extends Design
 			if (!$file->setPermission(0, SQ_PERMISSION_READ, '1')) {
 				trigger_error('Login design failed setting public read permission for file "'.$file->name.'"', E_USER_WARNING);
 			}
-			$file->releaseLock();
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($file->id);
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($file);
 		}
 

@@ -350,7 +350,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 				if ($done_a_lock) break;
 				$assetid = $link_info['assetid'];
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (!$asset->acquireLock($vars['trash_id'])) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, $vars['trash_id'])) {
 					trigger_error('Purge aborted, unable to acquire lock for "'.$asset->name.'" for purging trash', E_USER_WARNING);
 					$pb->abort();
 					return;

@@ -764,9 +764,9 @@ class Asset_Map
 		}
 
 		// First let's try and create the new link, if there are any issues then it will cryout for us
-		$new_parent->acquireLock();
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_parent->id);
 		$linkid = $new_parent->createLink($asset, $link['link_type'], '', $input->root->attributes['to_parent_pos']);
-		$new_parent->releaseLock();
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_parent->id);
 		if (!$linkid) return;
 
 		// if our new parent has permission set, do the popup thang to ask the user if

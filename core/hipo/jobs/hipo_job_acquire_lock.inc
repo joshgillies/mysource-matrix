@@ -125,7 +125,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 			if (!is_null($asset)) {
 				$source_assetid = $this->_running_vars['assetid'];
 				$forceably_acquire = $this->_running_vars['forceably_acquire'];
-				$asset->acquireLock($source_assetid, $forceably_acquire);
+				$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, $source_assetid, $forceably_acquire);
 				$step_data['message'] = 'Acquiring Lock on "'.$asset->name.'"';
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);

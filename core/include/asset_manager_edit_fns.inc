@@ -153,7 +153,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 					// try to release a lock on this asset?
 					if (isset($_POST['sq_manual_release_lock'])) {
-						$asset->releaseLock();
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id);
 						$do_process_backend = false;
 					}
 
@@ -161,19 +161,19 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 						$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" Updated');
 
-						$lock = $asset->getLockInfo();
+						$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($asset->id);
 						if (!empty($lock)) {
 							// this asset is currently locked
 							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 							if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
 								if (false && isset($_POST['sq_release_lock']) && (int) $_POST['sq_release_lock'] == 1) {
 									// committing changes and releasing the lock
-									if (!$asset->releaseLock()) {
+									if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id)) {
 										trigger_error('Failed to release lock on "'.$asset->name.'"', E_USER_WARNING);
 									}
 								} else {
 									// not releasing the lock, so re-acquire
-									if (!$asset->acquireLock()) {
+									if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id)) {
 										trigger_error('Failed to re-acquire lock on "'.$asset->name.'"', E_USER_WARNING);
 									}
 								}
@@ -204,7 +204,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 			case 'forceably_acquire_lock' :
 				$this->_forceablyAcquireLock();
 				break;
-				
+
 			default   :
 				$this->_printAssetList();
 
@@ -585,7 +585,6 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		$vars = $pb->getRunningVars();
 #speed_check();
 
-		$initiating_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($vars['assetid'], $vars['type_code']);
 		$status_msg = '';
 
 		$attempted_assets = Array();
@@ -631,7 +630,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 			$attempted_assets[] = $assetid;
 
 			// attempt to acquire the lock for this asset
-			if ($acquired = @$asset->acquireLock($initiating_asset->id)) {
+			if (@$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, $vars['assetid'])) {
 				$vars['lock']['acquired_assets'][] = $asset->id;
 				$status_msg .= 'Lock Acquired for '.$asset->name."\n";
 	#speed_check("five");
@@ -681,7 +680,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 speed_check('FINISHED');
 
-		$initiating_asset->updateLock();
+		$GLOBALS['SQ_SYSTEM']->am->updateLock($vars['assetid']);
 
 		$pb->setRunningVars($vars);
 
@@ -736,8 +735,6 @@ speed_check('FINISHED');
 	{
 		$vars = $pb->getRunningVars();
 #pre_echo($vars['dupe']);
-
-		$initiating_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($vars['assetid'], $vars['type_code']);
 
 #speed_check();
 #		pre_echo("DUPE POS : ".$vars['dupe']['pos']);
@@ -844,7 +841,7 @@ speed_check('FINISHED');
 		$vars['dupe']['pos']++;
 #speed_check('FINISHED');
 
-		$initiating_asset->updateLock();
+		$GLOBALS['SQ_SYSTEM']->am->updateLock($vars['assetid']);
 
 		$pb->setRunningVars($vars);
 
@@ -915,8 +912,7 @@ speed_check('FINISHED');
 		$pb->setPercent($vars['remap']['pos'] / count($vars['assets']));
 		$pb->setRunningVars($vars);
 
-		$initiating_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($vars['assetid'], $vars['type_code']);
-		$initiating_asset->updateLock();
+		$GLOBALS['SQ_SYSTEM']->am->updateLock($vars['assetid']);
 
 	}// end _dupeStepRemap()
 
@@ -953,8 +949,7 @@ speed_check('FINISHED');
 	function _dupeStepReleaseLocks(&$pb)
 	{
 		$vars = $pb->getRunningVars();
-		$initiating_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($vars['assetid'], $vars['type_code']);
-		$initiating_asset->releaseLock();
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($vars['assetid']);
 		$pb->setStatusMsg('All Locks Released');
 		$pb->setPercent(1);
 
@@ -987,9 +982,9 @@ speed_check('FINISHED');
 			$asset = &$this->am->getAsset($_GET['delete_assetid']);
 			$link = $asset->getLinkById($_GET['delete_linkid'], 'minor');
 			$parent = &$this->am->getAsset($link['majorid'], $link['type_code']);
-			$parent->acquireLock();
+			$GLOBALS['SQ_SYSTEM']->am->acquireLock($parent->id);
 			$parent->deleteLink($link['linkid']);
-			$parent->releaseLock();
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($parent->id);
 			$trash = &$this->am->getSystemAsset('trash_folder');
 
 			// action is done, close the window and refresh the asset map
@@ -1204,7 +1199,7 @@ speed_check('FINISHED');
 			break;
 		}
 
-		$lock = $asset->getLockInfo(true, false);
+		$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($asset->id, true, false);
 		if (empty($lock)) {
 			$o->addOnLoad("alert('No lock is held on \"$asset->name\"'); window.close();");
 			return;
