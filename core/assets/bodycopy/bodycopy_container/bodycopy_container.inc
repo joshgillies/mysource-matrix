@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.9 2004/07/19 00:40:18 mnyeholt Exp $
+* $Id: bodycopy_container.inc,v 1.10 2004/08/19 05:17:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 */
 class Bodycopy_Container extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -290,10 +291,12 @@ class Bodycopy_Container extends Asset
 	*/
 	function printBody($keyword_replacements=Array())
 	{
+		if (!$this->readAccess('')) return;
+
 		// create an array of urls that the content file is
 		// going to try and use to work out file urls, link hrefs etc
 		$sq_asset_url_list = Array();
-		
+
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE);
 		$get_href_ids = Array();
 		foreach ($notice_links as $link) $get_href_ids[] = $link['minorid'];
@@ -367,7 +370,8 @@ class Bodycopy_Container extends Asset
 		}
 		return true;
 
-	}// end isEmpty()
+	}//end isEmpty()
+
 
 }//end class
 
