@@ -1,0 +1,54 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1.1.1 2004/06/24 05:37:11 amiller Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+	<section name="Details" write_access="write:attributes" limbo_access="1">
+		<field attribute="name">
+			<display_name>News Title</display_name>
+			<note />
+			<text width="35" height="1" />
+		</field>
+	</section>
+	<section name="Link" write_access="write:link_url" limbo_access="1">
+		<field attribute="link_url">
+			<display_name>URL</display_name>
+			<note />
+			<text width="80" height="1" />
+		</field>
+		<field>
+			<display_name>or Asset</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintLinkAssetid" />
+				<process_function name="processLinkAssetid" />
+			</function_call>
+		</field>
+		<field attribute="url_suffix">
+			<display_name>URL Suffix</display_name>
+			<note>%description%</note>
+			<text width="80" height="1" />
+		</field>
+	</section>
+</contents>
