@@ -53,6 +53,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			if (!is_null($contents) && $this->_processContents($asset, $contents)) {
 				$asset->_tmp['regenerate_design'] = true;
+			} else {
+				return false;
 			}
 		}
 		return true;
