@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.5 2005/03/24 00:27:50 arailean Exp $
+* $Id: log_manager.inc,v 1.6 2005/03/24 05:35:59 arailean Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -228,56 +228,6 @@ class Log_Manager extends Asset
 
 
 	/**
-	* Takes the log name, data, and optionally the log level, and passes it out to be encoded and logged to file
-	*
-	* @param string					$logname	The prefix of the file to log to, eg. 'error'
-	* @param mixed string|array		$data		The data to write to the log file
-	* @param int					$level		The log level, eg. E_USER_ERROR
-	* @param boolean				$encode		If true, encodes elements such as newlines that mess up the log format
-	*
-	* @access public
-	* @return boolean
-	*/
-	function log($logname, $data, $level=E_USER_NOTICE, $encode=true)
-	{
-		if (empty($logname) || empty($data) || empty($level)) {
-			trigger_error('Cannot Log. An error has occured', E_USER_ERROR);
-			return false;
-		}
-
-		// grab metadata
-		$current_user = $GLOBALS['SQ_SYSTEM']->user;
-		$userid = 0;
-		$username = '';
-
-		if (is_null($current_user)) {
-			$username = SQ_SYSTEM_SHORT_NAME.' System';
-		} else {
-			$userid   = $current_user->id;
-			$username = $current_user->name;
-		}
-
-		$log = Array(
-					 'userid' => $userid,
-					 'user'   => $username,
-					 'date'   => time(),
-					 'level'  => $level,
-					 'data'   => $data,
-					 );
-
-		// encode metadata & logdata
-		$encoded_log = Log_Manager::_encodeLine($log, $encode);
-
-		if ($log) {
-			return Log_Manager::_writeToFile(SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION, $encoded_log."\n");
-		} else {
-			return false;
-		}
-
-	}//end log()
-
-
-	/**
 	* Returns a line from a specified logfile
 	*
 	* @param string		$logname			the logfile prefix
@@ -376,63 +326,6 @@ class Log_Manager extends Asset
 
 
 	/**
-	* Encodes a line in preparation for being written to a logfile
-	*
-	* $meta takes an array in the following format:
-	* <pre>
-	* Array(
-	*       'userid'    => int,
-	*       'user'      => string,
-	*       'date'      => int,
-	*       'level'     => int,
-	*       'data'      => string|array,
-	*       );
-	* </pre>
-	*
-	* @param array(string => mixed)		$meta		Data to be encoded, including the metadata, and the log message as data in either string or array format
-	* @param boolean					$encode		If true, encodes elements such as newlines that mess up the log format
-	*
-	* @access private
-	* @return false|string
-	*/
-	function _encodeLine($line, $encode=true)
-	{
-		if (empty($line)) {
-			return false;
-		}
-
-		// encode the username in case it contains characters that will muck up the decoding process
-		$line['user'] = str_replace('[', '&#91;', $line['user']);
-		$line['user'] = str_replace(']', '&#93;', $line['user']);
-		$line['user'] = str_replace(':', '&#58;', $line['user']);
-
-		$level_name = get_error_name($line['level']);
-
-		$meta_encoded  = '['.date('Y-m-d H:i:s', $line['date']).']';
-		$meta_encoded .= '['.$line['userid'].':'.$line['user'].']';
-		$meta_encoded .= '['.$line['level'].':'.strtolower($level_name).']';
-
-		// mark the data as 'R'(aw), 'S'(erialised) or ' ' (unserialised)
-		if (is_string($line['data'])) {
-			$data = $line['data'];
-			$flag = ' ';
-		} else {
-			$data = serialize($line['data']);
-			$flag = 'S';
-		}
-
-		if ($encode) {
-			$data = str_replace("\n", '&#10;', $data);
-		} else {
-			$flag = 'R';
-		}
-
-		return $meta_encoded.'['.$flag.'] '.$data;
-
-	}//end _encodeLine()
-
-
-	/**
 	* Decodes a line after being read from a logfile
 	*
 	* Returns an array in the following format:
@@ -493,37 +386,6 @@ class Log_Manager extends Asset
 		return $decoded_line;
 
 	}//end _decodeLine()
-
-
-	/**
-	* Writes the log to a specified file
-	*
-	* @param string		$file		The destination logfile
-	* @param string		$data		The raw data to write to the file
-	*
-	* @access private
-	* @return boolean
-	*/
-	function _writeToFile($file, $data)
-	{
-		if (empty($file) || empty($data) || !is_string($data)) {
-			return false;
-		}
-
-		// set the UMASK to u=rw,g=rw,o=r (0002), so that the user can write the logfiles the log_manager creates
-		// needed so that step_03 can be run
-		if (substr(PHP_OS, 0, 3) != 'WIN') {
-			umask(0113);
-		}
-
-		$handle = fopen($file, 'a');
-		if (!fwrite($handle, $data)) {
-			return false;
-		}
-		fclose($handle);
-		return true;
-
-	}//end _writeToFile()
 
 
 	/**
