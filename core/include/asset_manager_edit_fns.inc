@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.62 2003/11/18 15:37:33 brobertson Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.63 2003/11/21 05:29:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,6 +49,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	*/
 	var $backend;
 
+
 	/**
 	* Constructor
 	*
@@ -60,7 +61,9 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$this->MySource_Object();
 		$this->am = &$am;
 		$this->backend = &$backend;
-	}
+
+	}//end constructor
+
 
 	/**
 	* Prints out the interface for viewing and customising asset types
@@ -73,6 +76,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 		if (!isset($_GET['am_section'])) {
 			if (isset($_GET['sq_from_frontend'])) $_GET['am_section'] = 'edit_asset';
+			else if (SQ_IN_LIMBO) $_GET['am_section'] = 'limbo';
 			else $_GET['am_section'] = '';
 		}
 
@@ -102,7 +106,6 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				$asset = new $_GET['type_code']();
 
 				// if the form has been submitted then, process it
-				// and if that is successfull, then create the link to the parent asset
 				if (!empty($_POST['process_form']) && !empty($_POST['am_form_submitted'])) {
 
 					// start the transaction to create the asset and initial link
@@ -126,19 +129,50 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 				$asset->paintBackend($this->backend->out);
 
-				break;
+			break;
 
 			case 'edit_asset' :
-				$o->addFormActionGetVar('assetid', $_GET['assetid']);
+			case 'limbo'      :
+				$asset = null;
+				$limbo_asset = null;
+				if (SQ_IN_LIMBO && !$_GET['assetid']) {
 
-				$asset = &$this->am->getAsset($_GET['assetid']);
-				if (is_null($asset)) {
-					trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
-					break;
+					$limbo_asset = &$this->am->getAssetFromURL();
+					if (is_null($limbo_asset)) break;
+					$o->addFormActionGetVar('limbo_assetid', $limbo_asset->id);
+					$asset = &$limbo_asset;
+
+				} else if (SQ_IN_LIMBO && isset($_GET['limbo_assetid'])) {
+
+					$limbo_asset =  &$this->am->getAsset($_GET['limbo_assetid']);
+					if (is_null($limbo_asset)) break;
+					$o->addFormActionGetVar('limbo_assetid', $limbo_asset->id);
+
+					if (isset($_GET['assetid'])) {
+						$asset = &$this->am->getAsset($_GET['assetid']);
+						if (is_null($asset)) {
+							$asset = &$limbo_asset;
+						}
+					} else {
+						$asset = &$limbo_asset;
+					}
+
+				} else {
+
+					$asset = &$this->am->getAsset($_GET['assetid']);
+					if (is_null($asset)) {
+						trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
+						$o->addFormActionGetVar('assetid', $_GET['assetid']);
+						break;
+					}
+
+					if (SQ_IN_LIMBO) $limbo_asset = &$asset;
 				}
 
+				$o->addFormActionGetVar('assetid', $asset->id);
+				$o->addHiddenField('backend_assetid', $asset->id);
+
 				// if the form has been submitted then, process it
-				// and if that is successfull, then create the link to the parent asset
 				$link = Array();
 				if (!empty($_POST['process_form']) && !empty($_POST['am_form_submitted'])) {
 
@@ -173,7 +207,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 								trigger_error('Failed to re-acquire "'.$_POST['sq_lock_type'].'" lock on "'.$asset->name.'"', E_USER_WARNING);
 							}
 						}
-					}// endif
+					}// end if
 
 					// the backend of the asset has been processed so lets see if we have any HIPO
 					// jobs that need to be run
@@ -182,35 +216,29 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					if (!empty($url)) $o->setRedirect($url);
 				}
 
-				$asset->paintBackend($this->backend->out);
-				break;
+				if (SQ_IN_LIMBO) $limbo_asset->printFrontend();
+				else $asset->paintBackend($this->backend->out);
+			
+			break;
 
 			case 'duplicate' :
 				$this->_dupeAsset();
-				break;
+			break;
 
 			case 'delete_asset' :
 				$this->_deleteAsset();
-				break;
-
-			case 'link_asset' :
-				$this->_linkAsset();
-				break;
-
-			case 'move_asset' :
-				$this->_moveAsset();
-				break;
+			break;
 
 			case 'forceably_acquire_lock' :
 				$this->_forceablyAcquireLock();
-				break;
+			break;
 
 			default :
 				$this->_printAssetTypeList();
 
 		}//end switch
 
-	}//end paintBackend();
+	}//end paintBackend()
 
 
 	/**
@@ -1014,6 +1042,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		} else {
 			$o->addFormActionGetVar('delete_assetid', $_GET['assetid']);
 			$o->addFormActionGetVar('delete_linkid', $_GET['linkid']);
+			$o->addFormActionGetVar('ignore_frames', '1');
 			$asset = &$this->am->getAsset($_GET['assetid']);
 			if (is_null($asset)) {
 				trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
@@ -1035,174 +1064,6 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		}
 
 	}// end _deleteAsset()
-
-
-	/**
-	* Ask a user if they want to cascade permission when moving an asset
-	*
-	* @return void
-	* @access private
-	*/
-	function _moveAsset()
-	{
-		if (isset($_REQUEST['link_completed']) && $_REQUEST['link_completed']) {
-			// close the window and refresh the asset map
-			require_once 'XML/Tree.php';
-			$xml = new XML_Tree();
-			$xml_root = &$xml->addRoot('assets');
-			$xml_root->addChild('asset', '', Array('assetid' => $_GET['link_parentid']));
-			$xml_root->addChild('asset', '', Array('assetid' => $_GET['link_assetid']));
-			$xml_root->addChild('asset', '', Array('assetid' => $_GET['link_old_parentid']));
-			?>
-			<script language="Javascript" type="text/javascript">
-				if (window.opener.top.sidenav && window.opener.top.sidenav.reload_asset) {
-					window.opener.top.sidenav.reload_assets("<?php echo str_replace("\n", "\\n", addslashes($xml->get())); ?>");
-				}
-				window.close();
-			</script>
-			<?php
-
-		} else if (!isset($_GET['link_assetid'])) {
-			$o = &$this->backend->out;
-			$o->addFormActionGetVar('link_old_parentid', $_GET['old_parentid']);
-		}
-
-		return $this->_linkAsset();
-
-	}// end _moveAsset()
-
-
-	/**
-	* Ask a user if they want to cascade permission when creating a new link
-	*
-	* @return void
-	* @access private
-	*/
-	function _linkAsset()
-	{
-		$o = &$this->backend->out;
-
-		if (isset($_REQUEST['link_completed']) && $_REQUEST['link_completed']) {
-
-			// close the window and refresh the asset map
-			require_once 'XML/Tree.php';
-			$xml = new XML_Tree();
-			$xml_root = &$xml->addRoot('assets');
-			$xml_root->addChild('asset', '', Array('assetid' => $_GET['link_parentid']));
-			$xml_root->addChild('asset', '', Array('assetid' => $_GET['link_assetid']));
-			?>
-			<script language="Javascript" type="text/javascript">
-				if (window.opener.top.sidenav && window.opener.top.sidenav.reload_asset) {
-					window.opener.top.sidenav.reload_assets("<?php echo str_replace("\n", "\\n", addslashes($xml->get())); ?>");
-				}
-				window.close();
-			</script>
-			<?php
-
-		} else if (isset($_GET['link_assetid'])) {
-
-			//// START HIPO PROCESSING ////
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$complete_url = $_SERVER['REQUEST_URI'].'&link_completed=1';
-			
-			if (isset($_REQUEST['cascade'])) {
-				$vars = Array('assetid' => $_GET['link_assetid']);
-				if (in_array('cascade_pe', $_REQUEST['cascade'])) {
-					$permission_vars = Array();
-					foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-						$set_perms = $this->am->getPermission($_GET['link_parentid'], $perm, null, false, false, true);
-						foreach ($set_perms as $userid => $access) {
-						$permission_vars[$perm][] = Array('access'          => $access,
-														  'userid'          => $userid,
-														  'previous_access' => null,
-														  );
-						}
-					}
-					$vars['permission_changes'] = $permission_vars;
-				}
-				if (in_array('cascade_wf', $_REQUEST['cascade'])) {
-					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-					$schemas = $wfm->getSchemas($_GET['link_parentid']);
-					foreach ($schemas as $schemaid => $access) {
-						$workflow_schema_vars[] = Array('access'          => $access,
-									   'schemaid'        => $schemaid,
-									   'previous_access' => null,
-									   );
-					}
-					$vars['workflow_schema_changes'] = $workflow_schema_vars;
-				}
-				if (in_array('cascade_ms', $_REQUEST['cascade'])) {
-					$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-					$schemas = $mm->getSchemas($_GET['link_parentid']);
-					foreach ($schemas as $schemaid => $access) {
-						$meta_data_schema_vars[] = Array('access'          => $access,
-											   'schemaid'        => $schemaid,
-											   'previous_access' => null,
-											   );
-					}
-					$vars['metadata_schema_changes'] = $meta_data_schema_vars;
-					
-				}
-				$hh->queueHipo('hipo_job_create_link', $vars, $complete_url);
-			}
-			////  END HIPO PROCESSING  ////
-
-			// check for any queued HIPOs
-			$url = $hh->runQueuedJobs();
-			if (!empty($url)) $o->setRedirect($url);
-
-		} else {
-			$o->addFormActionGetVar('link_assetid',  $_GET['assetid']);
-			$o->addFormActionGetVar('link_parentid', $_GET['parentid']);
-
-			$asset = &$this->am->getAsset($_GET['assetid']);
-			if (is_null($asset)) {
-				trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
-				return;
-			}
-
-			$parent = &$this->am->getAsset($_GET['parentid']);
-			if (is_null($asset)) {
-				trigger_error('Asset #'.$_GET['parentid'].' not found', E_USER_WARNING);
-				return;
-			}
-
-			// ask if they want to cascade permission
-			$o->openSection('Note');
-				$o->openField('&nbsp;');
-					hidden_field('link_completed', '0');
-					?>
-					Press the <b><i>Cascade</i></b> button below if you want to cascade the permissions of "<?php echo $parent->name; ?>" down to "<?php echo $asset->name; ?>" and its children. To skip the cascading of permissions, press the <b><i>Skip</i></b> button below.<br/><br/>
-					The permission of the new parent "<?php echo $parent->name; ?>" are shown below. These permissions will attempt to be set on "<?php echo $asset->name; ?>" and its children if you choose to cascade the permissions.<br/><br/>
-					<b>Note:</b> Any assets that become children of "<?php echo $asset->name; ?>" during the cascade process will not have the permission changes applied to them - only the <i>current</i> children.
-					<?php
-					$ei = &$parent->getEI();
-					$pe = $ei->paintInlinePermissions($parent, $o);
-					$wf = $ei->paintInlineWorkflow($parent, $o);
-					$ms = $ei->paintInlineMetadataSchemas($parent, $o);
-
-
-				$o->closeField();
-			$o->closeSection();
-			
-			if ((int)$pe + (int)$wf + (int)$ms > 1) {
-				$o->openSection('Cascade');
-					$o->openField('', 'cascade');
-						echo ($pe) ? 'Permissions'.check_box('cascade[]', 'cascade_pe').'<br />' : '';
-						echo ($wf) ? 'Work Flow'.check_box('cascade[]', 'cascade_wf').'<br />' : '';
-						echo ($ms) ? 'Metadata Schemas'.check_box('cascade[]', 'cascade_ms').'<br />' : '';
-					$o->closeField();
-				$o->closeSection();
-			}
-			
-			$o->openField('', 'commit');
-			normal_button('cancel', 'Skip', 'this.form.link_completed.value = \'1\'; this.form.submit()');
-			echo '&nbsp;';
-			submit_button('commit', 'Cascade');
-
-		}
-
-	}// end _linkAsset()
 
 
 	/**
@@ -1247,7 +1108,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			if (!empty($lock)) {
 				$got_locks = true;
 				break;
-			}				
+			}
 		}
 		if (!$got_locks) {
 			$o->addOnLoad('alert("No locks are held on \\"'.addslashes($asset->name).'\\""); window.close();');
