@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.12 2004/02/03 04:28:32 gsherwood Exp $
+* $Id: datetime_field.inc,v 1.13 2004/05/05 06:00:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -141,6 +141,7 @@ class DateTime_Field {
 		}
 		foreach(array('d','m','y','h','i','s') as $t) {
 			$u = $this->getUnit($t);
+
 			if(in_array($t,$show)) {
 				$this->inputBox($t,$this->prefix,$u,in_array($t,$null));
 			} else {
@@ -170,8 +171,17 @@ class DateTime_Field {
 		$input_style = &$this->getParam('style');
 		$extras = &$this->getParam('extras');
 		$increments = &$this->getParam('increment');
-		$min = (int) $this->getUnit($u,$this->getParam('min'));
-		$max = (int) $this->getUnit($u,$this->getParam('max'));
+		$min_array = $this->getParam('min');
+		$max_array = $this->getParam('max');
+
+		$min = (int) $this->getUnit($u,$min_array);
+		$max = (int) $this->getUnit($u,$max_array);
+
+		$diff = Array();
+		foreach(Array('y','m','d','h','i','s') as $diff_unit) {
+			$diff[$diff_unit] = $this->getUnit($diff_unit,$max_array) - $this->getUnit($diff_unit,$min_array);
+		}
+
 		if($allow_null && (!strlen($value) || $value == '--')) {
 			$value = '--';
 		} else {
@@ -189,15 +199,89 @@ class DateTime_Field {
 			else            $options = array();
 
 			switch($u) {
-				case 'y': case 'd':
+				case 'y':
 					for($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = $i;
 					break;
 				case 'm':
+					// more than 1 years' difference
+					if (($diff['y']*12) + $diff['m'] >= 12) {
+						$min = 1;
+						$max = 12;
+					// not more than 1 years' difference but rolls over a year boundary
+					// (eg. we have a range such as Aug 04..Jan 05)
+					} elseif ($diff['y'] == 1) {
+						// take care of (Jan...$max)
+						for($i = 1; $i <= $max; $i += $increment) $options[$i] = $this->shortMonth($i);
+						// now make usual addition take care of ($min...Dec)
+						$max = 12;
+					}
 					for($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = $this->shortMonth($i);
 					break;
-				case 'h': case 'i': case 's':
+				case 'd':
+					// more than 1 month difference
+					if (($diff['y'] > 0) || ($diff['m'] > 1) || (($diff['m'] == 1) && ($diff['d'] == 0)) ) {
+						$min = 1;
+						$max = 31;
+					// not more than 1 day difference but rolls over a day boundary
+					// (eg. range such as 6d 21h to 7d 05h)
+					} elseif ($diff['m'] == 1) {
+						// take care of (1...$max)
+						for($i = 1; $i <= $max; $i += $increment) $options[$i] = $i;
+						// now make usual addition take care of ($min...$end)
+						// argh, we need to work out how many days in the rolled-over month!
+						$mth = (int) $this->getUnit('m',$max_array);
+						$yr = (int) $this->getUnit('y',$max_array);
+						$lastday = gmmktime(0,0,0,$mth,0,$yr);	// get the last day of the minimum month
+						$max = (int)date('d', $lastday);
+					}
+					for($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = $i;
+					break;
+				case 'h':
+					// more than 1 day difference
+					if (($diff['y'] > 0) || ($diff['m'] > 0) || ($diff['d'] > 1) || (($diff['d'] == 1) && ($diff['h'] == 0)) ) {
+						$min = 0;
+						$max = 23;
+					// not more than 1 day difference but rolls over a day boundary
+					// (eg. range such as 6d 21h to 7d 05h)
+					} elseif ($diff['d'] == 1) {
+						// take care of (00...$max)
+						for($i = 0; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
+						// now make usual addition take care of ($min...23)
+						$max = 23;
+					}
+				for($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
+					break;
+				case 'i':
+					// more than 1 hours' difference
+					if (($diff['y'] > 0) || ($diff['m'] > 0) || ($diff['d'] > 0) || ($diff['h'] > 1) || (($diff['h'] == 1) && ($diff['i'] == 0))) {
+						$min = 0;
+						$max = 59;
+					// not more than 1 hours' difference but rolls over a hour boundary
+					// (eg. range such as 03:40 to 04:08)
+					} elseif ($diff['h'] == 1) {
+						// take care of (00...$max)
+						for($i = 0; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
+						// now make usual addition take care of ($min...59)
+						$max = 59;
+					}
 					for($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
 					break;
+				case 's':
+					// more than 1 minutes' difference
+					if (($diff['y'] > 0) || ($diff['m'] > 0) || ($diff['d'] > 0) || ($diff['h'] > 0) || ($diff['i'] > 1) || (($diff['i'] == 1) && ($diff['s'] == 0))) {
+						$min = 0;
+						$max = 59;
+					// not more than 1 minutes' difference but rolls over a minute boundary
+					// (eg. range such as 03:10:50 to 03:11:20)
+					} elseif ($diff['i'] == 1) {
+						// take care of (00...$max)
+						for($i = 0; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
+						// now make usual addition take care of ($min...59)
+						$max = 59;
+					}
+					for($i = (int) $min; $i <= $max; $i += $increment) $options[$i] = sprintf('%02d',$i);
+					break;
+
 			}
 			combo_box($prefix.'['.$u.']', $options, false, $value, 0, $extras[$u]);
 			return;
