@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.2 2004/10/27 00:42:06 tbarrett Exp $
+* $Id: matrix_expand_keywords.inc,v 1.3 2004/10/28 01:22:45 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -78,10 +78,21 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 	*/
 	function paint_generic()
 	{
+		$thesaurusid = $GLOBALS['SQ_SYSTEM']->getUserPrefs('content_type_wysiwyg','SQ_THESAURUS');
+		$thesaurus = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thesaurusid);
+		$abbrevs = $thesaurus->getAbbrevsDeprecated();
+		
 		?>
 		<script type="text/javascript">
-		var stripTagsRE = /<\S[^>]*>/g; // yes, for some reason this cannot have quotes around it
+		var abbrevs = Array();
 
+		<?php
+		foreach ($abbrevs as $abbrev => $word) {
+			echo "        abbrevs['$abbrev'] = '$word';\n";
+		}		
+		?>
+
+		var stripTagsRE = /<\S[^>]*>/g; // yes, for some reason this cannot have quotes around it
 
 		HTMLArea.prototype.replaceLastWord = function(oldWord, newWord) {
 			switch (this._editMode) {
@@ -107,16 +118,12 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 		{
 			var lastWord = getLastWord(editor);
 			window.status = ('last word was ' + lastWord);
-			switch (lastWord) {
-				case 'tom':
-					if (confirm('Tom Barrett?')) editor.replaceLastWord(lastWord, 'Tom Barrett');
-					break;
-				case 'gsw':
-					if (confirm('Gun Shot Wound?')) editor.replaceLastWord(lastWord, 'Gun Shot Wound');
-					break;
-				case 'ent':
-					if (confirm('Ears Nose & Throat?')) editor.replaceLastWord(lastWord, 'Ears, Nose & Throat');
-					break;
+			if ((newWord = abbrevs[lastWord]) != null) {
+				if (confirm(newWord + '?')) {
+					editor.replaceLastWord(lastWord, newWord);
+				} else {
+					delete abbrevs[lastWord];
+				}
 			}
 		}
 
