@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: settings.inc,v 1.10 2004/09/14 00:50:43 mmcintyre Exp $
+* $Id: settings.inc,v 1.11 2004/09/14 01:01:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -184,7 +184,7 @@ function paintSettings(&$owner, &$o, &$ei)
 					} else {
 						$print_note = false;
 						if ($date_field->isEmpty() && $date_type == 'published') {
-							echo ' never published';
+							echo 'This asset has never been published';
 						} else {
 							$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($userid), 'user', false);
 							if (empty($info)) $info[$userid] = Array('name' => '&lt;unknown&gt;');
