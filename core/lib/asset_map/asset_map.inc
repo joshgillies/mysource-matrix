@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.172 2005/02/25 05:02:30 ndvries Exp $
+* $Id: asset_map.inc,v 1.173 2005/02/25 05:57:33 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.172 $
+* @version $Revision: 1.173 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -141,35 +141,7 @@ class Asset_Map
 			<applet id="sq_asset_map" width="<?php echo $width; ?>" height="%applet_height%" code="net/squiz/matrix/<?php echo ($type == 'simple') ? $jarname : 'assetmap'; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar?t=<?php echo time(); ?>" MAYSCRIPT>
 
 				<?php
-					$parameters = Array();
-					if ($type == 'complex') {
-
-						$user = &$GLOBALS['SQ_SYSTEM']->user;
-						$inbox_link = $GLOBALS['SQ_SYSTEM']->am->getLink($user->id, SQ_LINK_TYPE_2, 'inbox', true, null, 'major', '1');
-
-						if (empty($inbox_link)) {
-							$inbox_url = $user->getBackendHref();
-						} else {
-							$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
-							$inbox_url = $inbox_asset->getBackendHref('details');
-						}
-						$inbox_url = str_replace('.', '', $inbox_url);
-
-						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-						$new_messages = count($ms->getMessages($user->id, null, Array(SQ_MSG_UNREAD), Array(), null, null, 'short_name'));
-
-						$details_url = $user->getBackendHref('details');
-						if ($details_url{0} == '.') $details_url = substr($details_url, 1);
-
-						$parameters += Array(
-							'parameter.newmessages'         => $new_messages,
-							'parameter.url.inboxurl'        => rawurlencode($inbox_url),
-							'parameter.url.userdetailsurl'  => rawurlencode($details_url),
-						);
-
-					}
-
-					$parameters += Array(
+					$parameters = Array(
 						'parameter.backendsuffix'         => SQ_CONF_BACKEND_SUFFIX,
 						'parameter.sessionid'             => $_COOKIE['SQ_SYSTEM_SESSION'],
 						'parameter.sessionkey'            => $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(),
