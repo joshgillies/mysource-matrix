@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.260 2005/01/14 15:13:42 brobertson Exp $
+* $Id: asset_manager.inc,v 1.261 2005/01/15 16:36:28 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.260 $
+* @version $Revision: 1.261 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2537,6 +2537,8 @@ class Asset_Manager extends MySource_Object
 		$major->prepareLink($minor, 'major', $link_type, $value, $sort_order, $dependant, $exclusive);
 
 		assert_false(!($link_type & SQ_SC_LINK_SIGNIFICANT) && $dependant, 'In order for a link to be dependant it must also be a significant link');
+		assert_false((strpos($major->id.$minor->id, ':') !== false), 'You cannot create a link to or from a shadow asset');
+
 
 		// First, we should check that we don't already have a link of this type
 		$current_links = $this->getLinks($major->id, $link_type, $minor->type());
