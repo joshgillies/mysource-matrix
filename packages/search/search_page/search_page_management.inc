@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.28 2005/02/15 00:10:28 lwright Exp $
+* $Id: search_page_management.inc,v 1.29 2005/02/15 13:18:37 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -276,7 +276,7 @@ class Search_Page_Management extends Asset_Management
 				// type format
 				$ri_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'result_element');
 				
-				$ri_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($ri_link['minorid']);
+				$ri_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ri_link['minorid']);
 				
 				$ri_asset->setAttrValue('name', 'Default Format');
 				$ri_asset->saveAttributes();
