@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.10 2004/05/18 23:13:15 lwright Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.11 2004/05/19 00:02:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-					Array(
+					/*Array(
 						'name'			=> 'Acquiring Locks',
 						'hipo_job'		=> Array(
 												'init_details_function' => 'getLockAssetDetails',
@@ -61,7 +61,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
-					),
+					),*/
 					Array(
 						'name'             => 'Purging Trash',
 						'function_call'    => Array(
@@ -73,7 +73,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 						'complete'         => false,
 						'message'          => '',
 					),
-					Array(
+					/*Array(
 						'name'			=> 'Releasing Locks',
 						'function_call'    => Array(
 												'process_function' => 'releaseLocks',
@@ -83,7 +83,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 						'percent_done'	=> 0,
 						'complete'		=> false,
 						'message'		=> '',
-					),
+					),*/
 				);
 
 
@@ -171,19 +171,19 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 		$job_type = '';
 		$running_vars = Array();
 		$options = Array();
-		$this->getLockAssetDetails($job_type, $running_vars, $options);
+		/*$this->getLockAssetDetails($job_type, $running_vars, $options);
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$errors = $hh->freestyleHipo($job_type, $running_vars);
 		if (!empty($errors)) {
 			$this->_hipo_vars['errors'] = $errors;
 			return false;
-		}
+		}*/
 		
 		while (!empty($this->_running_vars['todo_links'])) {
-			if (!$this->processTrash($this->_steps[1], $this->getCodeName())) return false;
+			if (!$this->processTrash($this->_steps[0], $this->getCodeName())) return false;
 		}
 
-		return $this->releaseLocks($this->_steps[2], $this->getCodeName());
+		return true; //$this->releaseLocks($this->_steps[1], $this->getCodeName());
 
 	}//end freestyle()
 
@@ -348,11 +348,24 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 									$step_data['message'] = 'Skipping link #'.$link_info['linkid'].' as it has already been deleted';
 								} else {
 									$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
-									if (!$parent->deleteLink($link_info['linkid'])) {
-										trigger_error('Purge aborted, unable to delete link '.$link_info['linkid'].' between "'.$parent->name.'" and "'.$asset->name.'"', E_USER_WARNING);
+									if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'links') || !$GLOBALS['SQ_SYSTEM']->am->acquireLock($parent->id, 'links')) {
+										trigger_error('Purge aborted, unable to lock the links of either "'.$asset->name.'" or its parent "'.$parent->name.'"', E_USER_WARNING);
 										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 										return false;
 									}
+									
+									if (!$parent->deleteLink($link_info['linkid'])) {
+										trigger_error('Purge aborted, unable to delete link '.$link_info['linkid'].' between "'.$parent->name.'" and "'.$asset->name.'"', E_USER_WARNING);
+
+										$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links');
+										$GLOBALS['SQ_SYSTEM']->am->releaseLock($parent->id, 'links');
+
+										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+										return false;
+									}
+									$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'links');
+									$GLOBALS['SQ_SYSTEM']->am->releaseLock($parent->id, 'links');
+
 									$step_data['message'] = 'Deleting link #'.$link_info['linkid'];
 								}
 	
@@ -366,12 +379,22 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 									return false;
 								}
 	
-								// this is the last link for this asset, so lets delete it for good
-								if (!$asset->delete(false)) {
-									trigger_error('Purge aborted, unable to delete "'.$asset->name.'" ['.$asset->id.']', E_USER_WARNING);
+								if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->_running_vars['trash_id'], 'all') || !$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all', $this->_running_vars['trash_id'])) {
+									trigger_error('Purge aborted, unable to lock the asset "'.$asset->name.'"', E_USER_WARNING);
 									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 									return false;
 								}
+
+								// this is the last link for this asset, so lets delete it for good
+								if (!$asset->delete(false)) {
+									trigger_error('Purge aborted, unable to delete "'.$asset->name.'" ['.$asset->id.']', E_USER_WARNING);
+									$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'all');
+									$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+									return false;
+								}
+
+								$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
+
 								$step_data['message'] = 'Deleting "'.$asset->name.'" [#'.$assetid.']';
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 							}
