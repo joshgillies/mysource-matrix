@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: float.inc,v 1.15 2004/02/10 04:16:42 gsherwood Exp $
+* $Id: float.inc,v 1.16 2004/07/23 00:23:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -131,7 +131,12 @@ class Asset_Attribute_Float extends Asset_Attribute
 	{
 		$value = trim($value);
 		$new_value = (float)$value;
-		if ($new_value != $value) return false;
+
+		// we are comparing by string here, reason is that passing in a string as $value
+		// becomes comparing $value with zero which is TRUE. So instead we would be comparing
+		// it with a string '0', which is FALSE and what we want for it to invalidate.
+		// Only genuine ints will pass through.
+		if ((string)$new_value != $value) return false;
 		return true;
 
 	}//end validateValue()
@@ -148,6 +153,7 @@ class Asset_Attribute_Float extends Asset_Attribute
 	*/
 	function getKeyData()
 	{
+		if (empty($this->value)) return Array();
 		return Array($this->value => 1);
 
 	}//end getKeyData()
