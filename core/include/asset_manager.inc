@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.192 2004/03/24 23:37:25 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.193 2004/03/25 11:07:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -689,7 +689,8 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
-	* Unregisters the passed object from the store
+	* Tell the asset manager that you have finished with the asset, when everyone has finished with the
+	* asset is is removed from the asset store
 	*
 	* @param object Asset	&$obj	the asset to be unregistered
 	*
@@ -805,10 +806,10 @@ class Asset_Manager extends MySource_Object
 				}
 			}
 		}// end if
-		
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a '.$where.' ORDER BY a.assetid';
-		
+
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -880,7 +881,7 @@ class Asset_Manager extends MySource_Object
 	* The only child assets that are cloned are the ones that are <i>DEPENDANTLY</i> linked to this asset.
 	* <i>NO OTHER</i> linked assets are cloned.
 	*
-	* @param object Asset	&$source			the source asset that we are creating a clone of	
+	* @param object Asset	&$source			the source asset that we are creating a clone of
 	* @param Array			&$link				information used to create the initial link,
 	* <PRE>
 	* Array ('asset'      => [ref major asset to create link under],
@@ -975,7 +976,7 @@ class Asset_Manager extends MySource_Object
 						return $null;
 					}
 				}
-			
+
 				if (!$this->acquireLock($link['asset']->id, 'links', $lock['links']['source_assetid'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return $null;
@@ -996,7 +997,7 @@ class Asset_Manager extends MySource_Object
 		foreach ($orig_links as $orig_link) {
 			$asset = &$this->getAsset($orig_link['minorid'], $orig_link['minor_type_code']);
 			$linkid = $clone->createLink($asset, $orig_link['link_type'], $orig_link['value'], $orig_link['sort_order'], $orig_link['dependant'], $link['exclusive']);
-			
+
 			if (!$linkid) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -1017,10 +1018,10 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Creats a clone of an asset and clones the required components of the source asset
 	*
-	* if $clone_dependants is set the true, the dependants of the source asset will be cloned, 
+	* if $clone_dependants is set the true, the dependants of the source asset will be cloned,
 	* and the specified components will be cloned to them as well.
 	*
-	* @param object Asset	&$source			the source asset that we are creating a clone of	
+	* @param object Asset	&$source			the source asset that we are creating a clone of
 	* @param Array			&$link				information used to create the initial link,
 	* <PRE>
 	* Array ('asset'      => [ref major asset to create link under],
@@ -1033,7 +1034,7 @@ class Asset_Manager extends MySource_Object
 	* </PRE>
 	* @param Array			&$clone_map			a map for that can be used for re-indexing data held in
 	*												assets of the form Array([old asset id] => [new asset id])
-	* @param array			$components	the wanted components to clone, 
+	* @param array			$components	the wanted components to clone,
 	* <PRE>
 	* Array(
 	*     'attributes',
@@ -1048,14 +1049,15 @@ class Asset_Manager extends MySource_Object
 	* <PRE>
 	* Array('all');
 	* </PRE>
-	* @param boolean		$clone_dependants	if TRUE the dependants of the source asset will be cloned 
+	* @param boolean		$clone_dependants	if TRUE the dependants of the source asset will be cloned
 	*												and will have their sources components cloned
 	*
 	* @return &object Asset the clone of the source
 	* @access public
 	*/
-	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=true) {
-		
+	function &cloneAsset(&$source, &$link, &$clone_map, $components, $clone_dependants=true)
+	{
+
 		// make sure this type of asset can be cloned
 		if (!$source->canClone()) {
 			trigger_error($source->type().' asset types cannot be cloned', E_USER_WARNING);
@@ -1111,7 +1113,7 @@ class Asset_Manager extends MySource_Object
 						$create_link['value']		= $data['value'];
 						$create_link['sort_order']	= $data['sort_order'];
 						$create_link['exclusive']	= $data['exclusive'];
-						
+
 						$cloned_child = &$this->cloneAsset($child, $create_link, $clone_map, $components, $clone_dependants);
 
 						if (is_null($cloned_child)) {
@@ -1131,7 +1133,7 @@ class Asset_Manager extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return $clone;
-	
+
 	}//end cloneAsset()
 
 
@@ -2628,8 +2630,8 @@ class Asset_Manager extends MySource_Object
 				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 
 				$subs = Array(' SELECT '.$concat.'
-								FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t 
-									INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid 
+								FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
+									INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
 								'.$sub_where);
 				$where_cond = db_extras_subquery($db, $where_cond, $subs);
 				if (DB::isError($where_cond)) {
