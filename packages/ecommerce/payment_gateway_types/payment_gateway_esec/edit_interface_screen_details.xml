@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2004/10/14 01:04:06 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2004/10/15 01:16:16 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -52,4 +52,16 @@
 			<boolean true_text="ON" false_text="OFF" />
 		</field>
 	</section>
+
+	<section name="Message" write_access="write:attributes">
+
+		<field attribute="message">
+			<display_name>Gateway Screen Message</display_name>
+			<note>This message will be displayed on the gateway upon redirect from the e-commerce page.</note>
+			<wysiwyg style="div" width="100%" height="100" />
+		</field>
+
+	</section>
+
+
 </contents>
