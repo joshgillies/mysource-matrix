@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.130 2004/12/10 06:39:33 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.131 2004/12/13 21:44:11 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.130 $
+* @version $Revision: 1.131 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -217,25 +217,6 @@ class Page_Calendar extends Page_Asset_Listing
 		return true;
 
 	}//end _createAdditional()
-
-
-	/******
-	*
-	*
-	function attr($name)
-	{
-		if ($name == 'types') {
-			$type_codes = array_flip(array_merge($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_single'), 'calendar_event_single', $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_recurring'), 'calendar_event_recurring'));
-			foreach ($type_codes as $key => $val) {
-				$type_codes[$key] = 1;
-			}
-			return $type_codes;
-		} else {
-			return parent::attr($name);
-		}
-
-	}//end attr()
-	*/
 
 
 	/**
@@ -780,6 +761,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$new_events = Array();
 				foreach ($events as $id => $details) $new_events[strtok($id, ':')] = $details['type_code'];
 				$this->filterAssetList($new_events);
+
 				$this->printAssetList($new_events);
 			}
 		} else {
@@ -1649,6 +1631,8 @@ class Page_Calendar extends Page_Asset_Listing
 			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
 			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
 		}
+		$start_date_comparator = create_function('$a, $b', 'return ($a[\'start_date_ts\'] > $b[\'start_date_ts\']);');
+		uasort($res, $start_date_comparator);
 		return $res;
 
 	}//end getMonthEvents()
@@ -1726,8 +1710,6 @@ class Page_Calendar extends Page_Asset_Listing
 			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
 			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
 		}
-		$start_date_comparator = create_function('$a, $b', 'return ($a[\'start_date_ts\'] > $b[\'start_date_ts\']);');
-		uasort($res, $start_date_comparator);
 		return $res;
 
 	}//end getWeekEvents()
