@@ -362,7 +362,7 @@ class Asset_Manager extends Resolve_Object
 			}
 		}// end if
 
-pre_echo($sql);
+#pre_echo($sql);
 
 		$parents = $db->getCol($sql);
 		if (DB::isError($parents)) {
