@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.10 2004/08/20 01:21:32 lwright Exp $
+* $Id: calendar_event.inc,v 1.11 2004/08/26 00:49:09 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -77,7 +77,7 @@ class Calendar_Event extends Asset
 		}
 		
 		if (!parent::create($link)) return false;
-		return $this->_cacheCalendarData(false);
+		return $this->cacheCalendarData(false);
 
 	}//end create()
 	
@@ -264,7 +264,7 @@ class Calendar_Event extends Asset
 		// cache all the calendar data into another table so the queries for the calendar
 		// page go super-mega-hyperturbo (but only if already created)
 		if (!empty($this->id)) {
-			if (!$this->_cacheCalendarData()) return false;
+			if (!$this->cacheCalendarData()) return false;
 		}
 		
 		// all sweet, so it seems
@@ -272,6 +272,45 @@ class Calendar_Event extends Asset
 
 	}//end saveAttributes()
 	
+
+	/**
+	* Takes a clone shell and clones the sources required components to the clone shell
+	*
+	* @param &object Asset	$clone		the clone shell
+	* @param array			$components	the wanted components to clone eg.
+	*                       Array(
+	*                           'attributes',
+	*                           'metadata_shemas',
+	*                           'metadata',
+	*                           'workflow',
+	*                           'permissions',
+	*                           'data'
+	*                       );
+	*                       or alternately
+	*                       Array('all');
+	*
+	* @return boolean
+	* @access public
+	*/
+	function cloneComponents(&$clone, $components)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		if (!parent::cloneComponents($clone, $components)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;			
+		}
+		
+		if (!$clone->cacheCalendarData(false)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
+		return true;
+		
+	}//end cloneComponents()
+
 
 	/**
 	* Get the date component of the Start Date attribute
@@ -509,18 +548,19 @@ class Calendar_Event extends Asset
 	* 								(FALSE - set only in create() call)
 	*
 	* @return boolean	indicating success
-	* @access private
+	* @access public
 	*/
-	function _cacheCalendarData($updating=true)
+	function cacheCalendarData($updating=true)
 	{
 		$db = $GLOBALS['SQ_SYSTEM']->db;
 	
 		$date_values = Array();
 		foreach(Array('start_date', 'end_date') as $date_comp) {
 			$iso = $this->attr($date_comp);
+			pre_echo($iso);
 			
 			if (iso8601_time_component($iso) === false) {
-				if ($date_comp == 'end_date') {				
+				if (($date_comp == 'end_date') && (iso8601_date_component($iso) !== false)) {
 					$iso = ts_iso8601(iso8601_ts(substr($iso,0,10)) + 86400);
 					$iso = substr($iso,0,10).' 24:00:00';
 				}
@@ -556,6 +596,7 @@ class Calendar_Event extends Asset
 			$where = ' assetid = '.$db->quote($this->id);
 		
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('calendar_date_value', $date_values, $where)) {
+				trigger_error('Unable to cache calendar data for '.ucwords(str_replace('_', ' ', $this->type())).' asset "'.$this->attr('name').'" (# '.$this->id.')', E_USER_WARNING);				
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -564,7 +605,7 @@ class Calendar_Event extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 			
-	}//end _cacheCalendarData()
+	}//end cacheCalendarData()
 	
 	
 	/**
@@ -580,6 +621,7 @@ class Calendar_Event extends Asset
 	*/
 	function _splitAttributeDate(&$date_values, $attr, $iso, $prefix='')
 	{			
+		pre_echo($iso);
 		if ($this->vars[$attr]['type'] == 'datetime') {
 			
 			// we represent end-of-day as '24:00:00' as per ISO 8601, but strtotime()
@@ -622,8 +664,10 @@ class Calendar_Event extends Asset
 					if ($this_date[$iso_part] == str_repeat('-', ($iso_part == 'year' ? 4 : 2))) $this_date[$iso_part] = null;
 				}
 			
+				$date_only_ts = strtotime(substr($iso,0,10));
+								
 				// forward day-of-year and weekday can only work with valid date
-				if (($date_only_ts = strtotime(substr($iso,0,10))) == -1) {
+				if (is_null($this_date['mday']) || is_null($this_date['mon']) || is_null($this_date['year']) || ($date_only_ts == 1)) {
 					$this_date['wday'] = null;
 					$this_date['yday'] = null;
 					$this_date['ts'] = null;
