@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_manager.inc,v 1.47 2004/07/08 00:52:06 lwright Exp $
+* $Id: workflow_manager.inc,v 1.48 2004/07/08 02:01:27 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -870,6 +870,10 @@ class Workflow_Manager extends MySource_Object
 			
 			// create a link for navigation to the workflow screen for this asset
 			$log->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
+			$asset_url = $asset->getURL();
+			if (!empty($asset_url)) {
+				$log->body .= "\n".'You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
+			}
 			$log->type    = 'asset.workflow.invitation';
 			$log->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($log);
@@ -962,6 +966,10 @@ class Workflow_Manager extends MySource_Object
 			$msg->body    = 'User "'.$user->name.'" has rejected the changes made to '.$asset_type.' "'.$asset->name.'". The workflow process has been cancelled.';
 			// create a link for navigation to the workflow screen for this asset
 			$msg->body .= "\n\n".'A full report for the Workflow of "'.$asset->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$asset->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
+			$asset_url = $asset->getURL();
+			if (!empty($asset_url)) {
+				$msg->body .= "\n".'You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
+			}
 			$msg->type    = 'asset.workflow.announce';
 			$msg->parameters['assetid'] = $asset->id;
 			$ms->enqueueMessage($msg);

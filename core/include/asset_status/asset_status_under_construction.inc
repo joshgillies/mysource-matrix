@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.18 2004/07/08 00:52:06 lwright Exp $
+* $Id: asset_status_under_construction.inc,v 1.19 2004/07/08 02:01:27 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -173,6 +173,10 @@ class Asset_Status_Under_Construction extends Asset_Status
 					$log->body    = 'User "'.$user->name.'" has requested '.$asset_type.' "'.$this->owner->name.'" to go live from '.$this->getDescription().'.';
 					// create a link for navigation to the workflow screen for this asset
 					$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Workflow Screen</SQ_MSG_LINK>';
+					$asset_url = $this->owner->getURL();
+					if (!empty($asset_url)) {
+						$log->body .= "\n".'You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
+					}
 					$log->type    = 'asset.workflow';
 					$log->parameters['assetid'] = $this->owner->id;
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live.inc,v 1.16 2004/07/08 00:52:06 lwright Exp $
+* $Id: asset_status_live.inc,v 1.17 2004/07/08 02:01:27 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -146,6 +146,10 @@ class Asset_Status_Live extends Asset_Status
 					$log->body .= ' The workflow process has been started.';
 						// create a link for navigation to the workflow screen for this asset
 						$log->body .= "\n\n".'<SQ_MSG_LINK href="'.current_url().$this->owner->getBackendHref('workflow').'">Click here for the Workflow Screen for this asset</SQ_MSG_LINK>.';
+						$asset_url = $this->owner->getURL();
+						if (!empty($asset_url)) {
+							$log->body .= "\n".'You can also <SQ_MSG_LINK href="'.$asset_url.'">preview this asset.</SQ_MSG_LINK>';
+						}
 					}
 					$log->type = 'asset.workflow';
 					$log->parameters['assetid'] = $this->owner->id;
