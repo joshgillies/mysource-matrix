@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: faq.txt,v 1.17 2004/02/19 10:13:46 brobertson Exp $
+* $Id: faq.txt,v 1.18 2004/02/24 03:01:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -20,7 +20,7 @@ This FAQ is designed to answer some of the most frequently asked and frustrating
 | GENERAL        |
 +----------------+
 
-Q. When trying to log in using a correct username and password, i get blue errors, and a message "User not found"
+Q. When trying to log in using a correct username and password, I get blue errors, and a message "User not found"
 A. Make sure that cookies are enabled in your browser.
    
    Enabling Cookies
@@ -68,8 +68,13 @@ Contributed by: Greg Sherwood <greg@squiz.net>
 +----------------+
 
 Q. When setting force_unlock="false" in the edit_interface_screens.xml, why is the lock is still released after commiting ?
-A. the correct value to force unlock is force_unlock="0"
+A. The correct value to force unlock is force_unlock="0"
 Contributed by: Marc McIntyre <mmcintyre@squiz.net>
+
+
+Q. What function pattern regular expression should I use in my text editor ?
+A. Use the function pattern: ^((//--        .*        --//)|([ \t]*((function)|(class)|(var \$))[ \t]*.*))
+Contributed by: Greg Sherwood <greg@squiz.net>
 
 
 Q. How do I add a new package to Matrix ?
