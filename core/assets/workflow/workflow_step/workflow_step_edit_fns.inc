@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.16 2004/03/24 06:28:00 gsherwood Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.17 2004/06/07 05:42:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -149,12 +149,12 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 
 		// set the step logic
 		$step_logic = '';
-		$step_logic_num = '';
+		$step_logic_num = 0;
 		if (isset($_POST[$prefix.'_logic'])) {
 			$step_logic = trim($_POST[$prefix.'_logic']);
 		}
 		if (isset($_POST[$prefix.'_logic_num']) && $step_logic != 'all') {
-			$step_logic_num = trim($_POST[$prefix.'_logic_num']);
+			$step_logic_num = (int) trim($_POST[$prefix.'_logic_num']); 
 		}
 		if (!$asset->setAttrValue('logic', $step_logic)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
