@@ -351,13 +351,15 @@ class HIPO_Job extends Resolve_Object
 	/**
 	* Save the HIPO vars to the database OR delete from database if complete
 	*
+	* @param boolean $ignore_running_mode	whether to ignore the running mode check or not (SHOULD ONLY BE USED BY setRunningMode())
+	*
 	* @return boolean
 	* @access private
 	*/
-	function _save()
+	function _save($ignore_running_mode=false)
 	{
 		// if we have called save and we aren't the running version, bugger off
-		if ($this->_current_mode != $this->_hipo_vars['running_mode']) return true;
+		if (!$ignore_running_mode && $this->_current_mode != $this->_hipo_vars['running_mode']) return false;
 
 		// First let's make sure that everything is in order with the hipo vars and our complete status
 		if (!$this->complete()) {
@@ -367,17 +369,8 @@ class HIPO_Job extends Resolve_Object
 			$this_step_per = ($this->complete()) ? 0 : ((1 / count($this->_steps)) * $this->_steps[$step]['percent_done']);
 			$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
 
-			if (!empty($this->_steps[$step]['complete'])) {
-				$this->_hipo_vars['current_step']++;
-				$step = $this->_hipo_vars['current_step'];
+			if (!empty($this->_steps[$step]['complete'])) $this->_hipo_vars['current_step']++;
 
-				// if we have reached a new step, that uses a different running mode to ourselves, 
-				// then change our running mode
-				if (isset($this->_steps[$step]) && $this->_hipo_vars['running_mode'] != $this->_steps[$step]['running_mode']) {
-					$this->_hipo_vars['running_mode'] = $this->_steps[$step]['running_mode'];
-				}
-
-			}
 		}// end if
 
 		// if we have completed then we need to re-set the running mode back to the init mode
@@ -476,7 +469,7 @@ class HIPO_Job extends Resolve_Object
 
 		$this->_hipo_vars['running_mode']  = $mode;
 		$this->_hipo_vars['server_taskid'] = $server_taskid;
-		return $this->_save();
+		return $this->_save(true);
 
 	}// end setRunningMode();
 
@@ -614,16 +607,37 @@ class HIPO_Job extends Resolve_Object
 	*/
 	function process()
 	{
+		// if we are is a display mode different from the running mode, we should not be
+		// doing any processing or saving - so just return true here
+		if ($this->_current_mode != $this->_hipo_vars['running_mode']) return true;
 
-		if (!$this->complete()) {
-			$step = $this->_hipo_vars['current_step'];
+		// if we are complete, then just save (which will clear the DB if needed)
+		if ($this->complete()) return $this->_save();
 
-			if ($this->_steps[$step]['running_mode'] != $this->_hipo_vars['running_mode']) {
+		$step = $this->_hipo_vars['current_step'];
 
-				// we have reached a step that requires server processing, but we are not yet
-				// running in server mode (ie. we are not running on the HIPO server) - so lets
-				// put a call through the HIPO phone to the server
-				if ($this->_current_mode == 'web' && $this->_steps[$step]['running_mode'] == 'server' && SQ_HIPO_USE_SERVER) {
+		if ($this->_steps[$step]['running_mode'] == $this->_hipo_vars['running_mode']) {
+
+			// call the correct process function based on the running mode
+			$fn = 'process'.ucfirst($this->_hipo_vars['running_mode']);
+			$prefix = $this->code_name.'step'.$step;
+			set_error_handler(Array(&$this, '_errorHandler'));
+			if (!$this->$fn($this->_steps[$step], $prefix)) {
+				restore_error_handler();
+				return false;
+			}
+			restore_error_handler();
+
+			return $this->_save();
+
+
+		// if we are using the server
+		} elseif (SQ_HIPO_USE_SERVER) {
+
+			switch($this->_steps[$step]['running_mode']) {
+				// We are currently running in a web script, but this step utilises server processing
+				// let's put a call through the HIPO phone to the server
+				case 'server' :
 
 					require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_client.inc';
 					require_once 'XML/Tree.php';
@@ -662,42 +676,34 @@ class HIPO_Job extends Resolve_Object
 						}// end if
 
 						$client->disconnect();
+
 					}// endif
 
 					// return here because we don't want to save and override the DB value now that it's running 
 					// on the server
 					return $ret_val;
 
-				// if we are running on the server, we can't do anything because we should have exited
-				} elseif ($this->_current_mode == 'server') {
-					trigger_error('This should have been caught by the hipo herder', E_USER_ERROR);
-					return true;
+					break;
 
-				// this should never happen, because of what happens in initialise()
-				} else {
-					trigger_error('Something is not right with this HIPO, please consult your system administrator', E_USER_ERROR);
-				}
+				// We are currently running on the server, but this step needs web processing
+				// let's reset the running mode and get out of here
+				case 'web' :
+					// if we have reached a new step, that uses a different running mode to ourselves, then change our running mode
+					pre_echo(__FUNCTION__."::".__LINE__.">>>>>>>>>>>>>>>>> RESET RUNNING MODE TO web <<<<<<<<<<<<<<<<<<<");
+					return $this->setRunningMode('web');
 
-			} else {
+					break;
 
-				// if we are is a display mode different from the running mode, we should not be
-				// doing any processing or saving - so just return true here
-				if ($this->_current_mode != $this->_hipo_vars['running_mode']) return true;
+				default :
+					trigger_error('Unknown Running Mode "'.$this->_steps[$step]['running_mode'].'"', E_USER_WARNING);
+					$this->abort();
+					
+			}//end switch
 
-				// call the correct process function based on the running mode
-				$fn = 'process'.ucfirst($this->_hipo_vars['running_mode']);
-				$prefix = $this->code_name.'step'.$step;
-				set_error_handler(Array(&$this, '_errorHandler'));
-				if (!$this->$fn($this->_steps[$step], $prefix)) {
-					restore_error_handler();
-					return false;
-				}
-				restore_error_handler();
-
-			}//end if
-		}//end if
-
-		return $this->_save();
+		// if we aren't using the server this should never happen (because of what happens in initialise())
+		} else {
+			trigger_error('Something is not right with this HIPO, please consult your system administrator', E_USER_ERROR);
+		}// endif
 
 	}//end process()
 
@@ -747,6 +753,7 @@ class HIPO_Job extends Resolve_Object
 				if (is_null($hipo)) return false;
 				if (!$hipo->process()) return false;
 
+				$step_data['running_mode'] = $hipo->getRunningMode();
 				$step_data['percent_done'] = $hipo->percentDone();
 				$step_data['complete']     = $hipo->complete();
 
@@ -813,8 +820,9 @@ class HIPO_Job extends Resolve_Object
 			$hipo = &$hh->getJob($code_name, $job_type);
 			if (is_null($hipo)) return false;
 
-			while (!$step_data['complete']){
+			while (!$step_data['complete'] && $step_data['running_mode'] == 'server'){
 				if (!$hipo->process()) return false;
+				$step_data['running_mode'] = $hipo->getRunningMode();
 				$step_data['percent_done'] = $hipo->percentDone();
 				$step_data['complete']     = $hipo->complete();
 				$this->_save();
