@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.65 2004/05/21 02:00:23 gsherwood Exp $
+* $Id: init.inc,v 1.66 2004/05/27 23:38:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,16 +50,9 @@ define('SQ_PHP_CLI', (php_sapi_name() == 'cli'));
 
 
 /*
-* Set the current version of the system core
 * We mustn't forget to update this (until someone
 * comes up with an automated method)
 */
-define('SQ_SYSTEM_VERSION',        '3.0.2');
-define('SQ_SYSTEM_SHORT_NAME',     'MySource');
-define('SQ_SYSTEM_LONG_NAME',      'Squiz MySource v'.SQ_SYSTEM_VERSION.' (Matrix)');
-define('SQ_SYSTEM_URL',            'http://www.squiz.net/');
-
-define('SQ_REQUIRED_PHP_VERSION', '4.3.0');
 
 define('SQ_TABLE_PREFIX',          'sq_');
 define('SQ_TABLE_ROLLBACK_PREFIX', 'sq_rollback_');
@@ -79,6 +72,9 @@ define('SQ_PACKAGES_PATH',		SQ_SYSTEM_ROOT.'/packages');
 define('SQ_WEB_PATH',			SQ_SYSTEM_ROOT.'/core/web');
 define('SQ_FUDGE_PATH',			SQ_SYSTEM_ROOT.'/fudge');
 
+
+// include the system version setttings
+require_once SQ_INCLUDE_PATH.'/version.inc';
 
 // include the main system config file
 require_once SQ_DATA_PATH.'/private/conf/main.inc';
