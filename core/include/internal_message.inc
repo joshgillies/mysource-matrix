@@ -222,7 +222,7 @@ class Internal_Message extends MySource_Object
 				<style>
 					.sq-message-item, .sq-message-item-msg {
 						color:           #000000;
-						font-family:     Verdana, Arial, Helvetica, sans-serif;
+						font-family:     Arial, Verdana, Helvetica, sans-serif;
 						font-size:       10px;
 						text-decoration: none;
 					}
@@ -235,28 +235,22 @@ class Internal_Message extends MySource_Object
 					}
 				</style>
 			</head>
-			<body bgcolor="#F0F0F0">
-				<table border="0" cellspacing="1" cellpadding="2" bgcolor="#3B414F" width="100%" height="100%">
+			<body bgcolor="#FFFFFF">
+				<table border="0" cellspacing="1" cellpadding="2" width="100%" height="100%">
 					<tr>
-						<td bgcolor="#C7D0D9" width="100%">
-							<table border="0" width="100%">
-								<tr>
-									<td valign="top" class="sq-message-item"><b>Subject:</b></td>
-									<td valign="top" class="sq-message-item" width="100%"><b><?php echo $info['subject']; ?></b></td>
-								</tr>
-								<tr>
-									<td valign="top" class="sq-message-item"><b>From:</b></td>
-									<td valign="top" class="sq-message-item" width="100%"><?php echo $info['from_name'] ?></td>
-								</tr>
-								<tr>
-									<td valign="top" class="sq-message-item"><b>Date:</b></td>
-									<td valign="top" class="sq-message-item" width="100%"><?php echo readable_datetime($info['sent']); ?></td>
-								</tr>
-							</table>
-						</td>
+						<td valign="top" class="sq-message-item"><b>SUBJECT:</b></td>
+						<td valign="top" class="sq-message-item" width="100%"><?php echo $info['subject']; ?></td>
+					</tr>
+					<tr>
+						<td valign="top" class="sq-message-item"><b>FROM:</b></td>
+						<td valign="top" class="sq-message-item" width="100%"><?php echo $info['from_name'] ?></td>
+					</tr>
+					<tr>
+						<td valign="top" class="sq-message-item"><b>DATE:</b></td>
+						<td valign="top" class="sq-message-item" width="100%"><?php echo readable_datetime($info['sent']); ?></td>
 					</tr>
 					<tr height="100%">
-						<td valign="top" class="sq-message-item-msg" bgcolor="#FFFFFF" width="100%"><pre><?php echo $info['body']; ?></pre></td>
+						<td valign="top" class="sq-message-item-msg" bgcolor="#FFFFFF" width="100%" colspan="2"><br/><pre><?php echo $info['body']; ?></pre></td>
 					</tr>
 				</table>
 			</body>
