@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.21 2004/12/08 23:04:26 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.22 2004/12/14 00:02:40 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -190,7 +190,7 @@
 		<field attribute="asset_builder_page">
 			<display_name>Event Input Page</display_name>
 			<note>If you choose an asset builder page for this field, users will be able to click on empty cells in the calendar display to go to the asset builder page and add an event for that timeslot </note>
-			<assetid type_codes="page_asset_builder:D" />
+			<assetid type_codes="page_asset_builder:D,page_appointment_builder:I" />
 		</field>
 		<field attribute="enable_event_dragging">
 			<display_name>Enable Drag-and-Drop editing of Single Events</display_name>
