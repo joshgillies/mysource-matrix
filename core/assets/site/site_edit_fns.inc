@@ -127,13 +127,13 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		?>
 			<tr>
 				<td class="sq-backend-data">
-					<?php $o->text_box($prefix.'_urls['.$i.'][url]',  $url_info['url'], 40, 0, 'onChange="javascript: site_url_url_change('.$i.');"'); ?>
+					<?php text_box($prefix.'_urls['.$i.'][url]',  $url_info['url'], 40, 0, 'onChange="javascript: site_url_url_change('.$i.');"'); ?>
 				</td>
 		<?php
 			for($k = 0; $k < count($this->protos); $k++) {
 			?>
 				<td class="sq-backend-data">
-					<?php $o->check_box($prefix.'_urls['.$i.'][protocols]['.$k.']', $this->protos[$k], !empty($url_info[$this->protos[$k]]), 'site_url_protocol_click('.$i.');'); ?>
+					<?php check_box($prefix.'_urls['.$i.'][protocols]['.$k.']', $this->protos[$k], !empty($url_info[$this->protos[$k]]), 'site_url_protocol_click('.$i.');'); ?>
 				</td>
 				<td class="sq-backend-data">
 					<?php echo strtoupper($this->protos[$k]); ?>
@@ -150,13 +150,12 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* Processes the URLs posted from the paintURLs fn above
 	*
 	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processURLs(&$asset, &$o, $prefix) 
+	function processURLs(&$asset, $prefix) 
 	{
 
 		$post = $_POST[$prefix.'_urls'];

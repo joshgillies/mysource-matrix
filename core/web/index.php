@@ -3,6 +3,7 @@
 ini_set('memory_limit', '8M');
 require_once '../include/init.inc';
 
+
 $GLOBALS['SQ_SYSTEM']->start();
 //$GLOBALS['SQ_SYSTEM']->am = new Asset_Manager();
 //
@@ -78,7 +79,7 @@ for ($i = 0; $i < 5; $i++) {
 
 
 /*
-include_once(SQ_INCLUDE_PATH.'/package_manager.inc');
+require_once(SQ_INCLUDE_PATH.'/package_manager.inc');
 $pm = new Package_Manager('__core__');
 $result = $pm->updatePackageDetails();
 $pm = new Package_Manager('cms');
@@ -107,7 +108,7 @@ pre_echo($links);
 
 #pre_echo($site);
 /*
-include_once(SQ_INCLUDE_PATH.'/package_manager.inc');
+require_once(SQ_INCLUDE_PATH.'/package_manager.inc');
 $pm = new Package_Manager('__core__');
 $result = $pm->updatePackageDetails();
 pre_echo("Result : ".gettype($result));

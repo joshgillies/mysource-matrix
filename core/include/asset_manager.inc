@@ -242,7 +242,7 @@ class Asset_Manager extends Resolve_Object
 			return false;
 		}
 
-		include_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
+		require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
 
 	}//end includeAsset()
 
@@ -299,7 +299,8 @@ class Asset_Manager extends Resolve_Object
 				$type_code = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT type_code FROM sq_asset WHERE assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($assetid));
 				if (empty($type_code)) {
 					if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
-					return null;
+					$this->_assets[$assetid] = null; // do this because of return by reference
+					return $this->_assets[$assetid]; 
 				}
 			}//end if
 
@@ -348,10 +349,8 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function getTypeAssetids($type_code, $strict=false, $mute_errors=false)
+	function getTypeAssetids($type_code, $strict=true, $mute_errors=false)
 	{
-		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT assetid
@@ -359,6 +358,7 @@ class Asset_Manager extends Resolve_Object
 				WHERE type_code = '.$db->quote($type_code);
 
 		if (!$strict) {
+			require_once SQ_SQUIZLIB_PATH.'/db_extras/db_extras.inc';
 			$sql .= '   OR type_code IN (~SQ0~)';
 			$subs = Array( 'SELECT type_code
 							FROM sq_asset_type_inherited
@@ -376,6 +376,18 @@ class Asset_Manager extends Resolve_Object
 
 	}//end getTypeAssetids()
 
+	/**
+	* Function to return a data path for a particular asset.
+	*
+	* @param object Asset	$asset
+	*
+	* @returns string
+	* @access public
+	*/
+	function getDataPath($asset)
+	{
+		return SQ_DATA_PATH.'/'.(($asset->_restricted) ? '' : 'un').'restricted/'.$asset->type().'/'.$asset->id;
+	}
 
 	/**
 	* prints out the interface for viewing and customising asset types
@@ -425,7 +437,7 @@ class Asset_Manager extends Resolve_Object
 						$o->addOnLoad('top.sidenav.reload_asset("'.$_GET['parent_assetid'].'");');
 					} else {
 						$o->addMessage(SQ_BO_MSG_WARNING, '"'.$asset->name.'" was not able to be linked to "'.$parent->name.'", it can be found in the trash folder');
-						list($trashid) = $this->getTypeAssetids('trash_folder', true);
+						list($trashid) = $this->getTypeAssetids('trash_folder');
 						// reload the trash folder
 						$o->addOnLoad('top.sidenav.reload_asset("'.$trashid.'");');
 					}
@@ -482,9 +494,11 @@ class Asset_Manager extends Resolve_Object
 	function _printAssetList(&$o)
 	{
 
+		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+
 		if (!empty($_REQUEST['am_action'])) {
 
-			include_once SQ_INCLUDE_PATH.'/custom_asset_type.inc';
+			require_once SQ_INCLUDE_PATH.'/custom_asset_type.inc';
 
 			$o->addFormActionGetVar('am_action', 'edit');
 
@@ -597,8 +611,8 @@ class Asset_Manager extends Resolve_Object
 				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
 				<td class="sq-backend-data">
 			<?php
-				$o->submit_button('create_button', 'Create Custom Asset', 'return create_custom();');
-				$o->submit_button('edit_button', '- - - - - - - - - - - - -', 'if (this.value.substr(0, 4) == \'Edit\') { set_hidden_field(\'am_action\', \'edit\'); return true; } else { return false };');
+				submit_button('create_button', 'Create Custom Asset', 'return create_custom();');
+				submit_button('edit_button', '- - - - - - - - - - - - -', 'if (this.value.substr(0, 4) == \'Edit\') { set_hidden_field(\'am_action\', \'edit\'); return true; } else { return false };');
 			?>
 				</td>
 			</tr>
@@ -625,9 +639,7 @@ class Asset_Manager extends Resolve_Object
 			<tr>
 				<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
 				<td class="sq-backend-data">
-				<?php
-				$o->radio_button('am_type_code', $type_code, false, 'asset_checked(\''.addslashes($this->_asset_types[$type_code]['name']).'\', '.(($this->_asset_types[$type_code]['customisation']) ? 'true' : 'false').');');
-				?>
+					<?php radio_button('am_type_code', $type_code, false, 'asset_checked(\''.addslashes($this->_asset_types[$type_code]['name']).'\', '.(($this->_asset_types[$type_code]['customisation']) ? 'true' : 'false').');'); ?>
 					<span class="sq-backend-<?php echo ($this->_asset_types[$type_code]['customisation']) ? 'custom-' : ''?>asset"><?php echo $this->_asset_types[$type_code]['name'].' ('.$type_code.')';?></span>
 				</td>
 			</tr>

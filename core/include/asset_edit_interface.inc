@@ -55,7 +55,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		$asset_dir = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getInfo($this->_type_code, 'dir');
 		$class_name = $this->_type_code.'_edit_fns';
-		include_once $asset_dir.'/'.$class_name.'.inc';
+		require_once $asset_dir.'/'.$class_name.'.inc';
 		$this->_edit_fns = new $class_name();
 
 		$this->_dirs = Array($asset_dir);
@@ -291,9 +291,9 @@ class Asset_Edit_Interface extends Resolve_Object
 						continue;
 					// There is something declared but the bloody thing doesn't exist - inform the Idiot
 					} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
-						trigger_error('Function not found for processing field "'.$field->children[0]->content.'"', E_USER_WARNING);
+						trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[0]->content.'"', E_USER_WARNING);
 					} else {
-						$this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix);
+						$this->_edit_fns->{$process_node->attributes['name']}($owner, $prefix);
 					}
 
 				}// end if

@@ -38,6 +38,7 @@ define('SQ_LIB_PATH',			SQ_SYSTEM_ROOT.'/core/lib');
 define('SQ_DATA_PATH',			SQ_SYSTEM_ROOT.'/data');
 define('SQ_PACKAGES_PATH',		SQ_SYSTEM_ROOT.'/packages');
 define('SQ_WEB_PATH',			SQ_SYSTEM_ROOT.'/core/web');
+define('SQ_SQUIZLIB_PATH',		SQ_SYSTEM_ROOT.'/squizlib');
 
 // include the main system config file
 require_once SQ_DATA_PATH.'/conf/main.inc';

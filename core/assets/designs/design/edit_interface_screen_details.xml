@@ -6,4 +6,32 @@
 			<text width="40" height="1" />
 		</field>
 	</section>
+	<section name="Parse File">
+		<field>
+			<display_name>Upload</display_name>
+			<note>All your images, stylesheets and javascript files &lt;b&gt;MUST&lt;/b&gt; be in the relative directory './files'</note>
+			<function_call>
+				<paint_function   name="paintParseFile"   />
+				<process_function name="processParseFile" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Associated Files">
+		<field>
+			<display_name>Current</display_name>
+			<note/>
+			<function_call>
+				<paint_function   name="paintCurrentFiles"   />
+				<process_function name="processCurrentFiles" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>New</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintNewFiles"   />
+				<process_function name="processNewFiles" />
+			</function_call>
+		</field>
+	</section>
 </contents>

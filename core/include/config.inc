@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_LIB_PATH.'/general/general.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Config
@@ -146,6 +146,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		}
 		
 		print_r($str);
+		require_once SQ_SQUIZLIB_PATH.'/general/file_system.inc';
 		return string_to_file($str, $this->config_file);
 	}
 
@@ -156,6 +157,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 	*/
 	function printBackend(&$backend) {
 
+		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$o = &$backend->out;
 
 
@@ -417,21 +419,21 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		$o->openSection('System Settings');
 		$o->openField('System Name');
 		if(superuser()) {
-			$o->text_box('config[SQ_CONF_SYSTEM_NAME]', SQ_CONF_SYSTEM_NAME, 30);
+			text_box('config[SQ_CONF_SYSTEM_NAME]', SQ_CONF_SYSTEM_NAME, 30);
 		} else {
 			echo SQ_CONF_SYSTEM_NAME;
 		}
 
 		$o->openField('System Owner');
 		if(superuser()) {
-			$o->text_box('config[SQ_CONF_SYSTEM_OWNER]', SQ_CONF_SYSTEM_OWNER, 30);
+			text_box('config[SQ_CONF_SYSTEM_OWNER]', SQ_CONF_SYSTEM_OWNER, 30);
 		} else {
 			echo SQ_CONF_SYSTEM_OWNER;
 		}
 
 		$o->openField('Sys Admin Email');
 		if(superuser()) {
-			$o->text_box('config[SQ_CONF_SYSTEM_ADMIN_EMAIL]', SQ_CONF_SYSTEM_ADMIN_EMAIL, 30);
+			text_box('config[SQ_CONF_SYSTEM_ADMIN_EMAIL]', SQ_CONF_SYSTEM_ADMIN_EMAIL, 30);
 		} else {
 			echo SQ_CONF_SYSTEM_ADMIN_EMAIL;
 		}
@@ -439,7 +441,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 /*
 		$o->open_field('Backend Message Box Focus');
 		if (superuser()) {
-			$o->combo_box('config[SQ_CONF_SYSTEM_NAME]',array('1'=>'On','0'=>'Off'),);
+			combo_box('config[SQ_CONF_SYSTEM_NAME]',array('1'=>'On','0'=>'Off'),);
 		} else {
 			echo (($this->backend_message_box_focus)?'On':'Off');
 		}
@@ -495,7 +497,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		$o->openSection('Login/Session Settings');
 		$o->openField('Max Login Attempts', '', 'Zero (0) is unlimited attempts');
 		if(superuser()) {
-			$o->text_box('config[SQ_CONF_MAX_LOGIN_ATTEMPTS]', SQ_CONF_MAX_LOGIN_ATTEMPTS, 5, 5);
+			text_box('config[SQ_CONF_MAX_LOGIN_ATTEMPTS]', SQ_CONF_MAX_LOGIN_ATTEMPTS, 5, 5);
 		} else {
 			echo SQ_CONF_MAX_LOGIN_ATTEMPTS;
 		}

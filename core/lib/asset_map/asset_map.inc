@@ -138,7 +138,7 @@ class Asset_Map
 		// set the output type to XML, so any errors raised by the objects will be sent along in XML
 		$GLOBALS['SQ_OUTPUT_TYPE'] = 'xml';
 
-		include_once SQ_LIB_PATH.'/general/general.inc';
+		require_once SQ_SQUIZLIB_PATH.'/general/file_system.inc';
 		error_log("XML IN :\n".file_to_string('php://input'));
 
 		$input = new XML_Tree('php://input');
@@ -258,7 +258,7 @@ class Asset_Map
 						);
 		$asset_node = &$root->addChild('asset', '', $attrs);
 		// we only want EXCLUSIVE or UNITE links
-		$links = $asset->getLinks(SQ_LINK_NAV, '', 'S');
+		$links = $asset->getLinks(SQ_LINK_NAV, '', null);
 		if (count($links)) {
 			for($j = 0; $j < count($links); $j++) {
 				$kid_node = &$asset_node->addChild('child', '', Array('linkid' => $links[$j]['linkid'], 'minorid' => $links[$j]['minorid'], 'link_type' => $links[$j]['link_type']));
@@ -451,7 +451,7 @@ class Asset_Map
 			return;
 		}
 
-		$link = $old_parent->getLink($input->root->attributes['linkid']);
+		$link = $old_parent->getLinkById($input->root->attributes['linkid']);
 		if (empty($link)) {
 			$this->_error('Unable to Move Asset, Link #"'.$input->root->attributes['linkid'].'") not found');
 			return;
@@ -519,7 +519,7 @@ class Asset_Map
 			return;
 		}
 
-		$link = $old_parent->getLink($input->root->attributes['linkid']);
+		$link = $old_parent->getLinkById($input->root->attributes['linkid']);
 		if (empty($link)) {
 			$this->_error('Unable to Create New Link, existing Link #"'.$input->root->attributes['linkid'].'") not found');
 			return;

@@ -15,9 +15,9 @@
 ## immediately.
 ##
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/web/css/edit.css,v $
-## $Revision: 1.2 $
+## $Revision: 1.3 $
 ## $Author: brobertson $
-## $Date: 2003/02/10 06:30:02 $
+## $Date: 2003/04/07 01:21:32 $
 #######################################################################
 */
 
@@ -96,7 +96,7 @@ a:hover, a.sq-backend:hover {
 	font-weight: bold;
 }
 
-.sq-backend-data, td.sq-backend-data {
+.sq-backend-data, td.sq-backend-data, .sq-form-field {
 	color: #000000;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 11px;

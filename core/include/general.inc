@@ -2,7 +2,7 @@
 /*
 ****************************************************************
 * General Functions that are likely to be used often enough to
-* warrant them being for every script run 
+* warrant them being for every script run
 ****************************************************************
 */
 
@@ -20,7 +20,7 @@
 * @returns void
 * @access public
 */
-function sq_error_handler($err_no, $err_msg, $err_file, $err_line) 
+function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 {
 	// if the function had '@' prepended, do nothing
 	if (!error_reporting()) return;
@@ -79,13 +79,12 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		ob_end_clean();
 	}
 
-
 	// if we are in XML output type then, send our error as XML
 	if ($GLOBALS['SQ_OUTPUT_TYPE'] == 'xml') {
-	
+
 		$msg = "$err_msg\nFile: $err_file\nLine:$err_line";
 
-		include_once 'XML/Tree.php';
+		require_once 'XML/Tree.php';
 		$output = new XML_Tree();
 		$root = &$output->addRoot('error', $msg);
 		header("Content-Type: text/xml");
@@ -102,13 +101,17 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
 		$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
 
+		// if they haven't put tags in the err msg assume it to be plain text
+		if ($err_msg == strip_tags($err_msg)) {
+			$err_msg = nl2br(htmlspecialchars($err_msg));
+		}
 
 		?>
 			</script></table></table></table></table><br/>
 			<table bgcolor="#c0c0c0" cellspacing="0" border="1" bordercolor="#ff0000">
 				<tr>
 					<td style="<?php echo $error_title; ?>">
-						<?php echo $err_name; ?> 
+						<?php echo $err_name; ?>
 					</td>
 				</tr>
 				<tr>
@@ -140,13 +143,13 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	for($i = count($buffers) - 1; $i >= 0; $i--) {
 		ob_start();
 		echo $buffers[$i];
-	}		
+	}
 
 }//end sq_error_handler
 
 
-function superuser($blah='') { 
-	return false; 
+function superuser($blah='') {
+	return false;
 }
 
 /*
@@ -154,12 +157,12 @@ function superuser($blah='') {
 * bits in the integer
 * eg. for 5 is 101 in binary
 *     and Array(0 => 1, 1 => 4); will be returned
-* 
+*
 * @param int $num    the integer to use
 *
 * @return Array(int)
 */
-function bit_elements($num) 
+function bit_elements($num)
 {
 
 	$num = (int) $num; // make sure it's an int
@@ -181,12 +184,13 @@ function bit_elements($num)
 
 /*
 * Takes an ISO-9601 compliant date-time string and returns a unix timestamp for it
-* 
+*
 * @param string	$iso8601	date time string in 'YYYY-MM-DD HH:MM:SS' format
 *
 * @return Array(int)
 */
-function iso8601_ts($iso8601) {
+function iso8601_ts($iso8601)
+{
 	return mktime(
 		substr($iso8601,11,2),
 		substr($iso8601,14,2),
@@ -198,13 +202,14 @@ function iso8601_ts($iso8601) {
 }
 
 /*
-* Takes a unix timestamp for it and returns an ISO-9601 compliant date-time string 
-* 
+* Takes a unix timestamp for it and returns an ISO-9601 compliant date-time string
+*
 * @param int	$timestamp	unix timestamp
 *
 * @return Array(int)
 */
-function ts_iso8601($timestamp) {
+function ts_iso8601($timestamp)
+{
 	return date("Y-m-d H:i:s",$timestamp);
 }
 

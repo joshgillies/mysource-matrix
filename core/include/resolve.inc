@@ -92,7 +92,7 @@ class Resolve
 
 		if (SQ_IN_BACKEND) {
 			if (true || $this->user) {
-				include_once SQ_INCLUDE_PATH.'/backend.inc';
+				require_once SQ_INCLUDE_PATH.'/backend.inc';
 				$backend = new Backend();
 				$backend->paint();
 			} else {
@@ -198,7 +198,7 @@ class Resolve
 	*/
 	function generateLoginKey()
 	{
-		include_once SQ_LIB_PATH.'/general/general.inc';
+		require_once SQ_SQUIZLIB_PATH.'/general/general.inc';
 		return $_SESSION['SQ_LOGIN_KEY'] = random_password(20);
 	}
 

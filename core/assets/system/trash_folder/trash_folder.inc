@@ -134,7 +134,7 @@ class Trash_Folder extends Folder
 		// if the requested type doesn't contain these piss off
 		if (($link_types & (SQ_LINK_NAV)) == 0) return Array();
 
-		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
+		require_once SQ_SQUIZLIB_PATH.'/db_extras/db_extras.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -200,7 +200,7 @@ class Trash_Folder extends Folder
 		// if the requested type doesn't contain these piss off
 		if (($link_types & (SQ_LINK_NAV)) == 0) return Array();
 
-		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
+		require_once SQ_SQUIZLIB_PATH.'/db_extras/db_extras.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 

@@ -55,7 +55,7 @@ class Backend extends Resolve_Object
 			$this->_printFrames();
 		
 		} else if ($_GET['SQ_BACKEND_PAGE'] == 'asset_map_request') {
-			include_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 			$asset_map = new Asset_Map();
 			$asset_map->process($this);
 		
@@ -222,7 +222,7 @@ class Backend extends Resolve_Object
 
 		$this->out->openRaw();
 
-		include_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+		require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 		$asset_map = new Asset_Map();
 		$asset_map->paint($this);
 
@@ -244,7 +244,7 @@ class Backend extends Resolve_Object
 
 		switch($_GET['backend_section']) {
 			case 'config' :
-				include_once SQ_INCLUDE_PATH.'/config.inc';
+				require_once SQ_INCLUDE_PATH.'/config.inc';
 				$cfg = new Config();
 				$cfg->printBackend($this);
 			break;

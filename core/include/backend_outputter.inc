@@ -462,8 +462,8 @@ class Backend_Outputter
 				function page_on_load() {
 			<?php
 				if (count($this->_messages)) {
-					include_once 'XML/Tree.php';
-					include_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+					require_once 'XML/Tree.php';
+					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					$msgs = new XML_Tree();
 					$msgs_root = &$msgs->addRoot('messages');
 					foreach($this->_messages as $data) {
@@ -508,7 +508,7 @@ class Backend_Outputter
 		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
 		foreach($this->_hidden_fields as $name => $value) {
-			$this->hidden_field($name, $value);
+			hidden_field($name, $value);
 		}//end foreach
 //	>
 //
@@ -540,7 +540,7 @@ class Backend_Outputter
 						<?php echo $this->_heading;?>
 					</td>
 					<td class="sq-backend-heading" style="text-align: right;">
-						<?php $this->combo_box('', $this->_screens, false, $this->_current_screen, 1, 'onChange="javascript: self.location = element_value(this);"'); ?>
+						<?php combo_box('', $this->_screens, false, $this->_current_screen, 1, 'onChange="javascript: self.location = element_value(this);"'); ?>
 					</td>
 				</tr>
 			</table>
@@ -727,67 +727,7 @@ class Backend_Outputter
 	*/
 	function commitButton($value='Commit') {
 		$this->openField('', 'commit');
-		$this->submit_button('commit', $value);
-	}
-
-
-	/**
-	* All these function are wrappers for the main fns just adding any backend specific attributes
-	*
-	* @see html_form.inc
-	* @access public
-	*/
-	function submit_button($name, $value, $on_click='', $extras='') 
-	{
-		submit_button($name, $value, $on_click, 'class="sq-backend-data" '.$extras);
-	}
-	function normal_button($name, $value, $on_click='', $extras='') 
-	{
-		normal_button($name, $value, $on_click, 'class="sq-backend-data" '.$extras);
-	}
-    function hidden_field($name, $value='') 
-	{
-		hidden_field($name, $value);
-	}
-    function text_box($name, $value, $size='', $max='', $extras='') 
-	{
-		text_box($name, $value, $size, $max, 'class="sq-backend-data" '.$extras);
-	}
-    function password_box($name, $value='', $size='', $max='', $extras='') 
-	{
-		password_box($name, $value, $size, $max, 'class="sq-backend-data" '.$extras);
-	}
-    function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='') 
-	{
-		text_area($name, $contents, $cols, $rows, $max, 'class="sq-backend-data" '.$extras);
-	}
-    function radio_button($name, $value='1', $checked=false, $on_click='', $extras='') 
-	{
-		radio_button($name, $value, $checked, $on_click, 'class="sq-backend-data" '.$extras);
-	}
-    function check_box($name, $value='1', $checked=false, $on_click='', $extras='') 
-	{
-		check_box($name, $value, $checked, $on_click, 'class="sq-backend-data" '.$extras);
-	}
-	function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras='', $maxlength=0) 
-	{
-		combo_box($name, $contents, $multiple, $defaults, $height, 'class="sq-backend-data" '.$extras, $maxlength);
-	}
-    function date_box($name, $default_timestamp=null, $show_time=true, $extras='') 
-	{
-		date_box($name, $default_timestamp, $show_time, 'class="sq-backend-data" '.$extras);
-	}
-    function time_box($hours_name, $hours, $mins_name, $mins, $extras='') 
-	{
-		time_box($hours_name, $hours, $mins_name, $mins, 'class="sq-backend-data" '.$extras);
-	}
-    function file_upload($name, $extras='') 
-	{
-		file_upload($name, 'class="sq-backend-data" '.$extras);
-	}
-    function commit_file_upload($name, $dest, $overwrite=false, $max_size='', $dest_filename='', $restrict_ext=true, $extensions=Array()) 
-	{
-		return commit_file_upload($name, $dest, $overwrite, $max_size, $dest_filename, $restrict_ext, $extensions);
+		submit_button('commit', $value);
 	}
 
 }//end class

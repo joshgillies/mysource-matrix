@@ -2,13 +2,7 @@
 	<section name="Web Paths">
 		<field>
 			<display_name>URLs</display_name>
-			<note>
-			<![CDATA[
-				Comma Separate Port Numbers<br/>
-				To conform to web standards HTTP sites use port 80 and HTTPS use port 443.<br/>
-				These port numbers can be overridden however, contact your System Administrator for more information
-		    ]]>
-			</note>
+			<note/>
 			<function_call>
 				<paint_function   name="paintURLs"   />
 				<process_function name="processURLs" />

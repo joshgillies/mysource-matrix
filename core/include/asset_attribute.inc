@@ -64,34 +64,37 @@ class Asset_Attribute extends Resolve_Object
 	* @param Array	$default_params	the default values for the params
 	*
 	*/
-	function Asset_Attribute($attributeid, $value, $default_params=Array()) 
+	function Asset_Attribute($attributeid=0, $value=null, $default_params=Array()) 
 	{
 		$this->Resolve_Object();
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		if ($attributeid) {
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT attributeid, name, type, parameters, default_value
-				FROM sq_asset_attribute
-				WHERE attributeid = '.$db->quote($attributeid);
+			$sql = 'SELECT attributeid, name, type, parameters, default_value
+					FROM sq_asset_attribute
+					WHERE attributeid = '.$db->quote($attributeid);
 
-		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
+			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
-		if (is_null($result)) return;
+			if (is_null($result)) return;
 
-		list($this->id, $this->name, $type, $parameters, $this->_default_value) = $result;
+			list($this->id, $this->name, $type, $parameters, $this->_default_value) = $result;
 
-		// make sure the asset we are loading is of the same type as our class
-		if ($type != $this->type()) {
-			trigger_error('Attribute #'.$attributeid.' is not a '.$this->type(), E_USER_WARNING);
-			$this->id = null;
-			return;
+			// make sure the asset we are loading is of the same type as our class
+			if ($type != $this->type()) {
+				trigger_error('Attribute #'.$attributeid.' is not a '.$this->type(), E_USER_WARNING);
+				$this->id = null;
+				return;
+			}
+
+			$this->_params = ($parameters) ? unserialize($parameters) : Array();
+			unset($result);
+
 		}
 
 		$this->value = $value;
-
-		$this->_params = ($parameters) ? unserialize($parameters) : Array();
-		unset($result);
 
 		// now just make sure some default values are set
 		foreach($default_params as $name => $default) {

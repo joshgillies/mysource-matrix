@@ -1,4 +1,5 @@
 <?php
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Asset_Edit_Fns
@@ -39,11 +40,11 @@ class Asset_Edit_Fns extends Resolve_Object
 		$paths = $asset->getWebPaths();
 
 		foreach($paths as $path) {
-			$o->text_box($prefix.'_paths[]', $path, 25);
+			text_box($prefix.'_paths[]', $path, 25);
 			echo '<br/>';
 		}
 
-		$o->text_box($prefix.'_paths[]', '', 25);
+		text_box($prefix.'_paths[]', '', 25);
 		echo '<br/>';
 		
 	}// end paintPaths()
@@ -52,13 +53,12 @@ class Asset_Edit_Fns extends Resolve_Object
 	* Processes the Paths posted from the paintPaths fn above
 	*
 	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processPaths(&$asset, &$o, $prefix) 
+	function processPaths(&$asset, $prefix) 
 	{
 		$asset->saveWebPaths(array_values($_POST[$prefix.'_paths']));
 	}// end processPaths()

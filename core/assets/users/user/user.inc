@@ -111,7 +111,7 @@ class User extends Asset
 	* @access public
 	*/
 	function find($username, $password) {
-		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
+		require_once SQ_SQUIZLIB_PATH.'/db_extras/db_extras.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 

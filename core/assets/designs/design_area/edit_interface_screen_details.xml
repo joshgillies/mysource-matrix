@@ -1,6 +1,6 @@
 <contents>
 	<section name="Details">
-		<field attribute="id_name">
+		<field>
 			<display_name>Id Name</display_name>
 			<note />
 			<function_call>

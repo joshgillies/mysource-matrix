@@ -111,7 +111,5 @@ class Folder extends Asset
 
 	}// end processBackend()
 
-
-
 }//end class
 ?>

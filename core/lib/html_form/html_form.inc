@@ -22,6 +22,7 @@ function submit_button($name, $value, $on_click='', $extras='')
 	// with the submit() fn that the form has
 	if ($name == 'submit') trigger_error('Rename your Submit button, so as not use "submit"', E_USER_ERROR);
 	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
+	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="submit" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 }
 
@@ -36,6 +37,7 @@ function submit_button($name, $value, $on_click='', $extras='')
 function normal_button($name, $value, $on_click='', $extras='') 
 {
 	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
+	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="button" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 }
 
@@ -63,6 +65,7 @@ function text_box($name, $value, $size='', $max='', $extras='')
 {
 	$size = (int) $size;
 	$max  = (int) $max;
+	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="text" ',
 			'name="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
@@ -86,6 +89,7 @@ function password_box($name, $value='', $size='', $max='', $extras='')
 {
 	$size = (int) $size;
 	$max  = (int) $max;
+	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="password" ',
 			'name="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
@@ -111,6 +115,7 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 	$cols = (int) $cols;
 	$rows = (int) $rows;
 	$max  = (int) $max;
+	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<textarea name="', htmlspecialchars($name), '" ',
 			(($cols)  ? 'cols="'.$cols.'" ' : ''),
 			(($rows)  ? 'rows="'.$rows.'" ' : ''),
@@ -133,6 +138,7 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 function radio_button($name, $value='1', $checked=false, $on_click='', $extras='') 
 {
 	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
+	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="radio" ',
 			'name="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
@@ -153,6 +159,7 @@ function radio_button($name, $value='1', $checked=false, $on_click='', $extras='
 function check_box($name, $value='1', $checked=false, $on_click='', $extras='') 
 {
 	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
+	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="checkbox" ',
 			'name="', htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
@@ -179,6 +186,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 {
 	$height    = (int) $height;
 	$maxlength = (int) $maxlength;
+	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 
 	if ($multiple) {
 		$extras .= ' multiple';
@@ -212,6 +220,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 */
 function date_box($name, $default_timestamp=null, $show_time=true, $extras='') 
 {
+	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 
 	trigger_error('*cough*, date_box has not been fully converted - "Calendar::" references and maybe we should be using the datetime_field ?', E_USER_WARNING);
 	return '';
@@ -229,24 +238,24 @@ function date_box($name, $default_timestamp=null, $show_time=true, $extras='')
 
 		
 	$extras .= ' onChange="javascript: check_date(\''.$name.'\', '.(($show_time) ? 'true':'false').');"';
-	$this->hidden_field($name, $default_timestamp);
+	hidden_field($name, $default_timestamp);
 
 	$days = array();
 	for ($i = 1; $i <= 31; $i++) $days[$i] = $i;
-	$this->combo_box('day_'.$name, $days, $default['mday'], $extras);
+	combo_box('day_'.$name, $days, $default['mday'], $extras);
 
 	$months = array();
 	for ($i = 1; $i <= 12; $i++) $months[$i] = date('M', mktime(0,0,0,$i,1,2000));
-	$this->combo_box('month_'.$name, $months, $default['mon'], $extras);
+	combo_box('month_'.$name, $months, $default['mon'], $extras);
 
 	$years = array();
 	for ($i = $start_year; $i <= $end_year; $i++) $years[$i] = $i;
-	$this->combo_box('year_'.$name, $years, $default['year'], $extras);
+	combo_box('year_'.$name, $years, $default['year'], $extras);
 
 	if($show_time) {
 
 		echo '&nbsp;&nbsp;';
-		$this->time_box('hour_'.$name, $default['hours'], 'min_'.$name, $default['minutes'], $extras);
+		time_box('hour_'.$name, $default['hours'], 'min_'.$name, $default['minutes'], $extras);
 
 	}//end if
 
@@ -257,18 +266,19 @@ function date_box($name, $default_timestamp=null, $show_time=true, $extras='')
 */
 function time_box($hours_name, $hours, $mins_name, $mins, $extras='') 
 {
+	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	trigger_error('*cough*, time_box has not been fully converted - maybe we should be using the datetime_field ?', E_USER_WARNING);
 	return '';
 
 	$hours_list = array('0' => '12am', '1' => ' 1am', '2' => ' 2am', '3' => ' 3am', '4' => ' 4am', '5' => ' 5am', '6' => ' 6am', '7' => ' 7am', '8' => ' 8am', '9' => ' 9am', '10' => '10am', '11' => '11am',
 				  '12' => '12pm', '13' => ' 1pm', '14' => ' 2pm', '15' => ' 3pm', '16' => ' 4pm', '17' => ' 5pm', '18' => ' 6pm', '19' => ' 7pm', '20' => ' 8pm', '21' => ' 9pm', '22' => '10pm', '23' => '11pm');
-	$this->combo_box($hours_name, $hours_list, $hours, $extras);
+	combo_box($hours_name, $hours_list, $hours, $extras);
 
 	$mins_list = array();
 	for($i = 0; $i < 60; $i++) {
 		$mins_list[$m] = sprintf(':%02d', $i);
 	}
-	$this->combo_box($mins_name, $mins_list, $mins, $extras);
+	combo_box($mins_name, $mins_list, $mins, $extras);
 
 }//end time_box()
 
@@ -280,24 +290,20 @@ function time_box($hours_name, $hours, $mins_name, $mins, $extras='')
 */
 function file_upload($name, $extras='') 
 {
+	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="file" name="', $name, '" ', $extras, '>';
 }//end file_upload()
 
 /**
-* Commits an uploaded file to its intended place
+* Returns the information for an uploaded file if the upload was successful
 *
 * @param string	$name			the form name from the file upload box
-* @param string	$dest			the destination for the uploaded file, if this is a directory, the file is put in that directory if it is a file, it is written to that file (taking into account $overwrite)
-* @param bool	$overwrite		whether to overwrite any existing file or not
-* @param mixed	$max_size		the maximum number of bytes that the uploaded file can be
-* @param bool	$restrict_exts	if true extension MUST BE in $extensions, if false must NOT be in $extensions
-* @param Array	$extensions		if not empty, the only extensions that are not allowed to be uploaded
 *
-* @return FALSE on error, blank string on no file upload and the filename (basename) if a file was uploaded
+* @return FALSE on error, blank array on no file upload and the $_FILES[$name] if a file was uploaded succefully
 */
-function commit_file_upload($name, $dest, $overwrite=false, $max_size='', $dest_filename='', $restrict_ext=true, $extensions=Array()) 
+function get_file_upload_info($name) 
 {
-	if (empty($_FILES[$name]) || empty($_FILES[$name]['name']) || !is_uploaded_file($_FILES[$name]['tmp_name'])) {
+	if (empty($_FILES[$name])) {
 		trigger_error('"'.$name.'" is not a valid file upload', E_USER_WARNING);
 		return false;
 	}
@@ -308,7 +314,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size='', $dest_
 	switch($_FILES[$name]['error']) {
 
 		case UPLOAD_ERR_NO_FILE :
-			return '';
+			return Array();
 			break;
 
 		case UPLOAD_ERR_INI_SIZE  :
@@ -326,13 +332,39 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size='', $dest_
 			return false;
 			break;
 
-		default : 
-			if ($max_size && $max_size < $_FILES[$name]['size']) {
-				trigger_error('The uploaded file "'.$nice_name.'" excedded the '.$max_size.' bytes', E_USER_WARNING);
-				return false;
-			}
-
 	}//end switch
+
+	if (!is_uploaded_file($_FILES[$name]['tmp_name'])) return false;
+
+	return $_FILES[$name];
+
+}//end get_file_upload_info()
+
+
+/**
+* Commits an uploaded file to its intended place
+*
+* @param string	$name			the form name from the file upload box
+* @param string	$dest			the destination for the uploaded file, if this is a directory, the file is put in that directory if it is a file, it is written to that file (taking into account $overwrite)
+* @param bool	$overwrite		whether to overwrite any existing file or not
+* @param int	$max_size		the maximum number of bytes that the uploaded file can be
+* @param bool	$restrict_exts	if true extension MUST BE in $extensions, if false must NOT be in $extensions
+* @param Array	$extensions		if not empty, the only extensions that are not allowed to be uploaded
+*
+* @return FALSE on error, blank string on no file upload and the filename (basename) if a file was uploaded
+*/
+function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restrict_exts=true, $extensions=Array()) 
+{
+	$info = get_file_upload_info($name);
+	if     ($info === false) return false;
+	elseif (!count($info))   return '';
+
+	$nice_name = str_replace('_', ' ', $name);
+
+	if ($max_size > 0 && $max_size < $info['size']) {
+		trigger_error('The uploaded file "'.$nice_name.'" excedded the '.$max_size.' bytes', E_USER_WARNING);
+		return false;
+	}
 
 	//// if we get this far the file on the server OK ////
 
@@ -340,7 +372,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size='', $dest_
 	if(count($extensions)) {
 		$exts = Array();
 		foreach($extensions as $v) $exts[] = strtolower($v);
-		$ext = strtolower(substr(strrchr($_FILES[$name]['name'],"."), 1));
+		$ext = strtolower(substr(strrchr($info['name'],"."), 1));
 		$in_arr = in_array($ext, $exts);
 
 		// see $restrict_exts documentation in function header
@@ -358,13 +390,13 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size='', $dest_
 			trigger_error('Destination Directory "'.$dest.'" is not writable', E_USER_WARNING);
 			return false;
 		}
-		$dest .= '/'.$_FILES[$name]['name'];
+		$dest .= '/'.$info['name'];
 	}
 
 	// Now we know we have a proper filename, if it exists are we allowed to write over it
 	if (file_exists($dest)) {
 		if (!$overwrite) {
-			trigger_error('Unable to upload file "'.$_FILES[$name]['name'].'", filename already in use', E_USER_WARNING);
+			trigger_error('Unable to upload file "'.$info['name'].'", filename already in use', E_USER_WARNING);
 			return false;
 		}
 		if (!is_writable($dest)) {
@@ -372,11 +404,16 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size='', $dest_
 			return false;
 		}
 
-	// the destination doesn't exist, does it's parent ?
+	// the destination doesn't exist
 	} else {
+		require_once SQ_SQUIZLIB_PATH.'/general/file_system.inc';
 		$parent = dirname($dest);
-		if (!is_dir($parent) || !is_writable($parent)) {
-			trigger_error('Parent Directory "'.$parent.'" does not exist or is not writable', E_USER_WARNING);
+		// if the parent isn't a directory, can we create it ?
+		if (!is_dir($parent) && !create_directory($parent)) {
+			trigger_error('Parent Directory "'.$parent.'" does not exist', E_USER_WARNING);
+			return false;
+		} else if (!is_writable($parent)) {
+			trigger_error('Parent Directory "'.$parent.'" is not writable', E_USER_WARNING);
 			return false;
 		}
 	}// end dest exists
@@ -397,7 +434,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size='', $dest_
 	*/
 
 	// Move file over
-	if (move_uploaded_file($_FILES[$name]['tmp_name'], $dest)) {
+	if (!move_uploaded_file($info['tmp_name'], $dest)) {
 		trigger_error('Unable to create file: '.$dest, E_USER_WARNING);
 		return false;
 	}
