@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: utility.js,v 1.15 2003/11/05 23:35:57 gsherwood Exp $
+* $Id: utility.js,v 1.16 2003/11/07 01:39:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -128,7 +128,7 @@ HTMLArea.prototype.getClosest = function(tagName) {
 	tagName = ("" + tagName).toLowerCase();
 	for (var i in ancestors) {
 		var el = ancestors[i];
-		if (el.tagName.toLowerCase() == tagName) {
+		if (el && el.tagName && el.tagName.toLowerCase() == tagName) {
 			ret = el;
 			break;
 		}
