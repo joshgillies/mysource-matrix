@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.55 2004/11/04 00:29:17 mnyeholt Exp $
+* $Id: package_manager.inc,v 1.56 2004/11/04 01:20:21 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -203,10 +203,16 @@ class Package_Manager extends MySource_Object
 	*/
 	function updatePackageDetails($update_assets=Array())
 	{
-		// If there were some type codes that failed the requirements
-		if (is_array($deferred = $this->checkPackageDetails($update_assets))) {
+		// If there were some type codes that failed the requirements, save
+		// them in the deferred array so that they don't get installed later
+		// on in the process.
+		$deferred = $this->checkPackageDetails($update_assets);
+		if (is_bool($deferred) && !$deferred) {
 			return $deferred;
 		}
+		
+		// Make sure deferred is an array.
+		$deferred = is_array($deferred) ? $deferred : Array();
 		
 		$install_order = $this->_getInstallOrder();
 		if (!empty($install_order)) {
@@ -251,6 +257,14 @@ class Package_Manager extends MySource_Object
 					if (!in_array($type_code, $update_assets)) {
 						continue;
 					}
+				}
+				
+				// If the asset was found in the list of failed dependencies, 
+				// then don't try installing it just yet, but install
+				// all other types as they may be vital to the dependency 
+				// resolution.
+				if (in_array($type_code, $deferred)) {
+					continue;
 				}
 				
 				echo "$k => $type_code \n";
