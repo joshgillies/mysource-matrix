@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.23 2003/10/03 06:53:17 gsherwood Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.24 2003/10/07 01:56:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,7 +44,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	* @return object WYSIWYG
 	* @access private
 	*/
-	function _createEditor(&$asset, $prefix)
+	function &_createEditor(&$asset, $prefix)
 	{
 		$html = $asset->attr('html');
 
@@ -66,6 +66,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->add_plugin('matrix_insert_image');
 		$wysiwyg->add_plugin('view_source');
 		$wysiwyg->add_plugin('popup_editor');
+		// html_tidy needs to be last so other plugins can set options
 		$wysiwyg->add_plugin('html_tidy');
 		// contents must be set AFTER all plugins are loaded
 		$wysiwyg->set_contents($html);
@@ -143,7 +144,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	function processBackend($link, &$asset, $prefix)
 	{
 		if ($asset->writeAccess()) {
-			$wysiwyg = $this->_createEditor($asset, $prefix);
+			$wysiwyg = &$this->_createEditor($asset, $prefix);
 			$html = $wysiwyg->process();
 
 			$current_html = $asset->attr('html');
