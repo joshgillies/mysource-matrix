@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.44 2004/12/22 21:37:08 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.45 2005/01/07 03:42:45 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -650,16 +650,12 @@ class Page_Asset_Listing extends Page
 	{
 		$group_by = $this->attr('group_by');
 
-		  //////////////////////////////
-		 //  REMOVE NON-LIVE ASSETS  //
-		//////////////////////////////
+		// remove non-live assets that the user doesnt have write access to
 		if (!empty($todo)) $this->filterAssetStatuses($todo);
 
 		if (empty($todo)) return;
 
-		  /////////////////////////////
-		 //  REMOVE UNWANTED TYPES  //
-		/////////////////////////////
+		// remove unwanted asset types
 		switch ($group_by) {
 			case 'number' :
 			case 'random' :
@@ -683,7 +679,10 @@ class Page_Asset_Listing extends Page
 
 
 	/**
-	* Remove non-live assets from the list of assets to print
+	* Remove non-live assets from the list of assets to print if the user doesnt have write access
+	*
+	* The assets we filter out here could have read access granted for the current user, but
+	* non-live assets require write access to be viewed, and we need to load the asset to ask for that.
 	*
 	* @param array	&$todo	an array of assets to list in the same format as the return
 	*						value of getAssetList()
@@ -694,6 +693,10 @@ class Page_Asset_Listing extends Page
 	*/
 	function filterAssetStatuses(&$todo)
 	{
+		// first check to see if this is a special user without restrictions
+		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
+		if (!$user_restrictions) return;
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetids = array_keys($todo);
 
@@ -701,20 +704,23 @@ class Page_Asset_Listing extends Page
 			$assetids[$k] = $db->quote($assetids[$k]);
 		}
 
-		$filtered_assets = $db->getCol('SELECT assetid
-										FROM '.SQ_TABLE_PREFIX.'ast
-										WHERE assetid IN ('.implode(',', $assetids).')
-										  AND status >= '.$db->quote(SQ_STATUS_LIVE)
-										);
-		assert_valid_db_result($filtered_assets);
+		// get a list of assets that are not live
+		$sql = 'SELECT assetid from '.SQ_TABLE_PREFIX.'ast
+				WHERE assetid IN ('.implode(',', $assetids).')
+				  AND status < '.$db->quote(SQ_STATUS_LIVE);
+		$non_live_assets = $db->getCol($sql);
+		assert_valid_db_result($non_live_assets);
 
-		for (reset($todo); null !== ($assetid = key($todo)); ) {
-			if (!in_array($assetid, $filtered_assets)) {
+		foreach ($non_live_assets as $assetid) {
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $todo[$assetid]);
+			if (!$asset->writeAccess()) {
 				unset($todo[$assetid]);
-			} else {
-				next($todo);
 			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
 		}
+
+		return;
 
 	}//end filterAssetStatuses()
 
