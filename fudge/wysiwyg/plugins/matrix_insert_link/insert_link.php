@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.27 2004/12/06 15:56:06 brobertson Exp $
+* $Id: insert_link.php,v 1.28 2005/01/15 18:40:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,7 +53,7 @@ $new_window_bool_options = Array(
 
 if (!isset($_GET['assetid']))     $_GET['assetid'] = 0;
 if (!isset($_GET['url']))         $_GET['url'] = 0;
-if (!isset($_GET['protocol']))    $_GET['protocol'] = 0;
+if (!isset($_GET['protocol']))    $_GET['protocol'] = '';
 if (!isset($_GET['status_text'])) $_GET['status_text'] = '';
 if (!isset($_GET['target']))      $_GET['target'] = '';
 if (!isset($_GET['new_window']))  $_GET['new_window'] = 0;
@@ -97,10 +97,10 @@ if (!isset($_GET['new_window'])) {
 				__dlg_init("matrixInsertLink");
 				enable_new_window(document.main_form, <?php echo $_GET['new_window']?>);
 
-				var e = '^(.+:(\/\/)?)?([^#]*)(#(.*))?$';
+				var e = '^(.+:\/\/?)?([^#]*)(#(.*))?$';
 				var re = new RegExp(e, '');
 				var results = re.exec('<?php echo $_GET['url']?>');
-				setUrl(results[1], results[3]);
+				setUrl(results[1], results[2]);
 			};
 
 			function onOK() {
@@ -144,8 +144,13 @@ if (!isset($_GET['new_window'])) {
 				} else {
 					var assetid = f.elements["assetid[assetid]"].value;
 
-					if (assetid > 0) {
-						f.url_link.value = './?a=' + assetid;
+					if (assetid != '') {
+						// shadow asset
+						if (assetid.search(/:/) != -1) {
+							f.url_link.value = './?a=' + assetid + '!';
+						} else {
+							f.url_link.value = './?a=' + assetid;
+						}
 						highlight_combo_value(f.url_protocol, '');
 					}
 				}

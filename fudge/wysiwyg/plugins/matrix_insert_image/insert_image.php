@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.21 2004/12/06 15:56:06 brobertson Exp $
+* $Id: insert_image.php,v 1.22 2005/01/15 18:40:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -203,7 +203,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<tr>
 												<td class="label" nowrap="nowrap">Image URL:</td>
 												<td>
-													<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D'), '', false, 'setAltText'); ?>
+													<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D', 'image_variety' => 'D'), '', false, 'setAltText'); ?>
 												</td>
 											</tr>
 											<tr>
