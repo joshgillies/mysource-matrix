@@ -1,0 +1,4 @@
+#!/bin/sh
+PATH="/usr/bin:/usr/local/bin"
+WEBUSER="htdocs"
+exec setuidgid $WEBUSER multilog t /var/log/hipo

@@ -1,0 +1,20 @@
+<?php
+/*
+	Add a line for every matrix system this hipo is running for.
+
+	The index (test1, test2) is the unique id setup in the data/private/conf/hipo.inc
+	file add the value is the path to the root of the matrix system
+
+	E.g.
+
+	$systems = Array(
+		'test1'     => '/var/www/matrix',
+		'test2'     => '/home/matrix',
+	);
+*/
+
+$systems = Array(
+
+);
+
+?>
