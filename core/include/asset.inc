@@ -115,30 +115,30 @@ class Asset extends Resolve_Object
 			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted data directory', E_USER_WARNING);
 			return false;
 		}
-		if (!create_directory($this->data_path_unrestricted)) {
-			trigger_error('Failed saving asset "'.$this->name.'" to unrestricted cache, could not create unrestricted data directory', E_USER_WARNING);
-			return false;
-		}
+		//if (!create_directory($this->data_path_unrestricted)) {
+		//	trigger_error('Failed saving asset "'.$this->name.'" to unrestricted cache, could not create unrestricted data directory', E_USER_WARNING);
+		//	return false;
+		//}
 
 		// make sure our system directories exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
 			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted system directory', E_USER_WARNING);
 			return false;
 		}
-		if (!create_directory($this->data_path_unrestricted.'/.sq_system')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create unrestricted system directory', E_USER_WARNING);
-			return false;
-		}
+		//if (!create_directory($this->data_path_unrestricted.'/.sq_system')) {
+		//	trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create unrestricted system directory', E_USER_WARNING);
+		//	return false;
+		//}
 
 		// make sure there is nothing in the system directories
 		if (!clear_directory($this->data_path.'/.sq_system')) {
 			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear restricted system directory', E_USER_WARNING);
 			return false;
 		}
-		if (!clear_directory($this->data_path_unrestricted.'/.sq_system')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear unrestricted system directory', E_USER_WARNING);
-			return false;
-		}
+		//if (!clear_directory($this->data_path_unrestricted.'/.sq_system')) {
+		//	trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear unrestricted system directory', E_USER_WARNING);
+		//	return false;
+		//}
 
 		// save the object for later (in the restricted directory)
 		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
@@ -155,13 +155,13 @@ class Asset extends Resolve_Object
 				return false;
 			}
 		}
-		$files_to_copy = list_files($this->data_path_unrestricted);
-		foreach ($files_to_copy as $filename) {
-			if (!copy_file($this->data_path_unrestricted.'/'.$filename, $this->data_path_unrestricted.'/.sq_system/'.$filename)) {
-				trigger_error('Failed saving asset "'.$this->name.'" to cache, could not copy file "'.$filename.'" to unrestricted system directory', E_USER_WARNING);
-				return false;
-			}
-		}
+		//$files_to_copy = list_files($this->data_path_unrestricted);
+		//foreach ($files_to_copy as $filename) {
+		//	if (!copy_file($this->data_path_unrestricted.'/'.$filename, $this->data_path_unrestricted.'/.sq_system/'.$filename)) {
+		//		trigger_error('Failed saving asset "'.$this->name.'" to cache, could not copy file "'.$filename.'" to unrestricted system directory', E_USER_WARNING);
+		//		return false;
+		//	}
+		//}
 
 		return true;
 	}//end saveSystemVersion()
@@ -220,6 +220,61 @@ class Asset extends Resolve_Object
 		$this->status = $real_status;
 		return true;
 	}//end loadSystemVersion()
+
+
+	/**
+	* Replaces the editing version with the system (live) version
+	*
+	* @return boolean
+	* @access public
+	*/
+	function revertToSystemVersion()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// load our object data in as it was before
+		if (is_file($this->data_path.'/.sq_system/.object_data')) {
+			$old_version = unserialize(file_to_string($this->data_path.'/.sq_system/.object_data'));
+		} else {
+			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not locate object data file', E_USER_WARNING);
+			return false;
+		}
+
+		// copy over the old files we stored in the system directory
+		$files_to_copy = list_files($this->data_path.'/.sq_system');
+		foreach ($files_to_copy as $filename) {
+			// skip hidden files
+			if (strpos($filename, '.') === 0) continue;
+
+			if (!copy_file($this->data_path.'/.sq_system/'.$filename, $this->data_path.'/'.$filename)) {
+				trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not copy file "'.$filename.'" to restricted data directory', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		if (!$this->clearSystemVersion()) {
+			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not clear system version', E_USER_WARNING);
+			return false;
+		}
+
+		// update all the vars
+		foreach ($old_version->vars as $var_name => $var_data) {
+			if ($var_data['type'] == 'serialise') $var_data['value'] = serialize($var_data['value']);
+			if (!$this->setAttrValue($var_name, $var_data['value'], true)) {
+				trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not save value of attribute "'.$var_name.'"', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		// ITS ALIVE... ITS ALIVE...
+		$this = $old_version;
+
+		// save this old version to the db
+		$this->_updated();
+
+		return true;
+
+	}//end revertToSystemVersion()
 
 
 	/**
@@ -637,6 +692,9 @@ class Asset extends Resolve_Object
 								$statii[SQ_STATUS_LIVE] = 'Make Live';
 							}
 						}
+						if ($this->status == SQ_STATUS_EDITING && $this->writeAccess(Array(), false)) {
+							$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Cancel Safe Edit';
+						}
 					} else {
 						$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
 						$statii[SQ_STATUS_EDITING] = 'Safe Edit';
@@ -699,7 +757,7 @@ class Asset extends Resolve_Object
 	* @param int	$real_status	the new status is not always the status that gets
 	*								set because of workflow and other things, so this
 	*								status represents the actual status that will be set
-	*								if know (will only be know if this function was called
+	*								if known (will only be know if this function was called
 	*								from a dependant parent)
 	*
 	* @return boolean
@@ -884,32 +942,42 @@ class Asset extends Resolve_Object
 				break;
 
 			case SQ_STATUS_UNDER_CONSTRUCTION :
-				include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-				$wfm = new Workflow_Manager($this);
+				if ($this->status == SQ_STATUS_EDITING) {
+					// cancelling a safe edit
+					if (!$this->writeAccess(Array(), false)) return false;
+					if (!$this->revertToSystemVersion()) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+					$this->status = SQ_STATUS_LIVE;
+				} else {
+					include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+					$wfm = new Workflow_Manager($this);
 
-				$publishers = $wfm->whoCanPublish();
+					$publishers = $wfm->whoCanPublish();
 
-				if ($this->status == SQ_STATUS_LIVE && $this->adminAccess(Array(), false)) {
-					// if we are currently live, we can set to
-					// under construction without problems
-					$this->status = SQ_STATUS_UNDER_CONSTRUCTION;
-					$this->clearSystemVersion();
+					if ($this->status == SQ_STATUS_LIVE && $this->adminAccess(Array(), false)) {
+						// if we are currently live, we can set to
+						// under construction without problems
+						$this->status = SQ_STATUS_UNDER_CONSTRUCTION;
+						$this->clearSystemVersion();
 
-				} else if (($this->status & SQ_STATUS_PENDING) && in_array($current_userid, $publishers)) {
-					// we are currently in workflow and someone has decide
-					// to reject the changes and cancel the workflow
-					if ($this->status == SQ_STATUS_EDITING_APPROVAL) $this->status = SQ_STATUS_EDITING;
-					else $this->status = SQ_STATUS_UNDER_CONSTRUCTION;
+					} else if (($this->status & SQ_STATUS_PENDING) && in_array($current_userid, $publishers)) {
+						// we are currently in workflow and someone has decide
+						// to reject the changes and cancel the workflow
+						if ($this->status == SQ_STATUS_EDITING_APPROVAL) $this->status = SQ_STATUS_EDITING;
+						else $this->status = SQ_STATUS_UNDER_CONSTRUCTION;
 
-					if (!$wfm->cancel()) {
-						trigger_error('Workflow cancel failed', E_USER_WARNING);
-						$this->status = $old_status;
-					} else {
-						// send an internal message
-						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-						$body = 'User "'.$user->name.'" has rejected the changes made to '.$this->type().' "'.$this->name.'". The status of "'.$this->name.'" has reverted to '.$this->getStatusDescription();
-						$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Asset Changes Rejected', $body);
+						if (!$wfm->cancel()) {
+							trigger_error('Workflow cancel failed', E_USER_WARNING);
+							$this->status = $old_status;
+						} else {
+							// send an internal message
+							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+							$body = 'User "'.$user->name.'" has rejected the changes made to '.$this->type().' "'.$this->name.'". The status of "'.$this->name.'" has reverted to '.$this->getStatusDescription();
+							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Asset Changes Rejected', $body);
+						}
 					}
 				}
 				break;
@@ -3597,7 +3665,7 @@ class Asset extends Resolve_Object
 	*
 	* @param array		$assetids	an array of user_group and/or user ids to check for write access
 	*								If the array is empty, the current user will be checked
-	* @param boolean	$effective	effective access baed on locking and status
+	* @param boolean	$effective	effective access based on locking and status
 	*
 	* @return boolean
 	* @access public
@@ -3615,7 +3683,7 @@ class Asset extends Resolve_Object
 	*
 	* @param array		$assetids	an array of user_group and/or user ids to check for write access
 	*								If the array is empty, the current user will be checked
-	* @param boolean	$effective	effective access baed on locking and status
+	* @param boolean	$effective	effective access based on locking and status
 	*
 	* @return boolean
 	* @access public
@@ -3634,10 +3702,12 @@ class Asset extends Resolve_Object
 	* user can edit the asset without going through a safe edit
 	* NOTE: will return false if asset is not currently live
 	*
+	* @param boolean	$effective	effective access based on locking and status
+	*
 	* @return boolean
 	* @access public
 	*/
-	function liveEditAccess()
+	function liveEditAccess($effective=true)
 	{
 		if (!$this->id) return true;
 		if ($this->status != SQ_STATUS_LIVE) return true;
@@ -3648,13 +3718,13 @@ class Asset extends Resolve_Object
 		if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
 			// no workflow set for this asset at all, so anyone with admin
 			// access can live edit the asset
-			return $this->checkAccess(SQ_PERMISSION_ADMIN, Array(), true);
+			return $this->checkAccess(SQ_PERMISSION_ADMIN, Array(), $effective);
 		}
 
 		// if there is workflow defined for this asset, the current user
 		// must be the only concerned user to be able to live edit
 		$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
-		if ($status == 'complete') return $this->checkAccess(SQ_PERMISSION_WRITE, Array(), true);
+		if ($status == 'complete') return $this->checkAccess(SQ_PERMISSION_WRITE, Array(), $effective);
 
 		return false;
 	}//end liveEditAccess()

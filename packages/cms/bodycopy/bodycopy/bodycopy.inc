@@ -58,7 +58,7 @@ class Bodycopy extends Asset
 		$output = ereg_replace($e, $with.'\\2', $output);
 
 		// save the contents of the bodycopy
-		if (!string_to_file($output, $this->data_path.'/.sq_system/content_file.php')) {
+		if (!string_to_file($output, $this->data_path.'/.sq_system/.content_file.php')) {
 			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create content file', E_USER_WARNING);
 			return false;
 		}
@@ -181,7 +181,7 @@ class Bodycopy extends Asset
 	function printBody()
 	{
 		if ($this->useSystemVersion()) {
-			if (file_exists($this->data_path.'/content_file.php')) {
+			if (file_exists($this->data_path.'/.content_file.php')) {
 				// create an array of urls that the content file is
 				// going to try and use to work out file urls, link hrefs etc
 				$sq_asset_url_list = Array();
@@ -194,7 +194,7 @@ class Bodycopy extends Asset
 					$sq_asset_url_list[$assetid] = $href;
 				}
 
-				include($this->data_path.'/content_file.php');
+				include($this->data_path.'/.content_file.php');
 			}
 		} else {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;

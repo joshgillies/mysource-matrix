@@ -166,7 +166,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			// firstly, if the current user does not have access to
 			// live edit then they cant do anything
-			if ($owner->status == SQ_STATUS_LIVE && !$owner->liveEditAccess()) {
+			if ($owner->status == SQ_STATUS_LIVE && !$owner->liveEditAccess(false)) {
 				$write_access = false;
 				if (!empty($lock)) {
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
@@ -205,7 +205,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				}
 			} else if ($full_write_access) {
 				$write_access = false;
-				if ($owner->liveEditAccess()) {
+				if ($owner->liveEditAccess(false)) {
 					submit_button('sq_aquire_lock', 'Aquire Lock');
 				} else {
 					echo 'You cannot aquire a lock at this time as you do not have access to live edit "'.$owner->name.'".';

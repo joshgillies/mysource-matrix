@@ -71,7 +71,7 @@ class Bodycopy_Table extends Asset
 	* @param int	$real_status	the new status is not always the status that gets
 	*								set because of workflow and other things, so this
 	*								status represents the actual status that will be set
-	*								if know (will only be know if this function was called
+	*								if known (will only be know if this function was called
 	*								from a dependant parent)
 	*
 	* @return boolean
@@ -90,6 +90,7 @@ class Bodycopy_Table extends Asset
 		// if we have just gone live from safe editing, we need to
 		// create our notice links again so we dont have leftovers from
 		// when we were safe editing and thus not deleting links we removed
+		// Same thing goes cancelling a safe edit (going back to live)
 		if ($this->status == SQ_STATUS_LIVE && ($old_status & SQ_STATUS_SAFE_EDITING)) {
 			$edit = $this->getEditFns();
 			if (!$edit->generateContentFile($this)) {

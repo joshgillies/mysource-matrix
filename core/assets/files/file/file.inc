@@ -86,13 +86,44 @@ class File extends Asset
 
 
 	/**
+	* Replaces the editing version with the system (live) version
+	*
+	* @return boolean
+	* @access public
+	*/
+	function revertToSystemVersion()
+	{
+		// pretend we are uploading a file because we may be
+		// changing the name of the file
+		$this->_tmp['uploading_file'] = true;
+		if (!parent::revertToSystemVersion()) {
+			$this->_tmp['uploading_file'] = false;
+			return false;
+		}
+		$this->_tmp['uploading_file'] = false;
+
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// clear the restricted data directory to get rid of the new
+		// uploaded file we had there
+		if (!clear_directory($this->data_path)) {
+			trigger_error('Failed reverting file "'.$this->name.'" to system version, could not clear restricted data directory', E_USER_WARNING);
+			return false;
+		}
+
+		return true;
+
+	}//end revertToSystemVersion()
+
+
+	/**
 	* Processes the changes required when a new status is set
 	*
 	* @param int	$new_status		the new status to set for this asset
 	* @param int	$real_status	the new status is not always the status that gets
 	*								set because of workflow and other things, so this
 	*								status represents the actual status that will be set
-	*								if know (will only be know if this function was called
+	*								if known (will only be know if this function was called
 	*								from a dependant parent)
 	*
 	* @return boolean
@@ -111,10 +142,14 @@ class File extends Asset
 			return false;
 		}
 
-		// if we have just gone live from safe editing, we need to
-		// move the latest version of the file to the unrestricted
-		// directory to make it live
-		if ($this->status == SQ_STATUS_LIVE && ($old_status & SQ_STATUS_SAFE_EDITING)) {
+		if ($this->status == SQ_STATUS_LIVE && $new_status == SQ_STATUS_UNDER_CONSTRUCTION) {
+			// if we have cancelled our safe edit, we need to put things
+			// back to how they were
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		} else if ($this->status == SQ_STATUS_LIVE && ($old_status & SQ_STATUS_SAFE_EDITING)) {
+			// if we have just gone live from safe editing, we need to
+			// move the latest version of the file to the unrestricted
+			// directory to make it live
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			
 			// clear out our unrestricted data directory
