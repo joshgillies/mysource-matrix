@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.25 2003/10/13 07:27:46 brobertson Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.26 2003/10/13 09:51:50 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -172,40 +172,6 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
-	* Returns a default contents for the passed type (either 'page' or 'divider')
-	* Used when there is no contents supplied in parse file
-	*
-	* @param object Asset	$asset		the asset to which we belong
-	* @param string	$content_type	either 'page' or 'divider'
-	*
-	* @return Array()
-	* @access private
-	* @see _processContents();
-	*/
-	function _getDefaultContents(&$asset, $content_type)
-	{
-		$parent_types = $asset->getTypeAncestors(false);
-		array_unshift($parent_types, $asset->type());
-		for($i = 0, $total = count($parent_types); $i < $total; $i++) {
-
-			$file = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($parent_types[$i], 'dir').'/default_'.$content_type.'_contents.html';
-			if (file_exists($file)) {
-				require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-				$contents = $this->_parseString(file_to_string($file));
-				return $contents;
-			}//	end if
-
-			// we don't need to go any higher than this class
-			if ($parent_types[$i] == 'design_area_menu_type') break;
-
-		}// end for
-
-		return Array();
-
-	}// end _getDefaultContents()
-
-
-	/**
 	* Takes the contents for the sub menu element and attempts to process it,
 	* is a separate fn to allow menu types that don't want to allow sub menu's to override
 	*
@@ -253,6 +219,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		return true;
 
 	}// end _processSubMenu()
+
 
 	/**
 	* Used by _outputContents() to deal with a print tag
@@ -323,6 +290,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 		}// end switch
 
 	}// end _outputElement()
+
 
 }//end class
 
