@@ -244,6 +244,18 @@ function sq_web_path($path='base')
 }// end sq_web_path()
 
 /**
+* Returns the current URL for this page, including the protocol
+*
+* @param bool	$inc_protocol	include the protocol in the return var
+*
+* @return string
+*/
+function current_url($inc_protocol=true)
+{
+	return (($inc_protocol) ? current_protocol().'://' : '').$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+}// end current_url()
+
+/**
 * Returns the current http protocol in use for this page
 *
 * @return string
