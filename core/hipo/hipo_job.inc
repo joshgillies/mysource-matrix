@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.46 2004/06/18 03:42:30 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.47 2004/06/25 04:05:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -647,7 +647,7 @@ class HIPO_Job extends MySource_Object
 		$null = null; // because we need to return by ref
 		return $null;
 
-	}//end _getSubJob();
+	}//end _getSubJob()
 
 
 	/**
@@ -660,7 +660,7 @@ class HIPO_Job extends MySource_Object
 	{
 		return $this->_hipo_vars['initialise_mode'];
 
-	}//end getInitialiseMode();
+	}//end getInitialiseMode()
 
 	
 	/**
@@ -693,7 +693,7 @@ class HIPO_Job extends MySource_Object
 			return false;
 		}
 
-	}//end setRunningMode();
+	}//end setRunningMode()
 
 
 	/**
@@ -706,7 +706,7 @@ class HIPO_Job extends MySource_Object
 	{
 		return $this->_hipo_vars['running_mode'];
 
-	}//end getRunningMode();
+	}//end getRunningMode()
 
 
 	/**
@@ -770,7 +770,7 @@ class HIPO_Job extends MySource_Object
 
 		return $this->_hipo_vars['current_step'];
 
-	} // end getNextStep()
+	}//end getNextStep()
 
 
 	/**
@@ -788,7 +788,7 @@ class HIPO_Job extends MySource_Object
 		
 		return true;
 	
-	} // end skipStep()
+	}//end skipStep()
 
 
 	/**
@@ -837,27 +837,21 @@ class HIPO_Job extends MySource_Object
 		}
 
 		if ($step_data) {
-
 			if (!empty($this->_steps[$step]['function_call'])) {
 				$fn = (empty($this->_steps[$step]['function_call']['paint_function'])) ? 'paintStepDefault' : $this->_steps[$step]['function_call']['paint_function'];
 				$prefix = $this->code_name.'step'.$step;
 				$this->$fn($this->_steps[$step], $o, $prefix);
-
-			} elseif (!empty($step_data['hipo_job'])) {
-
+			} else if (!empty($step_data['hipo_job'])) {
 				$sub_job = &$this->_getSubJob();
 				if (!is_null($sub_job)) {
 					$o->closeRaw();
 						$sub_job->paint($o, true);
 					$o->openRaw();
-				}// end if
-
+				}
 			} else {
 				trigger_error('Step '.$this->_hipo_vars['current_step'].' does not have any processing ability specified', E_USER_WARNING);
-
-			}// end if
-
-		}// end if
+			}
+		}//end if
 
 	}//end paint()
 
@@ -945,8 +939,7 @@ class HIPO_Job extends MySource_Object
 					// return here because we don't want to save and override the DB value now that it's running 
 					// on the server
 					return $ret_val;
-
-					break;
+				break;
 
 				// We are currently running on the server, but this step needs web processing
 				// let's reset the running mode and get out of here
@@ -954,8 +947,7 @@ class HIPO_Job extends MySource_Object
 					// if we have reached a new step, that uses a different running mode to ourselves, then change our running mode
 					pre_echo(__FUNCTION__."::".__LINE__.">>>>>>>>>>>>>>>>> RESET RUNNING MODE TO web <<<<<<<<<<<<<<<<<<<");
 					return $this->setRunningMode('web');
-
-					break;
+				break;
 
 				default :
 					trigger_error('Unknown Running Mode "'.$this->_steps[$step]['running_mode'].'"', E_USER_WARNING);

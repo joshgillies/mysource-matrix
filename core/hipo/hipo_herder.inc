@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.40 2004/06/22 00:21:46 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.41 2004/06/25 04:05:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -242,7 +242,7 @@ class HIPO_Herder extends MySource_Object
 		}
 		
 		// if this job is completed but has errors, just paint the job to print the error
-		// report because we dont need the addtional content
+		// report because we dont need the additonal content
 		if (!is_null($source_job) && $source_job->complete() && !empty($source_job->_hipo_vars['errors'])) {
 			$o = &$this->getBackendOutputter();
 			$o->setFormData('main_form', '');
@@ -295,7 +295,7 @@ class HIPO_Herder extends MySource_Object
 		<script language="JavaScript" type="text/javascript">
 			function next_page() {
 				<?php echo $onload; ?>
-			}// end next_page()
+			}//end next_page()
 
 			function send_abort() {
 				if (ON_LOAD_TIME_OUT != null) {
@@ -313,7 +313,7 @@ class HIPO_Herder extends MySource_Object
 					}
 					?>
 				}
-			}// end send_abort()
+			}//end send_abort()
 		</script>
 		<?php
 	
@@ -361,8 +361,8 @@ class HIPO_Herder extends MySource_Object
 						$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
 					}
 
-				// we are aborting from the server
 				} else {
+					// we are aborting from the server
 
 					hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
 					hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
@@ -402,7 +402,7 @@ class HIPO_Herder extends MySource_Object
 					</table>
 					</p>
 					<?php
-				}// end if
+				}//end if
 				?>
 				</td>
 			</tr>
