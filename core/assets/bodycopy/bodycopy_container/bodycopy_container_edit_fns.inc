@@ -19,13 +19,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.10 2004/05/26 07:18:40 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.11 2004/07/19 00:42:22 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
 
 /**
 * Bodycopy_Container_Edit_Fns
@@ -162,7 +163,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	function processContainer(&$asset, &$o, $prefix, $bc_action, $bc_name, $bc_data, $bc_saved)
 	{
 		$updated = false;
-
+		
 		// save any changed attributes
 		if (!empty($bc_data[$prefix][$asset->id]['attributes']) || !empty($bc_saved[$prefix][$asset->id]['attributes'])) {
 			$attributes_updated = false;
@@ -177,6 +178,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 			if (isset($bc_saved[$prefix][$asset->id]['attributes'])) {
+				
 				foreach($bc_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
 					if ($name == 'identifier') {
 						if ($asset->setAttrValue('name', $value)) $updated = true;
@@ -292,6 +294,363 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 	
 	}//end _contentsUpdated()
 
+	
+	/**
+	* When this bodycopycontainer is painted on its own without being a part
+	* of the 'contents' of a bodycopy, draw the editing info by itself. Most of
+	* the code is directly taken from the Bodycopy_Edit_Fns class as the 
+	* functionality is so similar. Perhaps going to aggregate it out to 
+	* a separate class though once it is understood better.
+	* 
+	* @param object Bodycopy			&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean 
+	* @access public
+	*/
+	function paintBodycopyContainer(&$asset, &$o, $prefix)
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+		// if there's a preview url set for this asset, get the design info for
+		// it.
+		if (isset($GLOBALS['sq_preview_url']) && !empty($GLOBALS['sq_preview_url'])) {
+			$url = $GLOBALS['sq_preview_url'];
+			$url = preg_replace('|^http[s]?://|', '', $url);
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$sql = 'SELECT designid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ';
+			$where = 'url='.$db->quote($url);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+			$designid = $db->getOne($sql.$where);
+			if ($designid) {
+				if (DB::isError($designid)) {
+					trigger_error($designid->getMessage().'<br/>'.$designid->getUserInfo(), E_USER_ERROR);
+				} else if (!SQ_IN_LIMBO) {
+					$design = &$am->getAsset($designid);
+					$stylesheets = $design->getStylesheets();
+
+					// save the ids of all the css files into a global var so the wysiwyg style
+					// drop down plugin can access this information without another querey
+					// we can also limit the stylesheets that are available to it here if we want
+					$GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
+
+					$css_urls = $am->getAssetURL($GLOBALS['sq_bodycopy_cssids']);
+					?>
+					<style type="text/css">
+						/* import styles from the design for this asset */
+						<?php
+						foreach ($css_urls as $cssid => $css_url) {
+							?>@import url("<?php echo $css_url; ?>");<?php
+						}
+						?>
+					</style>
+					<?php
+					$am->forgetAsset($design);
+					unset($design);
+				}
+			} else {
+				?>
+				<p class="sq-backend-notice"><b>NOTE:</b> This asset does not have a design applied to it for the URL currently being edited [<b><?php echo $GLOBALS['sq_preview_url']; ?></b>]. No style information is available to use for content editing.</p>
+				<?php
+			}
+		} else {
+			?>
+			<p class="sq-backend-notice"><b>NOTE:</b> This asset does not have a preview URL or design applied to it in this context. No style information is available to use for content editing.</p>
+			<?php
+		}
+
+		// if there's no write access to the content
+		if (!$asset->writeAccess('content')) {
+			if ($asset->useSystemVersion()) {
+				$asset->printBody();
+			} else {
+				$this->paintContainer($asset, $o, $prefix);
+			}
+			return false;
+		}
+
+		// the initial width and height to have the layer display created at;
+		$init_layer_width  = 500;
+		$init_layer_height = 500;
+
+		// all available content types
+		$content_types = array();
+		$types = $am->getAssetTypeHierarchy('content_type');
+		foreach ($types as $type => $type_data) $content_types[$type] = array('name' => $type_data['name']);
+
+		?>
+		<input type="hidden" name="bodycopy_action" value="">
+		<input type="hidden" name="bodycopy_name"   value="">
+		<input type="hidden" name="bodycopy_data"   value="">
+
+		<script language="JavaScript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js'?>"	></script>
+		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/detect.js';?>"					></script>
+		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/layer_handler.js';?>"				></script>
+		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/general.js';?>"					></script>
+		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/debug.js';?>"						></script>
+		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/tooltips.js';?>"					></script>
+		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js';?>"			></script>
+
+		<script language="JavaScript" type="text/javascript">
+			// this is an array of data that each element (divs, tables, rows, and cells)
+			// can place data for use in editing
+			var bodycopy_current_data = new Object();
+			var bodycopy_saved        = new Object();
+
+			// this is an object that gets set everytime something is getting edited
+			// (as apposed to inserted or deleted) so that the pop-ups can get the info once
+			// they have loaded themselves
+			var bodycopy_current_edit = new Object();
+			bodycopy_current_edit["data"] = null;
+			bodycopy_current_edit["bodycopy_name"] = null;
+
+			var bodycopy_initialised = false;	// true once init() has been run
+			var bodycopy_popup = null;			// pointer to the popup Layer_Handler Object
+			var bodycopy_popup_visible = false;	// boolean indicating whether the popup is visisble ( not access directly )
+			var bodycopy_nested_doc = null;		// pointer to the Netscape Layer or the IE Iframe
+
+			// initialise the popup
+			function bodycopy_init() {
+				bodycopy_popup   = new Layer_Handler("bodycopyPopupDiv", 0,<?php echo $init_layer_width?>,<?php echo $init_layer_height?>,0);
+				set_bodycopy_nested_doc();
+				bodycopy_hide_popup();
+				bodycopy_initialised = true;
+				bodycopy_otheronload();
+			}
+
+			var bodycopy_otheronload = (window.onload) ? window.onload :  new Function;
+			window.onload = bodycopy_init;
+
+			// generic function used everywhere to send the form
+			function bodycopy_submit(bodycopy_action, bodycopy_name, bodycopy_data) {
+				var form = document.main_form;
+
+				form.bodycopy_action.value = bodycopy_action;
+				form.bodycopy_name.value   = bodycopy_name;
+
+				// pack up the passed object
+				form.bodycopy_data.value = var_serialise(bodycopy_data);
+
+				// need to call the onsubmit event explicitly or it will
+				// not get called when we do a form.submit()
+				form.onsubmit();
+				form.submit();
+			}// end bodycopy_submit()
+
+			function set_bodycopy_nested_doc() {
+				if (is_ie4up) {
+					bodycopy_nested_doc = bodycopyFrame;
+				} else if (is_dom) {
+					bodycopy_nested_doc = document.getElementById("bodycopyFrame");
+				} else {
+					bodycopy_nested_doc = bodycopy_popup.layer;
+				}//end if
+			}
+
+			function get_bodycopy_popup_visibilty() {
+				return bodycopy_popup_visible;
+			}
+
+			function bodycopy_show_popup(file, width, height) {
+				if (!bodycopy_initialised) {
+					if (confirm('You were too quick off the mark, the page is not loaded yet. Do you want to reload the page?')) {
+						document.edit.action.value='';
+						document.edit.submit()
+					}
+					return;
+				}
+
+				var w = (width  != null) ? width  : 500;
+				var h = (height != null) ? height : 400;
+				var border = 15;
+				var top_offset = 20;
+
+				var page_w = (is_nav4 || is_gecko) ? w - 17 : w;
+				var page_h = (is_nav4 || is_gecko) ? h - 17 : h;
+
+				file  = '<?php echo $asset->getBackendHref('show_popup');?>' + '&popup_file=' + file;
+				file += '&page_width=' + page_w;
+				file += '&page_height=' + page_h;
+				file += '&body_extra=';
+				file += '&browser=' + ((is_dom) ? "dom" : ((is_ie4up) ? "ie" : "ns"));
+
+				bodycopy_popup.w = w;
+				bodycopy_popup.h = h;
+				bodycopy_popup.clip(null, w, h, null);
+				bodycopy_popup_visible = true;
+
+				if (is_ie4up) {
+					// %!%#, frameElement is IE 5.5 only
+					bodycopy_nested_doc.width  = w - border;
+					bodycopy_nested_doc.height = h - border;
+					bodycopy_nested_doc.location = file;
+				} else if (is_dom) {
+					bodycopy_nested_doc.width  = w - border;
+					bodycopy_nested_doc.height = h - border;
+					bodycopy_nested_doc.src = file;
+				} else {
+					bodycopy_nested_doc.clip.right     = w - border;
+					bodycopy_nested_doc.clip.width     = w - border;
+					bodycopy_nested_doc.clip.height    = h - border;
+					bodycopy_nested_doc.clip.bottom    = h - border;
+					bodycopy_nested_doc.load(file, w - 5);
+				}
+
+				// how far down the page we want to display this popup
+				var scroll_top  = ((is_ie4up) ? document.body.scrollTop  : self.pageYOffset);
+				bodycopy_popup.move(null, scroll_top + top_offset);
+				bodycopy_popup.show();
+			}// end bodycopy_show_popup()
+
+			function bodycopy_hide_popup() {
+				if (!bodycopy_initialised) { return; }
+				bodycopy_show_popup("blank.php");
+				bodycopy_popup_visible = false;
+				bodycopy_popup.hide();
+			}// end bodycopy_hide_popup()
+
+			// get the available cell types
+			var BODYCOPY_AVAILABLE_CONTENT_TYPES = null;
+			function get_bodycopy_available_content_types() {
+				if (BODYCOPY_AVAILABLE_CONTENT_TYPES == null) {
+					BODYCOPY_AVAILABLE_CONTENT_TYPES = var_unserialise('<?php echo var_serialise($content_types, true)?>');
+				}
+				return BODYCOPY_AVAILABLE_CONTENT_TYPES;
+			}
+
+			function bodycopy_data_exists(args) {
+				var str = 'bodycopy_saved';
+				for(var i = 0; i < args.length; i++) {
+					switch(typeof(args[i])) {
+						case "number" :
+							str += '[' + args[i] + ']';
+						break;
+						default :
+							str += '["' + args[i] + '"]';
+					}
+					eval('var exists = (' + str + ') ? true : false;');
+					if (!exists) return false;
+				}
+				return true;
+			}
+
+			function bodycopy_chgColor(id, colour) {
+				if (is_dom) {
+					var chgcell
+					if (!colour) { colour = '559AE7'; }
+					chgcell = "document.getElementById('"+ id + "').style.backgroundColor = '#"+ colour +"'";
+					eval(chgcell);
+				}
+			}
+
+			function bodycopy_insert_container(bodycopy_name, containerid, before) {
+				var form = document.main_form;
+				var container_type = form_element_value(form.<?php echo $prefix; ?>_insert_container_type);
+				eval('bodycopy_insert_' + container_type + '("' + bodycopy_name + '", ' + containerid + ', ' + before + ');');
+			}
+
+			bodycopy_current_data["<?php echo $prefix?>"] = new Object();
+		</script>
+
+		<?php
+		// print JS functions for each of the container types we have installed
+		$container_types = $am->getAssetTypeHierarchy('bodycopy_container');
+		foreach ($container_types as $type => $type_data) {
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
+			$type_asset = new $type();
+			$edit_fns = $type_asset->getEditFns();
+			$edit_fns->paintGenericBackend($asset, $o, $prefix);
+		}
+
+		$container_type_options = Array();
+		$default = '';
+		foreach ($container_types as $type => $type_data) {
+			$code = strtolower(substr($type,9));
+			$container_type_options[$code] = ucfirst(substr($type,9));
+			if (empty($default)) $default = $code;
+		}
+		echo hidden_field($prefix.'_insert_container_type', $default);
+		?>
+
+		<style type="text/css">
+			#bodycopyPopupDiv {
+				color: #fffff;
+				position:absolute;
+				left:100;
+				top:120;
+				width:<?php echo $init_layer_width?>;
+				height:<?php echo $init_layer_height?>;
+				clip:rect(0,600,600,0);
+				visibility: hidden;
+			}
+			#bodycopyToolTipDiv {
+				position:absolute;
+				width:  1px;
+				height: 1px;
+				visibility: hidden;
+			}
+		</style>
+
+		<!-- Begin Tooltip -->
+		<div id="bodycopyToolTipDiv" style="z-index:1000"></div>
+		<!-- End Tooltip -->
+
+		<!-- Begin Popup -->
+		<div id="bodycopyPopupDiv" style="z-index:1001">
+			<iframe name="bodycopyFrame" id="bodycopyFrame" scrolling="no" width="<?php echo $init_layer_width?>" height="<?php echo $init_layer_height?>" marginwidth=0 marginheight=0 frameborder="no"></iframe>
+		</div>
+		<!-- End Popup -->
+
+		<table border="0" cellspacing="0" cellpadding="0" width="100%" class="bodytext">
+			<tr>
+				<td>
+					<input type="hidden" name="bodycopy_saved[<?php echo $prefix?>][<?php echo $asset->id?>]" value="">
+					<?php $this->paintContainer($asset, $o, $prefix); ?>
+				</td>
+			</tr>
+		</table>
+		<?php
+
+		return true;
+	}//end paintBodycopyDiv
+	
+	
+	/**
+	* When this bodycopy_container is painted on its own without being a part
+	* of the 'contents' of a bodycopy, process it separately than normal.
+	* 
+	* @param
+	* @return void
+	* @access public
+	*/
+	function processBodycopyContainer(&$asset, &$o, $prefix)
+	{
+		$updated = false;
+		$bc_action = (empty($_POST['bodycopy_action'])) ? ''      : $_POST['bodycopy_action'];
+		$bc_name   = (empty($_POST['bodycopy_name']))   ? ''      : $_POST['bodycopy_name'];
+		$bc_data   = (empty($_POST['bodycopy_data']))   ? Array() : $_POST['bodycopy_data'];
+		$bc_saved  = (empty($_POST['bodycopy_saved']))  ? Array() : $_POST['bodycopy_saved'];
+		
+		// unserialize the data for a bodycopy.
+		for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
+			$containers = &$bc_saved[$k];
+			for (reset($containers); NULL !== ($containersid = key($containers)); next($containers)) {
+				$containers[$containersid] = var_unserialise($containers[$containersid]);
+			}
+		}
+		
+		unset($containers);
+			
+		if ($this->processContainer($asset, $o, $prefix,$bc_action, $bc_name, $bc_data, $bc_saved)) {
+			if ($asset->saveAttributes()) $updated = true;
+		}
+		return $updated;
+		
+	}//end paintBodycopyDiv
+	
 
 }//end class
 
