@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.149 2003/10/21 23:47:28 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.150 2003/10/22 01:04:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2774,8 +2774,8 @@ class Asset_Manager extends MySource_Object
 	* If any of the detail vars are NULL they are not updated.
 	*
 	* @param int	$linkid		the link id of the link to update
-	* @param int	$link_type	the type of the linke (one of the SQ_LINK_* constants)
-	* @param string $value
+	* @param int	$link_type	the type of the link (one of the SQ_LINK_* constants)
+	* @param string $value		the value to place on the link
 	* @param int	$sort_order	the position in the links list that this link should take,
 	*							if less than zero places at end of list
 	*
