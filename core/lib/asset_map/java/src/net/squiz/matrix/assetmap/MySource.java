@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MySource.java,v 1.7 2004/06/30 05:33:28 mmcintyre Exp $
+* $Id: MySource.java,v 1.8 2004/09/24 04:13:44 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,10 +71,10 @@ public class MySource {
 	//	String execPath = "http://192.168.0.2/marc_matrix/?SQ_ACTION=asset_map_request";
 
 		String basePath = am.getParameter("BASE_URL");
-		String execPath = basePath + am.getParameter("BACKEND_SUFFIX") + "/?SQ_ACTION=asset_map_request";
-		
-		System.out.println(am.getParameter("BASE_URL"));
-		
+		String execPath = basePath + am.getParameter("BACKEND_SUFFIX") 
+			+ "/?SQ_ACTION=asset_map_request&SESSION_ID=" 
+			+ am.getParameter("SESSION_ID") + "&SESSION_KEY=" + am.getParameter("SESSION_KEY");;
+
 		try {
 			baseURL = new URL(basePath);
 			execURL = new URL(execPath);
@@ -115,7 +115,7 @@ public class MySource {
 			conn.setDoOutput(true);
 			
 			// Grows if necessary
-			ByteArrayOutputStream byteStream = new ByteArrayOutputStream(512); 
+			ByteArrayOutputStream byteStream = new ByteArrayOutputStream(512);
 			PrintWriter out = new PrintWriter(byteStream, true);
 			String postData = request;
 			out.print(postData);
