@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.6 2004/11/17 00:15:59 amiller Exp $
+* $Id: news_item.inc,v 1.7 2004/12/03 16:00:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: import_files.php,v 1.2 2004/12/03 15:42:39 brobertson Exp $
+* $Id: import_files.php,v 1.3 2004/12/03 15:59:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.5 2004/12/03 15:43:04 brobertson Exp $
+* $Id: csv.inc,v 1.6 2004/12/03 16:00:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

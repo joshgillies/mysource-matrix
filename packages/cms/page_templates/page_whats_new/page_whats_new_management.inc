@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_management.inc,v 1.5 2004/11/18 05:12:48 gsherwood Exp $
+* $Id: page_whats_new_management.inc,v 1.6 2004/12/03 16:00:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 

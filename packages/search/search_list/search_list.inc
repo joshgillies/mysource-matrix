@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.2 2004/11/18 05:10:22 gsherwood Exp $
+* $Id: search_list.inc,v 1.3 2004/12/03 16:00:59 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
