@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.47 2003/11/26 00:51:09 gsherwood Exp $
+* $Id: asset_management.inc,v 1.48 2004/02/10 04:14:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -73,10 +73,9 @@ class Asset_Management extends MySource_Object
 	*/
 	var $vars;
 
-
 	/**
 	* @var array
-	* Holds all the searchable components for this assets. 
+	* Holds all the searchable components for this assets.
 	* Array (component_name => Array(
 	*				'description'		=> 'description',
 	*				'default_weighting' => '1'
@@ -84,6 +83,7 @@ class Asset_Management extends MySource_Object
 	* )
 	*/
 	var $components;
+
 
 	/**
 	* Constructor
@@ -100,7 +100,7 @@ class Asset_Management extends MySource_Object
 			'name' => Array (
 				'description'		=> 'Name',
 				'default_weighting'	=> '-1',
-			), 	
+			),
 		);
 
 	}//end constructor
@@ -237,7 +237,7 @@ class Asset_Management extends MySource_Object
 			$name =& $all_vars[$k];
 			if (!$this->_addAttribute($name)) return false;
 		}
-		
+
 		// now add the component weightings
 		$this->_setComponentWeightings($this->components);
 
@@ -344,7 +344,7 @@ class Asset_Management extends MySource_Object
 
 	/**
 	* returns a list of events that this asset is listening for
-	* 
+	*
 	* @access public
 	* @return Array(mixed)
 	*/
@@ -768,9 +768,9 @@ class Asset_Management extends MySource_Object
 
 	/**
 	*  Sets the default weightings for this asset type's components
-	* 
+	*
 	* @param array The component weightings.
-	* 
+	*
 	* @access private
 	* @return void
 	*/
@@ -780,7 +780,7 @@ class Asset_Management extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		// clear all weightings for this type_code
-		$sql = 'DELETE FROM '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default 
+		$sql = 'DELETE FROM '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default
 				WHERE type_code = ' . $db->quote($type_code) ;
 
 		$db->query($sql);
@@ -789,11 +789,11 @@ class Asset_Management extends MySource_Object
 
 			$sql = 'INSERT INTO '. SQ_TABLE_PREFIX .'asset_indexing_weightings_default
 					(type_code, component, description, weighting)
-					VALUES (' . 
+					VALUES (' .
 						$db->quote($type_code)					. ', ' .
 						$db->quote($component)					. ', ' .
 						$db->quote($weighting['description'])	. ', ' .
-						$db->quote($weighting['default_weighting']) . 
+						$db->quote($weighting['default_weighting']) .
 					')';
 			$db->query($sql);
 
