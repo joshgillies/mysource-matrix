@@ -161,7 +161,7 @@ class Design extends Design_Area
 		}
 
 		// special processing if we are creating a TYPE_2 linked file (a file inherited by customisations)
-		if ($link_type == SQ_LINK_TYPE_2 && is_a($minor, 'file')) {
+		if (is_a($minor, 'file')) {
 
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 
@@ -221,7 +221,7 @@ class Design extends Design_Area
 		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['type_code']);
 
 		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
-		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && is_a($minor, 'file')) {
+		if (is_a($minor, 'file')) {
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -304,6 +304,19 @@ class Design extends Design_Area
 		return $this->_tmp['design_areas'][$id_name];
 
 	}//end getDesignArea()
+
+
+	/**
+	* Returns the parent design/design_customisation that this customisation is customising
+	*
+	* @return mixed object Design or null
+	* @access public
+	*/
+	function &getParentDesign()
+	{
+		return $this;
+
+	}//end getParentDesign()
 
 
 	/**

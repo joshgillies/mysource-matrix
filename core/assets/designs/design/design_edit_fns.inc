@@ -535,8 +535,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$new_file->acquireLock();
 			$edit_fns = $new_file->getEditFns();
 			if ($edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info)) {
+				$new_file->releaseLock();
 				return true;
 			}
+			$new_file->releaseLock();
 		}
 
 		return false;
@@ -636,8 +638,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 		// link up all the files from this design to the customisation
+		$parent_design =& $asset->getParentDesign();
 		$file_link_ids = Array();
-		$file_links = $asset->getLinks(SQ_LINK_TYPE_2, 'file', false);
+		$file_links = $parent_design->getLinks(SQ_LINK_TYPE_2, 'file', false);
 		foreach ($file_links as $link) {
 			$minor = &$am->getAsset($link['minorid']);
 			if (!$dupe->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
