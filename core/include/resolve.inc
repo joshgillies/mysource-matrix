@@ -62,7 +62,14 @@ class Resolve
 	{
 	}// end constructor
 
-
+	/**
+	* This initialises all the objects that we need to use, the reason that we can't do this in the 
+	* constructor is that the Asset_Manager uses the DB in it's constructor in order to load the asset types
+	* but if initialise the Asset_Manager in our constructor we don't exist and therefore cannot be accessed
+	* to get the DB for the Asset_Manager to use
+	*
+	* @access public
+	*/
 	function init()
 	{
 		session_name('SQ_SYSTEM_SESSION');
@@ -79,20 +86,6 @@ class Resolve
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
 
-	}// end constructor
-
-
-	/**
-	* From here is where everything else happens, it starts the ball rolling
-	*
-	* @access public
-	*/
-	function start()
-	{
-		// initiailise event listeners
-		$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'] = array();
-		$GLOBALS['SQ_EVENT_LISTENERS'] = array();
-
 		// If there is a userid in the session then someone is logged in,
 		// but make sure that the person is coming from the same machine as they logged in on
 		// so get a reference to them
@@ -106,6 +99,21 @@ class Resolve
 		if (!empty($_GET['SQ_ACTION'])) {
 			$this->_processGlobalActions();
 		}//end if
+
+
+	}// end init()
+
+
+	/**
+	* From here is where everything else happens, it starts the ball rolling
+	*
+	* @access public
+	*/
+	function start()
+	{
+		// initiailise event listeners
+		$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'] = array();
+		$GLOBALS['SQ_EVENT_LISTENERS'] = array();
 
 		if (SQ_IN_BACKEND) {
 			if ($this->user) {
