@@ -231,3 +231,4 @@ TRANSACTIONS
 		- need to be able to know the current state of a file in file system transactions
 		- may need to create temporary file area while doing transaction
 		- will need to be able to 'abort' if the 'commit' fails
+
