@@ -18,12 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.27 2003/11/26 00:51:03 gsherwood Exp $
+* $Id: inbox_edit_fns.inc,v 1.28 2003/11/28 03:38:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 /**
 * Inbox_Edit_Fns
@@ -144,6 +145,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $sender_img; ?>", "16", "16", "");</script>
 						<a name="msg_<?php echo $data['messageid'];?>"></a>
 						&nbsp;<?php echo $data['from_name'];?>
+						<?php hidden_field($prefix.'_messages['.$data['messageid'].']', '1'); ?>
 					</td>
 					<td class="<?php echo $class ?>">
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_subject.png", "16", "16", "");</script>
@@ -157,17 +159,15 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_<?php echo (($data['status'] == SQ_MSG_UNREAD) ? 'un' : ''); ?>read.png", "16", "16", "");</script>&nbsp;
 						<?php
 						if ($asset->writeAccess('mail')) {
-							?>
-							<input type="checkbox" name="<?php echo $prefix.'_mark_as_read['.$data['messageid'].']'?>" value="1"<?php echo (($data['status'] == SQ_MSG_READ) ? ' checked' : '')?>>
-							<?php
+							check_box($prefix.'_mark_as_read['.$data['messageid'].']', '1', ($data['status'] == SQ_MSG_READ));
 						}
 						?>
 					</td>
 					<td class="<?php echo $class ?>" nowrap>
 						<?php
 						if ($asset->writeAccess('mail')) {
+							check_box($prefix.'_delete['.$data['messageid'].']');
 							?>
-							<input type="checkbox" name="<?php echo $prefix.'_delete['.$data['messageid'].']'?>" value="1">
 							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/delete.png", "16", "16", "");</script>
 							&nbsp;&nbsp;Delete<?php
 						} else {
@@ -251,6 +251,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processMail(&$asset, &$o, $prefix, $info=Array())
 	{
+		$msgs   = (isset($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array();
 		$read   = (isset($_POST[$prefix.'_mark_as_read'])) ? array_keys($_POST[$prefix.'_mark_as_read']) : Array();
 		$delete = (isset($_POST[$prefix.'_delete'])) ? array_keys($_POST[$prefix.'_delete']) : Array();
 
@@ -261,6 +262,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		if (!empty($messages)) {
 			foreach ($messages as $data) {
+				if (!in_array($data['messageid'], $msgs)) continue;
 				$message = $ms->getMessageById($data['messageid']);
 
 				// change message status (read/unread)
@@ -366,6 +368,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $sender_img; ?>", "16", "16", "");</script>
 						<a name="msg_<?php echo $data['messageid'];?>"></a>
 						&nbsp;<?php echo $data['from_name'];?>
+						<?php hidden_field($prefix.'_messages['.$data['messageid'].']', '1'); ?>
 					</td>
 					<td class="<?php echo $class ?>">
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_subject.png", "16", "16", "");</script>
@@ -377,18 +380,15 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					</td>
 					<td class="<?php echo $class ?>" nowrap>
 						<?php
-						if ($asset->writeAccess('mail')) {
-							?><input type="checkbox" name="<?php echo $prefix.'_recover['.$data['messageid'].']'?>" value="1"><?php
-						} else {
-							echo '&nbsp;';
-						}
+						if ($asset->writeAccess('mail')) check_box($prefix.'_recover['.$data['messageid'].']');
+						else echo '&nbsp;';
 						?>
 					</td>
 					<td class="<?php echo $class ?>" nowrap>
 						<?php
 						if ($asset->writeAccess('mail')) {
+							check_box($prefix.'_purge['.$data['messageid'].']');
 							?>
-							<input type="checkbox" name="<?php echo $prefix.'_purge['.$data['messageid'].']'?>" value="1">
 							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/delete.png", "16", "16", "");</script>
 							&nbsp;&nbsp;Purge<?php
 						} else {
@@ -471,6 +471,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processTrash(&$asset, &$o, $prefix, $info=Array())
 	{
+		$msgs    = (isset($_POST[$prefix.'_messages'])) ? array_keys($_POST[$prefix.'_messages']) : Array();
 		$recover = (isset($_POST[$prefix.'_recover'])) ? array_keys($_POST[$prefix.'_recover']) : Array();
 		$purge   = (isset($_POST[$prefix.'_purge'])) ? array_keys($_POST[$prefix.'_purge']) : Array();
 
