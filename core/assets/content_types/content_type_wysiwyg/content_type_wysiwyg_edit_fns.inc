@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.2 2003/12/08 05:47:49 gsherwood Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.3 2003/12/12 03:31:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -145,7 +145,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 			$wysiwyg = &$this->_createEditor($asset, $prefix);
 			?>
 			<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint(); ?></div>
-			<div id="<?php echo $prefix?>_contents_div"><?php echo $this->paint($asset, $prefix); ?></div>
+			<div id="<?php echo $prefix?>_contents_div"><?php echo $wysiwyg->contents ?></div>
 			<?php
 		}
 		return true;
@@ -181,13 +181,8 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paint(&$asset, $prefix, $generating=false)
 	{
-		if ($generating) {
-			$html = $asset->attr('html');
-			$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);
-		} else {
-			$wysiwyg = &$this->_createEditor($asset, $prefix);
-			$html = $wysiwyg->contents;
-		}
+		$html = $asset->attr('html');
+		$html = preg_replace('|(<htmlarea_special[^>]*?>)(.*?)(</htmlarea_special>)|si', '$2', $html);
 		echo $html;
 
 	}//end paint()
