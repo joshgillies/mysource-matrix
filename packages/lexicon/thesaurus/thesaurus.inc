@@ -18,20 +18,21 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.8 2005/03/21 06:27:44 gsherwood Exp $
+* $Id: thesaurus.inc,v 1.9 2005/03/22 22:01:40 tbarrett Exp $
 *
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Thesaurus
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
