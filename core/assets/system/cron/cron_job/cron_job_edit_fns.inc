@@ -120,7 +120,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 			if (count($hours_mins['mins']) > 1) {
 				$mins = Array('--' => '--');
 				foreach($hours_mins['mins'] as $i) $mins[$i] = $i;
-				combo_box($prefix.'_min', $mins, false, $when_arr['minute']);
+				combo_box($prefix.'_minute', $mins, false, $when_arr['minute']);
 			} else {
 				echo $hours_mins['mins'][0];
 				hidden_field($prefix.'_minute', $hours_mins['mins'][0]);
