@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.3 2004/05/28 07:00:51 lwright Exp $
+* $Id: assertions.inc,v 1.4 2004/05/31 23:12:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -408,7 +408,8 @@ function assert_valid_assetid($assetid, $msg='', $silent=false, $fatal=true)
 			// be assumed as int! This cast will make it string('0') which compares as FALSE
 			if ((string)$int_assetid == $assetid) {
 				// assetid is a standard integer
-				$valid = true;
+				// it's valid if it's positive, essentially
+				$valid = ($int_assetid > 0);
 			} else {
 				// assetid is a string - so it must be a shadow asset
 				if (preg_match('|^[0-9]+:.*$|', $assetid)) $valid = true;
