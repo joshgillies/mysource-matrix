@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.11 2004/06/23 23:34:20 gsherwood Exp $
+* $Id: search_manager.inc,v 1.12 2004/07/01 04:03:30 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.11 $ - 0.1
+* @version $Revision: 1.12 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -133,7 +133,7 @@ class Search_Manager extends Asset
 	*										Component is set as $vars['component']
 	*
 	* @return boolean
-	* @access private
+	* @access public
 	*/
 	function onRequestReindex(&$broadcaster, $vars=Array())
 	{
@@ -161,6 +161,24 @@ class Search_Manager extends Asset
 		return true;
 
 	}//end onRequireReindex()
+	
+	
+	/**
+	* Event fired when an asset gets deleted. We want to flush ank key data in the index table
+	*
+	* @param &object Asset	&$broadcaster	the asset that triggered the event
+	* @param Array		$vars		the vars that get submitted by the broadcaster
+	*					Component is set as $vars['component']
+	*
+	* @return void
+	* @access public
+	*/
+	function onAssetDeleted(&$broadcaster, $vars=Array())
+	{
+		if (is_null($broadcaster)) return;
+		$this->flushKeyData($broadcaster);
+	
+	}//end onAssetDeleted()
 	
 	
 	/**
@@ -367,7 +385,7 @@ class Search_Manager extends Asset
 	*										Asset ID is set as $vars['assetid']
 	*										Schema Asset IDs is set as $vars['schemaids']
 	*
-	* @access private
+	* @access public
 	* @return void
 	*/
 	function onIndexMetadata(&$broadcaster, $vars=Array())
