@@ -35,9 +35,18 @@ class Asset_Map
 	{
 		$backend->out->addJsInclude(sq_web_path('lib').'/asset_map/flashExternalCall.js');
 
+		$inbox_link = $GLOBALS['SQ_SYSTEM']->user->getLink(SQ_LINK_EXCLUSIVE, 'inbox');
+		if (empty($inbox_link)) {
+			$inbox_url = &$GLOBALS['SQ_SYSTEM']->user->getBackendHref();
+		} else {
+			$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['type_code']);
+			$inbox_url = $inbox_asset->getBackendHref('mail');
+		}
+		
 		$flash_vars = 'server_exec_path='.rawurlencode($backend->getBackendUrl('asset_map_request')).
 					  '&action_bar_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%').
 					  '&duplicate_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am&am_section=duplicate&assetid=%assetid%&to_parent_assetid=%to_parent_assetid%&to_parent_pos=%to_parent_pos%').
+					  '&inbox_path='.rawurlencode($inbox_url).
 					  '&url_frame=main';
 
 		?>
@@ -671,7 +680,7 @@ class Asset_Map
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$from = time() - (8 * 3600); // 8 hours ago
-		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), Array(SQ_MSG_UNREAD, SQ_MSG_READ), $from);
+		$messages = $ms->getMessages($GLOBALS['SQ_SYSTEM']->currentUserId(), Array(SQ_MSG_UNREAD, SQ_MSG_READ), $from, null, 'short_name');
 
 		error_log(array_contents($messages));
 
@@ -686,6 +695,7 @@ class Asset_Map
 			unset($attrs['userto']);
 			$msg_node = &$root->addChild('message', '', $attrs);
 			$msg_node->addChild('subject', strip_tags($messages[$i]['subject']));
+			$msg_node->addChild('from', strip_tags($messages[$i]['short_name']));
 			$msg_node->addChild('body', strip_tags($messages[$i]['body']));
 
 		}// endfor
