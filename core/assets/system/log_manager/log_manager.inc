@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.6 2005/03/24 05:35:59 arailean Exp $
+* $Id: log_manager.inc,v 1.7 2005/03/31 03:09:51 arailean Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -137,7 +137,7 @@ class Log_Manager extends Asset
 
 	/**
 	* Returns a list of all the logs and their details
-	* If an unregistered log is found in the log directory, this function will register it with default settings
+	* If an unregistered log is found in the log directory, this function will return it with default settings
 	* If no logs are found, an empty array will be returned
 	*
 	* Logs are returned in the following format:
@@ -172,14 +172,6 @@ class Log_Manager extends Asset
 			}
 
 		}
-
-		// enter forced run level, as not everything has write privileges to log_manager's attributes
-		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
-
-		$this->setAttrValue('logs', $logs);
-		$this->saveAttributes();
-
-		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 		return $logs;
 
@@ -366,9 +358,11 @@ class Log_Manager extends Asset
 		$user = str_replace('&#93;', ']', $user);
 		$user = str_replace('&#58;', ':', $user);
 		$user = str_replace('&#10;', "\n", $user);
+		$data = str_replace('&#13;', "\r", $user);
 
 		$data = $matches[7];
 		$data = str_replace('&#10;', "\n", $data);
+		$data = str_replace('&#13;', "\r", $data);
 
 		$decoded_line = Array(
 							  'userid' => $matches[2],
