@@ -18,27 +18,22 @@ class Asset_Edit_Fns extends Resolve_Object
 	* An array of tab code names and their display names
 	* @var Array()
 	*/
-	var $tabs = Array(	'details'     => Array('name' => 'Details',
-											   'icon' => 'create',
-											   'force_unlock' => true
-											  ),
-						'permissions' => Array('name' => 'Permissions',
-											   'icon' => 'users',
-											   'force_unlock' => true
-											  ),
-						'workflow'    => Array('name' => 'Workflow',
-											   'icon' => 'reorder',
-											   'force_unlock' => false
-											  ),
-						'locking'    => Array('name' => 'Locking',
-											  'icon' => 'preview',
-											  'force_unlock' => true
-											  ),
-						'linking'    => Array('name' => 'Linking',
-											  'icon' => 'web',
-											  'force_unlock' => true
-											  )
-					  );
+	var $static_screens = Array('details'     => Array('name' => 'Details',
+													   'force_unlock' => true
+													  ),
+								'permissions' => Array('name' => 'Permissions',
+													   'force_unlock' => true
+													  ),
+								'workflow'    => Array('name' => 'Workflow',
+													   'force_unlock' => false
+													  ),
+								'locking'    => Array('name' => 'Locking',
+													  'force_unlock' => true
+													  ),
+								'linking'    => Array('name' => 'Linking',
+													  'force_unlock' => true
+													  )
+								);
 
 
 	/**

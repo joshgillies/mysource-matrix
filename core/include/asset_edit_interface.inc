@@ -63,7 +63,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		// check that the edit functions have a details tab
 		// or else we cant even create assets of this type
 		// let alone edit them
-		if (!isset($this->_edit_fns->tabs['details'])) {
+		if (!isset($this->_edit_fns->static_screens['details'])) {
 			trigger_error("Asset Edit Functions for '$type_code' do not define a 'details' tab", E_USER_ERROR);
 			die();
 		}
@@ -146,8 +146,8 @@ class Asset_Edit_Interface extends Resolve_Object
 			return;
 		}
 
-		// if there are no screens or tabs, piss off
-		if (!count($this->_screens) && empty($this->_edit_fns->tabs)) return;
+		// if there are no screens or static screens, piss off
+		if (!count($this->_screens) && empty($this->_edit_fns->static_screens)) return;
 
 		// do we have write access?
 		$write_access = $owner->writeAccess();
@@ -205,11 +205,11 @@ class Asset_Edit_Interface extends Resolve_Object
 			}
 		}
 
-		// add tabs for the asset if not creating
+		// add static screens for the asset if not creating
 		if (!$creating) {
-			foreach ($this->_edit_fns->tabs as $code_name => $tab_data) {
-				$tab_data['url'] = $current_location.'asset_ei_screen='.rawurlencode($code_name);
-				$o->addTab($code_name, $tab_data);
+			foreach ($this->_edit_fns->static_screens as $code_name => $data) {
+				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
+				$o->addStaticScreen($url, $data['name']);
 			}
 		}
 
@@ -227,11 +227,10 @@ class Asset_Edit_Interface extends Resolve_Object
 		// make sure that we have the screen for next time
 		$o->addFormActionGetVar('asset_ei_screen', $active_screen);
 
-		// check the active screen for special system defined tabs
+		// check the active screen for special system defined static screens
 		$file = null;
-		if (isset($this->_edit_fns->tabs[$active_screen])) {
-			$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name').' - '.$this->_edit_fns->tabs[$active_screen]['name'], $this->_edit_fns->tabs[$active_screen]['icon']);
-			$o->setCurrentTab($active_screen);
+		if (isset($this->_edit_fns->static_screens[$active_screen])) {
+			$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->_type_code, 'name'));
 			
 			// if we are not creating, paint the system defined bit of this tab
 			if (!$creating) {
@@ -239,7 +238,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				$this->$paint_function($owner, $o);
 			}
 
-			$force_unlock_on_commit = $this->_edit_fns->tabs[$active_screen]['force_unlock'];
+			$force_unlock_on_commit = $this->_edit_fns->static_screens[$active_screen]['force_unlock'];
 
 			// try and find the file to print user defined section of the tab
 			$file = @$this->_findFile('tab_'.$active_screen);
@@ -371,8 +370,8 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function process(&$owner, &$o, $creating)
 	{
-		// if there are no screens or tabs, piss off
-		if (!count($this->_screens) && empty($this->_edit_fns->tabs)) return false;
+		// if there are no screens or static screens, piss off
+		if (!count($this->_screens) && empty($this->_edit_fns->static_screens)) return false;
 
 		$ret_val = false;
 		$create_sections = Array();
@@ -384,9 +383,9 @@ class Asset_Edit_Interface extends Resolve_Object
 			if (!count($create_sections)) return false;
 		}
 
-		// check the active screen for special system defined tabs
+		// check the active screen for special system defined static screens
 		$file = null;
-		if (isset($this->_edit_fns->tabs[$active_screen])) {
+		if (isset($this->_edit_fns->static_screens[$active_screen])) {
 
 			// process the system defined bit of this tab if we
 			// are not creating the asset

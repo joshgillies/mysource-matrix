@@ -63,11 +63,8 @@ class Backend_Outputter
 
 	// edit screens
 	var $_screens = Array();
+	var $_static_screens = Array();
 	var $_current_screen = '';
-
-	// edit tabs
-	var $_tabs = Array();
-	var $_current_tab = '';
 
 	// the contents of the page split into sections
 	var $_contents = Array();
@@ -298,35 +295,21 @@ class Backend_Outputter
 
 
 	/**
-	* Adds a tab for editing
+	* Adds a static screen for editing
 	*
 	* @param string $url
 	* @param string $name
 	*
 	* @access public
 	*/
-	function addTab($code, $data)
+	function addStaticScreen($url, $name)
 	{
-		if (empty($code)) return;
-		if (isset($this->_tabs[$code])) {
-			trigger_error('Tab Code "'.$code.'" already in use', E_USER_ERROR);
+		if (empty($url)) return;
+		if (in_array($name, $this->_static_screens)) {
+			trigger_error('Staic Screen Code "'.$name.'" already in use', E_USER_ERROR);
 		}
-		$this->_tabs[$code] = $data;
+		$this->_static_screens[$url] = $name;
 	}//end addTab()
-
-
-	/**
-	* Sets the current tab
-	*
-	* @param string $url
-	*
-	* @access public
-	*/
-	function setCurrentTab($code)
-	{
-		if (empty($code)) return;
-		$this->_current_tab = $code;
-	}//end setCurrentTab()
 
 
 	/**
@@ -616,7 +599,7 @@ class Backend_Outputter
 //			$this->_paintRow($this->_heading, 'page-heading');
 //		}
 //
-		if ($this->_heading || count($this->_screens)) {
+		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
 			?>
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
@@ -628,35 +611,22 @@ class Backend_Outputter
 					</td>
 					<td class="sq-backend-heading" style="text-align: right;">
 					<?php
-						if (empty($this->_screens)) {
+						if (empty($this->_screens) && empty($this->_static_screens)) {
 							echo '&nbsp;';
 						} else {
-							// add a blank screen entry to the top of the combo box to be used by tabs
 							$this->_screens = array_reverse($this->_screens);
-							$this->_screens['#'] = '';
+							//bam($this->_static_screens);
+							//bam($this->_screens);
+							$this->_screens['#'] = '------';
+							
+							foreach ($this->_static_screens as $url => $code) {
+								$this->_screens[$url] = $code;
+							}
 							$this->_screens = array_reverse($this->_screens);
 							combo_box('', $this->_screens, false, $this->_current_screen, 1, 'id="screen_menu" onChange="javascript: self.location = form_element_value(this);"');
 						}
 					?>
 					</td>
-				</tr>
-			</table>
-			<?php
-		}// end if
-
-		if (count($this->_tabs)) {
-			?>
-			<table cellpadding="3" cellspacing="1" border="0" bgcolor="#000000">
-				<tr>
-					<?php
-					foreach ($this->_tabs as $tab_code => $tab_data) {
-						$bgcolor = '#E0E0E0';
-						if ($tab_code == $this->_current_tab) $bgcolor = '#B1BDCD';
-						?>
-						<td class="sq-backend-heading" bgcolor="<?php echo $bgcolor;?>"><img src="<?php echo $this->filesPath('/images/icons/'.$tab_data['icon'].'.gif');?>" width="20" height="20" border="0" align="left" alt="<?php echo $tab_data['name'];?>" /><a href="<?php echo $tab_data['url']?>"><?php echo $tab_data['name']?></a></td>
-						<?php
-					}
-					?>
 				</tr>
 			</table>
 			<?php

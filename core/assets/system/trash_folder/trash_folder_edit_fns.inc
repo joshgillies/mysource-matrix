@@ -20,18 +20,17 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	* An array of tab code names and their display names
 	* @var Array()
 	*/
-	var $tabs = Array('details' => Array('name' => 'Details',
-										 'icon' => 'create',
-										 'force_unlock' => true
-										 )
-					   );
+	var $static_screens = Array('details' => Array('name' => 'Details',
+												   'force_unlock' => true
+												   )
+								);
 
 
 	/**
 	* Constructor
 	*
 	*/
-	function Trash_Folder_Edit_Fns() 
+	function Trash_Folder_Edit_Fns()
 	{
 		$this->Folder_Edit_Fns();
 	}
