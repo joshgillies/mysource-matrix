@@ -28,7 +28,7 @@ class Trash_Folder extends Folder
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
 	function Trash_Folder($assetid=0) 
@@ -75,7 +75,7 @@ class Trash_Folder extends Folder
 	* Creates a duplicate of this asset. It DOES NOT duplicate the links that this asset has either to it or from it
 	* Returns a reference to the new object or if an error occured FALSE
 	*
-	* @param bool	$dupe_directory		whether or not to duplicate thia assets data directory
+	* @param bool	$dupe_directory	whether or not to duplicate thia assets data directory
 	*
 	* @return object Asset | NULL
 	* @access public
