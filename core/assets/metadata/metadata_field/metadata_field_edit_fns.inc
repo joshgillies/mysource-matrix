@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.21 2004/07/07 04:08:39 lwright Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.22 2004/08/02 03:24:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -235,90 +235,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintInlineValueInterface(&$asset, &$o, $values, $write_access)
 	{
-		$prefix = $asset->getPrefix();
-		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-
-		$field_name = $asset->name;
-		if ($asset->attr('required')) $field_name .= ' <span style="color: #FF0000">*</span>';
-
-		$o->openField($field_name);
-			if (isset($values['value'])) $default = $values['value'];
-			else $default = $asset->attr('default');
-
-			if ($asset->attr('editable')) {
-				if ($write_access) {
-					if ($asset->attr('multi_line')) text_area($prefix.'_value', $default, 30, 4);
-					else text_box($prefix.'_value', $default, 30);
-				} else {
-					echo $default;
-				}
-				
-				// now print value components
-				$current_vc = $asset->attr('value_components');
-				if (!empty($current_vc)) {
-					echo '<br /><br />';
-					$num_per_row = 3;
-					$num_done = 0;
-					?>
-					<table class="sq-backend-table">
-						<tr>
-							<?php
-							foreach ($current_vc as $vc_name => $vc_value) {
-								if (isset($values['value_components'][$vc_name])) {
-									$vc_value = $values['value_components'][$vc_name];
-								}
-
-								if ($num_done >= $num_per_row) {
-									$num_done = 0;
-									echo '</tr><tr>';
-								}
-
-								echo '<td width="150" valign="top" class="sq-backend-table-cell">';
-								echo '<b>'.$vc_name.'</b>';
-								echo '<br />';
-								if ($write_access) text_area($prefix.'_vc_value['.$vc_name.']', $vc_value, 30, 4);
-								else echo $vc_value;
-								echo '</td>';
-
-								$num_done++;
-							}
-							if ($num_done && $num_done != $num_per_row) {
-								for ($i = ($num_per_row - $num_done); $i > 0; $i--) echo'<td width="200" class="sq-backend-table-cell-alt">&nbsp;</td>';
-							}
-							?>
-						</tr>
-					</table>
-					<?php
-				}
-			} else {
-				echo $default;
-
-				// now print value components
-				$current_vc = $asset->attr('value_components');
-				if (!empty($current_vc)) {
-					if (trim($default != '')) echo '<br />';
-					?>
-					<table border="0" cellspacing="1" cellpadding="1">
-					<?php
-					foreach ($current_vc as $vc_name => $vc_value) {
-						if (isset($values['value_components'][$vc_name])) {
-							$vc_value = $values['value_components'][$vc_name];
-						}
-						?>
-						<tr>
-							<td valign="top" align="right" class="sq-backend-data"><b><?php echo $vc_name; ?></b></td>
-							<td valign="top" align="left" class="sq-backend-data"><?php echo $vc_value; ?></td>
-						</tr>
-						<?php
-					}
-					?>
-					</table>
-					<?php
-				}
-			}
-		$o->closeField();
-
-		return true;
+		return false;
 
 	}//end paintInlineValueInterface()
 
@@ -334,26 +251,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processInlineValueInterface(&$asset, &$new_values)
 	{
-		$prefix = $asset->getPrefix();
-
-		$default = $asset->attr('default');
-		if ($asset->attr('editable')) {
-			if (isset($_POST[$prefix.'_value'])) {
-				$new_values[$asset->name]['value'] = trim($_POST[$prefix.'_value']);
-			}
-
-			$current_vc = $asset->attr('value_components');
-			if (!empty($current_vc)) {
-				$new_values[$asset->name]['value_components'] = Array();
-				foreach ($current_vc as $vc_name => $vc_value) {
-					if (isset($_POST[$prefix.'_vc_value'][$vc_name])) {
-						$new_values[$asset->name]['value_components'][$vc_name] = trim($_POST[$prefix.'_vc_value'][$vc_name]);
-					}
-				}
-			}
-		}
-
-		return true;
+		return false;
 
 	}//end processInlineValueInterface()
 
