@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.281 2004/03/03 23:50:35 gsherwood Exp $
+* $Id: asset.inc,v 1.282 2004/03/11 15:25:58 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1167,13 +1167,13 @@ class Asset extends MySource_Object
 			return false;
 		}
 
-		// increment the minor version of all dependant parents because a 'part' of them
+		// increment the micro version of all dependant parents because a 'part' of them
 		// has been updated - even though they havnt been updated directly
 		$dependant_parents = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($this->id);
 		foreach ($dependant_parents as $parentid) {
 			$dep_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parentid);
 			if (!is_null($dep_parent)) {
-				if (!$dep_parent->incrementVersion()) {
+				if (!$dep_parent->incrementVersion('micro')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$GLOABLS['SQ_SYSTEM']->am->forgetAsset($dep_parent);
 					trigger_error('Failed incrementing version of "'.$this->name.'" [#'.$this->id.'], version updated of dependant parent "'.$dep_parent->name.'" [#'.$dep_parent->id.'] failed.', E_USER_WARNING);
