@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.38 2005/02/13 22:23:30 dbaranovskiy Exp $
+* $Id: inbox_edit_fns.inc,v 1.39 2005/02/14 00:21:07 dbaranovskiy Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -132,18 +132,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					background: expression('none');
 					filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/priority_5.png', sizingMethod='crop');
 				}
-				#subsubAlert {
-					position: absolute;
-					top: 0;
-					left: 0;
-					width: 100%;
-					height: 100%;
-					display: none;
-					background: #FFF;
-					z-index: 200;
-					opacity: 0;
-					-moz-opacity: 0;
-					filter: alpha(opacity=0);
+				.stop {
+					background: url(<?php echo sq_web_path('lib'); ?>/web/images/icons/stop.png);
+					background: expression('none');
+					filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='<?php echo sq_web_path('lib'); ?>/web/images/icons/stop.png', sizingMethod='crop');
+					height: 31px;
+					width: 31px;
+					float: left;
 				}
 				#AlertBefore, #AlertAfter, #subAlert {
 					position: absolute;
@@ -236,7 +231,12 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					{
 						document.getElementById("AlertBefore").style.display = "none";
 						document.getElementById("AlertAfter").style.display = "block";
-						setTimeout('document.location.href = "<?php echo $asset->getBackendHref(''); ?>";', 250);
+						if (responseText.indexOf("<!-- ###No Action### -->") > -1 || responseText.indexOf("[ASSERT EXCEPTION]") > -1) {
+							document.getElementById("AlertAfter").innerHTML = '<img alt="" src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" class="stop" />Message was not sent';
+							setTimeout('document.getElementById("AlertAfter").style.display = "none";', 1000);
+						} else {
+							setTimeout('document.location.href = "<?php echo $asset->getBackendHref(''); ?>";', 250);
+						}
 					}
 					JsHttpConnector.loadXMLDoc(form.action, post, form.method);
 					document.getElementById("subsubAlert").style.display = "block";
@@ -306,7 +306,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				<div>Message is sending now&hellip;</div>
 				<div id="progressbar"></div>
 			</div>
-			<div id="AlertAfter">
+			<div id="AlertAfter" onclick="this.style.display='none'">
 				Message was sent successfully.<br />
 			</div>
 			<div>
@@ -1201,6 +1201,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	{
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		// send the message
+		$noaction = true;
 		if (isset($_POST[$prefix.'_To'])) {
 			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 
@@ -1212,6 +1213,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				if (empty($sender)) {
 					continue;
 				}
+				$noaction = true;
 				$message = $ms->newMessage(Array($userid), $_POST[$prefix.'_Subject'], $_POST[$prefix.'_Content'], 'hipo.sent');
 				$message->from = $sender;
 				$message->status = 'R';
@@ -1220,6 +1222,10 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			}
 
 		}
+		if ($noaction) {
+			echo '<!-- ###No Action### -->';
+		}
+
 	}
 
 
