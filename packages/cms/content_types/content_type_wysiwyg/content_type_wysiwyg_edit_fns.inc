@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.29 2003/11/04 05:33:02 gsherwood Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.30 2003/11/07 01:45:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,23 +53,33 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->set_init_onload(false);
 		$wysiwyg->set_show_status_bar(false);
 		$wysiwyg->set_width('100%');
-		$wysiwyg->set_height('100%');
+		$wysiwyg->set_height('300');
 		$wysiwyg->add_relative_href_check('http[s]?://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'(\?a=[0-9]+)', './$1');
 		$wysiwyg->add_absolute_url_check('\./\?(a=[0-9]+)', 'http://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'?$1');
 
-		$wysiwyg->add_plugin('format_text');
+		$wysiwyg->open_group();
+			$wysiwyg->add_plugin('format_text');
+			$wysiwyg->add_plugin('general');
+		$wysiwyg->close_group();
+		$wysiwyg->open_group();
+			$wysiwyg->add_plugin('matrix_apply_style');
+		$wysiwyg->close_group();
 		$wysiwyg->add_plugin('justify_text');
 		$wysiwyg->add_plugin('indenting');
 		$wysiwyg->add_plugin('listing');
-		$wysiwyg->add_plugin('general');
 		$wysiwyg->add_plugin('table_editing');
 		$wysiwyg->add_plugin('select_color');
-		$wysiwyg->add_plugin('matrix_embed_movie');
-		$wysiwyg->add_plugin('matrix_insert_link');
-		$wysiwyg->add_plugin('matrix_insert_image');
-		$wysiwyg->add_plugin('spell_checker');
-		$wysiwyg->add_plugin('view_source');
-		$wysiwyg->add_plugin('popup_editor');
+		$wysiwyg->open_group();
+			$wysiwyg->add_plugin('matrix_insert_link');
+			$wysiwyg->add_plugin('matrix_insert_image');
+			$wysiwyg->add_plugin('matrix_embed_movie');
+		$wysiwyg->close_group();
+		$wysiwyg->open_group();
+			$wysiwyg->add_plugin('spell_checker');
+			$wysiwyg->add_plugin('view_source');
+			$wysiwyg->add_plugin('popup_editor');
+		$wysiwyg->close_group();
+
 		// html_tidy needs to be last so other plugins can set options
 		$wysiwyg->add_plugin('html_tidy');
 		// contents must be set AFTER all plugins are loaded
