@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_network.inc,v 1.1 2005/02/25 04:45:51 gsherwood Exp $
+* $Id: site_network.inc,v 1.2 2005/02/28 03:11:55 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -105,11 +105,12 @@ class Site_Network extends Folder
 		if ($result !== true) return $result;
 
 		if (is_a($minor, 'site')) {
-			// site assets can only bee in a single site network
-			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLink($minor->id, SQ_LINK_NOTICE, 'site_network', false, 'primary_site', 'minor');
-			if (empty($network_link)) return true;
-			else return 'Sites can only be linked under one Site Network';
+			// site assets can only be in a single site network
+			$network_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($minor->id, SQ_SC_LINK_ALL, 'site_network', false, 'minor');
+			if (!empty($network_link)) return 'Sites can only be linked under one Site Network';
 		}
+
+		return true;
 
 	}//end canCreateLink()
 
