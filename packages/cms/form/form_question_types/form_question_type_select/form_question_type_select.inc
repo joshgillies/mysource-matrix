@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.21 2004/09/10 00:24:36 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.22 2004/10/11 06:37:32 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,7 +47,7 @@ class Form_Question_Type_Select extends Form_Question
 	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
-	function Form_Question_Type_Select($assetid=0,$data=Array()) 
+	function Form_Question_Type_Select($assetid=0,$data=Array())
 	{
 		$this->Form_Question($assetid,$data);
 
@@ -62,12 +62,13 @@ class Form_Question_Type_Select extends Form_Question
 	* @access public
 	* @return Array(string => string)
 	*/
-	function getAllowedRules() {
+	function getAllowedRules()
+	{
 		return Array('comparison', 'select_limit');
-	
+
 	}//end getAllowedRules()
-	
-	
+
+
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
@@ -95,12 +96,12 @@ class Form_Question_Type_Select extends Form_Question
 		if (!$suffix) $suffix = '';
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
-		
+
 		ob_start();
 		combo_box($this->id.$suffix, $this->getOptions(), $this->attr('multiple'), $this->getValue(), $this->attr('height'), '');
 		$html = ob_get_contents();
 		ob_end_clean();
-		
+
 		return html_entity_decode($html);
 
 	}//end getAnswer()
@@ -108,7 +109,7 @@ class Form_Question_Type_Select extends Form_Question
 
 	/**
 	* returns the options currently in the dropdown list
-	* 
+	*
 	* @access public
 	* @return Array()
 	*/
@@ -124,7 +125,7 @@ class Form_Question_Type_Select extends Form_Question
 
 		return $options;
 
-	}//end getoptions()
+	}//end getOptions()
 
 
 	/**
@@ -137,7 +138,7 @@ class Form_Question_Type_Select extends Form_Question
 	{
 		//if (!$this->active_submission) return false;
 		$val = isset($_POST[$this->id]) ? $_POST[$this->id] : '';
-		
+
 		if (is_array($val)) {
 			$value = implode(', ', $this->getAnswerByOffset($val));
 		} else {
@@ -146,7 +147,7 @@ class Form_Question_Type_Select extends Form_Question
 
 		$form =& $this->getMySection();
 		$form->active_submission[$this->id] = $val;
-			
+
 		parent::processForm();
 
 		return true;
@@ -157,8 +158,8 @@ class Form_Question_Type_Select extends Form_Question
 	/**
 	* returns a summary for this question
 	*
-	* @param string $answer the answer to get the summary of 
-	* 
+	* @param string $answer the answer to get the summary of
+	*
 	* @access public
 	* @return mixed
 	*/
@@ -170,7 +171,7 @@ class Form_Question_Type_Select extends Form_Question
 				$ans_str[] = $this->getAnswerByOffset($a);
 			}
 			return implode(', ', $ans_str);
-		} 
+		}
 		return $this->getAnswerByOffset($answer);
 
 	}//end getSummary()
@@ -204,7 +205,51 @@ class Form_Question_Type_Select extends Form_Question
 		return $contents;
 
 	}//end getXML()
-	
-	
+
+
+	/**
+	* returns TRUE if this particuar option is selected
+	*
+	* @param string $value     the value to check
+	*
+	* @access public
+	* @return boolean
+	*/
+	function isSelected($option)
+	{
+		if (isset($this->active_submission)) {
+			$submission = $this->active_submission[$this->id];
+			if (isset($submission)) {
+				if (is_array($submission)) {
+					return in_array($option,$submission);
+				} else {
+					return ($option == $submission);
+				}
+			}
+		}
+
+		return false;
+
+	}//end isSelected()
+
+
+	/**
+	* Get option name
+	*
+	* Get the name for one particular option, specified by option code.
+	* Assumes option id is valid
+	*
+	* @param string $option_code    unique option id for this question
+	*
+	* @access public
+	* @return Array
+	*/
+	function getOptionName($option_code)
+	{
+		return $this->getAnswerByOffset($option_code);
+
+	}//end getOptionName()
+
+
 }//end class
 ?>
