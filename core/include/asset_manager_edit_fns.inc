@@ -128,7 +128,26 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 					// try to acquire a lock on this asset?
 					if (isset($_POST['sq_acquire_lock'])) {
-						$asset->acquireLock(0, (bool) $_POST['sq_acquire_by_force']);
+
+						//// START HIPO PROCESSING ////
+			
+						$vars = Array('assetid' => $asset->id, 'forceably_acquire' => (bool) $_POST['sq_acquire_by_force']);
+						$codename = 'HIPO_acquire_lock';
+						$complete_url = $_SERVER['REQUEST_URI'];
+
+						require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_acquire_lock.inc');
+						$hipo = new HIPO_Job_Acquire_Lock();
+
+						$hipo->setRunningVars($vars);
+						$hipo->setOption('on_complete_url', $complete_url);
+
+						if ($hipo->initialise()) {
+							$url = $hipo->getProcessURL();
+							$o->setRedirect($url);
+						}
+						
+						////  END HIPO PROCESSING  ////
+
 						$do_process_backend = false;
 					}
 
