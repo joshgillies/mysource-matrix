@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.186 2003/11/26 00:51:09 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.187 2003/11/28 00:43:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -223,6 +223,8 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$have_any_locks    = false;
 			$have_all_locks    = true;
+			$need_force_locks  = false;
+			$can_force_locks   = true;
 			$do_the_limbo_lock = true;
 			foreach($locks as $lock_type => $lock) {
 
@@ -238,6 +240,14 @@ class Asset_Edit_Interface extends MySource_Object
 					} else {
 						$have_all_locks = false;
 						$do_the_limbo_lock = false;
+
+						// this lock is held by someone else so check if we can forceable acquire it
+						$need_force_locks = true;
+						// does the current user has a high
+						// enough level of access to forceably acquire the lock
+						if (!$owner->canForceablyAcquireLock($lock_type)) {
+							$can_force_locks = false;
+						}
 					}
 				}// end if
 
@@ -268,7 +278,26 @@ class Asset_Edit_Interface extends MySource_Object
 					// or if they can lock it to edit it
 					$o->openSection('Locking / Editing');
 					$o->openField('&nbsp;');
-				?>
+
+					?><div style="margin-bottom: 4px;"><?php
+						if (!$have_all_locks) {
+							if ($need_force_locks) {
+								if ($can_force_locks) {
+									echo '<div class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</div>';
+								}
+							} else if ($full_write_access && $acquire_lock_access) {
+								echo 'Press the <i><b>Lock</b></i> button to lock "'.$owner->name.'" for editing. ';
+							}
+						}
+						if ($have_any_locks) echo 'Press the <i><b>Release Lock(s)</b></i> button to release the locks you hold on "'.$owner->name.'". ';
+						?>
+						<b><a href="#" onClick="Javascript: sq_toggle_lock_info();" id="sq_lock_info_toggle">Show Lock Details</a></b>
+					</div>
+					<?php
+
+
+					?>
+					<div id="sq_lock_info" style="display: none;">
 					<table class="sq-backend-lock-table">
 						<tr>
 							<td class="sq-backend-lock-table-header" style="width: 20px;">
@@ -289,8 +318,7 @@ class Asset_Edit_Interface extends MySource_Object
 					$o->openRaw('');
 				}
 
-				$need_force_locks = false;
-				$can_force_locks  = true;
+				
 				$class = 'sq-backend-lock-table-cell-alt';
 				foreach($locks as $lock_type => $lock) {
 					if ($class == 'sq-backend-lock-table-cell') $class = 'sq-backend-lock-table-cell-alt';
@@ -314,11 +342,7 @@ class Asset_Edit_Interface extends MySource_Object
 								}
 
 							} else {
-								// this asset is currently locked
-								// so display message to the user
-								$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-								$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
-
+								// this asset is currently locked so display message to the user
 								if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
 								else $now = time();
 
@@ -338,16 +362,6 @@ class Asset_Edit_Interface extends MySource_Object
 								</p>
 								<?php
 
-								// if this lock is held by someone else, check if we can forceable acquire it
-								if (!$GLOBALS['SQ_SYSTEM']->currentUser($user)) {
-									$need_force_locks = true;
-									// does the current user has a high
-									// enough level of access to forceably acquire the lock
-									if (!$owner->canForceablyAcquireLock($lock_type)) {
-										$can_force_locks = false;
-									}
-								}
-
 							}// end if
 							?>
 						</td>
@@ -359,18 +373,17 @@ class Asset_Edit_Interface extends MySource_Object
 						</td>
 					</tr>
 				</table>
+				</div>
 
 				<?php
 
 				if (!$have_all_locks || $have_any_locks) {
-					?><span style="float: right; margin-top: 2px; text-align: right;"><?php
+					?><div style="margin-top: 4px;"><?php
 				}
 
 				if (!$have_all_locks) {
 					if ($need_force_locks) {
 						if ($can_force_locks) {
-							echo '<div class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</div>';
-
 							// they aren't going to do this without a fight though
 							// they'll have to go through our popup window first
 							$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
@@ -378,17 +391,22 @@ class Asset_Edit_Interface extends MySource_Object
 							hidden_field('sq_lock_acquire_by_force', '0');
 							hidden_field('sq_lock_acquire', '0');
 							normal_button('sq_forceably_acquire_lock', 'Acquire Lock(s)', "window.open('$popup_url', 'sq_forceably_acquire_lock_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300');");
+							echo '&nbsp;';
 						}
 					} else if ($full_write_access && $acquire_lock_access) {
 						hidden_field('sq_lock_acquire_by_force', '0');
 						submit_button('sq_lock_acquire', 'Lock');
+						echo '&nbsp;';
 					}// end if
 				}
 
-				if ($have_any_locks) submit_button('sq_lock_release_manual', 'Release Lock(s)');
+				if ($have_any_locks) {
+					submit_button('sq_lock_release_manual', 'Release Lock(s)');
+					echo '&nbsp;';
+				}
 
 				if (!$have_all_locks || $have_any_locks) {
-					?></span><?php
+					?></div><?php
 				}
 
 				if (strtolower($screen_lock_type) != 'none') $o->closeSection();

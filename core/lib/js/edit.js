@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.16 2003/11/26 00:51:13 gsherwood Exp $
+* $Id: edit.js,v 1.17 2003/11/28 00:43:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -125,4 +125,18 @@ function switchEditingMode(contentDivID, editDivID, editor) {
 			if (editCell) { editCell.style.height = "100%"; }
 		}
 	}
-}
+}//end switchEditingMode()
+
+
+// show or hide the full lock info
+function sq_toggle_lock_info() {
+	var lockInfo = document.getElementById('sq_lock_info');
+	var lockToggle = document.getElementById('sq_lock_info_toggle');
+	if (lockInfo.style.display == 'none') {
+		lockInfo.style.display = 'block';
+		lockToggle.innerHTML = 'Hide Lock Details';
+	} else {
+		lockInfo.style.display = 'none';
+		lockToggle.innerHTML = 'Show Lock Details';
+	}
+}//end sq_toggle_lock_info()
