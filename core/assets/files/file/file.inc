@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.73 2004/11/29 02:14:15 gsherwood Exp $
+* $Id: file.inc,v 1.74 2004/11/30 23:46:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -752,6 +752,8 @@ class File extends Asset
 		// check the file size to ensure we are not violating any restrictions
 		$size = filesize($info['tmp_name']);
 		$max_size = strtolower($GLOBALS['SQ_SYSTEM']->getUserPrefs('file', 'SQ_FILE_MAX_SIZE'));
+		if (!$max_size) return true;
+
 		if (substr($max_size, -1) == 'k') {
 			$max_size = $max_size * 1024;
 		} else if (substr($max_size, -1) == 'm') {
