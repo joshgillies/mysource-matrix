@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_regenerate_metadata.inc,v 1.16 2005/02/24 10:15:27 brobertson Exp $
+* $Id: hipo_job_regenerate_metadata.inc,v 1.17 2005/02/24 22:52:53 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.16 $
+* @version $Revision: 1.17 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -281,7 +281,7 @@ class HIPO_Job_Regenerate_Metadata extends HIPO_Job
 		foreach ($asset_info as $assetid => $info) $todo[$assetid] = $info['type_code'];
 
 		$running_vars = Array(
-							'assetids'          => Array($this->_running_vars['schemaid'],),
+							'assetids'          => array_keys($todo), 
 							'todo_assetids'     => $todo,
 							'lock_type'         => Array('metadata'),
 							'dependants_only'   => false,

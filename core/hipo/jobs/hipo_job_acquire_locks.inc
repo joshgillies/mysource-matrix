@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.4 2005/02/24 10:15:50 brobertson Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.5 2005/02/24 22:52:53 tbarrett Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -152,6 +152,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	*/
 	function setRunningVars($vars)
 	{
+
 		if (isset($vars['lock_type']) && isset($vars['assetids'])) {
 			// OK, the main reason that we are getting the lock types here is so that we don't end up
 			// with lock types in a child being locked that the parent doesn't have, because if they do then
@@ -267,7 +268,11 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 			}
 			$this->_running_vars['child_assetids'] = $child_assets;
 			$this->_running_vars['current_assetid'] = reset($this->_running_vars['assetids']);
+		} else {
+			$this->_running_vars['current_assetid'] = key($this->_running_vars['todo_assetids']);
+			$this->_running_vars['total_count'] = count($this->_running_vars['todo_assetids']);
 		}
+
 
 		$this->_running_vars['done_assetids'] = Array();
 
@@ -276,7 +281,6 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 		} else {
 			$this->_running_vars['forceably_acquire'] = (bool) $this->_running_vars['forceably_acquire'];
 		}
-
 		return parent::prepare();
 
 	}//end prepare()
