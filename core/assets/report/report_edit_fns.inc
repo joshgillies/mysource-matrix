@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.5 2004/12/02 05:49:25 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: report_edit_fns.inc,v 1.6 2005/01/17 18:35:31 brobertson Exp $
+*
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
 * Report_Edit_Fns
@@ -32,11 +31,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Report_Edit_Fns extends Bridge_Edit_Fns
+class Report_Edit_Fns extends Asset_Edit_Fns
 {
 
 
@@ -46,7 +45,7 @@ class Report_Edit_Fns extends Bridge_Edit_Fns
 	*/
 	function Report_Edit_Fns()
 	{
-		$this->Bridge_Edit_Fns();
+		$this->Asset_Edit_Fns();
 		$this->static_screens['details']['lock_type'] = 'content';
 
 	}//end constructor

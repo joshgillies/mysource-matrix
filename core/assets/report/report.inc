@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report.inc,v 1.2 2004/10/25 01:37:42 arailean Exp $
-* $Name: not supported by cvs2svn $
+* $Id: report.inc,v 1.3 2005/01/17 18:35:31 brobertson Exp $
+*
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
 * Report
@@ -32,11 +31,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Report extends Bridge
+class Report extends Asset
 {
 
 
@@ -48,7 +47,7 @@ class Report extends Bridge
 	*/
 	function Report($assetid=0)
 	{
-		$this->Bridge($assetid);
+		$this->Asset($assetid);
 
 	}//end constructor
 

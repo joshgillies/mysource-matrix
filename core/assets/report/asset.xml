@@ -21,8 +21,8 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2004/07/06 03:31:17 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset.xml,v 1.2 2005/01/17 18:35:31 brobertson Exp $
+*
 */
 -->
 
@@ -34,12 +34,7 @@
 	<description>Report Object, the base class for creating reports</description>
 	<instantiable>no</instantiable>
 	<allowed_access>backend_user</allowed_access>
-	<parent_type>bridge</parent_type>
-	<requirements>
-		<requirement type="asset">
-			<code>bridge</code>
-			<version>0.1</version>
-		</requirement>
-	</requirements>
+	<parent_type>asset</parent_type>
+	<requirements />
 	<flash_menu_path/>
 </asset_info>
