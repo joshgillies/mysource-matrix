@@ -43,7 +43,6 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg->set_contents($asset->attr('html'));
 		//$wysiwyg->set_stylesheet('/nswrl/__data/site/design/1/images/styles.css');
 		$wysiwyg->set_width('100%');
-		$wysiwyg->set_height('100%');
 		$wysiwyg->add_plugin('format_text');
 		$wysiwyg->add_plugin('general');
 		$wysiwyg->add_plugin('history');
