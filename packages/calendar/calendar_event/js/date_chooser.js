@@ -263,6 +263,7 @@ function updateStartDate(name) {
 
 
 function processKeyEvent(elt) {
+	if (!window.event) return;
 	key = window.event.keyCode; 
 	if ((key==43) && (elt.value==Number(elt.value))) {
 		if (elt.name.indexOf('year') != -1)				max_value = 2030;
@@ -297,37 +298,73 @@ function processKeyEvent(elt) {
 function updateDurationValues(prefix) {
 	if (isChecked(prefix + '_start_time_enabled')) {
 		d = new Date(document.getElementById(prefix + '_start_year').value, document.getElementById(prefix + '_start_month').value-1, document.getElementById(prefix + '_start_day').value, ((parseInt(document.getElementById(prefix + '_start_hours').value)%12) + (12 * document.getElementById(prefix + '_start_is_pm').value)) % 24, document.getElementById(prefix + '_start_minutes').value, 0);
-		// + parseInt(document.getElementById(prefix + '_start_is_pm').value) * 12
-		
 	} else {
 		d = new Date(document.getElementById(prefix + '_start_year').value, document.getElementById(prefix + '_start_month').value-1, document.getElementById(prefix + '_start_day').value);
 	}
-	var newDate = new Date();
-	var addSeconds = 0;
-	switch(document.getElementById(prefix + '_duration_units').value) {
-		case 'd':
-			addSeconds = document.getElementById(prefix + '_duration').value * 86400;
-		break;
+	
+	if (isChecked(prefix + '_duration_enabled')) {		
+	
+		var newDate = new Date();
+		var addSeconds = 0;
+		switch(document.getElementById(prefix + '_duration_units').value) {
+			case 'd':
+				addSeconds = document.getElementById(prefix + '_duration').value * 86400;
+			break;
+			
+			case 'h':
+				addSeconds = document.getElementById(prefix + '_duration').value * 3600;
+			break;
+			
+			case 'i':
+				addSeconds = document.getElementById(prefix + '_duration').value * 60;
+			break;
+			
+		}
 		
-		case 'h':
-			addSeconds = document.getElementById(prefix + '_duration').value * 3600;
-		break;
+		// if only days - make sure 3 days becomes, say, 7-9th
+		if (!isChecked(prefix + '_end_time_enabled')) {
+			addSeconds -= 86400;
+		}
 		
-		case 'i':
-			addSeconds = document.getElementById(prefix + '_duration').value * 60;
-		break;
+		newDate.setTime(d.valueOf() + addSeconds * 1000);
+		
+		document.getElementById(prefix + '_end_year').value = newDate.getFullYear();
+		document.getElementById(prefix + '_end_month').value = newDate.getMonth() + 1;
+		document.getElementById(prefix + '_end_day').value = newDate.getDate();
+			
+		if (isChecked(prefix + '_start_time_enabled')) {	
+			document.getElementById(prefix + '_end_hours').value = ((newDate.getHours() % 12 == 0) ? 12 : newDate.getHours() % 12);
+			document.getElementById(prefix + '_end_is_pm').selectedIndex = (newDate.getHours() >= 12);
+			document.getElementById(prefix + '_end_minutes').value = make2digits(newDate.getMinutes());
+		}
+	} else {
+		var endDate = new Date();
+		
+		if (isChecked(prefix + '_end_time_enabled')) {
+			endDate = new Date(document.getElementById(prefix + '_end_year').value, document.getElementById(prefix + '_end_month').value-1, document.getElementById(prefix + '_end_day').value, ((parseInt(document.getElementById(prefix + '_end_hours').value)%12) + (12 * document.getElementById(prefix + '_end_is_pm').value)) % 24, document.getElementById(prefix + '_end_minutes').value, 0);
+		} else {
+			endDate = new Date(document.getElementById(prefix + '_end_year').value, document.getElementById(prefix + '_end_month').value-1, document.getElementById(prefix + '_end_day').value);
+		}
+		
+		// number of minutes between the two dates - valueOf() is returned in milli-sec's,
+		// hence the extra division by 1000
+		var dateDiff = (endDate.valueOf() - d.valueOf()) / (1000 * 60);
+		if (!isChecked(prefix + '_end_time_enabled')) {
+			dateDiff += 1440;
+		}
+		
+		if ((dateDiff % 1440 == 0) && (dateDiff > 0)) {
+			document.getElementById(prefix + '_duration_units').value = 'd';
+			document.getElementById(prefix + '_duration').value = dateDiff / 1440;
+		} else if ((dateDiff % 60 == 0) && (dateDiff > 0)) {
+			document.getElementById(prefix + '_duration_units').value = 'h';
+			document.getElementById(prefix + '_duration').value = dateDiff / 60;
+		} else {
+			document.getElementById(prefix + '_duration_units').value = 'i';
+			document.getElementById(prefix + '_duration').value = dateDiff;
+		}
+		
 		
 	}
-	newDate.setTime(d.valueOf() + addSeconds * 1000);
-	
-	document.getElementById(prefix + '_end_year').value = newDate.getFullYear();
-	document.getElementById(prefix + '_end_month').value = newDate.getMonth() + 1;
-	document.getElementById(prefix + '_end_day').value = newDate.getDate();
-		
-	if (isChecked(prefix + '_start_time_enabled')) {	
-		document.getElementById(prefix + '_end_hours').value = ((newDate.getHours() % 12 == 0) ? 12 : newDate.getHours() % 12);
-		document.getElementById(prefix + '_end_is_pm').selectedIndex = (newDate.getHours() >= 12);
-		document.getElementById(prefix + '_end_minutes').value = make2digits(newDate.getMinutes());
-	}	
 
 }//end updateDurationValues()
