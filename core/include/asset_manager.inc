@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.147 2003/10/21 06:23:20 dwong Exp $
+* $Id: asset_manager.inc,v 1.148 2003/10/21 07:57:32 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -818,7 +818,7 @@ class Asset_Manager extends MySource_Object
 	*									If expires is set to NULL, the lock will be acquired indefinitely (ie. it will never expire).
 	*
 	* @return int		zero on failue, non-zero on success (1 on success and all lock types reqeusted had to be acquired, 
-	*					2 on any lock was updated [ie at least on lock type was already held])
+	*					2 on any lock was updated [ie at least one lock type was already held])
 	* @access public
 	*/
 	function acquireLock($assetid, $lock_type, $source_assetid=0, $force=false, $expires=0)
