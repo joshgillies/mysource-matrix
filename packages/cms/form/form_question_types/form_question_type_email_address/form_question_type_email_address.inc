@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.3 2004/04/29 05:19:45 lwright Exp $
+* $Id: form_question_type_email_address.inc,v 1.4 2004/05/07 05:07:03 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,6 +56,20 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 
 
 	/**
+	* returns an array of the types of rules 
+	*
+	* Returned array is 'short name' => 'full name'
+	*
+	* @access public
+	* @return Array(string => string)
+	*/
+	function getAllowedRules() {
+		return Array('comparison', 'found_in', 'contain', 'length', 'begins_with', 'ends_with');
+	
+	}//end getAllowedRules()
+	
+	
+	/**
 	* process this question
 	*
 	* @param &object $submission the current submission object
@@ -76,6 +90,8 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 			}
 
 			$form->active_submission[$this->id] = $val;
+
+			parent::processForm();
 		}
 		
 		return true;
