@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.2 2004/08/30 04:47:55 gsherwood Exp $
+* $Id: page_whats_new.inc,v 1.3 2004/09/15 00:38:36 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,6 +48,7 @@ class Page_Whats_New extends Page_Asset_Listing
 	*/
 	function Page_Whats_New($assetid=0)
 	{
+		$this->_ser_attrs = true;
 		$this->Page_Asset_Listing($assetid);
 
 	}//end constructor
@@ -107,12 +108,25 @@ class Page_Whats_New extends Page_Asset_Listing
 		
 		// this is the field in the database that we are using the specify that something is "new"
 		$field = $this->attr('date_field');
-
+		$ranges = $this->attr('date_ranges');
 
 		// work out the where clause that is going to find "new" assets
 		$where = '';
 
-		$from = $this->getAttribute('date_range_from');
+		if (!empty($ranges) && isset($_REQUEST['asset_'.$this->id.'_date_range']) && isset($ranges[$_REQUEST['asset_'.$this->id.'_date_range']])) {
+			require_once SQ_ATTRIBUTES_PATH.'/datetime/datetime.inc';
+			$id = $_REQUEST['asset_'.$this->id.'_date_range'];
+			
+			$from = new Asset_Attribute_DateTime();
+			$from->value = $ranges[$id]['oldest_date'];
+			
+			$to = new Asset_Attribute_DateTime();
+			$to->value = $ranges[$id]['newest_date'];
+		} else {
+			$from = $this->getAttribute('date_range_from');
+			$to   = $this->getAttribute('date_range_to');
+		}
+
 		$from = $from->getISO8601();
 		$from_date = iso8601_date_component($from);
 		if (!empty($from_date)) {
@@ -121,7 +135,6 @@ class Page_Whats_New extends Page_Asset_Listing
 			$where .= ' AND a.'.$field.' >= '.$db->quote($from_date.' '.$from_time);
 		}
 
-		$to = $this->getAttribute('date_range_to');
 		$to = $to->getISO8601();
 		$to_date = iso8601_date_component($to);
 		if (!empty($to_date)) {
@@ -172,15 +185,15 @@ class Page_Whats_New extends Page_Asset_Listing
 			if ($group_by == 'letter') {
 				$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 			}
-			
+
 			$children = $db->getAssoc(implode(' ', $query));
 			assert_valid_db_result($children);
-			
+
 			// normal number grouping may require a reverse sort
 			if ($group_by == 'number') {
 				if ($this->attr('reverse_sort')) $children = array_reverse($children, true);
 			}
-			
+
 			// only A-Z listings require the type_code to be in an array
 			// all other formats require a simple assetid => type_code return value
 			if ($group_by != 'letter' && $sort_by != null) {
@@ -198,7 +211,110 @@ class Page_Whats_New extends Page_Asset_Listing
 
 	}//end getAssetList()
 
-	
+
+	/**
+	* Returns keyword replacements to be replaced in the body of the format bodycopy
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getKeywordReplacements()
+	{
+		$replacements = Array();
+
+		// get a list of keywords that are in the format bodycopy
+
+		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
+		if (empty($bodycopy_link)) return Array();
+
+		$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
+		if (is_null($format_bodycopy)) return Array();
+
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+		$keywords = retrieve_keywords_replacements($format_bodycopy->getRawBodycopyContent());
+
+		$ranges = $this->attr('date_ranges');
+		$prefix = 'asset_'.$this->id;
+
+		foreach ($ranges as $id => $info) $names[$id] = $info['name'];
+		$selected = (isset($_REQUEST[$prefix.'_date_range']) ? $_REQUEST[$prefix.'_date_range'] : '');
+		$url = $this->getURL();
+
+		if (in_array('date_range_list', $keywords)) {
+			ob_start();
+				combo_box($prefix.'_date_range', $names, false, $selected);
+				echo '&nbsp;';
+				$extras = 'var select = document.getElementById("'.$prefix.'_date_range"); document.location.href="'.$url.'?'.$prefix.'_date_range=" + select.selectedIndex;';
+				normal_button($prefix.'_date_range_submit', 'Go', $extras);
+
+				$replacements['date_range_list'] = ob_get_contents();
+			ob_end_clean();
+		}
+
+		if (in_array('date_range_list_linked', $keywords)) {
+			ob_start();
+				?>
+					<div id="date_range_list">
+						<ul>
+							<?php
+								foreach ($names as $id => $name) {
+									?>
+										<li<?php echo ($selected == $id) ? ' id="current"' : '';?>>
+											<a href="<?php echo $url.'?'.$prefix.'_date_range='.$id; ?>"><?php echo $name; ?></a>
+										</li>
+									<?php
+								}
+							?>
+						</ul>
+					</div>
+				<?php
+				$replacements['date_range_list_linked'] = ob_get_contents();
+
+			ob_end_clean();
+		}
+
+		return $replacements;
+
+	}//end getKeywordReplacements()
+
+
+	/**
+	* Return the available keywords in the Page Contents Bodycopy for this asset
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'keyword' => Array (
+	*             'name'    => '(name of the keyword)',
+	*             'default' => '(default value)',
+	*             'type'    => 'block' | 'inline'
+	*         )
+	* )
+	* </pre>
+	*
+	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	*
+	* @access public
+	* @return Array(mixed)
+	*/
+	function getContentsKeywords()
+	{
+		$keywords = parent::getContentKeywords();
+		$keywords['date_range_list'] = Array(
+					'name'    => 'Date Range List',
+					'default' => 'Date Range List', 
+					'type'    => 'inline'
+				);
+		$keywords['date_range_list_linked'] = Array(
+					'name'    => 'Date Range List Linked',
+					'default' => 'Date Range List Linked', 
+					'type'    => 'inline'
+				);
+		return $keywords;
+
+	}//end getContentsKeywords()
+
+
 }//end class
 
 ?>
