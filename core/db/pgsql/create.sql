@@ -115,11 +115,10 @@ CREATE TABLE sq_asset_path (
 
 DROP TABLE sq_asset_lookup;
 CREATE TABLE sq_asset_lookup (
-  url        TEXT NOT NULL DEFAULT '',
-  linkid     INT NOT NULL DEFAULT 0,
-  assetid    INT NOT NULL,
-  root_urlid SMALLINT NOT NULL,
-  designid   INT NOT NULL DEFAULT 0,
+  url             TEXT NOT NULL DEFAULT '',
+  assetid         INT NOT NULL,
+  root_urlid      SMALLINT NOT NULL,
+  designid        INT NOT NULL DEFAULT 0,
   PRIMARY KEY  (url)
 );
 
@@ -135,7 +134,7 @@ CREATE TABLE sq_asset_permission (
 );
 
 
-DROP TABLE IF EXISTS sq_asset_lock;
+DROP TABLE sq_asset_lock;
 CREATE TABLE sq_asset_lock (
   assetid        INT       NOT NULL,
   source_asset   INT       NOT NULL,
