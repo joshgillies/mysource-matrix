@@ -24,6 +24,13 @@ class Trash_Folder extends Folder
 	var $_in_create = false;
 
 	/**
+	* An array of tab code names and their display names
+	* @var Array()
+	*/
+	var $_tabs = Array();
+
+
+	/**
 	* Constructor
 	*
 	* @param int    $assetid      the asset id to be loaded
