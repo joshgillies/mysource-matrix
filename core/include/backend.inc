@@ -219,7 +219,9 @@ class Backend extends Resolve_Object
 			$current_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['current_assetid'], '', true);
 			if ($current_asset->id) {
 				$lock = $current_asset->getLockInfo();
-				if (!empty($lock)) $current_asset->updateLock();
+				if (!empty($lock)) {
+					if ($lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) $current_asset->updateLock();
+				}
 			}
 		}
 
