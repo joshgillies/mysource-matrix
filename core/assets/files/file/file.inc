@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: file.inc,v 1.52 2003/10/10 06:49:23 brobertson Exp $
+* $Id: file.inc,v 1.53 2003/10/15 09:19:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -177,34 +177,7 @@ class File extends Asset
 			return false;
 		}
 
-		if ($this->status == SQ_STATUS_LIVE && $old_status != SQ_STATUS_LIVE_APPROVAL) {
-			// if we have just gone live we need to check-out the latest version of
-			// our file into the public directory for everyone to use
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
-			// clear out our unrestricted data directory
-			if (is_dir($this->data_path_public)) {
-				if (!clear_directory($this->data_path_public)) {
-					trigger_error('Failed processing status change for file "'.$this->name.'", could not clear public data directory', E_USER_WARNING);
-					return false;
-				}
-			} else {
-				if (!create_directory($this->data_path_public)) {
-					trigger_error('Failed processing status change for file "'.$this->name.'", could not created public data directory', E_USER_WARNING);
-					return false;
-				}
-			}
-
-			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-			$existing = $this->_getExistingFile();
-
-			if (!$fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
-				trigger_error('Failed processing status change for file "'.$this->name.'", could not check-out latest version of file', E_USER_WARNING);
-				return false;
-			}
-		}
-
-		// NOTE : no need to update the lookup here because they are done in _updated() if a file exists
+		// NOTE : no need to update the files states or the lookups here because they are done in _updated() if a file exists
 
 		// update manually
 		unset($this->_tmp['IGNORE_UPDATE']);
@@ -293,8 +266,7 @@ class File extends Asset
 
 		if (!parent::_updated()) return false;
 
-		if ($this->status & SQ_SC_STATUS_SAFE_EDITING || isset($this->_tmp['IGNORE_UPDATE'])) {
-			unset($this->_tmp['IGNORE_UPDATE']);
+		if ($this->status & SQ_SC_STATUS_SAFE_EDITING || !empty($this->_tmp['IGNORE_UPDATE'])) {
 			return true;
 		}
 
@@ -334,9 +306,15 @@ class File extends Asset
 		// if we should be storing our file in the public
 		// data directory for all the world to see
 		if ($this->effectiveUnrestricted()) {
+			// make sure our data directory exists
+			if (!create_directory($this->data_path_public)) {
+				trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted data directory', E_USER_WARNING);
+				return false;
+			}
+
 			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
 			// if there is no current file or if the current file is out of date, check out a fresh copy
-			if (!is_file($unrestricted) || ($fv->upToDate($unrestricted) & FUDGE_FV_OUT_OF_DATE)) {
+			if ($fv->upToDate($unrestricted) & (FUDGE_FV_NOT_CHECKED_OUT | FUDGE_FV_OLD_VERSION)) {
 				if ($fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path_public)) {
 					$changed = true;
 				} else {
@@ -347,7 +325,8 @@ class File extends Asset
 		} else {
 			// need to make sure our file is in the NOT in the public data directory
 			if (is_file($unrestricted)) {
-				if (unlink($unrestricted)) {
+				$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+				if ($fv->clearOut($unrestricted) & FUDGE_FV_OK) {
 					$changed = true;
 				} else {
 					trigger_error('Update failed deleting file from public data directory', E_USER_WARNING);
