@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.25 2004/08/02 23:25:53 gsherwood Exp $
+* $Id: search_page_edit_fns.inc,v 1.26 2004/08/09 10:22:58 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.25 $ - 1.0
+* @version $Revision: 1.26 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -602,12 +602,13 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					// not printing the combo box unless there is something to show
 					if ($search_type != '') {
 
-					$type_attrs = & $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attributeid', 'name', 'type'));
+						$asset_type_attrs = & $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attributeid', 'name', 'type'));
+						#pre_echo($type_attrs);
 
 						echo " <b>Attr:</b> ";
 						$type_attrs = Array();
 						$type_attrs[''] = "- attribute -";
-						foreach ($type_attrs as $attr_id => $attr_params) {
+						foreach ($asset_type_attrs as $attr_id => $attr_params) {
 							// we could use $attr_type to check if it's wanted here
 							$attr_name = $attr_params['name'];
 							$attr_type = $attr_params['type'];
