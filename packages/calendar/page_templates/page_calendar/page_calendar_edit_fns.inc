@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.16 2004/09/20 07:50:18 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.17 2004/10/08 03:24:49 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.16 $ - 1.0
+* @version $Revision: 1.17 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -854,7 +854,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$val = Array('other');
 		if (isset($_REQUEST[$prefix.'_root_nodes_columnised']) && is_array($_REQUEST[$prefix.'_root_nodes_columnised']))  {
 			if (!(isset($_REQUEST[$prefix.'_root_nodes_columnised']['other']) && $_REQUEST[$prefix.'_root_nodes_columnised']['other'])) { 
-				unset($val['other']);
+				$val = Array();
 				unset($_REQUEST[$prefix.'_root_nodes_columnised']['other']);
 			}
 			foreach ($_REQUEST[$prefix.'_root_nodes_columnised'] as $id => $status) {
