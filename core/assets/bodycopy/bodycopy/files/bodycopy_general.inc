@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_general.inc,v 1.6 2004/09/15 00:31:18 amiller Exp $
+* $Id: bodycopy_general.inc,v 1.7 2004/09/15 08:10:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,9 +63,7 @@ function print_bodycopy_icon($href, $heading, $desc, $icon, $alt='', $extra='', 
 	</script>
 	</a>";
 
-	$tag_with_tooltip = make_tooltip($tag, $desc, $heading);
-
-	echo $tag_with_tooltip;
+	echo make_tooltip($tag, $desc, $heading);
 
 }//end print_bodycopy_icon()
 
