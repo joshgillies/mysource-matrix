@@ -222,6 +222,8 @@ class Asset_Manager extends Resolve_Object
 				} else {
 					$this->includeAsset($type_code);
 					$this->_assets[$assetid] = new $type_code($assetid);
+					# make sure of the asset is correct
+					if (empty($this->_assets[$assetid]->id)) $this->_assets[$assetid] = null;
 				}
 
 			}#end if
