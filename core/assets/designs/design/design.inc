@@ -24,7 +24,9 @@ class Design extends Design_Area
 	function Design($assetid=0)
 	{
 		$this->Design_Area($assetid);
-	}
+
+	}//end constructor
+
 
 	/*
 	* Returns an array of all the permitted links type, the type asset and the cardinality
@@ -57,6 +59,7 @@ class Design extends Design_Area
 	{
 		trigger_error('Links under Designs are system controlled and therefore cannot be moved', E_USER_WARNING);
 		return false;
+
 	}//end moveLinkPos()
 
 
@@ -75,13 +78,15 @@ class Design extends Design_Area
 			foreach(array_keys($this->_tmp['design_areas']) as $id_name) unset($this->_tmp['design_areas'][$id_name]);
 		}
 		return true;
+
 	}//end _linksUpdated()
 
 
 	/**
 	* Returns the link information for the design area with the given id_name or all design area links
 	*
-	* @param string	$id_name		the id of the design area to get, if blank returns links for all design areas
+	* @param string	$id_name	the id of the design area to get
+	*							if blank returns links for all design areas
 	*
 	* @return mixed Array or null
 	* @access public
@@ -95,10 +100,11 @@ class Design extends Design_Area
 		}
 	}//end getDesignAreaLink()
 
+
 	/**
 	* Returns a design area for the given id_name
 	*
-	* @param string	$id_name		the id of the design area to get
+	* @param string	$id_name	the id of the design area to get
 	*
 	* @return mixed object Design_Area or null
 	* @access public
@@ -115,6 +121,7 @@ class Design extends Design_Area
 			}
 		}
 		return $this->_tmp['design_areas'][$id_name];
+
 	}//end getDesignArea()
 
 
@@ -151,6 +158,7 @@ class Design extends Design_Area
 		}// end switch
 
 	}// end processBackend()
+
 
 	/**
 	* Updates each of our customisations from ourselves
@@ -259,11 +267,26 @@ class Design extends Design_Area
 	{
 		$DATA_PATH = sq_web_path('data'); // this works because we know that all design areas are not going to be restricted
 		$LIB_PATH  = sq_web_path('lib');
-		// Now we just include the design file to get it to print.
+
+		// work out where the design file is
+		if (SQ_ROLLBACK_VIEW) {
+			// get an older version of our design file
+			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$rep_file = $this->data_path_suffix.'/design_file.php';
+			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
+			$info = $fv->_checkOutCheck($rep_file, null, $then);
+			$file_path = $info['source_file'];
+		} else {
+			$file_path = $this->data_path.'/design_file.php';
+		}
+
+		// Now we just include the design file to get it to print
 		speed_check();
-		require_once $this->data_path.'/design_file.php';
+		require_once($file_path);
 		speed_check();
+
 	}//end paint()
+
 
 	/**
 	* (Re)Generates the design file
@@ -289,6 +312,7 @@ class Design extends Design_Area
 
 	}//end generateDesignFile()
 
+
 	/**
 	* Returns the file system path to the uploaded file
 	*
@@ -300,7 +324,9 @@ class Design extends Design_Area
 	function filePath($filename)
 	{
 		return $this->data_path_public.'/files/'.$filename;
+
 	}//end filePath()
+
 
 	/**
 	* Returns the path that has to be appended to the sq_web_path('data') to
@@ -314,7 +340,10 @@ class Design extends Design_Area
 	function webFileSuffix($filename)
 	{
 		return 'assets/'.$this->type().'/'.$this->id.'/files/'.$filename;
+
 	}//end webFilesSuffix()
 
+
 }//end class
+
 ?>

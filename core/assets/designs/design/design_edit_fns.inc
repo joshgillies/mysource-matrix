@@ -16,11 +16,17 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 class Design_Edit_Fns extends Design_Area_Edit_Fns
 {
 
-	function Design_Edit_Fns() 
+	/**
+	* Constructor
+	*
+	*/
+	function Design_Edit_Fns()
 	{
 		$this->Design_Area_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
-	}
+
+	}//end constructor
+
 
 	/**
 	* Paint the interface for the parse file uploading
@@ -61,13 +67,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$changes = $this->parseAndProcessFile($asset);
 		}
 		return $changes;
+
 	}// end processParseFile()
 
 
 	/**
 	* Parses the parse file and processes the contents
 	*
-	* @param object Asset				$asset	the asset to which we belong
+	* @param object Asset	$asset	the asset to which we belong
 	*
 	* @return boolean
 	* @access public
@@ -86,14 +93,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Parses the string into an array recursively cut up into html and tag pieces
 	*
-	* @param string	$file_contents		the contents to parse
+	* @param string	$file_contents	the contents to parse
 	*
 	* @return Array
 	* @access private
 	*/
 	function _parseString($file_contents)
 	{
-
 		// convert the head and body tags to lowercase
 		$file_contents = preg_replace(	Array('/<head/i', '/<\\/head/i', '/<body/i', '/<\\/body/i'),
 										Array('<head', '</head', '<body', '</body'),
@@ -179,7 +185,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach ($existing_da_links as $link) $existing_id_names[$link['value']] = $link['linkid'];
 
 		$removed_id_names = array_diff(array_keys($existing_id_names), array_keys($id_names));
-		
+
 		// now remove any unused design area customisations
 		foreach($removed_id_names as $id_name) {
 			if (!$asset->deleteLink($existing_id_names[$id_name])) {
@@ -281,20 +287,19 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Creates the (hopefully ;) single accumulated design file for this design
 	*
-	* @param object Asset	$asset		the asset to which we belong
+	* @param object Asset	$asset	the asset to which we belong
 	*
 	* @return boolean
 	* @access private
 	*/
 	function createDesignFile(&$asset)
 	{
-
 		$design_area_links = $asset->getDesignAreaLink();
 
 		// Firstly we need to set all the var_reference variables so that when the design areas are
 		// printed they can work correctly
 		//
-		// This is a two stage process, one to set any normal vars and two to set any vars that want DA 
+		// This is a two stage process, one to set any normal vars and two to set any vars that want DA
 		// output
 
 		$var_ref_values = Array();
@@ -308,7 +313,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				if (is_null($var_da)) continue;
 				if (!isset($var_ref_values[$id_name])) $var_ref_values[$id_name] = Array();
 				foreach($da_var_refs[$id_name] as $var) {
-					// does this var want the whole design area ? 
+					// does this var want the whole design area ?
 					if ($var === '') {
 						$da_refs[] = $id_name;
 					// else just a normal var (make sure we don't have it already)
@@ -350,8 +355,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}// end foreach
 
 
-		$pre_str = '<?php 
-		$FILE_PREFIX = $DATA_PATH.\'/'.addslashes($asset->webFileSuffix('')).'\'; 
+		$pre_str = '<?php
+		$FILE_PREFIX = $DATA_PATH.\'/'.addslashes($asset->webFileSuffix('')).'\';
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
 		?>';
 
@@ -370,7 +375,38 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		create_directory($asset->data_path);
 		$file = $asset->data_path.'/design_file.php';
-		return string_to_file($str, $file);
+		$new_file = !file_exists($file);
+		if (!string_to_file($str, $file)) return false;
+
+
+		//// FILE VERSIONING ////
+
+		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+		if ($new_file) {
+			// attempt to add the file to the repository
+			if (!$fv->add($asset->data_path_suffix, $file, '', false)) {
+				trigger_error('Failed adding design file version', E_USER_WARNING);
+				return false;
+			}
+		} else {
+			// updating existing file
+			$file_status = $fv->upToDate($file);
+			if (FUDGE_FV_MODIFIED & $file_status) {
+				if (!$fv->commit($file, '', false)) {
+					trigger_error('Failed committing design file version', E_USER_WARNING);
+					return false;
+				}
+			}
+		}
+
+		// make sure we have the latest version of our file
+		if (!$fv->checkOut($asset->data_path_suffix.'/design_file.php', $asset->data_path)) {
+			trigger_error('Failed checking out latest version of design file', E_USER_WARNING);
+			return false;
+		}
+
+		return true;
 
 	}// end createDesignFile()
 
@@ -482,6 +518,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			file_upload($prefix.'_assoc_file_'.$i);
 			echo "<br>\n";
 		}
+
 	}// end paintParseFile()
 
 
@@ -575,6 +612,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (!$asset->writeAccess()) return false;
 		check_box($prefix.'_new_customisation');
 		text_box($prefix.'_new_customisation_name', $asset->name.' - Customisation', 40);
+
 	}// end paintNewCustomisation()
 
 
@@ -627,7 +665,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		
+
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// Now create the links to our design areas
@@ -653,6 +691,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 	}// end processNewCustomisation()
 
+
 	/**
 	*
 	* @param object Asset				$asset	the asset whose interface we are painting
@@ -677,7 +716,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		} else {
 			?> No Customisations Created <?php
 		}
+
 	}// end paintCurrentCustomisations()
 
+
 }//end class
+
 ?>
