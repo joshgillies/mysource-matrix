@@ -16,6 +16,14 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 class Form_Question extends Asset
 {
 
+
+	/**
+	* @var $section_name the name of the section that this question belongs to
+	*/
+	var $section_name = '';
+	var $section_id   = 0;
+
+
 	/**
 	* Constructor
 	*
@@ -107,7 +115,7 @@ class Form_Question extends Asset
 	*/
 	function paintBackend(&$o)
 	{
-		parent::paintBackend($o);
+		return parent::paintBackend($o);
 
 	}// end paintBackend()
 
@@ -119,7 +127,7 @@ class Form_Question extends Asset
 	*/
 	function printBody()
 	{
-		return true;
+		return parent::printBody();
 
 	}// end printBody()
 
@@ -136,10 +144,10 @@ class Form_Question extends Asset
 	{
 		if (!parent::_updated()) return false;
 
-		$link = $this->getLink(SQ_LINK_TYPE_2, 'form_section', true, '', 'minor');
-
-		if (!empty($link)) {
-			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
+		$link = $this->getLinks(SQ_LINK_TYPE_2, 'form_section', true, 'minor');
+		
+		if (!empty($link[0])) {
+			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link[0]['majorid'], $link[0]['type_code']);
 			if (is_null($section)) return false;
 			return $section->fileRegeneration();
 		}
@@ -147,27 +155,13 @@ class Form_Question extends Asset
 	}
 
 
-	/**
-	* Returns name of the asset
-	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
-	*
-	* @see Asset::_getName()
-	* @access public
-	*/
-	function _getName($short_name=false)
-	{
-		return $this->attr('name');
-
-	}//end _getName();
-
 
 	/**
 	* returns a string based on the passed in value
 	* used for generating forms eg. if value is 'answer', this
 	* function returns the html for this question type
 	*
-	* @param string $val
+	* @param	string	 $val
 	* 
 	* @access public
 	* @return string
@@ -213,7 +207,7 @@ class Form_Question extends Asset
 	/**
 	* @abstact
 	*/
-	function getAnswer()
+	function getAnswer($content_file=true, $value='')
 	{
 		return true;
 	}
@@ -223,9 +217,11 @@ class Form_Question extends Asset
 	* @abstract
 	*/
 	function generateError()
-	{
-		
-	}
+	{	
+		return true;
+	
+	} // end generateError() 
+
 
 	/**
 	* returns all the links to rules that this question has
@@ -237,11 +233,11 @@ class Form_Question extends Asset
 	{
 		if (empty($this->tmp['rule_links'])) {
 			$this->tmp['rule_links'] = Array();
-			$this->tmp['rule_links'] = $this->getLinks(SQ_LINK_TYPE_3, 'question_rule', false, 'major');	
+			$this->tmp['rule_links'] = $this->getLinks(SQ_LINK_TYPE_3, 'form_question_rule', false, 'major');	
 		}
 		return $this->tmp['rule_links'];
 	
-	}// end getRuleLinks()
+	} // end getRuleLinks()
 
 
 	/**
@@ -261,9 +257,15 @@ class Form_Question extends Asset
 		}
 		return $rules;
 	
-	}// end getRules()
+	} // end getRules()
 
 
+	/**
+	* returns all the form asset ids this question is attached to
+	*
+	* @access public
+	* @return Array(integer ids)
+	*/
 	function getFormIds()
 	{
 		if (empty($this->tmp['form_ids'])) {
@@ -271,8 +273,16 @@ class Form_Question extends Asset
 			$this->tmp['form_ids'] = $this->getParents('form', false);
 		}
 		return (!empty($this->tmp['form_ids'])) ? $this->tmp['form_ids'] : Array();
-	}
 
+	} // end getFormIds()
+
+
+	/**
+	* returns all the forms this question is attached to 
+	* 
+	* @access public
+	* @return Array(&object form)
+	*/
 	function &getForms()
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -282,7 +292,9 @@ class Form_Question extends Asset
 			$forms[] = &$am->getAsset($id);
 		}
 		return (!empty($forms)) ? $forms : Array();
-	}
+
+	} // end getForms()
+
 
 	/**
 	* returns the number of rules this question has
@@ -296,6 +308,19 @@ class Form_Question extends Asset
 	
 	}// end getRuleCount()
 
+
+	/**
+	* catches the special information change and sets it in this question's forms
+	* 
+	* @see Asset::setAttrValue()
+	*
+	* @param string		$name				the name of the attribute
+	* @param mixed		$value				the value to set 
+	* @param boolean	$dont_run_updated	run an update or not
+	*
+	* @access public
+	* @return boolean
+	*/
 	function setAttrValue($name, $value, $dont_run_updated=false) {
 		
 		if ($name == 'special_info') {
@@ -307,6 +332,32 @@ class Form_Question extends Asset
 		}
 		return parent::setAttrValue($name, $value, $dont_run_updated);
 		
+	} // end setAttrValue()
+
+
+	/**
+	* sets the name of the section that this question belongs to	
+	*
+	* @param string $name the name of the section
+	*
+	* @access public
+	* @return boolean 
+	*/
+	function setSection($name = '', $id)
+	{
+		$this->section_name = $name;
+		$this->section_id   = $id;
+		return true;
+	}
+
+	function _getName($short_name = false)
+	{
+		return $this->attr('name');
+	}
+
+	function getSummary($answer)
+	{
+		return $answer;
 	}
 
 }//end class

@@ -106,7 +106,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		$type_codes = Array();
 		foreach	($links[SQ_LINK_TYPE_3] as $type_code => $link) {
 			// make sure that this is a rule
-			if (substr($type_code, 0, 13) != 'question_rule') continue;
+			if (substr($type_code, 0, 18) != 'form_question_rule') continue;
 			$type_codes[] = $type_code;
 		}
 		$desc = $am->getTypeInfo($type_codes, 'Description');

@@ -1,0 +1,67 @@
+<contents>
+	<section name="Question Options">
+	    <field attribute="name">
+			<display_name>Title</display_name>
+			<note></note>
+			<text width="20" height="1" />
+		</field>
+		<field attribute="note">
+			<display_name>Note</display_name>
+			<note></note>
+			<text width="40" height="2" />
+		</field>
+		<field attribute="options">
+			<display_name>Options</display_name>
+			<note></note>
+			<text width="40" height="10" />
+		</field>
+		<field>
+			<display_name>Default</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintDefault"   />
+				<process_function name="processDefault" />
+			</function_call>
+		</field>
+		<field attribute="height">
+			<display_name>Height</display_name>
+			<note></note>
+			<text width="5" height="1" />
+		</field>
+		<field attribute="multiple">
+			<display_name>Multiple?</display_name>
+			<note>Defines if multiple options are allowed</note>
+			<selection style="list" />
+		</field>
+		<field attribute="horizontal">
+			<display_name>Horizontal?</display_name>
+			<note>Defines if options as listed horizontal</note>
+			<selection style="list" />
+		</field>
+		<field attribute="extra">
+			<display_name>Extras</display_name>
+			<note></note>
+			<text width="20" height="1" />
+		</field>
+	</section>
+	<section name="Add Rules">
+		<field>
+			<display_name>Rule</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintAddRule"   />
+				<process_function name="processAddRule" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Current Rules">
+		<field>
+			<display_name>Question Rules</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintRules"   />
+				<process_function name="processRules" />
+			</function_call>
+		</field>
+	</section>
+</contents>
