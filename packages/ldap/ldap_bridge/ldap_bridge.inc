@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.8 2004/04/02 05:04:21 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.9 2004/04/06 06:51:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -360,10 +360,10 @@ class LDAP_Bridge extends Bridge
 			foreach ($data['objectclass'] as $class) {
 				$class = strtolower($class);
 				if (in_array($class, $this->_group_types)) {
-					if (!empty($ype_code) && !in_array('user_group', $type_code)) continue(2);
+					if (!empty($type_code) && !in_array('user_group', $type_code)) continue(2);
 					$children[$this->id.':'.$data['dn']] = 'ldap_user_group';
 				} else if (in_array($class, $this->_user_types)) {
-					if (!empty($ype_code) && !in_array('user', $type_code)) continue(2);
+					if (!empty($type_code) && !in_array('user', $type_code)) continue(2);
 					$children[$this->id.':'.$data['dn']] = 'ldap_user';
 				}
 			}
