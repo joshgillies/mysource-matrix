@@ -99,7 +99,7 @@ class Page_Standard extends Page
 		// the only reason why we would object to this link being
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-		if ($bodycopy_link[0]['linkid'] == $linkid) return 'You cant delete the link between the bodycopy and the standard page';
+		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the standard page';
 
 		return parent::canDeleteLink($linkid);
 	}//end canDeleteLink()
