@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_integer.inc,v 1.2 2004/05/06 00:33:39 lwright Exp $
+* $Id: form_question_rule_type_integer.inc,v 1.3 2004/05/06 01:00:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -110,7 +110,7 @@ class Form_Question_Rule_Type_Integer extends Form_Question_Rule
 
 		$answer   = $q_asset->active_submission[$q_asset->id];
 
-		$valid = (is_int($answer)) ? 1 : 0; 
+		$valid = (is_numeric($answer) && ($answer == intval($answer))) ? 1 : 0; 
 
 		if ($valid == $operator) {
 			return true;
