@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.25 2004/02/03 03:27:42 diarandine Exp $
+* $Id: metadata_manager.inc,v 1.26 2004/02/12 01:33:08 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -443,6 +443,7 @@ class Metadata_Manager extends MySource_Object
 
 				$fieldids = $am->getChildren($sectionid, 'metadata_field', false);
 				foreach ($fieldids as $fieldid => $field_type) {
+
 					$field =& $am->getAsset($fieldid, $field_type);
 
 					if (isset($metadata['sections'][$section->name]['fields'][$field->name]['value'])) {
@@ -450,20 +451,32 @@ class Metadata_Manager extends MySource_Object
 					} else {
 						$value = $field->attr('default');
 					}
-					$keywords = retrieve_keywords_replacements($value);
-
-					$replacements = $this->generateKeywordReplacements($asset, $keywords, false);
-					foreach ($keywords as $keyword => $replacement) {
-						$replacements[$keyword] = strtolower($replacement);
-					}
-					$value = replace_keywords($value, $replacements);
-
-					$word_counts = get_word_counts($value);
 
 					$force_processing = 1; //will tell the function to process values in any case
+					
+					//////////////////////////////////////////////
+					// check field_type to define the indexing way
 
-					foreach ($word_counts as $word => $count) {
-						$asset->buildKeyData($keydata, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count, $force_processing);
+					if ($field_type == 'metadata_field_date') {
+						
+						$mydate = date("d:m:Y:h:i:s", $value);							$asset->buildKeyData($keydata, $mydate, 'text', 'metadata:'. $field->id, $field->attr('weighting') * 1, $force_processing);
+
+					} else {
+
+						$keywords = retrieve_keywords_replacements($value);
+
+						$replacements = $this->generateKeywordReplacements($asset, $keywords, false);
+						foreach ($keywords as $keyword => $replacement) {
+							$replacements[$keyword] = strtolower($replacement);
+						}
+						$value = replace_keywords($value, $replacements);
+
+						$word_counts = get_word_counts($value);
+
+						foreach ($word_counts as $word => $count) {
+							$asset->buildKeyData($keydata, $word, 'text', 'metadata:'. $field->id, $field->attr('weighting') * $count, $force_processing);
+						}
+
 					}
 				}
 			}
