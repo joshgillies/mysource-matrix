@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.44 2004/09/02 01:47:02 lwright Exp $
+* $Id: page_calendar.inc,v 1.45 2004/09/02 04:34:00 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.44 $ - 1.0
+* @version $Revision: 1.45 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1123,7 +1123,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		
 		foreach ($all_events as $id => $details) {
-			if ($details['type_code'] == 'calendar_event_single') {
+			if ($details['type_code'] != 'calendar_event_recurring') {
 				if ($details['start_date_year'] == $year) {
 					$res[$details['start_date_mon']][$id] = $details;
 					for ($current_month = $details['start_date_mon']; ($current_month <= 12) && ($current_month <= $details['start_date_mon'] + $details['end_date_ms'] - $details['start_date_ms']); $current_month++) {
@@ -1174,7 +1174,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$end_ts = strtotime($next_year.'-'.sprintf('%02d', ($month_num+1)%12).'-01 00:00:00 GMT') - 1;
 			$month_length = days_in_month($month_num, $year);
 			foreach ($month_events as $id => $details) {
-				if ($details['type_code'] == 'calendar_event_single') {
+				if ($details['type_code'] != 'calendar_event_recurring') {
 					if ($details['start_date_mon'] == $month_num) {
 						$res[$month_num][$details['start_date_mday']][$id] = $details;
 						for ($current_day = $details['start_date_mday']; ($current_day <= $month_length) && (strtotime("$year-$month_num-$current_day") < $details['end_date_ts']); $current_day++) {
@@ -1266,7 +1266,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 
 		foreach ($all_events as $id => $details) {
-			if ($details['type_code'] == 'calendar_event_single') {
+			if ($details['type_code'] != 'calendar_event_recurring') {
 				if ($details['start_date_mon'] == $month) {
 					$res[$details['start_date_mday']][$id] = $details;
 					// now figure out if it goes beyond this day
@@ -1885,7 +1885,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		
 		return 
-		'SELECT a.assetid, a.type_code, a.name, ('.$this->_treeCaseQuery('t.treeid',$trees).') as root_node, cd.* FROM ('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX."calendar_date_value cd on a.assetid = cd.assetid WHERE a.type_code = ".$db->quote('calendar_event_single');
+		'SELECT a.assetid, a.type_code, a.name, ('.$this->_treeCaseQuery('t.treeid',$trees).') as root_node, cd.* FROM ('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX.'calendar_date_value cd on a.assetid = cd.assetid WHERE a.type_code IN ( '.$db->quote('calendar_event_single').', '.$db->quote('calendar_event_modification').', '.$db->quote('calendar_event_cancellation').')';
 		
 	}//end _buildSingleEventQuery()
 	

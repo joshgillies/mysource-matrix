@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.27 2004/09/02 01:09:25 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.28 2004/09/02 04:34:00 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.27 $ - 1.0
+* @version $Revision: 1.28 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -561,12 +561,9 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function getAssetKeywords($descriptions=false)
 	{
-		$child_links = ($GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($this->id));
-		foreach ($child_links as $treeid => $details) {
-			if ($details['value'] == $_REQUEST['SQ_CALENDAR_DATE']) {
-				bam("SPECIAL CASE: This asset has a ".$details['type_code']);
-				break;
-			}
+		if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
+			bam("SPECIAL CASE: This asset has an exception today");
+			bam($exception_link);
 		}
 		$keywords = parent::getAssetKeywords($descriptions);
 		$keywords['event_frequency'] = Array('value'=> $this->getFriendlyFrequency());
@@ -581,6 +578,28 @@ class Calendar_Event_Recurring extends Calendar_Event
 		return $keywords;
 
 	}//end getAssetKeywords()
+
+
+	/**
+	* Gets the link details of the exception (cancellation or modification) event linked under
+	* this event for the date given
+	*
+	* This function can be called statically (with both parameters) or on an object (with just
+	* the first parameter)
+	*
+	* @param int	$date	YYYY-MM-DD date to consider
+	* @param int	$id		The ID of the recurring event to test, or NULL to use the current object
+	*
+	* @static (optionally)
+	* @return Array|boolean		Array (assetid => type_code) of the event, or false if none exist
+	*/
+	function getExceptionLink($date, $id=null)
+	{
+		if (is_null($id)) $id = $this->id;
+		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation', 'calendar_event_modification'), false, 'major', $date);
+		return current($child_links);
+
+	}//end getExceptionEvent()
 
 
 	/**
@@ -731,18 +750,36 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*
 	* @return object|boolean	The Cancellation asset, or false on failure
 	*/
-	function addCancellation($date, $reason)
+	function &addCancellation($date, $reason)
 	{
 		if (!$this->writeAccess('')) {
 			trigger_error('You don\'t have sufficient access to create a cancellation for this event', SQ_USER_WARNING);
 			return false;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_cancellation');
-		$cancellation_event = new Calendar_Event_Cancellation();
+		if ($existing_link = $this->getExceptionLink($date)) {
+			if ($existing_link['minor_type_code'] == 'calendar_event_cancellation') {
+				$cancellation_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
+			} else {
+				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($existing_link['linkid']);
+				$cancellation_event = new Calendar_Event_Cancellation();
+			}
+		} else {
+			$cancellation_event = new Calendar_Event_Cancellation();
+		}
 		$cancellation_event->setAttrValue('start_date', $date.' --:--:--');
 		$cancellation_event->setAttrValue('description', $reason);
-		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 0, 'value' => $date);
-		$cancellation_event->create($link);
+		if (!$cancellation_event->id) {
+			$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 0, 'value' => $date);
+			$cancellation_event->create($link);
+		} else {
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($cancellation_event->id, 'attributes')) {
+				trigger_error('Could not get lock to save attrs of asset "'.$cancellation_event->name.'"', E_USER_WARNING);
+				return 0;
+			}
+			$cancellation_event->saveAttributes();
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($cancellation_event->id, 'attributes');
+		}
 		return $cancellation_event;
 
 	}// end addCancellation()
@@ -761,11 +798,30 @@ class Calendar_Event_Recurring extends Calendar_Event
 			return false;
 		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_modification');
-		$modification_event = new Calendar_Event_Modification();
+
+		if ($existing_link = $this->getExceptionLink($date)) {
+			if ($existing_link['minor_type_code'] == 'calendar_event_modification') {
+				$modification_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($existing_link['minorid']);
+			} else {
+				$GLOBALS['SQ_SYSTEM']->am->deleteAssetLink($existing_link['linkid']);
+				$modification_event = new Calendar_Event_Modification();
+			}
+		} else {
+			$modification_event = new Calendar_Event_Modification();
+		}
 		$modification_event->setAttrValue('start_date', $date.' --:--:--');
 		$modification_event->setAttrValue('description', $description);
-		$link = Array('asset' => &$this, 'value' => $date, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 0);
-		$modification_event->create($link);
+		if (!$modification_event->id) {
+			$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 0, 'value' => $date);
+			$modification_event->create($link);
+		} else {
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($modification_event->id, 'attributes')) {
+				trigger_error('Could not get lock to save attrs of asset "'.$modification_event->name.'"', E_USER_WARNING);
+				return 0;
+			}
+			$modification_event->saveAttributes();
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($modification_event->id, 'attributes');
+		}
 		return $modification_event;
 
 	}// end addModification()
