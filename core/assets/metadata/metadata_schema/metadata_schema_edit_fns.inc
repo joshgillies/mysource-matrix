@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.20 2004/02/24 02:58:50 gsherwood Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.21 2004/02/24 07:37:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -314,14 +314,15 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Output the complete metadata tags for this schema
 	*
-	* @param object Metadata_Schema	&$asset		the asset whose interface we are painting
-	* @param array					$values		the current metadata values
-	* @param array					&$keywords	an array we can put keywords in that need replacing
+	* @param object Metadata_Schema	&$asset			the asset whose interface we are painting
+	* @param array					&$values		the current metadata values
+	* @param array					&$tag_values	the metadata tag values
+	* @param array					&$keywords		an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, &$values, &$keywords)
+	function generateMetadata(&$asset, &$values, &$tag_values, &$keywords)
 	{
 		echo "<!-- $asset->name //-->\n\n";
 
@@ -334,7 +335,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 
 			$edit_fns = $section->getEditFns();
 			if (!isset($values['sections'][$section->name])) $values['sections'][$section->name] = Array();
-			if (!$edit_fns->generateMetadata($section, $values['sections'][$section->name], $keywords)) return false;
+			if (!$edit_fns->generateMetadata($section, $values['sections'][$section->name], $tag_values, $keywords)) return false;
 		}
 
 		// remove any invalid sections from the values array

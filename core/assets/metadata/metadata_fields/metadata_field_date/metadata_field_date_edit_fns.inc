@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.6 2004/02/24 02:58:50 gsherwood Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.7 2004/02/24 07:37:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -381,12 +381,13 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	*
 	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
 	* @param array					&$values		the current metadata values
+	 @param array					&$tag_value	the metadata tag value
 	* @param array					&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, &$values, &$keywords)
+	function generateMetadata(&$asset, &$values, &$tag_value, &$keywords)
 	{
 		if (!isset($values['using_default'])) $values['using_default'] = false;
 		if (isset($values['value']) && !$values['using_default']) {
@@ -409,9 +410,12 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		} else {
 			$new_values['value'] = $value;
 		}
+		// we dont want out default value restored even if we are using it
+		// because we have already formatted it here
+		$new_values['using_default'] = false;
 
 		ob_start();
-			parent::generateMetadata($asset, $new_values, $keywords);
+			parent::generateMetadata($asset, $new_values, $tag_value, $keywords);
 			$metadata_tag = ob_get_contents();
 		ob_end_clean();
 

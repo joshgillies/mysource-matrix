@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.17 2004/02/24 02:58:50 gsherwood Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.18 2004/02/24 07:37:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -455,12 +455,13 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
 	* @param array					$values		the current metadata values
+	* @param array					&$tag_value	the metadata tag value
 	* @param array					&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, &$values, &$keywords)
+	function generateMetadata(&$asset, &$values, &$tag_value, &$keywords)
 	{
 		require_once SQ_FUDGE_PATH.'/general/text.inc';
 
@@ -495,13 +496,13 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		echo ' content="';
+		echo ' content="<?php echo $metadata_values[\''.$asset->name.'\']; ?>" />'."\n";
+		
 		if (trim($default) != '') {
-			echo trim($default);
-			if (trim($value_string) != '') echo '; ';
+			$tag_value = $default;
+			if (trim($value_string) != '') $tag_value .= '; ';
 		}
-		if (trim($value_string) != '') echo trim($value_string);
-		echo "\" />\n";
+		if (trim($value_string) != '') $tag_value .= trim($value_string);
 
 		return true;
 

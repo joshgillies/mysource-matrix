@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.29 2004/02/24 02:59:28 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.30 2004/02/24 07:37:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -531,6 +531,9 @@ class Metadata_Manager extends MySource_Object
 		$schemas = $this->getSchemas($asset->id, true);
 		if (empty($schemas)) return false;
 
+		// an array of all metadata tag value
+		$tag_values = Array();
+
 		// an array of keyword replacements that we are going to have to write some PHP code to produce
 		$keywords = Array();
 
@@ -553,7 +556,7 @@ class Metadata_Manager extends MySource_Object
 			$values = Array();
 			$values = $this->getSchemaMetadata($asset->id, $schema->id);
 			$edit_fns = $schema->getEditFns();
-			$edit_fns->generateMetadata($schema, $values, $keywords);
+			$edit_fns->generateMetadata($schema, $values, $tag_values, $keywords);
 			if ($regenerate) $db_metadata[$schema->name] = $values;
 
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($schema);
@@ -563,15 +566,60 @@ class Metadata_Manager extends MySource_Object
 		ob_end_clean();
 
 		if (!empty($keywords)) {
+			require_once SQ_FUDGE_PATH.'/general/text.inc';
 			ob_start();
 				echo '<'.'?php'."\n";
+
 				echo '$metadata_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.');'."\n\n";
 				$replacements = $this->generateKeywordReplacements($asset, $keywords);
+				echo "\n\n";
+
+				$tag_values = replace_keywords($tag_values, $replacements);
+
+				$nested_tag_values = Array();
+				$tag_nested_index = Array();
+				foreach ($tag_values as $n => $v) {
+					$matches = Array();
+					$nested_index = 0;
+					preg_match_all('|\$metadata_values\[\'([^\]]+)\'\]|', $v, $matches);
+					if (!empty($matches[1])) {
+						foreach ($matches[1] as $field_name) {
+							// we have a nested field name
+							for ($i = 0; $i < count($nested_tag_values); $i++) {
+								if (isset($nested_tag_values[$i][$field_name])) {
+									$v = preg_replace('|(\$metadata_values)(\[\')('.$field_name.')(\'\])|', '$metadata_values_'.$i.'[\'\\3\']', $v);
+									if ($i >= $nested_index) $nested_index = $i + 1;
+									break;
+								}
+							}
+						}
+					}
+					
+					$nested_tag_values[$nested_index][$n] = $v;
+					$tag_nested_index[$n] = $nested_index;
+				}
+
+				foreach ($nested_tag_values as $i => $values) {
+					echo '$metadata_values_'.$i.' = Array(';
+					foreach ($values as $n => $v) {
+						$v = addslashes($v);
+						$v = preg_replace('|(\$metadata_replacements\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
+						$v = preg_replace('|(\$metadata_values[^\[]+\[)\\\\\'([^\]]+)\\\\\'(\])|', '\'.\\1\'\\2\'\\3.\'', $v);
+						echo "'$n' => '$v',\n";
+					}
+					echo ");\n";
+				}
+
 				echo '?'.'>';
 				$php = ob_get_contents();
 			ob_end_clean();
-			require_once SQ_FUDGE_PATH."/general/text.inc";
-			$metadata = replace_keywords($metadata, $replacements);
+
+			$metadata_matches = Array();
+			preg_match_all('|\$metadata_values\[\'([^\]]+)\'\]|', $metadata, $metadata_matches);
+			foreach ($metadata_matches[1] as $field_name) {
+				$metadata = preg_replace('|\$metadata_values\[\''.$field_name.'\'\]|', '$metadata_values_'.$tag_nested_index[$field_name].'[\''.$field_name.'\']', $metadata);
+			}
+
 			$metadata = $php."\n\n".$metadata;
 		}
 
@@ -608,12 +656,12 @@ class Metadata_Manager extends MySource_Object
 		$metadata_replacements = Array();
 		$keywords = array_unique($keywords);
 
-		if (!empty($keywords) && $generating) echo '$metadata_replacements = Array();';
+		if (!empty($keywords) && $generating) echo '$metadata_replacements = Array();'."\n";
 
 		foreach ($keywords as $keyword) {
 
 			if ($generating) {
-				$metadata_replacements[$keyword] = '<'.'?php echo $metadata_replacements[\''.$keyword.'\']; ?'.'>';
+				$metadata_replacements[$keyword] = '$metadata_replacements[\''.$keyword.'\']';
 			} else {
 				ob_start();
 			}
@@ -688,32 +736,39 @@ class Metadata_Manager extends MySource_Object
 					echo '$metadata_replacements[\''.$keyword.'\'] = SQ_CONF_'.strtoupper($keyword).';'."\n";
 				break;
 
-				default : // searching for special ones...
+				default :
 
-					$key = substr($keyword, 0, 13); // returns the key name
-					$format = substr($keyword, 14); // should return format, skipping '_' separator
-					$format = str_replace("-", " ", $format); // preparing our date format...
+					// searching for keywords that replace the content of another field
+					if (substr($keyword, 0, 15) == 'metadata_field_') {
 
-					switch ($key) {
+						$field_name = substr($keyword, 15);
+						$metadata_replacements[$keyword] = '$metadata_values[\''.$field_name.'\']';
 
-						case 'asset_created':
-						case 'asset_updated':
-							echo '$metadata_replacements[\''.$keyword.'\'] = date(\''. $format .'\', $metadata_asset->'.substr($key,6).');'."\n";
-						break;
+					} else {
 
-						default:
-							echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
-						break;
-					} // end another switch...
+						// searching for special date format keywords
+						$key = substr($keyword, 0, 13); // returns the key name
+						$format = substr($keyword, 14); // should return format, skipping '_' separator
+						$format = str_replace("-", " ", $format); // preparing our date format...
+
+						switch ($key) {
+							case 'asset_created':
+							case 'asset_updated':
+								echo '$metadata_replacements[\''.$keyword.'\'] = date(\''. $format .'\', $metadata_asset->'.substr($key,6).');'."\n";
+							break;
+							default:
+								echo '$metadata_replacements[\''.$keyword.'\'] = \'\';'."\n";
+							break;
+						}
+
+					}//end if
 
 				break;
 
 			}//end switch
 
 
-			if ($generating) {
-				echo "\n";
-			} else {
+			if (!$generating) {
 				eval(ob_get_contents());
 				ob_end_clean();
 			}

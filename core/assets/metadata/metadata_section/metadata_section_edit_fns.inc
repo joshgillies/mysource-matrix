@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_section_edit_fns.inc,v 1.15 2004/02/24 02:58:50 gsherwood Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.16 2004/02/24 07:37:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -281,14 +281,15 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 	/**
 	* Output the complete metadata tags for this section
 	*
-	* @param object Metadata_Section	&$asset		the asset whose interface we are painting
-	* @param array						$values		the current metadata values
-	* @param array						&$keywords	an array we can put keywords in that need replacing
+	* @param object Metadata_Section	&$asset			the asset whose interface we are painting
+	* @param array						&$values		the current metadata values
+	* @param array						&$tag_values	the metadata tag values
+	* @param array						&$keywords		an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public
 	*/
-	function generateMetadata(&$asset, &$values, &$keywords)
+	function generateMetadata(&$asset, &$values, &$tag_values, &$keywords)
 	{
 		echo "<!-- $asset->name //-->\n";
 
@@ -301,7 +302,8 @@ class Metadata_Section_Edit_Fns extends Folder_Edit_Fns
 
 			$edit_fns = $field->getEditFns();
 			if (!isset($values['fields'][$field->name])) $values['fields'][$field->name] = Array();
-			if (!$edit_fns->generateMetadata($field, $values['fields'][$field->name], $keywords)) return false;
+			$tag_values[$field->name] = '';
+			if (!$edit_fns->generateMetadata($field, $values['fields'][$field->name], $tag_values[$field->name], $keywords)) return false;
 		}
 		echo "\n";
 
