@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.324 2004/09/07 02:25:37 mmcintyre Exp $
+* $Id: asset.inc,v 1.325 2004/09/14 00:55:41 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1752,40 +1752,48 @@ class Asset extends MySource_Object
 
 
 	/**
-	* Sets the last published date of an asset to the appropriate date and time
+	* Modifies the specified date to the specified timestamp
 	*
-	* It is advised that this function be called only from those Asset Status classes which
-	* transition to LIVE status - plus not all transitions (from a cancelled Safe Edit, eg) may
-	* not be considered a 'publish'.
+	* The user field for the specified date is set to the userid specified. If
+	* none is specified, then the current user is used
 	*
-	* @param int	$time	The time to set the published date to. If NULL then use current time
-	* @param int	$userid	The user ID to record as the one that published the asset.
-	*						If NULL then use the user that is currently logged in
+	* @param int		$time		the time to set the date to. If NULL then use current time
+	* @param int		$userid 	the userid that modified the specified date
+	* @param string 	$date_type	the date to update, which must be one of 'published' or 'created'
 	*
 	* @access public
 	* @return boolean indicating success
 	*/
-	function setPublishedDate($time=null, $userid=null)
+	function setDate($time=null, $userid=null, $date_type)
 	{
-		$db = $GLOBALS['SQ_SYSTEM']->db;
+		if (!in_array($date_type, Array('published' ,'created'))) {
+			trigger_error('Only the published and created date can be modified', E_USER_WARNING);
+			return false;
+		}
+		
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		if ($userid == null) {
-			$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		if (is_null($userid)) $userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		if (is_null($time)) {
+			if ($date_type == 'created') {
+				$time = time();
+			} else {
+				$userid = null;
+			}
 		}
 
-		if ($time == null) {
-			$time = time();
-		}
-
-		// change the time to ISO8601 format
 		$time_iso = ts_iso8601($time);
 
 		// begin a transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$where = 'assetid = '.$db->quote($this->id);
-		$values = Array('published' => $db->quote($time_iso),
-			            'published_userid' => $db->quote($userid));
+		
+		$values = Array(
+			$date_type           => $db->quote($time_iso),
+			$date_type.'_userid' => $db->quote($userid)
+		);
+	
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -1793,9 +1801,13 @@ class Asset extends MySource_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
+		eval('$this->'.$date_type.' = $time;');
+		eval('$this->'.$date_type.'_userid = $userid;');
+
 		return true;
 
-	}//end setPublishedDate()
+	}//end setDate()
+
 
 //--        LOCKING        --//
 
