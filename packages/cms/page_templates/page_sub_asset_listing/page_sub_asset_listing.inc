@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_sub_asset_listing.inc,v 1.6 2003/10/13 06:29:18 mmcintyre Exp $
+* $Id: page_sub_asset_listing.inc,v 1.7 2003/10/13 23:05:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -342,7 +342,7 @@ class Page_Sub_Asset_Listing extends Page
 		} // end foreach
 
 		// if we have any blank keywords, replace them with nothing
-		$global_contents = preg_replace('|%[^%]+%|', '', $global_contents);
+		$global_contents = preg_replace('|%[^%\W]+%|', '', $global_contents);
 
 		return $global_contents;
 
