@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: tables.xml,v 1.24 2003/10/07 23:17:30 gsherwood Exp $
+* $Id: tables.xml,v 1.25 2003/10/14 04:57:13 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -1110,6 +1110,15 @@
 		<indexes>
 			<index>
 				<column name="value" />
+			</index>
+			<index>
+				<column name="assetid" />
+			</index>
+			<index>
+				<column name="type" />
+			</index>
+			<index>
+				<column name="component" />
 			</index>
 		</indexes>
 	</table>
