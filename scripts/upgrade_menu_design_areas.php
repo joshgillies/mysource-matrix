@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_menu_design_areas.php,v 1.1 2004/04/13 02:03:35 gsherwood Exp $
+* $Id: upgrade_menu_design_areas.php,v 1.2 2004/05/03 05:33:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,7 +72,7 @@ foreach ($menuids as $menuid => $type_code) {
 	if (strpos($id_name, '__sub_menu') !== false) continue;
 	
 	// if this asset is in the trash, we dont have to do it
-	if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($menu->id)) continue;
+	if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($menu->id, true)) continue;
 	
 	// if this menu design area doesnt have a sub menu design area, we dont have to do it
 	$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($menu->id, SQ_LINK_TYPE_3, 'design_area_menu_type', false);
@@ -118,12 +118,15 @@ foreach ($menuids as $menuid => $type_code) {
 ////////////////////////////////
 if (!empty($designs_to_reparse)) {
 	echo "\n";
-	foreach ($designs_to_reparse as $designid) {
+	foreach (array_unique($designs_to_reparse) as $designid) {
 		$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($designid);
 		printName('Reparse design "'.$design->name.'"');
 		
 		// try to lock the design
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($design->id, 'parsing')) {
+		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array('assetid' => $designid, 'lock_type' => 'parsing', 'forceably_acquire' => false);
+		$errors = $hh->freestyleHipo('hipo_job_acquire_lock', $vars);
+		if (!empty($errors)) {
 			printUpdateStatus('LOCK');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
 			continue;
