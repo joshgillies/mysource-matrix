@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.13 2004/04/28 03:07:49 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.14 2004/04/29 05:19:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class Form_Question_Type_Select extends Form_Question
 	{
 		$this->Form_Question($assetid,$data);
 
-	} // end Form_Question_Type_Select()
+	}//end Form_Question_Type_Select()
 
 
 	/**
@@ -95,7 +95,7 @@ class Form_Question_Type_Select extends Form_Question
 		
 		return html_entity_decode($html);
 
-	} // end getAnswer()
+	}//end getAnswer()
 
 
 	/**
@@ -108,7 +108,7 @@ class Form_Question_Type_Select extends Form_Question
 	{
 		return split("\r\n", $this->attr('options'));
 
-	} // end getoptions()
+	}//end getoptions()
 
 
 	/**
@@ -133,7 +133,7 @@ class Form_Question_Type_Select extends Form_Question
 			
 		return true;
 
-	} // end processForm()
+	}//end processForm()
 
 
 	/**
@@ -155,7 +155,7 @@ class Form_Question_Type_Select extends Form_Question
 		} 
 		return $this->getAnswerByOffset($answer);
 
-	} // end getSummary()
+	}//end getSummary()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.6 2004/04/28 03:07:49 lwright Exp $
+* $Id: form_question_type_password.inc,v 1.7 2004/04/29 05:19:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 class Form_Question_Type_Password extends Form_Question
 {
 
+
 	/**
 	* Constructor
 	*
@@ -50,7 +51,7 @@ class Form_Question_Type_Password extends Form_Question
 	{
 		$this->Form_Question($assetid, $data);
 
-	} // end Form_Question_Type_Password()
+	}//end Form_Question_Type_Password()
 
 
 	/**
@@ -109,7 +110,7 @@ class Form_Question_Type_Password extends Form_Question
 
 		return html_entity_decode($html);
 
-	} // end getAnswer()
+	}//end getAnswer()
 
 	
 	/**
@@ -128,7 +129,7 @@ class Form_Question_Type_Password extends Form_Question
 			if ($answer) echo $answer;
 		}
 	
-	} // end getValue()
+	}//end getValue()
 
 
 	/**
@@ -165,7 +166,7 @@ class Form_Question_Type_Password extends Form_Question
 		
 		return true;
 	
-	} // end processForm()
+	}//end processForm()
 
 	/**
 	* returns TRUE if this question has been answered correctly
@@ -185,7 +186,7 @@ class Form_Question_Type_Password extends Form_Question
 			if ($val1 != $val2) return false;
 		}
 		return true;
-	}
+	}//end answeredCorrectly()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.15 2004/04/28 03:05:05 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.16 2004/04/29 05:19:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 class Form_Question_Type_Text extends Form_Question
 {
 
+
 	/**
 	* Constructor
 	*
@@ -50,7 +51,7 @@ class Form_Question_Type_Text extends Form_Question
 	{
 		$this->Form_Question($assetid, $data);
 
-	} // end Form_Question_Type_Text()
+	}//end Form_Question_Type_Text()
 
 
 	/**
@@ -97,7 +98,7 @@ class Form_Question_Type_Text extends Form_Question
 
 		return html_entity_decode($html);
 
-	} // end getAnswer()
+	}//end getAnswer()
 
 
 	/**
@@ -131,7 +132,7 @@ class Form_Question_Type_Text extends Form_Question
 		
 		return true;
 	
-	} // end processForm()
+	}//end processForm()
 
 	
 }//end class

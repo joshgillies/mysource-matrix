@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_edit_fns.inc,v 1.1 2004/04/23 07:31:41 lwright Exp $
+* $Id: form_question_type_option_list_edit_fns.inc,v 1.2 2004/04/29 05:19:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once dirname(__FILE__).'/../form_question_type_tickbox_list/form_questio
 class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox_List_Edit_Fns
 {
 
+
 	/**
 	* Constructor
 	*
@@ -47,7 +48,7 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 	{
 		$this->Form_Question_Type_Tickbox_List_Edit_Fns();
 	
-	} // end Form_Question_Type_Option_List_Edit_Fns()
+	}//end Form_Question_Type_Option_List_Edit_Fns()
 
 
 	/**
@@ -88,7 +89,7 @@ class Form_Question_Type_Option_List_Edit_Fns extends Form_Question_Type_Tickbox
 
 		return true;
 	
-	} // end paintDefault()
+	}//end paintDefault()
 
 
 }//end class

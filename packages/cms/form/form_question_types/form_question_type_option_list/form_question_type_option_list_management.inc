@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list_management.inc,v 1.1 2004/04/23 07:31:41 lwright Exp $
+* $Id: form_question_type_option_list_management.inc,v 1.2 2004/04/29 05:19:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,6 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 */
 class Form_Question_Type_Option_List_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -74,7 +75,8 @@ class Form_Question_Type_Option_List_Management extends Asset_Management
 									),
 								
 			);
-	}//end constructor
+	}//end Form_Question_Type_Option_List_Management()
+
 
 }//end class
 ?>

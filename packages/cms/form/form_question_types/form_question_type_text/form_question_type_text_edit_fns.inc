@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text_edit_fns.inc,v 1.6 2004/04/28 03:07:09 lwright Exp $
+* $Id: form_question_type_text_edit_fns.inc,v 1.7 2004/04/29 05:19:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,7 +47,7 @@ class Form_Question_Type_Text_Edit_Fns extends Form_Question_Edit_Fns
 	function Form_Question_Type_Text_Edit_Fns()
 	{
 		$this->Form_Question_Edit_Fns();
-	}  // end Form_Question_Type_Edit_Fns()
+	}//end Form_Question_Type_Edit_Fns()
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country.inc,v 1.6 2004/04/28 03:07:49 lwright Exp $
+* $Id: form_question_type_country.inc,v 1.7 2004/04/29 05:19:40 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,6 +42,7 @@ require_once SQ_FUDGE_PATH.'/standards_lists/countries.inc';
 class Form_Question_Type_Country extends Form_Question_Type_Select
 {
 
+
 	/**
 	* Constructor
 	*
@@ -53,7 +54,7 @@ class Form_Question_Type_Country extends Form_Question_Type_Select
 	{
 		$this->Form_Question_Type_Select($assetid,$data);
 
-	} // end Form_Question_Type_Country()
+	}//end Form_Question_Type_Country()
 
 
 	/**
@@ -77,7 +78,7 @@ class Form_Question_Type_Country extends Form_Question_Type_Select
 
 		return $options;
 	
-	} // end getoptions()
+	}//end getoptions()
 
 	
 	/**
@@ -91,7 +92,8 @@ class Form_Question_Type_Country extends Form_Question_Type_Select
 		global $standards_lists_countries;
 		return $standards_lists_countries;
 		
-	} // end getCompleteOptions()
+	}//end getCompleteOptions()
+
 
 }//end class
 ?>

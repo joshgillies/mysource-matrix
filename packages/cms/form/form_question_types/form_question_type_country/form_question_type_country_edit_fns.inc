@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_country_edit_fns.inc,v 1.5 2004/04/23 07:28:07 lwright Exp $
+* $Id: form_question_type_country_edit_fns.inc,v 1.6 2004/04/29 05:19:40 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once dirname(__FILE__).'/../form_question_type_select/form_question_type
 class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit_Fns
 {
 
+
 	/**
 	* Constructor
 	*
@@ -47,7 +48,7 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 	{
 		$this->Form_Question_Edit_Fns();
 	
-	} // end Form_Question_Type_Country_Edit_Fns()
+	}//end Form_Question_Type_Country_Edit_Fns()
 
 
 	/**
@@ -85,7 +86,7 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 
 		return $asset->writeAccess('attributes');
 	
-	} // end printAvailableCountries()
+	}//end printAvailableCountries()
 
 
 	/**
@@ -111,7 +112,8 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 		}
 		return true;
 	
-	} // end processAvailableCountries()
+	}//end processAvailableCountries()
+
 
 }//end class
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_list.inc,v 1.10 2004/04/28 03:04:30 lwright Exp $
+* $Id: form_question_type_tickbox_list.inc,v 1.11 2004/04/29 05:19:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	{
 		$this->Form_Question($assetid,$data);
 	
-	} // end Form_Question_Type_Tickbox_List()
+	}//end Form_Question_Type_Tickbox_List()
 
 
 	/**
@@ -81,7 +81,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		$html = $this->listBox($this->getOptions(), $this->attr('multiple'), $this->attr('horizontal'), $this->attr('extra'));
 		return $html;
 
-	} // end getAnswer()
+	}//end getAnswer()
 
 
 	/**
@@ -120,7 +120,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		
 		return $html;
 	
-	} // end ListBox()
+	}//end listBox()
 
 
 	/**
@@ -133,7 +133,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 	{
 		return split("\r\n", $this->attr('options'));
 	
-	} // end getOptions()
+	}//end getOptions()
 
 
 	/**
@@ -163,7 +163,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 			
 		return true;
 
-	} // end processForm()
+	}//end processForm()
 
 
 	/**
@@ -185,7 +185,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 		}
 		return $this->getAnswerByOffset($answer);
 	
-	} // end getSummary()
+	}//end getSummary()
 
 
 	/**
@@ -214,7 +214,7 @@ class Form_Question_Type_Tickbox_List extends Form_Question
 
 		return false;
 	
-	} // end isSelected()
+	}//end isSelected()
 
 
 }//end class

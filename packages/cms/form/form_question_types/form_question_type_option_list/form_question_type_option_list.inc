@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_option_list.inc,v 1.2 2004/04/28 03:04:04 lwright Exp $
+* $Id: form_question_type_option_list.inc,v 1.3 2004/04/29 05:19:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class Form_Question_Type_Option_List extends Form_Question_Type_Tickbox_List
 	{
 		$this->Form_Question_Type_Tickbox_List($assetid,$data);
 	
-	} // end Form_Question_Type_Option_List()
+	}//end Form_Question_Type_Option_List()
 
 
 }//end class

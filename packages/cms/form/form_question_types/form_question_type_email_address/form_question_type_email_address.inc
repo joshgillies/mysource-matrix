@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.2 2004/04/28 03:07:49 lwright Exp $
+* $Id: form_question_type_email_address.inc,v 1.3 2004/04/29 05:19:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,6 +40,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 {
 
+
 	/**
 	* Constructor
 	*
@@ -51,7 +52,7 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	{
 		$this->Form_Question_Type_Text($assetid, $data);
 
-	} // end Form_Question_Type_Email_Address()
+	}//end Form_Question_Type_Email_Address()
 
 
 	/**
@@ -79,7 +80,8 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 		
 		return true;
 	
-	} // end processForm()
+	}//end processForm()
+
 
 }//end class
 ?>

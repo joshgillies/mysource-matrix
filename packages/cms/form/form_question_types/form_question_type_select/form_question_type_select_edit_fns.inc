@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.8 2003/11/26 00:51:29 gsherwood Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.9 2004/04/29 05:19:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question_edit_fns.inc'
 class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 {
 
+
 	/**
 	* Constructor
 	*
@@ -47,7 +48,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 	{
 		$this->Form_Question_Edit_Fns();
 
-	} // end Form_Question_Type_Select_Edit_Fns()
+	}//end Form_Question_Type_Select_Edit_Fns()
 
 
 	/**
@@ -68,7 +69,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		
 		return combo_box($prefix.'_default', $options, $multiple, $asset->attr('default'));
 
-	} // end paintDefault()
+	}//end paintDefault()
 
 
 	/**
@@ -94,7 +95,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 		}
 		return true;
 	
-	} // end processDefault()
+	}//end processDefault()
 
 
 }//end class
