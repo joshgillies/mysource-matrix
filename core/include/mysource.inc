@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.72 2005/02/16 13:39:44 brobertson Exp $
+* $Id: mysource.inc,v 1.73 2005/02/17 06:10:06 rhoward Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix
 */
 class MySource
@@ -109,6 +109,11 @@ class MySource
 	* @var object Event_Manager
 	*/
 	var $em;
+
+	/**
+	* @var object Asset_Manager
+	*/
+	var $trigger_manager;
 
 	/**
 	* Object of logged in user
@@ -781,7 +786,7 @@ class MySource
 	{
 		return $this->am->getSystemAsset('public_user');
 
-	}//end &getPublicUser()
+	}//end getPublicUser()
 
 
 	/**
@@ -937,6 +942,41 @@ class MySource
 
 	}//end getEventManager()
 
+	/**
+	* Get the Trigger Manager
+	*
+	* @access public
+	* @return object Trigger_Manager
+	*/
+	function &getTriggerManager()
+	{
+		if (!isset($this->trigger_manager) || get_class($this->trigger_manager) != 'trigger_manager') {
+			$this->trigger_manager = &$this->am->getSystemAsset('trigger_manager');
+		}
+
+		return $this->trigger_manager;
+
+	}//end getTriggerManager()
+
+
+	/**
+	* Broadcast a trigger event
+	*
+	* @param string $event_name     name of the event (should be a valid trigger event name)
+	* @param Asset  &$broadcaster   an asset that broadcast the event
+	* @param array  $parameters     an array of parameters that trigger conditions are expected to understand
+	*
+	* @access public
+	* @return void
+	*/
+	function broadcastTriggerEvent($event_name, &$broadcaster, $parameters=null)
+	{
+		$tm = &$this->getTriggerManager();
+		if (!empty($tm)) {
+			$tm->broadcastEvent($event_name, &$broadcaster, $parameters);
+		}
+
+	}//end broadcastTriggerEvent()
 
 //--        DATABASE        --//
 
