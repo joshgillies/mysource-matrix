@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: general.inc,v 1.13 2003/09/26 05:26:36 brobertson Exp $
+* $Id: general.inc,v 1.14 2003/10/16 05:58:32 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -114,7 +114,7 @@ function random_password($length)
 */
 function ellipsisize($string, $length)
 {
-	$full_length = strlen($string);
+	$full_length = strlen((string) $string);
 	$length += 2; // add 2 because an elipsis is 3 chars long
 	$on = true;
 	$j = 0;
