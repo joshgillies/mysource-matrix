@@ -6,7 +6,7 @@ PEAR - Base
      - XML_Tree
      - Mail
      - Mime_Mail
-
+     - Archive_TAR
 
 
 
