@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_ends_with.inc,v 1.1 2004/05/07 05:15:41 lwright Exp $
+* $Id: form_question_rule_type_ends_with.inc,v 1.2 2004/05/10 00:32:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -124,7 +124,7 @@ class Form_Question_Rule_Type_Ends_With extends Form_Question_Rule
 	{
 		ob_start();			// buffer this please
 
-		$code .= 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
+		echo 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
 
 		if (is_a($comparison, 'form_question')) {
 			$compare_value = 'document.getElementById("'.$comparison->id.'").value; ';

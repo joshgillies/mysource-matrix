@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_begins_with.inc,v 1.1 2004/05/07 05:15:37 lwright Exp $
+* $Id: form_question_rule_type_begins_with.inc,v 1.2 2004/05/10 00:33:01 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,8 +77,7 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 		if (!$q_asset->active_submission) return false;
 		$answer = $q_asset->getValue();
 
-		// "Ends With" requires the last index of the comparison starts where it would be if it were
-		// at the end of the string.
+		// "Begins With" requires the first index of the comparison starts at zero
 		// comparison sent is a question asset!!
 		if (is_a($comparison, 'form_question')) {
 			$valid = (strpos($answer, $comparison->getValue()) === 0) ? 1 : 0;			
@@ -124,7 +123,7 @@ class Form_Question_Rule_Type_Begins_With extends Form_Question_Rule
 	{
 		ob_start();			// buffer this please
 
-		$code .= 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
+		echo 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
 
 		if (is_a($comparison, 'form_question')) {
 			$compare_value = 'document.getElementById("'.$comparison->id.'").value; ';
