@@ -56,27 +56,5 @@ class User_Management extends Asset_Management
 							);
 	}//end constructor
 
-	/**
-	* Install
-	*
-	*/
-	function _install() 
-	{
-		$ok = parent::_install();
-		pre_echo($this->getAssetType().' Specific install stuff here');
-		return $ok;
-
-	}//end install
-
-
-	function _upgrade($current_version) {
-
-		$ok = parent::_upgrade($current_version);
-		pre_echo($this->getAssetType().' Specific upgrade stuff here');
-
-		return $ok;
-
-	}//end upgrade()
-
 }//end class
 ?>
