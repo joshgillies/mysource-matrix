@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.13 2004/08/23 04:07:03 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.14 2004/09/03 04:21:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,7 +50,6 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 
-		unset($this->static_screens['permissions']);
 		unset($this->static_screens['workflow']);
 		unset($this->static_screens['metadataSchemas']);
 		unset($this->static_screens['metadata']);
