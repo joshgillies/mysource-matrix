@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.39 2004/01/14 19:21:46 brobertson Exp $
+* $Id: hipo_job.inc,v 1.40 2004/01/22 10:27:21 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -388,6 +388,20 @@ class HIPO_Job extends MySource_Object
 		return $code_name;
 
 	}//end initialise()
+
+
+	/**
+	* Paints backend of this job
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param string						$class		calling class name
+	*
+	* @return void
+	* @access private
+	*/
+	function paintConfig(&$o, $class)
+	{
+	}// end paintConfig()
 
 
 	/**
