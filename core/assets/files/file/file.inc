@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.79 2005/01/13 22:22:24 gsherwood Exp $
+* $Id: file.inc,v 1.80 2005/01/17 17:39:55 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -179,7 +179,7 @@ class File extends Asset
 
 		// check out the latest version of the file into the private data directory
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-		$existing = $this->_getExistingFile();
+		$existing = $this->getExistingFile();
 		if (!$fv->checkOut($this->data_path_suffix.'/'.$existing['filename'], $this->data_path)) {
 			trigger_error('Failed reverting file "'.$this->name.'" to system version, could not check-out latest version of file', E_USER_WARNING);
 			return false;
@@ -203,14 +203,14 @@ class File extends Asset
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-		$file_types = array_merge($am->getTypeAncestors($this->type(), false), $am->getTypeDescendants($this->type(), false));
+		$file_types = array_merge($am->getTypeAncestors($this->type(), false), $am->getTypeDescendants($this->type()));
 
 		if (in_array($new_type_code, $file_types)) {
 			// we are morphing into another file type, so check that the actual
 			// file currently uploaded is not going to conflict with the new type
 			$am->includeAsset($new_type_code);
 			$tmp = new $new_type_code();
-			$existing = $this->_getExistingFile();
+			$existing = $this->getExistingFile();
 			if (!empty($existing)) {
 				if (!$tmp->validFile($existing['path'])) {
 					trigger_error('Cannot morph "'.$this->name.'" to type "'.$new_type_code.'", currently uploaded file "'.$existing['filename'].'" is not a valid '.$new_type_code.' file (see above error)', E_USER_WARNING);
@@ -319,10 +319,11 @@ class File extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-			     SQ_LINK_TYPE_2 => Array(),
-		   	     SQ_LINK_TYPE_3 => Array(),
-			     SQ_LINK_NOTICE => Array('thumbnail' => Array('card' => 1, 'exclusive' => false))
+		return Array(
+				SQ_LINK_TYPE_1 => Array(),
+				SQ_LINK_TYPE_2 => Array(),
+				SQ_LINK_TYPE_3 => Array(),
+				SQ_LINK_NOTICE => Array('thumbnail' => Array('card' => 1, 'exclusive' => false))
 			);
 
 	}//end _getAllowedLinks()
@@ -378,7 +379,7 @@ class File extends Asset
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
-		$existing = $this->_getExistingFile();
+		$existing = $this->getExistingFile();
 		if (empty($existing)) return true;
 
 		$unrestricted = $this->data_path_public.'/'.$existing['filename'];
@@ -430,7 +431,7 @@ class File extends Asset
 	* Called to force an update of this assets lookup information
 	*
 	* @return boolean
-	* @access private
+	* @access public
 	* @see Asset::updateLookups(), Asset::saveWebPaths()
 	*/
 	function updateLookups()
@@ -466,7 +467,7 @@ class File extends Asset
 			return false;
 		}
 
-		$existing = $this->_getExistingFile();
+		$existing = $this->getExistingFile();
 		if (!isset($existing['filename'])) {
 			// there is no filename, so commit the removal of the current web paths and return
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -557,7 +558,7 @@ class File extends Asset
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
 
-		$existing = $this->_getExistingFile();
+		$existing = $this->getExistingFile();
 		if (!isset($existing['size'])) $existing['size'] = '0';
 		$keywords['asset_file_size_in_bytes'] = Array('value' => $existing['size']);
 		$keywords['asset_file_size_readable'] = Array('value' => easy_filesize($existing['size']));
@@ -630,7 +631,7 @@ class File extends Asset
 
 		if (isset($this->_tmp['vars_set']['name'])) {
 
-			$uploading_file = (!empty($this->_tmp['uploading_file'])) ? true : false;
+			$uploading_file = !empty($this->_tmp['uploading_file']);
 
 			if (!$uploading_file) {
 
@@ -690,7 +691,7 @@ class File extends Asset
 			}//end if not uploading a file
 
 		}//end if we are changing the filename
-		
+
 		if (isset($this->_tmp['vars_set']['allow_unrestricted'])) {
 			// the unrestricted setting is being changed, so we may need to update lookups
 			if ($this->effectiveUnrestricted() && !($this->status & SQ_SC_STATUS_SAFE_EDITING)) {
@@ -796,7 +797,7 @@ class File extends Asset
 			return;
 		}
 
-		$existing = $this->_getExistingFile();
+		$existing = $this->getExistingFile();
 		if (!empty($existing)) {
 			require_once SQ_FUDGE_PATH.'/standards_lists/mime_types.inc';
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
@@ -862,7 +863,7 @@ class File extends Asset
 	* @return array(string)
 	* @access public
 	*/
-	function _getExistingFile()
+	function getExistingFile()
 	{
 		$existing = Array();
 
@@ -887,7 +888,7 @@ class File extends Asset
 
 		return $existing;
 
-	}//end _getExistingFile()
+	}//end getExistingFile()
 
 
 	/**

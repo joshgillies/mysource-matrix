@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.47 2004/12/06 14:38:09 brobertson Exp $
+* $Id: file_edit_fns.inc,v 1.48 2005/01/17 17:39:55 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -170,7 +170,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		//// FILE VERSIONING ////
 
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-		$existing = $asset->_getExistingFile();
+		$existing = $asset->getExistingFile();
 
 		if ($asset->name != $name && !empty($existing)) {
 			// a new file with a new name means we need to remove the old
@@ -368,7 +368,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function printExistingFileInfo(&$asset)
 	{
-		$existing = $asset->_getExistingFile();
+		$existing = $asset->getExistingFile();
 		if (!empty($existing)) {
 			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 			?>
