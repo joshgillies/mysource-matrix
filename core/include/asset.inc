@@ -1438,6 +1438,12 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
+		// if you dont have write access to this asset you cant delete any links
+		if (!$this->writeAccess()) {
+			trigger_error('Cannot delete link, permission denied', E_USER_WARNING);
+			return false;
+		}
+
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
