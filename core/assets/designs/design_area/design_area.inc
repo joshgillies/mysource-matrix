@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.38 2005/03/21 06:23:20 gsherwood Exp $
+* $Id: design_area.inc,v 1.39 2005/04/01 00:39:13 amiller Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Design_Area extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -76,6 +77,28 @@ class Design_Area extends Asset
 		return true;
 
 	}//end _preCreateCheck()
+
+
+	/**
+	* Set the last updated info for this asset
+	*
+	* Call this function when the asset has been changed in some way so we can indicated in the
+	* asset table when the asset was last changed and who by. This function will also increment the micro
+	* version number for the asset.
+	*
+	* @param boolean	$update_parents	should we go through an update all our dependant parents as well ?
+	*									NOTE: this is passed to incrementVersion to let it know that the parents
+	*									should have their versions updated as well.
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updated($update_parents=true)
+	{
+		// don't update the parent asset when this asset is updated as it starts a recusion
+		// that takes way too long
+		return parent::_updated(false);
+	}//end _updated()
 
 
 	/**
