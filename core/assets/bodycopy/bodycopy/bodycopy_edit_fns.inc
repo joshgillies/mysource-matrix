@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.14 2004/09/03 04:21:15 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.15 2004/09/03 06:54:05 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,6 +50,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 
+		unset($this->static_screens['permissions']);
 		unset($this->static_screens['workflow']);
 		unset($this->static_screens['metadataSchemas']);
 		unset($this->static_screens['metadata']);
@@ -85,7 +86,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 			$designid = $db->getOne($sql.$where);
 			assert_valid_db_result($designid);
-			
+
 			if ($designid) {
 
 				$design = &$am->getAsset($designid);
@@ -95,7 +96,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				// drop down plugin can access this information without another querey
 				// we can also limit the stylesheets that are available to it here if we want
 				$GLOBALS['sq_bodycopy_cssids'] = array_keys($stylesheets);
-				
+
 				// dont import the CSS files in LIMBO because we are already showing the design
 				if (!SQ_IN_LIMBO) {
 					$css_urls = $am->getAssetURL($GLOBALS['sq_bodycopy_cssids']);
@@ -113,7 +114,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 				$am->forgetAsset($design);
 				unset($design);
-				
+
 			} else {
 				?>
 				<p class="sq-backend-notice"><b>NOTE:</b> This asset does not have a design applied to it for the URL currently being edited [<b><?php echo $GLOBALS['sq_preview_url']; ?></b>]. No style information is available to use for content editing.</p>
@@ -160,7 +161,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/layer_handler.js';?>"				></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/general.js';?>"					></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/debug.js';?>"						></script>
-		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/tooltips.js';?>"					></script>
+		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/tooltip.js';?>"					></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js';?>"			></script>
 
 		<script language="JavaScript" type="text/javascript">
@@ -378,16 +379,16 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 
 		<?php
 
-		// require library functions needed for drawing the bodycopy 
+		// require library functions needed for drawing the bodycopy
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/bodycopy_general.inc';
-		
+
 		// for each container, print it's editing interface
 		$i = 0;
 		foreach ($containers as $container_data) {
 			$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 			$container_edit = $container->getEditFns();
-			
+
 			if ($write_access) {
 				?>
 				<tr>
@@ -396,10 +397,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 						<table border="0" cellspacing="0" cellpadding="0">
 							<tr>
 								<?php
-								if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) { 
+								if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
 									?>
 									<td colspan="2"><span class="sq-backend-warning"><b>NOTE:</b> You cannot insert a new Div or Table while in Safe Edit mode</span></td>
-									<?php 
+									<?php
 								} else {
 									?>
 									<td>
@@ -413,8 +414,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 										echo combo_box($prefix.'_insert_container_type_before_'.$i, $container_type_options, false, '');
 										?>
 									</td>
-								<?php 
-								} 
+								<?php
+								}
 								?>
 							</tr>
 						</table>
@@ -425,7 +426,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				</tr>
 				<?php
 			}//end if write access
-			
+
 			?>
 			<tr>
 				<td><?php $container_edit->paintContainer($container, $o, $prefix); ?></td>
@@ -434,10 +435,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				<td>&nbsp;</td>
 			</tr>
 			<?php
-			
+
 			$i++;
 		}//end foreach container
-		
+
 		if ($write_access) {
 			?>
 			<tr>
@@ -445,10 +446,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					<table border="0" cellspacing="0" cellpadding="0">
 						<tr>
 							<?php
-							if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) { 
+							if ($asset->status & SQ_SC_STATUS_SAFE_EDITING) {
 								?>
 								<td colspan="2"><span class="sq-backend-warning"><b>NOTE:</b> You cannot insert a new Div or Table while in Safe Edit mode</span></td>
-								<?php 
+								<?php
 							} else {
 								?>
 								<td>
@@ -462,8 +463,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 									echo combo_box($prefix.'_insert_container_type_after_'.$i, $container_type_options, false, '');
 									?>
 								</td>
-							<?php 
-							} 
+							<?php
+							}
 							?>
 						</tr>
 					</table>
@@ -494,7 +495,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	function processBodycopy(&$asset, &$o, $prefix)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		
+
 		$updated = false;
 
 		// do some thing for the first time we process a bodycopy on this page
@@ -509,7 +510,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			// if there is some bodycopy data, deserialise it into the arrays
 			// so that everything else can use it
 			if ($bc_data) $bc_data = var_unserialise($bc_data);
-			
+
 			// unserialize the data for a bodycopy.
 			for (reset($bc_saved); NULL !== ($k = key($bc_saved)); next($bc_saved)) {
 				$containers = &$bc_saved[$k];
@@ -517,7 +518,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 					$containers[$containersid] = var_unserialise($containers[$containersid]);
 				}
 			}
-			
+
 			unset($containers);
 
 			$this->_tmp['update_initialised'] = true;
