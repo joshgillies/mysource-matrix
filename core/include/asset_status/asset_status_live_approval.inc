@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.26 2004/09/26 23:56:57 gsherwood Exp $
+* $Id: asset_status_live_approval.inc,v 1.26.2.1 2004/10/06 00:20:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -199,7 +199,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 				// admin that is trying to approve because metadata is now complete.
 				// the result is that this workflow process may already be complete
 				$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-				$m_complete = $mm->requiredFieldsComplete($this->owner->id);
+				$m_complete = !$mm->allowsMetadata($this->owner->id) || $mm->requiredFieldsComplete($this->owner->id);
 
 				if ($wfm->isWorkflowComplete($this->owner->id) && $m_complete && ($new_status & SQ_STATUS_LIVE)) {
 					if (!$wfm->completeWorkflow($this->owner->id)) {
