@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.2 2004/07/29 02:18:03 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.3 2004/07/30 04:42:41 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH . '/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -58,6 +58,30 @@ class Calendar_Event extends Asset
 
  
 	/**
+	* Create this asset
+	*
+	* @param Array	&$link	information used to create the initial link
+	*
+	* @return mixed int or boolean	the link ID or the create status if no link
+	* @access public
+	* @see Asset::create()
+	*/
+	function create(&$link) 
+	{
+		$name = $this->attr('name');
+		
+		// should not be able to create an event with a blank name
+		if ($name == '') {
+			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
+			return false;
+		}
+		
+		return parent::create($link);
+
+	}//end create()
+	
+	
+	/**
 	* Returns name of the asset
 	*
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
@@ -71,8 +95,8 @@ class Calendar_Event extends Asset
 		return $this->attr('name');
 	
 	}//end _getName()
-
-
+	
+	
 	/**
 	* Return the keywords with their replacements
 	*
