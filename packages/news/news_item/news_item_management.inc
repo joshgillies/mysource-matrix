@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_management.inc,v 1.1.1.1 2004/06/24 05:37:11 amiller Exp $
+* $Id: news_item_management.inc,v 1.1.1.1.2.1 2004/11/17 00:23:50 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,6 +74,19 @@ class News_Item_Management extends Asset_Management
 										'type'      => 'wysiwyg',
 										'default'   => '',
 										);
+
+		$this->vars['contact_name']         = Array(
+                                                                                'added'     => '0.2',
+                                                                                'type'      => 'text',
+                                                                                'default'   => '',
+										);
+
+		$this->vars['contact_phone']         = Array(
+                                                                                'added'     => '0.2',
+                                                                                'type'      => 'text',
+                                                                                'default'   => '',
+										);
+
 	}//end constructor
 
 
