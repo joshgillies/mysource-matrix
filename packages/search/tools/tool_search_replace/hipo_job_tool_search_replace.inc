@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.5 2005/03/23 04:07:00 ndvries Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.6 2005/04/01 04:27:26 tbarrett Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to perform search and replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -379,7 +379,8 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 		$o->openField('', 'replace_selection');
 
 		?>
-		<script type="text/javascript">
+		<script type="text/javascript"><!--
+		//<![CDATA[
 			var checkState = 0;
 			var expandState = 0;
 
@@ -390,7 +391,6 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 					if(tags[i].type == 'checkbox')
 						tags[i].checked = (checkState) ? 0 : 1;
 				}
-
 				checkState = (checkState) ? 0 : 1;
 			}
 
@@ -402,25 +402,37 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 						tags[i].style.display = (expandState) ? 'none': '';
 					}
 				}
-
 				expandState = (expandState) ? 0 : 1;
 			}
+		//]]> -->
 		</script>
-		<center>
-			<a id="select all" name="select all" onclick="setCheckboxes();">Select/Deselect</a> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-			<a id="expand all" name="expand all" onclick="setDisplayState();" >Expand/Collapse</a>
-		</center>
+		<style type="text/css">
+			th.expander {
+				width: 20px; 
+				font-weight: bold; 
+				cursor: pointer; 
+				text-align: center
+			}
+			span.link {
+				text-decoration: underline;
+				cursor: pointer;
+			}
+		</style>
+		<p style="text-align: center">
+			<span class="link" id="select all" name="select all" onclick="setCheckboxes();">Select/Deselect All</span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+			<span class="link" id="expand all" name="expand all" onclick="setDisplayState();" >Expand/Collapse All</span>
+		</p>
 		<?php
 
 		foreach ($this->_running_vars['search_data'] as $assetid => $value) {
 			$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 			?>
-			<p><table class="sq-backend-table">
+			<table class="sq-backend-table" style="margin-bottom: 10px">
 			<tr>
 				<th>
-					<input type="checkbox" name="<?php echo 'replace['.$assetid.']'; ?>"  /><?php echo $asset_info[$assetid]['name'].' [#'.$assetid.']    '; ?> ( <?php echo $search_count[$assetid]; echo ($search_count[$assetid] == 1) ? ' match': ' matches'; ?> )
+					<input type="checkbox" style="margin: 0 5px 0 0" name="<?php echo 'replace['.$assetid.']'; ?>"  /><?php echo $asset_info[$assetid]['name'].' [#'.$assetid.']    '; ?> ( <?php echo $search_count[$assetid]; echo ($search_count[$assetid] == 1) ? ' match': ' matches'; ?> )
 				</th>
-				<th style="text-align:right" onclick="elt = document.getElementById('<?php echo 'collapse['.$assetid; ?>]'); elt.style.display = ((elt.style.display == 'none') ? '' : 'none');"><b>+</b></th>
+				<th class="expander" onclick="elt = document.getElementById('<?php echo 'collapse['.$assetid; ?>]'); elt.style.display = ((elt.style.display == 'none') ? '' : 'none');">+</th>
 			</tr>
 			<tr>
 				<?php echo '<td id="collapse['.$assetid.']" style="display:none;" colspan="2">'; ?>
@@ -472,16 +484,14 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 					</table>
 				</td>
 			</tr>
-			</table></p>
+			</table>
 		<?php
 
 		}
 		?>
-		<p>
-		<center>
-			<a id="select all" name="select all" onclick="setCheckboxes();">Select/Deselect</a> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
-			<a id="expand all" name="expand all" onclick="setDisplayState();" >Expand/Collapse</a>
-		</center>
+		<p style="text-align: center">
+			<span class="link" id="select all" name="select all" onclick="setCheckboxes();">Select/Deselect All</span> &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp;
+			<span class="link" id="expand all" name="expand all" onclick="setDisplayState();" >Expand/Collapse All</span>
 		</p>
 		<?php
 

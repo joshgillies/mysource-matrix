@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.11 2005/03/24 03:04:29 dheppell Exp $
+* $Id: search_folder_edit_fns.inc,v 1.12 2005/04/01 04:27:26 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -437,68 +437,51 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
+	function paintAssetTypes(&$asset, &$o, $prefix)
 	{
-		$write_access = $asset->writeAccess('attributes');
-
 		$settings = $asset->attr('settings');
-		$types = (isset($settings['types'])) ? $settings['types'] : Array();
-		if (empty($types)) {
-			echo 'There are no types defined';
-			return false;
-		}
-
-		?>
-		<table class="sq-backend-table">
-			<tr>
-				<td class="sq-backend-table-header">Asset Type</td>
-				<td class="sq-backend-table-header">Inherit Types</td>
+		$types = array_get_index($settings, 'types', Array());
+		if ($asset->writeAccess('attributes')) {
+			// print the form fields
+			$display_values = Array('type_code' => Array(), 'inherit' => Array());
+			foreach ($types as $type => $inherit) {
+				$display_values['type_code'][] = $type;
+				$display_values['inherit'][] = $inherit;
+			}
+			asset_type_chooser($prefix.'_types', true, $display_values, null, false, true);
+			return true;
+		} else {
+			// print the read-only version
+			if (empty($types)) {
+				echo '<p style="color: red">No asset types have been chosen</p>';
+			} else {
+				$type_names = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo(array_keys($types), 'name');
+				?>
+					<table class="sq-backend-table">
+						<tr>
+							<th>Type</th>
+							<th>Inherit?</th>
+						</tr>
 				<?php
-				if ($write_access) {
+				$inherit_image_path = sq_web_path('lib').'/web/images/';
+				foreach ($types as $type => $inherit) {
+					$inherit_image = $inherit_image_path.($inherit ? 'tick' : 'cross').'.gif';
+					$inherit_alt = $inherit ? 'Yes' : 'No';
 					?>
-					<td class="sq-backend-table-header">Remove?</td>
+						<tr>
+							<td><?php echo $type_names[$type]; ?></td>
+							<td><img src="<?php echo $inherit_image; ?>" alt="<?php echo $inherit_alt; ?>" /></td>
+						</tr>
 					<?php
 				}
 				?>
-			</tr>
-			<?php
-			foreach ($types as $type => $inherit) {
-				?>
-				<tr>
-					<td class="sq-backend-table-cell">
-						<?php
-						echo ucwords(str_replace('_',' ', $type));
-						?>
-					</td>
-					<td class="sq-backend-table-cell">
-						<?php
-						if ($write_access) {
-							check_box($prefix.'_inherit_types[]', $type, $inherit);
-						} else {
-							echo ($inherit) ? 'Yes' : 'No';
-						}
-						?>
-					</td>
-					<?php
-					if ($write_access) {
-						?>
-						<td class="sq-backend-table-cell">
-							<?php
-							check_box($prefix.'_remove[]', $type, false);
-							?>
-						</td>
-						<?php
-					}
-					?>
-				</tr>
+					</table>
 				<?php
-			}//end foreach $types
-			?>
-		</table>
-		<?php
-		return true;
+			}
+			return false;
+		}
 
-	}//end paintCurrentAssetTypes()
+	}//end paintAssetTypes()
 
 
 	/**
@@ -511,91 +494,22 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processCurrentAssetTypes(&$asset, &$o, $prefix)
+	function processAssetTypes(&$asset, &$o, $prefix)
 	{
 		$settings = $asset->attr('settings');
-		$types = (isset($settings['types'])) ? $settings['types'] : Array();
 
-		// we are looking to see if any types have been removed
-		$removed = array_get_index($_POST, $prefix.'_remove', Array());
-		foreach ($removed as $type) {
-			if (isset($types[$type])) {
-				unset($types[$type]);
+		$submitted_types = Array();
+		foreach ($_POST[$prefix.'_types']['type_code'] as $i => $type_code) {
+			if (!empty($type_code)) {
+				$submitted_types[$type_code] = $_POST[$prefix.'_types']['inherit'][$i];
 			}
 		}
 
-		if (!isset($_POST[$prefix.'_inherit_types'])) $_POST[$prefix.'_inherit_types'] = Array();
-		for (reset($types); null !== ($k = key($types)); next($types)) {
-			$types[$k] = (in_array($k, $_POST[$prefix.'_inherit_types'])) ? true : false;
-		}
-
-		$settings['types'] = $types;
+		$settings['types'] = $submitted_types;
 		return $asset->setAttrValue('settings', $settings);
 
-	}//end processCurrentAssetTypes()
+	}//end processAssetTypes()
 
-
-	/**
-	* Paint section to add an asset type
-	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintAddAssetType(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('attributes')) return false;
-
-		$settings = $asset->attr('settings');
-		$current_types = (isset($settings['types'])) ? $settings['types'] : Array();
-
-		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
-		$types = array_diff($types, $current_types);
-		asort($types);
-
-		$uc_types = Array('' => '');
-		foreach ($types as $type) $uc_types[$type] = ucwords(str_replace('_',' ', $type));
-		combo_box($prefix.'_new_type', $uc_types, false, '');
-
-	}//end paintAddAssetType()
-
-
-	/**
-	* Process the section to add a new format for an asset
-	*
-	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processAddAssetType(&$asset, &$o, $prefix)
-	{
-		// need to have write access to make any changes
-		if (!$asset->writeAccess('attributes')) return false;
-
-		if (isset($_POST[$prefix.'_new_type'])) {
-
-			$settings = $asset->attr('settings');
-			$types = (isset($settings['types'])) ? $settings['types'] : Array();
-
-			$type = trim($_POST[$prefix.'_new_type']);
-			if (empty($type)) return false;
-			if (!isset($types[$type])) {
-				$types[$type] = true;
-				$settings['types'] = $types;
-				return $asset->setAttrValue('settings', $settings);
-			}
-		}
-
-
-		return false;
-
-	}//end processAddAssetType()
 
 
 }//end class

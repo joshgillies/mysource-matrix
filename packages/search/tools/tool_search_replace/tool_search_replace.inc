@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.4 2005/03/23 00:59:57 ndvries Exp $
+* $Id: tool_search_replace.inc,v 1.5 2005/04/01 04:27:26 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -83,12 +83,7 @@ class Tool_Search_Replace extends Tool
 		//allow restrictions based on asset type and asset status
 		$o->openSection('Search Restrictions');
 			$o->openField('Asset Types');
-				$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
-
-				foreach ($asset_types as $type => $info) $asset_types[$type] = $info['name'];
-				asort($asset_types, SORT_STRING);
-
-				combo_box($type_code.'_search_types', $asset_types, true, '', 10);
+				asset_type_chooser($type_code.'_search_types', true, Array());
 			$o->closeField();
 
 			$o->openField('Asset Status');
@@ -164,8 +159,12 @@ class Tool_Search_Replace extends Tool
 		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		//create search types array
-		$search_types = array_flip($_REQUEST[$type_code.'_search_types']);
-		foreach ($search_types as $index => $value) $search_types[$index] = 1;
+		$search_types = Array();
+		foreach ($_REQUEST[$type_code.'_search_types'] as $type) {
+			if (!empty($type)) {
+				$search_types[$type] = 1;
+			}
+		}
 
 		//work out our root node position
 		if (isset($_REQUEST[$type_code.'_root_folder'])) {

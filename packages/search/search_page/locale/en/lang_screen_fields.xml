@@ -18,26 +18,18 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_fields.xml,v 1.1 2005/03/30 00:42:12 lwright Exp $
+* $Id: lang_screen_fields.xml,v 1.2 2005/04/01 04:27:26 tbarrett Exp $
 *
 */
 -->
 <contents>
 	<section name="Searchable asset types">
 		<field>
-			<display_name>Current Asset Types</display_name>
+			<display_name>Asset Types to Search for</display_name>
 			<note></note>
 			<function_call>
-				<paint_function   name="paintCurrentAssetTypes"   />
-				<process_function name="processCurrentAssetTypes" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Add Asset Type</display_name>
-			<note />
-			<function_call>
-				<paint_function   name="paintAddAssetType"   />
-				<process_function name="processAddAssetType" />
+				<paint_function   name="paintAssetTypes"   />
+				<process_function name="processAssetTypes" />
 			</function_call>
 		</field>
 	</section>
