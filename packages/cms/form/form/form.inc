@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.26 2004/05/06 06:40:32 lwright Exp $
+* $Id: form.inc,v 1.27 2004/05/07 01:19:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -477,6 +477,7 @@ class Form extends Bridge
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$section_links = &$this->getSectionLinks();
 		$sections = Array();
+
 		foreach ($section_links as $link) {
 			$sections[$link['sort_order']] = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 		}
@@ -719,15 +720,15 @@ class Form extends Bridge
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
+		} else {
+			// folder already exists, get the reference
+			$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']); 
 		}
-
-		// now get the folder reference
-		$folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']); 
 		if (is_null($folder)) return false;
 
 		// and see whether this bodycopy already exists
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $name);
-		if (!empty($bodycopy_link)) return false;
+		if (!empty($bodycopy_link)) return true;
 
 		// bodycopy doesn't exist, so create it willya
 		// create a link to the folder so we can put the bodycopies in it
@@ -956,15 +957,17 @@ class Form extends Bridge
 		}*/
 
 		// unattached questions first
-		foreach($this->active_submission as $k => $v) {
+		$sort_order = $this->attr('sort_order');
+
+		foreach($sort_order as $sort_order_index => $assetid) {
 			
 			// check to see whether this belongs to us (if it isn't then perhaps a section took care)
-			if ($this->id == ($asset_id = strtok($k, ':'))) {
-				$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($k);
+			if ($this->id == strtok($assetid, ':')) {
+				$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				echo ($html) ? '<tr><td><li>' : '';
 				echo $question->attr('name');
 				echo ($html) ? ': </li></td><td>' : ' : ';
-				echo $question->getSummary($this->active_submission[$k]);
+				echo $question->getSummary($this->active_submission[$assetid]);
 				echo ($html) ? '</td></tr>' : "\n";
 			}
 
@@ -978,15 +981,18 @@ class Form extends Bridge
 			echo $section->attr('name');
 			echo ($html) ? '</td></tr>' : "\n\n";
 
-			foreach($this->active_submission as $k => $v) {
+
+			$sort_order = $section->attr('sort_order');
+
+			foreach($sort_order as $sort_order_index => $assetid) {
 			
 				// check to see whether this belongs to the section
-				if ($section->id == ($asset_id = strtok($k, ':'))) {
-					$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($k);
+				if ($section->id == strtok($assetid, ':')) {
+					$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					echo ($html) ? '<tr><td><li>' : '';
 					echo $question->attr('name');
 					echo ($html) ? ': </li></td><td>' : ' : ';
-					echo $question->getSummary($this->active_submission[$k]);
+					echo $question->getSummary($this->active_submission[$assetid]);
 					echo ($html) ? '</td></tr>' : "\n";
 				}
 
