@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.66.2.1 2004/12/20 23:29:19 tbarrett Exp $
+* $Id: search_page.inc,v 1.66.2.2 2005/03/11 00:54:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.66.2.1 $ - 1.0
+* @version $Revision: 1.66.2.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1441,7 +1441,7 @@ class Search_Page extends Page
 						$first = false;
 						$ancestor_asset = &$am->getAsset($parent_asset_id);
 						if ($keyword == 'asset_lineage_linked') $replacement .= '<a href="'.$ancestor_asset->getUrl().'">';
-						$replacement .= $ancestor_asset->name;
+						$replacement .= $ancestor_asset->short_name;
 						if ($keyword == 'asset_lineage_linked') $replacement .= '</a>';
 						$am->forgetAsset($ancestor_asset);
 					}
