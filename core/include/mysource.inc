@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.87 2005/03/22 05:29:41 tbarrett Exp $
+* $Id: mysource.inc,v 1.88 2005/03/23 02:58:21 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.87 $
+* @version $Revision: 1.88 $
 * @package MySource_Matrix
 */
 class MySource
@@ -122,6 +122,11 @@ class MySource
 	* @var object Trigger_Manager
 	*/
 	var $trigger_manager;
+
+	/**
+	* @var object Log_Manager
+	*/
+	var $log_manager;
 
 	/**
 	* The logged in user
@@ -1101,7 +1106,7 @@ class MySource
 
 		array_pop($this->_run_level_stack);
 
-	}//end setRunLevel()
+	}//end restoreRunLevel()
 
 
 	/**
@@ -1145,6 +1150,29 @@ class MySource
 		return ($security_system & $current_run_level);
 
 	}//end runLevelEnables()
+
+
+	/**
+	* Get the Log Manager
+	*
+	* @access public
+	* @return object Trigger_Manager
+	*/
+	function &getLogManager()
+	{
+		$am = &$this->am;
+		if ((!isset($this->log_manager) || (get_class($this->log_manager) != 'log_manager')) && $am->isSystemAssetType('log_manager')) {
+			$this->log_manager = &$am->getSystemAsset('log_manager');
+		}
+
+		// this is a bypass to allow logging while Log Manager asset has not been installed yet
+		if (empty($this->log_manager)){
+			return new Log_Manager();
+		}
+
+		return $this->log_manager;
+
+	}//end getLogManager()
 
 
 //--        DATABASE        --//
@@ -1248,9 +1276,9 @@ class MySource
 		// cat trans.log | awk '{ print $5 }' | sort | uniq -c # total number of each type of call
 		#$bt = debug_backtrace();
 		#if (isset($bt[1])) {
-		#	error_log('TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		#	error_log ('TRANS : '.$bt[1]['class'].'::'.$bt[1]['function'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
 		#} else {
-		#	error_log('TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
+		#	error_log ('TRANS : '.$bt[0]['file'].'::'.$bt[0]['line'].' -- '.$type."\n", 3, SQ_SYSTEM_ROOT.'/data/private/logs/trans.log');
 		#}
 		switch (strtolower($type)) {
 			case 'begin'    :
@@ -1905,6 +1933,70 @@ class MySource
 		return (empty($this->_msgs)) ? Array() : $this->_msgs;
 
 	}//end messages()
+
+
+	/**
+	* Log a message
+	*
+	* @param string					$logname	The prefix of the file to log to, eg. 'error'
+	* @param mixed string|array		$data		The data to write to the log file
+	* @param int					$level		The log level, eg. E_USER_ERROR.
+	*
+	* @access public
+	* @return boolean
+	*/
+	function log($logname, $data, $level=E_USER_NOTICE)
+	{
+		$lm = &$this->getLogManager();
+		return $lm->log($logname, $data, $level);
+
+	}//end log()
+
+
+	/**
+	* Log a System message
+	*
+	* @param string					$message	Message to log
+	* @param int					$level		The log level, eg. E_USER_ERROR.
+	*
+	* @access public
+	* @return boolean
+	*/
+	function logSystemMessage($message, $level=E_USER_NOTICE)
+	{
+		return $this->log(SQ_CONF_LOG_FILE_SYSTEM, $message, $level);
+
+	}//end logSystemMessage()
+
+
+	/**
+	* Log an Error message
+	*
+	* @param string					$message	Message to log
+	* @param int					$level		The log level, eg. E_USER_ERROR
+	*
+	* @access public
+	* @return boolean
+	*/
+	function logErrorMessage($message, $level=E_USER_NOTICE, $filename='', $line='', $log_name=null)
+	{
+		if (!is_string($message)){
+			trigger_error('Ivalid message format for error log', E_USER_WARNING);
+			return false;
+		}
+
+		if (!empty($filename)) {
+			$message = "($filename:$line) - $message";
+		}
+
+		// strip out all references to the string identifying the root
+		$message = str_replace(SQ_CONF_ROOT_IDENTIFIER, '', $message);
+
+		$log_name = !empty($log_name)?$log_name:SQ_CONF_LOG_FILE_ERROR;
+
+		return $this->log($log_name, $message, $level);
+
+	}//end logErrorMessage()
 
 
 //--        DATE/TIME        --//
