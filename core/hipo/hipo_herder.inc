@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.31 2003/12/18 04:31:07 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.32 2004/01/22 10:25:48 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -677,7 +677,7 @@ class HIPO_Herder extends MySource_Object
 	* @return Array()
 	* @access public
 	*/
-	function freestlyeHipo($job_type, $vars=Array())
+	function freestyleHipo($job_type, $vars=Array())
 	{
 		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
 		$init_hipo = new $job_type();
@@ -690,7 +690,7 @@ class HIPO_Herder extends MySource_Object
 		restore_error_handler();
 		return $init_hipo->_hipo_vars['errors'];
 
-	}//end freestlyeHipo()
+	}//end freestyleHipo()
 
 
 	/**
