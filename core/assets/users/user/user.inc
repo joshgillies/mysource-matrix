@@ -93,12 +93,12 @@ class User extends Asset
 	/*
 	* Returns name of the user
 	*
-	* @ see Asset::name()
+	* @ see Asset::_getName()
 	* @access public
 	*/
-	function name() {
+	function _getName() {
 		return $this->attr('first_name').' '.$this->attr('last_name');
-	}#end name();
+	}#end _getName();
 
 }#end class
 ?>
