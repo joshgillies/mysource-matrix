@@ -577,7 +577,7 @@ class Backend_Outputter
 	*/
 	function _paintHeader()
 	{
-		if (!headers_sent()) {	
+		if (!headers_sent()) {
 			if($this->_charset) {
 				header("Content-type: text/html; charset=$this->_charset");
 			} else {
@@ -590,7 +590,6 @@ class Backend_Outputter
 		<head>
 			<title><?php echo $this->_heading; ?></title>
 			<?php
-			
 
 			$this->_paintCssInclude($this->filesPath('css/edit.css'));
 			foreach($this->_css_includes as $file) $this->_paintCssInclude($file);
@@ -614,7 +613,7 @@ class Backend_Outputter
 						$msgs_root->addChild('message', $GLOBALS['SQ_SYSTEM']->datetime()."\n".$data['msg'], Array('type' => get_bit_names('SQ_BO_MSG_', $data['type'])));
 					}
 					?>
-					if (top.sidenav != undefined) {
+					if (top.sidenav && top.sidenav.add_messages) {
 						top.sidenav.add_messages("<?php echo str_replace("\n", "\\n", addslashes($msgs->get())); ?>");
 					}
 					<?php
