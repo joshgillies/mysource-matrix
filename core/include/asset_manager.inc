@@ -36,7 +36,7 @@ class Asset_Manager extends Resolve_Object
 	function Asset_Manager()
 	{
 		$this->Resolve_Object();
-		$this->_loadAssetTypes();
+		if (!$GLOBALS['SQ_INSTALL']) $this->_loadAssetTypes();
 	}
 
 
