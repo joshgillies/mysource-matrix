@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.26 2004/08/26 04:29:09 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.27 2004/08/26 05:17:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.26 $ - 1.0
+* @version $Revision: 1.27 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -872,34 +872,37 @@ class Page_Calendar extends Page_Asset_Listing
 	function _getTimedTableCellContents($events, $show_event_links, $root_nodes, $cell_ts, $partition_time, $partition_height, $event_width) 
 	{
 		$res = '';
-		if ($events) {
-			foreach ($events as $assetid => $details) {
-				// get top position of div
-				$event_ts = $details['start_date_minutes'] + (60 * $details['start_date_hours']);
-				$event_top_margin = (($event_ts - $cell_ts) / $partition_time) * $partition_height;
+		foreach ($events as $assetid => $details) {
+			// get top position of div
+			$event_ts = $details['start_date_minutes'] + (60 * $details['start_date_hours']);
+			$end_ts = $details['end_date_minutes'] + (60 * $details['end_date_hours']);
+			$event_top_margin = (($event_ts - $cell_ts) / $partition_time) * $partition_height;
 
-				// get height of div
-				$event_duration = is_null($details['end_date_ts']) ? 0 : ($details['end_date_ts'] - $details['start_date_ts'])/60;
-				$event_height = ($event_duration / $partition_time) * $partition_height;
+			// get height of div
+			$event_duration = is_null($details['end_date_ts']) ? 0 : ($details['end_date_ts'] - $details['start_date_ts'])/60;
+			$event_height = ($event_duration / $partition_time) * $partition_height;
 
-				// get class to use for div
-				$event_class = $root_nodes[$details['root_node']]['class_name'];
+			// get class to use for div
+			$event_class = $root_nodes[$details['root_node']]['class_name'];
 
-				// other layout things
-				$zero_length_code = $event_height ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; border-left: 0px; border-right: 0px; height: 0px; padding-top: 0px; background-color: transparent;';
-				$event_left_margin = $event_width * 0.02;
-				$inner_width = $event_width * 0.95;
-				$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
-				$inner_margin_top = $event_height ? 1 : 0;
-				$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
+			// other layout things
+			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-width: 2px; border-bottom: 0px; border-left: 0px; border-right: 0px; height: 0px; padding-top: 0px; background-color: transparent;';
+			$event_left_margin = $event_width * 0.02;
+			$inner_width = $event_width * 0.95;
+			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
+			$inner_margin_top = $event_height ? 1 : 0;
+			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
+			
+			$this_event_width = $event_width / $this->_maxOverlappingEvents($events, gmdate('H:i', $event_ts*60), gmdate('H:i', $end_ts*60), $partition_time);
+			
+			$res .= '<div class='.$event_class.' event" style="float:left; position: absolute; width: '.$this_event_width.'ex; margin-left: '.$event_left_margin.'ex; margin-top: '.$event_top_margin.'ex; height: '.$event_height.'ex; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'><div class="eventText" style="position: absolute; width: '.$inner_width.'ex; border: none; margin-top: '.$inner_margin_top.'px background-color: transparent">';
+			$res . $assetid.' ';
+			$res .= $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$assetid.'">' : '<span class="event '.$event_class.'">';
+			$res .= $details['name'];
+			$res .= '<br/>Event Height:'.$event_height.'ex';
+			$res .= $show_event_links ? '</a>' : '</span>';
 
-				$res = "<div class=\"{$event_class} event\" style=\"position: absolute; width: {$event_width}ex; margin-left: {$event_left_margin}ex; margin-top: {$event_top_margin}ex; height: {$event_height}ex; $cursor_code $zero_length_code\" $onclick_code><div class=\"eventText\" style=\"position: absolute; width: {$inner_width}ex; border: none; margin-top: {$inner_margin_top}px background-color: transparent\">";
-
-				$res .= $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$assetid.'">' : '<span class="event '.$event_class.'">';
-				$res .= $details['name'];
-				$res .= $show_event_links ? '</a>' : '</span>';
-				$res .= '</div></div>';
-			}
+			$res .= '</div></div>';
 		}
 		return $res;
 
@@ -1014,7 +1017,7 @@ class Page_Calendar extends Page_Asset_Listing
 		</script>
 		<?php
 
-	}//end _printClickChildScript
+	}//end _printClickChildScript()
 
 
 //--         FUNCTIONS TO GET EVENTS FOR DISPLAY        --//
@@ -1218,29 +1221,49 @@ class Page_Calendar extends Page_Asset_Listing
 	/**
 	* Get the events on the specified day
 	*
+	* @param string	$date	The date of the day to get events for, in ISO format (YYYY-MM-DD)
+	*
 	* @return array (assetid => Array(...) ))
 	*/
 	function getDayEvents($date)
 	{
-		$res = Array();
-		if (rand(0, 100) < 70) {
-			$rand_mins = rand(0,59);
-			$rand_hours = rand(9,17);
-			$rand_start_ts = strtotime("$date $rand_hours:$rand_mins");
-			$rand_end_ts = rand(0, 60*60*4);
-			if ($rand_end_ts < 29*60) $rand_end_ts = 0;
-			$rand_end_ts += $rand_start_ts;
-			$res[388] = Array('type_code'=>'calendar_event_single', 'root_node'=>115, 'name'=>'single', 'start_date_hours'=>rand(0,23), 'start_date_minutes'=>rand(0,59), 'start_date_ts'=>$rand_start_ts, 'end_date_ts'=>$rand_end_ts);
+		$root_nodes = $this->attr('root_nodes');
+		
+		$single_result =& $this->_multipleDaySingleQuery($root_nodes, $date, 1);		
+		$recur_result =& $this->_multipleDayRecurringQuery($root_nodes, $date, 'day');
+		
+		print '<span style="border:1px solid gold">';
+		pre_echo($single_result);
+		print '</span>';
+		
+		print '<span style="border:1px solid red">';
+		pre_echo($recur_result);
+		print '</span>';
+		
+		$res = array_merge($single_result, $recur_result);
+		
+		$date_stamp = floor(iso8601_ts($date.' 12:00:00') / 86400);
+		
+		// reset the results so that those which go over multiple days are appropriately
+		//  handled
+		foreach(array_keys($res) as $key) {
+			$res_item =& $res[$key];
+			list($res_item['start_date_year'], $res_item['start_date_mon'], $res_item['start_date_mday']) = explode('-', $date);
+			list($res_item['end_date_year'], $res_item['end_date_mon'], $res_item['end_date_mday']) = explode('-', $date);
+			if ($date_stamp != $res_item['start_date_ds']) {
+				list($res_item['start_date_hours'],$res_item['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
+				$res_item['start_date_ts'] = iso8601_ts($date.' '.$this->attr('day_starts_at').':00');
+			}
+			if ($date_stamp != $res_item['end_date_ds']) {
+				list($res_item['end_date_hours'],$res_item['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
+				$res_item['end_date_ts'] = iso8601_ts($date.' '.$this->attr('day_ends_at').':00');
+			}
 		}
-		if (rand(0, 100) < 70) {
-			$rand_mins = rand(0,59);
-			$rand_hours = rand(9,17);
-			$rand_start_ts = strtotime("$date $rand_hours:$rand_mins");
-			$rand_end_ts = rand(0, 60*60*4);
-			if ($rand_end_ts < 29*60) $rand_end_ts = 0;
-			$rand_end_ts += $rand_start_ts;
-			$res[391] = Array('type_code'=>'calendar_event_recurring', 'root_node'=>374, 'name'=>'single', 'start_date_hours'=>rand(0,23), 'start_date_minutes'=>rand(0,59), 'start_date_ts'=>$rand_start_ts, 'end_date_ts'=>$rand_end_ts);
-		}
+		
+		print '<div style="border:3px solid blue">';
+		pre_echo($res);
+		print '</div>';
+		
 		return $res;
 	}
 
@@ -1322,6 +1345,11 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			}
 		}
+		
+		print '<div style="border:3px solid orange">';
+		pre_echo($res);
+		print '</div>';
+		
 		return $res;
 	}
 
@@ -1385,12 +1413,9 @@ class Page_Calendar extends Page_Asset_Listing
 		
 		$event_lists = Array();
 		
-		foreach($events as $event) {
-			list($event_start_time_h, $event_start_time_m) = explode(':',$event['start_date']);
-			list($event_end_time_h, $event_end_time_m) = explode(':',$event['end_date']);
-			
-			$event_start_time = $event_start_time_h * 60 + $event_start_time_m;
-			$event_end_time   = $event_end_time_h   * 60 + $event_end_time_m;
+		foreach($events as $event) {			
+			$event_start_time = $event['start_date_hours'] * 60 + $event['start_date_minutes'];
+			$event_end_time   = $event['end_date_hours']   * 60 + $event['end_date_minutes'];
 			
 			$event_start_section = floor(($event_start_time - $start_time) / $spacing);
 			$event_end_section = (ceil(($event_end_time - $start_time) / $spacing) - 1);
@@ -1445,7 +1470,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		
 		return 
-		'SELECT a.name, a.assetid, cd.*, ('.$this->_treeCaseQuery('t.treeid',$trees).') as first_root_node'."\n".' FROM ('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX."calendar_date_value cd on a.assetid = cd.assetid \n WHERE a.type_code = ".$db->quote('calendar_event_single');
+		'SELECT a.assetid, a.type_code as type, a.name, ('.$this->_treeCaseQuery('t.treeid',$trees).') as root_node, cd.* FROM ('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX."calendar_date_value cd on a.assetid = cd.assetid WHERE a.type_code = ".$db->quote('calendar_event_single');
 		
 	}//end _buildSingleEventQuery()
 	
@@ -1481,7 +1506,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		
 		$sql = 
-		'SELECT a.name, a.assetid, cd.*, ('.$this->_treeCaseQuery('t.treeid',$trees).") as first_root_node \n FROM (".SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX."calendar_date_value cd on a.assetid = cd.assetid \n WHERE a.type_code = ".$db->quote('calendar_event_recurring').' AND ('.$iso_ds.' > start_date_ds) AND ';
+		'SELECT a.assetid, a.type_code as type, a.name, ('.$this->_treeCaseQuery('t.treeid',$trees).") as root_node, cd.* FROM (".SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_RUNNING_PREFIX."calendar_date_value cd on a.assetid = cd.assetid WHERE a.type_code = ".$db->quote('calendar_event_recurring').' AND ('.$iso_ds.' > start_date_ds) AND ';
 		
 		$sql_freqs = Array();
 		
@@ -1547,10 +1572,6 @@ class Page_Calendar extends Page_Asset_Listing
 				} else {
 					$this_month = 'start_date_mon = '.$db->quote($month).' AND start_date_mday BETWEEN '.$db->quote($day).' AND '.$db->quote($day+6);
 				}
-				print '<span style="color:olivegreen">';
-				pre_echo($this_month);
-				print '</span>';
-				
 				$sql_freqs_m[] = '(frequency LIKE '.$db->quote('MFN').' AND ('.$db->quote(intval($day)).' = start_date_mday))';
 				  
 				// every X months on xth last of the month
@@ -1680,16 +1701,16 @@ class Page_Calendar extends Page_Asset_Listing
 		$date_sql = '(cd.start_date_mday = '.$db->quote($day).' and cd.start_date_mon = '.$db->quote($month).' and cd.start_date_year = '.$db->quote($year).') OR (cd.start_date_ts <= '.$db->quote($this->_buildDate($year,$month,$day+$period)).' and cd.end_date_ts >= '.$db->quote($this->_buildDate($year,$month,$day)).')';
 		
 		// base sql query FOR SINGLE EVENTS
-		$sql = $this->_buildSingleEventQuery($trees); //.' and ('.$date_sql.')';
+		$sql = $this->_buildSingleEventQuery($trees).' and ('.$date_sql.')';
 		
 		$tree_sql = Array();
 		foreach($trees as $tree) {
 			$tree_sql[] = 'substring(t.treeid from 1 for '.strlen($tree).') LIKE '.$db->quote($tree.'%');
 		}
-		//$sql .= ' AND ('.implode(' OR ', $tree_sql).')';
+		$sql .= ' AND ('.implode(' OR ', $tree_sql).')';
 		
-		$result = $db->getAll($sql);
-		bam($sql);
+		$result = $db->getAssoc($sql);
+				
 		assert_valid_db_result($result);
 		return $result;
 			
@@ -1722,7 +1743,7 @@ class Page_Calendar extends Page_Asset_Listing
 		
 		bam(__FILE__ . ' : ' . __LINE__ . " SQL: $sql");
 
-		$result = $db->getAll($sql);
+		$result = $db->getAssoc($sql);
 		assert_valid_db_result($result);
 		return $result;
 			
