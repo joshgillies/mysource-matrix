@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_stalks.inc,v 1.18 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_menu_stalks.inc,v 1.19 2005/02/10 03:05:19 gnewton Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_areas/menu/design_area_menu_r
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -109,14 +109,14 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 
 		ob_start();
 		echo '
-				<td'.$cell_class.' valign="top"><img alt="" src="';
+				<td'.$cell_class.' style="vertical-align: top;"><img alt="" src="';
 		if ($use_blanks) {
 			echo '<', '?php echo $blank_src; ?', '>';
 		} else {
 			echo '<', '?php echo (($'.$this->attr('id_name').'_current_setting == \'current\') ? $stalk_prefix.\'arrow.png\' : $blank_src); ?', '>';
 
 		}
-		echo '" width="'.$this->arrow_width.'" height="'.$this->attr('min_height').'"></td>';
+		echo '" width="'.$this->arrow_width.'" height="'.$this->attr('min_height').'" /></td>';
 		$arrow_contents = ob_get_contents();
 		ob_end_clean();
 
@@ -131,7 +131,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 		}//	end if
 
 		$asset_contents = '
-				<td'.$cell_class.(($this->attr('word_wrap')) ? '' : ' nowrap').' width="100%" valign="top" align="'.$this->attr('alignment').'">'.ob_get_contents().'</td>
+				<td'.$cell_class.' style="width: 100%; vertical-align: top; text-align: '.$this->attr('alignment').';'.(($this->attr('word_wrap')) ? '' : ' white-space: nowrap;').'">'.ob_get_contents().'</td>
 		';
 		ob_end_clean();
 
@@ -174,7 +174,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 				$'.$this->attr('id_name').'_current_setting = ($'.$this->attr('id_name').'_lineage_assetid == $'.$this->attr('id_name').'_row[\'assetid\']) ? $'.$this->attr('id_name').'_lineage_setting : \'normal\';
 #				pre_echo("CURRENT SETTING : ".$'.$this->attr('id_name').'_current_setting);
 			?', '>
-			<div align="'.$this->attr('alignment').'">
+			<div style="text-align: '.$this->attr('alignment').';">
 			<table cellpadding="0" cellspacing="0" border="0" width="100%">
 				<tr>
 			';
@@ -201,10 +201,10 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 			}
 
 			echo '?', '>
-					<td'.$cell_class.' valign="top"';
+					<td'.$cell_class.' style="vertical-align: top;"';
 
 					if ($use_blanks) {
-						echo '><img alt="" src="<', '?php echo $blank_src; ?', '>" width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'"></td>';
+						echo '><img alt="" src="<', '?php echo $blank_src; ?', '>" width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'" /></td>';
 					} else {
 						// if there is the need to a stalk
 						// and if we are at the end of a sub listing and
@@ -222,7 +222,7 @@ class Design_Area_Menu_Stalks extends Design_Area_Menu_Recursive
 							echo $stalk_prefix, \'branch.png"\';
 						}
 
-						?', '> width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'"></td>';
+						?', '> width="'.$this->attr('indent').'" height="'.$this->attr('min_height').'" /></td>';
 
 					}//end if $use_blanks
 		echo '
