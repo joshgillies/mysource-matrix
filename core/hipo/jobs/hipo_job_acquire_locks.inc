@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_locks.inc,v 1.5 2005/02/24 22:52:53 tbarrett Exp $
+* $Id: hipo_job_acquire_locks.inc,v 1.6 2005/03/16 22:59:59 ndvries Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -137,7 +137,7 @@ class HIPO_Job_Acquire_Locks extends HIPO_Job
 	*/
 	function getCodeName()
 	{
-		return parent::getCodeName().'-'.implode(',', $this->_running_vars['assetids']).'-'.implode(',',array_keys($this->_running_vars['lock_types']));
+		return parent::getCodeName().'-'.md5(implode(',', $this->_running_vars['assetids']).'-'.implode(',',array_keys($this->_running_vars['lock_types'])));
 
 	}//end getCodeName()
 
