@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.56 2004/09/14 16:33:58 brobertson Exp $
+* $Id: general.inc,v 1.57 2004/09/15 00:34:35 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -435,6 +435,47 @@ function strip_url($url, $strip_protocol=false)
 	return (($strip_protocol) ? '' : $matches[1]).preg_replace(Array('|/+$|', '|//+|'), Array('', '/'), $matches[2]);
 
 }//end strip_url()
+
+
+/**
+* Replaces the specified get variables in the specified url
+*
+* If the url or the query string is not specified, then the current url and is used
+* If the value is not null, and the variable does not exist in the get string
+* it is appended. If the value of the get variable is null and it does exist, 
+* it will be removed
+*
+* @param array 		$replacements 	the variable replacements array ($var => $value)
+* @param string 	$base_url 		the base url
+* @param string		$query_string	the query string
+*
+* @return string the replaced url
+* @access public
+*/
+function replace_query_string_vars($replacements, $base_url=null, $query_string=null)
+{
+	if (is_null($base_url)) $base_url = current_url();
+	if (is_null($query_string)) $query_string = $_SERVER['QUERY_STRING'];
+
+	$url = $base_url.'?'.$query_string;
+
+	foreach ($replacements as $var => $value) {
+		$find = '|([&?])'.$var.'=([^&]+)?|';
+		$url = preg_replace($find, '\\1', $url);
+		if (is_null($value)) continue;
+		$last_chr = $url{strlen($url) - 1};
+		if ($last_chr != '&' && $last_chr != '?') $url .= '&';
+		$url .= $var.'='.$value;
+	}
+
+	// if the last replacement was null, there might be a & or ? on the end
+	// of the query string
+	$last_chr = $url{strlen($url) - 1};
+	if ($last_chr == '&' || $last_chr == '?') $url = substr($url, 0, -1);
+
+	return $url;
+
+}//end replace_query_string_vars()
 
 
 /**
