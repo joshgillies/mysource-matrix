@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.101 2004/11/17 12:07:25 brobertson Exp $
+* $Id: backend.inc,v 1.102 2004/11/17 23:43:39 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -501,7 +501,7 @@ class Backend extends MySource_Object
 						if ($code == 'popups_blocked') continue;
 						?>
 						popupContents[<?php echo $i; ?>] = Array();
-						popupContents[<?php echo $i; ?>]['html'] = '<?php echo str_replace(addslashes($message['html'])); ?>';
+						popupContents[<?php echo $i; ?>]['html'] = '<?php echo addslashes($message['html']); ?>';
 						popupContents[<?php echo $i; ?>]['width'] = '<?php echo addslashes($message['width']); ?>';
 						<?php
 						$i++;
