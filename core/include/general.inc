@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.61 2004/11/30 05:53:45 arailean Exp $
+* $Id: general.inc,v 1.62 2004/12/01 05:24:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -358,20 +358,21 @@ function sq_web_path($path='base')
 function current_url($inc_protocol=true, $strip_backend_suffix=false)
 {
 	if (SQ_PHP_CLI) {
-		$url = '';	// being called from eg. a squiz server HIPO
+		// being called from eg. a squiz server HIPO
+		$url = '';
 	} else {
-		$host = array_get_index($_SERVER,'SERVER_NAME',false);
+		$host = array_get_index($_SERVER, 'HTTP_HOST', false);
 		if (!$host) {
 			// try to get the host name from the HTTP_HOST server variable just in case
 			// if previous test failed, this one will probably not help, but before dying we try anyway
-			$host = array_get_index($_SERVER,'HTTP_HOST',false);
-
+			$host = array_get_index($_SERVER, 'SERVER_NAME', false);
 			if (!$host) {
-				trigger_error("Cannot determine the host", E_USER_ERROR);
+				trigger_error('Cannot determine host for current URL', E_USER_ERROR);
 			}
 		}
 
 		$url = (($inc_protocol) ? current_protocol().'://' : '').$host.$_SERVER['PHP_SELF'];
+
 		// if we are in the backend remove the suffix
 		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO)) {
 			$url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'\/?$/', '', $url);
@@ -383,8 +384,9 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 		if (!defined('SQ_CONF_SYSTEM_ROOT_URLS')) {
 			include_once SQ_DATA_PATH.'/private/conf/main.inc';
 		}
-		$root_urls = explode("\n",SQ_CONF_SYSTEM_ROOT_URLS);
-		$url = (($inc_protocol) ? current_protocol().'://' : '').trim($root_urls[0]).'/';	// trim in case there's a /r in there
+		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+		// trim in case there's a /r in there
+		$url = (($inc_protocol) ? current_protocol().'://' : '').trim($root_urls[0]).'/';	
 	}
 
 	return $url;
