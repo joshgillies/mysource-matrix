@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.64 2004/11/22 22:50:23 gsherwood Exp $
+* $Id: search_page.inc,v 1.65 2004/11/25 11:38:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.64 $ - 1.0
+* @version $Revision: 1.65 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1510,7 +1510,7 @@ class Search_Page extends Page
 					$dot_pos = strpos($words[$i], '.');
 					if ($at_pos === false && $dot_pos === false) {
 						// preserve the wildcard symbols - i.e. don't quote them
-						if (ereg('^[A-z%_]+$', $words[$i])) $words[$i] = addslashes($words[$i]);
+						if (ereg('^[A-z%_0-9]+$', $words[$i])) $words[$i] = addslashes($words[$i]);
 						else unset($words[$i]);
 					}
 				}
