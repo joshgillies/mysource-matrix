@@ -91,6 +91,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		$link = $table->getLinkById($this->attributes['linkid']);
 		if (!$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'])) return false;
 		if (!$content_type->setAttrValue('name', 'Row '.($new_rowid+1).' Cell '.($new_cellid+1))) return false;
+		if (!$content_type->saveAttributes()) return false;
 		return true;
 
 	}//end updateContentType()
@@ -262,6 +263,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		$content_edit = $content_type->getEditFns();
 		$content_prefix = $prefix.'_content_type_'.$this->attributes['content_type'].'_'.$this->attributes['linkid'];
 		if ($content_edit->processBackend(Array(), $content_type, $content_prefix)) $updated = true;
+		if (!$content_type->saveAttributes()) return false;
 
 		if (isset($bodycopy_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'])) {
 			foreach($bodycopy_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'] as $name => $value) {
