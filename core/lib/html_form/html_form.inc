@@ -550,4 +550,24 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $top_obj='top', $d
 
 }//end asset_finder()
 
+
+/**
+* Takes a variable and outputs as many hidden fields as possible to recreate it
+*
+* @param string	$name			the form name to use for the field
+* @param int	$assetid		current value for this field
+* @param array	$type_codes		Array('[type_code]' => '[flag]') where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
+*/
+function var_to_hidden_field($var, $name='')
+{
+	if(is_array($var) || is_object($var)) {
+		foreach($var as $k => $v) {
+			var_to_hidden_field($v, (($name) ? $name.'['.$k.']': $k));
+		}
+	} else {
+		if($name) hidden_field($name, $var);
+	}
+}// end var_to_hidden_field()
+
+
 ?>
