@@ -38,11 +38,13 @@ class Asset_Management extends Resolve_Object
 	* @var array
 	* Holds all the vars used for this Asset in the form
 	* Array(var_name => Array(
-	*						'added'     => '0.0.1',
-	*						'removed'   => '9.9.0',
-	*						'type'      => 'text|...|...',
-	*						'default'   => '',
-	*						'update_fn' => 'update_var_name'
+	*						'added'        => '0.0.1',
+	*						'removed'      => '9.9.0',
+	*						'type'         => 'text|...|...',
+	*						'default'      => '',
+	*						['uniq'        => true|false,]
+	*						['description' => 'description',]
+	*						['update_fn'   => 'update_var_name',]
 	*						)
 	*		)
 	*/
@@ -325,6 +327,7 @@ class Asset_Management extends Resolve_Object
 			$attr_info['type']                   = $this->vars[$name]['type'];
 			$attr_info['default_type_code']      = $type_code;
 			$attr_info['default_value']          = $this->vars[$name]['default'];
+			$attr_info['uniq']                   = empty($this->vars[$name]['uniq']) ? 0 : 1;
 			$attr_info['parameters_type_code']   = $type_code;
 
 			if (isset($this->vars[$name]['parameters'])) {
@@ -348,7 +351,7 @@ class Asset_Management extends Resolve_Object
 			// was set by (the default_type_code). From these values we can se-up the attribute correctly
 
 			// Find the parents with an attribute of this name
-			$sql = 'SELECT	atr.type_code, atr.owning_type_code, atr.type, atr.parameters_value,
+			$sql = 'SELECT	atr.type_code, atr.owning_type_code, atr.type, atr.uniq, atr.parameters_value,
 							atr.parameters_type_code, atr.default_type_code, atr.default_value, atr.description
 					FROM '.SQ_TABLE_PREFIX.'asset_type_inherited i, '.SQ_TABLE_PREFIX.'asset_attribute atr, '.SQ_TABLE_PREFIX.'asset_type at
 					WHERE i.type_code = '.$this->_db->quote($type_code).'
@@ -367,6 +370,7 @@ class Asset_Management extends Resolve_Object
 
 			$attr_info['owning_type_code']  = $attr_owner['owning_type_code'];
 			$attr_info['type']              = $attr_owner['type'];
+			$attr_info['uniq']              = $attr_owner['uniq'];
 			$attr_info['description']       = $attr_owner['description'];
 
 			// if we have set our own default value, then we are overriding the default
@@ -424,13 +428,14 @@ class Asset_Management extends Resolve_Object
 
 		// OK, all seems fine, let's add the bloody thing
 		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'asset_attribute
-				(attributeid, type_code, owning_type_code, name, type, parameters_type_code, default_type_code, default_value, parameters_value, description)
+				(attributeid, type_code, owning_type_code, name, type, uniq, parameters_type_code, default_type_code, default_value, parameters_value, description)
 				VALUES
 				('.$this->_db->quote($attributeid).',
 				'.$this->_db->quote($type_code).',
 				'.$this->_db->quote($attr_info['owning_type_code']).',
 				'.$this->_db->quote($name).',
 				'.$this->_db->quote($attr_info['type']).',
+				'.$this->_db->quote($attr_info['uniq']).',
 				'.$this->_db->quote($attr_info['parameters_type_code']).',
 				'.$this->_db->quote($attr_info['default_type_code']).',
 				'.$this->_db->quote($attr_info['default_value']).',
@@ -468,7 +473,7 @@ class Asset_Management extends Resolve_Object
 
 		} else {
 			// Find the parents with an attribute of this name
-			$sql = 'SELECT attributeid, type_code, owning_type_code, name, type, parameters_value, parameters_type_code, default_type_code, default_value
+			$sql = 'SELECT attributeid, type_code, owning_type_code, name, type, uniq, parameters_value, parameters_type_code, default_type_code, default_value
 					FROM '.SQ_TABLE_PREFIX.'asset_attribute
 					WHERE type_code = '.$this->_db->quote($type_code).'
 					  AND name = '.$this->_db->quote($name);
@@ -587,6 +592,7 @@ class Asset_Management extends Resolve_Object
 		// update all the attributes that we own
 		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_attribute
 				SET type        = '.$this->_db->quote($this->vars[$name]['type']).',
+					uniq        = '.$this->_db->quote($this->vars[$name]['uniq']).',
 					description = '.$this->_db->quote($description).'
 				WHERE owning_type_code = '.$this->_db->quote($type_code).'
 				  AND name = '.$this->_db->quote($name);
