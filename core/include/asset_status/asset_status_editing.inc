@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_editing.inc,v 1.18 2004/09/15 04:30:03 gsherwood Exp $
+* $Id: asset_status_editing.inc,v 1.19 2004/09/26 23:56:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,7 +109,7 @@ class Asset_Status_Editing extends Asset_Status
 				// to determine if they can live edit
 				$wf_complete = $wfm->testPublish($this->owner->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
 				if ($wf_complete) $statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
-				else $statii[SQ_STATUS_EDITING_APPROVAL] = 'Make Live';
+				else $statii[SQ_STATUS_EDITING_APPROVAL] = 'Apply for Approval';
 			}
 		}//end if workflow running
 

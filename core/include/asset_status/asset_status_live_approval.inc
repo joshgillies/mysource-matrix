@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_live_approval.inc,v 1.25 2004/09/17 07:50:00 gsherwood Exp $
+* $Id: asset_status_live_approval.inc,v 1.26 2004/09/26 23:56:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -114,12 +114,12 @@ class Asset_Status_Live_Approval extends Asset_Status
 					$m_complete = $mm->requiredFieldsComplete($this->owner->id);
 	
 					if ($wf_complete && $m_complete) $statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-					else if (in_array($userid, $publishers)) $statii[SQ_STATUS_LIVE_APPROVAL] = 'Approve Review';
+					else if (in_array($userid, $publishers)) $statii[SQ_STATUS_LIVE_APPROVAL] = 'Apply for Approval';
 				} else {
 					// this asset needs to allow both statuses because it cant check metadata requirements
 					// due to it not allowing metadata
 					$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-					$statii[SQ_STATUS_LIVE_APPROVAL] = 'Approve Review';
+					$statii[SQ_STATUS_LIVE_APPROVAL] = 'Apply for Approval';
 				}
 
 				$statii[SQ_STATUS_EDITING] = 'Safe Edit';
