@@ -116,7 +116,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				$sender_img = $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']);
 				?>
 				<tr>
-					<td class="<?php echo $class ?>">
+					<td class="<?php echo $class ?>" nowrap>
 						<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/priority_<?php echo $data['priority'];?>.png", "16", "16", "");</script>
 						<script language="Javascript">sqPrintIcon("<?php echo $sender_img; ?>", "16", "16", "");</script>
 						<a name="msg_<?php echo $data['messageid'];?>"></a>
@@ -126,11 +126,11 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_subject.png", "16", "16", "");</script>
 						&nbsp;<a href="#" onClick="Javascript: showMessageBody('<?php echo $data['messageid'];?>'); return false;" style="text-decoration:none;"><?php echo $data['subject'];?></a>
 					</td>
-					<td class="<?php echo $class ?>" style="white-space: nowrap;">
+					<td class="<?php echo $class ?>" nowrap>
 						<script language="Javascript">sqPrintIcon("<?php echo $time_img; ?>", "16", "16", "");</script>
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
 					</td>
-					<td class="<?php echo $class ?>">
+					<td class="<?php echo $class ?>" nowrap>
 						<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_<?php echo (($data['status'] == SQ_MSG_UNREAD) ? 'un' : ''); ?>read.png", "16", "16", "");</script>&nbsp;
 						<?php
 						if ($asset->writeAccess()) {
@@ -140,7 +140,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						}
 						?>
 					</td>
-					<td class="<?php echo $class ?>">
+					<td class="<?php echo $class ?>" nowrap>
 						<?php
 						if ($asset->writeAccess()) {
 							?>
@@ -338,7 +338,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 				?>
 				<tr>
-					<td class="<?php echo $class ?>">
+					<td class="<?php echo $class ?>" nowrap>
 						<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/priority_<?php echo $data['priority'];?>.png", "16", "16", "");</script>
 						<script language="Javascript">sqPrintIcon("<?php echo $sender_img; ?>", "16", "16", "");</script>
 						<a name="msg_<?php echo $data['messageid'];?>"></a>
@@ -346,13 +346,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					</td>
 					<td class="<?php echo $class ?>">
 						<script language="Javascript">sqPrintIcon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_subject.png", "16", "16", "");</script>
-						&nbsp;<a class="sq-backend-table-cell" href="#" onClick="Javascript: showMessageBody('<?php echo $data['messageid'];?>'); return false;"><?php echo $data['subject'];?></a>
+						&nbsp;<a class="sq-backend-table-cell" href="#" onClick="Javascript: showMessageBody('<?php echo $data['messageid'];?>'); return false;" style="text-decoration: none;"><?php echo $data['subject'];?></a>
 					</td>
 					<td class="<?php echo $class ?>" style="white-space: nowrap;">
 						<script language="Javascript">sqPrintIcon("<?php echo $time_img; ?>", "16", "16", "");</script>
 						&nbsp;<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
 					</td>
-					<td class="<?php echo $class ?>">
+					<td class="<?php echo $class ?>" nowrap>
 						<?php
 						if ($asset->writeAccess()) {
 							?><input type="checkbox" name="<?php echo $prefix.'_recover['.$data['messageid'].']'?>" value="1"><?php
@@ -361,7 +361,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						}
 						?>
 					</td>
-					<td class="<?php echo $class ?>">
+					<td class="<?php echo $class ?>" nowrap>
 						<?php
 						if ($asset->writeAccess()) {
 							?>
