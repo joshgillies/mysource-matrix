@@ -149,6 +149,7 @@ class Workflow_Manager extends Resolve_Object
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end setSchema()
@@ -190,6 +191,7 @@ class Workflow_Manager extends Resolve_Object
 			return false;
 		}
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}//end deleteSchema()
