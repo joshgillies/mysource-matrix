@@ -127,10 +127,10 @@ CREATE TABLE sq_internal_message (
   userto     INT NOT NULL DEFAULT 0,
   userfrom   INT NOT NULL DEFAULT 0,
   subject    VARCHAR(255) NOT NULL DEFAULT '',
-  body       LONGTEXT     NOT NULL DEFAULT '',
+  body       TEXT         NOT NULL DEFAULT '',
   sent       TIMESTAMP    NOT NULL,
   priority   CHAR(1)      NOT NULL DEFAULT 'L',
   status     CHAR(1)      NOT NULL DEFAULT 'U',
-  parameters LONGTEXT     NOT NULL DEFAULT '',
+  parameters TEXT         NOT NULL DEFAULT '',
   PRIMARY KEY(messageid)
 );
