@@ -9,9 +9,9 @@
 
 ######################################################################################
 # $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-# $Revision: 1.4 $
+# $Revision: 1.5 $
 # $Author: brobertson $
-# $Date: 2003/04/23 06:24:40 $
+# $Date: 2003/04/28 00:05:30 $
 ######################################################################################
 */
 
@@ -22,8 +22,13 @@
 ##################################################
 */
 
-// Convenience function for submitting the form, useful from hrefs
-function submit_form() {
+/**
+* Convenience function for submitting the form, useful from hrefs
+*
+* @access public
+*/
+function submit_form() 
+{
 	var f = document.main_form;
 	// make sure we clean any stuff up before we submit
 	if (form_on_submit()) {
@@ -31,21 +36,44 @@ function submit_form() {
 	}
 }// end submit_form()
 
-// Convenience function for setting hidden fields in the form
-function set_hidden_field(name, value) {
+/**
+* Convenience function for setting hidden fields in the form
+*
+* @param string	$name	the name of the hidden field
+* @param string	$value	the value to set it to
+*
+* @access public
+*/
+function set_hidden_field(name, value) 
+{
 	var f = document.main_form;
 	if (f.elements[name]) {
 		f.elements[name].value = value;
 	}
 }// end set_hidden_field()
 
-// Convenience function for setting text fields in the form
-// NOTE: works the same way as a hidden field so just alias that fn
+/**
+* Convenience function for setting text fields in the form
+* NOTE: works the same way as a hidden field so just alias that fn
+*
+* @param string	$name	the name of the text field
+* @param string	$value	the value to set it to
+*
+* @access public
+*/
 set_text_field = set_hidden_field;
 
 
-// return the form element that is represented by the passed name
-function get_element(name) {
+/**
+* return the form element that is represented by the passed name
+*
+* @param string	$name	the name of the field
+*
+* @return object Form_Element
+* @access public
+*/
+function get_element(name) 
+{
 	var f = document.main_form;
 
 	if (f.elements[name]) {
@@ -59,21 +87,35 @@ function get_element(name) {
 }// end get_element()
 
 
-// returns the value for a field in the form
-function get_element_value(name) {
+/**
+* returns the value for a field in the form
+*
+* @param string	$name	the name of the field
+*
+* @return string
+* @access public
+*/
+function get_element_value(name) 
+{
 	var f = document.main_form;
 	return (f.elements[name]) ? element_value(f.elements[name]) : '';
 }// get_element_value()
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////
-// Returns the value for any type of form element
-//
-// if select box or group of radio buttons returns the selected/checked value(s) 
-//    -> for multi-select boxes returns an array of selected values
-// if array of any other type of elements returns the value of the first element in array
-function element_value(element) {
+/**
+* Returns the value for any type of form element
+* if select box or group of radio buttons returns the selected/checked value(s) 
+*    -> for multi-select boxes returns an array of selected values
+* if array of any other type of elements returns the value of the first element in array
+*
+* @param object Form_Element	$element	the element whose value to find
+*
+* @return string
+* @access public
+*/
+function element_value(element) 
+{
 	// if element doesn't exist, die
 	if (element == null) return "";
 
@@ -121,7 +163,7 @@ function element_value(element) {
 		break;
 
 		case "checkbox" :
-			 return (element.checked) ? element[i].value : "";
+			 return (element.checked) ? element.value : "";
 		break;
 
 		default :
@@ -141,10 +183,16 @@ function element_value(element) {
 
 }// end element_value()
 
-
- ////////////////////////////////////////////////////////////
-// Given a select box reference, returns the current text
-function get_combo_text(element) {
+/**
+* Given a select box reference, returns the current text
+*
+* @param object Form_Select_Box	$element	the combo box element
+*
+* @return string
+* @access public
+*/
+function get_combo_text(element) 
+{
 	// just to make sure
 	if (element.type != "select-one" && element.type != "select-multiple") return;
 
@@ -153,9 +201,16 @@ function get_combo_text(element) {
 }// end get_combo_text();
 
 
- //////////////////////////////////////////////////////////////////////////////////////////
-// Checks a specific radio button with the element, that has the passed value
-function check_radio_button(element, field_val) {
+/**
+* Checks a specific radio button with the element, that has the passed value
+*
+* @param object Form_Select_Box	$element	the radio button group
+* @param string					$field_val	the value to look for in the radio button group
+*
+* @access public
+*/
+function check_radio_button(element, field_val) 
+{
 
 	for(var i = 0; i < element.length; i++) {
 		if (element[i].value == field_val) {
@@ -168,8 +223,14 @@ function check_radio_button(element, field_val) {
 
 }// end check_radio_button()
 
- ///////////////////////////////////////////////////////////////////
-// Sets the selected var for the option with the passed value
+/**
+* Sets the selected var in the combo box for the option with the passed value
+*
+* @param object Form_Select_Box	$element	the combo box
+* @param string					$field_val	the value to look for in the combo box
+*
+* @access public
+*/
 function highlight_combo_value(element, field_val) {
 
 	// just to make sure
@@ -183,11 +244,18 @@ function highlight_combo_value(element, field_val) {
 		}
 	}// end for
 
-}//highlight_combo_value()
+}// end highlight_combo_value()
 
- //////////////////////////////////////////////////////////////////////////////////////////
-// Moves the selected elements in a select box (can be multi-select) up or down one place
-function move_combo_selection(element, move_up) {
+/**
+* Moves the selected elements in a select box (can be multi-select) up or down one place
+*
+* @param object Form_Select_Box	$element	the combo box
+* @param boolean				$move_up	whether to move up or down
+*
+* @access public
+*/
+function move_combo_selection(element, move_up) 
+{
 
 	switch (element.type) {
 		case "select-one" :
@@ -288,11 +356,17 @@ function move_combo_selection(element, move_up) {
 }// end move_combo_selection()
 
 
-
-  ////////////////////////////////////////////////////////////////////////////
- // used by the date_box to verify that the date the user entered is correct
-// and to set the hidden var
-function check_date(date_name, show_time) {
+/**
+* Used by the date_box to verify that the date the user entered is correct
+* and to set the hidden var
+*
+* @param string		$date_name	the name of the date field as passed into date_box()
+* @param boolean	$show_time	whether the time is shown or not
+*
+* @access public
+*/
+function check_date(date_name, show_time) 
+{
 	var f = document.main_form;
 
 	var day_box   = get_element('day_'   + date_name);
@@ -350,11 +424,4 @@ function check_date(date_name, show_time) {
 	return 1;
 
 }// end check_date();
-
-
-
-
-
-
-
 
