@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_insert_link.inc,v 1.15 2003/11/05 22:56:52 gsherwood Exp $
+* $Id: matrix_insert_link.inc,v 1.16 2003/11/05 23:35:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,6 +51,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 	function paint_generic()
 	{
 		?>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/general.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script type="text/javascript" language="Javascript">
 			var wysiwyg_editing = true; // just so that onclick link's don't execute in wysiwyg
@@ -88,7 +89,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 					var text_range = this._createTextRange(sel);
 					if (text_range != null) {
 						text_range = true;
-						editor._selectElement(control_range(0), text_range);
+						editor.selectNodeContents(control_range(0));
 					} else {
 						alert("You need to select this object as though it was text, rather than just clicking on it.");
 						sel.empty();
@@ -107,7 +108,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 						this.selectNodeContents(current_a);
 						inside_html = editor.getSelectedHTML();
 					}
-					this._selectElement(current_a, text_range);
+					this.selectNodeContents(current_a);
 				} else {
 					inside_html = editor.getSelectedHTML();
 				}

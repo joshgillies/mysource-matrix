@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: utility.js,v 1.14 2003/11/05 22:56:52 gsherwood Exp $
+* $Id: utility.js,v 1.15 2003/11/05 23:35:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,27 +86,6 @@ HTMLArea.prototype._createTextRange = function(sel) {
 		} else {
 			return this._doc.body.createTextRange();
 		}
-	}
-};
-
-
-// make the selection the current element and its children
-HTMLArea.prototype._selectElement = function (element, text_range) {
-	if (document.selection) {
-		if (text_range) {
-			var range = document.body.createTextRange();
-		} else {
-			var selection = this._getSelection();
-			var range = this._createRange(selection);
-		}
-		range.moveToElementText(element);
-		range.select();
-	} else if (window.getSelection) {
-		var range = this._createRange();
-		range.selectNode(element);
-		var selection = this._getSelection();
-		selection.removeAllRanges();
-		selection.addRange(range);
 	}
 };
 
