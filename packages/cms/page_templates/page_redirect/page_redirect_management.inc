@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_redirect_management.inc,v 1.8.2.1 2004/02/18 12:30:09 brobertson Exp $
+* $Id: page_redirect_management.inc,v 1.8.2.2 2004/04/21 11:28:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,7 +55,7 @@ class Page_Redirect_Management extends Asset_Management
 											'added'       => '0.0.1',
 											'type'        => 'text',
 											'default'     => '',
-											'description' => 'Extra text that is added to the end of the url we end up redirecting to',
+											'description' => 'Extra text to send as part of the URL query string',
 											),
 						'new_window' => Array(
 											'added'     => '0.0.1',

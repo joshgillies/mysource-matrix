@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.11.2.6 2004/03/26 16:41:54 brobertson Exp $
+* $Id: page_asset_listing.inc,v 1.11.2.7 2004/04/21 11:28:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -392,6 +392,31 @@ class Page_Asset_Listing extends Page
 			}
 
 			$past_start = true;
+		}
+
+
+		  //////////////////////////////
+		 //  REMOVE NON-LIVE ASSETS  //
+		//////////////////////////////
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$assetids = array_keys($children);
+		for (reset($assetids); null !== ($k = key($assetids)); next($assetids)) $assetids[$k] = $db->quote($assetids[$k]);
+		$live_assets = $db->getCol('	SELECT assetid
+								FROM sq_asset
+								WHERE assetid IN ('.implode(', ', $assetids).')
+								  AND status >= '.$db->quote(SQ_STATUS_LIVE)
+							  );
+		if (DB::isError($live_assets)) {
+			trigger_error($live_assets->getMessage().'<br/>'.$live_assets->getUserInfo(), E_USER_ERROR);
+			return;
+		}
+		
+		for (reset($children); null !== ($child_id = key($children)); ) {
+			if (!in_array($child_id, $live_assets)) {
+				unset($children[$child_id]);
+			} else {
+				next($children);
+			}
 		}
 
 
