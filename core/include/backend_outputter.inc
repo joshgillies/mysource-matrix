@@ -92,6 +92,11 @@ class Backend_Outputter
 		$this->_files_path = sq_web_path('lib').'/web';
 		$this->_action = $_SERVER['PHP_SELF'];
 
+		# register that we want to listen to link update events
+		$GLOBALS['SQ_SYSTEM']->addEventListener($this, array('CreateLink',
+															 'DeleteLink',
+															 'AssetUpdate'
+															));
 
 	}
 
@@ -753,6 +758,19 @@ class Backend_Outputter
 	function commitButton($value='Commit') {
 		$this->openField('', 'commit');
 		submit_button('commit', $value);
+	}
+
+	
+	function onCreateLink($event_data=Array()) {
+		$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+	}
+	function onDeleteLink($event_data=Array()) {
+		$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+	}
+	function onAssetUpdate($event_data=Array()) {
+		if ($event_data['old_short_name'] != $event_data['new_short_name']) {
+			$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+		}
 	}
 
 }//end class
