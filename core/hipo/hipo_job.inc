@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.50 2004/09/03 05:52:41 amiller Exp $
+* $Id: hipo_job.inc,v 1.51 2004/09/16 10:55:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -314,7 +314,22 @@ class HIPO_Job extends MySource_Object
 
 
 	/**
-	* Set up vars and database information that the HIPO will need to run
+	* Prepares and sets up the running vars of this hipo.
+	* This is run before initialise(), because initialise() may not be run at all if this Job can be freestyle()'d
+	*
+	* @access public
+	* @return boolean
+	*/
+	function prepare()
+	{
+		$this->is_prepared = true;
+		return true;
+	
+	}//end prepare()
+
+
+	/**
+	* Set database information that the HIPO will need to run
 	*
 	* This function should be run before any painting or processing of the HIPO. It will
 	* write the initial database entry for the HIPO so that the vars needed by the HIPO
@@ -327,6 +342,10 @@ class HIPO_Job extends MySource_Object
 	*/
 	function initialise($source_code_name=null)
 	{
+		if (!$this->is_prepared) {
+			if (!$this->prepare()) return false;
+		}
+		
 		$this->_hipo_vars['initialise_mode'] = $this->_current_mode;
 		$this->_hipo_vars['running_mode']    = $this->_current_mode;
 
@@ -451,20 +470,6 @@ class HIPO_Job extends MySource_Object
 		return Array();
 	
 	}//end getConfigVars()
-
-
-	/**
-	* Prepares the running vars of this hipo.
-	*
-	* @access public
-	* @return boolean
-	*/
-	function prepare()
-	{
-		$this->is_prepared = true;
-		return true;
-	
-	}//end prepare()
 
 
 	/**
