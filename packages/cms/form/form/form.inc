@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.32 2004/05/17 05:12:28 lwright Exp $
+* $Id: form.inc,v 1.33 2004/05/18 01:01:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -777,17 +777,17 @@ class Form extends Bridge
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		$folder_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
-		if (empty($folder_link)) return false;
+		if (empty($folder_link)) return $null;
 		
 		$folder = &$am->getAsset($folder_link['minorid'], $folder_link['minor_type_code']); 
-		if (is_null($folder)) return false;
+		if (is_null($folder)) return $null;
 
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true, $name);
-		if (empty($bodycopy_link)) return false;
+		if (empty($bodycopy_link)) return $null;
 
 		$bodycopy = &$am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		
-		return ($bodycopy) ? $bodycopy : false;
+		return ($bodycopy) ? $bodycopy : $null;
 	
 	}//end getBodycopy()
 
