@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.5 2004/12/06 14:44:15 brobertson Exp $
+* $Id: search_folder_edit_fns.inc,v 1.6 2005/01/17 18:44:39 brobertson Exp $
 *
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
 * Search_Folder_Edit_Fns
@@ -32,11 +31,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-class Search_Folder_Edit_Fns extends Bridge_Edit_Fns
+class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 {
 
 
@@ -46,7 +45,7 @@ class Search_Folder_Edit_Fns extends Bridge_Edit_Fns
 	*/
 	function Search_Folder_Edit_Fns()
 	{
-		$this->Bridge_Edit_Fns();
+		$this->Asset_Edit_Fns();
 
 		$this->static_screens = Array(	'details'		=> Array(
 															'name'			=> 'Details',

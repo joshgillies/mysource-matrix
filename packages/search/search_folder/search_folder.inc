@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.7 2004/12/06 14:44:15 brobertson Exp $
+* $Id: search_folder.inc,v 1.8 2005/01/17 18:44:39 brobertson Exp $
 *
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 
 /**
@@ -33,11 +32,12 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-class Search_Folder extends Bridge
+register_implementation('search_folder', 'bridge');
+class Search_Folder extends Asset
 {
 
 
@@ -50,11 +50,33 @@ class Search_Folder extends Bridge
 	function Search_Folder($assetid=0)
 	{
 		$this->_ser_attrs = true;
-		$this->Bridge($assetid);
+		$this->Asset($assetid);
 
 	}//end constructor
 
 
+	/**
+	* Returns a reference to the asset represented by the passed assetid
+	*
+	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
+	* @param string		$type_code		if this exists then this object is used to
+	*									load the asset, if not then the DB is queried
+	*									to find out the asset type
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
+	*									you can't use the '@' operator when returning by reference
+	*
+	* @return object Asset or null on error
+	* @access public
+	* @see Asset_Manager::&getAsset()
+	*/
+	function &getAsset($shadowid, $type_code='', $mute_errors=false)
+	{
+		trigger_error('The Search Folder does not contain any of the shadow assets it presents to the world', E_USER_ERROR);
+		$null = null;
+		return $null;
+	}//end getAsset()
+
+	
 	/**
 	* Return all links that this asset has to other assets
 	*
@@ -211,6 +233,27 @@ class Search_Folder extends Bridge
 
 
 	/**
+	* Get all asset ids that are above the passed assetid in the various trees in which it exists
+	*
+	* @param int			$assetid			the id of the asset to get its parents for
+	* @param string|array	$type_code			the type of asset that is linked (eg 'User', 'User_Group', etc)
+	*											if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return array(int)
+	* @access public
+	* @see Asset_Manager::getParents()
+	*/
+	function getParents($assetid, $type_code='', $strict_type_code=true)
+	{
+		assert_equals($assetid, $this->id, 'The Search Folder can only get its own links');
+		return Array();
+
+	}//end getParents()
+
+	
+	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
 	* @param int			$assetid			the id of the asset to get its children for
@@ -233,6 +276,21 @@ class Search_Folder extends Bridge
 		return Array();
 
 	}//end getChildren()
+
+
+	/**
+	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
+	*
+	* @param string	$assetid	the id of the last asset in the lineage
+	* @param string	$protocol	the protocol to match -> null means it is ignored
+	* @param string	$url		the url to check for -> null defaults it to current url
+	*
+	* @return array
+	* @access public
+	*/
+	function getLineageFromURL($assetid, $protocol, $url)
+	{
+	}//end getLineageFromURL()
 
 
 }//end class
