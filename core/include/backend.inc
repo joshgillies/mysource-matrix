@@ -54,6 +54,12 @@ class Backend extends Resolve_Object
 		// make sure we are a backend user
 		if (!is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) return;
 
+		if (isset($_GET['a'])) {
+			$frontend_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($_GET['a']);
+			$frontend_asset->printFrontend();
+			exit();
+		}
+
 		if (empty($_GET['SQ_BACKEND_PAGE']) || $_GET['SQ_BACKEND_PAGE'] == 'frames') {
 			$this->_printFrames();
 		
