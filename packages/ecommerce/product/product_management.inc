@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.3 2005/01/20 23:54:16 lwright Exp $
+* $Id: product_management.inc,v 1.4 2005/01/26 09:49:21 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -50,57 +50,56 @@ class Product_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 		
-		//images for products will be linked assets so dont include her
-		//Also quantity is not an issue at the moment
-		$this->vars = array(
+		// include price class so unserialize() doesn't barf
+		require_once SQ_PACKAGES_PATH.'/ecommerce/price/product_price.inc';
 
-			'name' => array(
+		// images for products will be linked assets so dont include here
+		// Also quantity is not an issue at the moment
+		$this->vars = array(
+						'name' => array(
 							'added'			=> '0.1',
 							'type'			=> 'text',
 							'default'		=> '',
-							'description'   => 'The name of the Product that this asset represents'
-							),
-
-			'price' => array(
-							 'added'		=> '0.1',
-							 'type'			=> 'float',
-							 'default'		=> 0.0,
-							 'description'  => 'Sale value of this Product'
-							 ),
-
+							'description'	=> 'The name of the Product that this asset represents',
+						),
+						'price' => array(
+							'added'			=> '0.1',
+							'type'			=> 'float',
+							'default'		=> 0.0,
+							'description'	=> 'Sale value of this Product, used mostly for searching and accessing directly. If 0 (zero) it means that the product is free, if -1 it means that the price is not known',
+						),
+						'price_obj' => array(
+							'added'			=> '0.1',
+							'type'			=> 'serialise',
+							'default'		=> new Product_Price(),
+							'description'	=> 'Proper object for manipulation of the price',
+						),
 			/*				
-			'quantity' => array(
-								'added'			=> '0.1',
-								'type'			=> 'int',
-								'default'		=> 0,
-								'description'	=> 'Quantity of the item on hand'
-								),
+						'quantity' => array(
+							'added'			=> '0.1',
+							'type'			=> 'int',
+							'default'		=> 0,
+							'description'	=> 'Quantity of the item on hand',
+						),
 			*/
-
-			'description' => array(
-								   'added'			=> '0.1',
-								   'type'			=> 'text',
-								   'default'		=> '',
-								   'description'	=> 'Contains the long description of the product'
-								   ),
-							
-			'short_description' => array(
-										 'added'		=> '0.1',
-										 'type'			=> 'text',
-										 'default'		=> '',
-										 'description'  => 'Short description of Procudt for small display space'
-										 ),
-			'details' => array(
-							   'added'		=> '0.1',
-							   'type'		=> 'text',
-							   'default'	=> '',
-							   'description'=> 'Detailed specifications of the Product'
-							   ),
-			'display_format' => array(
-									  'added'		=> '0.1',
-									  'type'		=> 'wysiwyg',
-									  'default'		=> ''
-									  )
+						'description' => array(
+							'added'			=> '0.1',
+							'type'			=> 'text',
+							'default'		=> '',
+							'description'	=> 'Contains the long description of the product',
+						),
+						'short_description' => array(
+							'added'			=> '0.1',
+							'type'			=> 'text',
+							'default'		=> '',
+							'description'	=> 'Short description of product for small display space',
+						),
+						'details' => array(
+							'added'			=> '0.1',
+							'type'			=> 'text',
+							'default'		=> '',
+							'description'	=> 'Detailed specifications of the Product',
+						),
 		);
 			
 	}//end Product_Management()

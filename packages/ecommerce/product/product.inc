@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.2 2005/01/20 23:54:16 lwright Exp $
+* $Id: product.inc,v 1.3 2005/01/26 09:49:21 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -49,11 +49,29 @@ class Product extends Page
 	*/
 	function Product($assetid=0)
 	{
+		$this->_ser_attrs = true;
 		$this->Page($assetid);
 		
 	}//end Product()
 		
-	
+
+	/**
+	* Load the vars for this asset/ asset type into the vars array
+	*
+	* If the asset has no asset ID, this function just loads the default values for the asset type.
+	*
+	* @access private
+	* @return void
+	*/
+	function _loadVars()
+	{
+		// include price class so unserialize() doesn't barf
+		require_once SQ_PACKAGES_PATH.'/ecommerce/price/product_price.inc';
+		parent::_loadVars();
+
+	}// end _loadVars()
+
+
 	/**
 	* Returns name of the asset
 	*
@@ -66,8 +84,40 @@ class Product extends Page
 	function _getName($short_name=false)
 	{
 		return $this->attr('name');
-	}
+
+	}// end _getName()
 	
+
+	/**
+	* Queue the setting of the value of an attribute
+	*
+	* @param string		$name	the name of the attribute
+	* @param string		$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	* @see saveAttributes()
+	* @see Asset::setAttrValue()
+	*/
+	function setAttrValue($name, $value)
+	{
+		switch($name) {
+			case 'price' :
+				trigger_error('The price cannot be set directly. It must be set using the price_obj variable', E_USER_WARNING);
+				return false;
+				break;
+			case 'price_obj' :
+				if (!parent::setAttrValue($name, $value)) return false;
+				$price_obj = $this->attr('price_obj');
+				if (!parent::setAttrValue('price', $price_obj->value)) return false;
+				return true;
+				break;
+			default :
+				return parent::setAttrValue($name, $value);
+		}
+
+	}//end setAttrValue()
+
 
 	/**
 	* Prints out the Frontend for this asset
@@ -104,11 +154,10 @@ class Product extends Page
 	*/
 	function printBody()
 	{
-		bam($_SESSION);
 		?>
 		<form action="<?php echo $this->getURL(); ?>" method="post">
 		<?php
-			echo replace_keywords($this->attr('display_format'), $this->getAssetKeywords());
+			echo replace_keywords($this->attr('description'), $this->getAssetKeywords());
 		?>
 		</form>
 		</div>

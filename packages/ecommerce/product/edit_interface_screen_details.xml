@@ -18,61 +18,42 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2005/01/20 23:54:16 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2005/01/26 09:49:21 brobertson Exp $
 *
 */
 -->
 
 <contents>
-
-
 	<section name="Details">
 		<field write_access="write:attributes" attribute="name">
 			<display_name>Product Name</display_name>
 			<note />
 			<text width="30" />
 		</field>
-		<field write_access="write:attributes" attribute="price">
+		<field write_access="write:attributes" format="new_line">
 			<display_name>Product Price</display_name>
 			<note />
-			<float width="10"/>
+			<function_call>
+				<paint_function   name="paintProductPrice" />
+				<process_function name="processProductPrice" />
+			</function_call>
 		</field>
 	</section>
 	<section name="Product Description">
 		<field write_access="write:attributes" attribute="description">
 			<display_name>Product Description</display_name>
 			<note />
-			<text width="40" height="4" />
+			<text width="60" height="5" />
 		</field>
 		<field write_access="write:attributes" attribute="short_description">
 			<display_name>Short Description</display_name>
 			<note />
-			<text width="40" height="4" />
+			<text width="60" height="4" />
 		</field>
 		<field write_access="write:attributes" attribute="details">
-			<display_name>Details/Product Specifications</display_name>
+			<display_name>Details/ Product Specifications</display_name>
 			<note />
-			<text width="40" height="4" />
+			<text width="60" height="4" />
 		</field>
-	</section>
-	<section name="Product Display">
-		<field write_access="write:attributes" attribute="display_format">
-			<display_name>Display Layout</display_name>
-			<note />
-			<wysiwyg style="div" width="100%" height="300" />
-		</field>
-		<note>&lt;p&gt;Several keyword replacements are available representing each of the different attributes of this asset. These include:
-			&lt;/p&gt;
-			&lt;ul&gt;
-				&lt;li&gt;%name%&lt;/li&gt;
-				&lt;li&gt;%price%&lt;/li&gt;
-				&lt;li&gt;%description%&lt;/li&gt;
-				&lt;li&gt;%short_description%&lt;/li&gt;
-				&lt;li&gt;%details%&lt;/li&gt;
-				&lt;li&gt;%quantity_field%&lt;/li&gt;
-				&lt;li&gt;%commit_button%&lt;/li&gt;
-			&lt;/ul&gt;
-			
-			&lt;p&gt;Linked images can be displayed using the keyword %image_&lt;i&gt;assetid&lt;/i&gt;%, where &lt;i&gt;assetid&lt;/i&gt; is the assetid of the image.&lt;/p&gt;</note>
 	</section>
 </contents>
