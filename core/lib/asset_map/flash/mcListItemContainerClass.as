@@ -9,7 +9,6 @@
 // Create the Class
 function mcListItemContainerClass()
 {
-
 	// holds some information on all the list items, in the vertical order that they appear in the list
 	// eg li_2_1_3 would be the mean this element exists here
 	this.items_order = new Array();
@@ -38,8 +37,15 @@ function mcListItemContainerClass()
 	// Set ourselves up as a listener on the asset types, so we know when they have been loaded
 	_root.asset_manager.addListener(this);
 
+	// listen on status view changes
+	_root.header.toolbar_clip.addListener(this);
+
 	// Set ourselves up as a broadcaster
 //	ASBroadcaster.initialize(this);
+
+	// highlighted asset items
+	this._highlighted_items = new Array();
+	this.status_view = false;
 
 }// end constructor
 
@@ -54,6 +60,23 @@ mcListItemContainerClass.prototype = new NestedMouseMovieClip(false, NestedMouse
 mcListItemContainerClass.prototype.onAssetManagerInitialised = function()
 {
 	this.showKids('1', this.item_prefix);
+}
+
+mcListItemContainerClass.prototype.onStatusToggle = function()
+{
+	this.status_view = !this.status_view;
+//	trace("onStatusToggle: " + this.status_view);
+	for (i in this) {
+		if (this[i] instanceof mcListItemClass) {
+			this[i].setShowColours(this.status_view);
+		}
+	}
+
+	if (!this.status_view) {
+		if (this.selected_item) {
+			this._highlightPath(this.selected_item);
+		}
+	}
 }
 
 /**
@@ -111,6 +134,24 @@ mcListItemContainerClass.prototype.showKidsLoaded = function(params)
 
 }// end showKidsLoaded()
 
+mcListItemContainerClass.prototype._highlightPath = function(item)
+{
+	var next_item = item;
+	while (next_item.parent_item_name != undefined) {
+		next_item.setShowColours(true);
+		this._highlighted_items.push(next_item);
+		next_item = this[next_item.parent_item_name];
+	}
+}
+
+mcListItemContainerClass.prototype._unHighlightPath = function()
+{
+	while (this._highlighted_items.length > 0) {
+		var item = this._highlighted_items.shift();
+		item.setShowColours(false);
+	}
+}
+
 /**
 * Splices the items order array recursively, adding the kids of the passed parent
 *
@@ -162,6 +203,7 @@ mcListItemContainerClass.prototype._createItem = function(parent_name, item_name
 		this[item_name].setIndent(indent);
 		var active = (this._active_type_codes.length == 0 || this._active_type_codes.search(this[item_name].type_code) !== null);
 		this[item_name].setActive(active);
+		this[item_name].setShowColours(this.status_view);
 
 		if (this.asset_list_items[assetid] == undefined) this.asset_list_items[assetid] = new Array();
 		this.asset_list_items[assetid].push(item_name);
@@ -568,6 +610,9 @@ mcListItemContainerClass.prototype.selectItem = function(item)
 	this.selected_item = item;
 	this.selected_item.select();
 
+	if (!this.status_view)
+		this._highlightPath(this.selected_item);
+
 //	this.broadcastMessage("onListItemSelection", this.selected_item.assetid);
 
 	return true;
@@ -578,6 +623,9 @@ mcListItemContainerClass.prototype.unselectItem = function()
 {
 	this.selected_item.unselect();
 	this.selected_item = null;
+
+	if (!this.status_view)
+		this._unHighlightPath();
 //	this.broadcastMessage("onListItemUnSelection");
 }
 

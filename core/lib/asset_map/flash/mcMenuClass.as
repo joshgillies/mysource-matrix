@@ -147,6 +147,8 @@ mcMenuClass.prototype.__headReleaseFn = function()
 //	trace ("this._parent._childContainer : " + this._parent._childContainer);
 //	trace ("this._parent._childContainer._visible : " + this._parent._childContainer._visible);
 //	trace ("this._container : " + this._container);
+	if (_root.system_events.inModal()) 
+		return;
 
 	if (!this._parent._childContainer._visible) {
 		this._container.hideChildMenus();

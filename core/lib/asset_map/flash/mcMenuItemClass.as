@@ -14,8 +14,8 @@ function mcMenuItemClass()
 	this._rollOverTextFormat = new TextFormat();
 	this._rollOverTextFormat.color = 0xffffff;
 
-//	this.onRollOver = this._drawHighlight;
-//	this.onRollOut = this.onReleaseOutside = this._clearHighlight;
+	this.onRollOver = this._drawHighlight;
+	this.onRollOut = this.onReleaseOutside = this._clearHighlight;
 
 }
 
@@ -31,8 +31,9 @@ mcMenuItemClass.prototype.onPress = function() {
 	}
 	return true;
 }
+
 mcMenuItemClass.prototype.onRelease = function() {
-//	trace (this + "::mcMenuitemClass.onRelease()");
+	trace (this + "::mcMenuitemClass.onRelease()");
 
 // check if something else is modal
 	if (_root.system_events.inModal(this)) return true;
@@ -176,6 +177,7 @@ mcMenuItemClass.prototype._refresh = function()
 	
 	// x - direction
 	var nextX = padding;
+	this._bg._x = nextX;
 
 	if (this._icon != null) {
 		this._icon._x = nextX;
@@ -187,16 +189,18 @@ mcMenuItemClass.prototype._refresh = function()
 
 	if (nextX + this._arrow._width > this._itemWidth) {
 		this._arrow._x = nextX;
+		nextX += this._arrow._width;
 	} else {
 		this._arrow._x = this._itemWidth - this._arrow._width - padding;
+		nextX = this._arrow._x + this._arrow._width;
 	}
-	
+
 	this._icon._y = 0;
 	this._arrow._y = 0;
 	this._textBox._y = 0;
 
 	this._bg.clear();
-	this._drawBackground(this._icon._x + this._icon._width + padding, this._height + 6, 0);
+	this._drawBackground(nextX, this._height + 2 * padding, 0);
 
 	this._icon._y = (this._height - this._icon._height) / 2;
 	this._arrow._y = (this._height - this._arrow._height) / 2;
@@ -211,7 +215,7 @@ mcMenuItemClass.prototype._drawBackground = function(width, height, alpha)
 
 	with (this._bg) {
 		clear();
-		beginFill (this._rollOverColour, alpha);
+		beginFill (0, alpha);
 		moveTo (1, 0);
 		lineTo (width, 0);
 		lineTo (width, height);

@@ -46,10 +46,10 @@ mcHeaderClass.prototype.show = function(text)
 
 mcHeaderClass.prototype.hide = function()
 {
-
 	this.spinner.stop();
 	this.loadingText._visible = false;
 }
+
 mcHeaderClass.prototype.changeToBatMobile = function ()
 {
 	if (this.mysource_matrix_text._currentframe > 1)

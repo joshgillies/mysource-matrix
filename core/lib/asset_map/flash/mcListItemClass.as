@@ -45,6 +45,9 @@ function mcListItemClass()
 	this.selectedTextFormat = new TextFormat();
 	this.selectedTextFormat.color = 0xffffff;
 
+	// background alpha
+	this.bg_alpha = 0;
+
 }
 
 // Make it inherit from Nested Mouse Movements MovieClip, nested mc's NEVER OVERLAP
@@ -210,6 +213,17 @@ mcListItemClass.prototype.onAssetChange = function(asset)
 }
 
 
+mcListItemClass.prototype.setShowColours = function(show_colours)
+{
+	if (show_colours) {
+		this.bg_alpha = 100;
+	} else {
+		this.bg_alpha = 0;
+	}
+
+	this._drawBg();
+}
+
 /**
 * Called when this list item is selected
 */
@@ -218,8 +232,8 @@ mcListItemClass.prototype.select = function()
 	if (!this._active)
 		return;
 	this.selected = true;
-	this.text_field.setTextFormat(this.selectedTextFormat);
 
+	this.text_field.setTextFormat(this.selectedTextFormat);
 	this.base_colour = adjust_brightness (_root.LIST_ITEM_BG_COLOURS[this.state].colour, 0.8);
 	this._drawBg();
 }
@@ -231,10 +245,9 @@ mcListItemClass.prototype.unselect = function()
 {
 	if (!this._active)
 		return;
-
 	this.selected = false;
-	this.text_field.setTextFormat(this.normalTextFormat);
 
+	this.text_field.setTextFormat(this.normalTextFormat);
 	this.base_colour = _root.LIST_ITEM_BG_COLOURS[this.state].colour;
 	this._drawBg();
 }
@@ -344,8 +357,11 @@ mcListItemClass.prototype.refresh = function()
 /**
 * Draw the Background for this list item
 */
-mcListItemClass.prototype._drawBg = function() 
+mcListItemClass.prototype._drawBg = function(alpha) 
 {
+	if (alpha == undefined)
+		alpha = 100;
+
 	var list_container = this._parent._parent;
 	var left = -this._x;
 	var top = 2;
@@ -354,7 +370,7 @@ mcListItemClass.prototype._drawBg = function()
 
 	this.clear();
 
-	this.beginFill(this.base_colour, _root.LIST_ITEM_BG_COLOURS[this.state].alpha);
+	this.beginFill(this.base_colour, this.bg_alpha);
 
 	this.lineStyle();
 	this.moveTo(left, top);

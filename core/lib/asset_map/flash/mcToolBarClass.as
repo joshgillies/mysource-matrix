@@ -1,34 +1,41 @@
 
 function mcToolBarClass() {
+	this.icons = new Array();
+	
+	ASBroadcaster.initialize(this);
+
 	this.attachMovie('mcLogoutIconID', 'logout_icon', 1);
+	this.icons.push(this.logout_icon);
+	this.logout_icon.helpText = "Logout";
 	this.logout_icon.onRelease = logout;
 
-	this.attachMovie('mcRefreshIconID', 'refresh_icon', 2);
+	this.attachMovie('mcStatusIconID', 'status_icon', 2);
+	this.icons.push(this.status_icon);
+	this.status_icon.helpText = "Toggle Status View";
+	this.status_icon.onRelease = function() { 
+		this._parent.broadcastMessage("onStatusToggle");
+	}
+
+	this.attachMovie('mcRefreshIconID', 'refresh_icon', 3);
+	this.icons.push(this.refresh_icon);
+	this.refresh_icon.helpText = "Full Refresh";
 	this.refresh_icon.onRelease = function() { 
 		_root.asset_manager.reloadAllAssets();
 		_root.tabs.mail.msgs_container.refreshMail();
 	}
 
-	this.refresh_icon.onRollOver = function() {
-		this._parent._parent.toolbar_help._visible = true;
-		this._parent._parent.toolbar_help.text = "Full Refresh";
-		this._parent._parent.refresh();
+	for (var i = 0; i < this.icons.length; ++i) {
+		var mc = this.icons[i];
+		mc.onRollOver = function() {
+			this._parent._parent.toolbar_help._visible = true;
+			this._parent._parent.toolbar_help.text = this.helpText;
+			this._parent._parent.refresh();
+		};
+
+		mc.onRollOut = function() {
+			this._parent._parent.toolbar_help._visible = false;
+		};
 	}
-
-	this.logout_icon.onRollOver = function() {
-		this._parent._parent.toolbar_help._visible = true;
-		this._parent._parent.toolbar_help.text = "Logout";
-		this._parent._parent.refresh();
-	}
-
-	this.logout_icon.onRollOut = this.refresh_icon.onRollOut = function() {
-		this._parent._parent.toolbar_help._visible = false;
-	}
-
-	this.icons = new Array();
-
-	this.icons.push(this.logout_icon, this.refresh_icon);
-	this.icons.push();
 
 	this.refresh();
 }

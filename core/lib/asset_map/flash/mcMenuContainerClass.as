@@ -323,7 +323,7 @@ mcMenuContainerClass.prototype._drawShadow = function(width, height)
 	if (this.isRoot())
 		return;
 	
-	var dist = 4;
+	var dist = 2;
 
 	with (this._bg) {
 		beginFill (0x000000, 50);

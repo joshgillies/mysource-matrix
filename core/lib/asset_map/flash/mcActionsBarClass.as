@@ -51,7 +51,7 @@ mcActionsBarClass.prototype.show = function(actions, labels, x, y)
 			var btn_name = "btn_" + actions[i];
 			this.buttons.push(btn_name);
 			this.attachMovie("mcActionsBarButtonID", btn_name, this.buttons.length + 1);
-			this[btn_name].setInfo(actions[i], "- " + labels[i]);
+			this[btn_name].setInfo(actions[i], labels[i]);
 
 			max_width = Math.max(max_width, Math.ceil(this[btn_name].textWidth()));
 
@@ -244,7 +244,7 @@ mcActionsBarClass.prototype._drawShadow = function(width, height)
 	if (this.isRoot())
 		return;
 	
-	var dist = 4;
+	var dist = 2;
 
 	with (this._bg) {
 		beginFill (0x000000, 20);

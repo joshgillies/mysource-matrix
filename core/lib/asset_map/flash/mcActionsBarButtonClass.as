@@ -28,8 +28,8 @@ function mcActionsBarButtonClass()
 // Make it inherit from MovieClip
 mcActionsBarButtonClass.prototype = new MovieClip();
 mcActionsBarButtonClass.prototype.colours = {
-												normal:   { fg: 0x000000, bg: 0x606060, alpha: 0 },
-												rollover: { fg: 0xFFFFFF, bg: 0x50607F, alpha: 80 }
+												normal:   { fg: 0x406080, bg: 0x406080, alpha: 0 },
+												rollover: { fg: 0x000000, bg: 0x50607F, alpha: 10 }
 											 };
 
 /**
@@ -43,7 +43,7 @@ mcActionsBarButtonClass.prototype.colours = {
 mcActionsBarButtonClass.prototype.setInfo = function(code_name, label) 
 {
 	this.code_name       = code_name;
-	this.label_text.text = label;
+	this.label_text.text = " - " + label;
 	this.label_text.setTextFormat(this.text_format);
 	this.clear(); // do this so that the text is the widest part
 
