@@ -241,7 +241,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			$force_unlock_on_commit = $this->_edit_fns->static_screens[$active_screen]['force_unlock'];
 
 			// try and find the file to print user defined section of the tab
-			$file = @$this->_findFile('tab_'.$active_screen);
+			$file = @$this->_findFile('screen_'.$active_screen);
 
 		} else {
 
@@ -398,7 +398,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			if ($owner->id && !$owner->writeAccess()) return $ret_val;
 
 			// try and find the file to print user defined
-			$file = @$this->_findFile('tab_'.$active_screen);
+			$file = @$this->_findFile('screen_'.$active_screen);
 
 		} else {
 
@@ -514,23 +514,58 @@ class Asset_Edit_Interface extends Resolve_Object
 	*/
 	function paintDetails(&$owner, &$o)
 	{
+		if(!($file = $this->_findFile('static_screen_details'))) return;
+
 		$prefix = $this->getPrefix($owner);
 
-		$o->openSection('Status');
+		if ($file) {
+			$input = new XML_Tree($file);
+			$root  = &$input->getTreeFromFile();
+			if (PEAR::isError($root)) {
+				trigger_error($root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+				return;
+			}
 
-		$o->openField('Current');
-		echo '<i>'.$owner->getStatusDescription().'</i>';
+			for($i = 0; $i < count($root->children); $i++) {
+				$section = &$root->children[$i];
+				
+				$o->openSection($section->attributes['name']);
 
-		$statii = $owner->getAvailableStatii();
+				if (!($num_fields = count($section->children))) continue;
+				for($j = 0; $j < $num_fields; $j++) {
+					$field = &$section->children[$j];
 
-		if (!empty($statii)) {
-			$statii = array_reverse($statii, true);
-			$statii[0] = '';
-			$statii = array_reverse($statii, true);
-			$o->openField('Change?');
-			combo_box($prefix.'_change_status', $statii, false, $owner->status);
+					switch (strtolower($field->attributes['code'])) {
+						case 'current' :
+							if ($field->children[0]->name != 'display_name') $display_name = 'Current';
+							else $display_name = $field->children[0]->content;
+							$o->openField($display_name);
+							echo '<i>'.$owner->getStatusDescription().'</i>';
+							break;
+						case 'change' :
+							$statii = $owner->getAvailableStatii();
+
+							if (!empty($statii)) {
+								$statii = array_reverse($statii, true);
+								$statii[0] = '';
+								$statii = array_reverse($statii, true);
+								if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
+								else $display_name = $field->children[0]->content;
+								$o->openField($display_name);
+								combo_box($prefix.'_change_status', $statii, false, $owner->status);
+							}
+							break;
+						default :
+							continue;
+							break;
+					}
+
+					if ($field->children[1]->name == 'note' && $field->children[1]->content) {
+						$o->note($field->children[1]->content);
+					}
+				}
+			}
 		}
-		
 
 	}//end paintDetails()
 

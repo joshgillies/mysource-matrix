@@ -72,6 +72,9 @@ $GLOBALS['SQ_OUTPUT_TYPE'] = 'html';
 // we are not installing anything
 $GLOBALS['SQ_INSTALL'] = false;
 
+// we are not purging the trash
+$GLOBALS['SQ_PURGING_TRASH'] = false;
+
 
 // Load general functions, including the error handler
 require_once SQ_INCLUDE_PATH.'/general.inc';

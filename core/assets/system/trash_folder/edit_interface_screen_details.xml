@@ -1,0 +1,12 @@
+<contents>
+	<section name="Purge Assets In Trash">
+		<field>
+			<display_name>Empty Trash ?</display_name>
+			<note>This will purge all assets from the trash and make then unavailable for restoring or editing.</note>
+			<function_call>
+				<paint_function   name="paintPurgeTrash"   />
+				<process_function name="processPurgeTrash" />
+			</function_call>
+		</field>
+	</section>
+</contents>

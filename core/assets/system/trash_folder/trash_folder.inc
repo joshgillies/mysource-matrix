@@ -111,7 +111,8 @@ class Trash_Folder extends Folder
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
@@ -124,7 +125,6 @@ class Trash_Folder extends Folder
 		}
 
 		return parent::setAttrValue($name, $value, $dont_run_updated);
-
 	}//end setAttrValue()
 
 
@@ -132,18 +132,76 @@ class Trash_Folder extends Folder
 	* Moves a link from one place in this assets links order to another position
 	*
 	* @param int	$linkid		the link id of the link to move about
-	* @param string $sort_order	the position in the links list that this link should take, if less than zero places at end of list
+	* @param string	$sort_order	the position in the links list that this link should take, 
+	*							if less than zero places at end of list
 	*
 	* @see Asset::moveLinkPos()
 	*
 	* @return boolean
 	* @access public
 	*/
-	function moveLinkPos($linkid, $sort_order=-1) 
+	function moveLinkPos($linkid, $sort_order=-1)
 	{
 		trigger_error('You cannot move assets\'s around in the trash', E_USER_WARNING);
 		return false;
 	}//end moveLinkPos()
+
+
+	/**
+	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
+	*
+	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param string			$link_type	the type of link this is
+	*
+	* @return TRUE|string
+	* @access public
+	*/
+	function canCreateLink(&$minor, $link_type)
+	{
+		if (!$this->id) return false;
+		if (!is_a($minor, 'Asset')) return 'Minor is not an asset';
+
+		$parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
+		$links_outside_trash = 0;
+		foreach ($parents as $link) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($link['majorid'])) {
+				$links_outside_trash++;
+			}
+		}
+	
+		if ($links_outside_trash > 1) {
+			trigger_error('Cannot link "'.$minor->name.'" to the trash, more than one link remains outside of trash', E_USER_WARNING);
+			return false;
+		}
+
+		return true;
+
+	}// end canCreateLink()
+
+
+	/**
+	* Prints out the backend interface for the asset
+	* it's up to the kids to override
+	*
+	* @param object Backend_Outputter $o
+	*
+	* @access public
+	*/
+	function paintBackend(&$o)
+	{
+		$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
+		$ei = &$this->getEI();
+		$prefix = $ei->getPrefix($this);
+
+		if (isset($_REQUEST[$prefix.'_purge_trash']) && (int)$_REQUEST[$prefix.'_purge_trash'] === 1) {
+			$o->addFormActionGetVar($prefix.'_purge_trash', 1);
+			$ef = $this->getEditFns();
+			$ef->_purgeTrash($this, $o, $prefix);
+		} else {
+			parent::paintBackend($o);
+		}
+
+	}// end paintBackend()
 
 
 	/**

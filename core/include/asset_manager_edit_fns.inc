@@ -192,7 +192,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 		require_once SQ_LIB_PATH.'/progress_bar/progress_bar.inc';
 		$pb = new Progress_Bar($o->getCurrentLocation(), $this);
-		$pb->testing |= 1; // can resize pop-up
+		#$pb->testing |= 1; // can resize pop-up
 		#$pb->testing |= 2; // confirm reload
 		#$pb->testing |= 4; // manual reload
 		if (!$pb->loaded) {
@@ -243,10 +243,10 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		if (empty($vars)) {
 			$asset = &$this->am->getAsset($_GET['assetid']);
 			if (!is_null($asset)) {
-				$vars = Array(	'assetid'			=> $_GET['assetid'],
+				$vars = Array(	'assetid'           => $_GET['assetid'],
 								'type_code'         => $asset->type(),
 								'to_parent_assetid' => $_GET['to_parent_assetid'],
-								'to_parent_pos'		=> $_GET['to_parent_pos']
+								'to_parent_pos'     => $_GET['to_parent_pos']
 							);
 			}// end if
 
@@ -254,7 +254,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		// they have posted what they want to duplicate ?
 		} else if (!empty($_POST['duplicate_assetid'])) {
 			$asset = &$this->am->getAsset($vars['assetid'], $vars['type_code']);
-			$tree = $this->_getAllChildLinks($vars['assetid']);
+			$tree = $this->getAllChildLinks($vars['assetid']);
 
 			$effective_duplicate_treeids = Array('' => Array());
 			$indexed_effective_duplicate_treeids = Array();
@@ -341,7 +341,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 		if (empty($vars)) return;
 
 		$asset = &$this->am->getAsset($vars['assetid'], $vars['type_code']);
-		$tree = $this->_getAllChildLinks($asset->id);
+		$tree = $this->getAllChildLinks($asset->id);
 		?>
 		<table border="0" cellspacing="0" cellpadding="0">
 			<tr>
@@ -704,19 +704,21 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 	/**
 	* Returns all child links that the passed asset has, used by the duplication process
 	*
-	* @access private
+	* @access public
 	* @return Array()
 	*/
-	function _getAllChildLinks($assetid)
+	function getAllChildLinks($assetid)
 	{
-		if (!isset($this->_tmp['child_links'][$assetid])) {
+		static $_tmp = Array();
+
+		if (!isset($_tmp['child_links'][$assetid])) {
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT t.treeid
 					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
 					WHERE l.minorid = '.$db->quote($assetid).'
 					LIMIT 1;';
-	//pre_echo($sql);
+
 			$treeid = $db->getOne($sql);
 			if (DB::isError($treeid)) {
 				trigger_error($treeid->getMessage().'<br/>'.$treeid->getUserInfo(), E_USER_ERROR);
@@ -753,13 +755,13 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				}
 			}// end for
 
-			$this->_tmp['child_links'][$assetid] = $child_links;
+			$_tmp['child_links'][$assetid] = $child_links;
 
 		}// end if
 
-		return $this->_tmp['child_links'][$assetid];
+		return $_tmp['child_links'][$assetid];
 
-	}// _getAllChildLinks()
+	}// getAllChildLinks()
 
 
 	/**

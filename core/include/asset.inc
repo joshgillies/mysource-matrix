@@ -237,7 +237,7 @@ class Asset extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function delete()
+	function delete($release_lock=true)
 	{
 		// check that we are in the trash
 		if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id)) {
@@ -248,9 +248,12 @@ class Asset extends Resolve_Object
 		// check that the trash link is the only significant link left
 		$links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'minor');
 		if (count($links) != 1) {
-			trigger_error('Cannot delete asset, asset must only be linked to the trash', E_USER_WARNING);
+			trigger_error('Cannot delete asset, asset must only be linked in the trash', E_USER_WARNING);
 			return false;
 		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// say to other assets: 'Delete me bitch cause I'm outa here'
 		$links = $this->getLinks(SQ_LINK_ALL, '', true, 'minor');
@@ -259,11 +262,17 @@ class Asset extends Resolve_Object
 			$major->deleteLink($link['linkid']);
 		}
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		if ($release_lock) {
+			// we are about to go to the big asset manager in the sky,
+			// so we wont be needing worldly things such as locks
+			if (!$this->releaseLock()) {
+				trigger_error('Delete failed, the lock on "'.$this->name.'" could not be released', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
 
 		$sql = 'DELETE FROM sq_asset WHERE assetid = '.$db->quote($this->id);
-		bam($sql);
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -273,6 +282,8 @@ class Asset extends Resolve_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
 
 	}//end delete()
 
@@ -2305,11 +2316,32 @@ class Asset extends Resolve_Object
 
 			$num_other_links = $minor->countLinks('minor', SQ_LINK_SIGNIFICANT, '', true, $linkid);
 
-			// some assets may not be able to have their last significant link
-			// deleted, so lets check first before going ahead
-			if (!$num_other_links) {
+			// we create a new link to the trash if this is the last significant link
+			// being deleted and if we are not purging the trash
+			if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
+				// some assets may not be able to have their last significant link
+				// deleted, so lets check first before going ahead
 				if (!$minor->canDelete()) {
 					trigger_error($minor->name.' can not have its last significant link removed' , E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+				if (is_null($trash_folder)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+				// this asset is destined for the trash, so we need to set its permissions to
+				// whatever it is inheriting right now so it keeps the while in the trash
+				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
+				foreach ($perms as $perm) {
+					$userids = array_keys($minor->getPermission($perm, false));
+					foreach($userids as $userid) $minor->grantPermission($userid, $perm);
+				}
+
+				if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -2385,31 +2417,6 @@ class Asset extends Resolve_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-
-
-		// OK, if we just deleted the last significant link
-		// then we need to create a link to the trash for this
-		if ($link['link_type'] & SQ_LINK_SIGNIFICANT && !$num_other_links) {
-			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-			if (is_null($trash_folder)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			// this asset is destined for the trash, so we need to set its permissions to
-			// whatever it is inheriting right now so it keeps the while in the trash
-			$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
-			foreach ($perms as $perm) {
-				$userids = array_keys($minor->getPermission($perm, false));
-				foreach($userids as $userid) $minor->grantPermission($userid, $perm);
-			}
-
-			if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-		}
-
 
 		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
 		if ($link['link_type'] & SQ_LINK_FRONTEND_NAV) {

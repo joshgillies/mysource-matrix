@@ -1,0 +1,12 @@
+<contents>
+	<section name="Status">
+		<field code="current">
+			<display_name>Current</display_name>
+			<note />
+		</field>
+		<field code="change">
+			<display_name>Change ?</display_name>
+			<note />
+		</field>
+	</section>
+</contents>
