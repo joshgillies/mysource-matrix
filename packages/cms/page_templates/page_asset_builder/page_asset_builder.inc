@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.37 2004/11/23 02:42:09 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.38 2004/11/24 04:28:07 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -781,7 +781,12 @@ class Page_Asset_Builder extends Page
 
 			require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
 			$o = new Limbo_Outputter();
+			$o->_paintJsInclude(sq_web_path('lib').'/js/general.js');
+			$o->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
+			$o->_paintJsInclude(sq_web_path('lib').'/js/debug.js');
+			$o->_paintJsInclude(sq_web_path('lib').'/js/edit.js');	
 
+			
 			// print the create interface for the asset
 			?><input type="hidden" name="asset_action" value="create"><?php
 			$create_types = $this->attr('create_type');
