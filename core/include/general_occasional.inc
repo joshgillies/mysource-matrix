@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.36 2004/09/14 16:33:58 brobertson Exp $
+* $Id: general_occasional.inc,v 1.37 2004/09/26 23:31:20 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -175,7 +175,7 @@ function get_status_colour($status)
 			$colour = '655240';
 		break;
 		case SQ_STATUS_UNDER_CONSTRUCTION :
-			$colour = 'BCE2F5';
+			$colour = 'AACCDD';
 		break;
 		case SQ_STATUS_PENDING_APPROVAL :
 			$colour = 'DCD2E6';
@@ -187,13 +187,13 @@ function get_status_colour($status)
 			$colour = 'DBF18A';
 		break;
 		case SQ_STATUS_LIVE_APPROVAL :
-			$colour = 'DCD2E6';
+			$colour = '50D000';
 		break;
 		case SQ_STATUS_EDITING :
 			$colour = 'F25C86';
 		break;
 		case SQ_STATUS_EDITING_APPROVAL :
-			$colour = 'CCCCCC';
+			$colour = 'CC7CC7';
 		break;
 		case SQ_STATUS_EDITING_APPROVED :
 			$colour = 'FF9A00';
