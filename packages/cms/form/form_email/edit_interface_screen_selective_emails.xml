@@ -1,0 +1,32 @@
+<contents>
+	<section name="Selective Emails">
+		<field>
+			<display_name>Questions</display_name>
+			<note>Choose a Question to add Email Addresses to</note>
+			<function_call>
+				<paint_function   name="paintAddSelectiveEmailQuestion"   />
+				<process_function name="processAddSelectiveEmailQuestion" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Current Selective Emails">
+		<field>
+			<display_name>Current Selective Emails</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintCurrentSelectiveEmails"   />
+				<process_function name="processCurrentSelectiveEmails" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Active Question">
+		<field>
+			<display_name>Active Question</display_name>
+			<note></note>
+			<function_call>
+				<paint_function   name="paintActiveQuestion"   />
+				<process_function name="processActiveQuestion" />
+			</function_call>
+		</field>
+	</section>
+</contents>
