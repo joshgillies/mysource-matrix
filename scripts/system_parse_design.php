@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_parse_design.php,v 1.1 2005/02/23 11:19:46 brobertson Exp $
+* $Id: system_parse_design.php,v 1.2 2005/03/16 17:38:04 brobertson Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Upgrade menu design areas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -132,7 +132,7 @@ foreach($customisation_links as $link) {
 
 
 // try to unlock the design
-if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($design->id, 'parsing')) {
+if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($design->id, 'all')) {
 	printUpdateStatus('RELEASE LOCK FAILED');
 	$GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
 }
@@ -144,7 +144,7 @@ $GLOBALS['SQ_SYSTEM']->am->forgetAsset($design);
 ////////////////////////
 function printName($name)
 {
-	printf ('%s%'.(40 - strlen($name)).'s', $name, '');
+	printf ('%s%'.(50 - strlen($name)).'s', $name, '');
 
 }//end printName()
 
