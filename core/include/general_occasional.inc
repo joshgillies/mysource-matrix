@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.38 2004/12/03 15:33:23 brobertson Exp $
+* $Id: general_occasional.inc,v 1.38.2.1 2005/03/11 00:50:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -270,7 +270,7 @@ function asset_link_treeid_convert($value, $encode)
 *
 * @param array	$paths	array of web paths to check
 *
-* @return Array(string)
+* @return array(string)
 * @access public
 */
 function make_valid_web_paths($paths)
@@ -295,8 +295,11 @@ function make_valid_web_paths($paths)
 
 		// no spaces in web paths
 		$path = preg_replace('/\\s+/', '_', $path);
-		
-		// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
+
+		// no parentheses
+		$path = preg_replace('/[\(\)\[\]]/', '', $path);
+
+		// taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $path);
 		
 		// ignore blanks
