@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.35 2004/07/08 02:00:48 lwright Exp $
+* $Id: internal_message.inc,v 1.36 2004/09/17 03:26:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -540,9 +540,10 @@ class Internal_Message extends MySource_Object
 
 	/**
 	* Returns an array of users this message will be sent to
+	*
 	* That is, it expands the groups ids and returns a unique array of userids
 	*
-	* @return Array(int)
+	* @return array
 	* @access public
 	*/
 	function expandUsersTo()
@@ -594,14 +595,14 @@ class Internal_Message extends MySource_Object
 						$this->to += $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, SQ_PERMISSION_ADMIN, true, false);
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					}
-					break;
+				break;
 
 				case 'config' :
 				case 'hipo'   :
 					// send config changes to the DEFAULT and TECH emails and to the Root User
 					$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 					$this->to += Array(0, $root_user->id);
-					break;
+				break;
 
 			}//end switch
 
@@ -613,12 +614,14 @@ class Internal_Message extends MySource_Object
 			// so we need to keep the ZERO id in the array
 			$send_to[] = 0;
 		}
-		$to_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($this->to, Array('user', 'user_group'), false);
-		foreach ($to_types as $assetid => $types) {
-			if (in_array('user_group', $types)) {
-				$group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if ($group->id) $send_to = array_merge($send_to, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($group->id, Array('user'), false)));
-			} else {
+		
+		foreach ($this->to as $assetid) {
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (is_null($asset)) continue;
+			
+			if (is_a($asset, 'user_group')) {
+				$send_to = array_merge($send_to, array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id, Array('user'), false)));
+			} else if (is_a($asset, 'user')) {
 				$send_to[] = $assetid;
 			}
 		}
