@@ -233,6 +233,11 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$main_copy_link    = $asset->getLink(SQ_LINK_TYPE_2, 'bodycopy', false, 'main_bodycopy');
 		$looping_copy_link = $asset->getLink(SQ_LINK_TYPE_2, 'bodycopy', false, 'looping_bodycopy');
 
+		// if there is no bodycopy, we will assume that we are trying to generate the 
+		// content file at form creation time, so just return true (it will get generated later)
+		if (empty($main_copy_link)) return true;
+		if (empty($looping_copy_link)) return true;
+
 		// get the bodycopy assets
 		$main_copy    = &$am->getAsset($main_copy_link['minorid'], $main_copy_link['type_code']);
 		$looping_copy = &$am->getAsset($looping_copy_link['minorid'], $looping_copy_link['type_code']);
@@ -243,7 +248,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		if ($main_copy->isEmpty()) {
 			// if there is no main copy or looping copy, generate a generic section
 			if ($looping_copy->isEmpty()) {
-				$output = $this->generateGenericSection($asset);
+				$output .= $this->generateGenericSection($asset);
 			} else {
 				$output .= $this->generateLoopingBodycopy($asset, $looping_copy);
 			}
@@ -277,7 +282,12 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 						$search = '%question_'.$q.'_'.$t.'%';
 
 						if ($question = &$asset->getQuestionByOrder($q)) {
-							$replacement = $question->getVal($t);
+							$index = '"&nbsp;"';
+							if ($this->question_index) {
+								$index = '$this->getQuestionIndex($q);';
+							}
+							$replacement .= '?><table><tr><td><'.'?php echo '.$index.'?></td><td>'
+								.$question->getVal($t).'</td></tr></table>';
 						} else {
 							$replacement = '';
 						}
@@ -309,7 +319,13 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$questions = &$asset->getQuestions();
 		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
 			$q =& $questions[$k];
-			$output .= "<tr><td>".$q->getVal('title')."</td><td>".$q->getVal('answer')."</td></tr>\n";
+			// check to see if we need question indexes
+			$index = '&nbsp;';
+			if ($asset->question_index) {
+				$index = $asset->getQuestionIndex($k-1).'&nbsp;&nbsp;';
+			} 
+			$output .= "<tr><td>".$index.'</td><td>'.$q->getVal('title')
+				."</td><td>".$q->getVal('answer')."</td></tr>\n";
 		}
 		$output .= "</table>\n";
 
@@ -356,13 +372,22 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			$tmp = $body;
 
 			// replace the keywords with the intended value
+			
+			$i = 0;
 			foreach ($matches[1] as $t) { 
 				$search = '%question_?_'.$t.'%';
-				$replacement = $question->getVal($t);
+				// check to see if we need a question index
+				$index = '&nbsp;';
+				$replacement = '';
+				if ($asset->question_index && $i==0) {
+					$index = $asset->getQuestionIndex($order-1);
+					$replacement .= $index.'</td><td>';
+				} 
+				$i++;
+				$replacement .= $question->getVal($t);
 				$tmp = str_replace($search, $replacement, $tmp);
 			}
 			$output .= $tmp;
-
 		} // end for
 
 		$output .= '</table>';

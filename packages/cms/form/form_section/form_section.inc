@@ -16,6 +16,10 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 class Form_Section extends Asset
 {
 
+
+
+	var $question_index = 0;
+
 	/**
 	* Constructor
 	*
@@ -105,9 +109,25 @@ class Form_Section extends Asset
 			$dependant = '1';
 		}
 		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-		//return $this->fileRegeneration();
+		
 
 	}// end createLink()
+
+
+	/**
+	* gets called when things change (new links, delete links etc)
+	*
+	* @see Asset::_updated
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _updated()
+	{
+		parent::_updated();
+		return $this->fileRegeneration();
+	
+	} // end _updated()
 
 
 	/**
@@ -130,7 +150,8 @@ class Form_Section extends Asset
 		if ($main_bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the looping bodycopy and the custom form';
 
 		return parent::canDeleteLink($linkid);
-	}//end canDeleteLink()
+	
+	}// end canDeleteLink()
 
 
 	/**
@@ -147,21 +168,6 @@ class Form_Section extends Asset
 		return $page_links;
 
 	}//end _getAllowedLinks()
-
-
-	/**
-	* gets called when a asset is moved linked to this section 
-	*
-	* @access public
-	* @return boolean
-	*/
-	function moveLink()
-	{
-		parent::moveLink();
-		// regen the content file
-		return $this->fileRegeneration();
-	
-	} // end moveLink()
 
 
 	/**
@@ -312,7 +318,9 @@ class Form_Section extends Asset
 		if ($include) {
 			include($this->data_path.'/content_file.php');
 		} else {
-			echo file_to_string($this->data_path.'/content_file.php');
+			if (file_exists($this->data_path.'/content_file.php')) {
+				echo file_to_string($this->data_path.'/content_file.php');
+			}
 		}
 
 	}// end printBody()
@@ -329,34 +337,86 @@ class Form_Section extends Asset
 	function processForm(&$submission) {
 		if (!$submission) return false;
 	
-		//get the asset manager
+		// get the asset manager
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		$links = $this->getQuestionLinks();
 		foreach ($links as $link) {
-			if (isset($_POST[$link['minorid']])) {
-				$question = &$am->getAsset($link['minorid'], $link['type_code']);
-				$question->processForm($submission);
-			}
+			$question = &$am->getAsset($link['minorid'], $link['type_code']);
+			// tell the question the name and id of this section
+			$question->setSection($this->attr('name'), $this->id);
+			$question->processForm($submission);
 		}
 		return true;
 	
 	} // end processForm()
 
-
-	/**
-	* Returns name of the asset
-	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
-	*
-	* @see Asset::_getName()
-	* @access public
-	*/
-	function _getName($short_name=false)
+	function _getName($short_name = false)
 	{
 		return $this->attr('name');
+	}
 
-	}// end _getName()
+
+	function getQuestionIndex($order)
+	{
+		$index = $this->question_index;
+		if (!$index) return '';
+
+		switch ($index) {
+			case '1':
+				return $order.'.';
+			break;
+			case '2':
+				$i = 96 + $order;
+				return chr($i).'.';
+			break;
+			case '3':
+				$i = 64 + $order;
+				return chr($i).'.';
+			break;
+			case '4':
+				return strtolower($this->IntToRoman($order)).'.';
+			break;
+			case '5':
+				return $this->IntToRoman($order).'.';
+			break;
+
+		} // end switch
+	}
+
+
+	function RomanDigit($dig, $one, $five, $ten) 
+	{ 
+		switch($dig) { 
+			case 0: return ""; 
+			case 1: return "$one"; 
+			case 2: return "$one$one"; 
+			case 3: return "$one$one$one"; 
+			case 4: return "$one$five"; 
+			case 5: return "$five"; 
+			case 6: return "$five$one"; 
+			case 7: return "$five$one$one"; 
+			case 8: return "$five$one$one$one"; 
+			case 9: return "$one$ten"; 
+		} 
+	} 
+
+
+	function IntToRoman($num) 
+	{ 
+
+		$m = $num / 1000; 
+		$c = ($num % 1000) / 100; 
+		$x = ($num % 100) / 10; 
+		$i = $num % 10; 
+
+		return( 
+			 $this->RomanDigit($m, 'M', '', '') 
+			.$this->RomanDigit($c, 'C', 'D', 'M') 
+			.$this->RomanDigit($x, 'X', 'L', 'C') 
+			.$this->RomanDigit($i, 'I', 'V', 'X') 
+		); 
+	} 
 
 }//end class
 ?>
