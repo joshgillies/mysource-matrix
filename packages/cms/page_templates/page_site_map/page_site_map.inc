@@ -18,12 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.9 2004/03/26 15:36:29 brobertson Exp $
+* $Id: page_site_map.inc,v 1.10 2004/06/16 06:12:06 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once dirname(__FILE__).'/../../page/page.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 /**
 * Page_Standard
