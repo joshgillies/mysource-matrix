@@ -745,7 +745,8 @@ class Asset_Manager extends Resolve_Object
 		if (empty($row)) {
 			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
 			if (!$mute_errors) trigger_error('Unable to find an Asset for the URL "'.$fancy_url.'"', E_USER_WARNING);
-			return null;
+			$null = null; // 'cause we are meant to return by reference
+			return $null;
 
 		} else {
 			return $this->getAsset($row['assetid'], '', $mute_errors);

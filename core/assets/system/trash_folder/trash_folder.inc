@@ -76,7 +76,8 @@ class Trash_Folder extends Folder
 	function &duplicate($dupe_directory=true)
 	{
 		trigger_error('Unable to duplicate Trash Folder, you are only allowed one', E_USER_WARNING);
-		return NULL;
+		$null = NULL; // 'cause we need to return by reference :)
+		return $null;
 	}
 
 	/**
