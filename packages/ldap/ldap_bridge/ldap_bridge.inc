@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.22 2005/01/13 22:48:25 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.23 2005/01/15 16:44:37 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -582,7 +582,7 @@ class LDAP_Bridge extends Bridge
 
 
 	/**
-	* Returns an array of assetid's + info in the order that they propogate out from the site url
+	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
 	*
 	* @param string	$assetid	the id of the last asset in the lineage
 	* @param string	$protocol	the protocol to match -> null means it is ignored
