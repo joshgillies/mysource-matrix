@@ -66,6 +66,8 @@ Custom CSS for Designs
 
 	If you set the tag_type option to 'import_tag', the following output will be generated:
 		@import url(/link/to/file.css);
+		
+	Note: CSS Customisations are still in development and should not be used on a production site.
 
 
 LDAP Permission Bug
