@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.64 2004/09/10 06:17:25 lwright Exp $
+* $Id: page_calendar.inc,v 1.65 2004/09/10 06:21:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.64 $ - 1.0
+* @version $Revision: 1.65 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1302,7 +1302,6 @@ class Page_Calendar extends Page_Asset_Listing
 		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
 		$sql = $this->_buildRecurringEventQuery($trees, 'month', "$year-$month")."\n AND (".implode(' OR ', $tree_clauses).')';
 		$recur_result = $db->getAssoc($sql);
-		//bam("Recurring SQL: $sql");
 		assert_valid_db_result($recur_result);
 
 		return ($single_result + $recur_result);
@@ -1384,8 +1383,6 @@ class Page_Calendar extends Page_Asset_Listing
 		$plain_events = $this->getWeekEvents($cal_date);
 		$events =& $this->_expandEventList($plain_events, $cal_date, $last_day);
 
-		bam ($events);
-
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 			if (($event_date >= $cal_date) && ($event_date <= $last_day)) {
@@ -1394,9 +1391,6 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 
 		foreach ($res as $date => $events) $this->_processExceptions($res[$date]);
-
-		bam ('Final RESULT!!');
-		bam ($res);
 
 		return $res;
 
@@ -1413,8 +1407,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		if (!$first_time) $first_time = $this->attr('day_starts_at');
 		if (!$time_partition) $time_partition = $this->attr('day_partition_time');
-		error_log($time_partition);
-
+		
 		if (!$last_time) $last_time = $this->attr('day_ends_at');
 		$partition_keys = Array();
 		list($hour, $mins) = explode(':', $last_time);
@@ -1446,8 +1439,6 @@ class Page_Calendar extends Page_Asset_Listing
 		$plain_events = $this->getWeekEvents($cal_date);
 		$events =& $this->_expandEventList($plain_events, $cal_date, $last_day);
 
-		//bam ($events);
-
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 			
@@ -1470,9 +1461,6 @@ class Page_Calendar extends Page_Asset_Listing
 		foreach ($res as $date => $events) {
 			foreach($partition_keys as $partition) $this->_processExceptions($res[$date][$partition]);
 		}
-
-		//bam ('Final RESULT!!');
-		//bam ($res);
 
 		return $res;
 
@@ -2047,10 +2035,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		$sql .= ' AND ('.implode(' OR ', $tree_sql).')';
 
-		print $sql;
-
 		$result = $db->getAssoc($sql);
-		bam($result);
 		assert_valid_db_result($result);
 		return $result;
 
