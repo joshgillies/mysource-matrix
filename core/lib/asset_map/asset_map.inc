@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.129 2004/04/05 02:00:47 gsherwood Exp $
+* $Id: asset_map.inc,v 1.130 2004/04/05 05:04:52 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,7 +92,7 @@ class Asset_Map
 				var popup_win = window.open("<?php echo sq_web_path('lib'); ?>/web/asset_map_help.php", 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=180');
 
 			}//end open_help()
-			registerFlashToJsCall('open_help', open_help);
+			//registerFlashToJsCall('open_help', open_help);
 
 
 
@@ -104,7 +104,7 @@ class Asset_Map
 				var popup_win = window.open("<?php echo sq_web_path('lib'); ?>/web/asset_map_key.php", 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=350,height=300');
 
 			}//end open_legend()
-			registerFlashToJsCall('open_legend', open_legend);
+			//registerFlashToJsCall('open_legend', open_legend);
 		//-->
 		</script>
 
@@ -173,11 +173,7 @@ class Asset_Map
 			<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
 			
 			<comment>
-				<embed id="sq_asset_map" type="application/x-java-applet;version=1.4" 
-				width="<?php echo $width; ?>" height="<?php echo $height; ?>" 
-				code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" 
-				archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar"
-				 BASE_URL="<?php echo clean_url(current_url(true, true)); ?>"
+				<embed id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" type="application/x-java-applet;version=1.4" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" BASE_URL="<?php echo clean_url(current_url(true, true)); ?>"
 				 BACKEND_SUFFIX="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" MAYSCRIPT>
 					<noembed>
 						Java is not installed on your system
