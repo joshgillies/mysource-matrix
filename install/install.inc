@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.13 2004/07/28 04:08:20 lwright Exp $
+* $Id: install.inc,v 1.14 2004/09/08 04:02:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -374,7 +374,6 @@ function install_authentication_types()
 	
 	// install all systems that are not currently installed
 	$folder_link = Array('asset' => &$auth_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
-	$GLOBALS['SQ_INSTALL'] = true;
 	foreach ($auth_types as $type_code) {
 		if (in_array($type_code, $installed_auth_types)) continue;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
@@ -390,8 +389,7 @@ function install_authentication_types()
 
 		}
 	}
-	$GLOBALS['SQ_INSTALL'] = false;
-	
+
 	return true;
 
 }//end install_authentication_types()

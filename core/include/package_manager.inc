@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.48 2004/09/01 15:15:19 brobertson Exp $
+* $Id: package_manager.inc,v 1.49 2004/09/08 04:02:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -678,8 +678,6 @@ class Package_Manager extends MySource_Object
 	*/
 	function installSystemAssets()
 	{
-		$GLOBALS['SQ_INSTALL'] = true;
-
 		// check for any system assets that have not yet been installed and install them if required
 		$updated = false;
 		$assets_created = 0;
@@ -692,7 +690,8 @@ class Package_Manager extends MySource_Object
 				if (!is_null($new_system_asset)) {
 					if ($new_system_asset->id) $updated = true;
 					$assets_created++;
-				} else {			// could not create the asset?!?
+				} else {
+					// could not create the asset?!?
 					return -1;
 				}
 			}
@@ -704,8 +703,6 @@ class Package_Manager extends MySource_Object
 			$sys_asset_cfg = new System_Asset_Config();
 			$sys_asset_cfg->save(Array(), false);
 		}
-
-		$GLOBALS['SQ_INSTALL'] = false;
 
 		return $assets_created;
 
