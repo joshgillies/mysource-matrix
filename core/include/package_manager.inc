@@ -159,7 +159,7 @@ class Package_Manager extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_RESOLVE']->db;
 		// open the transaction
-		$db->query('BEGIN');
+#		$db->query('BEGIN');
 
 		$exists = $db->getOne('SELECT code_name FROM sq_package WHERE code_name = '.$db->quote($this->package));
 		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br>'.$exists->getUserInfo(), E_USER_ERROR);

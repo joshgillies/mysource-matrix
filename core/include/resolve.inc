@@ -60,7 +60,7 @@ class Resolve {
 
 	}// end constructor
 
-	/*
+	/**
 	* From here is where everything else happens, it starts the ball rolling
 	*
 	* @access public
@@ -103,6 +103,16 @@ class Resolve {
 		//	$GLOBALS['SQ_FRONTEND'] = new Frontend();
 		//	$GLOBALS['SQ_FRONTEND']->paint();
 			echo "FRONT END";
+			speed_check();
+			$asset = &$this->am->getAssetFromURL();
+			pre_echo("Active Asset : ".$asset->name);
+
+//			$asset = &$this->am->getAsset(4);
+//			pre_echo("Active Asset : ".$asset->name);
+//			$done = $asset->deleteWebPath('users');
+//			pre_echo('Success : '.$done);
+			speed_check();
+			echo "\n\n\n";
 
 		}//end if
 
@@ -110,7 +120,7 @@ class Resolve {
 
 	}//end start()
 
-	/*
+	/**
 	* Processes any global actions that need to be taken care of
 	*
 	* @access private
@@ -151,7 +161,7 @@ class Resolve {
 
 	}//end _processGlobalActions()
 
-	/*
+	/**
 	* returns a boolean if the passed user is the logged in user
 	*
 	* @access public
@@ -160,7 +170,7 @@ class Resolve {
 		return ($this->user && $this->user->id == $user->id);
 	}//end currentUser()
 
-	/*
+	/**
 	* returns the userid of the current user, or zero if none present (ie frontend)
 	*
 	* @access public
@@ -169,7 +179,7 @@ class Resolve {
 		return ($this->user) ? $this->user->id : 0;
 	}//end currentUserId()
 
-	/*
+	/**
 	* generates a new login key and returns it
 	*
 	* @access public
@@ -179,7 +189,7 @@ class Resolve {
 		return $_SESSION['SQ_LOGIN_KEY'] = random_password(20);
 	}
 
-	/*
+	/**
 	* returns the current login key
 	*
 	* @access public
@@ -188,7 +198,7 @@ class Resolve {
 		return $_SESSION['SQ_LOGIN_KEY'];
 	}
 
-	/*
+	/**
 	* Add a system message
 	*
 	* @access public
@@ -197,7 +207,7 @@ class Resolve {
 		$this->_msgs[] = $msg;
 	}
 
-	/*
+	/**
 	* returns the system messages
 	*
 	* @return Array(string)

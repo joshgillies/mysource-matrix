@@ -38,7 +38,7 @@ class Asset_Manager extends Resolve_Object
 		$this->_loadAssetTypes();
 	}
 
-	/*
+	/**
 	* Loads all the assets types into the asset array
 	*
 	* @access private
@@ -60,7 +60,7 @@ class Asset_Manager extends Resolve_Object
 
 	}
 
-	/*
+	/**
 	* Refreshes the passed asset types data in the assets array
 	* Also updates the sq_asset_type_inherited table so as to have all 
 	* links pointing correctly
@@ -112,7 +112,7 @@ class Asset_Manager extends Resolve_Object
 			
 	}//end refreshAssetType()
 
-	/*
+	/**
 	* Returns whether the passed asset is installed in the system or not
 	*
 	* @param string $type_code  the code name for the asset that you want to check
@@ -124,7 +124,7 @@ class Asset_Manager extends Resolve_Object
 		return isset($this->_asset_types[$type_code]);
 	}//end installed()
 
-	/*
+	/**
 	* Returns an array of type codes that are installed in the system
 	*
 	* @return array
@@ -134,7 +134,7 @@ class Asset_Manager extends Resolve_Object
 		return array_keys($this->_asset_types);
 	}//end getInfo()
 
-	/*
+	/**
 	* Returns an array of asset information or a specific piece of information
 	*
 	* @param string $type_code  the code name for the asset that you want to check
@@ -170,7 +170,7 @@ class Asset_Manager extends Resolve_Object
 	}//end getInfo()
 
 
-	/*
+	/**
 	* Returns an array representing the class hierarchy for the asset types, either for whole system
 	* or for under the the passed asset type
 	*
@@ -221,7 +221,7 @@ class Asset_Manager extends Resolve_Object
 	}
 
 
-	/*
+	/**
 	* Includes the class file for the passed asset
 	*
 	* @param string $type_code  the code name for the asset that you want to check
@@ -239,7 +239,7 @@ class Asset_Manager extends Resolve_Object
 
 	}//end includeAsset()
 
-	/*
+	/**
 	* Returns an array of all assets types that are parents for the passed asset
 	*
 	* @param string		$type_code		the code name for the asset that you want to check
@@ -273,7 +273,7 @@ class Asset_Manager extends Resolve_Object
 
 	}//end getParentList()
 
-	/*
+	/**
 	* returns a reference to the asset represented by the passed assetid
 	*
 	* @param int		$assetid		the asset id to be loaded
@@ -311,7 +311,7 @@ class Asset_Manager extends Resolve_Object
 
 	}//end getAsset()
 
-	/*
+	/**
 	* registers the passed ojbect in the store, for others to get
 	* used when a new record has just been "create()d"
 	*
@@ -328,7 +328,7 @@ class Asset_Manager extends Resolve_Object
 
 	}//end registerAsset();
 
-	/*
+	/**
 	* prints out the interface for viewing and customising asset types
 	*
 	* @param object Backend $backend
@@ -424,7 +424,7 @@ class Asset_Manager extends Resolve_Object
 	}//end printBackend();
 
 
-	/*
+	/**
 	* prints out the interface for viewing and customising asset types
 	*
 	* @param object Backend_Outputter $o
@@ -606,6 +606,66 @@ class Asset_Manager extends Resolve_Object
 
 	}//end _printAssetList()
 
+
+	/**
+	* returns a reference to the asset that has the passed url
+	* if no url is passed the current (aka PHP_SELF) one is used
+	*
+	* @param string		$url			the urls to check for
+	* @param boolean	$exact_match	when true only returns an asset if there is an exact match on the url, if false searches back along the URL path for the asset that matches
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
+	*
+	* @access public
+	*/
+	function &getAssetFromURL($url='', $exact_match=true, $mute_errors=false) {
+
+		if (trim((string) $url) == '') {
+			$url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+		}
+
+		$url = preg_replace('/\/+$/', '', $url);
+
+		pre_echo($url);
+
+		if (!isset($this->_tmp['url_lookup'])) $this->_tmp['url_lookup'] = Array();
+		if (!isset($this->_tmp['url_lookup'][$url])) {
+
+			$sections = explode('/', $url);
+			$option  = '';
+			$in_str  = '';
+			foreach($sections as $piece) {
+				$in_str .= (($in_str) ? ',' : '').$GLOBALS['SQ_RESOLVE']->db->quote($option.$piece);
+				$option .= $piece.'/';
+			}
+
+			$sql = 'SELECT url, assetid
+					FROM sq_asset_urls
+					WHERE url IN ('.$in_str.')
+					ORDER BY CHARACTER_LENGTH(url) DESC
+					LIMIT 1';
+#			pre_echo($sql);
+			$row = $GLOBALS['SQ_RESOLVE']->db->getRow($sql);
+
+			if (empty($row)) {
+				$this->_tmp['url_lookup'][$url] = 0;
+			} else {
+				$this->_tmp['url_lookup'][$url] = Array('assetid' => $row['assetid'], 'exact' => ($url == $row['url']));
+			}
+
+		}//end if
+
+		if (empty($this->_tmp['url_lookup'][$url])) {
+			if (!$mute_errors) trigger_error('Unable to find an Asset for the URL "'.$url.'"', E_USER_WARNING);
+			return null;
+
+		} elseif ($exact_match && !$this->_tmp['url_lookup'][$url]['exact']) {
+			if (!$mute_errors) trigger_error('Unable to find an exact match for any Asset for the URL "'.$url.'"', E_USER_WARNING);
+			return null;
+		} else {
+			return $this->getAsset($this->_tmp['url_lookup'][$url]['assetid'], '', $mute_errors);
+		}
+
+	}//end getAssetFromURL()
 
 }//end class
 ?>

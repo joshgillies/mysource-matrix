@@ -86,3 +86,20 @@ CREATE TABLE sq_asset_type_inherited (
   type_code           VARCHAR(100) NOT NULL DEFAULT '',
   PRIMARY KEY(inherited_type_code, type_code)
 );
+
+
+DROP TABLE IF EXISTS sq_asset_paths; 
+CREATE TABLE sq_asset_paths (
+  path       VARCHAR(255) NOT NULL DEFAULT '',
+  assetid    INT UNSIGNED NOT NULL,
+  sort_order INT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY  (path)
+);
+
+
+DROP TABLE IF EXISTS sq_asset_urls; 
+CREATE TABLE sq_asset_urls (
+  url     TEXT NOT NULL DEFAULT '',
+  assetid INT UNSIGNED NOT NULL,
+  PRIMARY KEY  (url)
+);

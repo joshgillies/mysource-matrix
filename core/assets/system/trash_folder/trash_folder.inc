@@ -113,9 +113,9 @@ class Trash_Folder extends Folder
 
 	/*
 	* For a normal Asset returns all links to this asset, but for trash returns all the assets who are not minor's
-	* in exclusive or unite links to any other asset
+	* in nav links to any other asset
 	*
-	* @param int    $link_types  will only ever be SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE or bitmask that includes these
+	* @param int    $link_types  will only ever be a bitmask that includes matches SQ_LINK_NAV
 	* @param string $asset_type  the type of asset that is linked (eg 'Page', 'File', etc);
 	* @param string $ret_type    flag to the structure of the return array - only relevant when $asset_type is blank
 	*                            'T' = sorted/structured by type 
@@ -131,7 +131,7 @@ class Trash_Folder extends Folder
 
 		// because we are only collecting assets with no SQ_LINK_EXCLUSIVE or SQ_LINK_UNITE links
 		// if the requested type doesn't contain these piss off
-		if (($link_types & (SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE)) == 0) return Array();
+		if (($link_types & (SQ_LINK_NAV)) == 0) return Array();
 
 		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
 
@@ -146,7 +146,7 @@ class Trash_Folder extends Folder
 				.' ORDER BY a.name';
 		$subs = Array( 'SELECT l.minorid
 						FROM sq_asset_link l
-						WHERE (l.link_type & '.$db->quote(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE).') > 0');
+						WHERE (l.link_type & '.$db->quote(SQ_LINK_NAV).') > 0');
 
 		$sql = db_extras_subquery($db, $sql, $subs);
 		if (DB::isError($sql)) 
@@ -197,7 +197,7 @@ class Trash_Folder extends Folder
 
 		// because we are only collecting assets with no SQ_LINK_EXCLUSIVE or SQ_LINK_UNITE links
 		// if the requested type doesn't contain these piss off
-		if (($link_types & (SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE)) == 0) return Array();
+		if (($link_types & (SQ_LINK_NAV)) == 0) return Array();
 
 		include_once SQ_LIB_PATH.'/db_extras/db_extras.inc';
 
@@ -211,7 +211,7 @@ class Trash_Folder extends Folder
 				.(empty($asset_type) ? '' : ' AND a.type_code = '.$db->quote($asset_type));
 		$subs = Array( 'SELECT l.minorid
 						FROM sq_asset_link l
-						WHERE (l.link_type & '.$db->quote(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE).') > 0');
+						WHERE (l.link_type & '.$db->quote(SQ_LINK_NAV).') > 0');
 
 		$sql = db_extras_subquery($db, $sql, $subs);
 		if (DB::isError($sql)) 
@@ -320,7 +320,7 @@ class Trash_Folder extends Folder
 
 
 		// is the asset linked to any thing
-		return ($asset->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', false) > 0);
+		return ($asset->countLinks(SQ_LINK_NAV, '', false) > 0);
 
 	}// end deleteLink();
 

@@ -370,10 +370,11 @@ class Asset_Management extends Resolve_Object
 
 		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_WARNING);
 
-		$attributeid = $this->_db->nextid('sq_sequence_asset_attribute');
-
-#		pre_echo("ATTR INFO : ");
-#		pre_echo($attr_info);
+		$attributeid = $this->_db->nextId('sq_sequence_asset_attribute');
+		if (DB::isError($attributeid)) {
+			trigger_error($attributeid->getMessage().'<br>'.$attributeid->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
 
 		// OK, all seems fine, let's add the bloody thing
 		$sql = 'INSERT INTO sq_asset_attribute 

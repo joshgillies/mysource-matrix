@@ -74,6 +74,7 @@ if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 define('SQ_LINK_EXCLUSIVE', 1);
 define('SQ_LINK_UNITE',     2);
 define('SQ_LINK_NOTICE',    4);
+define('SQ_LINK_NAV',       3); // short hand for EXCLUSIVE | UNITE
 define('SQ_LINK_ANY',       7); // what all the others add up to
 
 // Create the system object

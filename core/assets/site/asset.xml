@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../../packages/asset.xsl" type="text/xsl"?>
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../../packages/asset.xsd">
+	<package>__core__</package>
+	<type_code>site</type_code>
+	<version>0.1</version>
+	<name>Site</name>
+	<description>Sites are the base points for any frontend web system</description>
+	<instantiable>yes</instantiable>
+	<system_only>no</system_only>
+	<parent_type>folder</parent_type>
+	<requirements />
+	<editing_options>
+		<option action="details">Edit Details</option>
+	</editing_options>
+</asset_info>

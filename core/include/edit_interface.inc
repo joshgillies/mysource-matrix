@@ -52,6 +52,9 @@ class Edit_Interface extends Resolve_Object
 			$this->_dirs[] = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_RESOLVE']->am->getInfo($parent_type, 'dir');
 		}
 
+		// HERE BECAUSE Of The Need To Have A Default Interface Options for All Assets
+		pre_echo($this->_dirs);
+
 		$this->_loadTabs();
 	}
 

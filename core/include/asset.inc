@@ -60,7 +60,7 @@ class Asset extends Resolve_Object
 	}
 
 	/**
-	* The type that t\his asset is
+	* The type that this asset is
 	*
 	* @return string
 	* @access public
@@ -82,7 +82,11 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
-		$assetid = $db->nextid('sq_sequence_asset');
+		$assetid = $db->nextId('sq_sequence_asset');
+		if (DB::isError($assetid)) {
+			trigger_error($assetid->getMessage().'<br>'.$assetid->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
 
 		$name   = ucwords(str_replace('_', ' ', $this->type())).' #'.$assetid;
 		$now    = time();
@@ -278,66 +282,72 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Return all links to this asset 
+	* Return all links that this asset has to other assets
 	*
-	* @param int    $link_types  integer that can be the product of bitwise operations on the SQ_LINK_* constants
-	* @param string $asset_type  the type of asset that is linked (eg 'Page', 'File', etc);
-	* @param string $ret_type    flag to the structure of the return array - only relevant when $asset_type is blank
-	*                            'T' = sorted/structured by type 
-	*                                  eg Array('folder' => array(link1, link2, ..), 'user' => Array(link3, link4, ..))
-	*                            'S' = sorted by sort_order, single array 
-	*                                  eg Array(link1, link2, ..)
+	* @param int	$link_types		integer that can be the product of bitwise operations on the SQ_LINK_* constants
+	* @param string	$asset_type		the type of asset that is linked (eg 'Page', 'File', etc);
+	* @param string	$ret_type		flag to the structure of the return array - only relevant when $asset_type is blank
+	*								'T' = sorted/structured by type 
+	*									eg Array('folder' => array(link1, link2, ..), 'user' => Array(link3, link4, ..))
+	*								'S' = sorted by sort_order, single array 
+	*									eg Array(link1, link2, ..)
+	* @param string $side_of_link	Which side of the link this asset is on ('major' or 'minor')
+	*
 	* @return Array()
 	* @access public
 	*/
-	function getLinks($link_types, $asset_type='', $ret_type='T') 
+	function getLinks($link_types, $asset_type='', $ret_type='T', $side_of_link='major') 
 	{
-		error_log("Get Links for $this->id ($this->name) : $link_types, $asset_type, $ret_type");
+		if ($side_of_link != 'major' && $side_of_link != 'minor') 
+			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
+	
+		if (!isset($this->_tmp['links'])) $this->_tmp['links'] = Array();
+		if (!isset($this->_tmp['links'][$side_of_link])) $this->_tmp['links'][$side_of_link] = Array();
 
 		$elem_types = bit_elements($link_types);
 		// OK, let's check what we already have cached, and only do a DB call for what we need
 		$search_link_types = 0;
 		foreach($elem_types as $link_type) {
 			// if we haven't got all the links yet or we have got the specific type of links
-			if (empty($this->_tmp['links'][$link_type.'___GOT_ALL___'])
-				|| ($asset_type && !isset($this->_tmp['links'][$link_type][$asset_type]))) {
+			if (empty($this->_tmp['links'][$side_of_link][$link_type.'___GOT_ALL___'])
+				|| ($asset_type && !isset($this->_tmp['links'][$side_of_link][$link_type][$asset_type]))) {
 				$search_link_types |= $link_type;
 			}
 		}
 
 		if ($search_link_types) {
 
+			$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
+
 			$db = &$GLOBALS['SQ_RESOLVE']->db;
-			$sql = 'SELECT l.linkid, l.minorid, l.value, l.link_type, a.type_code, l.sort_order
+			$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, a.type_code, l.sort_order
 					FROM sq_asset_link l, sq_asset a
-					WHERE l.minorid   = a.assetid 
-					  AND l.majorid   = '.$db->quote($this->id).'
+					WHERE l.'.$other_side.'id   = a.assetid 
+					  AND l.'.$side_of_link.'id   = '.$db->quote($this->id).'
 					  AND (l.link_type & '.$db->quote($search_link_types).') > 0 '
 					.(empty($asset_type) ? 'ORDER BY l.sort_order, a.type_code' : ' AND a.type_code = '.$db->quote($asset_type));
-
-			error_log("\n".$sql);
 
 			$result = $db->query($sql);
 			if (DB::isError($result)) 
 				trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
 
-			$this->_tmp['links'][$link_type] = Array();
+			$this->_tmp['links'][$side_of_link][$link_type] = Array();
 			while (null !== ($row = $result->fetchRow())) {
-				if (!isset($this->_tmp['links'][$row['link_type']][$row['type_code']])) $this->_tmp['links'][$row['link_type']][$row['type_code']] = Array();
-				$this->_tmp['links'][$row['link_type']][$row['type_code']][] = $row;
+				if (!isset($this->_tmp['links'][$side_of_link][$row['link_type']][$row['type_code']])) $this->_tmp['links'][$side_of_link][$row['link_type']][$row['type_code']] = Array();
+				$this->_tmp['links'][$side_of_link][$row['link_type']][$row['type_code']][] = $row;
 			}//end while
 			$result->free();
 
 			// a bit of integrity
 			if (empty($asset_type)) {
-				foreach($elem_types as $link_type) $this->_tmp['links'][$link_type.'___GOT_ALL___'] = true;
+				foreach($elem_types as $link_type) $this->_tmp['links'][$side_of_link][$link_type.'___GOT_ALL___'] = true;
 
 			} else {
 				foreach($elem_types as $link_type) {
-					if (!isset($this->_tmp['links'][$link_type][$asset_type])) {
+					if (!isset($this->_tmp['links'][$side_of_link][$link_type][$asset_type])) {
 						// cause we are just need to set this to something, 
 						// no need to waste space with an array
-						$this->_tmp['links'][$link_type][$asset_type] = false;
+						$this->_tmp['links'][$side_of_link][$link_type][$asset_type] = false;
 					}
 				}
 			}
@@ -350,26 +360,27 @@ class Asset extends Resolve_Object
 		if (empty($asset_type)) {
 			if ($ret_type == 'T') {
 				foreach($elem_types as $link_type) {
-					if (!empty($this->_tmp['links'][$link_type])) {
-						$ret_arr = array_merge_recursive($ret_arr, $this->_tmp['links'][$link_type]);
+					if (!empty($this->_tmp['links'][$side_of_link][$link_type])) {
+						$ret_arr = array_merge_recursive($ret_arr, $this->_tmp['links'][$side_of_link][$link_type]);
 					}
 				}// end foreach
 			} else {
+
 				foreach($elem_types as $link_type) {
-					if (!empty($this->_tmp['links'][$link_type])) {
-						for($type = 0; null !== ($type = key($this->_tmp['links'][$link_type])); next($this->_tmp['links'][$link_type])) {
-							$ret_arr = array_merge($ret_arr, $this->_tmp['links'][$link_type][$type]);
+					if (!empty($this->_tmp['links'][$side_of_link][$link_type])) {
+						for(reset($this->_tmp['links'][$side_of_link][$link_type]); null !== ($type = key($this->_tmp['links'][$side_of_link][$link_type])); next($this->_tmp['links'][$side_of_link][$link_type])) {
+							$ret_arr = array_merge($ret_arr, $this->_tmp['links'][$side_of_link][$link_type][$type]);
 						}
 					}
 				}// end foreach
-				usort($ret_arr, array (__CLASS__, '_getLinksCmp'));
+				usort($ret_arr, Array(__CLASS__, '_getLinksCmp'));
 
 			}// end if
 
 		// else we only want a specific type
 		} else {
 			foreach($elem_types as $link_type) {
-				$ret_arr = array_merge($ret_arr, $this->_tmp['links'][$link_type][$asset_type]);
+				$ret_arr = array_merge($ret_arr, $this->_tmp['links'][$side_of_link][$link_type][$asset_type]);
 			}
 
 		}// end if
@@ -428,25 +439,26 @@ class Asset extends Resolve_Object
 	/**
 	* Called when the links are changed for this asset so that the tmp cache can be cleared
 	*
-	* @param string $link_type    the type of link this is
-	* @param string $asset_type   the type of asset that is linked (eg 'Page', 'File', etc);
+	* @param string	$link_type		the type of link this is
+	* @param string	$asset_type		the type of asset that is linked (eg 'Page', 'File', etc);
+	* @param string $side_of_link	Which side of the link this asset is on ('major' or 'minor')
 	*
 	* @access private
 	*/
-	function _linkChanged($link_type, $asset_type='') 
+	function _linkChanged($link_type, $asset_type='', $side_of_link='major') 
 	{
 
-		if (empty($this->_tmp['links'])) return;
+		if (empty($this->_tmp['links'][$side_of_link])) return;
 
 		if (empty($asset_type)) {
-			unset($this->_tmp['links'][$link_type]);
+			unset($this->_tmp['links'][$side_of_link][$link_type]);
 		} else {
 			// only unset this specific type so calls for any other type 
 			// can used the cached version if it exists
-			unset($this->_tmp['links'][$link_type][$asset_type]);
+			unset($this->_tmp['links'][$side_of_link][$link_type][$asset_type]);
 		}
 		
-		unset($this->_tmp['links'][$link_type.'___GOT_ALL___']);
+		unset($this->_tmp['links'][$side_of_link][$link_type.'___GOT_ALL___']);
 
 	}//end _linkChanged()
 
@@ -489,9 +501,9 @@ class Asset extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_RESOLVE']->db;
 
-		// if this link is either an exclusive or a unite link, then we need to make sure that this
+		// if this link is a nav link, then we need to make sure that this
 		// minor asset doesn't already have an exclusive link from anything
-		if ($link_type & (SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE)) {
+		if ($link_type & SQ_LINK_NAV) {
 			$sql = 'SELECT majorid
 					FROM sq_asset_link
 					WHERE minorid   = '.$db->quote($minor->id).'
@@ -529,7 +541,11 @@ class Asset extends Resolve_Object
 
 
 		// sequences are cool, see the PEAR::DB docs for more info
-		$linkid = $db->nextid('sq_sequence_asset_link');
+		$linkid = $db->nextId('sq_sequence_asset_link');
+		if (DB::isError($linkid)) {
+			trigger_error($linkid->getMessage().'<br>'.$linkid->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
 
 		$sql = 'INSERT INTO sq_asset_link
 				(linkid, majorid, minorid, link_type, value, sort_order, last_updated, last_userid)
@@ -980,6 +996,254 @@ class Asset extends Resolve_Object
 		}
 		return $this->_tmp['ei'];
 	}// end getEI()
+
+	/**
+	* returns a list of either paths that this asset has or an array of urls that point to this asset
+	*
+	* @param boolean	$url	whether to return URLs or paths
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getWebPaths($url=false) 
+	{
+		$type = ($url) ? 'url' : 'path';
+		$plural = $type.'s';
+		if (!isset($this->_tmp[$plural])) {
+			$db = &$GLOBALS['SQ_RESOLVE']->db;
+			$sql = 'SELECT '.$type.'
+					FROM sq_asset_'.$plural.'
+					WHERE assetid = '.$db->quote($this->id);
+
+			$result = $db->getCol($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+				$this->_tmp[$plural] = Array();
+			} else {
+				$this->_tmp[$plural] = $result;
+			}
+
+		}// end if
+
+		return $this->_tmp[$plural];
+
+	}// end getWebPaths()
+
+	/**
+	* Attempts to add a path to this asset
+	*
+	* @param string	$path	the path to add to this asset's list
+	*
+	* @return boolean
+	* @access public
+	*/
+	function addWebPath($path) 
+	{
+		$path = preg_replace('/\\s+/', '_', $path);
+		// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
+		$path = preg_replace('/[^a-zA-Z0-9\-$_@.&!*(),]/', '',  $path);
+
+		$paths = $this->getWebPaths();
+
+		// does it exist already ?
+		if (in_array($path, $paths)) return true;
+
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db->query('BEGIN');
+
+		// now we need to check that none of our parents have 
+		// any nav kids that are also using this path name
+		$kidids = Array();
+		$parents = $this->getLinks(SQ_LINK_NAV, '', 'S', 'minor');
+		for($i = 0; $i < count($parents); $i++) {
+			$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
+			if (is_null($parent)) continue;
+			// get all the nav kids
+			$parent_kids = $parent->getLinks(SQ_LINK_NAV, '', 'S', 'major');
+			for($j = 0; $j < count($parent_kids); $j++) {
+				$kidids[] = $db->quote($parent_kids[$j]['minorid']);
+			}
+		}
+
+		if (count($kidids)) {
+			$sql = 'SELECT COUNT(*)
+					FROM sq_asset_paths
+					WHERE assetid IN ('.implode(',', $kidids).')
+					  AND path = '.$db->quote($path);
+
+			$result = $db->getOne($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+				return false;
+			} 
+
+			if ($result) {
+				trigger_error('Path "'.$path.'" already in use for one of the siblings of "'.$this->name.'"', E_USER_WARNING);
+				return false;
+			}
+
+		}// end if
+
+		// Remove all the old URLs
+		$sql = 'INSERT INTO sq_asset_paths
+				(path, assetid)
+				VALUES
+				('.$db->quote($path).', '.$db->quote($this->id).')';
+		pre_echo($sql);
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+			return false;
+		}
+
+		unset($this->_tmp['paths']);
+
+		if ($this->_updateWebURLs()) {
+			$GLOBALS['SQ_RESOLVE']->db->query('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_RESOLVE']->db->query('ROLLBACK');
+			return false;
+		}
+
+	}// end addWebPath()
+
+	/**
+	* Attempts to add a path to this asset
+	*
+	* @param string	$path	the path to add to this asset's list
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteWebPath($path) 
+	{
+		$paths = $this->getWebPaths();
+		// doesn't it exist already ? dickhead
+		if (!in_array($path, $paths)) return true;
+
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
+		$db->query('BEGIN');
+
+		// Remove all the old URLs
+		$sql = 'DELETE FROM sq_asset_paths
+				WHERE path    = '.$db->quote($path).'
+				  AND assetid = '.$db->quote($this->id);
+		pre_echo($sql);
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+			return false;
+		}
+
+		unset($this->_tmp['paths']);
+
+		if ($this->_updateWebURLs()) {
+			$GLOBALS['SQ_RESOLVE']->db->query('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_RESOLVE']->db->query('ROLLBACK');
+			return false;
+		}
+
+	}// end deleteWebPath()
+
+
+	/**
+	* Called to force an update of this assets URLs
+	*
+	* @return boolean
+	* @access public
+	*/
+	function updateWebURLs() 
+	{
+		$GLOBALS['SQ_RESOLVE']->db->query('BEGIN');
+		if ($this->_updateWebURLs()) {
+			$GLOBALS['SQ_RESOLVE']->db->query('COMMIT');
+			return true;
+		} else {
+			$GLOBALS['SQ_RESOLVE']->db->query('ROLLBACK');
+			return false;
+		}
+	}// end updateWebURLs
+			
+	/**
+	* Fn that does the real processing of updateWebURLs(), separated to allow for the DB transaction stuff
+	* Will be called by parent assets recursively on their kids so not 'really' private
+	* and by the addWebPaths() and deleteWebPaths() so that their transaction calls can wrap around it
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _updateWebURLs() 
+	{
+
+		$paths = $this->getWebPaths();
+		pre_echo("PATHS : ");
+		pre_echo($paths);
+
+		$db = &$GLOBALS['SQ_RESOLVE']->db;
+
+		unset($this->_tmp['urls']);
+
+		// Remove all the old URLs
+		$sql = 'DELETE FROM sq_asset_urls
+				WHERE assetid = '.$db->quote($this->id);
+		pre_echo($sql);
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+			return false;
+		}
+
+		// if we have paths then do some url inserting
+		if (count($paths)) {
+
+			$parents = $this->getLinks(SQ_LINK_NAV, '', 'S', 'minor');
+			pre_echo($parents);
+			for($i = 0; $i < count($parents); $i++) {
+				$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
+				if (is_null($parent)) continue;
+
+				$parent_urls = $parent->getWebPaths(true);
+
+				for($j = 0; $j < count($parent_urls); $j++) {
+					for($k = 0; $k < count($paths); $k++) {
+						// Remove all the old URLs
+						$sql = 'INSERT INTO sq_asset_urls
+								(url, assetid)
+								VALUES
+								('.$db->quote($parent_urls[$j].'/'.$paths[$k]).', '.$db->quote($this->id).')';
+						pre_echo($sql);
+						$result = $db->query($sql);
+						if (DB::isError($result)) {
+							trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+							return false;
+						}
+					}// end for paths
+				}// end for parent_urls
+				
+			}// end for parents
+
+		}// end if count paths
+
+		$kids = $this->getLinks(SQ_LINK_NAV, '', 'S', 'major');
+		pre_echo("KIDS : ");
+		pre_echo($kids);
+		for($i = 0; $i < count($kids); $i++) {
+			$kid = &$GLOBALS['SQ_RESOLVE']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
+			if (is_null($kid)) continue;
+
+			if (!$kid->_updateWebURLs()) {
+				return false;
+			}
+			
+		}// end for kids
+
+
+		return true;
+
+	}// end _updateWebURLs()
 
 
 }//end class

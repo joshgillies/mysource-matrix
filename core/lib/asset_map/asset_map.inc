@@ -250,7 +250,7 @@ class Asset_Map
 						);
 		$asset_node = &$root->addChild('asset', '', $attrs);
 		// we only want EXCLUSIVE or UNITE links
-		$links = $asset->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', 'S');
+		$links = $asset->getLinks(SQ_LINK_NAV, '', 'S');
 		if (count($links)) {
 			for($j = 0; $j < count($links); $j++) {
 				$kid_node = &$asset_node->addChild('child', '', Array('linkid' => $links[$j]['linkid'], 'minorid' => $links[$j]['minorid'], 'link_type' => $links[$j]['link_type']));
