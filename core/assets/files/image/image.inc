@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.22 2005/01/18 11:24:35 brobertson Exp $
+* $Id: image.inc,v 1.23 2005/01/19 05:00:20 gsherwood Exp $
 *
 */
 
@@ -227,6 +227,33 @@ class Image extends File
 		return $keywords;
 
 	}//end getAssetKeywords()
+
+
+	/**
+	* Prints out the backend interface for the asset
+	*
+	* @param object Backend_Outputter	&$o
+	*
+	* @access public
+	*/
+	function paintBackend(&$o)
+	{
+		if (!isset($_REQUEST['asset_ei_screen'])) return parent::paintBackend($o);
+		switch ($_REQUEST['asset_ei_screen']) {
+			case 'image_info' :
+				include_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
+				$ouput = Array();
+				$output['alt'] = $this->attr('alt');
+				$output['width'] = $this->attr('width');
+				$output['height'] = $this->attr('height');
+				echo var_serialise($output);
+				exit();
+			default :
+				return parent::paintBackend($o);
+
+		}//end switch
+
+	}//end paintBackend()
 
 
 //--        VARIETIES        --//

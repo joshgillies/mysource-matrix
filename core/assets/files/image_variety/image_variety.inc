@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.2 2005/01/17 18:01:49 brobertson Exp $
+* $Id: image_variety.inc,v 1.3 2005/01/19 05:00:20 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -532,6 +532,73 @@ class Image_Variety extends Asset
 
 
 	/**
+	* Get an array of some useful data about the existing uploaded file
+	*
+	* @return array(string)
+	* @access private
+	*/
+	function getExistingFile()
+	{
+		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+		if (is_null($image)) return Array();
+
+		$ext = get_file_type($image->name);
+		$filename = $this->name.'.'.$ext;
+		$old_name = $this->attr('name');
+
+		// we are going to temporarily set the name of this image
+		// variety to have an extension, so it can be found by the File
+		// asset's getExistingFile() function
+		$this->vars['name']['value'] = $filename;
+
+		$info = image::getExistingFile();
+		if (!empty($info['path'])) {
+			$size = getimagesize($info['path']);
+			$info['width']  = $size[0];
+			$info['height'] = $size[1];
+		}
+
+		// change the name back to what it was
+		$this->vars['name']['value'] = $old_name;
+
+		return $info;
+
+	}//end getExistingFile()
+
+
+	/**
+	* Prints out the backend interface for the asset
+	*
+	* @param object Backend_Outputter	&$o
+	*
+	* @access public
+	*/
+	function paintBackend(&$o)
+	{
+		if (!isset($_REQUEST['asset_ei_screen'])) return parent::paintBackend($o);
+		switch ($_REQUEST['asset_ei_screen']) {
+			case 'image_info' :
+				$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
+				if (is_null($image)) exit();
+
+				$file_info = $this->getExistingFile();
+
+				include_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
+				$ouput = Array();
+				$output['alt'] = $image->attr('alt');
+				$output['width'] = $file_info['width'];
+				$output['height'] = $file_info['height'];
+				echo var_serialise($output);
+				exit();
+			default :
+				return parent::paintBackend($o);
+
+		}//end switch
+
+	}//end paintBackend()
+
+
+	/**
 	* Prints out the frontend for this file with no design
 	*
 	* @return void
@@ -571,7 +638,6 @@ class Image_Variety extends Asset
 			readfile($file);
 
 		}
-
 
 	}//end printFrontend()
 
@@ -715,4 +781,5 @@ class Image_Variety extends Asset
 
 
 }//end class
+
 ?>

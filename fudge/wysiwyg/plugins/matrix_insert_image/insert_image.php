@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.22 2005/01/15 18:40:18 brobertson Exp $
+* $Id: insert_image.php,v 1.23 2005/01/19 05:00:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,6 +44,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/asset_map/javaExternalCall.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('fudge').'/var_serialise/var_serialise.js' ?>"></script>
 		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js' ?>"></script>
+		<script type="text/javascript" src="<?php echo sq_web_path('lib').'/js/JsHttpConnector.js' ?>"></script>
 
 		<script type="text/javascript">
 
@@ -54,25 +55,6 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 			function Init() {
 				__dlg_init("matrixInsertImage");
 			};
-
-			/**
-			* Add auto alternate text to selected image
-			*
-			* @return void
-			*/
-			function setAltText()
-			{
-				var path = document.getElementById("f_imageid[url]").value;
-				while (path.indexOf("/") >= 0) path = path.substring(path.indexOf("/") + 1);
-				ext = "";
-				i = path.length;
-				while (ext.charAt(0) != "." || i==0) ext = path.substring(i--);
-				path = path.substring(0, ++i);
-
-				document.getElementById("f_alt").value = path;
-
-			}//end setAltText()
-
 
 			function onOK() {
 				var required = {
@@ -108,6 +90,33 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 				__dlg_close("matrixInsertImage", null);
 				return false;
 			};
+
+			function populateImageInfo(responseText) {
+				var imageInfo = var_unserialise(responseText);
+				
+				// generate the alt text from the file name if they have not set it
+				// for the image asset
+				if (imageInfo['alt'] == '') {
+					var path = document.getElementById("f_imageid[url]").value;
+					while (path.indexOf("/") >= 0) path = path.substring(path.indexOf("/") + 1);
+					ext = "";
+					i = path.length;
+					while (ext.charAt(0) != "." || i==0) ext = path.substring(i--);
+					imageInfo['alt'] = path.substring(0, ++i);
+				}
+
+				document.getElementById("f_alt").value    = imageInfo['alt'];
+				document.getElementById("f_width").value  = imageInfo['width'];
+				document.getElementById("f_height").value = imageInfo['height'];
+			};
+		
+			function setImageInfo() {
+				// put a random no in the url to overcome any caching
+				var url = '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX; ?>/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=' + document.getElementById("f_imageid[assetid]").value + '&asset_ei_screen=image_info&ignore_frames=1&t=' + Math.random() * 1000;
+				JsHttpConnector.submitRequest(url, populateImageInfo);
+
+			};
+
 		</script>
 
 		<style type="text/css">
@@ -203,7 +212,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 											<tr>
 												<td class="label" nowrap="nowrap">Image URL:</td>
 												<td>
-													<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D', 'image_variety' => 'D'), '', false, 'setAltText'); ?>
+													<?php asset_finder('f_imageid', $_GET['f_imageid'], Array('image' => 'D', 'image_variety' => 'D'), '', false, 'setImageInfo'); ?>
 												</td>
 											</tr>
 											<tr>
