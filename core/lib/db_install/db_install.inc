@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.6 2004/11/18 04:53:00 gsherwood Exp $
+* $Id: db_install.inc,v 1.7 2004/11/21 23:15:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -189,7 +189,7 @@ function db_install($xml_file, $quiet=false)
 				break;
 			}
 
-		}// end for
+		}//end for
 
 		if ($table_exists) {
 			if ($table_changed) {
@@ -276,11 +276,11 @@ function db_install($xml_file, $quiet=false)
 						return false;
 					}
 				}
-			}// end for
+			}//end for
 
-		}// end if table exists
+		}//end if table exists
 
-	}// end for tables
+	}//end for tables
 
 	// write a new cache file with all the table names and their columns
 	$cached_table_columns_string = '<'.'?php $tables = '.var_export($cached_table_columns, true).'; ?'.'>';
@@ -298,6 +298,16 @@ function db_install($xml_file, $quiet=false)
 //--        SEQUENCES        --//
 
 
+	$sql = 'SELECT c.relname
+			FROM pg_class c, pg_user u
+			WHERE c.relowner = u.usesysid
+			  AND c.relkind = \'S\'
+			  AND NOT EXISTS (SELECT 1 FROM pg_views WHERE viewname = c.relname)
+			  AND c.relname !~ '.$db->quote('^(pg_|sql_)');
+	$sequences_in_db = $db->getCol($sql);
+	assert_valid_db_result($sequences_in_db);
+
+
 	if (is_file($data_path.'/sequences.inc')) {
 		require $data_path.'/sequences.inc';
 		$cached_sequences = $sequences;
@@ -310,8 +320,8 @@ function db_install($xml_file, $quiet=false)
 		$sequence = &$root->children[1]->children[$i];
 		$sequence_name = $sequence->attributes['name'];
 
-		if (in_array($sequence_name, $cached_sequences)) continue;
-		$cached_sequences[] = $sequence_name;
+		if (!in_array($sequence_name, $cached_sequences)) $cached_sequences[] = $sequence_name;
+		if (in_array(SQ_TABLE_PREFIX.$sequence_name.'_seq', $sequences_in_db)) continue;
 		
 		$result = $db->createSequence(SQ_TABLE_PREFIX.$sequence_name);
 		if (DB::isError($result)) {
@@ -319,7 +329,7 @@ function db_install($xml_file, $quiet=false)
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-	}//end for
+	}
 
 	$cached_sequences_string = '<'.'?php $sequences = '.var_export($cached_sequences, true).'; ?'.'>';
 	if (!string_to_file($cached_sequences_string, $data_path.'/sequences.inc')) {
