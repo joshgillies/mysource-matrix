@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcToolBarClass.as,v 1.8 2003/10/16 01:20:49 dwong Exp $
+* $Id: mcToolBarClass.as,v 1.9 2003/10/16 06:10:26 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -13,11 +13,6 @@ function mcToolBarClass() {
 
 	var nextDepth = 1;
 	
-	this.attachMovie('mcLogoutIconID', 'logout_icon', nextDepth++);
-	this.icons.push(this.logout_icon);
-	this.logout_icon.helpText = "Logout";
-	this.logout_icon.onRelease = logout;
-
 	this.attachMovie('mcKeyIconID', 'key_icon', nextDepth++);
 	this.icons.push(this.key_icon);
 	this.key_icon.helpText = "Key";
