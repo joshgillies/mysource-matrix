@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.23 2004/07/22 00:21:40 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.24 2004/09/10 00:24:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -188,7 +188,7 @@ class Form_Question_Type_Text extends Form_Question
 	{
 		ob_start();
 
-		echo '<text_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
+		echo '<text_q id="'.addslashes($this->id).'"  name="'.htmlspecialchars($this->attr('name')).'">';
 		echo htmlspecialchars($answer);
 		echo '</text_q>';
 

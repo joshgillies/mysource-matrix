@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_select.inc,v 1.20 2004/07/27 00:59:56 lwright Exp $
+* $Id: form_question_type_select.inc,v 1.21 2004/09/10 00:24:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -188,7 +188,7 @@ class Form_Question_Type_Select extends Form_Question
 	{
 		ob_start();
 
-		echo '<select_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
+		echo '<select_q id="'.addslashes($this->id).'"  name="'.htmlspecialchars($this->attr('name')).'">';
 		if (!is_array($answer)) {
 			$answer = Array($answer);
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.32 2004/09/07 00:52:29 gsherwood Exp $
+* $Id: form_question.inc,v 1.33 2004/09/10 00:24:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.32 $ - 1.0
+* @version $Revision: 1.33 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -677,7 +677,7 @@ class Form_Question extends Asset
 	{
 		ob_start();
 
-		echo '<text_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
+		echo '<text_q id="'.addslashes($this->id).'"  name="'.htmlspecialchars($this->attr('name')).'">';
 		echo htmlspecialchars($this->getSummary($answer));
 		echo '</text_q>';
 

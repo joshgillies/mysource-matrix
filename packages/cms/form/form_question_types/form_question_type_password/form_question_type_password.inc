@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_password.inc,v 1.10 2004/07/04 22:53:38 lwright Exp $
+* $Id: form_question_type_password.inc,v 1.11 2004/09/10 00:24:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -206,7 +206,7 @@ class Form_Question_Type_Password extends Form_Question
 		ob_start();
 
 		// save as a text question for now, we may need a better idea here
-		echo '<text_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
+		echo '<text_q id="'.addslashes($this->id).'"  name="'.htmlspecialchars($this->attr('name')).'">';
 		echo htmlspecialchars($answer);
 		echo '</text_q>';
 
