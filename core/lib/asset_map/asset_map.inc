@@ -525,9 +525,14 @@ class Asset_Map
 			}
 
 			// First let's try and create the new link, if there are any issues then it will cryout for us
-			$linkid = $new_parent->createLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['to_parent_pos']);
-			if (!$linkid) {
-				return;
+			// We dont create the link if we are moving to trash though because the deleteLink call
+			// will handle that for us
+			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+			if ($new_parent->id != $trash_folder->id) {
+				$linkid = $new_parent->createLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['to_parent_pos']);
+				if (!$linkid) {
+					return;
+				}
 			}
 
 			// Now let's try and delete the old link

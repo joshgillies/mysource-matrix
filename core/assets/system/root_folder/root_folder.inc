@@ -23,6 +23,7 @@ class Root_Folder extends Folder
 	*/
 	var $_in_create = false;
 
+
 	/**
 	* Constructor
 	*
@@ -34,7 +35,7 @@ class Root_Folder extends Folder
 		$this->Folder($assetid);
 	}
 
-	/*
+	/**
 	* Create this asset
 	*
 	* @param array(string)	$link	information used to create the initial link
@@ -63,7 +64,20 @@ class Root_Folder extends Folder
 
 	}//end create()
 
-	/*
+
+	/**
+	* Can this asset have its last significant link removed (putting it in the trash)?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canDelete()
+	{
+		return false;
+	}//end canDelete()
+
+
+	/**
 	* Set the value for the passed variable to the passed value
 	*
 	* @access public

@@ -587,6 +587,18 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Can this asset have its last significant link removed (putting it in the trash)?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canDelete()
+	{
+		return true;
+	}//end canDelete()
+
+
+	/**
 	* Returns the link information for a specific link that this asset is the major asset in
 	*
 	* @param int	$linkid
@@ -778,8 +790,8 @@ class Asset extends Resolve_Object
 		$sql = 'SELECT COUNT(*)
 				FROM sq_asset_link l'.$extra_table.'
 				WHERE l.'.$side_of_link.'id   = '.$db->quote($this->id).$extra_where;
-
 		$result = $db->getOne($sql);
+
 		if (DB::isError($result))
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
@@ -1444,14 +1456,23 @@ class Asset extends Resolve_Object
 
 			$num_other_links = $minor->countLinks('minor', SQ_LINK_SIGNIFICANT, '', true, $linkid);
 
-			// OK, if we are going to be deleting the last significant link 
-			// then we need to create a link to the trash for this 
+			// OK, if we are going to be deleting the last significant link
+			// then we need to create a link to the trash for this
 			if (!$num_other_links) {
 				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
 				if (is_null($minor)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
+
+				// some assets may not be able to have their last significant link
+				// deleted, so lets check first before going ahead
+				if (!$minor->canDelete()) {
+					trigger_error($minor->_getName(false).' can not have its last significant link removed' , E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
 				if (!$trash_folder->createLink($minor, SQ_LINK_UNITE)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;

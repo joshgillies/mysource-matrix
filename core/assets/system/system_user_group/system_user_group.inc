@@ -118,6 +118,18 @@ class System_User_Group extends User_Group
 
 
 	/**
+	* Can this asset have its last significant link removed (putting it in the trash)?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canDelete()
+	{
+		return false;
+	}//end canDelete()
+
+
+	/**
 	* Returns true if at least one of the passed assetids has the passed permission
 	*
 	* @param array $assetids An array of user_group and/or user ids to check for permission

@@ -42,6 +42,18 @@ class Inbox extends Asset
 
 
 	/**
+	* Can this asset have its last significant link removed (putting it in the trash)?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canDelete()
+	{
+		return false;
+	}//end canDelete()
+
+
+	/**
 	* Called by the design to print the body of this asset
 	*
 	* @access public

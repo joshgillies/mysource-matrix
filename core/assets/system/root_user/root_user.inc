@@ -70,6 +70,18 @@ class Root_User extends System_User
 
 
 	/**
+	* Can this asset have its last significant link removed (putting it in the trash)?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canDelete()
+	{
+		return false;
+	}//end canDelete()
+
+
+	/**
 	* Set the value for the passed variable to the passed value
 	*
 	* @access public
