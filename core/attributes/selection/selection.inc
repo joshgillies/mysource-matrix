@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.24 2004/06/25 16:12:30 brobertson Exp $
+* $Id: selection.inc,v 1.25 2004/07/24 13:19:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -292,6 +292,8 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			}
 			echo "</tr></table>" ;
 		}
+
+		if (!empty($this->_params['multiple']) && is_array($this->value)) $this->value = $this->_ar2Str($this->value);
 
 	}//end paint()
 
