@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend_outputter.inc,v 1.53 2003/09/26 05:26:31 brobertson Exp $
+* $Id: backend_outputter.inc,v 1.54 2003/10/02 05:41:54 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -959,13 +959,13 @@ class Backend_Outputter
 	*/
 	function commitButton($value='Commit', $release_lock=1)
 	{
-		$release_lock = (int)$release_lock;
+		$release_lock = (int) $release_lock;
 		$this->openSection(' ');
 			$this->openField('', 'commit');
 				hidden_field('sq_release_lock', 0);
 				hidden_field('sq_release_lock_on_submit', $release_lock);
 				hidden_field('sq_submit_pressed', 0);
-				normal_button('sq-commit-button', $value, 'sqSubmitEditForm()');
+				normal_button('sq_commit_button', $value, 'sqSubmitEditForm()');
 			$this->closeField();
 		$this->closeSection();
 
