@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_thesaurus.inc,v 1.2 2004/12/02 03:40:58 arailean Exp $
+* $Id: metadata_field_thesaurus.inc,v 1.3 2004/12/20 18:11:53 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/metadata/metadata_field/metadata_field
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -71,7 +71,7 @@ class Metadata_Field_Thesaurus extends Metadata_Field
 			$this->_directCommunicator();
 			exit; // need this since Matrix tries to print extras after this section is done
 		} else {
-			parent::paintBackend(&$o);
+			parent::paintBackend($o);
 		}
 
 	}//end paintBackend()
