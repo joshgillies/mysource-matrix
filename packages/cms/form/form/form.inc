@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.30 2004/05/12 06:35:20 lwright Exp $
+* $Id: form.inc,v 1.31 2004/05/12 06:54:10 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -355,7 +355,7 @@ class Form extends Bridge
 		}
 
 		// acquire the lock on the new question
-		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id . ':q' . $new_key, 'attributes', $this->id, true);
+		$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id . ':q' . $new_key, 'all', $this->id, true);
 		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->id, 'all');
 
 
