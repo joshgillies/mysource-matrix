@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.7 2004/08/02 07:04:22 lwright Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.8 2004/08/03 02:44:38 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -62,7 +62,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintStartEndChooser(&$asset, $prefix, $onchange_code='') 
+	function paintStartEndChooser(&$asset, $prefix, $onkeyup_code = '', $onchange_code='') 
 	{
 		?>
 		<script language="JavaScript" type="text/javascript" src="<?php echo sq_web_path('data').'/asset_types/calendar_event/js/date_chooser.js'?>"></script>
@@ -70,10 +70,10 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 			<tr>
 				<td class="sq-backend-data" style="text-align: right">Occurs on&nbsp;&nbsp;</td>
 				<td class="sq-backend-data">
-					<?php $this->printDateChooser($prefix.'_start', "updateEndDate('".$prefix."'); ".$onchange_code, ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0)); ?>
+					<?php $this->printDateChooser($prefix.'_start', $onkeyup_code, "updateEndDate('$prefix');  $onchange_code", ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0)); ?>
 				</td>
 				<td class="sq-backend-data">
-					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_start', "updateEndDate('".$prefix."'); ". $onchange_code, "processStartTimeClick(this, '$prefix'); ", ($asset->getStartTime() ? iso8601_ts($asset->attr('start_date')) : false)); ?>
+					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_start', "processStartTimeClick(this, '$prefix'); ", $onkeyup_code, "updateEndDate('$prefix'); $onchange_code",  ($asset->getStartTime() ? iso8601_ts($asset->attr('start_date')) : false)); ?>
 				</td>
 			</tr>
 			<tr>
@@ -81,10 +81,10 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 					<input type="checkbox" value="1" <?php if ($asset->getEndDate()) echo ' checked="checked" '; ?> id="<?php echo $prefix; ?>_end_date_enabled" name="<?php echo $prefix; ?>_end_date_enabled" onclick="processEndEnabledClick(this, '<?php echo $prefix; ?>')" onkeypress="processEndEnabledClick(this, '<?php echo $prefix; ?>')" />runs until&nbsp;&nbsp;
 				</td>
 				<td class="sq-backend-data">
-					<?php $this->printDateChooser($prefix.'_end',"updateStartDate('".$prefix."'); ". $onchange_code, ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
+					<?php $this->printDateChooser($prefix.'_end', $onkeyup_code, "updateStartDate('$prefix');  $onchange_code", ($asset->getEndDate() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
 				</td>
 				<td class="sq-backend-data">
-					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_end', "updateStartDate('".$prefix."'); ". $onchange_code, "processEndTimeClick(this, '$prefix'); ", ($asset->getEndTime() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
+					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_end', "processEndTimeClick(this, '$prefix'); ", $onkeyup_code, "updateStartDate('$prefix'); $onchange_code",  ($asset->getEndTime() ? iso8601_ts($asset->attr('end_date')) : false)); ?>
 				</td>
 			</tr>
 		</table>
@@ -192,12 +192,12 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function printDateChooser($prefix, $onchange_code, $timestamp)
+	function printDateChooser($prefix, $onkeyup_code, $onchange_code, $timestamp)
 	{
 		$disabled_text = ($timestamp === false) ? ' disabled="disabled" ' : '';
 		if (!$timestamp) $timestamp = time();
 		?>
-		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_day" id="<?php echo $prefix; ?>_day" size="2" value="<?php echo date('d', $timestamp); ?>" <?php echo $disabled_text; ?> onkeyup="if (validateDay(this)) { <?php echo $onchange_code; ?> }" onfocus="this.select()" />
+		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_day" id="<?php echo $prefix; ?>_day" size="2" value="<?php echo date('j', $timestamp); ?>" <?php echo $disabled_text; ?> onkeyup="if (dayOK(this)) { <?php echo $onkeyup_code?> }" onchange="if (validateDay(this)) { <?php echo $onchange_code; ?> }" onfocus="this.select()" />
 		
 		<select class="sq-form-field" name="<?php echo $prefix; ?>_month" id="<?php echo $prefix; ?>_month" <?php echo $disabled_text; ?> onchange="<?php echo $onchange_code; ?>">
 		<?php
@@ -208,7 +208,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 		?>
 		</select>
 		
-		<input class="sq-form-field" type="text" name="<?php echo $prefix; ?>_year" id="<?php echo $prefix; ?>_year" size="5" value="<?php echo date('Y', $timestamp); ?>" <?php echo $disabled_text; ?> onkeyup="if (validateFutureYear(this)) { <?php echo $onchange_code; ?> }" onfocus="this.select()" />
+		<input class="sq-form-field" type="text" name="<?php echo $prefix; ?>_year" id="<?php echo $prefix; ?>_year" size="5" value="<?php echo date('Y', $timestamp); ?>" <?php echo $disabled_text; ?> onkeyup="if (yearOK(this)) { <?php echo $onkeyup_code; ?> }" onchange="if (validateYear(this)) { <?php echo $onchange_code; ?> }" onfocus="this.select()" />
 		<?php
 		return true;
 
@@ -220,24 +220,24 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @param string	$prefix			the prefix to use on field names
 	* @param string $onchange_code	extra javascript code to put in the fields' onchange attributes
-	* @param string $onclick_code	extra javascript code to put in the fields' onclick attributes
+	* @param string $onclick_code	extra javascript code to run when the checkbox is clicked
 	* @param int	$timestamp		a default value, or 0 to use today's date, or FALSE to disable the field
 	*
 	* @return boolean
 	* @access public
 	*/
-	function printTimeChooser($prefix, $onchange_code, $onclick_code, $timestamp)
+	function printTimeChooser($prefix, $onclick_code, $onkeyup_code, $onchange_code, $timestamp)
 	{
 		$disabled_text = ($timestamp === false) ? ' disabled="disabled" ' : '';
 		$checked_text = ($timestamp === false) ? '' : ' checked="checked" ';
 		if (!$timestamp) $timestamp = time();
 
 		?>
-		<input class="sq-form-field" type="checkbox" value="1" <?php echo $checked_text; ?> name="<?php echo $prefix; ?>_time_enabled" id="<?php echo $prefix; ?>_time_enabled" onclick="<?php echo $onclick_code; ?>" onkeypress="<?php echo $onclick_code; ?>" />at
+		<input class="sq-form-field" type="checkbox" value="1" <?php echo $checked_text; ?> name="<?php echo $prefix; ?>_time_enabled" id="<?php echo $prefix; ?>_time_enabled" onclick="<?php echo $onclick_code; ?>; " onkeypress="<?php echo $onclick_code; ?>" />at
 		
-		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_hours" id="<?php echo $prefix; ?>_hours" size="2" maxlength="2" value="<?php echo date('g', $timestamp); ?>" onkeyup="validateHours(this); <?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> onfocus="this.select()" /> :
+		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_hours" id="<?php echo $prefix; ?>_hours" size="2" maxlength="2" value="<?php echo date('g', $timestamp); ?>" onkeyup="if (hoursOK(this)) { <?php echo $onkeyup_code; ?> }" onchange="if (validateHours(this)) { <?php echo $onchange_code; ?> }" <?php echo $disabled_text; ?> onfocus="this.select()" /> :
 		
-		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_minutes" id="<?php echo $prefix; ?>_minutes" size="2" maxlength="2" value="<?php echo date('i', $timestamp); ?>" onkeyup="validateMinutes(this); <?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> onfocus="this.select()" />
+		<input class="sq-form-field" style="width: 5ex" type="text" name="<?php echo $prefix; ?>_minutes" id="<?php echo $prefix; ?>_minutes" size="2" maxlength="2" value="<?php echo date('i', $timestamp); ?>" onkeyup="if (minutesOK(this)) { <?php echo $onkeyup_code; ?> }" onchange="if (validateMinutes(this)) { <?php echo $onchange_code; ?> }" <?php echo $disabled_text; ?> onfocus="this.select()" />
 		
 		<select class="sq-form-field" name="<?php echo $prefix; ?>_is_pm" id="<?php echo $prefix; ?>_is_pm" onchange="<?php echo $onchange_code; ?>" <?php echo $disabled_text; ?> >
 			<option value="0" <?php echo (date('a', $timestamp)=='am') ? ' selected="selected" ' : ''; ?>>am</option>

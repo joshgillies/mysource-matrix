@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.6 2004/08/03 00:57:51 lwright Exp $
+* $Id: calendar_event.inc,v 1.7 2004/08/03 02:44:38 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -400,9 +400,15 @@ class Calendar_Event extends Asset
 	function getFriendlyDatesAndTimes()
 	{
 		if (substr($this->attr('start_date'), 0, 10) == substr($this->attr('end_date'), 0, 10)) {
-			if (!$this->getStartTime() || ($this->getStartTime() == $this->getEndTime())) {
+			// start and end dates are the same
+			if (!$this->getStartTime()) {
+				// no start time, so must be an all day event
+				return $this->getFriendlyStart() . ' (all day)';
+			} elseif (($this->getStartTime() == $this->getEndTime())) {
+				// show start date and time only
 				return $this->getFriendlyStart();
 			} else {
+				// show date and start/end times
 				return $this->getFriendlyStart().'-'.date('g:ia', iso8601_ts($this->attr('end_date')));
 			}
 		} elseif (iso8601_ts($this->attr('end_date')) == -1) {
