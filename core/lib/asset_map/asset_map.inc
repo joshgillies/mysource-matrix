@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.144 2004/06/16 01:39:22 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.145 2004/06/17 05:57:14 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -468,6 +468,7 @@ class Asset_Map
 			// it may be able to handle this itself, lets check
 			if (method_exists($bridge, 'getAssetMapLinks')) {
 				$result = array_merge($result, $bridge->getAssetMapLinks());
+				error_log(print_r($result,true));
 			} else {
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 				foreach ($links as $link_data) {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.38 2004/06/16 04:51:11 lwright Exp $
+* $Id: form.inc,v 1.39 2004/06/17 05:57:15 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -164,10 +164,11 @@ class Form extends Bridge
 			$i = 0;
 
 			foreach ($links as $link) {
-				$i = max($i, $link['sort_order'] + 1);
+				$i = max($i, $link['sort_order']);
 			}
 
 			foreach ($entries as $questionid => $data) {
+				
 				$links[] = Array('linkid' => 0,
 								 'majorid' => $this->id,
 								 'minorid' => $this->id.':q'.$questionid,
@@ -176,11 +177,17 @@ class Form extends Bridge
 								 'link_type' => SQ_LINK_TYPE_2,
 								 'dependant' => true,
 								 'exclusive' => false,
-								 'sort_order' => $i,
+								 'sort_order' => $i + array_search($this->id.':q'.$questionid, $this->attr('sort_order')),
 								);
-				$i++;
 			}
 
+			if (!is_null($sort_by)) {
+				error_log('--- SORT BY: '.$sort_by.' ---');
+				uasort($links, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"];'));
+			}
+			error_log('--- CALLED FROM GETLINKS ---');
+			error_log(print_r($links,true));
+		
 			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
 
 		}
@@ -189,6 +196,51 @@ class Form extends Bridge
 
 	}//end getLinks()
 	
+
+	/**
+	* Used by asset map to return a asset map-style link array
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetMapLinks()
+	{
+		$old_links = $this->getLinks($this->id, SQ_SC_LINK_BACKEND_NAV, 'asset', false, 'major', 'sort_order');
+		$links = Array();
+		while (!empty($old_links)) {
+			array_push($links, array_pop($old_links));
+		}
+
+		foreach(array_keys($links) as $i) {
+
+			$link =& $links[$i];
+
+			// mould it all to the asset map's liking
+			$link['url'] = '';
+			$link['path'] = '';
+			$link['num_immediate_kids'] = 0;
+			$link['accessible'] = 1;
+
+			$link['assetid'] = $link['minorid'];
+			$link['type_code'] = $link['minor_type_code'];
+
+			$link_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($link['assetid']);
+			$link['short_name'] = $link_asset->short_name;
+			$link['name'] = $link_asset->name;
+			$link['status'] = $link_asset->status;
+
+			unset($link['minor_type_code']);
+			unset($link['majorid']);
+			unset($link['minorid']);
+			unset($link['value']);
+			unset($link['dependant']);
+			unset($link['exclusive']);
+
+		}
+
+		return $links;
+
+	}//end getAssetMapLinks()
 		
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
@@ -225,22 +277,24 @@ class Form extends Bridge
 		if (is_a($asset, 'bridge') && ($assetid != $this->id)) {
 			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
 			$this->forgetAsset($asset);
-			return $children;
-		}
+			//return $children;
+		} else {
 
-		$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by);
-		unset($asset);
-		if (empty($query)) return Array();
+			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by);
+			unset($asset);
+			if (!empty($query)) {
 
-		$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
-		assert_valid_db_result($result);
+				$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc(implode(' ', $query));
+				assert_valid_db_result($result);
 
 
-		if (!is_null($sort_by)) {
+		/*if (!is_null($sort_by)) {
 			$children = Array();
 			foreach ($result as $assetid => $asset_info) $children[$assetid] = $asset_info['type_code'];
-		} else {
-			$children =& $result;
+		} else {*/
+				$children =& $result;
+		/*}*/
+			}
 		}
 
 		// now questions
@@ -249,6 +303,10 @@ class Form extends Bridge
 
 		foreach ($entries as $questionid => $data) {
 			$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+		}
+
+		if (!is_null($sort_by)) {
+			uasort($children, create_function('$a,$b','return $a["'.$sort_by.'"] > $b["'.$sort_by.'"]'));
 		}
 
 		return $children;
