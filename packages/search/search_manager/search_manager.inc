@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.6 2004/06/10 03:44:55 gsherwood Exp $
+* $Id: search_manager.inc,v 1.7 2004/06/10 04:47:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.6 $ - 0.1
+* @version $Revision: 1.7 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -478,6 +478,7 @@ class Search_Manager extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$total_asset_scores = null;
+		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->currentUserId() || (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin())); 
 
 
 		  ///////////////////////////////////
@@ -492,16 +493,19 @@ class Search_Manager extends Asset
 							'.SQ_TABLE_PREFIX.'asset_link_tree alt2,
 							'.SQ_TABLE_PREFIX.'asset_link al1,
 							'.SQ_TABLE_PREFIX.'asset_link al2,
-							'.SQ_TABLE_PREFIX.'asset_permission ap,
-							'.SQ_TABLE_PREFIX.'asset a
-						WHERE
-							al1.majorid = '.$db->quote($search_info['root_assetid']).'
-							AND al1.linkid = alt1.linkid
-							AND alt2.treeid LIKE '.$concat.'
-							AND alt2.linkid = al2.linkid
-							AND ai.assetid  = al2.minorid
-							AND a.assetid   = ai.assetid
-							AND ap.assetid  = ai.assetid';
+							'.SQ_TABLE_PREFIX.'asset a';
+		if ($user_restrictions) $start_sql .= ', '.SQ_TABLE_PREFIX.'asset_permission ap ';
+							
+		$start_sql .= '	WHERE ';
+
+		if ($user_restrictions) $start_sql .= 'a.assetid = ap.assetid AND ';
+		
+		$start_sql .= ' a.assetid = ai.assetid
+						AND al1.majorid = '.$db->quote($search_info['root_assetid']).'
+						AND al1.linkid  = alt1.linkid
+						AND alt2.treeid LIKE '.$concat.'
+						AND alt2.linkid = al2.linkid
+						AND ai.assetid  = al2.minorid';
 
 		// add in status restrictions
 		if (isset($search_info['search_statuses']) && !empty($search_info['search_statuses'])) {
@@ -535,6 +539,9 @@ class Search_Manager extends Asset
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
 				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+				for(reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+					$userids[$i] = $db->quote($userids[$i]);
+				}
 				$userid_cond = ' AND ap.userid  IN ('.implode(',', $userids).')';
 			}
 		} else {
