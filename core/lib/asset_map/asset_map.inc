@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.138 2004/04/27 22:49:32 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.139 2004/05/04 02:15:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -444,8 +444,10 @@ class Asset_Map
 				// if the colon isn't there, this isn't a shadow asset; move on
 				if (strpos($link_data['minorid'], ':') === false) continue;
 
+				// note that we pretend these assets have children so we dont have to actually
+				// load all their kids - we dont know what kind of speed hit we get for the different
+				// types of shadow assets
 				$link_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
-				$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($link_asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 				$result[] = Array(
 									'assetid'            => $link_data['minorid'],
 									'short_name'         => $link_asset->short_name,
@@ -455,7 +457,7 @@ class Asset_Map
 									'status'             => $link_asset->status,
 									'linkid'             => $link_data['linkid'],
 									'link_type'          => $link_data['link_type'],
-									'num_immediate_kids' => count($asset_links),
+									'num_immediate_kids' => 1,
 									'sort_order'         => $link_data['sort_order'],
 									'url'          		 => $link_asset->getURL(),
 									'path'				 => '',
