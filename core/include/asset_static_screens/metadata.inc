@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.6 2004/08/09 09:30:01 brobertson Exp $
+* $Id: metadata.inc,v 1.7 2004/08/27 01:12:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,7 +45,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 */
 function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 {
-	if(!($file = $ei->_findFile('static_screen_metadata'))) return false;
+	if (!($file = $ei->_findFile('static_screen_metadata'))) return false;
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
@@ -60,7 +60,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 		return false;
 	}
 
-	for($i = 0; $i < count($root->children); $i++) {
+	for ($i = 0; $i < count($root->children); $i++) {
 
 		$section = &$root->children[$i];
 
@@ -79,7 +79,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 
 		if (!($num_fields = count($section->children))) continue;
 
-		for($j = 0; $j < $num_fields; $j++) {
+		for ($j = 0; $j < $num_fields; $j++) {
 			$field = &$section->children[$j];
 
 			switch (strtolower($field->attributes['code'])) {
