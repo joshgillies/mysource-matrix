@@ -239,7 +239,6 @@ class Asset_Manager extends Resolve_Object
 
 		if (!isset($this->_asset_types[$type_code])) {
 			trigger_error('Asset "'.$type_code.'" is not installed on the system, unable to include it\'s Source File', E_USER_ERROR);
-			return false;
 		}
 
 		require_once SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc';
@@ -322,38 +321,53 @@ class Asset_Manager extends Resolve_Object
 	}//end getAsset()
 
 	/**
-	* registers the passed ojbect in the store, for others to get
+	* registers the passed object in the store, for others to get
 	* used when a new record has just been "create()d"
 	*
-	* @param object Asset $assetid  the asset id to be registered
+	* @param object Asset $obj  the asset to be registered
 	*
 	* @access public
 	*/
 	function registerAsset(&$obj)
 	{
-
 		// wrong class or no id, fuck off
 		if (!is_object($obj) || is_a($obj, 'Asset') || !$obj->id) return;
 
+		if (isset($this->_assets[$obj->id])) unset($this->_assets[$obj->id]);
 		$this->_assets[$obj->id] = &$obj;
 
 	}//end registerAsset();
 
+	/**
+	* unregisters the passed object from the store, 
+	*
+	* @param object Asset $obj  the asset to be registered
+	*
+	* @access public
+	*/
+	function unRegisterAsset(&$obj)
+	{
+		// wrong class or no id, fuck off
+		if (!is_object($obj) || is_a($obj, 'Asset') || !$obj->id) return;
+		if (isset($this->_assets[$obj->id])) unset($this->_assets[$obj->id]);
+
+	}//end unRegisterAsset();
 
 	/**
 	* returns list of all assetids of a certain type
 	*
 	* @param string		$type_code		if this exists then this object is used to load the asset, if not then the DB is queried to find out the asset type
 	* @param boolean	$strict			whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param boolean	$include_type	if false returns Array(assetid, assetid, ...), if true returns returns Array(assetid => asset_type, assetid => asset_type, ...)
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
 	*
 	* @access public
 	*/
-	function getTypeAssetids($type_code, $strict=true, $mute_errors=false)
+	function getTypeAssetids($type_code, $strict=true, $include_type=false, $mute_errors=false)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT assetid
+		$sql = 'SELECT assetid'.(($include_type) ? ', type_code' : '').'
 				FROM sq_asset 
 				WHERE type_code = '.$db->quote($type_code);
 
@@ -366,7 +380,7 @@ class Asset_Manager extends Resolve_Object
 			$sql = db_extras_subquery($db, $sql, $subs);
 		}
 
-		$result = $db->getCol($sql);
+		$result = ($include_type) ? $db->getAssoc($sql) : $db->getCol($sql);
 		if (DB::isError($result)) {
 			if (!$mute_errors) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return Array();
@@ -682,8 +696,8 @@ class Asset_Manager extends Resolve_Object
 		$extra_table = '';
 		$extra_where = '';
 		if ($protocol) {
-			$extra_table = 'INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid';
-			if ($protocol) $extra_where .= ' AND u.'.$protocol.' = '.$db->quote(1);
+			$extra_table = ' INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid';
+			$extra_where = ' AND u.'.$protocol.' = '.$db->quote(1);
 		}
 
 		$sql = 'SELECT l.url, l.assetid
