@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListContainerClass.as,v 1.38 2003/10/27 05:27:25 dwong Exp $
+* $Id: mcListContainerClass.as,v 1.39 2003/10/27 22:39:55 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -159,6 +159,7 @@ mcListContainerClass.prototype.actionsBarPressed = function(action)
 			var link = new String(_root.action_bar_path);
 			link = link.replace("%assetid%", escape(this.list.selected_item.assetid))
 			link = link.replace("%action%", escape(action));
+			link = link.replace("%asset_path%", escape(this.list.selected_item.lineage_path.join(",")));
 			getURL(link, _root.url_frame);
 		}
 	}// end if

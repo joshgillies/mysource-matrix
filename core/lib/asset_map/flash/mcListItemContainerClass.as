@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemContainerClass.as,v 1.23 2003/10/27 05:27:25 dwong Exp $
+* $Id: mcListItemContainerClass.as,v 1.24 2003/10/27 22:39:55 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -207,9 +207,7 @@ mcListItemContainerClass.prototype._createItem = function(parent_name, item_name
 	this.attachMovie("mcListItemID", item_name, this.num_items);
 	this[item_name]._visible = false;
 
-	this[item_name].setParent(parent_name);
-	this[item_name].setAsset(_root.asset_manager.assets[assetid]);
-	this[item_name].setLink(link);
+	this[item_name].setInfo(_root.asset_manager.assets[assetid], link, parent_name);
 	this[item_name].setIndent(indent);
 	var active = (this._active_type_codes.length == 0 || this._active_type_codes.search(this[item_name].type_code) !== null);
 	this[item_name].setActive(active);
