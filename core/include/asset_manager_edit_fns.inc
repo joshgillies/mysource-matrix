@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.64 2003/11/23 21:56:16 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.65 2003/11/25 21:16:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,7 +84,9 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$o->addHiddenField('am_form_submitted', '1');
 
 		switch($_REQUEST['am_section']) {
+
 			case 'add_asset' :
+
 				$parent = &$this->am->getAsset($_REQUEST['parent_assetid']);
 				if (is_null($parent)) {
 					trigger_error('Parent Asset #'.$_REQUEST['parent_assetid'].' not found', E_USER_WARNING);
@@ -133,40 +135,11 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 			case 'edit_asset' :
 			case 'limbo'      :
-				$asset = null;
-				$limbo_asset = null;
-				if (SQ_IN_LIMBO && !$_REQUEST['assetid']) {
 
-					$limbo_asset = &$this->am->getAssetFromURL();
-					if (is_null($limbo_asset)) break;
-					$o->addFormActionGetVar('limbo_assetid', $limbo_asset->id);
-					$asset = &$limbo_asset;
-
-				} else if (SQ_IN_LIMBO && isset($_REQUEST['limbo_assetid'])) {
-
-					$limbo_asset =  &$this->am->getAsset($_REQUEST['limbo_assetid']);
-					if (is_null($limbo_asset)) break;
-					$o->addFormActionGetVar('limbo_assetid', $limbo_asset->id);
-
-					if (isset($_REQUEST['assetid'])) {
-						$asset = &$this->am->getAsset($_REQUEST['assetid']);
-						if (is_null($asset)) {
-							$asset = &$limbo_asset;
-						}
-					} else {
-						$asset = &$limbo_asset;
-					}
-
-				} else {
-
-					$asset = &$this->am->getAsset($_REQUEST['assetid']);
-					if (is_null($asset)) {
-						trigger_error('Asset #'.$_REQUEST['assetid'].' not found', E_USER_WARNING);
-						$o->addFormActionGetVar('assetid', $_REQUEST['assetid']);
-						break;
-					}
-
-					if (SQ_IN_LIMBO) $limbo_asset = &$asset;
+				$asset = &$this->am->getAsset($_REQUEST['assetid']);
+				if (SQ_IN_LIMBO) {
+					$limbo_asset = &$this->am->getAsset($_REQUEST['limbo_assetid']);
+					if (!is_null($limbo_asset)) $o->addFormActionGetVar('limbo_assetid', $limbo_asset->id);
 				}
 
 				$o->addFormActionGetVar('assetid', $asset->id);
@@ -218,7 +191,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 				if (SQ_IN_LIMBO) $limbo_asset->printFrontend();
 				else $asset->paintBackend($this->backend->out);
-			
+
 			break;
 
 			case 'duplicate' :

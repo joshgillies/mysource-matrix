@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.23 2003/11/23 21:56:16 gsherwood Exp $
+* $Id: mysource.inc,v 1.24 2003/11/25 21:16:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -226,7 +226,7 @@ class MySource
 	{
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
 			if ($this->user) {
-				if (is_a($this->user, 'backend_user')) {
+				if (is_a($this->user, 'user')) {
 					require_once SQ_INCLUDE_PATH.'/backend.inc';
 					$backend = new Backend();
 					$this->backend =& $backend;

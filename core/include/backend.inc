@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.77 2003/11/24 03:52:23 gsherwood Exp $
+* $Id: backend.inc,v 1.78 2003/11/25 21:16:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -76,8 +76,54 @@ class Backend extends MySource_Object
 	*/
 	function paint()
 	{
-		// make sure we are a backend user
-		if (!is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) return;
+		if (SQ_IN_LIMBO) {
+
+			if (!isset($_REQUEST['limbo_assetid'])) {
+				if (isset($_REQUEST['assetid'])) {
+					$_REQUEST['limbo_assetid'] = $_REQUEST['assetid'];
+				} else {
+					$limbo_asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL();
+					if (is_null($limbo_asset)) break;
+					$_REQUEST['limbo_assetid'] = $limbo_asset->id;
+				}
+			}
+
+			if (!isset($_REQUEST['assetid'])) {
+				$_REQUEST['assetid'] = $_REQUEST['limbo_assetid'];
+			}
+
+		}//end if in limbo
+
+
+		// now we should have an assetid - if we dont there is really nothing we can do
+		// unless someone has been kind enough to give us a URL like ?a=xx
+		if (!isset($_REQUEST['assetid']) && isset($_REQUEST['a'])) $_REQUEST['assetid'] = $_REQUEST['a'];
+
+		if (isset($_REQUEST['assetid'])) {
+			$printing_assetid = (SQ_IN_LIMBO) ? $_REQUEST['limbo_assetid'] : $_REQUEST['assetid'];
+			$printing_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($printing_assetid);
+			if (is_null($printing_asset)) {
+				// could find an asset that we are printing, so just make sure the current user
+				// is a backend user and let permissions work themselves out
+				if (!is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) {
+					$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You need to be a backend user in order to access the backend');
+					return;
+				}
+			} else {
+				// lets ask the asset itself if we are allowed access to its backend (no dirty thoughts)
+				if (!$printing_asset->backendAccess()) {
+					$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the backend for <i>'.$printing_asset->name.'</i>');
+					return;
+				}
+			}
+		} else {
+			// we are not looking at any asset in particular - probably just trying to get into the
+			// backend to do some editing - so gota be a backend user
+			if (!is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) {
+				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You need to be a backend user in order to access the backend');
+				return;
+			}
+		}
 
 		if (isset($_REQUEST['a'])) {
 			$frontend_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_REQUEST['a']);
