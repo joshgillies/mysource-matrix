@@ -651,7 +651,7 @@ class Backend_Outputter
 			// -->
 			</script>
 		</head>
-		<body bgcolor="//ffffff" onLoad="javascript: page_on_load();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
+		<body bgcolor="#ffffff" onLoad="javascript: page_on_load();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
 		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
 		foreach($this->_hidden_fields as $name => $value) {
