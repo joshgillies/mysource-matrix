@@ -18,14 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.27 2004/07/28 22:47:56 lwright Exp $
+* $Id: form_email.inc,v 1.28 2004/08/23 01:17:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
-require_once  dirname(__FILE__).'/../form/form.inc';
-require_once SQ_FUDGE_PATH .'/general/www.inc';
-require_once SQ_FUDGE_PATH .'/general/file_system.inc';
+require_once dirname(__FILE__).'/../form/form.inc';
+require_once SQ_FUDGE_PATH.'/general/www.inc';
+require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
 /**
 * Form_Email
@@ -58,11 +58,11 @@ class Form_Email extends Form
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
 	* @return mixed int or false
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
@@ -83,20 +83,36 @@ class Form_Email extends Form
 	/**
 	* Returns name of the asset
 	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
 	*
-	* @see Asset::_getName()
+	* @return string
 	* @access private
 	*/
 	function _getName($short_name=false)
 	{
 		return $this->attr('name');
 	
-	}//end _getName();
+	}//end _getName()
 
 
 	/**
-	* sends all the emails when the form is completed
+	* Prints the standard form i.e not a wizard
+	* 
+	* @access public
+	* @return boolean
+	*/
+	function printStandard()
+	{
+		$prefix = $this->getPrefix();
+		$referer = (isset($_SERVER['HTTP_REFERER'])) ? $_SERVER['HTTP_REFERER'] : '';
+		?><input type="hidden" name="<?php echo $prefix; ?>_referral_url" value="<?php echo $referer; ?>"><?php
+		return parent::printStandard();
+
+	}//end printStandard()
+
+
+	/**
+	* Send all the emails when the form is completed
 	*
 	* @access public
 	* @return boolean
@@ -116,7 +132,7 @@ class Form_Email extends Form
 
 
 	/**
-	* returns form information (site name, site id, page name, page id, url, submission date)
+	* Return form information (site name, site id, page name, page id, url, submission date)
 	*
 	* @param boolean	$html	return html formatted or not 
 	*
@@ -141,7 +157,7 @@ class Form_Email extends Form
 
 
 	/**
-	* mails a receipt to the user if a receipt email field has been assigned in Email Options
+	* Mail a receipt to the user if a receipt email field has been assigned in Email Options
 	*
 	* @access public
 	* @return boolean
@@ -195,7 +211,7 @@ class Form_Email extends Form
 
 	
 	/**
-	* sends mail to recipients set in the backend
+	* Send mail to recipients set in the backend
 	* 
 	* @access public
 	* @return boolean
@@ -228,23 +244,23 @@ class Form_Email extends Form
 
 		// substitute generic keywords with email format-specific keywords
 		$current_value['html_format'] = str_replace(
-			Array('%form_info%', '%form_summary%'), 
+			Array('%form_info%',      '%form_summary%'),
 			Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
 		$current_value['text_format'] = str_replace(
-			Array('%form_info%', '%form_summary%'), 
+			Array('%form_info%',      '%form_summary%'),
 			Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
 		$email_format_attr->value = serialize($current_value);
 
 		$email_format_attr->sendMail($reps);
 
-		return true; 
+		return true;
 
 	}//end mailRecipients()
 
 
 	/**
-	* mails a receipt to friends if a STAF field has been assigned in Email Options
+	* Mail a receipt to friends if a STAF field has been assigned in Email Options
 	*
 	* @access public
 	* @return boolean
@@ -272,7 +288,15 @@ class Form_Email extends Form
 			$body_text = ob_get_contents();
 		ob_end_clean();
 
-		$reps = Array('form_summary_html' => $body, 'form_summary_text' => $body_text, 'form_info_html' => $info, 'form_info_text' => $info_text);
+		$prefix = $this->getPrefix();
+		$referer = (isset($_POST[$prefix.'_referral_url'])) ? $_POST[$prefix.'_referral_url'] : '';
+
+		$reps = Array('form_summary_html' => $body,
+					  'form_summary_text' => $body_text,
+					  'form_info_html'    => $info,
+					  'form_info_text'    => $info_text,
+					  'referral_url'      => $referer,
+					  );
 
 		$email_format_attr = $this->getAttribute('staf_format');
 
@@ -298,7 +322,7 @@ class Form_Email extends Form
 
 
 	/**
-	* Runs selective emails application
+	* Run selective emails application
 	*
 	* @access public
 	* @return boolean
@@ -500,4 +524,5 @@ class Form_Email extends Form
 
 
 }//end class
+
 ?>

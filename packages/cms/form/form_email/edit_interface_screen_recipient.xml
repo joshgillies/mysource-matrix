@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_recipient.xml,v 1.10 2004/06/11 04:20:44 lwright Exp $
+* $Id: edit_interface_screen_recipient.xml,v 1.11 2004/08/23 01:17:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -71,6 +71,7 @@
 			&lt;ul&gt;
 			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
 			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
+			&lt;li&gt;%referral_url% - the URL that the user was viewing before comming to this form&lt;/li&gt;
 			&lt;/ul&gt;
 			</note>
 			<email_format />
