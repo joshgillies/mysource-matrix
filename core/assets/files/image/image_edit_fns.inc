@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.15 2003/11/18 15:37:26 brobertson Exp $
+* $Id: image_edit_fns.inc,v 1.16 2003/11/25 18:11:48 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,17 +38,6 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 */
 class Image_Edit_Fns extends File_Edit_Fns
 {
-
-	/**
-	* Constructor
-	*
-	*/
-	function Image_Edit_Fns()
-	{
-		$this->Asset_Edit_Fns();
-
-	}//end constructor
-
 
 	/**
 	* Get a formatted string of extensions (eg 1,2,3 and 4)
