@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_select_edit_fns.inc,v 1.6 2004/09/15 07:06:31 gsherwood Exp $
+* $Id: metadata_field_select_edit_fns.inc,v 1.6.2.1 2004/09/30 01:09:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -185,27 +185,28 @@ class Metadata_Field_Select_Edit_Fns extends Metadata_Field_Edit_Fns
 				?>
 			</table>
 			<?php
-			
-			
-			// now adding two fields for new entry (key => value)
-			if ($write_access) {
-				$o->openField('New Option');
-					echo '<b>key</b> ';
-					text_box($prefix.'_new_key','');
-					echo ' <b>value</b> ';
-					text_box($prefix.'_new_val','');
-				$o->closeField();
-			}
 
+		} else {
+			echo 'There are currently no select box options';
+		}//end if empty
+
+		// now adding two fields for new entry (key => value)
+		if ($write_access) {
+			$o->openField('New Option');
+				echo '<b>key</b> ';
+				text_box($prefix.'_new_key','');
+				echo ' <b>value</b> ';
+				text_box($prefix.'_new_val','');
+			$o->closeField();
+		}
+		
+		if (!empty($select_options)) {
 			// displaying default value if any values were actually saved in the array
 			$o->openField('Default Value');
 				$selection = $asset->getSelectionAttribute();
 				$selection->paint($prefix.'_default', !$write_access);
 			$o->closeField();
-
-		} else {
-			echo 'There are currently no select box options';
-		}//end if empty
+		}
 
 		return true;
 
