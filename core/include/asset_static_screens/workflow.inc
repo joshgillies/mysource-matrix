@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.5.2.2 2004/11/04 01:03:11 gsherwood Exp $
+* $Id: workflow.inc,v 1.5.2.3 2004/11/04 01:08:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -204,10 +204,7 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_log_message'])) ob_start();
 
 							text_area($prefix.'_workflow_new_log_message', '', 60, 6);
-							?>
-							<br/>You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.
-							<br/><a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow&sq_workflow_log_version=<?php echo substr($owner->version, 0, strrpos($owner->version, '.'));?>">Click here to view the workflow message log</a> - a list of system generated workflow messages as well as any comments made by other approvers.
-							<?php
+							echo '<br/>You can enter a reason for your decision in the box above so that other approvers know why you have accepted or rejected the changes.';
 								
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['workflow_log_message'])) {
