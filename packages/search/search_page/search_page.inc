@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.56 2004/09/15 07:07:15 gsherwood Exp $
+* $Id: search_page.inc,v 1.57 2004/09/15 23:36:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.56 $ - 1.0
+* @version $Revision: 1.57 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -410,6 +410,46 @@ class Search_Page extends Page
 
 
 	/**
+	* Print a description for a given date range
+	*
+	* @param array	$current_value	the values that should be printed instead of the date selection boxes
+	*
+	* @return void
+	* @access private
+	*/
+	function _printDateRangeDescription($current_value)
+	{
+		if (!isset($current_value['from'])) $current_value['from'] = '---------- --:--:--';
+		if (!isset($current_value['to']))   $current_value['to']   = '---------- --:--:--';
+
+		$from_string = '';
+		if ($current_value['from'] != '---------- --:--:--') {
+			$from = iso8601_ts($current_value['from']);
+			$from_string = date('j M Y', $from);
+		}
+		
+		$to_string = '';
+		if ($current_value['to'] != '---------- --:--:--') {
+			$to = iso8601_ts($current_value['to']);
+			$to_string = date('j M Y', $to);
+		}
+		
+		if (empty($from_string) && empty($to_string)) return;
+
+		if (empty($from_string)) echo 'prior to ';
+		else echo $from_string;
+		
+		if (empty($to_string)) {
+			echo ' onwards';
+		} else {
+			if (!empty($from_string)) echo ' - ';
+			echo $to_string;
+		}
+
+	}//end _printDateRangeDescription()
+
+
+	/**
 	* Print a date range selection
 	*
 	* @param string		$field_name		the name of the field we are painting
@@ -653,7 +693,6 @@ class Search_Page extends Page
 							case 'metadata_field_select' :
 								$selection = $asset->getSelectionAttribute();
 								$value = Array();
-								$selection->setValue($value);
 								
 								$read_only = false;
 
@@ -753,6 +792,96 @@ class Search_Page extends Page
 		return $replacement;
 
 	}//end getSisFieldReplacement()
+
+
+	/**
+	* Returns the current search terms for the passed field
+	*
+	* @param string	$field	name the name of the field to get the replacement for
+	*
+	* @return string
+	* @access public
+	*/
+	function getSearchedFieldReplacement($field_name)
+	{
+		$query_var = $field_name.'_query_sis';
+		$query = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, '');
+
+		$fields = $this->attr('fields');
+
+		ob_start();
+
+			switch ($fields[$field_name]['type']) {
+
+				case 'metadata' :
+					$assetid = $fields[$field_name]['params']['assetid'];
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					if (!is_null($asset)) {
+						$params = $asset->vars;
+						switch (get_class($asset)) {
+							case 'metadata_field_date' :
+								$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+								$this->_printDateRangeDescription($current_value);
+							break;
+							case 'metadata_field_text' :
+								echo $query;
+							break;
+							case 'metadata_field_select' :
+								$selection = $asset->getSelectionAttribute();
+								$selection->setValue($query);
+								$selection->paint('queries_'.$query_var, true);
+							break;
+						}//end switch
+	
+					}//end if metadata asset exists
+				break;
+
+				case 'asset_attrib' :
+					$read_only = false;
+					$attribute = &$GLOBALS['SQ_SYSTEM']->am->getAttribute($fields[$field_name]['params']['attrid']);
+					
+					if ($attribute->type() == 'datetime') {
+
+						$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+						$this->_printDateRangeDescription($current_value);
+
+					} else {
+
+						// if this is a boolean or selection field, we want to make sure blank options are allowed
+						if ($attribute->type() == 'boolean' || $attribute->type() == 'selection') {
+							$attribute->_params['allow_empty'] = true;
+						}
+	
+						// give the attribute our custom search styles if we have them
+						$search_styles = $this->attr('search_styles');
+						if (isset($search_styles[$attribute->id])) {
+							$attribute->_edit_params = $search_styles[$attribute->id];
+						}
+						
+						$attribute->value = $query;
+	
+						$attribute->paint('queries_'.$query_var, true);
+					}
+				break;
+
+				case 'asset_date' :
+					$current_value = array_get_index($_SESSION['SQ_LAST_SEARCH'][$this->id], $field_name, Array());
+					$this->_printDateRangeDescription($current_value);
+				break;
+
+				default :
+					echo $query;
+				break;
+
+			}//end switch field type
+
+			$replacement = ob_get_contents();
+
+		ob_end_clean();
+
+		return $replacement;
+
+	}//end getSearchedFieldReplacement()
 
 
 	/**
@@ -889,7 +1018,7 @@ class Search_Page extends Page
 	*
 	* @param string $form_name the name of the form to get the replacements for
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getFormFormatReplacements($form_name)
@@ -909,6 +1038,8 @@ class Search_Page extends Page
 					combo_box($keyword, $options, false, $current_logic);
 					$replacements[$keyword] = ob_get_contents();
 				ob_end_clean();
+			} else if (ereg('(.+)_query_terms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+				$replacements[$keyword] = $this->getSearchedFieldReplacement($matches[1]);
 			} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 				if ($form_name == 'sis_form') {
 					$replacements[$keyword] = $this->getSisFieldReplacement($matches[1]);
@@ -945,7 +1076,7 @@ class Search_Page extends Page
 	* replaced with the specified replacements
 	*
 	* @param string 	$form_name 		the name of the format to get the contents for
-	* @param Array		$replacements 	the array of replacements to replace in the content
+	* @param array		$replacements 	the array of replacements to replace in the content
 	*
 	* @return string
 	* @access public
@@ -968,7 +1099,7 @@ class Search_Page extends Page
 
 
 	/**
-	* Keyword-replaces for the results mode.
+	* Keyword-replaces for the results mode
 	*
 	* @param array	$results	the results returned
 	*
@@ -1077,7 +1208,27 @@ class Search_Page extends Page
 				break;
 				
 				default:
-					if (substr($keyword, -7) == '_linked') {
+					$fields = $this->attr('fields');
+
+					if (ereg('(.+)_query_logic$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+						
+						$current_logic = array_get_index($_REQUEST, $keyword, 'AND');
+						$options = Array('AND' => 'all of the words', 'OR' => 'any of the words');
+						ob_start();
+							combo_box($keyword, $options, false, $current_logic);
+							$replacement = ob_get_contents();
+						ob_end_clean();
+						
+					} else if (ereg('(.+)_query_terms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+
+						$replacement = $this->getSearchedFieldReplacement($matches[1]);
+						
+					} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+						
+						$replacement = $this->getFieldReplacement($matches[1]);
+						
+					} else if (substr($keyword, -7) == '_linked') {
+						
 						if ($keyword == 'category_list_linked') {
 							// printing the list of seach categories
 							$categories = $this->attr('categories');
@@ -1190,8 +1341,9 @@ class Search_Page extends Page
 						}//end if category links
 
 					} else {
+
 						$replacement = $this->getGeneralReplacement($keyword);
-					}// end if linked
+					}
 				break;
 			}//end switch
 
