@@ -94,25 +94,25 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	function validateValue(&$value)
 	{
 		$new_value = (int) $value;
-		if ($new_value != $value) {
+		if ((string) $new_value != (string) $value) {
 			// check for strings that mean the same as true and false
-			$new_value = strtolower((string)$value);
-			
-			if ($new_value == 'true' || 
-				$new_value == 't' || 
-				$new_value == 'yes' || 
-				$new_value == 'y') $new_value = 1;
+			switch(strtolower((string) $value)) {
+				case 'true' :
+				case 't'    :
+				case 'yes'  :
+				case 'y'    :
+					$new_value = 1;
+					break;
 
-			if ($new_value == 'false' || 
-				$new_value == 'f' || 
-				$new_value == 'no' || 
-				$new_value == 'n') $new_value = 0;
-
-			// if new_value is not an integer, it didnt
-			// pass our tests to become 1 or 0
-			if (!is_int($new_value)) return false;
+				case 'false' :
+				case 'f'     :
+				case 'no'    :
+				case 'n'     :
+					$new_value = 0;
+					break;
+			}
 		}
-		$value = $new_value;
+		$value = (empty($new_value)) ? 0 : 1;
 		return true;
 	}//end validateValue()
 
