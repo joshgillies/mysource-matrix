@@ -15,12 +15,15 @@
 ## immediately.
 ##
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/web/css/edit.css,v $
-## $Revision: 1.1.1.1 $
+## $Revision: 1.2 $
 ## $Author: brobertson $
-## $Date: 2003/01/23 06:25:36 $
+## $Date: 2003/02/10 06:30:02 $
 #######################################################################
 */
 
+body {
+	background-color: #ffffff;
+}
 body, p, td, ul, li, input, select, textarea {
 	color: #000000;
 	font-family:  Verdana, Arial, Helvetica, sans-serif;
@@ -69,6 +72,7 @@ body, p, td, ul, li, input, select, textarea {
 }
 
 .sq-backend-sectionheading {
+	background-color: #b1bdcd;
 	color: #000000;
 	font-family:  Verdana, Arial, Helvetica, sans-serif;
 	font-weight: bold;
@@ -86,15 +90,20 @@ a:hover, a.sq-backend:hover {
 
 .sq-backend-field {
 	color: #000000;
+	background-color: #f0f0f0;
 	font-family:  Verdana, Arial, Helvetica, sans-serif;
 	font-size: 11px;
 	font-weight: bold;
 }
 
-.sq-backend-data, .data {
+.sq-backend-data, td.sq-backend-data {
 	color: #000000;
 	font-family: Verdana, Arial, Helvetica, sans-serif;
 	font-size: 11px;
+}
+
+td.sq-backend-data {
+	background-color: #f0f0f0;
 }
 
 .sq-backend-warning {
@@ -121,4 +130,17 @@ a.sq-backend-page-lineage:hover {
 }
 .sq-backend-custom-asset {
 	color: #000000;
+}
+
+
+.sq-backend-header-cell, .sq-backend-header-item {
+	background-color: #212E61;
+}
+
+.sq-backend-header-item {
+	color: #ffffff;
+	font-family:     Verdana, Arial, Helvetica, sans-serif;
+	font-size:       11px;
+	font-weight:     bold;
+	text-decoration: none; 
 }
