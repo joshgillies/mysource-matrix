@@ -17,18 +17,16 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: DG.java,v 1.1 2004/01/13 00:50:24 mmcintyre Exp $
+* $Id: DG.java,v 1.2 2004/06/29 01:24:40 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 package net.squiz.matrix.assetmap;
 
-import java.util.GregorianCalendar;
-import java.awt.Component;
-
 import javax.swing.JFrame;
 import javax.swing.Icon;
+import java.awt.*;
 import javax.swing.JLabel;
 
 
@@ -39,118 +37,110 @@ import javax.swing.JLabel;
 */
 public final class DG {
 
-	/**
-	* The time taken since last call to speed_check
-	*/
+	/** The time taken since last call to speed_check */
 	private static long time = 0;
 
-
 	/**
-	* Prints an object. 
-	* Assumes that there is a toString() method in the object, otherwise the default toString method in <code>Object</code> will be used
-	*
-	* @param o the object to string
-	*/
+	 * Prints an object. 
+	 * Assumes that there is a toString() method in the object, otherwise the default toString method in <code>Object</code> will be used
+	 *
+	 * @param o the object to string
+	 */
 	public static final void bam(Object o) {
-		System.out.println(o.toString());
-	
-	}//end bam()
-
+		System.out.print(o.toString());
+	}
 
 	/**
-	* Prints an int
-	*
-	* @param i the int to print
-	*/
+	 * Prints an int
+	 *
+	 * @param i the int to print
+	 */
 	public static final void bam(int i) {
-		System.out.println(i);
-	
-	}//end bam
-
+		System.out.print(i);
+	}
 	
 	/**
-	* Prints a boolean 
-	*
-	* @param b the boolean to print
-	*/
+	 * Prints a boolean 
+	 *
+	 * @param b the boolean to print
+	 */
 	public static final void bam(boolean b) {
-		System.out.println(b);
-	
-	}//end bam()
-
+		System.out.print(b);
+	}
 
 	/**
-	* Prints a long
-	*
-	* @param l the long to print
-	*/
+	 * Prints a long
+	 *
+	 * @param l the long to print
+	 */
 	public static final void bam(long l) {
-		System.out.println(l);
-	
-	}//end bam()
-
+		System.out.print(l);
+	}
 
 	/**
-	* Prints a double
-	*
-	* @param d the double to print
-	*/
+	 * Prints a double
+	 *
+	 * @param d the double to print
+	 */
 	public static final void bam(double d) {
-		System.out.println(d);
+		System.out.print(d);
+	}
 	
-	}//end bam()
-	
+	public static void visiBam(String text) {
+		JFrame f = new JFrame();
+		f.getContentPane().add(new JLabel(text));
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		f.setLocation(screenSize.width / 2, screenSize.height / 2);
+		f.show();
+	}
 
 	/**
-	* Displays a new component in a new frame
-	* 
-	* @param c the component to print
-	*/
+	 * Displays a new component in a new frame
+	 * 
+	 * @param c the component to print
+	 */
 	public static final void bam(Icon c) {
 		JFrame f = new JFrame();
 		f.getContentPane().add(new JLabel(c));
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		f.setLocation(screenSize.width / 2, screenSize.height / 2);
 		f.show();
-	
-	}//end bam()
+	}
 
+	public static final void bam(JLabel l) {
+		JFrame f = new JFrame();
+		f.getContentPane().add(l);
+		f.show();
+	}
 
 	/**
-	* Resets the timer for speed check
-	* 
-	*/
+	 * Resets the timer for speed check
+	 * 
+	 */
 	public static void resetSpeedCheck() {
 		time = 0;
-
-	}//end resetSpeedCheck()
-
+	}
 
 	/**
-	* Calculates the time taken since the last call to <code>DG.speed_check()</code>
-	*/
+	 * Calculates the time taken since the last call to <code>DG.speed_check()</code>
+	 */
 	public static final void speedCheck() {
 
-		GregorianCalendar cal = new GregorianCalendar();
-
-		if (DG.time == 0) {
-			DG.time = cal.getTimeInMillis();
-		} else {
-			DG.time = cal.getTimeInMillis() - DG.time;
-			DG.bam(DG.time / 1000.000000);
+		if (DG.time != 0) {
+			DG.bam((System.currentTimeMillis() - DG.time) / 1000.000000 + "\n");
 		}
-		
-	}//end speed_check()
-
+		DG.time = System.currentTimeMillis();	
+	}
 
 	/**
-	* Calculates the time taken since the last call to <code>DG.speed_check()</code>
-	* 
-	* @param str the string to reference the speed check with
-	*/
+	 * Calculates the time taken since the last call to <code>DG.speed_check()</code>
+	 * 
+ 	 * @param str the string to reference the speed check with
+	 */
 	public static final void speedCheck(String str) {
 		DG.bam(str + ": ");
 		DG.speedCheck();
-	
-	}//end speed_check()
+	}
 
 
-}//end class
+}

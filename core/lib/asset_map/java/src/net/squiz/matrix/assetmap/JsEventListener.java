@@ -17,33 +17,16 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetFinderListener.java,v 1.2 2004/06/29 01:22:47 mmcintyre Exp $
+* $Id: JsEventListener.java,v 1.1 2004/06/29 01:25:10 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 package net.squiz.matrix.assetmap;
 
+import java.util.EventListener;
 
 
-/**
-* Interface for objects that want to listen for Asset Finder Events which 
-* get fired from Javascript when the user invokes an asset finder state (on/off)
-*
-* @author Marc McIntyre <mmcintyre@squiz.net>
-*
-* @see JsEventManager
-*/
-public interface AssetFinderListener extends JsEventListener {
-	
-	/**
-	* An event that gets invoked when the user wants to choose an asset to use as
-	* a reference to a component in the matrix system
-	*/
-	void assetFinderStarted(JsEvent e);
+public interface JsEventListener extends EventListener {
 
-	/**
-	* An event that gets invoked when the user cancels the asset finder mode
-	*/
-	void assetFinderStopped(JsEvent e);
 
 }

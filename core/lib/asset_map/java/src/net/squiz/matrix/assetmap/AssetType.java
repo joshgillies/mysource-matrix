@@ -17,265 +17,203 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetType.java,v 1.1 2004/01/13 00:45:55 mmcintyre Exp $
+* $Id: AssetType.java,v 1.2 2004/06/29 01:24:04 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 package net.squiz.matrix.assetmap;
 
-import java.net.URL;
-
-import javax.swing.ImageIcon;
+import java.util.*;
 import javax.swing.Icon;
 
-import java.util.*;
-
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-
 /**
-* Class for objects representing a Matrix asset type.
-* 
-* An object of this class keeps track of useful data on a particular 
-* asset type, such as its type code, name, icon, version, etc.
-* 
-* @author Marc McIntyre <mmcintyre@squiz.net>
-* @see AssetTypeFactory AssetTypeFactory
-*/
+ * The <code>AssetType</code> class represents an Asset Type in the mysource 
+ * Matrix system.
+ * 
+ * @author Marc McIntyre <mmcintyre@squiz.net>
+ */
 public class AssetType {
 	
-	/**
-	* asset type code
-	*/
+	/** the type code of this asset type*/
 	private String typeCode;
 	
-	/**
-	* asset type name
-	*/
+	/** the name of this asset type*/
 	private String name;
-
+	
+	/** TRUE if this asset type is instantiable */
+	private boolean instantiable;
+	
+	/** The version of this asset type */
+	private String version;
+	
+	/** the allowed access of this asset type */
+	private String allowedAccess;
+	
+	/** the parent type of this asset type */
+	private AssetType parentType = null;
+	
+	/** A list of child types of this asset type */
+	private Set childTypes;
+	
 	/** 
-	* asset type icon 
-	*/
-	private Icon icon;
+	 * The menuPath for this asset type
+	 * This used to create the menus and sub menus in the add menu for
+	 * this asset type 
+	 */
+	private String[] menuPath;
+	
+	/** a list of screens that is used for the right click menu */
+	private List screens = new Vector();
 	
 	/**
-	* whether the asset type is instantiable
-	*/
-	private boolean instantiable;
+	 * Constructs a new asset type for the given type code 
+	 */
+	public AssetType(String typeCode) {
+		this.typeCode = typeCode;
+	}
 
 	/**
-	* asset type version
-	*/
-	private String version;
-
-	/**
-	* asset type allowed access e.g. backend_user, system_user
-	*/
-	private String allowedAccess;
-
-	/**
-	* A list of screens for this asset type
-	*/
-	private List screens;
-
-	/**
-	* the parent type of this asset type
-	*/
-	private AssetType parentType;
-
-	/**
-	* A list of child types that inherit this asset type
-	*/
-	private Set childTypes;
-
-
-	/**
-	* Constructor
-	*/
-	public AssetType(
-			String typeCode, 
+	 * Sets the information about this asset type code 
+	 * 
+	 * @param name the name of this asset type
+	 * @param instantiable TRUE if this asset type is instantiable
+	 * @param version the version of this asset type
+	 * @param allowedAccess the allowed access of this asset type
+	 * @param menuPath
+	 */
+	public void setInfo(
 			String name, 
 			boolean instantiable, 
 			String version, 
 			String allowedAccess, 
-			URL iconURL
+			String[] menuPath
 		) {
-		this.typeCode = typeCode;
-		this.name = name;
-		this.icon = icon;
-		this.instantiable = instantiable;
-		this.version = version;
+
+		this.name          = name;
+		this.instantiable  = instantiable;
+		this.version       = version;
 		this.allowedAccess = allowedAccess;
-
-		if (iconURL != null)
-			this.icon = new ImageIcon(iconURL);
-		else
-			this.icon = null;
+		this.menuPath      = menuPath;
+	}
+	
+	/**
+	 * Returns TRUE if this asset type is createable.
+	 * 
+	 * @return TRUE if this asset type is createable
+	 */
+	public boolean isCreatable() {
+	
+		if (!instantiable)
+			return false;
+		if (allowedAccess.equals("system"))
+			return false;
+	
+		AssetType parentUserType = AssetManager.INSTANCE.getAssetType(
+					AssetManager.INSTANCE.getCurrentUserTypeCode());
 		
-		this.screens = new Vector();
-
-		this.parentType = null;
-		this.childTypes = new HashSet();
-
-	}//end constructor
-
-
-	/**
-	* Sets a parent type for an Asset Type
-	* 
-	* @param parentType the parent type that an asset type inherits from
-	*/
-	public void setParentType(AssetType parentType) {
-		this.parentType = parentType;
-		parentType.childTypes.add(this);
-
-	}//end setParentType()
-
-	
-	/**
-	* Returns a string representation of an asset type
-	*
-	* @return the string representation of an asset type
-	*/
-	public String toString() {
-		String out = new String();
-		AssetType[] ancestorTypes = getAncestorTypes();
-		for (int i = ancestorTypes.length - 1; i >= 0; --i) {
-			out += ancestorTypes[i].getTypeCode() + ".";
+		while (parentUserType != null) {
+			if (parentUserType.getTypeCode().equals(allowedAccess))
+				return true;
+			
+			parentUserType = parentUserType.getParentType();
 		}
-		out += typeCode + " [name: " + name + "; screens: " + screens.size() + "; child types: " + childTypes.size() + "]";
-		return out;
+
+		return false;
+	}
 	
-	}//end toString()
-
-
 	/**
-	* Returns the typecode of this asset type
-	* 
-	* @return the type code of the asset type
-	*/
-	public String getTypeCode() {
-		return typeCode;
-
-	}//enmd getTypeCode()
-
-
+	 * Returns the menu path for this asset type
+	 * 
+	 * @return the menu path for this asset type
+	 */
+	public String[] getMenuPath() {
+		return menuPath;
+	}
+	
 	/**
-	* Returns the name of the asset type
-	*
-	* @return the name of the asset type
-	*/
+	 * Returns this asset type's name
+	 * 
+	 * @return the name of this asset type
+	 */
 	public String getName() {
 		return name;
+	}
 	
-	}//end getName()
-
-
 	/**
-	* returns the icon for the asset type
-	*/
+	 * Returns the icon for this asset type
+	 * 
+	 * @return the icon for this asset type
+	 */
 	public Icon getIcon() {
-		return icon;
-
-	}//end getIcon()
-
+		return MatrixToolkit.getIconForTypeCode(typeCode);
+	}
+	
 	/**
-	* returns a hashcode for this asset type
-	*
-	* @return the hashcode for this asset type
-	*/
+	 * Returns the type code of this asset type
+	 * 
+	 * @return the type code of this asset type
+	 */
+	public String getTypeCode() {
+		return typeCode;
+	}
+	
+	/**
+	 * Adds a screen to this asset type
+	 * 
+	 * @param codeName the code name of the screen
+	 * @param name the display name of this screen
+	 */
+	public void addScreen(String codeName, String name) {
+		AssetTypeScreen screen = new AssetTypeScreen(codeName, name);
+		screens.add(screen);
+	}
+	
+	/**
+	 * Returns a Iterator of the screens for this asset type
+	 * 
+	 * @return a list of the screens for this asset type
+	 */
+	public Iterator getScreenNames() {
+		return screens.iterator();
+	}
+	
+	/**
+	 * Returns the parent type of this asset type
+	 * 
+	 * @return the parent type of this asset type
+	 */
+	public AssetType getParentType() {
+		return parentType;
+	}
+	
+	/**
+	 * Sets the parent type of this asset type
+	 * 
+	 * @param parentType the parent type of this asset type
+	 */
+	public void setParentType(AssetType parentType) {
+		this.parentType = parentType;
+	}
+	
+	/**
+	 * Returns the unique hash code for this asset type
+	 * 
+	 * @return the hash code
+	 */
 	public int hashCode() {
 		return typeCode.hashCode();
-	
-	}//end hashCode()
-
+	}
 	
 	/**
-	* Returns a list of Ancestor types that the asset type inherits from
-	*
-	* @return an array of thie asset type objects
-	*/
-	public AssetType[] getAncestorTypes() {
-		Vector lineage = new Vector();
-		AssetType nextType = this;
-		while (nextType.parentType != null) {
-			lineage.add(nextType.parentType);
-			nextType = nextType.parentType;
-		}
-
-		AssetType[] out = new AssetType[lineage.size()];
-		int index = 0;
-		Enumeration types = lineage.elements();
-		while (types.hasMoreElements()) {
-			out[index++] = (AssetType)types.nextElement();
-		}
-		return out;
-
-	}//end getAcestorTypes()
-
-
-	/**
-	* Returns the parent type that this asset type inherits from
-	* 
-	* @return the parent type
-	*/
-	public AssetType getParentType() {
-		return this.parentType;
+	 * returns TRUE if this Asset Type is equal to the given object
+	 * 
+	 * @return TRUE if this asset type is equal to the give object
+	 */
+	public boolean equals(Object obj) {
+		if (!(obj instanceof AssetType))
+			return false;
+		return (((AssetType) obj).typeCode.equals(typeCode));
+	}
 	
-	}//end getParentType()
-
-
-	/**
-	* Processes the XML that represents the screens of this asset type
-	*
-	* @param screenElements the XML nodeList of the screens for this typecode
-	*/
-	public void processScreenElements(NodeList screenElements) {
-		for (int i = 0; i < screenElements.getLength(); ++i) {
-			if (!(screenElements.item(i) instanceof Element))
-				continue;
-			Element screenElement = (Element)screenElements.item(i);
-			String codeName = screenElement.getAttribute("code_name");
-			String screenName = screenElement.getFirstChild().getNodeValue();
-			screens.add(new AssetTypeScreen(codeName, screenName));
-		}
-
-	}//end processScreenElements()
-
-
-	/**
-	* returns the screens of this asset type as a string representation
-	*
-	* @return the string representation of the type codes of this asset type
-	*/
-	private String screensToString() {
-		String out = "[";
-		boolean first = true;
-		Iterator i = screens.iterator();
-		while (i.hasNext()) {
-			if (!first)
-				out += ", ";
-			AssetTypeScreen screen = (AssetTypeScreen)i.next();
-			out += "(" + screen.codeName + "/" + screen.screenName + ")";
-			first = false;
-		}
-		out += "]";
-
-		return out;
-
-	}//end screensToString()
-
-
-	/**
-	* returns an iterator for iterating through the screens of this asset type
-	*
-	* @return the iterator for iterating through the asset screens
-	*/
-	public Iterator getScreens() {
-		return screens.iterator();
 	
-	}//end getScreens()
-
 }

@@ -17,33 +17,23 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetFinderListener.java,v 1.2 2004/06/29 01:22:47 mmcintyre Exp $
+* $Id: ReloadAssetListener.java,v 1.1 2004/06/29 01:25:43 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 package net.squiz.matrix.assetmap;
 
-
-
 /**
-* Interface for objects that want to listen for Asset Finder Events which 
-* get fired from Javascript when the user invokes an asset finder state (on/off)
-*
-* @author Marc McIntyre <mmcintyre@squiz.net>
-*
-* @see JsEventManager
-*/
-public interface AssetFinderListener extends JsEventListener {
-	
-	/**
-	* An event that gets invoked when the user wants to choose an asset to use as
-	* a reference to a component in the matrix system
-	*/
-	void assetFinderStarted(JsEvent e);
+ * An interface for classes that want to listen to the reloading of assets
+ * 
+ * @author Marc McIntyre <mmcintyre@squiz.net>
+ */
+public interface ReloadAssetListener extends JsEventListener {
 
 	/**
-	* An event that gets invoked when the user cancels the asset finder mode
-	*/
-	void assetFinderStopped(JsEvent e);
+	 * Called when the assets have been requested to be reloaded
+	 * @param e the event
+	 */
+	void assetsReloaded(JsEvent e);
 
 }

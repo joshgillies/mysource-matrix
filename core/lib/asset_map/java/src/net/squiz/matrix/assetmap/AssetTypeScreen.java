@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetTypeScreen.java,v 1.1 2004/01/13 00:57:09 mmcintyre Exp $
+* $Id: AssetTypeScreen.java,v 1.2 2004/06/29 01:24:21 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,25 +31,21 @@ package net.squiz.matrix.assetmap;
  */ 
 public class AssetTypeScreen
 {
-	/**
-	* the code name for this screen
-	*/
+	/** the code name for this screen */
 	public String codeName;
 	
-	/**
-	* the screen name for this screen
-	*/
+	/** the screen name for this screen */
 	public String screenName;
 
 	/**
 	* Constructor
-	* @param codeName		the screen code name
-	* @param screenName	the screen's pretty name
+	* 
+	* @param codeName the screen code name
+	* @param screenName the screen's pretty name
 	*/
 	public AssetTypeScreen(String codeName, String screenName) {
 		this.codeName = codeName;
 		this.screenName = screenName;
-	
-	}//end constructor
+	}
 
-}//end class
+}

@@ -17,37 +17,33 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetTypeNotFoundException.java,v 1.1 2004/01/13 00:48:41 mmcintyre Exp $
+* $Id: AssetTypeNotFoundException.java,v 1.2 2004/06/29 01:24:14 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
 package net.squiz.matrix.assetmap;
 
 /** 
-* An exception indicating that an asset type was not found.
-*
-* @author Marc McIntyre <mmcintyre@squiz.net>
-* 
-* @see AssetTypeFactory
-*/
+ * An exception indicating that an asset type was not found.
+ *
+ * @author Marc McIntyre <mmcintyre@squiz.net> 
+ * @see AssetTypeFactory
+ */
 public class AssetTypeNotFoundException extends Exception { 
 	
 	/**
-	* Constructor
-	*/
+	 * Constructs the exception
+	 */
 	public AssetTypeNotFoundException() {
 		super();
-	
-	}//end constructor
+	}
 
 	/**
-	* Constructor with message.
-	*/
+	 * Constructor with message.
+	 */
 	public AssetTypeNotFoundException(String msg) {
 		super(msg);
-	
-	}//end constructor
+	}
 
-
-}//end class
+}
 
