@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table_management.inc,v 1.3 2004/11/01 11:32:23 brobertson Exp $
+* $Id: form_question_type_tickbox_table_management.inc,v 1.4 2004/11/24 03:30:51 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -47,6 +47,7 @@ class Form_Question_Type_Tickbox_Table_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
+
 			'question_contents' => Array(
 				'added'		=> '0.0.1',
 				'type'		=> 'serialise',
@@ -62,8 +63,13 @@ class Form_Question_Type_Tickbox_Table_Management extends Asset_Management
 				),
 			),
 
-		);
+			'default' => Array(
+				'added'		=> '1.3',
+				'type'		=> 'serialise',
+				'default'	=> Array(),
+			),
 
+		);
 
 	}//end constructor
 
@@ -77,11 +83,11 @@ class Form_Question_Type_Tickbox_Table_Management extends Asset_Management
 	function _getFileList()
 	{
 		return Array(
-					 'files/cross.png',
-					 'files/cross2.png',
-					 'files/InputTable.js',
-					 'files/style.css'
-					 );
+			'files/cross.png',
+			'files/cross2.png',
+			'files/InputTable.js',
+			'files/style.css',
+		);
 
 	}//end _getFileList()
 
