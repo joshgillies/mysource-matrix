@@ -1575,8 +1575,9 @@ class Asset_Manager extends MySource_Object
 								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
 				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($sql))
-					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
+				if (DB::isError($where)) {
+					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+				}
 			}// end if
 		}// end if
 		if ($ignore_linkid) {
