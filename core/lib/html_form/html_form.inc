@@ -354,7 +354,7 @@ function file_upload($name, $extras='')
 /**
 * Returns the information for an uploaded file if the upload was successful
 *
-* @param string	$name			the form name from the file upload box
+* @param string	$name		the form name from the file upload box
 *
 * @return FALSE on error, blank array on no file upload and the $_FILES[$name] if a file was uploaded succefully
 */
