@@ -671,7 +671,7 @@ class Asset_Manager extends Resolve_Object
 
 	}//end getAssetInfo()
 
-	
+
 	/**
 	* Returns list of all assetids of a certain type
 	*
@@ -752,7 +752,7 @@ class Asset_Manager extends Resolve_Object
 			// special case where the current user is actually
 			// removing the current lock and taking it for themselves
 			$sql = 'SELECT a.assetid, a.type_code
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lock l on a.assetid = l.assetid 
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lock l on a.assetid = l.assetid
 					';
 			$where = 'l.source_asset = '.$db->quote($current_lock['source_asset']);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -1079,13 +1079,13 @@ pre_echo($sql);
 	* Returns the link information for a specific link that this asset is the major asset in
 	*
 	* @param int	$linkid
-	* @param int	$assetid		id of the the $side_of_link asset 
+	* @param int	$assetid		id of the the $side_of_link asset
 	*								if zero no check is made and both major and minor information is returned
 	* @param string	$side_of_link	Which side of the link the asset represented by $assetid is on ('major' or 'minor')
 	* @return Array
 	* @access public
 	*/
-	function getLinkById($linkid, $assetid, $side_of_link='major')
+	function getLinkById($linkid, $assetid=0, $side_of_link='major')
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor')
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
@@ -1094,12 +1094,23 @@ pre_echo($sql);
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						a.type_code as '.$other_side.'_type_code, l.sort_order, l.dependant, l.exclusive
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset a';
-		$where = 'l.linkid = '.$db->quote($linkid).'
-				  AND l.'.$other_side.'id = a.assetid';
-		if ($assetid > 0) $where .= ' AND l.'.$side_of_link.'id = '.$db->quote($assetid);
+		$sql = 'SELECT  l.linkid, l.value, l.link_type, l.sort_order, l.dependant, l.exclusive, ';
+		$where = 'l.linkid = '.$db->quote($linkid);
+		if ($assetid > 0) {
+			$sql .= 'l.'.$other_side.'id, a.type_code as '.$other_side.'_type_code
+					 FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON  l.'.$other_side.'id = a.assetid';
+			$where .= ' AND l.'.$side_of_link.'id = '.$db->quote($assetid);
+
+		} else {
+			$sql .= 'l.majorid, a.type_code as major_type_code, l.minorid, a2.type_code as minor_type_code
+					 FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l 
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON  l.majorid = a.assetid
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a2 ON  l.minorid = a2.assetid';
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a2');
+
+		}// end if
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
@@ -1138,7 +1149,7 @@ pre_echo($sql);
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type, 
+		$sql = 'SELECT l.linkid, l.'.$other_side.'id, l.value, l.link_type,
 				       a.type_code as '.$other_side.'_type_code, l.sort_order, l.dependant, l.exclusive
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.'.$other_side.'id  = a.assetid
@@ -1203,7 +1214,7 @@ pre_echo($sql);
 
 		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
 						a.type_code as '.$other_side.'_type_code, l.sort_order, l.dependant, l.exclusive
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset a 
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset a
 				';
 
 		$where = 'l.'.$other_side.'id = a.assetid
@@ -1357,7 +1368,7 @@ pre_echo($sql);
 			}
 
 			$sql = 'SELECT DISTINCT l.minorid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t 
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
 					         INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
 					';
 			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
@@ -1984,7 +1995,7 @@ pre_echo($sql);
 		// and that we aren't moving under ourselves
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 			//// Check for exclusive ////
-			$sql = 'SELECT majorid 
+			$sql = 'SELECT majorid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link ';
 			$where = 'minorid       = '.$db->quote($minor->id).'
 					  AND exclusive = '.$db->quote('1');
@@ -2319,7 +2330,7 @@ pre_echo($sql);
 
 	}//end canDeleteLink()
 
-	
+
 	/**
 	* Move a link to a new parent
 	*
@@ -3250,7 +3261,7 @@ pre_echo($sql);
 		$child_paths = Array();
 
 		if (count($childids)) {
-			$sql = 'SELECT path 
+			$sql = 'SELECT path
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_path';
 			$where = 'assetid IN ('.implode(',', $childids).')';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
