@@ -457,6 +457,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @param array			$contents	the contents array from _parseString
 	*
 	* @access private
+	* @return boolean
 	*/
 	function _setVariables(&$asset, &$contents)
 	{
