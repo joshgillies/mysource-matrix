@@ -1,0 +1,28 @@
+<contents>
+	<section name="Details">
+		<field>
+			<display_name>Id Name</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintIdName" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Declared Variables">
+		<field>
+			<display_name>Image Upload</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintImageUpload" />
+				<process_function name="processImageUpload" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Current Image</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintCurrentImage" />
+			</function_call>
+		</field>
+	</section>
+</contents>
