@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport.inc,v 1.1.2.3 2004/02/14 17:44:52 brobertson Exp $
+* $Id: replication_system_transport.inc,v 1.1.2.4 2004/02/14 19:41:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -149,6 +149,25 @@ class Replication_System_Transport extends MySource_Object
 		return true;
 
 	}// end setSocketFd()
+
+
+	/**
+	* Unset's the socket we are currently using for communicating on this transport method
+	* Optionally can close the connection as well
+	*
+	* @param boolean $sd	the socket resource we are using for connections
+	*
+	* @access public
+	* @return boolean	success or not
+	*/
+	function removeSocketFd($close_connection)
+	{
+		if (is_null($this->_sd)) return true;
+		if ($close_connection) socket_close($this->_sd);
+		$this->_sd = null;
+		return true;
+
+	}// end removeSocketFd()
 
 
 	/**
@@ -310,7 +329,8 @@ class Replication_System_Transport extends MySource_Object
 		$bytes_to_read = min($length, $this->_read_buffer_size);
 
 		// read data from socket
-		while($buf = @socket_read($this->_sd, $bytes_to_read, $read_type)) {
+		while(1) {
+			$buf = @socket_read($this->_sd, $bytes_to_read, $read_type);
 			if ($buf === false) {
 				trigger_error('Error Reading from '.$this->getPeerInfo().' : '.$this->getLastSocketError(), E_USER_WARNING);
 				return false;
@@ -366,7 +386,7 @@ class Replication_System_Transport extends MySource_Object
 				return $this->_readVar($data, $headers);
 				break;
 			case 'file' :
-				return $this->_readFile($data, $headers);
+				return $this->_readFile($headers);
 				break;
 			default :
 				trigger_error('Error reading from '.$this->getPeerInfo().' : Unknown read type "'.$headers['type'].'"', E_USER_WARNING);
@@ -389,13 +409,13 @@ class Replication_System_Transport extends MySource_Object
 	{
 		$headers = Array();
 		do {
-			$line = $this->_readFromSocket($this->_buffer_size, PHP_NORMAL_READ);
+			$line = $this->_readFromSocket($this->_read_buffer_size, PHP_NORMAL_READ);
 			if ($line === false) return false;
 			// end of the headers ? OK outa here
 			if ($line == "\n") break;
 
-			if (preg_match('/^([^:]+): (.*)%/', trim($line), $matches=null)) {
-				$headers[strtolower($match[1])] = $match[2];
+			if (preg_match('/^([^:]+): (.*)$/', trim($line), $matches=null)) {
+				$headers[strtolower($matches[1])] = $matches[2];
 			}
 
 		} while(true);
@@ -414,7 +434,8 @@ class Replication_System_Transport extends MySource_Object
 	/**
 	* Read a variable from the socket
 	*
-	* @param mixed		&$data	the retrieved variable will be placed in this reference
+	* @param mixed		&$data		the retrieved variable will be placed in this reference
+	* @param Array		$headers	the headers that were retrieved for this var
 	*
 	* @return boolean	indicating success
 	* @access private
@@ -441,15 +462,15 @@ class Replication_System_Transport extends MySource_Object
 
 
 	/**
-	* Read a file from the socket
+	* Read a file from the socket and put it in the data dir
 	*
-	* @param mixed		&$filename	where the retrieved file has been placed
+	* @param Array		$headers	the headers that were retrieved for this var
 	*
 	* @return boolean	indicating success
 	* @access private
 	* @see read()
 	*/
-	function _readFile(&$filename, $headers)
+	function _readFile($headers)
 	{
 		if (!isset($headers['filename'])) {
 			trigger_error('Error reading file from '.$this->getPeerInfo().' : No filename header', E_USER_WARNING);
@@ -470,7 +491,7 @@ class Replication_System_Transport extends MySource_Object
 		$bytes_written = 0;
 		$fd = fopen($dest_tmp_file, 'wb');
 		do {
-			$bytes_to_read = min($bytes_left, $this->_read_buffer_size);
+			$bytes_to_read = min(($headers['length'] - $bytes_written), $this->_read_buffer_size);
 
 			$data = $this->_readFromSocket($bytes_to_read, PHP_BINARY_READ);
 			if ($data === false) {
