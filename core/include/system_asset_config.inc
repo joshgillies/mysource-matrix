@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.9 2004/05/13 04:01:21 lwright Exp $
+* $Id: system_asset_config.inc,v 1.10 2004/06/21 22:52:04 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,7 +116,8 @@ class System_Asset_Config extends Config
 				foreach($this->system_asset_types as $type_code) {
 					$assetids = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($type_code);
 					if (count($assetids) != 1) {
-						trigger_error('Unable to find a single asset with a type_code "'.$type_code.'" in core, will look for it in packages', E_USER_WARNING);
+						// MARCUS - silence this warning, it's no longer really needed.
+						// trigger_error('Unable to find a single asset with a type_code "'.$type_code.'" in core, will look for it in packages', E_USER_WARNING);
 						//return false;
 					} else {
 						$system_assets[$type_code] = (int) $assetids[0];
