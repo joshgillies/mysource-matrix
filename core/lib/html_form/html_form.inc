@@ -16,6 +16,9 @@
 * @param string	$value		the text that should be displayed for the submit button
 * @param string	$on_click	any JS that should be executed when the submit button is pressed
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+*
+* @return void
+* @access public
 */
 function submit_button($name, $value, $on_click='', $extras='')
 {
@@ -25,7 +28,9 @@ function submit_button($name, $value, $on_click='', $extras='')
 	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="submit" name="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
-}
+
+}//end submit_button()
+
 
 /**
 * Prints a normal form button
@@ -34,24 +39,34 @@ function submit_button($name, $value, $on_click='', $extras='')
 * @param string	$value		the text that should be displayed for the submit button
 * @param string	$on_click	any JS that should be executed when the user confirms after the warning
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+*
+* @return void
+* @access public
 */
 function normal_button($name, $value, $on_click='', $extras='')
 {
 	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="button" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
-}
+
+}//end normal_button()
+
 
 /**
 * Prints a hidden field
 *
 * @param string	$name		the form name to use for the hidden field
 * @param string	$value		the text that should stored in the hidden field
+*
+* @return void
+* @access public
 */
 function hidden_field($name, $value='')
 {
 	echo '<input type="hidden" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" />';
-}
+
+}//end hidden_field()
+
 
 /**
 * Prints a simple single line text box
@@ -61,6 +76,9 @@ function hidden_field($name, $value='')
 * @param int	$size		the width of the text box
 * @param int	$max		the maximum number of characters allowed in the text box
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+*
+* @return void
+* @access public
 */
 function text_box($name, $value, $size='', $max='', $extras='')
 {
@@ -74,7 +92,8 @@ function text_box($name, $value, $size='', $max='', $extras='')
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
 			$extras,
 			' />';
-}
+
+}//end text_box()
 
 
 /**
@@ -85,6 +104,9 @@ function text_box($name, $value, $size='', $max='', $extras='')
 * @param int	$size		the width of the password box
 * @param int	$max		the maximum number of characters allowed in the password box
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+*
+* @return void
+* @access public
 */
 function password_box($name, $value='', $size='', $max='', $extras='')
 {
@@ -98,7 +120,8 @@ function password_box($name, $value='', $size='', $max='', $extras='')
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
 			$extras,
 			' />';
-}
+
+}//end password_box()
 
 
 /**
@@ -110,6 +133,9 @@ function password_box($name, $value='', $size='', $max='', $extras='')
 * @param int	$rows		the height (in lines) of the text area
 * @param int	$max		the maximum number of characters allowed in the text area
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+*
+* @return void
+* @access public
 */
 function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 {
@@ -125,7 +151,9 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 			'>',
 			htmlspecialchars($contents),
 			'</textarea>';
-}
+
+}//end text_area()
+
 
 /**
 * Prints a radio button
@@ -135,6 +163,9 @@ function text_area($name, $contents, $cols=0, $rows=0, $max=0, $extras='')
 * @param bool	$checked	whether the button is checked by default or not
 * @param string	$on_click	any JS that should be executed when the submit button is pressed
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+*
+* @return void
+* @access public
 */
 function radio_button($name, $value='1', $checked=false, $on_click='', $extras='')
 {
@@ -146,7 +177,9 @@ function radio_button($name, $value='1', $checked=false, $on_click='', $extras='
 			(($checked) ? 'checked ' : ''),
 			$extras,
 			' />';
-}
+
+}//end radio_button()
+
 
 /**
 * Prints a check box
@@ -156,6 +189,9 @@ function radio_button($name, $value='1', $checked=false, $on_click='', $extras='
 * @param bool	$checked	whether the button is checked by default or not
 * @param string	$on_click	any JS that should be executed when the submit button is pressed
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+*
+* @return void
+* @access public
 */
 function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 {
@@ -167,7 +203,8 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 			(($checked) ? 'checked ' : ''),
 			$extras,
 			' />';
-}
+
+}//end check_box()
 
 
 /**
@@ -184,6 +221,9 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
 * @param int	$max		the maximum number of characters displayed for any option, 
 *							anything over gets truncated with '...' appended
+*
+* @return void
+* @access public
 */
 function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras='', $maxlength=0)
 {
@@ -232,6 +272,8 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 * @param string	$show_current_colour	show a box with the current displayed
 * @param int	$show_change_colour		show a tick or cross to indicate if the colour has changed
 *
+* @return void
+* @access public
 */
 function colour_box($name, $default='000000', $allow_blanks=false, $button_text='*', $show_text_box=true, $show_current_colour=true, $show_change_colour=true) {
 
@@ -349,6 +391,9 @@ function time_box($hours_name, $hours, $mins_name, $mins, $extras='')
 * Returns a file upload box
 * @param string	$name		the form name to use for the file upload box
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+*
+* @return void
+* @access public
 */
 function file_upload($name, $extras='')
 {
@@ -363,7 +408,10 @@ function file_upload($name, $extras='')
 *
 * @param string	$name		the form name from the file upload box
 *
-* @return FALSE on error, blank array on no file upload and the $_FILES[$name] if a file was uploaded succefully
+* @return FALSE on error, blank array on no file upload and the $_FILES[$name] if a file was uploaded successfully
+*
+* @return void
+* @access public
 */
 function get_file_upload_info($name)
 {
@@ -416,6 +464,9 @@ function get_file_upload_info($name)
 * @param Array	$extensions		if not empty, the only extensions that are not allowed to be uploaded
 *
 * @return FALSE on error, blank string on no file upload and the filename (basename) if a file was uploaded
+*
+* @return void
+* @access public
 */
 function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restrict_exts=true, $extensions=Array())
 {
@@ -515,6 +566,11 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 * @param int	$assetid		current value for this field
 * @param array	$type_codes		Array('[type_code]' => '[flag]') 
 *								where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
+* @param string	$top_obj		a reference to the top window so we can find the sidenav
+* @param string	$done_fn		a function to call when the asset finder is finished
+*
+* @return void
+* @access public
 */
 function asset_finder($name, $assetid=0, $type_codes=Array(), $top_obj='top', $done_fn='null')
 {
@@ -637,6 +693,9 @@ function validate_security_key()
 * @param int	$assetid		current value for this field
 * @param array	$type_codes		Array('[type_code]' => '[flag]')
 *								where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
+*
+* @return void
+* @access public
 */
 function var_to_hidden_field($var, $name='')
 {
@@ -647,6 +706,7 @@ function var_to_hidden_field($var, $name='')
 	} else {
 		if($name) hidden_field($name, $var);
 	}
+
 }// end var_to_hidden_field()
 
 

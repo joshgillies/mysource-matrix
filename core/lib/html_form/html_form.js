@@ -5,9 +5,9 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-* $Revision: 1.15 $
+* $Revision: 1.16 $
 * $Author: gsherwood $
-* $Date: 2003/06/20 07:01:57 $
+* $Date: 2003/07/22 23:22:53 $
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
@@ -432,6 +432,8 @@ function check_date(date_name, show_time)
 * @param string	$name			the name of the hidden field
 * @param string	$safe_name		the name prefix for all the other form elements associated with the 
 * @param string	$type_codes_xml	xml containing type codes that we want to find
+* @param string	$top_obj		a reference to the top window so we can find the sidenav
+* @param string	$done_fn		a function to call when the asset finder is finished
 *
 * @access public
 */
@@ -471,6 +473,7 @@ function asset_finder_change_btn_press(name, safe_name, type_codes_xml, top_obj,
 
 }// end asset_finder_change_btn_press()
 
+
 /**
 * Call-back fns that stops the asset finder 
 *
@@ -495,6 +498,7 @@ function asset_finder_done(assetid, label)
 
 }// end asset_finder_done()
 
+
 /**
 * Activated by the pressing of the "Clear" button
 *
@@ -509,6 +513,7 @@ function asset_finder_clear_btn_press(name, safe_name)
 	set_text_field(safe_name + '_label', '');
 
 }// end asset_finder_clear_btn_press()
+
 
 /**
 * Activated by the pressing of the "Reset" button
