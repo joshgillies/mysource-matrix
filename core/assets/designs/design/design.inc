@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.74 2004/11/18 05:05:08 gsherwood Exp $
+* $Id: design.inc,v 1.75 2004/11/22 21:56:30 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -529,6 +529,24 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			break;
 			
 			case 'html_footer' :
+			break;
+
+			case 'site_link' :
+				if (!empty($args['full_url']) && in_array($args['full_url'], Array('yes', 'true', '1'))) {
+					$res_exp = '$ASSET_LINEAGE[0][\'protocol\'].\'://\'.$ASSET_LINEAGE[0][\'url\']';
+				} else {
+					$res_exp = 'substr($ASSET_LINEAGE[0][\'url\'], strpos($ASSET_LINEAGE[0][\'url\'], \'/\'))';
+				}
+				
+				$aqs = (!empty($args['append_query_string']) && in_array($args['append_query_string'], Array('yes', 'true', '1')));
+				$sqs = (!empty($args['start_query_string']) && in_array($args['start_query_string'], Array('yes', 'true', '1')));
+
+				if ($aqs) $res_exp .= '.((!empty($_SERVER[\'QUERY_STRING\'])) ? \'?\'.$_SERVER[\'QUERY_STRING\'] : \'\')';
+				if ($sqs) {
+					if (!$aqs) $res_exp .= '.\'?\'';
+					else $res_exp .= '.((!empty($_SERVER[\'QUERY_STRING\'])) ? \'&\' : \'?\');';
+				}
+				echo '<', '?php echo '.$res_exp.'; ?', '>';
 			break;
 
 			case 'site_name' :
