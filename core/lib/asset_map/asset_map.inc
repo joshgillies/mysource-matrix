@@ -158,15 +158,17 @@ class Asset_Map
 
 		//-->
 		</script>
-		<object id="asset_map" width="100%" height="100%" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0">
+<?php /*		<object id="asset_map" width="100%" height="100%" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0">
 			 <param name="movie"   value="<?php echo sq_web_path('lib'); ?>/asset_map/flash/asset_map.swf">
 			 <param name="quality" value="high">
 			 <param name="scale"   value="noscale">
 			 <param name="salign"  value="lt">
 			 <param name="bgcolor" value="#ffffff">
 			 <param name="FlashVars" value="<?php echo $flash_vars; ?>">
+*/
+?>
 			 <embed src="<?php echo sq_web_path('lib'); ?>/asset_map/flash/asset_map.swf" FlashVars="<?php echo $flash_vars; ?>" id="asset_map" name="asset_map" quality="high" scale="noscale" salign="lt" bgcolor="#ffffff" width="100%" height="100%" swliveconnect="true" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed>
-		</object>
+<? //		</object>?>
 		<?php
 	}//end paint()
 
