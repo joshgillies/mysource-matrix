@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.8.2.1 2004/02/18 12:58:34 brobertson Exp $
+* $Id: search_page_edit_fns.inc,v 1.8.2.2 2004/02/21 12:43:54 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.8.2.1 $ - 1.0
+* @version $Revision: 1.8.2.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -393,6 +393,89 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
+	* Paints the interface for selecting search field styles
+	*
+	* @param object Search_Page			&$asset	the search page asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return void
+	* @access public
+	* 
+	*/
+	function paintStyles(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$search_styles = $asset->attr('search_styles'); // current settings with attr names
+		$fields = $asset->attr('fields');
+
+		foreach ($fields as $field) {
+		  if ($field['type'] == 'asset_attrib') {
+
+			// [0] - name, [1] - type, [2] - id
+			$attr_parts = explode("__", $field['params']['type_attr']);
+			require_once SQ_ATTRIBUTES_PATH.'/'.$attr_parts[1].'/'.$attr_parts[1].'.inc';
+			$attr_class = 'Asset_Attribute_'.$attr_parts[1]; // attr name
+			$attribute = new $attr_class($attr_parts[2], null); // attr id
+
+			if (!empty($search_styles) && isset($search_styles[$attribute->name])) {
+				$attribute->_edit_params = $search_styles[$attribute->name];
+			}
+
+			$attribute->paintEditParams($prefix, $write_access);
+		  }
+		}
+
+		return true;
+
+	}//end paintStyles
+
+
+	/**
+	* Processes the interface for changing search page field styles
+	*
+	* @param object Search_Page			&$asset	the search page asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @return boolean
+	* @access public
+	* 
+	*/
+	function processStyles(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		//if (!$asset->writeAccess('attributes')) return false;
+
+		$search_styles = Array(); // assembling the new styles array
+
+		$fields = $asset->attr('fields');
+
+		foreach ($fields as $fieldname => $field) {
+		  if ($field['type'] == 'asset_attrib') {
+
+			// [0] - name, [1] - type, [2] - id
+			$attr_parts = explode("__", $field['params']['type_attr']);
+			require_once SQ_ATTRIBUTES_PATH.'/'.$attr_parts[1].'/'.$attr_parts[1].'.inc';
+			$attr_class = 'Asset_Attribute_'.$attr_parts[1]; // attr name
+			$attribute = new $attr_class($attr_parts[2], null); // attr id
+			
+			// processing attrs
+			$result = $attribute->processEditParams($prefix);
+
+			// add result to the array which will be saved as $search_styles
+			$search_styles = array_merge($search_styles, $result);
+		  }
+		}
+
+		$asset->setAttrValue('search_styles', $search_styles);
+
+		return true;
+
+	}//end processTypes()
+
+
+	/**
 	* Paints the interface for the fields' parameters.
 	*
 	* @param object Search_Page			&$asset			the search page asset
@@ -463,14 +546,17 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					// not printing the combo box unless there is something to show
 					if ($search_type != '') {
 
-						$type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('name', 'type'));
+					$type_attrs = & $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attributeid', 'name', 'type'));
 
 						echo " <b>Attr:</b> ";
 						$typeAttrs = Array();
 						$typeAttrs[''] = "- attribute -";
-						foreach ($type_attrs as $attr_name => $attr_type) {
+						foreach ($type_attrs as $attr_id => $attr_params) {
 							// we could use $attr_type to check if it's wanted here
-							$typeAttrs[$attr_name] = $attr_name;
+							$attr_name = $attr_params['name'];
+							$attr_type = $attr_params['type'];
+							$attr_ind = $attr_name . "__" . $attr_type . "__" . $attr_id;
+							$typeAttrs[$attr_ind] = $attr_name;
 						}
 
 						combo_box($fieldPrefix.'[params][type_attr]', $typeAttrs, false, $selected_attr); 

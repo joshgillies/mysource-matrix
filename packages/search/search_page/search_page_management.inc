@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.6.2.1 2004/02/18 12:58:34 brobertson Exp $
+* $Id: search_page_management.inc,v 1.6.2.2 2004/02/21 12:43:54 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,6 +75,12 @@ class Search_Page_Management extends Asset_Management
 				'type'			=> 'serialise',
 				'default'		=> array(),
 				'description'	=> 'Searchable asset types',
+			),
+			'search_styles' => Array(
+				'added'			=> '0.1',
+				'type'			=> 'serialise',
+				'default'		=> array(),
+				'description'	=> 'Styles of the search fields',
 			),
 			'logic' => Array(
 				'added'			=> '0.1',
