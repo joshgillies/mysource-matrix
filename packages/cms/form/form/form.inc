@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.31 2004/05/12 06:54:10 lwright Exp $
+* $Id: form.inc,v 1.32 2004/05/17 05:12:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -937,6 +937,66 @@ class Form extends Bridge
 
 
 	/**
+	* returns an answer summary in XML format (suitable for submission logs)
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getXML()
+	{
+		ob_start();
+		echo '<submission time="'.str_replace(' ','T',ts_iso8601(time())).'"';
+		if (!is_null($cur_user =& $GLOBALS['SQ_SYSTEM']->user)) {
+			echo ' user="'.$cur_user->id.'"';
+		}
+		echo '>';
+
+		// unattached questions first
+		$sort_order = $this->attr('sort_order');
+
+		foreach($sort_order as $sort_order_index => $assetid) {
+			
+			// check to see whether this belongs to us (if it isn't then perhaps a section took care)
+			if ($this->id == strtok($assetid, ':')) {
+				$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				echo $question->getXML($this->active_submission[$assetid]);
+			}
+
+		}
+
+		// now sections
+		$sections = &$this->getSections();
+		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
+			$section =& $sections[$k];
+			echo '<section id="'.$section->id.'" name="'.$section->attr('name').'">';
+		
+			$sort_order = $section->attr('sort_order');
+
+			foreach($sort_order as $sort_order_index => $assetid) {
+			
+				// check to see whether this belongs to the section
+				if ($section->id == strtok($assetid, ':')) {
+					$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+					echo $question->getXML($this->active_submission[$assetid]);
+				}
+
+			}
+
+			echo '</section>';
+
+		}
+
+		echo '</submission>';
+
+		$contents = ob_get_contents();
+		ob_end_clean();
+
+		return $contents;
+	
+	}//end printXML()
+	
+	
+	/**
 	* returns a summary about the answers in the form submission
 	*
 	* @param boolean	$html	return html formatted or not 
@@ -1119,6 +1179,52 @@ class Form extends Bridge
 	}//end generateJSCode()
 	
 
+	/**
+	* logs submission to XML
+	*
+	* @access public
+	* @return boolean
+	*/
+	function logSubmission($log_id = null)
+	{
+		if (!$this->attr('log')) return false;
+
+		$contents = $this->getXML();
+
+		$submission_date = substr(ts_iso8601(time()),0,10);
+
+		$log_path = $this->data_path.'/submission_logs';		// log path
+
+		if (!is_dir($log_path)) {
+			mkdir($log_path);
+		}
+
+
+		$filename_base = $log_path.'/log_';
+
+		// if log id is set - only take it if the submission already exists
+		if (!is_null($log_id)) {
+			$filename = $filename_base.$log_id.'.xml';
+			if (!file_exists($filename)) {	// file doesn't exist, we need a fresh ID
+				$log_id = null;
+			}
+		}
+
+		// run this always (instead of an 'else') because it may have been nulled out by prev block
+		if (is_null($log_id)) {
+			for($i=1;;$i++) {		// loop through possible files (to be replaced by attribute?)
+			$filename = $filename_base.$i.'.xml';
+				if (!file_exists($filename)) {	// file doesn't exist, sweet
+					break;
+				}
+			}
+		}
+
+		return string_to_file($contents, $filename);
+
+	}//end logSubmission()
+	
+	
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.11 2004/05/12 06:38:33 lwright Exp $
+* $Id: form_email_management.inc,v 1.12 2004/05/17 05:12:34 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -156,7 +156,15 @@ class Form_Email_Management extends Asset_Management
 													'type'		=> 'serialise',
 													'default'	=> Array(),
 													'update_fn' => '',
-									),
+											),
+
+								/// Submission Logging ///
+
+							'log'					=> Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'boolean',
+													'default'	=> false,
+											),
 							);
 	}//end constructor
 

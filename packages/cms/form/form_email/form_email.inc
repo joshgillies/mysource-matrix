@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.12 2004/05/05 06:55:15 lwright Exp $
+* $Id: form_email.inc,v 1.13 2004/05/17 05:12:34 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once  dirname(__FILE__).'/../form/form.inc';
 require_once SQ_FUDGE_PATH .'/general/www.inc';
+require_once SQ_FUDGE_PATH .'/general/file_system.inc';
 
 /**
 * Form_Email
@@ -104,6 +105,7 @@ class Form_Email extends Form
 	{
 		parent::finishForm();
 		$this->mailRecipients();
+		$this->logSubmission();
 		//$this->mailReceipt();
 		//$this->SendToFriends();
 
@@ -167,7 +169,7 @@ class Form_Email extends Form
 
 	}//end mailReceipt()
 
-
+	
 	/**
 	* sends mail to recipients set in the backend
 	* 
