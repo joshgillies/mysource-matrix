@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.4 2004/07/28 23:47:03 tbarrett Exp $
+* $Id: calendar_event_modification.inc,v 1.5 2004/07/29 03:10:31 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -64,15 +64,6 @@ class Calendar_Event_Modification extends Calendar_Event
 	* </ul>
 	*
 	* @param Array	&$link	information used to create the initial link<br/>
-	* <PRE>
-	* Array ('asset'      => [ref major asset to create link under],
-	*        'link_type'  => SQ_LINK_?,
-	*        'value'      => [link value],
-	*        'sort_order' => [link sort order],
-	*        'dependant'  => [0|1],
-	*        'exclusive'  => [0|1]
-	*        )
-	* </PRE>
 	*
 	* @return mixed int or false
 	* @access public
@@ -81,16 +72,63 @@ class Calendar_Event_Modification extends Calendar_Event
 	{
 		$parent = &$link['asset'];
 		if ($parent->type() != 'calendar_event_recurring') {
-			trigger_error('Recurring Event Modifications can only be created underneath recurring events', E_USER_ERROR);
+			trigger_error('Recurring Event Cancellations can only be created underneath recurring events', E_USER_ERROR);
 			return false;
 		}
-		//$_tmp;
-		if (!$parent->hasOccurrenceOnDate($this->getStartDate())) {
-			trigger_error('The event specified does not occur on the date specified', E_USER_ERROR);
-			return false;
-		}
+		if (!$this->synchronizeWithParent($parent)) return false;
 		return parent::create($link);
 	}
+
+
+	/**
+	* Returns name of the asset
+	*
+	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	*
+	* @see Asset::_getName()
+	* @return string
+	* @access protected
+	*/
+	function _getName($short_name=false)
+	{
+		return $short_name ? $this->attr('short_name') : $this->attr('name');
+	
+	}//end _getName()
+
+
+	/**
+	* Check the parent has an instance on the specified date and set our end time, end date, end time and name based on the parent
+	*
+	* @param Object calendar_event_recurring	&$parent	The recurring event that we belong to
+	* 
+	* @return boolean	Whether or not the synchronisation was successful
+	* @see Calendar_Event_Modification::create(), Calendar_Event_Modification::saveAttributes()
+	*/	
+	function synchronizeWithParent(&$parent) 
+	{
+		// check that it has an occurrence on the date specified
+		if (!$parent->hasOccurrenceOnDate($this->getStartDate())) {
+			trigger_error('There is no occurrence of the specified recurring event on the specified date', E_USER_ERROR);
+			return false;
+		}
+
+		// update our start time, end date and end time to correspond with the parent
+		$sd = $this->getStartDate();
+		$st = $parent->getStartTime();
+		if ($st) {
+			$this->setAttrValue('start_date', $sd . ' ' . $st);
+		}
+		if ($duration = $parent->getDuration()) {
+			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($this->attr('start_date')) + $duration) . substr($parent->attr('end_date'), 10));
+		}
+
+		// set our name based on the parent
+		$this->setAttrValue('name', $parent->attr('name') . ' - Modified ' . date('d M Y', iso8601_ts($this->attr('start_date'))));
+		$this->setAttrValue('short_name', 'Modified ' . date('d M Y', iso8601_ts($this->attr('start_date'))));
+
+		return true;
+
+	}//end synchronizeWithParent()
 
 
 	/**
@@ -105,34 +143,26 @@ class Calendar_Event_Modification extends Calendar_Event
 	*/
 	function saveAttributes($dont_run_updated=false)
 	{
-		if (!parent::saveAttributes($dont_run_updated)) return false;
-		if ($this->id && !$dont_run_updated) {
+		if ($this->id) {
+
+			if (!$dont_run_updated) {
 	
-			// check that the date given matches the date of an instance of the modified event
-			$recurring_event_ids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false);
-			if (empty($recurring_event_ids)) {
-				trigger_error('Recurring Event Modifications can only be created underneath recurring events', E_USER_ERROR);
-				return false;
-			}
-				
-			$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
-			$sd = $this->getStartDate();
-			$st = $recurring_event->getStartTime();
-			if ($recurring_event->hasOccurrenceOnDate($this->getStartDate())) {
-				if ($st) {
-					$this->attr('start_date', $sd . ' ' . $st);
+				// get the parent recurring event asset
+				$recurring_event_ids = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'calendar_event_recurring', false);
+				if (empty($recurring_event_ids)) {
+					trigger_error('Recurring Event Modifications can only be created underneath recurring events', E_USER_ERROR);
+					return false;
 				}
-				if ($duration = $recurring_event->getDuration()) {
-					$this->setAttrValue('end_date', date('Y-m-d', strtotime($recurring_event->attr('start_date')) + $duration) . substr($recurring_event->attr('end_date'), 10));
-				}
-			} else {
-				trigger_error('There is no occurrence of the specified recurring event on the specified date', E_USER_ERROR);
-				return false;
+				$recurring_event = &$GLOBALS['SQ_SYSTEM']->am->getAsset($recurring_event_ids[0]);
+
+				if (!$this->synchronizeWithParent($recurring_event)) return false;
 			}
 		}
-		return true;
+		return parent::saveAttributes($dont_run_updated);
+
 
 	}//end saveAttributes()
+
 
 
 }//end class
