@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.46 2005/03/24 05:05:14 arailean Exp $
+* $Id: cron_manager.inc,v 1.47 2005/03/29 01:53:50 arailean Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -115,11 +115,11 @@ class Cron_Manager extends Asset
 	function _getAllowedLinks()
 	{
 		return Array(
-					 SQ_LINK_TYPE_1 => Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
-					 SQ_LINK_TYPE_2 => Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
-					 SQ_LINK_TYPE_3 => Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
-					 SQ_LINK_NOTICE => Array(),
-					 );
+				SQ_LINK_TYPE_1	=> Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
+				SQ_LINK_TYPE_2	=> Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
+				SQ_LINK_TYPE_3	=> Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
+				SQ_LINK_NOTICE	=> Array(),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -682,54 +682,39 @@ class Cron_Manager extends Asset
 
 		$build_up = Array();
 
-		$build_up['hour'] = Array(
-								  'bridge' => '(COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%59').' OR
-											   (COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%C%00').' AND '.$db->quote('%D%'.$end_f['minutes']),
-								  'all'    => '(COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%'.$end_f['minutes']),
-								  );
+		$build_up['hour']['bridge'] = '(COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%59').' OR (COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%C%00').' AND '.$db->quote('%D%'.$end_f['minutes']);
+		$build_up['hour']['all'] = '(COALESCE(av.custom_val, at.default_val)) BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%'.$end_f['minutes']);
 
+		$build_up['day']['bridge'] = str_replace(Array('%A%', '%B%', '%C%', '%D%'), Array('%A%'.$start_f['hours'].':', '%B%23:', '%C%00:', '%D%'.$end_f['hours'].':'), $build_up['hour']['bridge']);
+		$build_up['day']['all'] = str_replace(Array('%A%', '%B%'), Array('%A%'.$start_f['hours'].':', '%B%'.$end_f['hours'].':'), $build_up['hour']['all']);
 
-		$build_up['day'] = Array(
-								 'bridge' => str_replace(Array('%A%', '%B%', '%C%', '%D%'),
-														 Array('%A%'.$start_f['hours'].':', '%B%23:', '%C%00:', '%D%'.$end_f['hours'].':'),
-														 $build_up['hour']['bridge']),
-								 'all'    => str_replace(Array('%A%', '%B%'),
-														 Array('%A%'.$start_f['hours'].':', '%B%'.$end_f['hours'].':'),
-														 $build_up['hour']['all']),
-								 );
+		$build_up['week']['bridge'] = str_replace(Array('%A%', '%B%', '%C%', '%D%'),
+												  Array('%A%'.$start_f['wday'].' ', '%B%6 ', '%C%0 ', '%D%'.$end_f['wday'].' '),
+												  $build_up['day']['bridge']);
 
-		$build_up['week'] = Array(
-			'bridge' => str_replace(Array('%A%', '%B%', '%C%', '%D%'),
-									Array('%A%'.$start_f['wday'].' ', '%B%6 ', '%C%0 ', '%D%'.$end_f['wday'].' '),
-									$build_up['day']['bridge']),
-			'all'    => str_replace(Array('%A%', '%B%'),
-									Array('%A%'.$start_f['wday'].' ', '%B%'.$end_f['wday'].' '),
-									$build_up['day']['all']),
-		);
+		$build_up['week']['all'] = str_replace(Array('%A%', '%B%'),
+											   Array('%A%'.$start_f['wday'].' ', '%B%'.$end_f['wday'].' '),
+											   $build_up['day']['all']);
 
-		$build_up['month'] = Array(
-			'bridge' => str_replace(Array('%A%', '%B%', '%C%', '%D%'),
-									Array('%A%'.$start_f['mday'].' ', '%B%'.days_in_month($start['mon'], $start['year']).' ', '%C%00 ', '%D%'.$end_f['mday'].' '),
-									$build_up['day']['bridge']),
-			'all'    => str_replace(Array('%A%', '%B%'),
-									Array('%A%'.$start_f['mday'].' ', '%B%'.$end_f['mday'].' '),
-									$build_up['day']['all']),
-		);
+		$build_up['month']['bridge'] = str_replace(Array('%A%', '%B%', '%C%', '%D%'),
+												   Array('%A%'.$start_f['mday'].' ', '%B%'.days_in_month($start['mon'], $start['year']).' ', '%C%00 ', '%D%'.$end_f['mday'].' '),
+												   $build_up['day']['bridge']);
 
-		$build_up['year'] = Array(
-			'bridge' => str_replace(Array('%A%', '%B%', '%C%', '%D%'),
-									Array('%A%'.$start_f['mon'].'-', '%B%12-', '%C%00-', '%D%'.$end_f['mon'].'-'),
-									$build_up['month']['bridge']),
-			'all'    => str_replace(Array('%A%', '%B%'),
-									Array('%A%'.$start_f['mon'].'-', '%B%'.$end_f['mon'].'-'),
-									$build_up['month']['all']),
-		);
+		$build_up['month']['all'] = str_replace(Array('%A%', '%B%'),
+												Array('%A%'.$start_f['mday'].' ', '%B%'.$end_f['mday'].' '),
+												$build_up['day']['all']);
 
-		$build_up['one_off'] = Array(
-			'all'    => str_replace(Array('%A%', '%B%'),
-									Array('%A%'.$start_f['year'].'-', '%B%'.$end_f['year'].'-'),
-									$build_up['year']['all']),
-		);
+		$build_up['year']['bridge'] = str_replace(Array('%A%', '%B%', '%C%', '%D%'),
+												  Array('%A%'.$start_f['mon'].'-', '%B%12-', '%C%00-', '%D%'.$end_f['mon'].'-'),
+												  $build_up['month']['bridge']);
+
+		$build_up['year']['all'] = str_replace(Array('%A%', '%B%'),
+											   Array('%A%'.$start_f['mon'].'-', '%B%'.$end_f['mon'].'-'),
+											   $build_up['month']['all']);
+
+		$build_up['one_off']['all'] = str_replace(Array('%A%', '%B%'),
+												  Array('%A%'.$start_f['year'].'-', '%B%'.$end_f['year'].'-'),
+												  $build_up['year']['all']);
 
 		$type = 'all';
 
@@ -844,8 +829,8 @@ class Cron_Manager extends Asset
 		if (error_reporting() || $terminate) {
 
 			// Strip out the file path begining
-			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_file);
-			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_msg);
+			$err_file = hide_system_root($err_file);
+			$err_msg  = hide_system_root($err_msg);
 
 			$err_name = get_error_name($err_no);
 

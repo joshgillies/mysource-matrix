@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.62 2005/03/24 05:05:14 arailean Exp $
+* $Id: hipo_job.inc,v 1.63 2005/03/29 01:53:51 arailean Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 * Highly Intensive Processing Object (HIPO)
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -87,27 +87,27 @@ class HIPO_Job extends MySource_Object
 	* @var array()
 	*/
 	var $_hipo_vars = Array(
-							'current_step'    => 0,
-							'percent_done'    => 0,
-							'initialise_mode' => '',      // the mode that this job was initialised() in,
+						'current_step'		=> 0,
+						'percent_done'		=> 0,
+						'initialise_mode'	=> '',      // the mode that this job was initialised() in,
 															// used to decide what to do when we are completed
-							'running_mode'    => '',      // the mode that is currently doing the processing
-							'aborted'         => false,   // whether we have been aborted or not
-							'server_taskid'   => '',      // id the HIPO server gave the task when it went
+						'running_mode'		=> '',      // the mode that is currently doing the processing
+						'aborted'			=> false,   // whether we have been aborted or not
+						'server_taskid'		=> '',      // id the HIPO server gave the task when it went
 															// into running_mode='server'
-							'message'         => '',
-							'job_dir'         => '',      // the directory where the jobs include file is located
-							'errors'          => Array(),
-							);
+						'message'			=> '',
+						'job_dir'			=> '',      // the directory where the jobs include file is located
+						'errors'			=> Array(),
+					  );
 
 	/**
 	* Some global options that affect how the HIPO does things
 	* @var array()
 	*/
 	var $_options = Array(
-						  'on_complete_url' => '',
-						  'auto_complete'   => true,
-						  );
+						'on_complete_url'	=> '',
+						'auto_complete'		=> true,
+					);
 
 	/**
 	* Array that stores any running variables that any of the processing functions use
@@ -333,10 +333,10 @@ class HIPO_Job extends MySource_Object
 	{
 		$error = trim($error);
 		if (!empty($error)) $this->_hipo_vars['errors'][] = Array(
-																  'time'    => time(),
-																  'message' => $error,
-																  'warning' => $warning,
-																  );
+																'time'		=> time(),
+																'message'	=> $error,
+																'warning'	=> $warning,
+															);
 
 	}//end _addError()
 
@@ -988,10 +988,10 @@ class HIPO_Job extends MySource_Object
 					require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
 
 					$data = Array(
-								  'command'          => 'start',
-								  'userid'           => $GLOBALS['SQ_SYSTEM']->currentUserId(),
-								  'source_code_name' => $this->source_code_name,
-								  );
+								'command'			=> 'start',
+								'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+								'source_code_name'	=> $this->source_code_name,
+							);
 
 					$ret_val = false;
 					$client = new Squiz_Server_Client_MySource3();
@@ -1230,11 +1230,11 @@ class HIPO_Job extends MySource_Object
 			require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_client_mysource3.inc';
 
 			$data = Array(
-						  'command'          => 'abort',
-						  'userid'           => $GLOBALS['SQ_SYSTEM']->currentUserId(),
-						  'source_code_name' => $this->source_code_name,
-						  'taskid'           => $this->_hipo_vars['server_taskid'],
-						  );
+						'command'			=> 'abort',
+						'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+						'source_code_name'	=> $this->source_code_name,
+						'taskid'			=> $this->_hipo_vars['server_taskid'],
+					);
 
 			$ret_val = false;
 			$client = new Squiz_Server_Client_MySource3();
@@ -1442,8 +1442,8 @@ class HIPO_Job extends MySource_Object
 		if (error_reporting() || $terminate) {
 
 			// Strip out the file path begining
-			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_file);
-			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_msg);
+			$err_file = hide_system_root($err_file);
+			$err_msg  = hide_system_root($err_msg);
 
 			$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 
@@ -1456,7 +1456,6 @@ class HIPO_Job extends MySource_Object
 			if (SQ_CONF_DEBUG & 1) {
 				$text_msg .= ' ('.$err_file.':'.$err_line.')';
 			}
-			$msg = str_replace(SQ_CONF_ROOT_IDENTIFIER, '', $msg);
 			$this->_addError($msg, !$terminate);
 
 		}//end error_reporting

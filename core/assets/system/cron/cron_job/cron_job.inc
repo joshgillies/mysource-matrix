@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.27 2005/03/24 05:08:55 arailean Exp $
+* $Id: cron_job.inc,v 1.28 2005/03/29 01:53:50 arailean Exp $
 *
 */
 
@@ -40,7 +40,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -94,11 +94,11 @@ class Cron_Job extends Asset
 	function _getAllowedLinks()
 	{
 		return Array(
-					 SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array('user' => Array('card' => 1)),
-					 );
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array('user' => Array('card' => 1)),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -640,8 +640,8 @@ class Cron_Job extends Asset
 		if (error_reporting() || $terminate) {
 
 			// Strip out the file path begining
-			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_file);
-			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_msg);
+			$err_file = hide_system_root($err_file);
+			$err_msg  = hide_system_root($err_msg);
 
 			$err_name = get_error_name($err_no);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.50 2005/03/24 05:05:15 arailean Exp $
+* $Id: page_asset_builder.inc,v 1.51 2005/03/29 01:53:52 arailean Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.50 $
+* @version $Revision: 1.51 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -68,23 +68,23 @@ class Page_Asset_Builder extends Page
 	* @var array(keyword => name)
 	*/
 	var $_available_keywords = Array(
-									 'login_invite'  => 'Login Invite',
-									 'login_form'    => 'Login Form',
-									 'login_error'   => 'Login Error Message',
-									 'create_invite' => 'Create Asset Invite',
-									 'create_form'   => 'Create Asset Form',
-									 'create_error'  => 'Create Asset Error Message',
-									 );
+								'login_invite'	=> 'Login Invite',
+								'login_form'	=> 'Login Form',
+								'login_error'	=> 'Login Error Message',
+								'create_invite'	=> 'Create Asset Invite',
+								'create_form'	=> 'Create Asset Form',
+								'create_error'	=> 'Create Asset Error Message',
+							   );
 
 	/**
 	* An array of bodycopies that need to be created
 	* @var Array()
 	*/
 	var $_bodycopies = Array(
-							 'Not Logged In' => 'not_logged_in',
-							 'Created'       => 'created',
-							 'Logged In'     => 'logged_in',
-							 );
+						'Not Logged In'	=> 'not_logged_in',
+						'Created'		=> 'created',
+						'Logged In'		=> 'logged_in',
+					   );
 
 	/**
 	* The default state the system should be in if the user is logged in
@@ -382,11 +382,11 @@ class Page_Asset_Builder extends Page
 
 					// start the transaction to create the asset
 					$link = Array(
-								  'asset'      => &$parent,
-								  'link_type'  => $create_locations[$create_parentid],
-								  'value'      => '',
-								  'sort_order' => -1,
-								  );
+								'asset'			=> &$parent,
+								'link_type'		=> $create_locations[$create_parentid],
+								'value'			=> '',
+								'sort_order'	=> -1,
+							);
 
 					$this->_modifyCreateLink($link);
 
@@ -966,8 +966,8 @@ class Page_Asset_Builder extends Page
 		if (error_reporting() || $terminate) {
 
 			// Strip out the file path begining
-			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_file);
-			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_msg);
+			$err_file = hide_system_root($err_file);
+			$err_msg  = hide_system_root($err_msg);
 
 			$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
 
