@@ -13,6 +13,9 @@ require_once SQ_INCLUDE_PATH.'/config.inc';
 define('SQ_CONF_DB_DSN', 'pgsql://brobertson@unix+localhost/blair_resolve');
 define('SQ_CONF_SYSTEM_ROOT_URLS', 'http://beta.squiz.net/blair');
 define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
+define('SQ_CONF_ASSET_TREE_BASE', 64);
+define('SQ_CONF_ASSET_TREE_SIZE', 4);
+
 
 // Need to chmod cache and data directories
 
