@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.50 2004/09/05 23:21:22 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.51 2004/09/06 23:14:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.50 $ - 1.0
+* @version $Revision: 1.51 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1090,7 +1090,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// Get our recurring events
 		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
-		$sql = $this->_buildRecurringEventQuery(&$trees, 'year', $year)."\n AND (".$date_sql.")\n AND (".implode(' OR ', $tree_clauses).')';	
+		$sql = $this->_buildRecurringEventQuery($trees, 'year', $year)."\n AND (".$date_sql.")\n AND (".implode(' OR ', $tree_clauses).')';	
 		$recurring_events = $db->getAssoc($sql);
 		assert_valid_db_result($recurring_events);
 
@@ -1238,7 +1238,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		// Get our recurring events
 		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
-		$sql = $this->_buildRecurringEventQuery(&$trees, 'month', "$year-$month")."\n AND (".implode(' OR ', $tree_clauses).')';	
+		$sql = $this->_buildRecurringEventQuery($trees, 'month', "$year-$month")."\n AND (".implode(' OR ', $tree_clauses).')';	
 		$recurring_events = $db->getAssoc($sql);
 		//bam("Recurring SQL: $sql");
 		assert_valid_db_result($recurring_events);
