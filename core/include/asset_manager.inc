@@ -775,11 +775,12 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @param string		$protocol	the protocol to match -> null means it is ignored
 	* @param string		$url		the urls to check for -> null defaults it to current url
+	* @param string		$name_type	the type of name to return for each asset
 	*
 	* @return Array
 	* @access public
 	*/
-	function getLineageFromURL($protocol=null, $url=null)
+	function getLineageFromURL($protocol=null, $url=null, $name_type='name')
 	{
 
 		if (is_null($url)) $url = current_url(false);
@@ -787,6 +788,7 @@ class Asset_Manager extends Resolve_Object
 		$url = strip_url($url);
 
 		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
+		if ($name_type != 'short_name') $name_type = 'name';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -805,7 +807,7 @@ class Asset_Manager extends Resolve_Object
 		}
 
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('%').')' : '(l.url || '.$db->quote('%').')';
-		$sql = 'SELECT l.url, l.assetid, a.name, a.type_code
+		$sql = 'SELECT l.url, l.assetid, a.'.$name_type.', a.type_code
 				FROM sq_asset_lookup l INNER JOIN sq_asset a ON l.assetid = a.assetid
 				'.$extra_table.'
 				WHERE l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
@@ -834,7 +836,7 @@ class Asset_Manager extends Resolve_Object
 				if (!is_null($index_page)) {
 					$result[] = Array ('url'		=> $result[0]['url'],
 										'assetid'	=> $index_page->id,
-										'name'		=> $index_page->name,
+										$name_type	=> $index_page->$name_type,
 										'type_code'	=> $index_page->type()
 									);
 				}// end if
