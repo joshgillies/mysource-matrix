@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.14 2004/03/01 17:12:19 brobertson Exp $
+* $Id: page_asset_listing.inc,v 1.15 2004/03/12 01:50:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -244,6 +244,15 @@ class Page_Asset_Listing extends Page
 
 		$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		if (is_null($format_bodycopy)) return false;
+		
+	
+		$replacements = retrieve_keywords_replacements($format_bodycopy->getRawBodycopyContent());
+		if (!in_array('asset_listing', $replacements)) {
+			// there is no asset listing keyword in the contents, so we dont
+			// need to do all the extra processing for the listing
+			$format_bodycopy->printBody();
+			return;
+		}
 
 
 		// this is the list of all type codes that we are going to show
