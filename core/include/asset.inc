@@ -1053,6 +1053,26 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Get all dependant children of an asset in the various tress in which it exists
+	*
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getDependantChildren($type_code='', $strict_type_code=true)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($this->id, $type_code, $strict_type_code);
+
+	}//end getChildren()
+
+
+	/**
 	* Increments the version number of the asset based on the part of the version passed in
 	*
 	* @param string	$number	the part of the version to update (major|minor|micro)
@@ -1577,7 +1597,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Acquires a lock on this asset and its dependant assets
+	* Acquires a lock on this asset
 	*
 	* @param int		$source		the id of the asset that started this locking process
 	* @param boolean	$force		attempt to forcibly acquire (if allowed)
@@ -1632,6 +1652,7 @@ class Asset extends Resolve_Object
 				$message->from = 0; // a system message
 
 				$ms->enqueueMessage($message);
+				$GLOBALS['SQ_SYSTEM']->am->unregisterAsset($locked_asset);
 			}
 
 			// close the queue of messages we opened, which sends all the messages in the queue
@@ -1654,19 +1675,6 @@ class Asset extends Resolve_Object
 		$expires = (is_null($expires)) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// try and acquire locks on our dependants
-		$dependant_links = $this->getLinks(SQ_SC_LINK_SIGNIFICANT, '', true, 'major', null, 1);
-		if (!empty($dependant_links)) {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-			foreach ($dependant_links as $link) {
-				$asset = &$am->getAsset($link['minorid']);
-				if (!$asset->acquireLock($source, $force, $expires)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-		}
 
 		// now try and get the lock on ourself
 		$values = Array('assetid'      => $this->id,
@@ -3293,7 +3301,7 @@ class Asset extends Resolve_Object
 				}// end if
 
 				$value_cases .= '
-								WHEN '.$db->quote($attr_id).' THEN '.$db->quote($attr_value);
+								WHEN '.$db->quote($attr_id).' THEN '.$db->quote((string)$attr_value);
 
 			}//end foreach
 
@@ -3336,7 +3344,7 @@ class Asset extends Resolve_Object
 
 				}// end if
 
-				$value_cases .= ' WHEN '.$db->quote($attr_id).' THEN '.$db->quote($attr_value);
+				$value_cases .= ' WHEN '.$db->quote($attr_id).' THEN '.$db->quote((string)$attr_value);
 			}//end foreach
 
 			$value_cases = 'CASE attributeid '.$value_cases.' END';
@@ -4207,7 +4215,7 @@ class Asset extends Resolve_Object
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
 
-		if ($this->_updateLookups()) {
+		if ($this->updateLookups()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;
 		} else {
@@ -4325,35 +4333,10 @@ class Asset extends Resolve_Object
 	* Called to force an update of this assets lookup information
 	*
 	* @return boolean
-	* @access public
+	* @access private
+	* @see saveWebPaths()
 	*/
 	function updateLookups()
-	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		if ($this->_updateLookups()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-	}// end updateLookups
-
-
-	/**
-	* Fn that does the real processing of updateLookups()
-	* This is separated to allow for the DB transaction stuff
-	* Will be called by parent assets recursively on their kids so not 'really' private
-	* and by the saveWebPaths() so that their transaction calls can wrap around it
-	*
-	* @param boolean	$cascade	update the lookups of our children as well?
-	*
-	* @return boolean
-	* @access private
-	* @see Asset::updateLookups(), Asset::saveWebPaths()
-	*/
-	function _updateLookups($cascade=true)
 	{
 		$paths = $this->getWebPaths();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -4411,23 +4394,9 @@ class Asset extends Resolve_Object
 
 		}// end if count paths
 
-		if($cascade) {
-			// recusively call the kids update
-			$kids = $this->getLinks(SQ_SC_LINK_WEB_PATHS, '', null, 'major');
-			for($i = 0; $i < count($kids); $i++) {
-				$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
-				if (is_null($kid)) continue;
-
-				if (!$kid->_updateLookups()) {
-					return false;
-				}
-
-			}// end for kids
-		}
-
 		return true;
 
-	}// end _updateLookups()
+	}// end updateLookups()
 
 
 	/**
