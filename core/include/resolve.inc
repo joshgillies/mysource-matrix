@@ -606,7 +606,6 @@ class Resolve
 	*/
 	function changeDatabaseConnection($conn)
 	{
-
 		switch($conn){
 			case 'db'  :
 				if (empty($this->_db_conns[$conn])) {
@@ -629,7 +628,7 @@ class Resolve
 				// a second connection
 				if (SQ_PHP_CLI) {
 					if (empty($this->_db_conns[$conn])) {
-						$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB_DSN);
+						$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB2_DSN);
 						if (DB::isError($this->_db_conns[$conn])) {
 							trigger_error($this->_db_conns[$conn]->getMessage(), E_USER_ERROR);
 						}
@@ -660,8 +659,15 @@ class Resolve
 	*/
 	function restoreDatabaseConnection()
 	{
-		$conn = array_pop($this->_db_stack);
-		$this->db = &$this->_db_conns[$conn];
+		array_pop($this->_db_stack);
+
+		if (empty($this->_db_stack)) {
+			unset($this->db);
+			$this->db = null;
+		} else {
+			$conn = $this->_db_stack[count($this->_db_stack) - 1];
+			$this->db = &$this->_db_conns[$conn];
+		}
 
 	}// end restoreDatabaseConnection()
 
@@ -682,6 +688,7 @@ class Resolve
 			require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
 			$this->tm = new Transaction_Manager();
 		}
+
 		switch (strtolower($type)) {
 			case 'begin'    :
 				$this->tm->begin($this->_db_stack[count($this->_db_stack) - 1]);
