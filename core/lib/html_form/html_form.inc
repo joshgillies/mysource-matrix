@@ -506,29 +506,47 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 *
 * @param string	$name			the form name to use for the field
 * @param int	$assetid		current value for this field
-* @param array	$type_codes		Array('[type_code]' => '[flag]') where flag = (A|U|I) -> Above, Under or It
+* @param array	$type_codes		Array('[type_code]' => '[flag]') where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
 */
 function asset_finder($name, $assetid=0, $type_codes=Array())
 {
 	require_once 'XML/Tree.php';
 	$xml_type_codes = new XML_Tree();
 	$root = &$xml_type_codes->addRoot('type_codes');
-	pre_echo($type_codes);
-	foreach($type_codes as $type) {
-		$root->addChild('type_code', '', Array('name' => $type));
-	}
+
+	$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+	foreach($type_codes as $type_code => $flag) {
+		$root->addChild('type_code', '', Array('name' => $type_code));
+		switch($flag) {
+			case 'A' : 
+				$ancestors = $am->getTypeAncestors($type_code);
+				foreach($ancestors as $ancestor) {
+					$root->addChild('type_code', '', Array('name' => $ancestor));
+				}
+				break;
+			case 'D' : 
+				$descendants = $am->getTypeDescendants($type_code);
+				foreach($descendants as $descendant) {
+					$root->addChild('type_code', '', Array('name' => $descendant));
+				}
+				break;
+		}// end switch
+	}// end foreach
 
 	$label = '';
 	$assetid = (int) $assetid;
 	if ($assetid) {
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		$asset = &$am->getAsset($assetid);
 		if (is_null($asset)) $assetid = 0;
 		else $label = $asset->short_name.' (Id : #'.$asset->id.')';
 	}
 
+	pre_echo($xml_type_codes->get());
+
 	hidden_field($name, $assetid);
 	$safe_name = preg_replace('/[^a-z0-9_]/i', '_', $name);
-	text_box($safe_name.'_label', $label, 30, 0, 'style="border-style: none; border-width: 0px;" onFocus="javascript: this.blur();"');
+	text_box($safe_name.'_label', $label, 30, 0, 'style="border-style: none; border-width: 0px;" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
 	normal_button($safe_name.'_btn', 'Change...', 'asset_finder_start(\''.$name.'\', \''.str_replace("\n", "\\n", addslashes($xml_type_codes->get())).'\');');
 
 }//end asset_finder()
