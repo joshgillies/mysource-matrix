@@ -2,11 +2,11 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screens.xml,v 1.5 2003/10/06 23:41:50 brobertson Exp $
+* $Id: edit_interface_screens.xml,v 1.6 2003/10/13 01:08:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <screens>
-	<screen code_name="contents" display_name="Edit Contents" icon="create" default="1" force_unlock="0" />
+	<screen code_name="contents" display_name="Edit Contents" icon="create" default="1" force_unlock="0" lock_type="content" />
 </screens>
