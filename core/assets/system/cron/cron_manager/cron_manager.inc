@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.36 2005/02/03 14:55:29 gnoel Exp $
+* $Id: cron_manager.inc,v 1.37 2005/02/03 14:57:27 gnoel Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.36 $
+* @version $Revision: 1.37 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -249,6 +249,8 @@ class Cron_Manager extends Asset
 	*
 	* @param object Cron_Job	$job		a reference to the cron job to add to add to the system
 	* @param object User		$user		a reference to the user that this job will run as
+	* @param string 			$link_type	type of the link between the cron
+	*                                       manager and the job
 	*
 	* @return boolean
 	* @access public
