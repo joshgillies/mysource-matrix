@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.17 2004/04/26 23:51:31 lwright Exp $
+* $Id: form_section.inc,v 1.18 2004/05/05 06:59:23 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,7 +83,7 @@ class Form_Section extends Bridge
 		$this->_ser_attrs = true;
 		$this->Bridge($assetid);
 
-	} // end Form_Section()
+	}//end Form_Section()
 
 
 	/**
@@ -271,7 +271,7 @@ class Form_Section extends Bridge
 	{
 		return $this->attr('questions');
 
-	} // end getQuestions()
+	}//end getQuestions()
 	
 	
 	/**
@@ -285,7 +285,7 @@ class Form_Section extends Bridge
 		$questions = $this->getQuestions();
 		return (isset($questions[$questionid])) ? $questions[$questionid] : Array();
 
-	} // end getQuestionById()
+	}//end getQuestionById()
 	
 	
 	/**
@@ -299,7 +299,7 @@ class Form_Section extends Bridge
 		$sort_order = &$this->attr('sort_order');
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
 
-	} // end getQuestionByOrder()
+	}//end getQuestionByOrder()
 	
 	
 	/**
@@ -346,7 +346,7 @@ class Form_Section extends Bridge
 
 		return true;
 
-	} // end attachQuestion()
+	}//end attachQuestion()
 	
 	
 	/**
@@ -387,7 +387,7 @@ class Form_Section extends Bridge
 
 		return true;
 
-	} // end deleteQuestion()
+	}//end deleteQuestion()
 	
 	
 	/**
@@ -415,7 +415,7 @@ class Form_Section extends Bridge
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
-	} // end create()
+	}//end create()
 
 	
 	/**
@@ -434,7 +434,7 @@ class Form_Section extends Bridge
 		}
 		return true;
 	
-	} // end _updated()
+	}//end _updated()
 
 
 	/**
@@ -471,7 +471,7 @@ class Form_Section extends Bridge
 	{
 		return Array();
 
-	} // end _getAllowedLinks()
+	}//end _getAllowedLinks()
 
 
 	/**
@@ -507,7 +507,7 @@ class Form_Section extends Bridge
 
 		return true;
 
-	} // end fileRegeneration()
+	}//end fileRegeneration()
 
 
 	/**
@@ -568,11 +568,12 @@ class Form_Section extends Bridge
 		$questions = &$this->getQuestions();
 		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$k);
+			$question->submission_errors =& $this->submission_errors;
 			$question->processForm();
 		}
 		return true;
 	
-	} // end processForm()
+	}//end processForm()
 
 
 	/**
@@ -587,7 +588,7 @@ class Form_Section extends Bridge
 	{
 		return $this->attr('name');
 
-	} // end _getName
+	}//end _getName()
 
 
 	/**
@@ -623,7 +624,33 @@ class Form_Section extends Bridge
 			break;
 
 		} // end switch
-	*/} // end getQuestionIndex()
+	*/}//end getQuestionIndex()
+
+	
+	/**
+	* writes JavaScript code for client side validation
+	* 
+	* This function assumes the skeleton of a JS validation function has been created around this code
+	* with a form variable named 'form' passed (this is done when generating the content file).
+	*
+	* @access public
+	* @return string
+	*/
+	function generateJSCode()
+	{
+		$questions = &$this->getQuestions();
+		$code = '';						// blank sheet of code to start with
+
+		foreach ($questions as $q_id => $question) {
+			$q_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$q_id);
+			$q_code = $q_asset->generateJSCode();
+			
+			$code .= $q_code . (empty($q_code) ? "" : "\n");
+		}
+
+		return $code;
+
+	}//end generateJSCode()
 
 }//end class
 ?>
