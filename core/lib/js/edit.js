@@ -17,9 +17,9 @@
 ## File: web/edit/edit.js
 ## Desc: Common Javascript functions for backend forms.
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/js/edit.js,v $
-## $Revision: 1.5 $
+## $Revision: 1.6 $
 ## $Author: gsherwood $
-## $Date: 2003/09/15 06:53:15 $
+## $Date: 2003/09/17 01:10:32 $
 #######################################################################
 */
 
@@ -75,10 +75,13 @@ function sqSubmitEditForm(noProcess) {
 }//end sqSubmitEditForm()
 
 
-function sqPrintIcon (strPath, intWidth, intHeight, strAlt) {
+// prints an icon using transparency in IE
+// ensures that PNGs have transparent background in IE and Mozilla
+function sqPrintIcon (path, width, height, alt) {
 	if (document.all) {
-		document.write ('<span style="height:'+intHeight+'px;width:'+intWidth+'px; filter:progid:DXImageTransform.Microsoft.AlphaImageLoader (src=\''+strPath+'\', sizingMethod=\'scale\')"></span>');
+		// IE cant handle transparent PNGs
+		document.write ('<span style="height:'+height+'px;width:'+width+'px; filter:progid:DXImageTransform.Microsoft.AlphaImageLoader (src=\''+path+'\', sizingMethod=\'scale\')"></span>');
 	} else {
-		document.write('<img src="'+strPath+'" width="'+intWidth+'" height="'+intHeight+'" border="0" alt="'+strAlt+'" />');
+		document.write('<img src="'+path+'" width="'+width+'" height="'+height+'" border="0" alt="'+alt+'" />');
 	}
 }
