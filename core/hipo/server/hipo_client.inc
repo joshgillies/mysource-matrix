@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_client.inc,v 1.4 2003/09/26 05:26:31 brobertson Exp $
+* $Id: hipo_client.inc,v 1.5 2003/09/29 04:29:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,8 +109,8 @@ class HIPO_Client extends HIPO_Server_Common
 	/**
 	* Read from the server
 	*
-	* @return null|object XML_Tree	if there is valid data (from the server) then an XML_Tree object 
-									will be returned, otherwise NULL will be returned
+	* @return null|Array	if there is valid data (from the server) then an Array
+								will be returned, otherwise NULL will be returned
 	* @access public
 	*/
 	function read()
@@ -129,18 +129,18 @@ class HIPO_Client extends HIPO_Server_Common
 	/**
 	* Send data to a client
 	*
-	* @param object XML_Tree	$data	the xml object to send
+	* @param mixed $data	the data that needs to be sent to the server
 	*
 	* @return boolean	indicating whether all bytes were written to the socket or not
 	* @access public
 	*/
 	function write($data)
 	{
-		require_once 'XML/Tree.php';
 
-		$wrapper_data = new XML_Tree();
-		$wrapper_root = &$wrapper_data->addRoot('hipo_comm', '', Array('systemid' => SQ_HIPO_SERVER_SYSTEMID));
-		$wrapper_root->children[0] = $data->root;
+		$wrapper_data = Array(
+							'systemid' => SQ_HIPO_SERVER_SYSTEMID,
+							'data' => $data,
+							);
 
 		// if we aren't connected, try to connect
 		if (is_null($this->_fd) && !$this->connect()) {

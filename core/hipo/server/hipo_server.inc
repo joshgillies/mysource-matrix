@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_server.inc,v 1.6 2003/09/26 05:26:31 brobertson Exp $
+* $Id: hipo_server.inc,v 1.7 2003/09/29 04:29:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,10 +91,11 @@ class HIPO_Server extends HIPO_Server_Common
 	* @param	string	$domain			domain to connect to
 	* @param	integer	$port			port to connect on
 	* @param	string	$conf_file		the config file for the server
+	* @param	string	$log_file		the log file for the server
 	*
 	* @access	public
 	*/
-	function HIPO_Server($domain, $port, $conf_file)
+	function HIPO_Server($domain, $port, $conf_file, $log_file)
 	{
 		$this->HIPO_Server_Common();
 		$this->_domain		= $domain;
@@ -102,9 +103,12 @@ class HIPO_Server extends HIPO_Server_Common
 		$this->_conf_file	= $conf_file;
 		$this->_server_pid	= posix_getpid();
 
-		// this is only needed, when server is not run in CLI
 		set_time_limit(0);
+		ini_set('display_errors', '1');
+		ini_set('log_errors', '1');
+		ini_set('error_log',  $log_file);
 
+		error_log('Server Loading -> PID : '.posix_getpid());
 		$this->_loadConf();
 
 	}// end constructor
@@ -155,7 +159,7 @@ class HIPO_Server extends HIPO_Server_Common
 	*/
 	function start()
 	{
-		if (isset($GLOBALS[__CLASS__.'_Status']) && $GLOBALS[__CLASS__.'_Status'] == 'running') {
+		if (isset($GLOBALS[__CLASS__.'_status']) && $GLOBALS[__CLASS__.'_status'] == 'running') {
 			trigger_error('Server Already Started', E_USER_WARNING);
 			return;
 		}
@@ -185,11 +189,10 @@ class HIPO_Server extends HIPO_Server_Common
 			return;
 		}
 
-		error_log('Listening on port '.$this->_port.'. Server started at '.date('H:i:s', time()));
-		error_log('PID : '.posix_getpid());
+		error_log('Server Started -> PID : '.posix_getpid().', listening on port '.$this->_port);
 
 		// this allows the shutdown function to check whether the server is already shut down
-		$GLOBALS[__CLASS__.'_Status'] = 'running';
+		$GLOBALS[__CLASS__.'_status'] = 'running';
 		// this ensures that the server will be shutdown correctly
 		#register_shutdown_function(array($this, 'shutDown'));
 
@@ -245,8 +248,8 @@ class HIPO_Server extends HIPO_Server_Common
 		// (needed because of the register_shutdown_function() call)
 		if (posix_getpid() != $this->_server_pid) return;
 
-		if (isset($GLOBALS[__CLASS__.'_Status']) && $GLOBALS[__CLASS__.'_Status'] == 'running') {
-			$GLOBALS[__CLASS__.'_Status'] = 'shutdown';
+		if (isset($GLOBALS[__CLASS__.'_status']) && $GLOBALS[__CLASS__.'_status'] == 'running') {
+			$GLOBALS[__CLASS__.'_status'] = 'shutdown';
 
 			@socket_close($this->_init_fd);
 
@@ -262,7 +265,7 @@ class HIPO_Server extends HIPO_Server_Common
 				unset($this->_tasks[$taskid]);
 			}
 
-			error_log('Server Shutdown : '.posix_getpid());
+			error_log('Server Shutdown -> PID : '.posix_getpid());
 
 		}// end if
 
@@ -330,65 +333,61 @@ class HIPO_Server extends HIPO_Server_Common
 		socket_set_option($client_fd, SOL_SOCKET, SO_REUSEADDR, 1);
 
 		$data = $this->_readFromSocket($client_fd);
-		echo "DATA : ".get_class($data)."\n";
-		if (!is_null($data) && $data->root->name == 'hipo_comm' && isset($data->root->attributes['systemid']) && isset($data->root->children[0])) {
-			if (isset($this->_systems[$data->root->attributes['systemid']])) {
-
-				// make sure they aren't trying anything tricky
-				$data->root->name = strtolower(preg_replace('/[^a-z_]/', '', $data->root->name));
-
-				switch ($data->root->children[0]->name) {
-					case 'hipo_job' :
-						$this->_processHIPOJob($client_fd, $data->root->children[0], $data->root->attributes['systemid']);
-						return;
-						break;
-
-					default :
-						trigger_error('Unknown Task : '.$data->root->children[0]->name, E_USER_NOTICE);
+		echo "DATA : ".gettype($data)."\n";
+		echo "DATA : ".print_r($data, true)."\n";
+		if (!is_null($data) && isset($data['systemid']) && !empty($data['data'])) {
+			if (isset($this->_systems[$data['systemid']])) {
+				if (!empty($data['data']['hipo_job']) && is_array($data['data']['hipo_job'])) {
+					$this->_processHIPOJob($client_fd, $data['data']['hipo_job'], $data['systemid']);
+					return;
+				} else {
+					trigger_error('Unknown Task : '.print_r($data['data'], true), E_USER_NOTICE);
 
 				}// end switch
 
 			} else {
-				trigger_error('Unknown System : '.$data->root->attributes['systemid'], E_USER_NOTICE);
+				trigger_error('Unknown System : '.$data['systemid'], E_USER_NOTICE);
 
 			}// end switch
+
+		} else {
+			trigger_error('Invalid Data : '.print_r($data, true), E_USER_NOTICE);
 
 		}// end if
 
 		socket_close($client_fd);
 
-
 	}// end _processChild()
+
 
 	/**
 	* Looks after processing
 	*
-	* @param resource				$client_fd		the client socket resource
-	* @param object XML_Tree_Node	$client_data	the data sent by the client (excluding the system information)
-	* @param string					$systemid		the systemid that we are currently working on
+	* @param resource	$client_fd		the client socket resource
+	* @param Array		$client_data	the data sent by the client (excluding the system information)
+	* @param string		$systemid		the systemid that we are currently working on
 	*
 	* @access private
 	* @return void
 	*/
 	function _processHIPOJob($client_fd, $client_data, $systemid)
 	{
-
-		switch ($client_data->attributes['command']) {
+		switch ($client_data['command']) {
 			case 'start' :
 				$taskid = $this->_fork($client_fd);
 				// we are the server, get out of here
 				if ($taskid == '') return;
 				require_once $this->_systems[$systemid].'/core/include/init.inc';
 
-				require_once 'XML/Tree.php';
-				$output = new XML_Tree();
-				$output_root = &$output->addRoot('output');
-
+				$output = Array(
+							'result' => '',
+							'msg'    => '',
+						);
 				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-				$process = $hh->prepareProcessServer($client_data, $output_root, $taskid);
+				$process = $hh->prepareProcessServer($client_data, $output, $taskid);
 
 echo "OUTPUT : \n";
-$output->dump();
+print_r($output);
 
 				// right now send back the output from the pre-processing, then close the connection
 				// and we will start doing the work
@@ -409,27 +408,27 @@ $output->dump();
 
 			// right we need to send an SIGINT to child process to get it to abort
 			case 'abort' :
+				$output = Array(
+							'result' => '',
+							'msg'    => '',
+						);
 
-				require_once 'XML/Tree.php';
-				$output = new XML_Tree();
-				$output_root = &$output->addRoot('output');
-
-				if (empty($client_data->attributes['taskid']) || empty($this->_tasks[$client_data->attributes['taskid']])) {
-					$output_root->name    = 'error';
-					$output_root->content = 'No TaskID Supplied or invalid TaskID';
+				if (empty($client_data['taskid']) || empty($this->_tasks[$client_data['taskid']])) {
+					$output['result']  = 'error';
+					$output['content'] = 'No TaskID Supplied or invalid TaskID';
 
 				} else {
 					$child_pid = $this->_tasks[$client_data->attributes['taskid']];
 					if (posix_kill($child_pid, SIGTERM)) {
-						$output_root->name    = 'ack';
+						$output['result']    = 'ack';
 					} else {
-						$output_root->name    = 'error';
-						$output_root->content = 'No TaskID Supplied or invalid TaskID';
+						$output['result']  = 'error';
+						$output['content'] = 'Unable to send abort to forked process';
 					}
 				}
 
 echo "OUTPUT : \n";
-$output->dump();
+print_r($output);
 
 				// right now send back the output from the pre-processing, then close the connection
 				// and we will start doing the work
@@ -439,7 +438,7 @@ $output->dump();
 				break;
 
 			default :
-				error_log('Unknown Task : '.$client_data->name);
+				error_log('Unknown Task : '.$client_data['command']);
 				socket_close($client_fd);
 
 		}// end switch

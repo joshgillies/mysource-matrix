@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job.inc,v 1.26 2003/09/29 01:40:45 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.27 2003/09/29 04:29:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -685,16 +685,13 @@ class HIPO_Job extends MySource_Object
 				case 'server' :
 
 					require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_client.inc';
-					require_once 'XML/Tree.php';
 
-					$attrs = Array(
-								'command' => 'start', 
-								'userid' => $GLOBALS['SQ_SYSTEM']->currentUserId(),
-								'source_code_name' => $this->source_code_name,
+					$data = Array('hipo_job' => Array(
+													'command'			=> 'start', 
+													'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+													'source_code_name'	=> $this->source_code_name,
+												),
 							);
-
-					$data = new XML_Tree();
-					$root = &$data->addRoot('hipo_job', '', $attrs);
 
 					$ret_val = false;
 					$client = new HIPO_Client();
@@ -702,19 +699,18 @@ class HIPO_Job extends MySource_Object
 						if ($client->write($data)) {
 							$ack = $client->read();
 							if (!is_null($ack)) {
-
-								switch ($ack->root->name) {
+								switch ($ack['result']) {
 									case 'ack' :
 										$ret_val = true;
 										pre_echo('GOT ACK');
 										break;
 
 									case 'error' :
-										trigger_error('HIPO Server Error : '.$ack->root->content, E_USER_WARNING);
+										trigger_error('HIPO Server Error : '.$ack['msg'], E_USER_WARNING);
 										break;
 
 									default :
-										trigger_error('Unexpected return from the HIPO Server : '.$ack->get(), E_USER_WARNING);
+										trigger_error('Unexpected return from the HIPO Server : '.print_r($ack, true), E_USER_WARNING);
 
 								}// end switch
 							}// end if
@@ -925,17 +921,14 @@ class HIPO_Job extends MySource_Object
 			}
 
 			require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_client.inc';
-			require_once 'XML/Tree.php';
 
-			$attrs = Array(
-						'command'			=> 'abort', 
-						'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
-						'source_code_name'	=> $this->source_code_name,
-						'taskid'			=> $this->_hipo_vars['server_taskid'],
+			$data = Array('hipo_job' => Array(
+											'command'			=> 'abort', 
+											'userid'			=> $GLOBALS['SQ_SYSTEM']->currentUserId(),
+											'source_code_name'	=> $this->source_code_name,
+											'taskid'			=> $this->_hipo_vars['server_taskid'],
+										),
 					);
-
-			$data = new XML_Tree();
-			$root = &$data->addRoot('hipo_job', '', $attrs);
 
 			$ret_val = false;
 			$client = new HIPO_Client();
@@ -943,18 +936,18 @@ class HIPO_Job extends MySource_Object
 				if ($client->write($data)) {
 					$ack = $client->read();
 					if (!is_null($ack)) {
-						switch ($ack->root->name) {
+						switch ($ack['result']) {
 							case 'ack' :
 								pre_echo('GOT ACK');
 								$ret_val = true;
 								break;
 
 							case 'error' :
-								trigger_error('HIPO Server Error : '.$ack->root->content, E_USER_WARNING);
+								trigger_error('HIPO Server Error : '.$ack['msg'], E_USER_WARNING);
 								break;
 
 							default :
-								trigger_error('Unexpected return from the HIPO Server : '.$ack->get(), E_USER_WARNING);
+								trigger_error('Unexpected return from the HIPO Server : '.print_r($ack, true), E_USER_WARNING);
 
 						}// end switch
 

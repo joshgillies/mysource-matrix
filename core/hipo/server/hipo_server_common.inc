@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_server_common.inc,v 1.3 2003/09/26 05:26:31 brobertson Exp $
+* $Id: hipo_server_common.inc,v 1.4 2003/09/29 04:29:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,22 +60,21 @@ class HIPO_Server_Common
 	*
 	* @param resource	$fd	the socket file desriptor resource to read from
 
-	* @return null|object XML_Tree	if there is valid data (from a hipo_client) then an XML_Tree object 
-									will be returned, otherwise NULL will be returned
+	* @return null|Array	if there is valid data (from a hipo_client) then an Array
+							will be returned, otherwise NULL will be returned
 	* @access private
 	*/
 	function _readFromSocket($fd)
 	{
 		// start with empty string
-		$data = '';
+		$data_str = '';
 
 		$end_char_pos = -strlen($this->_read_end_char);
-		error_log("END CHAR : ".$end_char_pos.' : "'.$this->_read_end_char.'"');
 
 		// read data from socket
-		while($buf = socket_read($fd, $this->_read_buffer_size, PHP_BINARY_READ)) {
+		while($buf = @socket_read($fd, $this->_read_buffer_size, PHP_BINARY_READ)) {
 			if ($buf === false) {
-				error_log('Could not read from client ('.$this->getLastSocketError($fd).').');
+				trigger_error('Could not read from client ('.$this->getLastSocketError($fd).').', E_USER_WARNING);
 				return null;
 			}
 
@@ -85,11 +84,11 @@ class HIPO_Server_Common
 
 			} else {
 
-				$data .= $buf;
+				$data_str .= $buf;
 
 				// we found the end string, strip it and break out of here
-				if (substr($data, $end_char_pos) == $this->_read_end_char) {
-					$data = substr($data, 0, $end_char_pos);
+				if (substr($data_str, $end_char_pos) == $this->_read_end_char) {
+					$data_str = substr($data_str, 0, $end_char_pos);
 					break;
 				}
 
@@ -97,19 +96,16 @@ class HIPO_Server_Common
 
 		}// end while
 
-		if ($data == '') return null;
+		if ($data_str == '') return null;
 
-		error_log('ALL DATA : "'.$data.'"');
-
-		$xml_data = new XML_Tree();
-		$root  = &$xml_data->getTreeFromString($data);
-		if (PEAR::isError($root)) {
+		$data = unserialize($data_str);
+		if ($data === false) {
 			socket_getpeername($fd, $peer_host='', $peer_port='');
-			trigger_error('Error Reading from '.$peer_host.':'.$peer_port.'. Unable to parse XML from data "'.$data.'"'."\n".' XML Error Msg : '.$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+			trigger_error('Error Reading from '.$peer_host.':'.$peer_port.'. Unable to parse data "'.$data_str.'"', E_USER_WARNING);
             return null;
         }
 
-		return $xml_data;
+		return $data;
 
 	}// end _readFromSocket()
 
@@ -117,30 +113,31 @@ class HIPO_Server_Common
 	/**
 	* Send data to a client
 	*
-	* @param resource			$fd	the socket file desriptor resource to write to
-	* @param object XML_Tree	$xml_data	the xml data to send down the line
+	* @param resource	$fd		the socket file desriptor resource to write to
+	* @param Array		$data	the data to send down the line
 	*
 	* @return boolean	indicating whether all bytes were written to the socket or not
 	* @access private
 	*/
-	function _writeToSocket($fd, $xml_data)
+	function _writeToSocket($fd, $data)
 	{
-		if (!is_a($xml_data, 'xml_tree')) {
-			trigger_error('Could not write to socket, passed data was not an xml tree object.', E_USER_WARNING);
+		$data_str = serialize($data);
+		if (strpos($data_str, $this->_read_end_char) !== false) { 
+			socket_getpeername($fd, $peer_host='', $peer_port='');
+			trigger_error('Could not write "'.$data_str.'" to '.$peer_host.':'.$peer_port.' (The data contains the read end char - '.$this->_read_end_char.')', E_USER_WARNING);
 			return false;
 		}
 
-		$data = $xml_data->get().$this->_read_end_char;
+		$data_str .= $this->_read_end_char;
 
-		while($data) {
-			$bytes_written = @socket_write($fd, $data);
+		while($data_str) {
+			$bytes_written = @socket_write($fd, $data_str);
 			if ($bytes_written === false) {
 				socket_getpeername($fd, $peer_host='', $peer_port='');
-				trigger_error('Could not write "'.$data.'" to '.$peer_host.':'.$peer_port.' ('.$this->getLastSocketError($fd).').', E_USER_WARNING);
+				trigger_error('Could not write "'.$data_str.'" to '.$peer_host.':'.$peer_port.' ('.$this->getLastSocketError($fd).').', E_USER_WARNING);
 				return false;
 			}
-			$data = substr($data, $bytes_written);
-			error_log('Data Left : "'.$data.'"');
+			$data_str = substr($data_str, $bytes_written);
 		}// end while
 
 		return true;

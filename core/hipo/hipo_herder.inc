@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_herder.inc,v 1.17 2003/09/29 01:40:45 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.18 2003/09/29 04:29:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -394,52 +394,46 @@ if (!empty($todo_hipo)) {
 	* This is needed so that we can check the the input from the web script and
 	* return an ACK or an error to it before we start processing
 	*
-	* @param object XML_Tree	$input_root		root node of the data sent from the web script
-	* @param object XML_Tree	$output_root	root node of the data to be sent back to the web script
-	* @param string				$taskid			the id of the task on the server (used if we need to abort)
+	* @param Array	$input_data		data sent from the web script
+	* @param Array 	$output_data	data to be sent back to the web script - Array ('result' => [ack|error], 'msg' => '');
+	* @param string	$taskid			the id of the task on the server (used if we need to abort later on)
 	*
 	* @return boolean	indicating whether processing should start or not
 	* @access public
 	*/
-	function prepareProcessServer(&$input_root, &$output_root, $taskid)
+	function prepareProcessServer(&$input_data, &$output_data, $taskid)
 	{
 		$this->_tmp['prepared_server'] = Array();
 
-		if ($input_root->name != 'hipo_job') {
-			$output_root->name = 'error';
-			$output_root->content = 'Input Root Node not named "hipo_job"';
+		if (empty($input_data['userid'])) {
+			$output_data['result'] = 'error';
+			$output_data['msg']    = 'userid not supplied on Input Data';
 			return false;
 		}
 
-		if (empty($input_root->attributes['userid'])) {
-			$output_root->name    = 'error';
-			$output_root->content = 'userid not supplied on Input Root Node';
-			return false;
-		}
-
-		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input_root->attributes['userid']);
+		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input_data['userid']);
 		if (is_null($user) || !$GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
-			$output_root->name    = 'error';
-			$output_root->content = 'Unable to find User #'.$userid.' to run as or unable to set them to the current user';
+			$output_data['result'] = 'error';
+			$output_data['msg']    = 'Unable to find User #'.$input_data['userid'].' to run as or unable to set them to the current user';
 			return false;
 		}
 
-		if (empty($input_root->attributes['source_code_name'])) {
-			$output_root->name    = 'error';
-			$output_root->content = 'source_code_name not supplied on Input Root Node';
+		if (empty($input_data['source_code_name'])) {
+			$output_data['result'] = 'error';
+			$output_data['msg']    = 'source_code_name not supplied on Input Data';
 			return false;
 		}
 
-		$source_job = &$this->getJob($input_root->attributes['source_code_name']);
+		$source_job = &$this->getJob($input_data['source_code_name']);
 		if (is_null($source_job)) {
-			$output_root->name    = 'error';
-			$output_root->content = 'Unable to find a source job with the codename "'.$input_root->attributes['source_code_name'].'"';
+			$output_data['result'] = 'error';
+			$output_data['msg']    = 'Unable to find a source job with the codename "'.$input_data['source_code_name'].'"';
 			return false;
 		}
 
 		if (!$source_job->setRunningMode('server', $taskid)) {
-			$output_root->name    = 'error';
-			$output_root->content = 'Unable to set the running mode to server for "'.$source_job->code_name.'"';
+			$output_data['result'] = 'error';
+			$output_data['msg']    = 'Unable to set the running mode to server for "'.$source_job->code_name.'"';
 			return false;
 		}
 
@@ -448,7 +442,7 @@ if (!empty($todo_hipo)) {
 		pcntl_signal(SIGTERM, Array(&$this, 'serverSigHandler'));
 		pcntl_signal(SIGINT,  Array(&$this, 'serverSigHandler'));
 
-		$output_root->name = 'ack';
+		$output_data['result'] = 'ack';
 		return true;
 
 	}//end prepareProcessServer()
@@ -471,7 +465,7 @@ if (!empty($todo_hipo)) {
 
 		$source_job = &$this->getJob($this->_tmp['prepared_server']['source_code_name']);
 		if (is_null($source_job)) {
-			trigger_error('Unable to find a source job with the codename "'.$input_root->attributes['source_code_name'].'"', E_USER_WARNING);
+			trigger_error('Unable to find a source job with the codename "'.$this->_tmp['prepared_server']['source_code_name'].'"', E_USER_WARNING);
 			return false;
 		}
 
