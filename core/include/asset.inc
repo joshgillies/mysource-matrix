@@ -1592,12 +1592,7 @@ class Asset extends Resolve_Object
 		// is this asset already locked
 		if (!empty($current_lock)) {
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
-
-			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-			$expires_in = easy_time_total(($current_lock['expires'] - time()), true);
-			if (!$expires_in) $expires_in = '1 second';
-
-			trigger_error('Cannot acquire lock on "'.$this->name.'", lock already held by "'.$user->name.'"', E_USER_WARNING);
+			trigger_error('Cannot acquire lock on "'.$this->name.'", lock already held by "'.$user->name.'"', E_USER_NOTICE);
 			return false;
 		}
 
