@@ -1125,7 +1125,7 @@ class Asset extends Resolve_Object
 
 		$status = &$this->getStatus();
 		if (!$status->processStatusChange($new_status)) {
-			trigger_error('processStatusChange failed for asset "'.$this->name.'"', E_USER_WARNING);
+			$ms->abortQueue();
 			return false;
 		}
 
@@ -1138,6 +1138,7 @@ class Asset extends Resolve_Object
 				if (!$this->incrementVersion('minor')) {
 					trigger_error('processStatusChange failed for asset "'.$this->name.'", version not updated', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$ms->abortQueue();
 					return false;
 				}
 			}
@@ -1148,6 +1149,7 @@ class Asset extends Resolve_Object
 			$values = Array('status' => $db->quote($new_status));
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$ms->abortQueue();
 				return false;
 			}
 
@@ -1171,6 +1173,7 @@ class Asset extends Resolve_Object
 				if (!$asset->processStatusChange($new_status)) {
 					trigger_error('processStatusChange failed for asset "'.$this->name.'" trying to process dependant child "'.$asset->name.'"', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$ms->abortQueue();
 					return false;
 				}
 			}
@@ -2744,7 +2747,7 @@ class Asset extends Resolve_Object
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
 		if (is_null($minor)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -2781,10 +2784,10 @@ class Asset extends Resolve_Object
 						if (empty($data)) continue;
 						foreach($data as $assetid => $access) {
 							if($assetid == $minor->id) continue;
-							if (!$minor->setPermission($userid, $perm, $access)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return false;
-							}
+							// we are deliberatly not checking for the return value here
+							// because if for some reason the permission can't be set that is really just
+							// bad luck
+							@$minor->setPermission($userid, $perm, $access);
 						}
 					}
 				}
@@ -4396,7 +4399,7 @@ class Asset extends Resolve_Object
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$save_paths = makeValidWebPaths($paths);
 
-		// if there is no difference in the arrays (including in the sort order),
+		// if there is no difference in the arrays (including in the sort order - the index),
 		// then there is nothing to do
 		if (!array_diff_assoc($save_paths, $current_paths) &&
 			!array_diff_assoc($current_paths, $save_paths)) return true;
