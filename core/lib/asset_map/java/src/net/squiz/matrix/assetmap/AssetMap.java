@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.5 2004/06/30 05:33:28 mmcintyre Exp $
+* $Id: AssetMap.java,v 1.6 2004/08/26 02:06:24 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,6 +30,7 @@ import java.awt.BorderLayout;
 import java.io.IOException;
 import java.net.URL;
 import netscape.javascript.*;
+
 import java.awt.event.*;
 
 /**
@@ -129,12 +130,10 @@ public class AssetMap extends JApplet {
 	 */
 	public void openWindow(String url, String title, String options) {
 
-		if (window == null)
-			throw new IllegalStateException(
-					"The Window JSObject was never acquired");
-		
-		window.eval("myWindow = window.open('" + url + "','window', " +
-				"'" + options  + "')");
+		if (window == null) {
+			window = JSObject.getWindow(AssetMap.getApplet());
+		}
+		window.call("open_hipo", new Object[] { MySource.INSTANCE.getBaseURL() + url } );
 	}
 
 	/**
@@ -153,6 +152,7 @@ public class AssetMap extends JApplet {
 	public void init() {
 		getContentPane().setBackground(BACKGROUND_COLOUR);
 		window = JSObject.getWindow(this);
+		
 		try {
 			AssetManager.INSTANCE.initialise();
 		} catch (IOException ioe) {
