@@ -123,7 +123,8 @@ class File extends Asset
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run 
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
@@ -136,7 +137,7 @@ class File extends Asset
 			$old_ext = strtolower(substr(strrchr($old_filename,'.'), 1));
 			$new_ext = strtolower(substr(strrchr($value,'.'), 1));
 			if (trim($old_ext) != '' && $old_ext != $new_ext) {
-				trigger_error('Can can not change the extension of the file. Upload a new file to change the extension.', E_USER_WARNING);
+				trigger_error('You can not change the extension of the file. Upload a new file to change the extension.', E_USER_WARNING);
 				$value = $old_filename;
 				return false;
 			}
