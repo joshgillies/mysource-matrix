@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_manager_edit_fns.inc,v 1.4 2005/02/18 10:28:39 brobertson Exp $
+* $Id: trigger_manager_edit_fns.inc,v 1.5 2005/02/25 01:21:35 rhoward Exp $
 *
 */
 
@@ -29,11 +29,11 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * Trigger_Manager_Edit_Fns
 *
 * Purpose
-*
+*   To handle the creation, modification, and the batch-firing of triggers
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -232,7 +232,6 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 				}
 				div.parentNode.insertBefore(div, previous);
-				markDirty();
 			}
 
 			/**
@@ -247,7 +246,6 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 					}
 				}
 				div.parentNode.insertBefore(next, div);
-				markDirty();
 			}
 
 			/**
@@ -256,21 +254,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 			function deleteDiv(div) {
 				if(confirm("Deleting a component cannot be undone.\nAre you sure you want to proceed?")) {
 					div.parentNode.removeChild(div);
-					markDirty(" Deleted ");
 				}
-			}
-
-			/**
-			* Marks page as dirty, by turning ON the 'dirtyBuffer' div
-			*/
-			function markDirty() {
-				var dirty = false;
-				if (dirty == true) {
-					return;
-				}
-
-				dirty = true;
-				document.getElementById("dirtyBuffer").style.display = "block";
 			}
 
 			/**
@@ -578,14 +562,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		$o->openSection('Other');
 		$o->openField('');
 		?>
-		<div id="dirtyBuffer" style="display: none" class="sq-backend-warning">
-			Trigger contents have been modified. Changes will be lost unless the trigger is saved. Moving of components has to be saved, even though it looks like the changes are applied immediately. If you make a mistake, tick the 'reload trigger' box and submit the form. This will reload the trigger without saving.
-			<div id="revert">
-				<?php echo check_box($prefix.'[reload]'); ?>Reload Trigger (without saving) - this option takes precedence over "Finish Editing"
-			</div>
-		</div>
 		<div>
-				<?php echo check_box($prefix.'[finish]'); ?>Finish Editing (save and display the trigger list)
+			<?php echo check_box($prefix.'[finish]'); ?>Finish Editing (save and display the trigger list)
 		</div>
 		<?php
 		$o->closeSection();
@@ -601,9 +579,9 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* This function determines how to process the input from the backend interface
 	*
-	* @param object Trigger_Manager     &$tm trigger manager
-	* @param object	Backend_Outputter	&$o		the outputter class  < Don't know why we need an outputter here
-	* @param string						$prefix	prefix for the form elements
+	* @param object Trigger_Manager     &$tm    trigger manager
+	* @param object	Backend_Outputter	&$o     the outputter class
+	* @param string                     $prefix prefix for the form elements
 	*
 	* @access public
 	*/
@@ -695,8 +673,8 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 	*
 	* This function determines how to process the input from the backend interface
 	*
-	* @param object Trigger_Manager     &$tm trigger manager
-	* @param array		                &$request_data		data extracted from the request variables
+	* @param object Trigger_Manager     &$tm                trigger manager
+	* @param array                      &$request_data      data extracted from the request variables
 	*
 	* @access private
 	*/
@@ -776,7 +754,7 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		$processed_actions = $this->_processRawActionSet($tm, $raw_actions);
 
-		if (empty($processed_actions)) {
+		if (empty($processed_events) || empty($processed_actions)) {
 			$trigger['save_hash'] = false;
 		}
 
@@ -1008,6 +986,112 @@ class Trigger_Manager_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end _paintSubScreenList()
+
+
+	/**
+	* Display the Batching Triggers Screen
+	*
+	* @param object Trigger_Manager     &$tm    trigger manager
+	* @param object	Backend_Outputter   &$o     the outputter class
+	* @param string                     $prefix prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintBatching(&$tm, &$o, $prefix)
+	{
+		$o->openField('Target Node');
+		asset_finder($prefix.'[target_node]', array_get_index($this->_tmp, 'target_id'));
+
+		$o->openField('Children');
+		check_box($prefix.'[include_children]', 'yes', array_get_index($this->_tmp, 'include_children', true));
+		echo "Include Children?";
+
+		$o->openField('Events');
+		$event_type_list = $tm->_getEventList();
+		$events = array_get_index($this->_tmp, 'selected_events');
+		// paint a tickbox list of all the events in the system
+		$event_prefix = $prefix.'[selected_events]';
+		foreach ($event_type_list as $e_type => $e_name) {
+			if (isset($events[$e_type])) {
+				$checked = true;
+			} else {
+				$checked = false;
+			}
+			check_box($event_prefix.'['.$e_type.']', $e_type, $checked);
+			echo $e_name;
+			echo "<br />";
+		}
+
+		return true;
+
+	}//end paintBatching()
+
+
+	/**
+	* Process Batching Triggers Screen
+	*
+	* Prepares and fires the trigger batching HIPO job
+	*
+	* @param object Trigger_Manager     &$tm    trigger manager
+	* @param object	Backend_Outputter   &$o     the outputter class
+	* @param string                     $prefix prefix for the form elements
+	*
+	* @access public
+	*/
+	function processBatching(&$tm, &$o, $prefix)
+	{
+		$error = false;
+
+		$request_data = array_get_index($_REQUEST, $prefix, Array());
+
+		$target_node = array_get_index($request_data, 'target_node');
+		$target_id   = array_get_index($target_node,  'assetid');
+		$events      = array_get_index($request_data, 'selected_events', Array());
+		$propagate   = isset($request_data['include_children']);
+
+		$this->_tmp['target_id']        = $target_id;
+		$this->_tmp['selected_events']  = $events;
+		$this->_tmp['include_children'] = $propagate;
+
+		if (empty($target_id)) {
+			trigger_error('Target asset not specified. Trigger batching cannot proceed.', E_USER_WARNING);
+			$error = true;
+		}
+
+		if (empty($events)) {
+			trigger_error('Events not specified. Trigger batching cannot proceed.', E_USER_WARNING);
+			$error = true;
+		}
+
+		if ($error) {
+			return false;
+		}
+
+		// grab all the children of the target if applicable, then add the target itself
+		$all_targets = Array();
+		if ($propagate) {
+			$all_targets = $GLOBALS['SQ_SYSTEM']->am->getChildren($target_id);
+		}
+		$target_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($target_id);
+		$all_targets[$target_id] = $target_asset->type();
+
+		// convert from id->type to index->id
+		$all_targets = array_keys($all_targets);
+
+		// start up the HIPO
+		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+		$vars = Array(
+					  'assets'             => $all_targets,
+					  'events'             => $events,
+					  'codename_target'    => $target_id,
+					  'codename_propagate' => ($propagate ? '1' : '0')
+					  );
+		$hh->queueHipo('hipo_job_trigger_batch_events', $vars);
+
+		return true;
+
+	}//end processBatching()
 
 
 }//end class
