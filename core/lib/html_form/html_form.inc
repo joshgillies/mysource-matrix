@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: html_form.inc,v 1.41 2003/09/26 05:26:34 brobertson Exp $
+* $Id: html_form.inc,v 1.42 2003/10/02 23:54:01 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -291,7 +291,7 @@ function colour_box($name, $default='000000', $allow_blanks=false, $button_text=
 	if (!$initialised) {
 		?>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib')?>/html_form/colour_picker.js"></script>
-		<script language="JavaScript">var colour_change_image_dir='<?php echo sq_web_path('lib');?>/web/images/'</script>
+		<script language="JavaScript" type="text/javascript">var colour_change_image_dir='<?php echo sq_web_path('lib');?>/web/images/'</script>
 		<?php
 		$initialised = true;
 	}
