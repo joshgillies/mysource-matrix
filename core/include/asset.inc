@@ -232,6 +232,52 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Delete this asset from the trash
+	*
+	* @return boolean
+	* @access public
+	*/
+	function delete()
+	{
+		// check that we are in the trash
+		if (!$GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id)) {
+			trigger_error('Cannot delete asset, asset is not in the trash', E_USER_WARNING);
+			return false;
+		}
+
+		// check that the trash link is the only significant link left
+		$links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'minor');
+		if (count($links) != 1) {
+			trigger_error('Cannot delete asset, asset must only be linked to the trash', E_USER_WARNING);
+			return false;
+		}
+
+		// say to other assets: 'Delete me bitch cause I'm outa here'
+		$links = $this->getLinks(SQ_LINK_ALL, '', true, 'minor');
+		foreach ($links as $link) {
+			$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
+			$major->deleteLink($link['linkid']);
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$sql = 'DELETE FROM sq_asset WHERE assetid = '.$db->quote($this->id);
+		bam($sql);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+	}//end delete()
+
+
+	/**
 	* Load the asset represented by the passed asset id
 	*
 	* @param int	$assetid	the asset id to be loaded
@@ -522,7 +568,7 @@ class Asset extends Resolve_Object
 					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 					$body = 'User "'.$user->name.'" has approved '.$this->type().' "'.$this->name.'" to go live.';
-					$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN)), 0, 'Asset Changes Approved', $body);
+					$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Asset Changes Approved', $body);
 
 					if ($wfm->state == 'complete') {
 						// all workflows are done so we
@@ -531,7 +577,7 @@ class Asset extends Resolve_Object
 
 						// send an internal message
 						$body = 'The workflow process for '.$this->type().' "'.$this->name.'" has been completed. "'.$this->name.'" is now live.';
-						$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN)), 0, 'Workflow Completed', $body);
+						$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Workflow Completed', $body);
 					}
 
 				} else {
@@ -556,7 +602,7 @@ class Asset extends Resolve_Object
 							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 							$body = 'User "'.$user->name.'" has requested '.$this->type().' "'.$this->name.'" to go live from Under Construction.';
-							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN)), 0, 'Workflow Started', $body);
+							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Workflow Started', $body);
 						}
 
 					} else if ($this->status == SQ_STATUS_EDITING) {
@@ -578,7 +624,7 @@ class Asset extends Resolve_Object
 							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 							$body = 'User "'.$user->name.'" has requested '.$this->type().' "'.$this->name.'" to go live from Safe Editing.';
-							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN)), 0, 'Workflow Started', $body);
+							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Workflow Started', $body);
 						}
 					}
 				}
@@ -622,7 +668,7 @@ class Asset extends Resolve_Object
 						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 						$body = 'User "'.$user->name.'" has rejected the changes made to '.$this->type().' "'.$this->name.'". The status of "'.$this->name.'" has reverted to '.$this->getStatusDescription();
-						$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN)), 0, 'Asset Changes Rejected', $body);
+						$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Asset Changes Rejected', $body);
 					}
 				}
 				break;
