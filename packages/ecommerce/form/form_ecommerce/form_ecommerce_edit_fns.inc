@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce_edit_fns.inc,v 1.4 2005/01/20 23:58:29 lwright Exp $
+* $Id: form_ecommerce_edit_fns.inc,v 1.5 2005/01/21 12:14:06 brobertson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -227,7 +227,7 @@ class Form_Ecommerce_Edit_Fns extends Form_Email_Edit_Fns
 	 function paintExport(&$asset, &$o, $prefix)
 	 {
 		 if (!$asset->writeAccess('attributes')) return false;
-		 if (array_get_index($_POST, $prefix.'_export_switch', 0) == 1) $this->processExport(&$asset, &$o, $prefix);
+		 if (array_get_index($_POST, $prefix.'_export_switch', 0) == 1) $this->processExport($asset, $o, $prefix);
 		 
 		 //paint option goes here
 		 echo hidden_field($prefix.'_export_switch', '0');
