@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.238.2.1.2.1 2004/12/20 03:30:37 lwright Exp $
+* $Id: asset_manager.inc,v 1.238.2.1.2.2 2005/01/07 10:17:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2312,7 +2312,7 @@ class Asset_Manager extends MySource_Object
 			if (!empty($USERIDS_COND)) {
 				$USERIDS_COND .= '
 					GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
-					HAVING MIN(p.access) = 1';
+					HAVING MAX(p.access) = 1';
 			}
 		}
 
