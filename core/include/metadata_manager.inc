@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.48 2004/08/27 01:13:09 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.49 2004/09/17 07:48:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,14 +52,15 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Check if all required fields have been completed for an asset
 	*
-	* @param int	$assetid	the ID of the asset to check
+	* If no values have been entered, the default schema values are checked
+	*
+	* @param string	$assetid	the ID of the asset to check
 	*
 	* @access public
 	* @return boolean
 	*/
 	function requiredFieldsComplete($assetid)
 	{
-		$assetid = (int) $assetid;
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) return true;
 
@@ -71,7 +72,7 @@ class Metadata_Manager extends MySource_Object
 			if (is_null($schema)) continue;
 			if (!is_a($schema, 'metadata_schema')) continue;
 			$edit_fns = $schema->getEditFns();
-			$values = $this->getSchemaMetadata($asset->id, $schema->id);
+			$values = $this->getSchemaMetadata($asset->id, $schema->id, true);
 			if (!$edit_fns->requiredFieldsComplete($schema, $values)) return false;
 		}
 
@@ -83,14 +84,14 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Check if all required fields have been completed for an asset
 	*
-	* @param int	$assetid	the ID of the asset to check
+	* @param string	$assetid	the ID of the asset to check
 	*
 	* @access public
 	* @return boolean
 	*/
 	function allowsMetadata($assetid)
 	{
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset((int) $assetid);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) return false;
 		$edit_fns = $asset->getEditFns();
 		return isset($edit_fns->static_screens['metadata']);
@@ -104,7 +105,7 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Get an array of schemaIDs for all schemas applied and denied on an asset
 	*
-	* @param int		$assetid	the ID of the asset to get schemas for
+	* @param string		$assetid	the ID of the asset to get schemas for
 	* @param boolean	$access		type of access : null = all, true = applied, false = denied
 	*
 	* @access public
@@ -140,8 +141,8 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Apply a schema to or Deny from, an asset
 	*
-	* @param int		$assetid	the ID of the asset to set the schema on
-	* @param int		$schemaid	the ID of the schema to set
+	* @param string		$assetid	the ID of the asset to set the schema on
+	* @param string		$schemaid	the ID of the schema to set
 	* @param boolean	$access		is this schema applied (TRUE) or denied (FALSE)?
 	*
 	* @access public
@@ -149,10 +150,6 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function setSchema($assetid, $schemaid, $access)
 	{
-		$assetid  = (int)  $assetid;
-		$schemaid = (int)  $schemaid;
-		$access   = (bool) $access;
-
 		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 		if (is_null($schema)) {
 			trigger_error('Failed setting metadata schema, Schema Asset #'.$schemaid.' does not exist', E_USER_WARNING);
@@ -211,6 +208,7 @@ class Metadata_Manager extends MySource_Object
 		if ($access) {
 			$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 			$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $asset->id, 'schemaids' => Array($schemaid)));
+			$this->generateContentFile($assetid, false);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -222,17 +220,14 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Remove a set schema from an asset
 	*
-	* @param int	$assetid	the ID of the asset to delete the schema from
-	* @param int	$schemaid	the ID of the schema to delete
+	* @param string	$assetid	the ID of the asset to delete the schema from
+	* @param string	$schemaid	the ID of the schema to delete
 	*
 	* @access public
 	* @return boolean
 	*/
 	function deleteSchema($assetid, $schemaid)
 	{
-		$assetid  = (int) $assetid;
-		$schemaid = (int) $schemaid;
-
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed deleting metadata schema, Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -257,6 +252,7 @@ class Metadata_Manager extends MySource_Object
 
 		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($asset, 'indexMetadata', Array('assetid' => $asset->id, 'schemaids' => Array($schemaid)));
+		$this->generateContentFile($assetid, false);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
@@ -267,7 +263,7 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Get an array of assetIDs that have the passed schemaID applied or denied on them
 	*
-	* @param int		$schemaid	the ID of the schema to get assets for
+	* @param string		$schemaid	the ID of the schema to get assets for
 	* @param boolean	$access		type of access : null = all, true = applied, false = denied
 	*
 	* @access public
@@ -303,9 +299,9 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Get an array of metatata fields IDs for a metadata schema
 	*
-	* @param int $schemaid	the schema whos fields we are getting
+	* @param string $schemaid	the schema whos fields we are getting
 	*
-	* @return Array(int)
+	* @return array
 	* @access public
 	*/
 	function getMetadataFields($schemaid)
@@ -336,17 +332,15 @@ class Metadata_Manager extends MySource_Object
 	* at the time). This cuts down on storage and allows defaults to change over time
 	* without updating metadata values.
 	*
-	* @param int	$assetid	the ID of the asset to get metadata for
-	* @param int	$schemaid	the ID of the schema to get metadata for
+	* @param string		$assetid		the ID of the asset to get metadata for
+	* @param string		$schemaid		the ID of the schema to get metadata for
+	* @param boolean	$allow_defaults	if this asset doesnt have metadata, should we return default values?
 	*
 	* @access public
 	* @return array
 	*/
-	function getSchemaMetadata($assetid, $schemaid)
+	function getSchemaMetadata($assetid, $schemaid, $allow_defaults=false)
 	{
-		$assetid  = (int) $assetid;
-		$schemaid = (int) $schemaid;
-
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed getting metadata, Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -385,7 +379,35 @@ class Metadata_Manager extends MySource_Object
 
 		$metadata = unserialize($metadata);
 		if (!is_array($metadata)) $metadata = Array();
+		
+		if (empty($metadata) && $allow_defaults) {
+			// no metadata is stored in the database, so get the default values
+			$metadata = $this->getMetadataDefaultValues($schemaid);
+		}
+
 		return $metadata;
+
+	}//end getSchemaMetadata()
+	
+	
+	/**
+	* Get the default metadata values for a particular schema
+	*
+	* @param string	$schemaid	the ID of the schema to get default metadata for
+	*
+	* @access public
+	* @return array
+	*/
+	function getMetadataDefaultValues($schemaid)
+	{
+		$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+		if (is_null($schema)) {
+			trigger_error('Failed getting default metadata, schema #'.$schemaid.' does not exist', E_USER_WARNING);
+			return Array();
+		}
+		
+		$edit_fns = $schema->getEditFns();
+		return $edit_fns->getMetadataDefaultValues($schema);
 
 	}//end getSchemaMetadata()
 
@@ -395,7 +417,7 @@ class Metadata_Manager extends MySource_Object
 	*
 	* If the passed fields array is empty, all field values will be returned
 	*
-	* @param int			$assetid	the ID of the asset to get field values for
+	* @param string			$assetid	the ID of the asset to get field values for
 	* @param array(string)	$fields		an array of field names
 	*
 	* @access public
@@ -406,8 +428,6 @@ class Metadata_Manager extends MySource_Object
 		// the array of field values we are going to return
 		$field_values = Array();
 		foreach ($fields as $name) $field_values[$name] = '';
-
-		$assetid = (int) $assetid;
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
@@ -452,7 +472,7 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Set metadata values for an asset
 	*
-	* @param int	$assetid	the ID of the asset to set the values for
+	* @param string	$assetid	the ID of the asset to set the values for
 	* @param array	$metadata	the values to set
 	*
 	* @access public
@@ -460,8 +480,6 @@ class Metadata_Manager extends MySource_Object
 	*/
 	function setMetadata($assetid, $metadata)
 	{
-		$assetid = (int) $assetid;
-
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed setting metadata, Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -494,8 +512,8 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* sets metadata for an asset that is specific to a schema
 	*
-	* @param integer	$assetid	the assetid to apply the schema for
-	* @param integer	$schemaid	the id of the schema to apply the metadata to
+	* @param string	$assetid	the assetid to apply the schema for
+	* @param string	$schemaid	the id of the schema to apply the metadata to
 	* @param array		$metadata	the metadata values to set
 	*
 	* @return boolean
@@ -546,16 +564,14 @@ class Metadata_Manager extends MySource_Object
 	* The generated file contains PHP code to do any keyword replacing based on
 	* current values instead of the ones at the time of caching.
 	*
-	* @param int	$assetid		the ID of the asset to generate the file for
-	* @param int	$regenerate		regenerate the DB information as well
+	* @param string		$assetid		the ID of the asset to generate the file for
+	* @param booelan	$regenerate		regenerate the DB information as well
 	*
 	* @access public
 	* @return boolean
 	*/
 	function generateContentFile($assetid, $regenerate=false)
 	{
-		$assetid = (int) $assetid;
-
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed caching metadata, Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -565,7 +581,7 @@ class Metadata_Manager extends MySource_Object
 		$schemas = $this->getSchemas($asset->id, true);
 		if (empty($schemas)) return false;
 
-		// an array of all metadata tag value
+		// an array of all metadata tag values
 		$tag_values = Array();
 
 		// an array of keyword replacements that we are going to have to write some PHP code to produce
@@ -898,9 +914,7 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Regenerate both the cached tag metadata and the serialised DB values
 	*
-	* Basically just an alias to generateContentFile to
-	*
-	* @param int	$assetid	the ID of the asset to regenerate metadata for
+	* @param string	$assetid	the ID of the asset to regenerate metadata for
 	*
 	* @access public
 	* @return boolean
