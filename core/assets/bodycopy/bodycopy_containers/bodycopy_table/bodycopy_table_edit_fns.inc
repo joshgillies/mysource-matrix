@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.8 2004/08/02 03:51:32 mnyeholt Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.9 2004/08/02 06:07:18 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -352,6 +352,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		
 		?>
 		<table<?php echo $attribute_list?> background="<?php echo $bgimage?>" border="0" cellpadding="0" cellspacing="0" style="width:100%;">
+			
 			<tr> 
 				<td align="center" background="" id="<?php echo $prefix.'_table_'.$asset->id;?>" width="4%" style="border-top: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-left: 1px dashed #C0C0C0;">
 				<?php
@@ -411,11 +412,12 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			?>
 			</tr>
 		<?php
-
+		
 		$num_rows = count($table_rows);
 		for($i = 0; $i < $num_rows; $i++) {
 			if ($i > 0) {
 				?>
+				
 				<tr>
 					<td style="border-left: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; border-bottom: 1px dashed #C0C0C0;">&nbsp;</td>
 					<?php
@@ -549,6 +551,8 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		// update the rows
 		$rows_updated = false;
 		$rows = $asset->attr('rows');
+		
+		
 		for($rowid = 0; $rowid < count($rows); $rowid++) {
 			if (!empty($bc_saved[$prefix][$asset->id]['rows'][$rowid]['attributes'])) {
 				// save any changed row attributes
@@ -629,6 +633,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 								$colspaning = 1; 
 								$bc_saved[$prefix][$asset->id]['rows'][$rowid]['cells'][$cellid]['attributes']['colspan'] = 1;
 							}
+							
 					
 							if ($colspaning != $current_span) {
 
@@ -663,8 +668,9 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 										}
 									} else if ($colspaning < $current_span) {
 										// decreasing the colspan
+									
 										for($i = 0; $i < ($current_span - $colspaning); $i++) {
-											if ($this->insertCell($rows, $rowid, $cellid, false, true)) {
+											if ($this->insertCell($asset, $rows, $rowid, $cellid, false, true)) {
 												$rows_updated = true;
 											} else {
 												// insertCell failed
