@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.114 2004/11/18 23:09:50 gsherwood Exp $
+* $Id: page_calendar.inc,v 1.115 2004/11/22 04:17:48 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.114 $ - 1.0
+* @version $Revision: 1.115 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -928,36 +928,33 @@ class Page_Calendar extends Page_Asset_Listing
 		$click_to_add_ab = $this->attr('asset_builder_page');
 
 		$mousedown_code = $dragging_enabled ? 'onmousedown="'.($popups_enabled ? 'stopTrailingPopup(); ' : '').'startDragging(this)"' : '';
-		$mouseup_code = $dragging_enabled ? 'onmouseup="if (stopDragging()!=\'no_move\') {  formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)}"' : '';
+		$mouseup_code = $dragging_enabled ? 'onmouseup="if (stopDragging()!=\'no_move\') { formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)}"' : '';
 
 		if ($dragging_enabled) $this->_printEventDraggingScript($table_id);
 		if ($popups_enabled) $this->_printPopupsScript();
 		if ($click_to_add_ab) $this->_printAddEventScript($click_to_add_ab);
-
 		?>
 		<table id="<?php echo $table_id; ?>" border="0" cellspacing="0" cellpadding="0" summary="events in this <?php echo $table_id ?>" style="width: <?php echo ($width * count($events)) + 65; ?>px">
 		<?php
-		if (!empty($column_names)) {
-			// if we have several columns, print the column headers
+		// Print the column headers
+		?>
+		<tr>
+			<th>Time</th>
+		<?php
+		foreach ($column_names as $date => $name) {
 			?>
-			<tr>
-				<th>Time</th>
-			<?php
-			foreach ($column_names as $date => $name) {
-				?>
-				<th onclick="<?php echo (!empty($column_links)) ? 'clickChild(this); ' : ''; ?>" class="columnLabel" nowrap="nowrap" style="width: <?php echo $width; ?>px;  <?php echo (!empty($column_links)) ? 'cursor: pointer; cursor: hand' : ''; ?>">
-					<?php
-						if (!empty($column_links)) echo '<a  href="'.$column_links[$date].'">';
-						echo str_replace(' ', '&nbsp;', $name);
-						if (!empty($column_links)) echo '</a>';
-					?>
-				</th>
+			<th onclick="<?php echo (!empty($column_links)) ? 'clickChild(this); ' : ''; ?>" class="columnLabel" nowrap="nowrap" style="width: <?php echo $width; ?>px;  <?php echo (!empty($column_links)) ? 'cursor: pointer; cursor: hand' : ''; ?>">
 				<?php
-			}
-			?>
-			</tr>
+					if (!empty($column_links)) echo '<a href="'.$column_links[$date].'">';
+					echo str_replace(' ', '&nbsp;', $name);
+					if (!empty($column_links)) echo '</a>';
+				?>
+			</th>
 			<?php
 		}
+		?>
+		</tr>
+		<?php
 		$div_width = $width * 0.99;
 		list($current_hour, $current_mins) = explode(':', $this->attr('day_starts_at'));
 		list($end_hour, $end_mins) = explode(':', $this->attr('day_ends_at'));
@@ -977,13 +974,13 @@ class Page_Calendar extends Page_Asset_Listing
 					$event_class = $root_nodes[$event['root_node']]['class_name'];
 					$onclick_code = $show_event_links ? ' onclick="clickChild(this);"' : '';
 					$cursor_code = $show_event_links ? ' cursor: pointer; cursor: hand' : '';
-					$current_mousedown_code = ($event['type_code'] != 'calendar_event_recurring') ? $mousedown_code : '';
+					$current_mouse_up_down_code = (($event['type_code'] != 'calendar_event_recurring') && (!isset($event['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')"';
 					$current_mouse_over_out_code = '';
 					if (isset($event['description']) && !empty($event['description'])) {
 						echo '<div id="event_'.$assetid.'_description" class="popup">'.$event['description'].'</div>';
 						$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')" onmouseout="stopTrailingPopup()"';
 					}
-					echo '<div id="'.$assetid.'" '.$current_mousedown_code.' '.$current_mouse_over_out_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; width: '. $width*0.98.'px;'.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
+					echo '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; width: '.($width-2).'px;'.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
 					echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'&amp;SQ_CALENDAR_DATE='.$event_link_date.'">' : '<span class="event '.$event_class.'">';
 					echo $event['name'];
 					echo $show_event_links ? '</a>' : '</span>';
@@ -1003,7 +1000,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$col_events = $events[$id];
 				$time_key = sprintf('%02d:%02d', $current_hour, $current_mins);
 				if (is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
-				$click_to_add_code = ($click_to_add_ab && empty($col_events['all_day'])) ? ' onclick="addEvent(\''.$event_link_date.'\', \''.$time_key.'\');"' : '';
+				$click_to_add_code = ($click_to_add_ab && empty($col_events[$time_key])) ? ' onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : '';
 				$click_to_add_style = ($click_to_add_ab && empty($col_events[$time_key])) ? 'cursor: pointer; cursor: hand' : '';
 				?>
 				<td id="<?php echo $_REQUEST['SQ_CALENDAR_DATE'].'_'.$time_key ?>" style="<?php echo $width; ?>px; height: <?php echo $partition_height; ?>px; padding-left: 1px; <?php echo $click_to_add_style; ?>" <?php echo $click_to_add_code; ?>>
@@ -1044,6 +1041,7 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _getTimedTableCellContents(&$events, $show_event_links, &$root_nodes, $cell_ts, $partition_time, $cell_height, $event_width, &$layout_map, $mousedown_code, $mouseup_code)
 	{
+		if (empty($events)) return '';
 		$cmp_func = create_function('$a, $b', 'return ($b[\'end_date_ts\'] - $b[\'start_date_ts\']) - ($a[\'end_date_ts\'] - $a[\'start_date_ts\']);');
 		uasort($events, $cmp_func);
 		$res = '';
@@ -1074,6 +1072,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_duration = is_null($details['end_date_ts']) ? 0 : ($end_ts - $event_ts);
 			$event_height = ($event_duration / $partition_time) * $cell_height;
 			if ($event_height < 0) continue;
+			//bam("Event duration is $event_duration, partition time is $partition_time, cell height is $cell_height so we've made the event height $event_height");
 
 			// Now for a bit o good old browser sniffing.  Spoons ready.  Mmmm.
 			// IE and Opera (wrongly) build their borders inwards from the specified element height & width.
@@ -1083,7 +1082,10 @@ class Page_Calendar extends Page_Asset_Listing
 			// attribute of the div.
 			if ((strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') === false) && (strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') === false)) {
 				$event_height -= 2;
-			} 
+				$event_height += floor($event_duration / $partition_time);
+			}
+
+
 
 			// get class to use for div
 			$root_node_treeids = get_treeids($root_nodes);
@@ -1105,7 +1107,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
 			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
 			$inner_width = $event_width - 4;
-			$current_mouse_up_down_code = ($details['type_code'] != 'calendar_event_recurring') ? $mousedown_code.' '.$mouseup_code : '';
+			$current_mouse_up_down_code = (($details['type_code'] != 'calendar_event_recurring') && (!isset($details['trimmed'])) && (!isset($details['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')"';
 			$current_mouse_over_out_code = '';
 			if (isset($details['description']) && !empty($details['description'])) {
 				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
@@ -1174,22 +1176,26 @@ class Page_Calendar extends Page_Asset_Listing
 		return '
 		
 		<!-- GENERAL CALENDAR PAGE JAVASCRIPT, ALWAYS PRESENT -->
-		<script language="JavaScript" type="text/javascript">
-		<!--
-    	var formSubmitted = false;
-     	
-		function clickChild(elt) {
-			 if (formSubmitted) {
-				 return;
-			 }
-			 formSubmitted = true;
-			 linkChildren = elt.getElementsByTagName("A");
-			 if (linkChildren.length > 0) {
-				 document.location = linkChildren.item(0).href;
-			  }
-		  }
-		//-->
-		</script>
+			<script language="JavaScript" type="text/javascript">
+			<!--
+			var formSubmitted = false;
+			
+			function clickChild(elt) {
+				 if (formSubmitted) {
+					 return;
+				 }
+				 formSubmitted = true;
+				 linkChildren = elt.getElementsByTagName("A");
+				 if (linkChildren.length > 0) {
+					 document.location = linkChildren.item(0).href;
+				 }
+			}
+			function statusBarMsg(m) {
+				window.status = m;
+				setTimeout(\'window.status=""\', 2000);
+			}
+			//-->
+			</script>
 		<!-- /GENERAL CALENDAR PAGE JAVASCRIPT, ALWAYS PRESENT -->
 			
 		';
@@ -1210,16 +1216,16 @@ class Page_Calendar extends Page_Asset_Listing
 		?>
 
 		<!-- SCRIPT FOR CLICK-TO-ADD-EVENT -->
-		<script type="text/javascript">
-		<!--
-		  function addEvent(date, time) {
-			  if (formSubmitted) return;
-			  loc = "<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetHref($ab_id); ?>?SQ_CALENDAR_DATE="+date;
-			  if (time != '*') loc += '&SQ_CALENDAR_TIME='+time+'&SQ_CALENDAR_DURATION=<?php echo (int)$this->attr('day_partition_time');?>_min';
-			  document.location = loc;
-		  }
-		//-->
-		</script>
+			<script type="text/javascript">
+			<!--
+			  function addEvent(date, time) {
+				  if (formSubmitted) return;
+				  loc = "<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetHref($ab_id); ?>?SQ_CALENDAR_DATE="+date;
+				  if (time != '*') loc += '&SQ_CALENDAR_TIME='+time+'&SQ_CALENDAR_DURATION=<?php echo (int)$this->attr('day_partition_time');?>_min';
+				  document.location = loc;
+			  }
+			//-->
+			</script>
 		<!-- /SCRIPT FOR CLICK-TO-ADD-EVENT -->
 
 		<?php
@@ -1238,35 +1244,35 @@ class Page_Calendar extends Page_Asset_Listing
 	function _printEventDraggingScript($table_id)
 	{
 		?>
+
 		<!-- DRAG AND DROP SUPPORT -->
-
 			<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/page_calendar/js/drag_n_drop.js"></script>
-
 			<script type="text/javascript">
 			<!--
-	    	      destinationTableId='<?php echo $table_id; ?>'; 
+					destinationTableId='<?php echo $table_id; ?>'; 
 
-				  function confirmDrag(movingElt, newCell)
-				  {
-					var source_date_comps = originalParent.id.split('_');
-					var date_comps = newCell.id.split('_');
-					if (((source_date_comps[1] == 'allday') || (date_comps[1] == 'allday')) && (date_comps[1] != source_date_comps[1])) {
-						return false; // trying to drag in/out of all-day row
+					function confirmDrag(movingElt, newCell)
+					{
+						var source_date_comps = originalParent.id.split('_');
+						var date_comps = newCell.id.split('_');
+						if (((source_date_comps[1] == 'allday') || (date_comps[1] == 'allday')) && (date_comps[1] != source_date_comps[1])) {
+							return false; // trying to drag in/out of all-day row
+						}
+						return confirm('Move this event to ' + date_comps[0] 
+							+ ((date_comps[1] != 'allday') ? (' at ' + date_comps[1]) : '') + '?');
 					}
-					return confirm('Move this event to ' + date_comps[0] 
-						+ ((date_comps[1] != 'allday') ? (' at ' + date_comps[1]) : '') + '?');
-				  }
 
-				  function onDragFinish(movingElt, newCell)
-				  {
-					var date_comps = newCell.id.split('_');
-					document.getElementById('SQ_CALENDAR_DATE').value = date_comps[0];
-					if (date_comps[1] != 'allday') document.getElementById('SQ_CALENDAR_TIME').value = date_comps[1];
-					document.getElementById('SQ_CALENDAR_EVENT_ID').value = movingElt.id;
-					document.getElementById('dragForm').submit();
-					formSubmitted = true;
-				  }
-				  document.onselectstart=new Function ("return false")
+					function onDragFinish(movingElt, newCell)
+					{
+						var date_comps = newCell.id.split('_');
+						document.getElementById('SQ_CALENDAR_DATE').value = date_comps[0];
+						if (date_comps[1] != 'allday') document.getElementById('SQ_CALENDAR_TIME').value = date_comps[1];
+						document.getElementById('SQ_CALENDAR_EVENT_ID').value = movingElt.id;
+						document.getElementById('dragForm').submit();
+						formSubmitted = true;
+					}
+
+					document.onselectstart=new Function ("return false")
 			//-->
 			</script>
 
@@ -1277,8 +1283,8 @@ class Page_Calendar extends Page_Asset_Listing
 			  <input type="hidden" name="SQ_CALENDAR_EVENT_ACTION" id="SQ_CALENDAR_EVENT_ACTION" value="move" />
 			  <input type="hidden" name="SQ_CALENDAR_VIEW" value="<?php echo $_REQUEST['SQ_CALENDAR_VIEW']; ?>" />
 			</form>
-		
 		<!-- /DRAG AND DROP SUPPORT -->
+		
 		<?php
 
 	}//end _printEventDraggingScript()
@@ -1295,7 +1301,7 @@ class Page_Calendar extends Page_Asset_Listing
 		?>
 
 		<!-- DESCRIPTION POPUPS SUPPORT -->
-		<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/page_calendar/js/popup.js"></script>
+			<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/page_calendar/js/popup.js"></script>
 		<!-- /DESCRIPTION POPUPS SUPPORT -->
 
 		<?php
@@ -1325,7 +1331,6 @@ class Page_Calendar extends Page_Asset_Listing
 		list($start_time_h, $start_time_m) = explode(':',$start);
 		list($end_time_h, $end_time_m) = explode(':',$end);
 
-		//$root_node_treeid = get_treeids(Array($root_node['treeid'] => ''));
 		// turn these times into number of minutes since midnight
 		$start_time = $start_time_h * 60 + $start_time_m;
 		$end_time   = $end_time_h   * 60 + $end_time_m;
@@ -1335,6 +1340,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$event_lists = Array();
 
 		foreach(array_values($events) as $event) {
+			if (empty($event['start_date_hours'])) continue; // no-time event
 			$event_start_time = $event['start_date_hours'] * 60 + $event['start_date_minutes'];
 			if (is_null($event['end_date_hours']) || is_null($event['end_date_minutes'])) {
 				$event_end_time   = $event_start_time;
@@ -1397,6 +1403,42 @@ class Page_Calendar extends Page_Asset_Listing
 
 	}//end _addMinutes()
 
+
+	/**
+	* Modify the passed event so that it fits within the specified timeframe
+	*
+	* If no part of the event fits inside the timeframe, the details array is emptied
+	*
+	* @param array	&$details		The details of the event
+	* @param array	$day_start_dts	The day-timestamp (minutes since midnight) of the day start time
+	* @param array	$day_end_dts	The day-timestamp of the day end time
+	*
+	* @access private
+	* @return void
+	*/
+	function _trimEvent(&$details, $day_start_dts, $day_end_dts) 
+	{
+		$event_dts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
+		$event_end_dts = $details['end_date_hours'] * 60 + $details['end_date_minutes'];
+		if (($event_end_dts < $day_start_dts) || ($event_dts > $day_end_dts)) $details = Array();
+
+		// start-of-table / end-of-table adjustments to make sure that those events
+		// partly outside the bounds of the table are (a) kept inside the table and
+		// (b) show on the table in the first place (in case of start time adjustment)
+		if (($event_dts < $day_start_dts) && ($event_end_dts > $day_start_dts)) {
+			$event_dts = $day_start_dts;
+			$details['start_date_hours'] = floor($day_start_dts / 60);
+			$details['start_date_minutes'] = $day_start_dts % 60;
+			$details['trimmed'] = 1;
+		}
+		if (($event_dts < $day_end_dts) && ($event_end_dts > $day_end_dts)) {
+			$event_end_dts = $day_end_dts;
+			$details['end_date_hours'] = floor($day_end_dts / 60);
+			$details['end_date_minutes'] = $day_end_dts % 60;
+			$details['trimmed'] = 1;
+		}
+
+	}//end _trimEvent()
 
 
 //--         FUNCTIONS TO EXTRACT EVENTS FROM DB        --//
@@ -1743,20 +1785,9 @@ class Page_Calendar extends Page_Asset_Listing
 					if (is_null($details['start_date_hours'])) {
 						$res[$event_date]['all_day'][$id] = $details;
 					} else {
+						$this->_trimEvent($details, $start_ts, $end_ts);
+						if (empty($details)) continue;
 						$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
-						$event_end_ts = $details['end_date_hours'] * 60 + $details['end_date_minutes'];
-						// start-of-table / end-of-table adjustments to tame events
-						// sitting partly outside the bounds of the table
-						if (($event_ts < $start_ts) && ($event_end_ts > $start_ts)) {
-							$event_ts = $start_ts;
-							$details['start_date_hours'] = $hour;
-							$details['start_date_minutes'] = $mins;
-						}
-						if (($event_ts < $end_ts) && ($event_end_ts > $end_ts)) {
-							$event_end_ts = $end_ts;
-							$details['end_date_hours'] = $e_hour;
-							$details['end_date_minutes'] = $e_mins;
-						}
 						foreach ($partition_keys as $partition_ts => $key) {
 							if (($event_ts - $partition_ts) < $time_partition) {
 								$res[$event_date][$key][$id] = $details;
@@ -1876,21 +1907,9 @@ class Page_Calendar extends Page_Asset_Listing
 				if (is_null($details['start_date_hours'])) {
 					$res['all_day'][$id] = $details;
 				} else {
+					$this->_trimEvent($details, $start_ts, $end_ts);
+					if (empty($details)) continue;
 					$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
-					$event_end_ts = $details['end_date_hours'] * 60 + $details['end_date_minutes'];
-					// start-of-table / end-of-table adjustments to make sure that those events
-					// partly outside the bounds of the table are (a) kept inside the table and
-					// (b) show on the table in the first place (in case of start time adjustment)
-					if (($event_ts < $start_ts) && ($event_end_ts > $start_ts)) {
-						$event_ts = $start_ts;
-						$details['start_date_hours'] = $hour;
-						$details['start_date_minutes'] = $mins;
-					}
-					if (($event_ts < $end_ts) && ($event_end_ts > $end_ts)) {
-						$event_end_ts = $end_ts;
-						$details['end_date_hours'] = $e_hour;
-						$details['end_date_minutes'] = $e_mins;
-					}
 					foreach ($partition_keys as $partition_ts => $key) {
 						if (($event_ts - $partition_ts) < $time_partition) {
 							$res[$key][$id] = $details;
@@ -1916,7 +1935,7 @@ class Page_Calendar extends Page_Asset_Listing
 		if (!$first_time) $first_time = $this->attr('day_starts_at');
 		if (!$time_partition) $time_partition = $this->attr('day_partition_time');
 		if (!$last_time) $last_time = $this->attr('day_ends_at');
-		if (!$root_nodes) $root_nodes = array_keys($this->attr('root_nodes'));
+		if (!$root_nodes) $root_nodes = array_keys($this->_getRootNodes());
 		$partition_keys = Array();
 		list($e_hour, $e_mins) = explode(':', $last_time);
 		$end_ts = $e_mins + (60 * $e_hour);
@@ -1937,7 +1956,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$columnise_by_root = $this->attr('columnise_day_view_by_root_node');
 		
 		foreach ($columnise_by_root as $node_id) {
-			$res[$node_id] = $partitions;
+			if (in_array($node_id, $root_nodes)) $res[$node_id] = $partitions;
 		}
 		
 		$root_node_treeids = get_treeids(array_flip($root_nodes));
@@ -1962,21 +1981,9 @@ class Page_Calendar extends Page_Asset_Listing
 				if (empty($details['start_date_hours'])) {
 					$res[$col]['all_day'][$id] = $details;
 				} else {
+					$this->_trimEvent($details, $start_ts, $end_ts);
+					if (empty($details)) continue;
 					$event_ts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
-					$event_end_ts = $details['end_date_hours'] * 60 + $details['end_date_minutes'];
-					// start-of-table / end-of-table adjustments to make sure that those events
-					// partly outside the bounds of the table are (a) kept inside the table and
-					// (b) show on the table in the first place (in case of start time adjustment)
-					if (($event_ts < $start_ts) && ($event_end_ts > $start_ts)) {
-						$event_ts = $start_ts;
-						$details['start_date_hours'] = $hour;
-						$details['start_date_minutes'] = $mins;
-					}
-					if (($event_ts < $end_ts) && ($event_end_ts > $end_ts)) {
-						$event_end_ts = $end_ts;
-						$details['end_date_hours'] = $e_hour;
-						$details['end_date_minutes'] = $e_mins;
-					}
 					foreach ($partition_keys as $partition_ts => $key) {
 						if (($event_ts - $partition_ts) < $time_partition) {
 							$res[$col][$key][$id] = $details;
@@ -2000,7 +2007,6 @@ class Page_Calendar extends Page_Asset_Listing
 
 			$res[$root_node]['_overlap_'] = $max_events;
 		}
-
 		return $res;
 
 	}//end getDayEventsByRootNodeAndTime()
