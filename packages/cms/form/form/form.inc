@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.72 2004/12/06 14:55:32 brobertson Exp $
+* $Id: form.inc,v 1.73 2004/12/13 03:50:12 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.72 $
+* @version $Revision: 1.73 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -367,6 +367,27 @@ class Form extends Bridge
 	}//end _updated()
 
 
+	/**
+	* Returns TRUE if the passed minor asset can be linked to this asset, or a string with the error msg
+	*
+	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param string			$link_type	the type of link this is
+	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
+	*
+	* @return mixed TRUE or error message string
+	* @access public
+	*/
+	function canCreateLink(&$minor, $link_type, $exclusive)
+	{
+		if (is_a($minor, 'form_submission')) {
+			return true;
+		}
+		
+		return parent::canCreateLink($minor, $link_type, $exclusive);
+		
+	}//end canCreateLink()
+
+	
 	/**
 	* regenerates the content file for this form
 	*
@@ -1074,7 +1095,7 @@ class Form extends Bridge
 			$section->processForm();
 		}
 
-		// bam ($this->active_submission);
+		$this->active_submission->saveAttributes();
 
 		// check to see if there is an error with the form
 		$this->_tmp['is_error'] = $this->active_submission->isError();
@@ -1406,10 +1427,12 @@ class Form extends Bridge
 		$submission = new Form_Submission();
 		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 1, 'is_exclusive' => 1);
 
+		$GLOBALS['SQ_INSTALL'] = true;
 		if (!$submission->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+		$GLOBALS['SQ_INSTALL'] = false;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return $submission;
