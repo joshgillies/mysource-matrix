@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.286 2005/03/16 05:33:04 ndvries Exp $
+* $Id: asset_manager.inc,v 1.287 2005/03/17 01:26:04 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.286 $
+* @version $Revision: 1.287 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -2130,7 +2130,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param object	Asset	&$asset		the asset whose links lineages we are getting
 	*
-	* @return boolean
+	* @return array	linkid => Array ('linkid' => linkid, 'link_type' => link_type, 'lineage' => Array(...))
 	* @access public
 	*/
 	function getLinkLineages(&$asset)
