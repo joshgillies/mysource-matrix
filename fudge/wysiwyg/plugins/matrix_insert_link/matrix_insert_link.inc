@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_insert_link.inc,v 1.14 2003/11/05 21:53:41 gsherwood Exp $
+* $Id: matrix_insert_link.inc,v 1.15 2003/11/05 22:56:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,13 +80,15 @@ class matrix_insert_link extends wysiwyg_plugin {
 
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
+				var text_range = false;
 
 				// OK, so they have a control object selected, let's try and make it a text selection
 				if (sel.type && sel.type.toLowerCase() == "control") {
 					var control_range = this._createRange(sel);
 					var text_range = this._createTextRange(sel);
 					if (text_range != null) {
-						editor._selectElement(control_range(0));
+						text_range = true;
+						editor._selectElement(control_range(0), text_range);
 					} else {
 						alert("You need to select this object as though it was text, rather than just clicking on it.");
 						sel.empty();
@@ -105,7 +107,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 						this.selectNodeContents(current_a);
 						inside_html = editor.getSelectedHTML();
 					}
-					this._selectElement(current_a);
+					this._selectElement(current_a, text_range);
 				} else {
 					inside_html = editor.getSelectedHTML();
 				}
