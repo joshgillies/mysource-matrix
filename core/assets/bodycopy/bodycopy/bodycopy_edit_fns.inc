@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.3 2004/02/18 18:19:16 brobertson Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.4 2004/05/26 06:54:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -507,7 +507,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		// get all the containers linked to this bodycopy
 		$containers = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
 
-		// process each of the contianers
+		// process each of the containers
 		foreach ($containers as $container_data) {
 			$container = &$am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
 			$container_edit = $container->getEditFns();

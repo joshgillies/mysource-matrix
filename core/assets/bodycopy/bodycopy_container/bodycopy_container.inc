@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.6 2004/02/18 18:19:16 brobertson Exp $
+* $Id: bodycopy_container.inc,v 1.7 2004/05/26 06:54:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -189,9 +189,9 @@ class Bodycopy_Container extends Asset
 		// link has been deleted, check urls to see if this link
 		// was a HREF or SRC etc and get rid of them
 		ob_start();
-		$edit_fns = $this->getEditFns();
-		$edit_fns->paint($this, true);
-		$output = ob_get_contents();
+			$edit_fns = $this->getEditFns();
+			$edit_fns->paint($this, true);
+			$output = ob_get_contents();
 		ob_end_clean();
 
 		$e = '/\\.\\/\\?a=([0-9]+)/';
@@ -276,11 +276,11 @@ class Bodycopy_Container extends Asset
 			$sq_asset_url_list[$minorid] = $href;
 		}
 
-		if(SQ_ROLLBACK_VIEW) {
+		if (SQ_ROLLBACK_VIEW) {
 			$edit = $this->getEditFns();
 			ob_start();
-			$edit->paint($this, true);
-			$output = ob_get_contents();
+				$edit->paint($this, true);
+				$output = ob_get_contents();
 			ob_end_clean();
 
 			foreach ($sq_asset_url_list as $assetid => $href) {
