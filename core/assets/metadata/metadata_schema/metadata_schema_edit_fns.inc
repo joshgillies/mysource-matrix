@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.32 2005/02/16 20:44:44 brobertson Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.33 2005/03/16 00:30:16 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -147,7 +147,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 
 		if (isset($_POST[$prefix.'_regenerate']) && $_POST[$prefix.'_regenerate']) {
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array('schemaid' => $asset->id);
+			$vars = Array('schemaids' => Array($asset->id,));
 			$hh->queueHipo('hipo_job_regenerate_metadata', $vars);
 		}
 
