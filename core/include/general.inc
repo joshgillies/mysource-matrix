@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.60 2004/11/16 03:40:56 lwright Exp $
+* $Id: general.inc,v 1.61 2004/11/30 05:53:45 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,7 +79,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 		$err_name = '';
 		$bg_colour = '';
-		switch($err_no) {
+		switch ($err_no) {
 			case E_USER_ERROR:
 				$err_name = SQ_SYSTEM_SHORT_NAME.' Error';
 				$bg_colour = '#993333';
@@ -122,7 +122,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		// OK, because we want our errors to actually be displayed, kill any output buffering
 
 		$buffers = Array();
-		while(ob_get_level() > SQ_INIT_OB_LEVEL) {
+		while (ob_get_level() > SQ_INIT_OB_LEVEL) {
 			$buffers[] = ob_get_contents();
 			ob_end_clean();
 		}
@@ -130,7 +130,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		$type = ($GLOBALS['SQ_OUTPUT_TYPE'] == 'html' && SQ_PHP_CLI) ? 'text' : $GLOBALS['SQ_OUTPUT_TYPE'];
 
 		// if we are in XML output type then, send our error as XML
-		switch($GLOBALS['SQ_OUTPUT_TYPE']) {
+		switch ($GLOBALS['SQ_OUTPUT_TYPE']) {
 			case 'xml' :
 				$msg = "$err_msg\nFile: $err_file\nLine:$err_line";
 
@@ -148,7 +148,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 				$lines = explode("\n", $err_msg);
 				$len = 7 + strlen($err_file);
 				$len = max($len, 7 + strlen($err_line));
-				foreach($lines as $line) $len = max($len, strlen($line));
+				foreach ($lines as $line) $len = max($len, strlen($line));
 				$len += 2;
 				$str =	'+'.str_repeat('-', $len)."+\n".
 						'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
@@ -158,7 +158,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 							'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
 							'|'.str_repeat('-', $len)."|\n";
 				}
-				foreach($lines as $line) {
+				foreach ($lines as $line) {
 					$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
 				}
 
@@ -263,7 +263,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		}// end switch
 
 		// now just restore any buffered output here - it's as though nothing ever happened :)
-		for($i = count($buffers) - 1; $i >= 0; $i--) {
+		for ($i = count($buffers) - 1; $i >= 0; $i--) {
 			ob_start();
 			echo $buffers[$i];
 		}
@@ -288,7 +288,7 @@ function sq_web_path($path='base')
 
 	if (isset($paths[$path])) return $paths[$path];
 
-	switch($path) {
+	switch ($path) {
 		case 'base' :
 			// preg bit is a check for the people who are using symlinked versions
 			$paths[$path] = (SQ_IN_BACKEND) ? '..' : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.');
@@ -343,7 +343,7 @@ function sq_web_path($path='base')
 
 	return $paths[$path];
 
-}// end sq_web_path()
+}//end sq_web_path()
 
 
 /**
@@ -360,8 +360,18 @@ function current_url($inc_protocol=true, $strip_backend_suffix=false)
 	if (SQ_PHP_CLI) {
 		$url = '';	// being called from eg. a squiz server HIPO
 	} else {
+		$host = array_get_index($_SERVER,'SERVER_NAME',false);
+		if (!$host) {
+			// try to get the host name from the HTTP_HOST server variable just in case
+			// if previous test failed, this one will probably not help, but before dying we try anyway
+			$host = array_get_index($_SERVER,'HTTP_HOST',false);
 
-		$url = (($inc_protocol) ? current_protocol().'://' : '').$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+			if (!$host) {
+				trigger_error("Cannot determine the host", E_USER_ERROR);
+			}
+		}
+
+		$url = (($inc_protocol) ? current_protocol().'://' : '').$host.$_SERVER['PHP_SELF'];
 		// if we are in the backend remove the suffix
 		if ($strip_backend_suffix && (SQ_IN_BACKEND || SQ_IN_LIMBO)) {
 			$url = preg_replace('/'.SQ_CONF_BACKEND_SUFFIX.'\/?$/', '', $url);
@@ -442,7 +452,7 @@ function strip_url($url, $strip_protocol=false)
 *
 * If the url or the query string is not specified, then the current url and is used
 * If the value is not null, and the variable does not exist in the get string
-* it is appended. If the value of the get variable is null and it does exist, 
+* it is appended. If the value of the get variable is null and it does exist,
 * it will be removed
 *
 * @param array 		$replacements 	the variable replacements array ($var => $value)
@@ -495,7 +505,7 @@ function bit_elements($num)
 	$num = (int) $num; // make sure it's an int
 	$count = 1;
 	$elems = Array();
-	while($num > 0) {
+	while ($num > 0) {
 		// if the first bit is set then this number is one of the elements
 		if ($num & 1) $elems[] = $count;
 		$count *= 2;
