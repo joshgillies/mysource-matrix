@@ -129,7 +129,7 @@ class Asset extends Resolve_Object
 	/**
 	* Create this asset
 	*
-	* @param array(string)	&$link	information used to create the initial link
+	* @param Array	&$link		information used to create the initial link, Array ('asset' => [ref major asset to create link under], 'link_type' => SQ_LINK_?, 'value' => [link value], 'position' => [link sort order], 'dependant' = [0|1])
 	*
 	* @return boolean
 	* @access public
@@ -178,7 +178,8 @@ class Asset extends Resolve_Object
 			if (!isset($link['value'])) $link['value'] = '';
 			if (!isset($link['position'])) $link['position'] = -1;
 			if (!isset($link['dependant'])) $link['dependant'] = 0;
-			return $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['position'], $link['dependant']);
+			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['position'], $link['dependant']);
+			return !empty($linkid);
 		} else {
 			return true;
 		}
@@ -338,22 +339,36 @@ class Asset extends Resolve_Object
 	* Creates a duplicate of this asset. It DOES NOT duplicate the links that this asset has either to it or from it
 	* Returns a reference to the new object or if an error occured FALSE
 	*
-	* @param bool	$dupe_directory		whether or not to duplicate thia assets data directory
+	* @param Array	&$link				information used to create the initial link, Array ('asset' => [ref major asset to create link under], 'link_type' => SQ_LINK_?, 'value' => [link value], 'position' => [link sort order], 'dependant' = [boolean])
+	* @param Array	&$dupe_map			a map for that can be used for re-indexing data held in assets of the form Array([old asset id] => [new asset id]);
+	* @param bool	$dupe_dependants	whether or not to duplicate any assets that are dependantly linked to this asset, only works if $link is not empty
+	* @param bool	$dupe_directory		whether or not to duplicate this assets data directory
 	*
 	* @return object Asset | NULL
 	* @access public
 	*/
-	function &duplicate($dupe_directory=true)
+	function &duplicate(&$link, &$dupe_map, $dupe_dependants=true, $dupe_directory=true)
 	{
+
+		if (!empty($link)) {
+			// make sure the initial link information is passed in
+			if (!isset($link['asset']))     trigger_error('Cant create asset without an asset to link to', E_USER_ERROR);
+			if (!isset($link['link_type'])) trigger_error('Cant create asset without a link type', E_USER_ERROR);
+		}
+
 		$null = null; // needed because we return by reference
 
 		if (!$this->id) return $null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
 		$assetid = $db->nextId('sq_sequence_asset');
-		if (DB::isError($assetid)) trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
+		if (DB::isError($assetid)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
+		}
 
 		$now    = time();
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -365,34 +380,94 @@ class Asset extends Resolve_Object
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return $null;
 		}
 
 		$dupe = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->type());
 		if (is_null($dupe)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
 		}
 
 		// Now we set all the attributes
 		foreach($this->vars as $name => $data) {
 			if (!$dupe->setAttrValue($name, $data['value'])) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return $null;
 			}
 		}
+
+		if (!empty($link)) {
+			// create the initial link
+			if (!isset($link['value']))     $link['value'] = '';
+			if (!isset($link['position']))  $link['position']  = -1;
+			if (!isset($link['dependant'])) $link['dependant'] = '0';
+			$linkid = $link['asset']->createLink($dupe, $link['link_type'], $link['value'], $link['position'], $link['dependant']);
+			if(empty($linkid)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return $null;
+			}
+
+
+			// OK now that we are linked up let's our dependants
+			if ($dupe_dependants) {
+				$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+
+				if (!empty($dependant_links)) {
+					$create_link = Array('asset'    => &$dupe, 
+										'link_type' => null, 
+										'value'     => null,
+										'dependant' => '1');
+					$am = &$GLOBALS['SQ_SYSTEM']->am;
+					foreach($dependant_links as $data) {
+						$child = &$am->getAsset($data['minorid'], $data['type_code']);
+						if (is_null($child)) continue;
+
+						$create_link['link_type'] = $data['link_type'];
+						$create_link['value']     = $data['value'];
+						$child_dupe = &$child->duplicate($create_link, $dupe_map, true, $dupe_directory);
+						if (is_null($child_dupe)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return $null;
+						}
+					}// end fpr
+				}// end if empty 
+			}// end if dupe dependants
+
+		}// end if !empty(link)
 
 		// OK if we got this far let's copy the directory (if it exists)
 		if ($dupe_directory && is_dir($this->data_path)) {
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			if (!copy_directory($this->data_path, $dupe->data_path)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return $null;
 			}
 		}
 
-		// if we got this far all is well, so return the duplicate
+		// if we got this far all is well, 
+		// so add to the map and return the duplicate
+		$dupe_map[$this->id] = $dupe->id;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $dupe;
 
 	}//end duplicate()
+
+
+	/**
+	* Remaps existing assetids used by this asset to new ones
+	*
+	* @param Array	&$map	a map of the form Array([old asset id] => [new asset id]);
+	*
+	* @return bool
+	* @access public
+	*/
+	function remapAssetids($map)
+	{
+		return true;
+	}// end remapAssetds()
 
 
 	/**
@@ -725,12 +800,13 @@ class Asset extends Resolve_Object
 	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
-	* @param string $		value				The value for all the links must equal this (if not null)
+	* @param string			$value				The value for all the links must equal this (if not null)
+	* @param boolean		$dependant			The dependant status for all the links must be this (if not null)
 	*
 	* @return Array()
 	* @access public
 	*/
-	function getLinks($link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null)
+	function getLinks($link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null)
 	{
 		if ($side_of_link != 'major' && $side_of_link != 'minor')
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
@@ -746,7 +822,8 @@ class Asset extends Resolve_Object
 				  AND l.'.$side_of_link.'id = '.$db->quote($this->id).'
 				  AND (l.link_type & '.$db->quote($link_types).') > 0 ';
 
-		if (!is_null($value)) $sql .= '  AND l.value = '.$db->quote($value);
+		if (!is_null($value))		$sql .= '  AND l.value     = '.$db->quote($value);
+		if (!is_null($dependant))	$sql .= '  AND l.dependant = '.$db->quote(($dependant) ? '1' : '0');
 
 		if (!empty($type_code)) {
 			
@@ -957,6 +1034,11 @@ class Asset extends Resolve_Object
 
 		if (!is_a($minor, 'Asset')) {
 			trigger_error('Minor is not an asset, unable to create link', E_USER_WARNING);
+			return 0;
+		}
+
+		if (!($link_type & SQ_LINK_SIGNIFICANT) && $dependant) {
+			trigger_error('In order for a link to be dependant it must also be a significant link', E_USER_WARNING);
 			return 0;
 		}
 
@@ -1628,45 +1710,6 @@ class Asset extends Resolve_Object
 		return true;
 
 	}//end deleteLink()
-
-	/**
-	* Returns the linkids for all links that this asset is dependant on 
-	* Includes links that it's dependant assets deem as dependent
-	* Needed for the locking and duplicating processes
-	*
-	* @return Array(int)
-	* @access public
-	*/
-	function getDependantLinkIds()
-	{
-		if (!isset($this->_tmp['dependant_linkids'])) {
-			$this->_tmp['dependant_linkids'] = Array();
-
-			$links = $this->_getDependantLinks();
-			for($i = 0; $i < count($links); $i++) {
-				array_push($this->_tmp['dependant_linkids'], $links[$i]['linkid']);
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($links[$i]['minorid'], $links[$i]['type_code']);
-				if(is_null($asset)) continue;
-				$sub_linkids = $asset->getDependantLinkIds();
-				if (!empty($sub_linkids)) $this->_tmp['dependant_linkids'] = array_merge($this->_tmp['dependant_linkids'], $sub_linkids);
-			}
-		}
-
-		return $this->_tmp['dependant_linkids'];
-
-	}// end getDependantLinkIds()
-
-
-	/**
-	* Returns actual link info for all links that this asset (but not any of it's kids) deems as dependant
-	*
-	* @return Array()
-	* @access private
-	*/
-	function _getDependantLinks()
-	{
-		return Array();
-	}// end _getDependantLinks()
 
 
 	/**
