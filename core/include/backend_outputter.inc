@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend_outputter.inc,v 1.80 2004/07/23 04:29:58 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.81 2004/07/26 02:36:05 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -713,6 +713,7 @@ class Backend_Outputter
 			$i = count($this->_section_stack[$stack_i]['areas']);
 			$this->_section_stack[$stack_i]['areas'][$i] = Array(
 																'area_type'		=> 'field',
+																'type'			=> 'normal',
 																'field_count'	=> $this->_field_count,
 																'name'			=> $name,
 																'format'		=> $format,
@@ -1185,93 +1186,98 @@ class Backend_Outputter
 			<?php
 
 			for($j = 0; $j < count($section['areas']); $j++) {
-				switch($section['areas'][$j]['area_type']) {
-					case 'section' :
-						?>
-							<tr>
-								<td width="100%" valign="top" colspan="3">
-								<?php
-									$this->_paintSection($section['areas'][$j], $depth + 1);
-								?>
-								</td>
-							</tr>
-						<?php
-
-						break;
-
-					case 'field' :
-						$field = &$section['areas'][$j];
-						switch ($field['format']) {
-							case 'new_line' :
+				if ($section['areas'][$j]['type'] == 'raw') {
+					echo $section['areas'][$j]['contents'];
+				} else {
+					switch($section['areas'][$j]['area_type']) {
+						case 'section' :
+							?>
+								<tr>
+									<td width="100%" valign="top" colspan="3">
+									<?php
+										$this->_paintSection($section['areas'][$j], $depth + 1);
+									?>
+									</td>
+								</tr>
+							<?php
+	
+							break;
+	
+						case 'field' :
+							$field = &$section['areas'][$j];
+							switch ($field['format']) {
+								case 'new_line' :
+									?>
+										<tr>
+											<td nowrap valign="top" class="sq-backend-field" colspan="3">
+												<a name="field_<?php echo $field['field_count']; ?>"></a>
+												<?php echo $field['name'];?>
+											</td>
+										</tr>
+										<tr>
+											<td valign="top" class="sq-backend-data" colspan="3">
+												<table cellpadding="0" cellspacing="0" border="0">
+													<tr>
+														<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
+														<td width="100%" valign="top" class="sq-backend-data">
+														<?php
+															echo $field['contents'];
+															if ($field['note']) $this->note($field['note']);
+														?>
+														</td>
+													</tr>
+												</table>
+											</td>
+										</tr>
+									<?php
+								break;
+	
+								case 'commit' :
+									?>
+									<tr>
+										<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="3">
+										<?php
+											echo $field['contents'];
+											if ($field['note']) $this->note($field['note']);
+										?>
+										</td>
+									</tr>
+									<?php
+								break;
+	
+								case 'blank' :
+									// a blank field to be used just for formatting
+								break;
+	
+								default :
 								?>
 									<tr>
-										<td nowrap valign="top" class="sq-backend-field" colspan="3">
+										<td nowrap valign="top" class="sq-backend-field">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
 										</td>
-									</tr>
-									<tr>
-										<td valign="top" class="sq-backend-data" colspan="3">
-											<table cellpadding="0" cellspacing="0" border="0">
-												<tr>
-													<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
-													<td width="100%" valign="top" class="sq-backend-data">
-													<?php
-														echo $field['contents'];
-														if ($field['note']) $this->note($field['note']);
-													?>
-													</td>
-												</tr>
-											</table>
+										<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
+										<td width="100%" valign="top" class="sq-backend-data">
+										<?php
+											echo $field['contents'];
+											if ($field['note']) $this->note($field['note']);
+										?>
 										</td>
 									</tr>
+									<tr>
+										<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
+									</tr>
 								<?php
+							}//end switch
+	
 							break;
-
-							case 'commit' :
-								?>
-								<tr>
-									<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="3">
-									<?php
-										echo $field['contents'];
-										if ($field['note']) $this->note($field['note']);
-									?>
-									</td>
-								</tr>
-								<?php
-							break;
-
-							case 'blank' :
-								// a blank field to be used just for formatting
-							break;
-
-							default :
-							?>
-								<tr>
-									<td nowrap valign="top" class="sq-backend-field">
-										<a name="field_<?php echo $field['field_count']; ?>"></a>
-										<?php echo $field['name'];?>
-									</td>
-									<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
-									<td width="100%" valign="top" class="sq-backend-data">
-									<?php
-										echo $field['contents'];
-										if ($field['note']) $this->note($field['note']);
-									?>
-									</td>
-								</tr>
-								<tr>
-									<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
-								</tr>
-							<?php
-						}//end switch
-
-						break;
-
-					default :
-						trigger_error('Unknown Area Type : "'.$section['areas'][$j]['area_type'].'"', E_USER_ERROR);
-
-				}// end switch area type
+	
+						default :
+							trigger_error('Unknown Area Type : "'.$section['areas'][$j]['area_type'].'"', E_USER_ERROR);
+	
+					}// end switch area type
+				
+				}
 
 			}//end for
 
