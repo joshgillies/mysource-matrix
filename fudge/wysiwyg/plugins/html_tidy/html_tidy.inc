@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: html_tidy.inc,v 1.10 2003/11/10 21:34:12 gsherwood Exp $
+* $Id: html_tidy.inc,v 1.11 2003/11/11 00:42:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -98,7 +98,7 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 
 		// tidy the HTML produced using the HTMLTidy program
 		$tidy = Array();
-		$path_to_tidy = '/home/gsherwood/mysource_matrix/tidy';
+		$path_to_tidy = '/usr/local/bin/tidy';
 		$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
 
 		// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
