@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.25 2003/11/26 00:51:10 gsherwood Exp $
+* $Id: mysource.inc,v 1.26 2003/11/26 01:49:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,6 +62,13 @@ class MySource
 	* @see changeDatabaseConnection(), restoreDatabaseConnection()
 	*/
 	var $_db_stack = Array();
+
+	/**
+	* this is the current Backend object
+	*
+	* @var object Backend
+	*/
+	var $backend;
 
 	/**
 	* @var object Asset_Manager
