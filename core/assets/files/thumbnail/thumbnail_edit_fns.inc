@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail_edit_fns.inc,v 1.17 2004/07/23 07:16:27 mmcintyre Exp $
+* $Id: thumbnail_edit_fns.inc,v 1.18 2004/08/05 03:42:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -93,6 +93,35 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 		return parent::processFileUpload($asset, $o, $prefix, $info);
 
 	}//end processFileUpload()
+	
+	
+	/**
+	* Prints info about the current uploaded file
+	*
+	* @param object File	&$asset	the file asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printExistingFileInfo(&$asset)
+	{
+		$existing = $asset->_getExistingFile();
+		if (!empty($existing)) {
+			?>
+			<table cellspacing="0" cellpadding="2" >
+				<tr>
+					<td valign="top"><?php $asset->printImageTag('Click CURRENT FILE to view the latest version of this thumbnail'); ?></td>
+					<td valign="top">
+					<?php file_edit_fns::printExistingFileInfo($asset); ?>
+					<b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?> pixels<br/>
+					</td>
+				</tr>
+			</table>
+			<?php
+		}
+
+	}//end printExistingFileInfo()
+
 
 }//end class
 
