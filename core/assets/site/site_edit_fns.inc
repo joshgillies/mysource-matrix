@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.40 2003/11/26 00:50:58 gsherwood Exp $
+* $Id: site_edit_fns.inc,v 1.41 2003/12/03 23:12:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -263,6 +263,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			} else {
 				$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($selected, '', true);
 				echo $page->name;
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($page);
 			}
 			echo '</i>';
 			return false;
@@ -281,6 +282,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($info['minorid'], $info['minor_type_code'], true);
 			if (is_null($page)) continue;
 			$contents[$page->id] = $page->name;
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($page);
 		}
 
 		combo_box($prefix.'_'.$page_type, $contents, false, $selected);
