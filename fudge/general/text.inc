@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.8 2004/02/24 22:34:50 gsherwood Exp $
+* $Id: text.inc,v 1.8.2.1 2004/10/15 06:40:18 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *     Generic functions that are useful, but don't fall into any other category
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.8.2.1 $
 * @package Fudge
 * @subpackage Text
 */
@@ -114,5 +114,17 @@ function get_word_counts($text, $split_regexp="[^A-z0-9]+", $word_match_regexp="
 	return $word_counts;
 
 }//end get_word_counts()
+
+
+/**
+* Escape double quotes by reference
+*
+* @param string $subject
+*/
+function escape_double_quotes(&$subject)
+{
+	$subject = str_replace('"', '\"', $subject);
+
+}//end escape_double_quotes()
 
 ?>
