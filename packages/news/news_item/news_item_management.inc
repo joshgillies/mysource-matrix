@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item_management.inc,v 1.3 2004/12/06 14:43:35 brobertson Exp $
+* $Id: news_item_management.inc,v 1.4 2005/01/13 22:32:50 amiller Exp $
 *
 */
 
@@ -76,16 +76,62 @@ class News_Item_Management extends Asset_Management
 										);
 
 		$this->vars['contact_name']         = Array(
-                                                                                'added'     => '0.2',
-                                                                                'type'      => 'text',
-                                                                                'default'   => '',
+										'added'     => '0.2',
+										'type'      => 'text',
+										'default'   => '',
 										);
 
 		$this->vars['contact_phone']         = Array(
-                                                                                'added'     => '0.2',
-                                                                                'type'      => 'text',
-                                                                                'default'   => '',
+										'added'     => '0.2',
+										'type'      => 'text',
+										'default'   => '',
 										);
+										
+		$this->vars['show_headline']	= Array(
+										'added'     => '0.3',
+										'type'      => 'boolean',
+										'default'   => true,
+										'parameters' => Array(
+													 'allow_empty' => false
+													 ),
+										);
+										
+		$this->vars['show_summary']	= Array(
+										'added'     => '0.3',
+										'type'      => 'boolean',
+										'default'   => true,
+										'parameters' => Array(
+													 'allow_empty' => false
+													 ),
+										);
+
+		$this->vars['show_body']	= Array(
+										'added'     => '0.3',
+										'type'      => 'boolean',
+										'default'   => true,
+										'parameters' => Array(
+													 'allow_empty' => false
+													 ),
+										);
+
+		$this->vars['show_contact_name']	= Array(
+										'added'     => '0.3',
+										'type'      => 'boolean',
+										'default'   => true,
+										'parameters' => Array(
+													 'allow_empty' => false
+													 ),
+										);
+
+		$this->vars['show_contact_phone']	= Array(
+										'added'     => '0.3',
+										'type'      => 'boolean',
+										'default'   => true,
+										'parameters' => Array(
+													 'allow_empty' => false
+													 ),
+										);
+
 
 	}//end constructor
 
