@@ -2,13 +2,13 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2003/10/14 05:24:58 mmcintyre Exp $
+* $Id: edit_interface_screen_details.xml,v 1.5 2003/10/21 04:29:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Purge Assets In Trash" write_access="root:all" read_access="root:all">
+	<section name="Purge Assets In Trash" write_access="write:" show_if="purgeAccess">
 		<field>
 			<display_name>Empty Trash ?</display_name>
 			<note>This will purge all assets from the trash and make then unavailable for restoring or editing.</note>

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: trash_folder.inc,v 1.45 2003/10/15 11:05:15 brobertson Exp $
+* $Id: trash_folder.inc,v 1.46 2003/10/21 04:29:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,7 +51,7 @@ class Trash_Folder extends Folder
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
-			if (!system_asset_fns_create_cleanup($this))  {
+			if (!system_asset_fns_create_cleanup($this)) {
 				$linkid = false;
 			}
 		}
@@ -65,6 +65,28 @@ class Trash_Folder extends Folder
 		return $linkid;
 
 	}//end create()
+
+
+	/**
+	* Prints out the backend interface for the asset
+	* it's up to the kids to override
+	*
+	* @param object Backend_Outputter $o
+	*
+	* @access public
+	*/
+	function paintBackend(&$o)
+	{
+		$prefix = $this->getPrefix($this);
+		if (isset($_REQUEST[$prefix.'_purge_complete']) && (int)$_REQUEST[$prefix.'_purge_complete'] === 1) {
+			$o->addOnLoad('	if (top.sidenav && top.sidenav.reload_asset) {
+								top.sidenav.reload_asset("'.$this->id.'");
+							}');
+		}
+
+		parent::paintBackend($o);
+
+	}// end paintBackend()
 
 
 	/**
@@ -163,35 +185,6 @@ class Trash_Folder extends Folder
 		return true;
 
 	}// end canCreateLink()
-
-
-	/**
-	* Prints out the backend interface for the asset
-	* it's up to the kids to override
-	*
-	* @param object Backend_Outputter $o
-	*
-	* @access public
-	*/
-	function paintBackend(&$o)
-	{
-		$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
-		$prefix = $this->getPrefix($this);
-
-		if (isset($_REQUEST[$prefix.'_purge_complete']) && (int)$_REQUEST[$prefix.'_purge_complete'] === 1) {
-			$o->addOnLoad('	if (top.sidenav && top.sidenav.reload_asset) {
-								top.sidenav.reload_asset("2");
-							}');
-			parent::paintBackend($o);
-		} else if (isset($_REQUEST[$prefix.'_purge_trash']) && (int)$_REQUEST[$prefix.'_purge_trash'] === 1) {
-			$o->addFormActionGetVar($prefix.'_purge_trash', 1);
-			$ef = $this->getEditFns();
-			$ef->_purgeTrash($this, $o, $prefix);
-		} else {
-			parent::paintBackend($o);
-		}
-
-	}// end paintBackend()
 
 
 	/**
