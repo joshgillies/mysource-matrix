@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.51 2004/12/06 17:31:33 brobertson Exp $
+* $Id: calendar_event_recurring.inc,v 1.52 2004/12/23 05:51:37 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.51 $
+* @version $Revision: 1.52 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -611,9 +611,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 			if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
-				// we need to show the exception event
-				bam("SPECIAL CASE: This asset has an exception today");
-				bam($exception_link);
+				// We shouldn't really ever get here, but handle it anyway
+				echo '<p>This event has a modification today: please see <a href="?a='.$exception_link['minorid'].'">event '.$exception_link['minorid'].'</a></p>';
 			} else {
 				// we are showing a normal instance of this event
 				$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
@@ -677,8 +676,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function _getCancelLink()
 	{
-		if (isset($_REQUEST['SQ_CALENDAR_DATE']))	return '<a href="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=cancel1&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'" onclick="return confirm(\'Are you sure you want to cancel this instance?\');">Cancel this instance</a>';
-		else return '(cancel link)';
+		if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+			return '<a href="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=cance11&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'" onclick="return confirm(\'Are you sure you want to cancel this instance?\');">Cancel this instance</a>';
+		} else {
+			return '(cancel link)';
+		}
 
 	}//end _getCancelLink()
 
@@ -691,8 +693,11 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function _getModifyLink()
 	{
-		if (isset($_REQUEST['SQ_CALENDAR_DATE']))	return '<a href="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=modify1&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">Modify this instance</a>';
-		else return '(modify link)';
+		if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+			return '<a href="?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$this->id.'&amp;SQ_CALENDAR_EVENT_ACTION=modify1&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">Modify this instance</a>';
+		} else {
+			return '(modify link)';
+		}
 
 	}//end _getModifyLink()
 
