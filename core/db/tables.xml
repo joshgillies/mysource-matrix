@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.29 2003/11/26 00:51:08 gsherwood Exp $
+* $Id: tables.xml,v 1.30 2003/12/01 05:20:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -781,6 +781,47 @@
 				<column name="assetid"    />
 				<column name="userid"     />
 				<column name="permission" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_editing_access" require_rollback="1">
+		<columns>
+			<column name="userid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description />
+			</column>
+			<column name="type_code" allow_null="1">
+				<type>VARCHAR(255)</type>
+				<type_variations>
+					<mysql>VARCHAR(160)</mysql>
+				</type_variations>
+				<default />
+				<description>The type code of the asset type which we are restricting access to. Set to NULL to allow access to all asset types.</description>
+			</column>
+			<column name="screen" allow_null="1">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default />
+				<description>The screen we are restricting access to. Set to NULL to allow access to all screens.</description>
+			</column>
+			<column name="section" allow_null="1">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default />
+				<description>The section of the screen we are restricting access to. Set to NULL to allow access to all sections.</description>
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="assetid"   />
+				<column name="type_code" />
+				<column name="screen"    />
+				<column name="section"   />
 			</primary_key>
 		</keys>
 		<indexes />

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.187 2003/11/28 00:43:00 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.188 2003/12/01 05:20:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -171,6 +171,16 @@ class Asset_Edit_Interface extends MySource_Object
 		if (!count($this->_screens) && empty($this->_edit_fns->static_screens)) return;
 
 
+		  /////////////////////////////
+		 //  ALLOWED SCREEN ACCESS  //
+		/////////////////////////////
+		$check_screen_restrictions = !$owner->adminAccess('');
+		if ($check_screen_restrictions) {
+			$allowed_screens = $this->getAllowedScreens($owner);
+			if (isset($allowed_screens['0']['0'])) $check_screen_restrictions = false;
+		}
+
+
 		  /////////////////////
 		 //  ACTIVE SCREEN  //
 		/////////////////////
@@ -184,6 +194,12 @@ class Asset_Edit_Interface extends MySource_Object
 			$_REQUEST['asset_ei_screen'] = $active_screen;
 		} else {
 			$active_screen = $_REQUEST['asset_ei_screen'];
+		}
+
+		if ($check_screen_restrictions && !isset($allowed_screens[$active_screen])) {
+			// this user is not allowed to view the current screen
+			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>'.$active_screen.'</i> screen of "'.$owner->name.'"');
+			exit();
 		}
 
 		// make sure that we have the screen for next time
@@ -593,11 +609,13 @@ class Asset_Edit_Interface extends MySource_Object
 		// add all the screens to the combo, but only if we aren't creating the object
 		if (!$creating) {
 			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
+				if ($check_screen_restrictions && !isset($allowed_screens[$code])) continue;
 				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
 			}
 
 			// add static screens for the asset
 			foreach ($this->_edit_fns->static_screens as $code_name => $data) {
+				if ($check_screen_restrictions && !isset($allowed_screens[$code_name])) continue;
 				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
 				$o->addStaticScreen($url, $data['name']);
 			}
@@ -752,6 +770,19 @@ class Asset_Edit_Interface extends MySource_Object
 		if ($creating) {
 			list($create_sections, $active_screen) = $this->_getCreateSections(false);
 			if (!count($create_sections)) return false;
+		} else {
+			  /////////////////////////////
+			 //  ALLOWED SCREEN ACCESS  //
+			/////////////////////////////
+			if (!$owner->adminAccess('')) {
+				$allowed_screens = $this->getAllowedScreens($owner);
+
+				if (!isset($allowed_screens['0']['0']) && !isset($allowed_screens[$active_screen])) {
+					// this user is not allowed to view the current screen
+					$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the <i>'.$active_screen.'</i> screen of "'.$owner->name.'"');
+					exit();
+				}
+			}
 		}
 
 		// check the active screen for special system defined static screens
@@ -887,7 +918,7 @@ class Asset_Edit_Interface extends MySource_Object
 			return false;
 		}
 
-	}// end process();
+	}// end process()
 
 
 	/**
@@ -991,11 +1022,52 @@ class Asset_Edit_Interface extends MySource_Object
 
 		}// end if
 
-#		pre_echo($node->name.' -> '.$access);
-
 		return $access;
 
-	}// end _getAccess()
+	}//end _getAccess()
+
+
+	/**
+	* Get an array of the screens we are allowed to access for the asset we are painting
+	*
+	* @param object	Asset	$owner	the asset whose interface we are painting
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getAllowedScreens(&$owner)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// get all the user groups that we exist in
+		$groups = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group');
+		if (empty($groups)) return Array();
+
+		for (reset($groups); NULL !== ($k = key($groups)); next($groups)) $groups[$k] = $db->quote($groups[$k]);
+
+		$sql = 'SELECT screen, section
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_editing_access ';
+		$where = 'userid IN ('.implode(',', $groups).')';
+		
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		$where .= ' AND type_code = '.$db->quote('0').'
+					OR type_code IN (~SQ0~)';
+		$subs = Array( 'SELECT inherited_type_code
+						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+						WHERE type_code = '.$db->quote($owner->type()));
+		$where = db_extras_subquery($db, $where, $subs);
+		if (DB::isError($where)) trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+		
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		$allowed_screens = $db->getAssoc($sql.$where, false, Array(), DB_FETCHMODE_ASSOC, true);
+		if (DB::isError($allowed_screens)) {
+			trigger_error($allowed_screens->getMessage().'<br/>'.$allowed_screens->getUserInfo(), E_USER_ERROR);
+		}
+
+		return $allowed_screens;
+
+	}//end getAllowedScreens()
 
 
 	/**

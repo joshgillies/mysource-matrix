@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group.inc,v 1.9 2003/11/26 00:51:04 gsherwood Exp $
+* $Id: user_group.inc,v 1.10 2003/12/01 05:20:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,7 +52,22 @@ class User_Group extends Folder
 	}//end constructor
 
 
-	/*
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['security'] = max($lock_types) * 2;
+		return $lock_types;
+
+	}//end lockTypes()
+
+
+	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
 	* @see Asset::_getAllowLinks()
@@ -68,6 +83,7 @@ class User_Group extends Folder
 		return $allowed;
 
 	}//end _getAllowedLinks()
+
 
 }//end class
 
