@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.5 2004/02/18 18:19:16 brobertson Exp $
+* $Id: bodycopy_table_cell.inc,v 1.6 2004/07/06 10:55:45 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,8 @@
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class BodyCopy_Table_Cell extends MySource_Object {
+class BodyCopy_Table_Cell extends MySource_Object
+{
 
 	var $attributes = Array(); // an array of attributes for the TD tag
 
@@ -330,7 +331,8 @@ class BodyCopy_Table_Cell extends MySource_Object {
 	* @return boolean
 	* @access private
 	*/
-	function _updateCellType(&$table, $new_type='') {
+	function _updateCellType(&$table, $new_type='') 
+	{
 
 		// dont change anything if the new type id blank
 		$new_type = trim($new_type);
