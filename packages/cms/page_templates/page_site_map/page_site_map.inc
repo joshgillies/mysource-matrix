@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map.inc,v 1.14 2004/12/06 17:31:50 brobertson Exp $
+* $Id: page_site_map.inc,v 1.15 2005/01/19 23:51:48 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.14 $
+* @version $Revision: 1.15 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -168,20 +168,18 @@ class Page_Site_Map extends Page
 				unset($page_data[$siteid]);
 				?>
 				<table cellpadding="0" cellspacing="0" border="0">
-					 <tr>
-
-					<?php
-					foreach ($chunks as $chunk) {
-						?><td valign="top"><?php
-						$sub_chunk = Array();
-						$sub_chunk[$siteid] = $chunk;
-						$sub_chunk = $sub_chunk + $page_data;
-						$this->_recursePrintAssetList($sub_chunk, $siteid, $this->attr('top_level'), $this->attr('stalks'));
-						unset($sub_chunk);
-						?></td><?php
-					}
-					?>
-
+					<tr>
+						<?php
+						foreach ($chunks as $chunk) {
+							?><td valign="top"><?php
+							$sub_chunk = Array();
+							$sub_chunk[$siteid] = $chunk;
+							$sub_chunk = $sub_chunk + $page_data;
+							$this->_recursePrintAssetList($sub_chunk, $siteid, 1);
+							unset($sub_chunk);
+							?></td><?php
+						}
+						?>
 					</tr>
 				</table>
 				<?php
@@ -199,37 +197,39 @@ class Page_Site_Map extends Page
 	/**
 	* Recursively prints a tree of the passed in data
 	*
-	* @param &Array		$page_data		the data to print in a tree structure
-	* @param integer	$parent			the parent that we are currently at
-	* @param boolean	$top_level		if TRUE the stalks printed at the top level
+	* @param array		&$page_data		the data to print in a tree structure
+	* @param int		$parent			the parent that we are currently at
+	* @param int		$parent			the level of the tree we are printing
 	* @param boolean	$generating		if TRUE content will be generated for a content file
-	* @param boolean	$stalks			if TRUE stalks are printed
 	*
 	* @access private
 	* @return boolean
 	*/
-	function _recursePrintAssetList(&$page_data, $parent, $top_level=false, $stalks=true, $generating=false)
+	function _recursePrintAssetList(&$page_data, $parent, $level, $generating=false)
 	{
+		$top_level = $this->attr('top_level');
+		$stalks = $this->attr('stalks');
+
 		if (!$generating) {
 			global $SQ_SITE_MAP_ASSET_URLS;
 		}
 		?>
-			<table cellpadding="0" cellspacing="0" border="0">
-		<?php
+		<table cellpadding="0" cellspacing="0" border="0">
+			<?php
 			$num_kids = count($page_data[$parent]);
 			$i = 0;
 			foreach ($page_data[$parent] as $data) {
 				$end = ($i == $num_kids - 1);
-				$image1 = (!$top_level || !$stalks) ? 'blank.gif' : 'tree/stalk.gif';
-				$image2 = (!$top_level || !$stalks) ? 'blank.gif' : 'tree/branch.gif';
+				$image1 = (($level == 1 && !$top_level) || !$stalks) ? 'blank.gif' : 'tree/stalk.gif';
+				$image2 = (($level == 1 && !$top_level) || !$stalks) ? 'blank.gif' : 'tree/branch.gif';
 
 				$bg = ($end) ? '' : 'background="'.sq_web_path('lib').'/web/images/'.$image1.'"';
 
 				$url = ($generating) ? '<'.'?php echo $SQ_SITE_MAP_ASSET_URLS[$data[\'assetid\']] ?'.'>' : $SQ_SITE_MAP_ASSET_URLS[$data['assetid']];
-			?>
+				?>
 				<tr>
 					<td <?php echo $bg; ?>>
-					<img src="<?php echo sq_web_path('lib').'/web/images/'.$image2; ?>" width="20" height="20" border="0" alt="branch" /></td>
+					<img src="<?php echo sq_web_path('lib').'/web/images/'.$image2; ?>" width="20" height="20" border="0" alt="Level <?php echo $level; ?> Item" /></td>
 					<td >
 						<?php if ($this->attr('icons')) { ?>
 							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($data['type_code']); ?>", "16", "16", "");</script>&nbsp;&nbsp;
@@ -237,23 +237,23 @@ class Page_Site_Map extends Page
 						<a href="<?php echo $url?>"><?php echo $data['name'];?></a>
 					</td>
 				</tr>
-			<?php
+				<?php
 				if (!empty($page_data[$data['assetid']])) {
-				?>
-					<tr>
-						<td <?php echo $bg; ?>><img src="<?php echo sq_web_path('lib').'/web/images/blank.gif'; ?>" width="1" height="1" alt="blank" /></td>
-						<td>
-					<?php
-						$this->_recursePrintAssetList($page_data, $data['assetid'], true, $stalks, $generating);
 					?>
+					<tr>
+						<td <?php echo $bg; ?>><img src="<?php echo sq_web_path('lib').'/web/images/blank.gif'; ?>" width="1" height="1" alt=" " /></td>
+						<td>
+							<?php
+							$this->_recursePrintAssetList($page_data, $data['assetid'], ($level +1), $generating);
+							?>
 						</td>
 					</tr>
-				<?php
-				}//end if
+					<?php
+				}
 				$i++;
 			}//end foreach
-		?>
-			</table>
+			?>
+		</table>
 		<?php
 
 		return true;
