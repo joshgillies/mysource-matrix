@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.11 2004/03/14 23:52:43 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.12 2004/03/30 04:21:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,7 +117,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	* @access public
 	*/
 	function printLimbo()
-	{
+	{	
 		$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('ignore_frames', '1', true);
 
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
