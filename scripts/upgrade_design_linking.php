@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: upgrade_design_linking.php,v 1.1 2004/12/24 03:02:00 gsherwood Exp $
+* $Id: upgrade_design_linking.php,v 1.1.2.1 2004/12/24 03:02:22 gsherwood Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * Convert TYPE_3 linked designs to NOTICE
 *
 * @author  Greg Sherwood <greg@squiz.co.uk>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.1.2.1 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
