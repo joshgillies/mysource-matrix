@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.26 2005/02/20 22:07:00 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.27 2005/04/05 00:32:58 mnyeholt Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -443,7 +443,7 @@ class LDAP_Bridge extends Asset
 			// also add in groups based on our DN
 			$ou_groups = Array();
 			$matches = Array();
-			$reg_expression = '|ou=([^,]+),(.*)|';
+			$reg_expression = '|ou=([^,]+),(.*)|i';
 			$reg_string = $assetid;
 			while ($reg_string != '') {
 				preg_match_all($reg_expression, $reg_string, $matches);
