@@ -9,7 +9,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Form_Question_Rule_Type_Email_Management extends Asset_Management

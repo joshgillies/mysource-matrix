@@ -10,7 +10,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class System_User_Group_Edit_Fns extends User_Group_Edit_Fns

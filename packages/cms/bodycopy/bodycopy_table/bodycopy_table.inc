@@ -11,7 +11,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Bodycopy_Table extends Asset

@@ -10,7 +10,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Image_Edit_Fns extends File_Edit_Fns

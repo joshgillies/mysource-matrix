@@ -13,7 +13,7 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 * @subpackage attributes
 */
 class Asset_Attribute_Password extends Asset_Attribute_Text

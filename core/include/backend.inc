@@ -12,9 +12,9 @@ require_once SQ_INCLUDE_PATH.'/backend_outputter.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Backend extends Resolve_Object
+class Backend extends MySource_Object
 {
 
 	/**
@@ -31,7 +31,7 @@ class Backend extends Resolve_Object
 	*/
 	function Backend()
 	{
-		$this->Resolve_Object();
+		$this->MySource_Object();
 	}
 
 

@@ -8,7 +8,7 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
 
 require_once dirname(dirname(__FILE__)).'/core/include/init.inc';

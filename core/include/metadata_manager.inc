@@ -8,9 +8,9 @@
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Metadata_Manager extends Resolve_Object
+class Metadata_Manager extends MySource_Object
 {
 
 	/**
@@ -19,7 +19,7 @@ class Metadata_Manager extends Resolve_Object
 	*/
 	function Metadata_Manager()
 	{
-		$this->Resolve_Object();
+		$this->MySource_Object();
 
 	}//end constructor
 

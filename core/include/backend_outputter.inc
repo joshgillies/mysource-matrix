@@ -20,7 +20,7 @@ define('SQ_BO_MSG_ERROR',       4);
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
 class Backend_Outputter
 {

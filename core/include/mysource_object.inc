@@ -1,13 +1,13 @@
 <?php
 
 /**
-* Resolve_Object
+* MySource_Object
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Resolve_Object 
+class MySource_Object 
 {
 
 	/**
@@ -25,7 +25,7 @@ class Resolve_Object
 	*
 	* @access public
 	*/
-	function Resolve_Object()
+	function MySource_Object()
 	{
 		$this->_tmp = Array();
 	}//end constructor

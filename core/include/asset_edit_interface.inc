@@ -16,9 +16,9 @@ define('SQ_EI_WRITE', 2);
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Asset_Edit_Interface extends Resolve_Object
+class Asset_Edit_Interface extends MySource_Object
 {
 
 	/**

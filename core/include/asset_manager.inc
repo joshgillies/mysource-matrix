@@ -8,9 +8,9 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Asset_Manager extends Resolve_Object
+class Asset_Manager extends MySource_Object
 {
 
 	/**
@@ -35,7 +35,7 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function Asset_Manager()
 	{
-		$this->Resolve_Object();
+		$this->MySource_Object();
 		if (!$GLOBALS['SQ_INSTALL']) $this->_loadAssetTypes();
 
 	}//end constructor

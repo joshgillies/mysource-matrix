@@ -13,7 +13,7 @@ require_once SQ_INCLUDE_PATH.'/asset_status/asset_status.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
 class Asset_Status_Approved extends Asset_Status
 {

@@ -17,7 +17,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 * @subpackage attributes
 */
 class Asset_Attribute_Selection extends Asset_Attribute

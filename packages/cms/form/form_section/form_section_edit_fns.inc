@@ -11,7 +11,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Section_Edit_Fns extends Asset_Edit_Fns

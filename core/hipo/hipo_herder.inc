@@ -7,10 +7,10 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Blair Robertson <brobertson@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 * @subpackage HIPO
 */
-class HIPO_Herder extends Resolve_Object
+class HIPO_Herder extends MySource_Object
 {
 
 	/**

@@ -11,7 +11,7 @@ require_once SQ_LIB_PATH.'/config/config.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
 class System_Config extends Config
 {
@@ -30,7 +30,7 @@ class System_Config extends Config
 
 
 
-		'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'Resolve System'),
+		'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'The System'),
 		'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => 6000),

@@ -14,7 +14,7 @@ require_once SQ_FUDGE_PATH.'/general/www.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 * @subpackage attributes
 */
 class Asset_Attribute_Email extends Asset_Attribute_Text

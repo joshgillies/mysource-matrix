@@ -6,20 +6,20 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
 error_reporting(E_ALL);
 $SYSTEM_ROOT = '';
 // from cmd line
 if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) $SYSTEM_ROOT = $_SERVER['argv'][1];
-	$err_msg = "You need to supply the path to the Resolve System as the first argument\n";
+	$err_msg = "You need to supply the path to the System Root as the first argument\n";
 
 } else { 
 	if (isset($_GET['SYSTEM_ROOT'])) $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
 	$err_msg = '
 	<div style="background-color: red; color: white; font-weight: bold;">
-		You need to supply the path to the Resolve System as a query string variable called SYSTEM_ROOT
+		You need to supply the path to the System Root as a query string variable called SYSTEM_ROOT
 	</div>
 	';
 }

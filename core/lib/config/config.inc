@@ -9,9 +9,9 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Config extends Resolve_Object
+class Config extends MySource_Object
 {
 	/**
 	* @var	Holds all the vars for this that config vars for this config
@@ -33,7 +33,7 @@ class Config extends Resolve_Object
 	*/
 	function Config($config_file)
 	{
-		$this->Resolve_Object();
+		$this->MySource_Object();
 		$this->config_file = $config_file;
 	}
 

@@ -1,20 +1,20 @@
 <?php
 
 require_once 'DB.php';
-require_once SQ_INCLUDE_PATH.'/resolve_object.inc';
+require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 
 /**
-* Resolve
+* MySource
 *
 * Purpose
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Resolve
+class MySource
 {
 
 	/**
@@ -103,7 +103,7 @@ class Resolve
 	* Constructor
 	*
 	*/
-	function Resolve()
+	function MySource()
 	{
 	}// end constructor
 

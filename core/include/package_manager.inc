@@ -13,9 +13,9 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Package_Manager extends Resolve_Object
+class Package_Manager extends MySource_Object
 {
 
 	/**
@@ -63,7 +63,7 @@ class Package_Manager extends Resolve_Object
 		// ignore CVS directories
 		if ($package == 'CVS') return;
 
-		$this->Resolve_Object();
+		$this->MySource_Object();
 
 		// OK, if this is the "core" package then we just need to fiddle with the path
 		$this->_base_path = ($package == '__core__') ? 'core/assets' : 'packages/'.$package;
@@ -467,7 +467,7 @@ class Package_Manager extends Resolve_Object
 
 				case 'system' :
 					switch($req['code']['value']) {
-						case 'Resolve' :
+						case 'System' :
 							$ok = version_compare(SQ_SYSTEM_VERSION, $req['version']['value'], '>=');
 							break;
 						case 'PHP' :

@@ -9,9 +9,9 @@
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Transaction_Manager extends Resolve_Object
+class Transaction_Manager extends MySource_Object
 {
 
 	/**
@@ -35,7 +35,7 @@ class Transaction_Manager extends Resolve_Object
 	*/
 	function Transaction_Manager()
 	{
-		$this->Resolve_Object();
+		$this->MySource_Object();
 	}//end constructor
 
 

@@ -10,7 +10,7 @@ require_once dirname(__FILE__).'/../../content_type/content_type.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Content_Type_WYSIWYG extends Content_Type

@@ -21,7 +21,7 @@ require_once 'XML/Parser.php';
 *    print_r($array);
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @package Resolve
+* @package MySource_Matrix
 * @subpackage lib
 * @version $Version$ - 1.0
 */

@@ -6,7 +6,7 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
 
 error_reporting(E_ALL);
@@ -16,7 +16,7 @@ define('SQ_LIB_PATH',      SQ_SYSTEM_ROOT.'/core/lib');
 define('SQ_DATA_PATH',     SQ_SYSTEM_ROOT.'/data');
 define('SQ_FUDGE_PATH',    SQ_SYSTEM_ROOT.'/fudge');
 
-require_once SQ_INCLUDE_PATH.'/resolve_object.inc';
+require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/system_config.inc';
 
 define('SQ_CONF_DB_DSN', 'mysql://root@localhost/greg_matrix');

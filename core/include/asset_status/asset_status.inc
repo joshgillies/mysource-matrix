@@ -8,9 +8,9 @@
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Asset_Status extends Resolve_Object
+class Asset_Status extends MySource_Object
 {
 
 	/**
@@ -34,7 +34,7 @@ class Asset_Status extends Resolve_Object
 	function Asset_Status(&$owner)
 	{
 		$this->owner = $owner;
-		$this->Resolve_Object();
+		$this->MySource_Object();
 
 	}//end constructor
 

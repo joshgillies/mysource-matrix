@@ -6,7 +6,7 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
 
 /*
@@ -32,8 +32,8 @@ define('SQ_PHP_CLI', (php_sapi_name() == 'cli'));
 * comes up with an automated method)
 */
 define('SQ_SYSTEM_VERSION',        '0.1.1');
-define('SQ_SYSTEM_SHORT_NAME',     'Resolve FX');
-define('SQ_SYSTEM_LONG_NAME',      'Squiz Resolve FX v'.SQ_SYSTEM_VERSION);
+define('SQ_SYSTEM_SHORT_NAME',     'MySource');
+define('SQ_SYSTEM_LONG_NAME',      'Squiz MySource Matrix v'.SQ_SYSTEM_VERSION);
 define('SQ_SYSTEM_URL',            'http://www.squiz.net/');
 
 define('SQ_REQUIRED_PHP_VERSION', '4.3.0');
@@ -146,8 +146,8 @@ if (get_magic_quotes_gpc()) {
 
 
 // Create the system object
-require_once SQ_INCLUDE_PATH.'/resolve.inc';
-$GLOBALS['SQ_SYSTEM'] = new Resolve();
+require_once SQ_INCLUDE_PATH.'/mysource.inc';
+$GLOBALS['SQ_SYSTEM'] = new MySource();
 $GLOBALS['SQ_SYSTEM']->init();
 
 

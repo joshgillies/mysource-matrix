@@ -8,10 +8,10 @@
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class BodyCopy_Table_Cell extends Resolve_Object {
+class BodyCopy_Table_Cell extends MySource_Object {
 
 	var $attributes = Array(); // an array of attributes for the TD tag
 
@@ -21,7 +21,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	*/
 	function BodyCopy_Table_Cell()
 	{
-		parent::Resolve_Object();
+		parent::MySource_Object();
 
 	}//end constructor
 

@@ -40,7 +40,7 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 * @subpackage lib
 */
 class Progress_Bar

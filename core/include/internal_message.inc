@@ -8,9 +8,9 @@
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Internal_Message extends Resolve_Object
+class Internal_Message extends MySource_Object
 {
 
 	/**
@@ -75,7 +75,7 @@ class Internal_Message extends Resolve_Object
 	*/
 	function Internal_Message()
 	{
-		$this->Resolve_Object();
+		$this->MySource_Object();
 
 	}//end constructor
 

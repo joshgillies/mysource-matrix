@@ -10,7 +10,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Type_Tickbox_List extends Form_Question

@@ -10,7 +10,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Rule_Type_Found_In extends Form_Question_Rule

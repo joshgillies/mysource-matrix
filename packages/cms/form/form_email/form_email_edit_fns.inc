@@ -10,7 +10,7 @@ require_once dirname(__FILE__).'/../form/form_edit_fns.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Email_Edit_Fns extends Form_Edit_Fns

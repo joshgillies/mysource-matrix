@@ -8,9 +8,9 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Asset extends Resolve_Object
+class Asset extends MySource_Object
 {
 
 	/**
@@ -127,7 +127,7 @@ class Asset extends Resolve_Object
 	*/
 	function Asset($assetid=0)
 	{
-		$this->Resolve_Object();
+		$this->MySource_Object();
 		if ($assetid) {
 			$this->load($assetid);
 		} else {

@@ -10,7 +10,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edi
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns

@@ -8,9 +8,9 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Asset_Attribute extends Resolve_Object
+class Asset_Attribute extends MySource_Object
 {
 
 	/**
@@ -78,7 +78,7 @@ class Asset_Attribute extends Resolve_Object
 	*/
 	function Asset_Attribute($attributeid=0, $value=null, $default_params=Array()) 
 	{
-		$this->Resolve_Object();
+		$this->MySource_Object();
 
 		if ($attributeid) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;

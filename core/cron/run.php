@@ -6,7 +6,7 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
 ini_set('memory_limit', '8M');
 ini_set('error_log', dirname(dirname(dirname(__FILE__))).'/cache/error.log');

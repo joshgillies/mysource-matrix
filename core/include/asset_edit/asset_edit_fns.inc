@@ -9,9 +9,9 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Asset_Edit_Fns extends Resolve_Object
+class Asset_Edit_Fns extends MySource_Object
 {
 
 	/**
@@ -54,7 +54,7 @@ class Asset_Edit_Fns extends Resolve_Object
 	*/
 	function Asset_Edit_Fns()
 	{
-		$this->Resolve_Object();
+		$this->MySource_Object();
 
 	}//end constructor
 

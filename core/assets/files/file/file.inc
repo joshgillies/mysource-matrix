@@ -11,7 +11,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class File extends Asset

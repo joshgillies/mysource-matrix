@@ -6,7 +6,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 * @subpackage lib
 */
 class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job

@@ -18,9 +18,9 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Messaging_Service extends Resolve_Object
+class Messaging_Service extends MySource_Object
 {
 	/**
 	* Temporary holder for messages added to each level of a queue, 
@@ -37,7 +37,7 @@ class Messaging_Service extends Resolve_Object
 	*/
 	function Messaging_Service()
 	{
-		$this->Resolve_Object();
+		$this->MySource_Object();
 
 	}//end constructor
 

@@ -8,9 +8,9 @@
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Workflow_Manager extends Resolve_Object
+class Workflow_Manager extends MySource_Object
 {
 
 	/**
@@ -34,7 +34,7 @@ class Workflow_Manager extends Resolve_Object
 	*/
 	function Workflow_Manager()
 	{
-		$this->Resolve_Object();
+		$this->MySource_Object();
 
 	}//end constructor
 

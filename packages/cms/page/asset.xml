@@ -12,7 +12,7 @@
 	<parent_type>asset</parent_type>
 	<requirements>
 		<requirement type="system">
-			<code>Resolve</code>
+			<code>System</code>
 			<version>0.1.0</version>
 		</requirement>
 	</requirements>

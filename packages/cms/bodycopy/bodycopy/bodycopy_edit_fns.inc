@@ -34,7 +34,7 @@ function print_bodycopy_icon($href, $heading, $desc, $icon, $extra='', $width='2
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Bodycopy_Edit_Fns extends Asset_Edit_Fns

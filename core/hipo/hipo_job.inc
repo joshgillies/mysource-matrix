@@ -8,10 +8,10 @@ require_once SQ_DATA_PATH.'/private/conf/hipo.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 * @subpackage HIPO
 */
-class HIPO_Job extends Resolve_Object
+class HIPO_Job extends MySource_Object
 {
 
 	/**

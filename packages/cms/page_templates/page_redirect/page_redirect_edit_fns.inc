@@ -10,7 +10,7 @@ require_once dirname(__FILE__).'/../../page/page_edit_fns.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve_Packages
+* @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Redirect_Edit_Fns extends Page_Edit_Fns

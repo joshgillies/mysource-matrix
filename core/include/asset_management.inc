@@ -14,9 +14,9 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve
+* @package MySource_Matrix
 */
-class Asset_Management extends Resolve_Object
+class Asset_Management extends MySource_Object
 {
 
 	/**
