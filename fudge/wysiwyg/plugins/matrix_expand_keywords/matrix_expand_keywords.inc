@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.4 2004/10/28 02:27:07 tbarrett Exp $
+* $Id: matrix_expand_keywords.inc,v 1.5 2004/10/28 03:44:00 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -54,14 +54,6 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 			var key = (HTMLArea.is_ie ? ev.keyCode : ev.charCode);
 			if ((key == 32) || (key == 13) || (key == 9)) {
 				expandKeywords(editor);
-				/*
-				editor.insertHTML('__WORD__ ');
-				var html = editor.getHTML();
-				print_alert(html.indexOf('__WORD__'));
-				var upToNow = html.substring(0, html.indexOf('__WORD__')).replace(stripTagsRE, " ");;
-				print_alert(upToNow.substring(upToNow.lastIndexOf(' ')));
-				editor.setHTML(html.replace('__WORD__', ''));
-				*/
 			}
 		}
 		<?php
@@ -92,7 +84,7 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 		}		
 		?>
 
-		var stripTagsRE = /<\S[^>]*>/g; // yes, for some reason this cannot have quotes around it
+		var stripTagsRE = /(<\S[^>]*>)|(\W)/g; // yes, for some reason this cannot have quotes around it
 
 		HTMLArea.prototype.replaceLastWord = function(oldWord, newWord) {
 			switch (this._editMode) {
