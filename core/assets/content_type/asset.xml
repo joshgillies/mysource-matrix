@@ -21,13 +21,13 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.1 2003/12/08 03:56:16 mmcintyre Exp $
+* $Id: asset.xml,v 1.2 2003/12/08 21:06:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
-	<package>cms</package>
+	<package>__core__</package>
 	<type_code>content_type</type_code>
 	<version>0.1</version>
 	<name>Content Type</name>
