@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.13 2003/11/26 00:51:26 gsherwood Exp $
+* $Id: content_type_nest_content.inc,v 1.14 2003/11/27 01:44:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,6 +50,20 @@ class Content_Type_Nest_Content extends Content_Type
 		$this->Content_Type($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @see Asset::_getAllowLinks()
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		return Array(SQ_LINK_TYPE_3 => Array('asset' => Array('card' => 1, 'exclusive' => false)),
+					);
+
+	}//end _getAllowedLinks()
 
 
 	/**
