@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job.inc,v 1.47 2004/06/25 04:05:59 gsherwood Exp $
+* $Id: hipo_job.inc,v 1.48 2004/06/25 07:01:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1371,7 +1371,8 @@ class HIPO_Job extends MySource_Object
 				error_log($log_msg);
 			}
 
-			$msg = $text_msg.' ('.$err_file.':'.$err_line.')';
+			$msg = $text_msg;
+			if (SQ_CONF_DEBUG & 1) $log_msg .= ' ('.$err_file.':'.$err_line.')';
 			$msg = str_replace('[SYSTEM_ROOT]', '', $msg);
 			$this->_addError($msg, !$terminate);
 
