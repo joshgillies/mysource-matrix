@@ -194,15 +194,29 @@ class Asset extends Resolve_Object
 			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
 			if (!isset($link['dependant']))	 $link['dependant']  = 0;
 
-			$this->aquireLock();
-			$link['asset']->aquireLock();
+			if (!$link['asset']->aquireLock()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$this->id = 0;
+			}
+
+			// if we are creating a dependant link, we need to make sure this new
+			// asset is locked in the same chain as the parent (ie, has the same source_assetid)
+			$source_assetid = '';
+			if ($link['dependant']) {
+				$lock = $link['asset']->getLockInfo();
+				$source_assetid = $lock['source_asset'];
+			}
+			if (!$this->aquireLock($source_assetid)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$this->id = 0;
+			}
 
 			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant']);
 
 			// dont need to release the lock when creating
 			// because chances are they want to edit it anyway
 
-			if (!$linkid) { 
+			if (!$linkid) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
 				return false;
@@ -1145,7 +1159,7 @@ class Asset extends Resolve_Object
 
 		// if we have no source, we are the asset aquiring the locks
 		if (!$source) $source = $this->id;
-		if (empty($expires)) $expires = ts_iso8601((time() + (45 * 60)));
+		if (empty($expires)) $expires = ts_iso8601((time() + (5 * 60)));
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
