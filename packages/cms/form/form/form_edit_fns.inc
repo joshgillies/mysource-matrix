@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.26 2004/05/20 00:32:21 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.27 2004/06/10 04:18:12 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -595,7 +595,8 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			$output .= '<'.'?php $active_form =& $this; ?'.'>';
 			// get the section to regen
 			$section->fileRegeneration(false);
-			$output .= '<'.'?php include_once("'.$section->data_path.'/content_file.php'.'"); ?'.'>';
+			// output an include BUT we want to make what's printed relative to SQ_DATA_PATH
+			$output .= '<'.'?php include_once('.str_replace(SQ_DATA_PATH, 'SQ_DATA_PATH."', $section->data_path).'/content_file.php'.'"); ?'.'>';
 		}
 
 		// if there are any tags left that haven't been replaced, 
