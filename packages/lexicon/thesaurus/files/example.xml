@@ -18,46 +18,57 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.4 2005/01/29 15:24:32 brobertson Exp $
+* $Id: example.xml,v 1.1 2005/01/29 15:24:32 brobertson Exp $
 *
 */
+
+This thesaurus has built-in support for Abbreviations and Categories
+For the abbreviations to work, there needs to be an "Abbreviation"
+relation
+
 -->
 
-<contents>
-	<section name="Details" write_access="write:attributes" limbo_access="1">
-		<field attribute="name">
-			<display_name>Name</display_name>
-			<note />
-			<text width="30" height="1" />
-		</field>
-	</section>
+<thesaurus>
+	<relations>
+		<relation name="Child Relation" />
+		<relation name="Parent" />
+		<relation name="Friend" />
+	</relations>
+	<entities>
+		<entity name="test1">
+			<description>Description</description>
+			<relation name="Child Relation">
+				<entity name="test2" />
+			</relation>
+			<relation name="Parent">
+				<entity name="test3" />
+			</relation>
+			<relation name="Friend">
+				<entity name="test2" />
+			</relation>
+		</entity>
 
-	<section name="Status">
-		<field>
-			<display_name>Thesaurus is </display_name>
-			<note />
-			<function_call>
-				<paint_function		name="paintStatus" />
-			</function_call>
-		</field>
-	</section>
+		<entity name="test2">
+			<description>Description II</description>
+			<relation name="Parent">
+				<entity name="test1" />
+			</relation>
+			<relation name="Friend">
+				<entity name="test1" />
+				<entity name="test3" />
+			</relation>
+		</entity>
 
-	<section name="Import XML" write_access="write:attributes">
-		<field>
-			<display_name>Upload File</display_name>
-			<note />
-			<function_call>
-				<paint_function		name="paintImportXML" />
-				<process_function	name="processImportXML" />
-			</function_call>
-		</field>
-		<field>
-			<display_name>Example File</display_name>
-			<note />
-			<function_call>
-				<paint_function		name="paintExampleXMLFile" />
-			</function_call>
-		</field>
-	</section>
+		<entity name="test3">
+			<description>Description III</description>
+			<relation name="Child Relation">
+				<entity name="test1" />
+			</relation>
+			<relation name="Friend">
+				<entity name="test2" />
+			</relation>
+		</entity>
+		<entity name="Jora" />
 
-</contents>
+	</entities>
+</thesaurus>

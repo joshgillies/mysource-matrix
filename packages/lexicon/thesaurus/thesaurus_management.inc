@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_management.inc,v 1.3 2005/01/20 13:21:23 brobertson Exp $
+* $Id: thesaurus_management.inc,v 1.4 2005/01/29 15:24:32 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -89,6 +89,22 @@ class Thesaurus_Management extends Asset_Management
 		);
 
 	}//end constructor
+
+
+	/**
+	* Gets a list of all files that the bodycopy wants web accessable
+	*
+	* @access private
+	* @return array(string)
+	*/
+	function _getFileList()
+	{
+		return Array(
+					 'files/example.xml',
+					 );
+
+	}//end _getFileList()
+
 
 }//end class
 

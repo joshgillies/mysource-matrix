@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus_edit_fns.inc,v 1.3 2005/01/20 13:21:23 brobertson Exp $
+* $Id: thesaurus_edit_fns.inc,v 1.4 2005/01/29 15:24:32 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -116,6 +116,23 @@ class Thesaurus_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end processImportXML()
+
+
+	/**
+	* Paint interface for showing the example xml file
+	*
+	* @access public
+	* @return boolean	whether we need a commit button for the interface we printed
+	*/
+	function paintExampleXMLFile(&$asset, &$o, $prefix)
+	{
+		?>
+		<a href="<?php echo sq_web_path('data'); ?>/asset_types/thesaurus/files/example.xml" target="_blank">Click Here</a>
+		<?php
+		// don't ever need a commit button
+		return false;
+
+	}//end paintExampleXMLFile()
 
 
 }//end class

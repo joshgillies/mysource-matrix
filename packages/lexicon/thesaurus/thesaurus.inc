@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thesaurus.inc,v 1.6 2005/01/20 13:21:23 brobertson Exp $
+* $Id: thesaurus.inc,v 1.7 2005/01/29 15:24:32 brobertson Exp $
 *
 */
 
@@ -29,12 +29,9 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 /**
 * Thesaurus
 *
-* Purpose
-*
-*
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage lexicon
 */
@@ -182,7 +179,9 @@ class Thesaurus extends Asset
 	}//end isRelationEnabled()
 
 
-	//// ABBREVIATIONS ////
+//--        ABBREVIATIONS        --//
+
+
 	/**
 	* Get an array of abbrevations
 	*
@@ -212,10 +211,9 @@ class Thesaurus extends Asset
 
 	}//end getAbbreviations()
 
-	//// finish ABBREVIATIONS ////
 
+//--        CATEGORIES        --//
 
-	//// CATEGORIES ////
 
 	/**
 	* Get Top Categories
@@ -283,10 +281,9 @@ class Thesaurus extends Asset
 
 	}//end isCategory()
 
-	//// finish CATEGORIES ////
 
+//--        CORE THESAURUS RELATIONAL ENGINE        --//
 
-	// CORE THESAURUS RELATIONAL ENGINE
 
 	/**
 	* Get All Entities in this thesaurus
@@ -386,7 +383,6 @@ class Thesaurus extends Asset
 		$data = Array(
 			SQ_TABLE_PREFIX,
 			$this->id,
-
 			$entity_id,
 		);
 
@@ -1293,56 +1289,5 @@ class Thesaurus extends Asset
 
 
 }//end class
-
-/*
-This thesaurus has built-in support for Abbreviations and Categories
-For the abbreviations to work, there needs to be an "Abbreviation"
-relation
-
-<thesaurus>
-		<relations>
-				<relation name="Child Relation" />
-				<relation name="Parent" />
-				<relation name="Friend" />
-		</relations>
-		<entities>
-				<entity name="test1">
-						<description>Description</description>
-						<relation name="Child Relation">
-								<entity name="test2" />
-						</relation>
-						<relation name="Parent">
-								<entity name="test3" />
-						</relation>
-						<relation name="Friend">
-								<entity name="test2" />
-						</relation>
-				</entity>
-
-				<entity name="test2">
-						<description>Description II</description>
-						<relation name="Parent">
-								<entity name="test1" />
-						</relation>
-						<relation name="Friend">
-								<entity name="test1" />
-								<entity name="test3" />
-						</relation>
-				</entity>
-
-				<entity name="test3">
-						<description>Description III</description>
-						<relation name="Child Relation">
-								<entity name="test1" />
-						</relation>
-						<relation name="Friend">
-								<entity name="test2" />
-						</relation>
-				</entity>
-				<entity name="Jora" />
-
-		</entities>
-</thesaurus>
-*/
 
 ?>
