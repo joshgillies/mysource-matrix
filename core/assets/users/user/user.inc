@@ -52,7 +52,7 @@ class User extends Asset
 			$this->setAttrValue('last_name',  $last_name);
 			$this->setAttrValue('email',      $email);
 
-			$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE);
+			$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_EXCLUSIVE, 'dependant' => 1);
 
 			// create an inbox
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
