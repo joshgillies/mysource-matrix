@@ -1697,7 +1697,11 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$o->openSection('Current Workflow Progress');
 			$o->openField('Note');
-			echo 'Workflow for this asset is currently in progress. You can not edit the workflow for this asset at this time. The currently running workflows are displayed below followed by the workflows set for this asset.';
+				?>
+				<p class="sq-backend-data">Workflow for this asset is currently in progress. You can not edit the workflow for this asset at this time. The currently running workflows are displayed below followed by the workflows set for this asset.</p>
+				<p class="sq-backend-data"><a href="<?php echo $owner->getBackendHref('logs'); ?>&sq_backend_log_type=asset.workflow&sq_workflow_log_version=<?php echo substr($owner->version, 0, strrpos($owner->version, '.'));?>">Click here for workflow message logs</a><br/>This will show all messages logged by the system since the last time this asset was made live.</p>
+				<?php
+			$o->closeField();
 			$o->closeSection();
 
 			$schema_workflows = $wfm->getSchemaWorkflows($owner->id);
@@ -3014,32 +3018,48 @@ class Asset_Edit_Interface extends MySource_Object
 			return false;
 		}
 
-		$active_log_type = (isset($_REQUEST[$prefix.'_log_type'])) ? $_REQUEST[$prefix.'_log_type'] : $log_types[0];
+		$active_log_type = (isset($_REQUEST['sq_backend_log_type'])) ? $_REQUEST['sq_backend_log_type'] : $log_types[0];
+		$o->addFormActionGetVar('sq_backend_log_type', $active_log_type);
 		$o->openSection('Select Log Type');
 			$o->openField('Log Type');
 				$type_options = Array();
-				foreach ($log_types as $type) $type_options[$type] = $type;
-				combo_box($prefix.'_log_type', $type_options, false, $active_log_type);
+				foreach ($log_types as $type) $type_options[$type] = ucwords(str_replace('.', ' ', $type));
+				combo_box('sq_backend_log_type', $type_options, false, $active_log_type);
 				echo '&nbsp;';
 				normal_button($prefix.'_go', 'View', 'sqSubmitEditForm()');
 			$o->closeField();
 		$o->closeSection();
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+
 		switch ($active_log_type) {
+
 			case 'asset.linking' :
 				$minor_logs = $ms->getLogs($active_log_type, Array('minorid' => $owner->id));
 				$major_logs = $ms->getLogs($active_log_type, Array('majorid' => $owner->id));
 				$logs = array_merge($minor_logs, $major_logs);
 			break;
 
+			case 'asset.workflow' :
+				if (isset($_REQUEST['sq_workflow_log_version'])) {
+					$o->addFormActionGetVar('sq_workflow_log_version', $_REQUEST['sq_workflow_log_version']);
+					$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id, 
+																 'version' => $_REQUEST['sq_workflow_log_version']
+																 )
+								);
+				} else {
+					$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
+				}
+			break;
+
 			default :
 				$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id));
 			break;
+
 		}//end switch
 
 		if (empty($logs)) {
-			$o->openSection('There are no logged message of this type for "'.$owner->name.'"');
+			$o->openSection('There are no logged messages of this type for "'.$owner->name.'"');
 			$o->closeSection();
 		} else {
 			$o->openSection('Logged Messages For "'.$owner->name.'"');
@@ -3052,7 +3072,17 @@ class Asset_Edit_Interface extends MySource_Object
 							<td class="sq-backend-table-header" width="100%">Message</td>
 						</tr>
 					<?php
-					foreach ($logs as $log_data) {
+					$num_printed  = 0;
+					$num_per_page = 10;
+					$num_logs = count($logs);
+					$start_printing_at = 0;
+					if (isset($_REQUEST[$prefix.'_start_at'])) $start_printing_at = (int) $_REQUEST[$prefix.'_start_at'];
+					for ($i = 0; $i < $num_logs; $i++) {
+						if ($i < $start_printing_at) {
+							$i++;
+							continue;
+						}
+						$log_data = $logs[$i];
 						?>
 						<tr>
 							<td class="sq-backend-table-cell" nowrap><?php echo ts_iso8601($log_data['sent']); ?></td>
@@ -3060,8 +3090,47 @@ class Asset_Edit_Interface extends MySource_Object
 							<td class="sq-backend-table-cell" width="100%"><b><?php echo $log_data['subject']; ?></b><br/><?php echo $log_data['body']; ?></td>
 						</tr>
 						<?php
+						$num_printed++;
+						if ($num_printed >= $num_per_page) break;
 					}
 					?>
+						<tr>
+							<td colspan="3" align="center" class="sq-backend-table-header">
+							<input type="hidden" name="<?php echo $prefix; ?>_start_at" value="<?php echo $start_printing_at; ?>">
+							<?php
+							if ($start_printing_at > 0) {
+								?><a style="text-decoration: none;" href="#" onClick="Javascript: document.main_form.<?php echo $prefix; ?>_start_at.value='<?php echo $start_printing_at - $num_per_page; ?>'; sqSubmitEditForm(true); return false;"><?php
+							} else {
+								?><span style="color: #BBBBBB"><?php
+							}
+							?>
+							<< Previous Page
+							<?php
+							if ($start_printing_at > 0) {
+								?></a><?php
+							} else {
+								?></span><?php
+							}
+							?>
+							&nbsp;<b>Page <?php echo round(($start_printing_at + $num_per_page) / $num_per_page); ?> of <?php echo round(($num_logs / $num_per_page) + 0.5); ?></b>&nbsp;
+							
+							<?php
+							if (($start_printing_at + $num_per_page) < $num_logs) {
+								?><a style="text-decoration: none;" href="#" onClick="Javascript: document.main_form.<?php echo $prefix; ?>_start_at.value='<?php echo $start_printing_at + $num_per_page; ?>'; sqSubmitEditForm(true); return false;"><?php
+							} else {
+								?><span style="color: #BBBBBB"><?php
+							}
+							?>
+							Next Page >>
+							<?php
+							if (($start_printing_at + $num_per_page) < $num_logs) {
+								?></a><?php
+							} else {
+								?></span><?php
+							}
+							?>
+							</td>
+						</tr>
 					</table>
 					<?php
 				$o->closeField();
