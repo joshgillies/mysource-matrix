@@ -440,9 +440,10 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			$o->openField('Inherited');
 			foreach ($users as $userid => $locs) {
-				if (!$userid) continue;
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-				if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
+				if ($userid) {
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+					if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
+				}
 				$loc_string = '';
 				foreach ($locs as $locid) {
 					if ($locid == $owner->id) continue;
@@ -452,7 +453,8 @@ class Asset_Edit_Interface extends Resolve_Object
 				}
 				$loc_string = trim($loc_string, ', ');
 				if (!empty($loc_string)) {
-					echo $asset->_getName(false).' ['.$asset->type()." : $userid] was set at $loc_string</br>";
+					if ($userid) echo $asset->_getName(false).' ['.$asset->type()." : $userid] was set at $loc_string</br>";
+					else echo "Public access  was set at $loc_string</br>";
 					$inherited = true;
 				}
 			}
