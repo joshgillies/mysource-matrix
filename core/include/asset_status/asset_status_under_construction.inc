@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_status_under_construction.inc,v 1.12 2003/10/17 04:56:38 gsherwood Exp $
+* $Id: asset_status_under_construction.inc,v 1.13 2003/10/24 02:44:53 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -149,14 +149,18 @@ class Asset_Status_Under_Construction extends Asset_Status
 			$ms   = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
 			$asset_type = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name');
-
-			$log = $ms->newMessage();
-			$log->subject = 'Workflow Started';
-			$log->body    = 'User "'.$user->name.'" has requested '.$asset_type.' "'.$this->owner->name.'" to go live from '.$this->getDescription().'.';
-			$log->type    = 'asset.workflow';
-			$log->parameters['assetid'] = $this->owner->id;
-			$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
-			$log->send();
+			
+			if (!$wfm->silentWorkflowParty($this->owner->id)) { 
+				$log = $ms->newMessage();
+				$log->subject = 'Workflow Started';
+				$log->body    = 'User "'.$user->name.'" has requested '.$asset_type.' "'.$this->owner->name.'" to go live from '.$this->getDescription().'.';
+				// create a link for navigation to the workflow screen for this asset
+				$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$this->owner->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
+				$log->type    = 'asset.workflow';
+				$log->parameters['assetid'] = $this->owner->id;
+				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+				$log->send();
+			}
 
 		}//end if new status is PENDING_APPROVAL
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_status_live_approval.inc,v 1.14 2003/10/17 04:56:38 gsherwood Exp $
+* $Id: asset_status_live_approval.inc,v 1.15 2003/10/24 02:44:53 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -145,14 +145,18 @@ class Asset_Status_Live_Approval extends Asset_Status
 				// send an internal message
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-
-				$log = $ms->newMessage();
-				$log->subject = 'Asset Review Cancelled';
-				$log->body    = 'User "'.$user->name.'" has started a safe edit of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.get_status_description($new_status);
-				$log->type    = 'asset.workflow';
-				$log->parameters['assetid'] = $this->owner->id;
-				$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
-				$log->send();
+				
+				if (!$wfm->silentWorkflowParty($this->owner->id)) { 
+					$log = $ms->newMessage();
+					$log->subject = 'Asset Review Cancelled';
+					$log->body    = 'User "'.$user->name.'" has started a safe edit of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.get_status_description($new_status);
+					// create a link for navigation to the workflow screen for this asset
+					$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$this->owner->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
+					$log->type    = 'asset.workflow';
+					$log->parameters['assetid'] = $this->owner->id;
+					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+					$log->send();
+				}
 			}
 
 		} else {
@@ -193,14 +197,18 @@ class Asset_Status_Live_Approval extends Asset_Status
 					// log an internal message
 					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-
-					$log = $ms->newMessage();
-					$log->subject = 'Review Completed';
-					$log->body    = 'The review process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now live.';
-					$log->type    = 'asset.workflow';
-					$log->parameters['assetid'] = $this->owner->id;
-					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
-					$log->send();
+					
+					if (!$wfm->silentWorkflowParty($this->owner->id)) { 
+						$log = $ms->newMessage();
+						$log->subject = 'Review Completed';
+						$log->body    = 'The review process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now live.';
+						$log->type    = 'asset.workflow';
+						// create a link for navigation to the workflow screen for this asset
+						$log->body .= "\n\n".'A full report for the Workflow of "'.$this->owner->name.'" can be found on the <a href="#" onClick="self.parent.location=\''.$this->owner->getBackendHref('workflow').'\'; return false;">Workflow Screen.</a>';
+						$log->parameters['assetid'] = $this->owner->id;
+						$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
+						$log->send();
+					}
 				}
 
 			}//end if
