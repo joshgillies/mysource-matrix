@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.6 2005/01/20 13:07:30 brobertson Exp $
+* $Id: tables.xml,v 1.7 2005/02/16 13:28:48 brobertson Exp $
 *
 */
 -->
@@ -692,7 +692,7 @@
 				</index>
 			</indexes>
 		</table>
-		<table name="ast_lookup_design" require_rollback="1">
+		<table name="ast_lookup_value" require_rollback="1">
 			<columns>
 				<column name="url" allow_null="0">
 					<type>TEXT</type>
@@ -701,13 +701,13 @@
 					<description />
 				</column>
 				<column name="name" allow_null="0">
-					<type>VARCHAR(30)</type>
+					<type>VARCHAR(64)</type>
 					<type_variations/>
 					<default />
 					<description />
 				</column>
-				<column name="designid" allow_null="0">
-					<type>VARCHAR(15)</type>
+				<column name="value" allow_null="0">
+					<type>VARCHAR(255)</type>
 					<type_variations />
 					<default />
 					<description />
@@ -717,10 +717,13 @@
 				<primary_key>
 					<column name="url" />
 					<column name="name" />
-					<column name="designid" />
 				</primary_key>
 			</keys>
-			<indexes />
+			<indexes>
+				<index>
+					<column name="value" />
+				</index>
+			</indexes>
 		</table>
 		<table name="ast_lookup_remap" require_rollback="1">
 			<columns>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.10 2005/02/11 17:15:51 brobertson Exp $
+* $Id: image_variety.inc,v 1.11 2005/02/16 13:28:48 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -448,12 +448,13 @@ class Image_Variety extends Asset
 
 		// Remove all the old URLs
 
-		$sub_sql = 'SELECT url
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-					'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l');
 
-
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_design', 'url IN ('.$sub_sql.')')) {
+		// design lookups
+		$where_cond = 'url IN (SELECT url
+								FROM '.SQ_TABLE_PREFIX.'ast_lookup l
+								WHERE assetid = '.$db->quote($this->id).')
+					  AND name LIKE '.$db->quote('design::%');
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_value', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}

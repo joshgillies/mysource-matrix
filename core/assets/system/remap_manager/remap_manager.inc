@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.15 2004/12/06 14:38:10 brobertson Exp $
+* $Id: remap_manager.inc,v 1.16 2005/02/16 13:28:48 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -391,16 +391,16 @@ class Remap_Manager extends Asset
 		if (is_null($asset)) return $null;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT ld.designid, a.type_code
+		$sql = 'SELECT lv.value as designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_design ld ON l.url = ld.url
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON ld.designid = a.assetid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
 				';
-		$where ='l.assetid  = '.$db->quote($asset->id);
-		if (!is_null($url)) $where .= ' AND ld.url  LIKE '.$db->quote($url.'%');
-		$where .= ' AND ld.name    = '.$db->quote('system_design::frontend');
+		$where = 'l.assetid  = '.$db->quote($asset->id).'
+					AND lv.name = '.$db->quote('design::system::frontend');
+		if (!is_null($url)) $where .= ' AND lv.url  LIKE '.$db->quote($url.'%');
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ld');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql .= $where.' LIMIT 1';

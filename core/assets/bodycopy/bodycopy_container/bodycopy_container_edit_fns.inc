@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.25 2005/01/19 16:52:08 brobertson Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.26 2005/02/16 13:28:48 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -387,8 +387,10 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'SELECT designid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_design ';
-			$where = 'url='.$db->quote($url);
+			$sql = 'SELECT value 
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
+			$where = '    url = '.$db->quote($url).'
+					  AND name LIKE '.$db->quote('design::%');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$designid = $db->getOne($sql.$where);

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.26 2004/12/14 05:59:32 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.27 2005/02/16 13:28:48 brobertson Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -79,8 +79,10 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'SELECT designid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_design ';
-			$where = 'url='.$db->quote($url);
+			$sql = 'SELECT value 
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value ';
+			$where = '    url = '.$db->quote($url).'
+					  AND name LIKE '.$db->quote('design::%');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 			$designid = $db->getOne($sql.$where);

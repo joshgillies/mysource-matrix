@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.84 2005/02/11 05:39:31 gsherwood Exp $
+* $Id: file.inc,v 1.85 2005/02/16 13:28:48 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.84 $
+* @version $Revision: 1.85 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -468,12 +468,12 @@ class File extends Asset
 
 		// Remove all the old URLs
 
-		$sub_sql = 'SELECT url
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-					'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l');
-
-
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_design', 'url IN ('.$sub_sql.')')) {
+		// design lookups
+		$where_cond = 'url IN (SELECT url
+								FROM '.SQ_TABLE_PREFIX.'ast_lookup l
+								WHERE assetid = '.$db->quote($this->id).')
+					  AND name LIKE '.$db->quote('design::%');
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_value', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}

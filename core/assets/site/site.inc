@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.63 2004/12/24 02:29:36 gsherwood Exp $
+* $Id: site.inc,v 1.64 2005/02/16 13:28:48 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -354,13 +354,14 @@ class Site extends Folder
 		unset($this->_tmp['href']);
 
 
-		// remove all the old URLs
-		$sub_sql = 'SELECT url
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-					'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l');
+		// Remove all the old URLs
 
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_design', 'url IN ('.$sub_sql.')')) {
-
+		// design lookups
+		$where_cond = 'url IN (SELECT url
+								FROM '.SQ_TABLE_PREFIX.'ast_lookup l
+								WHERE assetid = '.$db->quote($this->id).')
+					  AND name LIKE '.$db->quote('design::%');
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_value', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -374,7 +375,7 @@ class Site extends Folder
 		$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'design', false);
 		$our_designs = Array();
 		foreach ($our_design_links as $link) {
-			if (preg_match('/^(system_design|user_design)::(.*)$/', $link['value'], $matches)) {
+			if (preg_match('/^design::(system|user)::(.*)$/', $link['value'])) {
 				$our_designs[$link['value']] = $link['minorid'];
 			}
 		}
@@ -398,9 +399,9 @@ class Site extends Folder
 			foreach ($our_designs as $name => $designid) {
 				$values = Array('url'      => $urls[$urlid]['url'],
 								'name'     => $name,
-								'designid' => $designid,
+								'value'    => $designid,
 								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_design', $values)) {
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_value', $values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -495,26 +496,26 @@ class Site extends Folder
 
 		// Have they set a design name that they want to view ??
 		if (!empty($_GET['SQ_DESIGN_NAME'])) {
-			$design_name = 'user_design::'.$_GET['SQ_DESIGN_NAME'];
+			$design_name = 'design::user::'.$_GET['SQ_DESIGN_NAME'];
 		} elseif (!empty($_SESSION['SQ_DESIGN_NAME'])) {
-			$design_name = 'user_design::'.$_SESSION['SQ_DESIGN_NAME'];
+			$design_name = 'design::user::'.$_SESSION['SQ_DESIGN_NAME'];
 		} else {
-			$design_name = 'system_design::frontend';
+			$design_name = 'design::system::frontend';
 		}
 
 		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($asset_url, $design_name);
 
-
 		if (empty($result)) {
-			$sql = 'SELECT ld.designid, a.type_code
+			// try and find the default design used by the asset we are painting (i.e. not our default design)
+			$sql = 'SELECT lv.value as designid, a.type_code
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_design ld ON l.url = ld.url
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON ld.designid = a.assetid
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON lv.value = a.assetid
 					';
 			$where ='l.assetid  = '.$db->quote($asset->id).'
-					  AND ld.url  LIKE '.$db->quote($url.'%').'
-					  AND ld.name    = '.$db->quote('system_design::frontend');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ld');
+					  AND lv.url  LIKE '.$db->quote($url.'%').'
+					  AND lv.name    = '.$db->quote('design::system::frontend');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			$sql .= $where.' LIMIT 1';
