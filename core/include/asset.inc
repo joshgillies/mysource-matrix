@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.252 2003/11/03 05:02:37 gsherwood Exp $
+* $Id: asset.inc,v 1.253 2003/11/07 05:38:52 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -316,21 +316,24 @@ class Asset extends MySource_Object
 			// because other assets may have changed what happens in createLink)
 			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id, 'minor');
 
-			// set permission on this asset that the parent has
-			$this->_tmp[__CLASS__.'_in_create_setting_permissions'] = true;
-			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($link['asset']->id, $perm, null, false, false, true);
-				foreach ($set_perms as $userid => $access) {
-					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $userid, $perm, $access)) {
-						$ms->abortLog();
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-						$this->id = 0;
-						return false;
+			// set permission on this asset that the parent has if the parent is not the root folder
+			if ((int)$link['asset']->id !== 1) {
+				$this->_tmp[__CLASS__.'_in_create_setting_permissions'] = true;
+				foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
+					$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($link['asset']->id, $perm, null, false, false, true);
+					foreach ($set_perms as $userid => $access) {
+						if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $userid, $perm, $access)) {
+							$ms->abortLog();
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+							$this->id = 0;
+							return false;
+						}
 					}
 				}
+				unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
 			}
-			unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
+
 			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
 				$ms->abortLog();
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
