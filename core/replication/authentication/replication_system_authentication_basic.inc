@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication_basic.inc,v 1.1.2.10 2004/02/21 14:47:05 brobertson Exp $
+* $Id: replication_system_authentication_basic.inc,v 1.1.2.11 2004/02/21 16:15:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -100,13 +100,13 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 	/**
 	* Attempts to authenticate with the connection with $fd
 	*
-	* @param object Replication_System_Transport	$transport	the socket file desriptor resource to read from
+	* @param object Replication_System_Transport	&$transport	the socket file desriptor resource to read from
 	* @param boolean								$initiator	whether this end of the connection initiated the connection or not
 	*
 	* @return boolean
 	* @access public
 	*/
-	function authenticate($transport, $initiator)
+	function authenticate(&$transport, $initiator)
 	{
 		if ($this->slave_to_master_phrase == '' || $this->master_to_slave_phrase == '') {
 			trigger_error('Unable to authenticate without two pass phrases', E_USER_WARNING);
@@ -151,13 +151,13 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 	* We are going to be asking the other side for a passphase, this takes care of it.
 	* Works together with _sendPhrase()
 	*
-	* @param object Replication_System_Transport	$transport	the socket file desriptor resource to read from
+	* @param object Replication_System_Transport	&$transport	the socket file desriptor resource to read from
 	*
 	* @return boolean	true if the phrase the remote server presented was what we expected
 	* @access public
 	* @see _sendPhrase()
 	*/
-	function _requestPhrase($transport)
+	function _requestPhrase(&$transport)
 	{
 		$their_phrase = (SQ_REPLICATION_IS_MASTER) ? $this->slave_to_master_phrase : $this->master_to_slave_phrase;
 
@@ -167,7 +167,7 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 		}
 		if ($data != $their_phrase) {
 			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Supplied Phrase was incorrect', E_USER_WARNING);
-			// just being polite really, but we don't really care if it doesn't get there, we are quitting anyway..
+			// just being polite really, but we don't really care if it doesn't get there, we quitting anyway..
 			$transport->writeVar('Authentication Failed');
 			return false;
 		}
@@ -185,13 +185,13 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 	* We are expecting to be asked to send a passphrase, this takes care of it.
 	* Works together with _requestPhrase()
 	*
-	* @param object Replication_System_Transport	$transport	the socket file desriptor resource to read from
+	* @param object Replication_System_Transport	&$transport	the socket file desriptor resource to read from
 	*
 	* @return boolean	true if our phrase was authenticated by the remote server
 	* @access public
 	* @see _requestPhrase()
 	*/
-	function _sendPhrase($transport)
+	function _sendPhrase(&$transport)
 	{
 		$our_phrase   = (SQ_REPLICATION_IS_MASTER) ? $this->master_to_slave_phrase : $this->slave_to_master_phrase;
 
