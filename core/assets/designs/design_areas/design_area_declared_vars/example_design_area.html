@@ -1,0 +1,25 @@
+<!-- Simplified example; see design manual for more complete example -->
+<MySource_AREA id_name="colours" design_area="declared_vars" print="no">
+	<MySource_DECLARE name="colour_1" value="6BB431" type="colour" description="The darkest
+colour in the 'fern' backgrounds of the top and side menus"/>
+	<MySource_DECLARE name="colour_2" value="8DD93B" type="colour" description="The light colour
+in the 'fern' backgrounds of the top and side menus, and used in the key lines surrounding
+the body"/>
+</MySource_AREA>
+.
+.
+.
+.
+<!-- Example of displaying declared var using MySource_PRINT -->
+<style type="text/css">
+	.topnav, .topnav-current {
+background-color: #<MySource_PRINT id_name="colours" var="colour_2" />;}
+</style>
+
+<!-- Example of using declared var in another design area's MySource_SET -->
+<MySource_AREA id_name="side_nav_ferns_image" design_area="colourise_image">
+	<MySource_SET name="image" value="mysource_files/sidenav_image.png" />
+	<MySource_SET name="filename_only" value="true" />
+	<MySource_SET name="black_colour" id_name="colours" var="colour_1" />
+	<MySource_SET name="white_colour" id_name="colours" var="colour_2" />
+</MySource_AREA>
