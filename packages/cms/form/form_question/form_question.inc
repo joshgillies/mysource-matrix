@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.20 2004/05/05 07:10:12 lwright Exp $
+* $Id: form_question.inc,v 1.21 2004/05/06 05:12:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -246,6 +246,8 @@ class Form_Question extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$ms->closeLog();
 		$this->informChanges();
+
+		$GLOBALS['SQ_SYSTEM']->am->updateLock($this->_formid, 'all');
 
 		return true;
 
