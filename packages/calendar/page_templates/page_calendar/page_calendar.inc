@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.56 2004/09/09 00:53:51 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.57 2004/09/09 06:49:17 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.56 $ - 1.0
+* @version $Revision: 1.57 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -254,7 +254,6 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function getContentsKeywords()
 	{
-		
 		$keywords = Array();
 		$keywords['calendar_contents'] = Array(
 										'name'=>'Calendar Contents',
@@ -349,6 +348,23 @@ class Page_Calendar extends Page_Asset_Listing
 			// If we get a valid date in the request, use it; otherwise use today's date
 			if (isset($_REQUEST['SQ_CALENDAR_DATE']) && is_iso8601($_REQUEST['SQ_CALENDAR_DATE'])) {
 				$cal_date = $_REQUEST['SQ_CALENDAR_DATE'];
+			} else if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+				// set but incomplete, might be valid for month and year if abbreviated
+				// (accepted for month: eg. 2004-09, accepted for year: eg. 2006)
+				if (($_REQUEST['SQ_CALENDAR_VIEW'] == 'month') && (strlen($_REQUEST['SQ_CALENDAR_DATE']) >= 7)) {
+					list($year, $month) = sscanf($_REQUEST['SQ_CALENDAR_DATE'], '%04d-%02d');
+					$cal_date = sprintf('%04d-%02d-%02d', $year, $month, 1);
+					$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
+				} else if (($_REQUEST['SQ_CALENDAR_VIEW'] == 'year') && (strlen($_REQUEST['SQ_CALENDAR_DATE']) >= 4)) {
+					$year = sscanf($_REQUEST['SQ_CALENDAR_DATE'], '%04d');
+					$cal_date = sprintf('%04d-%02d-%02d', $year, 1, 1);
+					$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
+				} else {
+					// no good
+					$cal_date = date('Y-m-d');
+					$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
+				}
+				
 			} else {
 				$cal_date = date('Y-m-d');
 				$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
@@ -1310,21 +1326,23 @@ class Page_Calendar extends Page_Asset_Listing
 		$date_sql = '((cd.start_date_year = '.$db->quote($year).' AND (cd.start_date_mon = '.$db->quote($month).' OR cd.end_date_mon = '.$db->quote($month).')) OR (cd.start_date_ts < '.$db->quote($start_ts).' AND cd.end_date_ts > '.$db->quote($start_ts).'))';
 
 		$sql = $this->_buildSingleEventQuery($trees)."\n AND (".$date_sql.")\n AND (".implode(' OR ', $tree_clauses).')';		
-		$single_events = $db->getAssoc($sql);
-		assert_valid_db_result($single_events);
+		$single_result = $db->getAssoc($sql);
+		assert_valid_db_result($single_result);
 
-
+		$cal_date = sprintf('%04d-%02d-%02d', $year, $month, 1);
+		$first_day = iso8601_ts($cal_date);
+		$last_day = sprintf('%04d-%02d-%02d', $year, $month, days_in_month($month, $year));
+		
 		// Get our recurring events
 		$date_sql = 'cd.start_date_ts < '.$db->quote($end_ts);
 		$sql = $this->_buildRecurringEventQuery($trees, 'month', "$year-$month")."\n AND (".implode(' OR ', $tree_clauses).')';	
-		$recurring_events = $db->getAssoc($sql);
+		$recur_result = $db->getAssoc($sql);
 		//bam("Recurring SQL: $sql");
-		assert_valid_db_result($recurring_events);
+		assert_valid_db_result($recur_result);
+			
+		return ($single_result + $recur_result);
 
-		$res = $single_events + $recurring_events;
-		return $res;
-
-	}//end getMonthEvents
+	}//end getMonthEvents()
 
 
 	/**
@@ -1344,26 +1362,33 @@ class Page_Calendar extends Page_Asset_Listing
 			$res[$i] = Array();
 		}
 
-		foreach ($all_events as $id => $details) {
-			if ($details['type_code'] != 'calendar_event_recurring') {
-				if ($details['start_date_mon'] == $month) {
+		$cal_date = sprintf('%04d-%02d-%02d', $year, $month, 1);
+		$last_day = sprintf('%04d-%02d-%02d', $year, $month, days_in_month($month, $year));
+				
+		$plain_events = $this->getMonthEvents($year, $month);
+		$events =& $this->_expandEventList($plain_events, $cal_date, $last_day);
+		
+		foreach ($events as $id => $details) {
+			//if ($details['type_code'] != 'calendar_event_recurring') {
+				if (($details['start_date_mon'] == $month) && ($details['start_date_year'] == $year)) {
 					$res[$details['start_date_mday']][$id] = $details;
-					// now figure out if it goes beyond this day
-					for ($current_day = $details['start_date_mday']; $current_day <= $details['start_date_mday'] + ($details['end_date_ds'] - $details['start_date_ds']); $current_day++) {
-						if ($current_day > $month_length) break;
-						$res[$current_day][$id] = $details;
-					}
-
-				} else {
-					// must have carried on since last month
-					$current_day = 1;
-					while (($current_day <= $month_length) && (strtotime("$year-$month-$current_day 12:00:00 GMT")/60/60/24 < $details['end_date_ds'])) {
-						//bam("Event $id ends at ".$details['end_date_ts'].'('.gmdate('r', $details['end_date_ts']).' and now is '.strtotime("$year-$month-$current_day").'('.gmdate('r',strtotime("$year-$month-$current_day GMT")));
-						$res[$current_day][$id] = $details;
-						$current_day++;
-					}
 				}
-			} else {
+					// now figure out if it goes beyond this day
+					//for ($current_day = $details['start_date_mday']; $current_day <= $details['start_date_mday'] + ($details['end_date_ds'] - $details['start_date_ds']); $current_day++) {
+						//if ($current_day > $month_length) break;
+						//$res[$current_day][$id] = $details;
+					//}
+
+				//} else {
+					// must have carried on since last month
+				//	$current_day = 1;
+				//	while (($current_day <= $month_length) && (strtotime("$year-$month-$current_day 12:00:00 GMT")/60/60/24 < $details['end_date_ds'])) {
+						//bam("Event $id ends at ".$details['end_date_ts'].'('.gmdate('r', $details['end_date_ts']).' and now is '.strtotime("$year-$month-$current_day").'('.gmdate('r',strtotime("$year-$month-$current_day GMT")));
+				//		$res[$current_day][$id] = $details;
+				//		$current_day++;
+				//	}
+				//}
+			/*} else {
 				// recurring event
 				$stop_date = (int)$details['stop_date'] ? $details['stop_date'] : sprintf('%04d-%02d-%02d', $year, $month, $month_length);
 				$next_occurrence_date = Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-%02d-%02d', $year, $month, 1), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period'], $stop_date);
@@ -1374,12 +1399,12 @@ class Page_Calendar extends Page_Asset_Listing
 					increment_date($ne_day, $ne_month, $ne_year);
 					$next_occurrence_date = Calendar_Event_Recurring::getFirstOccurrenceAfter(sprintf('%04d-%02d-%02d', $ne_year, $ne_month, $ne_day), sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']), $details['frequency'], $details['period'], $stop_date);
 				}
-			}
+			}*/
 		}
 		foreach ($res as $date => $events) $this->_processExceptions($res[$date]);
 		return $res;
 
-	}//end getMonthEventsByDay
+	}//end getMonthEventsByDay()
 
 
 	/*
@@ -1394,226 +1419,11 @@ class Page_Calendar extends Page_Asset_Listing
 		
 		$first_day = iso8601_ts($date) - ((7+(date('w', iso8601_ts($date)) - $week_start_day))%7)*86400;
 		$cal_date = date('Y-m-d', $first_day);
-		$last_day = date('Y-m-d', $first_day + 6*86400);
 		
 		$single_result =& $this->_multipleDaySingleQuery($root_nodes, $cal_date, 7);		
 		$recur_result =& $this->_multipleDayRecurringQuery($root_nodes, $cal_date, 'week');
-		$res = Array();
 		
-		foreach(array_keys($single_result) as $key) {
-			$event =& $single_result[$key];
-			$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
-			$event_end_date = sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
-			
-			$i = 0;
-			
-			if (!is_null($event['end_date_ds'])) {
-				// end date is specified
-				if ($event['start_date_ds'] != $event['end_date_ds']) {
-					
-					// multiple day
-					$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
-					$start_date = date('Y-m-d', $start_time);
-					
-					$end_time = mktime(12, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year']);
-					$end_date = date('Y-m-d', $end_time);
-						
-					$res[$key.':'.$i] = array_merge($event, Array(
-						'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time),
-						'start_date_mday' => date('j', $start_time),
-						'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-						'end_date_mday' => date('j', $start_time)));
-						if (!is_null($event['end_date_hours'])) {
-							list($res[$key.':'.$i]['end_date_hours'], $res[$key.':'.$i]['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
-							$res[$key.':'.$i]['end_date_ts'] = iso8601_ts($date.' '.$this->attr('day_ends_at').':00');
-						}
-					$i++;
-					
-					for ($inter_time = $start_time + 86400; $inter_time < $end_time; $inter_time += 86400) {
-						$inter_date = date('Y-m-d', $inter_time);
-						$res[$key.':'.$i] = array_merge($event, Array(
-							'start_date_year' => date('Y', $inter_time), 'start_date_mon' => date('n', $inter_time),
-							'start_date_mday' => date('j', $inter_time),
-							'end_date_year' => date('Y', $inter_time), 'end_date_mon' => date('n', $inter_time),
-							'end_date_mday' => date('j', $inter_time),
-							'partition_start' => $this->attr('day_starts_at')));
-							
-						if (!is_null($event['start_date_hours'])) {
-							list($res[$key.':'.$i]['start_date_hours'], $res[$key.':'.$i]['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
-							$res[$key.':'.$i]['start_date_ts'] = iso8601_ts($date.' '.$this->attr('day_starts_at').':00');
-						}
-						if (!is_null($event['end_date_hours'])) {
-							list($res[$key.':'.$i]['end_date_hours'], $res[$key.':'.$i]['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
-							$res[$key.':'.$i]['end_date_ts'] = iso8601_ts($date.' '.$this->attr('day_ends_at').':00');
-						}
-						$i++;
-					}
-					
-					$res[$key.':'.$i] = array_merge($event, Array(
-						'start_date_year' => date('Y', $end_time), 'start_date_mon' => date('n', $end_time),
-							'start_date_mday' => date('j', $end_time),
-						'end_date_year' => date('Y', $end_time), 'end_date_mon' => date('n', $end_time),
-							'end_date_mday' => date('j', $end_time),
-						'partition_start' => $this->attr('day_starts_at')));
-						
-					if (!is_null($event['start_date_hours'])) {
-						list($res[$key.':'.$i]['start_date_hours'], $res[$key.':'.$i]['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
-						$res[$key.':'.$i]['start_date_ts'] = iso8601_ts($date.' '.$this->attr('day_starts_at').':00');
-					}
-					
-					$i++;
-					
-				} else {
-					$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
-					$start_date = date('Y-m-d', $start_time);
-					// single day
-					$res[$key.':'.$i] = array_merge($event, Array(
-						'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
-						'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-						'end_date_mday' => date('j', $start_time),
-						));
-					$i++;
-				}
-			} else {
-				$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
-				$start_date = date('Y-m-d', $start_time);
-				// single day in any case
-				$res[$key.':'.$i] = array_merge($event, Array(
-						'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
-						'end_date_ds' => round(iso8601_ts($key) / 86400),
-						'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-						'end_date_mday' => date('j', $start_time),
-						));
-				$i++;
-				
-			}
-		}
-		
-		foreach(array_keys($recur_result) as $key) {
-			$event =& $recur_result[$key];
-			$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
-			$event_end_date = sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
-			
-			$event_last_day = $last_day;
-			
-			if ($event['stop_date'] != str_repeat('-',10)) {
-				if ($event['stop_date'] < $last_day) {
-					$event_last_day = $event['stop_date'];
-				}
-				//$event_last_day = min($event['stop_date'], $last_day);
-			}
-			
-			switch($event['frequency']{0}) {
-				case 'D':
-					$first_occur = increment_iso_by_days($cal_date, -$event['period']);
-				break;
-				
-				case 'W':
-					$first_occur = increment_iso_by_days($cal_date, -$event['period']*7);
-				break;
-				
-				case 'M':
-					$first_occur = increment_iso_by_months($cal_date, -$event['period']).'-'.date('d', $first_day);
-				break;
-				
-			}
-			
-			$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter($first_occur, $event_start_date, $event['frequency'], $event['period'], $event_last_day);
-			$i = 0;
-			
-			while (($next_occur !== false) && ($next_occur <= $last_day)) {
-				$next_occur_ds = round(iso8601_ts($next_occur) / 86400);
-				// days between occurrences
-				$difference = $next_occur_ds - $event['start_date_ds'];
-				
-				if (!is_null($event['end_date_ds'])) {
-					// end date is specified
-					if ($event['start_date_ds'] != $event['end_date_ds']) {
-						
-						// multiple day
-						$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
-						$start_date = date('Y-m-d', $start_time);
-						
-						$end_time = mktime(12, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year'])+$difference*86400;
-						$end_date = date('Y-m-d', $end_time);
-							
-						$res[$key.':'.$i] = array_merge($event, Array(
-							'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time),
-							'start_date_mday' => date('j', $start_time),
-							'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-							'end_date_mday' => date('j', $start_time)));
-						if (!is_null($event['end_date_hours'])) {
-							list($res[$key.':'.$i]['end_date_hours'], $res[$key.':'.$i]['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
-							$res[$key.':'.$i]['end_date_ts'] = iso8601_ts($start_date.' '.$this->attr('day_ends_at').':00');
-						}
-						$i++;
-						
-						for ($inter_time = $start_time + 86400; $inter_time < $end_time; $inter_time += 86400) {
-							$inter_date = date('Y-m-d', $inter_time);
-							$res[$key.':'.$i] = array_merge($event, Array(
-								'start_date_year' => date('Y', $inter_time), 'start_date_mon' => date('n', $inter_time),
-								'start_date_mday' => date('j', $inter_time),
-								'end_date_year' => date('Y', $inter_time), 'end_date_mon' => date('n', $inter_time),
-								'end_date_mday' => date('j', $inter_time),
-								'partition_start' => $this->attr('day_starts_at')));
-								
-							if (!is_null($event['start_date_hours'])) {
-								list($res[$key.':'.$i]['start_date_hours'], $res[$key.':'.$i]['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
-								$res[$key.':'.$i]['start_date_ts'] = iso8601_ts($inter_date.' '.$this->attr('day_starts_at').':00');
-							}
-							if (!is_null($event['end_date_hours'])) {
-								list($res[$key.':'.$i]['end_date_hours'], $res[$key.':'.$i]['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
-								$res[$key.':'.$i]['end_date_ts'] = iso8601_ts($inter_date.' '.$this->attr('day_ends_at').':00');
-							}
-							$i++;
-						}
-						
-						$res[$key.':'.$i] = array_merge($event, Array(
-							'start_date_year' => date('Y', $end_time), 'start_date_mon' => date('n', $end_time),
-								'start_date_mday' => date('j', $end_time),
-							'end_date_year' => date('Y', $end_time), 'end_date_mon' => date('n', $end_time),
-								'end_date_mday' => date('j', $end_time),
-							'partition_start' => $this->attr('day_starts_at')));
-							
-						if (!is_null($event['start_date_hours'])) {
-							list($res[$key.':'.$i]['start_date_hours'], $res[$key.':'.$i]['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
-							$res[$key.':'.$i]['start_date_ts'] = iso8601_ts($end_date.' '.$this->attr('day_starts_at').':00');
-						}
-						
-						$i++;
-						
-					} else {
-						$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
-						$start_date = date('Y-m-d', $start_time);
-						// single day
-						$res[$key.':'.$i] = array_merge($event, Array(
-							'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
-							'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-							'end_date_mday' => date('j', $start_time),
-							));
-						$i++;
-					}
-				} else {
-					$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
-					$start_date = date('Y-m-d', $start_time);
-					// single day in any case
-					$res[$key.':'.$i] = array_merge($event, Array(
-							'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
-							'end_date_ds' => round(iso8601_ts($key) / 86400),
-							'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-							'end_date_mday' => date('j', $start_time),
-							));
-					$i++;
-					
-				}
-			
-				// get the next occurrence
-				$next_d = increment_iso_by_days($next_occur, 1);
-				$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter( increment_iso_by_days($next_occur, 1), $event_start_date, $event['frequency'], $event['period'], $event_last_day);
-			
-			}//end while
-		}
-		return $res;
+		return ($single_result + $recur_result);
 
 	}//end getWeekEvents()
 
@@ -1636,7 +1446,14 @@ class Page_Calendar extends Page_Asset_Listing
 			$ordered_days[] = $i%7;
 		}
 		$passed_today = false;
-		$events = $this->getWeekEvents($date);
+		
+		$first_day = iso8601_ts($date) - ((7+(date('w', iso8601_ts($date)) - $week_start_day))%7)*86400;
+		$cal_date = date('Y-m-d', $first_day);
+		$last_day = date('Y-m-d', $first_day + 6*86400);
+				
+		$plain_events = $this->getWeekEvents($date);
+		$events =& $this->_expandEventList($plain_events, $cal_date, $last_day);
+		
 		foreach ($ordered_days as $current_day) {
 			if ($current_day == $today_day) $passed_today = true;
 			if ($enabled_days[$current_day]) {
@@ -1683,6 +1500,8 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		if (!$first_time) $first_time = $this->attr('day_starts_at');
 		if (!$time_partition) $time_partition = $this->attr('day_partition_time');
+		error_log($time_partition);
+		
 		if (!$last_time) $last_time = $this->attr('day_ends_at');
 		$events = $this->getWeekEventsByDay($date);
 		$partition_keys = Array();
@@ -2361,6 +2180,269 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end _treeCaseQuery()
 
 
+	/**
+	* Expands list of multiple day and/or recurring events into a series of single-day events
+	*
+	* Returned list of events is indexed by a shadow-asset-like identifier of
+	* 'assetid:instance' where instance is a 0-based index of how many times an instance
+	* the event has occurred previously.
+	*
+	* 
+	*/
+	function &_expandEventList(&$events, $cal_date, $last_day) {
+		$res = Array();
+		
+		foreach(array_keys($events) as $key) {
+			$event =& $events[$key];
+			if ($event['type_code'] == 'calendar_event_recurring') {
+				$this->_expandRecurringEvent($res, $event, $key, $cal_date, $last_day);
+			} else {
+				$this->_expandSingleEvent($res, $event, $key);
+			}
+		}
+		
+		return $res;
+		
+	}//end _expandEventList()
+	
+	
+	/**
+	* Expands a multiple-day single event into a series of single-day events
+	*
+	* While this function can easily be called from anywhere in this class when required, it
+	* is RECOMMENDED that this only be called from $this::_expandEventList().
+	*
+	* @param array	&$result_list	The result array to append the expanded events to
+	* @param array	&$event			The cached calendar components of the event to expand
+	*								(format as per structure of calendar_date_value table)
+	* @param int	$assetid		The asset ID of the event being expanded
+	*
+	* @return boolean	always true
+	* @access private
+	*/
+	function _expandSingleEvent(&$result_list, &$event, $assetid) {
+		$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
+		$event_end_date = sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
+		
+		$i = 0;
+		
+		if (!is_null($event['end_date_ds'])) {
+			// end date is specified
+			if ($event['start_date_ds'] != $event['end_date_ds']) {
+				
+				// multiple day
+				$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
+				$start_date = date('Y-m-d', $start_time);
+				
+				$end_time = mktime(12, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year']);
+				$end_date = date('Y-m-d', $end_time);
+					
+				$result_list[$assetid.':'.$i] = array_merge($event, Array(
+					'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time),
+					'start_date_mday' => date('j', $start_time),
+					'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
+					'end_date_mday' => date('j', $start_time)));
+				$i++;
+				
+				for ($inter_time = $start_time + 86400; $inter_time < $end_time; $inter_time += 86400) {
+					$inter_date = date('Y-m-d', $inter_time);
+					$result_list[$assetid.':'.$i] = array_merge($event, Array(
+						'start_date_year' => date('Y', $inter_time), 'start_date_mon' => date('n', $inter_time),
+						'start_date_mday' => date('j', $inter_time),
+						'end_date_year' => date('Y', $inter_time), 'end_date_mon' => date('n', $inter_time),
+						'end_date_mday' => date('j', $inter_time),
+						'partition_start' => $this->attr('day_starts_at')));
+						$i++;
+				}
+				
+				$result_list[$assetid.':'.$i] = array_merge($event, Array(
+					'start_date_year' => date('Y', $end_time), 'start_date_mon' => date('n', $end_time),
+						'start_date_mday' => date('j', $end_time),
+					'end_date_year' => date('Y', $end_time), 'end_date_mon' => date('n', $end_time),
+						'end_date_mday' => date('j', $end_time),
+					'partition_start' => $this->attr('day_starts_at')));
+					
+
+				$i++;
+				
+			} else {
+				$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
+				$start_date = date('Y-m-d', $start_time);
+				// single day
+				$result_list[$assetid.':'.$i] = array_merge($event, Array(
+					'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
+					'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
+					'end_date_mday' => date('j', $start_time),
+					));
+				$i++;
+			}
+		} else {
+			$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
+			$start_date = date('Y-m-d', $start_time);
+			// single day in any case
+			$result_list[$assetid.':'.$i] = array_merge($event, Array(
+					'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
+					'end_date_ds' => round(iso8601_ts($assetid) / 86400),
+					'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
+					'end_date_mday' => date('j', $start_time),
+					));
+			$i++;
+			
+		}
+		
+		return true;
+		
+	}//end _expandSingleEvent()
+	
+	
+	/**
+	* Expands a list of recurring events into a series of single-day events
+	*
+	* While this function can easily be called from anywhere in this class when required, it
+	* is RECOMMENDED that this only be called from $this::_expandEventList().
+	*
+	* @param array	&$result_list	The result array to append the expanded events to
+	* @param array	&$event			The cached calendar components of the event to expand
+	*								(format as per structure of calendar_date_value table)
+	* @param int	$assetid		The asset ID of the event being expanded
+	* @param string	$cal_date		The first day to expand recurring events for (specified
+	*								in ISO8601 date-only format, ie. YYYY-MM-DD)
+	* @param string $last_day		The last day to expand recurring events for (specified in
+	*								ISOO8601 date-only format)
+	*
+	* @return boolean	always true
+	* @access private
+	*/
+	function _expandRecurringEvent(&$result_list, &$event, $assetid, $cal_date, $last_day) {
+		$first_day = iso8601_ts($cal_date);
+		
+		$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
+		$event_end_date = sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
+		
+		$event_last_day = $last_day;
+		
+		if ($event['stop_date'] != str_repeat('-',10)) {
+			if ($event['stop_date'] < $last_day) {
+				$event_last_day = $event['stop_date'];
+			}
+			//$event_last_day = min($event['stop_date'], $last_day);
+		}
+		
+		switch($event['frequency']{0}) {
+			case 'D':
+				$first_occur = increment_iso_by_days($cal_date, -$event['period']);
+			break;
+			
+			case 'W':
+				$first_occur = increment_iso_by_days($cal_date, -$event['period']*7);
+			break;
+			
+			case 'M':
+				$first_occur = increment_iso_by_months($cal_date, -$event['period']).'-'.date('d', $first_day);
+			break;
+			
+		}
+		
+		$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter($first_occur, $event_start_date, $event['frequency'], $event['period'], $event_last_day);
+		$i = 0;
+		
+		while (($next_occur !== false) && ($next_occur <= $last_day)) {
+			$next_occur_ds = round(iso8601_ts($next_occur) / 86400);
+			// days between occurrences
+			$difference = $next_occur_ds - $event['start_date_ds'];
+			
+			if (!is_null($event['end_date_ds'])) {
+				// end date is specified
+				if ($event['start_date_ds'] != $event['end_date_ds']) {
+					
+					// multiple day
+					$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
+					$start_date = date('Y-m-d', $start_time);
+					
+					$end_time = mktime(12, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year'])+$difference*86400;
+					$end_date = date('Y-m-d', $end_time);
+						
+					$result_list[$assetid.':'.$i] = array_merge($event, Array(
+						'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time),
+						'start_date_mday' => date('j', $start_time),
+						'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
+						'end_date_mday' => date('j', $start_time)));
+					if (!is_null($event['end_date_hours'])) {
+						list($result_list[$assetid.':'.$i]['end_date_hours'], $result_list[$assetid.':'.$i]['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
+						$result_list[$assetid.':'.$i]['end_date_ts'] = iso8601_ts($start_date.' '.$this->attr('day_ends_at').':00');
+					}
+					$i++;
+					
+					for ($inter_time = $start_time + 86400; $inter_time < $end_time; $inter_time += 86400) {
+						$inter_date = date('Y-m-d', $inter_time);
+						$result_list[$assetid.':'.$i] = array_merge($event, Array(
+							'start_date_year' => date('Y', $inter_time), 'start_date_mon' => date('n', $inter_time),
+							'start_date_mday' => date('j', $inter_time),
+							'end_date_year' => date('Y', $inter_time), 'end_date_mon' => date('n', $inter_time),
+							'end_date_mday' => date('j', $inter_time),
+							'partition_start' => $this->attr('day_starts_at')));
+							
+						if (!is_null($event['start_date_hours'])) {
+							list($result_list[$assetid.':'.$i]['start_date_hours'], $result_list[$assetid.':'.$i]['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
+							$result_list[$assetid.':'.$i]['start_date_ts'] = iso8601_ts($inter_date.' '.$this->attr('day_starts_at').':00');
+						}
+						if (!is_null($event['end_date_hours'])) {
+							list($result_list[$assetid.':'.$i]['end_date_hours'], $result_list[$assetid.':'.$i]['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
+							$result_list[$assetid.':'.$i]['end_date_ts'] = iso8601_ts($inter_date.' '.$this->attr('day_ends_at').':00');
+						}
+						$i++;
+					}
+					
+					$result_list[$assetid.':'.$i] = array_merge($event, Array(
+						'start_date_year' => date('Y', $end_time), 'start_date_mon' => date('n', $end_time),
+							'start_date_mday' => date('j', $end_time),
+						'end_date_year' => date('Y', $end_time), 'end_date_mon' => date('n', $end_time),
+							'end_date_mday' => date('j', $end_time),
+						'partition_start' => $this->attr('day_starts_at')));
+						
+					if (!is_null($event['start_date_hours'])) {
+						list($result_list[$assetid.':'.$i]['start_date_hours'], $result_list[$assetid.':'.$i]['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
+						$result_list[$assetid.':'.$i]['start_date_ts'] = iso8601_ts($end_date.' '.$this->attr('day_starts_at').':00');
+					}
+					
+					$i++;
+					
+				} else {
+					$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
+					$start_date = date('Y-m-d', $start_time);
+					// single day
+					$result_list[$assetid.':'.$i] = array_merge($event, Array(
+						'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
+						'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
+						'end_date_mday' => date('j', $start_time),
+						));
+					$i++;
+				}
+			} else {
+				$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year'])+$difference*86400;
+				$start_date = date('Y-m-d', $start_time);
+				// single day in any case
+				$result_list[$assetid.':'.$i] = array_merge($event, Array(
+						'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
+						'end_date_ds' => round(iso8601_ts($assetid) / 86400),
+						'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
+						'end_date_mday' => date('j', $start_time),
+						));
+				$i++;
+				
+			}
+		
+			// get the next occurrence
+			$next_d = increment_iso_by_days($next_occur, 1);
+			$next_occur = Calendar_Event_Recurring::getFirstOccurrenceAfter( increment_iso_by_days($next_occur, 1), $event_start_date, $event['frequency'], $event['period'], $event_last_day);
+		
+		}//end while
+		
+		return true;
+		
+	}//end _expandRecurringEvent()
+	
+	
 }//end class
 
 ?>
