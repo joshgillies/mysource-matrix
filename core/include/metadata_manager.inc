@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_manager.inc,v 1.6 2003/09/26 05:26:31 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.7 2003/10/02 01:35:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -496,6 +496,11 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_created' :
 				case 'asset_updated' :
 					echo '$metadata_replacements[\''.$keyword.'\'] = date(\'Y-m-d H:i:s\', $metadata_asset->'.substr($keyword,6).');'."\n";
+				break;
+
+				case 'asset_created_short' :
+				case 'asset_updated_short' :
+					echo '$metadata_replacements[\''.$keyword.'\'] = date(\'Y-m-d\', $metadata_asset->'.substr($keyword,6,7).');'."\n";
 				break;
 				
 				case 'asset_created_by_name' :
