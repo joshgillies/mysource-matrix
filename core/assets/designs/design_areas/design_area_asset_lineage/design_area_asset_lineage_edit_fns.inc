@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.9 2004/04/13 01:01:19 gsherwood Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.10 2004/08/02 01:26:37 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -156,6 +156,7 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 				// the home link is start the loop at a different position
 				$start_index = ($asset->attr('prefix_with_home_link')) ? 0 : 1;
 
+				
 				$total = 'count($ASSET_LINEAGE)';
 				// because the page lineage array contains the current page, all we need to do to have or not have
 				// the current link is end the loop at a different position
@@ -163,9 +164,16 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 					$total .= ' - 1';
 				}
 
-				// if we have pages to print, we just adjust the total count factor
-				if (($levels_to_print = (int) $asset->attr('levels_to_print')) > 0) {
-					$total = 'min('.$total.', '.($levels_to_print + $start_index).')';
+				$levels_to_print = (int) $asset->attr('levels_to_print');
+				
+				if (is_int($levels_to_print)) {
+					// if we have pages to print, we just adjust the total count factor
+					if ($levels_to_print > 0) {
+						$total = 'min('.$total.', '.($levels_to_print + $start_index).')';
+					} else if ($levels_to_print < 0) {
+						// need to minus 1 because the current link is included in the lineage count
+						$start_index = 'max(0, (count($ASSET_LINEAGE) - 1 - '.abs($levels_to_print).'))';
+					}
 				}
 
 				if ($divider_contents = $asset->attr('divider_contents')) {
