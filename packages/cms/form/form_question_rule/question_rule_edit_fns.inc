@@ -43,5 +43,13 @@ class Question_Rule_Edit_Fns extends Asset_Edit_Fns
 		return true;
 	}
 
+	function processDelete()
+	{
+		if (isset($_POST['delete_rule'])) {
+			$ruleids = $_POST['delete_rule'];
+			bam($ruleids);
+		}
+	}
+
 }//end class
 ?>

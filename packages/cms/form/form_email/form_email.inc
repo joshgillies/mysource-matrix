@@ -131,19 +131,8 @@ class Form_Email extends Form
 	*/
 	function paintBackend(&$o)
 	{
-		if (isset($_GET['sq_from_frontend'])) {
-			// get the bodycopy attached to us
-			$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
-			if (is_null($bodycopy)) {
-				trigger_error('Could not locate the bodycopy for standard page "'.$this->name.'"', E_USER_ERROR);
-				return false;
-			}
-			$o->addFormActionGetVar('assetid', $bodycopy->id);
-			$bodycopy->paintBackend($o);
-		} else {
-			parent::paintBackend($o);
-		}
+		parent::paintBackend($o);
+
 	}// end paintBackend()
 
 
@@ -171,6 +160,137 @@ class Form_Email extends Form
 	{
 		return $this->attr('name');
 	}//end _getName();
+
+
+	function finishForm()
+	{
+		parent::finishForm();
+		$this->mailRecipients();
+		$this->mailReceipt();
+	}
+
+
+	/**
+	* returns a summary about the answers in the form submission
+	*
+	* @param boolean	$html	return html formatted or not 
+	*
+	* @access public
+	* @return string $summary
+	*/
+	function getSummary($html = false)
+	{
+		$answers  = $this->active_submission->getAnswers();
+		$title = 'Form Answers';
+		$summary  = ($html) ? '<B>'.$title.'</B><BR />' : $title."\n\n";
+		$summary .= ($html) ? "<table>" : '';
+		
+		foreach ($answers as $answer) {
+			$summary .= ($html) ? '<tr><td>'.$answer['name'] .'</td>' : $answer['name']."\t\t";
+			$summary .= ($html) ? '<td>'.$answer['answer'] .'</td></tr>' : $answer['answer']."\n";
+		}
+		
+		$summary .= ($html) ? '</table>' : '';
+		return $summary;
+	}
+
+
+	/**
+	* returns form information (site name, site id, page name, page id, url, submission date)
+	*
+	* @param boolean	$html	return html formatted or not 
+	*
+	* @access public
+	* @return string $information
+	*/
+	function getFormInfo($html = false)
+	{
+		$info = parent::getFormInfo();
+		$title = 'Form Information'; 
+		$information  = ($html) ? '<B>'.$title.'</B><BR />' : $title."\n\n";
+		$information .= ($html) ? "<table>" : '';
+		
+		foreach ($info as $name => $value) {
+			$information .= ($html) ? '<tr><td>'.ucwords(str_replace('_', ' ', $name)).'</td>' : $name."\t\t";
+			$information .= ($html) ? '<td>'.$value.'</td></tr>' : $value."\n";
+		}
+		$information .= ($html) ? "</table>" : '';
+		return $information;
+	}
+
+	function mailReceipt()
+	{
+
+	}
+
+
+	/**
+	* sends mail to recipients set in the backend
+	* 
+	* @access public
+	* @return boolean
+	*/
+	function mailRecipients()
+	{
+		// return false if there is no-one to send to
+		if (!$this->attr('recipient_emails')) return false;
+
+		$addresses  = split("\r\n", $this->attr('recipient_emails'));
+		
+		$allow_html = ($this->attr('recipient_allow_html')) ? true : false; 
+		$terminator = $allow_html ? '<BR />' : "\n"; // i'll be back!
+
+		// if this email is in html, add some nice html tags
+		$body = ($allow_html) ? "<html>\n\t<head><title></title></head>\n\t</body>" : '';
+		$body .= $this->attr('recipient_body').$terminator.$terminator;
+
+		// get the form info if they want it
+		if ($this->attr('recipient_send_info')) {
+			$body .= $this->getFormInfo($allow_html).$terminator;
+		}
+
+		// check to see if we want to send the answers to the recipient
+		if ($this->attr('recipient_send_answers')) {
+			$body .= $this->getSummary($allow_html).$terminator.$terminator;
+		}
+
+		// end the html
+		$body .= ($allow_html) ? "</body></table>" : '';
+
+		// send a html header if we need to
+		$extras = ($allow_html) ? "\nContent-Type: text/html; charset=iso-8859-1" : '';
+
+		$subject = ($this->attr('recipient_subject')) ? $this->attr('recipient_subject') : 'Form Submission';
+	
+		// special information address
+		$si_address = $this->getSpecialInformation('email'); 
+		if ($si_address === '') $si_address = false; 
+
+		// spam... baby, spam!
+		foreach ($addresses as $address) {
+			// make sure these are valid emails, otherwise, just strip them out
+			if (!$this->isValidEmail(trim($address))) continue;
+			
+			$from_address = ($si_address) ? $si_address : trim($address);
+			mail(trim($address), $subject, $body, 'From: '.$from_address.$extras);
+		}
+		
+		return true;
+	}
+
+
+	/**
+	* returns if a email is valid or not
+	*
+	* @param string $email the address to check 
+	*
+	* @access public
+	* @return boolean
+	*/
+	function isValidEmail($email)
+	{
+		return preg_match('/^([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-]+)*@([a-zA-Z0-9])+(\.[a-zA-Z0-9_-]+)+$/', $email);
+	}
 
 
 }//end class

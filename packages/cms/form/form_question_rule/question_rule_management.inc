@@ -3,7 +3,7 @@
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Form_Question_Management
+* Question_Rule_Management
 *
 * @see Asset_Management
 *
@@ -19,15 +19,20 @@ class Question_Rule_Management extends Asset_Management
 	* Constructor
 	*
 	*/
-	function Form_Question_Management(&$pm)
+	function Question_Rule_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('name' => Array(
+		$this->vars = Array('operator'	=>	Array(
 												'added'     => '0.0.1',
 												'type'      => 'text',  
 												'default'   => '',
 												),
+							'value'		=>	Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'text',
+												'default'	=> '',
+							),
 									);
 	}//end constructor
 

@@ -95,13 +95,15 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintQuestionLinks(&$asset, &$o, $prefix)
 	{	
-		$questions = $asset->getQuestions();
-
-		if (!count($questions)) {
-			echo 'Currently no questions in this section';
+		$questions = &$asset->getQuestions();
+		
+		if (empty($questions)) {
+			echo 'There are no Questions for this section <br/>';
 			return false;
 		}
-		foreach ($questions as $question) {
+
+		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
+			$question =& $questions[$k];
 			?>
 			<a href="<?php echo $question->getBackendHref('contents') ?>"><?php echo $question->name ?></a><br />
 			<?
@@ -274,7 +276,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 						$t = $matches[2][$i]; // wanted type
 						$search = '%question_'.$q.'_'.$t.'%';
 
-						if ($question = $asset->getQuestionByOrder($q)) {
+						if ($question = &$asset->getQuestionByOrder($q)) {
 							$replacement = $question->getVal($t);
 						} else {
 							$replacement = '';
@@ -305,7 +307,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$output = '';
 		$output .= "<table>\n";
 		$questions = &$asset->getQuestions();
-		foreach ($questions as $q) {
+		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
+			$q =& $questions[$k];
 			$output .= "<tr><td>".$q->getVal('title')."</td><td>".$q->getVal('answer')."</td></tr>\n";
 		}
 		$output .= "</table>\n";
@@ -344,7 +347,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		preg_match_all('/%question_\?_([^%]+)%/', $body, $matches);
 		$questions = &$asset->getQuestions();
 
-		foreach ($questions as $order => $question) {
+		for (reset($questions); null !== ($order = key($questions)); next($questions)) {
+			$question =& $questions[$order];
 			
 			// we don't want to override the keywords in the body, so we can keep using them
 			// to replace the content of the questions
@@ -359,7 +363,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			}
 			$output .= $tmp;
 
-		} // end foreach
+		} // end for
 
 		$output .= '</table>';
 		return $output;

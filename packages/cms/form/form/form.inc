@@ -17,6 +17,12 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 class Form extends Asset
 {
 
+
+	/**
+	* @var
+	*/
+	var $active_submission = '';
+
 	/**
 	* Constructor
 	*
@@ -25,6 +31,7 @@ class Form extends Asset
 	*/
 	function Form($assetid=0) 
 	{
+		$this->_ser_attrs = true;
 		$this->Asset($assetid);
 	}
 
@@ -215,9 +222,11 @@ class Form extends Asset
 	*/
 	function getSectionLinks()
 	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$this->section_links = $this->getLinks(SQ_LINK_TYPE_2, 'form_section', true, 'major', '', '1', '1');
-		return $this->section_links; 
+		if (empty($this->tmp['section_links'])) {
+			$this->tmp['section_links'] = Array();
+			$this->tmp['section_links'] = $this->getLinks(SQ_LINK_TYPE_2, 'form_section', true, 'major', '', '1', '1');
+		}
+		return (!empty($this->tmp['section_links'])) ? $this->tmp['section_links'] : Array();
 
 	} // end getSectionLinks()
 
@@ -256,9 +265,9 @@ class Form extends Asset
 	function &getQuestionByOrder($s_order, $q_order)
 	{
 		// first get the section asset that contains the question
-		if (!$section = $this->getSectionByOrder($s_order)) return false;
+		if (!$section = &$this->getSectionByOrder($s_order)) return false;
 		// get the question from the section based on the order
-		if (!$question = $section->getQuestionByOrder($q_order)) return false;
+		if (!$question = &$section->getQuestionByOrder($q_order)) return false;
 		
 		return $question; 
 	
@@ -276,12 +285,12 @@ class Form extends Asset
 	function &getSections() 
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$section_links = $this->getSectionLinks();
+		$section_links = &$this->getSectionLinks();
 		$sections = Array();
 		foreach ($section_links as $link) {
 			$sections[$link['sort_order']] = &$am->getAsset($link['minorid'], $link['type_code']);
 		}
-		return $sections;
+		return (!empty($sections)) ? $sections : Array();
 
 	} // end getSections()
 
@@ -296,8 +305,7 @@ class Form extends Asset
 	*/
 	function getSectionCount()
 	{
-		$links = $this->getSectionLinks();
-		return count($links);
+		return count($this->getSectionLinks());
 
 	} // end getSectionCount()
 
@@ -326,7 +334,6 @@ class Form extends Asset
 	*/
 	function printBody()
 	{
-		inject_beef();
 		
 		$prefix = $this->getPrefix(); 
 		$submission = '';
@@ -339,18 +346,16 @@ class Form extends Asset
 		if (isset($_COOKIE['SQ_FORM_'.$prefix])) {
 			$submissionid = $_COOKIE['SQ_FORM_'.$prefix];
 			if ($submissionid) {
-				$submission = &$GLOBALS['SQ_SYSTEM']->am->getAsset($submissionid, 'form_submission');
+				$this->active_submission = &$GLOBALS['SQ_SYSTEM']->am->getAsset($submissionid, 'form_submission');
 			}
 		}
 		// check to see if this form is set up to be a wizard or not
 		if ($this->attr('wizard')) {
-			$this->printWizard($submission);
+			$this->printWizard();
 		} else {
-			$this->printStandard($submission);
+			$this->printStandard();
 		}
 		echo "</form>\n";
-		inject_beef();
-		
 	} // end printBody()
 
 
@@ -362,24 +367,25 @@ class Form extends Asset
 	* @access public
 	* @return boolean
 	*/
-	function printStandard(&$submission) {
+	function printStandard() {
 		
 		$prefix = $this->getPrefix();
 		$is_error = false;
 
 		// check to see if the form has been submitted or not
 		if (isset($_POST[$prefix.'_submit'])) {
-			if (!$submission) {
-				$submission = &$this->createSubmission();
-				$this->setFormCookie($submission->id, $this->attr('cookie_time'));
+			if (!$this->active_submission) {
+				$this->active_submission = &$this->createSubmission();
+				$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
 			}
 			
 			// flush any errors that exist in the submisssion asset
-			$submission->flushErrors();
-			$this->processForm($submission);
+			$this->active_submission->flushErrors();
+			$this->processForm();
 			
 			// check to see if there is an error with the form
-			if ($submission->isError()) { 
+			if ($this->active_submission->isError()) { 
+				$this->printErrors();
 				$is_error = true;
 			} else {
 				$this->finishForm();
@@ -411,24 +417,31 @@ class Form extends Asset
 	* @access public
 	* @return boolean
 	*/
-	function printWizard(&$submission) {
+	function printWizard() {
 	
 		if ($this->getStage() == 'first') {
 			$order = 1;
 		} else {
 			// create a submission asset if we don't already have one
-			if (!$submission) {
-				$submission = &$this->createSubmission();
+			if (!$this->active_submission) {
+				$this->active_submission = &$this->createSubmission();
 				
 				// create a cookie and set the id to the id of the submission asset
-				$this->setFormCookie($submission->id, $this->attr('cookie_time'));
+				$this->setFormCookie($this->active_submission->id, $this->attr('cookie_time'));
 			}
 			$order = (int) $_POST['section'];
 			
 			// get the section to process itself
 			$posted_section = &$this->getSectionByOrder($order);
-			$posted_section->processForm($submission);
-			$order++;
+			$posted_section->processForm($this->active_submission);
+
+			// check to see if there is any errors with the submission,
+			// otherwise increment to the next section
+			if ($submission->isError()) {
+				$this->printErrors();
+			} else {
+				$order++;
+			}
 
 		} // end if
 
@@ -462,22 +475,25 @@ class Form extends Asset
 	*/
 	function &createSubmission()
 	{
+		inject_beef();
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_submission');
 		
 		// create some questions
-		$submission  = new Form_Submission();
-		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'dependant' => 1, 'exclusive' => 1);
+		$submission = new Form_Submission();
+		inject_beef();
+		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'dependant' => 1, 'exclusive' => 1);
 		
 		// give an appropriate name to this question
 		if (!$submission->create($copy_link)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+		inject_beef();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-	
+		inject_beef();
 		return $submission;
 
 	} // end createSubmission()
@@ -503,6 +519,7 @@ class Form extends Asset
 		if ($section == $count) return 'last';
 		return $section;
 	}
+
 
 	/**
 	* get a button for a wizard based on where the wizard is up to
@@ -559,45 +576,168 @@ class Form extends Asset
 	* @access public
 	* @return boolean
 	*/
-	function processForm(&$submission) {
+	function processForm() {
+	
+		if (!$this->active_submission) return false;
+
 		$sections = &$this->getSections();
-		foreach ($sections as $section) {
-			$section->processForm($submission);
+		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
+			$section =& $sections[$k];
+			$section->processForm($this->active_submission);
 		}
 		return true;
 	} // end processForm()
 
 
 	/**
-	* function to finish off the form eg. print thankyou bodycopy or validate details screens
+	* 
+	* 
+	*
+	*/
+	function validateForm()
+	{
+		$validate_link = $this->getLink(SQ_LINK_TYPE_2, 'bodycopy', true, 'validate_bodycopy');
+		$validate = &$am->getAsset($validate_link['minorid'], $validate_link['type_code']);
+		hidden_value('validate', '1');
+	}
+
+	/**
+	* function to finish off form 
 	*
 	* @access public
 	* @return boolean
 	*/
 	function finishForm() {
+		
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		// we want delete the cookie, so that when they come back to fill
 		// this form on another day, they start fresh, so set the number of days to -1
 		$this->setFormCookie(0, -1);
 		
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		if ($this->attr('validate') && !isset($_POST['validate'])) {
-			$validate_link = $this->getLink(SQ_LINK_TYPE_2, 'bodycopy', true, 'validate_bodycopy');
-			$validate = $am->getAsset($validate_link['minorid'], $validate_link['type_code']);
-			hidden_value('validate', '1');
-		} else {
-			$folder_link = $this->getLink(SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
-			$folder = &$am->getAsset($folder_link['minorid'], $folder_link['type_code']); 
-			$tyb_link = $folder->getLink(SQ_LINK_TYPE_2, 'bodycopy', true, 'thank_you_bodycopy');
-			$tyb = &$am->getAsset($tyb_link['minorid'], $tyb_link['type_code']);
+		$folder_link = $this->getLink(SQ_LINK_TYPE_2, 'folder', true, 'bodycopies_folder');
+		$folder = &$am->getAsset($folder_link['minorid'], $folder_link['type_code']); 
+		
+		$tyb_link = $folder->getLink(SQ_LINK_TYPE_2, 'bodycopy', true, 'thank_you_bodycopy');
+		$tyb = &$am->getAsset($tyb_link['minorid'], $tyb_link['type_code']);
+		
+		if (!$tyb->isEmpty()) {
 			$tyb->printBody();
 		}
+
 	} // end finishForm()
 
-	function printErrors(&$submission)
+
+	/**
+	* prints the errors that occured in a form submission
+	*
+	* @access public
+	* @return boolean
+	*/
+	function printErrors()
 	{
+		if (!$this->active_submission) return false;
+
+		$errors = $this->active_submission->getErrors();
+		if(empty($errors)) return false;
+
+		?>
+		<SPAN style="color: red">
+		<B>The Following Errors Occured</B><BR/>
+		<UL>
+		<?php
+
+		foreach ($errors as $error) {
+			echo "<LI>".$error."</LI>\n";
+		}
+
+		?>
+		</UL>
+		</SPAN>
+		<?php
+		
+		return true;
+
+	} // end printErrors()
+
+
+	/**
+	* returns information about where the form exists
+	*
+	* @access public
+	* @return Array(string)
+	*/
+	function getFormInfo()
+	{
+		$info = Array();
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		
+		$lineage = $am->getLineageFromURL();
+		foreach ($lineage as $asset) {
+			$info[$asset['type_code'].'_name'] = $asset['name'];
+			$info[$asset['type_code'].'_id']   = $asset['assetid'];
+		}
+		$info['url'] = current_url(true, true);
+		return $info;
 
 	}
+
+
+	/**
+	* returns the info corresponding to the value associated with a question
+	*
+	* @param string $info the wanted info
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getSpecialInformation($info)
+	{
+		$i = $this->attr('special_info');
+		if (isset($i[$info]['id'])) {
+			return $this->active_submission->getAnswer($i[$info]['id']);
+		}
+		return false;
+	}
+
+
+	/**
+	* set the info corresponding to the value associated with a question
+	*
+	* @param integer $questionid		the questionid you want to accociate the info with
+	* @param stribng $info				the special information
+	*
+	* @return mixed
+	* @access public
+	*/
+	function setSpecialInformation($questionid, $info)
+	{
+		$i = $this->attr('special_info');
+		
+		// there can only be one question with this special information value
+		if (isset($i[$info]) && ($i[$info]['id'] != $questionid)) {
+			trigger_error('A Question has already been assigned to that Special Information (Asset id #'.$i[$info]['id'].')', E_USER_WARNING);
+			return false;
+		}
+
+		// check to see if this question has been assigned to something else
+		foreach ($i as $name => $i) {
+			if ($i['id'] == $questionid) {
+				unset($i[$name]); 
+				unset($i['id']);
+				break;
+			}
+		}
+
+		// set the value to the question id
+		$i[$info]['id'] = $questionid;
+		if (!$this->setAttrValue('special_info', $i)) {
+			return false;
+		}
+
+		return true;
+	} // end setSpecialInformation()
+
 
 }// end class
 ?>

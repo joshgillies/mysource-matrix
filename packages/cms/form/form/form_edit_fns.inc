@@ -50,7 +50,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 
 		if (empty($sections)) return false;
 
-		foreach ($sections as $s) {
+		for (reset($sections); null !== ($k = key($sections)); next($sections)) {
+			$s =& $sections[$k];
 			$href = $s->getBackendHref('contents');
 			?>
 			<a href="<?php echo $href?>"><?php echo $s->_getName() ?></a><BR />
@@ -171,7 +172,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateStandardContentFile(&$asset)
 	{
-		$bodycopy = $this->getFormBodycopy($asset);
+		$bodycopy = &$this->getFormBodycopy($asset);
 
 		// check to see if the bodycopy attached to this form has any content
 		if (!$bodycopy->isEmpty()) {
@@ -211,7 +212,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$sections = &$asset->getSections();
 			$output = '';
 
-			foreach ($sections as $section) {
+			for (reset($sections); null !== ($k = key($sections)); next($sections)) {
+				$section =& $sections[$k];
 				ob_start();
 				// tell the section to echo its body rather than including it
 				$section->printBody(0, false);
@@ -296,7 +298,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				// if there is no section for the keyword replacement, 
 				// just strip out the keyword
 				
-				if($s = $asset->getSectionByOrder($section)) {
+				if($s = &$asset->getSectionByOrder($section)) {
 					ob_start();
 					$s->printBody();
 					$replacement = ob_get_contents();
@@ -338,7 +340,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				// is no replacement for it, then just strip out the tag
 				// for that keyword
 
-				if ($question = $this->getQuestionByOrder($asset, $s, $q)) {
+				if ($question = &$this->getQuestionByOrder($asset, $s, $q)) {
 					$replacement = $question->getVal($t);
 				} else {
 					$replacement = '';

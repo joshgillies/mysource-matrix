@@ -128,7 +128,7 @@ class Question_Rule extends Asset
 	/**
 	* @abstract
 	*/
-	function processForm(&$submission, $questionid)
+	function processForm(&$submission, $questionid, $question_name)
 	{
 		return true;
 	}

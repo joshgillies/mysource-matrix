@@ -107,6 +107,12 @@ class Form_Management extends Asset_Management
 											'type'      => 'text',  
 											'default'   => '',
 								),
+							'special_info' => Array(
+												'added'		=> '0.0.1',
+												'type'		=> 'serialise',
+												'default'	=> Array(),
+												'update_fn' => '',
+											),
 							);
 	}//end constructor
 

@@ -33,6 +33,22 @@ class Form_Question_Management extends Asset_Management
 												'type'      => 'text',  
 												'default'   => '',
 												),
+							'special_info'	=> Array(
+														'added'		=> '0.0.1',
+														'type'		=> 'selection',
+														'default'	=> '',
+														'update_fn'	=> '',
+														'parameters'	=> Array(	
+														'options'	=> Array(
+															''			=> '--- No Special Information ---',
+															'name'		=> 'User\'s Name',
+															'firstname'	=> 'User\'s Firstname',
+															'surname'	=> 'User\'s Surname',
+															'email'		=> 'User\'s Email',
+															'friend'	=> 'Send a note to these Friends\' Email Addresses',
+														),
+												),		
+											),
 									);
 	}//end constructor
 

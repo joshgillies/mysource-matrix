@@ -1,6 +1,6 @@
 <?php
 
-require_once  dirname(__FILE__).'/../form/form.inc';
+require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Form_Email_Management
@@ -12,7 +12,7 @@ require_once  dirname(__FILE__).'/../form/form.inc';
 * @package Resolve_Packages
 * @subpackage __core__
 */
-class Form_Email_Management extends Form_Management
+class Form_Email_Management extends Asset_Management
 {
 
 	/**
@@ -21,7 +21,7 @@ class Form_Email_Management extends Form_Management
 	*/
 	function Form_Email_Management(&$pm)
 	{
-		$this->Form_Management($pm);
+		$this->Asset_Management($pm);
 
 		$this->vars = Array(
 						/// Receipt screen ///
@@ -84,6 +84,13 @@ class Form_Email_Management extends Form_Management
 													'default'	=> '',
 
 									), // end recipient_body
+
+							'recipient_subject'	=> Array(
+													'added'		=> '0.0.1',
+													'type'		=> 'text',
+													'default'	=> '',
+
+									), // end recipient_subject
 							
 							'recipient_allow_html' => Array(
 													'added'		=> '0.0.1',

@@ -126,7 +126,7 @@ class Form_Submission extends Asset
 
 
 	/**
-	* returns the value of an answer
+	* returns the answer of an question
 	*
 	* @param int $id the id of the question
 	*
@@ -136,27 +136,46 @@ class Form_Submission extends Asset
 	function getAnswer($id)
 	{
 		$a = $this->attr('attributes');
-		if (isset($a['answers'][$id])) {
-			return $a['answers'][$id];
+		if (isset($a['answers'][$id]['answer'])) {
+			return $a['answers'][$id]['answer'];
 		}
 		return false;
 
 	}// end getAnswer()
 	
+	/**
+	* returns the name of an question
+	*
+	* @param int $id the id of the question
+	*
+	* @return string name
+	* @access public
+	*/
+	function getName($id)
+	{
+		$a = $this->attr('attributes');
+		if (isset($a['answers'][$id]['name'])) {
+			return $a['answers'][$id]['name'];
+		}
+		return false;
+	}
+
 
 	/**
 	* sets the answer of a question in this submission object
 	*
-	* @param integer $id the id of the question
-	* @param mixed $value the value of the question
+	* @param integer	$id		the id of the question
+	* @param string		$name	the name of the question (useful for printing form summary)
+	* @param mixed		$value	the value of the question
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAnswer($id, $value)
+	function setAnswer($id, $name, $value)
 	{
 		$a = $this->attr('attributes');
-		$a['answers'][$id] = $value;
+		$a['answers'][$id]['answer'] = $value;
+		$a['answers'][$id]['name']   = $name;
 		if (!$this->setAttrValue('attributes', $a)) {
 			return false;
 		}
@@ -193,7 +212,7 @@ class Form_Submission extends Asset
 	* get the form errors from the store
 	*
 	* @access public
-	* @return Array(error)
+	* @return Array(string)
 	*/
 	function getErrors()
 	{
@@ -235,6 +254,16 @@ class Form_Submission extends Asset
 		return ($a['is_error']) ? true : false;
 	
 	}//end isError()
+
+	/**
+	* returns the answers for question in the form:
+	* 
+	*/
+	function getAnswers()
+	{
+		$a = $this->attr('attributes');
+		return $a['answers'];
+	}
 
 }//end class
 ?>

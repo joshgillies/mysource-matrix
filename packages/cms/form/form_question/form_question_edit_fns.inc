@@ -23,48 +23,76 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	function Form_Question_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-	}
+
+	}// end Form_Question_Edit_Fns()
 
 
+	/**
+	* paint the current rules
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function paintRules(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess()) return false;
 
-		$rules = $asset->getRules();
+		$rules = &$asset->getRules();
 
 		if (empty($rules)) {
 			echo 'This Question Has No Rules';
 			return false;
 		}
-
-		foreach ($rules as $rule) {
+		
+		echo '<table>';
+		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
+			$rule =& $rules[$k];
 			$edit = $rule->getEditFns();
 			$edit->paintInlineBackend($rule, $o, $rule->getPrefix());
 		}
+		echo '</table>';
+
 		return true;
-	}
+
+	} // end paintRules()
 
 
+	/**
+	* get the rules to process their parameters
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
 	function processRules(&$asset, &$o, $prefix)
 	{
 		if ($asset->getRuleCount() == 0) return false;
 		
-		$rules = $asset->getRules();
+		$rules = &$asset->getRules();
 		
-		foreach ($rules as $rule) {
+		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
+			$rule =& $rules[$k];
 			$edit = $rule->getEditFns();
 			$edit->processInlineBackend($rule, $o, $rule->getPrefix());
 		}
 		return true;
-	}
+
+	} // end processRules()
 
 
 	/**
-	* Paint the dropdowns to add questions to this section
+	* Paint the dropdowns to add rules to this question
 	*
-	* @param object Form_Section		&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
 	*
 	* @return boolean false if no questions in this section, true otherwise
 	* @access public
@@ -76,9 +104,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$links = $asset->_getAllowedLinks();
 		$type_codes = Array();
-
-		foreach	($links as $link) {
-			$type_code = key($link);
+		foreach	($links[SQ_LINK_TYPE_3] as $type_code => $link) {
 			// make sure that this is a rule
 			if (substr($type_code, 0, 13) != 'question_rule') continue;
 			$type_codes[] = $type_code;
@@ -120,7 +146,8 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');		
 
 		return true;
+
 	} // end processAddRule()
 
-}//end class
+}// end class
 ?>

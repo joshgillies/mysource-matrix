@@ -1,6 +1,6 @@
 <?php
 
-require_once dirname(__FILE__).'/../../question_rule/question_rule_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
 * Question_Rule_Type_Email_Management
@@ -12,7 +12,7 @@ require_once dirname(__FILE__).'/../../question_rule/question_rule_management.in
 * @package Resolve_Packages
 * @subpackage __core__
 */
-class Question_Rule_Type_Email_Management extends Question_Rule_Management
+class Question_Rule_Type_Email_Management extends Asset_Management
 {
 
 	/**
@@ -21,14 +21,9 @@ class Question_Rule_Type_Email_Management extends Question_Rule_Management
 	*/
 	function Question_Rule_Type_Email_Management(&$pm)
 	{
-		$this->Question_Rule_Management($pm);
+		$this->Asset_Management($pm);
 
-		$this->vars = Array(	'operator'	=>	Array(
-												'added'     => '0.0.1',
-												'type'      => 'text',  
-												'default'   => '',
-												),
-							);
+		$this->vars = Array();
 	}//end constructor
 
 }//end class

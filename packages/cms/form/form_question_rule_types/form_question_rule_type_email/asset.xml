@@ -8,7 +8,7 @@
 	<name>Question Rule - Valid Email Address</name>
 	<description>Valid Email</description>
 	<instantiable>yes</instantiable>
-	<allowed_access>backend_user</allowed_access>
+	<allowed_access>system</allowed_access>
 	<parent_type>question_rule</parent_type>
 	<requirements>
 		<requirement type="asset">

@@ -64,11 +64,6 @@ class Form_Question extends Asset
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
 	{
-		// if this is a bodycopy table then we need to make it a dependant link
-		//if (is_a($minor, 'bodycopy')) {
-		//	$dependant = '1';
-		//}
-
 		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 
 	}// end createLink()
@@ -84,12 +79,8 @@ class Form_Question extends Asset
 	*/
 	function canDeleteLink($linkid)
 	{
-		// the only reason why we would object to this link being
-		// deleted is if it is the bodycopy linked to us
-		$bodycopy_link = $this->getLinks(SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
-		if ($bodycopy_link[0]['linkid'] == $linkid && !$GLOBALS['SQ_PURGING_TRASH']) return 'You cant delete the link between the bodycopy and the standard page';
-
 		return parent::canDeleteLink($linkid);
+	
 	}//end canDeleteLink()
 
 
@@ -101,9 +92,8 @@ class Form_Question extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-	//	$page_links = parent::_getAllowedLinks();
-	//	$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => '1', 'exclusive' => true);
-	//	return $page_links;
+		$page_links = parent::_getAllowedLinks();
+		return $page_links;
 
 	}//end _getAllowedLinks()
 
@@ -202,9 +192,10 @@ class Form_Question extends Asset
 	*/
 	function processForm(&$submission)
 	{
-		$rules = $this->getRules();
+		$rules = &$this->getRules();
 		
-		foreach ($rules as $rule) {
+		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
+			$rule =& $rules[$k];
 			$rule->processForm($submission, $this->id, $this->attr('name')); 
 		}
 	}
@@ -244,8 +235,11 @@ class Form_Question extends Asset
 	*/
 	function getRuleLinks()
 	{
-		$links = $this->getLinks(SQ_LINK_TYPE_3, 'question_rule', false, 'major');	
-		return $links;
+		if (empty($this->tmp['rule_links'])) {
+			$this->tmp['rule_links'] = Array();
+			$this->tmp['rule_links'] = $this->getLinks(SQ_LINK_TYPE_3, 'question_rule', false, 'major');	
+		}
+		return $this->tmp['rule_links'];
 	
 	}// end getRuleLinks()
 
@@ -256,7 +250,7 @@ class Form_Question extends Asset
 	* @access public
 	* @return Array(link)
 	*/
-	function getRules()
+	function &getRules()
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$links = $this->getRuleLinks();
@@ -270,8 +264,28 @@ class Form_Question extends Asset
 	}// end getRules()
 
 
+	function getFormIds()
+	{
+		if (empty($this->tmp['form_ids'])) {
+			$this->tmp['form_ids'] = Array();
+			$this->tmp['form_ids'] = $this->getParents('form', false);
+		}
+		return (!empty($this->tmp['form_ids'])) ? $this->tmp['form_ids'] : Array();
+	}
+
+	function &getForms()
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$ids = $this->getFormids();
+		$forms = Array();
+		foreach ($ids as $id) {
+			$forms[] = &$am->getAsset($id);
+		}
+		return (!empty($forms)) ? $forms : Array();
+	}
+
 	/**
-	* returns allamount of rules this question has
+	* returns the number of rules this question has
 	*
 	* @access public
 	* @return Array(link)
@@ -282,6 +296,18 @@ class Form_Question extends Asset
 	
 	}// end getRuleCount()
 
+	function setAttrValue($name, $value, $dont_run_updated=false) {
+		
+		if ($name == 'special_info') {
+			$forms = &$this->getForms();
+			for (reset($forms); null !== ($k = key($forms)); next($forms)) {
+				$form =& $forms[$k];
+				$form->setSpecialInformation($this->id, $value);
+			}
+		}
+		return parent::setAttrValue($name, $value, $dont_run_updated);
+		
+	}
 
 }//end class
 ?>

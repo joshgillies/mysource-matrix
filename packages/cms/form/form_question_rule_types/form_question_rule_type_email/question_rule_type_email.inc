@@ -140,18 +140,16 @@ class Question_Rule_Type_Email extends Question_Rule
 	*/
 	function processForm(&$submission, $questionid, $question_name)
 	{
-		$answer = $submission->getAnswer($questionid);
-		$operator = $this->attr('operator');
+		$answer   = $submission->getAnswer($questionid);
+		$operator = ($this->attr('operator')) ? 1 : 0;
 
 		$regex = '/^([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-]+)*@([a-zA-Z0-9])+(\.[a-zA-Z0-9_-]+)+$/';
 		$valid = preg_match($regex, $answer);
-		print $valid;
-		print $operator;
 
-		if ($valid & $operator) {
+		if ($valid == $operator) {
 			return true;
 		} else {
-			$error = $question_name.' must be a valid Email Address';
+			$error = $question_name.' must '. (($operator) ? '' : 'not') .' be a valid Email Address';
 			$submission->setError($error);
 			return false;
 		}

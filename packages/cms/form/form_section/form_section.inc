@@ -178,7 +178,11 @@ class Form_Section extends Asset
 		foreach ($links as $l) {
 			$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($l['majorid'], $l['type_code']);
 			if (is_null($form)) continue;
-			if (!$form->fileRegeneration()) return false;
+			if (!$form->fileRegeneration()) {
+				unset($form);
+				return false;
+			}
+			unset($form);
 		}
 
 		// we also want to regen this section as well
@@ -214,7 +218,11 @@ class Form_Section extends Asset
 	*/
 	function getQuestionLinks() 
 	{
-		return $this->getLinks(SQ_LINK_TYPE_2, 'form_question', false);
+		if (empty($this->tmp['question_links'])) {
+			$this->tmp['question_links'] = Array();
+			$this->tmp['question_links'] = $this->getLinks(SQ_LINK_TYPE_2, 'form_question', false);
+		}
+		return (!empty($this->tmp['question_links'])) ? $this->tmp['question_links'] : Array();
 	
 	} // end getQuestionLinks()
 
@@ -229,8 +237,7 @@ class Form_Section extends Asset
 	*/
 	function getQuestionCount()
 	{
-		$question_links = $this->getQuestionLinks();
-		return count($question_links);
+		return count($this->getQuestionLinks());
 	
 	} // getQuestionCount()
 
@@ -271,10 +278,11 @@ class Form_Section extends Asset
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$question_links = $this->getQuestionLinks();
 		$questions = Array();
+
 		foreach ($question_links as $link) {
 			$questions[$link['sort_order']] = &$am->getAsset($link['minorid'], $link['type_code']);
 		}
-		return $questions;
+		return (!empty($questions)) ? $questions : Array();
 
 	} // end getQuestions()
 
