@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.60 2004/10/15 00:38:55 mmcintyre Exp $
+* $Id: search_page.inc,v 1.61 2004/10/15 00:47:29 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $ - 1.0
+* @version $Revision: 1.61 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -138,8 +138,8 @@ class Search_Page extends Page
 			$copy_link = Array(
 				'asset'        => &$this,
 				'link_type'    => SQ_LINK_TYPE_2,
-				'is_dependant' => 1,
-				'is_exclusive' => 1,
+				'dependant' => 1,
+				'exclusive' => 1,
 				'value'        => $value
 			);
 
