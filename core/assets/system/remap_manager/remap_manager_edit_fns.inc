@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.6 2004/03/12 05:21:30 mmcintyre Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.7 2004/05/13 06:39:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -113,7 +113,6 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 					if (empty($url_info['expires'])) {
 						$expires = 'Never';
 					} else {
-					echo $url_info['expires'];
 						$expires = $GLOBALS['SQ_SYSTEM']->datetime(iso8601_ts($url_info['expires']));
 					}
 
