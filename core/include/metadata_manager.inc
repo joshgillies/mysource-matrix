@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.43 2004/07/06 02:20:39 lwright Exp $
+* $Id: metadata_manager.inc,v 1.44 2004/07/06 07:20:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -393,16 +393,16 @@ class Metadata_Manager extends MySource_Object
 	/**
 	* Generate an array of current values for the passed metadata field names
 	*
+	* If the passed fields array is empty, all field values will be returned
+	*
 	* @param int			$assetid	the ID of the asset to get field values for
 	* @param array(string)	$fields		an array of field names
 	*
 	* @access public
 	* @return array(field => value)
 	*/
-	function getMetadataFieldValues($assetid, $fields)
+	function getMetadataFieldValues($assetid, $fields=Array())
 	{
-		if (empty($fields)) return Array();
-
 		// the array of field values we are going to return
 		$field_values = Array();
 		foreach ($fields as $name) $field_values[$name] = '';
@@ -431,6 +431,15 @@ class Metadata_Manager extends MySource_Object
 			}
 
 			$values = $this->getSchemaMetadata($asset->id, $schema->id);
+			// if they didnt supply specific fields, they want the lot
+			if (empty($fields)) {
+				if (isset($values['sections'])) {
+					foreach ($values['sections'] as $section_name => $section_fields) {
+						foreach ($section_fields['fields'] as $field_name => $default) $field_values[$field_name] = '';
+					}
+				}
+			}
+
 			$edit_fns = $schema->getEditFns();
 			$edit_fns->getMetadataFieldValues($asset, $schema, $values, $field_values);
 		}
