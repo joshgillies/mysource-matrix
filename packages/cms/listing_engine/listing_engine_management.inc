@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.3 2005/02/14 23:36:17 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.4 2005/02/15 00:10:13 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -151,7 +151,6 @@ class Listing_Engine_Management extends Asset_Management
 		$search_page_fields = Array('lineage_seperator');
 		
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		bam('INSTALL LISTING ENGINE');
 		
 		$attributes = Array();
 		
@@ -166,14 +165,12 @@ class Listing_Engine_Management extends Asset_Management
 				$attributes[$resultid] = $result_info;
 			}
 		}
-		bam($attributes);
 		
 		$this->_removeAttributes($attributes);
 			
 		if (!parent::_install()) {
-			bam('INSTALL FAIL; JUMP OFF CLIFF');
+			trigger_error('Installation of Listing Engine Failed', E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');	
-			die;
 			return false;
 		}
 		
@@ -189,7 +186,7 @@ class Listing_Engine_Management extends Asset_Management
 	{
 		$search_page_fields = Array('lineage_seperator');
 		
-		bam('UPGRADE LISTING ENGINE - from '.$current_version);
+		bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version);
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		
 		
@@ -215,7 +212,8 @@ class Listing_Engine_Management extends Asset_Management
 			}
 			$this->_restoreAttributes($attributes);
 		}
-		
+	
+		bam('LISTING ENGINE UPGRADE COMPLETE - FROM VERSION '.$current_version);
 		return true;
 		
 	}//end _upgrade()
@@ -285,7 +283,6 @@ class Listing_Engine_Management extends Asset_Management
 			default_type_code = '.$db->quote($this->getAssetType()).', 
 			parameters_type_code = '.$db->quote($this->getAssetType()).' 
 			WHERE name = '.$db->quote($attr['name']).' AND owning_type_code = '.$db->quote($attr['owning_type_code']);
-			bam($sql);
 			$result = $db->query($sql);
 			assert_valid_db_result($result);
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.79 2005/02/14 23:56:44 lwright Exp $
+* $Id: search_page.inc,v 1.80 2005/02/15 00:10:28 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.79 $
+* @version $Revision: 1.80 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1867,7 +1867,6 @@ class Search_Page extends Listing_Engine
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
 		$keywords = parent::onRequestKeywords($broadcaster, $vars);
-		bam($keywords);
 		
 		if (!isset($vars['keywords'])) $vars['keywords'] = Array();
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.27 2005/02/15 00:01:41 lwright Exp $
+* $Id: search_page_management.inc,v 1.28 2005/02/15 00:10:28 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -275,7 +275,6 @@ class Search_Page_Management extends Asset_Management
 				// NOW, convert the 'result list' formats stuff into the default
 				// type format
 				$ri_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'result_element');
-				bam($ri_link);
 				
 				$ri_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($ri_link['minorid']);
 				
