@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_approved.inc,v 1.13 2004/09/15 04:30:03 gsherwood Exp $
+* $Id: asset_status_approved.inc,v 1.13.2.1 2004/10/07 05:39:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -114,12 +114,12 @@ class Asset_Status_Approved extends Asset_Status
 		if (!parent::processStatusChange($new_status)) return false;
 
 		if ($new_status == SQ_STATUS_LIVE) {
+			// update the last published date
+			if (!$this->owner->setDate('published', time())) return false;
+
 			// notify people that the asset has gone live
 			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 			if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) return false;
-			
-			// update the last published date
-			if (!$this->owner->setDate('published')) return false;
 		}
 
 		return true;

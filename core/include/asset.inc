@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.327.2.1 2004/10/06 00:54:05 gsherwood Exp $
+* $Id: asset.inc,v 1.327.2.2 2004/10/07 05:39:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1778,6 +1778,8 @@ class Asset extends MySource_Object
 			if ($date_type == 'created') {
 				$time = time();
 			} else {
+				// a null published date means that the asset has never been published
+				// so we also set the userid to null
 				$userid = null;
 			}
 		}

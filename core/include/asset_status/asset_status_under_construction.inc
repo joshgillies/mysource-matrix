@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_status_under_construction.inc,v 1.23 2004/09/26 23:56:06 gsherwood Exp $
+* $Id: asset_status_under_construction.inc,v 1.23.2.1 2004/10/07 05:39:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -190,16 +190,16 @@ class Asset_Status_Under_Construction extends Asset_Status
 					$log->parameters['version'] = substr($this->owner->version, 0, strrpos($this->owner->version, '.'));
 					$ms->enqueueMessage($log);
 				}
-				break;
+			break;
 
 			case SQ_STATUS_LIVE:
+				// update the last published date
+				if (!$this->owner->setDate('published', time())) return false;
+
 				// notify people that the asset has gone live
 				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 				if (!$wfm->notifyOnLive($this->owner->id, $this->status_tag)) return false;
-			
-				// update the last published date
-				if (!$this->owner->setDate('published')) return false;
-				break;
+			break;
 		}
 
 		return true;

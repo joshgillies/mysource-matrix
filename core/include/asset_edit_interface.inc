@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.219.2.3 2004/10/06 23:51:31 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.219.2.4 2004/10/07 05:39:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -654,7 +654,7 @@ class Asset_Edit_Interface extends MySource_Object
 									<td class="sq-backend-asset-info" nowrap="nowrap">
 									Created by '.$created_by_name.' on '.readable_datetime($owner->created).'<br/>
 									Last updated by '.$updated_by_name.' on '.readable_datetime($owner->updated).'<br/>'.
-									((!is_null($owner->published)) ? 'Last published by '.$published_by_name.' on '.readable_datetime($owner->published) : 'This asset has never been published').'
+									(($owner->published) ? 'Last published by '.$published_by_name.' on '.readable_datetime($owner->published) : 'This asset has never been published').'
 									</td>
 								</tr>
 							</table>
