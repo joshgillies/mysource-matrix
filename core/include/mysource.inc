@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.52.2.1 2004/10/18 23:42:36 amiller Exp $
+* $Id: mysource.inc,v 1.52.2.2 2004/10/27 06:34:28 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -543,11 +543,12 @@ class MySource
 				$_SESSION['SQ_DESIGN_NAME'] = (isset($_GET['SQ_DESIGN_NAME'])) ? $_GET['SQ_DESIGN_NAME'] : '';
 				unset($_GET['SQ_DESIGN_NAME']);
 			break;
-
 			case 'clear_design_name' :
 				if (isset($_SESSION['SQ_DESIGN_NAME'])) unset($_SESSION['SQ_DESIGN_NAME']);
 			break;
-
+			case 'clear_design_name' :
+				if (isset($_SESSION['SQ_DESIGN_NAME'])) unset($_SESSION['SQ_DESIGN_NAME']);
+			break;
 			case 'asset_map_request' :
 				require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 				$asset_map = new Asset_Map();
@@ -1208,15 +1209,27 @@ class MySource
 		// and that we are going to be replacing because their value is no longer the most recent
 		// in this script execution
 		$result = $this->db->query($delete);
-		assert_valid_db_result($result);
+		if (DB::isError($result)) {
+			$this->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
 
 		// replace the NULL value effective_to entries because we are adding our own now
 		$result = $this->db->query($update);
-		assert_valid_db_result($result);
+		if (DB::isError($result)) {
+			$this->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
 
 		// and finally insert the new rollback rows
 		$result = db_extras_insert_select($this->db, $insert, $select);
-		assert_valid_db_result($result);
+		if (DB::isError($result)) {
+			$this->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
 
 		$this->doTransaction('COMMIT');
 		return true;
@@ -1288,7 +1301,11 @@ class MySource
 		// (but only if rollback is enabled!!)
 		if (SQ_CONF_ROLLBACK_ENABLED) {
 			$result = $this->db->query($rollback_sql);
-			assert_valid_db_result($result);
+			if (DB::isError($result)) {
+				$this->doTransaction('ROLLBACK');
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
 		}
 
 		$this->doTransaction('COMMIT');
@@ -1346,7 +1363,11 @@ class MySource
 		$this->doTransaction('BEGIN');
 
 		$result = $this->db->query($insert_sql);
-		assert_valid_db_result($result);
+		if (DB::isError($result)) {
+			$this->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
 
 		// add the rollback entries for the inserted rows
 		if (!$this->_addRollbackEntry($table_name, $where_cond)) {
@@ -1392,7 +1413,8 @@ class MySource
 		}
 		$primary_cols = $this->_tmp['sq_tables'][$table_name]['primary_key'];
 
-		// we construct a CONCAT clause here
+		// we construct a CONCAT clause here, based on the different database types
+		// and their quirks, that we are going to use in
 		$concat_string = '';
 		$concat_col = '';
 		$concat_values = Array();
@@ -1410,9 +1432,26 @@ class MySource
 		// EXAMPLE: assetid~version IN ('12~0.0.2') rather than asset=12 AND version='0.0.2'
 		if (count($concat_values) > 1) {
 			foreach ($insert_values as $col => $value) {
-				$concat_string = implode(' || '.$this->db->quote('~').' || ', array_values($concat_values));
-				$concat_col = implode(' || '.$this->db->quote('~').' || ', array_keys($concat_values));
+				if ($this->db->phptype == 'mysql') {
+					$concat_string = 'CONCAT('.implode(', '.$this->db->quote('~').', ', array_values($concat_values)).')';
+					$concat_col = 'CONCAT('.implode(', '.$this->db->quote('~').', ', array_keys($concat_values)).')';
+				} else {
+					$concat_string = implode(' || '.$this->db->quote('~').' || ', array_values($concat_values));
+					$concat_col = implode(' || '.$this->db->quote('~').' || ', array_keys($concat_values));
+				}
 			}
+		}
+
+		// and here is the sub-query, you were promised, to work out the WHERE clause
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		$where_clause = $concat_col.' IN (~SQ0~)';
+		$subs = Array('SELECT '.$concat_string.' FROM '.$select_from.' WHERE '.$where_cond);
+		$where_clause = db_extras_subquery($this->db, $where_clause, $subs);
+
+		if (DB::isError($where_clause)) {
+			trigger_error($where_clause->getMessage().'<br/>'.$where_clause->getUserInfo(), E_USER_WARNING);
+			$this->doTransaction('ROLLBACK');
+			return 0;
 		}
 
 		// generate the column header string for the INSERT and SELECT tables
@@ -1423,14 +1462,16 @@ class MySource
 		$insert_sql = 'INSERT INTO '.SQ_TABLE_PREFIX.$table_name.' ('.$col_string.')';
 		$select_sql = 'SELECT '.$select_col_string. ' FROM '.$select_from.' WHERE '.$where_cond;
 
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-		
 		$this->doTransaction('BEGIN');
+
 		$result = db_extras_insert_select($this->db, $insert_sql, $select_sql);
-		assert_valid_db_result($result);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$this->doTransaction('ROLLBACK');
+			return false;
+		}
 
 		// add the rollback entries for the inserted rows
-		$where_clause = $concat_col.' IN (SELECT '.$concat_string.' FROM '.$select_from.' WHERE '.$where_cond.')';
 		if (!$this->_addRollbackEntry($table_name, $where_clause)) {
 			$this->doTransaction('ROLLBACK');
 			return false;
