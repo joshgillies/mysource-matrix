@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.30 2004/09/14 06:26:31 tbarrett Exp $
+* $Id: datetime.inc,v 1.31 2004/09/20 07:25:07 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -345,69 +345,6 @@ function increment_date(&$day, &$month, &$year, $days_to_add=1)
 
 
 /**
-* Increments the given month by the specified number
-*
-* Years are rolled over as necessary
-*
-* @param int	&$month			month component of the date to increment (1-12)
-* @param int	&$year			year component of the date to increment (YYYY)
-* @param int	$months_to_add	number of months to add to the date
-*
-* @access public
-*/
-function increment_month(&$month, &$year, $months_to_add=1) 
-{
-	if ($months_to_add < 0) {
-		decrement_month($month, $year, -$months_to_add);
-		return;
-	}
-	
-	$month += $months_to_add;
-	while ($month > 12) {
-		$month = $month - 12;
-		$year++;
-	}
-	
-}//end increment_month()
-
-
-/**
-* Increments an ISO date by the specified number of days and returns the changed ISO
-*
-* @param string	$iso			ISO date component (YYYY-MM-DD)
-* @param int	$days_to_add	number of days to add to the date
-*
-* @return string
-* @access public
-*/
-function increment_iso_by_days($iso, $days_to_add=1) 
-{
-	list($year,$month,$day) = sscanf($iso, '%04d-%02d-%02d');
-	increment_date($day, $month, $year, $days_to_add);
-	return sprintf('%04d-%02d-%02d', $year, $month, $day);
-	
-}//end increment_iso_by_days()
-
-
-/**
-* Increments an ISO date by the specified number of months and returns the changed ISO
-*
-* @param string	$iso			ISO year-month component (YYYY-MM)
-* @param int	$months_to_add	number of months to add to the date
-*
-* @return string
-* @access public
-*/
-function increment_iso_by_months($iso, $months_to_add=1) 
-{
-	list($year,$month) = explode('-', $iso);
-	increment_month($month, $year, $months_to_add);
-	return sprintf('%04d-%02d', $year, $month);
-	
-}//end increment_iso_by_months()
-
-
-/**
 * Decrements the given date by the specified number of days
 *
 * Months and years are rolled over as necessary
@@ -436,6 +373,33 @@ function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
 
 
 /**
+* Increments the given month by the specified number
+*
+* Years are rolled over as necessary
+*
+* @param int	&$month			month component of the date to increment (1-12)
+* @param int	&$year			year component of the date to increment (YYYY)
+* @param int	$months_to_add	number of months to add to the date
+*
+* @access public
+*/
+function increment_month(&$month, &$year, $months_to_add=1) 
+{
+	if ($months_to_add < 0) {
+		decrement_month($month, $year, -$months_to_add);
+		return;
+	}
+	
+	$month += $months_to_add;
+	while ($month > 12) {
+		$month = $month - 12;
+		$year++;
+	}
+	
+}//end increment_month()
+
+
+/**
 * Decrements the given month by the specified number
 *
 * Years are rolled over as necessary
@@ -460,6 +424,42 @@ function decrement_month(&$month, &$year, $months_to_sub=1)
 	}
 	
 }//end decrement_month()
+
+
+/**
+* Increments an ISO date by the specified number of days and returns the changed ISO
+*
+* @param string	$iso			ISO date component (YYYY-MM-DD)
+* @param int	$days_to_add	number of days to add to the date
+*
+* @return string
+* @access public
+*/
+function add_days_to_iso($iso, $days_to_add=1) 
+{
+	list($year,$month,$day) = sscanf($iso, '%04d-%02d-%02d');
+	increment_date($day, $month, $year, $days_to_add);
+	return sprintf('%04d-%02d-%02d', $year, $month, $day);
+	
+}//end add_days_to_iso()
+
+
+/**
+* Increments an ISO date by the specified number of months and returns the changed ISO
+*
+* @param string	$iso			ISO year-month component (YYYY-MM)
+* @param int	$months_to_add	number of months to add to the date
+*
+* @return string
+* @access public
+*/
+function add_months_to_iso($iso, $months_to_add=1) 
+{
+	list($year,$month) = explode('-', $iso);
+	increment_month($month, $year, $months_to_add);
+	return sprintf('%04d-%02d', $year, $month);
+	
+}//end add_months_to_iso()
 
 
 /**
