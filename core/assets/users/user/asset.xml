@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.12 2003/11/26 00:51:04 gsherwood Exp $
+* $Id: asset.xml,v 1.13 2004/11/11 01:00:15 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -33,7 +33,7 @@
 	<name>User</name>
 	<description>User Object, if you want to do anything in the backend, you need to login and this is you object</description>
 	<instantiable>yes</instantiable>
-	<allowed_access>system_user</allowed_access>
+	<allowed_access>backend_user</allowed_access>
 	<parent_type>asset</parent_type>
 	<requirements />
 	<flash_menu_path>Users</flash_menu_path>
