@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.12 2003/10/02 05:37:41 brobertson Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.13 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -10,6 +10,14 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 
 /**
 * Highly Intensive Processing Object (HIPO) to acquire locks
+*
+* <pre>
+* Initial Running Vars :
+*    int    assetid             -   the assetid with whose children we are going to attempt to lock
+*    string lock_type           -   the type of lock to get see Asset_Manager::acquireLock()
+*    bool   [dependants_only]   -   whether dependants only or all children, defaults to 
+*    bool   [forceably_acquire] -   whether to attempt to forceably acquire the lock or not, defaults to false
+* </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
@@ -69,7 +77,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	*/
 	function _getCodeName()
 	{
-		return parent::_getCodeName().$this->_running_vars['assetid'];
+		return parent::_getCodeName().'-'.$this->_running_vars['assetid'].'-'.implode(',',$this->_running_vars['lock_types']);
 
 	}//end _getCodeName()
 
@@ -88,8 +96,8 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	function initialise($source_code_name=null)
 	{
 		// to start acquiring locks, we need to have an asset id to acquire a lock on
-		if (!isset($this->_running_vars['assetid'])) {
-			trigger_error('Cannot initialise Acquire Locks HIPO, no start asset ID specified', E_USER_WARNING);
+		if (empty($this->_running_vars['assetid']) || empty($this->_running_vars['lock_type'])) {
+			trigger_error('Cannot initialise Acquire Locks HIPO, no start asset ID and/or lock type specified', E_USER_WARNING);
 			return '';
 		}
 
@@ -100,11 +108,46 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 			return '';
 		}
 
+
+		// OK, the main reason that we are getting the lock types here is so that we don't end up 
+		// with lock types in a child being locked that the parent doesn't have, because if they do then
+		// we end up with a source lockid that is not actually creatable
+		// EG. 'mail' lock is available in 'Inbox', but not 'User' and when you locked the user you would end
+		//     up with a lock 'asset.5.mail' and a source lock 'asset.4.mail' which is not available
+		// -- If this doesn't make sense ask me -- BCR
+		$this->_running_vars['lock_types'] = $GLOBALS['SQ_SYSTEM']->am->getLockTypes($asset->id, $this->_running_vars['lock_type']);
+
+		// we were passed an invalid lock type, bugger off
+		if (empty($this->_running_vars['lock_types'])) {
+			trigger_error('Cannot initialise Acquire Locks HIPO, lock type "'.$this->_running_vars['lock_type'].'" invalid', E_USER_WARNING);
+			return '';
+		}
+
+		// we don't need this anymore, we use the array 'lock_types'
+		unset($this->_running_vars['lock_type']);
+
+
 		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 		// we will be acquiring locks on
-		$dep_assets = Array();
-		$dep_assets = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id));
-		$this->_running_vars['todo_assetids'] = $dep_assets;
+
+		// if there is no dependants setting, or it is true, get only dependants
+
+		if (!isset($this->_running_vars['dependants_only']) || !empty($this->_running_vars['dependants_only'])) {
+			$this->_running_vars['dependants_only'] = false;
+			$this->_running_vars['todo_assetids'] = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id));
+		// else get locks for all children
+		} else {
+			$this->_running_vars['dependants_only'] = true;
+			$this->_running_vars['todo_assetids'] = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id));
+
+		}// endif
+
+		if (!isset($this->_running_vars['forceably_acquire'])) {
+			$this->_running_vars['forceably_acquire'] = false;
+		} else {
+			$this->_running_vars['forceably_acquire'] = (bool) $this->_running_vars['forceably_acquire'];
+		}
+
 		$this->_running_vars['done_assetids'] = Array();
 
 		unset($asset);
@@ -130,9 +173,9 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			if (!is_null($asset)) {
-				$source_assetid = $this->_running_vars['assetid'];
-				$forceably_acquire = $this->_running_vars['forceably_acquire'];
-				$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, '', $source_assetid, $forceably_acquire);
+				foreach($this->_running_vars['lock_types'] as $lock_type) {
+					$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, $lock_type, $this->_running_vars['assetid'], $this->_running_vars['forceably_acquire']);
+				}
 				$step_data['message'] = 'Acquiring Lock on "'.$asset->name.'"';
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);

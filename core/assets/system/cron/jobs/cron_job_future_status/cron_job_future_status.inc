@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: cron_job_future_status.inc,v 1.11 2003/09/26 05:26:27 brobertson Exp $
+* $Id: cron_job_future_status.inc,v 1.12 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -101,7 +101,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		if (parent::canDelete()) return true;
 
 		$asset = &$this->getAssetToUpdate();
-		if (!is_null($asset)) return $asset->adminAccess();
+		if (!is_null($asset)) return $asset->adminAccess('');
 		return false;
 
 	}//end canDelete()

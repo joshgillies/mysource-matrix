@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.2 2003/09/26 05:26:27 brobertson Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.3 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,7 +71,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 
 
 		$o->openField('New Link Parent');
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('links')) {
 			asset_finder($prefix.'_major_assetid', ((is_null($major)) ? 0 : $major->id));
 		} else {
 			if (is_null($major)) {

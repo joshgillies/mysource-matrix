@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_status_live.inc,v 1.9 2003/09/26 05:26:31 brobertson Exp $
+* $Id: asset_status_live.inc,v 1.10 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,7 +66,7 @@ class Asset_Status_Live extends Asset_Status
 		$statii = Array();
 
 		// cant do anything without write access
-		if (!$this->owner->writeAccess(Array(), false)) return $statii;
+		if (!$this->owner->writeAccess('')) return $statii;
 
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);
@@ -79,7 +79,7 @@ class Asset_Status_Live extends Asset_Status
 			// workflow is not currently running for this asset
 			$statii[SQ_STATUS_LIVE_APPROVAL]          = 'Place Up For Review';
 			$statii[SQ_STATUS_EDITING]                = 'Safe Edit';
-			if ($this->owner->adminAccess(Array(), false)) {
+			if ($this->owner->adminAccess('')) {
 				$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
 				$statii[SQ_STATUS_ARCHIVED]           = 'Archive';
 			}

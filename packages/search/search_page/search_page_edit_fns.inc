@@ -3,7 +3,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_page_edit_fns.inc,v 1.1.1.1 2003/10/08 01:20:58 dwong Exp $
+* $Id: search_page_edit_fns.inc,v 1.2 2003/10/10 06:49:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -13,7 +13,7 @@
 * Edit functions for search page.
 *
 * @author  Dominic WOng <dwong@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -50,7 +50,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 
 		$assetid = $asset->attr('root_assetid');
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			asset_finder($name, $assetid);
 		} else {
 			if ($assetid > 0) {
@@ -150,13 +150,13 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		<td class="sq-backend-table-header">Parameters</td>
 		<?php 
 
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			echo "<td class=\"sq-backend-table-header\">Delete?</td>";
 		}
 		echo "</tr>";
 		foreach (array_values($fields) as $fieldName => $fieldData) {
 			echo "<tr>";
-			if ($asset->writeAccess()) {
+			if ($asset->writeAccess('attributes')) {
 				?>
 				<tr>
 				<td class="sq-backend-data"><?php text_box($prefix.'_fields[' .$i. '][name]', $fieldData['name'])?></td>
@@ -178,7 +178,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 			$i++;
 		}
 		echo "</table>";
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			$i++;
 			?>Add field (name): <?php
 			text_box($prefix."_fields[$i][name]", '', 15);
@@ -202,7 +202,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processFields(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) {
+		if (!$asset->writeAccess('attributes')) {
 			return false;
 		}
 		$changed = false;

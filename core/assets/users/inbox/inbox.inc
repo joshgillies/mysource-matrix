@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: inbox.inc,v 1.15 2003/09/26 05:26:29 brobertson Exp $
+* $Id: inbox.inc,v 1.16 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,6 +34,21 @@ class Inbox extends Asset
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['mail'] = max($lock_types) * 2;
+		return $lock_types;
+
+	}//end lockTypes()
 
 
 	/**

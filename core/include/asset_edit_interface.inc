@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.157 2003/10/10 05:59:14 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.158 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -15,7 +15,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Used by both paint() and process() to determine the access that the current user
 * has - set in _getAccess()
 */
-define('SQ_EI_READ', 1);
+define('SQ_EI_READ',  1);
 define('SQ_EI_WRITE', 2);
 
 /**
@@ -105,14 +105,16 @@ class Asset_Edit_Interface extends MySource_Object
 		for($i = 0; $i < count($root->children); $i++) {
 			$code_name = strtolower(preg_replace('/[^a-z_]/', '', $root->children[$i]->attributes['code_name']));
 			if (!$code_name) continue;
-			$this->_screens[$code_name] = Array(
-												'name' => $root->children[$i]->attributes['display_name'],
-												'icon' => $root->children[$i]->attributes['icon']
-											);
 
 			$force_unlock = ((isset($root->children[$i]->attributes['force_unlock'])) ? $root->children[$i]->attributes['force_unlock'] : '1');
-			if ($force_unlock == 0) $this->_screens[$code_name]['force_unlock'] = false;
-			else $this->_screens[$code_name]['force_unlock'] = true;
+
+			$this->_screens[$code_name] = Array(
+												'name'			=> $root->children[$i]->attributes['display_name'],
+												'icon'			=> $root->children[$i]->attributes['icon'],
+												'force_unlock'	=> ($force_unlock != '0'),
+												'lock_type'		=> (isset($root->children[$i]->attributes['lock_type'])) ? $root->children[$i]->attributes['lock_type'] : '',
+											);
+
 
 			if (!empty($root->children[$i]->attributes['default'])) $this->_default_screen = $code_name;
 		}// end for
@@ -193,8 +195,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$o->addFormActionGetVar('asset_ei_screen', $active_screen);
 
 		// do we have write access?
-		$write_access      = $owner->writeAccess();
-		$full_write_access = $owner->writeAccess(Array(), false);
+		$full_write_access = $owner->writeAccess('');
 
 		// do they have access to acquire the lock?
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -213,20 +214,64 @@ class Asset_Edit_Interface extends MySource_Object
 			$o->openSection('Locking / Editing');
 			$o->openField('&nbsp;');
 
-			$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id);
+			// default to 'all', so if lock type is left out a lock can still be gotten and the asset edited
+			$screen_lock_type = 'all';
+			if (isset($this->_edit_fns->static_screens[$active_screen])) {
+				if (!empty($this->_edit_fns->static_screens[$active_screen]['lock_type'])) {
+					$screen_lock_type = $this->_edit_fns->static_screens[$active_screen]['lock_type'];
+				}
+			} else {
+				// must be a normal screen
+				if (!empty($this->_screens[$active_screen]['lock_type'])) {
+					$screen_lock_type = $this->_screens[$active_screen]['lock_type'];
+				}
+			}// end if
 
+pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
+
+			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, $screen_lock_type, true);
 			?>
-			<table border="0" cellspacing="3" cellpadding="1">
+			<table class="sq-backend-table">
 				<tr>
-					<td valign="top" width="30">
+					<td class="sq-backend-table-header">
+						&nbsp;
+					</td>
+					<td class="sq-backend-table-header">
+						Lock Type
+					</td>
+					<td class="sq-backend-table-header">
+						&nbsp;
+					</td>
+				</tr>
+			<?php
+
+			$have_any_locks  = false;
+			$have_all_locks  = true;
+			$need_force_locks = false;
+			$can_force_locks  = true;
+			foreach($locks as $lock_type => $lock) {
+			?>
+				<tr>
+					<td class="sq-backend-table-cell">
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
 					</td>
-					<td valign="top">
+					<td class="sq-backend-table-cell">
+						<?php echo ucwords(str_replace('_', ' ', $lock_type)); ?>
+					</td>
+					<td class="sq-backend-table-cell">
 						<?php
-						if (!empty($lock)) {
+						if (empty($lock)) {
+							$have_all_locks = false;
+							if ($full_write_access || $acquire_lock_access) {
+								echo '<p class="sq-backend-unlocked">Currently not held.</p>';
+							} else {
+								echo 'You do not have access to edit "'.$owner->name.'".';
+							}
+
+						} else {
 							// this asset is currently locked
 							// so display message to the user
-							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+							$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 							$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
 
 							if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
@@ -241,47 +286,65 @@ class Asset_Edit_Interface extends MySource_Object
 								$expires_in = 'The lock is due to expire in '.$expires_in;
 							}
 
-							echo '<p class="sq-backend-locked">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". '.$expires_in.'.</p>';
+							?>
+							<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
+								Held by user "<?php echo $user->name; ?>" at "<?php echo $editing->name; ?>".
+								<?php echo $expires_in; ?>
+							</p>
+							<?php
 
-							if (!$GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+							// if this lock is held the current user
+							if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+								$have_any_locks = true;
+
+							// else it's held by someone else, check if we can forceable acquire it
+							} else {
+								$need_force_locks = true;
+								$have_all_locks   = false;
 								// does the current user has a high
 								// enough level of access to forceably acquire the lock
-								if ($owner->canForceablyAcquireLock()) {
-									echo '<p class="sq-backend-locked">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</p>';
+								if (!$owner->canForceablyAcquireLock($lock_type)) {
+									$can_force_locks = false;
 								}
 							}
-						} else if ($full_write_access || $acquire_lock_access) {
-							$write_access = false;
-							echo '<p class="sq-backend-unlocked">This asset is currently Unlocked.</p>';
-						} else {
-							echo 'You do not have access to edit "'.$owner->name.'".';
-						}
+
+
+						}// end if
 						?>
 					</td>
-					<td valign="top">
-						<?php
-						if (!empty($lock)) {
-							if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
-								submit_button('sq_manual_release_lock', 'Release Lock');
-							} else {
-								// does the current user has a high
-								// enough level of access to forceably acquire the lock
-								if ($owner->canForceablyAcquireLock()) {
+				</tr>
+			<?php
+			}// end foreach lock types
+			?>
+				<tr>
+					<td class="sq-backend-table-header" style="text-align: right;" colspan="3">
+					<?php
+						hidden_field('sq_lock_type', $screen_lock_type);
+
+						if ($have_any_locks) {
+							submit_button('sq_lock_release_manual', 'Release Lock(s)');
+						}
+						if (!$have_all_locks) {
+
+							if ($need_force_locks) {
+								if ($can_force_locks) {
+									echo '<p class="sq-backend-locked-by-someone-else">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself.<br>Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</p>';
+
 									// they aren't going to do this without a fight though
 									// they'll have to go thorough our popup window first
-									$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=forceably_acquire_lock&assetid='.$owner->id;
+									$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
 
-									hidden_field('sq_acquire_by_force', '0');
-									hidden_field('sq_acquire_lock',     '0');
-									normal_button('sq_forceably_acquire_lock', 'Acquire Lock', 'window.open(\''.$popup_url.'\', \'sq_forceably_acquire_lock_popup\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300\');');
-
+									hidden_field('sq_lock_acquire_by_force',  '0');
+									hidden_field('sq_lock_acquire',      '0');
+									normal_button('sq_forceably_acquire_lock', 'Acquire Lock(s)', 'window.open(\''.$popup_url.'\', \'sq_forceably_acquire_lock_popup\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300\');');
 								}
-							}
-						} else if ($full_write_access || $acquire_lock_access) {
-							hidden_field('sq_acquire_by_force', '0');
-							submit_button('sq_acquire_lock', 'Lock');
-						}
-						?>
+							} else if ($full_write_access || $acquire_lock_access) {
+								hidden_field('sq_lock_acquire_by_force', '0');
+								submit_button('sq_lock_acquire', 'Lock');
+							} // end if
+
+						}// end if !have_all_locks
+					?>
 					</td>
 				</tr>
 			</table>
@@ -437,15 +500,10 @@ class Asset_Edit_Interface extends MySource_Object
 
 		}// end if $file
 
-
-		$statii = Array();
-		if (!$creating && !$write_access && !$print_commit_button && $active_screen == 'details') $statii = $owner->getAvailableStatii();
-
-		// if the user has write access, has the ability to alter the status of the asset,
-		// or we have printed an editable interface on a static screen - show the commit button
-		if ($write_access || $print_commit_button || !empty($statii)) {
+		// we have printed an editable interface on a static screen - show the commit button
+		#if ($print_commit_button) {
 			$o->commitButton('Commit', $force_unlock_on_commit);
-		}
+		#}
 
 	}// end paint()
 
@@ -503,18 +561,18 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 
 			// if we dont have write access, dont process the rest of the screen
-			if ($owner->id && !$owner->writeAccess()) return $ret_val;
+			#if ($owner->id && !$owner->writeAccess('')) return $ret_val;
 
 			// try and find the file to print user defined
 			$file = @$this->_findFile('screen_'.$active_screen);
 
 		} else {
 
-			// if we dont have write access, piss off
-			if ($owner->id && !$owner->writeAccess()) {
-				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
-				exit();
-			}
+#			// if we dont have write access, piss off
+#			if ($owner->id && !$owner->writeAccess()) {
+#				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit <i>'.$owner->name.'</i>');
+#				exit();
+#			}
 
 			// must be a normal screen
 			if (empty($_GET['asset_ei_screen']) || empty($this->_screens[$_GET['asset_ei_screen']])) {
@@ -528,7 +586,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		}// end if
 
-		if ($file && $owner->writeAccess()) {
+		if ($file && $owner->writeAccess('')) {
 			$input = new XML_Tree($file);
 			$root  = &$input->getTreeFromFile();
 			if (PEAR::isError($root)) {
@@ -649,43 +707,47 @@ class Asset_Edit_Interface extends MySource_Object
 			$edit_fns =& $owner->getEditFns();
 
 			if (method_exists($edit_fns, $show_if_fn)) {
-				if (!$edit_fns->$show_if_fn($owner))
-					return 0;
+				if (!$edit_fns->$show_if_fn($owner)) return 0;
 			} else {
 				// if show if function doesn't exist, spew, then continue as normal
 				trigger_error('Error : Show If function for section '. $node->name. ' not found.', E_USER_WARNING);
+				return 0;
 			}
 		}
 
-		// got to have writeAccess at least (this checks for locks as well)
-		if ($owner->writeAccess()) {
-			// if there is nothing specified, and if an inherited access was specified we must use that
-			if (empty($node->attributes['write_access']) && !is_null($inherit_access)) {
-					if ($inherit_access & SQ_EI_WRITE)  $access |= SQ_EI_WRITE;
+		// if there is nothing specified, and if an inherited access was specified we must use that
+		if (empty($node->attributes['write_access']) && !is_null($inherit_access)) {
+			if ($inherit_access & SQ_EI_WRITE)  $access |= SQ_EI_WRITE;
 
-			// otherwise attempt to find write access
-			} else {
-				$wa = (empty($node->attributes['write_access'])) ? 'write' : $node->attributes['write_access'];
-				switch($wa) {
-					case 'root' :
-						if ($GLOBALS['SQ_SYSTEM']->userRoot()) $access |= SQ_EI_WRITE;
-						break;
-					case 'sys_admin' :
-						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) $access |= SQ_EI_WRITE;
-						break;
-					case 'admin' :
-						if ($owner->adminAccess()) $access |= SQ_EI_WRITE;
-						break;
-					case 'write' :
-						$access |= SQ_EI_WRITE; // this was checked above
-						break;
+		// otherwise attempt to find write access
+		} else {
+			$wa = (empty($node->attributes['write_access'])) ? 'write:all' : $node->attributes['write_access'];
+			// all these write access checks must have a lock type to use
+			if (preg_match('/^(.+):(.*)$/', $wa, $matches)) {
+				// got to have writeAccess at least (this checks for locks as well)
+				if ($owner->writeAccess($matches[2])) {
+					switch($matches[1]) {
+						case 'root' :
+							if ($GLOBALS['SQ_SYSTEM']->userRoot()) $access |= SQ_EI_WRITE;
+							break;
+						case 'sys_admin' :
+							if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) $access |= SQ_EI_WRITE;
+							break;
+						case 'admin' :
+							if ($owner->adminAccess($matches[2])) $access |= SQ_EI_WRITE;
+							break;
+						case 'write' :
+							$access |= SQ_EI_WRITE; // this was checked above
+							break;
 
-					case 'none' :
-						// meaning that this attribute is not to be written
-						break;
+						case 'none' :
+							// meaning that this attribute is not to be written
+							break;
 
-				}// end switch
-			}// end if
+					}// end switch
+				}// end if write access
+			}// end if preg
+
 		}// end if
 
 		// if they have write access they have read access by definition
@@ -707,20 +769,25 @@ class Asset_Edit_Interface extends MySource_Object
 					case 'sys_admin' :
 						if ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) $access |= SQ_EI_READ;
 						break;
-					case 'admin' :
-						if ($owner->adminAccess()) $access |= SQ_EI_READ;
-						break;
-					case 'write' :
-						if ($owner->writeAccess()) $access |= SQ_EI_READ;
-						break;
 					case 'read' :
 						if ($owner->readAccess()) $access |= SQ_EI_READ;
 						break;
+					default :
+						// if it's admin or write access, there needs to be a lock type to use
+						if (preg_match('/^(admin|write):(.*)$/', $ra, $matches)) {
+							if ($matches[1] == 'admin') {
+								if ($owner->adminAccess($matches[2])) $access |= SQ_EI_READ;
+							} else {
+								if ($owner->writeAccess($matches[2])) $access |= SQ_EI_READ;
+							}
+						}
 
 				}// end switch
 			}// end if
 
 		}// end if
+
+#		pre_echo($node->name.' -> '.$access);
 
 		return $access;
 
@@ -830,7 +897,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 						}// end if
 
-						if ($owner->writeAccess(Array(), false)) {
+						if ($owner->writeAccess('')) {
 							$o->openField('New Future Statuses', 'new_line');
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 							$fs = new Cron_Job_Future_Status();
@@ -951,7 +1018,7 @@ class Asset_Edit_Interface extends MySource_Object
 				$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 				if (!empty($fs_jobs)) {
 
-					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id)) {
+					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
 						for($i = 0; $i < count($fs_jobs); $i++) {
 							if (in_array($fs_jobs[$i]->id, $_POST[$prefix.'_remove_fs'])) {
 								if ($cron_mgr->removeJob($fs_jobs[$i])) {
@@ -960,7 +1027,7 @@ class Asset_Edit_Interface extends MySource_Object
 							}// end if
 						}// end for
 
-						$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id);
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 
 					} else {
 						trigger_error('Unable to acquire the lock on the Cron Manager, unable to remove jobs', E_USER_NOTICE);
@@ -971,18 +1038,18 @@ class Asset_Edit_Interface extends MySource_Object
 			}// end if
 
 
-			if ($owner->writeAccess(Array(), false)) {
+			if ($owner->writeAccess('')) {
 
 				$fs = new Cron_Job_Future_Status();
 				$edit_fns = $fs->getEditFns();
 				if ($edit_fns->processInLineBackend($fs, $o, $prefix.'_new_fs')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					if ($cron_mgr->addJob($fs, $GLOBALS['SQ_SYSTEM']->user)) {
-						if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id)) {
+						if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($fs->id, 'links')) {
 							if ($fs->setAssetToUpdate($owner)) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 								$is_updated = true;
-								$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id);
+								$GLOBALS['SQ_SYSTEM']->am->releaseLock($fs->id, 'links');
 							} else {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							}
@@ -1052,7 +1119,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 					case 'version_update_verion' :
 						// have to have admin access to update the major version
-						if ($owner->adminAccess()) {
+						if ($owner->adminAccess('all')) {
 							if ($field->children[0]->name != 'display_name') $display_name = 'Update Major Version ?';
 							else $display_name = $field->children[0]->content;
 							$o->openField($display_name);
@@ -1068,7 +1135,7 @@ class Asset_Edit_Interface extends MySource_Object
 						$o->openField($display_name);
 						$current_langs = $owner->getLanguages();
 						// have to have admin access to set the force secure
-						if ($owner->adminAccess()) {
+						if ($owner->adminAccess('settings')) {
 							check_box($prefix.'_force_secure', '1', ($owner->force_secure == '1'));
 						} else {
 						?>
@@ -1085,7 +1152,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 						require SQ_FUDGE_PATH.'/standards_lists/languages.inc';
 
-						if ($owner->writeAccess()) {
+						if ($owner->writeAccess('settings')) {
 							$standards_lists_languages = array_reverse($standards_lists_languages);
 							$standards_lists_languages[''] = '';
 							$standards_lists_languages = array_reverse($standards_lists_languages);
@@ -1099,7 +1166,7 @@ class Asset_Edit_Interface extends MySource_Object
 							sort($current_langs);
 							?>
 							<table class="sq-backend-table" style="width: 0%;">
-								<?php if ($owner->writeAccess()) {
+								<?php if ($owner->writeAccess('settings')) {
 								?>
 								<tr>
 									<td class="sq-backend-table-header">&nbsp;</td>
@@ -1111,7 +1178,7 @@ class Asset_Edit_Interface extends MySource_Object
 								?>
 								<tr>
 									<td class="sq-backend-table-cell"><?php echo $standards_lists_languages[$lang_code]; ?></td>
-									<?php if ($owner->writeAccess()) {
+									<?php if ($owner->writeAccess('settings')) {
 									?>
 									<td class="sq-backend-table-cell" align="center"><?php check_box($prefix.'_rem_intl_language['.$lang_code.']'); ?></td>
 									<?php } ?>
@@ -1132,7 +1199,7 @@ class Asset_Edit_Interface extends MySource_Object
 						$o->openField('Current');
 						require SQ_FUDGE_PATH.'/standards_lists/character_sets.inc';
 
-						if ($owner->writeAccess()) {
+						if ($owner->writeAccess('settings')) {
 							$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
 							$standards_lists_character_sets[''] = '** Use System Default **';
 							$standards_lists_character_sets = array_reverse($standards_lists_character_sets);
@@ -1154,7 +1221,7 @@ class Asset_Edit_Interface extends MySource_Object
 						else $display_name = $field->children[0]->content;
 						$o->openField($display_name);
 
-						if ($owner->adminAccess()) {
+						if ($owner->adminAccess('all')) {
 							if ($owner->status != SQ_STATUS_UNDER_CONSTRUCTION) {
 								// cant morph an asset if it is not under construction
 								echo '<i>An asset can only be morphed while Under Construction</i>';
@@ -1238,7 +1305,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 							preg_match('/^(system|user)_design::(.*)$/', $design_name, $matches);
 							$system_design   = ($matches[1] == 'system');
-							$new_user_design = (!$system_design && $design_name == 'user_design::' && !$designid && $owner->writeAccess());
+							$new_user_design = (!$system_design && $design_name == 'user_design::' && !$designid && $owner->writeAccess('links'));
 
 							$display_name = ucwords($matches[1]).' Defined - '.$matches[2];
 							$o->openSection($display_name);
@@ -1252,7 +1319,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 							$o->openField('Current');
 
-							if (!$owner->writeAccess()) {
+							if (!$owner->writeAccess('links')) {
 								echo '<i>';
 								if (!$designid) {
 									echo 'None';
@@ -1353,7 +1420,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$assets_affected_lookups = Array();
 
 		//// VERSIONING ////
-		if ($owner->adminAccess()) {
+		if ($owner->adminAccess('all')) {
 			if (isset($_POST[$prefix.'_version_update_version'])) {
 				if (!$owner->incrementVersion('major')) {
 					trigger_error('Failed updating major version of "'.$owner->name.'"', E_USER_WARNING);
@@ -1363,7 +1430,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 		//// FORCE SECURE ////
-		if ($owner->adminAccess()) {
+		if ($owner->adminAccess('settings')) {
 			if ($owner->setForceSecure(!empty($_POST[$prefix.'_force_secure']))) {
 				$assets_affected_lookups[] = $owner->id;
 			}// end if
@@ -1403,7 +1470,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		//// MORPHING ////
 
-		if ($owner->adminAccess() && $owner->status == SQ_STATUS_UNDER_CONSTRUCTION) {
+		if ($owner->adminAccess('all') && $owner->status == SQ_STATUS_UNDER_CONSTRUCTION) {
 			if (isset($_POST[$prefix.'_morph_new_type']) && !empty($_POST[$prefix.'_morph_new_type'])) {
 				// check that the security key was entered correctly
 				if (validate_security_key()) {
@@ -1418,7 +1485,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		///// FRONTEND AND LOGIN DESIGN CHANGES ////
 
-		if (!empty($_POST[$prefix.'_designs']) && $owner->writeAccess()) {
+		if (!empty($_POST[$prefix.'_designs']) && $owner->writeAccess('links')) {
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			$designs_ok = true;
@@ -1509,7 +1576,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$prefix = $owner->getPrefix();
 		$perms = Array('Read' => SQ_PERMISSION_READ, 'Write' => SQ_PERMISSION_WRITE, 'Administrator' => SQ_PERMISSION_ADMIN);
 
-		if ($allow_edit) $admin_access = $owner->adminAccess(Array(), true, false);
+		if ($allow_edit) $admin_access = $owner->adminAccess('permissions');
 		else             $admin_access = false;
 
 		foreach ($perms as $title => $perm) {
@@ -1635,13 +1702,13 @@ class Asset_Edit_Interface extends MySource_Object
 	function processPermissions(&$owner, &$o)
 	{
 		// if we dont have admin access, piss off
-		if ($owner->id && !$owner->adminAccess(Array(), false)) {
+		if ($owner->id && !$owner->adminAccess('')) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the permissions for <i>'.$owner->name.'</i>');
 			exit();
 		}
 
 		// if we dont have admin access, dont process anything
-		if (!$owner->adminAccess(Array(), true, false)) return false;
+		if (!$owner->adminAccess('permissions')) return false;
 
 		$permission_vars = Array();
 		$prefix = $owner->getPrefix();
@@ -1655,7 +1722,7 @@ class Asset_Edit_Interface extends MySource_Object
 			// we need to check for write access each time because
 			// we may actually be revoking write access and then
 			// trying to put it back
-			if (!$owner->adminAccess(Array(), true, false)) continue;
+			if (!$owner->adminAccess('permissions')) continue;
 
 			$post_data = $_POST[$prefix.'_permissions'][$perm];
 
@@ -1709,7 +1776,7 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 			}
 
-			if (isset($_POST[$prefix.'_permissions']['manual_cascade']) && $_POST[$prefix.'_permissions']['manual_cascade']) {
+			if (!empty($_POST[$prefix.'_permissions']['manual_cascade'])) {
 				$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 				foreach ($current as $userid => $access) {
 					$permission_vars[$perm][] = Array('access'          => $access,
@@ -1933,7 +2000,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		} else {
 			// there is no running workflow so admin access can be set
-			$admin_access = $owner->adminAccess(Array(), true, false);
+			$admin_access = $owner->adminAccess('workflow');
 		}
 
 		// lets show some workflow warnings about metadata if we need to
@@ -2080,7 +2147,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		// from here on in, if we dont have admin access - piss off
-		if ($owner->id && !$owner->adminAccess(Array(), false)) {
+		if ($owner->id && !$owner->adminAccess('')) {
 			if (!$updated) {
 				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the workflow schemas for <i>'.$owner->name.'</i>');
 				exit();
@@ -2089,7 +2156,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		// if we dont have admin access, dont process anything
-		if (!$owner->adminAccess(Array(), true, false)) return $updated;
+		if (!$owner->adminAccess('workflow')) return $updated;
 
 		if (!isset($_POST[$prefix.'_workflow'])) return $updated;
 
@@ -2178,7 +2245,7 @@ class Asset_Edit_Interface extends MySource_Object
 	{
 		$prefix = $owner->getPrefix();
 
-		$admin_access = $owner->adminAccess(Array(), true, false);
+		$admin_access = $owner->adminAccess('metadata');
 
 		$o->openSection('Metadata Schemas');
 
@@ -2283,13 +2350,13 @@ class Asset_Edit_Interface extends MySource_Object
 	function processMetadataSchemas(&$owner, &$o)
 	{
 		// if we dont have admin access, piss off
-		if ($owner->id && !$owner->adminAccess(Array(), false)) {
+		if ($owner->id && !$owner->adminAccess('')) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the metadata schemas for <i>'.$owner->name.'</i>');
 			exit();
 		}
 
 		// if we dont have admin access, dont process anything
-		if (!$owner->adminAccess(Array(), true, false)) return false;
+		if (!$owner->adminAccess('metadata')) return false;
 
 		$prefix = $owner->getPrefix();
 		if (!isset($_POST[$prefix.'_metadata'])) return false;
@@ -2379,7 +2446,7 @@ class Asset_Edit_Interface extends MySource_Object
 	{
 		$prefix = $owner->getPrefix();
 
-		$write_access = $owner->writeAccess(Array(), true, false); 
+		$write_access = $owner->writeAccess('metadata');
 
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$schemas = $mm->getSchemas($owner->id, true);
@@ -2437,7 +2504,7 @@ class Asset_Edit_Interface extends MySource_Object
 	function processMetadata(&$owner, &$o)
 	{
 		// if we dont have write access, dont process anything
-		if (!$owner->writeAccess(Array(), true, false)) return false;
+		if (!$owner->writeAccess('metadata')) return false;
 
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 
@@ -2471,17 +2538,14 @@ class Asset_Edit_Interface extends MySource_Object
 		$o->openSection('Current Lock Status');
 		$o->openField('&nbsp;');
 
+		$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id, 'all');
+		$locks_acquired = Array();
+		foreach($locks as $lock_type => $lock) {
+			if (!empty($lock)) $locks_acquired[] = ucwords(str_replace('_', ' ', $lock_type));
+		}
 		$lock_message = '';
-		$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id);
-		if (!empty($lock)) {
-			// this asset is currently locked
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-
-			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-			$expires_in = easy_time_total(($lock['expires'] - time()));
-			if (!$expires_in) $expires_in = '1 second';
-
-			$lock_message = '<span style="color:red"><b>[LOCKED]</b></span> by "'.$user->name.'". Expires in '.$expires_in.'';
+		if (!empty($locks_acquired)) {
+			$lock_message = '<span style="color:red"><b>[LOCKED]</b></span> (Types : '.implode(', ', $locks_acquired).')';
 		} else {
 			$lock_message = '<span style="color:green"><b>[UNLOCKED]</b></span>';
 		}
@@ -2556,18 +2620,14 @@ class Asset_Edit_Interface extends MySource_Object
 			$stalk = 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
 			$bg = ($end) ? '' : $stalk;
 
+			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($dep_asset->id, 'all');
+			$locks_acquired = Array();
+			foreach($locks as $lock_type => $lock) {
+				if (!empty($lock)) $locks_acquired[] = ucwords(str_replace('_', ' ', $lock_type));
+			}
 			$lock_message = '';
-			$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($dep_asset->id);
-			if (!empty($lock)) {
-				// this asset is currently locked
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-				$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
-
-				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				$expires_in = easy_time_total(($lock['expires'] - time()));
-				if (!$expires_in) $expires_in = '1 second';
-
-				$lock_message = '<span style="color:red"><b>[LOCKED]</b></span> by "'.$user->name.'" at "'.$editing->name.'". Expires in '.$expires_in.'';
+			if (!empty($locks_acquired)) {
+				$lock_message = '<span style="color:red"><b>[LOCKED]</b></span> (Types : '.implode(', ', $locks_acquired).')';
 			} else {
 				$lock_message = '<span style="color:green"><b>[UNLOCKED]</b></span>';
 			}
@@ -2661,9 +2721,9 @@ class Asset_Edit_Interface extends MySource_Object
 	function paintLinking(&$owner, &$o, $allow_edit=true)
 	{
 		// If we are allowed to edit, we check the write effective access, minus live edit access
-		// We are ignoring live edit access because changes to links are not reliant on 
+		// We are ignoring live edit access because changes to links are not reliant on
 		// status of the asset (because the are not save edited)
-		$write_access = ($allow_edit) ? $owner->writeAccess(Array(), true, false) :  false;
+		$write_access = ($allow_edit) ? $owner->writeAccess('links') :  false;
 
 		// prefix for all the form vars
 		$prefix = $owner->getPrefix();
@@ -2688,9 +2748,9 @@ class Asset_Edit_Interface extends MySource_Object
 
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
 			$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl 
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ON cl.linkid = ct.linkid,
-						 '.SQ_TABLE_RUNNING_PREFIX.'asset_link pl 
+						 '.SQ_TABLE_RUNNING_PREFIX.'asset_link pl
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt ON pl.linkid = pt.linkid
 							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON a.assetid = pl.minorid
 					';
@@ -2723,7 +2783,7 @@ class Asset_Edit_Interface extends MySource_Object
 			// work out some values we are going to need
 			$parent_data = $link_tree[count($link_tree) -1];
 			$majorid = $parent_data['assetid'];
-			
+
 			foreach ($link_info[$majorid] as $link_data) {
 
 				$link_type = $link_data['link_type'];
@@ -2854,7 +2914,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$o->closeSection();
 		}// end if
 
-		return $owner->writeAccess(Array(), true, false);
+		return true;
 
 	}//end paintLinking()
 
@@ -2871,13 +2931,13 @@ class Asset_Edit_Interface extends MySource_Object
 	function processLinking(&$owner, &$o)
 	{
 		// if we dont have admin access, piss off
-		if ($owner->id && !$owner->writeAccess(Array(), false)) {
+		if ($owner->id && !$owner->writeAccess('')) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to edit the links of <i>'.$owner->name.'</i>');
 			exit();
 		}
 
 		// if we dont have effective write access, dont process anything
-		if (!$owner->writeAccess(Array(), true, false)) return false;
+		if (!$owner->writeAccess('links')) return false;
 
 		// prefix for all the form vars
 		$prefix = $owner->getPrefix();
@@ -2902,7 +2962,7 @@ class Asset_Edit_Interface extends MySource_Object
 				$fl_jobs = &Cron_Job_Future_Lineage::getActiveJobs($owner);
 				if (!empty($fl_jobs)) {
 
-					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id)) {
+					if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'links')) {
 						for($i = 0; $i < count($fl_jobs); $i++) {
 							if (in_array($fl_jobs[$i]->id, $_POST[$prefix.'_remove_fl'])) {
 								if ($cron_mgr->removeJob($fl_jobs[$i])) {
@@ -2911,7 +2971,7 @@ class Asset_Edit_Interface extends MySource_Object
 							}// end if
 						}// end for
 
-						$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id);
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 
 					} else {
 						trigger_error('Unable to acquire the lock on the Cron Manager, unable to remove jobs', E_USER_NOTICE);
@@ -3125,11 +3185,11 @@ class Asset_Edit_Interface extends MySource_Object
 				// for workflow we want to show the user log messages as well
 				if (isset($_REQUEST['sq_workflow_log_version'])) {
 					$o->addFormActionGetVar('sq_workflow_log_version', $_REQUEST['sq_workflow_log_version']);
-					$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id, 
+					$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id,
 																 'version' => $_REQUEST['sq_workflow_log_version']
 																 )
 								);
-					$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id, 
+					$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id,
 																			   'version' => $_REQUEST['sq_workflow_log_version']
 																				)
 								);
@@ -3202,7 +3262,7 @@ class Asset_Edit_Interface extends MySource_Object
 							}
 							?>
 							&nbsp;<b>Page <?php echo round(($start_printing_at + $num_per_page) / $num_per_page); ?> of <?php echo round(($num_logs / $num_per_page) + 0.5); ?></b>&nbsp;
-							
+
 							<?php
 							if (($start_printing_at + $num_per_page) < $num_logs) {
 								?><a style="text-decoration: none;" href="#" onClick="Javascript: set_hidden_field('<?php echo $prefix; ?>_start_at', '<?php echo $start_printing_at + $num_per_page; ?>'); set_hidden_field('process_form', '0'); submit_form(); return false;"><?php

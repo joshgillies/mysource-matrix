@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2003/09/26 05:26:25 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -15,7 +15,7 @@
 			<text width="60" height="1" />
 		</field>
 	</section>
-	<section name="Design Areas">
+	<section name="Design Areas" write_access="write:links" read_access="write:">
 		<field format="new_line">
 			<display_name>Customised</display_name>
 			<note/>
@@ -33,7 +33,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Customise Associated Files" read_access="write">
+	<section name="Customise Associated Files"  write_access="write:links" read_access="write:">
 		<field>
 			<display_name>New</display_name>
 			<note>Uploading a tar archive (.tar) or a gzipped tar archive (.tag.gz or .tgz) will result in those archives being extracted and their files being placed in the files directory</note>

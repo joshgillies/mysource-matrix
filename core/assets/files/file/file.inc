@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: file.inc,v 1.51 2003/09/26 06:57:24 brobertson Exp $
+* $Id: file.inc,v 1.52 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -496,13 +496,12 @@ class File extends Asset
 
 				$linkid = $this->create($link);
 
-				if ($linkid) {
-					$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id);
+				if ($linkid && $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
 					$edit = $this->getEditFns();
 					$this->_tmp['uploading_file'] = 1;
 					$ret_val = $edit->processFileUpload($this, $o, $prefix);
 					$this->saveAttributes();
-					$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
+					$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 					return $ret_val;
 				}
 

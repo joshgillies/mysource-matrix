@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: cron_manager.inc,v 1.21 2003/10/02 05:45:41 brobertson Exp $
+* $Id: cron_manager.inc,v 1.22 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -103,6 +103,21 @@ class Cron_Manager extends Asset
 					);
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['attr_links'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
 
 
 	/**
@@ -228,16 +243,20 @@ class Cron_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'exclusive' => '1');
+		$success = false;
 		if ($job->create($link)) {
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($job->id) && $job->setRunningUser($user)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-				return true;
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($job->id, 'links')) {
+				$success = $job->setRunningUser($user);
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($job->id, 'links');
 			}
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($job->id);
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		return false;
+		if ($success) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+		}
+		return $success;
 
 	}// end addJob()
 
@@ -384,10 +403,10 @@ class Cron_Manager extends Asset
 
 
 			// now update this last run time, so that we know for next time
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, '', 0, true)) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, true)) {
 				$this->setAttrValue('run_check', (int) $this->attr('run_check') + 1);
 				$this->saveAttributes();
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 
 			} else {
 				trigger_error('Unable to acquire lock of "'.$this->name.'"', E_USER_WARNING);
@@ -421,9 +440,9 @@ class Cron_Manager extends Asset
 			}// end if
 
 			// now get the lock, set the running flag and reset the run_check
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, '', 0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0) && $this->saveAttributes()) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0) && $this->saveAttributes()) {
 
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 				$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -514,7 +533,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 					// give it three seconds to get the lock
 					$lock_count = 0;
 					while(1) {
-						if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, '', 0, true)) {
+						if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attr_links', 0, true)) {
 							break;
 						} elseif ($lock_count < 3) {
 							$lock_count++;
@@ -536,7 +555,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 						$this->saveAttributes();
 
-						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attr_links');
 
 					} else {
 						trigger_error('Unable to acquire lock of "'.$this->name.'", aborting run', E_USER_WARNING);
@@ -556,9 +575,9 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 				}// end while
 
 				// now update this last run time, so that we know for next time
-				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, '', 0, true)) {
+				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes', 0, true)) {
 					if ($this->setAttrValue('last_run', $this_run) && $this->setAttrValue('running', false) && $this->saveAttributes()) {
-						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
+						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 					} else {
 						trigger_error('Unable to unset the last run and/or running flag of "'.$this->name.'", aborting run', E_USER_WARNING);
 					}

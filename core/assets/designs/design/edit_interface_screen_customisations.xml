@@ -2,13 +2,13 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_customisations.xml,v 1.3 2003/09/26 05:26:24 brobertson Exp $
+* $Id: edit_interface_screen_customisations.xml,v 1.4 2003/10/10 06:49:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="New Customisation" read_access="write">
+	<section name="New Customisation" write_access="write:links" read_access="write:">
 		<field>
 			<display_name />
 			<note />
@@ -18,7 +18,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Current Customisations">
+	<section name="Current Customisations" read_access="write:">
 		<field>
 			<display_name />
 			<note />

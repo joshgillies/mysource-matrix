@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: cron_manager_edit_fns.inc,v 1.10 2003/09/26 05:26:27 brobertson Exp $
+* $Id: cron_manager_edit_fns.inc,v 1.11 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -147,7 +147,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 							Details
 						</td>
 					<?php
-						if ($asset->writeAccess()) {
+						if ($asset->writeAccess('links')) {
 						?>
 						<td class="sq-backend-field" style="text-align: center;">
 							Delete ?
@@ -187,11 +187,11 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 							</table>
 						</td>
 					<?php
-						if ($asset->writeAccess()) {
+						if ($asset->writeAccess('links')) {
 						?>
 						<td class="sq-backend-data" style="text-align: center;">
 						<?php
-							if ($asset->writeAccess() && $jobs[$i]->canDelete()) {
+							if ($jobs[$i]->canDelete()) {
 								check_box($prefix.'_remove_jobs[]', $jobs[$i]->id);
 							} else {
 								echo '&nbsp;';
@@ -230,7 +230,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 	function processJobs(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_remove_jobs'])) return false;
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('links')) return false;
 
 		$jobs = &$asset->getJobs('cron_job', false);
 		if (empty($jobs)) return false;
@@ -312,7 +312,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		$field = $this->_getEpochDateTimeField($asset, $prefix);
 
 		// take into account lock, plus only root can edit
-		if ($asset->writeAccess() && $GLOBALS['SQ_SYSTEM']->userRoot()) {
+		if ($asset->writeAccess('attributes') && $GLOBALS['SQ_SYSTEM']->userRoot()) {
 			$field->printField();
 		} else {
 			echo $field->format();
@@ -340,7 +340,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		$field = $this->_getEpochDateTimeField($asset, $prefix);
 
 		// take into account lock, plus only root can edit
-		if ($asset->writeAccess() && $GLOBALS['SQ_SYSTEM']->userRoot()) {
+		if ($asset->writeAccess('attributes') && $GLOBALS['SQ_SYSTEM']->userRoot()) {
 			if ($field->processField()) {
 				$value_arr = $field->strToUnitsArray($field->value);
 				$epoch = mktime($value_arr['h'], $value_arr['i'], $value_arr['s'], $value_arr['m'], $value_arr['d'], $value_arr['y']);
@@ -385,7 +385,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 		// if we have a suspicion of being in DeadLock, then allow them to override
 		if ($GLOBALS['SQ_SYSTEM']->userRoot() && $asset->attr('running') && (int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks')) {
 			$o->openField('<div class="sq-backend-warning" style="text-align: center;">POTENTIAL CRON MANAGER DEAD LOCK DETECTED</div>', 'new_line');
-			if ($asset->writeAccess()) {
+			if ($asset->writeAccess('all')) {
 				?>
 				<table border="0">
 					<tr>
@@ -450,7 +450,7 @@ class Cron_Manager_Edit_Fns extends Asset_Edit_Fns
 
 		if ($asset->attr('running') && (int) $asset->attr('run_check') >= (int) $asset->attr('warn_after_num_run_checks')) {
 			// if we have a suspicion of being in DeadLock, then allow them to override
-			if ($GLOBALS['SQ_SYSTEM']->userRoot() && $asset->writeAccess()) {
+			if ($GLOBALS['SQ_SYSTEM']->userRoot() && $asset->writeAccess('all')) {
 				if (validate_security_key()) {
 					$asset->setAttrValue('running', false);
 					$asset->setAttrValue('run_check', 0);

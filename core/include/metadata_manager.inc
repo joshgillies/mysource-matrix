@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_manager.inc,v 1.8 2003/10/07 07:04:39 dwong Exp $
+* $Id: metadata_manager.inc,v 1.9 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -137,7 +137,7 @@ class Metadata_Manager extends MySource_Object
 			return false;
 		}
 
-		if (!$asset->adminAccess(Array(), true, false)) {
+		if (!$asset->adminAccess('metadata')) {
 			trigger_error('Cannot set metadata schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
@@ -203,7 +203,7 @@ class Metadata_Manager extends MySource_Object
 			return false;
 		}
 
-		if (!$asset->adminAccess(Array(), true, false)) {
+		if (!$asset->adminAccess('metadata')) {
 			trigger_error('Cannot delete metadata schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
@@ -304,7 +304,7 @@ class Metadata_Manager extends MySource_Object
 			return false;
 		}
 
-		if (!$asset->adminAccess(Array(), true, false)) {
+		if (!$asset->adminAccess('metadata')) {
 			trigger_error('Cannot set metadata for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}

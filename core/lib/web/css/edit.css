@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit.css,v 1.17 2003/09/26 05:26:34 brobertson Exp $
+* $Id: edit.css,v 1.18 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -170,9 +170,12 @@ td.sq-backend-table-cell-alt {
 
 /* LOCKING MESSAGE STYLES */
 
-.sq-backend-locked, .sq-backend-unlocked {
-	color:		#C90404;
+.sq-backend-locked-by-user, .sq-backend-locked-by-someone-else, .sq-backend-unlocked {
 	font-size:	10px;
+}
+
+.sq-backend-locked-by-someone-else {
+	color:		#C90404;
 }
 
 .sq-backend-unlocked {

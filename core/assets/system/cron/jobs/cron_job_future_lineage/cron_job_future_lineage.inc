@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: cron_job_future_lineage.inc,v 1.3 2003/10/08 00:54:10 gsherwood Exp $
+* $Id: cron_job_future_lineage.inc,v 1.4 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,7 +56,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		}
 
 		if (!empty($this->_tmp['asset_in_link'])) {
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id)) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
 				return 0;
@@ -71,7 +71,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 				}
 			}// end foreach
 			unset($this->_tmp['asset_in_link']);
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links');
 
 		}// end if
 
@@ -148,7 +148,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		if (parent::canDelete()) return true;
 
 		$minor = &$this->getAssetInLink('minor');
-		if (!is_null($minor)) return $minor->adminAccess();
+		if (!is_null($minor)) return $minor->adminAccess('');
 		return false;
 
 	}//end canDelete()
@@ -301,7 +301,7 @@ class Cron_Job_Future_Lineage extends Cron_Job
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->attr('delete_linkid'));
 			if (!empty($link)) {
 				$old_major = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
-				if (!is_null($old_major) && $GLOBALS['SQ_SYSTEM']->am->acquireLock($old_major->id)) {
+				if (!is_null($old_major) && $GLOBALS['SQ_SYSTEM']->am->acquireLock($old_major->id, 'links')) {
 					$delete_ok = $old_major->deleteLink($this->attr('delete_linkid'));
 				}
 			}

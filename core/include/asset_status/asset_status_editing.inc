@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_status_editing.inc,v 1.9 2003/09/26 05:26:31 brobertson Exp $
+* $Id: asset_status_editing.inc,v 1.10 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,7 +67,7 @@ class Asset_Status_Editing extends Asset_Status
 		$statii = Array();
 
 		// cant do anything without write access
-		if (!$this->owner->writeAccess(Array(), false)) return $statii;
+		if (!$this->owner->writeAccess('')) return $statii;
 
 		// any editor can cancel the safe edit
 		$statii[SQ_STATUS_LIVE] = 'Cancel Safe Edit';
@@ -84,7 +84,7 @@ class Asset_Status_Editing extends Asset_Status
 			$schemas = $wfm->getSchemas($this->owner->id, true);
 			if (empty($schemas)) {
 				// no workflow defined, so any admin can make this live
-				if ($this->owner->adminAccess(Array(), false)) {
+				if ($this->owner->adminAccess('')) {
 					$statii[SQ_STATUS_EDITING_APPROVED] = 'Approve';
 				}
 			} else {

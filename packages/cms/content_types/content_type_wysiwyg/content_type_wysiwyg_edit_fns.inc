@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.25 2003/10/09 05:54:05 gsherwood Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.26 2003/10/10 06:49:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,7 +87,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paintBackend(&$asset, $prefix)
 	{
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			$wysiwyg = $this->_createEditor($asset, $prefix);
 			?>
 			<div style="display:none;" id="<?php echo $prefix?>_wysiwyg_div"><?php echo $wysiwyg->paint()?></div>
@@ -144,7 +144,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function processBackend($link, &$asset, $prefix)
 	{
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			$wysiwyg = &$this->_createEditor($asset, $prefix);
 			$html = $wysiwyg->process();
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.10 2003/10/08 04:14:04 brobertson Exp $
+* $Id: mysource.inc,v 1.11 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1457,8 +1457,8 @@ class MySource
 		}
 
 		if (!empty($result)) {
+			$result['expires'] = empty($result['expires']) ? NULL : iso8601_ts($result['expires']);
 			if ($check_expires && !empty($result['expires'])) {
-				$result['expires'] = iso8601_ts($result['expires']);
 				if ($result['expires'] < time()) {
 					$this->releaseLock($lockid);
 					$this->restoreDatabaseConnection();
@@ -1481,8 +1481,7 @@ class MySource
 				}
 
 				foreach ($chain as $lock_row) {
-					if (empty($lock_row['expires'])) $lock_row['expires'] = NULL;
-					else $lock_row['expires'] = iso8601_ts($lock_row['expires']);
+					$lock_row['expires'] = (empty($lock_row['expires'])) ? NULL : iso8601_ts($lock_row['expires']);
 					$result['chained_assets'][$lock_row['lockid']] = $lock_row;
 				}
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design.inc,v 1.51 2003/10/01 22:41:00 gsherwood Exp $
+* $Id: design.inc,v 1.52 2003/10/10 06:49:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,25 +34,6 @@ class Design extends Design_Area
 		$this->Design_Area($assetid);
 
 	}//end constructor
-
-
-	/*
-	* Returns an array of all the permitted links type, the type asset and the cardinality
-	*
-	* @return array
-	* @access private
-	* @see Asset::_getAllowLinks()
-	*/
-	function _getAllowedLinks()
-	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array('design_customisation' => Array('card' => 'M', 'exclusive' => false),
-											 'file'                 => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array('design_area'          => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_NOTICE => Array()
-					);
-
-	}//end _getAllowedLinks()
 
 
 	/**
@@ -89,6 +70,40 @@ class Design extends Design_Area
 		return $linkid;
 
 	}//end create()
+
+
+	/*
+	* Returns an array of all the permitted links type, the type asset and the cardinality
+	*
+	* @return array
+	* @access private
+	* @see Asset::_getAllowLinks()
+	*/
+	function _getAllowedLinks()
+	{
+		return Array(SQ_LINK_TYPE_1 => Array(),
+					 SQ_LINK_TYPE_2 => Array('design_customisation' => Array('card' => 'M', 'exclusive' => false),
+											 'file'                 => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_3 => Array('design_area'          => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_NOTICE => Array()
+					);
+
+	}//end _getAllowedLinks()
+
+
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['parse_file'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
 
 
 	/**
@@ -231,10 +246,10 @@ class Design extends Design_Area
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
 
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
 		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
 		if (is_a($minor, 'file')) {
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
 			foreach($customisation_links as $link) {
@@ -378,9 +393,9 @@ class Design extends Design_Area
 		foreach($customisation_links as $link) {
 			$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
 			if (is_null($customisation)) continue;
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($customisation->id)) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($customisation->id, 'all')) {
 				$customisation->updateFromParent($this);
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($customisation->id);
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($customisation->id, 'all');
 			}
 		}// end foreach
 

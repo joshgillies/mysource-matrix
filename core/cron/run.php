@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: run.php,v 1.5 2003/10/02 05:46:21 brobertson Exp $
+* $Id: run.php,v 1.6 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,13 +34,13 @@ if (is_null($cron_mgr)) {
 }
 
 if (!empty($_SERVER['argv'][1]) && $_SERVER['argv'][1] == 'RESET_RUNNING') {
-	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, '', 0, true)) {
+	if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_mgr->id, 'attributes', 0, true)) {
 		trigger_error('Unable to acquire lock of "'.$cron_mgr->name.'", aborting run', E_USER_ERROR);
 	}
 	if (!$cron_mgr->setAttrValue('running', false)) {
 		trigger_error('SET RUNNING FAILED', E_USER_ERROR);
 	}
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id);
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'attributes');
 }
 
 $cron_mgr->run();

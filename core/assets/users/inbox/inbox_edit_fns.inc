@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: inbox_edit_fns.inc,v 1.24 2003/10/06 23:35:53 brobertson Exp $
+* $Id: inbox_edit_fns.inc,v 1.25 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,7 +140,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					<td class="<?php echo $class ?>" nowrap>
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_<?php echo (($data['status'] == SQ_MSG_UNREAD) ? 'un' : ''); ?>read.png", "16", "16", "");</script>&nbsp;
 						<?php
-						if ($asset->writeAccess()) {
+						if ($asset->writeAccess('mail')) {
 							?>
 							<input type="checkbox" name="<?php echo $prefix.'_mark_as_read['.$data['messageid'].']'?>" value="1"<?php echo (($data['status'] == SQ_MSG_READ) ? ' checked' : '')?>>
 							<?php
@@ -149,7 +149,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					</td>
 					<td class="<?php echo $class ?>" nowrap>
 						<?php
-						if ($asset->writeAccess()) {
+						if ($asset->writeAccess('mail')) {
 							?>
 							<input type="checkbox" name="<?php echo $prefix.'_delete['.$data['messageid'].']'?>" value="1">
 							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/delete.png", "16", "16", "");</script>
@@ -313,7 +313,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				<td class="sq-backend-table-header">FROM</td>
 				<td class="sq-backend-table-header">SUBJECT</td>
 				<td class="sq-backend-table-header">SENT</td>
-				<td class="sq-backend-table-header"><?php echo ($asset->writeAccess()) ? 'RECOVER' : '&nbsp;';?></td>
+				<td class="sq-backend-table-header"><?php echo ($asset->writeAccess('mail')) ? 'RECOVER' : '&nbsp;';?></td>
 				<td class="sq-backend-table-header">&nbsp;</td>
 			</tr>
 			<?php
@@ -361,7 +361,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					</td>
 					<td class="<?php echo $class ?>" nowrap>
 						<?php
-						if ($asset->writeAccess()) {
+						if ($asset->writeAccess('mail')) {
 							?><input type="checkbox" name="<?php echo $prefix.'_recover['.$data['messageid'].']'?>" value="1"><?php
 						} else {
 							echo '&nbsp;';
@@ -370,7 +370,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					</td>
 					<td class="<?php echo $class ?>" nowrap>
 						<?php
-						if ($asset->writeAccess()) {
+						if ($asset->writeAccess('mail')) {
 							?>
 							<input type="checkbox" name="<?php echo $prefix.'_purge['.$data['messageid'].']'?>" value="1">
 							<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/delete.png", "16", "16", "");</script>

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_03.php,v 1.13 2003/10/07 07:37:43 dwong Exp $
+* $Id: step_03.php,v 1.14 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -176,13 +176,14 @@ if (is_null($root_folder)) {
 		trigger_error('Major Problem: The new Search Manager Asset was not given assetid #13. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
 	}
 
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_manager->id);
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($login_design->id);
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($designs_folder->id);
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_user->id);
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($system_group->id);
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($trash_folder->id);
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_folder->id);
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($search_manager->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($login_design->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_manager->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($designs_folder->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_user->id,		'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($system_group->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($trash_folder->id,	'all');
+	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_folder->id,	'all');
 
 	$sql = 'SELECT MAX(assetid) FROM sq_asset';
 	$num_assets = $db->getOne($sql);

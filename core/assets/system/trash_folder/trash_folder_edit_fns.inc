@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: trash_folder_edit_fns.inc,v 1.24 2003/10/02 05:45:41 brobertson Exp $
+* $Id: trash_folder_edit_fns.inc,v 1.25 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -320,7 +320,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 	{
 		// now we need to release all locks we acquired
 		$vars = $pb->getRunningVars();
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($vars['trash_id']);
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($vars['trash_id'], 'all');
 		$pb->setStatusMsg('');
 	}// end _purgeTrashStepDone()
 
@@ -352,7 +352,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 				if ($done_a_lock) break;
 				$assetid = $link_info['assetid'];
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, '', $vars['trash_id'])) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($asset->id, 'all', $vars['trash_id'])) {
 					trigger_error('Purge aborted, unable to acquire lock for "'.$asset->name.'" for purging trash', E_USER_WARNING);
 					$pb->abort();
 					return;

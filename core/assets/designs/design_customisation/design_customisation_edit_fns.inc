@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_customisation_edit_fns.inc,v 1.16 2003/10/08 00:50:54 gsherwood Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.17 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,7 +39,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		if (empty($customised_areas)) {
 			?> No Design Areas are customised yet. <?php
 		} else {
-			$this->_paintDesignAreaList($customised_areas, 'Remove Customisation ?', $prefix.'_remove_customisation', $asset->writeAccess(), true, true);
+			$this->_paintDesignAreaList($customised_areas, 'Remove Customisation ?', $prefix.'_remove_customisation', $asset->writeAccess('links'), true, true);
 		}
 
 	}// end paintCustomisedDesignAreas()
@@ -99,7 +99,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		if (empty($uncustomised_areas)) {
 			?> All Design Areas have been customised. <?php
 		} else {
-			$this->_paintDesignAreaList($uncustomised_areas, 'Customise ?', $prefix.'_customise', $asset->writeAccess());
+			$this->_paintDesignAreaList($uncustomised_areas, 'Customise ?', $prefix.'_customise', $asset->writeAccess('links'));
 		}
 	}// end paintUnCustomisedDesignAreas()
 

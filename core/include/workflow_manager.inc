@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_manager.inc,v 1.32 2003/09/26 05:26:31 brobertson Exp $
+* $Id: workflow_manager.inc,v 1.33 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -124,7 +124,7 @@ class Workflow_Manager extends MySource_Object
 			return false;
 		}
 
-		if (!$asset->adminAccess()) {
+		if (!$asset->adminAccess('workflow')) {
 			trigger_error('Cannot set workflow schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
@@ -188,7 +188,7 @@ class Workflow_Manager extends MySource_Object
 			return false;
 		}
 
-		if (!$asset->adminAccess(Array(), true, false)) {
+		if (!$asset->adminAccess('workflow')) {
 			trigger_error('Cannot delete workflow schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
@@ -283,7 +283,7 @@ class Workflow_Manager extends MySource_Object
 			return false;
 		}
 
-		if (!$asset->adminAccess()) {
+		if (!$asset->adminAccess('workflow')) {
 			trigger_error('Cannot set workflow for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}

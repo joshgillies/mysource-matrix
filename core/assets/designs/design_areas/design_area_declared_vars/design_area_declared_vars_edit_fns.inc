@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_declared_vars_edit_fns.inc,v 1.13 2003/09/26 05:26:24 brobertson Exp $
+* $Id: design_area_declared_vars_edit_fns.inc,v 1.14 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,7 +117,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		$attrs = $asset->getDeclaredVarAttributes();
 		foreach($attrs as $name => $attr) {
 			$o->openField($name);
-			if ($asset->writeAccess()) {
+			if ($asset->writeAccess('attributes')) {
 				$attr->paint($prefix);
 			} else {
 				echo $attr->value;

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_edit_fns.inc,v 1.35 2003/10/09 06:53:49 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.36 2003/10/10 06:49:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,7 +122,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		// get all the tables linked to this bodycopy
 		$tables = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'bodycopy_table');
 
-		if (!$asset->writeAccess()) {
+		if (!$asset->writeAccess('content')) {
 			foreach ($tables as $table_data) {
 				$table = &$am->getAsset($table_data['minorid'], $table_data['minor_type_code']);
 				if ($table->useSystemVersion()) {

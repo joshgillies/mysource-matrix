@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_section_edit_fns.inc,v 1.7 2003/09/26 05:26:27 brobertson Exp $
+* $Id: metadata_section_edit_fns.inc,v 1.8 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,7 +46,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintInlineOptionInterface(&$asset, &$o)
 	{
-		$write_access = $asset->writeAccess();
+		$write_access = $asset->writeAccess('links');
 		$prefix = $asset->getPrefix();
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true, true);
@@ -114,7 +114,7 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 	function processInlineOptionInterface(&$asset, &$o)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('links')) return false;
 
 		$prefix = $asset->getPrefix();
 		$updated = false;

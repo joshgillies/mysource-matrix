@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager_edit_fns.inc,v 1.58 2003/10/08 00:54:10 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.59 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,7 +113,6 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 				break;
 
 			case 'edit_asset' :
-
 				$o->addFormActionGetVar('assetid', $_GET['assetid']);
 
 				$asset = &$this->am->getAsset($_GET['assetid']);
@@ -130,39 +129,32 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 					$do_process_backend = true;
 
 					// try to acquire a lock on this asset?
-					if (!empty($_POST['sq_acquire_lock'])) {
+					if (!empty($_POST['sq_lock_acquire']) && !empty($_POST['sq_lock_type'])) {
 						//// START HIPO PROCESSING ////
 						$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-						$vars = Array('assetid' => $asset->id, 'forceably_acquire' => (bool) $_POST['sq_acquire_by_force']);
+						$vars = Array('assetid' => $asset->id, 'lock_type' => $_POST['sq_lock_type'], 'forceably_acquire' => (bool) $_POST['sq_lock_acquire_by_force']);
 						$hh->queueHipo('hipo_job_acquire_lock', $vars);
 						////  END HIPO PROCESSING  ////
 						$do_process_backend = false;
 					}
 
 					// try to release a lock on this asset?
-					if (!empty($_POST['sq_manual_release_lock'])) {
-						$this->am->releaseLock($asset->id);
+					if (!empty($_POST['sq_lock_release_manual']) && !empty($_POST['sq_lock_type'])) {
+						$this->am->releaseLock($asset->id, $_POST['sq_lock_type']);
 						$do_process_backend = false;
 					}
 
 					if ($do_process_backend && $asset->processBackend($this->backend->out, $link)) {
 
-						$lock = $this->am->getLockInfo($asset->id);
-						if (!empty($lock)) {
-							// this asset is currently locked
-							$user = &$this->am->getAsset($lock['userid']);
-							if ($user->id == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-								if (isset($_POST['sq_release_lock']) && (int) $_POST['sq_release_lock'] == 1) {
-									// committing changes and releasing the lock
-									if (!$this->am->releaseLock($asset->id)) {
-										trigger_error('Failed to release lock on "'.$asset->name.'"', E_USER_WARNING);
-									}
-								} else {
-									// not releasing the lock, so re-acquire
-									if (!$this->am->acquireLock($asset->id)) {
-										trigger_error('Failed to re-acquire lock on "'.$asset->name.'"', E_USER_WARNING);
-									}
-								}
+						if (!empty($_POST['sq_lock_release']) && !empty($_POST['sq_lock_type'])) {
+							// committing changes and releasing the lock
+							if (!$this->am->releaseLock($asset->id, $_POST['sq_lock_type'])) {
+								trigger_error('Failed to release "'.$_POST['sq_lock_type'].'" lock on "'.$asset->name.'"', E_USER_WARNING);
+							}
+						} else {
+							// not releasing the lock, so re-acquire
+							if (!$this->am->updateLock($asset->id, $_POST['sq_lock_type'])) {
+								trigger_error('Failed to re-acquire "'.$_POST['sq_lock_type'].'" lock on "'.$asset->name.'"', E_USER_WARNING);
 							}
 						}
 					}// endif
@@ -622,7 +614,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			$attempted_assets[] = $assetid;
 
 			// attempt to acquire the lock for this asset
-			if (@$this->am->acquireLock($asset->id, '', $vars['assetid'])) {
+			if (@$this->am->acquireLock($asset->id, 'all', $vars['assetid'])) {
 				$vars['lock']['acquired_assets'][] = $asset->id;
 				$status_msg .= 'Lock Acquired for '.$asset->name."\n";
 	#speed_check("five");
@@ -941,7 +933,7 @@ speed_check('FINISHED');
 	function _dupeStepReleaseLocks(&$pb)
 	{
 		$vars = $pb->getRunningVars();
-		$this->am->releaseLock($vars['assetid']);
+		$this->am->releaseLock($vars['assetid'], 'all');
 		$pb->setStatusMsg('All Locks Released');
 		$pb->setPercent(1);
 
@@ -1179,12 +1171,13 @@ speed_check('FINISHED');
 				echo '<b><i>The security key entered was incorrect. The lock on "'.$asset->name.'" has not been forceably acquired. You may try again using the new security key displayed below.</i></b>';
 				$o->closeSection();
 			} else {
-				$o->addOnLoad('window.opener.top.main.set_hidden_field(\'sq_acquire_by_force\', \'1\'); window.opener.top.main.set_hidden_field(\'sq_acquire_lock\', \'1\'); window.opener.top.main.submit_form(); window.close();');
+				$o->addOnLoad('window.opener.top.main.set_hidden_field(\'sq_lock_acquire_by_force\', \'1\'); window.opener.top.main.set_hidden_field(\'sq_lock_acquire\', \'1\'); window.opener.top.main.set_hidden_field(\'sq_lock_type\', \''.addslashes($_GET['sq_lock_type']).'\'); window.opener.top.main.submit_form(); window.close();');
 				return;
 			}
 		}
 		
 		$o->addFormActionGetVar('assetid', $_GET['assetid']);
+		$o->addFormActionGetVar('sq_lock_type', $_GET['sq_lock_type']);
 		$o->addFormActionGetVar('forceably_acquire_confirm', 1);
 		$asset = &$this->am->getAsset($_GET['assetid']);
 		if (is_null($asset)) {
@@ -1192,51 +1185,113 @@ speed_check('FINISHED');
 			break;
 		}
 
-		$lock = $this->am->getLockInfo($asset->id, '', true, false);
-		if (empty($lock)) {
-			$o->addOnLoad("alert('No lock is held on \"$asset->name\"'); window.close();");
+		$locks = $this->am->getLockInfo($asset->id, $_GET['sq_lock_type'], true, true);
+		$got_locks = false;
+		foreach($locks as $lock_type => $lock) {
+			if (!empty($lock)) {
+				$got_locks = true;
+				break;
+			}				
+		}
+		if (!$got_locks) {
+			$o->addOnLoad('alert("No locks are held on \\"'.addslashes($asset->name).'\\""); window.close();');
 			return;
 		}
-		$user = &$this->am->getAsset($lock['userid']);
-		$editing = &$this->am->getAsset($lock['source_assetid']);
 
-		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-		$expires_in = easy_time_total(($lock['expires'] - time()), true);
-		if (!$expires_in) $expires_in = '1 second';
-
-		$o->openSection('Note');
+		$o->openSection('Forceably Acquire');
 		$o->openField('&nbsp;');
-		echo 'You are about to forceably acquire the lock on "'.$asset->name.'" currently held by "'.$user->name.'" at "'.$editing->name.'" and due to expire in '.$expires_in.'. <b>Any changes being made to "'.$asset->name.'" or any other asset in the locking chain (<i>see full list below</i>) will be lost.</b>';
+		?>
+			You are about to forceably acquire the following locks on "<?php echo $asset->name; ?>"<br>
+			<b>Any changes being made to "<?php echo $asset->name; ?>" or any other asset in the locking chain (<i>see full list below</i>) will be lost.</b>
+		<?php 
 		
 		$o->openField('&nbsp;');
 		?>
 		<table border="0">
 			<tr>
-				<td class="sq-backend-data">To acquire the lock, enter the 8 character string you see below into the box supplied, then press the Commit button</td>
+				<td class="sq-backend-data">
+					To acquire the lock, enter the 8 character string you see below into the box supplied, 
+					then press the Commit button
+				</td>
 			</tr>
 			<tr>
 				<td valign="top"><?php security_key(8, 20, 2.5); ?></td>
 			</tr>
 		</table>
+		<table class="sq-backend-table" style="width: auto;">
+			<tr>
+				<td class="sq-backend-table-header">
+					Lock Type
+				</td>
+				<td class="sq-backend-table-header">
+					&nbsp;
+				</td>
+				<td class="sq-backend-table-header">
+					Other Assets in Chain
+				</td>
+			</tr>
 		<?php
-		$o->closeSection();
 
-		$o->openSection('Other Assets In This Lock Chain');
-		$o->openField('&nbsp;');
-		if (empty($lock['chained_assets'])) {
-			echo '<i>No other assets are in this lock chain.</i>';
-		} else {
-			echo '<ul>';
-			foreach ($lock['chained_assets'] as $chained_assetid => $chained_info) {
-				$chained_asset = &$this->am->getAsset($chained_assetid);
-				if (is_null($chained_asset)) {
-					trigger_error('Asset #'.$chained_assetid.' not found', E_USER_WARNING);
-					break;
-				}
-				echo '<li class="sq-backend-data">'.$chained_asset->name.'</li>';
-			}
-			echo '</ul>';
-		}
+		foreach($locks as $lock_type => $lock) {
+			if (empty($lock)) continue;
+			// if this lock is held the current user, we aren't really forcing this one
+			if ($lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserId()) continue;
+		?>
+			<tr>
+				<td class="sq-backend-table-cell">
+					<?php echo ucwords(str_replace('_', ' ', $lock_type)); ?>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+
+					// this asset is currently locked
+					// so display message to the user
+					$user    = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+					$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_assetid']);
+
+					if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+					else $now = time();
+
+					if (is_null($lock['expires'])) {
+						$expires_in = 'The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.';
+					} else {
+						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+						$expires_in = easy_time_total(($lock['expires'] - $now), true);
+						if (!$expires_in) $expires_in = '1 second';
+						$expires_in = 'The lock is due to expire in '.$expires_in;
+					}
+
+					?>
+					<p class="sq-backend-locked-by-someone-else">
+						Held by user "<?php echo $user->name; ?>" at "<?php echo $editing->name; ?>".<br>
+						<?php echo $expires_in; ?>
+					</p>
+				</td>
+				<td class="sq-backend-table-cell">
+				<?php
+					if (empty($lock['chained_assets'])) {
+						echo '<i>No other assets are in this lock chain.</i>';
+					} else {
+						echo '<ul>';
+						foreach ($lock['chained_assets'] as $chained_info) {
+							$chained_asset = &$this->am->getAsset($chained_info['assetid']);
+							if (is_null($chained_asset)) {
+								trigger_error('Asset #'.$chained_assetid.' not found', E_USER_WARNING);
+								continue;
+							}
+							echo '<li class="sq-backend-data">'.$chained_asset->name.'</li>';
+						}// end foreach
+						echo '</ul>';
+					}// end if
+				?>
+				</td>
+			</tr>
+		<?php
+		}// end foreach lock types
+		?>
+
+		</table>
+		<?php
 		$o->closeSection();
 
 		$o->openField('', 'commit');

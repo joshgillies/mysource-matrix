@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_table_cell.inc,v 1.27 2003/09/26 05:26:40 brobertson Exp $
+* $Id: bodycopy_table_cell.inc,v 1.28 2003/10/10 06:49:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -181,7 +181,7 @@ class BodyCopy_Table_Cell extends MySource_Object {
 				echo ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
 		}
-		if (!$generating && $table->writeAccess()) {
+		if (!$generating && $table->writeAccess('content')) {
 			echo ' style="border-bottom: 1px dashed #C0C0C0; border-right: 1px dashed #C0C0C0; padding: 2px; vertical-align:top;" id="'.$content_prefix.'_cell"';
 		}
 		echo ">\n";

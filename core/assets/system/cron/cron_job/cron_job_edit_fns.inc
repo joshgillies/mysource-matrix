@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: cron_job_edit_fns.inc,v 1.9 2003/09/26 05:26:27 brobertson Exp $
+* $Id: cron_job_edit_fns.inc,v 1.10 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,6 +59,8 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 			return;
 		}
 
+		$write_access = $asset->writeAccess('attributes');
+
 		$prefix .= '_when';
 
 		$one_off = ($asset->attr('type') == 'one_off');
@@ -78,7 +80,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 			for($i = 0; $i <= 6; $i++) $days[(string) $i] = Cron_Job::whenWeekDayName($i);
 		}
 		for ($i = 1; $i <= 31; $i++) $days[str_pad($i, 2, '0', STR_PAD_LEFT)] = str_pad($i, 2, '0', STR_PAD_LEFT);
-		if ($asset->writeAccess()) {
+		if ($write_access) {
 			combo_box($prefix.'_day', $days, false, $when_arr['day']);
 		} else {
 			echo $days[$when_arr['day']];
@@ -86,7 +88,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 
 		echo '&nbsp;/&nbsp;';
 
-		if ($asset->writeAccess()) {
+		if ($write_access) {
 			$months = Array('--' => '--');
 			for ($i = 1; $i <= 12; $i++) $months[str_pad($i, 2, '0', STR_PAD_LEFT)] = date('M', mktime(0,0,0,$i,1,2000));
 			combo_box($prefix.'_month', $months, false, $when_arr['month']);
@@ -96,7 +98,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 
 		if ($one_off) {
 			echo '&nbsp;/&nbsp;';
-			if ($asset->writeAccess()) {
+			if ($write_access) {
 				$years = Array('--' => '--');
 				$end_year = max($when_arr['year'], $now['year']) + 10;
 				for ($i = $now['year']; $i <= $end_year; $i++) $years[str_pad($i, 4, '0', STR_PAD_LEFT)] = str_pad($i, 4, '0', STR_PAD_LEFT);
@@ -108,7 +110,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 
 		echo '&nbsp;&nbsp;&nbsp;';
 
-		if ($asset->writeAccess()) {
+		if ($write_access) {
 			if (count($hours_mins['hours']) > 1) {
 				$hours = Array('--' => '--');
 				foreach($hours_mins['hours'] as $i) $hours[$i] = $i;
@@ -123,7 +125,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 
 		echo '&nbsp;:&nbsp;';
 
-		if ($asset->writeAccess()) {
+		if ($write_access) {
 			if (count($hours_mins['mins']) > 1) {
 				$mins = Array('--' => '--');
 				foreach($hours_mins['mins'] as $i) $mins[$i] = $i;

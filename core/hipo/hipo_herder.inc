@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_herder.inc,v 1.21 2003/10/08 00:52:17 gsherwood Exp $
+* $Id: hipo_herder.inc,v 1.22 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -706,12 +706,12 @@ if (!empty($todo_hipo)) {
 
 			}
 
-			if (!empty($_POST['sq_release_lock']) || !empty($_POST['sq_manual_release_lock'])) {
+			if (!empty($_POST['sq_lock_release']) || !empty($_POST['sq_lock_release_manual'])) {
 				$GLOBALS['SQ_SYSTEM']->releaseLock(get_class($this));
 			}
 
 			// if there is no lock currently and we want it
-			if (!empty($_POST['sq_acquire_lock'])) {
+			if (!empty($_POST['sq_lock_acquire'])) {
 				$GLOBALS['SQ_SYSTEM']->acquireLock(get_class($this));
 			}
 
@@ -749,10 +749,19 @@ if (!empty($todo_hipo)) {
 						if (!$expires_in) $expires_in = '1 second';
 						$expires_in = 'The lock is due to expire in '.$expires_in;
 
-						echo '<p class="sq-backend-locked">System Configuration is currently locked for editing by user "'.$user->name.'". <br>'.$expires_in.'.</p>';
+						?>
+						<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
+							The HIPO Herder is currently locked for editing by user "<?php echo $user->name; ?>".<br>
+							<?php echo $expires_in; ?>
+						</p>
+						<?php
 
 					} else {
-						echo '<p class="sq-backend-unlocked">The System Configuration is currently Unlocked.</p>';
+						?>
+						<p class="sq-backend-unlocked">
+							The HIPO Herder is currently Unlocked.
+						</p>
+						<?php
 					}
 					?>
 				</td>
@@ -760,10 +769,10 @@ if (!empty($todo_hipo)) {
 					<?php
 					if (!empty($lock)) {
 						if ($have_lock) {
-							submit_button('sq_manual_release_lock', 'Release Lock', 'set_hidden_field("process_form", "0");');
+							submit_button('sq_lock_release_manual', 'Release Lock', 'set_hidden_field("process_form", "0");');
 						}
 					} else {
-						submit_button('sq_acquire_lock', 'Lock', 'set_hidden_field("process_form", "0");');
+						submit_button('sq_lock_acquire', 'Lock', 'set_hidden_field("process_form", "0");');
 					}
 					?>
 				</td>

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_fns.inc,v 1.22 2003/10/03 01:18:03 gsherwood Exp $
+* $Id: asset_edit_fns.inc,v 1.23 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -26,44 +26,54 @@ class Asset_Edit_Fns extends MySource_Object
 	* @var Array()
 	*/
 	var $static_screens = Array('details'			=> Array(
-														'name' => 'Details',
-														'force_unlock' => true
+														'name'			=> 'Details',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'attributes',
 													),
 								'permissions'		=> Array(
-														'name' => 'Permissions',
-														'force_unlock' => true
+														'name'			=> 'Permissions',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'permissions',
 													),
 								'workflow'			=> Array(
-														'name' => 'Workflow',
-														'force_unlock' => false
+														'name'			=> 'Workflow',
+														'force_unlock'	=> false,
+														'lock_type'		=> 'workflow',
 													),
 								'metadataSchemas'	=> Array(
-														'name' => 'Metadata Schemas',
-														'force_unlock' => true
+														'name'			=> 'Metadata Schemas',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'metadata',
 													),
 								'metadata'			=> Array(
-														'name' => 'Metadata',
-														'force_unlock' => true
+														'name'			=> 'Metadata',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'metadata',
 													),
 								'dependants'		=> Array(
-														'name' => 'Dependants',
-														'force_unlock' => true
+														'name'			=> 'Dependants',
+														'force_unlock'	=> true,
+														'lock_type'		=> '',
 													),
 								'linking'			=> Array(
-														'name' => 'Linking',
-														'force_unlock' => true
+														'name'			=> 'Linking',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'links',
 													),
 								'settings'			=> Array(
-														'name' => 'Settings',
-														'force_unlock' => false
+														'name'			=> 'Settings',
+														'force_unlock'	=> false,
+														'lock_type'		=> 'all',
 													),
 								'history'			=> Array(
-														'name' => 'History',
-														'force_unlock' => true
+														'name'			=> 'History',
+														'force_unlock'	=> true,
+														'lock_type'		=> '',
 													),
 								'logs'				=> Array(
-														'name' => 'Logs',
-														'force_unlock' => true
+														'name'			=> 'Logs',
+														'force_unlock'	=> true,
+														'lock_type'		=> '',
 													),
 								);
 
@@ -92,7 +102,7 @@ class Asset_Edit_Fns extends MySource_Object
 	function paintPaths(&$asset, &$o, $prefix)
 	{
 
-		$wa = $asset->writeAccess();
+		$wa = $asset->writeAccess('lookups');
 
 		$paths = $asset->getWebPaths();
 

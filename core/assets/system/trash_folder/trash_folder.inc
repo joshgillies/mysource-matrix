@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: trash_folder.inc,v 1.43 2003/09/26 05:26:29 brobertson Exp $
+* $Id: trash_folder.inc,v 1.44 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -216,15 +216,16 @@ class Trash_Folder extends Folder
 	/**
 	* Returns true if the passed assetid has write access to this asset
 	*
-	* @param array		$assetids	An array of user_group and/or user ids to check for write access
-	*								If the array is empty, the current user will be checked
-	* @param boolean	$effective	effective access based on locking and status
-	* @param boolean	$editing	effective access based on live edit access
+	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
+	*							permissions set for this asset, otherwise returns effective access based on locking 
+	*							and status
+	* @param Array	$assetids	An array of user_group and/or user ids to check for write access
+	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($assetids=Array(), $effective=true, $editing=true)
+	function writeAccess($lock_type, $assetids=Array())
 	{
 		return true;
 

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_edit_fns.inc,v 1.43 2003/09/26 05:26:24 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.44 2003/10/10 06:49:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,6 +31,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		$this->Design_Area_Edit_Fns();
 		$this->static_screens['details']['force_unlock'] = false;
+		$this->static_screens['details']['lock_type']    = 'parse_file';
 
 	}//end constructor
 
@@ -47,7 +48,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintParseFile(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('parse_file')) {
 			file_upload($prefix.'_parse_file');
 		}
 
@@ -66,6 +67,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processParseFile(&$asset, &$o, $prefix)
 	{
+pre_echo("CHECK HERE");
 		$parse_file  = $asset->data_path.'/parse.txt';
 		$changes     = false;
 		$new_version = false;
@@ -126,7 +128,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintReparseFile(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			$parse_file = $asset->data_path.'/parse.txt';
 			if (!is_file($parse_file)) {
 				echo 'Not available - no existing parse file available';
@@ -170,7 +172,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintEditParseFile(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('parse_file')) {
 			$parse_file = $asset->data_path.'/parse.txt';
 			if (!is_file($parse_file)) {
 				echo 'You need to upload a parse file before you can edit it';
@@ -423,10 +425,16 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if (!$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents'])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
-			} else if (!$design_areas[$element['attributes']['id_name']]->saveAttributes()) {
+			} 
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($design_areas[$element['attributes']['id_name']]->id, 'attributes')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
+			if (!$design_areas[$element['attributes']['id_name']]->saveAttributes()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($design_areas[$element['attributes']['id_name']]->id, 'attributes');
 
 
 			// if they want this design area to be printed then what we need to do is alter the contents
@@ -604,7 +612,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintNewFiles(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('links')) return false;
 		for($i = 0; $i < 2; $i++) {
 			file_upload($prefix.'_assoc_file_'.$i);
 			echo "<br>\n";
@@ -714,13 +722,13 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
 
 		if ($new_file->create($design_link, $info)) {
-			$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id);
+			$GLOBALS['SQ_SYSTEM']->am->acquireLock($new_file->id, 'attributes');
 			$edit_fns = $new_file->getEditFns();
 			if ($edit_fns->processFileUpload($new_file, $o, $new_file->getPrefix(), $info)) {
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id);
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
 				return true;
 			}
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id);
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($new_file->id, 'attributes');
 		}
 
 		return false;
@@ -739,7 +747,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintNewCustomisation(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('links')) return false;
 		check_box($prefix.'_new_customisation');
 		text_box($prefix.'_new_customisation_name', $asset->name.' - Customisation', 40);
 
@@ -775,7 +783,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->am->rememberAsset($da);
 
 		// Acquire a lock on the new object
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dupe->id)) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dupe->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -834,7 +842,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		$am->forgetAsset($minor);
 
 		// release the lock on the new object
-		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($dupe->id)) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($dupe->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}

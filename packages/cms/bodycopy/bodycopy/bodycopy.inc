@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy.inc,v 1.28 2003/10/08 23:45:37 mmcintyre Exp $
+* $Id: bodycopy.inc,v 1.29 2003/10/10 06:49:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,6 +34,21 @@ class Bodycopy extends Asset
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
 
 
 	/**
@@ -160,7 +175,7 @@ class Bodycopy extends Asset
 		if (!$this->id) return false;
 
 		// if you dont have write access to this asset you cant create any links
-		if (!$this->writeAccess()) {
+		if (!$this->writeAccess('links')) {
 			return 'Cannot create link from '.$this->name.' (# '.$this->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied';
 		}
 

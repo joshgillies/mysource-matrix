@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.9 2003/10/08 06:06:13 gsherwood Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.10 2003/10/10 06:49:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,7 +45,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paintBackend(&$asset, $prefix)
 	{	
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('links') && $asset->writeAccess('attributes')) {
 			$nested_assetid = $asset->attr('nested_assetid');
 			$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', true);
 			if ($nested_asset->id) {

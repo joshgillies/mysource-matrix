@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_rule_type_comparison_edit_fns.inc,v 1.7 2003/09/26 06:04:13 mmcintyre Exp $
+* $Id: form_question_rule_type_comparison_edit_fns.inc,v 1.8 2003/10/10 06:49:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,6 +46,7 @@ class Form_Question_Rule_Type_Comparison_Edit_Fns extends Form_Question_Rule_Edi
 	*/
 	function paintInlineBackend(&$asset, &$o, $prefix)
 	{
+		if (!$asset->writeAccess('attributes')) return false;
 		$contents = $asset->getOperators();
 		if (empty($contents)) return false;
 

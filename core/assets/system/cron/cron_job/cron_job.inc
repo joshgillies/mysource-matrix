@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: cron_job.inc,v 1.14 2003/09/26 05:26:27 brobertson Exp $
+* $Id: cron_job.inc,v 1.15 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -136,10 +136,12 @@ class Cron_Job extends Asset
 	/**
 	* Can the current user forceably acquire the current lock on this asset?
 	*
+	* @param string		$lock_type		any valid lock type for this asset's type, 
+	*									plus 'all' which will attempt to acquire all locks that this asset has
 	* @return boolean
 	* @access public
 	*/
-	function canForceablyAcquireLock()
+	function canForceablyAcquireLock($lock_type)
 	{
 		return false;
 	}
@@ -423,8 +425,8 @@ class Cron_Job extends Asset
 		$user = &$this->getRunningUser();
 		if (!is_null($user)) {
 
-			// Now let's get the lock
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id)) {
+			// Now let's get the total lock
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'all')) {
 
 				if ($GLOBALS['SQ_SYSTEM']->setCurrentUser($user)) {
 
@@ -440,7 +442,7 @@ class Cron_Job extends Asset
 					$exec_result = SQ_CRON_JOB_ERROR | SQ_CRON_JOB_RETRY;
 				}
 
-				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
 
 			// else acquireLock failed
 			} else {

@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: flashExternalCall.js,v 1.8 2003/10/08 04:15:39 brobertson Exp $
+* $Id: flashExternalCall.js,v 1.9 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,30 +14,31 @@
 var JS_TO_FLASH_CALL_CHECKED = false;
 function jsToFlashCall(swObj, cmd, params)
 {
-	if (!JS_TO_FLASH_CALL_CHECKED) {
-		if (matches = navigator.userAgent.match(/MSIE ([0-9.]+)/i)) {
-			if (matches[1] < '6.0') {
-				alert('You need to use Internet Explorer 6.0 or above for the communication between the Asset Map and the Javascript');
-				return;
-			}
-		} else if (matches = navigator.userAgent.match(/Firebird\/([0-9.]+)/i)) {
-			if (matches[1] < '0.7') {
-				alert('You need to use Firebird 0.7 or above for the communication between the Asset Map and the Javascript');
-				return;
-			}
-
-		} else if (matches = navigator.userAgent.match(/^Mozilla\/5\.0.*rv:([^)]+)\)/i)) {
-			if (matches[1] < '1.5') {
-				alert('You need to use Mozilla 1.5 or above for the communication between the Asset Map and the Javascript');
-				return;
-			}
-		} else {
-			alert('You are using an untested browser there is no guarantee that the communication between the Asset Map and the Javascript will be successful');
-		}
-
-		JS_TO_FLASH_CALL_CHECKED = true;
-
-	}// end if
+//	if (!JS_TO_FLASH_CALL_CHECKED) {
+//		if (matches = navigator.userAgent.match(/MSIE ([0-9.]+)/i)) {
+//			if (matches[1] < '6.0') {
+//				alert('You need to use Internet Explorer 6.0 or above for the communication between the Asset Map and the Javascript');
+//				return;
+//			}
+//		} else if (matches = navigator.userAgent.match(/Firebird\/([0-9.]+)/i)) {
+//			if (matches[1] < '0.7') {
+//				alert('You need to use Firebird 0.7 or above for the communication between the Asset Map and the Javascript');
+//				return;
+//			}
+//
+//		} else if (matches = navigator.userAgent.match(/^Mozilla\/5\.0.*rv:([^)]+)\)/i)) {
+//			if (matches[1] < '1.5') {
+//				alert('You need to use Mozilla 1.5 or above for the communication between the Asset Map and the Javascript');
+//				return;
+//			}
+//		} else {
+//			alert('You are using an untested browser there is no guarantee that the communication between the Asset Map and the Javascript will be successful');
+//		}
+//
+//		JS_TO_FLASH_CALL_CHECKED = true;
+//
+//	}// end if
+//alert('OK');
 
 //	alert('js to flash calling with ' + swObj + "/" + cmd + "/" + params);
 	swObj.SetVariable('_root.external_call.cmd', cmd);

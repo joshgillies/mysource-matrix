@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_step_edit_fns.inc,v 1.7 2003/09/26 05:26:30 brobertson Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.8 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,7 +45,7 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintInlineOptionInterface(&$asset, &$o)
 	{
-		$write_access = $asset->writeAccess();
+		$write_access = ($asset->writeAccess('attributes') && $asset->writeAccess('links'));
 		$prefix = $asset->getPrefix();
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -121,7 +121,7 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 	function processInlineOptionInterface(&$asset, &$o)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('attributes') || !$asset->writeAccess('links')) return false;
 
 		$prefix = $asset->getPrefix();
 		$updated = false;

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: file_edit_fns.inc,v 1.33 2003/10/08 04:42:29 gsherwood Exp $
+* $Id: file_edit_fns.inc,v 1.34 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -76,7 +76,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			file_upload($prefix);
 		}
 		$this->_printExistingFileInfo($asset);
@@ -106,7 +106,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 
 		// assetid will not be set if we are creating
 		if (!$asset->id) return true;
@@ -258,7 +258,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			echo 'No thumbnail attached<br/>';
 		}
 
-		if ($asset->writeAccess()) asset_finder($prefix.'_thumbid', '', Array('thumbnail' => 'D'));
+		if ($asset->writeAccess('links')) asset_finder($prefix.'_thumbid', '', Array('thumbnail' => 'D'));
 
 	}//end paintThumbnail()
 
@@ -275,7 +275,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processThumbnail(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('links')) return false;
 		if (!isset($_POST[$prefix.'_thumbid'])) return false;
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_edit_fns.inc,v 1.8 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_question_edit_fns.inc,v 1.9 2003/10/10 06:49:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,8 +46,6 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintRules(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) return false;
-
 		$rules = &$asset->getRules();
 
 		if (empty($rules)) {
@@ -107,7 +105,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintAddRule(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('links')) return false;
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$links = $asset->_getAllowedLinks();

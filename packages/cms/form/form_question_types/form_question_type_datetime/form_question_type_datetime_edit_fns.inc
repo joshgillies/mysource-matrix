@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_datetime_edit_fns.inc,v 1.1 2003/09/28 22:50:00 mmcintyre Exp $
+* $Id: form_question_type_datetime_edit_fns.inc,v 1.2 2003/10/10 06:49:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,7 +46,7 @@ class Form_Question_Type_Datetime_Edit_Fns extends Form_Question_Edit_Fns
 	function paintInterface(&$asset, &$o, $prefix)
 	{
 
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 		?>
 			<table border="1" bordercolor="#ebebeb">
 			  <tr>

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: login_design.inc,v 1.20 2003/09/26 05:26:25 brobertson Exp $
+* $Id: login_design.inc,v 1.21 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -121,7 +121,7 @@ class Login_Design extends Design
 			closedir($handle);
 		}
 
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id)) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'all')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -134,12 +134,12 @@ class Login_Design extends Design
 			trigger_error('Login design failed setting public read permission', E_USER_WARNING);
 		}
 
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all');
 
 		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'file', false);
 		foreach ($file_links as $link) {
 			$file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($file->id)) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($file->id, 'permissions')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -149,7 +149,7 @@ class Login_Design extends Design
 			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($file->id, 0, SQ_PERMISSION_READ, '1')) {
 				trigger_error('Login design failed setting public read permission for file "'.$file->name.'"', E_USER_WARNING);
 			}
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($file->id);
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($file->id, 'permissions');
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($file);
 		}
 

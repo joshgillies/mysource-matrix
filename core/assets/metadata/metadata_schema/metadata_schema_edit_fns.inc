@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.9 2003/10/02 01:46:36 gsherwood Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.10 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,7 +68,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	function processNewSection(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('links')) return false;
 
 		if (isset($_POST[$prefix.'_new_section']) && trim($_POST[$prefix.'_new_section'])) {
 			$new_section_name = trim($_POST[$prefix.'_new_section']);
@@ -96,13 +96,19 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintRegenerate(&$asset, &$o, $prefix)
 	{
-		?>
-		<p class="sq-backend-data">
-			Check the box below to regenerate the metadata for all assets that have currently applied this schema
-		</p>
-		<?php
-		check_box($prefix.'_regenerate');
-		echo '&nbsp;Regenerate metadata files';
+		// need to have write access to make any changes
+		if ($asset->writeAccess('all')) {
+			?>
+			<p class="sq-backend-data">
+				Check the box below to regenerate the metadata for all assets that have currently applied this schema
+			</p>
+			<?php
+			check_box($prefix.'_regenerate');
+			echo '&nbsp;Regenerate metadata files';
+		} else {
+			echo 'Permission Denied to regenerate the metadata'; 
+
+		}
 		return true;
 
 	}//end paintRegenerate()
@@ -121,7 +127,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	function processRegenerate(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('all')) return false;
 
 		if (isset($_POST[$prefix.'_regenerate']) && $_POST[$prefix.'_regenerate']) {
 			//// START HIPO PROCESSING ////
@@ -149,7 +155,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	function paintSections(&$asset, &$o, $prefix)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		$write_access = $asset->writeAccess();
+		$write_access = $asset->writeAccess('links');
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true, false);
 		foreach ($current_links as $link_data) {
@@ -186,7 +192,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 	function processSections(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('links')) return false;
 		$updated = false;
 
 		// process current steps

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_select_edit_fns.inc,v 1.5 2003/09/28 22:58:13 mmcintyre Exp $
+* $Id: form_question_type_select_edit_fns.inc,v 1.6 2003/10/10 06:49:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,7 +45,7 @@ class Form_Question_Type_Select_Edit_Fns extends Form_Question_Edit_Fns
 	*/
 	function paintDefault(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 
 		$options = $asset->getOptions();
 		$multiple = ($asset->attr('multiple')) ? true : false;

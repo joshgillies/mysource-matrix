@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_sub_asset_listing_edit_fns.inc,v 1.4 2003/10/10 06:14:07 mmcintyre Exp $
+* $Id: page_sub_asset_listing_edit_fns.inc,v 1.5 2003/10/10 06:49:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -119,7 +119,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('content')) return false;
 		$folder = &$asset->getFolder('type_formats');
 		
 		// do a check to see if any of the bodycopies have been removed manually
@@ -309,7 +309,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintAddAssetType(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('content')) return false;
 
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 		$types = array_diff($types, $asset->attr('types'));

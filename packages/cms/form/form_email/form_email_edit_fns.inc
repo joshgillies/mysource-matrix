@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_email_edit_fns.inc,v 1.7 2003/10/03 00:09:03 brobertson Exp $
+* $Id: form_email_edit_fns.inc,v 1.8 2003/10/10 06:49:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 	function paintAddSelectiveEmailQuestion(&$asset, &$o, $prefix)
 	{
-		if(!$asset->writeAccess()) return false;
+		if(!$asset->writeAccess('attributes')) return false;
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		
@@ -83,7 +83,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 	function paintCurrentSelectiveEmails(&$asset, &$o, $prefix)
 	{
-		if(!$asset->writeAccess()) return false;
+		if(!$asset->writeAccess('attributes')) return false;
 		$questions = $asset->attr('selective_emails');
 
 		if (empty($questions)) {

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_custom_image_edit_fns.inc,v 1.8 2003/09/26 05:26:24 brobertson Exp $
+* $Id: design_area_custom_image_edit_fns.inc,v 1.9 2003/10/10 06:49:22 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ class Design_Area_Custom_Image_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintImageUpload(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 		file_upload($prefix);
 		?>
 		<div style="font-size: 7pt">

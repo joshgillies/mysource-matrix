@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_site_map_edit_fns.inc,v 1.1 2003/10/07 04:01:07 mmcintyre Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.2 2003/10/10 06:49:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintExcludeList(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 
 		$curr_list = $asset->attr('exclude_list');
 		if (empty($curr_list)) {

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: cron_job_future_status_edit_fns.inc,v 1.5 2003/09/26 05:26:27 brobertson Exp $
+* $Id: cron_job_future_status_edit_fns.inc,v 1.6 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,7 +47,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	{
 		echo 'Set Status to ';
 		$descs = $asset->_getAllStatiiDescs();
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			combo_box($prefix.'_status', $descs, false, $asset->attr('status'));
 		} else {
 			echo $descs[$asset->attr('status')];

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.61 2003/10/09 00:37:14 brobertson Exp $
+* $Id: backend.inc,v 1.62 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -164,14 +164,14 @@ class Backend extends MySource_Object
 
 			function reloadHeader() {
 				var current_assetid = '';
-				if (top.main.document && top.main.document.main_form && top.main.document.main_form.backend_assetid) {
-					current_assetid = top.main.document.main_form.backend_assetid.value;
-				}
+				var lock_type = '';
 				if (top.main && top.main.get_form_element_value) {
-					set_hidden_field('current_assetid', top.main.get_form_element_value('backend_assetid'));
+					current_assetid = top.main.get_form_element_value('backend_assetid');
+					lock_type       = top.main.get_form_element_value('sq_lock_type');
 				}
 				document.location = '<?php echo $this->getBackendUrl('header');?>'
 									+ '&current_assetid=' + current_assetid
+									+ '&sq_lock_type=' + lock_type
 									+ '&last_messages_clicked=' + last_messages_clicked;
 			}
 		</script>
@@ -207,12 +207,14 @@ class Backend extends MySource_Object
 
 
 		// refresh lock held on current page
-		if (isset($_GET['current_assetid']) && !empty($_GET['current_assetid'])) {
-			$lock = @$GLOBALS['SQ_SYSTEM']->am->getLockInfo($_GET['current_assetid']);
-			if (!empty($lock) && $lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-				$GLOBALS['SQ_SYSTEM']->am->updateLock($_GET['current_assetid']);
-			}
-		}
+		if (!empty($_GET['current_assetid']) && !empty($_GET['sq_lock_type'])) {
+			$locks = @$GLOBALS['SQ_SYSTEM']->am->getLockInfo($_GET['current_assetid'], $_GET['sq_lock_type'], true);
+			foreach($locks as $lock_type => $lock) {
+				if (!empty($lock) && $lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
+					$GLOBALS['SQ_SYSTEM']->am->updateLock($_GET['current_assetid'], $lock_type);
+				}
+			}// end foreach
+		}// end if
 
 
 		// check for any new internal messages

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.17 2003/09/26 05:26:31 brobertson Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.18 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -10,6 +10,19 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 
 /**
 * Highly Intensive Processing Object (HIPO) to edit asset permissions
+*
+* <pre>
+* Initial Running Vars :
+*    int    assetid             -  the assetid with whose children we are going to attempt to lock
+*    Array  permission_changes  -  the values that we are trying to set for our children, in the form :
+*                                  $changes = Array([perm] => Array (
+*                                                                       Array(
+*                                                                           'access'          => $access,
+*                                                                           'userid'          => $userid,
+*                                                                           'previous_access' => null,
+*                                                                      ),
+*                                                   ),
+* </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
@@ -31,6 +44,17 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	*/
 	var $_steps = Array(
 					Array(
+						'name'			=> 'Acquiring Permission Locks',
+						'hipo_job'		=> Array(
+												'init_details_function' => 'getLockAssetDetails',
+												),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
 						'name'             => 'Updating Permissions',
 						'function_call'    => Array(
 												'process_function' => 'processPermissions',
@@ -40,6 +64,17 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 						'percent_done'     => 0,
 						'complete'         => false,
 						'message'          => '',
+					),
+					Array(
+						'name'			=> 'Releasing Permission Locks',
+						'function_call'    => Array(
+												'process_function' => 'releaseLocks',
+												),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
 					),
 				);
 
@@ -91,27 +126,25 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		// to start editing permission, we need to have an asset id to start editing permission at
 		if (!isset($this->_running_vars['assetid'])) {
 			trigger_error('Cannot initialise Edit Permissions HIPO, no start asset ID specified', E_USER_WARNING);
-			return false;
+			return '';
 		}
 
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (is_null($asset)) {
 			trigger_error('Cannot initialise Edit Permissions HIPO, invalid start asset ID specified ('.$this->_running_vars['assetid'].')', E_USER_WARNING);
-			return false;
+			return '';
 		}
 
-		$this->_running_vars['done_assetids'] = Array();
 		if (empty($this->_running_vars['permission_changes'])) {
-			// no permission changes, so do nothing
-			$this->_running_vars['todo_assetids'] = Array();
-		} else {
-			// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
-			// we will be affecting out list of permission changes on
-			$child_assets = Array();
-			$child_assets = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id));
-			$this->_running_vars['todo_assetids'] = $child_assets;
+			trigger_error('Cannot initialise Edit Permissions HIPO, no permission changes specified', E_USER_WARNING);
+			return '';
 		}
+
+		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
+		// we will be affecting out list of permission changes on
+		$this->_running_vars['todo_assetids'] = array_merge(Array($asset->id), $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id));
+		$this->_running_vars['done_assetids'] = Array();
 
 		unset($asset);
 
@@ -164,7 +197,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 							$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, $perm, null, false, false, true);
 							if (!isset($current[$set_data['userid']])) {
 								continue;
-							} elseif ($current[$set_data['userid']] != $set_data['previous_access']) { 
+							} elseif ($current[$set_data['userid']] != $set_data['previous_access']) {
 								$new_access     = ($set_data['previous_access']) ? 'grant'   : 'revoke';
 								$current_access = ($set_data['previous_access']) ? 'revoked' : 'granted';
 								$this->_addError('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$asset->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'". The current permission for "'.$asset->name.'" has been retained.', true);
@@ -199,7 +232,8 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 			// add this assetid to the done array so we dont do it again
 			$this->_running_vars['done_assetids'][] = $assetid;
-		}
+
+		}// end if
 
 		if (empty($this->_running_vars['todo_assetids'])) {
 			$step_data['percent_done'] = 100;
@@ -213,6 +247,52 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		return true;
 
 	}//end processPermissions()
+
+
+	/**
+	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
+	*
+	* @param string		&$step_data			
+	* @param Array()	&$running_vars
+	* @param Array()	&$options
+	*
+	* @return void
+	* @access public
+	*/
+	function getLockAssetDetails(&$job_type, &$running_vars, &$options)
+	{
+		$job_type = 'hipo_job_acquire_lock';
+
+		$options['auto_complete'] = true;
+
+		$running_vars['assetid']         = $this->_running_vars['assetid'];
+		$running_vars['lock_type']       = 'permissions';
+		$running_vars['dependants_only'] = false;
+
+	}//end getLockAssetDetails()
+
+	/**
+	* Edit permissions for a single asset in the to-do list
+	*
+	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param string		$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function releaseLocks(&$step_data, $prefix)
+	{
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
+		if (!is_null($asset)) {
+			$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'permissions');
+			$step_data['message'] = 'Releasing Locks';
+		}
+		$step_data['percent_done'] = 100;
+		$step_data['complete']     = true;
+		return true;
+
+	}//end releaseLocks()
+
 
 }//end class
 

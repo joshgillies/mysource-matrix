@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_redirect_edit_fns.inc,v 1.6 2003/09/26 05:26:42 brobertson Exp $
+* $Id: page_redirect_edit_fns.inc,v 1.7 2003/10/10 06:49:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,7 +47,7 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 	function paintRedirectAssetid(&$asset, &$o, $prefix)
 	{
 		$redirect_asset = &$asset->getRedirectAsset();
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('links')) {
 			asset_finder($prefix.'_redirect_assetid', (is_null($redirect_asset) ? 0 : $redirect_asset->id));
 		} else {
 			if (is_null($redirect_asset)) {

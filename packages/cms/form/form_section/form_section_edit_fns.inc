@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_section_edit_fns.inc,v 1.10 2003/10/08 03:32:16 mmcintyre Exp $
+* $Id: form_section_edit_fns.inc,v 1.11 2003/10/10 06:49:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -152,7 +152,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintAddQuestions(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('links')) return false;
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$question_types = $am->getTypeDescendants('form_question');

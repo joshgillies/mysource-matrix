@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_field_edit_fns.inc,v 1.9 2003/10/09 06:44:03 dwong Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.10 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,7 +87,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	function paintValueComponents(&$asset, &$o, $prefix)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		$write_access = $asset->writeAccess();
+		$write_access = $asset->writeAccess('attributes');
 
 		if ($write_access) {
 			text_box($prefix.'_new_vc', '', 30);
@@ -153,7 +153,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	function processValueComponents(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 
 		$current_vc = $asset->attr('value_components');
 		$updated = false;
@@ -341,6 +341,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processInlineValueInterface()
 
+
 	/**
 	* Paint the interface for adjusting the weighting and/or including this in a search.
 	* @param object Metadata_Field		&$asset			the asset whose interface we are painting
@@ -356,27 +357,26 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 	{
 		$weighting = $asset->attr('weighting');
 
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			echo combo_box('weighting_include', array('0' => 'Do not include in searches', '1' => 'Include in searches'), false, ($weighting >= 0)?'1':'0');
 
-			if ($weighting >=0)
-				echo text_box('weighting', $weighting, 5);
+			if ($weighting >= 0) echo text_box('weighting', $weighting, 5);
+
 		} else {
-			if ($weighting >=0)
-				echo ($asset->attr('weighting'));
-			else
-				echo "Not included in searching.";
+			echo ($weighting >= 0) ? $weighting : "Not included in searching.";
+
 		}
+
 	}//end paintWeighting()
+
 
 	/**
 	* Paint the interface for adjusting the weighting and/or including this in a search.
 	*
 	*/
-	function processWeighting (&$asset, &$o, $write_access) 
+	function processWeighting(&$asset, &$o, $write_access) 
 	{
-		if (!isset($_POST['weighting_include']))
-			return false;
+		if (!isset($_POST['weighting_include'])) return false;
 
 		$oldWeighting = $asset->attr('weighting');
 		if($_POST['weighting_include']) {
@@ -397,6 +397,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end paintWeighting()
+
 
 	/**
 	* Check if all required fields have been completed in the values supplied

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_status_pending_approval.inc,v 1.14 2003/09/26 05:26:31 brobertson Exp $
+* $Id: asset_status_pending_approval.inc,v 1.15 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,7 +81,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 			$publishers = $wfm->whoCanPublish($this->owner->id);
 
 			// if nobody can publish we better let admins do it
-			$admin_access = $this->owner->adminAccess(Array(), false);
+			$admin_access = $this->owner->adminAccess('');
 
 			if (in_array($userid, $publishers) || $admin_access) {
 				// the current user can approve this asset to keep the workflow going

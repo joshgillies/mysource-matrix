@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: site_edit_fns.inc,v 1.34 2003/09/29 01:40:45 gsherwood Exp $
+* $Id: site_edit_fns.inc,v 1.35 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,13 +106,14 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		<?php
 
 		$urls = $asset->getSiteURLs();
+		$wa = $asset->writeAccess('lookups');
 
 		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-			$this->_paintURL($o, $prefix, $urlid, $urls[$urlid], $asset->writeAccess());
+			$this->_paintURL($o, $prefix, $urlid, $urls[$urlid], $wa);
 		}// end for
 
-		if ($asset->writeAccess()) {
-			$this->_paintURL($o, $prefix, 0, Array('url' => '', 'protocols' => Array()), true) ;
+		if ($wa) {
+			$this->_paintURL($o, $prefix, 0, Array('url' => '', 'protocols' => Array()), true);
 		}
 		?>
 		</table>
@@ -232,7 +233,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		$link = $asset->getSpecialPageLink($page_type);
 		$selected = (empty($link)) ? 0 : $link['minorid'];
 
-		if (!$asset->writeAccess()) {
+		if (!$asset->writeAccess('links')) {
 			echo '<i>';
 			if (!$selected) {
 				echo 'None';

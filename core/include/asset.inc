@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.231 2003/10/10 04:21:18 mmcintyre Exp $
+* $Id: asset.inc,v 1.232 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -220,6 +220,20 @@ class Asset extends MySource_Object
 		$this->updated        = $now;
 		$this->updated_userid = $userid;
 
+		// do this so that all calls to getAsset() get a reference to us, and don't load a new instance from the DB
+		$GLOBALS['SQ_SYSTEM']->am->rememberAsset($this);
+
+		// OK, what we need to do here is set write access for this asset to the current user so that they can actually do anything
+		// NOW normally this would require admin access but this is a very special case
+		$this->_tmp[__CLASS__.'_in_create_setting_permissions'] = true;
+		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, true)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+			$this->id = 0;
+			return false;
+		}
+		unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
+
 		// log what happened
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
@@ -230,18 +244,23 @@ class Asset extends MySource_Object
 		$message->send();
 
 		// set the attribute values that have been stored temporarily
-		if (!$this->saveAttributes(true)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
+		// Now we should probably get all the locks to this asset so that we can do what is required
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes') || !$this->saveAttributes(true)) {
 			$ms->abortLog();
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+			$this->id = 0;
 			return false;
 		}
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 
 		$this->_loadVars();
 
 		if (!$this->_updated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$ms->abortLog();
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+			$this->id = 0;
 			return false;
 		}
 
@@ -252,12 +271,13 @@ class Asset extends MySource_Object
 			if (!isset($link['dependant']))  $link['dependant']  = 0;
 			if (!isset($link['exclusive']))  $link['exclusive']  = 0;
 
-			$lock_info = @$GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id);
+			$lock_info = @$GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
 			$parent_was_locked = !empty($lock_info);
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$this->id = 0;
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, 'links')) {
 				$ms->abortLog();
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+				$this->id = 0;
 				return false;
 			}
 
@@ -265,13 +285,14 @@ class Asset extends MySource_Object
 			// asset is locked in the same chain as the parent (ie, has the same source_assetid)
 			$source_assetid = 0;
 			if ($link['dependant']) {
-				$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id);
+				$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
 				$source_assetid = $lock['source_assetid'];
 			}
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, '', $source_assetid)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$this->id = 0;
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links', $source_assetid)) {
 				$ms->abortLog();
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+				$this->id = 0;
 				return false;
 			}
 
@@ -282,41 +303,47 @@ class Asset extends MySource_Object
 			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id, 'minor');
 
 			// set permission on this asset that the parent has
+			$this->_tmp[__CLASS__.'_in_create_setting_permissions'] = true;
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
 				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($link['asset']->id, $perm, null, false, false, true);
 				foreach ($set_perms as $userid => $access) {
 					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $userid, $perm, $access)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$this->id = 0;
 						$ms->abortLog();
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+						$this->id = 0;
 						return false;
 					}
 				}
 			}
+			unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
 
 			// release locks depending on if the parent was locked before we were created
 			if (!$parent_was_locked) {
 				// parent was not locked, so unlock both the parent and us
-				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$this->id = 0;
+				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id, 'links')) {
 					$ms->abortLog();
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+					$this->id = 0;
 					return false;
 				}
 			}
 			if (!$new_link['dependant']) {
-				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$this->id = 0;
+				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links')) {
 					$ms->abortLog();
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+					$this->id = 0;
 					return false;
 				}
 			}
 
 			if (!$linkid) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$this->id = 0;
 				$ms->abortLog();
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+				$this->id = 0;
 				return false;
 			}
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -504,9 +531,9 @@ class Asset extends MySource_Object
 		$null = null; // needed because we return by reference
 		if (!$this->id) return $null;
 
-		$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id);
+		$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, 'all');
 		if (empty($lock)) {
-			trigger_error('You need to acquire a lock on this asset before it can be duplicated', E_USER_WARNING);
+			trigger_error('You need to acquire an "all" lock on this asset before it can be duplicated', E_USER_WARNING);
 			return $null;
 		}
 
@@ -548,7 +575,7 @@ class Asset extends MySource_Object
 		}
 
 		// Lock the new dupe in the same chain as we are locked
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dupe->id, '', $lock['source_assetid'])) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($dupe->id, 'all', $this->id)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return $null;
 		}
@@ -571,17 +598,17 @@ class Asset extends MySource_Object
 
 			// OK what we are going to do is make sure that the new parents lock is
 			// in the same chain as our current lock
-			$parent_lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id);
+			$parent_lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
 			if (empty($parent_lock) || $parent_lock['source_assetid'] != $lock['source_assetid']) {
 
 				if (!empty($parent_lock)) {
-					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id)) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['asset']->id, 'links')) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return $null;
 					}
 				}
 
-				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, '', $lock['source_assetid'])) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['asset']->id, 'links', $lock['source_assetid'])) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return $null;
 				}
@@ -713,7 +740,7 @@ class Asset extends MySource_Object
 		if ($release_lock) {
 			// we are about to go to the big asset manager in the sky,
 			// so we wont be needing worldly things such as locks
-			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id)) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'all')) {
 				trigger_error('Delete failed, the lock on "'.$this->name.'" could not be released', E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -772,7 +799,7 @@ class Asset extends MySource_Object
 	function useSystemVersion()
 	{
 		if (!isset($this->_tmp['use_system_version'])) {
-			$usv = (($this->status & SQ_SC_STATUS_SAFE_EDITING) && !$this->writeAccess(Array(), false));
+			$usv = (($this->status & SQ_SC_STATUS_SAFE_EDITING) && !$this->writeAccess(''));
 			if ($usv && $GLOBALS['SQ_SYSTEM']->currentUserId()) {
 				$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 				$publishers = $wfm->whoCanPublish($this->id);
@@ -1208,7 +1235,7 @@ class Asset extends MySource_Object
 	*/
 	function setForceSecure($force_secure)
 	{
-		if (!$this->adminAccess()) {
+		if (!$this->adminAccess('settings')) {
 			trigger_error('Unable to set the Force Secure flag, Permission Denied', E_USER_WARNING);
 			return false;
 		}
@@ -1579,37 +1606,62 @@ class Asset extends MySource_Object
 
 //--        LOCKING        --//
 
+	
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		return Array(
+					'settings'		=>  1,
+					'attributes'	=>  2,
+					'permissions'	=>  4,
+					'links'			=>  8,
+					'workflow'		=> 16,
+					'metadata'		=> 32,
+					'lookups'		=> 64,
+				);
+
+	}//end lockTypes()
+
 
 	/**
 	* Can the current user forceably acquire the current lock on this asset?
 	*
+	* @param string		$lock_type		any valid lock type for this asset's type, 
+	*									plus 'all' which will attempt to acquire all locks that this asset has
 	* @return boolean
 	* @access public
 	*/
-	function canForceablyAcquireLock()
+	function canForceablyAcquireLock($lock_type)
 	{
-		$current_lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id);
-		if (empty($current_lock)) return false;
+		$current_locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, true, false);
+		// lock type not known ? bugger off
+		if (empty($current_locks)) return false;
 
-		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
+		foreach($current_locks as $lock) {
+			if (empty($lock)) continue;
 
-		$can_acquire_lock = false;
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
 
-		// lets work out if the current user has a high
-		// enough level of access to forceably acquire the lock
-		if (!$GLOBALS['SQ_SYSTEM']->userRoot($user)) {
+			// lets work out if the current user has a high
+			// enough level of access to forceably acquire the lock
+			if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) return false;
+
 			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
 				// lock is held by a system admin, so need
 				// to be root to acquire this lock
-				if ($GLOBALS['SQ_SYSTEM']->userRoot()) $can_acquire_lock = true;
+				if (!$GLOBALS['SQ_SYSTEM']->userRoot()) return false;
 			} else {
 				// need to be a system admin to acquire this lock
-				if ($GLOBALS['SQ_SYSTEM']->userRoot()) $can_acquire_lock = true;
-				else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) $can_acquire_lock = true;
+				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
 			}
-		}
 
-		return $can_acquire_lock;
+		}//end foreach
+		return true;
 
 	}//end canForceablyAcquireLock()
 
@@ -1758,6 +1810,10 @@ class Asset extends MySource_Object
 	{
 		if (!$this->id) return true;
 		if (empty($this->_tmp['vars_set'])) return true;
+		if (!$this->writeAccess('attributes')) {
+			trigger_error('You do not have permission to save the edit the attributes of "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+			return false;		
+		}
 
 		$save_vars = Array();
 		$attr_ids  = Array();
@@ -2119,7 +2175,7 @@ class Asset extends MySource_Object
 
 //--        PERMISSIONS/ACCESS        --//
 
-	
+
 	/**
 	* Returns true if at least one of the passed assetids has read access to this asset
 	*
@@ -2146,7 +2202,7 @@ class Asset extends MySource_Object
 			// if we are in rollback view wmode, bypass extra write access checks or we
 			// we always be returning false here (writeAccess returns false)
 			if (SQ_ROLLBACK_VIEW) return $this->_checkPermissionAccess(SQ_PERMISSION_WRITE, $assetids);
-			return $this->writeAccess($assetids, false);
+			return $this->writeAccess('', $assetids);
 		}
 
 		return $this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids);
@@ -2157,20 +2213,21 @@ class Asset extends MySource_Object
 	/**
 	* Returns true if at least one of the passed assetids has write access to this asset
 	*
-	* @param array		$assetids	an array of user_group and/or user ids to check for write access
-	*								If the array is empty, the current user will be checked
-	* @param boolean	$effective	effective access based on locking and status
-	* @param boolean	$editing	effective access based on live edit access
+	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
+	*							permissions set for this asset, otherwise returns effective access based on locking 
+	*							and status
+	* @param Array	$assetids	An array of user_group and/or user ids to check for write access
+	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
 	* @access public
 	*/
-	function writeAccess($assetids=Array(), $effective=true, $editing=true)
+	function writeAccess($lock_type, $assetids=Array())
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id) return true;
-		if ($effective && $editing && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
-		return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids, $effective);
+		if ($lock_type == 'attributes' && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
+		return $this->checkAccess(SQ_PERMISSION_WRITE, $lock_type, $assetids);
 
 	}//end writeAccess()
 
@@ -2178,20 +2235,21 @@ class Asset extends MySource_Object
 	/**
 	* Returns true if at least one of the passed assetids has admin access to this asset
 	*
-	* @param array		$assetids	an array of user_group and/or user ids to check for write access
-	*								If the array is empty, the current user will be checked
-	* @param boolean	$effective	effective access based on locking and status
-	* @param boolean	$editing	effective access based on live edit access
+	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
+	*							permissions set for this asset, otherwise returns effective access based on locking 
+	*							and status
+	* @param array	$assetids	an array of user_group and/or user ids to check for write access
+	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
 	* @access public
 	*/
-	function adminAccess($assetids=Array(), $effective=true, $editing=true)
+	function adminAccess($lock_type, $assetids=Array())
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
-		if (!$this->id) return true;
-		if ($effective && $editing && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
-		return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids, $effective);
+		if (!$this->id || !empty($this->_tmp[__CLASS__.'_in_create_setting_permissions'])) return true;
+		if ($lock_type == 'attributes' && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
+		return $this->checkAccess(SQ_PERMISSION_ADMIN, $lock_type, $assetids);
 
 	}//end adminAccess()
 
@@ -2202,12 +2260,10 @@ class Asset extends MySource_Object
 	* user can edit the asset without going through a safe edit
 	* NOTE: will return false if asset is not currently live
 	*
-	* @param boolean	$effective	effective access based on locking and status
-	*
 	* @return boolean
 	* @access public
 	*/
-	function liveEditAccess($effective=true)
+	function liveEditAccess()
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id) return true;
@@ -2219,13 +2275,13 @@ class Asset extends MySource_Object
 		if (empty($schemas)) {
 			// no workflow set for this asset at all, so anyone with admin
 			// access can live edit the asset
-			return $this->checkAccess(SQ_PERMISSION_ADMIN, Array(), $effective);
+			return $this->checkAccess(SQ_PERMISSION_ADMIN, 'attributes');
 		}
 
 		// if there is workflow defined for this asset, the current user
 		// must be the only concerned user to be able to live edit
 		$wf_complete = $wfm->testPublish($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId());
-		if ($wf_complete) return $this->checkAccess(SQ_PERMISSION_WRITE, Array(), $effective);
+		if ($wf_complete) return $this->checkAccess(SQ_PERMISSION_WRITE, 'attributes');
 
 		return false;
 
@@ -2251,26 +2307,36 @@ class Asset extends MySource_Object
 	* Can perform effective access check based on current status, lock, workflow, and metadata
 	* NOTE: Only for write and above access
 	*
-	* @param int		$perm		the permission to check access for
-	* @param array		$assetids	An array of user_group and/or user ids to check for permission
-	*								If the array is empty, the current user will be checked
-	* @param boolean	$effective	effective access baed on locking and status
+	* @param int	$perm		the permission to check access for
+	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
+	*							permissions set for this asset, otherwise returns effective access based on locking 
+	*							and status
+	* @param array	$assetids	An array of user_group and/or user ids to check for permission
+	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
 	* @access public
 	*/
-	function checkAccess($perm, $assetids=Array(), $effective=true)
+	function checkAccess($perm, $lock_type, $assetids=Array())
 	{
 		if ($perm == SQ_PERMISSION_READ) {
 			trigger_error(__CLASS__.'::'.__FUNCTION__.' is not to be used for read access', E_USER_ERROR);
 		}
-		if ($effective) {
-			$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id);
-			// if there is no lock you can't edit
-			if (empty($lock)) return false;
+		if ($lock_type == '') {
+			return $this->_checkPermissionAccess($perm, $assetids);
 
-			// if the lock is not owned by the current user they can't edit
-			if ($lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid()) return false;
+		} else {
+
+			// effective access is only valid for the current user
+			if (!empty($assetids)) return false;
+
+			$locks = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($this->id, $lock_type, true);
+			// if there is no lock or 
+			if (empty($locks)) return false;
+			foreach($locks as $lock) {
+				// if any one of these locks is not owned by the current user they can't edit
+				if (empty($lock) || $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) return false;
+			}
 
 			// if we are in workflow no editing allowed
 			// except by those users who can currently approve the asset
@@ -2282,7 +2348,7 @@ class Asset extends MySource_Object
 					if (empty($publishers)) {
 						// nobody can publish - great
 						// better let admins take a punt
-						return $this->adminAccess($assetids, false);
+						return $this->adminAccess($lock_type);
 					}
 				}
 				return false;
@@ -2294,15 +2360,10 @@ class Asset extends MySource_Object
 			// if the asset is archived no editing allowed
 			if ($this->status & SQ_STATUS_ARCHIVED) return false;
 
-			// effective access is only valid for the current user
-			if (!empty($assetids)) return false;
-
 			// otherwise they can edit if they have permission access
 			return $this->_checkPermissionAccess($perm);
 
-		} else {
-			return $this->_checkPermissionAccess($perm, $assetids);
-		}
+		}// end if
 
 	}//end checkAccess()
 

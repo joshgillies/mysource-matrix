@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_nest_content_edit_fns.inc,v 1.4 2003/10/08 00:50:41 gsherwood Exp $
+* $Id: design_area_nest_content_edit_fns.inc,v 1.5 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ class Design_Area_Nest_Content_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintAssetid(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('links')) {
 			$type_codes = $asset->attr('type_codes');
 			$type_code_restrictions = Array();
 			if (is_array($type_codes)) {

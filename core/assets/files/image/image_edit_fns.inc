@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: image_edit_fns.inc,v 1.13 2003/09/26 05:26:26 brobertson Exp $
+* $Id: image_edit_fns.inc,v 1.14 2003/10/10 06:49:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -97,7 +97,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			file_upload($prefix);
 
 			?><br/><span style="font-size: 7pt"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><?php
@@ -121,7 +121,7 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*/
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 
 		if (empty($info)) {
 			$info = get_file_upload_info($prefix);

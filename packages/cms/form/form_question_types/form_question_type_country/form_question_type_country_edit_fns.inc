@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_type_country_edit_fns.inc,v 1.1 2003/09/28 22:47:46 mmcintyre Exp $
+* $Id: form_question_type_country_edit_fns.inc,v 1.2 2003/10/10 06:49:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,7 +46,7 @@ class Form_Question_Type_Country_Edit_Fns extends Form_Question_Type_Select_Edit
 	*/
 	function paintAvailableCountries(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('attributes')) return false;
 
 		$options = $asset->getCompleteOptions();
 		$selected_options = (count($asset->attr('available'))) ? $asset->attr('available') :  array_keys($options);

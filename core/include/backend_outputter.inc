@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend_outputter.inc,v 1.56 2003/10/06 23:35:39 brobertson Exp $
+* $Id: backend_outputter.inc,v 1.57 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -572,6 +572,7 @@ class Backend_Outputter
 		if ($this->_redirect) {
 			// save the messages so they come through on the next page
 			$_SESSION['backend_outputter_msgs'] = $this->_messages;
+			#$this->addOnLoad('if (prompt("blah", "'.addslashes($this->_redirect).'")) '.$this->_redirect_target.'.location = "'.addslashes($this->_redirect).'";');
 			$this->addOnLoad($this->_redirect_target.'.location = "'.addslashes($this->_redirect).'";');
 		}
 
@@ -971,9 +972,9 @@ class Backend_Outputter
 		$release_lock = (int) $release_lock;
 		$this->openSection(' ');
 			$this->openField('', 'commit');
-				hidden_field('sq_release_lock', 0);
-				hidden_field('sq_release_lock_on_submit', $release_lock);
-				$this->addOnSubmit('set_hidden_field(\'sq_release_lock\',  get_form_element_value(\'sq_release_lock_on_submit\'));');
+				hidden_field('sq_lock_release', 0);
+				hidden_field('sq_lock_release_on_submit', $release_lock);
+				$this->addOnSubmit('set_hidden_field(\'sq_lock_release\',  get_form_element_value(\'sq_lock_release_on_submit\'));');
 				normal_button('sq_commit_button', $value, 'submit_form()');
 			$this->closeField();
 		$this->closeSection();

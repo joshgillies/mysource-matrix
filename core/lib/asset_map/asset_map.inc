@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.82 2003/10/08 00:54:10 gsherwood Exp $
+* $Id: asset_map.inc,v 1.83 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -558,7 +558,7 @@ class Asset_Map
 					return;
 				}
 
-				if (!$parent->writeAccess(Array(), false)) {
+				if (!$parent->writeAccess('links')) {
 					$this->_error('Cannot create link, permission denied');
 					return;
 				}

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question_rule_edit_fns.inc,v 1.4 2003/09/26 06:03:46 mmcintyre Exp $
+* $Id: form_question_rule_edit_fns.inc,v 1.5 2003/10/10 06:49:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* @abstract
 	*/
-	function paintInlineBackend()
+	function paintInlineBackend(&$asset, &$o, $prefix)
 	{
 		return true;
 	}
@@ -45,7 +45,7 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* @abstract
 	*/
-	function processInlineBackend()
+	function processInlineBackend(&$asset, &$o, $prefix)
 	{
 		return true;
 	}

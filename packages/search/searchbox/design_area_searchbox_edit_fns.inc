@@ -3,7 +3,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_searchbox_edit_fns.inc,v 1.1.1.1 2003/10/08 01:20:58 dwong Exp $
+* $Id: design_area_searchbox_edit_fns.inc,v 1.2 2003/10/10 06:49:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -15,7 +15,7 @@
 * @see Design_Area_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -46,7 +46,7 @@ class Design_Area_SearchBox_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintBackendSearchPage(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			asset_finder($prefix.'_search_page', $asset->attr('search_page_assetid'), Array('search_page' => 'D'));
 		} else {
 			$search_pageid = $asset->attr('search_page_assetid');
@@ -72,10 +72,11 @@ class Design_Area_SearchBox_Edit_Fns extends Design_Area_Edit_Fns
 
 	function processBackendSearchPage(&$asset, &$o, $prefix)
 	{
-		if ($_POST[$prefix.'_search_page'] > 0)
+		if ($_POST[$prefix.'_search_page'] > 0) {
 			$asset->setAttrValue('search_page_assetid', $_POST[$prefix.'_search_page']);
-		else 
+		} else {
 			$asset->setAttrValue('search_page_assetid', 0);
+		}
 		return true;
 	} // end processBackendSearchPage
 
@@ -92,7 +93,7 @@ class Design_Area_SearchBox_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintBackendSubmitImage(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			asset_finder($prefix.'_submit_image', $asset->attr('submit_image_assetid'), Array('image' => 'D'));
 		} else {
 			$submit_imageid = $asset->attr('submit_image_assetid');
@@ -142,7 +143,7 @@ class Design_Area_SearchBox_Edit_Fns extends Design_Area_Edit_Fns
 
 	function paintSearchFieldName(&$asset, &$o, $prefix)
 	{
-		if ($asset->writeAccess()) {
+		if ($asset->writeAccess('attributes')) {
 			$search_page = $GLOBALS['SQ_SYSTEM']->am->getAsset($asset->attr('search_page_assetid'));
 			$fields = $search_page->attr('fields');
 			if (is_scalar($fields)) {
@@ -185,8 +186,7 @@ class Design_Area_SearchBox_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processSearchFieldName(&$asset, &$o, $prefix)
 	{
-		if (!isset($_POST[$prefix.'_field_name']))
-			return false;
+		if (!isset($_POST[$prefix.'_field_name'])) return false;
 
 		return $asset->setAttrValue('field_name', $_POST[$prefix.'_field_name']);
 	} // end processSearchFieldName()

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.6 2003/09/26 05:26:29 brobertson Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.7 2003/10/10 06:49:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,7 +68,7 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 	function processNewStep(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('links')) return false;
 
 		if (isset($_POST[$prefix.'_new_step']) && trim($_POST[$prefix.'_new_step'])) {
 			$new_step_name = trim($_POST[$prefix.'_new_step']);
@@ -97,7 +97,7 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 	function paintSteps(&$asset, &$o, $prefix)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
-		$write_access = $asset->writeAccess();
+		$write_access = $asset->writeAccess('links');
 
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'workflow_step', true, 'major', null, true, false);
 		$i = 1;
@@ -137,7 +137,7 @@ class Workflow_Schema_Edit_Fns extends Asset_Edit_Fns
 	function processSteps(&$asset, &$o, $prefix)
 	{
 		// need to have write access to make any changes
-		if (!$asset->writeAccess()) return false;
+		if (!$asset->writeAccess('links')) return false;
 		$updated = false;
 
 		// process current steps

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_status_approved.inc,v 1.6 2003/09/26 05:26:31 brobertson Exp $
+* $Id: asset_status_approved.inc,v 1.7 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,7 +64,7 @@ class Asset_Status_Approved extends Asset_Status
 		$statii = Array();
 
 		// cant do anything without admin access
-		if (!$this->owner->adminAccess(Array(), false)) return $statii;
+		if (!$this->owner->adminAccess('')) return $statii;
 
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$running_schemas = $wfm->getSchemas($this->owner->id, true, true);

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.131 2003/10/09 23:24:53 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.132 2003/10/10 06:49:25 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -550,7 +550,9 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param object Asset	&$obj	the asset to be registered
 	*
+	* @see forgetAsset()
 	* @access public
+	* @return void
 	*/
 	function rememberAsset(&$obj)
 	{
@@ -568,7 +570,9 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param object Asset	&$obj	the asset to be unregistered
 	*
+	* @see rememberAsset()
 	* @access public
+	* @return void
 	*/
 	function forgetAsset(&$obj)
 	{
@@ -756,92 +760,122 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Acquires a lock on an asset
 	*
-	* @param int		$assetid			the assetid of the asset that we want to lock
-	* @param string		$lock_type			the type of the lock (eg 'contents', 'permissions', etc)
-	* @param int		$source_assetid		the id of the asset that started this locking process
-	* @param boolean	$force				attempt to forcibly acquire (if allowed)
-	* @param int|NULL	$expires			when the lock expires (timestamp or NULL)
-	*										If expires is set to NULL, the lock will be acquired indefinitely (ie. it will never expire).
+	* @param int		$assetid		the assetid of the asset that we want to lock
+	* @param string		$lock_type		any valid lock type for the passed asset's type, 
+	*									plus 'all' which will attempt to acquire all locks that this asset has
+	* @param int		$source_assetid	the id of the asset that started this locking process
+	* @param boolean	$force			attempt to forcibly acquire (if allowed)
+	* @param int|NULL	$expires		when the lock expires (timestamp or NULL)
+	*									If expires is set to NULL, the lock will be acquired indefinitely (ie. it will never expire).
 	*
 	* @return boolean
 	* @access public
 	*/
-	function acquireLock($assetid, $lock_type='', $source_assetid=0, $force=false, $expires=0)
+	function acquireLock($assetid, $lock_type, $source_assetid=0, $force=false, $expires=0)
 	{
-		$current_lock = $this->getLockInfo($assetid, $lock_type, true);
-		if (!empty($current_lock) && $current_lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
-			// the user is asking to acquire a lock they already had
-			// so just update the lock expiry date
-			return $this->updateLock($assetid, $lock_type, $expires);
-		}
-
 		$asset = &$this->getAsset($assetid);
 		if (is_null($asset)) return false;
 
-		// special case where the current user is actually
-		// removing the current lock and taking it for themselves
-		if(!empty($current_lock) && $force && $asset->canForceablyAcquireLock()) {
+		$current_locks = $this->getLockInfo($assetid, $lock_type, true, true);
 
-			// attempt to remove the lock
-			if (!$this->releaseLock($assetid)) return false;
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			// send an internal message
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$ms->openQueue();
-			$ms->openLog();
+		$success = true;
 
-			$user = &$this->getAsset($current_lock['userid']);
+		$can_force = ($force) ? $asset->canForceablyAcquireLock($lock_type) : false;
 
-			$assetids = Array((int) $assetid);
-			foreach($current_lock['chained_assets'] as $row) $assetids[] = (int) preg_replace('/^asset\.([0-9]+)(\..*)?$/', '\1', $row['lockid']);
+		foreach($current_locks as $lock_type => $lock) {
 
-			foreach ($assetids as $assetid) {
-				$locked_asset = &$this->getAsset($assetid);
-
-				// create a new message object and populate it, before adding to
-				// the message queue in the internal messaging system to sending later
-				$message = $ms->newMessage();
-				$message->subject = 'Asset Lock Forceably Acquired';
-				$message->body = 'User "'.$GLOBALS['SQ_SYSTEM']->user->name.'" has forceably acquired the lock on '.$this->getTypeInfo($locked_asset->type(), 'name').' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
-				$message->to[] = $user->id;
-				$message->from = 0; // a system message
-
-				// we also need to log this message for anyone else who needs to get it
-				$log = $ms->newMessage();
-				$log->subject = $message->subject;
-				$log->body    = $message->body;
-				$log->type    = 'asset.locking';
-
-				$ms->enqueueMessage($message);
-				$ms->logMessage($log);
-
-				$this->forgetAsset($locked_asset);
+			if (!empty($lock) && $lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
+				// the user is asking to acquire a lock they already had
+				// so just update the lock expiry date
+				if ($this->updateLock($assetid, $lock_type, $expires)) {
+					continue;
+				} else {
+					$success = false;
+					break;
+				}
 			}
 
-			// close the queue of messages we opened, which sends all the messages in the queue
-			$ms->closeQueue();
-			$ms->closeLog();
+			// special case where the current user is actually
+			// removing the current lock and taking it for themselves
+			if(!empty($lock) && $can_force) {
 
-			// refresh the lock info
-			$current_lock = $this->getLockInfo($assetid, $lock_type, true);
+				// attempt to remove the lock
+				if (!$this->releaseLock($assetid, $lock_type)) {
+					$success = false;
+					break;
+				}
 
-		}// end if
+				// send an internal message
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms->openQueue();
+				$ms->openLog();
 
-		// is this asset already locked
-		if (!empty($current_lock)) {
-			$user = &$this->getAsset($current_lock['userid']);
-			trigger_error('Cannot acquire lock on "'.$asset->name.'", lock already held by "'.$user->name.'"', E_USER_NOTICE);
-			return false;
-		}
+				$user = &$this->getAsset($lock['userid']);
 
-		$lockid = 'asset.'.$assetid.(($lock_type != '') ? '.'.$lock_type : '');
-		$source_lockid = ($source_assetid) ? 'asset.'.$source_assetid.(($lock_type != '') ? '.'.$lock_type : '') : '';
-		if (true === ($err_msg = $GLOBALS['SQ_SYSTEM']->acquireLock($lockid, $source_lockid, $expires))) { 
-			return true;
+				$locked_assetids = Array((int) $assetid);
+				foreach($lock['chained_assets'] as $row) $locked_assetids[] = $row['assetid'];
+
+				foreach ($locked_assetids as $locked_assetid) {
+					$locked_asset = &$this->getAsset($locked_assetid);
+
+					// create a new message object and populate it, before adding to
+					// the message queue in the internal messaging system to sending later
+					$message = $ms->newMessage();
+					$message->subject = 'Asset Lock Forceably Acquired';
+					$message->body = 'User "'.$GLOBALS['SQ_SYSTEM']->user->name.'" has forceably acquired the lock on '.$this->getTypeInfo($locked_asset->type(), 'name').' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
+					$message->to[] = $user->id;
+					$message->from = 0; // a system message
+
+					// we also need to log this message for anyone else who needs to get it
+					$log = $ms->newMessage();
+					$log->subject = $message->subject;
+					$log->body    = $message->body;
+					$log->type    = 'asset.locking';
+
+					$ms->enqueueMessage($message);
+					$ms->logMessage($log);
+
+					$this->forgetAsset($locked_asset);
+				}
+
+				// close the queue of messages we opened, which sends all the messages in the queue
+				$ms->closeQueue();
+				$ms->closeLog();
+
+				// refresh the lock info, just in case someone has sneaked in while we are sending the message
+				$lock = $this->getLockInfo($assetid, $lock_type, false, true);
+
+			}// end if
+
+			// is this asset already locked
+			if (!empty($lock)) {
+				$user = &$this->getAsset($lock['userid']);
+				trigger_error('Cannot acquire "'.$lock_type.'" lock on "'.$asset->name.'", lock already held by "'.$user->name.'"', E_USER_NOTICE);
+				$success = false;
+				break;
+			}
+
+			$lockid = 'asset.'.$assetid.'.'.$lock_type;
+			$source_lockid = ($source_assetid) ? 'asset.'.$source_assetid.'.'.$lock_type : '';
+			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->acquireLock($lockid, $source_lockid, $expires))) { 
+				trigger_error('Cannot acquire "'.$lock_type.'" lock on "'.$asset->name.'", '.$err_msg, E_USER_NOTICE);
+				$success = false;
+				break;
+			}
+
+		}// end foreach
+
+		if ($success) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		} else {
-			trigger_error('Cannot acquire lock on "'.$asset->name.'", '.$err_msg, E_USER_NOTICE);
-			return false;
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return $success;
 
 	}//end acquireLock()
 
@@ -855,27 +889,38 @@ class Asset_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function releaseLock($assetid, $lock_type='')
+	function releaseLock($assetid, $lock_type)
 	{
-		$current_lock = $this->getLockInfo($assetid, $lock_type, false, false);
-		if (empty($current_lock)) return true;
+		$current_locks = $this->getLockInfo($assetid, $lock_type, true, false);
+		if (empty($current_locks)) return true;
 
 		$asset = &$this->getAsset($assetid);
 		if (is_null($asset)) return false;
 
-		// is this asset already locked by someone else and we can't forceably acquire it, piss off
-		if ((int) $current_lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid() && !$asset->canForceablyAcquireLock()) {
-			$user  = &$this->getAsset($current_lock['userid']);
-			trigger_error('You cannot release a lock that you do not own, the lock on "'.$asset->name.'" is held by "'.$user->name.'"', E_USER_WARNING);
-			return false;
-		}
+		$success = true;
 
-		if (true === ($err_msg = $GLOBALS['SQ_SYSTEM']->releaseLock('asset.'.$assetid.(($lock_type != '') ? '.'.$lock_type : '')))) { 
-			return true;
-		} else {
-			trigger_error('Cannot release lock on "'.$asset->name.'", '.$err_msg, E_USER_NOTICE);
-			return false;
-		}
+		$can_force = $asset->canForceablyAcquireLock($lock_type);
+
+		foreach($current_locks as $lock_type => $lock) {
+			if (empty($lock)) continue;
+
+			// is this asset already locked by someone else and we can't forceably acquire it, piss off
+			if ((int) $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid() && !$can_force) {
+				$user = &$this->getAsset($lock['userid']);
+				trigger_error('You cannot release a lock that you do not own, the "'.$lock_type.'" lock on "'.$asset->name.'" is held by "'.$user->name.'"', E_USER_WARNING);
+				$success = false;
+				continue;
+			}
+
+			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->releaseLock('asset.'.$assetid.'.'.$lock_type))) { 
+				trigger_error('Cannot release "'.$lock_type.'" lock on "'.$asset->name.'", '.$err_msg, E_USER_NOTICE);
+				$success = false;
+				continue;
+			}
+
+		}// end foreach
+
+		return $success;
 
 	}//end releaseLock()
 
@@ -894,14 +939,33 @@ class Asset_Manager extends MySource_Object
 	* @return boolean
 	* @access public
 	*/
-	function updateLock($assetid, $lock_type='', $expires=0)
+	function updateLock($assetid, $lock_type, $expires=0)
 	{
-		if (true === ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.(($lock_type != '') ? '.'.$lock_type : ''), $expires))) { 
-			return true;
+		$current_locks = $this->getLockInfo($assetid, $lock_type, true, true);
+
+		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$success = true;
+
+		foreach($current_locks as $lock_type => $lock) {
+
+			if (true !== ($err_msg = $GLOBALS['SQ_SYSTEM']->updateLock('asset.'.$assetid.$lock_type, $expires))) { 
+				trigger_error('Cannot update lock on "'.$asset->name.'", '.$err_msg, E_USER_NOTICE);
+				$success = false;
+				break;
+			}
+
+		}// end foreach
+
+		if ($success) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		} else {
-			trigger_error('Cannot update lock on "'.$asset->name.'", '.$err_msg, E_USER_NOTICE);
-			return false;
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 		}
+
+		$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
+		return $success;
 
 	}//end updateLock()
 
@@ -910,29 +974,78 @@ class Asset_Manager extends MySource_Object
 	* Returns an array of information about the current lock on this asset (if any)
 	*
 	* @param int		$assetid		the assetid of the asset that we want lock info for
-	* @param string		$lock_type		the type of the lock (eg 'contents', 'permissions', etc)
+	* @param string		$lock_type		any valid lock type for the passed asset's type, plus 'all' which will return all locks that this asset has - will force an array to be returned
+	* @param boolean	$force_array	always return the information in an array, as though more than one lock has been requested
 	* @param boolean	$full_chain		return the info for every asset in the lock chain
 	* @param boolean	$check_expires	check the expiry date and cleanup the lock if it has expired
 	*
 	* @return array
 	* @access public
 	*/
-	function getLockInfo($assetid, $lock_type='', $full_chain=false, $check_expires=true)
+	function getLockInfo($assetid, $lock_type, $force_array=false, $full_chain=false, $check_expires=true)
 	{
-		$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo('asset.'.$assetid.(($lock_type != '') ? '.'.$lock_type : ''), $full_chain, $check_expires);
-		if (!empty($lock)) {
-			$lock['source_assetid'] = (int) preg_replace('/^asset\.([0-9]+)(\..*)?$/', '\1', $lock['source_lockid']);
-			if ($full_chain) {
-				for(reset($lock['chained_assets']); NULL !== ($k = key($lock['chained_assets'])); next($lock['chained_assets'])) {
-					$lock['chained_assets'][$k]['assetid'] = (int) preg_replace('/^asset\.([0-9]+)(\..*)?$/', '\1', $lock['chained_assets'][$k]['lockid']);
-					$lock['chained_assets'][$k]['source_assetid'] = (int) preg_replace('/^asset\.([0-9]+)(\..*)?$/', '\1', $lock['chained_assets'][$k]['source_lockid']);
-				}
-			}// endif
-		}// end if
+		$lock_types = $this->getLockTypes($assetid, $lock_type);
 
-		return $lock;
+		$locks = Array();
+		foreach($lock_types as $lock_type) {
+			$lock = $GLOBALS['SQ_SYSTEM']->getLockInfo('asset.'.$assetid.'.'.$lock_type, $full_chain, $check_expires);
+			if (!empty($lock)) {
+				$lock['lock_type']      = $lock_type;
+				$lock['source_assetid'] = (int) preg_replace('/^asset\.([0-9]+)\..*$/',      '\1', $lock['source_lockid']);
+				if ($full_chain) {
+					for(reset($lock['chained_assets']); NULL !== ($k = key($lock['chained_assets'])); next($lock['chained_assets'])) {
+						$lock['chained_assets'][$k]['assetid'] = (int) preg_replace('/^asset\.([0-9]+)\..*$/', '\1', $lock['chained_assets'][$k]['lockid']);
+						$lock['chained_assets'][$k]['source_assetid'] = (int) preg_replace('/^asset\.([0-9]+)\..*$/', '\1', $lock['chained_assets'][$k]['source_lockid']);
+					}
+				}// endif
+			}// end if
+			$locks[$lock_type] = $lock;
+			unset($lock);
+		}// end foreach
+
+
+		if (!$force_array && count($locks) == 1) {
+			return reset($locks);
+		} else {
+			return $locks;
+		}
 
 	}//end getLockInfo()
+
+
+	/**
+	* Returns an array of lock types strings that the passed lock type really represents for the passed asset
+	* eg 'content' could mean 'attributes' and 'links'
+	*
+	* @param int		$assetid		the assetid of the asset that we want lock info for
+	* @param string		$lock_type		any valid lock type for the passed asset's type, plus 'all' which will return all lock types that this asset has
+	*
+	* @return array
+	* @access private
+	*/
+	function getLockTypes($assetid, $lock_type)
+	{
+		if (!isset($this->_tmp['lock_types'][$assetid])) {
+			$asset = &$this->getAsset($assetid);
+			if (is_null($asset)) return Array();
+			$this->_tmp['lock_types'][$assetid] = $asset->lockTypes();
+		}// end if
+
+		if ($lock_type != 'all') {
+			if (!isset($this->_tmp['lock_types'][$assetid][$lock_type])) return Array();
+			$bits = bit_elements($this->_tmp['lock_types'][$assetid][$lock_type]);
+			$lock_types = Array();
+			foreach($bits as $bit) {
+				if (false !== ($k = array_search($bit, $this->_tmp['lock_types'][$assetid]))) {
+					$lock_types[] = $k;
+				}
+			}
+			return $lock_types;
+		} else {
+			return array_keys($this->_tmp['lock_types'][$assetid]);
+		}
+
+	}// end getLockTypes()
 
 
 //--        LINKING        --//
@@ -1740,10 +1853,10 @@ class Asset_Manager extends MySource_Object
 
 		// to create a link we need to lock the new parent, but we need to make sure
 		// we dont unlock it if it was already locked
-		$lock_info = @$this->getLockInfo($major->id);
+		$lock_info = @$this->getLockInfo($major->id, 'links');
 		$parent_was_locked = !empty($lock_info);
-		if (!$this->acquireLock($major->id)) {
-			trigger_error('Could not create new asset link - lock not acquired on major asset "'.$major->name.'"', E_USER_WARNING);
+		if (!$this->acquireLock($major->id, 'links')) {
+			trigger_error('Could not create new asset link - "links" lock not acquired on major asset "'.$major->name.'"', E_USER_WARNING);
 			return 0;
 		}
 
@@ -2087,7 +2200,7 @@ class Asset_Manager extends MySource_Object
 
 		// release locks depending on if the parent was locked before the link
 		if (!$parent_was_locked) {
-			if (!$this->releaseLock($major->id)) {
+			if (!$this->releaseLock($major->id, 'links')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
@@ -2126,7 +2239,7 @@ class Asset_Manager extends MySource_Object
 		if (!$major->id) return false;
 
 		// if you dont have write access to this asset you cant create any links
-		if (!$GLOBALS['SQ_INSTALL'] && !$major->writeAccess(Array(), true, false)) {
+		if (!$GLOBALS['SQ_INSTALL'] && !$major->writeAccess('links')) {
 			return 'Cannot create link from '.$major->name.' (# '.$major->id.') to '.$minor->name.' (# '.$minor->id.'), permission denied (no write access to "'.$major->name.'")';
 		}
 
@@ -2270,10 +2383,10 @@ class Asset_Manager extends MySource_Object
 
 		// to delete a link we need to lock the old parent, but we need to make sure
 		// we dont unlock it if it was already locked
-		$lock_info = @$this->getLockInfo($major->id);
+		$lock_info = @$this->getLockInfo($major->id, 'links');
 		$parent_was_locked = !empty($lock_info);
-		if (!$this->acquireLock($major->id)) {
-			trigger_error('Could not delete asset link - lock not acquired on major asset "'.$major->name.'"', E_USER_WARNING);
+		if (!$this->acquireLock($major->id, 'links')) {
+			trigger_error('Could not delete asset link - "links" lock not acquired on major asset "'.$major->name.'"', E_USER_WARNING);
 			return 0;
 		}
 
@@ -2322,7 +2435,7 @@ class Asset_Manager extends MySource_Object
 				// whatever it is inheriting right now so it keeps them while in the trash
 				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
 				foreach ($perms as $perm) {
-					$all_permissions = $this->getPermission($minor->id, $perm, null, false, true, false, true);
+					$all_permissions = $this->getPermission($minor->id, $perm, null, false, false, true);
 					foreach($all_permissions as $userid => $data) {
 						if (empty($data)) continue;
 						foreach($data as $assetid => $access) {
@@ -2430,7 +2543,7 @@ class Asset_Manager extends MySource_Object
 
 		// release locks depending on if the parent was locked before the link
 		if (!$parent_was_locked) {
-			if (!$this->releaseLock($major->id)) {
+			if (!$this->releaseLock($major->id, 'links')) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -2464,7 +2577,7 @@ class Asset_Manager extends MySource_Object
 	function canDeleteLink(&$major, $linkid)
 	{
 		// if you dont have write access to the parent, you can't delete any links
-		if (!$major->writeAccess(Array(), false)) {
+		if (!$major->writeAccess('links')) {
 			return 'Cannot delete link, permission denied';
 		}
 
@@ -2512,13 +2625,13 @@ class Asset_Manager extends MySource_Object
 		}
 
 		// if you dont have write access to this asset you cant delete any links
-		if (!$old_parent->writeAccess(Array(), false)) {
+		if (!$old_parent->writeAccess('')) {
 			trigger_error('Unable to Move Asset, permission denied to old parent "'.$old_parent->name.'"', E_USER_WARNING);
 			return false;
 		}
 
 		// if you dont have write access to the new parent asset you cant create any links
-		if (!$new_parent->writeAccess(Array(), false)) {
+		if (!$new_parent->writeAccess('')) {
 			trigger_error('Unable to Move Asset, permission denied to new parent "'.$new_parent->name.'"', E_USER_WARNING);
 			return false;
 		}
@@ -2841,7 +2954,8 @@ class Asset_Manager extends MySource_Object
 
 			// return all info
 			if ($all_info) {
-				$ret_val[$data['userid']] = $data['access'];
+				if (!isset($ret_val[$data['userid']][$data['assetid']])) $ret_val[$data['userid']][$data['assetid']] = Array();
+				$ret_val[$data['userid']][$data['assetid']] = $data['access'];
 
 			// else we just want user ids
 			} else {
@@ -2890,7 +3004,7 @@ class Asset_Manager extends MySource_Object
 
 		$asset = &$this->getAsset($assetid);
 		if (is_null($asset)) return false;
-		if (!$asset->adminAccess(Array(), true, false)) {
+		if (!$asset->adminAccess('permissions')) {
 			trigger_error('Cannot set permission for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
@@ -2985,7 +3099,7 @@ class Asset_Manager extends MySource_Object
 
 		$asset = &$this->getAsset($assetid);
 		if (is_null($asset)) return false;
-		if (!$asset->adminAccess(Array(), true, false)) {
+		if (!$asset->adminAccess('permissions')) {
 			trigger_error('Cannot delete permission for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}

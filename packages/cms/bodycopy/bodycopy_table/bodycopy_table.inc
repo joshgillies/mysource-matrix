@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_table.inc,v 1.41 2003/09/26 05:26:40 brobertson Exp $
+* $Id: bodycopy_table.inc,v 1.42 2003/10/10 06:49:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,6 +36,80 @@ class Bodycopy_Table extends Asset
 		$this->Asset($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Create this asset
+	*
+	* @param array()	&$link		information used to create the initial link
+	* @param int		$num_rows	the number of rows to create
+	* @param int		$num_cols	the number of columns to create
+	*
+	* @see Asset::create()
+	* @return mixed int or false
+	* @access public
+	*/
+	function create(&$link, $num_rows=1, $num_cols=1)
+	{
+		$name = trim($this->attr('name'));
+
+		if ($name == '') {
+			trigger_error('Unable to create a BodyCopy Table with a blank name', E_USER_WARNING);
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		$linkid = parent::create($link);
+
+		if (!$linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+
+		for ($i = 0; $i < $num_rows; $i++) {
+			$rows[$i] = Array();
+			$rows[$i]['attributes'] = Array();
+			$rows[$i]['cells']		= Array();
+			for ($x = 0; $x < $num_cols; $x++) {
+				$rows[$i]['cells'][$x]	= new Bodycopy_Table_Cell();
+				// short and long names are the same to begin with
+				if (!$rows[$i]['cells'][$x]->setContentType($this, 'wysiwyg', $i, $x)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$this->id = 0;
+					return false;
+				}
+			}
+		}
+
+		// set row information
+		$this->setAttrValue('rows',$rows);
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes') || !$this->saveAttributes()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
+		}
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end create()
+
+
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
 
 
 	/**
@@ -107,64 +181,6 @@ class Bodycopy_Table extends Asset
 		return true;
 
 	}//end processStatusChange()
-
-
-	/**
-	* Create this asset
-	*
-	* @param array()	&$link		information used to create the initial link
-	* @param int		$num_rows	the number of rows to create
-	* @param int		$num_cols	the number of columns to create
-	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
-	*/
-	function create(&$link, $num_rows=1, $num_cols=1)
-	{
-		$name = trim($this->attr('name'));
-
-		if ($name == '') {
-			trigger_error('Unable to create a BodyCopy Table with a blank name', E_USER_WARNING);
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
-
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		for ($i = 0; $i < $num_rows; $i++) {
-			$rows[$i] = Array();
-			$rows[$i]['attributes'] = Array();
-			$rows[$i]['cells']		= Array();
-			for ($x = 0; $x < $num_cols; $x++) {
-				$rows[$i]['cells'][$x]	= new Bodycopy_Table_Cell();
-				// short and long names are the same to begin with
-				if (!$rows[$i]['cells'][$x]->setContentType($this, 'wysiwyg', $i, $x)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$this->id = 0;
-					return false;
-				}
-			}
-		}
-
-		// set row information
-		$this->setAttrValue('rows',$rows);
-		if (!$this->saveAttributes()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
-
-	}//end create()
 
 
 	/**
