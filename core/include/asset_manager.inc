@@ -194,13 +194,13 @@ class Asset_Manager extends Resolve_Object
 	* Returns an array representing the class hierarchy for the asset types, either for whole system
 	* or for under the the passed asset type
 	*
-	* @param string	$base_type_code		the asset type's hierarchy to return
-	* @param bool	$ignore_allowed_access
+	* @param string		$base_type_code			the asset type's hierarchy to return
+	* @param boolean	$ignore_allowed_access
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetTypeHierarchy($base_type_code='', $allowed_access='')
+	function getAssetTypeHierarchy($base_type_code='', $allowed_access=false)
 	{
 
 		if (empty($base_type_code)) $base_type_code = 'asset';
@@ -348,7 +348,6 @@ class Asset_Manager extends Resolve_Object
 		}// end if
 
 		$sql .= ' ORDER BY a.assetid';
-pre_echo($sql);
 
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
