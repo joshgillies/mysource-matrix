@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.4 2004/12/15 09:15:34 brobertson Exp $
+* $Id: tables.xml,v 1.5 2004/12/21 14:11:26 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -861,6 +861,35 @@
 				<primary_key>
 					<column name="assetid"  />
 					<column name="schemaid" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+		<table name="ast_metadata_value" require_rollback="1">
+			<columns>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="fieldid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description />
+				</column>
+				<column name="value" allow_null="0">
+					<type>TEXT</type>
+					<type_variations />
+					<default>''</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="assetid"  />
+					<column name="fieldid" />
 				</primary_key>
 			</keys>
 			<indexes />
