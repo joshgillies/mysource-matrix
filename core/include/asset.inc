@@ -2364,7 +2364,8 @@ class Asset extends Resolve_Object
 
 		$attribute = &$this->getAttribute($name);
 		if (!$attribute->setValue($value)) {
-			trigger_error("Value of attribute '$name' not set in setAttrValue()", E_USER_WARNING);
+			trigger_error('"'.$value.'" is not a valid value for attribute "'.$name.'"', E_USER_WARNING);
+			return false;
 		}
 
 		if ($this->vars[$name]['value'] == $value) return true;
