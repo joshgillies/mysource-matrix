@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.33 2004/12/08 12:57:50 brobertson Exp $
+* $Id: search_page_edit_fns.inc,v 1.34 2005/02/11 00:48:55 lwright Exp $
 *
 */
 
-require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
+require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 
 /**
 * Search_Page_Edit_Fns
@@ -30,11 +30,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-class Search_Page_Edit_Fns extends Page_Edit_Fns
+class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 {
 
 
@@ -44,7 +44,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	*/
 	function Search_Page_Edit_Fns()
 	{
-		$this->Page_Edit_Fns();
+		$this->Listing_Engine_Edit_Fns();
 		$this->static_screens['details']['lock_type'] = 'content';
 		$this->static_screens['details']['force_unlock'] = false;
 
@@ -319,7 +319,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					<td class="sq-backend-data">
 						<?php
 						if (!isset($field_data['params'])) $field_data['params'] = Array();
-						$search_types = $asset->attr('search_types');
+						$search_types = $asset->attr('types');
 						$search_type = array_get_index($field_data['params'], 'asset_type', '0');
 
 						if (!empty($search_types)) {
@@ -1278,6 +1278,21 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 	}//end processThesaurusAsset()
 
 
+	/**
+	* Get the possible 'sort by' options
+	*
+	* @return Array(string => string)
+	* @access protected
+	*/
+	function _getSortByOptions(&$asset)
+	{
+		$options = parent::_getSortByOptions($asset);
+		$options[''] = 'Relevance';
+		return $options;
+		
+	}//end _getSortByOptions()
+	
+	
 }//end class
 
 ?>

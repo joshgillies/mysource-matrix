@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.10 2005/01/24 21:52:54 gsherwood Exp $
+* $Id: asset.xml,v 1.11 2005/02/11 00:48:43 lwright Exp $
 *
 */
 -->
@@ -34,10 +34,10 @@
 	<description>Lists sub asset or children of an asset is a sortable list format or an A-Z listing</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>backend_user</allowed_access>
-	<parent_type>page</parent_type>
+	<parent_type>listing_engine</parent_type>
 	<requirements>
 		<requirement type="asset">
-			<code>page</code>
+			<code>listing_engine</code>
 			<version>0.1</version>
 		</requirement>
 	</requirements>

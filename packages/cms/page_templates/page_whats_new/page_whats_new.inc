@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.10 2005/01/17 22:01:08 gsherwood Exp $
+* $Id: page_whats_new.inc,v 1.11 2005/02/11 00:48:44 lwright Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../page_templates/page_asset_listing/page_as
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,14 +55,14 @@ class Page_Whats_New extends Page_Asset_Listing
 
 
 	/**
-	* Get the list of asset that should be printed
+	* Get the list of assets that should be printed
 	*
 	* The return array is in the form Array(assetid => type_code) unless we are grouping by letter,
 	* in which case the return array is
 	* <pre>
 	* Array(assetid => Array(
 	*						'type_code' => type_code,
-	*						'firt_letter' => first_letter,
+	*						'first_letter' => first_letter,
 	*						);
 	*		);
 	* </pre>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.21 2004/12/06 14:44:15 brobertson Exp $
+* $Id: search_page_management.inc,v 1.22 2005/02/11 00:48:55 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -51,12 +51,6 @@ class Search_Page_Management extends Asset_Management
 				'type'			=> 'serialise',
 				'default'		=> Array(),
 				'description'	=> 'Statuses that are being searched.',
-			),
-			'results_per_page' => Array (
-				'added'			=> '0.1',
-				'type'			=> 'int',
-				'default'		=> 10,
-				'description'	=> 'Default results per page when searching.',
 			),
 			'lineage_seperator' => Array (
 				'added'			=> '0.1',
@@ -129,25 +123,6 @@ class Search_Page_Management extends Asset_Management
 					'allow_empty' => false,
 				),
 			),
-			'sort_by' => Array(
-				'added'			=> '0.4',
-				'type'			=> 'selection',
-				'default'		=> '',
-				'description'	=> 'the order in which assets are sorted',
-				'parameters'	=> Array(
-					'options' => Array(
-						''				=> 'Relevance',
-						'name'			=> 'Name',
-						'short_name'	=> 'Short name',
-						'created'		=> 'Created date',
-						'updated'		=> 'Last updated date',
-						'published'		=> 'Last published date',
-						'type_code'		=> 'Asset Type',
-					),
-					'multiple' => false,
-					'allow_empty' => false,
-				),
-			),
 			'reverse_sort' => Array(
 				'added'			=> '0.4',
 				'type'			=> 'boolean',
@@ -158,6 +133,23 @@ class Search_Page_Management extends Asset_Management
 										),
 			),
 		);
+		
+		// change default sort by to a blank, which means sort
+		// by relevance score
+		$this->vars['sort_by']		= Array(
+										'added'	=> '0.1',
+										'type'	=> 'text',
+										'default' => ''
+										);
+										
+		// change default number of results per page to 10
+		$this->vars['num_per_page']	= Array(
+										'added'   => '0.1',
+										'type'    => 'int',
+										'default' => 10,
+										);
+
+		
 
 	}//end constructor
 
@@ -173,6 +165,8 @@ class Search_Page_Management extends Asset_Management
 	function _upgrade($current_version)
 	{
 		if (!parent::_upgrade($current_version)) return false;
+		
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		if ($current_version == '0.1') {
 			// version 0.1->0.2
@@ -247,13 +241,100 @@ class Search_Page_Management extends Asset_Management
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
 			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.5');
-		}//end version 0.1 upgrade
+		}//end version 0.5 upgrade
+		
+		
+		if ($current_version == '0.7') {
+			// version 0.7->0.8
+			// changed the format of the fields array
+			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.7');
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			foreach($children as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				
+				// copy over the number of results per page to the corresponding
+				// listing engine variable
+				$asset->setAttrValue('num_per_page',  $asset->attr('results_per_page'));
+				
+				// create the type and posistion formatting folders
+				$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
+				$sub_assets= Array(
+					'type_formats'     => 'folder',
+					'position_formats' => 'folder',
+				);
+
+				$type_formats = null;
+				foreach ($sub_assets as $name => $type) {
+					$sub_asset = new $type();
+					$copy_link = Array('asset' => &$asset, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		
+					$sub_asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
+					if (!$sub_asset->create($copy_link)) return false;
+		
+					if ($name == 'type_formats') $type_formats = $sub_asset;
+		
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($sub_asset);
+					unset($sub_asset);
+				}
+				
+				// NOW, convert the 'result list' formats stuff into the default
+				// type format
+				$ri_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'result_element');
+				bam($ri_link);
+				
+				$ri_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($ri_link['minorid']);
+				
+				$ri_asset->setAttrValue('name', 'Default Format');
+				$ri_asset->saveAttributes();
+				
+				$updates = Array(
+								'majorid' => $db->quote($type_formats->id),
+								'value'   => $db->quote('default_format'),
+							);
+				
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk', $updates, 'linkid = '.$db->quote($ri_link['linkid']))) {
+					trigger_error('Could not upgrade Search Page (to 0.8) - could not update link of default query', E_USER_WARNING);
+					return false;
+				}
+				
+				// now move search types if any are set
+				$types = $asset->attr('search_types');
+				if ((count($types) > 0) && !is_bool(reset($types))) {
+				
+					// search_types attribute is now listing engine's
+					// types attribute
+					$types = $asset->attr('search_types');
+				
+					// flip the types array to get typecodes as keys, then set them
+					// to inherit types (as this was what Search Manager used to do)
+					$types = array_flip($types);
+					foreach($types as $type_code => $value) {
+						$types[$type_code] = true;
+					}
+					
+					$asset->setAttrValue('types', $types);
+				
+				}
+				
+				
+				if (!$asset->saveAttributes()) {
+					trigger_errore('Search Page Upgrade [to 0.8] FAILED - Couldn\'t save attributes', E_USER_WARNING);
+					return false;
+				}
+				
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			
+			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.7');
+			
+		}//end version 0.7 upgrade
+		
 		return true;
 
 	}//end _upgrade()
 
-
+	
 	/**
 	* Return an array with information about the events that this page is listening for
 	*

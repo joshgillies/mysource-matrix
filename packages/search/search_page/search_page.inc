@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.73 2005/01/13 22:28:14 gsherwood Exp $
+* $Id: search_page.inc,v 1.74 2005/02/11 00:48:55 lwright Exp $
 *
 */
 
@@ -26,6 +26,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
 require_once SQ_FUDGE_PATH.'/general/general.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 
@@ -37,11 +38,11 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
-class Search_Page extends Page
+class Search_Page extends Listing_Engine
 {
 
 	/**
@@ -51,7 +52,6 @@ class Search_Page extends Page
 	var $bodycopies = Array (
 							'initial'			=> 'Initial Search Page Layout',
 							'results'			=> 'Results Page Layout',
-							'result_element'	=> 'Result Element Layout',
 							);
 
 	/**
@@ -82,7 +82,7 @@ class Search_Page extends Page
 											'initial_layout',
 											'category_list_linked',
 											),
-						'result_element' => Array(
+/*						'result_element' => Array(
 											'score',
 											'result_number',
 											'asset_id',
@@ -93,7 +93,7 @@ class Search_Page extends Page
 											'asset_url',
 											'asset_lineage',
 											'asset_lineage_linked',
-											),
+											),*/
 						);
 
 
@@ -106,7 +106,7 @@ class Search_Page extends Page
 	function Search_Page($assetid=0)
 	{
 		$this->_ser_attrs = true;
-		$this->Page($assetid);
+		$this->Listing_Engine($assetid);
 
 	}//end constructor
 
@@ -193,7 +193,7 @@ class Search_Page extends Page
 		// deleted is if it is the bodycopy linked to us
 		$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 
-		if ($bodycopy_link['minor_type_code'] == 'bodycopy' && !$GLOBALS['SQ_PURGING_TRASH']) return 'You can\'t delete the link between the search page and its bodycopies';
+		if ($bodycopy_link['minor_type_code'] == 'bodycopy' && in_array($bodycopy_link['value'], $this->bodycopies) && !$GLOBALS['SQ_PURGING_TRASH']) return 'You can\'t delete the link between the search page and its bodycopies';
 
 		return parent::isDeletableLink($linkid);
 
@@ -209,8 +209,8 @@ class Search_Page extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => count($this->bodycopies), 'exclusive' => true);
-		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 1, 'exclusive' => false);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 'M', 'exclusive' => true);
+		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 3, 'exclusive' => false);
 		$page_links[SQ_LINK_TYPE_3]['folder']   = Array('card' => 1, 'exclusive' => false);
 		$page_links[SQ_LINK_NOTICE]['asset']    = Array('card' => 'M', 'exclusive' => false);
 		return $page_links;
@@ -239,21 +239,6 @@ class Search_Page extends Page
 		}
 
 	}//end describeLink()
-
-
-	/**
-	* Returns a list of lock types available for this asset type
-	*
-	* @return Array()
-	* @access public
-	*/
-	function lockTypes()
-	{
-		$lock_types = parent::lockTypes();
-		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
-		return $lock_types;
-
-	}//end lockTypes()
 
 
 	/**
@@ -320,7 +305,6 @@ class Search_Page extends Page
 	* Prints the results bodycopy
 	*
 	* @access private
-	*
 	* @return void
 	*/
 	function printResultsBody()
@@ -1132,8 +1116,9 @@ class Search_Page extends Page
 		$replaces = Array();
 
 		$current_result_page = array_get_index($_REQUEST, 'current_result_page', '0');
-		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('results_per_page'));
-
+		$results_per_page    = array_get_index($_REQUEST, 'results_per_page', $this->attr('num_per_page'));
+		$this->_tmp['start_element'] = $current_result_page * $results_per_page;
+		
 		$total_pages = ceil(count($results) / $results_per_page);
 
 		$queries = '';
@@ -1146,38 +1131,36 @@ class Search_Page extends Page
 			// construct the new query string
 			$queries .= '&'.$query_string;
 		}
-
+		
+		// if we are to use the listing engine stuff then we need to change
+		// to a getAssetList() style format
+		$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($results), 'asset', false, 'type_code');
+		
+		if ($this->attr('sort_by') == '__attr__') {
+			$asset_info = $this->sortAssetList($asset_info, '__attr__');
+		}
+		
+		$this->filterAssetList($asset_info);
+		$this->_tmp['asset_info'] = $asset_info;
+		
 		foreach ($keywords as $keyword) {
-			$replacement =& $replaces[$keyword];
 			$replacement = "%$keyword%";
 
 			switch ($keyword) {
 				case 'result_list':
-					$replacement = '';
+					$result_list = Array();
 					$sub_resultids = array_slice(array_keys($results), $current_result_page * $results_per_page, $results_per_page);
-					$result_num = $current_result_page * $results_per_page;
-
-					$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
-					foreach ($sub_resultids as $assetid) {
-						$result_num++;
-
-						$element_contents = $cm->loadFromCache($this, $assetid);
-						if (empty($element_contents)) {
-							$element_replacements = $this->getResultElementBodyReplacements($assetid);
-							// make sure the bodycopy doesnt replace the dynamic keywords with blank strings
-							// or else the cached version will never have these keywords replaced properly
-							// we willbe replacing them ourselves later on
-							$element_replacements['score'] = '%score%';
-							$element_replacements['result_number'] = '%result_number%';
-							$element_contents = $this->getBodycopyContents('result_element', $element_replacements);
-							$cm->saveToCache($this, $assetid, $element_contents);
+					foreach ($asset_info as $resultid => $score) {
+						if (in_array($resultid, $sub_resultids)) {
+							$result_list[$resultid] = $results[$resultid];
 						}
-
-						$element_replacements = Array('score'         => $results[$assetid],
-													  'result_number' => $result_num
-													  );
-						$replacement .= replace_keywords($element_contents, $element_replacements);
 					}
+				
+					// print the asset list from the listing engine
+					ob_start();
+					$this->printAssetList($result_list);
+					$replacement = ob_get_contents();
+					ob_end_clean();
 				break;
 
 				case 'result_count':
@@ -1392,6 +1375,8 @@ class Search_Page extends Page
 				break;
 			}//end switch
 
+			$replaces[$keyword] = $replacement;
+			
 		}//end foreach
 
 		return $replaces;
@@ -1435,6 +1420,7 @@ class Search_Page extends Page
 		}
 
 		foreach ($keywords as $keyword) {
+			
 			$replacement =& $replaces[$keyword];
 			switch ($keyword) {
 				case 'asset_id':
@@ -1602,6 +1588,7 @@ class Search_Page extends Page
 			}
 		}
 
+		
 		return $sm->processSearch($search_info);
 
 	}//end processSearch()
@@ -1733,7 +1720,7 @@ class Search_Page extends Page
 		$search_info['sort_by']      = (isset($_REQUEST['sort_by'])) ? $_REQUEST['sort_by'] : $this->attr('sort_by');
 		$search_info['reverse_sort'] = (isset($_REQUEST['reverse_sort'])) ? $_REQUEST['reverse_sort'] : $this->attr('reverse_sort');
 
-		$search_info['search_types'] = $this->attr('search_types');
+		$search_info['search_types'] = $this->attr('types');
 		if (!empty($category) && isset($categories[$category]['search_statuses'])) {
 			$search_info['search_statuses'] = $categories[$category]['search_statuses'];
 		} else {
@@ -1753,8 +1740,8 @@ class Search_Page extends Page
 	*/
 	function getFormatFolderLink()
 	{
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'folder', true);
-		return (!empty($link)) ? $link[0] : Array();
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'folder', true, 'format_folder');
+		return (!empty($link)) ? $link : Array();
 
 	}//end getFormatFolderLink()
 
@@ -1824,6 +1811,48 @@ class Search_Page extends Page
 
 
 	/**
+	* Prints the individual asset in the asset list
+	*
+	* This is being overridden to cache the results of each asset, and add
+	* the score and result number keyword replacements
+	*
+	* Note that the second parameter is score and not type code. This is because
+	* we send the search results which is (assetid => score) instead of
+	* (assetid => type_code). It still works - and allows us to add the score
+	* keyword easily - but we turn it into the correct format when sending to
+	* the listing engine.
+	*
+	* @param string	$assetid		The assetid of the asset we are printing
+	* @param string $score			The score of the 
+	* @param string $list_position
+	*
+	* @return void
+	* @access protected
+	*/
+	function _printAsset($assetid, $score, $list_position)
+	{
+		// the $this->_tmp[] variables are set in getResultsBodyReplacements()
+		$cm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
+		$element_contents = $cm->loadFromCache($this, $assetid);
+		if (empty($element_contents)) {
+			ob_start();
+			parent::_printAsset($assetid, $this->_tmp['asset_info'][$assetid], $list_position);
+			$element_contents = ob_get_contents();
+			ob_end_clean();
+			$cm->saveToCache($this, $assetid, $element_contents);
+		}
+		
+		$element_replacements = Array('score'         => $score,
+										  'result_number' => $this->_tmp['start_element'] + $list_position
+										);
+		$element_contents = replace_keywords($element_contents, $element_replacements);
+		
+		echo $element_contents;
+		
+	}//end _printAsset()
+	
+
+	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
 	* @param &object Asset	$asset	the asset that triggered the event
@@ -1835,6 +1864,8 @@ class Search_Page extends Page
 	*/
 	function onRequestKeywords(&$broadcaster, $vars=Array())
 	{
+		$keywords = parent::onRequestKeywords($broadcaster, $vars);
+		
 		if (!isset($vars['keywords'])) return;
 		if (!is_a($broadcaster, 'content_type_wysiwyg')) return;
 
@@ -1851,7 +1882,6 @@ class Search_Page extends Page
 		}
 		if (empty($bodycopies)) return;
 
-		$keywords = Array();
 		foreach ($bodycopies as $bodycopy) {
 			if ($bodycopy == 'initial') {
 				// work out the query replacements

@@ -1,3 +1,6 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+
 <!--
 /**
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
@@ -18,16 +21,20 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.6 2005/02/11 00:48:44 lwright Exp $
+* $Id: asset.xml,v 1.1 2005/02/11 00:48:39 lwright Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="ranges"  display_name="Date Ranges"     icon="edit" lock_type="attributes" force_unlock="0" />
-	<screen code_name="formats" display_name="Display Formats" icon="web"  lock_type="links"      force_unlock="0" />
-	<screen code_name="columns" display_name="Column Layout"   icon="edit" lock_type="attributes" force_unlock="0" />
-	<screen code_name="sorting" display_name="Asset Sorting"   icon="web" lock_type="attributes" force_unlock="0" />
-	<screen code_name="paths"   display_name="Web Paths"       icon="web"  lock_type="lookups"/>
-	<screen code_name="weights" display_name="Relevance Weights" icon="web" lock_type="weights"/>
-</screens>
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+	<package>cms</package>
+	<type_code>listing_engine</type_code>
+	<version>0.1</version>
+	<name>Listing Engine Asset</name>
+	<description>Provides listing services to a range of assets previously serviced by the Asset Listing type</description>
+	<instantiable>no</instantiable>
+	<allowed_access>system</allowed_access>
+	<parent_type>page</parent_type>
+	<requirements />
+	<flash_menu_path />
+</asset_info>

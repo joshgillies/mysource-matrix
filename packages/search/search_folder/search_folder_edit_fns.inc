@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.7 2005/01/26 09:37:35 brobertson Exp $
+* $Id: search_folder_edit_fns.inc,v 1.8 2005/02/11 00:48:55 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -424,6 +424,177 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		return $asset->setAttrValue('settings', $settings);
 
 	}//end processTypes()
+
+
+	/**
+	* Paint the current asset types that have been added
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		
+		$settings = $asset->attr('settings');
+		$types = (isset($settings['types'])) ? $settings['types'] : Array(); 
+		if (empty($types)) {
+			echo 'There are no types defined';
+			return false;
+		}
+
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header">Asset Type</td>
+				<td class="sq-backend-table-header">Inherit Types</td>
+				<?php
+				if ($write_access) {
+					?>
+					<td class="sq-backend-table-header">Remove?</td>
+					<?php
+				}
+				?>
+			</tr>
+			<?php
+			foreach ($types as $type => $inherit) {
+				?>
+				<tr>
+					<td class="sq-backend-table-cell">
+						<?php
+						echo ucwords(str_replace('_',' ', $type));
+						?>
+					</td>
+					<td class="sq-backend-table-cell">
+						<?php
+						if ($write_access) {
+							check_box($prefix.'_inherit_types[]', $type, $inherit);
+						} else {
+							echo ($inherit) ? 'Yes' : 'No';
+						}
+						?>
+					</td>
+					<?php
+					if ($write_access) {
+						?>
+						<td class="sq-backend-table-cell">
+							<?php
+							check_box($prefix.'_remove[]', $type, false);
+							?>
+						</td>
+						<?php
+					}
+					?>
+				</tr>
+				<?php
+			}//end foreach $types
+			?>
+		</table>
+		<?php
+		return true;
+		
+	}//end paintCurrentAssetTypes()
+
+
+	/**
+	* Process the current asset types that have been added
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCurrentAssetTypes(&$asset, &$o, $prefix)
+	{
+		$settings = $asset->attr('settings');
+		$types = (isset($settings['types'])) ? $settings['types'] : Array();
+			
+		// we are looking to see if any types have been removed
+		$removed = array_get_index($_POST, $prefix.'_remove', Array());
+		foreach ($removed as $type) {
+			if (isset($types[$type])) {
+				unset($types[$type]);
+			}
+		}
+
+		if (!isset($_POST[$prefix.'_inherit_types'])) $_POST[$prefix.'_inherit_types'] = Array();
+		for (reset($types); null !== ($k = key($types)); next($types)) {
+			$types[$k] = (in_array($k, $_POST[$prefix.'_inherit_types'])) ? true : false;
+		}
+
+		$settings['types'] = $types;
+		return $asset->setAttrValue('settings', $settings);		
+
+	}//end processCurrentAssetTypes()
+
+
+	/**
+	* Paint section to add an asset type
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintAddAssetType(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('attributes')) return false;
+
+		$settings = $asset->attr('settings');
+		$current_types = (isset($settings['types'])) ? $settings['types'] : Array();
+		
+		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
+		$types = array_diff($types, $current_types);
+		asort($types);
+
+		$uc_types = Array('' => '');
+		foreach ($types as $type) $uc_types[$type] = ucwords(str_replace('_',' ', $type));
+		combo_box($prefix.'_new_type', $uc_types, false, '');
+
+	}//end paintAddAssetType()
+	
+	
+	/**
+	* Process the section to add a new format for an asset
+	*
+	* @param object Listing_Engine		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processAddAssetType(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess('attributes')) return false;
+
+		if (isset($_POST[$prefix.'_new_type'])) {
+		
+			$settings = $asset->attr('settings');
+			$types = (isset($settings['types'])) ? $settings['types'] : Array();
+
+			$type = trim($_POST[$prefix.'_new_type']);
+			if (empty($type)) return false;
+			if (!isset($types[$type])) {
+				$types[$type] = true;
+				$settings['types'] = $types;
+				return $asset->setAttrValue('settings', $settings);		
+			}
+		}
+		
+		
+		return false;
+
+	}//end processAddAssetType()
 
 
 }//end class

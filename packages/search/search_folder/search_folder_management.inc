@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_management.inc,v 1.4 2005/01/20 13:22:57 brobertson Exp $
+* $Id: search_folder_management.inc,v 1.5 2005/02/11 00:48:55 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -61,6 +61,67 @@ class Search_Folder_Management extends Asset_Management
 							);
 	}//end constructor
 
+	
+	/**
+	* Upgrade
+	*
+	* @param string	$current_version	the version of the asset that is currenly installed
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _upgrade($current_version)
+	{
+		if (!parent::_upgrade($current_version)) return false;
+		
+		if (version_compare($current_version, '0.2', '<=')) {
+			// version 0.2->0.3 upgrade - sees $this->attr('settings')['types']
+			// being stored differently - as Array(typecode => inherits) instead
+			// of Array(typecode) - due to search manager upgrades
+			bam('STARTING SEARCH FOLDER UPGRADE - VERSION '.$current_version.' => 0.3');
+			
+			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
+			foreach ($children as $assetid) {
+				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				$settings = $asset->attr('settings');
+				
+				// types have not been set at all?
+				if (!isset($settings['types'])) continue;
+				$types = $settings['types'];
+				
+				// types has nothing in it?
+				if (count($types) == 0) continue;
+				
+				// if the first element of types is a boolean, this is already
+				// been converted somehow
+				if (is_bool(reset($types))) continue;
+				
+				// flip the types array to get typecodes as keys, then set them
+				// to inherit types (as this was what Search Manager used to do)
+				$types = array_flip($types);
+				foreach($types as $type_code => $value) {
+					$types[$type_code] = true;
+				}
+				
+				$settings['types'] = $types;
+				$asset->setAttrValue('settings', $settings);
+				
+				if (!$asset->saveAttributes()) {
+					trigger_error('Search Folder Upgrade [to 0.3] FAILED - Couldn\'t save attributes', E_USER_WARNING);
+					return false;
+				}
+				
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			}
+			
+			bam('SEARCH FOLDER UPGRADE COMPLETE - VERSION '.$current_version.' => 0.3');
+			
+		}
+		
+		return true;
+		
+	}//end _upgrade()
+	
 
 }//end class
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.13 2005/02/11 00:48:44 lwright Exp $
+* $Id: edit_interface_screen_details.xml,v 1.1 2005/02/11 00:48:39 lwright Exp $
 *
 */
 -->
@@ -61,16 +61,6 @@
 			&lt;br/&gt;An A-Z listing displays assets grouped by the first letter of their name or short name, as defined by the 'Sort By' field.
 			&lt;br/&gt;A Random listing displays one or more assets in random order.</note>
 			<selection style="list" />
-		</field>
-		<field attribute="prev_page_text">
-			<display_name>Previous Link</display_name>
-			<note>This is the text that will be printed to link to the previous results page</note>
-			<text width="30" />
-		</field>
-		<field attribute="next_page_text">
-			<display_name>Next Link</display_name>
-			<note>This is the text that will be printed to link to the next results page</note>
-			<text width="30" />
 		</field>
 		<field>
 			<display_name>Current Asset Types</display_name>

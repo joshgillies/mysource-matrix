@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.19 2005/02/07 22:20:55 tbarrett Exp $
+* $Id: page_asset_listing_management.inc,v 1.20 2005/02/11 00:48:44 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -46,103 +46,18 @@ class Page_Asset_Listing_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars['types']		= Array(
-										'added'   => '0.1',
-										'type'    => 'serialise',
-										'default' => Array(),
-										);
-
-		$this->vars['subs_only']	= Array(
-										'added'     => '0.1',
-										'type'      => 'boolean',
-										'default'   => false,
-										'parameters' => Array(
-															'allow_empty' => false
-														),
-										);
-
-		$this->vars['direction']	= Array(
-										'added'	=> '0.6',
-										'type'	=> 'selection',
-										'parameters' => Array(
-											'options' => Array(
-												'up'	=> 'Up the tree',
-												'down'	=> 'Down the tree',
-											),
-											'multiple' => false,
-											'allow_empty' => false,
-										),
-										'default' => 'down'
-										);
-
-		$this->vars['asset_positions']	= Array(
-										'added'   => '0.9',
-										'type'    => 'serialise',
-										'default' => Array(),
-										);
-
-		$this->vars['sort_by']		= Array(
-										'added'	=> '0.0.1',
-										'type'	=> 'selection',
-										'parameters' => Array(
-											'options' => Array(
-												''				=> '-- No Sorting --',
-												'assetid'		=> 'ID',
-												'version'		=> 'Version',
-												'name'			=> 'Name',
-												'short_name'	=> 'Short Name',
-												'created'		=> 'Created Date',
-												'updated'		=> 'Last Updated Date',
-												'published'		=> 'Last Published Date',
-											),
-											'multiple' => false,
-											'allow_empty' => false,
-										),
-										'default' => ''
-										);
-
-		$this->vars['group_by']		= Array(
-										'added'	=> '0.0.1',
-										'type'	=> 'selection',
-										'parameters' => Array(
-											'options' => Array(
-												'number'		=> 'Standard',
-												'letter'		=> 'A-Z listing',
-												'random'		=> 'Random',
-											),
-											'multiple' => false,
-											'allow_empty' => false,
-										),
-										'default' => 'number'
-										);
-
-		$this->vars['reverse_sort']	= Array(
-										'added'     => '0.1',
-										'type'      => 'boolean',
-										'default'   => false,
-										'parameters' => Array(
-															'allow_empty' => false
-														),
-										);
-
-		$this->vars['num_per_page']	= Array(
-										'added'   => '0.0.1',
-										'type'    => 'int',
-										'default' => 0,
-										);
-
 		$this->vars['prev_page_text']	= Array(
-										'added'   => '0.0.1',
+										'added'   => '0.1',
 										'type'    => 'text',
 										'default' => 'Previous'
 										);
 
 		$this->vars['next_page_text']	= Array(
-										'added'   => '0.0.1',
+										'added'   => '0.1',
 										'type'    => 'text',
 										'default' => 'Next'
 										);
-
+										
 		$this->vars['parameter_map'] = Array(
 										'added'	=> '0.4',
 										'type'  => 'parameter_map',
@@ -154,50 +69,7 @@ class Page_Asset_Listing_Management extends Asset_Management
 											)
 										);
 
-		$this->vars['column_layout']	= Array(
-										'added'   => '0.7',
-										'type'    => 'serialise',
-										'default' => Array('0' => '1'),
-										);
-
 	}//end constructor
-
-
-	/**
-	* Upgrade
-	*
-	* @param string	$current_version	the version of the asset that is currenly installed
-	*
-	* @return boolean
-	* @access public
-	*/
-	function _upgrade($current_version)
-	{
-		if (!parent::_upgrade($current_version)) return false;
-
-		if ($current_version == '0.1') {
-			// this upgrade changed the attribute 'types' to include a flag to
-			// say if the type code should allow inheriting of its type descendants
-			bam('STARTING ASSET LISTING UPGRADE - VERSION 0.1');
-			$children = $GLOBALS['SQ_SYSTEM']->am->getChildren(1, $this->getAssetType(), false);
-			foreach ($children as $assetid => $type) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (is_null($asset)) continue;
-
-				$new_types = Array();
-				$current_types = $asset->attr('types');
-				foreach ($current_types as $type) $new_types[$type] = true;
-				$asset->setAttrValue('types', $new_types);
-				$asset->saveAttributes();
-
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			}
-			bam('ASSET LISTING UPGRADE COMPLETE - VERSION 0.1');
-		}//end version 0.1 upgrade
-
-		return true;
-
-	}//end _upgrade()
 
 
 	/**
