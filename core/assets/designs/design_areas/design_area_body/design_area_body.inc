@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_body.inc,v 1.13 2004/08/19 05:44:54 gsherwood Exp $
+* $Id: design_area_body.inc,v 1.13.2.1 2004/11/30 22:38:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -74,9 +74,9 @@ class Design_Area_Body extends Design_Area
 			case 'text':
 				// text - text only design - strip images, embeds and objects
 				echo '
-					$body = preg_replace(\'|\<img([^\>]*)\>|U\',\'\',$body);
-					$body = preg_replace(\'|\\<embed(.*)\>(.*)</embed>|\',\'\',$body);
-					$body = preg_replace(\'|\\<object(.*)\>(.*)</object>|\',\'\',$body);
+					$body = preg_replace(\'|\<img([^\>]*)\>|Ui\',\'\',$body);
+					$body = preg_replace(\'|\\<embed(.*)\>(.*)</embed>|i\',\'\',$body);
+					$body = preg_replace(\'|\\<object(.*)\>(.*)</object>|i\',\'\',$body);
 					';
 			break;
 		}
