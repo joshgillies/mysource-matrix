@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.18 2003/10/10 06:49:24 brobertson Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.19 2003/10/14 23:34:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -252,7 +252,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	/**
 	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
 	*
-	* @param string		&$step_data			
+	* @param string		&$job_type
 	* @param Array()	&$running_vars
 	* @param Array()	&$options
 	*
@@ -271,8 +271,9 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 	}//end getLockAssetDetails()
 
+
 	/**
-	* Edit permissions for a single asset in the to-do list
+	* Release the locks we acquired while setting the permissions
 	*
 	* @param array()	&$step_data	a reference to the array of information about the current step
 	* @param string		$prefix		prefix for form vars
