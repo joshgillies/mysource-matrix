@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.210 2004/05/20 23:15:12 lwright Exp $
+* $Id: asset_manager.inc,v 1.211 2004/05/27 00:32:24 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1070,7 +1070,7 @@ class Asset_Manager extends MySource_Object
 
 			if (!$linkid) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
+				return $null;
 			}
 
 		}//end foreach
