@@ -1,0 +1,155 @@
+
+/**
+ ***********************************************************************
+ * CALENDAR CSS RULES
+ * 
+ * The following CSS rules govern the layout of the calendar displays.
+ * Note that most of the height, width and position attributes are set
+ * in-line by the calendar and should/can not be specified here.
+ * 
+ * Note also that these rules apply in the order they are specified.
+ * When several rules apply to an element, the latest-specified rule
+ * wins if there is a conflict.
+ ***********************************************************************
+*/
+
+/** 
+ * GENERAL RULES
+ */
+.eventText { line-height: 1.0; margin: 0px 2px; text-align: center}
+
+
+/**
+ * YEAR TABLE RULES
+ * Cells in this table can be header cells or data cells.  
+ * Data cells can be completely empty, or contain a date, 
+ * or contain a date and event(s). Several of the following
+ * rules could apply to a given cell.
+ */
+table#year { border: 2px solid purple; background-color: #eeeeee }
+#year th  { border-top: 1px solid black; border-right: 1px solid black; }
+
+/* Header cells */
+#year th.monthLabel { background-color: #bbbbff; }
+#year th.monthLabel a, #year td.monthLabel a:visited, #year td.monthLabel a:hover { color: red; font-weight: bold; text-decoration: none; }
+#year th.dayLabel { background-color: #bbbbff; }
+#year th.dayLabelWeekend { background-color: #8888aa; }
+
+/* All data cells, including completely empty ones */
+#year td { text-align: center; border-top: 1px solid black; }
+
+/* Cells with dates */
+#year td.date { background-color: white; border-right: 1px solid black; }
+
+/* Weekend Cells, with or without dates */
+#year td.weekend { background-color: #aaaaaa }
+
+/* The last blank cell before the dates begin (allows us to put the left border in) */
+#year td.lastBlankCell { border-right: 1px solid black; }
+
+/* Cells with events */
+#year td.eventDate { cursor: pointer; cursor: hand; background-color: red; }
+#year td.eventDate a, #year td.eventDate a:visited, #year td.eventDate a:hover { font-color: white; font-weight: bold; text-decoration: none; } 
+
+
+
+/**
+ * MONTH TABLE RULES
+ * Cells in this table can be header cells or data cells.  
+ * Data cells can be completely empty, or contain a date, 
+ * or contain a date and event(s). Several of the following
+ * rules could apply to a given cell.
+ */
+
+table#month { border: 2px solid purple; background-color: #eeeeee }
+#month th  { border-top: 1px solid black; border-right: 1px solid black; }
+
+/* Header Cells */
+#month th.monthLabel { background-color: #bbbbff; }
+#month th.monthLabel a, #month td.monthLabel a:visited, #month td.monthLabel a:hover { font-color: red; font-weight: bold; text-decoration: none; }
+#month th.dayLabel { background-color: #bbbbff; }
+#month th.dayLabelWeekend { background-color: #8888aa; }
+
+/* All data cells, including completely empty ones */
+#month td { padding-left: 2px; text-align: left; vertical-align: top; height: 7ex; width: 10ex; border-top: 1px solid black; }
+
+/* Cells with dates */
+#month td.date { background-color: white; border-right: 1px solid black }
+
+/* Weekend Cells, with or without dates */
+#month td.weekend { background-color: #aaaaaa }
+
+/* Cells with events */
+#month td.eventDate { cursor: pointer; cursor: hand; background-color: red; }
+
+/* The last blank cell before the dates begin (allows us to put the left border in) */
+#month td.lastBlankCell { border-right: 1px solid black; }
+
+/* Linked dates at top left of cells */
+#month td.eventDate a.dateLink, #month td.eventDate a.dateLink:visited, #month td.eventDate a.dateLink:hover { color: white; font-weight: bold; text-decoration: none; } 
+
+/* Linked event names in cells (root-node-specific classes will also apply) */
+#month .event, #month a.event:visited, #month a.event:hover { display: block; font-size: 70%; font-weight: bold; text-decoration: none; }
+
+
+
+/**
+ * WEEK TABLE RULES
+ * Cells in this table can be header cells or data cells.  
+ * Data cells can contain DIVs that represent events
+ */
+
+table#week { border: 2px solid purple; background-color: #eeeeee; }
+#week td, #week th  { border-top: 1px solid black; border-right: 1px solid black; }
+#week td, #week th.timeLabel { vertical-align: top; }
+
+/* header cells */
+#week th { background-color: #dddddd }
+#week th.timeLabel { width: 6ex; }
+#week th.columnLabel { vertical-align: middle; cursor: pointer; cursor: hand }
+#week th.columnLabel a, #week th.columnLabel a:visited, #week th.columnLabel a:hover { text-decoration: none; font-weight: bold; color: red }
+
+/* Event DIVs (root-node-specific classes will also apply) */
+#week td div { border: 1px solid black; }
+
+/* Event Links (root-node-specific classes will also apply) */
+#week .event, #week a.event:visited, #week a.event:hover { text-decoration: none } 
+
+
+
+/**
+ * DAY TABLE RULES
+ * Cells in this table can be header cells or data cells.  
+ * Data cells can contain DIVs that represent events
+**/
+
+table#day { border: 2px solid purple; background-color: #eeeeee;  }
+#day td, #day th  { border-top: 1px solid black; border-right: 1px solid black; }
+#day td, #day th.timeLabel { vertical-align: top; }
+
+/* header cells */
+#day th { background-color: #dddddd }
+#day th.timeLabel { width: 6ex; }
+#day th.columnLabel { vertical-align: middle; cursor: pointer; cursor: hand }
+#day th.columnLabel a, #day th.columnLabel a:visited, #day th.columnLabel a:hover { text-decoration: none; font-weight: bold }
+
+/* Event DIVs (root-node-specific classes will also apply) */
+#day td div { border: 1px solid black; }
+
+/* Event Links (root-node-specific classes will also apply) */
+#day .event, #day a.event:visited, #day a.event:hover { text-decoration: none } 
+
+
+
+/**
+ * ROOT-NODE SPECIFIC RULES
+ * These rules will be applied to all A and DIV elements that represent
+ * events drawn from the relevant root nodes
+ * If you want these to be view-specific you can define them for each of the
+ * #year, #month, #week, #day IDs
+ */
+.special { color: fuchsia; background-color: yellow }
+.mine { color: lime; background-color: blue }
+
+
+

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.3 2004/08/18 07:07:18 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.4 2004/08/19 06:56:28 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -63,17 +63,21 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function paintRootNodes(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		
-		?><table class="sq-backend-table"><?php
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header">Location to draw events from</td>
+				<td class="sq-backend-table-header">CSS Class to apply to the events' display</td>
+			</tr>
+		<?php
 		$locations = $asset->attr('root_nodes');
 		$location_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($locations));
 		$l = 1;
 		
-		foreach (array_keys($locations) as $location) {
+		foreach ($locations as $location => $details) {
 			?>
 			<tr>
-				<td class="sq-backend-table-cell"><?php echo ($l == 1) ? '<b>Root Node(s)</b>' : ''; ?></td>
-				<td class="sq-backend-table-cell" colspan="3">
+				<td class="sq-backend-table-cell">
 				<?php
 					if ($write_access) {
 						asset_finder($prefix.'_root_nodes['.$l.']', $location);
@@ -82,17 +86,26 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 					}
 				?>
 				</td>
+
+				<td class="sq-backend-table-cell">
+				<?php
+					if ($write_access) {
+						text_box($prefix.'_node_classes['.$l.']', $details['class_name']);
+					} else {
+						echo $details['class_name'];
+					}
+				?>
+				</td>
 			</tr>
 			<?php
 			$l++;
-			
 		}//end foreach
 				
 		if ($write_access) {
 			?>
 			<tr>
-				<td class="sq-backend-table-cell"><b>New Root Node?</b></td>
-				<td class="sq-backend-table-cell" colspan="3"><?php asset_finder($prefix.'_root_nodes['.$l.']', 0); ?></td>
+				<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_root_nodes['.$l.']', 0); ?></td>
+				<td class="sq-backend-table-cell"><?php text_box($prefix.'_node_classes['.$l.']', $details['class_name']); ?></td>
 			</tr>
 			<?php
 		}
@@ -115,10 +128,10 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		if (isset($_POST[$prefix.'_root_nodes'])) {
 			$locations = Array();
-			foreach ($_POST[$prefix.'_root_nodes'] as $loc) {
-				$locid = $loc['assetid'];
-				if (!$locid) continue;
-				$locations[$locid] = Array();
+			foreach ($_POST[$prefix.'_root_nodes'] as $index => $loc) {
+				if ($locid = $loc['assetid']) {
+					$locations[$locid] = isset($_POST[$prefix.'_node_classes'][$index]) ? Array('class_name' => $_POST[$prefix.'_node_classes'][$index]) : Array('class_name' => '');
+				}
 			}
 			return $asset->setAttrValue('root_nodes', $locations);
 		} else {
@@ -412,6 +425,44 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}
 	}//end processWeekDays()
 
+
+	/**
+	* Paint the explanation of the CSS implementation and link to the CSS
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLookAndFeel(&$asset, &$o, $prefix)
+	{
+		?>
+		<p style="width: 80ex; margin-left: 15ex">The Calendar Page has a default CSS file that controls the look and feel of the Calendar views.  A link to this CSS file is automatically 
+		inserted into the head of the generated HTML document.</p>
+
+		<p style="width: 80ex; margin-left: 15ex">If you want to customise some or all of the style rules you can <a href="<?php echo sq_web_path('data')?>/asset_types/page_calendar/css/calendar_default.css">download the default CSS file</a> and modify it.  Put a link to your modified version in the parse file of
+		the design that applies to this page, <i>after</i> the "head" design area tag.</p>
+		<?php
+
+	}
+	
+	
+	/**
+	* Does nothing
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLookAndFeel(&$asset, &$o, $prefix)
+	{
+		return true;
+	}
 	
 }//end class
 

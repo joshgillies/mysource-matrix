@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2004/08/18 07:07:18 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2004/08/19 06:56:28 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -46,7 +46,7 @@
 			</function_call>
 		</field>
 	</section>
-	<section name="Views Chooser" write_access="write:attributes">
+	<section name="Overall View Settings" write_access="write:attributes">
 		<field>
 			<display_name>Enabled Views</display_name>
 			<note />
@@ -63,23 +63,25 @@
 				<process_function name="processInitialView" />
 			</function_call>
 		</field>
-	</section>
-	<section name="Week Settings" write_access="write:attributes">
 		<field attribute="week_starts_on">
 			<display_name>Day to show first in week</display_name> 
-			<note>Applies to all views</note>
+			<note />
 			<selection /> 
 		</field>
+	</section>
+
+	<section name="Settings for Week View" write_access="write:attributes">
 		<field>
 			<display_name>Days to include in week</display_name> 
-			<note>Applies to week view only</note>
+			<note />
 			<function_call>
 				<paint_function	name="paintWeekDays" />
 				<process_function name="processWeekDays" />
 			</function_call>
 		</field>
 	</section>
-	<section name="Day Settings" write_access="write:attributes">
+
+	<section name="Settings for Week and Day Views" write_access="write:attributes">
 		<field>
 			<display_name>Day start time</display_name>
 			<note />
@@ -97,24 +99,38 @@
 			</function_call>
 		</field>
 		<field attribute="day_partition_time">
-			<display_name>Length of Partitions within days</display_name> 
-			<note></note>
+			<display_name>Duration of Day Partitions</display_name> 
+			<note />
 			<selection /> 
 		</field>
 		<field attribute="day_partition_height">
-			<display_name>Height of Day Partition Entries (ex)</display_name>
+			<display_name>Height of Day Partitions (ex)</display_name>
 			<note></note>
 			<float width="6" />
 		</field>
 		<field attribute="table_column_width">
-			<display_name>Width of columns in tables (ex)</display_name>
-			<note>Applies to week and day displays</note>
+			<display_name>Width of columns (ex)</display_name>
+			<note />
 			<float width="6" />
 		</field>
+	</section>
+
+	<section name="Settings for Day View" write_access="write:attributes">
 		<field attribute="columnise_day_view_by_root_node">
 			<display_name>Columnise by root node</display_name> 
 			<note>Whether to put entries in the day view into columns according to their root node</note>
 			<boolean />
+		</field>
+	</section>
+
+	<section name="Look and Feel">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function	name="paintLookAndFeel" />
+				<process_function name="processLookAndFeel" />
+			</function_call>
 		</field>
 	</section>
 </contents>

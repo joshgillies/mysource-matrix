@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.11 2004/08/18 07:07:18 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.12 2004/08/19 06:56:28 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.11 $ - 1.0
+* @version $Revision: 1.12 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -83,6 +83,17 @@ class Page_Calendar extends Page_Asset_Listing
 
 	}//end Page_Calendar()
 
+
+	/**
+	* Called by the design to print the head of this asset
+	* 
+	* @return boolean
+	* @access public
+	*/
+	function printHead()
+	{
+		echo '<link rel="stylesheet" type="text/css" href="' . sq_web_path('data').'/asset_types/page_calendar/css/calendar_default.css" />';
+	}
 
 	/**
 	* Called by the design to print the body of this asset
@@ -144,7 +155,7 @@ class Page_Calendar extends Page_Asset_Listing
 			<tr>
 				<th class="dayLabel" style="width: 6ex">&nbsp;</th>
 		<?php
-		for ($i = $week_start_day; $i < $week_start_day + 37; $i++) {
+		for ($i = $week_start_day; $i < $week_start_day + 36; $i++) {
 			?>
 				<th class="dayLabel<?php echo (($i%7)==0 || ($i%7)==6) ? ' dayLabelWeekend' : ''; ?>" style="width: 3ex; text-align: center"><b><?php echo $this->day_names_very_short[$i % 7]; ?></b></th>
 			<?php
@@ -159,7 +170,7 @@ class Page_Calendar extends Page_Asset_Listing
 				<?php
 					// print the month name, linked to month view if it's available
 					if ($enabled_views['month']) {
-						echo '<a href="'.$this->getHref().'SQ_CALENDAR_VIEW=month&SQ_CALENDAR_DATE='.$year.'-'.sprintf('%02d', $current_month).'-01">';
+						echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=month&SQ_CALENDAR_DATE='.$year.'-'.sprintf('%02d', $current_month).'-01">';
 					}
 					echo $this->month_names_short[$current_month];
 					if ($enabled_views['month']) {
@@ -170,23 +181,30 @@ class Page_Calendar extends Page_Asset_Listing
 
 			<?php
 			// print blank days of week before the day our month starts on
-			$blank_days = (date('w', strtotime("$year-".sprintf('%02d', $current_month).'-01')) + 7 - $week_start_day) % 7;
-			for ($i = 0; $i < $blank_days; $i++) {
-			?>
-				<td class="dateNull<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' dateNullWeekend' : ''; ?>">&nbsp;</td>
-			<?php
+			$i=0;
+			if ($blank_days = (date('w', strtotime("$year-".sprintf('%02d', $current_month).'-01')) + 7 - $week_start_day) % 7) {
+				for ($i = 0; $i < ($blank_days-1); $i++) {
+				?>
+					<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?> ">&nbsp;</td>
+				<?php
+				}
+				?>
+					<td class="lastBlankCell <?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
+				<?php
+					$i++;
 			}
 
 			// print the days of the month
 			for ($current_day = 1; $current_day < days_in_month($current_month, $year); $current_day++) {
 				$i++;
 				$occupied = (bool)(rand(0,100) < 5); // GET DATA FROM DB HERE
-				$weekend_class = in_array(date('D', strtotime("$year-$current_month-$current_day")), Array('Sat', 'Sun')) ? 'dateWeekend' : '';
-				$occupied_class = ($occupied) ? 'dateOccupied' : 'dateEmpty';
+				$class = 'date';
+				if (in_array(date('D', strtotime("$year-$current_month-$current_day")), Array('Sat', 'Sun')))  $class .= ' weekend';
+				if ($occupied) $class .= ' eventDate';
 				$onclick = $occupied ? 'clickChild(this)' : '';
-				echo '<td onclick="'.$onclick.'" class="'.$occupied_class.' '.$weekend_class.' date">';
+				echo '<td onclick="'.$onclick.'" class="'.$class.'">';
 
-				if ($occupied) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view."&SQ_CALENDAR_DATE=$year-".sprintf('%02d', $current_month).'-'.sprintf('%02d', $current_day).'">';
+				if ($occupied) echo '<a  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view."&SQ_CALENDAR_DATE=$year-".sprintf('%02d', $current_month).'-'.sprintf('%02d', $current_day).'">';
 				echo $current_day;
 				if ($occupied) echo '</a>';
 				echo '</td>';
@@ -194,11 +212,11 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 
 			// print blank days after the end of our month
-			while ($i < 37) {
+			while ($i < 36) {
 			?>
-				<td class="dateNull<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' dateNullWeekend' : ''; ?>">&nbsp</td>
+				<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp</td>
 			<?php
-			$i++;
+				$i++;
 			}
 
 			?>
@@ -223,6 +241,8 @@ class Page_Calendar extends Page_Asset_Listing
 		list($year, $month, $day) = explode('-', $date);
 		echo "<h2>Month View for $date</h2>";
 		$week_start_day = $this->attr('week_starts_on');
+		$root_nodes = $this->attr('root_nodes');
+		$root_node_keys = array_keys($root_nodes);
 		$week_length = 7;
 		$month_length = days_in_month($month, $year);
 		$current_day = 1;
@@ -249,23 +269,30 @@ class Page_Calendar extends Page_Asset_Listing
 		<?php
 
 		// print blank days if necessrary
-		$blank_days = (date('w', strtotime("$year-".sprintf('%02d', $month).'-01')) + 7 - $week_start_day) % 7;
-		for ($i = 0; $i < $blank_days; $i++) {
-		?>
-				<td class="dateNull<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' dateNullWeekend' : ''; ?>">&nbsp;</td>
-		<?php
+		$i = 0;
+		if ($blank_days = (date('w', strtotime("$year-".sprintf('%02d', $month).'-01')) + 7 - $week_start_day) % 7) {
+			for ($i = 0; $i < $blank_days-1; $i++) {
+			?>
+					<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
+			<?php
+			}
+			?>
+				<td class="lastBlankCell <?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
+			<?php
+			$i++;
 		}
 		
 		// print the rest of the first week
 		while ($i < $week_length) {
-			$occupied = (bool)(rand(0,100) < 5); // GET DATA FROM DB HERE
-			$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'dateWeekend' : '';
-			$occupied_class = ($occupied) ? 'dateOccupied' : 'dateEmpty';
-			$onclick = $occupied ? 'clickChild(this)' : '';
-			echo '<td onclick="'.$onclick.'" class="'.$occupied_class.' '.$weekend_class.' date">';
-			if ($occupied && $drill_down_view) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
+			$contents = $this->_getRandomMonthEvent();
+			$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
+			$occupied_class = ($contents) ? 'eventDate' : '';
+			$onclick = $contents ? 'clickChild(this)' : '';
+			echo '<td onclick="'.$onclick.'" class="date '.$occupied_class.' '.$weekend_class.'">';
+			if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
 			echo $current_day;
-			if ($occupied && $drill_down_view) echo '</a>';
+			if ($contents && $drill_down_view) echo '</a><br />';
+			echo $contents;
 			echo '</td>';
 			$current_day++;
 			$i++;
@@ -278,20 +305,19 @@ class Page_Calendar extends Page_Asset_Listing
 		for ($w = 0; $w < $num_full_weeks; $w++) {
 			echo '<tr>';
 			for ($i=0; $i < $week_length; $i++) {
-				$occupied = (bool)(rand(0,100) < 5); // GET DATA FROM DB HERE
-				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'dateWeekend' : '';
-				$occupied_class = ($occupied) ? 'dateOccupied' : 'dateEmpty';
-				$onclick = $occupied ? 'clickChild(this)' : '';
-				echo '<td onclick="'.$onclick.'" class="'.$occupied_class.' '.$weekend_class.' date">';
-				if ($occupied && $drill_down_view) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
+				$contents = $this->_getRandomMonthEvent();
+				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
+				$occupied_class = ($contents) ? 'eventDate' : '';
+				$onclick = $contents ? 'clickChild(this)' : '';
+				echo '<td onclick="'.$onclick.'" class="date '.$occupied_class.' '.$weekend_class.'">';
+				if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
 				echo $current_day;
-				if ($occupied && $drill_down_view) echo '</a>';
+				if ($contents && $drill_down_view) echo '</a><br />';
+				echo $contents;
 				echo '</td>';
 				$current_day++;
 			}
 			echo '</tr>';
-			echo '<!-- end of normal weeks -!>';
-
 		}
 
 		// print the final week, if necessary
@@ -299,15 +325,16 @@ class Page_Calendar extends Page_Asset_Listing
 			$i = 0;
 			echo '<tr>';
 			while ($current_day <= $month_length) {
-				$occupied = (bool)(rand(0,100) < 5); // GET DATA FROM DB HERE
-				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'dateWeekend' : '';
-				$occupied_class = ($occupied) ? 'dateOccupied' : 'dateEmpty';
-				$onclick = $occupied ? 'clickChild(this)' : '';
+				$contents = $this->_getRandomMonthEvent();
+				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
+				$occupied_class = ($contents) ? 'eventDate' : '';
+				$onclick = $contents ? 'clickChild(this)' : '';
 				echo '<td onclick="'.$onclick.'" class="'.$occupied_class.' '.$weekend_class.' date">';
-				if ($occupied && $drill_down_view) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
+				if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&SQ_CALENDAR_DATE='.$year.'-'.$month.'-'.sprintf('%02d', $current_day).'">';
 				echo $current_day;
-				if ($occupied && $drill_down_view) echo '</a>';
-				echo "</td>\n";
+				if ($contents && $drill_down_view) echo '</a><br />';
+				echo $contents;
+				echo '</td>';
 				$current_day++;
 				$i++;
 			}
@@ -315,7 +342,7 @@ class Page_Calendar extends Page_Asset_Listing
 			// print blank days, if necessary
 			while ($i < $week_length) {
 			?>
-				<td class="dateNull<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' dateNullWeekend' : ''; ?>">&nbsp;</td>
+				<td class="<?php echo (((($week_start_day + $i) % 7)==0) || ((($week_start_day + $i) % 7)==6)) ? ' weekend' : ''; ?>">&nbsp;</td>
 			<?php
 				$i++;
 			}
@@ -408,6 +435,23 @@ class Page_Calendar extends Page_Asset_Listing
 
 //--        HELPER FUNCTIONS FOR VIEW PRINTING FUNCTIONS        --//
 
+	function _getRandomMonthEvent()
+	{
+		$root_nodes = $this->attr('root_nodes');
+		$enabled_views = $this->attr('enabled_views');
+		$root_node_keys = array_keys($root_nodes);
+		$event_class = $root_nodes[$root_node_keys[rand(0, count($root_node_keys)-1)]]['class_name'];
+
+		if (rand(0,100) < 12) {
+			$res = ($enabled_views['event']) ? ('<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID=123" class="event '. $event_class.'">') : ('<div class="event '.$event_class.'">');
+			$res .= 'Random Event';
+			$res .=  $enabled_views['event'] ? '</a>' : '</div>';
+			return $res;
+		} else {
+			return '';
+		}
+	}
+
 
 	/**
 	* Print a table with times within the day-starts-at to day-ends-at range, and columns
@@ -426,10 +470,11 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$partition_time = $this->attr('day_partition_time');
 		$partition_height = $this->attr('day_partition_height');
+		$root_nodes = $this->attr('root_nodes');
 		$this->_printClickChildScript();
 		$width = $this->attr('table_column_width');
 		?>
-		<table id="<?php echo $id; ?>" border="0" cellspacing="0" cellpadding="0">
+		<table id="<?php echo $id; ?>" border="0" cellspacing="0" cellpadding="0" summary="events in this <?php echo $id ?>">
 		<?php
 		if (count($columns) > 1) {
 			// if we have several columns, print the column headers
@@ -441,7 +486,7 @@ class Page_Calendar extends Page_Asset_Listing
 				?>
 				<th onclick="<?php echo (!empty($column_links)) ? 'clickChild(this); ' : ''; ?>" class="columnLabel" style="width: <?php echo $width; ?>ex">
 					<?php 
-						if (!empty($column_links)) echo '<a href="'.$column_links[$id].'">';
+						if (!empty($column_links)) echo '<a  href="'.$column_links[$id].'">';
 						echo $name;
 						if (!empty($column_links)) echo '</a>';
 					?>
@@ -468,19 +513,21 @@ class Page_Calendar extends Page_Asset_Listing
 					/* Randomised generation of events */
 					$event_start_time = rand(0, 3);
 					$event_length = rand(10, 120);
+					$root_node_ids = array_keys($root_nodes); 
+					$event_class = $root_nodes[$root_node_ids[rand(0, count($root_nodes)-1)]]['class_name'];
 					$event_id = rand(1, 256);
 					if (rand(0, 100) < 15) {
 						/* End randomised generation of events */
 						$event_margin_top = ($event_start_time / 4) * $partition_height;
 						$event_height = number_format($partition_height * ($event_length / $partition_time), 2);
 						$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand; ' : '';
-						echo "<div style=\"position: absolute; width: {$width}ex; margin-left: {$left_margin}ex; margin-top: {$event_margin_top}ex; height: {$event_height}ex; $cursor_code; \"".($show_event_links ? ' onclick="clickChild(this)"' : '').'><div class="eventText" style="position: absolute; width: '.($width*0.94).'ex; border: none; background-color: transparent">';
+						echo "<div class=\"{$event_class} event\" style=\"position: absolute; width: {$width}ex; margin-left: {$left_margin}ex; margin-top: {$event_margin_top}ex; height: {$event_height}ex; $cursor_code; \"".($show_event_links ? ' onclick="clickChild(this)"' : '').'><div class="eventText" style="position: absolute; width: '.($width*0.94).'ex; border: none; background-color: transparent">';
 
-						if ($show_event_links) echo '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_EVENT_ID='.$event_id.'">';
+						echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&SQ_CALENDAR_EVENT_ID='.$event_id.'">' : '<span class="event '.$event_class.'">';
 						
 						echo "$event_length minute Event";
 
-						if ($show_event_links) echo '</a>';
+						echo $show_event_links ? '</a>' : '</span>';
 
 						echo '</div></div>';
 					}

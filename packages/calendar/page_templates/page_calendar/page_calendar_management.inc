@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.4 2004/08/18 07:07:18 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.5 2004/08/19 06:56:28 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -166,6 +166,19 @@ class Page_Calendar_Management extends Asset_Management
 	}//end Page_Calendar_Management()
 
 
+	/**
+	* Gets a list of all metadata files that we want web accessable
+	*
+	* @access private
+	* @return array(string)
+	*/
+	function _getFileList()
+	{
+		return Array(
+					 'css/calendar_default.css',
+					 );
+
+	}//end _getFileList()
 }//end class
 
 ?>
