@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_single_edit_fns.inc,v 1.4 2004/08/30 23:16:24 tbarrett Exp $
+* $Id: calendar_event_single_edit_fns.inc,v 1.5 2004/09/13 02:13:37 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -68,7 +68,7 @@ class Calendar_Event_Single_Edit_Fns extends Calendar_Event_Edit_Fns
 	function paintSingleStartEndChooser(&$asset, &$o, $prefix) 
 	{
 		if ($asset->writeAccess('attributes'))
-			return $this->paintStartEndChooser($asset, $prefix, '');
+			return $this->paintStartEndChooser($asset, $prefix, Array());
 		else
 			echo $asset->getFriendlyDatesAndTimes();
 
