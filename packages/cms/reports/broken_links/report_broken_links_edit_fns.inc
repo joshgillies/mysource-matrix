@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.3 2004/07/06 05:08:22 gsherwood Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.4 2004/07/06 07:19:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -381,7 +381,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 						<tr>
 							<td colspan="2" class="sq-backend-table-header" style="width: 266px;">Found In</td>
 							<td colspan="2" class="sq-backend-table-header" style="width: 266px;">Linking To</td>
-							<td class="sq-backend-table-header">Description</td>
+							<td class="sq-backend-table-header">Comments</td>
 						</tr>
 					<?php
 					foreach ($reported_links['internal'] as $assetid => $links) {
@@ -464,7 +464,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 						<tr>
 							<td colspan="2" class="sq-backend-table-header" style="width: 266px;">Found In</td>
 							<td class="sq-backend-table-header" style="width: 274px;">URL</td>
-							<td class="sq-backend-table-header">Description</td>
+							<td class="sq-backend-table-header">Comments</td>
 						</tr>
 					<?php
 					foreach ($reported_links['external'] as $assetid => $links) {
@@ -518,7 +518,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 						<tr>
 							<td colspan="2" class="sq-backend-table-header" style="width: 266px;">Found In</td>
 							<td class="sq-backend-table-header" style="width: 274px;">Email</td>
-							<td class="sq-backend-table-header">Description</td>
+							<td class="sq-backend-table-header">Comments</td>
 						</tr>
 					<?php
 					foreach ($reported_links['mailto'] as $assetid => $links) {
