@@ -201,11 +201,12 @@ class Asset extends Resolve_Object
 			if (!$link['asset']->aquireLock()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
+				return false;
 			}
 
 			// if we are creating a dependant link, we need to make sure this new
 			// asset is locked in the same chain as the parent (ie, has the same source_assetid)
-			$source_assetid = '';
+			$source_assetid = 0;
 			if ($link['dependant']) {
 				$lock = $link['asset']->getLockInfo();
 				$source_assetid = $lock['source_asset'];
@@ -213,6 +214,7 @@ class Asset extends Resolve_Object
 			if (!$this->aquireLock($source_assetid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				$this->id = 0;
+				return false;
 			}
 
 			$linkid = $link['asset']->createLink($this, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
@@ -264,8 +266,13 @@ class Asset extends Resolve_Object
 		}
 
 		$null = null; // needed because we return by reference
-
 		if (!$this->id) return $null;
+
+		$lock = $this->getLockInfo();
+		if (empty($lock)) {
+			trigger_error('You need to aquire a lock on this asset before it can be duplicated', E_USER_WARNING);
+			return $null;
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
@@ -298,6 +305,12 @@ class Asset extends Resolve_Object
 			return $null;
 		}
 
+		// Lock the new dupe in the same chain as we are locked
+		if (!$dupe->aquireLock($lock['source_asset'])) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $null;
+		}
+
 		// Now we set all the attributes
 		foreach($this->vars as $name => $data) {
 			if (!$dupe->setAttrValue($name, $data['value'])) {
@@ -308,10 +321,31 @@ class Asset extends Resolve_Object
 
 		if (!empty($link)) {
 			// create the initial link
-			if (!isset($link['value']))	     $link['value']      = '';
+			if (!isset($link['value']))      $link['value']      = '';
 			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
-			if (!isset($link['dependant']))	 $link['dependant']  = 0;
-			if (!isset($link['exclusive']))	 $link['exclusive']  = 0;
+			if (!isset($link['dependant']))  $link['dependant']  = 0;
+			if (!isset($link['exclusive']))  $link['exclusive']  = 0;
+
+#			pre_echo("DUPE LINK : ".$this->name);
+
+			// OK what we are going to do is make sure that the new parents lock is
+			// in the same chain as our current lock
+			$parent_lock = $link['asset']->getLockInfo();
+			if (empty($parent_lock) || $parent_lock['source_asset'] != $lock['source_asset']) {
+
+				if (!empty($parent_lock)) {
+					if (!$link['asset']->releaseLock()) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return $null;
+					}
+				}
+
+				if (!$link['asset']->aquireLock($lock['source_asset'])) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return $null;
+				}
+			}
+
 			$linkid = $link['asset']->createLink($dupe, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
 			if(empty($linkid)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -881,7 +915,7 @@ class Asset extends Resolve_Object
 			$old_last_updated = $this->last_updated;
 			$old_last_userid  = $this->last_userid;
 
-			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetUpdate', 
+			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetUpdate',
 												  Array( 'assetid'          => $this->id,
 														 'old_name'         => $this->name,
 														 'new_name'         => $name,
@@ -1090,7 +1124,7 @@ class Asset extends Resolve_Object
 							break;
 						}
 					} else if ($this->status & SQ_STATUS_PENDING) {
-						
+
 						if (empty($wfm->current_workflows['complete'])) {
 							// the asset is pending approval, there is a
 							// workflow to follow, but it has not been started
@@ -1376,7 +1410,7 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Remaps existing assetids used by this asset to new ones
+	* Remaps existing assetids used to new ones, for ourselves and all our dependants
 	*
 	* @param array	&$map	a map of the form Array([old asset id] => [new asset id]);
 	*
@@ -1385,6 +1419,21 @@ class Asset extends Resolve_Object
 	*/
 	function remapAssetids($map)
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		// try and aquire locks on our dependants
+		$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+		if (!empty($dependant_links)) {
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			foreach ($dependant_links as $link) {
+				$asset = &$am->getAsset($link['minorid'], $link['type_code']);
+				if (!$asset->remapAssetids($map)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
 	}// end remapAssetids()
@@ -1596,7 +1645,7 @@ class Asset extends Resolve_Object
 	*
 	* @param int		$source		the id of the asset that started this locking process
 	* @param boolean	$force		attempt to forcibly aquire (if allowed)
-	* @param string		$expires	when the lock expires
+	* @param int		$expires	when the lock expires (timestamp)
 	*
 	* @return boolean
 	* @access public
@@ -1604,7 +1653,6 @@ class Asset extends Resolve_Object
 	function aquireLock($source=0, $force=false, $expires=null)
 	{
 		$current_lock = $this->getLockInfo();
-
 		if (!empty($current_lock) && $current_lock['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserid()) {
 			// the user is asking to aquire a lock they already had
 			// so just update the lock expiry date
@@ -1685,7 +1733,6 @@ class Asset extends Resolve_Object
 				('.$db->quote($this->id).', '.$db->quote($source).',
 				 '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserid()).',
 				 '.$db->quote(ts_iso8601($expires)).')';
-
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1739,7 +1786,8 @@ class Asset extends Resolve_Object
 	/**
 	* Updates the expiry date of the lock on this asset
 	*
-	* @param string	$expires	when the lock expires
+	* @param int	$source		the id of the asset that started this locking process
+	* @param int	$expires	when the lock expires (timestamp)
 	*
 	* @return boolean
 	* @access public
@@ -1749,15 +1797,15 @@ class Asset extends Resolve_Object
 		$current_lock = $this->getLockInfo();
 		if (empty($current_lock)) return true;
 
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
 		$expires = (is_null($expires)) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'UPDATE sq_asset_lock
-				SET expires = '.$db->quote(ts_iso8601($expires)).'
+				SET expires        = '.$db->quote(ts_iso8601($expires)).'
 				WHERE source_asset = '.$db->quote($current_lock['source_asset']);
-
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -3102,9 +3150,9 @@ class Asset extends Resolve_Object
 
 		if ($link_type_changed) {
 
-			// We need to make sure that we aren't going to have to be fucking 
+			// We need to make sure that we aren't going to have to be fucking
 			// about with tree to get the update working
-			// so because the tree only contains significant links if the 
+			// so because the tree only contains significant links if the
 			// significant state has changed... barf
 			$current_is_sig = (bool) ((int) $link['link_type'] & SQ_LINK_SIGNIFICANT);
 			$new_is_sig     = (bool) ($link_type & SQ_LINK_SIGNIFICANT);
@@ -3171,7 +3219,7 @@ class Asset extends Resolve_Object
 		}
 
 		if ($link_type_changed) {
-			// if this is a frontend nav link or if the old link type was, 
+			// if this is a frontend nav link or if the old link type was,
 			// then we need to inform the asset to update it's lookups
 			if (($link_type & SQ_LINK_FRONTEND_NAV) || ((int) $link['link_type'] & SQ_LINK_FRONTEND_NAV)) {
 				if (!$minor->updateLookups()) {
