@@ -40,7 +40,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$user = &$asset->_getUser();
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id, Array(SQ_MSG_UNREAD, SQ_MSG_READ));
+		$messages = $ms->getMessages($user->id, Array(SQ_MSG_UNREAD, SQ_MSG_READ), null, null, 'name');
 
 		if (empty($messages)) {
 			echo 'You have no messages';
@@ -50,7 +50,6 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			<tr>
 				<td class="sq-backend-message-header">From</td>
 				<td class="sq-backend-message-header">Subject</td>
-				<td class="sq-backend-message-header">Body</td>
 				<td class="sq-backend-message-header">Sent</td>
 				<td class="sq-backend-message-header">Priority</td>
 				<td class="sq-backend-message-header">Read</td>
@@ -58,25 +57,35 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			</tr>
 			<?php
 			foreach ($messages as $data) {
-				if ($data['userfrom']) {
-					// work out who the sender was
-					$from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userfrom']);
-					$from_name = $from->name;
-				} else {
-					$from_name = SQ_SYSTEM_SHORT_NAME.' System';
-				}
 				?>
 				<tr>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $from_name;?></td>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['subject'];?></td>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['body'];?></td>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF" width="130"><?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?></td>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF" align="middle"><?php echo $data['priority']; ?></td>
-					<td bgcolor="#FFFFFF" align="middle">
+					<td class="sq-backend-message-item">
+						<a name="msg_<?php echo $data['messageid'];?>"></a>
+						<?php echo $data['from_name'];?>
+					</td>
+					<td class="sq-backend-message-item">
+						<?php echo $data['subject'];?>
+					</td>
+					<td class="sq-backend-message-item" style="white-space: nowrap;">
+						<?php echo $GLOBALS['SQ_SYSTEM']->datetime($data['sent']); ?>
+					</td>
+					<td class="sq-backend-message-item" style="text-align: center;">
+						<?php echo $data['priority']; ?>
+					</td>
+					<td class="sq-backend-message-item" style="text-align: center;">
 						<input type="checkbox" name="<?php echo $prefix.'_mark_as_read['.$data['messageid'].']'?>" value="1"<?php echo (($data['status'] == SQ_MSG_READ) ? ' checked' : '')?>>
 					</td>
-					<td width="20"><input type="submit" name="<?php echo $prefix.'_delete['.$data['messageid'].']'?>" value="x"></td>
+					<td>
+						<input type="submit" name="<?php echo $prefix.'_delete['.$data['messageid'].']'?>" value="x">
 					</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-message-item" colspan="6">
+						<?php echo $data['body'];?>
+					</td>
+				</tr>
+				<tr>
+					<td colspan="6"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td>
 				</tr>
 				<?php
 			}
