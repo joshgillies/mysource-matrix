@@ -4,9 +4,9 @@ $tables = Array(
 '
 CREATE TABLE fudge_file_versioning_file (
   fileid     INT UNSIGNED NOT NULL,
-  repository VARCHAR(255) NOT NULL,
-  path       VARCHAR(255) NOT NULL,
-  filename   VARCHAR(255) NOT NULL,
+  repository VARCHAR(166) NOT NULL,
+  path       VARCHAR(166) NOT NULL,
+  filename   VARCHAR(166) NOT NULL,
   PRIMARY KEY (fileid),
   UNIQUE      (repository, path, filename)
 )
