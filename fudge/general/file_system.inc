@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_system.inc,v 1.19 2003/11/26 00:51:18 gsherwood Exp $
+* $Id: file_system.inc,v 1.20 2003/12/30 05:21:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -168,14 +168,14 @@ function increment_filename($name,$spacer='') {
 
 
 /**
-* Function to return an array of files in a directory.
+* Function to return an array of files in a directory
 *
 * @param string	$dir		The directory you want to list files for.
 *							If you pass in a filename, it will take the directory of that
 *							file name and restrict the returned files to the type of file you passed in.
 * @param bool	$fullpath	whether to return the full path to the file or just the filenames themselves
 *
-* @returns array
+* @return array
 * @access public
 */
 function list_files($dir='', $fullpath=false)
@@ -208,6 +208,35 @@ function list_files($dir='', $fullpath=false)
 	return $files;
 
 }//end list_files()
+
+
+/**
+* Function to return an array of sub directories in a directory
+*
+* @param string	$dir		the directory you want to list sub directories for
+* @param bool	$fullpath	whether to return the full path to the direcotry or just the names themselves
+*
+* @return array
+* @access public
+*/
+function list_dirs($dir='', $fullpath=false)
+{
+	if (!$dir) return false;
+	if (!is_dir($dir)) return Array();
+
+	$dirs = array();
+	if ($handle = opendir($dir)) {
+		while (($subdir = readdir($handle)) !== false) {
+			if ($subdir == '.' || $subdir == '..') continue;
+			if (is_dir($dir.'/'.$subdir)) {
+				$dirs[] = ($fullpath) ? $dir.'/'.$subdir : $subdir;
+			}
+		}
+		closedir($handle);
+	}
+	return $dirs;
+
+}//end list_dirs()
 
 
 /**
