@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: backend.inc,v 1.82.2.4 2004/03/03 19:21:00 brobertson Exp $
+* $Id: backend.inc,v 1.82.2.5 2004/03/09 13:16:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,15 +77,44 @@ class Backend extends MySource_Object
 	function paint()
 	{
 		if (isset($_GET['SQ_BACKEND_PAGE']) && $_GET['SQ_BACKEND_PAGE'] == 'main') {
-			foreach(Array('assetid', 'sq_asset_path', 'sq_link_path', 'parent_assetid') as $k) {
-				if (!empty($_GET[$k]) && substr($_GET[$k], 0, 2) != "0'") 
-					$_GET[$k] = "0'".str_replace(',', ",0'", $_GET[$k]);
-				if (!empty($_POST[$k]) && substr($_POST[$k], 0, 2) != "0'") 
-					$_POST[$k] = "0'".str_replace(',', ",0'", $_POST[$k]);
-				if (!empty($_REQUEST[$k]) && substr($_REQUEST[$k], 0, 2) != "0'") 
-					$_REQUEST[$k] = "0'".str_replace(',', ",0'", $_REQUEST[$k]);
-			}
-		}
+			require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+			foreach(Array('assetid' => '', 'sq_asset_path' => ',', 'sq_link_path' => ',', 'parent_assetid' => '') as $k => $separator) {
+				if ($separator == '') {
+
+					if (isset($_GET[$k]) && $_GET[$k] != '' && strpos($_GET[$k], "'") === false)
+						$_GET[$k] = Asset_Map::replaceSystemid($_GET[$k]);
+					if (isset($_POST[$k]) && $_POST[$k] != '' && strpos($_POST[$k], "'") === false)
+						$_POST[$k] = Asset_Map::replaceSystemid($_POST[$k]);
+					if (isset($_REQUEST[$k]) && $_REQUEST[$k] != '' && strpos($_REQUEST[$k], "'") === false)
+						$_REQUEST[$k] = Asset_Map::replaceSystemid($_REQUEST[$k]);
+
+				} else {
+
+					if (isset($_GET[$k]) && $_GET[$k] != '' && strpos($_GET[$k], "'") === false) {
+						$ids = explode($separator, $_GET[$k]);
+						for($i = 0; $i < count($ids); $i++) {
+							$ids[$i] = Asset_Map::replaceSystemid($ids[$i]);
+						}
+						$_GET[$k] = implode($separator, $ids);
+					}
+					if (isset($_POST[$k]) && $_POST[$k] != '' && strpos($_POST[$k], "'") === false) {
+						$ids = explode($separator, $_POST[$k]);
+						for($i = 0; $i < count($ids); $i++) {
+							$ids[$i] = Asset_Map::replaceSystemid($ids[$i]);
+						}
+						$_POST[$k] = implode($separator, $ids);
+					}
+					if (isset($_REQUEST[$k]) && $_REQUEST[$k] != '' && strpos($_REQUEST[$k], "'") === false) {
+						$ids = explode($separator, $_REQUEST[$k]);
+						for($i = 0; $i < count($ids); $i++) {
+							$ids[$i] = Asset_Map::replaceSystemid($ids[$i]);
+						}
+						$_REQUEST[$k] = implode($separator, $ids);
+					}
+
+				}// end if
+			}// end for
+		}// end if
 
 		if (SQ_IN_LIMBO) {
 
@@ -116,7 +145,7 @@ class Backend extends MySource_Object
 			if (is_null($printing_asset)) {
 				trigger_error('No Asset found for Id #'.$printing_assetid, E_USER_WARNING);
 				return;
-			} 
+			}
 			// lets ask the asset itself if we are allowed access to its backend (no dirty thoughts)
 			if (!$printing_asset->backendAccess()) {
 				$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access the backend for <i>'.$printing_asset->name.'</i>');
@@ -165,7 +194,7 @@ class Backend extends MySource_Object
 			if (isset($_REQUEST['SQ_BACKEND_PAGE'])) {
 				$this->out->addFormActionGetVar('SQ_BACKEND_PAGE', $_REQUEST['SQ_BACKEND_PAGE']);
 			}
-			
+
 			switch($_REQUEST['SQ_BACKEND_PAGE']) {
 				case 'header':
 					$this->_printHeader();
@@ -555,7 +584,7 @@ class Backend extends MySource_Object
 						?><a href="<?php echo $option['url'];?>"
 							 title="<?php echo htmlspecialchars($option['title']);?>"
 							 onMouseOver="window.status = '<?php echo htmlspecialchars($option['title']);?>'; return true;"
-							 onMouseOut = "window.status = ''; return true;" 
+							 onMouseOut = "window.status = ''; return true;"
 							 style="cursor: pointer;"
 							 <?php echo (isset($option['target'])) ? 'target="'.$option['target'].'"' : ''; ?>
 							 <?php echo (isset($option['onclick'])) ? 'onClick="'.htmlspecialchars($option['onclick']).'"' : ''; ?>
