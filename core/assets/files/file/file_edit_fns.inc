@@ -63,7 +63,11 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
+		// assetid will not be set if we are creating
+		if (!$asset->id) $prefix = 'new_file';
+
 		file_upload($prefix);
+
 		$this->_printExistingFileInfo($asset);
 		return true;
 	}//end paintFileUpload()
@@ -81,6 +85,9 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function processFileUpload(&$asset, $prefix, $info=Array())
 	{
+		// assetid will not be set if we are creating
+		if (!$asset->id) return false;
+
 		if (empty($info)) {
 			$info = get_file_upload_info($prefix);
 

@@ -1,5 +1,11 @@
 <contents screen="details">
 	<section name="Details">
-		<field attribute="name" />
+		<field>
+			<display_name>Upload File</display_name>
+			<function_call>
+				<paint_function   name="paintFileUpload"   />
+				<process_function name="processFileUpload" />
+			</function_call>
+		</field>
 	</section>
 </contents>

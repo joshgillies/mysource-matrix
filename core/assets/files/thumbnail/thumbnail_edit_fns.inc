@@ -50,6 +50,9 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
+		// assetid will not be set if we are creating
+		if (!$asset->id) $prefix = 'new_file';
+
 		file_upload($prefix);
 
 		?>
@@ -74,6 +77,9 @@ class Thumbnail_Edit_Fns extends Image_Edit_Fns
 	*/
 	function processFileUpload(&$asset, $prefix, $info=Array())
 	{
+		// assetid will not be set if we are creating
+		if (!$asset->id) return false;
+
 		if (empty($info)) {
 			$info = get_file_upload_info($prefix);
 

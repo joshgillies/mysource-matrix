@@ -45,6 +45,13 @@ class File extends Asset
 			return false;
 		}
 
+		// check that a file was uploaded at least and that it succeeded
+		$info = get_file_upload_info('new_file');
+		if ($info === false || empty($info) || !$info['name'] || !is_uploaded_file($info['tmp_name'])) {
+			trigger_error('File upload failed. Unable to create File', E_USER_WARNING);
+			return false;
+		}
+
 		if (parent::create()) {
 
 			// short and long names are the same to begin with
@@ -87,15 +94,14 @@ class File extends Asset
 	{
 		switch($_POST['asset_action']) {
 			case 'create' :
+				$this->_tmp['uploading_file'] = 1;
 				$ei = &$this->getEI();
 				$ei->process($this, true);
 
-				$name = $this->getAttribute('name');
-				if ($name->processed) {
-					return $this->create($name->value);
-				} else {
-					return false;
-				}
+				if (!$this->create('temp')) return false;
+				$edit = $this->getEditFns();
+				unset($this->_tmp['uploading_file']);
+				return $edit->processFileUpload($this, 'new_file');
 				break;
 
 			default :
