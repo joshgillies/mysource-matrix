@@ -1,0 +1,15 @@
++---------------------+
+| MySource Matrix FAQ |
++---------------------+
+
+This FAQ is designed to answer some of the most frequently asked and frustrating questions you may have about using the MySource Matrix content management system. All questions in this document are grouped into relevant sections.
+
+
+
++----------------+
+| WYSIWYG EDITOR |
++----------------+
+
+Q. Why is my toolbar still disabled when my popup window closes?
+A. You may have popup blocker software interfering with the contents of the popup. The google toolbar is a known culprit. Try allowing popups from the editing URL. For example, if you edit through the URL test.com/_edit - configure your popup blocking software to allow popups from the URL test.com.
+Contributed by: Greg Sherwood <greg@squiz.net>
