@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadataSchemas.inc,v 1.9 2005/02/21 23:48:54 ndvries Exp $
+* $Id: metadataSchemas.inc,v 1.10 2005/03/02 00:41:21 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * MetaData Schemas Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 */
 
@@ -252,7 +252,8 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 		} else {
 			if ($cascade_changes) {
 				// cascading access of some kind, so queue it up for the HIPO
-				$schema_vars[] = Array('granted'         => (int)$post_data['new']['granted'],
+				$schema_vars[] = Array(
+									   'granted'         => (int)$post_data['new']['granted'],
 									   'schemaid'        => (int)$post_data['new']['schemaid']['assetid'],
 									   'previous_access' => null,
 									   );
@@ -270,7 +271,8 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 			if ($cascade_changes) {
 				$schemas = $mm->getSchemas($owner->id);
 				$current_access = $schemas[$schemaid];
-				$schema_vars[] = Array('granted'         => -1,
+				$schema_vars[] = Array(
+									   'granted'         => -1,
 									   'schemaid'        => $schemaid,
 									   'previous_access' => $current_access,
 									   );
@@ -283,7 +285,8 @@ function processMetadataSchemas(&$owner, &$o, &$ei)
 	if (isset($_POST[$prefix.'_metadata']['manual_cascade']) && $_POST[$prefix.'_metadata']['manual_cascade']) {
 		$schemas = $mm->getSchemas($owner->id);
 		foreach ($schemas as $schemaid => $granted) {
-			$schema_vars[] = Array('granted'         => $granted,
+			$schema_vars[] = Array(
+								   'granted'         => $granted,
 								   'schemaid'        => $schemaid,
 								   'previous_access' => null,
 								   );

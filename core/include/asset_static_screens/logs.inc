@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: logs.inc,v 1.8 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: logs.inc,v 1.9 2005/03/02 00:41:21 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Logs Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package MySource_Matrix
 */
 
@@ -55,10 +55,7 @@ function paintLogs(&$owner, &$o, &$ei)
 	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 	$log_types = $db->getCol($sql.$where);
-	if (DB::isError($log_types)) {
-		trigger_error($log_types->getMessage().'<br/>'.$log_types->getUserInfo(), E_USER_WARNING);
-		return false;
-	}
+	assert_valid_db_result($log_types);
 
 	$active_log_type = (isset($_REQUEST['sq_backend_log_type'])) ? $_REQUEST['sq_backend_log_type'] : $log_types[0];
 	$o->addFormActionGetVar('sq_backend_log_type', $active_log_type);
@@ -88,12 +85,14 @@ function paintLogs(&$owner, &$o, &$ei)
 				// for workflow we want to show the user log messages as well
 				if (isset($_REQUEST['sq_workflow_log_version'])) {
 					$o->addFormActionGetVar('sq_workflow_log_version', $_REQUEST['sq_workflow_log_version']);
-					$logs = $ms->getLogs($active_log_type, Array('assetid' => $owner->id,
-																 'version' => $_REQUEST['sq_workflow_log_version']
+					$logs = $ms->getLogs($active_log_type, Array(
+																 'assetid' => $owner->id,
+																 'version' => $_REQUEST['sq_workflow_log_version'],
 																 )
 								);
-					$user_logs = $ms->getLogs($active_log_type.'.userlog', Array('assetid' => $owner->id,
-																				 'version' => $_REQUEST['sq_workflow_log_version']
+					$user_logs = $ms->getLogs($active_log_type.'.userlog', Array(
+																				 'assetid' => $owner->id,
+																				 'version' => $_REQUEST['sq_workflow_log_version'],
 																				 )
 								);
 				} else {

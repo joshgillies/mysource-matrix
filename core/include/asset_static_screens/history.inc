@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: history.inc,v 1.7 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: history.inc,v 1.8 2005/03/02 00:41:21 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * History Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 */
 
@@ -61,10 +61,7 @@ function paintHistory(&$owner, &$o, &$ei)
 			ORDER BY '.SQ_TABLE_PREFIX.'eff_from DESC';
 
 	$result = $db->getAll($sql);
-	if (DB::isError($result)) {
-		trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-		return Array();
-	}
+	assert_valid_db_result($result);
 
 	$o->openSection('Version History');
 		$o->openRaw();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.17 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: workflow.inc,v 1.18 2005/03/02 00:41:21 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once DIRNAME(__FILE__).'/details.inc';
 * Workflow Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix
 */
 
@@ -755,7 +755,8 @@ function processWorkflow(&$owner, &$o, &$ei)
 		} else {
 			if ($cascade_changes) {
 				// cascading access of some kind, so queue it up for the HIPO
-				$schema_vars[] = Array('granted'         => (int)$post_data['new']['granted'],
+				$schema_vars[] = Array(
+									   'granted'         => (int)$post_data['new']['granted'],
 									   'schemaid'        => (int)$post_data['new']['schemaid']['assetid'],
 									   'previous_access' => null,
 									   );
@@ -773,7 +774,8 @@ function processWorkflow(&$owner, &$o, &$ei)
 			if ($cascade_changes) {
 				$schemas = $wfm->getSchemas($owner->id);
 				$current_access = $schemas[$schemaid];
-				$schema_vars[] = Array('granted'         => -1,
+				$schema_vars[] = Array(
+									   'granted'         => -1,
 									   'schemaid'        => $schemaid,
 									   'previous_access' => $current_access,
 									   );
@@ -786,7 +788,8 @@ function processWorkflow(&$owner, &$o, &$ei)
 	if (isset($_POST[$prefix.'_workflow']['manual_cascade']) && $_POST[$prefix.'_workflow']['manual_cascade']) {
 		$schemas = $wfm->getSchemas($owner->id);
 		foreach ($schemas as $schemaid => $granted) {
-			$schema_vars[] = Array('granted'         => $granted,
+			$schema_vars[] = Array(
+								   'granted'         => $granted,
 								   'schemaid'        => $schemaid,
 								   'previous_access' => null,
 								   );

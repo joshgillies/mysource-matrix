@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.15 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: permissions.inc,v 1.16 2005/03/02 00:41:21 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix
 */
 
@@ -302,7 +302,8 @@ function processPermissions(&$owner, &$o, &$ei)
 		if (isset($post_data['public_access']['granted']) && $post_data['public_access']['granted'] != '') {
 			if ($cascade_changes) {
 				// cascading public access of some kind, so queue it up for the HIPO
-				$permission_vars[$perm][] = Array('granted'         => (int)$post_data['public_access']['granted'],
+				$permission_vars[$perm][] = Array(
+												  'granted'         => (int)$post_data['public_access']['granted'],
 												  'userid'          => $public_userid,
 												  'previous_access' => null,
 												  );
@@ -319,7 +320,8 @@ function processPermissions(&$owner, &$o, &$ei)
 			} else {
 				if ($cascade_changes) {
 					// cascading access of some kind, so queue it up for the HIPO
-					$permission_vars[$perm][] = Array('granted'         => (int)$post_data['new']['granted'],
+					$permission_vars[$perm][] = Array(
+													  'granted'         => (int)$post_data['new']['granted'],
 													  'userid'          => $post_data['new']['userid']['assetid'],
 													  'previous_access' => null,
 													  );
@@ -338,7 +340,8 @@ function processPermissions(&$owner, &$o, &$ei)
 				if ($cascade_changes) {
 					$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 					$current_access = $current[$userid];
-					$permission_vars[$perm][] = Array('granted'         => -1,
+					$permission_vars[$perm][] = Array(
+													  'granted'         => -1,
 													  'userid'          => $userid,
 													  'previous_access' => $current_access,
 													  );
@@ -351,7 +354,8 @@ function processPermissions(&$owner, &$o, &$ei)
 		if (!empty($_POST[$prefix.'_permissions']['manual_cascade'])) {
 			$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 			foreach ($current as $userid => $granted) {
-				$permission_vars[$perm][] = Array('granted'         => $granted,
+				$permission_vars[$perm][] = Array(
+												  'granted'         => $granted,
 												  'userid'          => $userid,
 												  'previous_access' => null,
 												  );

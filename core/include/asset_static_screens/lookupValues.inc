@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: lookupValues.inc,v 1.4 2005/02/23 22:35:44 brobertson Exp $
+* $Id: lookupValues.inc,v 1.5 2005/03/02 00:41:21 gsherwood Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Settings Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -63,9 +63,9 @@ function paintLookupValues(&$owner, &$o, &$ei)
 		eval ('$name_prefix = '.$type_code.'::namePrefix();');
 		eval ('$title = '.$type_code.'::lookupValueName();');
 		$lookup_value_details[$type_code] = Array(
-												'name_prefix' => $name_prefix,
-												'title' => $title,
-											);
+												  'name_prefix' => $name_prefix,
+												  'title'       => $title,
+												  );
 		$values[$name_prefix] = Array();
 	}
 
@@ -139,9 +139,7 @@ function processLookupValues(&$owner, &$o, &$ei)
 					if (isset($lookup_values[$url][$value_name])) unset($lookup_values[$url][$value_name]);
 				} else {
 					if (!isset($lookup_values[$url])) $lookup_values[$url] = Array();
-					$lookup_values[$url][$value_name] = Array(
-															'value' => $data['value'],
-														);
+					$lookup_values[$url][$value_name] = Array('value' => $data['value']);
 				}
 			}
 		}
@@ -154,11 +152,9 @@ function processLookupValues(&$owner, &$o, &$ei)
 	}
 	$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-	//// START HIPO PROCESSING ////
 	$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 	$vars = Array('assetids' => Array($owner->id));
 	$hh->queueHipo('hipo_job_update_lookups', $vars);
-	////  END HIPO PROCESSING  ////
 
 	return true;
 
