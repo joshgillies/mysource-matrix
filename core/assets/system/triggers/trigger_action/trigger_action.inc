@@ -1,0 +1,138 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: trigger_action.inc,v 1.1 2005/02/17 06:33:58 rhoward Exp $
+*
+*/
+
+
+/**
+* Trigger Action
+*
+* Parent Action that all trigger actions extend.
+*
+*
+* @author	Andrei Railean <arailean@squiz.net>
+* @author	Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+class Trigger_Action extends Asset
+{
+
+	/**
+	* Execute this action - needs to be overridden by the actions themselves.
+	*
+	* @param array(string=>mixed)	$settings	the stored settings for this action
+	* @param array(string=>mixed)	&$state	the state that describes the asset the action is executing on
+	*
+	* @return boolean
+	* @access public
+	*/
+	function execute($settings, $state)
+	{
+		return false;
+
+	}//end execute()
+
+
+	/**
+	* Get the HTML editing interface for this action. Returns the string instead of printing it
+	*
+	* @param Array 		$settings  settings that this action saves in processInterface()
+	* @param string 	$prefix    unique prefix
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getInterface($settings, $prefix)
+	{
+		// create HTML
+		// populate HTML with settings
+		// this should handle new (empty) conditions as well as saved ones
+
+		// IMPORTANT NOTE:
+		// any Form elements that use the prefix should use the prefix as an array index
+		// i.e. <input name="$prefix['whatever']" value="someting" >
+		// or   <input name="$prefix" value="something" >
+		//
+		// NOT  <input name="$prefix_something" />
+		// if you do this your processInterface function will not be getting any data back.
+
+		// in short, you can either use prefix to either reference one value or be
+		// an array of values, you cannot change the prefix to whatever you like as it will
+		//  a) conflict with some other prefix, or
+		//  b) make the interface useless
+
+		// see the trigger_action_set_status condition for an example of use
+
+		return $interface_string;
+
+	}//end getInterface()
+
+
+	/**
+	* Function that handles the conversion of interface to settings
+	* together with settings it is expected to populate the hash object
+	*
+	* @param Array			$settings		a container for any data the action might want to save
+	* @param array			$request_data	array of data corresponding to this action as specified by the $prefix in getInterface.
+	*
+	* @access public
+	* @return boolean
+	*/
+	function processInterface(&$settings, $request_data)
+	{
+		// take and check request data
+		// populate the settings
+		// return status
+
+		return false;
+
+	}//end processInterface()
+
+
+	/**
+	* Get the list of locks that the action needs to acquire before executing
+	* Default to no locks - the children can override if necessary
+	*
+	* @access public
+	* @return array(assetid=>locktype)
+	*/
+	function getLocks($settings, &$state)
+	{
+		/* Sample lock list:
+		$locks = Array(
+			'assetid'	=> Array(
+				'attributes',
+				'links
+			)
+		);
+		*/
+
+		// no locks needed
+		return Array();
+
+	}//end getLocks()
+
+}//end class
+
+?>

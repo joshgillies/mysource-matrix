@@ -1,0 +1,356 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: hash.inc,v 1.1 2005/02/17 06:34:47 rhoward Exp $
+*
+*/
+
+/**
+*
+* hash.inc
+*
+* To serve as a container for the state hash used by the Trigger system
+*
+* @author  Andrei Railean <arailean@squiz.net>
+* @author  Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.1 $
+* @package MySource_Matrix
+*/
+class Hash
+{
+
+	var $hash;
+
+	/*
+		// Allowed Hash Indices
+
+		event
+		assetid
+		asset_type
+		treeid
+		tree_propagate
+		triggerid
+		parentid
+		parent_type
+		childid
+		child_type
+		active <- reserved - no Condition should set this
+	*/
+
+	/**
+	* Constructor
+	*/
+	function Hash()
+	{
+		$this->hash = Array();
+
+	}//end Hash()
+
+
+	/**
+	* Provides a status of whether this hash object is empty or not
+	*
+	* @access public
+	* @return boolean
+	*/
+	function isEmpty()
+	{
+		return empty($this->hash);
+
+	}//end isEmpty()
+
+
+	/**
+	* Internal function for setting the value of a hash field
+	*
+	* @param string	$name	variable to modify
+	* @param mixed	$value	value that the variable will be set to
+	*
+	* @access private
+	* @return
+	*/
+	function _set($name, $value)
+	{
+		if (!isset($this->hash[$name])) {
+			$this->hash[$name] = Array();
+		}
+
+		if (!is_array($value)) {
+			$value = Array($value);
+		}
+
+		foreach ($value as $one_value) {
+			$this->hash[$name][] = $one_value;
+		}
+
+	}//end _set()
+
+
+	/**
+	* Sets the Event field
+	*
+	* @param string	$event	the name of the event that was fired
+	*
+	* @access public
+	* @return
+	*/
+	function setEvent($event)
+	{
+		$this->_set('event',$event);
+
+	}//end setEvent()
+
+
+	/**
+	* Sets the AssetID field
+	*
+	* @param string	$assetid	the id of the asset
+	*
+	* @access public
+	* @return
+	*/
+	function setAssetId($assetid)
+	{
+		$this->_set('assetid',$assetid);
+
+	}//end setAssetId()
+
+
+	/**
+	* Sets the Asset Type field
+	*
+	* @param string		$asset_type		the type of the asset
+	* @param boolean	$descendants	whether the hash will include the type's descendants, or just the passed asset type
+	*
+	* @access public
+	* @return
+	*/
+	function setAssetType($asset_type, $descendants=false)
+	{
+		if (!empty($asset_type) && $GLOBALS['SQ_SYSTEM']->am->installed($asset_type)) {
+
+			if ($descendants) {
+
+				// Grab the list of types, put into the 'asset_type' field
+				$type_descendants = &$GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($asset_type, true);
+				if (empty($type_descendants)) {
+					$this->_set('asset_type','');
+				} else {
+					$this->_set('asset_type',$type_descendants);
+				}
+
+			} else {
+				$this->_set('asset_type',$asset_type);
+			}
+
+		} else {
+			$this->_set('asset_type','');
+		}
+
+	}//end setAssetType()
+
+
+	/**
+	* Sets the Asset Type field
+	*
+	* @param string		$asset_type		the raw link tree id of the asset (see asset_manager::getRawTreeIdByAsset)
+	* @param string		$propagation	'01' or '00'. Determines whether the we are checking for assets underneath a tree node, or just for an individual asset
+	*
+	* @access public
+	* @return
+	*/
+	function setLinkTree($tree_id, $propagation)
+	{
+		$this->_set('treeid',$tree_id);
+		$this->_set('tree_propagate',$propagation);
+
+	}//end setLinkTree()
+
+
+	/**
+	* Sets the Trigger ID field
+	*
+	* @param string		$trigger_id		the ID of the trigger
+	*
+	* @access public
+	* @return
+	*/
+	function setTriggerId($trigger_id)
+	{
+		$this->_set('triggerid',$trigger_id);
+
+	}//end setTriggerId()
+
+
+	/**
+	* Sets either the parent or child ID field of the Linked asset
+	*
+	* @param string		$linked_id		the ID of the linked asset
+	* @param boolean	$is_major		whether the linked asset is a parent or a child
+	*
+	* @access public
+	* @return
+	*/
+	function setLinkedId($linked_id, $is_major)
+	{
+		if (!$is_major) {
+			$this->_set('parentid',$linked_id);
+		} else {
+			$this->_set('childid',$linked_id);
+		}
+
+	}//end setLinkedId()
+
+
+	/**
+	* Sets either the parent or child Type field of the Linked asset
+	*
+	* @param string		$linked_type	the type_code of the linked asset
+	* @param boolean	$is_major		whether the linked asset is a parent or a child
+	*
+	* @access public
+	* @return
+	*/
+	function setLinkedType($linked_type, $is_major)
+	{
+		if (!$is_major) {
+			$this->_set('parent_type',$linked_type);
+		} else {
+			$this->_set('child_type',$linked_type);
+		}
+
+	}//end setLinkedType()
+
+
+	/**
+	* Sets the Active field
+	*
+	* @param string		$active		'1' or '0'. Determines whether the trigger is enabled
+	*
+	* @access public
+	* @return
+	*/
+	function setActive($active)
+	{
+		$this->hash['active'] = $active;
+
+	}//end setActive()
+
+
+	/**
+	* Takes the hash, checks it for empty fields filling in the blanks where necessary,
+	* and creates all possible combinations of its elements
+	*
+	* @access public
+	* @return
+	*/
+	function getHashCombinations()
+	{
+		$result = $this->hash;
+
+		// define the defaults
+		$state_hash_defaults = Array(
+			'event'				=> '',
+			'assetid'			=> '',
+			'asset_type'		=> '',
+			'treeid'			=> '',
+			'tree_propagate'	=> SQ_TRIG_TREE_NO_PROPAGATE,
+			'triggerid'			=> '',
+			'active'			=> SQ_TRIG_STATUS_DEFAULT,
+		);
+
+		// make sure every field has data, and that no fields are null
+		foreach ($state_hash_defaults as $defaults_id => $defaults_data) {
+			if (empty($result[$defaults_id])) {
+				$result[$defaults_id] = $defaults_data;
+			}
+		}
+
+		return $this->_createCombinations($result);
+
+	}//end getHashCombinations()
+
+
+	/**
+	* Given an array of elements of various depth, creates all possible combinations
+	* of the elements, preserving the index
+	* Given:
+	* <code>
+	*   $source = Array(1=>Array('a','b'), 2=>'c', 3=>Array('d'));
+	*   $result = Array(Array(1=>'a',2=>'c',3=>'d'), Array(1=>'b',2=>'c',3=>'d'));
+	* </code>
+	*
+	* This function can be called statically
+	*
+	* NOTE: Can only create combinations for arrays two levels deep
+	*
+	* @param Array(mixed)	$state_hash		The hash to flatten
+	*
+	* @access private
+	* @return Array(mixed)	$state_hash		The flattened state_hash
+	*/
+	function _createCombinations($source)
+	{
+		$result = Array();
+
+		// step through each item in the source array
+		// and make combinations of it with the other items,
+		// preserving the position (index)
+		// so the item with index 'a' will always be at index 'a'
+		// if given an array of type Array(1=>'a',2=>'b',3=>'c'), the result will be the same array
+		// if given Array(1=>Array('a','b'), 2=>Array('c')), the result is Array(Array(1=>'a',2=>'c'),Array(1=>'b',2=>'c'))
+		// in short, this function creates a flat representation of the deep array, which can
+		// easily be converted back to the deep version if needed, i.e. no information is lost
+
+		// let's roll this one
+		foreach ($source as $source_key => $source_item) {
+			reset($result);
+			$new_result = Array();
+
+			if (!is_array($source_item)) {
+				$source_item = Array($source_item);
+			}
+
+			if (empty($result)) {
+				foreach ($source_item as $one_item) {
+					$new_result[] = Array($source_key => $one_item);
+				}
+			} else {
+				foreach ($result as $res) {
+					foreach ($source_item as $one_item) {
+						$new_res = $res;
+						$new_res[$source_key] = $one_item;
+						$new_result[] = $new_res;
+					}
+				}
+			}
+
+			$result = $new_result;
+		}
+
+		return $result;
+
+	}//end _createCombinations()
+
+
+}//end class
+
+
+?>
