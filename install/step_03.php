@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.39 2004/06/24 23:14:09 mnyeholt Exp $
+* $Id: step_03.php,v 1.40 2004/06/25 01:31:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 /**
@@ -67,14 +67,17 @@ if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 $GLOBALS['SQ_INSTALL'] = true;
 
 // call all the steps
-regenerateConfigs();
-uninstallAssetTypes();
-installCore();
-installPackages();
-installAuthenticationTypes();
-generateGlobalPreferences();
-installEventListeners();
+regenerate_configs();
+uninstall_asset_types();
+install_core();
+install_packages();
+install_authentication_types();
+generate_global_preferences();
+install_event_listeners();
 
-// need to run the install packages part twice
-installPackages();
+// currently needs to run the asset installation part twice
+// in order for a newly created Search Manager to get the default weightings
+install_core();
+install_packages();
+install_authentication_types();
 ?>
