@@ -13,7 +13,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @version $Version$ - 1.0
 * @package Resolve
 */
-class Config extends Resolve_Object 
+class Config extends Resolve_Object
 {
 
 	var $config_file;
@@ -23,8 +23,8 @@ class Config extends Resolve_Object
 		'SQ_CONF_PEAR_PATH'					=> Array('editable' => 0, 'default' => ''),
 		'SQ_CONF_BACKEND_SUFFIX'			=> Array('editable' => 0, 'default' => '_edit'),
 /*
-* Fixed Size of the number of digits that each link trees entry can be, run 
-*   pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE) 
+* Fixed Size of the number of digits that each link trees entry can be, run
+*   pow(SQ_CONF_ASSET_TREE_BASE, SQ_CONF_ASSET_TREE_SIZE)
 * to get max number of possible link entries per node
 */
 		'SQ_CONF_ASSET_TREE_BASE'			=> Array('editable' => 0, 'default' => 64),
@@ -34,15 +34,14 @@ class Config extends Resolve_Object
 
 		'SQ_CONF_SYSTEM_NAME'				=> Array('editable' => 1, 'default' => 'Resolve System'),
 		'SQ_CONF_SYSTEM_OWNER'				=> Array('editable' => 1, 'default' => ''),
-		'SQ_CONF_SYSTEM_ADMIN_EMAIL'		=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_SYSTEM_ROOT_URLS'			=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_SUPER_USERS'				=> Array('editable' => 1, 'default' => ''),
 		'SQ_CONF_MAX_IDLE_TIME'				=> Array('editable' => 1, 'default' => 6000),
 		'SQ_CONF_MAX_LOGIN_ATTEMPTS'		=> Array('editable' => 1, 'default' => 3),
 		'SQ_CONF_DEFAULT_FRONTEND_LANGUAGE'	=> Array('editable' => 1, 'default' => 'en'),
 		'SQ_CONF_DEFAULT_CHARACTER_SET'		=> Array('editable' => 1, 'default' => 'iso-8859-1'),
-		'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => '0'),
-		'SQ_CONF_ERRORS_LOG'				=> Array('editable' => 1, 'default' => '0'),
+		'SQ_CONF_ERRORS_HIDE_FRONTEND'		=> Array('editable' => 1, 'default' => false),
+		'SQ_CONF_LOG_ERRORS'				=> Array('editable' => 1, 'default' => true),
 		'SQ_CONF_ROLLBACK_ENABLED'			=> Array('editable' => 1, 'default' => '0'),
 		'SQ_CONF_REFRESH_INTERVAL'			=> Array('editable' => 1, 'default' => 120),
 		'SQ_CONF_LOCK_LENGTH'				=> Array('editable' => 1, 'default' => 600),
@@ -61,7 +60,7 @@ class Config extends Resolve_Object
 	var $backend_log_messages = '';
 	var $backend_brand_image = '';
 	var $jupload_path;
-	
+
 
 	var $superusers = array('all' => array());
 
@@ -85,8 +84,8 @@ class Config extends Resolve_Object
 	var $user_authentication = 'default';
 
 	var $user_db_details	= array('name'=>'','host'=>'','login'=>'','password'=>'','querylog'=>'');
-	
-	
+
+
 var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 */
 
@@ -94,7 +93,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 	* Constructor
 	*
 	*/
-	function Config() 
+	function Config()
 	{
 		$this->Resolve_Object();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/main.inc';
@@ -119,22 +118,36 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 
 			$str .= "define('$var_name', ".var_export($value, true).");\n";
 
-			if ($var_name == 'SQ_CONF_PEAR_PATH' && !empty($value)) {
-				$str .= "\$sep = (substr(PHP_OS, 0, 3) == 'WIN') ? ';' : ':';\n";
-				$str .= "\$inc_dir = ini_get('include_path');\n";
-				// basically, if the first entry is '.' (ie the current directory) leave that, 
-				// and insert the pear path just after that, otherwise just right at the front of the 
-				// include path
-				$str .= "\$inc_dir = (substr(\$inc_dir, 0, 2) == '.'.\$sep) ? '.'.\$sep.SQ_CONF_PEAR_PATH.\$sep.substr(\$inc_dir, 2): SQ_CONF_PEAR_PATH.\$sep.\$inc_dir;\n";
-				$str .= "ini_set('include_path', \$inc_dir);\n\n";
-			}
+			switch($var_name) {
+				case 'SQ_CONF_PEAR_PATH' :
+					if (!empty($value)) {
+						$str .= "\$sep = (substr(PHP_OS, 0, 3) == 'WIN') ? ';' : ':';\n";
+						$str .= "\$inc_dir = ini_get('include_path');\n";
+						// basically, if the first entry is '.' (ie the current directory) leave that,
+						// and insert the pear path just after that, otherwise just right at the front of the
+						// include path
+						$str .= "\$inc_dir = (substr(\$inc_dir, 0, 2) == '.'.\$sep) ? '.'.\$sep.SQ_CONF_PEAR_PATH.\$sep.substr(\$inc_dir, 2): SQ_CONF_PEAR_PATH.\$sep.\$inc_dir;\n";
+						$str .= "ini_set('include_path', \$inc_dir);\n\n";
+					}
+					break;
+
+				case 'SQ_CONF_LOG_ERRORS' :
+					// NOTE: if they don't want to log errors we will leave
+					//       them with whatever their PHP settings are
+					if (!empty($value)) {
+						$str .= "ini_set('log_errors', '1');\n";
+						$str .= "ini_set('error_log',  SQ_DATA_PATH.'/private/logs/error.log');\n";
+					}
+					break;
+
+			}// end switch
 
 		}//end foreach
 
 		$str .= "?>\n";
 
 		if ($backup_existing && file_exists($this->config_file)) {
-		
+
 			$i = 0;
 			do {
 				$i++;
@@ -146,7 +159,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 			}
 
 		}
-		
+
 		print_r($str);
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		return string_to_file($str, $this->config_file);
@@ -180,16 +193,16 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		# Only privileged users can mess around here
 		if (superuser('web') || superuser('user')) {
 			global $action;
-		
+
 			#############################
-			# get users database object 
+			# get users database object
 			#############################
 			#
 			$users_system = &get_users_system();
 			$db = &$users_system->db;
-			
+
 			##################
-			# process $action 
+			# process $action
 			##################
 			#
 			switch($action) {
@@ -199,23 +212,23 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 					global  $system_name,$system_owner,$webmaster_email,$jupload_path,$web_db_details,
 							$user_db_details,$max_login_attempts,$max_idle_time,
 							$delete_superuser_ids, $delete_webmaster_ids, $delete_usermaster_ids,
-							$superuser_search, $webmaster_search, $usermaster_search, 
+							$superuser_search, $webmaster_search, $usermaster_search,
 							$log_visitors, $log_remote_hosts, $virtual_paths, $backend_suffix, $strict_url_matching,
-							$default_language, $default_charset, $moderate_caching, $illegal_filetypes, $check_db_mbstrings, 
-							$site_backend_dhtml_navigation, $backend_message_box_focus, $backend_log_messages, 
+							$default_language, $default_charset, $moderate_caching, $illegal_filetypes, $check_db_mbstrings,
+							$site_backend_dhtml_navigation, $backend_message_box_focus, $backend_log_messages,
 							$user_db_details, $user_authentication, $default_table_cell_type, $batch_delete, $batch_dupe;
 
 					if(user_root()) {
 
 						####################
-						# delete superusers	
+						# delete superusers
 						####################
 						#
 						if (count($delete_superuser_ids)) {
 							$sql = "SELECT login
 									  FROM user
 									 WHERE userid IN ('".implode("','", $delete_superuser_ids)."')";
-							
+
 							$superusers = $db->single_column($sql);
 							foreach($superusers as $login) {
 								$backend->add_message($this->delete_superuser($login));
@@ -223,7 +236,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 						}
 
 						#################
-						# add superusers	
+						# add superusers
 						#################
 						#
 						$user_searches = split("[ \t\r\n\,]+", $superuser_search);
@@ -240,9 +253,9 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 							}
 						}# end foreach
 
-						
+
 						###############################
-						# update web database details 
+						# update web database details
 						###############################
 						#
 						$backend->add_message($this->set_web_db_details($web_db_details['name'],
@@ -250,7 +263,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 																		$web_db_details['login'],
 																		$web_db_details['password'],
 																		$web_db_details['querylog']));
-						
+
 						###############################
 						# update user database details
 						###############################
@@ -264,7 +277,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 								$user_db_details['querylog']
 						));
 
-						
+
 						$backend->add_message($this->set_user_authentication($user_authentication));
 
 					}#end if user_root
@@ -281,7 +294,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 							$sql = "SELECT login
 									  FROM user
 									 WHERE userid IN ('".implode("','", $delete_webmaster_ids)."')";
-							
+
 							$webmasters = $db->single_column($sql);
 							foreach($webmasters as $login) {
 								$backend->add_message($this->delete_web_master($login));
@@ -296,7 +309,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 							$sql = "SELECT login
 									  FROM user
 									 WHERE userid IN ('".implode("','", $delete_usermaster_ids)."')";
-							
+
 							$usermasters = $db->single_column($sql);
 							foreach($usermasters as $login) {
 							  if (superuser()) {
@@ -306,7 +319,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 						}
 
 						##################
-						# add web masters	
+						# add web masters
 						##################
 						#
 						$user_searches = split("[ \t\r\n\,]+", $webmaster_search);
@@ -324,7 +337,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 						}# end foreach
 
 						###################
-						# add user masters	
+						# add user masters
 						###################
 						#
 						$user_searches = split("[ \t\r\n\,]+", $usermaster_search);
@@ -371,9 +384,9 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 						$backend->add_message($this->set_batch_delete(($batch_delete)));
 						$backend->add_message($this->set_batch_dupe(($batch_dupe)));
 					}
-					
+
 					if(superuser('web')) {
-						
+
 						$backend->add_message($this->set_default_table_cell_type(($default_table_cell_type)));
 						$backend->add_message($this->set_default_language((implode(',',$default_language))));
 						$backend->add_message($this->set_default_charset(($default_charset)));
@@ -387,7 +400,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 					if(superuser()) {
 						#if($this->virtual_paths) {
 						$backend->add_message($this->set_backend_suffix(($backend_suffix)));
-						#} 
+						#}
 						$backend->add_message($this->set_virtual_paths(($virtual_paths)));
 						$backend->add_message($this->set_strict_url_matching(($strict_url_matching)));
 					}
@@ -406,7 +419,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		$o->setHeading('System Configuration', 'create');
 		$o->setSubHeading(SQ_CONF_SYSTEM_NAME);
 		$o->addHiddenField('action');
-	
+
 /*
 		 ########################################
 		# this stuff comes from the config file
@@ -428,13 +441,6 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 			text_box('config[SQ_CONF_SYSTEM_OWNER]', SQ_CONF_SYSTEM_OWNER, 30);
 		} else {
 			echo SQ_CONF_SYSTEM_OWNER;
-		}
-
-		$o->openField('Sys Admin Email');
-		if(true || superuser()) {
-			text_box('config[SQ_CONF_SYSTEM_ADMIN_EMAIL]', SQ_CONF_SYSTEM_ADMIN_EMAIL, 30);
-		} else {
-			echo SQ_CONF_SYSTEM_ADMIN_EMAIL;
 		}
 
 		$o->openField('System Root URLs');
@@ -479,7 +485,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		$backend->open_field('JUpload Path','one_liner');
 		echo text_box('jupload_path',$this->jupload_path,40,100);
 		echo '<span class=smallprint><br/>If you have configured tomcat or another Java Servlet handler on your server and have enabled the squizlib/jupload directory, enter the appropriate path here (from the browsers POV).<br/>E.g. <i>http://beta.squiz.net/agi_test_jupload/</i><br/><b>Leave this field blank if you cannot or do not wish to use the Java uploader.</b></span>';
-		 
+
 		 ##############
 		# super-users
 		if (user_root()) {
@@ -496,7 +502,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 
 				$users_system->display_users_table(array_keys($superusers), ((user_root())?'delete_superuser_ids':''), 'Delete?','super_page_counter');
 			}#end if count(superusers)
-		
+
 			$backend->open_field('Add Super Users:<br/><span class=smallprint>(logins/emails)</span>');
 			echo text_area(superuser_search,'',30,3,3000,'class=backend_data');
 
@@ -579,7 +585,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		}
 		echo ('<span class=smallprint><br/>The number of pages to dupe at a time when duping a page or site. Set this to a low number if your duping is timing out.</span>');
 
-		$backend->open_field('Strict URL Matching','one_liner');	
+		$backend->open_field('Strict URL Matching','one_liner');
 		if (superuser()) {
 			echo combo_box('strict_url_matching',array('1'=>'On','0'=>'Off'),$this->strict_url_matching);
 		} else {
@@ -587,7 +593,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		}
 		echo ('<span class=smallprint><br/>This decides whether the system will try to match the closest URL for or display the \'Page Not Found\'.</span>');
 
-		$backend->open_field('Moderate Caching','one_liner');	
+		$backend->open_field('Moderate Caching','one_liner');
 		if (superuser()) {
 			echo combo_box('moderate_caching',array('1'=>'On','0'=>'Off'),$this->moderate_caching);
 		} else {
@@ -595,7 +601,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		}
 		echo ('<span class=smallprint><br/>MySource can attempt to control web caching in browsers and proxies using HTTP headers. You may switch this off to use the PHP defaults, however, but these tend to discourage caching which can lead to increased traffic and download time.</span>');
 
-		$backend->open_field('Illegal Filetypes','one_liner');	
+		$backend->open_field('Illegal Filetypes','one_liner');
 		if (superuser()) {
 			echo text_area('illegal_filetypes',$this->illegal_filetypes,40,3);
 		} else {
@@ -619,7 +625,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 			echo multiple_combo_box('default_language',$languages_config->languages,explode(',',$this->default_language),'class=backend_data', '', 4);
 		} else {
 			echo '<span class=backend_data>'.$languages_config->name_list($this->default_language).'</span>';
-		}		
+		}
 		echo('<span class=smallprint><br/>This is the default language used on the frontend. It may be overridden by individual sites and pages.</span>');
 
 		# CHARACTER SETS
@@ -630,7 +636,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		} else {
 			$languages_config = &get_config('charsets');
 			echo "<span class=backend_data>{$charsets_config->charsets[$this->default_charset]}</span>";
-		}		
+		}
 		echo('<span class=smallprint><br/>This is the default character set used in the backend and the frontend. It may be overridden by individual sites and pages.</span>');
 		echo('<span class=smallprint><br/><input type=checkbox name=check_db_mbstrings[] value=web '.((in_array('web',$this->check_db_mbstrings))?'checked':'').'> Validate data coming out of the <b>web</b> database is in this character set and uncorrupted.<br/><input type=checkbox name=check_db_mbstrings[] value=users '.((in_array('users',$this->check_db_mbstrings))?'checked':'').'> Validate data coming out of the <b>users</b> database is in this character set and uncorrupted.</span>');
 		echo('<span class=warning style="font-size: 10px;"><br/><b>Warning: These settings are only necessary for multi-byte character sets.</b> You must have the <i>mbstring</i> module for PHP installed for these two options to work correctly. Only a few character sets are supported (generally Japanese ones).</span>');
@@ -649,7 +655,7 @@ var $user_ldap_details  = array('host' => '', 'password' => '', 'rootdn' => '');
 		if (superuser()) {
 			if (count($webmasters)) {
 				$backend->open_field('Current Web Masters ('.count($webmasters).'):', 'top');
-			
+
 				$sql = "SELECT userid, login, CONCAT(firstname, ' ', surname) as name, email
 						FROM user
 						WHERE login IN ('".implode("','", $webmasters)."')
