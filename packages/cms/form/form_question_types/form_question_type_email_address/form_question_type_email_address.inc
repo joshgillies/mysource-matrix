@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.6 2004/06/22 04:04:28 gsherwood Exp $
+* $Id: form_question_type_email_address.inc,v 1.7 2004/07/02 11:03:13 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,6 +84,7 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 
 		if (isset($_POST[$this->id])) {
 
+			$val = $_POST[$this->id];
 			$form->active_submission[$this->id] = $val;
 
 			// borrow a 'valid email address' rule
