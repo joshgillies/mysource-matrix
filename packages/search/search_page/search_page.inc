@@ -18,7 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.30 2004/02/20 01:18:48 diarandine Exp $
+* $Id: search_page.inc,v 1.31 2004/02/21 12:35:10 brobertson Exp $
+* $Name: not supported by cvs2svn $
 */
 
 require_once SQ_PACKAGES_PATH.'/cms/page/page.inc';
@@ -36,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 2.0
+* @version $Revision: 1.31 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
