@@ -17,7 +17,7 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: MatrixTree.java,v 1.2 2005/02/20 22:52:58 mmcintyre Exp $
+ * $Id: MatrixTree.java,v 1.3 2005/02/21 04:29:55 mmcintyre Exp $
  * $Name: not supported by cvs2svn $
  */
  
@@ -866,7 +866,7 @@ public class MatrixTree extends CueTree
 	 */
 	protected class MenuHandler extends MouseAdapter {
 
-		ActionListener addMenuListener;
+		private ActionListener addMenuListener;
 
 		public MenuHandler() {
 			addMenuListener = new ActionListener() {
@@ -916,7 +916,7 @@ public class MatrixTree extends CueTree
 		 * @return the popup menu for a click in void space
 		 */
 		protected JPopupMenu getMenuForVoidSpace() {
-			return MatrixMenus.getAddMenu(addMenuListener).getPopupMenu();
+			return MatrixMenus.getPopupAddMenu(addMenuListener);
 		}
 
 		/**
@@ -965,7 +965,7 @@ public class MatrixTree extends CueTree
 		protected JPopupMenu getMenuForSingleSelection() {
 
 			JPopupMenu menu = null;
-			MatrixTreeNode node = getSelectionNode();
+			final MatrixTreeNode node = getSelectionNode();
 			
 			// if the node is not accessible, we don't want the users
 			// to be able bring up an menu for it
@@ -985,7 +985,21 @@ public class MatrixTree extends CueTree
 					for (int i = 0; i < items.length; i++)
 						menu.add(items[i]);
 				}
-				JMenu addMenu = MatrixMenus.getAddMenu(addMenuListener);
+				
+				// when we click on a node and choose add, we want to go 
+				// straight into add mode in matrix with the node clicked on
+				// as the parent of the new node
+				ActionListener explicitAddListener = new ActionListener() {
+					public void actionPerformed(ActionEvent evt) {
+						fireNewAsset(
+							MatrixMenus.getTypeCodeFromEvent(evt),
+							node,
+							-1 // let the MatrixTreeCom handle to pos
+						);
+					}
+				};
+				
+				JMenu addMenu = MatrixMenus.getAddMenu(explicitAddListener);
 				addMenu.setName("New Child");
 				menu.add(addMenu);
 			}
