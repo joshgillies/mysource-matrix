@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.7 2003/10/14 03:40:11 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.8 2003/10/16 06:01:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -24,6 +24,7 @@
 				<process_function name="processIndexPage" />
 			</function_call>
 		</field>
+	<!--
 		<field>
 			<display_name>Forbidden</display_name>
 			<note>The Asset that gets printed when a user attempts to access an asset that they do not have permission to see</note>
@@ -40,5 +41,6 @@
 				<process_function name="processNotFoundPage" />
 			</function_call>
 		</field>
+	-->
 	</section>
 </contents>
