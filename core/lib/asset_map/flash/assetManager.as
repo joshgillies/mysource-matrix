@@ -159,7 +159,7 @@ AssetManager.prototype.getTypeMenu = function()
 		element.label = assetType.name;
 		element.iconID = assetType.getIconID();
 		element.value = assetType.type_code;
-		element.action = mcMenuContainerClass.__addAssetFn;
+		element.action = this.__addAssetFn;
 
 		// insert item in the right order alphabetically
 		for (l = 0; l < children.length; ++l) {
@@ -171,6 +171,12 @@ AssetManager.prototype.getTypeMenu = function()
 
 	return out;
 }
+
+AssetManager.prototype.__addAssetFn = function() 
+{
+	this.getRootContainer().broadcastMessage ("onMenuItemPress", "add", this._value);
+}
+
 
 /**
 * Returns an array of the asset types code that have a parent "asset", ie are at the top of the tree
