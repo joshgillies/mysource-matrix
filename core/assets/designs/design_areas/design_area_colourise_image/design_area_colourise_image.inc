@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image.inc,v 1.15 2003/11/26 00:50:55 gsherwood Exp $
+* $Id: design_area_colourise_image.inc,v 1.16 2003/12/12 17:01:29 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -97,14 +97,11 @@ class Design_Area_Colourise_Image extends Design_Area
 	*/
 	function printArea(&$design) 
 	{
-		if (empty($this->_tmp['image'])) {
-			$edit_fns = $this->getEditFns();
-			$this->_tmp['image'] = $edit_fns->createImage($this, $design);
-		}
+		$edit_fns = $this->getEditFns();
+		$image = $edit_fns->createImage($this, $design);
+		if (empty($image)) return false;
 
-		if (empty($this->_tmp['image'])) return false;
-
-		$image = $this->type().'/'.$this->id.'/'.$this->_tmp['image'];
+		$image = 'assets/'.$this->type().'/'.$this->id.'/'.$image;
 
 		// if they only want us to echo out the filename
 		if ($this->attr('filename_only')) {
