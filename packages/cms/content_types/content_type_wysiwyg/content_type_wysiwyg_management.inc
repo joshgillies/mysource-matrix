@@ -22,12 +22,7 @@ class Content_Type_WYSIWYG_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array('html' => Array(
-											'added'     => '0.0.1',
-											'type'      => 'text',  'default'   => '',
-											'update_fn' => ''
-											)
-							);
+		$this->vars = Array();
 
 	}//end constructor
 

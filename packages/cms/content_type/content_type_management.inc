@@ -27,6 +27,11 @@ class Content_Type_Management extends Asset_Management
 											'type'      => 'text',  'default'   => '',
 											'update_fn' => ''
 											),
+							'html' => Array(
+											'added'     => '0.0.1',
+											'type'      => 'text',  'default'   => '',
+											'update_fn' => ''
+											)
 							);
 	}//end constructor
 

@@ -33,8 +33,8 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset) {
-		echo '';
+	function paint(&$asset)
+	{
 	}
 
 }//end class
