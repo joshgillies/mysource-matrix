@@ -49,10 +49,10 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			function site_url_url_change(url_num) {
 
 				// if there isn't any value in the url box, it doesn't matter
-				if (get_element_value("<?php echo $prefix; ?>_urls[" + url_num + "][url]")) {
+				if (get_form_element_value("<?php echo $prefix; ?>_urls[" + url_num + "][url]")) {
 					var found = false;
 					for(var i = 0; i < site_url_protos.length; i++) {
-						if (get_element_value("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][" + i + "]")) {
+						if (get_form_element_value("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][" + i + "]")) {
 							found = true;
 							break;
 						}
@@ -60,14 +60,14 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 					// if nothing is checked, then select the first protocol
 					if (!found) {
-						var first_proto = get_element("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][0]");
+						var first_proto = get_form_element("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][0]");
 						first_proto.checked = true;
 					}
 
 				// remove all the protocols 
 				} else {
 					for(var i = 0; i < site_url_protos.length; i++) {
-						var proto = get_element("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][" + i + "]");
+						var proto = get_form_element("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][" + i + "]");
 						proto.checked = false;
 					}// end if
 
@@ -78,10 +78,10 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			function site_url_protocol_click(url_num) {
 
 				// if there isn't any value in the url box, it doesn't matter
-				if (!get_element_value("<?php echo $prefix; ?>_urls[" + url_num + "][url]")) return;
+				if (!get_form_element_value("<?php echo $prefix; ?>_urls[" + url_num + "][url]")) return;
 
 				for(var i = 0; i < site_url_protos.length; i++) {
-					if (get_element_value("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][" + i + "]")) return;
+					if (get_form_element_value("<?php echo $prefix; ?>_urls[" + url_num + "][protocols][" + i + "]")) return;
 				}// end if
 
 				// if we get this far then there is nothing checked

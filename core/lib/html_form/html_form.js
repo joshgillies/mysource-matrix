@@ -5,9 +5,9 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-* $Revision: 1.10 $
+* $Revision: 1.11 $
 * $Author: brobertson $
-* $Date: 2003/06/04 07:40:00 $
+* $Date: 2003/06/06 06:29:01 $
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
@@ -72,7 +72,7 @@ set_button_value = set_hidden_field;
 * @return object Form_Element
 * @access public
 */
-function get_element(name) 
+function get_form_element(name) 
 {
 	var f = document.main_form;
 
@@ -84,7 +84,7 @@ function get_element(name)
 
 	}// endif
 
-}// end get_element()
+}// end get_form_element()
 
 
 /**
@@ -95,11 +95,11 @@ function get_element(name)
 * @return string
 * @access public
 */
-function get_element_value(name) 
+function get_form_element_value(name) 
 {
 	var f = document.main_form;
-	return (f.elements[name]) ? element_value(f.elements[name]) : '';
-}// get_element_value()
+	return (f.elements[name]) ? form_element_value(f.elements[name]) : '';
+}// get_form_element_value()
 
 
 
@@ -114,7 +114,7 @@ function get_element_value(name)
 * @return string
 * @access public
 */
-function element_value(element) 
+function form_element_value(element) 
 {
 	// if element doesn't exist, die
 	if (element == null) return "";
@@ -181,7 +181,7 @@ function element_value(element)
 	// else something not right so return blank
 	return "";
 
-}// end element_value()
+}// end form_element_value()
 
 /**
 * Given a select box reference, returns the current text
@@ -369,13 +369,13 @@ function check_date(date_name, show_time)
 {
 	var f = document.main_form;
 
-	var day_box   = get_element('day_'   + date_name);
-	var month_box = get_element('month_' + date_name);
-	var year_box  = get_element('year_'  + date_name);
+	var day_box   = get_form_element('day_'   + date_name);
+	var month_box = get_form_element('month_' + date_name);
+	var year_box  = get_form_element('year_'  + date_name);
 
-	var day     = element_value(day_box);
-	var month   = element_value(month_box);
-	var year    = element_value(year_box);
+	var day     = form_element_value(day_box);
+	var month   = form_element_value(month_box);
+	var year    = form_element_value(year_box);
 
 	if (month == 2) {
 		if (day == 29) {
@@ -407,11 +407,11 @@ function check_date(date_name, show_time)
 
     // if we're showing the time boxes get them as well
 	if(show_time) {
-		var hour_box = get_element('hour_'   + date_name);
-		var min_box  = get_element('min_' + date_name);
+		var hour_box = get_form_element('hour_'   + date_name);
+		var min_box  = get_form_element('min_' + date_name);
 
-		hour = element_value(hour_box);
-		min  = element_value(min_box);
+		hour = form_element_value(hour_box);
+		min  = form_element_value(min_box);
 
 	}// end if
 
