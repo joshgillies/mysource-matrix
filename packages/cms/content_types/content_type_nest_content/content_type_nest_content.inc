@@ -36,7 +36,8 @@ class Content_Type_Nest_Content extends Content_Type
 	*/
 	function isEmpty()
 	{
-		return (empty($this->attr('nested_assetid'));
+		$id = $this->attr('nested_assetid');
+		return empty($id);
 	} // isEmpty()
 
 }//end class
