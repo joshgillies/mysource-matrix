@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.20 2005/01/17 18:06:37 brobertson Exp $
+* $Id: image.inc,v 1.21 2005/01/18 09:27:08 brobertson Exp $
 *
 */
 
@@ -181,8 +181,6 @@ class Image extends File
 	*/
 	function printImageTag($alt='', $title='', $return=false)
 	{
-
-	trigger_error('check need for existingFileInfo() for rollback view');
 		if ($title == '') {
 			$title = ($alt != '') ? $alt : $this->atr('title');
 		}
