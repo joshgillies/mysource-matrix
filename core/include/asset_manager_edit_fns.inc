@@ -174,6 +174,10 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 				$this->_deleteAsset();
 			break;
 
+			case 'link_asset' :
+				$this->_linkAsset();
+			break;
+
 			case 'move_asset' :
 				$this->_moveAsset();
 			break;
@@ -1012,21 +1016,19 @@ speed_check('FINISHED');
 	/**
 	* Ask a user if they want to cascade permission when moving an asset
 	*
+	* @return void
 	* @access private
 	*/
 	function _moveAsset()
 	{
-		$o = &$this->backend->out;
-
-		if (isset($_REQUEST['move_completed']) && $_REQUEST['move_completed']) {
-
+		if (isset($_REQUEST['link_completed']) && $_REQUEST['link_completed']) {
 			// close the window and refresh the asset map
 			require_once 'XML/Tree.php';
 			$xml = new XML_Tree();
 			$xml_root = &$xml->addRoot('assets');
-			$xml_root->addChild('asset', '', Array('assetid' => $_GET['move_parentid']));
-			$xml_root->addChild('asset', '', Array('assetid' => $_GET['move_assetid']));
-			$xml_root->addChild('asset', '', Array('assetid' => $_GET['move_old_parentid']));
+			$xml_root->addChild('asset', '', Array('assetid' => $_GET['link_parentid']));
+			$xml_root->addChild('asset', '', Array('assetid' => $_GET['link_assetid']));
+			$xml_root->addChild('asset', '', Array('assetid' => $_GET['link_old_parentid']));
 			?>
 			<script language="Javascript" type="text/javascript">
 				if (window.opener.top.sidenav && window.opener.top.sidenav.reload_asset) {
@@ -1036,11 +1038,48 @@ speed_check('FINISHED');
 			</script>
 			<?php
 
-		} else if (isset($_GET['move_assetid'])) {
+		} else if (!isset($_GET['link_assetid'])) {
+			$o = &$this->backend->out;
+			$o->addFormActionGetVar('link_old_parentid', $_GET['old_parentid']);
+		}
+
+		return $this->_linkAsset();
+
+	}// end _moveAsset()
+
+
+	/**
+	* Ask a user if they want to cascade permission when creating a new link
+	*
+	* @return void
+	* @access private
+	*/
+	function _linkAsset()
+	{
+		$o = &$this->backend->out;
+
+		if (isset($_REQUEST['link_completed']) && $_REQUEST['link_completed']) {
+
+			// close the window and refresh the asset map
+			require_once 'XML/Tree.php';
+			$xml = new XML_Tree();
+			$xml_root = &$xml->addRoot('assets');
+			$xml_root->addChild('asset', '', Array('assetid' => $_GET['link_parentid']));
+			$xml_root->addChild('asset', '', Array('assetid' => $_GET['link_assetid']));
+			?>
+			<script language="Javascript" type="text/javascript">
+				if (window.opener.top.sidenav && window.opener.top.sidenav.reload_asset) {
+					window.opener.top.sidenav.reload_assets("<?php echo str_replace("\n", "\\n", addslashes($xml->get())); ?>");
+				}
+				window.close();
+			</script>
+			<?php
+
+		} else if (isset($_GET['link_assetid'])) {
 
 			// they have confirmed their intention to move this asset
 			$permission_vars = Array();
-			$parent = &$this->am->getAsset($_GET['move_parentid']);
+			$parent = &$this->am->getAsset($_GET['link_parentid']);
 			
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
 				$set_perms = $parent->getPermission($perm, null, false, false, true);
@@ -1054,9 +1093,9 @@ speed_check('FINISHED');
 
 			//// START HIPO PROCESSING ////
 			
-			$vars = Array('assetid' => $_GET['move_assetid'], 'permission_changes' => $permission_vars);
+			$vars = Array('assetid' => $_GET['link_assetid'], 'permission_changes' => $permission_vars);
 			$codename = 'HIPO_edit_permissions';
-			$complete_url = $_SERVER['REQUEST_URI'].'&move_completed=1';
+			$complete_url = $_SERVER['REQUEST_URI'].'&link_completed=1';
 
 			require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_permissions.inc');
 			$hipo = new HIPO_Job_Edit_Permissions();
@@ -1073,30 +1112,27 @@ speed_check('FINISHED');
 
 			
 		} else {
-
-			$o->addFormActionGetVar('move_assetid',      $_GET['assetid']);
-			$o->addFormActionGetVar('move_parentid',     $_GET['parentid']);
-			$o->addFormActionGetVar('move_old_parentid', $_GET['old_parentid']);
-			$o->addFormActionGetVar('move_linkid',       $_GET['linkid']);
+			$o->addFormActionGetVar('link_assetid',  $_GET['assetid']);
+			$o->addFormActionGetVar('link_parentid', $_GET['parentid']);
 
 			$asset = &$this->am->getAsset($_GET['assetid']);
 			if (is_null($asset)) {
 				trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
-				break;
+				return;
 			}
 
 			$parent = &$this->am->getAsset($_GET['parentid']);
 			if (is_null($asset)) {
 				trigger_error('Asset #'.$_GET['parentid'].' not found', E_USER_WARNING);
-				break;
+				return;
 			}
 
 			// ask if they want to cascade permission
 			$o->openSection('Note');
 				$o->openField('&nbsp;');
-					hidden_field('move_completed', '0');
+					hidden_field('link_completed', '0');
 					?>
-					Press the <b><i>Cascade</i></b> button below if you want to cascade the permissions of "<?php echo $parent->name; ?>" down to "<?php echo $asset->name; ?>" and its children. To skip the cascading of permission, press the <b><i>Skip</i></b> button below.<br/><br/>
+					Press the <b><i>Cascade</i></b> button below if you want to cascade the permissions of "<?php echo $parent->name; ?>" down to "<?php echo $asset->name; ?>" and its children. To skip the cascading of permissions, press the <b><i>Skip</i></b> button below.<br/><br/>
 					The permission of the new parent "<?php echo $parent->name; ?>" are shown below. These permissions will attempt to be set on "<?php echo $asset->name; ?>" and its children if you choose to cascade the permissions.<br/><br/>
 					<b>Note:</b> Any assets that become children of "<?php echo $asset->name; ?>" during the cascade process will not have the permission changes applied to them - only the <i>current</i> children.
 					<?php
@@ -1106,13 +1142,13 @@ speed_check('FINISHED');
 			$o->closeSection();
 
 			$o->openField('', 'commit');
-			normal_button('cancel', 'Skip', 'this.form.move_completed.value = \'1\'; this.form.submit()');
+			normal_button('cancel', 'Skip', 'this.form.link_completed.value = \'1\'; this.form.submit()');
 			echo '&nbsp;';
 			submit_button('commit', 'Cascade');
 
 		}
 
-	}// end _moveAsset()
+	}// end _linkAsset()
 
 
 	/**

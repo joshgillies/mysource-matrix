@@ -664,7 +664,7 @@ class Asset_Map
 			}
 
 			if (!$skip_perms) {
-				$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=move_asset&assetid='.$asset->id.'&parentid='.$new_parent->id.'&old_parentid='.$old_parent->id.'&linkid='.$link['linkid'];
+				$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=move_asset&assetid='.$asset->id.'&parentid='.$new_parent->id.'&old_parentid='.$old_parent->id;
 				$output = new XML_Tree();
 				$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
 				$this->_send($output);
@@ -769,7 +769,21 @@ class Asset_Map
 		$new_parent->acquireLock();
 		$linkid = $new_parent->createLink($asset, $link['link_type'], '', $input->root->attributes['to_parent_pos']);
 		$new_parent->releaseLock();
-		if (!$linkid) {
+		if (!$linkid) return;
+
+		// if our new parent has permission set, do the popup thang to ask the user if
+		// they want to go ahead and cascade these puppies
+		$skip_perms = true;
+		foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
+			$set_perms = $new_parent->getPermission($perm);
+			if (!empty($set_perms)) $skip_perms = false;
+		}
+
+		if (!$skip_perms) {
+			$url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=link_asset&assetid='.$asset->id.'&parentid='.$new_parent->id;
+			$output = new XML_Tree();
+			$root = &$output->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
+			$this->_send($output);
 			return;
 		}
 
