@@ -1,8 +1,10 @@
 
-
 #include "test.as"
 #include "general.as"
+#include "serverExec.as"
 #include "asset.as"
+#include "mcMenuContainerClass.as"
+#include "mcMenuItemClass.as"
 #include "mcListContainerClass.as"
 #include "mcPlusMinus.as"
 #include "mcListItemClass.as"
@@ -14,16 +16,77 @@
 // this indent needs to set to the offset of the text box in a list item
 // from the LHS of a list items background
 _root.LIST_ITEM_INDENT_SPACE   = 20;
-_root.LIST_ITEM_POS_INCREMENTS = 20;
+_root.LIST_ITEM_POS_INCREMENT  = 20;
 // the vertical gap between the last item in a branch and the next item in it's parent's branch
 _root.LIST_ITEM_END_BRANCH_GAP = 10;  
+
+
+function MENU_OPTIONS() {
+
+	var arr = 
+	[
+		{text: "Add",
+		 value: "add",
+		 kids:	[
+					{text: "Folder",
+					 value: "folder",
+					 kids: []
+					},
+				
+					{text: "User",
+					 value: "user",
+					 kids: []
+					},
+					{text: "CMS",
+					 value: "cms",
+					 kids: [
+								{text: "Standard Page",
+								 value: "page",
+								 kids: []
+								},
+							
+								{text: "template",
+								 value: "user",
+								 kids: []
+								},
+								{text: "Page Template",
+								 value: "page_template",
+								 kids: []
+								}
+							
+							]
+
+					}
+				
+				]
+		}
+	
+	];
+
+/*	for (var i in arr) { 
+		for (var j in arr[i]) { 
+			trace('arr['+i+']['+j+'] = ' + arr[i][j]);
+		}
+	}
+*/
+	return arr;
+
+}// end MENU_OPTIONS
+
+
+
+
+
+
+
+
 
 
 
   ///////////////////////////////////////////////////
  // ALL INITIALISATION STUFF                      //
 ///////////////////////////////////////////////////
-asset_xml_load_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=site_map_request&parent_assetid=";
+server_exec_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=site_map_request&";
 
 // Initialise any pop-ups
 _root.progress_bar._visible = false;
@@ -33,12 +96,24 @@ _root.dialog_box._visible = false;
 _root.dialog_box.swapDepths(21);
 _root.dialog_box.stop();
 
-assetXML = new XML();
-assetXML.ignoreWhite = true;
-assetXML.onLoad = assetXMLonLoad;
+server_exec = new serverExec(server_exec_path);
+
+
+
+
+
+
+/*
+// Now attach the menu
+_root.attachMovie("mcMenuContainerID", "menu_container", 1);
+trace(_root.menu_container instanceof MovieClip);
+_root.menu_container._x = 0;
+_root.menu_container._y = 0;
+_root.menu_container.create(_root.MENU_OPTIONS());
+*/
 
 // Now we just attach the list container and get it to sort everything out
-_root.attachMovie("mcListContainerID", "list_container", 1);
+_root.attachMovie("mcListContainerID", "list_container", 2);
 
 //Attach the container on to the "scroller"
 _root.scroller.setScrollContent(_root.list_container);

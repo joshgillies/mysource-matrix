@@ -25,7 +25,7 @@ function mcListContainerClass()
 	this.action = '';
 
 	// the index in the items_order array that the indicator is currently pointing on top of
-	this.move_indicator_pos = 0;
+	this.move_indicator_pos = new Object();
 
 	// Create the Plus Minus Button
 	this.attachMovie("mcMoveIndicatorID", "move_indicator", -1);
@@ -69,10 +69,18 @@ mcListContainerClass.prototype.showKids = function(parent_assetid)
 
 	// else load from server
 	} else {
+
+		var xml = new XML();
+		var cmd_elem = xml.createElement("command");
+		cmd_elem.attributes.action = "get kids";
+		cmd_elem.attributes.parent_assetid = parent_assetid;
+		xml.appendChild(cmd_elem);
+
+		trace(xml);
+
 		// start the loading process, if it returns true loading was initiated
-		if (_root.getAssetKids(parent_assetid)) {
-			this.tmp.parent_assetid = parent_assetid;
-		}
+		_root.server_exec.exec(xml, this, "loadKids", "assets", "Loading Children");
+		this.tmp.parent_assetid = parent_assetid;
 	}
 	
 }// end showKids()
@@ -85,7 +93,6 @@ mcListContainerClass.prototype.showKids = function(parent_assetid)
 */
 mcListContainerClass.prototype.loadKids = function(xml) 
 {
-//	trace('Loading Children with XML Object');
 
 	// get a reference to the parent item
 	var parent_assetid = this.tmp.parent_assetid;
@@ -154,7 +161,6 @@ mcListContainerClass.prototype._displayKids = function(parent_assetid)
 */
 mcListContainerClass.prototype._recurseDisplayKids = function(parent_assetid, parent_name, parent_i) 
 {
-//	trace('Display Children with XML Object : ' + parent_assetid + ' : ' + parent_name + ' : ' + parent_i);
 
 	var i = parent_i + 1;
 
@@ -197,7 +203,6 @@ mcListContainerClass.prototype.hideKids = function(parent_assetid)
 
 mcListContainerClass.prototype._recurseHideKids = function(parent_assetid, parent_name, parent_i) 
 {
-//	trace('Hide Children Assets of : ' + parent_assetid + ' under the parent name : ' + parent_name);
 
 	var i = parent_i + 1;
 	var num_kids = this.assets[parent_assetid].kids.length;
@@ -211,8 +216,6 @@ mcListContainerClass.prototype._recurseHideKids = function(parent_assetid, paren
 		}
 		this[name]._visible = false;
 	}
-
-	trace('Num Kids (' + parent_name + '): ' + num_kids);
 
 	return num_kids;
 
@@ -255,7 +258,7 @@ mcListContainerClass.prototype.refreshList = function(start_i)
 
 	// Now make sure that the filler is big enough for all the content
 	var xpos = Math.max(_root.scroller.getPaneWidth(),  this._width);
-	var ypos = Math.max(_root.scroller.getPaneHeight(), this._height);
+	var ypos = Math.max(_root.scroller.getPaneHeight(), this._height + _root.LIST_ITEM_END_BRANCH_GAP);
 	this.filler.clear();
 	this.filler.beginFill(0xFF0000, 0); // alpha = 0 -> transparent
 	this.filler.lineStyle();
@@ -266,8 +269,7 @@ mcListContainerClass.prototype.refreshList = function(start_i)
 	this.filler.lineTo(0, 0);
 	this.filler.endFill();
 
-
-	//Refresh the scroller
+	// refresh the scroller
 	_root.scroller.refreshPane();
 
 }// end refreshList()
@@ -282,60 +284,78 @@ mcListContainerClass.prototype.refreshList = function(start_i)
 *
 * @param float x 
 * @param float y
+* @param boolean [bleed_gaps] default=false, if the co-ords are over a branch gap returns the pos above the gap
 *
-* @return int
+* @return int | Object
 * @access public
 */
-mcListContainerClass.prototype.getItemPos = function(x, y) 
+mcListContainerClass.prototype.getItemPos = function(x, y, bleed_gaps) 
 {
 
-	if (y < 0) return -1;
-	if (y > this[this.items_order[this.items_order.length - 1].name]._y +  + _root.LIST_ITEM_POS_INCREMENTS) {
-		return this.items_order.length;
-	}
+	if (bleed_gaps == undefined) bleed_gaps = false;
 
-	// OK the biggest problem we have here is the bloody end branch gaps
-	// so what we can do is find the maximum position number that these co-ords
-	// would produce by ignoring the gaps
-	var max_pos = Math.floor(y / _root.LIST_ITEM_POS_INCREMENTS);
+	var pos    = -1;
+	var in_gap = false;
 
-	// make sure the number is valid
-	if (max_pos < 0) {
-		return -1;
-	} else if (max_pos >= this.items_order.length) {
-		max_pos = this.items_order.length - 1;
-	} 
+	if (y > 0) {
 
-	// Now we get a minimum position number, by using the branch count at the max pos
-	var min_pos = max_pos - this.items_order[max_pos].branch_count;
+		var last_pos = this[this.items_order[this.items_order.length - 1].name]._y + _root.LIST_ITEM_POS_INCREMENT + ((bleed_gaps) ? _root.LIST_ITEM_END_BRANCH_GAP : 0);
 
-//	trace("Max : " + max_pos + " Min : " + min_pos);
-
-	while(min_pos <= max_pos) {
-
-		var i = min_pos + Math.round((max_pos - min_pos) / 2);
-
-//		trace(this.items_order[i].name + ', i : ' + i + ', y : ' + y + ' item y : ' + this[this.items_order[i].name]._y + "   Max : " + max_pos + " Min : " + min_pos);
-
-		// if the mouse is before this element make the one above us the new max
-		if (y < this[this.items_order[i].name]._y) {
-			max_pos = i - 1;
-
-		// if the mouse is after this element make the one below us the new min
-		} else if (y > (this[this.items_order[i].name]._y + _root.LIST_ITEM_POS_INCREMENTS)) {
-			min_pos = i + 1;
-
-		// else mouse is in this element 
+		// if we are past the last item in the list return the length of the items_order array
+		if (y > last_pos) {
+			pos = this.items_order.length;
 		} else {
-			return i;
 
-		}
+			// OK the biggest problem we have here is the bloody end branch gaps
+			// so what we can do is find the maximum position number that these co-ords
+			// would produce by ignoring the gaps
+			var max_pos = Math.floor(y / _root.LIST_ITEM_POS_INCREMENT);
 
-	}//end while
+			// make sure the number is valid
+			if (max_pos < 0) {
+				return -1;
+			} else if (max_pos >= this.items_order.length) {
+				max_pos = this.items_order.length - 1;
+			} 
 
-	return -1;
+			// Now we get a minimum position number, by using the branch count at the max pos
+			var min_pos = max_pos - this.items_order[max_pos].branch_count;
 
-}
+			while(min_pos <= max_pos) {
+
+				var i = min_pos + Math.round((max_pos - min_pos) / 2);
+
+				var start_y = this[this.items_order[i].name]._y;
+				var end_y   = this[this.items_order[i].name]._y  + _root.LIST_ITEM_POS_INCREMENT + ((bleed_gaps) ? _root.LIST_ITEM_END_BRANCH_GAP : 0);
+
+				// if the mouse is before this element make the one above us the new max
+				if (y < start_y) {
+					max_pos = i - 1;
+
+				// if the mouse is after this element make the one below us the new min
+				} else if (y > end_y) {
+					min_pos = i + 1;
+
+				// else mouse is in this element 
+				} else {
+					pos    = i;
+					if (bleed_gaps) {
+						// we are in the gap if we are past the end of the item proper
+						in_gap = (y > (this[this.items_order[i].name]._y  + _root.LIST_ITEM_POS_INCREMENT));
+					}
+					break;
+
+				}// end if
+
+			}//end while
+
+		}// end if
+
+	}// end if
+
+	return (bleed_gaps) ? {pos: pos, in_gap: in_gap} : pos;
+
+}// end getItemPos()
 
 mcListContainerClass.prototype.onPress = function() 
 {
@@ -352,7 +372,6 @@ mcListContainerClass.prototype.onPress = function()
 			var pos = this.getItemPos(this._xmouse, this._ymouse);
 			// if this is a proper index, select it
 			if (pos >= 0 && pos < this.items_order.length) {
-				trace('Pos : ' + pos);
 				this.selectItem(this[this.items_order[pos].name]);
 			}
 
@@ -441,7 +460,7 @@ mcListContainerClass.prototype.itemStartMove = function()
 	this.selected_item.move_button.gotoAndStop("btn_down");
 
 	// reset the move indicator info
-	this.move_indicator_pos = -1;
+	this.move_indicator_pos = {pos: -1, in_gap: false};
 
 }// end itemStartMove()
 
@@ -449,19 +468,21 @@ mcListContainerClass.prototype.itemEndMove = function()
 {
 	if (this.action != 'move') return;
 
-	trace("End Item Move at Pos : " + this.move_indicator_pos);
+	trace("End Item Move");
+
+	// if we actually moved
+	if (this.move_indicator_pos.pos != this.selected_item.pos && this.move_indicator_pos.pos != this.selected_item.pos + 1) {
+
+		trace("Move to Pos : " + this.move_indicator_pos.pos + ", in gap : " + this.move_indicator_pos.in_gap);
+
+	}// end if
 
 	this.selected_item.move_button.gotoAndStop("btn_up");
 
 	// clear the drag indicator info
-	this.move_indicator_pos      = -1;
+	this.move_indicator_pos = {pos: -1, in_gap: false};
 	this.move_indicator._visible = false;
 	this.move_indicator.swapDepths(-1);
-
-
-	// reset items depth and position
-	this.selected_item.swapDepths(this.tmp.move_item_depth);
-	this.selected_item.resetXY();
 
 	this.action = '';
 
@@ -475,39 +496,34 @@ mcListContainerClass.prototype.onMouseMove = function()
 		var xm = this._xmouse;
 		var ym = this._ymouse;
 
-		var pos = Math.round(ym / _root.LIST_ITEM_POS_INCREMENTS);
-//		trace('Y : ' + this._ymouse + ' Pos : ' + pos);
+		var pos = this.getItemPos(xm, ym, true);
 		// make sure the number is valid
-		if (pos > this.items_order.length) pos = this.items_order.length;
-		else if (pos < 0) pos = 0;
+		if (pos.pos > this.items_order.length) pos.pos = this.items_order.length;
+		else if (pos.pos < 0) pos.pos = 0;
 
-		if (pos != this.move_indicator_pos) {
+		if (pos.pos != this.move_indicator_pos.pos || pos.in_gap != this.move_indicator_pos.in_gap) {
 			
-			// if we are currently hovering over our old position 
-			// or the position below us do nothing
-			if (pos == this[this.move_item].pos || pos == this[this.move_item].pos + 1) {
-				this.move_indicator._visible = false;
-				this.move_indicator_pos      = -1;
-
-			} else {
-				// if we are past the end of the list, improvise
-				var item_name = (pos == this.items_order.length) ? this.items_order[this.items_order.length - 1].name : this.items_order[pos].name;
-				var incr      = (pos == this.items_order.length) ? _root.LIST_ITEM_POS_INCREMENTS : 0;
-
-				this.move_indicator._x  = this[item_name]._x;
-				this.move_indicator._y  = this[item_name]._y + incr;
-
-//				trace('Pos : ' + pos + ' X : ' + this.move_indicator._x + ' Y : ' + this.move_indicator._y);
-
-				this.move_indicator._visible = true;
-				this.move_indicator_pos = pos;
+			// if we are past the end of the list then we are really at the last pos, in the gap
+			if (pos.pos == this.items_order.length) {
+				pos.pos    = this.items_order.length - 1;
+				pos.in_gap = true;
 			}
+
+			// if we are past the end of the list, improvise
+			var item_name = this.items_order[pos.pos].name;
+			var incr      = (pos.in_gap) ? _root.LIST_ITEM_POS_INCREMENT : 0;
+
+			this.move_indicator._x  = this[item_name]._x;
+			this.move_indicator._y  = this[item_name]._y + incr;
+			this.move_indicator._visible = true;
+			this.move_indicator_pos = pos;
 
 		}// endif
 
-	}// end if moving
+	}// end if action
 
 }// end onMouseMove()
+
 
 Object.registerClass("mcListContainerID", mcListContainerClass);
 

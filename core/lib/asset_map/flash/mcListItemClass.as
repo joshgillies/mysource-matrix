@@ -58,7 +58,7 @@ mcListItemClass.prototype.setIndent = function(indent)
 mcListItemClass.prototype.setPos = function(pos) 
 {
 	if (pos < 0) pos = 0;
-	this._y = (pos * _root.LIST_ITEM_POS_INCREMENTS) + (this._parent.items_order[pos].branch_count * _root.LIST_ITEM_END_BRANCH_GAP);
+	this._y = (pos * _root.LIST_ITEM_POS_INCREMENT) + (this._parent.items_order[pos].branch_count * _root.LIST_ITEM_END_BRANCH_GAP);
 	this.pos = pos;
 }
 
