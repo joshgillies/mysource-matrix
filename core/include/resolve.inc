@@ -297,9 +297,49 @@ class Resolve
 		// They can only become current user if they can login 
 		if (!$user->canLogin()) return false;
 
+		if (!is_null($this->user)) {
+			if (!isset($this->_tmp['current_user_cache'])) $this->_tmp['current_user_cache'] = Array();
+			array_push($this->_tmp['current_user_cache'], Array($this->user->id, $this->user->type()));
+		}
+
 		$this->user = &$user;
 		$this->user_is_root      = $this->userRoot($user);
 		$this->user_is_sys_admin = $this->userSystemAdmin($user);
+
+		return true;
+
+	}// end setCurrentUser()
+
+
+	/**
+	* Reset's the current user to the previously assigned user
+	* SHOULD BE USED WITH CAUTION
+	*
+	* @access public
+	* @return boolean true on success
+	*/
+	function restoreCurrentUser()
+	{
+
+		if (empty($this->_tmp['current_user_cache'])) {
+			$user = null;
+		} else {
+			list($userid, $type_code) = array_pop($this->_tmp['current_user_cache']);
+			$user = &$this->am->getAsset($userid, $type_code);
+		}
+
+		// They can only become current user if they can login 
+		if (is_null($user) || !$user->canLogin()) {
+			unset($this->user); // unset ref first so we don't blow away other references to the user
+			$this->user = null;
+			$this->user_is_root      = false;
+			$this->user_is_sys_admin = false;
+
+		} else {
+			$this->user = &$user;
+			$this->user_is_root      = $this->userRoot($user);
+			$this->user_is_sys_admin = $this->userSystemAdmin($user);
+		}
 
 		return true;
 
