@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_ecommerce.inc,v 1.3 2004/12/06 14:42:21 brobertson Exp $
+* $Id: package_manager_ecommerce.inc,v 1.4 2005/01/12 23:54:04 lwright Exp $
 *
 */
 
@@ -28,13 +28,13 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 * Package_Manager_Ecommerce
 *
 * Purpose
-*    Manages the install and upgrade of the Ecommerce package and News assets,
+*    Manages the install and upgrade of the Ecommerce package assets,
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
-* @subpackage news
+* @subpackage ecommerce
 */
 class Package_Manager_Ecommerce extends Package_Manager
 {
