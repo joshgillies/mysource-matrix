@@ -131,8 +131,8 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 				$message = $ms->newMessage();
 				$message->subject = 'Asset Review Cancelled';
-				$message->body = 'User "'.$user->name.'" has started a safe edit of '.$this->owner->type().' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.getStatusDescription($new_status);
-				$message->to = $this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false);
+				$message->body = 'User "'.$user->name.'" has started a safe edit of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.getStatusDescription($new_status);
+				$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
 				$message->from = 0; // a system message
 				$ms->enqueueMessage($message);
 
@@ -154,8 +154,8 @@ class Asset_Status_Live_Approval extends Asset_Status
 			
 			$message = $ms->newMessage();
 			$message->subject = 'Asset Review Approved';
-			$message->body = 'User "'.$user->name.'" has approved the review on '.$this->owner->type().' "'.$this->owner->name.'".';
-			$message->to = $this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false);
+			$message->body = 'User "'.$user->name.'" has approved the review on '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'".';
+			$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
 			$message->from = 0; // a system message
 			$ms->enqueueMessage($message);
 
@@ -163,8 +163,8 @@ class Asset_Status_Live_Approval extends Asset_Status
 				// send another internal message
 				$message = $ms->newMessage();
 				$message->subject = 'Review Completed';
-				$message->body = 'The review process for '.$this->owner->type().' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now live.';
-				$message->to = $this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false);
+				$message->body = 'The review process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now live.';
+				$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
 				$message->from = 0; // a system message
 				$ms->enqueueMessage($message);
 			}

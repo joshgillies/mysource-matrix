@@ -1368,7 +1368,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		foreach ($perms as $title => $perm) {
 			$o->openSection($title.' Access');
 
-			$permissions = $owner->getPermission($perm, null, false, false, true);
+			$permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 
 			$direct = Array();
 			foreach($permissions as $userid => $access) {
@@ -1522,7 +1522,7 @@ class Asset_Edit_Interface extends Resolve_Object
 													  );
 				} else {
 					// lets do this ourselves
-					if (!$owner->setPermission(0, $perm, $post_data['public_access']['access'])) return false;
+					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, 0, $perm, $post_data['public_access']['access'])) return false;
 				}
 			}
 
@@ -1539,7 +1539,7 @@ class Asset_Edit_Interface extends Resolve_Object
 														  );
 					} else {
 						// lets do this ourselves
-						if (!$owner->setPermission($post_data['new']['userid'], $perm, $post_data['new']['access'])) return false;
+						if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, $post_data['new']['userid'], $perm, $post_data['new']['access'])) return false;
 
 					}
 				}
@@ -1550,20 +1550,20 @@ class Asset_Edit_Interface extends Resolve_Object
 				foreach ($post_data['delete'] as $userid => $on) {
 					$userid = (int)$userid;
 					if ($cascade_changes) {
-						$current = $owner->getPermission($perm, null, false, false, true);
+						$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 						$current_access = $current[$userid];
 						$permission_vars[$perm][] = Array('access'          => -1,
 														  'userid'          => $userid,
 														  'previous_access' => $current_access,
 														  );
 					} else {
-						if (!$owner->deletePermission($userid, $perm)) return false;
+						if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($owner->id, $userid, $perm)) return false;
 					}
 				}
 			}
 
 			if (isset($_POST[$prefix.'_permissions']['manual_cascade']) && $_POST[$prefix.'_permissions']['manual_cascade']) {
-				$current = $owner->getPermission($perm, null, false, false, true);
+				$current = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, $perm, null, false, false, true);
 				foreach ($current as $userid => $access) {
 					$permission_vars[$perm][] = Array('access'          => $access,
 													  'userid'          => $userid,
@@ -1758,7 +1758,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		//// print the list of inherited workflows ////
 
 		$inherited = count($wfm->inherited_workflows);
-		$revoked   = $owner->getPermission(SQ_PERMISSION_WORKFLOW, false);
+		$revoked   = $GLOBALS['SQ_SYSTEM']->am->getPermission($owner->id, SQ_PERMISSION_WORKFLOW, false);
 		$revokes   = count($revoked);
 
 		if ($inherited || $revokes) {
@@ -1996,14 +1996,14 @@ class Asset_Edit_Interface extends Resolve_Object
 		// unrevoke inherited workflow
 		if (isset($_POST[$prefix.'_unrevoke'])) {
 			foreach ($_POST[$prefix.'_unrevoke'] as $assetid => $on) {
-				if (!$owner->deletePermission($assetid, SQ_PERMISSION_WORKFLOW)) return false;
+				if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($owner->id, $assetid, SQ_PERMISSION_WORKFLOW)) return false;
 			}
 		}
 
 		// revoke inherited workflow
 		if (isset($_POST[$prefix.'_revoke'])) {
 			foreach ($_POST[$prefix.'_revoke'] as $assetid => $on) {
-				if (!$owner->setPermission($assetid, SQ_PERMISSION_WORKFLOW, '0')) return false;
+				if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($owner->id, $assetid, SQ_PERMISSION_WORKFLOW, '0')) return false;
 			}
 		}
 

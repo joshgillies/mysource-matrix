@@ -122,8 +122,8 @@ class Asset_Status_Pending_Approval extends Asset_Status
 
 				$message = $ms->newMessage();
 				$message->subject = 'Asset Changes Rejected';
-				$message->body = 'User "'.$user->name.'" has rejected the changes made to '.$this->owner->type().' "'.$this->owner->name.'". The status of "'.$this->owner->name.'" has reverted to '.getStatusDescription($new_status);
-				$message->to = $this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false);
+				$message->body = 'User "'.$user->name.'" has rejected the changes made to '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'". The status of "'.$this->owner->name.'" has reverted to '.getStatusDescription($new_status);
+				$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
 				$message->from = 0; // a system message
 				$ms->enqueueMessage($message);
 
@@ -145,8 +145,8 @@ class Asset_Status_Pending_Approval extends Asset_Status
 			
 			$message = $ms->newMessage();
 			$message->subject = 'Asset Changes Approved';
-			$message->body = 'User "'.$user->name.'" has approved '.$this->owner->type().' "'.$this->owner->name.'" to go live.';
-			$message->to = $this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false);
+			$message->body = 'User "'.$user->name.'" has approved '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" to go live.';
+			$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
 			$message->from = 0; // a system message
 			$ms->enqueueMessage($message);
 
@@ -154,8 +154,8 @@ class Asset_Status_Pending_Approval extends Asset_Status
 				// send another internal message
 				$message = $ms->newMessage();
 				$message->subject = 'Workflow Completed';
-				$message->body = 'The workflow process for '.$this->owner->type().' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now approved and can be made live by an administrator.';
-				$message->to = $this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false);
+				$message->body = 'The workflow process for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now approved and can be made live by an administrator.';
+				$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
 				$message->from = 0; // a system message
 				$ms->enqueueMessage($message);
 			}

@@ -642,7 +642,7 @@ class Workflow_Manager extends Resolve_Object
 						return false;
 					}
 
-					if (!$this->_asset->setPermission($this->_asset->id, SQ_PERMISSION_WORKFLOW, '1')) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->_asset->id, $this->_asset->id, SQ_PERMISSION_WORKFLOW, '1')) {
 						trigger_error('Failed saving workflow for "'.$this->_asset->name.'", could not grant workflow permission', E_USER_WARNING);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
@@ -659,7 +659,7 @@ class Workflow_Manager extends Resolve_Object
 						return false;
 					}
 
-					if (!$this->_asset->deletePermission($this->_asset->id, SQ_PERMISSION_WORKFLOW)) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($this->_asset->id, $this->_asset->id, SQ_PERMISSION_WORKFLOW)) {
 						trigger_error('Failed saving workflow for "'.$this->_asset->name.'", could not revoke workflow permission', E_USER_WARNING);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;

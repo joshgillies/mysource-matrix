@@ -257,9 +257,9 @@ class Asset extends Resolve_Object
 
 			// set permission on this asset that the parent has
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-				$set_perms = $link['asset']->getPermission($perm, null, false, false, true);
+				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($link['asset']->id, $perm, null, false, false, true);
 				foreach ($set_perms as $userid => $access) {
-					if (!$this->setPermission($userid, $perm, $access)) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $userid, $perm, $access)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						$this->id = 0;
 						return false;
@@ -926,12 +926,12 @@ class Asset extends Resolve_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 			$where = 'assetid = '.$db->quote($this->id);
-			$values = Array('name'         => $db->quote($name),
-							'short_name'   => $db->quote($short_name),
-							'languages'    => $db->quote($this->languages),
-							'charset'      => $db->quote($this->charset),
-							'updated' => $db->quote(ts_iso8601($updated)),
-							'updated_userid'  => $db->quote($updated_userid)
+			$values = Array('name'           => $db->quote($name),
+							'short_name'     => $db->quote($short_name),
+							'languages'      => $db->quote($this->languages),
+							'charset'        => $db->quote($this->charset),
+							'updated'        => $db->quote(ts_iso8601($updated)),
+							'updated_userid' => $db->quote($updated_userid)
 							);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -961,10 +961,10 @@ class Asset extends Resolve_Object
 
 		}// end if $this->id
 
-		$this->name         = $name;
-		$this->short_name   = $short_name;
-		$this->updated = $updated;
-		$this->updated_userid  = $updated_userid;
+		$this->name				= $name;
+		$this->short_name		= $short_name;
+		$this->updated			= $updated;
+		$this->updated_userid	= $updated_userid;
 
 		return true;
 
@@ -2551,7 +2551,7 @@ class Asset extends Resolve_Object
 				// whatever it is inheriting right now so it keeps them while in the trash
 				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
 				foreach ($perms as $perm) {
-					$all_permissions = $minor->getPermission($perm, null, false, true, false, true);
+					$all_permissions = $GLOBALS['SQ_SYSTEM']->am->getPermission($minor->id, $perm, null, false, true, false, true);
 					foreach($all_permissions as $userid => $data) {
 						if (empty($data)) continue;
 						foreach($data as $assetid => $access) {
@@ -2559,7 +2559,7 @@ class Asset extends Resolve_Object
 							// we are deliberatly not checking for the return value here
 							// because if for some reason the permission can't be set that is really just
 							// bad luck
-							@$minor->setPermission($userid, $perm, $access);
+							@$GLOBALS['SQ_SYSTEM']->am->setPermission($minor->id, $userid, $perm, $access);
 						}
 					}
 				}
@@ -3243,233 +3243,9 @@ class Asset extends Resolve_Object
 	}//end getAttribute()
 
 
-//--        PERMISSIONS        --//
+//--        PERMISSIONS/ACCESS        --//
 
-
-	/**
-	* Returns an array of all user or user_group assets that have the passed permission for this asset
-	*
-	* @param string		$permission		the permission code you are getting
-	* @param boolean	$access			Type of Access : null = all, true = granted, false = denied
-	* @param boolean	$and_greater	get effective permission (eg read access = read
-	*									or write or admin)
-	* @param boolean	$expand_groups	expand user groups so only user ids get returned
-	*									(NOTE: only valid if $all_info is false)
-	* @param boolean	$all_info		when false fn just returns an array of userids for
-	*									those that have permission
-	*									When true fn returns all info about the permission in the form of
-	*									Array(userid => Array(assetid => access))
-	*									(NOTE: TRUE is only valid if $and_greater and
-	*									$expand_groups are false)
-	*
-	* @return array()
-	* @access public
-	*/
-	function getPermission($permission, $access=null, $and_greater=true, $expand_groups=false, $all_info=false)
-	{
-		$permission = (int) $permission;
-		// can't be and_greater with workflow
-		if ($permission == SQ_PERMISSION_WORKFLOW) $and_greater = false;
-		if (!is_null($access)) $access = (bool)$access;
-
-		if (($and_greater || $expand_groups) && $all_info) {
-			trigger_error(__CLASS__.'::'.__FUNCTION__.'() - You cannot have either and_greater or expand_groups arguments set to true if you want to have all_info set to true', E_USER_NOTICE);
-			$all_info = false;
-		}
-
-		// return cached version if we can
-		$storage_name =(($and_greater) ? 'effective_' : '').'permission_'.$permission;
-		if (!isset($this->_tmp['permission_cache'][$storage_name])) {
-
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-			$sql = '  SELECT DISTINCT assetid, userid, access
-					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission ';
-			$where = 'assetid = '.$db->quote($this->id).'
-					  AND permission '.(($and_greater) ? '>= ' : '= ').$db->quote($permission);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
-			$result = $db->getAll($sql.$where);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return Array();
-			}
-
-			// cache the result for next time
-			$this->_tmp['permission_cache'][$storage_name] = $result;
-
-		}// end if
-
-		$ret_val = Array();
-		foreach($this->_tmp['permission_cache'][$storage_name] as $data) {
-
-			if      ($access === false && $data['access'] != '0') continue;
-			else if ($access === true  && $data['access'] != '1') continue;
-
-			// return all info
-			if ($all_info) {
-				$ret_val[$data['userid']] = $data['access'];
-
-			// else we just want user ids
-			} else {
-
-				// if we are expanding user groups and we aren't public access
-				if ($expand_groups && $data['userid']) {
-					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userid']);
-					if (!is_null($user)) {
-						if (is_a($user, 'user_group')) {
-							$ret_val = array_merge($ret_val, $user->getChildren(Array('user'), false));
-						} else {
-							$ret_val[] = $user->id;
-						}
-					}
-				} else {
-					$ret_val[] = $data['userid'];
-				}
-
-			}// end if all info
-
-		}// end foreach
-
-		if ($all_info) return $ret_val;
-		else           return array_unique($ret_val);
-
-	}//end getPermission()
-
-
-	/**
-	* Sets a permission for the passed user or user_group
-	*
-	* @param int		$userid		the id of the user or user_group to add the permission for
-	* @param string		$permission	the permission code you are adding
-	* @param boolean	$access		whether this permission grants access or not
-	*
-	* @return boolean
-	* @access public
-	*/
-	function setPermission($userid, $permission, $access)
-	{
-		if (!$this->adminAccess()) {
-			trigger_error('Cannot grant permission for "'.$this->name.'", permission denied', E_USER_WARNING);
-			return false;
-		}
-
-		$userid     = (int)  $userid;
-		$permission = (int)  $permission;
-		$access     = (bool) $access;
-
-		// check if this permission is already set
-		$current = $this->getPermission($permission, $access, false);
-		if (in_array($userid, array_values($current))) return true;
-
-		// if we dont have an userid, we are granting public access
-		if ($permission != SQ_PERMISSION_WORKFLOW && !empty($userid)) {
-			// check that the passed userid is a user or user_group
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid, '', true);
-			if (!$user->id) {
-				trigger_error('Cannot grant permission for an asset that does not exist', E_USER_WARNING);
-				return false;
-			} else if (!is_a($user, 'user') && !is_a($user, 'user_group')) {
-				trigger_error('Cannot grant permission for asset type "'.$user->type().'", not a user or user group', E_USER_WARNING);
-				return false;
-			}
-			$user_name = $user->name;
-		} else if ($permission != SQ_PERMISSION_WORKFLOW) {
-			$user_name = 'Asset Workflow';
-		} else {
-			$user_name = 'General Public';
-		}
-
-		// check if the reverse access of this permission is set
-		$current = $this->getPermission($permission, !$access, false);
-		if (in_array($userid, array_values($current))) {
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$perm_name = permission_type_name($permission);
-
-			$new_access     = ($access) ? 'grant'   : 'revoke';
-			$current_access = ($access) ? 'revoked' : 'granted';
-
-			trigger_error('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$this->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'"', E_USER_WARNING);
-			return false;
-		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// add the permission into the database
-		$values = Array('assetid'      => $this->id,
-						'userid'       => $userid,
-						'permission'   => $permission,
-						'access'       => (($access) ? '1' : '0')
-						);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_permission', $values)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// clear the permission cache
-		unset($this->_tmp['permission_cache']);
-		if (!$this->_updated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
-
-	}//end setPermission()
-
-
-	/**
-	* Deletes a permission with the passed user or user_group
-	*
-	* @param int	$userid			the id of the user or user_group to remove the permission from
-	* @param string	$permission		the permission code you are deleting
-	*
-	* @return boolean
-	* @access public
-	*/
-	function deletePermission($userid, $permission)
-	{
-		$userid     = (int) $userid;
-		$permission = (int) $permission;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// if we dont have an userid, we are deleting public access
-		if ($permission != SQ_PERMISSION_WORKFLOW && !empty($userid)) {
-			// check that the passed userid is a user or user_group
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
-			if (!is_a($user, 'user') && !is_a($user, 'user_group')) {
-				trigger_error('Cannot delete permission for asset type "'.$user->type().'", not a user or user group', E_USER_WARNING);
-				return false;
-			}
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// delete and add rollback entries
-		$where = 'userid         = '.$db->quote($userid).'
-				  AND permission = '.$db->quote($permission).'
-				  AND assetid    = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission', $where)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// clear the permission cache
-		unset($this->_tmp['permission_cache']);
-		if (!$this->_updated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
-
-	}//end deletePermission()
-
-
+	
 	/**
 	* Returns true if at least one of the passed assetids has read access to this asset
 	*
@@ -3664,8 +3440,8 @@ class Asset extends Resolve_Object
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		}
 
-		$grants  = $this->getPermission($perm, true);
-		$revokes = $this->getPermission($perm, false);
+		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, true);
+		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, false);
 
 		// has their access been revoked at all?
 		if (!empty($revokes)) {

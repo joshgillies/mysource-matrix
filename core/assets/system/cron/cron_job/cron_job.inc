@@ -191,23 +191,6 @@ class Cron_Job extends Asset
 
 
 	/**
-	* Sets a permission for the passed user or user_group
-	*
-	* @param int		$userid		the id of the user or user_group to add the permission for
-	* @param string		$permission	the permission code you are adding
-	* @param string		$access		whether this permission grants access or not ('1' or '0')
-	*
-	* @return boolean
-	* @access public
-	*/
-	function setPermission($userid, $permission, $access)
-	{
-		trigger_error('You cannot set permissions on the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
-		return false;
-	}// end setPermission()
-
-
-	/**
 	* Can this asset have its last significant link removed (putting it in the trash)?
 	* For Cron Jobs this can only be done by the running user or a sys admin
 	*

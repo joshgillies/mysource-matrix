@@ -123,7 +123,7 @@ class Login_Design extends Design
 		if (!$this->processStatusChange(SQ_STATUS_LIVE)) {
 			trigger_error('Login design failed setting status to LIVE', E_USER_WARNING);
 		}
-		if (!$this->setPermission(0, SQ_PERMISSION_READ, '1')) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, 0, SQ_PERMISSION_READ, '1')) {
 			trigger_error('Login design failed setting public read permission', E_USER_WARNING);
 		}
 
@@ -139,7 +139,7 @@ class Login_Design extends Design
 			if (!$file->processStatusChange(SQ_STATUS_LIVE)) {
 				trigger_error('Login design failed setting status to LIVE for file', E_USER_WARNING);
 			}
-			if (!$file->setPermission(0, SQ_PERMISSION_READ, '1')) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($file->id, 0, SQ_PERMISSION_READ, '1')) {
 				trigger_error('Login design failed setting public read permission for file "'.$file->name.'"', E_USER_WARNING);
 			}
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($file->id);

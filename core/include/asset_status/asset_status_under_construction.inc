@@ -145,8 +145,8 @@ class Asset_Status_Under_Construction extends Asset_Status
 
 			$message = $ms->newMessage();
 			$message->subject = 'Workflow Started';
-			$message->body = 'User "'.$user->name.'" has requested '.$this->owner->type().' "'.$this->owner->name.'" to go live from '.$this->getDescription().'.';
-			$message->to = $this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false);
+			$message->body = 'User "'.$user->name.'" has requested '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->owner->type(), 'name').' "'.$this->owner->name.'" to go live from '.$this->getDescription().'.';
+			$message->to   = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->owner->id, SQ_PERMISSION_ADMIN, true, false);
 			$message->from = 0; // a system message
 			$ms->enqueueMessage($message);
 

@@ -370,89 +370,6 @@ class Asset_Manager extends Resolve_Object
 
 
 	/**
-	* Returns an array of information about assets of the passed codes
-	*
-	* @param array(int)		$assetids			an array of assets to limit
-	* @param array(string)	$type_code			an array of types codes to limit the results to
-	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
-	*
-	* @return mixed
-	* @access public
-	*/
-	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true)
-	{
-		if (empty($assetids)) return Array();
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$where = '';
-
-		for($i = 0; $i < count($assetids); $i++) $assetids[$i] = $db->quote($assetids[$i]);
-		$where .= 'a.assetid IN ('.implode(', ', $assetids).')';
-
-		if (!empty($type_code)) {
-
-			$type_code_cond = '';
-			if (is_array($type_code)) {
-				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
-				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
-			} else {
-				$type_code_cond = '= '.$db->quote($type_code);
-			}
-
-			if ($strict_type_code) {
-				$where .= ' AND a.type_code '.$type_code_cond;
-			} else {
-				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$where .= ' AND a.type_code IN (~SQ0~)';
-				$subs = Array( 'SELECT type_code
-								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-								WHERE inherited_type_code '.$type_code_cond );
-				$where = db_extras_subquery($db, $where, $subs);
-				if (DB::isError($where))
-					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
-			}
-		}// end if
-
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a '.$where.' ORDER BY a.assetid';
-
-		$result = $db->getAll($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
-		}
-
-		$return_result = Array();
-		foreach ($result as $assetid => $row) {
-			foreach ($row as $name => $value) {
-				$return_result[$row['assetid']][$name] = $value;
-			}
-		}
-
-		return $return_result;
-
-	}//end getAssetInfo()
-
-
-	/**
-	* Checks the passed attribute type is valid type or not
-	*
-	* @param string	$attr_type		the type of asset represented by the id
-	*
-	* @return boolean
-	* @access public
-	*/
-	function validAttributeType($attr_type)
-	{
-		$file = SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc';
-		if (!is_file($file)) return false;
-		require_once($file);
-		return class_exists('Asset_Attribute_'.$attr_type);
-
-	}// end _validateAttributeType()
-
-
-	/**
 	* Includes the class file for the passed asset
 	*
 	* @param string	$type_code	the code name for the asset that you want to check
@@ -527,6 +444,24 @@ class Asset_Manager extends Resolve_Object
 		return $result;
 
 	}//end getTypeDescendants()
+
+
+	/**
+	* Checks the passed attribute type is valid type or not
+	*
+	* @param string	$attr_type		the type of asset represented by the id
+	*
+	* @return boolean
+	* @access public
+	*/
+	function validAttributeType($attr_type)
+	{
+		$file = SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc';
+		if (!is_file($file)) return false;
+		require_once($file);
+		return class_exists('Asset_Attribute_'.$attr_type);
+
+	}// end _validateAttributeType()
 
 
 //--        HERITAGE        --//
@@ -782,7 +717,7 @@ class Asset_Manager extends Resolve_Object
 	}//end assetInTrash()
 
 
-//--        ASSET FACTORY        --//
+//--        ASSETS        --//
 
 
 	/**
@@ -926,6 +861,71 @@ class Asset_Manager extends Resolve_Object
 
 
 	/**
+	* Returns an array of information about assets of the passed codes
+	*
+	* @param array(int)		$assetids			an array of assets to limit
+	* @param array(string)	$type_code			an array of types codes to limit the results to
+	* @param boolean		$strict_type_code	ensure returned assets are of the passed type codes
+	*
+	* @return mixed
+	* @access public
+	*/
+	function getAssetInfo($assetids, $type_code=Array(), $strict_type_code=true)
+	{
+		if (empty($assetids)) return Array();
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$where = '';
+
+		for($i = 0; $i < count($assetids); $i++) $assetids[$i] = $db->quote($assetids[$i]);
+		$where .= 'a.assetid IN ('.implode(', ', $assetids).')';
+
+		if (!empty($type_code)) {
+
+			$type_code_cond = '';
+			if (is_array($type_code)) {
+				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+			} else {
+				$type_code_cond = '= '.$db->quote($type_code);
+			}
+
+			if ($strict_type_code) {
+				$where .= ' AND a.type_code '.$type_code_cond;
+			} else {
+				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+				$where .= ' AND a.type_code IN (~SQ0~)';
+				$subs = Array( 'SELECT type_code
+								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+								WHERE inherited_type_code '.$type_code_cond );
+				$where = db_extras_subquery($db, $where, $subs);
+				if (DB::isError($where))
+					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
+			}
+		}// end if
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a '.$where.' ORDER BY a.assetid';
+
+		$result = $db->getAll($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		$return_result = Array();
+		foreach ($result as $assetid => $row) {
+			foreach ($row as $name => $value) {
+				$return_result[$row['assetid']][$name] = $value;
+			}
+		}
+
+		return $return_result;
+
+	}//end getAssetInfo()
+
+	
+	/**
 	* Returns list of all assetids of a certain type
 	*
 	* @param string		$type_code		if this exists then this object is used to load the asset,
@@ -1035,8 +1035,8 @@ pre_echo($sql);
 				// the message queue in the internal messaging system to sending later
 				$message = $ms->newMessage();
 				$message->subject = 'Asset Lock Forceably Acquired';
-				$message->body = 'User "'.$current_user->name.'" has forceably acquired the lock on '.$locked_asset->type().' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
-				$message->to = $locked_asset->getPermission(SQ_PERMISSION_ADMIN, true);
+				$message->body = 'User "'.$current_user->name.'" has forceably acquired the lock on '.$this->getTypeInfo($locked_asset->type(), 'name').' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
+				$message->to   = $this->getPermission($locked_asset->id, SQ_PERMISSION_ADMIN, true);
 				$message->to[] = $user->id;
 				$message->from = 0; // a system message
 
@@ -1249,6 +1249,234 @@ pre_echo($sql);
 
 
 //--        PERMISSIONS        --//
+
+
+	/**
+	* Returns an array of all user or user_group assets that have the passed permission for the passed asset
+	*
+	* @param int		$assetid		the assetid for asset whose permissions to get
+	* @param string		$permission		the permission code you are getting
+	* @param boolean	$access			Type of Access : null = all, true = granted, false = denied
+	* @param boolean	$and_greater	get effective permission (eg read access = read
+	*									or write or admin)
+	* @param boolean	$expand_groups	expand user groups so only user ids get returned
+	*									(NOTE: only valid if $all_info is false)
+	* @param boolean	$all_info		when false fn just returns an array of userids for
+	*									those that have permission
+	*									When true fn returns all info about the permission in the form of
+	*									Array(userid => Array(assetid => access))
+	*									(NOTE: TRUE is only valid if $and_greater and
+	*									$expand_groups are false)
+	*
+	* @return Array()
+	* @access public
+	*/
+	function getPermission($assetid, $permission, $access=null, $and_greater=true, $expand_groups=false, $all_info=false)
+	{
+		$assetid    = (int) $assetid;
+		$permission = (int) $permission;
+		// can't be and_greater with workflow
+		if ($permission == SQ_PERMISSION_WORKFLOW) $and_greater = false;
+		if (!is_null($access)) $access = (bool) $access;
+
+		if (($and_greater || $expand_groups) && $all_info) {
+			trigger_error(__CLASS__.'::'.__FUNCTION__.'() - You cannot have either and_greater or expand_groups arguments set to true if you want to have all_info set to true', E_USER_NOTICE);
+			$all_info = false;
+		}
+
+		if (!isset($this->_tmp['permission_cache'])) $this->_tmp['permission_cache'] = Array();
+		if (!isset($this->_tmp['permission_cache'][$assetid])) $this->_tmp['permission_cache'][$assetid] = Array();
+
+		// return cached version if we can
+		$storage_name =(($and_greater) ? 'effective_' : '').'permission_'.$permission;
+		if (!isset($this->_tmp['permission_cache'][$assetid][$storage_name])) {
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$sql = '  SELECT DISTINCT assetid, userid, access
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission ';
+			$where = 'assetid = '.$db->quote($assetid).'
+					  AND permission '.(($and_greater) ? '>= ' : '= ').$db->quote($permission);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+			$result = $db->getAll($sql.$where);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return Array();
+			}
+
+			// cache the result for next time
+			$this->_tmp['permission_cache'][$assetid][$storage_name] = $result;
+
+		}// end if
+
+		$ret_val = Array();
+		foreach($this->_tmp['permission_cache'][$assetid][$storage_name] as $data) {
+
+			if      ($access === false && $data['access'] != '0') continue;
+			else if ($access === true  && $data['access'] != '1') continue;
+
+			// return all info
+			if ($all_info) {
+				$ret_val[$data['userid']] = $data['access'];
+
+			// else we just want user ids
+			} else {
+
+				// if we are expanding user groups and we aren't public access
+				if ($expand_groups && $data['userid']) {
+					$user = &$this->getAsset($data['userid']);
+					if (!is_null($user)) {
+						if (is_a($user, 'user_group')) {
+							$ret_val = array_merge($ret_val, $user->getChildren(Array('user'), false));
+						} else {
+							$ret_val[] = $user->id;
+						}
+					}
+				} else {
+					$ret_val[] = $data['userid'];
+				}
+
+			}// end if all info
+
+		}// end foreach
+
+		if ($all_info) return $ret_val;
+		else           return array_unique($ret_val);
+
+	}//end getPermission()
+
+
+	/**
+	* Sets a permission for the passed user or user_group
+	*
+	* @param int		$assetid	the assetid for asset whose permissions to set
+	* @param int		$userid		the id of the user or user_group to add the permission for
+	* @param string		$permission	the permission code you are adding
+	* @param boolean	$access		whether this permission grants access or not
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setPermission($assetid, $userid, $permission, $access)
+	{
+		$assetid    = (int)  $assetid;
+		$userid     = (int)  $userid;
+		$permission = (int)  $permission;
+		$access     = (bool) $access;
+
+		$asset = &$this->getAsset($assetid);
+		if (is_null($asset)) return false;
+		if (!$asset->adminAccess()) {
+			trigger_error('Cannot grant permission for "'.$asset->name.'", permission denied', E_USER_WARNING);
+			return false;
+		}
+
+		// check if this permission is already set
+		$current = $this->getPermission($assetid, $permission, $access, false);
+		if (in_array($userid, array_values($current))) return true;
+
+		// if we dont have an userid, we are granting public access
+		if ($permission != SQ_PERMISSION_WORKFLOW && !empty($userid)) {
+			// check that the passed userid is a user or user_group
+			$user = &$this->getAsset($userid, '', true);
+			if (!$user->id) {
+				trigger_error('Cannot grant permission for an asset that does not exist', E_USER_WARNING);
+				return false;
+			} else if (!is_a($user, 'user') && !is_a($user, 'user_group')) {
+				trigger_error('Cannot grant permission for asset type "'.$user->type().'", not a user or user group', E_USER_WARNING);
+				return false;
+			}
+			$user_name = $user->name;
+		} else if ($permission != SQ_PERMISSION_WORKFLOW) {
+			$user_name = 'Asset Workflow';
+		} else {
+			$user_name = 'General Public';
+		}
+
+		// check if the reverse access of this permission is set
+		$current = $this->getPermission($assetid, $permission, !$access, false);
+		if (in_array($userid, array_values($current))) {
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$perm_name = permission_type_name($permission);
+
+			$new_access     = ($access) ? 'grant'   : 'revoke';
+			$current_access = ($access) ? 'revoked' : 'granted';
+
+			trigger_error('Could not '.$new_access.' '.$perm_name.' access for "'.$user_name.'" on "'.$asset->name.'" because this asset already has '.$current_access.' '.$perm_name.' access to "'.$user_name.'"', E_USER_WARNING);
+			return false;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// add the permission into the database
+		$values = Array('assetid'      => $assetid,
+						'userid'       => $userid,
+						'permission'   => $permission,
+						'access'       => (($access) ? '1' : '0')
+						);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_permission', $values)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		// clear the permission cache
+		unset($this->_tmp['permission_cache'][$assetid]);
+
+		return true;
+
+	}//end setPermission()
+
+
+	/**
+	* Deletes a permission with the passed user or user_group
+	*
+	* @param int	$assetid		the assetid for asset whose permissions to delete
+	* @param int	$userid			the id of the user or user_group to remove the permission from
+	* @param string	$permission		the permission code you are deleting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deletePermission($assetid, $userid, $permission)
+	{
+		$assetid    = (int) $assetid;
+		$userid     = (int) $userid;
+		$permission = (int) $permission;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// if we dont have an userid, we are deleting public access
+		if ($permission != SQ_PERMISSION_WORKFLOW && !empty($userid)) {
+			// check that the passed userid is a user or user_group
+			$user = &$this->getAsset($userid);
+			if (!is_a($user, 'user') && !is_a($user, 'user_group')) {
+				trigger_error('Cannot delete permission for asset type "'.$user->type().'", not a user or user group', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// delete and add rollback entries
+		$where = 'userid         = '.$db->quote($userid).'
+				  AND permission = '.$db->quote($permission).'
+				  AND assetid    = '.$db->quote($assetid);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission', $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		// clear the permission cache
+		unset($this->_tmp['permission_cache'][$assetid]);
+
+		return true;
+
+	}//end deletePermission()
 
 
 //--        URL's & HREF's        --//
