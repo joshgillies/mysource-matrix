@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_email_address.inc,v 1.7 2004/07/02 11:03:13 brobertson Exp $
+* $Id: form_question_type_email_address.inc,v 1.8 2004/07/02 11:11:59 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -88,7 +88,7 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 			$form->active_submission[$this->id] = $val;
 
 			// borrow a 'valid email address' rule
-			$req_rule = Array('rule_code' => 'valid_email', 'operator' => '1');
+			$req_rule = Array('rule_code' => 'email', 'operator' => '1');
 			array_push($this->vars['rules']['value'], $req_rule);
 
 			parent::processForm();
@@ -113,7 +113,7 @@ class Form_Question_Type_Email_Address extends Form_Question_Type_Text
 	function generateJSCode()
 	{
 		// borrow a valid email rule
-		$req_rule = Array('rule_code' => 'valid_email', 'operator' => '1');
+		$req_rule = Array('rule_code' => 'email', 'operator' => '1');
 		array_push($this->vars['rules']['value'], $req_rule);
 
 		$code = parent::generateJSCode();
