@@ -4,7 +4,8 @@
 PHP 4.3.0
 PEAR - Base
      - XML_Tree
-
+     - Mail
+     - Mime_Mail
 
 
 
