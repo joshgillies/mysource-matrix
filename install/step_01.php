@@ -25,6 +25,7 @@ define('SQ_CONF_SYSTEM_ROOT_URLS', 'http://beta.squiz.net/greg');
 define('SQ_CONF_PEAR_PATH', SQ_SYSTEM_ROOT.'/php_includes');
 define('SQ_CONF_ASSET_TREE_BASE', 64);
 define('SQ_CONF_ASSET_TREE_SIZE', 4);
+define('SQ_CONF_ROLLBACK_ENABLED', '1');
 define('SQ_CONF_DEFAULT_EMAIL', 'gsherwood@squiz.net');
 define('SQ_CONF_TECH_EMAIL',    'techos@squiz.net');
 

@@ -76,6 +76,7 @@ class Resolve
 	{
 	}// end constructor
 
+
 	/**
 	* This initialises all the objects that we need to use, the reason that we can't do 
 	* this in the constructor is that the Asset_Manager uses the DB in it's constructor 
@@ -119,11 +120,9 @@ class Resolve
 
 		}// end if
 
-
 		if (!empty($_GET['SQ_ACTION'])) {
 			$this->_processGlobalActions();
 		}//end if
-
 
 	}// end init()
 
@@ -311,20 +310,20 @@ class Resolve
 	function currentUser($user)
 	{
 		return ($this->user && $this->user->id == $user->id);
+
 	}//end currentUser()
 
 
 	/**
-	* returns the userid of the current user, or zero if none present (ie frontend)
+	* Returns the userid of the current user, or zero if none present (ie frontend)
 	*
 	* @access public
 	*/
 	function currentUserId()
 	{
 		return ($this->user) ? (int) $this->user->id : 0;
+
 	}//end currentUserId()
-
-
 
 
 	/**
@@ -341,6 +340,7 @@ class Resolve
 		if (!$user->id) return false;
 		if (get_class($user) == 'root_user' && (int) $user->id == 4) return true;
 		return false;
+
 	}//end userRoot()
 
 
@@ -364,6 +364,7 @@ class Resolve
 		foreach ($sys_admins as $data) if ($data['minorid'] == $user->id) return true;
 
 		return false;
+
 	}//end userSystemAdmin()
 
 
@@ -385,6 +386,7 @@ class Resolve
 		$obj_index = count($GLOBALS['SQ_EVENT_LISTENER_OBJECTS']) -1;
 		foreach ($events as $event) $GLOBALS['SQ_EVENT_LISTENERS'][trim($event)][$obj_index] = true;
 		return true;
+
 	}//end addEventListener()
 
 
@@ -408,6 +410,7 @@ class Resolve
 			$object->$function_name($event_data);
 		}
 		return true;
+
 	}//end broadcastEvent()
 
 
@@ -425,6 +428,7 @@ class Resolve
 			$this->ms = new Messaging_Service();
 		}
 		return $this->ms;
+
 	}//end getMessagingService()
 
 
@@ -454,11 +458,346 @@ class Resolve
 				$this->tm->rollback();
 				break;
 		}
+
 	}//end doTransaction()
 
 
 	/**
-	* generates a new login key and returns it
+	* Given a table name and a where clause, this function will copy the rows from the table
+	* to the rollback table. It will handle the time of the rollback across script execution
+	* as well as any conflicts in the times
+	*
+	* @param string	$table_name	the base name of the table (without prefixes)
+	*							eg. asset, workflow etc
+	* @param string	$where_cond	a string to tack onto the WHERE clause of the queries
+	*							to limit the rows have rollback entries created for
+	*
+	* @return boolean
+	* @access public
+	*/
+	function addRollbackEntry($table_name, $where_cond)
+	{
+		if (!SQ_CONF_ROLLBACK_ENABLED) {
+			// rollback is not enabled on the system, so return true
+			// here to let the system know everything is going to plan
+			return true;
+		}
+
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+		// work out the columns in this table and cache them
+		if (empty($this->_tmp['sq_tables'])) {
+			require_once SQ_DATA_PATH.'/private/db/table_columns.inc';
+			$this->_tmp['sq_tables'] = $tables;
+		}
+		$table_cols = $this->_tmp['sq_tables'][$table_name]['columns'];
+
+		$col_string = implode(', ', $table_cols);
+		$where_cond = trim($where_cond);
+		static $effective_from;
+
+		// $effective_from is declared as a static variable so that every time
+		// this function gets called through a script execution, the effective_from
+		// time is always the same, and so rollback entries are in sync
+		if (empty($effective_from)) $effective_from = time();
+		$from_time = $effective_from;
+
+		$delete = ' DELETE FROM '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
+					WHERE '.SQ_TABLE_PREFIX.'effective_from = '.$this->db->quote(ts_iso8601($from_time)).'
+					  AND '.$where_cond;
+
+		// set the effective_to time of the latest rollback entry to the 
+		// effective_from of the new entry
+		$update = ' UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
+					SET '.SQ_TABLE_PREFIX.'effective_to = '.$this->db->quote(ts_iso8601($from_time)).'
+					WHERE '.SQ_TABLE_PREFIX.'effective_to IS NULL
+					  AND '.$where_cond;
+
+		// need an INSERT SELECT to add a rollback entry because we are basically just copying rows
+		// from the "live data" table to the rollback table
+		$insert = ' INSERT INTO '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
+					('.SQ_TABLE_PREFIX.'effective_from, '.SQ_TABLE_PREFIX.'effective_to, '.$col_string.') ';
+		$select = ' SELECT '.$this->db->quote(ts_iso8601($from_time)).', NULL, '.$col_string.'
+					FROM sq_'.$table_name.'
+					WHERE '.$where_cond;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// first we delete all entries in the rollback table that have the same from time
+		// and that we are going to be replacing because their value is no longer the most recent
+		// in this script execution
+		$result = $this->db->query($delete);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		// replace the NULL value effective_to entries because we are adding our own now
+		$result = $this->db->query($update);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		// and finally insert the new rollback rows
+		$result = db_extras_insert_select($this->db, $insert, $select);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end addRollbackEntry()
+
+
+	/**
+	* Constructs and executes an update query after adding rollback entries for the rows
+	* that are going to be updated by the query
+	*
+	* @param string	$table_name		the base name of the table (without prefixes)
+	*								eg. asset, workflow etc
+	* @param array	$update_values	an array in form column => new_value
+	*								NOTE: new values must be quoted outside (ie. $db->quote())
+	* @param string	$where_cond		a string to tack onto the WHERE clause of the query
+	*								to limit the rows that get updated
+	*
+	* @return boolean
+	* @access public
+	*/
+	function rollbackUpdate($table_name, $update_values, $where_cond)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// add the rollback entries for the rows we are going to update
+		if (!$this->addRollbackEntry($table_name, $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// construct the update query
+		$update_sql = 'UPDATE '.SQ_TABLE_PREFIX.$table_name.' SET ';
+		foreach ($update_values as $column => $value) {
+			$update_sql .= $column.' = '.$value.', ';
+		}
+		$update_sql = trim($update_sql, ', ');
+		if (!empty($where_cond)) $update_sql .= ' WHERE '.$where_cond;
+
+		$result = $this->db->query($update_sql);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end rollbackUpdate()
+
+
+	/**
+	* Constructs and executes an insert query and then adds rollback entries for the rows
+	* that were just inserted
+	*
+	* @param string	$table_name		the base name of the table (without prefixes)
+	*								eg. asset, workflow etc
+	* @param array	$insert_values	an array in form column => value
+	*								NOTE: new values should NOT be quoted outside (ie. $db->quote())
+	*
+	* @return boolean
+	* @access public
+	*/
+	function rollbackInsert($table_name, $insert_values)
+	{
+		// we work out the primary key fields for the table we are inserting into
+		// so we can generate a WHERE clause based on the primary key fields and send
+		// that to the function that handles rollback so that it know which rows need
+		// rollback entries created for them
+		if (empty($this->_tmp['sq_tables'])) {
+			require_once SQ_DATA_PATH.'/private/db/table_columns.inc';
+			$this->_tmp['sq_tables'] = $tables;
+		}
+		$primary_cols = $this->_tmp['sq_tables'][$table_name]['primary_key'];
+
+		$col_string = '';
+		$val_string = '';
+		$where_cond = '';
+
+		// go through now and quote all the values we are inserting, as well as
+		// generate the WHERE clause based on primary key fields
+		foreach ($insert_values as $column => $value) {
+			$col_string .= $column.', ';
+			$val_string .= $this->db->quote($value).', ';
+			if (in_array($column, $primary_cols)) {
+				if (!empty($where_cond)) $where_cond .= ' AND ';
+				$where_cond .= $column.' = '.$this->db->quote($value);
+			}
+		}
+		$col_string = trim($col_string, ', ');
+		$val_string = trim($val_string, ', ');
+
+		// construct the insert query
+		$insert_sql = 'INSERT INTO '.SQ_TABLE_PREFIX.$table_name.' ('.$col_string.') VALUES ('.$val_string.')';
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$result = $this->db->query($insert_sql);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		// add the rollback entries for the inserted rows
+		if (!$this->addRollbackEntry($table_name, $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end rollbackInsert()
+
+
+	/**
+	* Constructs and executes an insert select query and then adds rollback entries for the rows
+	* that were just inserted
+	*
+	* @param string	$table_name		the base name of the table (without prefixes)
+	*								eg. asset, workflow etc
+	* @param string	$select_from	the FROM clause (eg. asset a INNER JOIN asset_link l ON...)
+	* @param array	$insert_values	an array in form insert_column => select_column
+									where inset_column is the column in the INSERT table and
+									select_column is the column in the SELECT clause
+	* @param string	$where_cond		a string to tack onto the WHERE clause of the query
+	*								to limit the rows that get selected for inserting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function rollbackInsertSelect($table_name, $select_from, $insert_values, $where_cond)
+	{
+		// we work out the primary key fields for the table we are inserting into
+		// so we can generate a WHERE clause based on the primary key fields and send
+		// that to the function that handles rollback so that it know which rows need
+		// rollback entries created for them
+		if (empty($this->_tmp['sq_tables'])) {
+			require_once SQ_DATA_PATH.'/private/db/table_columns.inc';
+			$this->_tmp['sq_tables'] = $tables;
+		}
+		$primary_cols = $this->_tmp['sq_tables'][$table_name]['primary_key'];
+
+		// we construct a CONCAT clause here, based on the different database types
+		// and their quirks, that we are going to use in
+		$concat_string = '';
+		$concat_col = '';
+		$concat_values = Array();
+		foreach ($insert_values as $col => $value) {
+			if (in_array($col, $primary_cols)) $concat_values[$col] = $value;
+		}
+
+		// INSERT SELECTS are funny because to work out the rows that just got inserted, we
+		// actually contrust a sub-query to pass to the rollback function by concatenating
+		// the primary key fields with a '~' and matching on that
+		// EXAMPLE: assetid~version IN ('12~0.0.2') rather than asset=12 AND version='0.0.2'
+		foreach ($insert_values as $col => $value) {
+			if ($this->db->phptype == 'mysql') {
+				$concat_string = 'CONCAT('.implode(', '.$this->db->quote('~').', ', array_values($concat_values)).')';
+				
+				$concat_col = 'CONCAT('.implode(', '.$this->db->quote('~').', ', array_keys($concat_values)).')';
+			} else {
+				$concat_string = implode(' || '.$this->db->quote('~').' || ', array_values($concat_values));
+				$concat_col = implode(' || '.$this->db->quote('~').' || ', array_keys($concat_values));
+			}
+		}
+
+		// and here is the sub-query, you were promised, to work out the WHERE clause
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+		$where_clause = $concat_col.' IN (~SQ0~)';
+		$subs = Array('SELECT '.$concat_string.' FROM '.$select_from.' WHERE '.$where_cond);
+		$where_clause = db_extras_subquery($this->db, $where_clause, $subs);
+		if (DB::isError($where_clause)) {
+			trigger_error($where_clause->getMessage().'<br/>'.$where_clause->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return 0;
+		}
+
+		// generate the column header string for the INSERT and SELECT tables
+		$col_string = implode(', ', array_keys($insert_values));
+		$select_col_string = implode(', ', array_values($insert_values));
+
+		// construct the queries
+		$insert_sql = 'INSERT INTO '.SQ_TABLE_PREFIX.$table_name.' ('.$col_string.')';
+		$select_sql = 'SELECT '.$select_col_string. ' FROM '.$select_from.' WHERE '.$where_cond;
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$result = db_extras_insert_select($this->db, $insert_sql, $select_sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// add the rollback entries for the inserted rows
+		if (!$this->addRollbackEntry($table_name, $where_clause)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end rollbackInsert()
+
+
+	/**
+	* Constructs and executes a delete query after adding rollback entries for the rows
+	* that are going to be deleted by the query
+	*
+	* @param string	$table_name		the base name of the table to delete from (without prefixes)
+	*								eg. asset, workflow etc
+	* @param string	$where_cond		a string to tack onto the WHERE clause of the query
+	*								to limit the rows that get deleted
+	*
+	* @return boolean
+	* @access public
+	*/
+	function rollbackDelete($table_name, $where_cond)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// add the rollback entries for the rows we are going to delete
+		if (!$this->addRollbackEntry($table_name, $where_cond)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// construct the delete query
+		$delete_sql = 'DELETE FROM '.SQ_TABLE_PREFIX.$table_name.' WHERE '.$where_cond;
+
+		$result = $this->db->query($delete_sql);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end rollbackDelete()
+
+
+	/**
+	* Generates a new login key and returns it
 	*
 	* @access public
 	*/
@@ -466,17 +805,19 @@ class Resolve
 	{
 		require_once SQ_FUDGE_PATH.'/general/general.inc';
 		return $_SESSION['SQ_LOGIN_KEY'] = random_password(20);
+
 	}//end generateLoginKey()
 
 
 	/**
-	* returns the current login key
+	* Returns the current login key
 	*
 	* @access public
 	*/
 	function loginKey()
 	{
 		return $_SESSION['SQ_LOGIN_KEY'];
+
 	}//end loginKey()
 
 
@@ -488,11 +829,12 @@ class Resolve
 	function addMessage($msg)
 	{
 		$this->_msgs[] = $msg;
+
 	}//addMessage()
 
 
 	/**
-	* returns the system messages
+	* Returns the system messages
 	*
 	* @return Array(string)
 	* @access public
@@ -500,11 +842,12 @@ class Resolve
 	function messages()
 	{
 		return (empty($this->_msgs)) ? Array() : $this->_msgs;
+
 	}//end messages()
 
 
 	/**
-	* returns date time string for the passed timestamp
+	* Returns date time string for the passed timestamp
 	*
 	* @param int	$timestamp	timestamp to format, if null uses current timestamp
 	*
@@ -515,11 +858,12 @@ class Resolve
 	{
 		$f = 'd/m/Y H:i:s';
 		return (is_null($timestamp)) ? date($f) : date($f, $timestamp);
+
 	}//end datetime()
 
 
 	/**
-	* returns date string for the passed timestamp
+	* Returns date string for the passed timestamp
 	*
 	* @param int	$timestamp	timestamp to format, if null uses current timestamp
 	*
@@ -530,11 +874,12 @@ class Resolve
 	{
 		$f = 'd/m/Y';
 		return (is_null($timestamp)) ? date($f) : date($f, $timestamp);
+
 	}//end date()
 
 
 	/**
-	* returns time string for the passed timestamp
+	* Returns time string for the passed timestamp
 	*
 	* @param int	$timestamp	timestamp to format, if null uses current timestamp
 	*
@@ -545,7 +890,9 @@ class Resolve
 	{
 		$f = 'H:i:s';
 		return (is_null($timestamp)) ? date($f) : date($f, $timestamp);
+
 	}//end time()
 
 }//end class
+
 ?>

@@ -154,14 +154,16 @@ class Asset extends Resolve_Object
 		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$initial_version = '0.0.0';
 
-		$sql = 'INSERT INTO sq_asset
-				(assetid, version, type_code, name, short_name, status, last_updated, last_userid)
-				VALUES
-				('.$db->quote($assetid).','.$db->quote($initial_version).','.$db->quote($this->type()).', '.$db->quote($name).', '.$db->quote($name).', '.$db->quote(SQ_STATUS_UNDER_CONSTRUCTION).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		$values = Array('assetid'      => $assetid,
+						'version'      => $initial_version,
+						'type_code'    => $this->type(),
+						'name'         => $name,
+						'short_name'   => $name,
+						'status'       => SQ_STATUS_UNDER_CONSTRUCTION,
+						'last_updated' => ts_iso8601($now),
+						'last_userid'  => $userid
+						);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -297,15 +299,17 @@ class Asset extends Resolve_Object
 		// version number starts at 0.0.0 again because the dupe is a brand new asset
 		$initial_version = '0.0.0';
 
-		$sql = 'INSERT INTO sq_asset
-				(assetid, version, type_code, name, short_name, status, last_updated, last_userid)
-				VALUES
-				('.$db->quote($assetid).','.$db->quote($initial_version).','.$db->quote($this->type()).', '.$db->quote($this->name.' - Duplicate').', '.$db->quote($this->short_name.' - Duplicate').', '.$db->quote(SQ_STATUS_UNDER_CONSTRUCTION).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
+		$values = Array('assetid'      => $assetid,
+						'version'      => $initial_version,
+						'type_code'    => $this->type(),
+						'name'         => $this->name.' - Duplicate',
+						'short_name'   => $this->short_name.' - Duplicate',
+						'status'       => SQ_STATUS_UNDER_CONSTRUCTION,
+						'last_updated' => ts_iso8601($now),
+						'last_userid'  => $userid
+						);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return $null;
 		}
 
@@ -483,11 +487,8 @@ class Asset extends Resolve_Object
 			}
 		}
 
-		$sql = 'DELETE FROM sq_asset WHERE assetid = '.$db->quote($this->id);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		$where_cond = 'assetid = '.$db->quote($this->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -903,21 +904,19 @@ class Asset extends Resolve_Object
 		// if we have an ID hit the DB
 		if ($this->id) {
 
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'UPDATE sq_asset
-					SET name         = '.$db->quote($name).',
-						short_name   = '.$db->quote($short_name).',
-						languages    = '.$db->quote($this->languages).',
-						charset      = '.$db->quote($this->charset).',
-						last_updated = '.$db->quote(ts_iso8601($last_updated)).',
-						last_userid  = '.$db->quote($last_userid).'
-					WHERE assetid = '.$db->quote($this->id);
-
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$where = 'assetid = '.$db->quote($this->id);
+			$values = Array('name'         => $db->quote($name),
+							'short_name'   => $db->quote($short_name),
+							'languages'    => $db->quote($this->languages),
+							'charset'      => $db->quote($this->charset),
+							'last_updated' => $db->quote(ts_iso8601($last_updated)),
+							'last_userid'  => $db->quote($last_userid)
+							);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -984,15 +983,11 @@ class Asset extends Resolve_Object
 		$new_version = implode('.', $version_parts);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'UPDATE sq_asset
-				SET version   = '.$db->quote($new_version).'
-				WHERE assetid = '.$db->quote($this->id);
 
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		$where = 'assetid = '.$db->quote($this->id);
+		$values = Array('version' => $db->quote($new_version));
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -1117,13 +1112,10 @@ class Asset extends Resolve_Object
 			}
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'UPDATE sq_asset
-					SET status    = '.$db->quote($new_status).'
-					WHERE assetid = '.$db->quote($this->id);
 
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$where = 'assetid = '.$db->quote($this->id);
+			$values = Array('status' => $db->quote($new_status));
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -1357,13 +1349,10 @@ class Asset extends Resolve_Object
 				$new_id = $tmp->vars[$var_name]['attributeid'];
 
 				// now update attributeid
-				$sql = 'UPDATE sq_asset_attribute_value
-						SET attributeid = '.$new_id.'
-						WHERE assetid = '.$db->quote($this->id).'
+				$where = 'assetid = '.$db->quote($this->id).'
 						  AND attributeid = '.$current_id;
-				$result = $db->query($sql);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				$values = Array('attributeid' => $db->quote($new_id));
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_value', $values, $where)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -1377,26 +1366,17 @@ class Asset extends Resolve_Object
 			$deletes_attributeids = '';
 			foreach($deletes_var_list as $var_name) $deletes_attributeids .= (($deletes_attributeids) ? ',' : '').$db->quote($this->vars[$var_name]['attributeid']);
 
-			// now insert new entry
-			$sql = 'DELETE FROM sq_asset_attribute_value
-					WHERE assetid = '.$db->quote($this->id).'
-					  AND attributeid IN ('.$deletes_attributeids.')';
-
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$where_cond = ' assetid = '.$db->quote($this->id).'
+							AND attributeid IN ('.$deletes_attributeids.')';
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_attribute_value', $where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 		}// end if delete var list
 
-		$sql = 'UPDATE sq_asset
-				SET type_code    = '.$db->quote($new_type_code).'
-				WHERE assetid = '.$db->quote($this->id);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		$where = 'assetid = '.$db->quote($this->id);
+		$values = Array('type_code' => $db->quote($new_type_code));
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -1592,16 +1572,13 @@ class Asset extends Resolve_Object
 		}
 
 		// now try and get the lock on ourself
-		$sql = 'INSERT INTO sq_asset_lock
-				(assetid, source_asset, userid, expires)
-				VALUES
-				('.$db->quote($this->id).', '.$db->quote($source).',
-				 '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserid()).',
-				 '.$db->quote(ts_iso8601($expires)).')';
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
+		$values = Array('assetid'      => $this->id,
+						'source_asset' => $source,
+						'userid'       => $GLOBALS['SQ_SYSTEM']->currentUserid(),
+						'expires'      => ts_iso8601($expires)
+						);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lock', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -1632,13 +1609,10 @@ class Asset extends Resolve_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'DELETE FROM sq_asset_lock
-				WHERE source_asset = '.$db->quote($current_lock['source_asset']);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
+		
+		$where_cond = 'source_asset = '.$db->quote($current_lock['source_asset']);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lock', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -1668,13 +1642,10 @@ class Asset extends Resolve_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'UPDATE sq_asset_lock
-				SET expires        = '.$db->quote(ts_iso8601($expires)).'
-				WHERE source_asset = '.$db->quote($current_lock['source_asset']);
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
+		$where = 'source_asset = '.$db->quote($current_lock['source_asset']);
+		$values = Array('expires' => $db->quote(ts_iso8601($expires)));
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_lock', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -1756,15 +1727,10 @@ class Asset extends Resolve_Object
 		$now = date('Y-m-d H:i:s');
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		// just get the permissions set for this asset
-		$sql = 'DELETE FROM sq_asset_lock
-				WHERE source_asset = '.$db->quote($current_lock['source_asset']).'
-				  AND expires < '.$db->quote($now);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
+		$where_cond = ' source_asset = '.$db->quote($current_lock['source_asset']).'
+						AND expires < '.$db->quote($now);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lock', $where_cond)) {
+			return false;
 		}
 
 		return true;
@@ -2070,6 +2036,7 @@ class Asset extends Resolve_Object
 	*
 	* @param object Asset	$minor		the minor asset that we are linking to
 	* @param string			$link_type	the type of link this is
+	* @param int			$exclusive	the exclusive status of the link (gets passed to canLinkToType)
 	*
 	* @return mixed TRUE or error message string
 	* @access public
@@ -2415,46 +2382,43 @@ class Asset extends Resolve_Object
 
 				// because the root folder is not a minor party in any links we have
 				// to something special for it
+				$where_cond = '';
 				if ($this->id == 1) {
-					$sql = 'DELETE FROM sq_asset_link_tree
-							WHERE treeid = '.$db->quote($free_childid);
+					$where_cond = 'treeid = '.$db->quote($free_childid);
 				} else {
+					$where_cond = 'treeid IN (~SQ0~)';
+					
 					$concat = ($db->phptype == 'mysql')
 								? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
 								: 't.treeid || '.$db->quote($free_childid);
-
-					$sql = 'DELETE FROM sq_asset_link_tree
-							WHERE treeid IN (~SQ0~)';
-					$subs = Array('SELECT '.$concat.'
+					$subs = Array(' SELECT '.$concat.'
 									FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
 									WHERE l.minorid = '.$db->quote($this->id));
-					$sql = db_extras_subquery($db, $sql, $subs);
-					if (DB::isError($sql)) {
-						trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+					$where_cond = db_extras_subquery($db, $where_cond, $subs);
+					if (DB::isError($where_cond)) {
+						trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return 0;
 					}
+					
 				}
 
-				$result = $db->query($sql);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link_tree', $where_cond)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
 
 			}// end if
 
-			$insert = 'INSERT INTO sq_asset_link_tree (treeid, linkid, num_immediate_kids)';
-
 			// if we don't have any existing tree entries then
 			// we are the root folder, so do a simple insert
 			if ((string) $existing_treeid == '') {
-				$sql = $insert.' VALUES ('.$db->quote($free_childid).', '.$db->quote($linkid).', '.$db->quote($minor_tree['num_immediate_kids']).')';
+				$values = Array('treeid'             => $free_childid,
+								'linkid'             => $linkid,
+								'num_immediate_kids' => $minor_tree['num_immediate_kids']
+								);
 
-				$result = $db->query($sql);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link_tree', $values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
@@ -2464,37 +2428,35 @@ class Asset extends Resolve_Object
 				// so much for SQL standards...
 				$concat = ($db->phptype == 'mysql')
 							? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
-							: 't.treeid || '.$db->quote($free_childid);
-				$select = 'SELECT '.$concat.', '.$db->quote($linkid).', '.$db->quote($minor_tree['num_immediate_kids']).'
-							FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
-							WHERE l.minorid = '.$db->quote($this->id);
+							: '(t.treeid || '.$db->quote($free_childid).')';
 
-				$result = db_extras_insert_select($db, $insert, $select);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				$where = 'l.minorid = '.$db->quote($this->id);
+				$select_from = 'sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid';
+				$values = Array('treeid'             => $concat,
+								'linkid'             => $db->quote($linkid),
+								'num_immediate_kids' => $db->quote($minor_tree['num_immediate_kids'])
+								);
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_link_tree', $select_from, $values, $where)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
 			}// end if
 
 			// Update the parents to tell them that they are have one kid more
-			$sql = 'UPDATE sq_asset_link_tree
-					   SET num_immediate_kids = num_immediate_kids + 1
-					WHERE treeid IN (~SQ0~)';
+			$where_cond = 'treeid IN (~SQ0~)';
 			$subs = Array('SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
 							FROM sq_asset_link_tree t
 							WHERE t.linkid = '.$db->quote($linkid));
 
-			$sql = db_extras_subquery($db, $sql, $subs);
-			if (DB::isError($sql)) {
-				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+			$where_cond = db_extras_subquery($db, $where_cond, $subs);
+			if (DB::isError($where_cond)) {
+				trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
 
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			$values = Array('num_immediate_kids' => 'num_immediate_kids + 1');
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link_tree', $values, $where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
@@ -2507,18 +2469,16 @@ class Asset extends Resolve_Object
 							? 'CONCAT(pt.treeid, '.$db->quote($free_childid).', SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).'))'
 							: 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ct.treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')';
 
-				// the 'ct.treeid > ' line makes sure that we get only the children of the minor,
-				// because we added the tree link to the minor above
-				$select = 'SELECT '.$concat.', ct.linkid, ct.num_immediate_kids
-							FROM sq_asset_link_tree pt INNER JOIN sq_asset_link pl ON pt.linkid = pl.linkid,
-								sq_asset_link_tree ct
-							WHERE pl.minorid = '.$db->quote($this->id).'
-							  AND ct.treeid LIKE '.$db->quote($minor_tree['treeid'].'%').'
-							  AND ct.treeid > '.$db->quote($minor_tree['treeid']);
-
-				$result = db_extras_insert_select($db, $insert, $select);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				$where = 'pl.minorid = '.$db->quote($this->id).'
+						  AND ct.treeid LIKE '.$db->quote($minor_tree['treeid'].'%').'
+						  AND ct.treeid > '.$db->quote($minor_tree['treeid']);
+				$select_from = 'sq_asset_link_tree pt INNER JOIN sq_asset_link pl ON pt.linkid = pl.linkid,
+								sq_asset_link_tree ct';
+				$values = Array('treeid'             => $concat,
+								'linkid'             => 'ct.linkid',
+								'num_immediate_kids' => 'ct.num_immediate_kids'
+								);
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_link_tree', $select_from, $values, $where)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
@@ -2533,48 +2493,46 @@ class Asset extends Resolve_Object
 					? 'CONCAT(pt.treeid, '.$db->quote($free_childid).', SUBSTRING(ctp.stop_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).'))'
 					: 'pt.treeid || '.$db->quote($free_childid).' || SUBSTRING(ctp.stop_treeid FROM '.$db->quote(strlen($minor_tree['treeid']) + 1).')';
 
-				$permission_insert = 'INSERT INTO sq_asset_permission_lookup
-										(permissionid, start_treeid, stop_treeid, inc_stop) ';
-				$select = 'SELECT ctp.permissionid, '.$concat_start_treeid.', '.$concat_stop_treeid.', ctp.inc_stop
-							FROM sq_asset_link_tree pt INNER JOIN sq_asset_link pl ON pt.linkid = pl.linkid,
-								sq_asset_permission_lookup ctp
-							WHERE pl.minorid = '.$db->quote($this->id).'
-							  AND ctp.start_treeid LIKE '.$db->quote($minor_tree['treeid'].'%');
-				$result = db_extras_insert_select($db, $permission_insert, $select);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+
+				$where = 'pl.minorid = '.$db->quote($this->id).'
+						  AND ctp.start_treeid LIKE '.$db->quote($minor_tree['treeid'].'%');
+				$select_from = 'sq_asset_link_tree pt INNER JOIN sq_asset_link pl ON pt.linkid = pl.linkid, sq_asset_permission_lookup ctp';
+				$values = Array('permissionid' => 'ctp.permissionid',
+								'start_treeid' => $concat_start_treeid,
+								'stop_treeid'  => $concat_stop_treeid,
+								'inc_stop'     => 'ctp.inc_stop'
+								);
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_permission_lookup', $select_from, $values, $where)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
+
 			}// end if
 
 		}// end if significant link
 
 		// move the sort_order for all the other assets up one
-		$sql = 'UPDATE sq_asset_link
-				SET sort_order = sort_order + 1
-				WHERE majorid     = '.$db->quote($this->id).'
-				  AND sort_order >= '.$db->quote($sort_order);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		$where_cond = ' majorid         = '.$db->quote($this->id).'
+						AND sort_order >= '.$db->quote($sort_order);
+		$values = Array('sort_order' => 'sort_order + 1');
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $values, $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
 
 		// and finally insert the link
-		$sql = 'INSERT INTO sq_asset_link
-				(linkid, majorid, minorid, link_type, value, sort_order, dependant, exclusive, last_updated, last_userid)
-				VALUES
-				('.$db->quote($linkid).', '.$db->quote($this->id).', '.$db->quote($minor->id).', '.$db->quote($link_type).', '
-				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(($dependant) ? '1' : '0').', '.$db->quote(($exclusive) ? '1' : '0').', '.$db->quote(ts_iso8601(time())).',
-				'.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).')';
-
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		$values = Array('linkid'       => $linkid,
+						'majorid'      => $this->id,
+						'minorid'      => $minor->id,
+						'link_type'    => $link_type,
+						'value'        => $value,
+						'sort_order'   => $sort_order,
+						'dependant'    => (($dependant) ? '1' : '0'),
+						'exclusive'    => (($exclusive) ? '1' : '0'),
+						'last_updated' => ts_iso8601(time()),
+						'last_userid'  => $GLOBALS['SQ_SYSTEM']->currentUserId()
+						);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return 0;
 		}
@@ -2713,57 +2671,52 @@ class Asset extends Resolve_Object
 			}
 
 			//// UPDATE PERMISSIONS LOOKUP TABLE ////
-
-			// Remove all lookup references to the permissions that occured below this link
-			$sql = 'DELETE FROM sq_asset_permission_lookup
-					WHERE start_treeid in (~SQ0~)';
+			$where_cond_string = 'start_treeid in (~SQ0~)';
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')' : 't.treeid || '.$db->quote('%');
 			$subs = Array('SELECT pl.start_treeid
 							FROM sq_asset_link_tree t, sq_asset_permission_lookup pl
 							WHERE t.linkid = '.$db->quote($linkid).'
 							  AND pl.start_treeid LIKE '.$concat);
-			$sql = db_extras_subquery($db, $sql, $subs);
-			if (DB::isError($sql)) {
+							  error_log($subs[0]);
+			$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
+			if (DB::isError($where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+				trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
+			// Remove all lookup references to the permissions that occured below this link
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission_lookup', $where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
+
 
 			//// UPDATE THE TREE ////
 
 			// Update the parents to tell them that they are going to be one kid less
-			$sql = 'UPDATE sq_asset_link_tree
-					   SET num_immediate_kids = num_immediate_kids - 1
-					WHERE treeid IN (~SQ0~)';
+			$where_cond_string = 'treeid in (~SQ0~)';
 			$subs = Array('SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
 							FROM sq_asset_link_tree t
 							WHERE t.linkid = '.$db->quote($linkid));
 
-			$sql = db_extras_subquery($db, $sql, $subs);
-			if (DB::isError($sql)) {
+			$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
+			if (DB::isError($where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+				trigger_error($sql->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
+			// add a rollback entry for the tree
+			$values = Array('num_immediate_kids' => 'num_immediate_kids - 1');
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link_tree', $values, $where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 
 			// We can delete all the links under these nodes because it will be a clean start
 			// when we insert into the gap's we create below
-			$sql = 'DELETE FROM sq_asset_link_tree
-					WHERE treeid in (~SQ0~)';
+			$where_cond_string = 'treeid in (~SQ0~)';
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
 			$subs = Array('SELECT ct.treeid
 							FROM sq_asset_link_tree pt, sq_asset_link_tree ct
@@ -2771,57 +2724,44 @@ class Asset extends Resolve_Object
 							  AND ct.treeid LIKE '.$concat.'
 							  AND ct.treeid > pt.treeid');
 
-			$sql = db_extras_subquery($db, $sql, $subs);
-			if (DB::isError($sql)) {
+			$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
+			if (DB::isError($where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+				trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link_tree', $where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 
 			// We are going to set the treeid nodes that this link is associated
 			// with to zero so that we can find it as a gap when we createLink() later on
-			$sql = 'UPDATE sq_asset_link_tree
-					   SET linkid = 0,
-					       num_immediate_kids = 0
-					WHERE linkid = '.$db->quote($linkid);
-
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
+			$where = 'linkid = '.$db->quote($linkid);
+			$values = Array('linkid' => $db->quote('0'),
+							'num_immediate_kids' => $db->quote('0')
+							);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link_tree', $values, $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				return false;
 			}
 
 		}// end if significant link
 
 		// move 'em up, higher
-		$sql = 'UPDATE sq_asset_link
-				SET sort_order = sort_order - 1
-				WHERE majorid    = '.$db->quote($this->id).'
-				  AND sort_order > '.$db->quote($link['sort_order']);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
+		$where_cond = ' majorid        = '.$db->quote($this->id).'
+						AND sort_order > '.$db->quote($link['sort_order']);
+		$values = Array('sort_order' => 'sort_order - 1');
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $values, $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
-		$sql = 'DELETE FROM sq_asset_link
-				WHERE linkid  = '.$db->quote($linkid).'
-				  AND majorid = '.$db->quote($this->id);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
+		$where_cond = ' linkid  = '.$db->quote($linkid).'
+						AND majorid = '.$db->quote($this->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 			return false;
 		}
 
@@ -3049,17 +2989,14 @@ class Asset extends Resolve_Object
 				}
 			}
 
-			$set_clauses[] = 'link_type = '.$db->quote($link_type);
+			$set_clauses['link_type'] = $db->quote($link_type);
 
 		}// end if link_type_changed
 
-		if ($value_changed) {
-			$set_clauses[] = 'value = '.$db->quote($value);
-		}
+		if ($value_changed) $set_clauses['value'] = $db->quote($value);
 
 		if ($sort_order_changed) {
-
-			$sql = 'SELECT COUNT(*) as count, MAX(sort_order) as max
+			$sql = 'SELECT COUNT(*) AS count, MAX(sort_order) AS max
 					FROM sq_asset_link
 					WHERE majorid = '.$db->quote($this->id);
 			$row = $db->getRow($sql);
@@ -3070,22 +3007,17 @@ class Asset extends Resolve_Object
 			$max = ($row['count'] > 0) ? (int) $row['max'] : 0;
 			if ($sort_order > $max || $sort_order < 0) $sort_order = $max;
 
-			$set_clauses[] = 'sort_order = '.$db->quote($sort_order);
+			$set_clauses['sort_order'] = $db->quote($sort_order);
 		}
 
 		// dickhead check
 		if (empty($set_clauses)) return true;
 
-		$sql = 'UPDATE sq_asset_link
-				SET '.implode(', ', $set_clauses).',
-				    last_userid  = '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserId()).',
-				    last_updated = '.$db->quote(ts_iso8601(time())).'
-				WHERE linkid    = '.$db->quote($linkid).'
-				  AND majorid   = '.$db->quote($this->id);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		$set_clauses['last_userid']  = $db->quote($GLOBALS['SQ_SYSTEM']->currentUserId());
+		$set_clauses['last_updated'] = $db->quote(ts_iso8601(time()));
+		$where = '  linkid      = '.$db->quote($linkid).'
+					AND majorid = '.$db->quote($this->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $set_clauses, $where)) {
 			return false;
 		}
 
@@ -3101,27 +3033,27 @@ class Asset extends Resolve_Object
 
 		if ($sort_order_changed) {
 			// move 'em up, higher
+			error_log('move higher');
 			if ($link['sort_order'] > $sort_order) {
-				$sql = 'UPDATE sq_asset_link
-						SET sort_order = sort_order + 1
-						WHERE majorid = '.$db->quote($this->id).'
-						  AND linkid <> '.$db->quote($linkid).'
-						  AND sort_order >= '.$db->quote($sort_order).'
-						  AND sort_order <= '.$db->quote($link['sort_order']);
+				$where = '  majorid = '.$db->quote($this->id).'
+							AND linkid <> '.$db->quote($linkid).'
+							AND sort_order >= '.$db->quote($sort_order).'
+							AND sort_order <= '.$db->quote($link['sort_order']);
+				$values = Array('sort_order' => 'sort_order + 1');
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $values, $where)) {
+					return false;
+				}
 
 			} else {
-				$sql = 'UPDATE sq_asset_link
-						SET sort_order = sort_order - 1
-						WHERE majorid = '.$db->quote($this->id).'
-						  AND linkid <> '.$db->quote($linkid).'
-						  AND sort_order >= '.$db->quote($link['sort_order']).'
-						  AND sort_order <= '.$db->quote($sort_order);
-			}
-
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return false;
+				error_log('move lower');
+				$where = '  majorid = '.$db->quote($this->id).'
+							AND linkid <> '.$db->quote($linkid).'
+							AND sort_order >= '.$db->quote($link['sort_order']).'
+							AND sort_order <= '.$db->quote($sort_order);
+				$values = Array('sort_order' => 'sort_order - 1');
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link', $values, $where)) {
+					return false;
+				}
 			}
 
 		}// end if sort order changed
@@ -3192,28 +3124,28 @@ class Asset extends Resolve_Object
 			}
 
 			if ($count) {
-				// now insert new entry
-				$sql = 'UPDATE sq_asset_attribute_value
-						SET custom_value = '.$db->quote($save_value).'
-						WHERE assetid = '.$db->quote($this->id).'
-						  AND attributeid = '.$db->quote($attributeid);
+				// update existing entry
+				$where = '  assetid = '.$db->quote($this->id).' 
+							AND attributeid = '.$db->quote($attributeid);
+				$values = Array('custom_value' => $db->quote($save_value));
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_value', $values, $where)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$attribute->setValue($old_value);
+					return false;
+				}
 
 			} else {
 				// now insert new entry
-				$sql = 'INSERT INTO sq_asset_attribute_value
-						(assetid, attributeid, custom_value)
-						VALUES
-						('.$db->quote($this->id).', '.$db->quote($attributeid).', '.$db->quote($save_value).')';
+				$values = Array('assetid'      => $this->id,
+								'attributeid'  => $attributeid,
+								'custom_value' => $save_value);
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_attribute_value', $values)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$attribute->setValue($old_value);
+					return false;
+				}
 
 			}// end if
-
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$attribute->setValue($old_value);
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
 
 		}// end if this->id
 
@@ -3444,14 +3376,13 @@ class Asset extends Resolve_Object
 		}
 
 		// add the permission into the database
-		$sql = 'INSERT INTO sq_asset_permission
-				(permissionid, assetid, userid, permission, access)
-				VALUES
-				('.$db->quote($permissionid).', '.$db->quote($this->id).', '.$db->quote($userid).', '.$db->quote($permission).', '.$db->quote($access).')';
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		$values = Array('permissionid' => $permissionid,
+						'assetid'      => $this->id,
+						'userid'       => $userid,
+						'permission'   => $permission,
+						'access'       => $access
+						);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_permission', $values)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -3519,11 +3450,9 @@ class Asset extends Resolve_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'DELETE FROM sq_asset_permission
-				WHERE permissionid = '.$db->quote($permissionid);
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+		// delete and add rollback entries
+		$where_cond = 'permissionid = '.$db->quote($permissionid);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -3704,35 +3633,28 @@ class Asset extends Resolve_Object
 		foreach($existing_perms as $our_treeid => $existing_perm) {
 			foreach($existing_perm as $start_treeid => $existing_perm_data) {
 				// update the existing entries to start with ourselves
-				$sql = 'UPDATE sq_asset_permission_lookup
-						SET start_treeid = '.$db->quote($our_treeid).',
-							permissionid = '.$db->quote($permissionid).'
-						WHERE start_treeid = '.$db->quote($start_treeid).'
-						  AND stop_treeid IN ('.implode(',', $existing_perm_data['stop_treeids']).')
-						  AND permissionid = '.$db->quote($existing_perm_data['permissionid']);
-
-				$result = $db->query($sql);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				$where = '  start_treeid = '.$db->quote($start_treeid).'
+							AND stop_treeid IN ('.implode(',', $existing_perm_data['stop_treeids']).')
+							AND permissionid = '.$db->quote($existing_perm_data['permissionid']);
+				$values = Array('start_treeid' => $db->quote($our_treeid), 'permissionid' => $db->quote($permissionid));
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_permission_lookup', $values, $where)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 
 				// create a bridge between the old parent and ourselves
 				// making sure that we exclude the stop point
-				$sql = 'INSERT INTO sq_asset_permission_lookup
-						(permissionid, start_treeid, stop_treeid, inc_stop)
-						VALUES
-						('.$db->quote($existing_perm_data['permissionid']).', '.$db->quote($start_treeid).', '.$db->quote($our_treeid).', '.$db->quote('0').')';
-
-				$result = $db->query($sql);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				$values = Array('permissionid' => $existing_perm_data['permissionid'],
+								'start_treeid' => $start_treeid,
+								'stop_treeid'  => $our_treeid,
+								'inc_stop'     => '0');
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_permission_lookup', $values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
 
 			}// end foreach
+
 		}// end foreach
 
 		$inserted_perm_belows = Array();
@@ -3764,14 +3686,12 @@ class Asset extends Resolve_Object
 					}// end foreach
 				}// endif
 
-				$sql = 'INSERT INTO sq_asset_permission_lookup
-						(permissionid, start_treeid, stop_treeid, inc_stop)
-						VALUES
-						('.$db->quote($permissionid).', '.$db->quote($our_treeid).', '.$db->quote($stop_treeid).', '.$db->quote($inc_stop).')';
-
-				$result = $db->query($sql);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				$values = Array('permissionid' => $permissionid,
+								'start_treeid' => $our_treeid,
+								'stop_treeid'  => $stop_treeid,
+								'inc_stop'     => $inc_stop
+								);
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_permission_lookup', $values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -3841,48 +3761,35 @@ class Asset extends Resolve_Object
 			foreach($existing_perms as $our_treeid) {
 
 				if ($reset_inherited && !empty($inherited_perms[$our_treeid])) {
-
 					// Now delete our inherited entry entries
-					$sql = 'DELETE FROM sq_asset_permission_lookup
-							WHERE stop_treeid  = '.$db->quote($our_treeid).'
-							  AND permissionid = '.$db->quote($inherited_perms[$our_treeid]['permissionid']);
-
-					$result = $db->query($sql);
-					if (DB::isError($result)) {
-						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					$where_cond = ' stop_treeid  = '.$db->quote($our_treeid).'
+									AND permissionid = '.$db->quote($inherited_perms[$our_treeid]['permissionid']);
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission_lookup', $cols, $where_cond)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
 
 					// Reset our entries to start from the inherited treeid
-					$sql = 'UPDATE sq_asset_permission_lookup
-							SET start_treeid = '.$db->quote($inherited_perms[$our_treeid]['start_treeid']).',
-								permissionid = '.$db->quote($inherited_perms[$our_treeid]['permissionid']).'
-							WHERE start_treeid = '.$db->quote($our_treeid).'
-							  AND permissionid = '.$db->quote($permissionid);
-
-					$result = $db->query($sql);
-					if (DB::isError($result)) {
-						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					$where = '  start_treeid = '.$db->quote($our_treeid).'
+								AND permissionid = '.$db->quote($permissionid);
+					$values = Array('start_treeid' => $db->quote($inherited_perms[$our_treeid]['start_treeid']),
+									'permissionid' => $db->quote($inherited_perms[$our_treeid]['permissionid'])
+									);
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_permission_lookup', $values, $where)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
 
 				} else {
-
-					// Now delete our entries
-					$sql = 'DELETE FROM sq_asset_permission_lookup
-							WHERE start_treeid  = '.$db->quote($our_treeid).'
-							  AND permissionid = '.$db->quote($permissionid);
-
-					$result = $db->query($sql);
-					if (DB::isError($result)) {
-						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					// add a rollback entries for the permission lookups
+					$where = '  start_treeid = '.$db->quote($our_treeid).'
+								AND permissionid = '.$db->quote($permissionid);
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission_lookup', $where)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
 
-				}// endif
+				}// end if
 
 			}// end foreach
 
@@ -4327,12 +4234,9 @@ class Asset extends Resolve_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// Remove all the old paths
-		$sql = 'DELETE FROM sq_asset_path
-				WHERE assetid = '.$db->quote($this->id);
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		// add a rollback entries for the old paths
+		$where = 'assetid = '.$db->quote($this->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_path', $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -4340,13 +4244,10 @@ class Asset extends Resolve_Object
 		// Now insert the paths
 		foreach($save_paths as $sort_order => $path) {
 
-			$sql = 'INSERT INTO sq_asset_path
-					(path, assetid, sort_order)
-					VALUES
-					('.$db->quote($path).', '.$db->quote($this->id).', '.$db->quote($sort_order).')';
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+			$values = Array('path'       => $path,
+							'assetid'    => $this->id,
+							'sort_order' => $sort_order);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_path', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -4427,6 +4328,7 @@ class Asset extends Resolve_Object
 		}
 
 		return $return_paths;
+
 	}//end _webPathsInUse()
 
 
@@ -4507,11 +4409,8 @@ class Asset extends Resolve_Object
 		unset($this->_tmp['href']);
 
 		// Remove all the old URLs
-		$sql = 'DELETE FROM sq_asset_lookup
-				WHERE assetid = '.$db->quote($this->id);
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		$where = 'assetid = '.$db->quote($this->id);
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where)) {
 			return false;
 		}
 
@@ -4532,18 +4431,15 @@ class Asset extends Resolve_Object
 					for($k = 0; $k < count($paths); $k++) {
 						$new_url = $parent_urls[$j]['url'].'/'.$paths[$k];
 						if (in_array($new_url, $done_urls)) continue;
-						$sql = 'INSERT INTO sq_asset_lookup
-								(url, assetid, root_urlid, designid)
-								VALUES
-								('.$db->quote($new_url).',
-								'.$db->quote($this->id).',
-								'.$db->quote($parent_urls[$j]['root_urlid']).',
-								'.$db->quote(($designid) ? $designid : $parent_urls[$j]['designid']).')';
-						$result = $db->query($sql);
-						if (DB::isError($result)) {
-							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+						
+						$values = Array('url'        => $new_url,
+										'assetid'    => $this->id,
+										'root_urlid' => $parent_urls[$j]['root_urlid'],
+										'designid'   => (($designid) ? $designid : $parent_urls[$j]['designid']));
+						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 							return false;
 						}
+
 						$done_urls[] = $new_url;
 					}// end for paths
 				}// end for parent_urls
