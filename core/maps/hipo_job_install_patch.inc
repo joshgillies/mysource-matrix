@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_install_patch.inc,v 1.4 2004/10/06 01:54:14 mnyeholt Exp $
+* $Id: hipo_job_install_patch.inc,v 1.5 2004/11/10 06:48:34 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -838,7 +838,9 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 
 
 	/**
-	* Run step 3 of the install if required
+	* Run step 3 of the install if required. Will analyse the files being
+	* added in this patch first to see if it should only selectively run 
+	* for certain packages.
 	*
 	* We dont die on errors because it's a bit too late for that
 	*
@@ -850,9 +852,12 @@ class HIPO_Job_Install_Patch extends HIPO_Job
 	*/
 	function processInstallScript(&$step_data, $prefix)
 	{
+		$package_reg = "|packages/(\w+)/(\w+)/.|is";
+		
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 
 		if ($patch_info['run_script'] === '1') {
+			$package_list = isset($patch_info['runscriptfor']) ? $patch_info['runscriptfor'] : Array();
 			$_GET['SYSTEM_ROOT'] = SQ_SYSTEM_ROOT;
 			ob_start();
 				include SQ_SYSTEM_ROOT.'/install/step_03.php';

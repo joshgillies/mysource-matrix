@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.4 2004/06/25 04:04:10 gsherwood Exp $
+* $Id: maps.inc,v 1.5 2004/11/10 06:48:34 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -578,7 +578,23 @@ class Maps extends MySource_Object
 						}
 					}
 				break;
-
+				
+				case 'runscriptfor'		   :
+					// If this is set, need to get all packages that need to
+					// have the script run for them.
+					$patch_info['runscriptfor'] = Array();
+					foreach ($node->children as $package) {
+						if (strtolower($package->name) != 'package') continue;
+						if (!isset($package->attributes['name'])) continue;
+						
+						$types = Array();
+						foreach ($package->children as $asset_type) {
+							$types[] = $asset_type->content;
+						}
+						$patch_info['runscriptfor'][$package->attributes['name']] = $types;
+					}
+				break;
+				
 				case 'patch_description'   :
 				case 'reverse_description' :
 					$patch_info[strtolower($node->name)] = trim($node->content);

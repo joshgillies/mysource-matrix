@@ -24,6 +24,22 @@
 		<change>This is the second change</change>
 		<change>Lots more changes</change>
 	</changelog>
+	<runscriptfor>
+		<!-- 
+			if no packages are listed here, then the install script will run
+			for all packages
+		-->
+		<package name="nameofpackage">
+			<asset_type>asset type in that package to update</asset_type>
+			<asset_type>asset type in that package to update</asset_type> 
+		</package>
+		<package name="anotherpackage">
+			<!-- 
+				There don't need to be any types defined, in which case the 
+				install script will run for all types in the package
+			-->
+		</package>
+	</runscriptfor>
 	<files>
 		<!--
 			This is a directory being added.

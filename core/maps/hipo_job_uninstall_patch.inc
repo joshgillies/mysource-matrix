@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.5 2004/09/30 07:05:49 mnyeholt Exp $
+* $Id: hipo_job_uninstall_patch.inc,v 1.6 2004/11/10 06:48:34 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -712,6 +712,7 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
 
 		if ($patch_info['run_script'] === '1') {
+			$package_list = isset($patch_info['runscriptfor']) ? $patch_info['runscriptfor'] : Array();
 			$_GET['SYSTEM_ROOT'] = SQ_SYSTEM_ROOT;
 			ob_start();
 				include SQ_SYSTEM_ROOT.'/install/step_03.php';
