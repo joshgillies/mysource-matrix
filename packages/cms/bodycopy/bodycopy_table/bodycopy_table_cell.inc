@@ -246,12 +246,44 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 
 		if (isset($bodycopy_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'])) {
 			foreach($bodycopy_saved[$prefix][$tableid]['rows'][$rowid]['cells'][$cellid]['attributes'] as $name => $value) {
+				if ($name == 'type') {
+					// changing the content type of this cell
+					if ($this->_updateCellType($table, $value)) $updated = true;
+					continue;
+				}
 				if ($this->set_attribute($name, $value)) $updated = true;
 			}
 		}
 		return $updated;
 
 	}//end processCell()
+
+
+	function _updateCellType(&$table, $new_type='') {
+	
+		// dont change anything if the new type id blank
+		$new_type = trim($new_type);
+		if (empty($new_type)) return false;
+
+		// get the contentType
+		$link = $table->getLinkById($this->attributes['linkid']);
+		if (empty($link)) return false;
+		$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
+
+		// if the new type is the same as the current, change nothing
+		$current_type = get_class($content_type);
+		if ($current_type == $new_type) return false;
+
+		// morph the content type to the new type
+		// first up
+		if (!$content_type->morph('content_type')) return false;
+		// then down
+		if (!$content_type->morph($new_type)) return false;
+
+		$this->set_attribute('content_type', $new_type);
+
+		return true;
+	}
 
 
 	/**

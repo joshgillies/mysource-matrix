@@ -137,6 +137,7 @@ function bodycopy_edit_table_cell_properties(bodycopy_name, tableid, rowid, cell
 	bodycopy_current_edit["data"]["tableid"] = tableid;
 	bodycopy_current_edit["data"]["rowid"]   = rowid;
 	bodycopy_current_edit["data"]["cellid"]  = cellid;
+	bodycopy_current_edit["data"]["available_types"] = get_bodycopy_available_content_types();
 	var data = get_bodycopy_current_data(bodycopy_name, tableid, rowid, cellid);
 	bodycopy_current_edit["data"]["attributes"] = var_unserialise(data["attributes"]);
 	bodycopy_show_popup("edit_table_cell_props.php", 310, 350);

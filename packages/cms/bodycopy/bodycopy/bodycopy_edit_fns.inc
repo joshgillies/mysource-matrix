@@ -100,6 +100,11 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$init_layer_width  = 500;
 		$init_layer_height = 500;
 
+		// all available content types for the table cells
+		$content_types = array();
+		$types = $am->getAssetTypeHierarchy('content_type');
+		foreach ($types as $type => $type_data) $content_types[$type] = array('name' => $type_data['name']);
+
 		?>
 		<input type="hidden" name="bodycopy_action" value="">
 		<input type="hidden" name="bodycopy_name"   value="">
@@ -267,6 +272,15 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				bodycopy_popup_visible = false;
 				bodycopy_popup.hide();
 			}// end bodycopy_hide_popup()
+
+			// get the available cell types 
+			var BODYCOPY_AVAILABLE_CONTENT_TYPES = null;
+			function get_bodycopy_available_content_types() {
+				if (BODYCOPY_AVAILABLE_CONTENT_TYPES == null) {
+					BODYCOPY_AVAILABLE_CONTENT_TYPES = var_unserialise('<?php echo var_serialise($content_types, true)?>');
+				}
+				return BODYCOPY_AVAILABLE_CONTENT_TYPES;
+			}
 
 			// general fn that the generic include fns can use to get data to use
 			function get_bodycopy_current_data(bodycopy_name, tableid, rowid, cellid) {

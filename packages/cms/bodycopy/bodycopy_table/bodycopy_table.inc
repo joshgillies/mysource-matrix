@@ -118,7 +118,7 @@ class Bodycopy_Table extends Asset
 			// generate the contents file for the next time
 			$edit->generateContentFile($this);
 		} else {
-			include_once($this->data_path.'/content_file.inc');
+			include($this->data_path.'/content_file.inc');
 		}
 	}// end printBody()
 

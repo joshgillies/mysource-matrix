@@ -174,21 +174,23 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		$popup_attribute_list = '';
 		$bgimage = '';
 
-		for (reset($table_attributes); $name = key($table_attributes); next($table_attributes)) {
-			$val = $table_attributes[$name];
-			if ($val == '') continue;
-			if ($name == 'background') {
-				#$web = &get_web_system();
-				#$file = &$web->get_file(substr($val, 5));
-				#$bgimage = $file->get_href();
-				#$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $file->filename).'"';
-				continue;
+		if (!empty($table_attributes)) {
+			for (reset($table_attributes); $name = key($table_attributes); next($table_attributes)) {
+				$val = $table_attributes[$name];
+				if ($val == '') continue;
+				if ($name == 'background') {
+					#$web = &get_web_system();
+					#$file = &$web->get_file(substr($val, 5));
+					#$bgimage = $file->get_href();
+					#$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $file->filename).'"';
+					continue;
+				}
+				$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
+				// if this is the width and the value isn't a percentage, 
+				// then add 20 to it for the icons in the left column
+				if ($name == 'width' && !strstr($val, '%')) $val = (int) $val + 20;
+				$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 			}
-			$popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
-			// if this is the width and the value isn't a percentage, 
-			// then add 20 to it for the icons in the left column
-			if ($name == 'width' && !strstr($val, '%')) $val = (int) $val + 20;
-			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 		}
 
 		$max_cols = $this->maxCols($table_rows);

@@ -10,6 +10,7 @@ include(dirname(__FILE__)."/header.php");
 	function popup_init() {
 
 		var data = owner.bodycopy_current_edit["data"]["attributes"];
+		available_types = owner.bodycopy_current_edit["data"]["available_types"];
 
 		var f = document.main_form;
 		f.width.value   = (data['width']  == null) ? "" : data['width'];
@@ -20,6 +21,21 @@ include(dirname(__FILE__)."/header.php");
 		owner.highlight_combo_value(f.align,  data['align']);
 		owner.highlight_combo_value(f.valign, data['valign']);
 		owner.highlight_combo_value(f.nowrap, data['nowrap']);
+
+		// remove the existing values
+		for(var i = f.type.options.length - 1; i >= 0; i--) {
+			f.type.options[i] = null;
+		}
+		var i = 0;
+		for(var key in available_types) {
+			if (available_types[key] == null) continue;
+			if(available_types[key]["name"] != null) {
+				f.type.options[i] = new Option(available_types[key]["name"], key);
+				i++;
+			}
+		}
+
+		owner.highlight_combo_value(f.type, data["content_type"]);
 
 	}// end popup_init()
 	
@@ -33,6 +49,7 @@ include(dirname(__FILE__)."/header.php");
 		data["align"]    = owner.element_value(f.align);
 		data["valign"]   = owner.element_value(f.valign);
 		data["nowrap"]   = owner.element_value(f.nowrap);
+		data["type"]     = owner.element_value(f.type);
 		owner.bodycopy_save_table_cell_properties(data);
 	}
 </script>
@@ -108,6 +125,17 @@ include(dirname(__FILE__)."/header.php");
 						<select name="nowrap">
 							<option value="">Off
 							<option value="on">On
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>&nbsp;</td>
+					<td class="bodycopy-popup-heading">Cell Type :</td>
+					<td valign="middle">
+						<select name="type">
+							<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+							<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
+							<option value="">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</option>
 						</select>
 					</td>
 				</tr>
