@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_management.inc,v 1.60 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: asset_management.inc,v 1.61 2005/03/09 11:18:46 brobertson Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 */
 class Asset_Management extends MySource_Object
@@ -868,7 +868,7 @@ class Asset_Management extends MySource_Object
 		require_once SQ_ATTRIBUTES_PATH.'/'.$attr_type.'/'.$attr_type.'.inc';
 		$class = 'Asset_Attribute_'.$attr_type;
 		$attr = new $class();
-		$attr->_params = $parameters;
+		foreach($parameters as $k => $v) $attr->_params[$k] = $v;
 		return $attr->validateValue($default);
 
 	}//end _validateAttributeDefault()
