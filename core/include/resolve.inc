@@ -18,11 +18,27 @@ class Resolve
 {
 
 	/**
-	* this is the DB object
+	* this is the current DB object
 	*
 	* @var object DB
 	*/
 	var $db;
+
+	/**
+	* this holds all open DB objects
+	*
+	* @var Array()
+	* @see changeDatabaseConnection(), restoreDatabaseConnection()
+	*/
+	var $_db_conns = Array();
+
+	/**
+	* this is the stack for db
+	*
+	* @var Array()
+	* @see changeDatabaseConnection(), restoreDatabaseConnection()
+	*/
+	var $_db_stack = Array();
 
 	/**
 	* @var object Asset_Manager
@@ -83,21 +99,16 @@ class Resolve
 
 
 	/**
-	* This initialises all the objects that we need to use, the reason that we can't do 
-	* this in the constructor is that the Asset_Manager uses the DB in it's constructor 
-	* in order to load the asset types but if initialise the Asset_Manager in our constructor 
+	* This initialises all the objects that we need to use, the reason that we can't do
+	* this in the constructor is that the Asset_Manager uses the DB in it's constructor
+	* in order to load the asset types but if initialise the Asset_Manager in our constructor
 	* we don't exist and therefore cannot be accessed to get the DB for the Asset_Manager to use
 	*
 	* @access public
 	*/
 	function init()
 	{
-		$this->db = DB::connect(SQ_CONF_DB_DSN);
-		if (DB::isError($this->db)) {
-			trigger_error($this->db->getMessage(), E_USER_ERROR);
-		}
-		// make sure all results are assoc arrays
-		$this->db->setFetchMode(DB_FETCHMODE_ASSOC);
+		$this->changeDatabaseConnection('db');
 
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
@@ -107,7 +118,7 @@ class Resolve
 			session_name('SQ_SYSTEM_SESSION');
 			session_save_path(SQ_SYSTEM_ROOT.'/cache');
 			session_start();
-			
+
 			// process rollback view mode global actions here so setting the rollback vars below
 			if (!empty($_GET['SQ_ACTION']) && strpos($_GET['SQ_ACTION'], 'rollback_view') === 0) {
 					$this->_processGlobalActions();
@@ -131,7 +142,7 @@ class Resolve
 				// we mute errors trying to get the user because we will handle this gracefully later
 				$this->user = &$this->am->getAsset($_SESSION['userid'], $_SESSION['user_type_code'], true);
 			}
-			
+
 			if (is_null($this->user)) {
 				$_SESSION['userid']            = 0;
 				$_SESSION['user_type_code']    = '';
@@ -231,7 +242,7 @@ class Resolve
 				$design->paint($current_asset);
 				return;
 			}
-		} 
+		}
 
 		// OK, use the system login form
 		$design = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('login_design');
@@ -363,7 +374,7 @@ class Resolve
 
 
 	/**
-	* Set's the current user of the system to this user, 
+	* Set's the current user of the system to this user,
 	* SHOULD BE USED WITH CAUTION
 	*
 	* @param object User	$user	the user to check
@@ -373,7 +384,7 @@ class Resolve
 	*/
 	function setCurrentUser(&$user)
 	{
-		// They can only become current user if they can login 
+		// They can only become current user if they can login
 		if (!$user->canLogin()) return false;
 
 		if (!is_null($this->user)) {
@@ -406,7 +417,7 @@ class Resolve
 			$user = &$this->am->getAsset($userid, $type_code);
 		}
 
-		// They can only become current user if they can login 
+		// They can only become current user if they can login
 		if (is_null($user) || !$user->canLogin()) {
 			unset($this->user); // unset ref first so we don't blow away other references to the user
 			$this->user = null;
@@ -575,6 +586,77 @@ class Resolve
 
 
 	/**
+	* Alter's which DB connection to use
+	*
+	* @param string	$conn	[db|db2] which DB connection to use
+	*
+	* @return void
+	* @access public
+	*/
+	function changeDatabaseConnection($conn)
+	{
+
+		switch($conn){
+			case 'db'  :
+				if (empty($this->_db_conns[$conn])) {
+					$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB_DSN);
+					if (DB::isError($this->_db_conns[$conn])) {
+						trigger_error($this->_db_conns[$conn]->getMessage(), E_USER_ERROR);
+					}
+					// make sure all results are assoc arrays
+					$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
+				}// endif
+
+				array_push($this->_db_stack, $conn);
+				$this->db = &$this->_db_conns[$conn];
+
+				break;
+
+			case 'db2' :
+				// the second database connection is only valid if we are running from the command-line
+				// because if we aren't then the script isn't going to take long enough to warrant opening
+				// a second connection
+				if (SQ_PHP_CLI) {
+					if (empty($this->_db_conns[$conn])) {
+						$this->_db_conns[$conn] = DB::connect(SQ_CONF_DB_DSN);
+						if (DB::isError($this->_db_conns[$conn])) {
+							trigger_error($this->_db_conns[$conn]->getMessage(), E_USER_ERROR);
+						}
+						// make sure all results are assoc arrays
+						$this->_db_conns[$conn]->setFetchMode(DB_FETCHMODE_ASSOC);
+					}// endif
+					array_push($this->_db_stack, $conn);
+					$this->db = &$this->_db_conns[$conn];
+
+				} else {
+					pre_echo('other db');
+					array_push($this->_db_stack, 'db');
+
+				}// end if
+
+				break;
+			default :
+				trigger_error('Database Connection Type "'.$conn.'" unknown', E_USER_WARNING);
+		}// end switch
+
+	}// end changeDatabaseConnection()
+
+
+	/**
+	* Restores the active DB connection to the previous one
+	*
+	* @return void
+	* @access public
+	*/
+	function restoreDatabaseConnection()
+	{
+		$conn = array_pop($this->_db_stack);
+		$this->db = &$this->_db_conns[$conn];
+
+	}// end restoreDatabaseConnection()
+
+
+	/**
 	* Begins, Commits, or Rolls back a transaction
 	* Call as many times as you like
 	* Ensures the transaction manager has been created
@@ -584,20 +666,22 @@ class Resolve
 	* @return void
 	* @access public
 	*/
-	function doTransaction($type) {
+	function doTransaction($type)
+	{
 		if (!isset($this->tm) || get_class($this->tm) != 'transaction_manager') {
 			require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
 			$this->tm = new Transaction_Manager();
 		}
+		pre_echo($type.' : '.print_r($this->_db_stack, true));
 		switch (strtolower($type)) {
 			case 'begin'    :
-				$this->tm->begin();
+				$this->tm->begin($this->_db_stack[count($this->_db_stack) - 1]);
 				break;
 			case 'commit'   :
-				$this->tm->commit();
+				$this->tm->commit($this->_db_stack[count($this->_db_stack) - 1]);
 				break;
 			case 'rollback' :
-				$this->tm->rollback();
+				$this->tm->rollback($this->_db_stack[count($this->_db_stack) - 1]);
 				break;
 		}
 
@@ -618,7 +702,7 @@ class Resolve
 		$time_string = readable_datetime($then).' ('.easy_time_total(time() - $then, true).' ago)';
 		$warning_message = 'The system is as it appeared on '.$time_string.'.<br/>While viewing in rollback mode you cannot make any changes to the system.';
 		$exit_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=rollback_view_stop';
-		
+
 		?>
 		<div align="center">
 		<style>
@@ -668,7 +752,7 @@ class Resolve
 	*								eg. SELECT * FROM asset a --> $table_alias is 'a'
 	*								so rollback queries for table 'a' get added, otherwise
 	*								the entries will not be prefixed with an alias
-	* @param string	$prefix			the prefix (eg 'WHERE' or 'AND') to put at the start of 
+	* @param string	$prefix			the prefix (eg 'WHERE' or 'AND') to put at the start of
 	*								the condition
 	*
 	* @return string
@@ -693,8 +777,8 @@ class Resolve
 		$then = $_SESSION['sq_rollback_view']['rollback_time'];
 
 		if (!empty($where)) $where .= ' AND ';
-		$where .= $table_alias.SQ_TABLE_PREFIX.'effective_from <= '.$this->db->quote($then).' 
-				  AND ('.$table_alias.SQ_TABLE_PREFIX.'effective_to IS NULL 
+		$where .= $table_alias.SQ_TABLE_PREFIX.'effective_from <= '.$this->db->quote($then).'
+				  AND ('.$table_alias.SQ_TABLE_PREFIX.'effective_to IS NULL
 					   OR '.$table_alias.SQ_TABLE_PREFIX.'effective_to > '.$this->db->quote($then).')';
 
 		return $prefix.' '.$where;
@@ -749,7 +833,7 @@ class Resolve
 					WHERE '.SQ_TABLE_PREFIX.'effective_from = '.$this->db->quote(ts_iso8601($from_time)).'
 					  AND '.$where_cond;
 
-		// set the effective_to time of the latest rollback entry to the 
+		// set the effective_to time of the latest rollback entry to the
 		// effective_from of the new entry
 		$update = ' UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
 					SET '.SQ_TABLE_PREFIX.'effective_to = '.$this->db->quote(ts_iso8601($from_time)).'
