@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.15 2004/03/18 03:43:08 gsherwood Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.16 2004/03/24 06:28:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,6 +46,9 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 	function Workflow_Step_Edit_Fns()
 	{
 		$this->Folder_Edit_Fns();
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['metadata']);
 
 	}//end constructor
 

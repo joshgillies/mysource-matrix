@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_condition_edit_fns.inc,v 1.10 2003/11/26 00:51:05 gsherwood Exp $
+* $Id: workflow_step_condition_edit_fns.inc,v 1.11 2004/03/24 06:28:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,6 +46,9 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 	function Workflow_Step_Condition_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+		unset($this->static_screens['workflow']);
+		unset($this->static_screens['metadataSchemas']);
+		unset($this->static_screens['metadata']);
 
 	}//end constructor
 
