@@ -2547,8 +2547,6 @@ class Asset_Manager extends MySource_Object
 			$message->parameters['majorid']  = $major->id;
 			$message->parameters['minorid']  = $minor->id;
 			$message->parameters['linkid']   = $linkid;
-			$message->parameters['old_type'] = $link['link_type'];
-			$message->parameters['new_type'] = $link_type;
 			$ms->logMessage($message);
 
 		}// end if link_type_changed
@@ -2562,8 +2560,6 @@ class Asset_Manager extends MySource_Object
 			$message->parameters['majorid']   = $major->id;
 			$message->parameters['minorid']   = $minor->id;
 			$message->parameters['linkid']    = $linkid;
-			$message->parameters['old_value'] = $link['value'];
-			$message->parameters['new_value'] = $value;
 			$ms->logMessage($message);
 
 		}// end if value_changed
@@ -2589,8 +2585,6 @@ class Asset_Manager extends MySource_Object
 			$message->parameters['majorid']   = $major->id;
 			$message->parameters['minorid']   = $minor->id;
 			$message->parameters['linkid']    = $linkid;
-			$message->parameters['old_order'] = $link['sort_order'];
-			$message->parameters['new_order'] = $sort_order;
 			$ms->logMessage($message);
 		}
 
