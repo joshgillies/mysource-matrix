@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: event_manager.inc,v 1.12 2004/05/27 01:01:07 gsherwood Exp $
+* $Id: event_manager.inc,v 1.13 2004/09/28 06:23:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -351,24 +351,21 @@ class Event_Manager extends MySource_Object
 		if (empty($assetid) || empty($type_code)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$concat = ($db->phptype == 'mysql') ? 'CONCAT(t2.treeid, '.$db->quote('%').')' : '(t2.treeid || '.$db->quote('%').')';
 
-		// big f.o query
-		$sql = 'SELECT '.$concat.' FROM '
-				.SQ_TABLE_PREFIX.'asset_link l1 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
-				.SQ_TABLE_PREFIX.'asset_link l2 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
-				.SQ_TABLE_PREFIX.'asset a '
-				.'WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).' '
-					.'AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid '
-					.'AND a.assetid=l2.'.$side_of_link.'id '
-					.'AND a.type_code='.$db->quote($type_code).'
-				  ORDER BY t2.treeid DESC';
+		$sql = 'SELECT (t2.treeid || '.$db->quote('%').')
+				FROM '.SQ_TABLE_PREFIX.'asset_link l1
+				  INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
+				  .SQ_TABLE_PREFIX.'asset_link l2
+				  INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
+				  .SQ_TABLE_PREFIX.'asset a 
+				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).' 
+				  AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid 
+				  AND a.assetid=l2.'.$side_of_link.'id 
+				  AND a.type_code='.$db->quote($type_code).'
+				ORDER BY t2.treeid DESC';
 
 		$result = $db->getCol($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		assert_valid_db_result($result);
 
 		if (empty($result)) return Array();
 
@@ -376,12 +373,12 @@ class Event_Manager extends MySource_Object
 		foreach ($result as $treeid) $treeid_string .= 't2.treeid LIKE '.$db->quote($treeid).' OR ';
 		$treeid_string = substr($treeid_string, 0, -4);
 
-
-		$sql = 'SELECT a.assetid, t2.treeid, a.type_code, l2.link_type, l2.dependant, l2.exclusive '
-			  .'FROM '
-				.SQ_TABLE_PREFIX.'asset_link l1 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
-				.SQ_TABLE_PREFIX.'asset_link l2 INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
-				.SQ_TABLE_PREFIX.'asset a
+		$sql = 'SELECT a.assetid, t2.treeid, a.type_code, l2.link_type, l2.dependant, l2.exclusive
+				FROM '.SQ_TABLE_PREFIX.'asset_link l1
+				  INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid, '
+				  .SQ_TABLE_PREFIX.'asset_link l2
+				  INNER JOIN '.SQ_TABLE_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid, '
+				  .SQ_TABLE_PREFIX.'asset a
 				WHERE l1.'.$side_of_link.'id = '.$db->quote($assetid).'
 					AND SUBSTRING(t1.treeid FROM 1 FOR CHAR_LENGTH(t2.treeid)) = t2.treeid
 					AND a.assetid = l2.'.$side_of_link.'id
@@ -389,11 +386,7 @@ class Event_Manager extends MySource_Object
 				ORDER BY t2.treeid';
 
 		$result = $db->getAll($sql);
-
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		assert_valid_db_result($result);
 
 		$assetids = Array();
 		$start_treeid = true;
@@ -481,7 +474,7 @@ class Event_Manager extends MySource_Object
 	* This function gets called from package manager of each package that has any management classes that have
 	* events to be installed
 	*
-	* @param Array		$listeners				array of listeners
+	* @param array		$listeners				array of listeners
 	* @param string		$listener_type_code		the type code of the listener
 	* @param boolean	$recursive_call			if TRUE this call is recursive
 	*
