@@ -25,7 +25,8 @@ class Form_Question_Type_Text extends Form_Question
 	function Form_Question_Type_Text($assetid=0) 
 	{
 		$this->Asset($assetid);
-	}
+
+	} // end Form_Question_Type_Text()
 
 
 	/**
@@ -51,37 +52,7 @@ class Form_Question_Type_Text extends Form_Question
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
-	}//end create()
-
-
-	/**
-	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
-	*
-	* @return int
-	* @access public
-	* @see Asset::creatLink();
-	*/
-	function createLink(&$minor, $link_type, $value='', $sort_order=-1, $dependant='0', $exclusive='0')
-	{
-		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
-
-	}// end createLink()
-
-
-	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return mixed TRUE or error msg string
-	* @access public
-	*/
-	function canDeleteLink($linkid)
-	{
-		return parent::canDeleteLink($linkid);
-	
-	}//end canDeleteLink()
+	} // end create()
 
 
 	/**
@@ -92,6 +63,7 @@ class Form_Question_Type_Text extends Form_Question
 	*/
 	function _getAllowedLinks()
 	{
+		$links = parent::_getAllowedLinks();
 		$links[SQ_LINK_TYPE_3]['form_question_rule_type_comparison'] = Array('card' => '1', 'exclusive' => true);
 		$links[SQ_LINK_TYPE_3]['form_question_rule_type_email'] = Array('card' => '1', 'exclusive' => true);
 		$links[SQ_LINK_TYPE_3]['form_question_rule_type_numeric'] = Array('card' => '1', 'exclusive' => true);
@@ -101,32 +73,6 @@ class Form_Question_Type_Text extends Form_Question
 		return $links;
 
 	}//end _getAllowedLinks()
-
-
-	/**
-	* Prints out the backend interface for the asset
-	*
-	* @param object Backend_Outputter $o
-	*
-	* @access public
-	*/
-	function paintBackend(&$o)
-	{
-		parent::paintBackend($o);
-
-	}// end paintBackend()
-
-
-	/**
-	* Called by the design to print the body of this asset
-	*
-	* @access public
-	*/
-	function printBody()
-	{
-		return parent::printBody();
-
-	} // end printBody()
 
 
 	/**
@@ -147,8 +93,8 @@ class Form_Question_Type_Text extends Form_Question
 		// generate some php for the value, which can be used for both
 		// auto-answer and returning to saved forms
 		if ($content_file) {
-			$html  = '<?php $q = &$am->getAsset('.$this->id.', \'form_question_type_text\'); ?>';
-			$value = '<?php echo $q->getValue($submission); ?>';
+			$html  = '<'.'?php $q = &$am->getAsset('.$this->id.', \'form_question_type_text\'); ?'.'>';
+			$value = '<'.'?php echo $q->getValue($submission); ?'.'>';
 		} else {
 			$html = '';
 		}
@@ -171,25 +117,32 @@ class Form_Question_Type_Text extends Form_Question
 
 	
 	/**
+	* echos the current value
 	*
+	* @param &$object $submission the current submission object
 	*
+	* @access public
+	* @return boolean
 	*/
 	function getValue(&$submission)
 	{
 		if ($submission) {
 			$answer = $submission->getAnswer($this->id);
-			if ($answer) {
-				echo $answer;
-			}
+			if ($answer) echo $answer;
+			return true;
 		}
-	}
+		return false;
+	
+	} // end getValue()
 
 
 	/**
+	* process this question
 	*
+	* @param &object $submission the current submission object
 	*
-	*
-	*
+	* @access public
+	* @return boolean
 	*/
 	function processForm(&$submission)
 	{
@@ -203,7 +156,8 @@ class Form_Question_Type_Text extends Form_Question
 		}
 		
 		return true;
-	}
+	
+	} // end processForm()
 
 
 }//end class
