@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_management.inc,v 1.6 2003/09/26 05:26:41 brobertson Exp $
+* $Id: form_management.inc,v 1.7 2003/10/08 02:03:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -129,6 +129,16 @@ class Form_Management extends Asset_Management
 														),
 													),
 									),
+							'question_col_width' => Array(
+											'added'     => '0.0.1',
+											'type'      => 'text',  
+											'default'   => '100',
+								),
+							'answer_col_width' => Array(
+											'added'     => '0.0.1',
+											'type'      => 'text',  
+											'default'   => '100',
+								),
 
 
 							);

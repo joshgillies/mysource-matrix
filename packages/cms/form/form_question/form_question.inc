@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_question.inc,v 1.11 2003/09/28 23:00:06 mmcintyre Exp $
+* $Id: form_question.inc,v 1.12 2003/10/08 02:03:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -101,7 +101,7 @@ class Form_Question extends Asset
 			if (!empty($link[0])) {
 				$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link[0]['majorid'], $link[0]['major_type_code']);
 				if (is_null($section)) return false;
-				return $section->fileRegeneration();
+				return $section->_updated();
 			}
 		}
 		return true;

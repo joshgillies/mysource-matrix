@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form.inc,v 1.11 2003/09/26 06:01:26 mmcintyre Exp $
+* $Id: form.inc,v 1.12 2003/10/08 02:03:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -178,6 +178,7 @@ class Form extends Asset
 		} else {
 			return $edit->generateStandardContentFile($this);
 		}
+
 	} // end fileRegeneration()
 
 
@@ -882,6 +883,21 @@ class Form extends Asset
 		return true;
 
 	} // end setSpecialInformation()
+
+
+	function getAutoAnswer($name)
+	{
+		switch ($name) {
+			case 'username':
+				
+			break;
+		}
+	}
+
+	function allocateAutoAnswer($name)
+	{
+		
+	}
 
 
 	/**

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_section_edit_fns.inc,v 1.8 2003/09/26 06:04:48 mmcintyre Exp $
+* $Id: form_section_edit_fns.inc,v 1.9 2003/10/08 02:03:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	function Form_Section_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-	}
+
+	} // end Form_Section_Edit_Fns()
 
 
 	/**
@@ -69,7 +70,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		<?php
 		
 		return true;
-	}
+
+	} // end paintBodycopyLinks()
 
 
 	/**
@@ -87,7 +89,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	function processBodycopyLinks(&$asset, &$o, $prefix)
 	{
 		return true;
-	}
+
+	} // end processBodycopyLinks()
 
 
 	/**
@@ -116,7 +119,9 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			<?php
 		}
 		return true;
-	}
+
+	} // end paintQuestionLinks()
+
 
 	/**
 	* Process the links to the questions in this section
@@ -131,7 +136,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	function processQuestionLinks(&$asset, &$o, $prefix)
 	{
 		return true;
-	}
+	
+	} // end processQuestionLinks()
 
 
 	/**
@@ -171,8 +177,11 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			$num[$i] = $i;
 		}
 		combo_box('num_questions', $num, false, '');
+		
 		return true;
-	}
+	
+	} // end paintAddQuestions()
+
 
 	/**
 	* Process the newly added questions
@@ -222,7 +231,8 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		$asset->fileRegeneration();
 
 		return true;
-	} // end processAddQuestion()
+
+	} // end processAddQuestions()
 
 
 	/**
@@ -322,20 +332,24 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function generateGenericSection(&$asset)
 	{
-		$output = '';
-		$output .= "<table>\n";
+		$output = '<table>';
 		$questions = &$asset->getQuestions();
 		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
 			$q =& $questions[$k];
+			
+			$output .= '<tr>';
 			// check to see if we need question indexes
-			$index = '&nbsp;';
 			if ($asset->question_index) {
-				$index = $asset->getQuestionIndex($k-1).'&nbsp;&nbsp;';
+				$index = $asset->getQuestionIndex($k-1);
+				$output .= '<td width="20">'.$index.'</td>';
 			} 
-			$output .= "<tr><td>".$index.'</td><td>'.$q->getVal('title')
-				."</td><td>".$q->getVal('answer')."</td></tr>\n";
+			$output .= '<td';
+			$output .= ($asset->question_col_width) ? ' width="'.$asset->question_col_width.'">' : '>';
+			$output .= $q->getVal('title').'</td><td';
+			$output .= ($asset->answer_col_width) ? ' width="'.$asset->answer_col_width.'">' : '>';
+			$output .= $q->getVal('answer').'</td></tr>';
 		}
-		$output .= "</table>\n";
+		$output .= '</table>';
 
 		return $output;
 
@@ -399,6 +413,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		} // end for
 
 		$output .= '</table>';
+		
 		return $output;
 
 	} // generateLoopingHtml()

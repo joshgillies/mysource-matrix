@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_section.inc,v 1.8 2003/09/26 06:04:48 mmcintyre Exp $
+* $Id: form_section.inc,v 1.9 2003/10/08 02:03:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,6 +29,17 @@ class Form_Section extends Asset
 	*/
 	var $question_index = 0;
 
+	/**
+	* the width of the question name column (used when printing a generic section)
+	* @var integer
+	*/
+	var $question_col_width;
+
+	/**
+	* the width of the question name column (used when printing a generic section)
+	* @var integer
+	*/
+	var $answer_col_width;
 
 	/**
 	* the active submission object
@@ -174,27 +185,33 @@ class Form_Section extends Asset
 	/**
 	* regenerates the content file for this section
 	*
+	* @param boolean $form_regen	if TRUE the section will get all its forms to regen as well
+	*
 	* @access public
 	* @return boolean
 	*/
-	function fileRegeneration()
+	function fileRegeneration($form_regen=true)
 	{
-		// get all the links of this guy's form parents
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form', false, 'minor');
-		
-		foreach ($links as $l) {
-			$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($l['majorid'], $l['major_type_code']);
-			if (is_null($form)) continue;
-			if (!$form->fileRegeneration()) {
-				unset($form);
-				return false;
-			}
-			unset($form);
-		}
-
-		// we also want to regen this section as well
-		$edit = $this->getEditFns();
+		// we want to regen this section
+		$edit = &$this->getEditFns();
 		$edit->generateContentFile($this);
+
+		// sometimes, we might not want to regen the form (eg. if the form is calling this function!)
+		if ($form_regen) {
+			// then, 
+			// get all the links of this guy's form parents
+			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'form', false, 'minor');
+			
+			foreach ($links as $l) {
+				$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($l['majorid'], $l['major_type_code']);
+				if (is_null($form)) continue;
+				if (!$form->_updated()) {
+					unset($form);
+					return false;
+				}
+				unset($form);
+			}
+		} // end if
 
 		return true;
 

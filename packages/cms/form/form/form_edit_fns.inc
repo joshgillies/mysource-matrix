@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_edit_fns.inc,v 1.8 2003/09/26 06:01:26 mmcintyre Exp $
+* $Id: form_edit_fns.inc,v 1.9 2003/10/08 02:03:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,9 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function Form_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-	}
+		$this->static_screens['details']['force_unlock'] = false;
+
+	} // end Form_Edit_Fns()
 	
 
 	/**
@@ -66,7 +68,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		}		
 		
 		return true;
-	}
+
+	} // end paintSectionLinks()
 
 
 	/**
@@ -82,7 +85,8 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 	function processSectionLinks(&$asset, &$o, $prefix)
 	{
 		return true;
-	}
+	
+	} // end processSectionLinks()
 
 
 	/**
@@ -135,9 +139,10 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		
 		// regen the content file
-		$asset->fileRegeneration();
+		$asset->_updated();
 
 		return true;
+
 	} // end processAddSections
 
 
@@ -169,16 +174,6 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	} // end processSubmissions()
-
-
-	/**
-	* returns a reference to the Form bodycopy
-	*
-	* @param &object Form $asset the form asset
-	*
-	* @access public
-	* @return &object bodycopy $bodycopy the Form bodycopy 
-	*/
 
 
 	/**
@@ -224,7 +219,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			// if no title for the submit button is specified in the backend
 			// just use 'submit'
 
-			$button_name = ($asset->attr('submit_button')) ? $asset->attr('submit_button') : 'submit'; 
+			$button_name = ($asset->attr('submit_button')) ? $asset->attr('submit_button') : 'Submit'; 
 
 			ob_start();
 			submit_button($asset->getPrefix().'_submit', $button_name);
@@ -245,7 +240,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 			$i = 1; // used for indexing
 			for (reset($sections); null !== ($k = key($sections)); next($sections)) {
 				$section =& $sections[$k];
-				
+
 				// if there is a section index, add it to the ouput
 				if ($asset->attr('section_index')) {
 					$output .= '<'.'?php echo $this->getSectionIndex('.$i++.')."<BR />"; ?'.'>';
@@ -253,22 +248,39 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				// tell the section what its quesiton index is
 				$section->question_index = $asset->attr('question_index');
 
-				ob_start();
-				// let the section know what the current submission objet is
+				// let the section know what its column widths are
+				$section->question_col_width = $asset->attr('question_col_width');
+				$section->answer_col_width = $asset->attr('answer_col_width');
+			
+				// let the section know what the current submission object is
 				$section->active_submission =& $asset->active_submission;
-				// tell the section to echo its body rather than including it
-				$section->printBody(false);
-				$output .= ob_get_contents();
-				ob_end_clean();
+				
+				// get the section to regen
+				$section->fileRegeneration(false);
+				$output .= '<'.'?php include_once("'.$section->data_path.'/content_file.php'.'"); ?'.'>';
 			}
+			
+			// if no title for the submit button is specified in the backend
+			// just use 'Submit'
 
-			//create a submit_button for this dh
-			$button_name = ($asset->attr('submit_button')) ? $asset->attr('submit_button') : 'submit'; 
+			$button_name = ($asset->attr('submit_button')) ? $asset->attr('submit_button') : 'Submit'; 
+			
+			$output .= '<table><tr>';
+			if ($asset->attr('question_index')) {
+				$output .= '<td width="20">&nbsp;</td>';
+			}
+			$output .= '<td';
+			$output .= ($asset->attr('question_col_width')) ? ' width="'.$asset->attr('question_col_width').'">' : '>';
+			$output .='&nbsp;</td><td';
+			$output .= ($asset->attr('answer_col_width')) ? ' width="'.$asset->attr('answer_col_width').'">' : '>';
 			
 			ob_start();
 			submit_button($asset->getPrefix().'_submit', $button_name);
 			$output .= ob_get_contents();
 			ob_end_clean();
+			
+			$output .= '</td></tr></table>';
+			
 
 		} //end if
 
@@ -367,9 +379,14 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				// just strip out the keyword
 				
 				if($s = &$asset->getSectionByOrder($section)) {
+					
 					// tell the section what its question indexes are
 					$s->question_index = $this->attr('question_index');
 
+					// let the section know what its column widths are
+					$section->question_col_width = $asset->attr('question_col_width');
+					$section->answer_col_width = $asset->attr('answer_col_width');
+			
 					ob_start();
 					$s->printBody();
 					$replacement = ob_get_contents();
@@ -413,6 +430,7 @@ class Form_Edit_Fns extends Asset_Edit_Fns
 				// for that keyword
 
 				if ($question = &$asset->getQuestionByOrder($asset, $s, $q)) {
+					$question->active_submission =& $asset->active_submission;
 					$replacement = $question->getVal($t);
 				} else {
 					$replacement = '';
