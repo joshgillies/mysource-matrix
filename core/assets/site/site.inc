@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.47 2003/11/18 15:37:27 brobertson Exp $
+* $Id: site.inc,v 1.48 2003/11/21 05:29:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -421,7 +421,7 @@ class Site extends Folder
 		if($index_page->languages) header("Content-language: $this->languages");
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$url = strip_url(current_url(false));
+		$url = strip_url(current_url(false, true));
 
 		$sql = 'SELECT ld.designid, a.type_code
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
@@ -450,6 +450,29 @@ class Site extends Folder
 		}
 
 	}// end printFrontend()
+
+
+	/**
+	* Called by the design to print the body of this asset when in limbo
+	*
+	* Site puts its index page up for editing instead of itself
+	*
+	* @return void
+	* @access public
+	*/
+	function printLimbo()
+	{
+		$index_page = &$this->getSpecialPage('index');
+		if (is_null($index_page)) {
+			trigger_error('No Index Page Set for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' "'.$this->name.'" (Id #'.$this->id.')', E_USER_NOTICE);
+			return;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('assetid', $index_page->id);
+		$GLOBALS['SQ_SYSTEM']->backend->out->addHiddenField('backend_assetid', $index_page->id);
+		$index_page->printLimbo();
+
+	}//end printLimbo()
 
 
 	/**
