@@ -192,14 +192,26 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 
 		foreach ($vars['purge_assets'] as $link_info) {
 			$count++;
-			if ($vars['num_purged'] && $count <= $vars['num_purged']) continue;
+			if ($vars['num_purged'] && $count < $vars['num_purged']) continue;
 			if (!$link_info['linkid']) continue;
+
+			$assetid = $link_info['assetid'];
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $link_info['type_code'], true);
+			if (is_null($asset)) {
+				// if the asset doesnt exist it was probably deleted earlier on
+				// thats why we mute errors above
+				$vars['num_purged']++;
+				continue;
+			}
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			
+			$num_other_links = 0;
+			$outside_links = Array();
 
 			// we are going to try and find out if this asset has any links
 			// outside the trash folder so we dont delete it if it is being used
 			// somewhere else outside the trash
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
 			$sql = 'SELECT l.linkid 
 					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid 
 					WHERE l.minorid='.$db->quote($link_info['assetid']).' 
@@ -220,30 +232,35 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 				$vars['num_purged']++;
 				continue;
 			}
-			
-			$assetid = $link_info['assetid'];
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 
 			// if there are outside links, we are not going to delete the asset
 			// but if there are not, then we need to check how many internal links
 			// there are before deciding if we should delete the asset or not
 			if (!count($outside_links)) {
 				$num_other_links = $asset->countLinks('minor', SQ_LINK_SIGNIFICANT, '', true, $link_info['linkid']);
-			} else {
-				$num_other_links = 0;
 			}
 
 			if ($num_other_links || count($outside_links)) {
 				// this asset has more than one link,
-				// or has anbother link outside of the trash
+				// or has another link outside of the trash
 				// so just delete the link
 				$link = $asset->getLinkById($link_info['linkid'], 'minor');
-				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid']);
+				
+				if (empty($link['majorid'])) {
+					// if the link does not exists it was probably deleted
+					// earlier, so we just skip this entry
+					$vars['num_purged']++;
+					continue;
+				}
+
+				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
+
 				if (!$parent->deleteLink($link_info['linkid'])) {
 					trigger_error('Purge aborted, unable to delete link '.$link_info['linkid'].' between "'.$parent->name.'" and "'.$asset->name.'"', E_USER_WARNING);
 					$pb->abort();
 					return;
 				}
+
 			} else {
 				// we have an asset ready to delete, but we need to check with
 				// the asset manager that we are allowed to delete it
@@ -266,7 +283,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		$vars['num_purged']++;
-		$pb->setPercent(($vars['num_purged'] + 1) / $num_to_purge);
+		$pb->setPercent($vars['num_purged'] / $num_to_purge);
 		$pb->setRunningVars($vars);
 
 		$GLOBALS['SQ_PURGING_TRASH'] = false;
