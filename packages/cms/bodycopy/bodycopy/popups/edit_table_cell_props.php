@@ -165,4 +165,4 @@ include(dirname(__FILE__)."/header.php");
 	</tr>
 </form>
 </table>
-<? include(dirname(__FILE__)."/footer.php"); ?> 
+<?php include(dirname(__FILE__)."/footer.php"); ?> 

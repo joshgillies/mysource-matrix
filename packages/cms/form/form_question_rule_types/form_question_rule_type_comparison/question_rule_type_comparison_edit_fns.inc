@@ -43,7 +43,7 @@ class Question_Rule_Type_Comparison_Edit_Fns extends Question_Rule_Edit_Fns
 				Delete? <?php check_box('delete_rule', $asset->id); ?>
 			</td>
 		</tr>
-		<?
+		<?php
 	
 	} // end paintInlineBackend()
 

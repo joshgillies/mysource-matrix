@@ -59,7 +59,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 		?>
 		<a href="<?php echo $hrefs[$main_copy_link['minorid']]?>">Edit Main Bodycopy</a><BR />
 		<a href="<?php echo $hrefs[$looping_copy_link['minorid']]?>">Edit Looping Bopycopy</a><BR />
-		<?
+		<?php
 		
 		return true;
 	}
@@ -106,7 +106,7 @@ class Form_Section_Edit_Fns extends Asset_Edit_Fns
 			$question =& $questions[$k];
 			?>
 			<a href="<?php echo $question->getBackendHref('contents') ?>"><?php echo $question->name ?></a><br />
-			<?
+			<?php
 		}
 		return true;
 	}

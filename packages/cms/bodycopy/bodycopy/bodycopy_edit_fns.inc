@@ -350,8 +350,8 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 				position:absolute; 
 				left:100; 
 				top:120; 
-				width:<?=$init_layer_width?>; 
-				height:<?=$init_layer_height?>; 
+				width:<?php echo $init_layer_width?>; 
+				height:<?php echo $init_layer_height?>; 
 				clip:rect(0,600,600,0);
 				visibility: hidden;
 			}

@@ -14,7 +14,7 @@
 <head>
 <style type="text/css">
 	body { 
-		background-color: <?=$bgcolor?>;
+		background-color: #212E61;
 	}
 	td { 
 		font-family: Arial, Verdana, Sans-Serif; 
