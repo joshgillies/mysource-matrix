@@ -665,44 +665,56 @@ class Asset_Manager extends Resolve_Object
 
 	}//end _printAssetList()
 
-
 	/**
 	* returns a reference to the asset that has the passed url
 	* if no url is passed the current (aka PHP_SELF) one is used
 	*
-	* @param string		$url			the urls to check for
 	* @param string		$protocol		the protocol to match
+	* @param string		$url			the urls to check for
 	* @param boolean	$exact_match	when true only returns an asset if there is an exact match on the url, if false searches back along the URL path for the asset that matches
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
 	*
+	* @return object Asset | null
 	* @access public
 	*/
-	function &getAssetFromURL($url, $protocol='', $exact_match=true, $mute_errors=false)
+	function &getAssetFromURL($protocol=null, $url=null, $exact_match=true, $mute_errors=false)
 	{
+
+		if (is_null($url))		$url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
 		// remove any trailing slashes
 		$url = preg_replace('/\/+$/', '', $url);
-		if ($protocol != 'https') $protocol = 'http';
+
+		if (!is_null($protocol) && $protocol != 'https') {
+			$protocol = 'http';
+		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sections = explode('/', $url);
-		$option  = '';
-		$in_str  = '';
-		foreach($sections as $piece) {
-			$in_str .= (($in_str) ? ',' : '').$db->quote($option.$piece);
-			$option .= $piece.'/';
-		}
+		$url_condition = '';
+		if ($exact_match) {
+			$url_condition = ' = '.$db->quote($url);
+		
+		} else {
+			$sections = explode('/', $url);
+			$option  = '';
+			$url_condition = ' IN (';
+			foreach($sections as $piece) {
+				$url_condition .= (($option) ? ',' : '').$db->quote($option.$piece);
+				$option .= $piece.'/';
+			}
+			$url_condition .= ') ';
+		}// end if
 
 		$extra_table = '';
 		$extra_where = '';
-		if ($protocol) {
+		if (!is_null($protocol)) {
 			$extra_table = ' INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid';
 			$extra_where = ' AND u.'.$protocol.' = '.$db->quote(1);
 		}
 
 		$sql = 'SELECT l.url, l.assetid
 				FROM sq_asset_lookup l '.$extra_table.'
-				WHERE l.url IN ('.$in_str.')
+				WHERE l.url '.$url_condition.'
 				'.$extra_where.'
 				ORDER BY CHARACTER_LENGTH(l.url) DESC
 				LIMIT 1';
@@ -713,11 +725,6 @@ class Asset_Manager extends Resolve_Object
 		if (empty($row)) {
 			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
 			if (!$mute_errors) trigger_error('Unable to find an Asset for the URL "'.$fancy_url.'"', E_USER_WARNING);
-			return null;
-
-		} elseif ($exact_match && $url != $row['url']) {
-			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
-			if (!$mute_errors) trigger_error('Unable to find an exact match for any Asset for the URL "'.$fancy_url.'"', E_USER_WARNING);
 			return null;
 
 		} else {

@@ -130,7 +130,7 @@ class Site extends Folder
 
 			// We don't have it ? does anyone else
 			if (!$found) {
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL($save_urls[$save_urlid]['url'], '', true, true);
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAssetFromURL(null, $save_urls[$save_urlid]['url'], true, true);
 				if (!is_null($asset)) {
 					trigger_error('URL "'.$save_urls[$save_urlid]['url'].'" is already in use by "'.$asset->name.'"', E_USER_WARNING);
 					continue;
