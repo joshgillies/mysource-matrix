@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: internal_message.inc,v 1.18 2003/09/26 05:26:31 brobertson Exp $
+* $Id: internal_message.inc,v 1.19 2003/09/30 02:25:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -468,10 +468,17 @@ class Internal_Message extends MySource_Object
 
 					$this->to = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, SQ_PERMISSION_ADMIN, true, false);
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-				break;
+					break;
+
+				case 'config' :
+					// send config changes to the DEFAULT and TECH emails and to the Root User
+					$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+					$this->to = Array(0, $root_user->id);
+					break;
 
 			}//end switch
-		}
+
+		}// end if
 
 		$send_to = Array();
 		if (in_array('0', $this->to)) {
