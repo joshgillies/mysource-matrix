@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.2 2004/09/15 04:06:44 gsherwood Exp $
+* $Id: js_calendar.js,v 1.3 2004/09/16 01:49:42 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -102,8 +102,16 @@ function c_show(e)
 	div.style.visibility = "hidden";
 	div.style.position = "absolute";
 	
-	div.style.left = document.body.scrollLeft + e.clientX + "px";
-	div.style.top  = document.body.scrollTop + e.clientY + "px";
+	div.style.left = e.clientX + "px";
+	var scrollX = "";
+	var scrollY = "";
+	if (navigator.userAgent.indexOf("Safari")==-1) {
+		eval("scrollX = document.body.scrollLeft;");
+		eval("scrollY = document.body.scrollTop;");
+	}
+	div.style.left = scrollX + e.clientX + "px";
+	div.style.top  = scrollY + e.clientY + "px";
+
 	
 	div.innerHTML = this.output();
 	if (document.getElementById('ie_'+this.divname+'_iframe') == null && document.body.insertAdjacentHTML) {
@@ -115,10 +123,10 @@ function c_show(e)
 		
 		div = document.getElementById(this.divname);
 	}
-		var cal_height = document.getElementById(this.divname).offsetHeight;
-		var cal_width  = document.getElementById(this.divname).offsetWidth;
 	if (document.body.insertAdjacentHTML) {
 		var cal_top    = document.getElementById(this.divname).style.top;
+		var cal_height = document.getElementById(this.divname).offsetHeight;
+		var cal_width  = document.getElementById(this.divname).offsetWidth;
 		var cal_left   = document.getElementById(this.divname).style.left;
 		var iframe = document.getElementById('ie_'+this.divname+'_iframe');
 		var shadow = document.getElementById('ie_'+this.divname+'_shadow');
@@ -415,7 +423,7 @@ function c_output()
 	var output = '<table class="cal" cellspacing="1" width="' + this.width + '" height="' + this.height + '">';
 	
 	//top bar for popup
-	if (this.popup)	output += '<tr style="height:1px"><td colspan="' + (colspan + 2) + '" align="right"><span class="cal_close" onclick="' + this.varname +'.hide();">close [ x ]</span></td></tr>';
+	if (this.popup)	output += '<tr style="height:1px"><td colspan="' + (colspan + 2) + '" align="right"><span class="cal_close" onclick="' + this.varname +'.hide();">&times;</span></td></tr>';
 	
 	
 	//month caption
