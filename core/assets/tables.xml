@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.10 2005/02/21 11:35:48 brobertson Exp $
+* $Id: tables.xml,v 1.11 2005/02/21 23:39:15 arailean Exp $
 *
 */
 -->
@@ -1234,7 +1234,7 @@
 				</index>
 			</indexes>
 		</table>
-				<table name="trig_hash" require_rollback="0">
+		<table name="trig_hash" require_rollback="0">
 			<columns>
 				<column name="event" allow_null="0">
 					<type>VARCHAR(50)</type>
@@ -1303,6 +1303,7 @@
 					<description />
 				</column>
 			</columns>
+			<keys />
 			<indexes>
 				<index>
 					<column name="event" />
