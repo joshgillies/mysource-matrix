@@ -69,12 +69,6 @@ public class IJ {
 	static Object runPlugIn(String commandName, String className, String arg) {
 		if (IJ.debugMode)
 			IJ.log("runPlugin: "+className+" "+arg);
-		// Use custom classloader if this is a user plugin
-		// and we are not running as an applet
-		if (!className.startsWith("ij") && applet==null) {
- 			boolean createNewClassLoader = altKeyDown();
-			return runUserPlugIn(commandName, className, arg, createNewClassLoader);
-		}
 		Object thePlugIn=null;
 		try {
 			Class c = Class.forName(className);
@@ -759,24 +753,8 @@ public class IJ {
 		cancels the dialog box. Also aborts the macro if the user cancels
 		the dialog box.*/
 	public static String getDirectory(String title) {
-		if (title.equals("plugins"))
-			return Menus.getPlugInsPath();
-		else if (title.equals("temp")) {
-			String dir = System.getProperty("java.io.tmpdir");
-			if (dir!=null && !dir.endsWith(File.separator)) dir += File.separator;
-			return dir;
-		} else if (title.equals("image")) {
-			ImagePlus imp = IJ.getInstance().getImagePlus();
-	    	FileInfo fi = imp!=null?imp.getOriginalFileInfo():null;
-			if (fi!=null && fi.directory!=null)
-				return fi.directory;
-			else
-				return null;
-		} else {
-			DirectoryChooser dc = new DirectoryChooser(title);
-			String dir = dc.getDirectory();
-			return dir;
-		}
+		// Not applicable to applet version
+		return "";
 	}
 	
 	static void abort() {

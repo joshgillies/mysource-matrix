@@ -20,24 +20,41 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 	public static final int CROSSHAIR = 7;
 	public static final int WAND = 8;
 	public static final int TEXT = 9;
-	public static final int SPARE1 = 10;
-	public static final int MAGNIFIER = 11;
-	public static final int HAND = 100; //12;
-	public static final int DROPPER = 12; //13
-	public static final int ANGLE = 13; // 14
-	public static final int SPARE2 = 15;
-	public static final int SPARE3 = 16;
-	public static final int SPARE4 = 17;
-	public static final int SPARE5 = 18;
-	public static final int SPARE6 = 19;
-	//public static final int NONE = 100;
+	public static final int MAGNIFIER = 10;
+	public static final int HAND = 11;
+	public static final int DROPPER = 12;
 
-	private static final int NUM_TOOLS = 19; //20;
-	private static final int N_SPARES = 6;
+	// deprecated
+	public static final int ANGLE = 999;
+
+
+	public static final int NUM_TOOLS = 13;
+
+	public static final int DIVIDER = 100;
+	public static final int SPARE = 101;
+
+	public static final int[] BUTTON_SEQUENCE = {
+		RECTANGLE,
+		OVAL,
+		POLYGON,
+		FREEROI,
+		LINE,
+		POLYLINE,
+		FREELINE,
+		DIVIDER,
+		CROSSHAIR,
+		WAND,
+		TEXT,
+		DIVIDER,
+		MAGNIFIER,
+		HAND,
+		DROPPER
+	};
+		
 	private static final int SIZE = 22;
 	private static final int OFFSET = 3;
 		
-	private Dimension ps = new Dimension(SIZE*NUM_TOOLS, SIZE);
+	private Dimension ps = new Dimension(SIZE*BUTTON_SEQUENCE.length, SIZE);
 	private boolean[] down;
 	private static int current;
 	private int previous;
@@ -67,7 +84,6 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 		down[0] = true;
 		setForeground(foregroundColor);
 		setBackground(gray);
-		//setBackground(Color.red);
 		addMouseListener(this);
 		addMouseMotionListener(this);
 		instance = this;
@@ -85,8 +101,19 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 	}
 
 	private void drawButtons(Graphics g) {
-		for (int i=0; i<NUM_TOOLS; i++)
-			drawButton(g, i);
+		int currentOffset = 1;
+		for (int i=0; i<BUTTON_SEQUENCE.length; i++) {
+			drawButton(g, BUTTON_SEQUENCE[i], currentOffset);
+			currentOffset += getButtonWidth(BUTTON_SEQUENCE[i]);
+		}
+	}
+
+	private int getButtonWidth(int tool) {
+		if (tool == DIVIDER) {
+			return 11;
+		} else {
+			return 22;
+		}
 	}
 
 	private void fill3DRect(Graphics g, int x, int y, int width, int height, boolean raised) {
@@ -101,17 +128,30 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 		g.setColor(raised ? evenDarker : brighter);
 		g.drawLine(x + 1, y + height - 1, x + width - 1, y + height - 1);
 		g.drawLine(x + width - 1, y, x + width - 1, y + height - 2);
-	}    
+	}
 
 	private void drawButton(Graphics g, int tool) {
-        int index = toolIndex(tool);
-        fill3DRect(g, index * 22 + 1, 1, 22, 21, !down[tool]);
+		System.out.println("Drawing button "+tool);
+		int i=0;
+		int offset = 0;
+		while ((i < BUTTON_SEQUENCE.length) && (BUTTON_SEQUENCE[i] != tool)) {
+			offset += getButtonWidth(BUTTON_SEQUENCE[i]);
+			i++;
+		}
+		drawButton(g, tool, offset);
+	}
+
+
+	private void drawButton(Graphics g, int tool, int currentOffset) {
+		if (tool == DIVIDER) return;
+        int index = tool;
+        fill3DRect(g, currentOffset, 1, 22, 21, !down[tool]);
         g.setColor(Color.black);
-        int x = index * 22 + 3;
+        int x = currentOffset + 2;
 		int y = OFFSET;
 		if (down[tool]) { x++; y++;}
 		this.g = g;
-		if (tool>=SPARE1 && tool<=SPARE6 && icons[tool]!=null) {
+		if (icons[tool]!=null) {
 			drawIcon(g, icons[tool], x, y);
 			return;
 		}
@@ -193,21 +233,6 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 				g.setColor(backgroundColor);
 				m(0,0); d(16,0); d(16,16); d(0,16); d(0,0);
 				g.setColor(Color.black);
-				/*
-				xOffset = x; yOffset = y;
-				g.setColor(backgroundColor);
-				g.fillOval(x+2,y+2,14,13);
-				g.setColor(foregroundColor);
-				g.fillOval(x+4,y+4,10,9);
-				g.setColor(Color.black);
-				*/
-				return;
-			case ANGLE:
-				xOffset = x+1; yOffset = y+2;
-				m(0,11); d(11,0); m(0,11); d(15,11); 
-				m(10,11); d(10,8); m(9,7); d(9,6); m(8,5); d(8,5);
-				//m(0,9); d(14,0); m(0,9); d(16,9); 
-				//m(12,9); d(12,7); m(11,7); d(11,5); m(10,4); d(10,3);
 				return;
 		}
 	}
@@ -282,7 +307,7 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 	}
 	
 	private void showMessage(int tool) {
-		if (tool>=SPARE1 && tool<=SPARE6 && names[tool]!=null) {
+		if ((tool < names.length) && (tool >= 0) && (names[tool]!=null)) {
 			IJ.showStatus(names[tool]);
 			return;
 		}
@@ -318,7 +343,7 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 				IJ.showStatus("Text tool");
 				return;
 			case MAGNIFIER:
-				IJ.showStatus("Magnifying glass");
+				IJ.showStatus("Zoom in/out");
 				return;
 			case HAND:
 				IJ.showStatus("Scrolling tool");
@@ -326,9 +351,6 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 			case DROPPER:
 				IJ.showStatus("Color picker (" + foregroundColor.getRed() + ","
 				+ foregroundColor.getGreen() + "," + foregroundColor.getBlue() + ")");
-				return;
-			case ANGLE:
-				IJ.showStatus("Angle tool");
 				return;
 			default:
 				IJ.showStatus("");
@@ -359,18 +381,14 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 	}
 
 	public void setTool(int tool) {
-		if (tool==current || tool<0 || tool>=NUM_TOOLS)
+		if (tool==current || tool<0 || tool>=NUM_TOOLS) {
+			System.out.println("Dodgy tool number "+tool);
 			return;
-		if ((tool==SPARE1||(tool>=SPARE2&&tool<=SPARE6)) && names[tool]==null)
-			names[tool] = "Spare tool"; // enable tool
-		setTool2(tool);
-	}
-	
-	private void setTool2(int tool) {
-		if (tool==current || tool<0 || tool>=NUM_TOOLS)
+		}/*
+		if (names[tool]==null) {
+			System.out.println("no name for tool "+tool);
 			return;
-		if ((tool==SPARE1||(tool>=SPARE2&&tool<=SPARE6)) && names[tool]==null)
-			return;
+		}*/
 		current = tool;
 		down[current] = true;
 		down[previous] = false;
@@ -384,19 +402,6 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 			Recorder.record("setTool", current);
 		if (IJ.isMacOSX())
 			repaint();
-	}
-
-	/** Obsolete. Use getForegroundColor(). */
-	public Color getColor() {
-		return foregroundColor;
-	}
-
-	/** Obsolete. Use setForegroundColor(). */
-	public void setColor(Color c) {
-		if (c!=null) {
-			foregroundColor = c;
-			drawButton(this.getGraphics(), DROPPER);
-		}
 	}
 
 	public static Color getForegroundColor() {
@@ -431,46 +436,49 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 	
 	// Returns the toolbar position index of the specified tool
     int toolIndex(int tool){
+		return tool;/*
         if(tool<=FREELINE || tool>ANGLE)
             return tool;
         if(tool == ANGLE)
             return 7;
-        return tool + 1;
+        return tool + 1;*/
     }
 
 	// Returns the tool corresponding to the specified tool position index
     int toolID(int index) {
+		return index;/*
         if(index<=6 || index>14)
             return index;
         if(index == 7)
             return ANGLE;
-        return index - 1;
+        return index - 1;*/
     }
 
 	public void mousePressed(MouseEvent e) {
 		int x = e.getX();
- 		int newTool = 0;
-		for (int i=0; i<NUM_TOOLS; i++)
-			if (x>i*SIZE && x<i*SIZE+SIZE)
-				newTool = toolID(i);
+		int newTool = getToolFromCoord(x);
+		
+		System.out.println("new tools is "+newTool);
+
 		boolean doubleClick = newTool==current && (System.currentTimeMillis()-mouseDownTime)<=500;
  		mouseDownTime = System.currentTimeMillis();
 		if (!doubleClick) {
 			mpPrevious = current;
-			setTool2(newTool);
+			setTool(newTool);
 		} else {
+			System.out.println("double click");
 			ImagePlus imp = IJ.getInstance().getImagePlus();
 			switch (current) {
 				case FREEROI:
 					IJ.doCommand("Set Measurements...");
-					setTool2(mpPrevious);
+					setTool(mpPrevious);
 					break;
 				case MAGNIFIER:
 					if (imp!=null) imp.getCanvas().unzoom();
 					break;
 				case POLYGON:
 					if (imp!=null) IJ.doCommand("Calibrate...");
-					setTool2(mpPrevious);
+					setTool(mpPrevious);
 					break;
 				case LINE: case POLYLINE: case FREELINE:
 					IJ.doCommand("Line Width...");
@@ -483,7 +491,7 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 					break;
 				case DROPPER:
 					IJ.doCommand("Color Picker...");
-					setTool2(mpPrevious);
+					setTool(mpPrevious);
 					break;
 				default:
 			}
@@ -506,37 +514,17 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 	
 	public void mouseMoved(MouseEvent e) {
 		int x = e.getX();
-		x=toolID(x/SIZE);
-		showMessage(x);
+		showMessage(getToolFromCoord(x));
 	}
 
-	/** Enables the unused tool between the text and zoom tools. The 'toolTip' string 
-		is displayed in the status bar when the user clicks on the tool. If the 'toolTip'
-		string includes an icon (see Tools.txt macro), enables the next available tool
-		and draws it using that icon. Returns the tool ID, or -1 if all tools are in use. */
-	public int addTool(String toolTip) {
-		int index = toolTip.indexOf('-');
-		boolean hasIcon = index>=0 && (toolTip.length()-index)>4;
-		if (!hasIcon) {
-			names[SPARE1] = toolTip;
-			return SPARE1;
+	private int getToolFromCoord(int x) {
+		int offset = 0;
+		int i=0;
+		while (offset < x) {
+			offset += getButtonWidth(BUTTON_SEQUENCE[i]);
+			i++;
 		}
-		int tool =  -1;
-		if (names[SPARE1]==null)
-			tool = SPARE1;
-		if (tool==-1) {
-			for (int i=SPARE2; i<=SPARE6; i++) {
-				if (names[i]==null) {
-					tool = i;
-					break;
-				}			
-			}
-		}
-		if (tool==-1)
-			return -1;
-		icons[tool] = toolTip.substring(index+1);
-		names[tool] = toolTip.substring(0, index);
-		return tool;
+		return BUTTON_SEQUENCE[i-1];
 	}
 
 	

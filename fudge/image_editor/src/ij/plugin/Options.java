@@ -31,7 +31,6 @@ public class Options implements PlugIn {
 		gd.addStringField("Divide by Zero Value:", ""+FloatBlitter.divideByZeroValue, 10);
 		gd.addCheckbox("Use Pointer Cursor", Prefs.usePointerCursor);
 		gd.addCheckbox("Antialiased Text", Prefs.antialiasedText);
-		gd.addCheckbox("Open/Save Using JFileChooser", Prefs.useJFileChooser);
 		gd.addCheckbox("Debug Mode", IJ.debugMode);
 		gd.showDialog();
 		if (gd.wasCanceled())
@@ -54,11 +53,8 @@ public class Options implements PlugIn {
 			
 		Prefs.usePointerCursor = gd.getNextBoolean();
 		Prefs.antialiasedText = gd.getNextBoolean();
-		Prefs.useJFileChooser = gd.getNextBoolean();
 		IJ.debugMode = gd.getNextBoolean();
 
-		if (!IJ.isJava2())
-			Prefs.useJFileChooser = false;
 	}
 
 	void lineWidth() {

@@ -3,7 +3,6 @@ import ij.*;
 import ij.process.*;
 import ij.gui.*;
 import ij.io.*;
-import ij.plugin.TextReader;
 import java.awt.*;
 import java.util.*;
 import java.awt.event.*;

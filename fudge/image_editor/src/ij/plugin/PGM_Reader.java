@@ -59,15 +59,10 @@ public class PGM_Reader extends ImagePlus implements PlugIn {
 	private boolean rawBits;
 	private boolean sixteenBits;
 	
-	public void run(String arg) {
-		OpenDialog od = new OpenDialog("PGM Reader...", arg);
-		String directory = od.getDirectory();
-		String name = od.getFileName();
-		if (name==null)
-			return;
-		String path = directory + name;
+	public void run(String path) {
 		
 		IJ.showStatus("Opening: " + path);
+		File fp = new File(path);
 		ImageProcessor ip;
 		try {
 			ip = openFile(path);
@@ -78,8 +73,8 @@ public class PGM_Reader extends ImagePlus implements PlugIn {
 			return;
 		}
 
-		setProcessor(name, ip);
-		if (arg.equals(""))
+		setProcessor(fp.getName(), ip);
+		if (path.equals(""))
 			show();
 	}
 

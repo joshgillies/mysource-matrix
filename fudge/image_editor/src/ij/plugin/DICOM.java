@@ -47,12 +47,10 @@ import ij.measure.Calibration;
 public class DICOM extends ImagePlus implements PlugIn {
 	private boolean showErrors = true;
 
-	public void run(String arg) {
-		OpenDialog od = new OpenDialog("Open Dicom...", arg);
-		String directory = od.getDirectory();
-		String fileName = od.getFileName();
-		if (fileName==null)
-			return;
+	public void run(String path) {
+		File pf = new File(path);
+		String directory = pf.getName();
+		String fileName = pf.getParent();
 		IJ.showStatus("Opening: " + directory + fileName);
 		DicomDecoder dd = new DicomDecoder(directory, fileName);
 		FileInfo fi = null;
@@ -91,7 +89,7 @@ public class DICOM extends ImagePlus implements PlugIn {
 			setCalibration(imp.getCalibration());
 			setProperty("Info", dd.getDicomInfo());
 			setFileInfo(fi); // needed for revert
-			if (arg.equals("")) show();
+			if (path.equals("")) show();
 		} else if (showErrors)
 			IJ.showMessage("DicomDecoder","Unable to decode DICOM header.");
 		IJ.showStatus("");

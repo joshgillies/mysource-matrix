@@ -12,6 +12,7 @@ import ij.gui.*;
 import ij.util.*;
 import ij.text.TextWindow;
 import ij.plugin.frame.*;
+import javax.swing.*;
 
 /** Runs menu commands in a separate thread.*/
 public class Executer implements Runnable {
@@ -82,7 +83,7 @@ public class Executer implements Runnable {
 						return;
 					s = Tools.fixNewLines(s);
 				}
-				new TextWindow("Exception", s, 350, 250);
+				JOptionPane.showMessageDialog(IJ.getInstance(), s, "Exception", JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
@@ -109,7 +110,7 @@ public class Executer implements Runnable {
 		if (cmd.equals("New..."))
 			new NewImage();
 		else if (cmd.equals("Open Local")) {
-			new Opener().openMultiple();
+			new Opener().open();
 		} else if (cmd.equals("Close"))
 			close(imp);
 		else if (cmd.equals("Cut"))

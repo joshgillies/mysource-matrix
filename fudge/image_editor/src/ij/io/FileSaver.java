@@ -7,7 +7,8 @@ import ij.process.*;
 import ij.measure.Calibration;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.Recorder;
-
+import javax.swing.*;
+import javax.swing.filechooser.*;
 
 /** Saves images in tiff, gif, jpeg, raw, zip and text format. */
 public class FileSaver {
@@ -33,14 +34,22 @@ public class FileSaver {
 	}
 	
 	String getPath(String type, String extension) {
-		name = imp.getTitle();
-		SaveDialog sd = new SaveDialog("Save as "+type, name, extension);
-		name = sd.getFileName();
-		if (name==null)
-			return null;
-		directory = sd.getDirectory();
-		imp.startTiming();
-		String path = directory+name;
+		JFileChooser fc = new JFileChooser();
+		if (Opener.defaultDirectory != null) {
+			fc.setCurrentDirectory(Opener.defaultDirectory);
+		}
+		File dummyFile = new File("foobar"+extension);
+		for (int i=0; i < Opener.FILE_FILTERS.length; i++) {
+			if (Opener.FILE_FILTERS[i].accept(dummyFile)) {
+				fc.addChoosableFileFilter(Opener.FILE_FILTERS[i]);
+			}
+		}
+		int returnVal = fc.showSaveDialog(IJ.getInstance());
+		
+		if (returnVal!=JFileChooser.APPROVE_OPTION) {
+			return "";
+		}
+		String path = fc.getCurrentDirectory().getPath()+File.separator+fc.getSelectedFile();
 		return path;
 	}
 	
