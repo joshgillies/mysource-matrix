@@ -65,6 +65,7 @@ function externalCallWatch(property, old_val, new_val)
 */
 ExternalCall.prototype.makeExternalCall = function(cmd, params)
 {
+//	trace('cmd://' + cmd);
 	fscommand('flashToJsCall', 'cmd://' + cmd);
 
 	for(i in params) {
@@ -76,7 +77,7 @@ ExternalCall.prototype.makeExternalCall = function(cmd, params)
 			default :
 				var name  = escape(i);
 				var value = escape(params[i]);
-				trace('add_param://' + name + '=' + value);
+//				trace('add_param://' + name + '=' + value);
 				fscommand('flashToJsCall', 'add_param://' + name + '=' + value);
 		}// end switch
 	}// end for

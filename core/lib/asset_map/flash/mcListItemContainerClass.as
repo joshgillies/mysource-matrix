@@ -670,7 +670,7 @@ mcListItemContainerClass.prototype.moveConfirm = function(move_type, params)
 mcListItemContainerClass.prototype.xmlMoveItem = function(xml, exec_identifier)
 {
 
-	switch (root.nodeName) {
+	switch (xml.firstChild.nodeName) {
 		case "success" : 
 			var select_linkid = xml.firstChild.attributes.linkid;
 
