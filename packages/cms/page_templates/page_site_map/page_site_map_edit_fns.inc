@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_site_map_edit_fns.inc,v 1.6 2004/01/19 06:00:20 gsherwood Exp $
+* $Id: page_site_map_edit_fns.inc,v 1.7 2004/01/20 06:03:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -144,40 +144,53 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 	*/
 	function paintExcludeList(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) return false;
-
+		$write_access = $asset->writeAccess('attributes');
 		$curr_list = $asset->attr('exclude_list');
+
 		if (empty($curr_list)) {
-			echo '<BR><B>No Assets Currently Excluded</B><BR /><BR />';
+			echo '<b>No assets are currently excluded</b>';
 		} else {
-			?><table class="sq-backend-table">
-					<tr>
-						<td class="sq-backend-table-header" width="80">Remove?</td>
-						<td class="sq-backend-table-header" width="100%">Asset Name</td>
-					</tr>
-			<?php
-			foreach ($curr_list as $id => $name) {
-				?>
+			$curr_list_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($curr_list));
+			?>
+			<table class="sq-backend-table">
 				<tr>
-					<td class="sq-backend-table-cell"><?php
-						check_box($prefix.'_curr_exclude_list[]', $id, false);
-				?>
-					</td>
-					<td class="sq-backend-table-cell">
+					<td class="sq-backend-table-header" width="100%">Asset Name</td>
 					<?php
-						echo $name;
+					if ($write_access) {
+						?><td class="sq-backend-table-header" width="80">Remove?</td><?php
+					}
 					?>
-					</td>
 				</tr>
 				<?php
-			}
-			?></table><BR /><BR /><?php
+				foreach ($curr_list_info as $assetid => $asset_info) {
+					?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo $asset_info['name']; ?></td>
+						<?php
+						if ($write_access) {
+							?>
+							<td class="sq-backend-table-cell">
+								<?php check_box($prefix.'_curr_exclude_list[]', $assetid, false); ?>
+							</td>
+							<?php
+						}
+						?>
+					</tr>
+					<?php
+				}
+				?>
+			</table>
+			<?php
 		}
-		echo 'choose an Asset to Exclude<BR />';
-		asset_finder($prefix.'_exclude_list');
 
-		return true;
-	} // end paintExcludeList()
+		if ($write_access) {
+			echo '<br/><br/>choose an asset to exclude<br/>';
+			asset_finder($prefix.'_exclude_list');
+		}
+
+		return $write_access;
+
+	}//end paintExcludeList()
 
 
 	/**
@@ -194,23 +207,18 @@ class Page_Site_Map_Edit_Fns extends Page_Edit_Fns
 	{
 		$exclude_list = $asset->attr('exclude_list');
 		if (isset($_POST[$prefix.'_exclude_list']['assetid']) && $_POST[$prefix.'_exclude_list']['assetid']) {
-			$exclude_id = $_POST[$prefix.'_exclude_list']['assetid'];
-			
-			if (!in_array($_POST[$prefix.'_exclude_list'], $exclude_id)) {
-				$info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($exclude_id));
-				$name = ((empty($info)) ? '' : $info[$exclude_list]['name']).' ('.$exclude_id.')';
-				$exclude_list[$exclude_id] = $name;
-			}
+			$exclude_id = (int)$_POST[$prefix.'_exclude_list']['assetid'];
+			$exclude_list[$exclude_id] = $exclude_id;
 		}
 		if (isset($_POST[$prefix.'_curr_exclude_list'])) {
 			foreach ($_POST[$prefix.'_curr_exclude_list'] as $id) {
 				unset($exclude_list[$id]);
 			}
 		}
-		$asset->setAttrValue('exclude_list', $exclude_list);
-		return $asset->saveAttributes();
-	
-	}// end processExcludeList()
+		return $asset->setAttrValue('exclude_list', $exclude_list);
+
+	}//end processExcludeList()
+
 
 }//end class
 
