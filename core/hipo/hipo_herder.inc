@@ -299,27 +299,51 @@ if (!empty($todo_hipo)) {
 							<tr>
 								<td>
 							<?php
-
-							// if we aren't waiting for an abort, print the progress stuff
-							if (empty($_POST['aborting_hipo'])) {
-
-								// Paint the source job, this will take care of any sub jobs if needed
-								$source_job->paint();
-
 								$buttons_to_print = Array();
-								if (!$source_job->complete()) {
-									// basically what happens here is that if cancel has already been pressed we increment the counter
-									// this means that the cancel button only get's pressed once
-									hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
-									$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
-								}
 
-								// print the NEXT or FINISH button if we are not auto stepping through the HIPO
-								if (!$auto_step) {
-									// they dont want us to refresh automatically, so we need to provide a manual NEXT button
-									$button_text = ($source_job->complete()) ? 'Finish' : 'Next >>';
-									$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
-								}
+								// if we aren't waiting for an abort, print the progress stuff
+								if (empty($_POST['aborting_hipo'])) {
+
+									// Paint the source job, this will take care of any sub jobs if needed
+									$source_job->paint();
+
+									if (!$source_job->complete()) {
+										// basically what happens here is that if cancel has already been pressed we increment the counter
+										// this means that the cancel button only get's pressed once
+										hidden_field('cancel_hipo', (empty($_POST['cancel_hipo'])) ? 0 : ((int) $_POST['cancel_hipo'] + 1));
+										$buttons_to_print['cancel'] = Array('value' => 'Cancel', 'action' => 'send_abort();');
+									}
+
+									// print the NEXT or FINISH button if we are not auto stepping through the HIPO
+									if (!$auto_step) {
+										// they dont want us to refresh automatically, so we need to provide a manual NEXT button
+										$button_text = ($source_job->complete()) ? 'Finish' : 'Next >>';
+										$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
+									}
+
+								// we are aborting from the server
+								} else {
+
+									hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
+									hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
+
+									// if the source job is null it means that an abort finally finished
+									// (we couldn't get here otherwise) so print that and get out of here
+									if (is_null($source_job)) {
+										echo 'Abort Complete';
+										$button_text = 'OK';
+									} else {
+										echo 'Aborting...';
+										$button_text = 'Next >>';
+									}
+
+									// print the NEXT or FINISH button if we are not auto stepping through the HIPO
+									if (!$auto_step) {
+										// they dont want us to refresh automatically, so we need to provide a manual NEXT button
+										$buttons_to_print['next'] = Array('value' => $button_text, 'action' => 'next_page();');
+									}
+
+								}// end if
 
 								if (count($buttons_to_print)) {
 									?>
@@ -340,21 +364,6 @@ if (!empty($todo_hipo)) {
 									<?php
 								}// end if
 
-							// we are aborting from the server
-							} else {
-
-								hidden_field('aborting_hipo',     $_POST['aborting_hipo']);
-								hidden_field('aborting_hipo_url', $_POST['aborting_hipo_url']);
-
-								// if the source job is null it means that an abort finally finished
-								// (we couldn't get here otherwise) so print that and get out of here
-								if (is_null($source_job)) {
-									echo 'Abort Complete';
-								} else {
-									echo 'Aborting...';
-								}
-
-							}// end if
 							?>
 								</td>
 							</tr>
