@@ -44,6 +44,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 		$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
 		$wysiwyg->set_body_type('div');
 		$wysiwyg->set_init_onload('yes');
+		$wysiwyg->set_show_status_bar(true);
 		//$wysiwyg->set_stylesheet('http://www.nswrl.com.au/__data/site/design/1/images/styles.css');
 		$wysiwyg->set_width('100%');
 		$wysiwyg->set_height('400');
