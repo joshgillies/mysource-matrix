@@ -163,8 +163,14 @@ class Asset_Edit_Interface extends Resolve_Object
 		//check the active screen for special system defined tabs
 		switch ($active_screen) {
 			case 'permissions' :
+				$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getInfo($this->_type_code, 'name').' - '.$owner->_tabs[$active_screen]['name'], $owner->_tabs[$active_screen]['icon']);
 				$o->setCurrentTab('permissions');
 				$this->paintPermissions($owner, $o);
+				break;
+			case 'workflow' :
+				$o->setHeading($GLOBALS['SQ_SYSTEM']->am->getInfo($this->_type_code, 'name').' - '.$owner->_tabs[$active_screen]['name'], $owner->_tabs[$active_screen]['icon']);
+				$o->setCurrentTab('workflow');
+				$this->paintWorkflow($owner, $o);
 				break;
 			default :
 				// must be a normal screen
@@ -302,6 +308,9 @@ class Asset_Edit_Interface extends Resolve_Object
 			case 'permissions' :
 				$this->processPermissions($owner);
 				break;
+			case 'workflow' :
+				$this->processWorkflow($owner);
+				break;
 			default :
 				// must be a normal screen
 
@@ -436,7 +445,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			$public = false;
 			foreach ($users as $userid => $locs) {
 				if ($userid) continue;
-				if (in_array($owner->id, $locs)) $public = true;
+				if (in_array($owner->id, array_keys($locs))) $public = true;
 			}
 			if ($owner->writeAccess()) {
 				check_box($prefix."_public[$perm]", 1, (($public) ? true : false));
@@ -466,14 +475,16 @@ class Asset_Edit_Interface extends Resolve_Object
 					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 					if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
 				}
+
 				$loc_string = '';
-				foreach ($locs as $locid) {
+				foreach ($locs as $locid => $extras) {
 					if ($locid == $owner->id) continue;
 					$loc = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locid);
 					if (!$loc->id) continue;
 					$loc_string .= $loc->name.', ';
 				}
 				$loc_string = trim($loc_string, ', ');
+
 				if (!empty($loc_string)) {
 					?>
 					<tr>
@@ -518,7 +529,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 					if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
 				}
-				if (in_array($owner->id, $locs)) {
+				if (in_array($owner->id, array_keys($locs))) {
 					?>
 					<tr>
 						<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
@@ -561,7 +572,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				if (!$userid) continue;
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
-				if (in_array($owner->id, $locs)) {
+				if (in_array($owner->id, array_keys($locs))) {
 					?>
 					<tr>
 						<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $userid]";?></td>
@@ -654,6 +665,147 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
+	* Paints the interface for managing workflow
+	*
+	* @param object	Asset				$owner		the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	*
+	* @access public
+	*/
+	function paintWorkflow(&$owner, &$o)
+	{
+		$prefix = $owner->type().'_'.$owner->id;
+
+		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+		$wfm = new Workflow_Manager($owner, true, false, false);
+	
+		foreach ($wfm->_steps as $stepid => $step_data) {
+			$o->openSection("Step $stepid");
+			
+			$o->openField('Step Logic');
+			if (!$owner->writeAccess()) {
+				echo '<i>'.$wfm->_valid_step_logic[$step_data['logic']].'</i>';
+			} else {
+				combo_box($prefix.'_step_logic['.$stepid.']', $wfm->_valid_step_logic, false, $step_data['logic']);
+			}
+
+			$o->openField('Conditions');
+
+			$has_conds = false;
+			ob_start();
+			?>
+			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+				<tr>
+					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+					<td bgcolor="#DDDDDD" class="sq-form-field" width="150"><b>Logic</b></td>
+					<?php
+					if ($owner->writeAccess()) {
+						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Delete ?</b></td><?php
+					}
+					?>
+				</tr>
+			<?php
+			foreach ($step_data['conditions'] as $pub => $cond_data) {
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($pub);
+				if (!$asset->id) continue;
+				?>
+				<tr>
+					<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->name.' ['.$asset->type()." : $pub]";?></td>
+					<td bgcolor="#F0F0F0" class="sq-form-field">
+				<?php
+				list($cond_logic, $cond_logic_num) = explode(' ', $cond_data['require']);
+				if (!$owner->writeAccess()) {
+					echo '<i>'.$wfm->_valid_cond_logic[$cond_logic]." $cond_logic_num</i>";
+				} else {
+					combo_box($prefix.'_cond_logic['.$stepid.']['.$pub.']', $wfm->_valid_cond_logic, false, $cond_logic);
+					echo '&nbsp;';
+					text_box($prefix.'_cond_logic_num['.$stepid.']['.$pub.']', $cond_logic_num, 4);
+				}
+				?></td><?php
+
+				if ($owner->writeAccess()) {
+					?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
+					check_box($prefix.'_delete_step_'.strtolower($stepid)."[$pub]")
+					?></td><?php
+				}
+				?></tr><?php
+				$has_conds = true;
+			}
+
+			if (!$has_conds) {
+				ob_end_clean();
+				echo 'None';
+			} else {
+				ob_end_flush();
+				?></table><?php
+			}
+
+			
+		}
+
+		//bam($wfm->whoCanPublish());
+
+		//bam($wfm->_current_workflows);
+		//$wfm->recordPublish('49');
+		//$wfm->recordPublish('4');
+		//$wfm->recordPublish('16');
+		//$wfm->recordPublish('4');
+		//bam($wfm->_current_workflows);
+
+		//bam($wfm->whoCanPublish());
+
+		
+
+		//wfm->addPublished
+		//$wfm->start();
+
+		//$wfm->deleteStep(2);
+		//$wfm->deleteStep(1);
+		
+		//$stepid = $wfm->addStep();
+		//$wfm->setStepLogic($stepid, 'all');
+		//$wfm->addCondition($stepid, 12, 'eq', '1');
+		//$wfm->addCondition($stepid, 16, 'eq', '1');
+		//$wfm->addCondition($stepid, 3, 'gt', '1');
+
+		//$stepid = $wfm->addStep();
+		//$wfm->setStepLogic($stepid, 'all');
+		//$wfm->addCondition($stepid, 16, 'eq', '1');
+		//$wfm->addCondition($stepid, 4, 'eq', '1');
+		//$wfm->addCondition($stepid, 3, 'lt', '2');
+
+		//$stepid = $wfm->addStep();
+		//$wfm->setStepLogic($stepid, 'any');
+		//$wfm->addCondition($stepid, 4, 'eq', '1');
+		//$wfm->addCondition($stepid, 3, 'eq', '1');
+
+		//$wfm->deleteStep(2);
+
+		//$wfm->save();
+
+		//bam($wfm->_steps);
+
+		
+		
+	}//end paintWorkflow()
+
+
+	/**
+	* Processes the interface for managing workflow
+	*
+	* @param object	Asset	$owner	the asset whose interface we are painting
+	*
+	* @access public
+	*/
+	function processWorkflow(&$owner)
+	{
+		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+		$wfm = new Workflow_Manager($owner);
+	}//end processWorkflow()
+
+
+
+	/**
 	* Takes the requested filename and searches back up the directory's to find the matching file
 	* closest to the type of the asset that we are creating
 	*
@@ -682,6 +834,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		return $file;
 	}// end _findFile()
+
 
 	/**
 	* Returns the Sections and fields that are to be used in a create interface
