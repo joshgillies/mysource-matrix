@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.39 2004/11/23 05:43:04 lwright Exp $
+* $Id: form_question.inc,v 1.40 2004/11/23 23:39:44 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.39 $ - 1.0
+* @version $Revision: 1.40 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -104,7 +104,6 @@ class Form_Question extends Asset
 		$this->_questionid = $data['questionid'];
 
 		$this->active_submission = &$form->active_submission;
-		$this->submission_errors = &$form->submission_errors;
 
 		// set the data paths
 		$this->data_path = $form->data_path.'/'.$data['questionid'];

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.66 2004/11/23 05:42:59 lwright Exp $
+* $Id: form.inc,v 1.67 2004/11/23 23:38:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -45,15 +45,9 @@ class Form extends Bridge
 
 	/**
 	* the active submission array
-	* @var Array (string => string)
+	* @var object Form_Submission
 	*/
 	var $active_submission = null;
-
-	/**
-	* the active submission array
-	* @var Array (of string)
-	*/
-	var $submission_errors = Array();
 
 	/**
 	* the active section object
@@ -234,7 +228,7 @@ class Form extends Bridge
 			unset($link['is_exclusive']);
 
 		}
-
+		
 		return $links;
 
 	}//end getAssetMapLinks()

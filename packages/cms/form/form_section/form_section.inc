@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.28 2004/11/18 05:11:34 gsherwood Exp $
+* $Id: form_section.inc,v 1.29 2004/11/23 23:39:44 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -605,8 +605,6 @@ class Form_Section extends Bridge
 	/**
 	* gets each of this section's question to process the saubmitted values for them
 	*
-	* @param &object submission_form $submission the submission asset for this form
-	*
 	* @access public
 	* @return boolean
 	*/
@@ -614,7 +612,7 @@ class Form_Section extends Bridge
 		$questions = &$this->getQuestions();
 		for (reset($questions); null !== ($k = key($questions)); next($questions)) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$k);
-			$question->submission_errors =& $this->submission_errors;
+			$question->active_submission =& $this->active_submission;
 			$question->processForm();
 		}
 		return true;
