@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.8.2.1 2004/12/09 05:39:02 gsherwood Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.8.2.2 2005/04/06 23:12:13 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8.2.1 $
+* @version $Revision: 1.8.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -123,7 +123,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 						$link_type = '';
 
 						$results = Array();
-						preg_match('|^\./\?a=([0-9]+)$|',$match, $results);
+						preg_match('|^\./\?a=([0-9]+)#?([^$]*)?|',$match, $results);
 
 						$validated_results = false;
 						if (!empty($results)) {
@@ -349,10 +349,11 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 			return;
 		}
 
-		$reported_links = Array( 'internal' => Array(),
-								 'external' => Array(),
-								 'mailto'   => Array(),
-								);
+		$reported_links = Array(
+							'internal'	=> Array(),
+							'external'	=> Array(),
+							'mailto'	=> Array(),
+						  );
 
 
 		foreach ($root->children as $link) {
@@ -367,7 +368,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 
 						// get the assetid from the html link
 						if ($link->attributes['type'] == 'internal') {
-							$to_assetid = preg_replace('|\./\?a=([0-9]+)|', '\\1', $link_child->content);
+							$to_assetid = preg_replace('|\./\?a=([0-9]+).*|', '\\1', $link_child->content);
 							$new_link['data'] = $to_assetid;
 						} else {
 							$new_link['data'] = $link_child->content;
@@ -633,7 +634,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 			$asset_bg = 'FFFFFF';
 		} else {
 			$dependants = $GLOBALS['SQ_SYSTEM']->am->getDependantParents($asset->id);
-			$parent = $GLOBALS['SQ_SYSTEM']->am->getAsset(array_pop($dependants));
+			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset(array_pop($dependants));
 			if (!is_null($parent)) {
 				$asset_type = $parent->type();
 				$asset_name = $parent->name;
@@ -658,13 +659,14 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 				<a href="'.$asset_preview_url.'" target="_blank" title="'.$asset_name.'">'.$asset_string.'</a>';
 		}
 
-		return Array('assetid'      => $assetid,
-					 'type'         => $asset_type,
-					 'string'       => $asset_string,
-					 'bg'           => $asset_bg,
-					 'status'       => $asset_status,
-					 'backend_url'  => $asset_url,
-					 );
+		return Array(
+				'assetid'		=> $assetid,
+				'type'			=> $asset_type,
+				'string'		=> $asset_string,
+				'bg'			=> $asset_bg,
+				'status'		=> $asset_status,
+				'backend_url'	=> $asset_url,
+			   );
 
 	}//end _getAssetReportInfo()
 
