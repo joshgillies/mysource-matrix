@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.15 2004/07/26 15:53:09 brobertson Exp $
+* $Id: datetime.inc,v 1.16 2004/08/04 00:15:31 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -303,6 +303,92 @@ function days_in_month($month, $year)
 	}//end switch
 
 }//end days_in_month()
+
+
+/**
+* Increments the given date by the specified number of days
+*
+* Months and years are rolled over as necessary
+*
+* @param int	&$day			day component of the date to increment (1-31)
+* @param int	&$month			month component of the date to increment (1-12)
+* @param int	&$year			year component of the date to increment (YYYY)
+* @param int	$days_to_add	number of days to add to the date
+*
+* @access public
+*/
+function increment_date(&$day, &$month, &$year, $days_to_add=1) 
+{
+	$day += $days_to_add;
+	while ($day > days_in_month($month, $year)) {
+		$day = $day - days_in_month($month, $year);
+		increment_month($month, $year);
+	}
+}
+
+
+/**
+* Increments the given month by the specified number
+*
+* Years are rolled over as necessary
+*
+* @param int	&$month			month component of the date to increment (1-12)
+* @param int	&$year			year component of the date to increment (YYYY)
+* @param int	$months_to_add	number of months to add to the date
+*
+* @access public
+*/
+function increment_month(&$month, &$year, $months_to_add=1) 
+{
+	$month += $months_to_add;
+	while ($month > 12) {
+		$month = $month - 12;
+		$year++;
+	}
+}
+
+
+/**
+* Decrements the given date by the specified number of days
+*
+* Months and years are rolled over as necessary
+*
+* @param int	&$day			day component of the date to decrement (1-31)
+* @param int	&$month			month component of the date to decrement (1-12)
+* @param int	&$year			year component of the date to decrement (YYYY)
+* @param int	$days_to_add	number of days to subtract from the date
+*
+* @access public
+*/
+function decrement_date(&$day, &$month, &$year, $days_to_sub=1)
+{
+	$day = $day - $days_to_sub;
+	while ($day < 1) {
+		decrement_month($month, $year);
+		$day = days_in_month($month, $year) + $day;
+	}
+}
+
+
+/**
+* Decrements the given month by the specified number
+*
+* Years are rolled over as necessary
+*
+* @param int	&$month			month component of the date to increment (1-12)
+* @param int	&$year			year component of the date to increment (YYYY)
+* @param int	$months_to_sub	number of months to subtract from the date
+*
+* @access public
+*/
+function decrement_month(&$month, &$year, $months_to_sub=1) 
+{
+	$month = $month - $months_to_sub;
+	while ($month < 1) {
+		$month = 12 + $month;
+		$year--;
+	}
+}
 
 
 /**
