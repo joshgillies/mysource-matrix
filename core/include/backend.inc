@@ -51,6 +51,9 @@ class Backend extends Resolve_Object
 	*/
 	function paint() {
 
+		// make sure we are a backend user
+		if (!is_a($GLOBALS['SQ_SYSTEM']->user, 'backend_user')) return;
+
 		if (empty($_GET['SQ_BACKEND_PAGE']) || $_GET['SQ_BACKEND_PAGE'] == 'frames') {
 			$this->_printFrames();
 		
