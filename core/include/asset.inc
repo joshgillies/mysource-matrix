@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.336 2004/11/23 02:45:15 gsherwood Exp $
+* $Id: asset.inc,v 1.337 2004/11/30 01:17:53 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.337 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -230,7 +230,7 @@ class Asset extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		// let the system know that we are creating this asset so we dont
 		// do any updating of versions etc. until we are done
 		$this->_tmp['__creating__'] = true;
@@ -378,7 +378,7 @@ class Asset extends MySource_Object
 			if (!$linkid) return $this->_abortCreate();
 
 		}//end if creating link
-		
+
 		// perform any additional processing during the create - such as creating other assets
 		if (!$this->_createAdditional($link)) return $this->_abortCreate();
 
@@ -396,8 +396,8 @@ class Asset extends MySource_Object
 		}
 
 	}//end create()
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -561,7 +561,7 @@ class Asset extends MySource_Object
 			$sql = 'SELECT atr.name, atr.attrid, atr.type, COALESCE(v.custom_val, atr.default_val) AS value
 					FROM '.SQ_TABLE_PREFIX.'ast_attr atr
 					  LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val v
-					    ON (atr.attrid = v.attrid AND v.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id)
+						ON (atr.attrid = v.attrid AND v.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id)
 						.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
 					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 		} else {
@@ -945,7 +945,7 @@ class Asset extends MySource_Object
 	function _updated($update_parents=true)
 	{
 		if (isset($this->_tmp['__creating__']) && $this->_tmp['__creating__']) return true;
-		
+
 		$updated = time();
 		$updated_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$name         = $this->_getName();
@@ -2207,7 +2207,7 @@ class Asset extends MySource_Object
 
 					// update existing entry
 					$where = 'owning_attrid = '.$db->quote($save_vars[$attr_id]['owning_attrid']).'
-							    AND assetid = '.$db->quote($this->id);
+								AND assetid = '.$db->quote($this->id);
 
 
 					$values = Array('custom_val' => $db->quote($attr_value));
