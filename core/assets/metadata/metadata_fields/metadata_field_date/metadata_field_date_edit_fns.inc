@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.10 2004/06/18 03:41:58 gsherwood Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.11 2004/09/08 04:20:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once dirname(__FILE__).'/../../metadata_field/metadata_field_edit_fns.in
 */
 class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -144,7 +145,7 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		return $field;
 
-	}// end _getEpochDateTimeField()
+	}//end _getEpochDateTimeField()
 
 
 	/**
