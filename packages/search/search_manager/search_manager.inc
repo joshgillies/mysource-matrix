@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.23 2004/09/20 01:24:17 gsherwood Exp $
+* $Id: search_manager.inc,v 1.24 2004/09/28 03:49:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.23 $ - 0.1
+* @version $Revision: 1.24 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -909,9 +909,6 @@ class Search_Manager extends Asset
 		$total_asset_scores = null;
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->currentUserId() || (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
 
-
-		$concat = ($db->phptype == 'mysql') ? 'CONCAT(alt1.treeid, '.$db->quote('%').')' : '(alt1.treeid || '.$db->quote('%').')';
-
 		$search_sql = 'SELECT DISTINCT(a.assetid), 1 AS score
 					   FROM
 							'.SQ_TABLE_PREFIX.'asset_link_tree alt1,
@@ -927,7 +924,7 @@ class Search_Manager extends Asset
 		
 		$search_sql .= ' al1.majorid = '.$db->quote($search_info['root_assetid']).'
 						 AND al1.linkid  = alt1.linkid
-						 AND alt2.treeid LIKE '.$concat.'
+						 AND alt2.treeid LIKE (alt1.treeid || '.$db->quote('%').')
 						 AND alt2.linkid = al2.linkid
 						 AND a.assetid  = al2.minorid';
 
@@ -1026,8 +1023,6 @@ class Search_Manager extends Asset
 			}
 		}
 
-		$concat = ($db->phptype == 'mysql') ? 'CONCAT(alt1.treeid, '.$db->quote('%').')' : '(alt1.treeid || '.$db->quote('%').')';
-		
 		$sql = Array();
 
 		$sql['select'] = 'SELECT DISTINCT(ai.assetid), SUM(ai.score) as search_score, '.$sort_string.' AS sort_by';
@@ -1047,7 +1042,7 @@ class Search_Manager extends Asset
 		$sql['where'] .= '  a.assetid = ai.assetid
 							AND al1.majorid = '.$db->quote($search_info['root_assetid']).'
 							AND al1.linkid  = alt1.linkid
-							AND alt2.treeid LIKE '.$concat.'
+							AND alt2.treeid LIKE (alt1.treeid || '.$db->quote('%').')
 							AND alt2.linkid = al2.linkid
 							AND ai.assetid  = al2.minorid';
 
