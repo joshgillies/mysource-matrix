@@ -459,9 +459,9 @@ class Backend_Outputter
 	/**
 	* Opens a field inside a section
 	*
-	* @param string $name
-	* @param string $format
-	* @param string $note
+	* @param string $name		label of the field
+	* @param string $format		format 'new_line' | 'commit' | ''
+	* @param string $note		a note to place with the field
 	*
 	* @access public
 	*/
