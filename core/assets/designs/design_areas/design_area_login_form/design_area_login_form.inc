@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_login_form.inc,v 1.9 2003/12/12 18:43:51 brobertson Exp $
+* $Id: design_area_login_form.inc,v 1.10 2004/06/29 07:38:10 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -171,7 +171,7 @@ class Design_Area_Login_Form extends Design_Area
 					if ($k == 'value') continue;
 					$extras .= ' '.$k.'="'.htmlspecialchars($v).'"';
 				}
-				submit_button('', empty($args['value']) ? ucfirst($this->_tmp['painting_section']) : $args['value'], '', $extras);
+				submit_button('log_in_out_button', empty($args['value']) ? ucfirst($this->_tmp['painting_section']) : $args['value'], '', $extras);
 				break;
 
 			default :
