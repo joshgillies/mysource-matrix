@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.123 2004/04/02 05:00:26 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.124 2004/04/02 07:10:24 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -356,22 +356,51 @@ class Asset_Map
 
 
 
-	function _getChildAssets(&$root, $assetid) {
-
-
+	function _getChildAssets(&$root, $assetid)
+	{
 		$output = new XML_Tree();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		
+		$userid_cond = '';
+		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+				$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+				array_push($userids, 0, $GLOBALS['SQ_SYSTEM']->user->id);
+				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
+					$userids[$k] = $db->quote($userids[$k]);
+				}
+				$userid_cond = ' AND p.userid IN ('.implode(',', $userids).')';
+			}
+		} else {
+			// public users
+			$userid_cond = ' AND p.userid = 0';
+		}
 
-		$sql = 'SELECT DISTINCT(a.assetid), a.short_name, a.type_code, a.status, l.linkid, l.link_type, l.sort_order,
-			lt.num_immediate_kids FROM '.SQ_TABLE_PREFIX.'asset a, '.SQ_TABLE_PREFIX.'asset_link l, '
-			.SQ_TABLE_PREFIX.'asset_link_tree lt
- 			WHERE a.assetid = l.minorid 
-			AND l.linkid = lt.linkid 
-			AND l.majorid = '.$db->quote($assetid).'
-			AND l.link_type <= '.$db->quote(SQ_LINK_TYPE_2).'  ORDER BY sort_order DESC';
-
+		$sql  = 'SELECT DISTINCT(a.assetid), a.short_name, a.type_code, a.status,
+					   l.linkid, l.link_type, l.sort_order,
+					   lt.num_immediate_kids';
+		if (!empty($userid_cond)) $sql .= ', MAX(p.permission) AS accessible';
+		else $sql .= ', \'1\' AS accessible';
+		
+		$sql .= ' FROM '.SQ_TABLE_PREFIX.'asset a';
+		if (!empty($userid_cond)) {
+			$sql .= ' LEFT JOIN sq_asset_permission p ON (
+							a.assetid = p.assetid AND
+							p.access =1 AND
+							p.permission >= '.$db->quote(SQ_PERMISSION_READ).$userid_cond.'
+						)';
+		}
+		$sql .= ','.SQ_TABLE_PREFIX.'asset_link l, '.SQ_TABLE_PREFIX.'asset_link_tree lt
+ 				WHERE a.assetid = l.minorid AND
+					  l.linkid = lt.linkid AND
+					  l.majorid = '.$db->quote($assetid).' AND
+					  l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
+		if (!empty($userid_cond)) {
+			$sql .= ' GROUP BY a.assetid';
+		}
+		$sql .=	' ORDER BY sort_order DESC';
+		
 		$result = $db->getAll($sql);
-
 		if (DB::isError($result)) {
 			return $this->_error('Could not load child assets for assetid '.$assetid.' '.$result->getMessage());
 		}
@@ -383,15 +412,16 @@ class Asset_Map
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['minorid'], $link_data['minor_type_code']);
 				$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
 				$result[] = Array(
-									'assetid' => $link_data['minorid'],
-									'short_name' => $asset->short_name,
-									'name' => $asset->name,
-									'type_code' => $link_data['minor_type_code'],
-									'status' => $asset->status,
-									'linkid' => $link_data['linkid'],
-									'link_type' => $link_data['link_type'],
-									'num_immediate_kids' => count($asset_links),
-									'sort_order' => $link_data['sort_order'],
+									'assetid'            => $link_data['minorid'],
+									'short_name'         => $asset->short_name,
+									'name'               => $asset->name,
+									'accessible'    	 => 1,
+									'type_code'          => $link_data['minor_type_code'],
+									'status'             => $asset->status,
+									'linkid'             => $link_data['linkid'],
+									'link_type'          => $link_data['link_type'],
+									'child_count' 		 => count($asset_links),
+									'sort_order'         => $link_data['sort_order'],
 								);
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
@@ -405,18 +435,19 @@ class Asset_Map
 			}
 
 			$attrs = Array(
-				'assetid'	=> urlencode($asset['assetid']),
-				'name'		=> urlencode($asset['short_name']),
+				'assetid'       => urlencode($asset['assetid']),
+				'name'          => urlencode($asset['short_name']),
 				'type_code'     => $asset['type_code'],
 				'link_type'     => $asset['link_type'],
-//				'accessible'	=> $asset[''],
+				'accessible'    => (int) ($asset['accessible'] >= 1),
 				'status'        => $asset['status'],
 				'linkid'        => $asset['linkid'],
 				'child_count'   => $asset['num_immediate_kids'],
 				'sort_order'    => $asset['sort_order'],
-		//		'url'			=> $asset->getURL(),	
-	//			'web_paths'		=> implode(";", $asset['path']),
+//				'url'           => $asset->getURL(),	
+//				'web_paths'     => implode(";", $asset['path']),
 			);
+			if (!$attrs['accessible']) $attrs['child_count'] = 0;
 
 			$root->addChild('asset', '', $attrs);
 		}
