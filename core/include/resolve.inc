@@ -40,6 +40,11 @@ class Resolve
 	var $ms;
 
 	/**
+	* @var object File_Versioning
+	*/
+	var $fv;
+
+	/**
 	* Object of logged in user
 	*
 	* @var object User
@@ -431,6 +436,24 @@ class Resolve
 		return $this->ms;
 
 	}//end getMessagingService()
+
+
+	/**
+	* Get the file versioning object so you can add/remove/commit/checkout file versions
+	* Always call this function to get the file versioning object, dont use $this->fv directly
+	*
+	* @return object File_Versioning
+	* @access public
+	*/
+	function &getFileVersioning()
+	{
+		if(!isset($this->fv) && get_class($this->fv) != 'file_versioning') {
+			require_once SQ_FUDGE_PATH.'/file_versioning/file_versioning.inc';
+			$this->fv = new File_Versioning(SQ_DATA_PATH.'/file_repository', $this->db);
+		}
+		return $this->fv;
+
+	}//end getFileVersioning()
 
 
 	/**
