@@ -65,22 +65,25 @@ class Asset_Attribute_Text extends Asset_Attribute
 		} else {
 			text_box($prefix.'_'.$this->name, $this->value, $this->_edit_params['width'], $this->_params['max_length']);
 		}
-		return true;
-	}
+	}// end paint()
 
 	/*
 	* Prints the interface for filling in a value
 	*
 	* @param string	prefix	prefix for the form element
 	*
-	* @return boolean
 	* @access public
 	*/
 	function process($prefix)
 	{
-		$this->value = (string) $_POST[$prefix.'_'.$this->name];
-		$this->processed = true;
-	}
+		$value = (string) $_POST[$prefix.'_'.$this->name];
+		if ($this->value != $value) {
+			$this->value = $value;
+			$this->processed = true;
+		} else {
+			$this->processed = false;
+		}
+	}// end process()
 
 }//end class
 
