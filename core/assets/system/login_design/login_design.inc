@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design.inc,v 1.6 2004/08/09 04:00:02 mmcintyre Exp $
+* $Id: login_design.inc,v 1.7 2004/08/09 09:32:43 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -107,7 +107,7 @@ class Login_Design extends Design
 		$source_dir = dirname(__FILE__).'/design_files';
 
 		$file_contents = file_to_string($source_dir.'/index.html');
-		if (empty($file_contents)) {
+		if ($file_contents == '') {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('Unable to restore login design - No parse file contents found', E_USER_WARNING);
 			return false;
@@ -128,7 +128,7 @@ class Login_Design extends Design
 		}
 		
 		  /////////////////////
-		 ///File Versioning //
+		 // File Versioning //
 		/////////////////////
 
 		// add the parse.txt file to the repository
