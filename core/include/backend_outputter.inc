@@ -659,19 +659,7 @@ class Backend_Outputter
 			// -->
 			</script>
 		</head>
-		<body bgcolor="#ffffff" onLoad="javascript: page_on_load();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
-
-		<?php
-		// make sure the main frame is padded in on the left
-		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
-		?>
-		<table border="0" cellspacing="0" cellpadding="0">
-			<tr>
-				<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="10" height="1"></td>
-				<td valign="top" width="100%">
-		<?php
-		}
-		?>
+		<body bgcolor="#FFFFFF" onLoad="javascript: page_on_load();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
 
 		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
@@ -683,8 +671,8 @@ class Backend_Outputter
 			?>
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
-					<td class="sq-backend-heading" valign="middle"><img src="<?php echo sq_web_path('lib'); ?>/web/images/dash.png" width="10" height="5"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"><?php echo $this->_heading;?></td>
-					<td class="sq-backend-heading" style="text-align: right;">
+					<td class="sq-backend-main-heading" valign="middle"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1"><?php echo $this->_heading;?></td>
+					<td class="sq-backend-main-heading" style="text-align: right;">
 					<div id="sq_screen_menu">
 					<?php
 						if (empty($this->_screens) && empty($this->_static_screens)) {
@@ -730,32 +718,52 @@ class Backend_Outputter
 
 		?>
 			<a name="section_<?php echo $section['section_count']; ?>"></a>
-			<!-- <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?php echo $this->filesPath('images/section_dots.gif');?>"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table> -->
-			<table width="100%" cellpadding="3" cellspacing="0" border="0">
-		<?php
-
-			if ($section['heading']) {
-			?>
-				<tr>
-					<td class="sq-backend-sectionheading" colspan="2">
-						<?php if ($section['icon']) { ?>
-							<img src="<?php echo $this->filesPath('images/icons/'.$section['icon'].'.gif');?>" width="20" height="20" border="0" alt="<?php echo $section['heading'];?>" align="left" />
-						<?php } ?>
-						<span ><?php echo $section['heading'];?></span>
-					</td>
-				</tr>
+			<table width="100%" cellpadding="0" cellspacing="1" border="0">
 			<?php
+			if ($section['heading']) {
+				if ($depth > 0) {
+					// printing a nested section - needs to look a little different
+					?>
+					<tr>
+						<td class="sq-backend-section-subheading" colspan="3"><?php echo $section['heading'];?></td>
+					</tr>
+					<?php
+				} else {
+					// printing a top level section
+					?>
+					<tr>
+						<td class="sq-backend-section-heading" colspan="3"><?php echo $section['heading'];?></td>
+					</tr>
+					<tr>
+						<td colspan="3">
+							<table width="100%" cellpadding="0" cellspacing="0" border="0">
+								<tr>
+									<td width="100%" bgcolor="#000000"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+					<?php
+				}
 			} // endif
+
+			// print the section seperator
+			?>
+			<tr>
+				<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
+			</tr>
+			<tr>
+				<td width="20"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="20" height="1" /></td>
+				<td colspan="2">
+					<table cellspacing="0" cellpadding="0" border="0" width="100%">
+			<?php
 
 			for($j = 0; $j < count($section['areas']); $j++) {
 				switch($section['areas'][$j]['area_type']) {
 					case 'section' :
 						?>
 							<tr>
-								<td nowrap valign="top" class="sq-backend-field">
-									&nbsp;
-								</td>
-								<td width="100%" valign="top" class="sq-backend-data">
+								<td width="100%" valign="top" colspan="3">
 								<?php
 									$this->_paintSection($section['areas'][$j], $depth + 1);
 								?>
@@ -771,13 +779,13 @@ class Backend_Outputter
 							case 'new_line' :
 								?>
 									<tr>
-										<td nowrap valign="top" class="sq-backend-field" colspan="2">
+										<td nowrap valign="top" class="sq-backend-field" colspan="3">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
 										</td>
 									</tr>
 									<tr>
-										<td valign="top" class="sq-backend-data" colspan="2">
+										<td valign="top" class="sq-backend-data" colspan="3">
 											<table cellpadding="0" cellspacing="0" border="0">
 												<tr>
 													<td><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="5" height="1"/></td>
@@ -792,12 +800,12 @@ class Backend_Outputter
 										</td>
 									</tr>
 								<?php
-								break;
+							break;
 
 							case 'commit' :
-							?>
+								?>
 								<tr>
-									<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="2">
+									<td width="100%" valign="top" class="sq-backend-data" style="text-align: right;" colspan="3">
 									<?php
 										echo $field['contents'];
 										if ($field['note']) $this->note($field['note']);
@@ -805,7 +813,11 @@ class Backend_Outputter
 									</td>
 								</tr>
 								<?php
-								break;
+							break;
+
+							case 'blank' :
+								// a blank field to be used just for formatting
+							break;
 
 							default :
 							?>
@@ -814,12 +826,16 @@ class Backend_Outputter
 										<a name="field_<?php echo $field['field_count']; ?>"></a>
 										<?php echo $field['name'];?>
 									</td>
+									<td width="10"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="10" height="1" /></td>
 									<td width="100%" valign="top" class="sq-backend-data">
 									<?php
 										echo $field['contents'];
 										if ($field['note']) $this->note($field['note']);
 									?>
 									</td>
+								</tr>
+								<tr>
+									<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
 								</tr>
 							<?php
 						}//end switch
@@ -834,8 +850,10 @@ class Backend_Outputter
 			}//end for
 
 		?>
+					</table>
+				</td>
+			</tr>
 			</table>
-			<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?php echo $this->filesPath('images/section_dots.gif');?>"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table>
 		<?php
 
 			// if this ain't the last section, add a spacer
@@ -857,14 +875,6 @@ class Backend_Outputter
 	*/
 	function _paintFooter()
 	{
-		// make sure the main frame is padded in on the left
-		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
-			?>
-					</td>
-				</tr>
-			</table>
-			<?php
-		}
 		?>
 		</form>
 		</body>
@@ -958,11 +968,14 @@ class Backend_Outputter
 	function commitButton($value='Commit', $release_lock=1)
 	{
 		$release_lock = (int)$release_lock;
-		$this->openField('', 'commit');
-		hidden_field('sq_release_lock', 0);
-		hidden_field('sq_release_lock_on_submit', $release_lock);
-		hidden_field('sq_submit_pressed', 0);
-		normal_button('sq-commit-button', $value, 'sqSubmitEditForm()');
+		$this->openSection(' ');
+			$this->openField('', 'commit');
+				hidden_field('sq_release_lock', 0);
+				hidden_field('sq_release_lock_on_submit', $release_lock);
+				hidden_field('sq_submit_pressed', 0);
+				normal_button('sq-commit-button', $value, 'sqSubmitEditForm()');
+			$this->closeField();
+		$this->closeSection();
 
 	}//end commitButton()
 

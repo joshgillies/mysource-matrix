@@ -494,7 +494,7 @@ class Asset_Edit_Interface extends MySource_Object
 				// how the operation went...
 				?>
 				<script language="Javascript" type="text/javascript">
-					if (confirm("The status of '<?php echo $owner->name; ?>' has changed from <?php echo getStatusDescription($old_status); ?> to <?php echo getStatusDescription($owner->status); ?>. Do you want to view a dependant links report to view the status of the dependant assets below '<?php echo $owner->name; ?>'?")) {
+					if (confirm("The status of '<?php echo $owner->name; ?>' has changed from <?php echo get_status_description($old_status); ?> to <?php echo getStatusDescription($owner->status); ?>. Do you want to view a dependant links report to view the status of the dependant assets below '<?php echo $owner->name; ?>'?")) {
 						document.location = '<?php echo $owner->getBackendHref('dependants'); ?>';
 					}
 				</script>

@@ -79,15 +79,19 @@ class Backend extends MySource_Object
 			switch($_GET['SQ_BACKEND_PAGE']) {
 				case 'header':
 					$this->_printHeader();
-					break;
+				break;
 
 				case 'sidenav':
 					$this->_printSideNav();
-					break;
+				break;
 
 				case 'main':
 					$this->_printMain();
-					break;
+				break;
+
+				case 'resizer' :
+					$this->_printNavResizer();
+				break;
 
 				default:
 					trigger_error('Backend Page "'.$_GET['SQ_BACKEND_PAGE'].'" unknown', E_USER_ERROR);
@@ -122,10 +126,11 @@ class Backend extends MySource_Object
 			<title><?php echo SQ_SYSTEM_LONG_NAME; ?> Backend</title>
 				<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 			</head>
-			<frameset rows="28,*" frameborder="3">
+			<frameset rows="28,*" frameborder="0" border="0">
 				<frame src="<?php echo $_SERVER['PHP_SELF']; ?>?SQ_BACKEND_PAGE=header" name="header" scrolling="no" marginwidth="0" marginheight="0">
-				<frameset cols="250,*" frameborder="3">
+				<frameset cols="250,10,*" frameborder="0" border="0" id ="main_frameset">
 					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=sidenav" name="sidenav" scrolling="no" marginwidth="0" marginheight="0">
+					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=resizer" name="resizer" scrolling="no" marginwidth="0" marginheight="0">
 					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=main<?php echo $main_extras; ?>" name="main" marginwidth="0" marginheight="0" scrolling="yes">
 				</frameset>
 			</frameset>
@@ -204,23 +209,13 @@ class Backend extends MySource_Object
 		if (!empty($messages)) {
 			// found unread messages
 			$html = '
-			<table border="0" cellspacing="2" cellpadding="2" bgcolor="#7B969C">
+			<table class="sq-backend-new-message-table">
 				<tr>
-					<td bgcolor="#C7D0D9">
-						<table cellspacing="0" cellpadding="0" border="0">
-							<tr>
-								<td rowspan="2" valign="middle"><img src="'.$this->out->filesPath('/images/icons/mail.gif').'" width="31" height="33" border="0" alt="" /></td>
-								<td class="sq-backend-fineprint"><b>New Messages</b></td>
-							</tr>
-							<tr>
-								<td class="sq-backend-fineprint" nowrap>
-								<a href="#" onClick="Javascript: if (parent.top.sidenav.top.sidenav && parent.top.sidenav.top.sidenav.refresh_internal_messages) { parent.top.sidenav.top.sidenav.refresh_internal_messages(); }; return false;" style="color: #1455D6">
-									'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'
-								</a>
-								</td>
-							</tr>
-						</table>
-					</td>
+					<td rowspan="2" valign="middle" class="sq-backend-new-message-cell"><img src="'.$this->out->filesPath('/images/icons/mail.gif').'" width="31" height="33" border="0" alt="" /></td>
+					<td class="sq-backend-new-message-heading">New Messages</td>
+				</tr>
+				<tr>
+					<td class="sq-backend-new-message-body" nowrap><a class="sq-backend-new-message-body" href="#" onClick="Javascript: if (parent.top.sidenav.top.sidenav && parent.top.sidenav.top.sidenav.refresh_internal_messages) { parent.top.sidenav.top.sidenav.refresh_internal_messages(); }; return false;">'.$GLOBALS['SQ_SYSTEM']->user->name.' has '.count($messages).' new message'.((count($messages) > 1) ? 's' : '').'</a></td>
 				</tr>
 			</table>
 			';
@@ -303,6 +298,7 @@ class Backend extends MySource_Object
 						msgDiv.style.display = "block";
 						msgDiv.style.top = "-1000px";
 						msgDiv.style.left = "-1000px";
+						msgDiv.style.zIndex = "10";
 						top.main.document.body.appendChild(msgDiv);
 					}
 
@@ -324,7 +320,7 @@ class Backend extends MySource_Object
 
 		?>
 		<style>
-			body { background: #4A3852; }
+			body { background: #342939; }
 		</style>
 		<table cellpadding="2" border="0" cellspacing="2">
 			<tr>
@@ -353,9 +349,12 @@ class Backend extends MySource_Object
 		$this->out->openRaw();
 
 		?>
+		<style>
+			body { background: #342939; }
+		</style>
 		<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
 			<tr height="100%">
-				<td>
+				<td width="100%">
 				<?php
 				require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
 				$asset_map = new Asset_Map();
@@ -367,7 +366,7 @@ class Backend extends MySource_Object
 				<td>
 					<table border="0" cellpadding="2" cellspacing="0">
 						<tr>
-							<td><a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-fineprint" target="_blank" style="text-decoration:none;"><?php echo SQ_SYSTEM_LONG_NAME;?></a></td>
+							<td><a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-header-item" target="_blank" style="text-decoration:none;"><?php echo SQ_SYSTEM_LONG_NAME;?></a></td>
 						</tr>
 					</table>
 				</td>
@@ -382,6 +381,54 @@ class Backend extends MySource_Object
 		$this->out->closeRaw();
 
 	}//end _printSideNav()
+
+
+	/**
+	* Print out the Side Nav
+	*
+	* @access private
+	*/
+	function _printNavResizer()
+	{
+		$this->out->openRaw();
+
+		?>
+		<style>
+			body { background: #342939; }
+		</style>
+		<script language="Javascript" type="text/javascript">
+			var hidden = false;
+			var lastSize = "250,10,*";
+			var fset = top.document.getElementById('main_frameset');
+
+			function resizeFrame() {
+				if (hidden == false) {
+					lastSize = fset.cols;
+					fset.cols = "0,10,*";
+					hidden = true;
+				} else {
+					fset.cols = lastSize;
+					hidden = false;
+				}
+			}
+		</script>
+		<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%" background="<?php echo $this->out->filesPath('/images/flash_resizer/background.gif'); ?>">
+			<tr>
+				<td valign="top"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/top.gif'); ?>" width="9" height="25" border="0" alt="" /></td>
+			</tr>
+			<tr height="100%">
+				<td valign="middle"><a href="#" onClick="Javascript: resizeFrame()"><img src="<?php echo $this->out->filesPath('/images/flash_resizer/bar.gif'); ?>" width="9" height="72" border="0" alt="" /></a></td>
+			</tr>
+		</table>
+		<script language="Javascript" type="text/javascript">
+			document.main_form.style.width = "100%";
+			document.main_form.style.height = "100%";
+		</script>
+		<?php
+
+		$this->out->closeRaw();
+
+	}//end _printNavResizer()
 
 
 	/**

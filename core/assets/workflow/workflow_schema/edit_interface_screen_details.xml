@@ -7,7 +7,7 @@
 		</field>
 	</section>
 	<section name="Steps Defined For This Workflow">
-		<field>
+		<field format="blank">
 			<display_name></display_name>
 			<note />
 			<function_call>

@@ -10,29 +10,40 @@ body, p, td, ul, li, input, select, textarea {
 	font-size:			13px;
 }
 
+a {
+	color:				black;
+	text-decoration:	underline;
+}
+
+a.hover {
+	color:	#4A3852;
+}
 
 
 /* HEADING STYLES */
 
-.sq-backend-mainheading {
-	color:			#000000;
-	font-family:	Arial, Verdana, Helvetica, sans-serif;
-	font-weight:	bold;
-	font-size:		21px;
+td.sq-backend-main-heading {
+	background-color:	#725B7D;
+	color:				#FFFFFF;
+	font-family:		Verdana, Arial, Helvetica, sans-serif;
+	font-weight:		bold;
+	font-size:			12px;
+	padding:			4px;
+	border-bottom:		1px solid #342939;
 }
 
 .sq-backend-heading {
 	color:			#000000;
-	font-family:	Arial, Verdana, Helvetica, sans-serif;
+	font-family:	Verdana, Arial, Helvetica, sans-serif;
 	font-weight:	bolder;
-	font-size:		11px;
+	font-size:		10px;
 }
 
 .sq-backend-subheading {
 	color:			#000000;
-	font-family:	Arial, Verdana, Helvetica, sans-serif;
+	font-family:	Verdana, Arial, Helvetica, sans-serif;
 	font-weight:	bold;
-	font-size:		12px;
+	font-size:		11px;
 }
 
 
@@ -40,28 +51,29 @@ body, p, td, ul, li, input, select, textarea {
 /* GENERAL STYLES */
 
 .sq-backend-data, td.sq-backend-data, .sq-form-field {
-	color:			#000000;
-	font-family:	Arial, Verdana, Helvetica, sans-serif;
-	font-size:		10px;
+	background-color:	#FFFFFF;
+	color:				#000000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
 }
 
 .sq-backend-smallprint {
-	color:			#000000;
-	font-family:	Arial, Verdana, Helvetica, sans-serif;
-	font-size:		11px;
-	font-weight:	normal;
+	color:				#000000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	font-weight:		normal;
 }
 
 .sq-backend-fineprint {
-	color:			#000000;
-	font-family:	Arial, Verdana, Helvetica, sans-serif;
-	font-size:		10px;
+	color:				#000000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
 }
 
 .sq-backend-warning {
-	color:			#FF0000;
-	font-family:	Arial, Verdana, Helvetica, sans-serif;
-	font-size:		13px;
+	color:				#FF0000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			13px;
 }
 
 
@@ -69,8 +81,8 @@ body, p, td, ul, li, input, select, textarea {
 /* TOPNAV STYLES */
 
 .sq-backend-header-item {
-	background-color:	#4A3852;
-	color:				#D6C8D7;
+	background-color:	#342939;
+	color:				#C2BFC4;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			11px;
 	text-decoration:	none;
@@ -80,12 +92,22 @@ body, p, td, ul, li, input, select, textarea {
 
 /* BACKEND OUTPUTTER - SECTIONS AND FIELDS */
 
-.sq-backend-sectionheading {
-	background-color:	#C8BDCB;
+.sq-backend-section-heading {
+	background-color:	#ECECEC;
 	color:				#000000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-weight:		bold;
+	font-size:			12px;
+	padding:			5px;
+}
+
+.sq-backend-section-subheading {
+	background-color:	#FFFFFF;
+	color:				#2086EA;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-weight:		bold;
 	font-size:			11px;
+	padding:			3px;
 }
 
 .sq-backend-field {
@@ -102,8 +124,8 @@ body, p, td, ul, li, input, select, textarea {
 /* BACKEND TABLE STYLES */
 
 .sq-backend-table {
-	background-color:	#FFFFFF;
 	width:				100%;
+	border:				1px solid #8B8B8B;
 	border-collapse:	collapse;
 }
 
@@ -119,7 +141,7 @@ td.sq-backend-table-header, td.sq-backend-table-cell, td.sq-backend-table-cell-a
 td.sq-backend-table-header {
 	font-size:			11px;
 	font-weight:		bold;
-	background-color:	#E6E0EA;
+	background-color:	#E8E8E8;
 }
 
 td.sq-backend-table-cell-alt {
@@ -141,10 +163,36 @@ td.sq-backend-table-cell-alt {
 /* LOCKING MESSAGE STYLES */
 
 .sq-backend-locked, .sq-backend-unlocked {
-	color:		#C80108;
+	color:		#C90404;
 	font-size:	10px;
 }
 
 .sq-backend-unlocked {
 	color:		#0066CB;
+}
+
+
+
+/* NEW MESSAGES POPUP STYLES */
+
+.sq-backend-new-message-table {
+	border:				2px solid #594165;
+	border-collapse:	collapse;
+	background-color:	#ECECEC;
+}
+
+.sq-backend-new-message-cell, .sq-backend-new-message-heading, .sq-backend-new-message-body {
+	color:				#342939;
+	background-color:	#ECECEC;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			10px;
+	vertical-align:		top;
+	padding:			4px;
+	text-decoration:	none;
+	font-weight:		bold;
+}
+
+.sq-backend-new-message-body {
+	color:				#342939;
+	font-weight:		none;
 }
