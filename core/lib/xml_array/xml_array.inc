@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: xml_array.inc,v 1.10 2003/11/26 00:51:15 gsherwood Exp $
+* $Id: xml_array.inc,v 1.11 2004/07/06 00:35:44 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -319,11 +319,14 @@ class XML_Array extends XML_Parser
 	/*
 	* Close the parser and do any cleanup that is necessary
 	*
+	* This function now checks whether the parser is set before freeing it, because version 1.1.0+
+	* of XML_Parser frees itself when calling parse, making this throw undefined property errors
+	*
 	* @access public
 	*/
 	function close()
 	{
-		if (is_resource($this->parser)) xml_parser_free($this->parser);
+		if (!empty($this->parser) && is_resource($this->parser)) xml_parser_free($this->parser);
 	}
 
 
