@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.35.2.1 2004/12/14 04:40:38 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_calendar_management.inc,v 1.35.2.2 2004/12/16 05:50:40 tbarrett Exp $
+*
 */
 
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.35.2.1 $ - 1.0
+* @version $Revision: 1.35.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -64,7 +64,7 @@ class Page_Calendar_Management extends Asset_Management
 		                                    'type'        => 'selection',
 		                                    'default'     => 'year',
 		                                    'description' => 'The first view the user sees',
-	                                        'parameters'  => Array('options'  => Array('year'	=> 'Year', 
+	                                        'parameters'  => Array('options'  => Array('year'	=> 'Year',
 		                                                                               'month'	=> 'Month',
 		                                                                               'week'   => 'Week',
 		                                                                               'day'    => 'Day',
@@ -72,14 +72,14 @@ class Page_Calendar_Management extends Asset_Management
 		                                                           'multiple' => false,
 		                                                     ),
 									  );
-		
+
 		// The locations from which we draw event assets, assetid => className, where classname
 		// is the CSS class that should be applied to representations of events from that location
 		$this->vars['root_nodes'] =	Array('added'     => '0.1',
                                           'type'      => 'serialise',
                                           'default'   => Array(),
 									);
-		
+
 		// Which of the root nodes should get their own column in day view
 		$this->vars['columnise_day_view_by_root_node'] = Array('added'		 => '0.2',
 															   'type'		 => 'serialise',
@@ -91,29 +91,29 @@ class Page_Calendar_Management extends Asset_Management
 												 'type'		=> 'text',
 												 'default'	=> '',
 										   );
-		
+
 		// Earliest and latest times to display in week and day view, stored as strings
 		// rather than datetimes because we want to have 24:00 as a valid option
 		$this->vars['day_starts_at'] = Array('added'     => '0.1',
 		                                     'type'      => 'text',
 		                                     'default'   => '08:00',
 		                               );
-		
+
 		$this->vars['day_ends_at'] = Array('added'     => '0.1',
 		                                   'type'      => 'text',
 		                                   'default'   => '20:00',
 		                             );
-		
+
 		// Time-length of vertical partitions in the week and day views
 		$this->vars['day_partition_time'] = Array('added'			=> '0.1',
 										 		  'type'			=> 'selection',
 												  'default'		=> '60m',
 												  'description'	=> 'The spacing of intervals in the calendar week and day views',
 												  'parameters'	=> Array('options' => Array(
-																					'10m' => '10 mins', 
-															                        '15m'	=> '15 mins', 
-																					'20m'	=> '20 mins', 
-																					'30m'	=> '30 mins', 
+																					'10m' => '10 mins',
+															                        '15m'	=> '15 mins',
+																					'20m'	=> '20 mins',
+																					'30m'	=> '30 mins',
 																					'60m'	=> '1 hour',
 																				      ),
 												                   ),
@@ -124,21 +124,21 @@ class Page_Calendar_Management extends Asset_Management
 													'type'			=> 'int',
 													'default'		=> '20',
 													'description'   => 'The height of each day interval\'s row in the week and day tables, in pixels',
-										      );	
+										      );
 
 		// The width of columns in week view (pardon the bad name, a historical artefact)
 		$this->vars['table_column_width'] = Array('added'			=> '0.1',
 												  'type'			=> 'int',
 												  'default'		=> '110',
 												  'description'   => 'The width of each column in the WEEK table, in pixels',
-											);	
+											);
 
 		// The width of column in day view
 		$this->vars['day_column_width'] = Array('added'			=> '0.1',
 												'type'			=> 'int',
 												'default'		=> '110',
 												'description'   => 'The width of each column in the DAY table, in pixels',
-										  );	
+										  );
 
 		// The day to show first in the week
 		$this->vars['week_starts_on'] = Array('added'		=> '0.1',
@@ -155,7 +155,7 @@ class Page_Calendar_Management extends Asset_Management
 																					6 => 'Saturday'),
 													           ),
 										);
-														
+
 		// Which weekdays to show in week view
 		$this->vars['week_view_show_days'] = Array('added'     => '0.1',
 												   'type'      => 'serialise',
@@ -181,7 +181,7 @@ class Page_Calendar_Management extends Asset_Management
 												  'description' => 'The width of the columns in the month calendar table, in pixels',
 											);
 
-		// default height of table rows in month view														
+		// default height of table rows in month view
 		$this->vars['month_row_height']	= Array('added'			=> '0.1',
 												'type'			=> 'int',
 												'default'		=> '70',
@@ -193,13 +193,13 @@ class Page_Calendar_Management extends Asset_Management
 												   'type'		=> 'boolean',
 												   'default'	=> 'true',
 											 );
-		
+
 		// Text for the link that takes you to the broader view
 		$this->vars['up_link_text'] = Array('added'     => '0.1',
 											'type'      => 'text',
 											'default'   => '%v% view',
 									  );
-											
+
 		// Text for the link that takes you to the next year/month/week/day
 		$this->vars['next_link_text'] = Array('added'     => '0.1',
 											  'type'      => 'text',
@@ -211,7 +211,7 @@ class Page_Calendar_Management extends Asset_Management
 											  'type'      => 'text',
 											  'default'   => '<< Previous %v%',
 										);
-											
+
 		// If you are using listing format for a view, this stores what sort
 		// of list entry you want - the full bodycopy or just the title
 		$this->vars['list_entry_types'] = Array('added'     => '0.1',
@@ -249,8 +249,8 @@ class Page_Calendar_Management extends Asset_Management
 		                                       'type'    => 'int',
 		                                       'default' => 0,
 		                                 );
-														
-	}//end Page_Calendar_Management()
+
+	}//end constructor
 
 
 	/**
@@ -329,7 +329,7 @@ class Page_Calendar_Management extends Asset_Management
 					$asset->saveAttributes();
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($id, 'attributes');
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($id);
-				}	
+				}
 
 				// delete the old customised values which should now take the default value
 				$value_keys = Array();
@@ -352,7 +352,7 @@ class Page_Calendar_Management extends Asset_Management
 			$already_run[$name] = 1;
 			// in v0.3 these attributes changed from exes to pixels, so we need to adjust their values
 			// we make the assumption that there are 8 pixels in an ex.
-			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_attr_val SET custom_val = CAST((CAST (custom_val AS INTEGER) * 8) AS INTEGER) WHERE attrid='.$this->_db->quote($curr_attr['attrid']);		
+			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'ast_attr_val SET custom_val = CAST((CAST (custom_val AS INTEGER) * 8) AS INTEGER) WHERE attrid='.$this->_db->quote($curr_attr['attrid']);
 			$res = $this->_db->query($sql);
 			if (!assert_valid_db_result($res)) return false;
 			return true;
@@ -362,7 +362,7 @@ class Page_Calendar_Management extends Asset_Management
 
 	}//end _updateOwnedAttribute()
 
-	function _upgrade($current_version) 
+	function _upgrade($current_version)
 	{
 		// first do things as normal
 		$res = parent::_upgrade($current_version);
@@ -384,8 +384,9 @@ class Page_Calendar_Management extends Asset_Management
 		}
 
 		return $res;
-	}
-			
+
+	}//end _upgrade()
+
 
 
 }//end class

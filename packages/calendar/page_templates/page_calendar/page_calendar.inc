@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.125.2.1 2004/12/10 06:43:12 tbarrett Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_calendar.inc,v 1.125.2.2 2004/12/16 05:50:40 tbarrett Exp $
+*
 */
 
 require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset_listing.inc';
@@ -33,12 +33,12 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 /**
 * Page_Calendar
 *
-* Purpose: To display event assets on the frontend by year, month, week, day or individually, 
+* Purpose: To display event assets on the frontend by year, month, week, day or individually,
 * in listing or calendar-style formats
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.125.2.1 $ - 1.0
+* @version $Revision: 1.125.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -115,7 +115,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$this->Page_Asset_Listing($assetid);
 
-	}//end Page_Calendar()
+	}//end constructor
 
 
 	/**
@@ -219,25 +219,6 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end _createAdditional()
 
 
-	/******
-	*
-	*
-	function attr($name)
-	{
-		if ($name == 'types') {
-			$type_codes = array_flip(array_merge($GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_single'), 'calendar_event_single', $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('calendar_event_recurring'), 'calendar_event_recurring'));
-			foreach ($type_codes as $key => $val) {
-				$type_codes[$key] = 1;
-			}
-			return $type_codes;
-		} else {
-			return parent::attr($name);
-		}		
-			
-	}//end attr()
-	*/
-	
-	
 	/**
 	* Return the available keywords in the Page Contents Bodycopy for this asset
 	*
@@ -259,7 +240,7 @@ class Page_Calendar extends Page_Asset_Listing
 							'up_link'           => 'Up Link',
 							'prev_link'         => 'Previous Link',
 							'next_link'         => 'Next Link',
-		
+
 						);
 
 		return $keywords;
@@ -315,7 +296,7 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 
 			$cal_date = array_get_index($_REQUEST,'SQ_CALENDAR_DATE', date('Y-m-d'));
-			
+
 			// If view is month or year, some incomplete dates can be accepted
 			// (accepted for month: eg. 2004-09, accepted for year: eg. 2006)
 			if (!is_iso8601($cal_date)) {
@@ -335,7 +316,7 @@ class Page_Calendar extends Page_Asset_Listing
 			// if view is week, we want the first day in that week
 			if ($cal_view == 'week') {
 				$week_start_day = $this->day_names[$this->attr('week_starts_on')];
-				if (date('l',strtotime($cal_date)) != $week_start_day) { 
+				if (date('l',strtotime($cal_date)) != $week_start_day) {
 					$cal_date = date('Y-m-d', strtotime('last '.$week_start_day, strtotime($cal_date)));
 				}
 			}
@@ -589,7 +570,7 @@ class Page_Calendar extends Page_Asset_Listing
 			?>
 			<table id="month" border="0" cellspacing="0" cellpadding="0" style="width: <?php echo (7.35 * $column_width); ?>px">
 				<tr>
-			<?php 
+			<?php
 			// print the day headings
 			if ($this->attr('month_links_to_week')) {
 				echo '<th class="dayLabel">&nbsp;</th>';
@@ -605,13 +586,13 @@ class Page_Calendar extends Page_Asset_Listing
 			?>
 				</tr>
 				<tr>
-			<?php 
-			if ($this->attr('month_links_to_week')) { 
+			<?php
+			if ($this->attr('month_links_to_week')) {
 				?>
 				<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($_REQUEST['SQ_CALENDAR_DATE']) ?>">&raquo;</a></td>
 				<?php
 			}
-			
+
 			// print blank days if necessrary
 			$i = 0;
 			$blank_days = (date('w', strtotime("$year-".sprintf('%02d', $month).'-01')) + 7 - $week_start_day) % 7;
@@ -640,7 +621,7 @@ class Page_Calendar extends Page_Asset_Listing
 			// print the full weeks
 			$num_full_weeks = floor(($month_length - $current_day) / 7);
 			for ($w = 0; $w < $num_full_weeks; $w++) {
-				?><tr><?php 
+				?><tr><?php
 				if ($this->attr('month_links_to_week')) {
 					?><th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($_REQUEST['SQ_CALENDAR_DATE']) ?>">&raquo;</a></td><?php
 				}
@@ -780,6 +761,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$new_events = Array();
 				foreach ($events as $id => $details) $new_events[strtok($id, ':')] = $details['type_code'];
 				$this->filterAssetList($new_events);
+
 				$this->printAssetList($new_events);
 			}
 		} else {
@@ -791,7 +773,7 @@ class Page_Calendar extends Page_Asset_Listing
 				foreach (array_keys($columns_info) as $k) {
 					if (!in_array($k, $root_nodes)) {
 						unset($columns_info[$k]);
-					} 
+					}
 				}
 
 				foreach ($columns_info as $id => $info) $column_names[$id] = $info['name'];
@@ -847,7 +829,7 @@ class Page_Calendar extends Page_Asset_Listing
 		} else {
 			return date($title_formats[$view], strtotime($date));
 		}
-	}
+	}//end getViewTitle()
 
 
 //--        HELPER FUNCTIONS FOR CONTENTS-GETTING FUNCTIONS        --//
@@ -858,11 +840,11 @@ class Page_Calendar extends Page_Asset_Listing
 	*
 	* @param $events		array	The events to show, $assetid => array of details
 	* @param $show_links	boolean	Whether to link the names to the events' event view
-	* 
+	*
 	* @return string	The HTML of the list
 	* @access private
 	*/
-	function _getTitleList($events, $show_links=true) 
+	function _getTitleList($events, $show_links=true)
 	{
 		$ids = Array();
 		foreach ($events as $key => $stuff) $ids[] = strtok($key, ':');
@@ -877,7 +859,7 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		$res .= '</ul>';
 		return $res;
-    
+
 	}//end _getTitleList()
 
 
@@ -896,9 +878,9 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _printTimedTable($table_id, $column_names, $column_links, $events, $show_event_links=false)
 	{
-		//foreach ($column_names as $id => $name) if (!isset($events[$id])) unset($column_names[$id]);
 		$partition_time = intval($this->attr('day_partition_time'));
 		$partition_height = $this->attr('day_partition_height');
+		$columns_are_assets = ($table_id == 'day') && (array_keys($column_names) != Array('*'));
 
 		$root_nodes = $this->_getRootNodes();
 		$width = ($table_id == 'day') ? $this->attr('day_column_width') : $this->attr('table_column_width');
@@ -917,20 +899,52 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$mousedown_code = $dragging_enabled ? 'onmousedown="'.($popups_enabled ? 'stopTrailingPopup(); ' : '').'startDragging(this)"' : '';
 		$mouseup_code = $dragging_enabled ? 'onmouseup="if (stopDragging()!=\'no_move\') { formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)}"' : '';
-
 		?>
+		<style>
+			table#day tr td.sq-time-cell, table#week tr td.sq-time-cell {
+				width: <?php echo $width; ?>px; 
+				height: <?php echo $partition_height; ?>px; 
+				padding: 0px 1px; 
+				border-width: 1px;
+			<?php
+			if ($click_to_add_ab) {
+				?>
+				cursor: pointer;
+				cursor: hand;
+				<?php
+			}
+			?>
+			}
+			/* CSS Hack to cope with the unusual situation of strict-mode IE being better
+			   than strict-mode Firefox.  The following rule will be picked up only by firefox
+			   and compensates for its td-height bug. */
+			html>body table#day tr td.sq-time-cell, html>body table#week tr td.sq-time-cell {
+				height: <?php echo $partition_height+1; ?>px;
+			}
+			td.sq-allday-cell {
+				<?php
+				if ($click_to_add_ab) {
+					?>
+					cursor: pointer;
+					cursor: hand;
+					<?php
+				}
+				?>
+			}
+		</style>
 		<table id="<?php echo $table_id; ?>" border="0" cellspacing="0" cellpadding="0" summary="events in this <?php echo $table_id ?>" style="width: <?php echo ($width * count($events)) + 65; ?>px">
 		<?php
-		// Print the column headers
+
+		// PRINT HEADER ROW
 		?>
 		<tr>
 			<th>Time</th>
 		<?php
-		foreach ($column_names as $date => $name) {
+		foreach ($column_names as $id => $name) {
 			?>
 			<th onclick="<?php echo (!empty($column_links)) ? 'clickChild(this); ' : ''; ?>" class="columnLabel" nowrap="nowrap" style="width: <?php echo $width; ?>px;  <?php echo (!empty($column_links)) ? 'cursor: pointer; cursor: hand' : ''; ?>">
 				<?php
-					if (!empty($column_links)) echo '<a href="'.$column_links[$date].'">';
+					if (!empty($column_links)) echo '<a href="'.$column_links[$id].'">';
 					echo str_replace(' ', '&nbsp;', $name);
 					if (!empty($column_links)) echo '</a>';
 				?>
@@ -943,17 +957,21 @@ class Page_Calendar extends Page_Asset_Listing
 		$div_width = $width * 0.99;
 		list($current_hour, $current_mins) = explode(':', $this->attr('day_starts_at'));
 		list($end_hour, $end_mins) = explode(':', $this->attr('day_ends_at'));
+
+		// PRINT THE 'ALL DAY' ROW
 		?>
 			<tr>
 			<th class="timeLabel">*</th>
 			<?php
-
-			// print the "all day" events
 			foreach ($column_names as $id => $name) {
 				$col_events = $events[$id];
 				$event_link_date = is_iso8601($id) ? $id : $_REQUEST['SQ_CALENDAR_DATE'];
-				$click_to_add_code = ($click_to_add_ab) ? ' onclick="addEvent(\''.$event_link_date.'\', \'*\');" style="cursor: pointer; cursor: hand"' : '';
-				echo '<td id="'.$id.'_allday"'.$click_to_add_code.'>';
+				$click_to_add_code = '';
+				if ($click_to_add_ab) {
+					$root_node_code = ($columns_are_assets && ($id != '*')) ? ', '.$id : '';
+					$click_to_add_code = ' onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \'*\''.$root_node_code.');"';
+				}
+				echo '<td class="sq-allday-cell" id="'.$event_link_date.'_allday_'.($columns_are_assets ? $id : '').'"'.$click_to_add_code.'>';
 				if (empty($col_events['all_day'])) echo '&nbsp;';
 				foreach ($col_events['all_day'] as $assetid => $event) {
 					$assetid = strtok($assetid,':');
@@ -977,6 +995,8 @@ class Page_Calendar extends Page_Asset_Listing
 			?>
 			</tr>
 		<?php
+		
+		// PRINT THE ROWS WITH TIMES
 		while (($current_hour*60 + $current_mins) < ($end_hour*60 + $end_mins)) {
 			?>
 			<tr>
@@ -985,16 +1005,18 @@ class Page_Calendar extends Page_Asset_Listing
 			foreach ($column_names as $id => $name) {
 				$col_events = $events[$id];
 				$time_key = sprintf('%02d:%02d', $current_hour, $current_mins);
+				if ($click_to_add_ab) {
+					$root_node_code = ($columns_are_assets && ($id != '*')) ? ', '.$id : '';
+					$click_to_add_code = ' onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\''.$root_node_code.');"';
+				}
 				if (is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
-				$click_to_add_code = ($click_to_add_ab) ? ' onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : '';
-				$click_to_add_style = ($click_to_add_ab) ? 'cursor: pointer; cursor: hand' : '';
 				?>
-				<td id="<?php echo $_REQUEST['SQ_CALENDAR_DATE'].'_'.$time_key ?>" style="<?php echo $width; ?>px; height: <?php echo $partition_height; ?>px; padding-left: 1px; <?php echo $click_to_add_style; ?>" <?php echo $click_to_add_code; ?>>
-				<?php
-					$denominator = max($col_events['_overlap_'], $this->attr('column_capacity'));
-					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $denominator, $layout_maps[$id], $mousedown_code, $mouseup_code);
-				?>
-				&nbsp;
+				<td id="<?php echo $_REQUEST['SQ_CALENDAR_DATE'].'_'.$time_key.'_'.($columns_are_assets ? $id : ''); ?>" class="sq-time-cell" <?php echo $click_to_add_code; ?>>
+					<?php
+						$denominator = max($col_events['_overlap_'], $this->attr('column_capacity'));
+						echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width / $denominator, $layout_maps[$id], $mousedown_code, $mouseup_code);
+					?>
+					<span style="font-size: 1px">&nbsp;</span>
 				</td>
 				<?php
 			}
@@ -1008,12 +1030,12 @@ class Page_Calendar extends Page_Asset_Listing
 		<?php
 
 		// print all the javascript last so it doesn't screw up spacing in mozilla
-		if ($dragging_enabled) $this->_printEventDraggingScript($table_id);
+		if ($dragging_enabled) $this->_printEventDraggingScript($table_id, ($table_id == 'day') ? $column_names : null);
 		if ($popups_enabled) $this->_printPopupsScript();
 		if ($click_to_add_ab) $this->_printAddEventScript($click_to_add_ab);
 
-			
-	}//end printTimedTable()
+
+	}//end _printTimedTable()
 
 
 	/**
@@ -1043,8 +1065,8 @@ class Page_Calendar extends Page_Asset_Listing
 		foreach ($events as $assetid => $details) {
 			reset($layout_map);
 			$dont_overdo_it = 0;
-			while (($dont_overdo_it < 20) && (key($layout_map) != $time_label)) {  
-				next($layout_map); 
+			while (($dont_overdo_it < 20) && (key($layout_map) != $time_label)) {
+				next($layout_map);
 				$dont_overdo_it++;
 			}
 			$horizontal_index = 0;
@@ -1053,7 +1075,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$layout_map[key($layout_map)][$horizontal_index] = 1;
 				next($layout_map);
 			}
-			
+
 			$event_left_margin = $event_width * $horizontal_index + 0.05;
 			$real_assetid = current(explode(':', $assetid));
 			// get top position of div
@@ -1065,19 +1087,8 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_duration = is_null($details['end_date_ts']) ? 0 : ($end_ts - $event_ts);
 			$event_height = ($event_duration / $partition_time) * $cell_height;
 			if ($event_height < 0) continue;
-
-			// Now for a bit o good old browser sniffing.  Spoons ready.  Mmmm.
-			// IE and Opera (wrongly) build their borders inwards from the specified element height & width.
-			// Mozilla and other more CSS compliant browsers build them outwards from the element width.
-			// Therefore if we are using a compliant browser we want to subtract the borders from the
-			// height for correct alignment.  We assume 1px borders since we will specify that in the style
-			// attribute of the div.
-			if ((strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') === false) && (strpos($_SERVER['HTTP_USER_AGENT'], 'Opera') === false)) {
-				$event_height -= 2;
-				$event_height += floor($event_duration / $partition_time);
-			}
-
-
+			$event_height += floor($event_duration / $partition_time);
+			$event_height -= 2;
 
 			// get class to use for div
 			$root_node_treeids = get_treeids($root_nodes);
@@ -1085,7 +1096,7 @@ class Page_Calendar extends Page_Asset_Listing
 			uasort($root_node_treeids, create_function('$a,$b', 'return strlen($b)-strlen($a);'));
 
 			foreach ($root_node_treeids as $root_node_assetid => $root_node_treeid) {
-				if (substr($details['treeid'], 0, strlen($root_node_treeid)) === $root_node_treeid) {				
+				if (substr($details['treeid'], 0, strlen($root_node_treeid)) === $root_node_treeid) {
 					// if this root node has a formatting style, use it and shove off
 					if ($root_nodes[$root_node_assetid]['class_name'] != '') {
 						$event_class = $root_nodes[$root_node_assetid]['class_name'];
@@ -1101,7 +1112,8 @@ class Page_Calendar extends Page_Asset_Listing
 			$inner_width = $event_width - 4;
 			$current_mouse_up_down_code = (($details['type_code'] != 'calendar_event_recurring') && (!isset($details['trimmed'])) && (!isset($details['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\')"';
 			$current_mouse_over_out_code = '';
-			if (isset($details['description']) && !empty($details['description'])) {				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
+			if (isset($details['description']) && !empty($details['description'])) {				
+				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')"  onmouseout="stopTrailingPopup()"';
 			}
 
@@ -1119,7 +1131,7 @@ class Page_Calendar extends Page_Asset_Listing
 		return $res;
 
 	}//end _getTimedTableCellContents()
-	
+
 
 	/**
 	* Get the contents of a cell in the month table
@@ -1165,12 +1177,12 @@ class Page_Calendar extends Page_Asset_Listing
 	function _getGeneralScript()
 	{
 		return '
-		
+
 		<!-- GENERAL CALENDAR PAGE JAVASCRIPT, ALWAYS PRESENT -->
 			<script language="JavaScript" type="text/javascript">
 			<!--
 			var formSubmitted = false;
-			
+
 			function clickChild(elt) {
 				 if (formSubmitted) {
 					 return;
@@ -1188,7 +1200,7 @@ class Page_Calendar extends Page_Asset_Listing
 			//-->
 			</script>
 		<!-- /GENERAL CALENDAR PAGE JAVASCRIPT, ALWAYS PRESENT -->
-			
+
 		';
 
 	}//end _getGeneralScript()
@@ -1209,10 +1221,11 @@ class Page_Calendar extends Page_Asset_Listing
 		<!-- SCRIPT FOR CLICK-TO-ADD-EVENT -->
 			<script type="text/javascript">
 			<!--
-			  function addEvent(date, time) {
+			  function addEvent(date, time, node) {
 				  if (formSubmitted) return;
 				  loc = "<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetHref($ab_id); ?>?SQ_CALENDAR_DATE="+date;
 				  if (time != '*') loc += '&SQ_CALENDAR_TIME='+time+'&SQ_CALENDAR_DURATION=<?php echo (int)$this->attr('day_partition_time');?>_min';
+				  if (typeof node != 'undefined') loc += '&SQ_CALENDAR_LOCATION='+node;
 				  document.location = loc;
 			  }
 			//-->
@@ -1232,7 +1245,7 @@ class Page_Calendar extends Page_Asset_Listing
 	* @access private
 	* @return void
 	*/
-	function _printEventDraggingScript($table_id)
+	function _printEventDraggingScript($table_id, $columns=null)
 	{
 		?>
 
@@ -1240,24 +1253,60 @@ class Page_Calendar extends Page_Asset_Listing
 			<script type="text/javascript" src="<?php echo sq_web_path('data'); ?>/asset_types/page_calendar/js/drag_n_drop.js"></script>
 			<script type="text/javascript">
 			<!--
-					destinationTableId='<?php echo $table_id; ?>'; 
+
+					destinationTableId = '<?php echo $table_id; ?>'; 
+					columnNames = new Array(<?php echo count($columns); ?>);
+					<?php
+					if (!is_null($columns)) {
+						foreach ($columns as $id => $name) {
+							?>
+							columnNames['<?php echo $id; ?>'] = '<?php echo $name; ?>';
+							<?php
+						}
+					}
+					?>
 
 					function confirmDrag(movingElt, newCell)
 					{
-						var source_date_comps = originalParent.id.split('_');
-						var date_comps = newCell.id.split('_');
-						if (((source_date_comps[1] == 'allday') || (date_comps[1] == 'allday')) && (date_comps[1] != source_date_comps[1])) {
-							return false; // trying to drag in/out of all-day row
+						var source_comps = originalParent.id.split('_');
+						var target_comps = newCell.id.split('_');
+						old_date = source_comps[0];
+						old_time = source_comps[1];
+						new_date = target_comps[0];
+						new_time = target_comps[1];
+						old_loc = (source_comps.length == 3) ?  source_comps[2] : null;
+						new_loc = (target_comps.length == 3) ?  target_comps[2] : null;
+
+						// can't drag in or out of the 'other' column
+						if (Boolean(old_time == 'allday') != Boolean(new_time == 'allday')) {
+							statusBarMsg('Events cannot be dragged in or out of the "all day" row');
+							return false;
 						}
-						return confirm('Move this event to ' + date_comps[0] 
-							+ ((date_comps[1] != 'allday') ? (' at ' + date_comps[1]) : '') + '?');
+
+						// can't drag in or out of the 'all day' row
+						if (Boolean(old_loc == '*') != Boolean(new_loc == '*')) {
+							statusBarMsg('Events cannot be dragged in or out of the "other" column');
+							return false;
+						}
+						
+						var locationName = (new_loc != null) ? columnNames[String(new_loc)] + ' on ' : '';
+						return confirm('Move this event to ' + locationName + new_date 
+							+ ((new_time != 'allday') ? (' at ' + new_time) : '') + '?');
+
 					}
 
 					function onDragFinish(movingElt, newCell)
 					{
-						var date_comps = newCell.id.split('_');
-						document.getElementById('SQ_CALENDAR_DATE').value = date_comps[0];
-						if (date_comps[1] != 'allday') document.getElementById('SQ_CALENDAR_TIME').value = date_comps[1];
+						var source_comps = originalParent.id.split('_');
+						var target_comps = newCell.id.split('_');
+						if ((target_comps.length > 2) && (source_comps[2] != target_comps[2])) {
+							document.getElementById('SQ_CALENDAR_OLD_LOC').value = source_comps[2];
+							document.getElementById('SQ_CALENDAR_NEW_LOC').value = target_comps[2];
+						}
+						document.getElementById('SQ_CALENDAR_DATE').value = target_comps[0];
+						if (target_comps[1] != 'allday') {
+							document.getElementById('SQ_CALENDAR_TIME').value = target_comps[1];
+						}
 						document.getElementById('SQ_CALENDAR_EVENT_ID').value = movingElt.id;
 						document.getElementById('dragForm').submit();
 						formSubmitted = true;
@@ -1268,6 +1317,8 @@ class Page_Calendar extends Page_Asset_Listing
 			</script>
 
 			<form method="GET" id="dragForm" action="<?php echo $_SERVER['PHP_SELF']; ?>">
+			  <input type="hidden" name="SQ_CALENDAR_NEW_LOC" id="SQ_CALENDAR_NEW_LOC" />
+			  <input type="hidden" name="SQ_CALENDAR_OLD_LOC" id="SQ_CALENDAR_OLD_LOC" />
 			  <input type="hidden" name="SQ_CALENDAR_EVENT_ID" id="SQ_CALENDAR_EVENT_ID" />
 			  <input type="hidden" name="SQ_CALENDAR_DATE" id="SQ_CALENDAR_DATE" />
 			  <input type="hidden" name="SQ_CALENDAR_TIME" id="SQ_CALENDAR_TIME" />
@@ -1275,7 +1326,7 @@ class Page_Calendar extends Page_Asset_Listing
 			  <input type="hidden" name="SQ_CALENDAR_VIEW" value="<?php echo $_REQUEST['SQ_CALENDAR_VIEW']; ?>" />
 			</form>
 		<!-- /DRAG AND DROP SUPPORT -->
-		
+
 		<?php
 
 	}//end _printEventDraggingScript()
@@ -1380,14 +1431,15 @@ class Page_Calendar extends Page_Asset_Listing
 
 	}//end _numPeriodsBetweenTimes()
 
-	
+
 	/**
 	* Add the specified number of minutes to the time given
 	*
 	* @return void
 	* @access private
 	*/
-	function _addMinutes(&$current_hour, &$current_mins, $add_mins) {
+	function _addMinutes(&$current_hour, &$current_mins, $add_mins)
+	{
 		$current_mins += $add_mins;
 		$current_hour += floor($current_mins / 60);
 		$current_mins = $current_mins % 60;
@@ -1407,7 +1459,7 @@ class Page_Calendar extends Page_Asset_Listing
 	* @access private
 	* @return void
 	*/
-	function _trimEvent(&$details, $day_start_dts, $day_end_dts) 
+	function _trimEvent(&$details, $day_start_dts, $day_end_dts)
 	{
 		$event_dts = $details['start_date_hours'] * 60 + $details['start_date_minutes'];
 		$event_end_dts = $details['end_date_hours'] * 60 + $details['end_date_minutes'];
@@ -1434,7 +1486,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 //--         FUNCTIONS TO EXTRACT EVENTS FROM DB        --//
 
-	
+
 	/**
 	* Returns the current root node attribute
 	*
@@ -1447,10 +1499,10 @@ class Page_Calendar extends Page_Asset_Listing
 	function _getRootNodes()
 	{
 		return $this->attr('root_nodes');
-	
+
 	}//end _getRootNodes()
-	
-	
+
+
 	/**
 	* Get the events to show in year view for the specified year
 	*
@@ -1468,7 +1520,7 @@ class Page_Calendar extends Page_Asset_Listing
 			trigger_error('WARNING: No valid root nodes are set for this Calendar Page', E_USER_WARNING);
 			return Array();
 		}
-		
+
 		$tree_sql = build_tree_clause($trees);
 
 		// formulate the date restriction clauses
@@ -1579,7 +1631,7 @@ class Page_Calendar extends Page_Asset_Listing
 			trigger_error('WARNING: No valid root nodes are set for this Calendar Page', E_USER_WARNING);
 			return Array();
 		}
-		
+
 		$tree_sql = build_tree_clause($trees);
 
 		// formulate the date restriction clauses
@@ -1660,14 +1712,14 @@ class Page_Calendar extends Page_Asset_Listing
 		list($year,$month,$day) = sscanf($date, '%04d-%02d-%02d');
 
 		// get the treeid restriction SQL
-		$root_nodes = $this->_getRootNodes();			
+		$root_nodes = $this->_getRootNodes();
 		$trees = &get_treeids($root_nodes);
 
 		if (empty($trees)) {
 			trigger_error('WARNING: No valid root nodes are set for this Calendar Page', E_USER_WARNING);
 			return Array();
 		}
-		
+
 		$tree_sql = build_tree_clause($trees);
 
 		// get the single events
@@ -1682,14 +1734,13 @@ class Page_Calendar extends Page_Asset_Listing
 		$sql = build_recurring_event_query_base($trees, 'week', $date).' AND '.$tree_sql;
 		$recur_result = $db->getAssoc($sql);
 		assert_valid_db_result($recur_result);
-		
+
 		$res = $single_result + $recur_result;
 
 		if ($this->attr('enable_description_popups')) {
 			$descriptions = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName('description', 'calendar_event', array_keys($res));
 			foreach ($descriptions as $assetid => $description) $res[$assetid]['description'] = $description;
 		}
-
 		return $res;
 
 	}//end getWeekEvents()
@@ -1815,12 +1866,12 @@ class Page_Calendar extends Page_Asset_Listing
 		// build treeid restriction SQL
 		$root_nodes = $this->_getRootNodes();
 		$trees =& get_treeids($root_nodes);
-		
+
 		if (empty($trees)) {
 			trigger_error('WARNING: No valid root nodes are set for this Calendar Page', E_USER_WARNING);
 			return Array();
 		}
-		
+
 		$tree_sql = build_tree_clause($trees);
 
 		// GET SINGLE EVENTS:
@@ -1837,7 +1888,7 @@ class Page_Calendar extends Page_Asset_Listing
 		foreach ($single_result as $id => $details) {
 			$single_result[$id]['type_code'] = 'calendar_event_single';
 		}
-		
+
 		// GET RECURRING EVENTS:
 
 		// combine tree sql with the common SQL for recurring events and get result from DB
@@ -1846,7 +1897,7 @@ class Page_Calendar extends Page_Asset_Listing
 		assert_valid_db_result($recur_result);
 
 		// PUT IT ALL TOGETHER:
-		
+
 		$res = $single_result + $recur_result;
 
 		if ($this->attr('enable_description_popups')) {
@@ -1859,7 +1910,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$compare_start_ts = create_function('$a, $b', 'if ($a[\'start_date_ts\'] < $b[\'start_date_ts\']) return -1; else return 1;');
 		uasort($res, $compare_start_ts);
-		
+
 		return $res;
 
 	}//end getDayEvents()
@@ -1893,7 +1944,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$res = $partitions;
 
 		$events = $this->getDayEvents($date);
-		
+
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 			if (($event_date == $date)) {
@@ -1945,12 +1996,12 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$events = &$this->getDayEvents($date);
 		$res = Array();
-		
+
 		$columnise_by_root = $this->attr('columnise_day_view_by_root_node');
 		foreach ($columnise_by_root as $node_id) {
 			if (($node_id == '*') || in_array($node_id, $root_nodes)) $res[$node_id] = $partitions;
 		}
-		
+
 		$root_node_treeids = get_treeids(array_flip($root_nodes));
 		uasort($root_node_treeids, create_function('$a,$b', 'return strlen($b)-strlen($a);'));
 
@@ -1958,7 +2009,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 
 			// get class to use for root node
-			$col = (isset($res['other']) ? 'other' : false);
+			$col = (isset($res['*']) ? '*' : false);
 
 			foreach ($root_node_treeids as $root_node_assetid => $root_node_treeid) {
 				if (substr($details['treeid'], 0, strlen($root_node_treeid)) === $root_node_treeid) {

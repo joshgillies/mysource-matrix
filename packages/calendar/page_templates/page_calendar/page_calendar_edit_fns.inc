@@ -1,5 +1,5 @@
 <?php
-/** 
+/**
 * +--------------------------------------------------------------------+
 * | Squiz.net Open Source Licence                                      |
 * +--------------------------------------------------------------------+
@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.21 2004/12/03 15:08:38 brobertson Exp $
-* $Name: not supported by cvs2svn $
+* $Id: page_calendar_edit_fns.inc,v 1.21.2.1 2004/12/16 05:50:40 tbarrett Exp $
+*
 */
 
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.21 $ - 1.0
+* @version $Revision: 1.21.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -49,9 +49,9 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$this->Page_Asset_Listing_Edit_Fns();
 
-	}//end Page_Calendar_Edit_Fns()
+	}//end constructor
 
-	
+
 	/**
 	* Paint the interface for setting the root nodes from which this calendar page draws events
 	*
@@ -75,7 +75,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		$locations = $asset->attr('root_nodes');
 		$location_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($locations));
 		$l = 1;
-		
+
 		foreach ($locations as $location => $details) {
 			?>
 			<tr>
@@ -102,7 +102,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			<?php
 			$l++;
 		}//end foreach
-				
+
 		if ($write_access) {
 			?>
 			<tr>
@@ -113,13 +113,13 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}
 		?></table>
 		<p style="width: 60ex; margin-left: 15ex">For each root node you can give the name of a CSS class you have defined, OR one of the CSS named colours to use when displaying events from that location.  (The CSS named colours are black, blue, fuchsia, gray, green, lime, maroon, navy, olive, purple, red, silver, teal, white, and yellow). </p>
-		
+
 		<?php
 		return true;
-		
+
 	}//end paintRootNodes()
-	
-	
+
+
 	/**
 	* Process the interface for setting the root nodes from which this calendar page draws events
 	*
@@ -129,7 +129,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*
 	* @return boolean
 	* @access public
-	*/	
+	*/
 	function processRootNodes(&$asset, &$o, $prefix)
 	{
 		if (isset($_POST[$prefix.'_root_nodes'])) {
@@ -143,7 +143,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		} else {
 			return false;
 		}
-		
+
 	}//end processRootNodes()
 
 
@@ -191,9 +191,9 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		}?>
 		</table><?php
 		return true;
-		
+
 	}//end paintViewsChooser()
-	
+
 
 	/**
 	* Process the interface for choosing which calendar views are available on the frontend
@@ -286,7 +286,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			}
 			$asset->setAttrValue('initial_view', key($enabled_views));
 		}
-		
+
 	}//end processInitialView()
 
 
@@ -301,7 +301,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	* @return void
 	* @access private
 	*/
-	function _paint5MinTimeField($prefix, $default_hour=9, $default_min=0, $default_is_pm=false) 
+	function _paint5MinTimeField($prefix, $default_hour=9, $default_min=0, $default_is_pm=false)
 	{
 		$hour_options = Array(12=>12, 1=>1, 2=>2, 3=>3, 4=>4, 5=>5, 6=>6, 7=>7, 8=>8, 9=>9, 10=>10, 11=>11, 12=>12);
 		$min_options = Array();
@@ -324,7 +324,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	* @return string	HH:MM value of the element, in 24 hour format
 	* @access public
 	*/
-	function _process5MinTimeField($prefix) 
+	function _process5MinTimeField($prefix)
 	{
 		if (!isset($_POST[$prefix])) return false;
 		if ($_POST[$prefix]['hours'] != (int)$_POST[$prefix]['hours']) return false;
@@ -356,7 +356,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				$hour -= 12;
 			}
 			if ($hour == 0) $hour = 12;
-			
+
 			$this->_paint5MinTimeField($prefix.'_day_start_time', $hour, $minute, $is_pm);
 		} else {
 			echo $asset->attr('day_starts_at');
@@ -384,7 +384,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		} else {
 			return false;
 		}
-		
+
 	}//end processDayStart()
 
 
@@ -408,7 +408,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				$hour -= 12;
 			}
 			if ($hour == 0) $hour = 12;
-			
+
 			$this->_paint5MinTimeField($prefix.'_day_end_time', $hour, $minute, $is_pm);
 		} else {
 			echo $asset->attr('day_ends_at');
@@ -435,7 +435,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		} else {
 			return false;
 		}
-		
+
 	}//end processDayEnd()
 
 
@@ -490,7 +490,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		} else {
 			return false;
 		}
-		
+
 	}//end processWeekDays()
 
 
@@ -507,7 +507,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function paintLookAndFeel(&$asset, &$o, $prefix)
 	{
 		?>
-		<p style="width: 60ex; margin-left: 15ex">The Calendar Page has a default CSS file that controls the look and feel of the Calendar views.  A link to this CSS file is automatically 
+		<p style="width: 60ex; margin-left: 15ex">The Calendar Page has a default CSS file that controls the look and feel of the Calendar views.  A link to this CSS file is automatically
 		inserted into the head of the generated HTML document.</p>
 
 		<p style="width: 60ex; margin-left: 15ex">If you want to customise some or all of the style rules you can <a href="<?php echo sq_web_path('data')?>/asset_types/page_calendar/css/calendar_default.css">download the default CSS file</a> and modify it.  Put a link to your modified version in the parse file of
@@ -515,8 +515,8 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		<?php
 
 	}//end paintLookAndFeel()
-	
-	
+
+
 	/**
 	* Does nothing
 	*
@@ -565,8 +565,8 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_processTitleFormat('day', $asset, $o, $prefix);
 
-	}//end paintDayTitleFormat()
-	
+	}//end processDayTitleFormat()
+
 
 	/**
 	* Paint the interface that lets you specify the date format for the week view's title
@@ -582,7 +582,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_paintTitleFormat('week', $asset, $o, $prefix);
 
-	}//end paintweekTitleFormat()
+	}//end paintWeekTitleFormat()
 
 
 	/**
@@ -599,8 +599,8 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_processTitleFormat('week', $asset, $o, $prefix);
 
-	}//end paintweekTitleFormat()
-	
+	}//end processWeekTitleFormat()
+
 
 	/**
 	* Paint the interface that lets you specify the date format for the month view's title
@@ -616,7 +616,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_paintTitleFormat('month', $asset, $o, $prefix);
 
-	}//end paintmonthTitleFormat()
+	}//end paintMonthTitleFormat()
 
 
 	/**
@@ -633,8 +633,8 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_processTitleFormat('month', $asset, $o, $prefix);
 
-	}//end paintmonthTitleFormat()
-	
+	}//end processMonthTitleFormat()
+
 
 	/**
 	* Paint the interface that lets you specify the date format for the year view's title
@@ -650,7 +650,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_paintTitleFormat('year', $asset, $o, $prefix);
 
-	}//end paintyearTitleFormat()
+	}//end paintYearTitleFormat()
 
 
 	/**
@@ -667,7 +667,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		return $this->_processTitleFormat('year', $asset, $o, $prefix);
 
-	}//end paintyearTitleFormat()
+	}//end processYearTitleFormat()
 
 
 	/**
@@ -773,7 +773,8 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			</tr>
 		</table>
 		<?php
-	}
+
+	}//end paintColumnNodes()
 
 
 	/**
@@ -790,7 +791,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$val = Array();
 		if (isset($_REQUEST[$prefix.'_root_nodes_columnised']) && is_array($_REQUEST[$prefix.'_root_nodes_columnised']))  {
-			if ((isset($_REQUEST[$prefix.'_root_nodes_columnised']['other']) && $_REQUEST[$prefix.'_root_nodes_columnised']['other'])) { 
+			if ((isset($_REQUEST[$prefix.'_root_nodes_columnised']['other']) && $_REQUEST[$prefix.'_root_nodes_columnised']['other'])) {
 				$val = Array('*');
 				unset($_REQUEST[$prefix.'_root_nodes_columnised']['other']);
 			}
@@ -799,9 +800,11 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			}
 		}
 		if (empty($val)) $val = Array('*');
+
 		return $asset->setAttrValue('columnise_day_view_by_root_node', $val);
-	}
-	
+
+	}//end processColumnNodes()
+
 }//end class
 
 ?>
