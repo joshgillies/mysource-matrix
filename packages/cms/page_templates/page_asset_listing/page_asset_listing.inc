@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.35 2004/09/15 00:36:47 mmcintyre Exp $
+* $Id: page_asset_listing.inc,v 1.36 2004/10/26 01:28:01 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -282,7 +282,7 @@ class Page_Asset_Listing extends Page
 				$cache_key = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : 'A';
 			break;
 		}
-		
+
 		$cached_contents = '';
 		if (!empty($cache_key)) {
 			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cache_manager');
@@ -292,7 +292,7 @@ class Page_Asset_Listing extends Page
 		// if the cache is empty, go ahead and regenerate a new version
 		if (empty($cached_contents)) {
 
-			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents'); 
+			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'page_contents');
 			if (empty($bodycopy_link)) return false;
 
 			$format_bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
@@ -421,13 +421,13 @@ class Page_Asset_Listing extends Page
 						$todo[$random_asset] = $children[$random_asset];
 					} else if ($this->attr('num_per_page') > count($children)) {
 						// if you try to use array_rand with a value higher than the number of elements
-						// in the array, it returns nothing. So, we check for that and return only the 
+						// in the array, it returns nothing. So, we check for that and return only the
 						// maximum number of children available
 						$random_assets = array_rand($children, count($children));
 						foreach ($random_assets as $value) $todo[$value] = $children[$value];
 					} else {
 						// this will return a subset of the children, as defined by the num_per_page
-						// attribute. This occurs when the number is less than the total number of 
+						// attribute. This occurs when the number is less than the total number of
 						// children available.
 						$random_assets = array_rand($children, $this->attr('num_per_page'));
 						foreach ($random_assets as $value) $todo[$value] = $children[$value];
@@ -445,7 +445,7 @@ class Page_Asset_Listing extends Page
 
 			// the global replacement to print the asset listing
 			$replacements['asset_listing'] = $global_contents;
-			
+
 			$other_replacements = $this->getKeywordReplacements();
 			$replacements = array_merge($replacements, $other_replacements);
 
@@ -502,7 +502,7 @@ class Page_Asset_Listing extends Page
 	function getAssetList()
 	{
 		$group_by = $this->attr('group_by');
-		
+
 		// this is the list of all type codes that we are going to show
 		// we pass this list to the getLinks and getChildren functions (below) to narrow
 		// the query down a bit
@@ -555,7 +555,7 @@ class Page_Asset_Listing extends Page
 					}
 					foreach ($links as $link_info) $children[$link_info['minorid']] = Array('type_code' => $link_info['minor_type_code'], 'first_letter' => $link_info['first_letter']);
 				break;
-				
+
 				case 'random' :
 					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, null, SQ_PERMISSION_READ);
 					foreach ($links as $link_info) $children[$link_info['minorid']] = $link_info['minor_type_code'];
@@ -582,7 +582,7 @@ class Page_Asset_Listing extends Page
 						return;
 					}
 				break;
-				
+
 				case 'random' :
 					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
 				break;
@@ -592,7 +592,7 @@ class Page_Asset_Listing extends Page
 
 		// clean up after ourselves
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
-		
+
 		return $children;
 
 	}//end getAssetList()
@@ -618,7 +618,7 @@ class Page_Asset_Listing extends Page
 		if (!empty($todo)) $this->filterAssetStatuses($todo);
 
 		if (empty($todo)) return;
-			
+
 		  /////////////////////////////
 		 //  REMOVE UNWANTED TYPES  //
 		/////////////////////////////
@@ -627,7 +627,7 @@ class Page_Asset_Listing extends Page
 			case 'random' :
 				$this->filterAssetTypes($todo);
 			break;
-		
+
 			case 'letter' :
 				$filtered_todo = Array();
 				for (reset($todo); null !== ($todo_id = key($todo)); next($todo)) {
@@ -658,18 +658,18 @@ class Page_Asset_Listing extends Page
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetids = array_keys($todo);
-		
+
 		for (reset($assetids); null !== ($k = key($assetids)); next($assetids)) {
 			$assetids[$k] = $db->quote($assetids[$k]);
 		}
-		
+
 		$filtered_assets = $db->getCol('SELECT assetid
 										FROM '.SQ_TABLE_PREFIX.'asset
 										WHERE assetid IN ('.implode(',', $assetids).')
 										  AND status >= '.$db->quote(SQ_STATUS_LIVE)
 										);
 		assert_valid_db_result($filtered_assets);
-		
+
 		for (reset($todo); null !== ($assetid = key($todo)); ) {
 			if (!in_array($assetid, $filtered_assets)) {
 				unset($todo[$assetid]);
@@ -752,7 +752,7 @@ class Page_Asset_Listing extends Page
 		$default_format  = '';
 		$customised      = $this->attr('customised');
 		$keywords        = Array();
-		$asset_info_fields = Array('assetid','type_code','version','name','short_name','status','languages','charset','force_secure','created','created_userid','updated','updated_userid','published','published_userid'); 
+		$asset_info_fields = Array('assetid','type_code','version','name','short_name','status','languages','charset','force_secure','created','created_userid','updated','updated_userid','published','published_userid');
 		$mm		 = NULL;
 
 		foreach ($todo as $assetid => $type_code) {
@@ -824,14 +824,14 @@ class Page_Asset_Listing extends Page
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				if (is_null($asset)) continue;
 				$keywords = $asset->getAssetKeywords();
-		
+
 				if (preg_match('|%asset_contents%|is', $contents)) {
 					ob_start();
 						$asset->printBody();
 						$keywords['asset_contents']['value'] = ob_get_contents();
 					ob_end_clean();
 				}
-					
+
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
@@ -963,22 +963,22 @@ class Page_Asset_Listing extends Page
 
 		$keywords['asset_listing'] =	Array(
 											'name'=>'Asset Listing',
-											'default'=>'The Listing of Assets', 
+											'default'=>'The Listing of Assets',
 											'type'=>'block');
 
 		$keywords['previous_page'] =	Array(
 											'name'=>'Previous Page Link',
-											'default'=>'Link to the previous page of the listing', 
+											'default'=>'Link to the previous page of the listing',
 											'type'=>'inline');
-			
+
 		$keywords['next_page'] =		Array(
 											'name'=>'Next Page Link',
-											'default'=>'Link to the next page of the listing', 
+											'default'=>'Link to the next page of the listing',
 											'type'=>'inline');
-			
+
 		$keywords['page_list'] =		Array(
 											'name'=>'Page List',
-											'default'=>'List of pages in the listing', 
+											'default'=>'List of pages in the listing',
 											'type'=>'inline');
 		return $keywords;
 
