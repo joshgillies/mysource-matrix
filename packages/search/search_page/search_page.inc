@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.15 2003/12/28 21:28:37 gsherwood Exp $
+* $Id: search_page.inc,v 1.16 2003/12/28 22:11:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.15 $ - 1.0
+* @version $Revision: 1.16 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -431,7 +431,10 @@ class Search_Page extends Page
 				break;
 
 				case 'previous_result_page_link':
-					if ($current_result_page < 1) break;
+					if ($current_result_page < 1) {
+						$replacement = 'Previous';
+						break;
+					}
 
 					$js = '
 						document.search_form.current_result_page.value--;
@@ -442,7 +445,10 @@ class Search_Page extends Page
 				break;
 
 				case 'next_result_page_link':
-					if ($current_result_page >= $total_pages - 1) break;
+					if ($current_result_page >= $total_pages - 1) {
+						$replacement = 'Next';
+						break;
+					}
 
 					$js = '
 						document.search_form.current_result_page.value++;
