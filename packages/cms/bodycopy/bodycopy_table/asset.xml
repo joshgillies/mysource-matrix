@@ -5,7 +5,7 @@
 	<package>cms</package>
 	<type_code>bodycopy_table</type_code>
 	<version>0.1</version>
-	<name>Page</name>
+	<name>Bodycopy Table</name>
 	<description>BodyCopy Table Object, create rows and cells to format content</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
