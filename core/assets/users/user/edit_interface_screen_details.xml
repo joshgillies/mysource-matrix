@@ -9,7 +9,7 @@
 		<field attribute="password">
 			<display_name>Password</display_name>
 			<note>Enter once, then again to confirm</note>
-			<password width="8" height="1" />
+			<password width="8" />
 		</field>
 		<field attribute="first_name">
 			<display_name>First Name</display_name>
