@@ -190,7 +190,7 @@ class matrix_insert_link extends wysiwyg_plugin {
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				var strPage = "<?php echo $this->get_popup_href('insert_link.php')?>?assetid=" + escape(currArgs["assetid"]) + "&url=" + escape(currArgs["url"]) + "&status_text=" + escape(currArgs["status_text"]) + "&new_window=" + escape(currArgs["new_window"]) + "&new_window_options=" + escape(var_serialise(currArgs["new_window_options"])) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>");
 
-				this._popupDialog(strPage, 400, 350, function(param) {
+				this._popupDialog("matrixInsertLink", strPage, 400, 350, function(param) {
 					if (param && param["url"] != "") {
 		
 						var html = '';

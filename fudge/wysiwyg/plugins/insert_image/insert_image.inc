@@ -90,7 +90,7 @@ class insert_image extends wysiwyg_plugin {
 
 				strPage = "<?php echo $this->get_popup_href('insert_image.php')?>?f_url=" + escape(url) + "&f_align=" + escape(align) + "&f_alt=" + escape(alt) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border);
 
-				this._popupDialog(strPage, 398, 218, function(param) {
+				this._popupDialog("insertImage", strPage, 398, 218, function(param) {
 					if (!param) { 
 						// user must have pressed Cancel
 						return false;

@@ -23,7 +23,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 			};
 
 			function Init() {
-				__dlg_init();
+				__dlg_init("matrixEmbedMovie");
 				var changeButton = document.getElementById('sq_asset_finder_f_fileid_change_btn');
 				changeButton.click();
 			};
@@ -49,12 +49,12 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 						param[id] = "0";
 					}
 				}
-				__dlg_close(param);
+				__dlg_close("matrixEmbedMovie", param);
 				return false;
 			};
 
 			function onCancel() {
-				__dlg_close(null);
+				__dlg_close("matrixEmbedMovie", null);
 				return false;
 			};
 		</script>
@@ -89,7 +89,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 		</style>
 	</head>
 
-	<body onLoad="Init(); if (opener) opener.blockEvents()" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
+	<body onLoad="Init(); if (opener) opener.blockEvents('matrixEmbedMovie')" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
 		<div class="title">Embed Movie</div>
 		<form action="" method="get" name="main_form">
 			<table border="0" width="100%" style="padding: 0px; margin: 0px">

@@ -58,16 +58,18 @@ class wysiwyg_plugin {
 	*							Value is either 'true' or 'false' (with quotes)
 	* @param string $position	The position of the button in the toolbar image
 	*							This is zero indexed (first button is id zero)
+	* @param string $context	Enable this button if outside this element
 	*
 	* @return void
 	* @access private
 	*/
-	function _add_button($id, $cmd, $tooltip, $textmode, $position)
+	function _add_button($id, $cmd, $tooltip, $textmode, $position, $context='')
 	{
 		$this->buttons[$id]['command']  = $cmd;
 		$this->buttons[$id]['tooltip']  = $tooltip;
 		$this->buttons[$id]['textmode'] = $textmode;
 		$this->buttons[$id]['position'] = $position;
+		$this->buttons[$id]['context'] = $context;
 
 	}//end _add_button()
 
@@ -280,9 +282,10 @@ class wysiwyg_plugin {
 	* @return string
 	* @access public
 	*/
-	function get_popup_href($filename)
+	function get_popup_href($filename, $classname='')
 	{
-		return get_class($this).'/'.$filename;
+		if (empty($classname)) $classname = get_class($this);
+		return $classname.'/'.$filename;
 
 	}//end get_popup_href()
 

@@ -57,7 +57,7 @@ if (!isset($_GET['new_window'])) {
 			var new_window_bool_options = new Array('<?php echo implode("','", array_keys($new_window_bool_options))?>');
 
 			function Init() {
-				__dlg_init();
+				__dlg_init("matrixInsertLink");
 				enable_new_window(document.main_form, <?php echo $_GET['new_window']?>);
 
 				var e = '^(.+:(\/\/)?)?([^#]*)(#(.*))?$';
@@ -86,12 +86,12 @@ if (!isset($_GET['new_window'])) {
 					param["new_window_options"][new_window_bool_options[i]] = (f.elements[new_window_bool_options[i]].checked) ? 1 : 0;
 				}
 
-				__dlg_close(param);
+				__dlg_close("matrixInsertLink", param);
 				return false;
 			};
 
 			function onCancel() {
-				__dlg_close(null);
+				__dlg_close("matrixInsertLink", null);
 				return false;
 			};
 
@@ -160,7 +160,7 @@ if (!isset($_GET['new_window'])) {
 		</style>
 	</head>
 
-	<body onLoad="Init(); if (opener) opener.blockEvents()" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
+	<body onLoad="Init(); if (opener) opener.blockEvents('matrixInsertLink')" onUnload="if (opener) opener.unblockEvents(); asset_finder_onunload(); parent_object._tmp['disable_toolbar'] = false; parent_object.updateToolbar();">
 		<div class="title">Insert Link</div>
 		<form action="" method="get" name="main_form">
 			<table border="0" width="100%" style="padding: 0px; margin: 0px">

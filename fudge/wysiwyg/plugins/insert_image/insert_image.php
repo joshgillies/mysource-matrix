@@ -19,7 +19,7 @@
 			var preview_window = null;
 
 			function Init() {
-				__dlg_init();
+				__dlg_init("insertImage");
 				document.getElementById("f_url").focus();
 			};
 
@@ -48,7 +48,7 @@
 				if (preview_window) {
 					preview_window.close();
 				}
-				__dlg_close(param);
+				__dlg_close("insertImage", param);
 				return false;
 			};
 
@@ -56,7 +56,7 @@
 				if (preview_window) {
 					preview_window.close();
 				}
-				__dlg_close(null);
+				__dlg_close("insertImage", null);
 				return false;
 			};
 

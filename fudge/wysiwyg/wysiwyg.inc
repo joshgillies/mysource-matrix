@@ -40,7 +40,7 @@ class wysiwyg {
 	* @var string
 	* @see paint(), set_init_onload()
 	*/
-	var $init_onload  = 'yes';
+	var $init_onload  = true;
 
 
 	/**
@@ -221,16 +221,16 @@ class wysiwyg {
 						var buttonID = editor._uniqueID + "_" + this['name'];
 						buttonID = buttonID.toLowerCase();
 						var img = document.getElementById(buttonID);
-						if (oldval != newval) {
+						if (img && oldval != newval) {
 							switch (id) {
 								case "enabled":
 									if (newval) {
 										HTMLArea._removeClass(el, "htmlarea-buttonDisabled");
-										if (img) { img.src = editor.imgURL("toolbar.gif"); }
+										if (img) { img.src = editor.imgURL("toolbar.png"); }
 										el.disabled = false;
 									} else {
 										HTMLArea._addClass(el, "htmlarea-buttonDisabled");
-										if (img) { img.src = editor.imgURL("toolbar_disabled.gif"); }
+										if (img) { img.src = editor.imgURL("toolbar_disabled.png"); }
 										el.disabled = true;
 									}
 								break;
@@ -318,13 +318,14 @@ class wysiwyg {
 							// let's just pretend we have a button object, and
 							// assign all the needed information to it.
 							var obj = {
-								name: txt,             // the button name (i.e. 'bold')
-								element: el,           // the UI element (SPAN)
-								enabled: true,         // is it enabled?
-								active: false,         // is it pressed?
-								text: btn[2],          // enabled in text mode?
-								cmd: btn[0],           // the command ID
-								state: setButtonStatus // for changing state
+								name    : txt,             // the button name (i.e. 'bold')
+								element : el,              // the UI element (SPAN)
+								enabled : true,            // is it enabled?
+								active  : false,           // is it pressed?
+								text    : btn[2],          // enabled in text mode?
+								cmd     : btn[0],          // the command ID
+								state   : setButtonStatus, // for changing state
+								context : btn[4] || null   // will be disabled if outside this element
 							};
 							tb_objects[txt] = obj;
 
@@ -369,7 +370,7 @@ class wysiwyg {
 							// the image is loaded once and then the server is not hit again
 							var buttonID = editor._uniqueID + "_" + txt;
 							buttonID = buttonID.toLowerCase();
-							document.write("<img src=\"" + editor.imgURL("toolbar.gif") + "\" id=\"" + buttonID + "\">");
+							document.write("<img src=\"" + editor.imgURL("toolbar.png") + "\" id=\"" + buttonID + "\">");
 							var img = document.getElementById(buttonID);
 
 							// work out where this button image is in the big toolbar image
@@ -399,7 +400,7 @@ class wysiwyg {
 					};
 
 					// preload the disabled button image
-					document.write("<img src=\"" + editor.imgURL("toolbar_disabled.gif") + "\" id=\"toolbar_disabled\" style=\"visibility: hidden;\" width=\"1\" height=\"1\">");
+					document.write("<img src=\"" + editor.imgURL("toolbar_disabled.png") + "\" id=\"toolbar_disabled\" style=\"visibility: hidden;\" width=\"1\" height=\"1\">");
 
 					for (var i in this.config.toolbar) {
 						var group = this.config.toolbar[i];
@@ -440,7 +441,7 @@ class wysiwyg {
 								}
 								
 								// if we are playing with an editable DIV, we need to tread carefully
-								// because there is no body tag expect to one for the whole page
+								// because there is no body tag expect the one for the whole page
 								// so we fudge the results a little to skip tags outside of the editor
 								if (HTMLArea.is_ie && this.config.bodyType.toLowerCase() != 'iframe') {
 									if (el.id == "htmlarea") {
@@ -483,18 +484,61 @@ class wysiwyg {
 					for (var i in this._toolbarObjects) {
 						var btn = this._toolbarObjects[i];
 						var cmd = btn.cmd;
-						if (typeof cmd == "function") {
-							continue;
+
+						var inContext = true;
+						if (btn.context && !text) {
+							inContext = false;
+							var context = btn.context;
+							var attrs = [];
+							if (/(.*)\[(.*?)\]/.test(context)) {
+								context = RegExp.$1;
+								attrs = RegExp.$2.split(",");
+							}
+							context = context.toLowerCase();
+							var match = (context == "*");
+							htmlareaFound = false;
+							for (var k = ancestors.length; --k >= 0;) {
+								var el = ancestors[k];
+								if (!el) {
+									// the impossible really happens.
+									continue;
+								}
+
+								// if we are playing with an editable DIV, we need to tread carefully
+								// so we can skip tags outside of the editor
+
+								if (HTMLArea.is_ie && this.config.bodyType.toLowerCase() != 'iframe') {
+									if (el.id == "htmlarea") {
+										htmlareaFound = true;
+										k--;
+										el = ancestors[k];
+									}
+									if (!htmlareaFound) { continue; }
+								}
+
+								if (match || (el.tagName.toLowerCase() == context)) {
+									inContext = true;
+									for (var ka in attrs) {
+										if (!eval("ancestors[k]." + attrs[ka])) {
+											inContext = false;
+											break;
+										}
+									}
+									if (inContext) { break; }
+								}
+							}
 						}
-						cmd = cmd.toLowerCase();
+
+						if (typeof cmd == "function") { continue; }
 
 						if (allEnabled == null) {
-							var btnEnabled = (!text || btn.text);
+							var btnEnabled = (!text || btn.text) && inContext;
 						} else {
 							var btnEnabled = allEnabled;
 						}
-
 						btn.state("enabled", btnEnabled);
+
+						cmd = cmd.toLowerCase();
 						switch (cmd) {
 <?php $this->print_plugin_update_toolbar()?>
 							default:
@@ -515,7 +559,7 @@ class wysiwyg {
 <?php $this->print_plugin_form_submit()?>
 					
 					// retrieve the HTML
-					this._textArea.value = html;
+					this._textArea.value = escape(html);
 				};
 			</script>
 
@@ -695,7 +739,7 @@ class wysiwyg {
 				editor_<?php echo $this->name?>._createStatusBar();
 				editor_<?php echo $this->name?>.updateToolbar(false);
 		<?php
-		if ($this->init_onload == 'yes') {
+		if ($this->init_onload) {
 		?>
 				OtherOnLoad_<?php echo $this->name?> = (window.onload) ? window.onload :  new Function;
 				window.onload = function() {
@@ -720,7 +764,7 @@ class wysiwyg {
 	*/
 	function process()
 	{
-		$html = (isset($_POST[$this->name])) ? $_POST[$this->name] : '';
+		$html = rawurldecode((isset($_POST[$this->name])) ? $_POST[$this->name] : '');
 		foreach ($this->plugins as $name => $plugin) $plugin->process($html);
 		return $html;
 
@@ -795,14 +839,14 @@ class wysiwyg {
 							?>
 						];
 
-					//      ID,             CMD,                         ToolTip,              In text mode?,   Image Position
+					//      ID,             CMD,                         ToolTip,              In text mode?,   Image Position, Context
 					this.btnList = {
 						<?php
 						$output = '';
 						foreach ($this->plugins as $name => $plugin) {
 							foreach ($plugin->buttons as $id => $button) {
 								if (!$button['command']) continue;
-									$output .= "$id:".str_repeat(' ',19 - strlen($id))."[\"".$button['command']."\",".str_repeat(' ',25 - strlen($button['command']))."\"".$button['tooltip']."\",".str_repeat(' ',25 - strlen($button['tooltip']))."".$button['textmode'].",     ".(($button['textmode'] === 'true') ? ' ' : '')."".$button['position']."],\n\t\t\t\t\t\t";
+									$output .= "$id:".str_repeat(' ',19 - strlen($id))."[\"".$button['command']."\",".str_repeat(' ',25 - strlen($button['command']))."\"".$button['tooltip']."\",".str_repeat(' ',25 - strlen($button['tooltip']))."".$button['textmode'].",     ".(($button['textmode'] === 'true') ? ' ' : '')."".$button['position'].", \"".$button['context']."\"],\n\t\t\t\t\t\t";
 							}
 						}
 						$output = trim($output,"\t\n,");
@@ -1037,14 +1081,14 @@ class wysiwyg {
 	/**
 	* Sets weather the WYSIWYG initilises itself onLoad for the window
 	*
-	* @param string	$init	Init or not (yes or no)
+	* @param boolean	$init	Init or not
 	*
 	* @return void
 	* @access public
 	*/
-	function set_init_onload($init='yes')
+	function set_init_onload($init=true)
 	{
-		$this->init_onload = trim(strtolower($init));
+		$this->init_onload = (bool) $init;
 
 	}//end set_init_onload()
 

@@ -391,11 +391,100 @@ HTMLArea._colorToRgb = function(v) {
 };
 
 
+HTMLArea.getLength = function(value) {
+	var len = parseInt(value);
+	if (isNaN(len)) {
+		len = "";
+	}
+	return len;
+};
+
+
+// Applies the style found in "params" to the given element.
+HTMLArea.processStyle = function(params, element) {
+	var style = element.style;
+	for (var i in params) {
+		var val = params[i];
+		switch (i) {
+			case "f_bgcolor":
+				style.backgroundColor = val;
+			break;
+
+			case "f_color":
+				style.color = val;
+			break;
+
+			case "f_backgroundImage":
+				if (/\S/.test(val)) {
+					style.backgroundImage = "url(" + val + ")";
+				} else {
+					style.backgroundImage = "none";
+				}
+			break;
+
+			case "f_borderWidth":
+				val = parseInt(val);
+				if (isNaN(val)) { val = 0; }
+				style.borderWidth = val;
+			break;
+
+			case "f_borderStyle":
+				style.borderStyle = val;
+			break;
+
+			case "f_borderColor":
+				style.borderColor = val;
+			break;
+
+			case "f_borderCollapse":
+				style.borderCollapse = val ? "collapse" : "";
+			break;
+
+			case "f_width":
+				if (/\S/.test(val)) {
+					style.width = val + params["f_widthUnit"];;
+				} else {
+					style.width = "";
+				}
+			break;
+
+			case "f_height":
+				if (/\S/.test(val)) {
+					style.height = val + params["f_heightUnit"];;
+				} else {
+					style.height = "";
+				}
+			break;
+
+			case "f_textAlign":
+				if (val == "char") {
+					var ch = params["f_st_textAlignChar"];
+					if (ch == '"') {
+						ch = '\\"';
+					}
+					style.textAlign = '"' + ch + '"';
+				} else {
+					style.textAlign = val;
+				}
+			break;
+
+			case "f_verticalAlign":
+				style.verticalAlign = val;
+			break;
+
+			case "f_float":
+				style.cssFloat = val;
+			break;
+		}
+	}
+};
+
+
 // receives an URL to the popup dialog and a function that receives one value;
 // this function will get called after the dialog is closed, with the return
 // value of the dialog.
-HTMLArea.prototype._popupDialog = function(url, width, height, action) {
-	openDialog(this.pluginURL(url), width, height, action);
+HTMLArea.prototype._popupDialog = function(code, url, width, height, action) {
+	openDialog(code, this.pluginURL(url), width, height, action);
 };
 
 

@@ -3,7 +3,7 @@
 }
 
 .htmlarea-toolbar {
-	background:		#F0F0F0;
+	background:		#5A5A5A;
 	padding:		0px;
 	border:			1px solid;
 	border-color:	#D5D5D5 #A0A0A0 #A0A0A0 #D5D5D5;
@@ -19,14 +19,14 @@
 /* Toolbar Buttons */
 
 .htmlarea-button {
-	background:		#F0F0F0;
-	color:			#F0F0F0;
+	background:		#656565;
+	color:			#656565;
 	border:			1px solid;
 	padding:		1px;
 	margin:			0px;
 	width:			20px;
 	height:			22px;
-	border-color:	#F0F0F0 #F0F0F0 #F0F0F0 #F0F0F0;
+	border-color:	#656565 #656565 #656565 #656565;
 }
 
 .htmlarea-buttonHover {

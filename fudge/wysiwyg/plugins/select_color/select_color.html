@@ -12,7 +12,7 @@
 			}
 
 			function Init() { // run on page load
-				__dlg_init(); // <!-- this can be found in popup.js -->
+				__dlg_init("selectColor"); // <!-- this can be found in popup.js -->
 				document.body.onkeypress = _CloseOnEsc;
 
 				var color = window.dialogArguments;
@@ -33,7 +33,7 @@
 				} else {
 					// valid color
 					View(color); // show selected color
-					__dlg_close(color);
+					__dlg_close("selectColor", color);
 				}
 			}
 
@@ -54,7 +54,7 @@
 			}
 		</script>
 	</head>
-	<body bgcolor="#F0F0F0" style="margin:0px; padding:0px" onLoad="Init(); if (opener) opener.blockEvents()" onUnload="if (opener) opener.unblockEvents()">
+	<body bgcolor="#F0F0F0" style="margin:0px; padding:0px" onLoad="Init(); if (opener) opener.blockEvents('selectColor')" onUnload="if (opener) opener.unblockEvents()">
 
 		<form method="get" style="margin:0px; padding:0px" onSubmit="Set(document.getElementById('ColorHex').value); return false;">
 			<table border="0px" cellspacing="0px" cellpadding="4" width="100%">

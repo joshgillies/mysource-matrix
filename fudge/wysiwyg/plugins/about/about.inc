@@ -39,7 +39,7 @@ class about extends wysiwyg_plugin {
 	{
 		?>
 		case "about":
-			this._popupDialog("<?php echo $this->get_popup_href('about.html')?>", 380, 185, null);
+			this._popupDialog("about", "<?php echo $this->get_popup_href('about.html')?>", 380, 185, null);
 		break;
 		<?php
 

@@ -24,10 +24,12 @@ class select_color extends wysiwyg_plugin {
 	* @returns object Select_Color
 	* @access  public
 	*/
-	function select_color() {
+	function select_color()
+	{
 		$this->_add_button('forecolor','ForeColor','Font Color','false','20');
 		$this->_add_button('backcolor','BackColor','Background Color','false','21');
-	}
+
+	}//end select_color()
 
 
 	/**
@@ -36,18 +38,20 @@ class select_color extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_button_click() {
+	function print_plugin_button_click()
+	{
 		?>
 		case "forecolor":
 		case "backcolor":
-			this._popupDialog("<?php echo $this->get_popup_href('select_color.html')?>", 238, 182, function(color) {
+			this._popupDialog("selectColor", "<?php echo $this->get_popup_href('select_color.html')?>", 238, 182, function(color) {
 				if (color) {
 					editor._execCommand(cmd, false, "#" + color);
 				}
 			}, HTMLArea._colorToRgb(this._doc.queryCommandValue(btn[0])));
 		break;
 		<?php
-	}
+
+	}//end print_plugin_button_click()
 
 	
 	/**
@@ -56,7 +60,8 @@ class select_color extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_exec_command() {
+	function print_plugin_exec_command()
+	{
 		?>
 		case "backcolor":
 			if (HTMLArea.is_ie) {
@@ -66,7 +71,8 @@ class select_color extends wysiwyg_plugin {
 			}
 		break;
 		<?php
-	}
-}
+	}//end print_plugin_exec_command()
+
+}//end class
 
 ?>
