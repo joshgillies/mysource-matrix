@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_contain.inc,v 1.17 2005/03/04 16:22:00 mkeehan Exp $
+* $Id: form_question_rule_type_contain.inc,v 1.18 2005/03/04 16:49:31 mkeehan Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc
 *
 * @static
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -153,7 +153,7 @@ class Form_Question_Rule_Type_Contain extends Form_Question_Rule
 	{
 		ob_start();			// buffer this please
 
-		$code = 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
+		echo 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
 
 		if (is_a($comparison, 'form_question')) {
 			$compare_value = 'document.getElementById("'.$comparison->id.'").value';
