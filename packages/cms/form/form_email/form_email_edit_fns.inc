@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.17 2004/05/19 23:42:29 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.18 2004/06/03 02:41:59 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -105,6 +105,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
 		$log_path = $asset->data_path.'/submission_logs';
+		if (!file_exists($log_path.'/')) return;
 		?>
 		<table class="sq-backend-table">
 		<tr>
