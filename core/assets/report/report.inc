@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report.inc,v 1.4 2005/01/18 11:41:59 brobertson Exp $
+* $Id: report.inc,v 1.5 2005/03/21 02:51:54 arailean Exp $
 *
 */
 
-require_once SQ_INCLUDE_PATH.'/asset.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 
 /**
 * Report
@@ -31,11 +31,11 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Report extends Asset
+class Report extends Page
 {
 
 
@@ -47,7 +47,7 @@ class Report extends Asset
 	*/
 	function Report($assetid=0)
 	{
-		$this->Asset($assetid);
+		$this->Page($assetid);
 
 	}//end constructor
 
@@ -95,6 +95,19 @@ class Report extends Asset
 		return $page_links;
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Outputs the report to the front end interface
+	*
+	* @access public
+	* @return void
+	*/
+	function printBody()
+	{
+		echo $this->attr('html');
+
+	}//end printBody()
 
 
 }//end class

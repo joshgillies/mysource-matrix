@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_management.inc,v 1.5 2005/01/18 11:38:16 brobertson Exp $
+* $Id: report_management.inc,v 1.6 2005/03/21 02:51:54 arailean Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -47,23 +47,22 @@ class Report_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars = Array(
-							'name' => Array(
-								'added'		=> '0.2',
-								'type'		=> 'text',
-								'default'	=> ''
-							),
-							'generated_date' => Array(
-								'added'		=> '0.1',
-								'type'		=> 'text',
-								'default'	=> '-- Never --',
-							),
-							'generated_user' => Array(
-								'added'		=> '0.1',
-								'type'		=> 'text',
-								'default'	=> '',
-							),
-					);
+		$this->vars['name']['added']   = '0.2';
+		$this->vars['name']['type']    = 'text';
+		$this->vars['name']['default'] = '';
+
+		$this->vars['generated_date']['added']   = '0.1';
+		$this->vars['generated_date']['type']    = 'text';
+		$this->vars['generated_date']['default'] = '-- Never --';
+
+		$this->vars['generated_user']['added']   = '0.1';
+		$this->vars['generated_user']['type']    = 'text';
+		$this->vars['generated_user']['default'] = '';
+
+		$this->vars['html']['added']       = '0.3';
+		$this->vars['html']['type']        = 'text';
+		$this->vars['html']['default']     = 'Front end component has not been generated for this report';
+		$this->vars['html']['description'] = 'This is a default location of the generated report.';
 
 	}//end constructor
 

@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.6 2005/01/17 18:35:31 brobertson Exp $
+* $Id: report_edit_fns.inc,v 1.7 2005/03/21 02:51:54 arailean Exp $
 *
 */
 
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 
 /**
 * Report_Edit_Fns
@@ -31,11 +31,11 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Report_Edit_Fns extends Asset_Edit_Fns
+class Report_Edit_Fns extends Page_Edit_Fns
 {
 
 
@@ -45,7 +45,7 @@ class Report_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Report_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
+		$this->Page_Edit_Fns();
 		$this->static_screens['details']['lock_type'] = 'content';
 
 	}//end constructor
@@ -103,7 +103,9 @@ class Report_Edit_Fns extends Asset_Edit_Fns
 		$vars = Array('assetid' => $asset->id);
 		$hh->queueHipo('hipo_job_generate_report', $vars);
 
-		if (!$asset->writeAccess('links')) return false;
+		if (!$asset->writeAccess('links')) {
+			return false;
+		}
 
 		$user = $GLOBALS['SQ_SYSTEM']->user;
 		$asset->setAttrValue('generated_date', date("F j, Y, g:i a"));
