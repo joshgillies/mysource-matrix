@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_sub_asset_listing.inc,v 1.13 2003/11/26 00:51:31 gsherwood Exp $
+* $Id: page_sub_asset_listing.inc,v 1.14 2003/12/08 03:43:18 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -250,10 +250,8 @@ class Page_Sub_Asset_Listing extends Page
 		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link['minorid'], $bodycopy_link['minor_type_code']);
 		if (is_null($bodycopy)) return false; 
 
-		ob_start();
-		$bodycopy->printBody();
-		$html = ob_get_contents();
-		ob_end_clean();
+		$html = $bodycopy->getRawBodycopyContent();
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 
 		$body = &$this->getBodyReplacement();
 		$html = str_replace('%sub_asset_listing%', $body, $html);
@@ -278,7 +276,7 @@ class Page_Sub_Asset_Listing extends Page
 		if (empty($children)) return false;
 
 		$keywords			= Array();								// an array of keywords/replacements per asset base
-		$formats			= Array();								// an array of customised formats html
+		$formats			= Array();								// an array of customised format bodycopies
 		$default_format		= '';									// the default format html
 		$is_default			= Array();								// array of types using the default format
 		$folder				= &$this->getFolder('type_formats');	// the folder asset for type formats
@@ -318,10 +316,8 @@ class Page_Sub_Asset_Listing extends Page
 					} else {
 						$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 						if (!is_null($bodycopy)) {
-							ob_start();
-							$bodycopy->printBody();
-							$formats[$type_code] = ob_get_contents();
-							ob_end_clean();
+							$formats[$type_code] = $bodycopy->getRawBodycopyContent();
+							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 						}
 					}
 				} else {
@@ -334,10 +330,8 @@ class Page_Sub_Asset_Listing extends Page
 					$link = $GLOBALS['SQ_SYSTEM']->am->getLink($type_folder_id, SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
 					$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
 					if (!is_null($bodycopy)) {
-						ob_start();
-						$bodycopy->printBody();
-						$default_format = ob_get_contents();
-						ob_end_clean();
+						$default_format = $bodycopy->getRawBodycopyContent();
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 					}
 				}
 				$contents = $default_format;
@@ -353,6 +347,13 @@ class Page_Sub_Asset_Listing extends Page
 					$keywords['asset_metadata_'.$field]['value'] = $value;
 				}
 			}
+			if (preg_match('|%asset_contents%|is', $contents)) {
+				ob_start();
+				$asset->printBody();
+				$keywords['asset_contents']['value'] = ob_get_contents();
+				ob_end_clean();
+			}
+
 			foreach ($keywords as $keyword => $info) {
 				$contents = str_replace('%'.$keyword.'%', $info['value'], $contents);
 			}
