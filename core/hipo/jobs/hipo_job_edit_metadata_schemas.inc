@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.22 2005/02/21 04:09:12 ndvries Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.23 2005/02/22 04:05:50 gsherwood Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.22 $
+* @version $Revision: 1.23 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -47,40 +47,40 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	*/
 	var $_steps = Array(
 					Array(
-						'name'			=> 'Acquiring Metadata Locks',
-						'hipo_job'		=> Array(
-												'init_details_function' => 'getLockAssetDetails',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
+						'name'          => 'Acquiring Metadata Locks',
+						'hipo_job'      => Array(
+												 'init_details_function' => 'getLockAssetDetails',
+												 ),
+						'running_mode'  => 'server',
+						'auto_step'     => true,
+						'allow_cancel'  => true,
+						'percent_done'  => 0,
+						'complete'      => false,
+						'message'       => '',
 					),
 					Array(
-						'name'			=> 'Updating Metadata Schemas',
-						'function_call'	=> Array(
-												'process_function' => 'processSchemas',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> true,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
+						'name'          => 'Updating Metadata Schemas',
+						'function_call' => Array(
+												 'process_function' => 'processSchemas',
+												 ),
+						'running_mode'  => 'server',
+						'auto_step'     => true,
+						'allow_cancel'  => true,
+						'percent_done'  => 0,
+						'complete'      => false,
+						'message'       => '',
 					),
 					Array(
-						'name'			=> 'Releasing Metadata Locks',
-						'function_call'	=> Array(
-												'process_function' => 'releaseLocks',
-												),
-						'running_mode'	=> 'server',
-						'auto_step'		=> true,
-						'allow_cancel'	=> false,
-						'percent_done'	=> 0,
-						'complete'		=> false,
-						'message'		=> '',
+						'name'          => 'Releasing Metadata Locks',
+						'function_call' => Array(
+												 'process_function' => 'releaseLocks',
+												 ),
+						'running_mode'  => 'server',
+						'auto_step'     => true,
+						'allow_cancel'  => false,
+						'percent_done'  => 0,
+						'complete'      => false,
+						'message'       => '',
 					),
 				);
 
@@ -161,7 +161,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	/**
 	* Returns the current Threshold.
 	*
-	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
+	* Returns a value that represents the total percentage that this hipo would run
+	* in freestyle mode in its current state
 	*
 	* @return float
 	* @access public
@@ -192,7 +193,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 
 
 	/**
-	* Prepares the running vars and gets the children of the asset in question.
+	* Prepares the running vars and gets the children of the asset in question
 	*
 	* @return boolean
 	* @access public
@@ -222,11 +223,8 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 				$child_assets[$assetid] = $asset->type();
 				unset($asset);
 			}
-			$child_assets = array_unique($child_assets);
 			$this->_running_vars['todo_assetids'] = $child_assets;
 		}
-
-		//$GLOBALS['SQ_SYSTEM']->setLastAction('system:edit_metadata_schemas', 'Applying Metadata', $this->_running_vars['assetid']);
 
 		return parent::prepare();
 
@@ -236,7 +234,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	/**
 	* Edit schemas for a single asset in the to-do list
 	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param array		&$step_data	a reference to the array of information about the current step
 	* @param string		$prefix		prefix for form vars
 	*
 	* @return boolean
@@ -344,24 +342,12 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	* This function is used to set-up the details for the locking the assets by the nested HIPO_Job
 	*
 	* @param string		&$job_type
-	* @param Array()	&$running_vars
-	* @param Array()	&$options
+	* @param array		&$running_vars
+	* @param array		&$options
 	*
 	* @return void
 	* @access public
 	*/
-	/*function getLockAssetDetails(&$job_type, &$running_vars, &$options)
-	{
-		$job_type = 'hipo_job_acquire_lock';
-
-		$options['auto_complete'] = true;
-
-		$running_vars['assetid']         = $this->_running_vars['assetid'];
-		$running_vars['lock_type']       = 'metadata';
-		$running_vars['dependants_only'] = false;
-
-	}//end getLockAssetDetails()*/
-
 	function getLockAssetDetails(&$job_type, &$running_vars, &$options)
 	{
 		$job_type = 'hipo_job_acquire_locks';
@@ -373,7 +359,9 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 							'lock_type' => Array('metadata'),
 							'forceably_acquire' => false,
 						);
+
 	}//end getLockAssetDetails()
+
 
 	/**
 	* Release the locks we acquired while setting the schemas
@@ -384,19 +372,6 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 	* @return boolean
 	* @access public
 	*/
-	/*function releaseLocks(&$step_data, $prefix)
-	{
-		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
-		if (!is_null($asset)) {
-			$GLOBALS['SQ_SYSTEM']->am->releaseLock($asset->id, 'metadata');
-			$step_data['message'] = 'Releasing Locks';
-		}
-		$step_data['percent_done'] = 100;
-		$step_data['complete']     = true;
-		return true;
-
-	}//end releaseLocks()*/
-
 	function releaseLocks(&$step_data, $prefix)
 	{
 		if (!isset($this->_running_vars['re_lock_assets']))
@@ -429,6 +404,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 		}
 
 		return true;
+
 	}//end releaseLocks()
 
 
