@@ -115,30 +115,18 @@ class Asset extends Resolve_Object
 			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted data directory', E_USER_WARNING);
 			return false;
 		}
-		//if (!create_directory($this->data_path_unrestricted)) {
-		//	trigger_error('Failed saving asset "'.$this->name.'" to unrestricted cache, could not create unrestricted data directory', E_USER_WARNING);
-		//	return false;
-		//}
 
 		// make sure our system directories exists
 		if (!create_directory($this->data_path.'/.sq_system')) {
 			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted system directory', E_USER_WARNING);
 			return false;
 		}
-		//if (!create_directory($this->data_path_unrestricted.'/.sq_system')) {
-		//	trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create unrestricted system directory', E_USER_WARNING);
-		//	return false;
-		//}
 
 		// make sure there is nothing in the system directories
 		if (!clear_directory($this->data_path.'/.sq_system')) {
 			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear restricted system directory', E_USER_WARNING);
 			return false;
 		}
-		//if (!clear_directory($this->data_path_unrestricted.'/.sq_system')) {
-		//	trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear unrestricted system directory', E_USER_WARNING);
-		//	return false;
-		//}
 
 		// save the object for later (in the restricted directory)
 		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
@@ -155,13 +143,6 @@ class Asset extends Resolve_Object
 				return false;
 			}
 		}
-		//$files_to_copy = list_files($this->data_path_unrestricted);
-		//foreach ($files_to_copy as $filename) {
-		//	if (!copy_file($this->data_path_unrestricted.'/'.$filename, $this->data_path_unrestricted.'/.sq_system/'.$filename)) {
-		//		trigger_error('Failed saving asset "'.$this->name.'" to cache, could not copy file "'.$filename.'" to unrestricted system directory', E_USER_WARNING);
-		//		return false;
-		//	}
-		//}
 
 		return true;
 	}//end saveSystemVersion()
