@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.35 2005/02/22 05:45:56 tbarrett Exp $
+* $Id: datetime.inc,v 1.36 2005/03/16 16:18:08 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     General function for manipulating dates and times
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package Fudge
 * @subpackage General
 */
@@ -48,6 +48,7 @@ function easy_datetime($then='')
 	$now = time();
 	$now_date = date('Y-m-d');
 	$then_date = date('Y-m-d', $then);
+
 	if ($then_date == $now_date) {
 		// today
 		return date('g:ia', $then).' today';
@@ -72,7 +73,7 @@ function easy_datetime($then='')
 		}
 	}
 	// if we get to here it must be more than a week in either direction
-	return date('g:ia \o\n jS F Y');
+	return date('g:ia \o\n jS F Y', $then);
 	
 }//end easy_datetime()
 
