@@ -65,6 +65,7 @@ class Asset_Map
 			function reload_asset(assetid) {
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
 				var asset_mapObj = document.asset_map;
+				alert("Reload Assetid : " + assetid);
 				flashExternalCall(asset_mapObj, 'reload_asset', {assetid: assetid});
 			}
 
@@ -166,40 +167,91 @@ class Asset_Map
 	*/
 	function _getAssets(&$input) {
 
-		error_log(array_contents(file('php://input')));
+#		error_log(array_contents(file('php://input')));
+
+		$load_new_kids = !empty($input->root->attributes['load_new_kids']);
 
 		$output = new XML_Tree();
 		$root = &$output->addRoot('assets', '');
 		for($i = 0; $i < count($input->root->children); $i++) {
 			if (empty($input->root->children[$i]->attributes['assetid'])) continue;
-			$assetid = $input->root->children[$i]->attributes['assetid'];
-			$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($assetid, '', true);
 
-			if (is_null($asset)) {
-				$this->_error('Asset #'.$assetid.' not found');
-				return;
-			}
-			$attrs = Array('assetid' => $asset->id, 
-							'name'   => '[CS] '.$asset->name,
-							'type_code' => get_class($asset)
-							);
-			$asset_node = &$root->addChild('asset', '', $attrs);
-			// we only want EXCLUSIVE or UNITE links
-			$links = $asset->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', 'S');
-			if (count($links)) {
-				for($j = 0; $j < count($links); $j++) {
-					$kid_node = &$asset_node->addChild('child', '', Array('assetid' => $links[$j]['minorid']));
+			$assetid = $input->root->children[$i]->attributes['assetid'];
+
+			$kids = Array();
+			if ($load_new_kids) {
+				$current_kids = Array();
+				for($j = 0; $j < count($input->root->children[$i]->children); $j++) {
+					if (empty($input->root->children[$i]->children[$j]->attributes['assetid'])) continue;
+					$current_kids[] = $input->root->children[$i]->children[$j]->attributes['assetid'];
 				}
-			}
+
+				if (!$this->_addAssetToXML($root, $assetid, true, $current_kids)) {
+					return;
+				}
+
+			} else {
+				if (!$this->_addAssetToXML($root, $assetid)) {
+					return;
+				}
+
+			}// end if
 
 		}// end children for
 
 
-		error_log("XML : \n".$output->get());
+#		error_log("XML : \n".$output->get());
 
 		$this->_send($output);
 
 	}// end _getAssets()
+
+	/*
+	* Adds an asset to the XML root passed
+	*
+	* @param object XML_Tree_Node	$root			the root node to add the asset to
+	* @param int					$assetid		the assetid of the asset to add
+	* @param boolean				$load_new_kids	whether or not to load the children of this asset not in the $current_kids array
+	* @param Array(int)				$current_kids	the children that the flash currently has
+	*
+	* @access private
+	*/
+	function _addAssetToXML(&$root, $assetid, $load_new_kids=false, $current_kids=Array()) {
+
+		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($assetid, '', true);
+
+		if (is_null($asset)) {
+			$this->_error('Asset #'.$assetid.' not found');
+			return false;
+		}
+		$attrs = Array('assetid' => $asset->id, 
+						'name'   => '[CS] '.$asset->name, 
+						'type_code' => get_class($asset)
+						);
+		$asset_node = &$root->addChild('asset', '', $attrs);
+		// we only want EXCLUSIVE or UNITE links
+		$links = $asset->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', 'S');
+		if (count($links)) {
+			for($j = 0; $j < count($links); $j++) {
+				$kid_node = &$asset_node->addChild('child', '', Array('assetid' => $links[$j]['minorid']));
+			}
+
+			if ($load_new_kids) {
+				$kids = Array();
+				for($j = 0; $j < count($links); $j++) $kids[] = $links[$j]['minorid'];
+				$new_kids = array_values(array_diff($kids, $current_kids)); // array_values to get indexed array
+				for($j = 0; $j < count($new_kids); $j++) {
+					if (!$this->_addAssetToXML($root, $new_kids[$j], false)) {
+						return false;
+					}
+				}
+
+			}
+		}// end if
+
+		return true;
+
+	}// end _assAssetToXML()
 
 	/*
 	* Processes the menu items request
@@ -321,7 +373,7 @@ class Asset_Map
 
 		$output = new XML_Tree();
 		$root = &$output->addRoot('url', $link, Array('frame' => $frame));
-		error_log('XML : '.$output->get());
+#		error_log('XML : '.$output->get());
 
 		$this->_send($output);
 

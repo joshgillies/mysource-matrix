@@ -5,15 +5,25 @@ function mcListItemClass()
 	this.parent_item_name = "";
 	this.assetid   = "";
 	this.type_code = "";
-	this.item_text = "";
 	this.pos       = 0;
 	this.indent    = 0;
-	this.button_pressed = '';
+
+	// the current state that the buttons is in (normal, selected)
+	this.state = "normal";
 
 	// Create the Plus Minus Button
 	this.attachMovie("mcPlusMinusID", "kids_button", 2);
 	this.kids_button._x = 3;
 	this.kids_button._y = 3;
+
+	// set the text field up
+	this.text_field.text = "";
+	this.text_field.autoSize = "left";
+
+	// Set the depths up properly
+	this.kids_button.swapDepths(1);
+	this.text_field.swapDepths(2);
+	this.move_button.swapDepths(3);
 
 }
 
@@ -35,7 +45,7 @@ mcListItemClass.prototype.setInfo = function(asset)
 {
 	this.assetid   = asset.assetid;
 	this.type_code = asset.type_code;
-	this.item_text = this._name + ' ' + asset.name;
+	this.text_field.text = this._name + ' ' + asset.name;
 
 	if (!asset.kids.length) {
 		this.setKidState("none");
@@ -43,6 +53,7 @@ mcListItemClass.prototype.setInfo = function(asset)
 		this.setKidState("plus");
 	}
 
+	this._drawBg();
 }
 
 mcListItemClass.prototype.getKidState = function() 
@@ -109,8 +120,49 @@ mcListItemClass.prototype.getMouseButton = function()
 * @param object Asset	asset	the asset that changed
 *
 */
-mcListItemClass.prototype.onAssetChange = function(asset) {
+mcListItemClass.prototype.onAssetChange = function(asset) 
+{
 	this.setInfo(asset);
+}
+
+
+/**
+* Called when this list item is selected
+*/
+mcListItemClass.prototype.select = function() 
+{
+	this.state = "selected";
+	this._drawBg();
+}
+
+/**
+* Called when this list item is unselected
+*/
+mcListItemClass.prototype.unselect = function() 
+{
+	this.state = "normal";
+	this._drawBg();
+}
+
+/**
+* Draw the Background for this list item
+*/
+mcListItemClass.prototype._drawBg = function() 
+{
+
+	var xpos = Math.max(200, this.text_field._x + this.text_field._width + 3);
+	var ypos = _root.LIST_ITEM_POS_INCREMENT;
+
+	this.clear();
+	this.beginFill(_root.LIST_ITEM_BG_COLOURS[this.state].colour, _root.LIST_ITEM_BG_COLOURS[this.state].alpha);
+	this.lineStyle();
+	this.moveTo(0, 0);
+	this.lineTo(xpos, 0);
+	this.lineTo(xpos, ypos);
+	this.lineTo(0, ypos);
+	this.lineTo(0, 0);
+	this.endFill();
+
 }
 
 

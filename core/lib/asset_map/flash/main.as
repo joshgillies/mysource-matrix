@@ -30,6 +30,11 @@ _root.LIST_ITEM_INDENT_SPACE   = 20;
 _root.LIST_ITEM_POS_INCREMENT  = 20;
 // the vertical gap between the last item in a branch and the next item in it's parent's branch
 _root.LIST_ITEM_END_BRANCH_GAP = 10;  
+// the colours for the background of a list item
+_root.LIST_ITEM_BG_COLOURS = {
+							normal:   {colour: 0xFFFFFF, alpha: 0},   // alpha = 0 -> transparent
+							selected: {colour: 0x999999, alpha: 100}
+							};  
 
   ///////////////////////////////////////////////////
  // ALL INITIALISATION STUFF                      //
@@ -37,12 +42,6 @@ _root.LIST_ITEM_END_BRANCH_GAP = 10;
 if (server_exec_path == undefined) {
 	server_exec_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=asset_map_request";
 }
-trace("Server Exec Path : " + server_exec_path);
-
-
-
-
-
 
 // Initialise any pop-ups
 _root.progress_bar._visible = false;

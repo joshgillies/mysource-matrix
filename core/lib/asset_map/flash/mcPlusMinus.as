@@ -2,11 +2,6 @@
 // Create the Class
 function mcPlusMinusClass()
 {
-	this.assetid   = "";
-	this.type_code = "";
-	this.item_text = "";
-	this.num_down  = 0;
-	this.indent    = 0;
 }
 
 // Make it inherit from MovieClip

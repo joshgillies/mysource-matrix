@@ -32,7 +32,6 @@ Asset.prototype.setInfo = function(assetid, type_code, name, kids)
 	if (type_code != undefined && type_code != null) this.type_code = type_code;
 	if (name      != undefined && name      != null) this.name      = name;
 	if (kids      != undefined && kids      != null) this.kids      = kids;
-	trace("Assset SetInfo");
 	this.broadcastMessage("onAssetChange", this);
 }
 

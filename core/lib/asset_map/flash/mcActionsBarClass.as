@@ -25,7 +25,6 @@ mcActionsBarClass.prototype = new MovieClip();
 */
 mcActionsBarClass.prototype.onListItemSelection = function(assetid)
 {
-	trace(' -- -- -- -- List Item Selected -- -- -- -- -- ');
 	this.test_text = "Selected Item : " + _root.asset_manager.assets[assetid];
 }
 
@@ -34,7 +33,6 @@ mcActionsBarClass.prototype.onListItemSelection = function(assetid)
 */
 mcActionsBarClass.prototype.onListItemUnSelection = function()
 {
-	trace(' -- -- -- -- List Item Un Selected -- -- -- -- -- ');
 	this.test_text = "";
 }
 

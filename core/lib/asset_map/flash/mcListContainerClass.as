@@ -65,7 +65,6 @@ mcListContainerClass.prototype = new MovieClip();
 */
 mcListContainerClass.prototype.onAssetTypesLoaded = function()
 {
-	trace(' -- -- -- -- Create List Item\'s -- -- -- -- -- ');
 	this.init();
 }
 
@@ -125,8 +124,8 @@ mcListContainerClass.prototype.showKidsLoaded = function(params)
 	var parent_assetid = params.parent_assetid;
 	var parent_name	   = params.parent_name;
 
-	trace('Show Kids Loaded    : ' + parent_assetid + ', ' + parent_name);
-	trace('Show Kids Kids list : ' + _root.asset_manager.assets[parent_assetid].kids);
+//	trace('Show Kids Loaded    : ' + parent_assetid + ', ' + parent_name);
+//	trace('Show Kids Kids list : ' + _root.asset_manager.assets[parent_assetid].kids);
 
 	// Now create the kids list items, if they don't already exist
 	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].kids.length; j++) {
@@ -332,63 +331,95 @@ mcListContainerClass.prototype.onAssetReload = function(assetid, new_asset, old_
 	trace("Deletes  : " + deletes);
 	trace("Inserts  : " + inserts);
 
-	for(var i = 0; i < this.asset_list_items[assetid].length; i++) {
-		var item_name = this.asset_list_items[assetid][i];
-		var pos  = 0;
-		for(; pos < this.items_order.length; pos++) {
-			if (this.items_order[pos].name == item_name) break;
-		}
+	// if it's the root folder
+	if (assetid == 1) {
+		this._reloadAssetListItem(assetid, this.item_prefix, -1, true, deletes, inserts, new_asset.kids);
 
-		// delete any child items that aren't needed any more
-		for(var j = 0; j < deletes.length; j++) {
-			var kid_name = item_name + "_" + deletes[j];
-			if (this[kid_name] == undefined) continue;
+	// else it's just a normal asset
+	} else {
 
-			trace("Delete " + kid_name);
-			this._deleteItem(kid_name);
+		for(var i = 0; i < this.asset_list_items[assetid].length; i++) {
+			var item_name = this.asset_list_items[assetid][i];
+			// we need to the get the pos this way because the this[item_name].pos will be out 
+			// of wack until we call the refresh below
+			var pos  = 0; // outside for scope reasons
+			for(; pos < this.items_order.length; pos++) {
+				if (this.items_order[pos].name == item_name) break;
+			}
+			if (pos >= this.items_order.length) continue; // we didn't find it
+
+			this._reloadAssetListItem(assetid, item_name, pos, this[item_name].expanded(), deletes, inserts, new_asset.kids);
 
 		}// end for
 
-		// the reset of this is only relevant if the item is expanded
-		if (this[item_name].expanded()) {
-
-			// insert any child items that have just been added
-			for(var j = 0; j < inserts.length; j++) {
-				var kid_name = item_name + "_" + inserts[j];
-
-				trace("Insert " + kid_name);
-				this._createItem(item_name, assetid, kid_name, inserts[j]);
-				this._insertItem(pos + 1, kid_name, false);
-
-			}// end for
-
-
-			// Now we need to make sure that these kids are all in the right order
-			for(var j = 0; j < new_asset.kids.length; j++) {
-				var kid_name = item_name + "_" + new_asset.kids[j];
-				var new_kid_pos = pos + 1 + j;
-
-				for(var x = new_kid_pos; x < pos + new_asset.kids.length; x++) {
-					if (this.items_order[x].name == kid_name) {
-						trace(kid_name + " from " + x + " to " + new_kid_pos);
-						if (x != new_kid_pos) {
-							var tmp = this.items_order[new_kid_pos];
-							this.items_order[new_kid_pos] = this.items_order[x];
-							this.items_order[x] = tmp;
-						}
-						break;
-					}
-				}
-
-			}// end for
-
-		}// end if expanded
-
-	}// end for
+	}// end if
 
 	this.refreshList();
 
-}// end reloadAssetLoaded()
+}// end onAssetReload()
+
+
+/**
+* Called by onAssetReload() to reload a single asset list item
+*
+* @param int		assetid
+* @param string		item_name	the list item we are reloading
+* @param int		pos			the current pos of the list item
+* @param boolean	expanded	whether this list item is expanded or not
+* @param Array		deletes		kids that have been removed
+* @param Array		inserts		kids that have been added
+* @param Array		all_kids	all the kids for the asset
+*
+* @access private
+*/
+mcListContainerClass.prototype._reloadAssetListItem = function(assetid, item_name, pos, expanded, deletes, inserts, all_kids) 
+{
+
+	// delete any child items that aren't needed any more
+	for(var j = 0; j < deletes.length; j++) {
+		var kid_name = item_name + "_" + deletes[j];
+		if (this[kid_name] == undefined) continue;
+
+		this._deleteItem(kid_name);
+
+	}// end for
+
+	// the reset of this is only relevant if the item is expanded
+	if (expanded) {
+
+		// insert any child items that have just been added
+		for(var j = 0; j < inserts.length; j++) {
+			var kid_name = item_name + "_" + inserts[j];
+
+			this._createItem(item_name, assetid, kid_name, inserts[j]);
+			this._insertItem(pos + 1, kid_name, false);
+
+		}// end for
+
+
+		// Now we need to make sure that these kids are all in the right order
+		for(var j = 0; j < all_kids.length; j++) {
+			var kid_name = item_name + "_" + all_kids[j];
+			var new_kid_pos = pos + 1 + j;
+
+			for(var x = new_kid_pos; x < pos + all_kids.length; x++) {
+				if (this.items_order[x].name == kid_name) {
+					trace(kid_name + " from " + x + " to " + new_kid_pos);
+					if (x != new_kid_pos) {
+						var tmp = this.items_order[new_kid_pos];
+						this.items_order[new_kid_pos] = this.items_order[x];
+						this.items_order[x] = tmp;
+					}
+					break;
+				}
+			}// end for
+
+		}// end for
+
+	}// end if expanded
+
+}// end _reloadAssetListItem()
+
 
 /**
 * Refreshes the display of the items, from a certain position onwards
@@ -401,8 +432,6 @@ mcListContainerClass.prototype.refreshList = function(start_i)
 {
 
 	if (start_i == undefined || start_i < 0) start_i = 0;
-
-trace("Refresh List From : " + start_i);
 
 	// now cycle through every item from the parent down and reset their positions
 	var branch_count = (start_i >= 0) ? this.items_order[start_i].branch_count : 0;
@@ -652,7 +681,7 @@ mcListContainerClass.prototype.selectItem = function(item)
 	}
 
 	this.selected_item = item;
-	this.selected_item.gotoAndStop("btn_down");
+	this.selected_item.select();
 
 	this.broadcastMessage("onListItemSelection", this.selected_item.assetid);
 
@@ -662,7 +691,7 @@ mcListContainerClass.prototype.selectItem = function(item)
 
 mcListContainerClass.prototype.unselectItem = function() 
 {
-	this.selected_item.gotoAndStop("btn_up");
+	this.selected_item.unselect();
 	this.selected_item = null;
 	this.broadcastMessage("onListItemUnSelection");
 }

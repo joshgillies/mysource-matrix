@@ -105,14 +105,14 @@ AssetManager.prototype.getTopTypes = function()
 * @param string		call_back_fn		the fn in this class to execute after the loading has finished
 * @param Object		call_back_params	an object of params to send to the call back fn
 * @param boolean	force_reload		reload from server, even if we already have references to the passed assets
+* @param boolean	load_new_kids		Upon a reload from the server asks the server to supply information about any new kids that the assets have
 *
 */
-AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_fn, call_back_params, force_reload) 
+AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_fn, call_back_params, force_reload, load_new_kids) 
 {
-	
-	if (force_reload !== true) force_reload = false;
 
-	trace('Load Assets : ' + assetids);
+	if (force_reload !== true)  force_reload  = false;
+	if (load_new_kids !== true) load_new_kids = false;
 
 	var load_assetids = array_copy(assetids);
 
@@ -132,14 +132,24 @@ AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_
 
 		var xml = new XML();
 		var cmd_elem = xml.createElement("command");
-		cmd_elem.attributes.action = "get assets";
+		cmd_elem.attributes.action        = "get assets";
+		cmd_elem.attributes.load_new_kids = (load_new_kids) ? 1 : 0;
 		xml.appendChild(cmd_elem);
 
 	    for (var i = 0; i < load_assetids.length; i++) {
 			var asset_elem = xml.createElement("asset");
 			asset_elem.attributes.assetid = load_assetids[i];
+
+			if (load_new_kids && this.assets[load_assetids[i]] != undefined) {
+				for(var j = 0; j < this.assets[load_assetids[i]].kids.length; j++) {
+					var kid_elem = xml.createElement("child");
+					kid_elem.attributes.assetid = this.assets[load_assetids[i]].kids[j];
+					asset_elem.appendChild(kid_elem);
+				}
+			}// end if
+
 			cmd_elem.appendChild(asset_elem);
-		}
+		}// end for
 
 		trace(xml);
 
@@ -200,7 +210,6 @@ AssetManager.prototype.loadAssetsFromXML = function(xml, exec_indentifier)
 	}//end for
 
 	if (this.tmp.load_assets[exec_indentifier].force_reload) {
-		trace(this.tmp.load_assets[exec_indentifier].obj + "[ " + this.tmp.load_assets[exec_indentifier].fn + "](this.tmp.load_assets[exec_indentifier].params, new_assets, old_assets);");
 		this.tmp.load_assets[exec_indentifier].obj[this.tmp.load_assets[exec_indentifier].fn](this.tmp.load_assets[exec_indentifier].params, new_assets, old_assets);
 	} else {
 		this.tmp.load_assets[exec_indentifier].obj[this.tmp.load_assets[exec_indentifier].fn](this.tmp.load_assets[exec_indentifier].params);
@@ -222,7 +231,7 @@ AssetManager.prototype.loadAssetsFromXML = function(xml, exec_indentifier)
 AssetManager.prototype.reloadAsset = function(assetid) 
 {
 	if (this.assets[assetid] == undefined) return;
-	this.loadAssets([assetid], this, "reloadAssetLoaded", {assetid: assetid}, true);
+	this.loadAssets([assetid], this, "reloadAssetLoaded", {assetid: assetid}, true, true);
 
 }// end reloadAsset()
 
