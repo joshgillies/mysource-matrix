@@ -1654,6 +1654,7 @@ class Asset extends Resolve_Object
 
 	}//end setAttrValue()
 
+
 	/**
 	* Easy way to get the value of an attribute
 	*
@@ -1671,11 +1672,13 @@ class Asset extends Resolve_Object
 		return $this->vars[$name]['value'];
 	}//end attr();
 
+
 	/**
-	* returns a reference to the actual attribute object, used for manipulting the object
+	* Returns a reference to the actual attribute object, used for manipulting the object
 	*
 	* @param string		$name			the name of the attribute
-	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed
+	*									because you can't use the '@' operator when returning by reference
 	*
 	* @return object Asset_Attribute | NULL
 	* @access public
@@ -1750,22 +1753,8 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-		// add the permission to the cached version
-		$current[$assetid][] = $this->id;
-
-		// now add to effective permissions
-		if (isset($this->_tmp['effective_permissions'])) {
-			for(reset($this->_tmp['effective_permissions']);
-														null !== ($perm = key($this->_tmp['effective_permissions']));
-														next($this->_tmp['effective_permissions'])) {
-				if ($perm > $permission) continue;
-				if (!isset($this->_tmp['effective_permissions'][$perm])) continue;
-				$effective =& $this->_tmp['effective_permissions'][$perm];
-				if (isset($effective[$assetid])) $effective[$assetid] = Array();
-				$effective[$assetid][] = $this->id;
-			}
-		}
-
+		// clear the permission cache
+		unset($this->_tmp['permission_cache']);
 		return true;
 	}//end grantPermission()
 
@@ -1802,7 +1791,8 @@ class Asset extends Resolve_Object
 		$sql = 'DELETE FROM sq_asset_permission
 				WHERE assetid = '.$db->quote($this->id).'
 				  AND userid = '.$db->quote($assetid).'
-				  AND permission = '.$db->quote($permission);
+				  AND permission = '.$db->quote($permission).'
+				  AND revoked = 0';
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -1810,36 +1800,110 @@ class Asset extends Resolve_Object
 			return false;
 		}
 
-		// remove the permission from the cached version
-		for (reset($current[$assetid]); null !== ($k = key($current[$assetid])); next($current[$assetid])) {
-			if ($current[$assetid][$k] == $this->id) unset($current[$assetid][$k]);
-		}
-		if(empty($current[$assetid])) unset($current[$assetid]);
-
-		// now remove from effective permissions
-		if (isset($this->_tmp['effective_permissions'])) {
-			for(reset($this->_tmp['effective_permissions']);
-														null !== ($perm = key($this->_tmp['effective_permissions']));
-														next($this->_tmp['effective_permissions'])) {
-				if ($perm > $permission) continue;
-				if (!isset($this->_tmp['effective_permissions'][$perm])) continue;
-				$effective =& $this->_tmp['effective_permissions'][$perm];
-				if (isset($effective[$assetid])) {
-					for (reset($effective[$assetid]); null !== ($k = key($effective[$assetid])); next($effective[$assetid])) {
-						if ($effective[$assetid][$k] == $this->id) {
-							unset($effective[$assetid][$k]);
-							// we break here because if there are multiple values
-							// because we do actually need them for effective permissions
-							break;
-						}
-					}
-					if(empty($effective[$assetid])) unset($effective[$assetid]);
-				}
-			}
-		}
+		// clear the permission cache
+		unset($this->_tmp['permission_cache']);
 
 		return true;
 	}//end revokePermission()
+
+
+	/**
+	* Revokes an inherited permission
+	*
+	* @param int	$assetid	the id of the user or user_group to stop inheriting the permission for
+	* @param string	$permission	the permission code you are stopping (R, W, A)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function revokeInheritedPermission($assetid, $permission)
+	{
+
+		$assetid = (int) $assetid;
+		$current = &$this->getRevokedPermission($permission);
+		if (in_array($assetid, array_keys($current))) return false;
+
+		// if we dont have an assetid, we are revoking public access
+		if (!empty($assetid)) {
+			// check that the passed assetid is a user or user_group
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
+			if (!$asset->id) {
+				trigger_error('Cannot revoke inherited permission for an asset that does not exist', E_USER_WARNING);
+				return false;
+			} else if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
+				trigger_error('Cannot revoke inherited permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// add the permission into the database
+		$sql = 'INSERT INTO sq_asset_permission
+				(assetid, userid, permission, revoked)
+				VALUES
+				('.$db->quote($this->id).','.$db->quote($assetid).', '.$db->quote($permission).', 1)';
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		// clear the permission cache
+		unset($this->_tmp['permission_cache']);
+		return true;
+	}//end revokeInheritedPermission()
+
+
+	/**
+	* Reinstates a revoked permission
+	*
+	* @param int	$assetid	the id of the user or user_group to reinstate the permission for
+	* @param string	$permission	the permission code you are reinstating (R, W, A)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function reinstateRevokedPermission($assetid, $permission)
+	{
+
+		$assetid = (int) $assetid;
+		$current = &$this->getRevokedPermission($permission);
+		if (!in_array($assetid, array_keys($current))) return false;
+
+		// if we dont have an assetid, we are revoking public access
+		if (!empty($assetid)) {
+			// check that the passed assetid is a user or user_group
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
+			if (!$asset->id) {
+				trigger_error('Cannot reinstate revoked permission for an asset that does not exist', E_USER_WARNING);
+				return false;
+			} else if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
+				trigger_error('Cannot reinstate revoked permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// reomve the permission from the database
+		$sql = 'DELETE FROM sq_asset_permission
+				WHERE assetid = '.$db->quote($this->id).'
+				  AND userid = '.$db->quote($assetid).'
+				  AND permission = '.$db->quote($permission).'
+				  AND revoked = 1';
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		// clear the permission cache
+		unset($this->_tmp['permission_cache']);
+		return true;
+	}//end reinstateRevokedPermission()
 
 
 	/**
@@ -1858,23 +1922,54 @@ class Asset extends Resolve_Object
 
 		// return cached version if we can
 		$storage_name =(($and_greater) ? 'effective_' : '').'permissions'.(($and_inherited) ? '_inherited' : '');
-		if (isset($this->_tmp[$storage_name][$permission])) {
-			return $this->_tmp[$storage_name][$permission];
+		if (isset($this->_tmp['permission_cache'][$storage_name][$permission])) {
+			return $this->_tmp['permission_cache'][$storage_name][$permission];
 		}
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$parents = Array();
-		if ($and_inherited) $parents = $this->getParents();
-
 		// get the permissions
-		$in_string = '';
-		if (!empty($parents)) foreach ($parents as $parent) $in_string .= $db->quote($parent).', ';
-		$in_string .= $db->quote($this->id); // check permission set by this asset
+		if ($and_inherited) {
+			// getting all permissions taking note of revoked permissions
+			// anywhere up the trees this asset is in
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
+			$concat_userid = ($db->phptype == 'mysql') ? 'CONCAT(p.userid, '.$db->quote('~').', t.treeid)' : 'p.userid || '.$db->quote('~').' || t.treeid';
+			$concat_userid_sub = ($db->phptype == 'mysql') ? 'CONCAT(pp.userid, '.$db->quote('~').', MAX(pt.treeid))' : 'pp.userid || '.$db->quote('~').' || MAX(pt.treeid)';
 
-		$sql = 'SELECT userid, assetid FROM sq_asset_permission
-				WHERE assetid IN ('.$in_string.')
-				AND permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission);
+			$sql = 'SELECT p.userid, p.assetid
+					FROM sq_asset_link l
+					  INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid 
+					  INNER JOIN sq_asset_permission p ON l.minorid = p.assetid
+					WHERE '.$concat_userid.' IN (~SQ0~)
+					  AND p.permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).'
+					GROUP BY p.userid
+					HAVING MIN(p.revoked) = 0';
+
+			$subs = Array('	SELECT '.$concat_userid_sub.'
+							FROM sq_asset_link cl
+							  INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
+							  sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid 
+							  INNER JOIN sq_asset_permission pp ON pl.minorid = pp.assetid
+							WHERE cl.minorid = '.$db->quote($this->id).'
+							  AND ct.treeid LIKE '.$concat.'
+							  AND pt.treeid <= ct.treeid
+							  AND pp.permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).'
+							GROUP BY ct.treeid, pp.userid');
+
+			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+			$sql = db_extras_subquery($db, $sql, $subs);
+			if (DB::isError($sql)) {
+				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+				return Array();
+			}
+
+		} else {
+			// just get the permissions set for this asset
+			$sql = 'SELECT userid, assetid FROM sq_asset_permission
+					WHERE assetid = '.$db->quote($this->id).'
+					  AND permission '.(($and_greater) ? '>=' : '=').' '.$db->quote($permission).'
+					  AND revoked = 0';
+		}
 
 		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 		if (DB::isError($result)) {
@@ -1882,9 +1977,163 @@ class Asset extends Resolve_Object
 			return Array();
 		}
 
-		$this->_tmp[$storage_name][$permission] = $result;
+		$this->_tmp['permission_cache'][$storage_name][$permission] = $result;
 		return $result;
 	}//end getPermission()
+
+
+	/**
+	* Returns an array of all user or user_group assets that have the passed permission for this asset
+	*
+	* @param string		$permission		the permission code you are getting
+	* @param boolean	$and_greater	get effective permission (eg read access = read or write or admin)
+	* @param boolean	$and_inherited	get permission from parents as well
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getInheritedPermission($permission, $userids)
+	{
+		if (empty($userids)) return Array();
+
+		$permission = (int) $permission;
+
+		// return cached version if we can
+		if (isset($this->_tmp['permission_cache']['full_permissions'][$permission])) {
+			return $this->_tmp['permission_cache']['full_permissions'][$permission];
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// get all the revoke points where inheritance stops
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
+		$userid_string = '';
+		foreach ($userids as $u) $userid_string .= $db->quote($u).', ';
+		$userid_string = trim($userid_string, ', ');
+		$sql = 'SELECT pp.userid AS userid, ct.treeid AS child, MAX(pt.treeid) AS parent
+				FROM sq_asset_link cl
+				  INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
+				  sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid 
+				  INNER JOIN sq_asset_permission pp ON pl.minorid = pp.assetid
+				WHERE cl.minorid = '.$db->quote($this->id).'
+				  AND ct.treeid LIKE '.$concat.'
+				  AND pt.treeid <= ct.treeid
+				  AND pp.permission = '.$db->quote($permission).'
+				  AND pp.revoked = 1
+				  AND pp.userid IN ('.$userid_string.')
+				GROUP BY ct.treeid, pp.assetid, pp.userid';
+
+		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		// this is going to be the mega query to get all permissions
+		$major_query = '';
+		$major_query_conds = Array();
+
+		$no_revokes = array_diff($userids, array_keys($result));
+
+		// if any user permissions are not revoked
+		// they wont appear in the results of the first query,
+		// so we need to get the treeids from this asset
+		if (!empty($no_revokes)) {
+			$sql = 'SELECT ct.treeid
+					FROM sq_asset_link cl INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid
+					WHERE cl.minorid = '.$db->quote($this->id);
+			
+			$rev_result = $db->getCol($sql);
+			if (DB::isError($rev_result)) {
+				trigger_error($rev_result->getMessage().'<br/>'.$rev_result->getUserInfo(), E_USER_WARNING);
+				return Array();
+			}
+
+			foreach ($no_revokes as $u) {
+				foreach ($rev_result as $t) {
+					$major_query_conds[] = '( ct.treeid = '.$db->quote($t).' 
+											  AND ct.treeid LIKE '.$concat.' 
+											  AND pt.treeid < ct.treeid 
+											  AND pp.userid = '.$db->quote($u).')';
+				}
+			}
+		}
+
+		// now add the conditions for revoked permissions (if any)
+		if (!empty($result)) {
+			foreach ($result as $u => $u_data) {
+				foreach ($u_data as $i => $t_data) {
+					$major_query_conds[] = '( ct.treeid = '.$db->quote($t_data[0]).' 
+											  AND ct.treeid LIKE '.$concat.' 
+											  AND pt.treeid >= '.$db->quote($t_data[1]).' 
+											  AND pp.userid = '.$db->quote($u).')';
+				}
+			}
+		}
+
+		// generate the MEGA query
+		$major_query = 'SELECT DISTINCT pp.userid, pp.assetid
+						FROM sq_asset_link cl
+						  INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
+						  sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid
+						  INNER JOIN sq_asset_permission pp ON pl.minorid = pp.assetid
+						WHERE pp.permission = '.$db->quote($permission).'
+						  AND pp.revoked = 0
+						  AND 
+						(';
+
+		$or_query = '';
+		$or_query = implode("\n  OR\n  ", $major_query_conds);
+
+		$major_query = $major_query."\n".$or_query."\n)";
+
+		$major_result = $db->getAssoc($major_query, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		if (DB::isError($major_result)) {
+			trigger_error($major_result->getMessage().'<br/>'.$major_result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		$this->_tmp['permission_cache']['full_permissions'][$permission] = $major_result;
+		return $major_result;
+	}//end getInheritedPermission()
+
+
+	/**
+	* Returns an array of all user or user_group assets that have the passed permission for this asset
+	*
+	* @param string		$permission		the permission code you are getting
+	* @param boolean	$and_greater	get effective permission (eg read access = read or write or admin)
+	* @param boolean	$and_inherited	get permission from parents as well
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getRevokedPermission($permission)
+	{
+		$permission = (int) $permission;
+
+		// return cached version if we can
+		if (isset($this->_tmp['permission_cache']['revoked_permissions'][$permission])) {
+			return $this->_tmp['permission_cache']['revoked_permissions'][$permission];
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// just get the permissions set for this asset
+		$sql = 'SELECT userid, assetid FROM sq_asset_permission
+				WHERE assetid = '.$db->quote($this->id).'
+				  AND permission = '.$db->quote($permission).'
+				  AND revoked = 1';
+
+		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		$this->_tmp['permission_cache']['revoked_permissions'][$permission] = $result;
+		return $result;
+	}//end getRevokedPermission()
 
 
 	/**

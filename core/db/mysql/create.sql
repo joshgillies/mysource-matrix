@@ -129,7 +129,8 @@ CREATE TABLE sq_asset_permission (
   assetid    INT      UNSIGNED NOT NULL,
   userid     INT      UNSIGNED NOT NULL DEFAULT 0,
   permission SMALLINT UNSIGNED NOT NULL DEFAULT 0,
-  PRIMARY KEY(assetid, userid, permission)
+  revoked    SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY(assetid, userid, permission, revoked)
 );
 
 

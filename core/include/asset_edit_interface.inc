@@ -420,10 +420,13 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		foreach ($perms as $title => $perm) {
 			$inherited = false;
-			$direct = false;
+			$direct    = false;
+			$revoked   = false;
 
 			$o->openSection($title.' Access');
-			$users = $owner->getPermission($perm, false);
+			$users    = $owner->getPermission($perm, false);
+			$inherits = $owner->getInheritedPermission($perm, array_keys($users));
+			$revokes  = $owner->getRevokedPermission($perm);
 
 			$o->openField('Public');
 			$public = false;
@@ -433,13 +436,28 @@ class Asset_Edit_Interface extends Resolve_Object
 			}
 			if ($owner->writeAccess()) {
 				check_box($prefix."_public[$perm]", 1, (($public) ? true : false));
+				hidden_field($prefix."_old_public[$perm]", (($public) ? '1' : '0'));
 				echo "&nbsp;Give $title access to all users?";
 			} else {
 				echo (($public) ? 'Yes' : 'No');
 			}
 
 			$o->openField('Inherited');
-			foreach ($users as $userid => $locs) {
+			ob_start();
+			?>
+			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+				<tr>
+					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+					<?php
+					if ($owner->writeAccess()) {
+						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Revoke ?</b></td><?php
+					}
+					?>
+				</tr>
+			<?php
+
+			foreach ($inherits + $users as $userid => $locs) {
+				if (isset($revokes[$userid])) continue;
 				if ($userid) {
 					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 					if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
@@ -453,25 +471,115 @@ class Asset_Edit_Interface extends Resolve_Object
 				}
 				$loc_string = trim($loc_string, ', ');
 				if (!empty($loc_string)) {
-					if ($userid) echo $asset->_getName(false).' ['.$asset->type()." : $userid] was set at $loc_string</br>";
-					else echo "Public access  was set at $loc_string</br>";
+					?>
+					<tr>
+						<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
+						if ($userid) echo $asset->_getName(false).' ['.$asset->type()." : $userid] was set at $loc_string";
+						else echo "Public access was set at $loc_string";
+						?></td><?php
+					if ($owner->writeAccess()) {
+						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
+						check_box($prefix.'_revoke_'.strtolower($title)."[$userid]")
+						?></td><?php
+					}
+					?></tr><?php
 					$inherited = true;
 				}
 			}
-			if (!$inherited) echo 'None';
+
+			if (!$inherited) {
+				ob_end_clean();
+				echo 'None';
+			} else {
+				ob_end_flush();
+				?></table><?php
+			}
+
+
+			$o->openField('Revoked');
+			ob_start();
+			?>
+			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+				<tr>
+					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+					<?php
+					if ($owner->writeAccess()) {
+						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Reinstate ?</b></td><?php
+					}
+					?>
+				</tr>
+			<?php
+			foreach ($revokes as $userid => $locs) {
+				if ($userid) {
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+					if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
+				}
+				if (in_array($owner->id, $locs)) {
+					?>
+					<tr>
+						<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
+						if ($userid) echo $asset->_getName(false).' ['.$asset->type()." : $userid]";
+						else echo 'Public access';
+						?></td>
+					<?php
+					if ($owner->writeAccess()) {
+						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
+						check_box($prefix.'_unrevoke_'.strtolower($title)."[$userid]")
+						?></td><?php
+					}
+					?></tr><?php
+					$revoked = true;
+				}
+			}
+
+			if (!$revoked) {
+				ob_end_clean();
+				echo 'None';
+			} else {
+				ob_end_flush();
+				?></table><?php
+			}
 
 			$o->openField('Direct');
+			ob_start();
+			?>
+			<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+				<tr>
+					<td bgcolor="#DDDDDD" class="sq-form-field">&nbsp;</td>
+					<?php
+					if ($owner->writeAccess()) {
+						?><td bgcolor="#DDDDDD" align="center" width="100" class="sq-form-field"><b>Delete ?</b></td><?php
+					}
+					?>
+				</tr>
+			<?php
 			foreach ($users as $userid => $locs) {
 				if (!$userid) continue;
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 				if (!$asset->id || (!is_a($asset, 'user') && !is_a($asset, 'user_group'))) continue;
 				if (in_array($owner->id, $locs)) {
-					if ($owner->writeAccess()) check_box($prefix.'_delete_'.strtolower($title)."[$userid]");
-					echo '&nbsp;'.$asset->_getName(false).' ['.$asset->type()." : $userid]</br>";
+					?>
+					<tr>
+						<td bgcolor="#F0F0F0" class="sq-form-field"><?php echo '&nbsp;'.$asset->_getName(false).' ['.$asset->type()." : $userid]";?></td>
+					<?php
+					if ($owner->writeAccess()) {
+						?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
+						check_box($prefix.'_delete_'.strtolower($title)."[$userid]")
+						?></td><?php
+					}
+					?></tr><?php
 					$direct = true;
 				}
 			}
-			if (!$direct) echo 'None';
+
+			if (!$direct) {
+				ob_end_clean();
+				echo 'None';
+			} else {
+				ob_end_flush();
+				?></table><?php
+			}
+			
 
 			if ($owner->writeAccess()) {
 				$o->openField('New?');
@@ -513,10 +621,26 @@ class Asset_Edit_Interface extends Resolve_Object
 					}
 				}
 
+				// unrevoke inherited permissions
+				if (isset($_POST[$prefix.'_unrevoke_'.strtolower($title)])) {
+					foreach ($_POST[$prefix.'_unrevoke_'.strtolower($title)] as $userid => $on) {
+						$owner->reinstateRevokedPermission($userid, $perm);
+					}
+				}
+
+				// revoke inherited permissions
+				if (isset($_POST[$prefix.'_revoke_'.strtolower($title)])) {
+					foreach ($_POST[$prefix.'_revoke_'.strtolower($title)] as $userid => $on) {
+						$owner->revokeInheritedPermission($userid, $perm);
+					}
+				}
+
 				// grant/revoke public access?
 				if (isset($_POST[$prefix.'_public'][$perm])) {
-					$owner->grantPermission('0', $perm);
-				} else {
+					if($_POST[$prefix.'_old_public'][$perm] === '0') {
+						$owner->grantPermission('0', $perm);
+					}
+				} else if ($_POST[$prefix.'_old_public'][$perm] === '1') {
 					$owner->revokePermission('0', $perm);
 				}
 			}

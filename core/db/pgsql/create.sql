@@ -127,7 +127,8 @@ CREATE TABLE sq_asset_permission (
   assetid    INT NOT NULL,
   userid     INT NOT NULL DEFAULT 0,
   permission INT NOT NULL DEFAULT 0,
-  PRIMARY KEY(assetid, userid, permission)
+  revoked    INT NOT NULL DEFAULT 0,
+  PRIMARY KEY(assetid, userid, permission, revoked)
 );
 
 
