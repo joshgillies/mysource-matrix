@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.15 2004/09/03 05:22:27 tbarrett Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.16 2004/09/07 23:09:05 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.15 $ - 1.0
+* @version $Revision: 1.16 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -75,7 +75,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 					<?php $this->printDateChooser($prefix.'_start', $onkeyup_code, "updateEndDate('$prefix');  $onchange_code", isset($_REQUEST['SQ_CALENDAR_DATE']) ? strtotime($_REQUEST['SQ_CALENDAR_DATE']) : ($asset->getStartDate() ? iso8601_ts($asset->attr('start_date')) : 0)); ?>
 				</td>
 				<td class="sq-backend-data">
-					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_start', "processStartTimeClick(this, '$prefix'); ", $onkeyup_code, "updateEndDate('$prefix'); $onchange_code",  ($asset->getStartTime() ? iso8601_ts($asset->attr('start_date')) : false)); ?>
+					&nbsp;&nbsp;<?php $this->printTimeChooser($prefix.'_start', "processStartTimeClick(this, '$prefix'); ", $onkeyup_code, "updateEndDate('$prefix'); $onchange_code",  isset($_REQUEST['SQ_CALENDAR_TIME']) ? strtotime($_REQUEST['SQ_CALENDAR_TIME']) : ($asset->getStartTime() ? iso8601_ts($asset->attr('start_date')) : false)); ?>
 				</td>
 			</tr>
 			<tr>
