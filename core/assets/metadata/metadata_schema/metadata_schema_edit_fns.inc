@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.8 2003/10/02 01:35:00 gsherwood Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.9 2003/10/02 01:46:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,6 +82,58 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 		return true;
 
 	}//end processNewSection()
+
+
+	/**
+	* Paint the interface for regenerating metadata files
+	*
+	* @param object Metadata_Schema		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRegenerate(&$asset, &$o, $prefix)
+	{
+		?>
+		<p class="sq-backend-data">
+			Check the box below to regenerate the metadata for all assets that have currently applied this schema
+		</p>
+		<?php
+		check_box($prefix.'_regenerate');
+		echo '&nbsp;Regenerate metadata files';
+		return true;
+
+	}//end paintRegenerate()
+
+
+	/**
+	* Processes the interface for regenerating metadata files
+	*
+	* @param object Metadata_Schema		$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRegenerate(&$asset, &$o, $prefix)
+	{
+		// need to have write access to make any changes
+		if (!$asset->writeAccess()) return false;
+
+		if (isset($_POST[$prefix.'_regenerate']) && $_POST[$prefix.'_regenerate']) {
+			//// START HIPO PROCESSING ////
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array('schemaid' => $asset->id);
+			$hh->queueHipo('hipo_job_regenerate_metadata', $vars);
+			////  END HIPO PROCESSING  ////
+		}
+
+		return true;
+
+	}//end processRegenerate()
 
 
 	/**
