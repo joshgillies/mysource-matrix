@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_text.inc,v 1.22 2004/07/04 22:53:38 lwright Exp $
+* $Id: form_question_type_text.inc,v 1.23 2004/07/22 00:21:40 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -186,6 +186,8 @@ class Form_Question_Type_Text extends Form_Question
 	*/
 	function getXML($answer)
 	{
+		ob_start();
+
 		echo '<text_q id="'.addslashes($this->id).'"  name="'.addslashes($this->attr('name')).'">';
 		echo htmlspecialchars($answer);
 		echo '</text_q>';
