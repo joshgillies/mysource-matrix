@@ -2658,7 +2658,7 @@ class Asset extends Resolve_Object
 							   INNER JOIN '.SQ_TABLE_PREFIX.'asset_link pl ON pt.linkid = pl.linkid,
 							   '.SQ_TABLE_PREFIX.'asset_permission ctp';
 				$where       = 'pl.minorid = '.$db->quote($this->id).'
-							   AND ctp.start_treeid LIKE '.$db->quote($minor_tree['treeid'].'%');
+							   AND pt.treeid LIKE '.$db->quote($minor_tree['treeid'].'%');
 				
 				$values = Array('assetid'    => $db->quote($this->id),
 								'userid'     => 'ctp.userid',
@@ -2852,28 +2852,28 @@ class Asset extends Resolve_Object
 				}
 			}
 
-			//// UPDATE PERMISSIONS LOOKUP TABLE ////
-			$where_cond_string = 'start_treeid in (~SQ0~)';
-			$concat = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')' : 't.treeid || '.$db->quote('%');
-			$sub_where = 't.linkid = '.$db->quote($linkid).' AND pl.start_treeid LIKE '.$concat;
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
-			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'pl');
-			$subs = Array('SELECT pl.start_treeid
-							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t,
-							'.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl
-							'.$sub_where);
-			$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
-			if (DB::isError($where_cond)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
+//// UPDATE PERMISSIONS LOOKUP TABLE ////
+#$where_cond_string = 'start_treeid in (~SQ0~)';
+#$concat = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')' : 't.treeid || '.$db->quote('%');
+#$sub_where = 't.linkid = '.$db->quote($linkid).' AND pl.start_treeid LIKE '.$concat;
+#$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
+#$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'pl');
+#$subs = Array('SELECT pl.start_treeid
+#				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t,
+#				'.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl
+#				'.$sub_where);
+#$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
+#if (DB::isError($where_cond)) {
+#	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+#	trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
+#	return false;
+#}
 
-			// Remove all lookup references to the permissions that occured below this link
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission_lookup', $where_cond)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+// Remove all lookup references to the permissions that occured below this link
+#if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission_lookup', $where_cond)) {
+#	$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+#	return false;
+#}
 
 
 			//// UPDATE THE TREE ////
