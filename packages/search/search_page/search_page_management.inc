@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.16 2004/08/02 23:25:53 gsherwood Exp $
+* $Id: search_page_management.inc,v 1.17 2004/08/19 05:50:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,12 +46,6 @@ class Search_Page_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-			'root_assetid' => Array(
-				'added'			=> '0.1',
-				'type'			=> 'assetid',
-				'default'		=> '',
-				'description'	=> 'The asset ID of the root asset on which searches are based on.',
-			),
 			'search_status' => Array(
 				'added'			=> '0.3',
 				'type'			=> 'serialise',
@@ -82,6 +76,18 @@ class Search_Page_Management extends Asset_Management
 				'default'		=> Array(),
 				'description'	=> 'Search fields.',
 			),
+			'categories' => Array(
+				'added'			=> '0.4',
+				'type'			=> 'serialise',
+				'default'		=> Array(),
+				'description'	=> 'Search categories.',
+			),
+			'no_category_text' => Array(
+				'added'			=> '0.4',
+				'type'			=> 'text',
+				'default'		=> 'No Category Selected',
+				'description'	=> 'The text that appears for a "no category selected" options.',
+			),
 			'search_types' => Array(
 				'added'			=> '0.1',
 				'type'			=> 'serialise',
@@ -105,6 +111,29 @@ class Search_Page_Management extends Asset_Management
 						'OR'	=> 'Match on at least ONE field',
 					),
 				),
+			),
+			'sort_by' => Array(
+				'added'			=> '0.4',
+				'type'			=> 'selection',
+				'default'		=> '',
+				'description'	=> 'the order in which assets are sorted',
+				'parameters'	=> Array(
+					'options' => Array(
+						''				=> 'Relevance',
+						'name'			=> 'Name',
+						'short_name'	=> 'Short name',
+						'created'		=> 'Created date',
+						'updated'		=> 'Last updated date',
+						'published'		=> 'Last published date',
+						'type_code'		=> 'Asset Type',
+					),
+				),
+			),
+			'reverse_sort' => Array(
+				'added'			=> '0.4',
+				'type'			=> 'boolean',
+				'default'		=> false,
+				'description'	=> 'Reverses the sort order field',
 			),
 		);
 

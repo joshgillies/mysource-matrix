@@ -18,12 +18,36 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.7 2004/08/19 05:50:57 gsherwood Exp $
+* $Id: edit_interface_screen_categories.xml,v 1.1 2004/08/19 05:50:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
-<screens>
-	<screen code_name="fields" display_name="Search Fields" icon="page" force_unlock="0" />
-	<screen code_name="categories" display_name="Search Categories" icon="page" force_unlock="0" lock_type="menu" />
-	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups" />
-</screens>
+<contents>
+	<section name="General Category Settings">
+		<field write_access="write:attributes" attribute="no_category_text">
+			<display_name>Not Selected Text</display_name>
+			<note />
+			<text width="20" />
+		</field>
+	</section>
+	<section name="Select Existing Category" read_access="write:" write_access="write:attributes">
+		<field>
+			<display_name>Configure Search Category</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintChooseCategory" />
+				<process_function name="processChooseCategory" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Search Category Management" write_access="write:attributes">
+		<field>
+			<display_name>Category Name</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintCustomiseCategory" />
+				<process_function name="processCustomiseCategory" />
+			</function_call>
+		</field>
+	</section>
+</contents>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_fields.xml,v 1.7 2004/03/03 00:38:58 diarandine Exp $
+* $Id: edit_interface_screen_fields.xml,v 1.8 2004/08/19 05:50:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -43,6 +43,13 @@
 			</function_call>
 		</field>
 	</section>
+	<section name="Logical Grouping">
+		<field attribute="logic">
+			<display_name>Use AND / OR grouping</display_name> 
+			<note>Search logic does not apply to <b>Exclude</b> field types.</note>
+			<selection /> 
+		</field>
+	</section>
 	<section name="Field Styles">
 		<field read_access="" write_access="write:attributes">
 			<display_name>Styles</display_name>
@@ -51,13 +58,6 @@
 				<paint_function name="paintStyles" />
 				<process_function name="processStyles" />
 			</function_call>
-		</field>
-	</section>
-	<section name="Logical Grouping">
-		<field attribute="logic">
-			<display_name>Use AND / OR grouping</display_name> 
-			<note>Search logic does not apply to <b>Exclude</b> field types.</note>
-			<selection /> 
 		</field>
 	</section>
 </contents>

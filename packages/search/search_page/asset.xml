@@ -20,7 +20,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.7 2004/08/02 23:25:52 gsherwood Exp $
+* $Id: asset.xml,v 1.8 2004/08/19 05:50:57 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -28,7 +28,7 @@
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>search</package>
 	<type_code>search_page</type_code>
-	<version>0.3</version>
+	<version>0.4</version>
 	<name>Search Page</name>
 	<description>Search Page is the coolest thing in the world. Note to self - remember to remove this when it proves not to be true.</description>
 	<instantiable>yes</instantiable>
