@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.1.1.1 2004/10/13 01:31:47 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.2 2004/10/14 05:22:37 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.1.1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -331,7 +331,7 @@ HEREDOC;
 	/**
 	* Generates receipt and invites user to make a payment
 	*
-	* Prints to screen
+	* Prints to screen the result
 	*
 	* @access private
 	* @return void
