@@ -100,7 +100,7 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 			$o->openSection($section->name);
 				if ($write_access) {
 					$o->openField('Delete ?');
-						check_box($prefix.'_delete_ssections['.$link_data['linkid'].']');
+						check_box($prefix.'_delete_sections['.$link_data['linkid'].']');
 						echo '&nbsp; Delete this section and all its fields?';
 					$o->closeField();
 				}
