@@ -37,6 +37,25 @@ Contributed by: Marc McIntyre <mmcintyre@squiz.net>
 
 Q. What things do I need to do when I move/copy a system from one place to another ?
 A. There are several steps :
+
+  ########################################################################################################################
+  If you are moving the system from one server to another then there is one check that you need to do first.
+  Run this command on both the old and the new servers :
+       php -r 'var_export(get_defined_constants());' | grep -i CRYPT_
+
+  Output should be something like this :
+      'CRYPT_SALT_LENGTH' => 12,
+      'CRYPT_STD_DES' => 1,
+      'CRYPT_EXT_DES' => 0,
+      'CRYPT_MD5' => 1,
+      'CRYPT_BLOWFISH' => 0,
+
+  Now if there is a difference between any of these values there could be a problem with logging in on the new system.
+  See http://www.php.net/crypt for more info
+
+  Basically if there is a difference then you will most likely have to reset everyone's passwords
+  ########################################################################################################################
+
   1. Create a backup with backup.sh in the current root directory, just in case :)
 
   2. Copy everything under the system root from the old area to the new area
