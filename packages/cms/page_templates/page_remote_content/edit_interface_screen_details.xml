@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.3 2004/09/06 02:06:10 arailean Exp $
+* $Id: edit_interface_screen_details.xml,v 1.4 2004/09/06 23:09:14 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -74,7 +74,7 @@
 
 		<field attribute="username">
 			<display_name>User Name</display_name>
-			<note>If not using HTTP authentication, leave this blank</note>
+			<note>If not using HTTP authentication, leave this blank. Please note that HTTP Authentication will not properly work in the mixed content environments. This means that although this asset will be able to obtain the bare HTML page from the remote source, the images and other includes will be requested by the web browser (not this asset) so the user will be prompted to authenticate as well.</note>
 			<text width="35" height="1" />
 		</field>
 
