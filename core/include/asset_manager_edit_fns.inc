@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.70 2004/02/27 05:28:42 mmcintyre Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.71 2004/03/02 12:32:18 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -137,9 +137,17 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 			case 'limbo'      :
 
 				$asset = &$this->am->getAsset($_REQUEST['assetid']);
+				if (is_null($asset)) {
+					trigger_error('No Asset found for Id #'.$_REQUEST['assetid'], E_USER_WARNING);
+					return;
+				}
 				if (SQ_IN_LIMBO) {
 					$limbo_asset = &$this->am->getAsset($_REQUEST['limbo_assetid']);
-					if (!is_null($limbo_asset)) $o->addFormActionGetVar('limbo_assetid', $limbo_asset->id);
+					if (!is_null($limbo_asset)) {
+						trigger_error('No Asset found for Id #'.$_REQUEST['limbo_assetid'], E_USER_WARNING);
+						return;
+					}
+					$o->addFormActionGetVar('limbo_assetid', $limbo_asset->id);
 				}
 
 				$o->addFormActionGetVar('assetid', $asset->id);
@@ -222,6 +230,10 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		if (isset($_GET['forceably_acquire_confirm'])) {
 			// they have confirmed their intention to forceably acquire the lock on this asset
 			$asset = &$this->am->getAsset($_GET['assetid']);
+			if (is_null($asset)) {
+				trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
+				return;
+			}
 
 			// check that they entered the correct security key
 			if (!validate_security_key()) {
@@ -243,7 +255,7 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$asset = &$this->am->getAsset($_GET['assetid']);
 		if (is_null($asset)) {
 			trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
-			break;
+			return;
 		}
 
 		$locks = $this->am->getLockInfo($asset->id, $_GET['sq_lock_type'], true, true);
