@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.12 2005/01/25 00:27:27 lwright Exp $
+* $Id: permissions.inc,v 1.13 2005/01/26 09:25:04 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Permissions Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 */
 
@@ -288,6 +288,8 @@ function processPermissions(&$owner, &$o, &$ei)
 	$cascade_changes = !empty($_POST[$prefix.'_permissions']['cascade_changes']);
 
 	$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
+	$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
+
 	foreach ($perms as $title => $perm) {
 		// we need to check for write access each time because
 		// we may actually be revoking write access and then
@@ -295,8 +297,6 @@ function processPermissions(&$owner, &$o, &$ei)
 		if (!$owner->adminAccess('permissions')) continue;
 
 		$post_data = $_POST[$prefix.'_permissions'][$perm];
-
-		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetidByName('public_user');
 
 		// grant public access
 		if (isset($post_data['public_access']['granted']) && $post_data['public_access']['granted'] != '') {
