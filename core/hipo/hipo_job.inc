@@ -446,13 +446,21 @@ class HIPO_Job extends Resolve_Object
 		} elseif (!empty($this->_steps[$step]['function_call'])) {
 			return $this->_steps[$step]['auto_step'];
 
-		// if we are processing a sub job, it's it's decision whether to auto step or not
 		} elseif (!empty($this->_steps[$step]['hipo_job'])) {
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$hipo = &$hh->getJob($step_data['hipo_job']['code_name'], $step_data['hipo_job']['job_type']);
-			if (is_null($hipo)) return false;
 
-			return $hipo->auto_step();
+			// if we are processing a sub job, it's it's decision whether to auto step or not
+			if (!empty($this->_steps[$step]['hipo_job']['code_name']) && !empty($this->_steps[$step]['hipo_job']['job_type'])) {
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hipo = &$hh->getJob($this->_steps[$step]['hipo_job']['code_name'], $this->_steps[$step]['hipo_job']['job_type']);
+				if (is_null($hipo)) return false;
+
+				return $hipo->auto_step();
+
+			// otherwise do what's set for this step
+			} else {
+				return $this->_steps[$step]['auto_step'];
+			
+			}// end if
 
 		}// end if
 
@@ -475,7 +483,7 @@ class HIPO_Job extends Resolve_Object
 		if ($this->_current_mode != 'web') {
 			trigger_error('You cannot paint the job when you are not in Web Mode', E_USER_WARNING);
 			return;
-		} 
+		}
 
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$step = $this->_hipo_vars['current_step'];
@@ -614,12 +622,11 @@ class HIPO_Job extends Resolve_Object
 			return $this->$fn($step_data, $prefix);
 
 		} elseif (!empty($step_data['hipo_job'])) {
-
 			if (empty($step_data['hipo_job']['code_name']) || empty($step_data['hipo_job']['job_type'])) {
 				$fn = $step_data['hipo_job']['init_details_function'];
 				// First let's get the info needed to create this
 				$this->$fn($job_type='', $running_vars=Array(), $options=Array());
-				if (empty($job_type)) return false;
+				if (empty($job_type)) return true;
 
 				require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/'.$job_type.'.inc';
 				$init_hipo = new $job_type();
@@ -633,6 +640,8 @@ class HIPO_Job extends Resolve_Object
 				if (!$code_name) return false;
 				$step_data['hipo_job']['code_name'] = $code_name;
 				$step_data['hipo_job']['job_type']  = $job_type;
+
+				return true;
 
 			} else {
 				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
