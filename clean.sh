@@ -47,7 +47,9 @@ esac
 
 # now just run step 2 again
 php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_02.php" "${SYSTEM_ROOT}"
-php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
+if [ "$?" = "0" ]; then
+	php -d output_buffering=0 "${SYSTEM_ROOT}/install/step_03.php" "${SYSTEM_ROOT}"
+fi
 
 chmod 775 cache
 find data -type d -exec chmod 2775 {} \; 2> /dev/null
