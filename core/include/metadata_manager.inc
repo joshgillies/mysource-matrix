@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.20 2003/11/26 00:51:10 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.21 2003/12/29 01:00:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -597,7 +597,7 @@ class Metadata_Manager extends MySource_Object
 			} else {
 				ob_start();
 			}
-			
+
 			switch ($keyword) {
 
 				case 'asset_name'       :
@@ -610,6 +610,10 @@ class Metadata_Manager extends MySource_Object
 					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_asset->getURL();'."\n";
 				break;
 
+				case 'asset_href' :
+					echo '$metadata_replacements[\''.$keyword.'\'] = $metadata_asset->getHref();'."\n";
+				break;
+
 				case 'asset_created' :
 				case 'asset_updated' :
 					echo '$metadata_replacements[\''.$keyword.'\'] = date(\'Y-m-d H:i:s\', $metadata_asset->'.substr($keyword,6).');'."\n";
@@ -619,7 +623,12 @@ class Metadata_Manager extends MySource_Object
 				case 'asset_updated_short' :
 					echo '$metadata_replacements[\''.$keyword.'\'] = date(\'Y-m-d\', $metadata_asset->'.substr($keyword,6,7).');'."\n";
 				break;
-				
+
+				case 'asset_created_readable' :
+				case 'asset_updated_readable' :
+					echo '$metadata_replacements[\''.$keyword.'\'] = date(\'d M Y g:ia\', $metadata_asset->'.substr($keyword,6,7).');'."\n";
+				break;
+
 				case 'asset_created_by_name' :
 				case 'asset_updated_by_name' :
 					echo 'if (!isset($metadata_'.substr($keyword,6,7).'_by_user)) $metadata_'.substr($keyword,6,7).'_by_user = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($metadata_asset->'.substr($keyword,6,7).'_userid);'."\n";
