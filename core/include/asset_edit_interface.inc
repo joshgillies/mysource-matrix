@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.178 2003/11/04 00:59:26 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.179 2003/11/07 01:43:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -64,7 +64,7 @@ class Asset_Edit_Interface extends MySource_Object
 	*
 	* @param string	$type_code
 	*
-	* @access  public
+	* @access public
 	*/
 	function Asset_Edit_Interface($type_code)
 	{
@@ -381,6 +381,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		}// end if
 
+
 		  ///////////////////
 		 //  WHERE AM I   //
 		///////////////////
@@ -391,6 +392,7 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 		$o->addFormActionGetVar('sq_link_path', $link_path, true);
 		$o->addHiddenField('sq_link_path', $link_path);
+
 
 		  ///////////////////
 		 //  PREVIEW URL  //
@@ -438,6 +440,11 @@ class Asset_Edit_Interface extends MySource_Object
 			}
 		}
 		$o->addHiddenField('sq_preview_url', $preview_url);
+
+		// store this preview url into the global vars so that any other asset
+		// can use it as a way to know the content we are in
+		$GLOBALS['sq_preview_url'] = $preview_url;
+
 
 		  //////////////////////////
 		 //  Navigation History  //
