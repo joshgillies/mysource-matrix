@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: dialog.js,v 1.6 2003/09/26 05:26:37 brobertson Exp $
+* $Id: dialog.js,v 1.7 2003/11/05 01:35:51 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,59 +82,16 @@ function deadend(code) {
 // Restore when re-enabling the main window.
 var IELinkClicks
 
-// Disable form elements and links in all frames for IE.
-function disableForms(code) {
-	IELinkClicks = new Array()
-	for (var h = 0; h < frames.length; h++) {
-		for (var i = 0; i < frames[h].document.forms.length; i++) {
-			for (var j = 0; j < frames[h].document.forms[i].elements.length; j++) {
-				frames[h].document.forms[i].elements[j].disabled = true
-			}
-		}
-		IELinkClicks[h] = new Array()
-		for (i = 0; i < frames[h].document.links.length; i++) {
-			IELinkClicks[h][i] = frames[h].document.links[i].onclick
-			frames[h].document.links[i].onclick = deadend(code)
-		}
-	}
-}
-
-// Restore IE form elements and links to normal behavior.
-function enableForms() {
-	for (var h = 0; h < frames.length; h++) {
-		for (var i = 0; i < frames[h].document.forms.length; i++) {
-			for (var j = 0; j < frames[h].document.forms[i].elements.length; j++) {
-				frames[h].document.forms[i].elements[j].disabled = false
-			}
-		}
-		for (i = 0; i < frames[h].document.links.length; i++) {
-			frames[h].document.links[i].onclick = IELinkClicks[h][i]
-		}
-	}
-}
-
 // Grab all Navigator events that might get through to form
 // elements while dialog is open. For IE, disable form elements.
 function blockEvents(code) {
-	if (Nav4) {
-		window.captureEvents(Event.CLICK | Event.MOUSEDOWN | Event.MOUSEUP | Event.FOCUS)
-		window.onclick = deadend
-	} else {
-		disableForms(code)
-	}
 	window.onFocus = checkModal(code)
 }
 
 // As dialog closes, restore the main window's original
 // event mechanisms.
 function unblockEvents() {
-	if (Nav4) {
-		window.releaseEvents(Event.CLICK | Event.MOUSEDOWN | Event.MOUSEUP | Event.FOCUS)
-		window.onclick = null
-		window.onfocus = null
-	} else {
-		enableForms()
-	}
+
 }
 
 // Invoked by onFocus event handler of EVERY frame,
