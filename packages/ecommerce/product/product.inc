@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: product.inc,v 1.4 2005/02/14 19:50:40 brobertson Exp $
+* $Id: product.inc,v 1.5 2005/02/15 18:14:54 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 * product class description here
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -242,26 +242,29 @@ class Product extends Page
 	
 	
 	/**
-	*Returns a list of keyword/replacements
+	* Return the keywords with their replacements
 	*
-	* @return array $keywords
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'name' => Array (
+	*          'value' => 'page',
+	*          'description' => 'the asset name',
+	*     ),
+	* )
+	* </pre>
+	*
+	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	*
 	* @access public
+	* @return Array(mixed)
 	*/
-	function getAssetKeywords() 
+	function getAssetKeywords($descriptions=false)
 	{
-		$old_keywords = parent::getAssetKeywords();
-		
-		$keywords = array(
-						  'description'			=> array('value' =>$this->attr('description')),
-						  'short_description'	=> array('value' =>$this->attr('short_description')),
-						  'details'				=> array('value' =>$this->attr('details')),
-						  'name'				=> array('value' =>$this->attr('name')),
-						  'price'				=> array('value' =>$this->attr('price')),
-						  'url'					=> array('value' =>$this->getURL()),
-						  );
+		$keywords = parent::getAssetKeywords($descriptions);
 		
 		// only expose the image stuff if we are a real asset (and not a dunmmy
-		// one, as used in eg. the asset listing)
+		// one, as used in the asset listing to put our keywords in a drop down)
 		if ($this->id) {
 
 			// Adjust the quantity/commit keywords depending in whether there are
@@ -277,13 +280,13 @@ class Product extends Page
 			}
 			
 			$images = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'image', false));
-			
 			foreach($images as $image_assetid) {
 				$keywords['image_'.$image_assetid]['value'] = '<img src="'.$GLOBALS['SQ_SYSTEM']->am->getAssetURL($image_assetid).'">';
 			}
+
 		}
 		
-		return array_merge($old_keywords, $keywords);
+		return $keywords;
 
 	}//end getAssetKeywords()
 
