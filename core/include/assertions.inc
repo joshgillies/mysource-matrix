@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: assertions.inc,v 1.9 2004/09/23 00:01:32 lwright Exp $
+* $Id: assertions.inc,v 1.10 2004/10/15 06:05:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -408,6 +408,8 @@ function assert_valid_db_result($result, $msg='', $silent=false, $fatal=true)
 {
 	if (DB::isError($result)) {
 		if (empty($msg)) $msg = $result->getMessage().'<br/>'.$result->getUserInfo();
+		print '<b>Database Result Assertion Failed</b> - Full Message follows<br/>';
+		print $msg;
 		trigger_exception($msg, $silent, $fatal);
 		return false;
 	}

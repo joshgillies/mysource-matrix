@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.240 2004/10/06 23:52:36 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.241 2004/10/15 06:05:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -804,6 +804,47 @@ class Asset_Manager extends MySource_Object
 
 
 	/**
+	* Returns an assetid for a system asset if it exists
+	*
+	* @param string		$name			the name of the system asset
+	*									'root_folder', 'trash_folder', 'system_user_group',
+	*									'root_user', 'designs_folder', 'login_design', 'cron_manager'
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
+	*									you can't use the '@' operator when returning by reference
+	*
+	* @return mixed [string|boolean] assetid if found, false if not
+	* @access public
+	*/
+	function getSystemAssetidByName($name, $mute_errors=false)
+	{
+		if (!is_string($name)) {
+			if (!$mute_errors) trigger_error('Invalid system asset name', E_USER_WARNING);
+			return false;
+		}
+
+		static $system_assets = null;
+		if (is_null($system_assets)) {
+			require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
+			$sys_asset_cfg = new System_Asset_Config();
+			// include the system asset config file
+			if (!file_exists($sys_asset_cfg->config_file)) {
+				// we called this too early
+				return false;
+			} else {
+				require $sys_asset_cfg->config_file;
+			}
+		}
+		if (isset($system_assets[$name])) {
+			return $system_assets[$name];
+		} else {
+			if (!$mute_errors) trigger_error('System asset name "'.$name.'" not installed or not known', E_USER_WARNING);
+			return false;
+		}
+
+	}//end getSystemAssetidByName()
+	
+	
+	/**
 	* Returns a reference to a system asset
 	*
 	* @param string		$name			the name of the system asset
@@ -817,27 +858,11 @@ class Asset_Manager extends MySource_Object
 	function &getSystemAsset($name, $mute_errors=false)
 	{
 		$null = null;
-		if (!is_string($name)) {
-			if (!$mute_errors) trigger_error('Invalid system asset name', E_USER_WARNING);
-			return $null;
-		}
-
-		static $system_assets = null;
-		if (is_null($system_assets)) {
-			require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
-			$sys_asset_cfg = new System_Asset_Config();
-			// include the system asset config file
-			if (!file_exists($sys_asset_cfg->config_file)) {
-				// we called this too early
-				return $null;
-			} else {
-				require $sys_asset_cfg->config_file;
-			}
-		}
-		if (isset($system_assets[$name])) {
-			return $this->getAsset($system_assets[$name], $name, $mute_errors);
+		$assetid = $this->getSystemAssetidByName($name, $mute_errors);
+		
+		if ($assetid !== false) {
+			return $this->getAsset($assetid, $name, $mute_errors);
 		} else {
-			if (!$mute_errors) trigger_error('System asset name "'.$name.'" not installed or not known', E_USER_WARNING);
 			return $null;
 		}
 
