@@ -17,19 +17,19 @@
 ## File: web/edit/edit.js
 ## Desc: Common Javascript functions for backend forms.
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/js/edit.js,v $
-## $Revision: 1.1 $
+## $Revision: 1.2 $
 ## $Author: gsherwood $
-## $Date: 2003/08/19 00:08:10 $
+## $Date: 2003/08/19 00:37:58 $
 #######################################################################
 */
 
 // if the browser is IE, regiter the onkeydown event
-if(document.all) {
-	document.onkeydown = processKeyDown;
-}
+if(document.all) { document.onkeydown = sqProcessKeyDown; }
+
 
 // Execute keyboard shortcuts for IE browsers
-function processKeyDown() {
+function sqProcessKeyDown() {
+
 	var key;
 	
 	// was the ALT key pressed?
@@ -43,13 +43,7 @@ function processKeyDown() {
 		case "s" :
 			// emulate pressing of the commit button
 			top.main.document.focus();
-			var commitBtn = document.getElementById('commit');
-
-			// call the onClick event to set unlock info
-			commitBtn.onClick;
-
-			// submit the form
-			document.main_form.submit();
+			sqSubmitEditForm();
 		break;
 
 		case "v" :
@@ -62,3 +56,16 @@ function processKeyDown() {
 	}//end switch
 
 }//end processKeyDown()
+
+
+// Submit the edit form after a bit of checking
+function sqSubmitEditForm() {
+
+	frm = document.main_form;
+	if (frm.sq_submit_pressed.value == '0') {
+		frm.sq_submit_pressed.value = '1';
+		frm.sq_release_lock.value = frm.sq_release_lock_on_submit.value;
+		frm.submit();
+	}
+
+}//end sqSubmitEditForm()
