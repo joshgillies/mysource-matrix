@@ -28,7 +28,7 @@ class Root_Folder extends Folder
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
 	function Root_Folder($assetid=0) 
@@ -143,6 +143,24 @@ class Root_Folder extends Folder
 	{
 		return true;
 	}//end readAccess()
+
+
+	/**
+	* Returns true if at least one of the passed assetids has write access to this asset
+	*
+	* @param array		$assetids	an array of user_group and/or user ids to check for write access
+	*								If the array is empty, the current user will be checked
+	* @param boolean	$effective	effective access based on locking and status
+	* @param boolean	$editing	effective access based on live edit access
+	*
+	* @return boolean
+	* @access public
+	*/
+	function writeAccess($assetids=Array(), $effective=true, $editing=true)
+	{
+		return $this->_checkPermissionAccess(SQ_PERMISSION_WRITE, $assetids);
+
+	}//end writeAccess()
 
 
 	/**
