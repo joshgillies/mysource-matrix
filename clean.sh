@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: clean.sh,v 1.14 2004/06/02 00:35:07 gsherwood Exp $
+#* $Id: clean.sh,v 1.15 2004/09/28 23:04:38 gsherwood Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
@@ -59,23 +59,6 @@ eval `echo "${php_code}" | php`
 set | grep "^DB_"
 
 case "${DB_PHPTYPE}" in 
-	"mysql")
-		args="";
-		if [ "${DB_USERNAME}" != "" ]; then
-			args="${args} -u ${DB_USERNAME}";
-		fi
-		if [ "${DB_PASSWORD}" != "" ]; then
-			args="${args} -p ${DB_PASSWORD}";
-		fi
-		if [ "${DB_HOSTSPEC}" != "" ]; then
-			args="${args} -h ${DB_HOSTSPEC}";
-		fi
-		if [ "${DB_PORT}" != "" ]; then
-			args="${args} -P ${DB_PORT}";
-		fi
-		mysql ${args} -e "SHOW TABLES;" -s -N "${DB_DATABASE}" | sed 's/^.*$/DROP TABLE &;/' | mysql ${args} "${DB_DATABASE}"
-	;;
-
 	"pgsql")
 		args="";
 		if [ "${DB_USERNAME}" != "" ]; then
