@@ -265,11 +265,26 @@ class Asset extends Resolve_Object
 	* 
 	* @param int	linkid
 	*
+	* @return Array
 	* @access public
 	*/
 	function getLink($linkid)
 	{
-		return $GLOBALS['SQ_RESOLVE']->am->getLink($linkid, $this->id);			
+
+		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+		$sql = 'SELECT linkid, majorid, minorid, link_type, value, sort_order, last_updated, last_userid
+				FROM sq_asset_link
+				WHERE majorid = '.$db->quote($this->id).'
+				  AND linkid = '.$db->quote($linkid);
+
+		error_log("\n".$sql);
+
+		$result = $db->getRow($sql);
+		if (DB::isError($result)) 
+			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
+
+		return $result;
+			
 	}//end getLink()
 
 

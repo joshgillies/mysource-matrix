@@ -78,6 +78,38 @@ class Trash_Folder extends Folder
 
 	}//end setAttribute()
 
+	/*
+	* Returns the link information for a specific link that this asset is the major asset in
+	* 
+	* @param int	linkid
+	*
+	* @see Asset::getLink()
+	*
+	* @return Array
+	* @access public
+	*/
+	function getLink($linkid)
+	{
+
+		$linkid = (int) $linkid;
+
+		if ($linkid >= 0) return Array();
+
+		$assetid = abs($linkid);
+		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($assetid);
+		if (is_null($asset)) return Array();
+
+		return Array(
+					'linkid'     => $linkid, 
+					'majorid'    => $this->id, 
+					'minorid'    => $asset->id, 
+					'link_type'  => SQ_LINK_UNITE,
+					'value'      => '',
+					'sort_order' => 0					
+					);
+
+			
+	}//end getLink()
 
 	/*
 	* For a normal Asset returns all links to this asset, but for trash returns all the assets who are not minor's
@@ -90,6 +122,8 @@ class Trash_Folder extends Folder
 	*                                  eg Array('folder' => array(link1, link2, ..), 'user' => Array(link3, link4, ..))
 	*                            'S' = sorted by name, single array 
 	*                                  eg Array(link1, link2, ..)
+	* @see Asset::getLinks()
+	*
 	* @return Array()
 	* @access public
 	*/
@@ -215,8 +249,7 @@ class Trash_Folder extends Folder
 			return false;
 		}
 
-		// is the minor linked to any thing
-		return ($minor->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', false) == 0);
+		return true;
 
 	}// end createLink();
 
@@ -279,7 +312,7 @@ class Trash_Folder extends Folder
 		}
 
 		$assetid = abs($linkid);
-		$asset = &$GLOBALS['SQ_RESOLVE']->getAsset($assetid);
+		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Linked asset could not be found, unable to delete link', E_USER_WARNING);
 			return false;
