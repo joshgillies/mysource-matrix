@@ -12,22 +12,25 @@
 * @subpackage General
 */
 
+
 /**
 * Strips the slashes from a variable if magic quotes is set for GPC
-* Handle normal variables and arrays 
+* Handle normal variables and arrays
 *
 * @param mixed $var	the var to cleanup
 *
 * @return mixed
 */
-function gpc_stripslashes($var) 
+function gpc_stripslashes($var)
 {
 	if (get_magic_quotes_gpc()) {
 		if (is_array($var)) stripslashes_array($var, true);
 		else $var = stripslashes($var);
 	}
 	return $var;
-}
+
+}//end gpc_stripslashes()
+
 
 /**
 * Strips the slashes from an entire associative array
@@ -37,7 +40,7 @@ function gpc_stripslashes($var)
 *
 * @return Array()
 */
-function stripslashes_array(&$array, $strip_keys=false) 
+function stripslashes_array(&$array, $strip_keys=false)
 {
 	if(is_string($array)) return stripslashes($array);
 	$keys_to_replace = Array();
@@ -47,7 +50,7 @@ function stripslashes_array(&$array, $strip_keys=false)
 		} elseif (is_array($value)) {
 			stripslashes_array($array[$key], $strip_keys);
 		}
-		
+
 		if ($strip_keys && $key != ($stripped_key = stripslashes($key))) {
 			$keys_to_replace[$key] = $stripped_key;
 		}
@@ -58,7 +61,8 @@ function stripslashes_array(&$array, $strip_keys=false)
 		unset($array[$from]);
 	}
 	return $array;
-}
+
+}//end stripslashes_array()
 
 
 /**
@@ -88,7 +92,9 @@ function random_password($length)
 	}
 	$RANDOM_PASSWORD_SEED++;
 	return $password;
-}
+
+}//end random_password()
+
 
 /**
 * Chops a string at a certain maximum length and appends an ellipsis
@@ -118,6 +124,7 @@ function ellipsisize($string, $length)
 		$string = substr($string, 0, $chophere)."...";
 	}
 	return $string;
+
 }// end ellipsisize()
 
 
@@ -141,7 +148,23 @@ function increment_name($name='', $spacer='')
 	} $int = substr($name,$j+1,$i-$j);
 	if(!$int) return substr($name,0,$j+1).$spacer.(2).$trailing_whitespace;
 	return substr($name,0,$j+1).($int+1).$trailing_whitespace;
+
 }//end increment_name()
+
+
+/**
+* Generates a string to be used for a security key
+*
+* @param int	$key_len	the lenght of the random string to display in the image
+*
+* @access public
+* @return string
+*/
+function generate_security_key($key_len)
+{
+	return random_password($key_len);
+
+}//end generate_security_key()
 
 
 /**
@@ -225,6 +248,7 @@ function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border
 		imagedestroy($test_im);
 		imagedestroy($final_im);
 	}
+
 }//end security_key_image()
 
 ?>
