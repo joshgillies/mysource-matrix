@@ -129,7 +129,7 @@ class File extends Asset
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
 		$file_types = array_merge($am->getTypeAncestors($this->type(), false), $am->getTypeDescendants($this->type(), false));
-		
+
 		if (in_array($new_type_code, $file_types)) {
 			// we are morphing into another file type, so check that the actual
 			// file currently uploaded is not going to conflict with the new type
@@ -164,7 +164,7 @@ class File extends Asset
 		$old_status = $this->status;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
+
 		if (!parent::processStatusChange($new_status)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -174,7 +174,7 @@ class File extends Asset
 			// if we have just gone live we need to check-out the latest version of
 			// our file into the public directory for everyone to use
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			
+
 			// clear out our unrestricted data directory
 			if (is_dir($this->data_path_public)) {
 				if (!clear_directory($this->data_path_public)) {
@@ -197,12 +197,14 @@ class File extends Asset
 			}
 		}
 
-		// update our lookups to use __data again
-		$this->updateLookups();
+		// NOTE : no need to update the lookup here because they are done in _updated() if a file exists
 
 		// update manually
 		unset($this->_tmp['IGNORE_UPDATE']);
-		$this->_updated();
+		if (!$this->_updated()) { 
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
@@ -313,7 +315,9 @@ class File extends Asset
 				}
 			}//end if effectiveUnrestricted
 
-			$this->updateLookups();
+			if (!$this->updateLookups()) {
+				return false;			
+			}
 
 		}// end if
 
@@ -346,7 +350,7 @@ class File extends Asset
 		unset($this->_tmp['lookups']);
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
-		
+
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
 		// Remove all the old URLs
@@ -373,59 +377,54 @@ class File extends Asset
 			return false;
 		}
 
+		// Basically what we are going to do here is find all our parents that are sites
+		// and take the system root urls that are closest to these site urls and tack on __data/... bit
 		$save_urls = Array();
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
+		$site_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, 'site', false);
+		foreach ($site_parents as $assetid) {
+			$site = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (is_null($site)) continue;
+			$urls = $site->getSiteURLS();
+			foreach($urls as $urlid => $data) {
 
-		$sql = 'SELECT urlid, url 
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url 
-				'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('');
-		$base_urls = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC);
-		if (DB::isError($base_urls)) {
-			trigger_error($base_urls->getMessage().'<br/>'.$base_urls->getUserInfo(), E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+				$root_url = '';
 
-		$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_SIGNIFICANT, '', null, 'minor');
-		for($i = 0; $i < count($parents); $i++) {
-			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['major_type_code']);
-			if (is_null($parent)) continue;
-
-			$parent_urls = $parent->getLookups();
-
-			for($j = 0; $j < count($parent_urls); $j++) {
-				$urlid = $parent_urls[$j]['root_urlid'];
-				if (!isset($base_urls[$urlid])) continue;
-				$base_url = $base_urls[$urlid];
-
-				// now find the root url that matches the base url
-				foreach ($root_urls as $root_url) {
-					// strip out the http[s] business
-					$root_url = preg_replace('|http[s]?://|', '', $root_url);
-					if (strpos($base_url, $root_url) === 0) break;
-					else $root_url = '';
+				foreach($root_urls as $tmp_url) {
+					if (substr($data['url'], 0, strlen($tmp_url)) == $tmp_url) {
+						$root_url = $tmp_url;
+						continue;
+					}
 				}
 
-				// now $root_url has the closest url or is blank
-				if (trim($root_url) == '') continue;
+				if (empty($root_url)) continue;
 
-				$save_urls[$root_url.'/'.$web_path] = $parent_urls[$j];
-			}
-		}
+				if (isset($save_urls[$root_url])) {
+					if (empty($save_urls[$root_url]['http']))  $save_urls[$root_url]['http']  = $data['http'];
+					if (empty($save_urls[$root_url]['https'])) $save_urls[$root_url]['https'] = $data['https'];
+				} else {
+					$save_urls[$root_url] = Array('http' => $data['http'], 'https' => $data['https']);
+				}
+
+			}// end foreach
+
+		}// end foreach
 
 		foreach ($save_urls as $url => $url_data) {
 			$values = Array(
-						'url'        => $url,
+						'url'        => $url.'/'.$web_path,
 						'assetid'    => $this->id,
-						'root_urlid' => $url_data['root_urlid']
+						'http'       => ($this->force_secure) ? '0' : $url_data['http'],
+						'https'      => $url_data['https'],
+						'root_urlid' => 0,
 					);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
-			// NOTE: we are not going to update the design's lookups because no 
-			//       designs can be attached to a file anyway (well not at this time) 
+			// NOTE: we are not going to update the design's lookups because no
+			//       designs can be attached to a file anyway (well not at this time)
 			//       and it's one thing less to worry about updating for the moment
 
 		}// end foreach
@@ -713,9 +712,6 @@ class File extends Asset
 			$existing['filename'] = $this->name;
 			$existing['modified'] = filemtime($existing['path']);
 			$existing['size'] = filesize($existing['path']);
-			$size = getimagesize($path);
-			$existing['width'] = $size[0];
-			$existing['height'] = $size[1];
 		}
 
 		return $existing;
