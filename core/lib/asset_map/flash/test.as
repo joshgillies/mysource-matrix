@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: test.as,v 1.23 2003/09/26 05:26:34 brobertson Exp $
+* $Id: test.as,v 1.24 2003/10/13 01:37:37 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -10,6 +10,32 @@ _root.test_button2._visible = false;
 
 _root.test_pressed_count = 0;
 
+function sendToBom(msg) {
+	var url = "http://beta.squiz.net/dominic_www/xml_to_bom.php";
+	var out = new XML("<message>" + msg + "</message>");
+	var back = new XML();
+	trace(out);
+	trace(url);
+	out.sendAndLoad(url, back);
+}
+
+function doTest() {
+	var xmlString = new String();
+	for (prop in _root) {
+		switch (typeof _root[prop]) {
+			case 'string':
+			case 'number':
+			case 'boolean':
+				xmlString += prop + " : " + _root[prop] + "\n";
+				break;
+			case 'object':
+				xmlString += prop + " : Object\n";
+				break;
+		}
+	}
+	
+	sendToBom(xmlString);
+}
 
 function testOnClick1(component)
 { 

@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: main.as,v 1.44 2003/10/08 02:24:02 dwong Exp $
+* $Id: main.as,v 1.45 2003/10/13 01:37:37 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -58,9 +58,13 @@ XML.prototype.ignoreWhite = true;
 #include "mcDialogBoxClass.as"
 #include "mcProgressBarClass.as"
 
+
   ///////////////////////////////////////////////////
  // CONSTANTS                                     //
 ///////////////////////////////////////////////////
+
+// minimum version of flash needed to run 
+var minVersion = [6,0,40];
 
 // the height of the messages bar at the bottom of the screen
 _root.MSG_BAR_HEIGHT = 130;
@@ -89,20 +93,38 @@ _root.MAIL_MSG_BG_COLOURS = {
  // ALL INITIALISATION STUFF                      //
 ///////////////////////////////////////////////////
 
+// Check versions
+
+var versionStrings = this.$version.split(" ");
+trace(versionStrings);
+var versionNums = versionStrings[1].split(",");
+var isVersionCurrent = true;
+for(var i = 0; i < minVersion.length; ++i) {
+	if (versionNums[i] == undefined) {
+		isVersionCurrent = false;
+		break;
+	} else if (parseInt(versionNums[i]) < minVersion[i]) {
+		isVersionCurrent = false;
+		break;
+	}
+}
+
+if (!isVersionCurrent)
+	return;
+
 // for testing from the Flash IDE 
 if (_root.server_exec_path == undefined) {
-	_root.server_exec_path = "http://beta.squiz.net/matrix_slq/_edit/?SQ_BACKEND_PAGE=asset_map_request";
+	_root.server_exec_path = "http://beta.squiz.net/dom_resolvefx/_edit/?SQ_BACKEND_PAGE=asset_map_request";
 }
 if (_root.url_frame == undefined) {
 	_root.url_frame = "main";
 }
 if (_root.action_bar_path == undefined) {
-	_root.action_bar_path = "http://beta.squiz.net/matrix_slq/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%";
+	_root.action_bar_path = "http://beta.squiz.net/dom_resolvefx/_edit/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%";
 }
 if (_root.inbox_path == undefined) {
-	_root.inbox_path = "http://beta.squiz.net/matrix_slq/_edit/?SQ_BACKEND_PAGE=main&backend_section=am";
+	_root.inbox_path = "http://beta.squiz.net/dom_resolvefx/_edit/?SQ_BACKEND_PAGE=main&backend_section=am";
 }
-
 
 _root.system_events = new SystemEvents();
 

@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemContainerClass.as,v 1.18 2003/09/26 05:26:32 brobertson Exp $
+* $Id: mcListItemContainerClass.as,v 1.19 2003/10/13 01:37:37 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -729,7 +729,7 @@ mcListItemContainerClass.prototype.moveConfirm = function(move_type, params)
 		xml.appendChild(cmd_elem);
 
 		// start the loading process
-		var exec_identifier = _root.server_exec.init_exec(xml, this, "xmlMoveItem", "");
+		var exec_identifier = _root.server_exec.init_exec(xml, this, "xmlMoveItem", "responses");
 		if (this.tmp.move_asset == undefined) this.tmp.move_asset = new Object();
 		this.tmp.move_asset[exec_identifier] = params;
 		_root.server_exec.exec(exec_identifier, ((move_type == "move asset") ? "Moving Asset" : "Creating new link"));
@@ -743,29 +743,31 @@ mcListItemContainerClass.prototype.moveConfirm = function(move_type, params)
 
 mcListItemContainerClass.prototype.xmlMoveItem = function(xml, exec_identifier)
 {
+	for (var i = 0; i < xml.childNodes.length; ++i) {
+		nextChildResponse = xml.childNodes[i];
 
-	switch (xml.firstChild.nodeName) {
-		case "success" : 
-			var select_linkid = xml.firstChild.attributes.linkid;
+		switch (nextChildResponse.firstChild.nodeName) {
+			case "success" : 
+				var select_linkid = nextChildResponse.firstChild.attributes.linkid;
 
-			// OK let's save the pos of that we were dragged to so that we can select the correct
-			// list item later after the parents have been reloaded
-			this.tmp.move_asset.new_select_name = this.tmp.move_asset[exec_identifier].parent_item_name + "_" + select_linkid;
+				// OK let's save the pos of that we were dragged to so that we can select the correct
+				// list item later after the parents have been reloaded
+				this.tmp.move_asset.new_select_name = this.tmp.move_asset[exec_identifier].parent_item_name + "_" + select_linkid;
 
-			// get the asset manager to reload the assets
-			_root.asset_manager.reloadAssets([this.selected_item.getParentAssetid(), this.tmp.move_asset[exec_identifier].parent_assetid]);
+				// get the asset manager to reload the assets
+				_root.asset_manager.reloadAssets([this.selected_item.getParentAssetid(), this.tmp.move_asset[exec_identifier].parent_assetid]);
 
-			break;
+				break;
 
-		case "url" : 
-			_root.external_call.makeExternalCall(xml.firstChild.attributes.js_function, {url: xml.firstChild.firstChild.nodeValue});
-			break;
+			case "url" : 
+				_root.external_call.makeExternalCall(nextChildResponse.firstChild.attributes.js_function, {url: nextChildResponse.firstChild.firstChild.nodeValue});
+				break;
 
-		default :
-			_root.dialog_box.show("Connection Failure to Server", "Unexpected Root XML Node '" + root.nodeName + "', expecting '" + this.__server_exec.root_node + "'\nPlease Try Again");
-	}// end switch
-
-
+			default :
+				_root.dialog_box.show("Connection Failure to Server", "Unexpected Response XML Node '" + nextChildResponse.firstChild.nodeName + "', expecting 'url' or 'success'.\nPlease Try Again");
+				break;
+		}// end switch
+	}// end for
 
 }// end xmlMoveItem()
 

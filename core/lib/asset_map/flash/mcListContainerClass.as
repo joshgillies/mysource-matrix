@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListContainerClass.as,v 1.36 2003/09/26 05:26:32 brobertson Exp $
+* $Id: mcListContainerClass.as,v 1.37 2003/10/13 01:37:37 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -223,8 +223,8 @@ mcListContainerClass.prototype.processAddAsset = function(parent_item_name, pare
 //	trace(xml);
 
 	// start the loading process
-	var exec_identifier = _root.server_exec.init_exec(xml, this, "xmlGotoUrl", "url");
-	_root.server_exec.exec(exec_identifier, "Sending Request");
+	var exec_identifier = _root.server_exec.init_exec(xml, this, "xmlGotoUrl", "responses");
+	_root.server_exec.exec(exec_identifier, "Sending Add Asset Request");
 
 	this.action = "";
 
@@ -240,11 +240,26 @@ mcListContainerClass.prototype.processAddAsset = function(parent_item_name, pare
 */
 mcListContainerClass.prototype.xmlGotoUrl = function(xml, exec_identifier)
 {
-	var frame = xml.firstChild.attributes.frame;
-	var link  = xml.firstChild.firstChild.nodeValue;
+	for (var i = 0; i < xml.childNodes.length; ++i) {
+		nextChildResponse = xml.childNodes[i];
 
-//	trace("getURL(" + link + ", " + frame + ");");
-	getURL(link, frame);
+		switch (nextChildResponse.firstChild.nodeName) {
+			case 'url':
+
+				var frame = nextChildResponse.firstChild.attributes.frame;
+				var link  = nextChildResponse.firstChild.firstChild.nodeValue;
+
+				getURL(link, frame);
+
+			break;
+
+
+			default:
+				_root.dialog_box.show("Connection Failure to Server", "Unexpected Response XML Node '" + nextChildResponse.firstChild.nodeName + "', expecting 'url'.\nPlease Try Again");
+			
+			break;
+		}
+	}
 
 }// end xmlGotoUrl()
 
