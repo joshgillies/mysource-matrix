@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.7 2004/08/19 05:43:00 gsherwood Exp $
+* $Id: package_manager_core.inc,v 1.8 2004/09/14 01:38:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,7 +46,19 @@ class Package_Manager_Core extends Package_Manager
 	var $default_components = Array(
 									'__name__' => Array (
 										'description'		=> 'Asset Name',
-										'default_weighting'	=> '-1',
+										'default_weighting'	=> '1',
+									),
+									'__created__' => Array (
+										'description'		=> 'Created Date',
+										'default_weighting'	=> '1',
+									),
+									'__updated__' => Array (
+										'description'		=> 'Updated Date',
+										'default_weighting'	=> '1',
+									),
+									'__published__' => Array (
+										'description'		=> 'Published Date',
+										'default_weighting'	=> '1',
 									),
 								);
 
