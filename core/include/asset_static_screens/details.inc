@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: details.inc,v 1.2 2003/12/03 23:11:37 gsherwood Exp $
+* $Id: details.inc,v 1.3 2003/12/04 05:56:50 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @return boolean
 * @access public
 */
-function paintDetails(&$owner, &$o, &$ei)
+function paintDetails(&$owner, &$o, &$ei, $keywords=null)
 {
 	if(!($file = $ei->_findFile('static_screen_details'))) return false;
 
@@ -55,8 +55,13 @@ function paintDetails(&$owner, &$o, &$ei)
 		
 		$section = &$root->children[$i];
 
-		// if we are in limbo and this section is not to be printed in limbo - dont print it
-		if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
+		// only do this if we are not painting a layout
+		if (is_null($keywords)) {
+			// if we are in limbo and this section is not to be printed in limbo - dont print it
+			if (SQ_IN_LIMBO && (!isset($section->attributes['limbo_access']) || (int)$section->attributes['limbo_access'] == 0)) continue;
+		}
+
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) ob_start();
 
 		$o->openSection($section->attributes['name']);
 
@@ -69,20 +74,31 @@ function paintDetails(&$owner, &$o, &$ei)
 
 				///// STATUS CHANGES - NOW AND IN THE FUTURE ////
 
-				case 'current' :
+				case 'status_current' :
 
 					if ($field->children[0]->name != 'display_name') $display_name = 'Current';
 					else $display_name = $field->children[0]->content;
 					$o->openField($display_name);
+					if (!is_null($keywords) && isset($keywords['fields']['status_current'])) ob_start();
 					echo '<i>'.$owner->getStatusDescription().'</i>';
+				
+					// if there is a keyword replacement for this, add it to the replacements
+					if (!is_null($keywords) && isset($keywords['fields']['status_current'])) {
+						$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_current']] = ob_get_contents();
+						ob_end_flush();
+					}
 
 				break;
 
-				case 'change' :
+				case 'status_change' :
 
 					if ($field->children[0]->name != 'display_name') $display_name = 'Change ?';
 					else $display_name = $field->children[0]->content;
 					$o->openField($display_name);
+						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) {
+							ob_start();
+						}
+						
 						// if this asset is in workflow we do not let the change the status here
 						// because they need to go off to the workflow screen
 						$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
@@ -93,11 +109,16 @@ function paintDetails(&$owner, &$o, &$ei)
 							$available_statii = _paintStatusChange($owner, $o, $prefix);
 							if (!empty($available_statii)) $print_commit_button = true;
 						}
+						if (!is_null($keywords) && isset($keywords['fields']['status_change'])) {
+							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_change']] = ob_get_contents();
+							ob_end_flush();
+						}
+
 					$o->closeField();
 
 				break;
 
-				case 'future_status' :
+				case 'status_future_status' :
 
 					$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 
@@ -105,6 +126,8 @@ function paintDetails(&$owner, &$o, &$ei)
 					$fs_jobs = &Cron_Job_Future_Status::getActiveJobs($owner);
 					if (!empty($fs_jobs)) {
 						$o->openField('Future Statuses', 'new_line');
+						
+						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) ob_start();
 						?>
 						<table class="sq-backend-table">
 							<tr>
@@ -139,6 +162,11 @@ function paintDetails(&$owner, &$o, &$ei)
 						?>
 						</table>
 						<?php
+						
+						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
+							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] = ob_get_contents();
+							ob_end_flush();
+						}
 
 					}// end if
 
@@ -147,6 +175,8 @@ function paintDetails(&$owner, &$o, &$ei)
 						$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
 						$fs = new Cron_Job_Future_Status();
 						$edit_fns = $fs->getEditFns();
+
+						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) ob_start();
 						$edit_fns->paintInLineBackend($fs, $o, $prefix.'_new_fs');
 						?>
 						<div class="">
@@ -154,6 +184,15 @@ function paintDetails(&$owner, &$o, &$ei)
 							The next time that it will run will be <?php echo $GLOBALS['SQ_SYSTEM']->datetime($cron_mgr->timeOfNextRun()); ?>
 						</div>
 						<?php
+						if (!is_null($keywords) && isset($keywords['fields']['status_future_status'])) {
+							// check to see if we added anything to the keyword replacements above
+							if (!isset($ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']])) {
+								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] = '';
+							}
+							// append to the end of the replacement
+							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['status_future_status']] .= ob_get_contents();
+							ob_end_flush();
+						}
 						$print_commit_button = true;
 						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($cron_mgr);
 					}
@@ -170,6 +209,11 @@ function paintDetails(&$owner, &$o, &$ei)
 		}//end for
 
 		$o->closeSection();
+
+		if (!is_null($keywords) && isset($keywords['sections'][strtolower($section->attributes['name'])])) {
+			$ei->_tmp['layout_keyword_replacements'][$keywords['sections'][strtolower($section->attributes['name'])]] = ob_get_contents();
+			ob_end_flush();
+		}
 
 	}//end for
 

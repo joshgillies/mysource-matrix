@@ -18,22 +18,22 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_static_screen_details.xml,v 1.9 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: edit_interface_static_screen_details.xml,v 1.10 2003/12/04 05:57:35 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
 	<section name="Status">
-		<field code="current">
+		<field code="status_current">
 			<display_name>Current</display_name>
 			<note />
 		</field>
-		<field code="change">
+		<field code="status_change">
 			<display_name>Change ?</display_name>
 			<note />
 		</field>
-		<field code="future_status">
+		<field code="status_future_status">
 			<display_name>Scheduled</display_name>
 			<note />
 		</field>
