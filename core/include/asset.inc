@@ -533,7 +533,7 @@ class Asset extends Resolve_Object
 	*/
 	function _getName($short_name=false)
 	{
-		return ucwords(str_replace('_', ' ', $this->type())).' #'.$this->id;
+		return $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' #'.$this->id;
 
 	}//end _getName()
 
@@ -1975,10 +1975,11 @@ class Asset extends Resolve_Object
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	* In the form
 	*
-	*    Array('[link_type]' => Array('[type_code]' => '[cardinality]));
+	*   Array('[link_type]' => Array('[type_code]' => Array('card' => [cardinality], 'exclusive' => [exclusive])));
 	* Where:
 	*   link_type   = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
-	*   cardinality = 1|M
+	*   cardinality = [max number of links]|'M'
+	*   exclusive   = true|false
 	*
 	* @return Array()
 	* @access private
@@ -2201,18 +2202,22 @@ class Asset extends Resolve_Object
 			return 'Assets of Type "'.$type_code.'" cannot be "'.link_type_name($link_type).'" linked to a "'.$this->type().'"';
 		}
 
-		if (!$exclusive && $allowed_links[$link_type][$type]['exclusive']) {
+		if (!($link_type & SQ_LINK_SIGNIFICANT) && $exclusive) {
+			return 'In order for a link to be exclusive it must also be a significant link';
+		}
+
+		if (!$exclusive && !empty($allowed_links[$link_type][$type]['exclusive'])) {
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			return 'Assets of Type "'.$type_code.'" must be "'.link_type_name($link_type).'" exclusivly linked to a "'.$this->type().'"';
 		}
 
 		//// Now we need to check that the cardinality is kept valid ////
 
-		// if we are only allowed one of these links
-		if ($allowed_links[$link_type][$type]['card'] == 1) {
+		// if we are only allowed up to a certain number of these links
+		if ($allowed_links[$link_type][$type]['card'] != 'M') {
 			$num_curr_links = $this->countLinks('major', $link_type, $type, true, $ignore_linkid);
-			//  and we already have our one link, bugger off
-			if ($num_curr_links > 0) {
+			//  and we already have our quota of links, bugger off
+			if ($num_curr_links > (int) $allowed_links[$link_type][$type]['card']) {
 				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 				return 'Assets of Type "'.$this->type().'" can only have one "'.link_type_name($link_type).'" link to a "'.$type.'"';
 			}
@@ -2255,11 +2260,6 @@ class Asset extends Resolve_Object
 
 		if (!($link_type & SQ_LINK_SIGNIFICANT) && $dependant) {
 			trigger_error('In order for a link to be dependant it must also be a significant link', E_USER_WARNING);
-			return 0;
-		}
-
-		if (!($link_type & SQ_LINK_SIGNIFICANT) && $exclusive) {
-			trigger_error('In order for a link to be exclusive it must also be a significant link', E_USER_WARNING);
 			return 0;
 		}
 
@@ -2917,7 +2917,10 @@ class Asset extends Resolve_Object
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$new_parent->acquireLock();
+		if (!$new_parent->acquireLock()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
 		$new_parent->releaseLock();
 		if (!$new_linkid) {
@@ -2926,7 +2929,10 @@ class Asset extends Resolve_Object
 		}
 
 		// Now let's try and delete the old link
-		$this->acquireLock();
+		if (!$this->acquireLock()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
 		$deleted = $this->deleteLink($linkid);
 		$this->releaseLock();
 		if (!$deleted) {
@@ -4067,7 +4073,7 @@ class Asset extends Resolve_Object
 	*/
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
-		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->user->id) {
+		if (empty($assetids) && $GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			// if we are the root user, we can do anything
 			if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
 
@@ -4077,7 +4083,7 @@ class Asset extends Resolve_Object
 
 			// use the current user and their groups
 			$assetids = $GLOBALS['SQ_SYSTEM']->user->getParents(Array('user', 'user_group'), false);
-			$assetids[] = $GLOBALS['SQ_SYSTEM']->user->id;
+			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		}
 
 		$perms = $this->getPermission($perm, true);
