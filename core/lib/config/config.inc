@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.16 2004/12/03 15:33:23 brobertson Exp $
+* $Id: config.inc,v 1.17 2005/01/06 12:27:05 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -165,14 +165,19 @@ class Config extends MySource_Object
 	*
 	* This allows extra things to be added for special cases, and extra checks to be made if necessary on the value
 	*
-	* @param string $name	the config var name
-	* @param mixed  $value	the value that the config var has
+	* @param string		$name		the config var name
+	* @param mixed		$value		the value that the config var has
+	* @param boolean	$var_export	whether to run the value through var_export or not
 	*
 	* @return boolean	whether the value is valid or not
 	*/
-	function _paintConfigVar($var_name, $value)
+	function _paintConfigVar($var_name, $value, $var_export=true)
 	{
-		echo "define('".$var_name."', ".var_export($value, true).");\n";
+		echo "define('", $var_name, "', ";
+		if ($var_export) var_export($value);
+		else echo $value;
+		echo ");\n";
+
 		return true;
 
 	}//end _paintConfigVar()
