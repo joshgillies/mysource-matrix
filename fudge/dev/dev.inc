@@ -83,7 +83,7 @@ function bam($x='BAM!', $max_depth=0, $style='')
 */
 function pre_echo($x, $max_depth=0, $style='')
 {
-	if (isset($_SERVER['argv'])) {
+	if (php_sapi_name() == 'cli') {
 		echo "\n------------------------------------\n";
 	} else {
 		echo "\n", '<div align="left"><pre style="', $style, 'font-family: courier, monospace;">';
@@ -99,10 +99,11 @@ function pre_echo($x, $max_depth=0, $style='')
 			$x = array_contents($x, $max_depth);
 		}
 		$x = str_replace("\t", '    ', $x);
-		echo (isset($_SERVER['argv'])) ? $x : htmlspecialchars($x);
+
+		echo (php_sapi_name() == 'cli') ? $x : htmlspecialchars($x);
 	}#end if
 
-	if (isset($_SERVER['argv'])) {
+	if (php_sapi_name() == 'cli') {
 		echo "\n------------------------------------\n";
 	} else {
 		echo '</pre></div>', "\n";
