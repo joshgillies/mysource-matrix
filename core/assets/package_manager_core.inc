@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.6 2004/07/01 14:36:51 brobertson Exp $
+* $Id: package_manager_core.inc,v 1.7 2004/08/19 05:43:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,6 +158,7 @@ class Package_Manager_Core extends Package_Manager
 					'cron_manager',
 					'layout_manager',
 					'remap_manager',
+					'cache_manager',
 					'designs_folder',
 					'login_design',
 				);
@@ -348,6 +349,28 @@ class Package_Manager_Core extends Package_Manager
 		return $remap_manager;
 
 	}//end createRemapManager()
+
+
+	/**
+	* Create the cache manager system asset
+	*
+	* @return object Cache_Manager
+	* @access public
+	*/
+	function &createCacheManager()
+	{
+		$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
+		
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cache_manager');
+		$cache_manager = new Cache_Manager();
+		$cache_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+		if (!$cache_manager->create($cache_manager_link)) trigger_error('Cache Manager NOT CREATED', E_USER_ERROR);
+		pre_echo('Cache Manager Asset Id : '.$cache_manager->id);
+		
+		$GLOBALS['SQ_SYSTEM_ASSETS']['cache_manager'] = $cache_manager->id;
+		return $cache_manager;
+
+	}//end createCacheManager()
 
 
 	/**
