@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.42 2004/11/23 05:59:50 arailean Exp $
+* $Id: edit.css,v 1.43 2004/12/01 12:49:44 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -155,19 +155,10 @@ td.sq-backend-nav-history {
 }
 
 .sq-backend-header-search-box {
-/*
-	background-color:	#342939;
-	color:				#C2BFC4;
-*/
 	background-color:	#C2BFC4;
 	border:		 		1px #000000 solid;
-/*
-	font-family:		Arial, Verdana, Helvetica, sans-serif;
-	font-size:			11px;
-	text-decoration:	none;
 	padding-left:		3px;
 	padding-right:		3px;
-*/
 }
 
 
