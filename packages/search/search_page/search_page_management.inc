@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.24 2005/02/13 23:20:55 lwright Exp $
+* $Id: search_page_management.inc,v 1.25 2005/02/13 23:58:33 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -265,7 +265,7 @@ class Search_Page_Management extends Asset_Management
 		return Array(
 				Array(
 					'event_name'                 => 'requestKeywords',
-					'broadcast_type_code'        => 'content_type_wysiwyg',
+					'broadcast_type_code'        => 'content_type',
 					'broadcast_strict_type_code' => true,
 					'options' => Array(
 						'side_of_link'  => 'major',

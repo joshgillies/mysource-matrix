@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new_management.inc,v 1.9 2005/02/13 23:20:51 lwright Exp $
+* $Id: page_whats_new_management.inc,v 1.10 2005/02/13 23:58:31 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,8 +99,8 @@ class Page_Whats_New_Management extends Asset_Management
 		return Array(
 				Array(
 					'event_name'                 => 'requestKeywords',
-					'broadcast_type_code'        => 'content_type_wysiwyg',
-					'broadcast_strict_type_code' => true,
+					'broadcast_type_code'        => 'content_type',
+					'broadcast_strict_type_code' => false,
 					'options'	=> Array(
 						'side_of_link' => 'major',
 						'indirect'     => true,
