@@ -413,16 +413,24 @@ class Design extends Design_Area
 				break;
 
 			case 'site_name' :
-			case 'page_title' :
+			case 'asset_title' :
 				echo '"', ucwords(str_replace('_', ' ', $var)), '" NOT PROGRAMMED YET';
 				break;
 
-			case 'page_link' :
-				echo '<', '?php echo $ASSET->getHref(); ?', '>';
+			case 'assetid' :
+				echo '<', '?php echo ', $this->_escapeVar('$ASSET->id', $args), '; ?', '>';
 				break;
 
-			case 'page_name' :
+			case 'asset_name' :
 				echo '<', '?php echo ', $this->_escapeVar('$ASSET->name', $args), '; ?', '>';
+				break;
+
+			case 'asset_short_name' :
+				echo '<', '?php echo ', $this->_escapeVar('$ASSET->short_name', $args), '; ?', '>';
+				break;
+
+			case 'asset_link' :
+				echo '<', '?php echo ', $this->_escapeVar('$ASSET->getHref()', $args), '; ?', '>';
 				break;
 
 			case 'current_user' :
