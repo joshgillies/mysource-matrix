@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: colour_picker.js,v 1.4 2003/11/26 00:51:13 gsherwood Exp $
+* $Id: colour_picker.js,v 1.5 2004/05/17 13:42:16 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,7 +45,7 @@ function show_colour_change(name) {
 		if (changed_image) { changed_image.src = colour_change_image_dir + 'tick.gif'; }
 		var changed_span = document.getElementById('colour_span_' + name);
 		if (changed_span) {
-			colour_box = document.getElementById('colour_box_' + name);
+			colour_box = document.getElementById(name);
 			changed_span.style.backgroundColor = colour_box.value;
 		}
 	} else {
