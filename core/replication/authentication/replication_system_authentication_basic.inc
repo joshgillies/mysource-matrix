@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication_basic.inc,v 1.1.2.12 2004/02/26 15:08:41 brobertson Exp $
+* $Id: replication_system_authentication_basic.inc,v 1.1.2.13 2004/02/26 16:38:21 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -98,15 +98,15 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 
 
 	/**
-	* Attempts to authenticate with the connection with $fd
+	* Attempts to authenticate with the connection in our transport object using our auth object
 	*
-	* @param object Replication_System_Transport	&$transport	the socket file desriptor resource to read from
-	* @param boolean								$initiator	whether this end of the connection initiated the connection or not
+	* @param object Replication_Remote_System	&$rs		the remote system that we belong to
+	* @param boolean							$initiator	whether this end of the connection initiated the connection or not
 	*
 	* @return boolean
 	* @access public
 	*/
-	function authenticate(&$transport, $initiator)
+	function authenticate(&$rs, $initiator)
 	{
 		if ($this->slave_to_master_phrase == '' || $this->master_to_slave_phrase == '') {
 			trigger_error('Unable to authenticate without two pass phrases', E_USER_WARNING);
@@ -116,22 +116,22 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 		// now because we initiated the connection the other end will be the one challenging us 
 		// with the authentication, so we wait for them
 		if ($initiator) {
-			if (!$this->_sendPhrase($transport)) return false;
-			if (!$this->_requestPhrase($transport)) return false;
+			if (!$this->_sendPhrase($rs)) return false;
+			if (!$this->_requestPhrase($rs)) return false;
 
 		} else {
 			// only need to check the ip on the side that didn't initiate because the side that initated
 			// know's where it initiated the connection to :)
 			if ($this->ip_address != '') {
-				if ($this->ip_address != $transport->getPeerInfo(true)) {
-					trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : IP Address Incorrect', E_USER_WARNING);
+				if ($this->ip_address != $rs->transport->getPeerInfo(true)) {
+					trigger_error('Unable to Authenticate ('.$rs->name.' ['.$rs->transport->getPeerInfo().']) : IP Address Incorrect', E_USER_WARNING);
 					// just being polite really, but we don't really care if it doesn't get there, we quitting anyway..
-					$transport->writeVar('Authentication Failed');
+					$rs->transport->writeVar('Authentication Failed');
 					return false;
 				}
 			}
-			if (!$this->_requestPhrase($transport)) return false;
-			if (!$this->_sendPhrase($transport)) return false;
+			if (!$this->_requestPhrase($rs)) return false;
+			if (!$this->_sendPhrase($rs)) return false;
 		}// end if
 
 		return true;
@@ -143,28 +143,28 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 	* We are going to be asking the other side for a passphase, this takes care of it.
 	* Works together with _sendPhrase()
 	*
-	* @param object Replication_System_Transport	&$transport	the socket file desriptor resource to read from
+	* @param object Replication_Remote_System	&$rs		the remote system that we belong to
 	*
 	* @return boolean	true if the phrase the remote server presented was what we expected
 	* @access public
 	* @see _sendPhrase()
 	*/
-	function _requestPhrase(&$transport)
+	function _requestPhrase(&$rs)
 	{
 		$their_phrase = (SQ_REPLICATION_IS_MASTER) ? $this->slave_to_master_phrase : $this->master_to_slave_phrase;
 
-		if (true !== ($err_msg = $transport->sendAndReceiveVar('Phrase:', $data=null, $headers=null))) {
-			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : '.$err_msg, E_USER_WARNING);
+		if (true !== ($err_msg = $rs->transport->sendAndReceiveVar('Phrase:', $data=null, $headers=null))) {
+			trigger_error('Unable to Authenticate ('.$rs->name.' ['.$rs->transport->getPeerInfo().']) : '.$err_msg, E_USER_WARNING);
 			return false;
 		}
 		if ($data != $their_phrase) {
-			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Supplied Phrase was incorrect', E_USER_WARNING);
+			trigger_error('Unable to Authenticate ('.$rs->name.' ['.$rs->transport->getPeerInfo().']) : Supplied Phrase was incorrect', E_USER_WARNING);
 			// just being polite really, but we don't really care if it doesn't get there, we quitting anyway..
-			$transport->writeVar('Authentication Failed');
+			$rs->transport->writeVar('Authentication Failed');
 			return false;
 		}
-		if (!$transport->writeVar('Authenticated')) {
-			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Write Error', E_USER_WARNING);
+		if (!$rs->transport->writeVar('Authenticated')) {
+			trigger_error('Unable to Authenticate ('.$rs->name.' ['.$rs->transport->getPeerInfo().']) : Data Write Error', E_USER_WARNING);
 			return false;
 		}
 
@@ -177,27 +177,27 @@ class Replication_System_Authentication_Basic extends Replication_System_Authent
 	* We are expecting to be asked to send a passphrase, this takes care of it.
 	* Works together with _requestPhrase()
 	*
-	* @param object Replication_System_Transport	&$transport	the socket file desriptor resource to read from
+	* @param object Replication_Remote_System	&$rs		the remote system that we belong to
 	*
 	* @return boolean	true if our phrase was authenticated by the remote server
 	* @access public
 	* @see _requestPhrase()
 	*/
-	function _sendPhrase(&$transport)
+	function _sendPhrase(&$rs)
 	{
 		$our_phrase   = (SQ_REPLICATION_IS_MASTER) ? $this->master_to_slave_phrase : $this->slave_to_master_phrase;
 
-		if (true !== ($err_msg = $transport->receiveAndSendVar('Phrase:', $our_phrase))) {
-			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : '.$err_msg, E_USER_WARNING);
+		if (true !== ($err_msg = $rs->transport->receiveAndSendVar('Phrase:', $our_phrase))) {
+			trigger_error('Unable to Authenticate ('.$rs->name.' ['.$rs->transport->getPeerInfo().']) : '.$err_msg, E_USER_WARNING);
 			return false;
 		}
-		if (!$transport->readVar($data=null,$headers=null)) {
-			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Data Read Error', E_USER_WARNING);
+		if (!$rs->transport->readVar($data=null,$headers=null)) {
+			trigger_error('Unable to Authenticate ('.$rs->name.' ['.$rs->transport->getPeerInfo().']) : Data Read Error', E_USER_WARNING);
 			return false;
 		}
 
 		if ($data != 'Authenticated') {
-			trigger_error('Unable to Authenticate ('.$transport->getPeerInfo().') : Expected "Authenticated", got "'.$data.'"', E_USER_WARNING);
+			trigger_error('Unable to Authenticate ('.$rs->name.' ['.$rs->transport->getPeerInfo().']) : Expected "Authenticated", got "'.$data.'"', E_USER_WARNING);
 			return false;
 		}
 
