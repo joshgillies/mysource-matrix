@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.39 2004/09/01 00:46:23 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.40 2004/09/01 02:31:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.39 $ - 1.0
+* @version $Revision: 1.40 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -847,7 +847,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_top_margin = (($event_ts - $cell_ts) / $partition_time) * $partition_height;
 
 			// get height of div
-			$event_duration = is_null($details['end_date_ts']) ? 0 : ($details['end_date_ts'] - $details['start_date_ts'])/60;
+			$event_duration = is_null($details['end_date_ts']) ? 0 : ($end_ts - $event_ts);
 			$event_height = ($event_duration / $partition_time) * $partition_height;
 			if ($event_height < 0) continue;
 			
@@ -864,7 +864,6 @@ class Page_Calendar extends Page_Asset_Listing
 			$this_event_width = $event_width / $this->_maxOverlappingEvents($events, gmdate('H:i', $event_ts*60), gmdate('H:i', $end_ts*60), $partition_time);
 			
 			$res .= '<div class='.$event_class.' event" style="float:left; position: absolute; width: '.$this_event_width.'ex; margin-left: '.$event_left_margin.'ex; margin-top: '.$event_top_margin.'ex; height: '.$event_height.'ex; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'><div class="eventText" style="position: absolute; width: '.$inner_width.'ex; border: none; margin-top: '.$inner_margin_top.'px background-color: transparent">';
-			$res . $assetid.' ';
 			$res .= $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'">' : '<span class="event '.$event_class.'">';
 			$res .= $details['name'];
 			$res .= $show_event_links ? '</a>' : '</span>';
@@ -1264,7 +1263,96 @@ class Page_Calendar extends Page_Asset_Listing
 		$single_result =& $this->_multipleDaySingleQuery($root_nodes, $cal_date, 7);		
 		$recur_result =& $this->_multipleDayRecurringQuery($root_nodes, $cal_date, 'week');
 		
-		$res = $single_result;
+		foreach(array_keys($single_result) as $key) {
+			$event =& $single_result[$key];
+			$event_start_date = sprintf('%04d-%02d-%02d', $event['start_date_year'], $event['start_date_mon'], $event['start_date_mday']);
+			$event_end_date = sprintf('%04d-%02d-%02d', $event['end_date_year'], $event['end_date_mon'], $event['end_date_mday']);
+			
+			$i = 0;
+			
+			if (!is_null($event['end_date_ds'])) {
+				// end date is specified
+				if ($event['start_date_ds'] != $event['end_date_ds']) {
+					
+					// multiple day
+					$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
+					$start_date = date('Y-m-d', $start_time);
+					
+					$end_time = mktime(12, 0, 0, $event['end_date_mon'], $event['end_date_mday'], $event['end_date_year']);
+					$end_date = date('Y-m-d', $end_time);
+						
+					$res[$key.':'.$i] = array_merge($event, Array(
+						'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time),
+						'start_date_mday' => date('j', $start_time),
+						'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
+						'end_date_mday' => date('j', $start_time)));
+						if (!is_null($event['end_date_hours'])) {
+							list($res[$key.':'.$i]['end_date_hours'], $res[$key.':'.$i]['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
+							$res[$key.':'.$i]['end_date_ts'] = iso8601_ts($date.' '.$this->attr('day_ends_at').':00');
+						}
+					$i++;
+					
+					for ($inter_time = $start_time + 86400; $inter_time < $end_time; $inter_time += 86400) {
+						$inter_date = date('Y-m-d', $inter_time);
+						$res[$key.':'.$i] = array_merge($event, Array(
+							'start_date_year' => date('Y', $inter_time), 'start_date_mon' => date('n', $inter_time),
+							'start_date_mday' => date('j', $inter_time),
+							'end_date_year' => date('Y', $inter_time), 'end_date_mon' => date('n', $inter_time),
+							'end_date_mday' => date('j', $inter_time),
+							'partition_start' => $this->attr('day_starts_at')));
+							
+						if (!is_null($event['start_date_hours'])) {
+							list($res[$key.':'.$i]['start_date_hours'], $res[$key.':'.$i]['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
+							$res[$key.':'.$i]['start_date_ts'] = iso8601_ts($date.' '.$this->attr('day_starts_at').':00');
+						}
+						if (!is_null($event['end_date_hours'])) {
+							list($res[$key.':'.$i]['end_date_hours'], $res[$key.':'.$i]['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
+							$res[$key.':'.$i]['end_date_ts'] = iso8601_ts($date.' '.$this->attr('day_ends_at').':00');
+						}
+						$i++;
+					}
+					
+					$res[$key.':'.$i] = array_merge($event, Array(
+						'start_date_year' => date('Y', $end_time), 'start_date_mon' => date('n', $end_time),
+							'start_date_mday' => date('j', $end_time),
+						'end_date_year' => date('Y', $end_time), 'end_date_mon' => date('n', $end_time),
+							'end_date_mday' => date('j', $end_time),
+						'partition_start' => $this->attr('day_starts_at')));
+						
+					if (!is_null($event['start_date_hours'])) {
+						list($res[$key.':'.$i]['start_date_hours'], $res[$key.':'.$i]['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
+						$res[$key.':'.$i]['start_date_ts'] = iso8601_ts($date.' '.$this->attr('day_starts_at').':00');
+					}
+					
+					$i++;
+					
+				} else {
+					$start_time = mktime(12, 0, 0, $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
+					$start_date = date('Y-m-d', $start_time);
+					// single day
+					$res[$key.':'.$i] = array_merge($event, Array(
+						'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
+						'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
+						'end_date_mday' => date('j', $start_time),
+						));
+					$i++;
+				}
+			} else {
+				$start_time = mktime(12, 0, 0,  $event['start_date_mon'], $event['start_date_mday'], $event['start_date_year']);
+				$start_date = date('Y-m-d', $start_time);
+				// single day in any case
+				$res[$key.':'.$i] = array_merge($event, Array(
+						'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time), 'start_date_mday' => date('j', $start_time),
+						'end_date_ds' => round(iso8601_ts($key) / 86400),
+						'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
+						'end_date_mday' => date('j', $start_time),
+						));
+				$i++;
+				
+			}
+		}
+		
+		//$res = $single_result;
 
 		foreach(array_keys($recur_result) as $key) {
 			$event =& $recur_result[$key];
@@ -1303,9 +1391,11 @@ class Page_Calendar extends Page_Asset_Listing
 							'start_date_year' => date('Y', $start_time), 'start_date_mon' => date('n', $start_time),
 							'start_date_mday' => date('j', $start_time),
 							'end_date_year' => date('Y', $start_time), 'end_date_mon' => date('n', $start_time),
-							'end_date_mday' => date('j', $start_time),
-							'end_date_hours' => 24, 'end_date_minutes' => 0));
-						
+							'end_date_mday' => date('j', $start_time)));
+						if (!is_null($event['end_date_hours'])) {
+							list($res[$key.':'.$i]['end_date_hours'], $res[$key.':'.$i]['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
+							$res[$key.':'.$i]['end_date_ts'] = iso8601_ts($start_date.' '.$this->attr('day_ends_at').':00');
+						}
 						$i++;
 						
 						for ($inter_time = $start_time + 86400; $inter_time < $end_time; $inter_time += 86400) {
@@ -1315,9 +1405,16 @@ class Page_Calendar extends Page_Asset_Listing
 								'start_date_mday' => date('j', $inter_time),
 								'end_date_year' => date('Y', $inter_time), 'end_date_mon' => date('n', $inter_time),
 								'end_date_mday' => date('j', $inter_time),
-								'start_date_hours' => 0, 'start_date_minutes' => 0,
-								'end_date_hours' => 24, 'end_date_minutes' => 0,
 								'partition_start' => $this->attr('day_starts_at')));
+								
+							if (!is_null($event['start_date_hours'])) {
+								list($res[$key.':'.$i]['start_date_hours'], $res[$key.':'.$i]['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
+								$res[$key.':'.$i]['start_date_ts'] = iso8601_ts($inter_date.' '.$this->attr('day_starts_at').':00');
+							}
+							if (!is_null($event['end_date_hours'])) {
+								list($res[$key.':'.$i]['end_date_hours'], $res[$key.':'.$i]['end_date_minutes']) = explode(':', $this->attr('day_ends_at'));
+								$res[$key.':'.$i]['end_date_ts'] = iso8601_ts($inter_date.' '.$this->attr('day_ends_at').':00');
+							}
 							$i++;
 						}
 						
@@ -1326,8 +1423,13 @@ class Page_Calendar extends Page_Asset_Listing
 								'start_date_mday' => date('j', $end_time),
 							'end_date_year' => date('Y', $end_time), 'end_date_mon' => date('n', $end_time),
 								'end_date_mday' => date('j', $end_time),
-							'start_date_hours' => 0, 'start_date_minutes' => 0,
 							'partition_start' => $this->attr('day_starts_at')));
+							
+						if (!is_null($event['start_date_hours'])) {
+							list($res[$key.':'.$i]['start_date_hours'], $res[$key.':'.$i]['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
+							$res[$key.':'.$i]['start_date_ts'] = iso8601_ts($end_date.' '.$this->attr('day_starts_at').':00');
+						}
+						
 						$i++;
 						
 					} else {
@@ -1364,7 +1466,6 @@ class Page_Calendar extends Page_Asset_Listing
 			
 			
 		}
-		
 		return $res;
 
 	}
@@ -1486,18 +1587,8 @@ class Page_Calendar extends Page_Asset_Listing
 		$single_result =& $this->_multipleDaySingleQuery($root_nodes, $date, 1);		
 		$recur_result =& $this->_multipleDayRecurringQuery($root_nodes, $date, 'day');
 		
-		print '<span style="border:1px solid gold">';
-		pre_echo($single_result);
-		print '</span>';
-		
-		print '<span style="border:1px solid red">';
-		pre_echo($recur_result);
-		print '</span>';
-		
 		$res = $single_result + $recur_result;
-		print '<div style="border:3px solid blue">';
-		pre_echo($res);
-		print '</div>';		
+				
 		$date_stamp = floor(iso8601_ts($date.' 12:00:00') / 86400);
 		
 		// reset the results so that those which go over multiple days are appropriately
@@ -1506,7 +1597,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$res_item =& $res[$key];
 			list($res_item['start_date_year'], $res_item['start_date_mon'], $res_item['start_date_mday']) = explode('-', $date);
 			list($res_item['end_date_year'], $res_item['end_date_mon'], $res_item['end_date_mday']) = explode('-', $date);
-			if ($date_stamp != $res_item['start_date_ds']) {
+			if ($date_stamp != $res_item['start_date_ds'] && !is_null($res_item['start_date_hours'])) {
 				list($res_item['start_date_hours'],$res_item['start_date_minutes']) = explode(':', $this->attr('day_starts_at'));
 				$res_item['start_date_ts'] = iso8601_ts($date.' '.$this->attr('day_starts_at').':00');
 			}
@@ -1545,15 +1636,21 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		$partitions = array_flip($partition_keys);
 		foreach($partitions as $key => $val) $partitions[$key] = Array();
+		$partitions['all_day'] = Array();
 
 		$res = $partitions;
 		foreach ($events as $assetid => $details) {
 			$event_ts = $details['start_date_minutes']+ (60 * $details['start_date_hours']);
-			if ($event_ts < $start_ts) continue;
-			foreach ($partition_keys as $partition_ts => $key) {
-				if (($event_ts - $partition_ts) < $time_partition) {
-					$res[$key][$assetid] = $details;
-					break;
+			if (is_null($details['start_date_hours'])) {
+				// all day event we think
+				$res['all_day'][$assetid] = $details;
+			} else {
+				if ($event_ts < $start_ts) continue;
+				foreach ($partition_keys as $partition_ts => $key) {
+					if (($event_ts - $partition_ts) < $time_partition) {
+						$res[$key][$assetid] = $details;
+						break;
+					}
 				}
 			}
 		}
@@ -1585,21 +1682,26 @@ class Page_Calendar extends Page_Asset_Listing
 		}
 		$partitions = array_flip($partition_keys);
 		foreach($partitions as $key => $val) $partitions[$key] = Array();
-
+		$partitions['all_day'] = Array();
+		
 		$res = Array();
-		foreach ($root_nodes as $node_id) $res[$node_id] = $partitions;
-
+		foreach ($root_nodes as $node_id) $res[$node_id] = $partitions;		
+		
 		foreach ($events as $assetid => $details) {
 			$event_ts = $details['start_date_minutes']+ (60 * $details['start_date_hours']);
-			if ($event_ts < $start_ts) continue;
-			foreach ($partition_keys as $partition_ts => $key) {
-				if (($event_ts - $partition_ts) < $time_partition) {
-					$res[$details['root_node']][$key][$assetid] = $details;
-					break;
+			if (is_null($details['start_date_hours'])) {
+				// all day event we think
+				$res[$details['root_node']]['all_day'][$assetid] = $details;
+			} else {
+				if ($event_ts < $start_ts) continue;
+				foreach ($partition_keys as $partition_ts => $key) {
+					if (($event_ts - $partition_ts) < $time_partition) {
+						$res[$details['root_node']][$key][$assetid] = $details;
+						break;
+					}
 				}
 			}
 		}
-		
 		return $res;
 	}
 
@@ -1904,7 +2006,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$sql_freqs[] = '(frequency like '.$db->quote('M%').' AND (floor(('.$this->_dayDiffFragment($year * 12, 'start_date_ms').') / period) < floor(('.$this->_dayDiffFragment(($year + 1) * 12, 'start_date_ms').') / period)))';
 			break;
 			
-		}//endswitch;
+		}//end switch on $view
 		
 		$sql .= '('.implode("\n".' OR ', $sql_freqs).')';
 		
