@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.63 2004/09/08 00:03:11 lwright Exp $
+* $Id: html_form.inc,v 1.64 2004/11/02 03:31:17 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -613,52 +613,53 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 /**
 * Prints an interface for getting an assetid from the flash menu
 *
-* @param string	$name			the form name to use for the field
-* @param int	$assetid		current value for this field
-* @param array	$type_codes		Array('[type_code]' => '[flag]') 
-*								where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
-* @param string	$map_frame		a reference to the map_frame so we can get the asset map
-								if this is an empty string, then the asset_finder will look for the asset map
-								in the frame where it was loaded
-* @param string	$done_fn		a function to call when the asset finder is finished
-* @param array	$buttons		an array of which additional buttons to print (clear, reset)
+* @param string		$name			the form name to use for the field
+* @param int		$assetid		current value for this field
+* @param array		$type_codes		Array('[type_code]' => '[flag]') 
+*									where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
+* @param string		$map_frame		a reference to the map_frame so we can get the asset map
+									if this is an empty string, then the asset_finder will look for the asset map
+									in the frame where it was loaded
+* @param boolean	$new_window		is the asset finder in a different window than the asset map
+* @param string		$done_fn		a function to call when the asset finder is finished
+* @param array		$buttons		an array of which additional buttons to print (clear, reset)
 *
 * @return void
 * @access public
 */
-function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sidenav', $done_fn='null', $buttons=Array('clear', 'reset'))
+function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sidenav', $new_window=false, $done_fn='null', $buttons=Array('clear', 'reset'))
 {
-	$finder_frame = (empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
-	
+	$finder_frame = ($new_window || empty($map_frame)) ? 'parent.top' : 'parent.frames["sq_main"]';
+
 	if (!empty($map_frame)) {
 		$map_frame = trim('parent.frames["'.$map_frame.'"]', '.');
 	} else {
 		$map_frame = 'top';
 	}
-	
+	if ($new_window) $map_frame = 'window.opener.'.$map_frame;
+
 	$all_type_codes = Array();
 	$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-	foreach($type_codes as $type_code => $flag) {
+	foreach ($type_codes as $type_code => $flag) {
 		$all_type_codes[] = $type_code;
-		switch($flag) {
+		switch ($flag) {
 			case 'A' : 
 				$ancestors = $am->getTypeAncestors($type_code);
 				foreach($ancestors as $ancestor) {
 					$all_type_codes[] = $ancestor;
 				}
-				break;
+			break;
 			case 'D' : 
 				$descendants = $am->getTypeDescendants($type_code);
 				foreach($descendants as $descendant) {
 					$all_type_codes[] = $descendant;
 				}
-				break;
-		}// end switch
-	}// end foreach
+			break;
+		}//end switch
+	}//end foreach
 
 	$label = '';
-	//$assetid = (int) $assetid;
 	if ($assetid) {
 		$asset = &$am->getAsset($assetid);
 		if (is_null($asset)) $assetid = 0;
