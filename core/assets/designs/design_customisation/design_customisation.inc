@@ -215,7 +215,7 @@ class Design_Customisation extends Design
 	}//end filePath()
 
 	/**
-	* Returns the path that has to be appended to the sq_web_path('base').'/__data' to
+	* Returns the path that has to be appended to the sq_web_path('data') to
 	* get access to the file for this design
 	*
 	* @param string	$filename	the filename to return the path to
