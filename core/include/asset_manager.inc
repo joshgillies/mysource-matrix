@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.238.2.1.2.2 2005/01/07 10:17:39 brobertson Exp $
+* $Id: asset_manager.inc,v 1.238.2.1.2.3 2005/02/15 12:21:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1037,8 +1037,9 @@ class Asset_Manager extends MySource_Object
 	{
 		if (!empty($link)) {
 			// make sure the initial link information is passed in
-			assert_isset($link['asset'], 'Cant create asset without an asset to link to');
-			assert_isset($link['link_type'], 'Cant create asset without a link type');
+			assert_isset_array_index($link, 'asset', 'Cannot clone asset without an asset to link to');
+			assert_isset_array_index($link, 'link_type', 'Cannot clone asset without a link type');
+			assert_not_empty(($link['link_type'] & SQ_SC_LINK_SIGNIFICANT), 'Cannot clone asset with an insignificant link type');
 		}
 
 		$null = null; // needed because we return by reference
