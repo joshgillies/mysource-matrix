@@ -41,7 +41,7 @@ if (is_null($root_folder)) {
 
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
 	$root_user = new Root_User();
-	if (!$root_user->create('root', 'root', 'Root', 'User')) die();
+	if (!$root_user->create('root@'.$_SERVER['HTTP_HOST'])) die();
 	pre_echo('Root User Asset Id : '.$root_user->id);
 
 
