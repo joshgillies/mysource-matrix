@@ -30,7 +30,7 @@ table#year { border: 2px solid purple; background-color: #eeeeee; border-collaps
 #year th  { border: 1px solid black; }
 
 /* Header cells */
-#year th.monthLabel { background-color: #bbbbff; }
+#year th.monthLabel { background-color: #bbbbff; color: red; font-weight: bold; }
 #year th.monthLabel a, #year td.monthLabel a:visited, #year td.monthLabel a:hover { color: red; font-weight: bold; text-decoration: none; }
 #year th.dayLabel { background-color: #bbbbff; }
 #year th.dayLabelWeekend { background-color: #8888aa; }
@@ -62,8 +62,6 @@ table#month { border: 2px solid purple; background-color: #eeeeee; border-collap
 #month th  { border: 1px solid black; }
 
 /* Header Cells */
-#month th.monthLabel { background-color: #bbbbff; }
-#month th.monthLabel a, #month td.monthLabel a:visited, #month td.monthLabel a:hover { font-color: red; font-weight: bold; text-decoration: none; }
 #month th.dayLabel { background-color: #bbbbff; }
 #month th.dayLabelWeekend { background-color: #8888aa; }
 
