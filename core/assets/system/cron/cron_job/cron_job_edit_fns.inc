@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_edit_fns.inc,v 1.14 2004/12/03 15:29:23 brobertson Exp $
+* $Id: cron_job_edit_fns.inc,v 1.15 2004/12/15 05:33:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,13 +46,16 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 	function Cron_Job_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-		$this->static_screens = Array('details'     => Array('name' => 'View Jobs',
-													   'force_unlock' => true
-													),
-									  'logs'        => Array('name' => 'Logs',
-													   'force_unlock' => true,
-													  ),
-									);
+		$this->static_screens = Array(
+									  'details' => Array(
+														 'name' => 'View Jobs',
+														 'force_unlock' => true
+														),
+									  'logs'    => Array(
+														 'name' => 'Logs',
+														 'force_unlock' => true,
+														),
+									 );
 	}//end constructor
 
 
@@ -71,7 +74,7 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		if (is_null($cron_mgr)) return false;
 
 		if ((int) $cron_mgr->attr('refresh_time') <= 0) {
-			echo 'Cron Refresh Time is unknown';
+			echo 'The Cron Manager refresh time is unknown';
 			return;
 		}
 
@@ -155,6 +158,46 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 		} else {
 			echo $when_arr['minute'];
 		}
+		
+		if ($write_access) {
+			$next_run = $cron_mgr->timeOfNextRun()
+			?>
+			<script language="javascript">
+				var TIME_UNITS = new Array();
+				<?php
+				$units = Array(
+					'Y' => 'year',
+					'n' => 'month',
+					'j' => 'day',
+					'G' => 'hour',
+					'i' => 'minute',
+				);
+
+				foreach ($units as $php_unit => $js_unit) {
+					echo 'TIME_UNITS[\''.$js_unit.'\'] = \''.date($php_unit, $next_run).'\';';
+				}
+				?>
+
+				function setCurrentTime(prefix) {
+					for (u in TIME_UNITS) {
+						var id = prefix + '_' + u;
+						var unit = document.getElementById(id);
+
+						if (unit.type == 'text') {
+							unit.value = TIME_UNITS[u];
+						} else {
+							for (var i = 0; i < unit.options.length; i++) {
+								if (TIME_UNITS[u] == unit.options[i].value) {
+									unit.selectedIndex = i;
+								}
+							}
+						}
+					}
+				}
+			</script>
+			<?php
+			normal_button($prefix.'_set_now', 'next run', "setCurrentTime('$prefix');");
+		}
 
 	}//end _paintWhenBox()
 
@@ -186,42 +229,41 @@ class Cron_Job_Edit_Fns extends Asset_Edit_Fns
 				switch ($field) {
 					case 'year' :
 						$when_str .= $_POST[$prefix.'_'.$field].'-';
-						break;
+					break;
 					case 'month' :
 						$when_str .= $_POST[$prefix.'_'.$field].'-';
 						if (!$type_prefix) {
 							$type_prefix = 'YR';
 						}
-						break;
+					break;
 					case 'day' :
 						$when_str .= $_POST[$prefix.'_'.$field].' ';
 						if (!$type_prefix) {
 							$type_prefix = (strlen($_POST[$prefix.'_'.$field]) == 2) ? 'MT' : 'WK';
 						}
-						break;
+					break;
 					case 'hour' :
 						$when_str .= $_POST[$prefix.'_'.$field].':';
 						if (!$type_prefix) {
 							$type_prefix = 'DL';
 						}
-						break;
+					break;
 					case 'minute' :
 						$when_str .= $_POST[$prefix.'_'.$field];
 						if (!$type_prefix) {
 							$type_prefix = 'HR';
 						}
-						break;
+					break;
 				}// end switch
 
 			} else if ($type_prefix) {
 				trigger_error('You cannot have a '.Cron_Job::whenTypeName($type_prefix).' '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset->type(), 'name').' without filling in the '.$field.' field', E_USER_WARNING);
 				return false;
-			}// end if
+			}//end if
 
-		}// end foreach
+		}//end foreach
 
 		$when = $type_prefix.'='.$when_str;
-#		pre_echo('When : '.$when);
 
 		return $asset->setAttrValue('when', $when);
 

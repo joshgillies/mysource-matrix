@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.12 2004/12/06 14:38:10 brobertson Exp $
+* $Id: cron_job_future_lineage.inc,v 1.13 2004/12/15 05:33:29 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -121,15 +121,6 @@ class Cron_Job_Future_Lineage extends Cron_Job
 	function _getAllowedLinks()
 	{
 		$links = parent::_getAllowedLinks();
-		// Basically because we can be altering the lineage of any asset type
-		// we need to make sure that we can cope with the possibility of
-		// changing the lineage of a type that is used by the parent class
-		// EG, 'user' for the running user
-		for (reset($links[SQ_LINK_NOTICE]); (NULL !== ($type = key($links[SQ_LINK_NOTICE]))); next($links[SQ_LINK_NOTICE])) {
-			if ($links[SQ_LINK_NOTICE][$type]['card'] != 'M') {
-				$links[SQ_LINK_NOTICE][$type]['card'] = (int) $links[SQ_LINK_NOTICE][$type]['card'] + 1;
-			}
-		}
 
 		// make sure that we can link to every asset
 		if (empty($links[SQ_LINK_NOTICE]['asset'])) {
@@ -324,18 +315,18 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		if (!is_null($new_major)) {
 
 			$link_info = $this->attr('link_info');
-			if (!isset($link_info['value']))		$link_info['value']          = '';
-			if (!isset($link_info['sort_order']))	$link_info['sort_order']     = null;
-			if (!isset($link_info['is_dependant']))	$link_info['is_dependant']   = '0';
-			if (!isset($link_info['is_exclusive']))	$link_info['is_exclusive']   = '0';
-
+			if (!isset($link_info['value']))        $link_info['value']        = '';
+			if (!isset($link_info['sort_order']))   $link_info['sort_order']   = null;
+			if (!isset($link_info['is_dependant'])) $link_info['is_dependant'] = '0';
+			if (!isset($link_info['is_exclusive'])) $link_info['is_exclusive'] = '0';
 
 			$linkid = $new_major->createLink($minor,
-												$link_info['link_type'],
-												$link_info['value'],
-												$link_info['sort_order'],
-												$link_info['is_dependant'],
-												$link_info['is_exclusive']);
+											 $link_info['link_type'],
+											 $link_info['value'],
+											 $link_info['sort_order'],
+											 $link_info['is_dependant'],
+											 $link_info['is_exclusive']
+											);
 
 			$create_ok = ($linkid > 0);
 

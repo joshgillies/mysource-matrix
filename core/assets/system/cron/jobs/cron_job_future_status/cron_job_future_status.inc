@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status.inc,v 1.20 2004/12/06 14:38:10 brobertson Exp $
+* $Id: cron_job_future_status.inc,v 1.21 2004/12/15 05:33:29 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -86,15 +86,6 @@ class Cron_Job_Future_Status extends Cron_Job
 	function _getAllowedLinks()
 	{
 		$links = parent::_getAllowedLinks();
-		// Basically because we can be altering the status of any asset type
-		// we need to make sure that we can cope with the possibility of
-		// changing the status of a type that is used by the parent class
-		// EG, 'user' for the running user
-		for (reset($links[SQ_LINK_NOTICE]); (NULL !== ($type = key($links[SQ_LINK_NOTICE]))); next($links[SQ_LINK_NOTICE])) {
-			if ($links[SQ_LINK_NOTICE][$type]['card'] != 'M') {
-				$links[SQ_LINK_NOTICE][$type]['card'] = (int) $links[SQ_LINK_NOTICE][$type]['card'] + 1;
-			}
-		}
 
 		// make sure that we can link to every asset
 		if (empty($links[SQ_LINK_NOTICE]['asset'])) {
@@ -338,9 +329,7 @@ class Cron_Job_Future_Status extends Cron_Job
 		asort($dates, SORT_STRING);
 		$assets_jobs = Array();
 
-		foreach ($dates as $i => $date) {
-			$assets_jobs[] = &$all_jobs[$i];
-		}//end for
+		foreach ($dates as $i => $date) $assets_jobs[] = &$all_jobs[$i];
 
 		return $assets_jobs;
 
@@ -348,4 +337,5 @@ class Cron_Job_Future_Status extends Cron_Job
 
 
 }//end class
+
 ?>

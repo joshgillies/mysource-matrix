@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.21 2004/12/06 14:38:10 brobertson Exp $
+* $Id: cron_job.inc,v 1.22 2004/12/15 05:33:29 gsherwood Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -123,6 +123,7 @@ class Cron_Job extends Asset
 	{
 		trigger_error('Unable to morph '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 		return false;
+
 	}//end morph()
 
 
@@ -142,6 +143,7 @@ class Cron_Job extends Asset
 	{
 		trigger_error('You cannot move assets\'s around in '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 		return false;
+
 	}//end moveLinkPos()
 
 
@@ -234,26 +236,6 @@ class Cron_Job extends Asset
 
 
 	/**
-	* Sets the user that this cron job is to run as while executing
-	*
-	* @param object User	$user		a reference to the user that this job will run as
-	*
-	* @return boolean
-	* @access public
-	*/
-	function setRunningUser(&$user)
-	{
-		if (!is_a($user, 'user')) {
-			trigger_error('Unable to set running user, the user must be a user object', E_USER_WARNING);
-			return false;
-		}
-
-		return (bool) $this->createLink($user, SQ_LINK_NOTICE, 'running as');
-
-	}//end setRunningUser()
-
-
-	/**
 	* Gets the user that this cron job is to run as while executing
 	*
 	* @return mixed object User or NULL on error
@@ -262,10 +244,11 @@ class Cron_Job extends Asset
 	function &getRunningUser()
 	{
 		$null = null; // because we need to return by ref
-
-		$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'user', false, 'running as');
-		if (empty($link)) return $null;
-		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+		$userid = $this->attr('running_as');
+		if (!$userid) return $null;
+		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid, '', true);
+		if (is_null($user)) return $null;
+		return $user;
 
 	}//end getRunningUser()
 
