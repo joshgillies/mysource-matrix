@@ -55,7 +55,7 @@ class Asset_Manager extends Resolve_Object
 		$this->_asset_types = Array();
 		while (NULL !== ($row = $result->fetchRow())) {
 			$this->_asset_types[$row['type_code']] = $row;
-		}#end while
+		}//end while
 		$result->free();
 
 	}
@@ -110,7 +110,7 @@ class Asset_Manager extends Resolve_Object
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
 		}
 			
-	}#end refreshAssetType()
+	}//end refreshAssetType()
 
 	/*
 	* Returns whether the passed asset is installed in the system or not
@@ -122,7 +122,7 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function installed($type_code) {
 		return isset($this->_asset_types[$type_code]);
-	}#end installed()
+	}//end installed()
 
 	/*
 	* Returns an array of asset information or a specific piece of information
@@ -142,7 +142,58 @@ class Asset_Manager extends Resolve_Object
 
 		return ($field) ? $this->_asset_types[$type_code][$field] : $this->_asset_types[$type_code];
 
-	}#end getInfo()
+	}//end getInfo()
+
+	/*
+	* Returns an array representing the class hierarchy for the asset types, either for whole system
+	* or for under the the passed asset type
+	*
+	* @param string base_type_code	the asset type's hierarchy to return
+	*
+	* @return array
+	* @access public
+	*/
+	function getAssetTypeHierarchy($base_type_code='asset', $ignore_system_only=false) {
+
+		if (empty($base_type_code)) $base_type_code = 'asset';
+
+		$type_codes = Array();
+		if ($ignore_system_only) {
+			$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+			$sql = 'SELECT type_code
+					FROM sq_asset_type
+					WHERE system_only != 1';
+			$type_codes = $db->getCol($sql);
+			if (DB::isError($type_codes)) trigger_error($type_codes->getMessage().'<br>'.$type_codes->getUserInfo(), E_USER_ERROR);
+		} else {
+			$type_codes = array_keys($this->_asset_types);
+		}
+
+		$offspring = Array();
+		foreach($type_codes as $type_code) {
+			$parent = $this->_asset_types[$type_code]['parent_type'];
+			if (!isset($offspring[$parent])) $offspring[$parent] = Array();
+			$offspring[$parent][] = $type_code;
+		}//end for
+
+		$hier = $this->_recurseGetAssetTypeHierarchy($offspring, $base_type_code);
+
+		return $hier;
+
+	}// end getAssetTypeHierarchy()
+
+	function _recurseGetAssetTypeHierarchy($offspring, $base_type_code) {
+		if (empty($offspring[$base_type_code])) return Array();
+		$arr = Array();
+		for($i = 0; $i < count($offspring[$base_type_code]); $i++) {
+			$type = $offspring[$base_type_code][$i];
+			$arr[$type] = Array('name' => $this->_asset_types[$type]['name'],
+								'subs' => $this->_recurseGetAssetTypeHierarchy($offspring, $type)
+								);
+		}
+		return $arr;
+	}
+
 
 	/*
 	* Includes the class file for the passed asset
@@ -159,7 +210,7 @@ class Asset_Manager extends Resolve_Object
 
 		include_once(SQ_SYSTEM_ROOT.'/'.$this->_asset_types[$type_code]['dir'].'/'.$type_code.'.inc');
 
-	}#end includeAsset()
+	}//end includeAsset()
 
 	/*
 	* Returns an array of all assets types that are parents for the passed asset
@@ -178,7 +229,7 @@ class Asset_Manager extends Resolve_Object
 		$arr = Array();
 
 		while($this->_asset_types[$type_code]['parent_type'] != 'asset') { 
-			# this should NEVER happen, if it does DIE
+			// this should NEVER happen, if it does DIE
 			if (!isset($this->_asset_types[$this->_asset_types[$type_code]['parent_type']])) {
 				trigger_error('Asset "'.$this->_asset_types[$type_code]['parent_type'].'" is not installed on the system,<br>'
 							 .'therefore we cannot get the parent type of Asset "'.$type_code.'".<br>'
@@ -192,7 +243,7 @@ class Asset_Manager extends Resolve_Object
 
 		return $arr;
 
-	}#end getParentList()
+	}//end getParentList()
 
 	/*
 	* returns a reference to the asset represented by the passed assetid
@@ -210,7 +261,7 @@ class Asset_Manager extends Resolve_Object
 			if (empty($type_code)) {
 				$db = &$GLOBALS['SQ_RESOLVE']->getDb();
 				$type_code = $db->getOne('SELECT type_code FROM sq_asset WHERE assetid = '.$db->quote($assetid));
-			}#end if
+			}//end if
 
 			if (empty($type_code)) {
 				if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
@@ -223,17 +274,17 @@ class Asset_Manager extends Resolve_Object
 				} else {
 					$this->includeAsset($type_code);
 					$this->_assets[$assetid] = new $type_code($assetid);
-					# make sure of the asset is correct
+					// make sure of the asset is correct
 					if (empty($this->_assets[$assetid]->id)) $this->_assets[$assetid] = null;
 				}
 
-			}#end if
+			}//end if
 
-		}#end if
+		}//end if
 
 		return $this->_assets[$assetid];
 
-	}#end getAsset()
+	}//end getAsset()
 
 	/*
 	* registers the passed ojbect in the store, for others to get
@@ -245,12 +296,12 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function registerAsset(&$obj) {
 
-		# wrong class or no id, fuck off
+		// wrong class or no id, fuck off
 		if (!is_object($obj) || is_a($obj, 'Asset') || !$obj->id) return;
 
 		$this->_assets[$obj->id] = &$obj;
 
-	}#end registerAsset();
+	}//end registerAsset();
 
 
 	/*
@@ -289,7 +340,7 @@ class Asset_Manager extends Resolve_Object
 					return;
 				break;
 			}
-		}#end if
+		}//end if
 
 		$o->setHeading('Assets Types', 'create');
 		$o->addHiddenField('am_action');
@@ -302,7 +353,7 @@ class Asset_Manager extends Resolve_Object
 
 
 
-	}#end printBackend();
+	}//end printBackend();
 
 
 	/*
@@ -322,7 +373,7 @@ class Asset_Manager extends Resolve_Object
 			$parent = $this->_asset_types[$type_code]['parent_type'];
 			if (!isset($offspring[$parent])) $offspring[$parent] = Array();
 			$offspring[$parent][] = $type_code;
-		}#end for
+		}//end for
 
 	?> 
 		<script language="JavaScript" type="text/javascript">
@@ -444,15 +495,15 @@ class Asset_Manager extends Resolve_Object
 					</td>
 				</tr>
 			<?
-			}#end if
+			}//end if
 
-		}#end for
+		}//end for
 	?> 
 		</table>
 	<?
 
-	}#end _printAssetList()
+	}//end _printAssetList()
 
 
-}#end class
+}//end class
 ?>
