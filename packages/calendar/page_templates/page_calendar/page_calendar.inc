@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.8 2004/08/08 22:55:42 lwright Exp $
+* $Id: page_calendar.inc,v 1.9 2004/08/09 00:19:45 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -154,7 +154,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$result = Array();
 		
 		} else {
-		
+			
 			// this query to get the treeids of the root nodes to plug into the main query/ies
 			$sql = 'select t.treeid from sq_asset a join (sq_asset_link l join sq_asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid where a.assetid in (';
 			
@@ -167,11 +167,14 @@ class Page_Calendar extends Page_Asset_Listing
 			
 			$sql .= implode(', ', $quoted_root_nodes).')';
 			
+			
 			$trees = $db->getCol($sql);
 			assert_valid_db_result($trees);
 			
+			$date_sql = '((substring(v.custom_value from 1 for 10) = '.$db->quote($this->_buildDate($year,$month,$day)).' and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 10) <= '.$db->quote($this->_buildDate($year,$month,$day)).' and substring(v1.custom_value from 1 for 10) >= '.$db->quote($this->_buildDate($year,$month,$day)).'))';
+			
 			// base sql query FOR SINGLE EVENTS (holy crap... O_O')
-			$sql = 'select a.name, a.assetid, v.custom_value as start_date, v1.custom_value as end_date from (((('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_PREFIX.'asset_attribute atr on a.type_code = atr.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr1 on a.type_code = atr1.type_code) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v on atr.attributeid = v.attributeid and a.assetid = v.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v1 on atr1.attributeid = v1.attributeid and a.assetid = v1.assetid where atr.name = '.$db->quote('start_date').' and atr1.name = '.$db->quote('end_date').' and a.type_code = '.$db->quote('calendar_event_single').' and ((substring(v.custom_value from 1 for 10) = '.$db->quote($this->_buildDate($year,$month,$day)).' and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 10) <= '.$db->quote($this->_buildDate($year,$month,$day)).' and substring(v1.custom_value from 1 for 10) >= '.$db->quote($this->_buildDate($year,$month,$day)).'))';
+			$sql = $this->_buildSingleEventQuery().' and '.$date_sql;
 			
 			$tree_sql = Array();
 			foreach($trees as $tree) {
@@ -286,8 +289,10 @@ class Page_Calendar extends Page_Asset_Listing
 			$trees = $db->getCol($sql);
 			assert_valid_db_result($trees);
 					
-			// base sql query FOR SINGLE EVENTS (holy crap... and this is without the root nodes taken into account O_O')
-			$sql = 'select a.name, a.assetid, v.custom_value as start_date, v1.custom_value as end_date from (((('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_PREFIX.'asset_attribute atr on a.type_code = atr.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr1 on a.type_code = atr1.type_code) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v on atr.attributeid = v.attributeid and a.assetid = v.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v1 on atr1.attributeid = v1.attributeid and a.assetid = v1.assetid where atr.name = '.$db->quote('start_date').' and atr1.name = '.$db->quote('end_date').' and a.type_code = '.$db->quote('calendar_event_single').' and (((substring(v.custom_value from 1 for 10) BETWEEN '.$db->quote($this->_buildDate($year,$month,$day)).' AND '.$db->quote($this->_buildDate($year,$month,$day + 6)).') and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 10) < '.$db->quote($this->_buildDate($year,$month,$day + 7)).' and substring(v1.custom_value from 1 for 10) >= '.$db->quote($this->_buildDate($year,$month,$day)).'))';
+			$date_sql = '(((substring(v.custom_value from 1 for 10) BETWEEN '.$db->quote($this->_buildDate($year,$month,$day)).' AND '.$db->quote($this->_buildDate($year,$month,$day + 6)).') and v1.custom_value IS NULL) OR (substring(v.custom_value from 1 for 10) < '.$db->quote($this->_buildDate($year,$month,$day + 7)).' and substring(v1.custom_value from 1 for 10) >= '.$db->quote($this->_buildDate($year,$month,$day)).'))';
+					
+			// base sql query FOR SINGLE EVENTS; downward root nodes taken into account (holy crap O_O')
+			$sql = $this->_buildSingleEventQuery().' and '.$date_sql;
 			
 			$tree_sql = Array();
 			foreach($trees as $tree) {
@@ -313,7 +318,22 @@ class Page_Calendar extends Page_Asset_Listing
 															'end_date' => $end_time,));
 					}
 				}	
+			}			
+			
+			// base sql query For Recurring Events
+			$sql = $this->_buildRecurringEventQuery().' and '.$date_sql;
+		
+			$tree_sql = Array();
+			foreach($trees as $tree) {
+				$tree_sql[] = 'substring(t.treeid from 1 for '.strlen($tree).') LIKE '.$db->quote($tree.'%');
 			}
+			$sql .= ' AND '.implode(' OR ', $tree_sql);
+			
+			print_r($sql);
+			
+			$result = $db->getAll($sql);
+			assert_valid_db_result($result);
+			
 		}//end if root nodes exist
 		
 		list($start_time_h, $start_time_m) = explode(':', $this->attr('day_view_start_time'));
@@ -357,7 +377,7 @@ class Page_Calendar extends Page_Asset_Listing
 			);
 			
 			$overlaps = $this->_maxOverlappingEvents($final_result[$this->_buildDate($year,$month,$day + $i - $first_wday)], $result_item['start_date'], $result_item['end_date'], $this->attr('appointment_spacing'))
-			?><div style="position:relative;float:left;display:block;background:white;border:1px solid black;top:<?php echo $div_props['t'] ?>%;height:<?php echo $div_props['h'] ?>%;width:<?php echo intval(100/$overlaps) - 3 ?>%;"><?php
+			?><div style="position:relative;float:left;display:block;background:white;border:1px solid black;top:<?php echo $div_props['t'] ?>%;height:<?php echo $div_props['h'] ?>%;width:<?php echo intval(100/max(1,$overlaps)) - 3 ?>%;"><?php
 				echo '<b>'.$result_item['name'].'</b> running ';
 			if (($result_item['start_date'] == '00:00:00') && ($result_item['end_date'] == '24:00:00')) {
 				echo 'all day';
@@ -546,7 +566,7 @@ class Page_Calendar extends Page_Asset_Listing
 	* @param string	$end		Latest time to check for overlaps (HH:MM)
 	* @param int	$spacing	Calendar spacing in MINUTES
 	
-	* @return mixed int			= 0 if events is not an array or is empty
+	* @return int				= 0 if events is not an array or is empty
 	* @access private
 	*/
 	function _maxOverlappingEvents(&$events, $start, $end, $spacing)
@@ -617,6 +637,38 @@ class Page_Calendar extends Page_Asset_Listing
 		return ceil(($end_time - $start_time) / $spacing);
 		
 	}//end _numPeriodsBetweenTimes()
+	
+	
+	/**
+	* Builds the common part of the single events query
+	*
+	* @return string	the common part of the SQL query
+	* @access private
+	*/
+	function _buildSingleEventQuery()
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		
+		return 
+		'select a.name, a.assetid, v.custom_value as start_date, v1.custom_value as end_date from (((('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_PREFIX.'asset_attribute atr on a.type_code = atr.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr1 on a.type_code = atr1.type_code) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v on atr.attributeid = v.attributeid and a.assetid = v.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v1 on atr1.attributeid = v1.attributeid and a.assetid = v1.assetid where atr.name = '.$db->quote('start_date').' and atr1.name = '.$db->quote('end_date').' and a.type_code = '.$db->quote('calendar_event_single');
+		
+	}//end _buildSingleEventQuery()
+	
+	
+	/**
+	* Builds the common part of the recurring events query
+	*
+	* @return string	the common part of the SQL query
+	* @access private
+	*/
+	function _buildRecurringEventQuery()
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		
+		return
+		'select a.name, a.assetid, v.custom_value as start_date, v1.custom_value as end_date, v2.custom_value as stop_date, v3.custom_value as frequency from (((((((('.SQ_TABLE_RUNNING_PREFIX.'asset a join ('.SQ_TABLE_RUNNING_PREFIX.'asset_link l join '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t on l.linkid = t.linkid) on l.minorid = a.assetid) join '.SQ_TABLE_PREFIX.'asset_attribute atr on a.type_code = atr.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr1 on a.type_code = atr1.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr2 on a.type_code = atr2.type_code) join '.SQ_TABLE_PREFIX.'asset_attribute atr3 on a.type_code = atr3.type_code) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v on atr.attributeid = v.attributeid and a.assetid = v.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v1 on atr.attributeid = v1.attributeid and a.assetid = v1.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v2 on atr.attributeid = v2.attributeid and a.assetid = v2.assetid) left join '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v3 on atr1.attributeid = v3.attributeid and a.assetid = v3.assetid where atr.name = '.$db->quote('start_date').' and atr1.name = '.$db->quote('end_date').'  and atr2.name = '.$db->quote('stop_date').'  and atr3.name = '.$db->quote('frequency').' and a.type_code = '.$db->quote('calendar_event_recurring');
+		
+	}//end _buildRecurringEventQuery()
 	
 	
 }//end class
