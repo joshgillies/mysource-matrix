@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.8 2004/09/14 01:38:33 gsherwood Exp $
+* $Id: package_manager_core.inc,v 1.9 2004/10/25 06:52:20 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -91,11 +91,13 @@ class Package_Manager_Core extends Package_Manager
 	/**
 	* Installs/Updates the passed package in the system
 	*
+	* @param Array $updateAssets		An array of asset types to update 
+	*									details for. If empty, will do all assets
 	* @access public
 	*/
-	function updatePackageDetails()
+	function updatePackageDetails($updateAssets=Array())
 	{
-		if (!$this->checkPackageDetails()) {
+		if (!$this->checkPackageDetails($updateAssets)) {
 			return false;
 		}
 
@@ -135,7 +137,7 @@ class Package_Manager_Core extends Package_Manager
 
 
 		// Now we can do the normal package update 
-		if (!parent::updatePackageDetails()) {
+		if (!parent::updatePackageDetails($updateAssets)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
