@@ -57,7 +57,7 @@ class Form_Question_Rule_Type_Numeric_Edit_Fns extends Form_Question_Rule_Edit_F
 		if (isset($_POST[$prefix.'_operator'])) {
 			$asset->setAttrValue('operator', $_POST[$prefix.'_operator']);
 		}
-		return true;
+		return $asset->saveAttributes();
 
 	}// end processInlineBackend()
 

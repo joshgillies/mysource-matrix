@@ -30,7 +30,7 @@ class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns
 
 		$contents = Array(
 			'1' => 'Must Be a Valid Email Address',
-			'2' => 'Must Not Be A Valid Email Address',
+			'0' => 'Must Not Be A Valid Email Address',
 		);
 
 		?>
@@ -57,8 +57,9 @@ class Form_Question_Rule_Type_Email_Edit_Fns extends Form_Question_Rule_Edit_Fns
 		if (isset($_POST[$prefix.'_operator'])) {
 			$asset->setAttrValue('operator', $_POST[$prefix.'_operator']);
 		}
+		return $asset->saveAttributes();
 	
-	}// end processInlineBackend()
+	} // end processInlineBackend()
 
 
 }//end class

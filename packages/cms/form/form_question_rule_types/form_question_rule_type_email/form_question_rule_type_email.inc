@@ -1,6 +1,7 @@
 <?php
 
 require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule.inc';
+require_once SQ_FUDGE_PATH .'/general/www.inc';
 
 /**
 * Form_Question_Rule_Type_Email
@@ -143,12 +144,13 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 		$answer   = $submission->getAnswer($questionid);
 		$operator = ($this->attr('operator')) ? 1 : 0;
 
-		$regex = '/^([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-]+)*@([a-zA-Z0-9])+(\.[a-zA-Z0-9_-]+)+$/';
-		$valid = preg_match($regex, $answer);
-
+		$valid = valid_email($answer);
+		echo $operator. ' '. $valid;
 		if ($valid == $operator) {
+			echo 'here1';
 			return true;
 		} else {
+			echo 'here2';
 			$error = $question_name.' must '. (($operator) ? '' : 'not') .' be a valid Email Address';
 			$submission->setError($error);
 			return false;

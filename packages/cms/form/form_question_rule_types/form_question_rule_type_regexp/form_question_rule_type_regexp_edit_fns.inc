@@ -60,7 +60,7 @@ class Form_Question_Rule_Type_Regexp_Edit_Fns extends Form_Question_Rule_Edit_Fn
 		if (isset($_POST[$prefix.'_value'])) {
 			$asset->setAttrValue('value', $_POST[$prefix.'_value']);
 		}
-		return true;
+		return $asset->saveAttributes();
 
 	}// end processInlineBackend()
 
