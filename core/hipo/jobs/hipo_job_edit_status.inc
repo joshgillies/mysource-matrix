@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_status.inc,v 1.14 2004/01/19 23:59:07 gsherwood Exp $
+* $Id: hipo_job_edit_status.inc,v 1.15 2004/01/22 00:35:35 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -73,6 +73,48 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 
 
 	/**
+	* Paints backend of this job
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param string						$class		calling class name
+	*
+	* @return void
+	* @access private
+	*/
+	function paintConfig(&$o, &$class)
+	{
+			$write_access = $this->writeAccess();
+			
+			// metadata regeneration threshhold HIPO config entry
+			$o->openField('Edit Status Threshold');
+
+			if($write_access) {
+				text_box($class.'[SQ_HIPO_EDIT_STATUS_THRESHOLD]', SQ_HIPO_EDIT_STATUS_THRESHOLD, 5);
+			} else {
+				echo SQ_HIPO_EDIT_STATUS_THRESHOLD;
+			}
+
+			$o->closeField();
+
+	}//end paintConfig()
+
+
+	/**
+	* Sets some info about thresholds that this hipo requires.
+	*
+	* @return Array
+	* @access public
+	*/
+	function getConfigVars()
+	{
+		return Array(
+			'SQ_HIPO_EDIT_STATUS_THRESHOLD' => Array('editable' => 1, 'default' => 1),
+		);
+
+	}//end getConfigVars()
+
+
+	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
 	* The Edit Status HIPO appends the ID of the asset that the status is being edited for
@@ -88,6 +130,23 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		return parent::_getCodeName().$this->_running_vars['assetid'];
 
 	}//end _getCodeName()
+
+
+	/**
+	* Returns the current Threshold.
+	*
+	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
+	* 
+	* @return float
+	* @access public
+	*/
+	function getThreshold()
+	{
+		if (SQ_HIPO_EDIT_STATUS_THRESHOLD == 0) return 0;
+		if (!isset($this->_running_vars['todo_assetids'])) return 0;
+		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_EDIT_STATUS_THRESHOLD) * 100);
+	
+	}//end getThreshold()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.7 2004/01/19 00:52:44 gsherwood Exp $
+* $Id: hipo_job_reindex.inc,v 1.8 2004/01/22 00:35:35 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,6 +77,48 @@ class HIPO_Job_ReIndex extends HIPO_Job
 
 
 	/**
+	* Paints backend of this job
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param string						$class		calling class name
+	*
+	* @return void
+	* @access private
+	*/
+	function paintConfig(&$o, &$class)
+	{
+			$write_access = $this->writeAccess();
+			
+			// metadata regeneration threshhold HIPO config entry
+			$o->openField('Reindexing Threshold');
+
+			if($write_access) {
+				text_box($class.'[SQ_HIPO_REINDEX_THRESHOLD]', SQ_HIPO_REINDEX_THRESHOLD, 5);
+			} else {
+				echo SQ_HIPO_REINDEX_THRESHOLD;
+			}
+
+			$o->closeField();
+
+	}//end paintConfig()
+
+
+	/**
+	* Sets some info about thresholds that this hipo requires.
+	*
+	* @return Array
+	* @access public
+	*/
+	function getConfigVars()
+	{
+		return Array(
+			'SQ_HIPO_REINDEX_THRESHOLD' => Array('editable' => 1, 'default' => 1),
+		);
+
+	}//end getConfigVars()
+
+
+	/**
 	* Returns a unique codename the HIPO can use to ensure it is not being run twice
 	*
 	* The Regenerate Metdata HIPO appends the ID of the schema that was updated so that any other 
@@ -93,17 +135,45 @@ class HIPO_Job_ReIndex extends HIPO_Job
 
 
 	/**
-	* Set up vars and database information that the HIPO will need to run
+	* Returns the current Threshold.
 	*
-	* The Reindex HIPO also checks that there is an assetid to start this action on
-	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
-	*
-	* @param string	$source_code_name	the code name of another job that wants to use this job
-	*
-	* @return string	returns the code_name for the new job
+	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
+	* 
+	* @return float
 	* @access public
 	*/
-	function initialise($source_code_name=null)
+	function getThreshold()
+	{
+		if (SQ_HIPO_REINDEX_THRESHOLD == 0) return 0;
+		if (!isset($this->_running_vars['todo_assetids'])) return 0;
+		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_REINDEX_THRESHOLD) * 100);
+	
+	}//end getThreshold()
+
+
+	/**
+	* Performs the duties of this hipo, without showing any output on the frontend.
+	* 
+	* @return boolean
+	* @access public
+	*/
+	function freestyle()
+	{
+		while (!empty($this->_running_vars['todo_assetids'])) {
+			if (!$this->processReIndex($this->_steps[0], get_class($this))) return false;
+		}
+		return true;
+
+	}//end freestyle()
+
+
+	/**
+	* Prepares the running vars and gets the children of the asset in question.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function prepare()
 	{
 		// to start regenerating metadata, we need to have a root assetid - default to root folder if none is supplied
 		if (is_null($this->_running_vars['root_assetid']) || $this->_running_vars['root_assetid'] <= 0) {
@@ -121,7 +191,28 @@ class HIPO_Job_ReIndex extends HIPO_Job
 		$child_assets[$asset->id] = $asset->type();
 		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
-		
+
+		return parent::prepare();
+	
+	}//end prepare()
+
+
+	/**
+	* Set up vars and database information that the HIPO will need to run
+	*
+	* The Reindex HIPO also checks that there is an assetid to start this action on
+	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
+	*
+	* @param string	$source_code_name	the code name of another job that wants to use this job
+	*
+	* @return string	returns the code_name for the new job
+	* @access public
+	*/
+	function initialise($source_code_name=null)
+	{
+		if (!$this->is_prepared) {
+			$this->prepare();
+		}
 		return parent::initialise($source_code_name);
 
 	}//end initialise()
