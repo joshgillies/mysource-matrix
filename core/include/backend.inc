@@ -171,6 +171,12 @@ class Backend extends Resolve_Object
 	function _printFooter()
 	{
 		$this->out->openRaw();
+		
+		?>
+		<script language="Javascript" type="text/javascript">
+			var refreshUpdate = <?php echo (int) SQ_CONF_REFRESH_INTERVAL ?>; // number of seconds before refreshing frame
+		</script>
+		<?php
 
 		// check for any new internal messages
 		$messages = $GLOBALS['SQ_SYSTEM']->ms->getMessages($GLOBALS['SQ_SYSTEM']->user->id, Array(SQ_MSG_UNREAD));
@@ -204,7 +210,6 @@ class Backend extends Resolve_Object
 				var divLeft = 0;
 				var smTop = 0;
 				var smLeft = 0;
-				var refreshUpdate = <?php echo SQ_CONF_REFRESH_INTERVAL ?>; // number of seconds before refreshing frame
 
 				function moveIt(x) {
 					divTop += x;
