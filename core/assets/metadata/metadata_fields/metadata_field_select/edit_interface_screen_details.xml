@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/02/03 03:27:42 diarandine Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/02/26 03:01:25 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -37,11 +37,6 @@
 			<display_name>Field Name</display_name>
 			<note />
 			<text width="30" height="1" />
-		</field>
-		<field attribute="default">
-			<display_name>Default</display_name>
-			<note />
-			<text width="30" height="5" />
 		</field>
 		<field attribute="scheme">
 			<display_name>Scheme</display_name>
