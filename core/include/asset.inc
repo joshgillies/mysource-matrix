@@ -2837,13 +2837,9 @@ class Asset extends Resolve_Object
 		}
 
 		// cant link to the new parent if it is in the trash
-		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($new_parent->id)) {
-			// check if the trash link is the only significant link left
-			$links = $new_parent->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'minor');
-			if (count($links) == 1) {
-				trigger_error('Unable to Move Asset, new parent (Asset #"'.$new_parent->id.'") is in the trash');
-				return;
-			}
+		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($new_parent->id, true)) {
+			trigger_error('Unable to Move Asset, new parent (Asset #"'.$new_parent->id.'") is in the trash');
+			return;
 		}
 
 		// if you dont have write access to this asset you cant delete any links

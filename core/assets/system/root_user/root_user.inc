@@ -87,6 +87,18 @@ class Root_User extends System_User
 
 
 	/**
+	* Returns true if this user can log in
+	* Note that this is not for backend logins only, it applys to all logins
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canLogin() {
+		return true;
+	}
+
+
+	/**
 	* Set the value for the passed variable to the passed value
 	*
 	* @param string		$name				the name of the attribute

@@ -209,13 +209,19 @@ class Resolve
 					list($userid, $user_type) = User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD'], 'backend_user');
 					if ($userid) {
 						$user = &$this->am->getAsset($userid, $user_type);
-						$_SESSION['userid']      = $userid;
-						$_SESSION['remote_addr'] = $_SERVER['REMOTE_ADDR'];
-						// generate a new login key so that when they try and login next
-						// they have to re-enter the details
-						$this->generateLoginKey();
+						// okay, we have a user, but we need to check that this user
+						// can actually login
+						if (!$user->canLogin()) {
+							$this->addMessage('User not found');
+						} else {
+							$_SESSION['userid']      = $userid;
+							$_SESSION['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+							// generate a new login key so that when they try and login next
+							// they have to re-enter the details
+							$this->generateLoginKey();
 
-						$this->user = &$user;
+							$this->user = &$user;
+						}
 						break;
 
 					} else {

@@ -268,6 +268,31 @@ class User extends Asset
 
 
 	/**
+	* Returns true if this user can log in
+	* Note that this is not for backend logins only, it applys to all logins
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canLogin() {
+		// check that this user is live
+		if ($this->status & SQ_STATUS_NOT_LIVE) return false;
+
+		// check that this user has not expired
+		$expires = $this->attr('expiry_date');
+		if ($expires != '---------- --:--:--') {
+			$now = date('Y-m-d h:i:s');
+			if ($expires <= $now) return false;
+		}
+
+		// check that this user is not only in the trash
+		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($this->id, true)) return false;
+
+		return true;
+	}
+
+
+	/**
 	* Called by the design to print the body of this asset
 	*
 	* @access public
