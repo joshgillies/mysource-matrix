@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mcTabContentAreaTreeClass.as,v 1.17 2003/11/26 00:51:12 gsherwood Exp $
+* $Id: mcTabContentAreaTreeClass.as,v 1.18 2003/12/17 04:53:48 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -257,11 +257,11 @@ mcTabContentAreaTreeClass.prototype.cancelAssetFinder = function()
 *
 * @access public
 */
-mcTabContentAreaTreeClass.prototype.finishAssetFinder = function(assetid) 
+mcTabContentAreaTreeClass.prototype.finishAssetFinder = function(assetid, url) 
 {
 	this.stopAssetFinder();
 //	trace("Asset Finder Select's Assetid : " + assetid);
-	_root.external_call.makeExternalCall('asset_finder_done', {assetid: assetid, label: _root.asset_manager.assets[assetid].name});
+	_root.external_call.makeExternalCall('asset_finder_done', {assetid: assetid, label: _root.asset_manager.assets[assetid].name, url: url});
 
 }// end finishAssetFinder()
 
