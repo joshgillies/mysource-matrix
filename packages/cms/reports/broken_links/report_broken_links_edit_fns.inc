@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.1 2004/07/06 03:37:46 gsherwood Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.2 2004/07/06 05:05:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -72,6 +72,12 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 			$job->_running_vars['done'] = Array();
 			$job->_running_vars['results'] = Array();
 
+			if (!is_dir($owner->data_path)) {
+				if (!create_directory($owner->data_path)) {
+					trigger_error('Could not create data directory, report generation aborted', E_USER_WARNING);
+					return false;
+				}
+			}
 			$temp_file = fopen($owner->data_path.'/report.tmp', 'w');
 			if ($temp_file === false) {
 				trigger_error('Could not open temporary file, report generation aborted', E_USER_WARNING);
