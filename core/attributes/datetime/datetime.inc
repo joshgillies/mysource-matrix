@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.15 2004/05/07 01:22:31 lwright Exp $
+* $Id: datetime.inc,v 1.16 2004/05/09 22:54:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -131,7 +131,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=false)
 	{
-		if (isset($this->_params['print_format'])) {
+		if (isset($this->_params['print_format']) && !empty($this->_params['print_format'])) {
 			$this->_edit_params['print_format'] = $this->_params['print_format'];
 		}
 		$field = new Datetime_Field($prefix.'_'.$this->name, $this->value, $this->_edit_params);
