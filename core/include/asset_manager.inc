@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.199 2004/04/02 01:53:06 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.200 2004/04/13 01:03:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1561,7 +1561,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param int		$assetid			id of the the $side_of_link asset
 	* @param int		$other_assetid		the asset of the other $side_of_link
-	* @param int		$link_types		integer that can be the product of bitwise operations
+	* @param int		$link_types			integer that can be the product of bitwise operations
 	*										on the SQ_LINK_* constants
 	* @param string		$value				the value that is associated with this link
 	* @param string		$side_of_link		Which side of the link this (the current) asset

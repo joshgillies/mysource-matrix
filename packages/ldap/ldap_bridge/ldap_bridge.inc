@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.10 2004/04/06 23:04:03 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.11 2004/04/13 01:07:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,7 +40,20 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 class LDAP_Bridge extends Bridge
 {
 
+	/**
+	* An array of objectclass values that represent groups in LDAP
+	* All values must be lowercase
+	*
+	* @var array(string)
+	*/
 	var $_group_types = Array('organizationalunit', 'group');
+	
+	/**
+	* An array of objectclass values that represent users in LDAP
+	* All values must be lowercase
+	*
+	* @var array(string)
+	*/
 	var $_user_types = Array('organizationalperson');
 
 
@@ -275,7 +288,7 @@ class LDAP_Bridge extends Bridge
 
 			$this->_tmp['getParents'][$assetid] = $parents;
 		}
-		
+
 		return $this->_tmp['getParents'][$assetid];
 
 	}//end getParents()
