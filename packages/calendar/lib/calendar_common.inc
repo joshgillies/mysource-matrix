@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.20 2004/12/29 22:43:01 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.21 2005/01/06 04:39:54 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -688,7 +688,7 @@ function expand_single_event(&$result_list, &$event, $assetid, $first_day, $last
 		// end date is not specified - must be just a date or a point in time
 		if (!is_null($event['start_date_hours'])) {
 			// the time is specified
-			if (($start_date_dts < $day_start_dts) || ($end_time_dts > $day_end_dts)) {
+			if (($event_start_dts < $day_start_dts) || ($event_start_dts > $day_end_dts)) {
 				// the time is too early or late in the day to be shown
 				return;
 			}

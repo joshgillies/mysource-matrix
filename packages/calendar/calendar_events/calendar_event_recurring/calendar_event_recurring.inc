@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.52 2004/12/23 05:51:37 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.53 2005/01/06 04:39:54 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.52 $
+* @version $Revision: 1.53 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -611,8 +611,12 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 		if (isset($_REQUEST['SQ_CALENDAR_DATE'])) {
 			if ($exception_link = $this->getExceptionLink($_REQUEST['SQ_CALENDAR_DATE'])) {
-				// We shouldn't really ever get here, but handle it anyway
-				echo '<p>This event has a modification today: please see <a href="?a='.$exception_link['minorid'].'">event '.$exception_link['minorid'].'</a></p>';
+				$exception_type = ($exception_link['minor_type_code'] == 'calendar_event_cancellation') ? 'is cancelled' : 'has a modification';
+				echo '<p>This event '.$exception_type.' today: please see <a href="'.replace_query_string_vars(Array('SQ_CALENDAR_EVENT_ACTION'=>null, 'SQ_CALENDAR_EVENT_ID'=>$exception_link['minorid'])).'">event '.$exception_link['minorid'].'</a></p>';
+				$keywords['instance_start_datetime'] = Array('value'=>'');
+				$keywords['instance_end_datetime'] = Array('value'=>'');
+				$keywords['cancel_link'] = Array('value'=>'');
+				$keywords['modify_link'] = Array('value'=>'');
 			} else {
 				// we are showing a normal instance of this event
 				$instance_dates = $this->getInstanceDates($_REQUEST['SQ_CALENDAR_DATE']);
@@ -663,7 +667,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 	{
 		if (is_null($id)) $id = $this->id;
 		$child_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($id, SQ_SC_LINK_ALL, Array('calendar_event_cancellation', 'calendar_event_modification'), false, 'major', $date);
-		return current($child_links);
+		$res =& current($child_links);
+		if ($res['minor_type_code'] == 'calendar_event_cancellation') {
+			$replacement_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($res['minorid'], SQ_SC_LINK_ALL, 'calendar_event_single', false);
+			if (!empty($replacement_links)) {
+				$res = current($replacement_links);
+			}
+		}
+		return $res;
 
 	}//end getExceptionLink()
 
@@ -760,57 +771,43 @@ class Calendar_Event_Recurring extends Calendar_Event
 			break;
 
 			case 'modify2':
-				$occurrence_end_date = $this->getEndDate() ? date('Y-m-d', iso8601_ts($_REQUEST['SQ_CALENDAR_DATE'].' '.($this->getStartTime() ? $this->getStartTime() : ' 12:00:00')) + $this->getDuration()) : false;
-				// We can only avoid cancelling and rescheduling if the time components are all the same, ie if
-				// (start date field equals the occurrence start date)
-				// AND (event has start time AND start time field is equal to it)
-				//		OR (event has no start time AND start time field is disabled)
-				// AND (occurrence has end date AND end date field is equal to it)
-				//		OR (event has no end date AND end date field is disabled)
-				// AND (event has end time AND end time field is equal to it)
-				//		OR (event has no end time AND end time field is disabled)
-				// ... in other words...
+				// Figure out the original details of the occurrence we're modifying
+				$occurrence_start = '';
+				$occurrence_end = '---------- --:--:--';
+				if ($this->hasOccurrenceOnDate($_REQUEST['SQ_CALENDAR_DATE'])) {
+					$occurrence_start_date = $_REQUEST['SQ_CALENDAR_DATE'];
+				} else {
+					$occurrence_start_date = $this->getNextOccurrenceAfter(add_days_to_iso($_REQUEST['SQ_CALENDAR_DATE'], -($this->getDuration() / 86400)));
+				}
+				$occurrence_start = $occurrence_start_date.' ';
+				$occurrence_start .= ($this->getStartTime() ? $this->getStartTime() : '--:--:--');
 
-				$start_dates_agree = ($_REQUEST['SQ_CALENDAR_DATE'] == sprintf('%04d-%02d-%02d', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day']));
+				if ($this->getDuration()) {
+					$occurrence_end = add_days_to_iso($occurrence_start_date, $this->getDuration() / 86400).' ';
+					$occurrence_end .= ($this->getEndTime() ? $this->getEndTime() : '--:--:--');
+				}
 
-				$start_times_agree = ((($start_time = $this->getStartTime()) && isset($_REQUEST['event_start_time_enabled']) &&  (sprintf('%02d:%02d', $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']) == $start_time)) || ((!$this->getStartTime()) && (!isset($_REQUEST['event_start_time_enabled']))));
+				// Get the new details
+				$edit_fns = $this->getEditFns();
+				$new_details = $edit_fns->getStartEndChooserResult('event');
 
-				$end_dates_agree = ((($occurrence_end_date) && isset($_REQUEST['event_end_date_enabled']) && (sprintf('%04d-%02d-%02d', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day']) == $occurrence_end_date)) || ((!$occurrence_end_date && (!isset($_REQUEST['event_end_date_enabled'])))));
-
-				$end_times_agree = ((($end_time = $this->getEndTime()) && isset($_REQUEST['event_end_time_enabled']) &&  (sprintf('%02d:%02d', $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']) == $end_time)) || ((!$this->getEndTime()) && (!isset($_REQUEST['event_end_time_enabled']))));
-				if ($start_dates_agree && $start_times_agree && $end_dates_agree && $end_times_agree) {
-					$this->addModification($_REQUEST['SQ_CALENDAR_DATE'], $_REQUEST['event_description']);
+				// Compare old and new details
+				if (($new_details['start'] == $occurrence_start) && ($new_details['end'] == $occurrence_end)) {
+					// because the dates and times have not changed, we can just add a modification
+					// with the new description
+					$this->addModification($occurrence_start_date, $_REQUEST['event_description']);
 					$res = '<p>Event instance modified</p>';
 				} else {
-					$cancellation_event = $this->addCancellation($_REQUEST['SQ_CALENDAR_DATE'], '(rescheduled)');
+					// dates/times have changed, so we have to cancel and then reschedule
+					$cancellation_event =& $this->addCancellation($occurrence_start_date, '(rescheduled)');
 
-					if (!isset($_REQUEST['event_start_time_enabled'])) {
-						$_REQUEST['event_start_hours'] = '--';
-						$_REQUEST['event_start_minutes'] = '--';
-					} else {
-						if ($_REQUEST['event_start_is_pm'] && ($_REQUEST['event_start_hours'] != 12)) $_REQUEST['event_start_hours'] += 12;
-					}
-					$start_date_string = sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_start_year'], $_REQUEST['event_start_month'], $_REQUEST['event_start_day'],  $_REQUEST['event_start_hours'], $_REQUEST['event_start_minutes']);
-
-
-					if (!isset($_REQUEST['event_end_time_enabled'])) {
-						$_REQUEST['event_end_hours'] = '--';
-						$_REQUEST['event_end_minutes'] = '--';
-					} else {
-						if ($_REQUEST['event_end_is_pm'] && ($_REQUEST['event_end_hours'] != 12)) $_REQUEST['event_end_hours'] += 12;
-					}
-					if (!isset($_REQUEST['event_end_enabled'])) {
-						$end_date_string = '---------- --:--:--';
-					} elseif (isset($_REQUEST['event_end_type']) && ($_REQUEST['event_end_type'] == 'date')) {
-						$end_date_string = sprintf('%04s-%02s-%02s %02s:%02s:--', $_REQUEST['event_end_year'], $_REQUEST['event_end_month'], $_REQUEST['event_end_day'],  $_REQUEST['event_end_hours'], $_REQUEST['event_end_minutes']);
-					} else {
-						$duration_secs = 60 * $_REQUEST['event_duration'] * (($_REQUEST['event_duration_type'] == 'i') ? 1 : 60);
-						$end_date_string = ts_iso8601(iso8601_ts($start_date_string + $duration_secs));
-					}
-
-					$cancellation_event->addReplacement($start_date_string, $end_date_string ,  $_REQUEST['event_description']);
+					$replacement =& $cancellation_event->addReplacement($new_details['start'], $new_details['end'] ,  $_REQUEST['event_description']);
 
 					$res = '<p>Event rescheduled</p>';
+					$new_query_string_vars = Array('SQ_CALENDAR_EVENT_ID'     => $replacement->id,
+											       'SQ_CALENDAR_DATE'         => $replacement->getStartDate(),
+												   'SQ_CALENDAR_EVENT_ACTION' => null);
+					$res .= '<p><a href="'.replace_query_string_vars($new_query_string_vars).'">View replacement event</a></p>';
 				}
 			break;
 
@@ -850,7 +847,9 @@ class Calendar_Event_Recurring extends Calendar_Event
 		} else {
 			$cancellation_event = new Calendar_Event_Cancellation();
 		}
-		$cancellation_event->setAttrValue('start_date', $date.' --:--:--');
+		$cancellation_event->setAttrValue('start_date', $date.' '.($this->getStartTime()? $this->getStartTime().':00' : '--:--:--'));
+		$end_date = add_days_to_iso($date, $this->getDuration() / 86400);
+		$cancellation_event->setAttrValue('end_date', $end_date.' '.($this->getEndTime() ? $this->getEndTime().':00' : '--:--:--'));
 		$cancellation_event->setAttrValue('description', $reason);
 		if (!$cancellation_event->id) {
 			$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 0, 'value' => $date);
@@ -863,6 +862,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$cancellation_event->saveAttributes();
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($cancellation_event->id, 'attributes');
 		}
+		$cancellation_event->processStatusChange($this->status);
 		return $cancellation_event;
 
 	}//end addCancellation()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.141 2005/01/06 01:04:39 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.142 2005/01/06 04:39:54 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.141 $
+* @version $Revision: 1.142 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2069,11 +2069,11 @@ class Page_Calendar extends Page_Asset_Listing
 		$sql = build_single_event_query_base($trees).' AND '.$date_sql.' AND '.$tree_sql;
 		$single_result = $db->getAssoc($sql);
 		assert_valid_db_result($single_result);
-
+/*
 		foreach ($single_result as $id => $details) {
 			$single_result[$id]['type_code'] = 'calendar_event_single';
 		}
-
+*/
 		// GET RECURRING EVENTS:
 
 		// combine tree sql with the common SQL for recurring events and get result from DB
@@ -2180,6 +2180,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$partitions['all_day'] = Array();
 
 		$events = &$this->getDayEvents($date);
+		process_exceptions($events);
 		$res = Array();
 
 		$columnise_by_root = $this->attr('columnise_day_view_by_root_node');
@@ -2189,7 +2190,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$root_node_treeids = get_treeids(array_flip($root_nodes));
 		uasort($root_node_treeids, create_function('$a,$b', 'return strlen($b)-strlen($a);'));
-
+		
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.13 2004/12/06 17:31:33 brobertson Exp $
+* $Id: calendar_event_cancellation.inc,v 1.14 2005/01/06 04:39:54 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -75,12 +75,12 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		$parent = &$link['asset'];
 		if (!($link['value'] = $this->getStartDate())) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error('You need to specify a start date before you can call create() for a modification event', E_USER_ERROR);
+			trigger_error('You need to specify a start date before you can call create() for a modification event', E_USER_WARNING);
 			return false;
 		}
-		if ($parent->type() != 'calendar_event_recurring') {
+		if (!is_a($parent, 'calendar_event_recurring')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error('Recurring Event Cancellations can only be created underneath recurring events', E_USER_ERROR);
+			trigger_error('Recurring Event Cancellations can only be created underneath recurring events', E_USER_WARNING);
 			return false;
 		}
 		if (!$this->synchronizeWithParent($parent)) {
@@ -149,10 +149,10 @@ class Calendar_Event_Cancellation extends Calendar_Event
 		$sd = $this->getStartDate();
 		$st = $parent->getStartTime();
 		if ($st) {
-			$this->setAttrValue('start_date', $sd.' '.$st);
+			$this->setAttrValue('start_date', $sd.' '.$st.':00');
 		}
 		if ($duration = $parent->getDuration()) {
-			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($this->attr('start_date')) + $duration).substr($parent->attr('end_date'), 10));
+			$this->setAttrValue('end_date', date('Y-m-d', iso8601_ts($sd) + $duration).substr($parent->attr('end_date'), 10));
 		}
 
 		// set our name based on the parent
@@ -166,8 +166,12 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	/**
 	* Add a replacement single event linked under this cancellation event
 	*
-	* @param string		$date	the date of the occurrence to cancel (YYYY-MM-DD)
-	* @param string		$reason	text to put in the description field of the cancellation event
+	* @param string		$start_date		The start date attr value of the replacement event
+	* @param string		$end_date		The end date attr value of the replacement event
+	* @param string		$description	Description for the replacement event
+	*
+	* @return object	The replacement event
+	* @access public
 	*/
 	function addReplacement($start_date, $end_date, $description)
 	{
@@ -195,6 +199,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 			$replacement_event->saveAttributes();
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($replacement_event->id, 'attributes');
 		}
+		$replacement_event->processStatusChange($this->status);
 		return $replacement_event;
 
 	}//end addReplacement()
