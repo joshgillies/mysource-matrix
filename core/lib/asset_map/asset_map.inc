@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.115 2004/01/23 03:04:28 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.116 2004/02/02 06:22:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,6 +83,28 @@ class Asset_Map
 		<script language="JavaScript" type="text/javascript">
 		<!--
 			init_asset_map();
+
+			/**
+			* Open up a help window
+			*/
+			function open_help(params)
+			{
+				var popup_win = window.open("<?php echo sq_web_path('lib'); ?>/web/asset_map_help.php", 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=180');
+
+			}//end open_help()
+			registerFlashToJsCall('open_help', open_help);
+
+
+
+			/** 
+			* Open up a help window
+			*/
+			function open_legend(params)
+			{
+				var popup_win = window.open("<?php echo sq_web_path('lib'); ?>/web/asset_map_key.php", 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=350,height=300');
+
+			}//end open_legend()
+			registerFlashToJsCall('open_legend', open_legend);
 		//-->
 		</script>
 
