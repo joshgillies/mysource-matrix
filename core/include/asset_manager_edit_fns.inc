@@ -125,7 +125,11 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 					if (isset($_POST['aquire_lock'])) {
 						if (!$asset->aquireLock()) return false;
 					}
-					
+
+					// try to aquire a lock on this asset?
+					if (isset($_POST['release_lock'])) {
+						if (!$asset->releaseLock()) return false;
+					}
 
 					if ($asset->processBackend($this->backend->out, $link)) {
 
