@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.272 2004/01/22 06:01:29 gsherwood Exp $
+* $Id: asset.inc,v 1.273 2004/02/08 22:57:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -258,7 +258,7 @@ class Asset extends MySource_Object
 		// OK, what we need to do here is set write access for this asset to the current user
 		// so that they can actually do anything
 		// NOW normally this would require admin access but this is a very special case
-		$this->_tmp[__CLASS__.'_in_create_setting_permissions'] = true;
+		$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
 			$ms->abortLog();
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -278,7 +278,7 @@ class Asset extends MySource_Object
 			}
 		}
 
-		unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
+		unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 
 		$message_body = 'New '.$this->type().' "'.$this->name.'" created';
 		$message = $ms->newMessage(Array(), 'Asset Created', $message_body, 'asset');
@@ -344,8 +344,10 @@ class Asset extends MySource_Object
 			// because other assets may have changed what happens in createLink)
 			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id, 'minor');
 
-			// set permission on this asset that the parent has if the parent is not the root folder
-			$this->_tmp[__CLASS__.'_in_create_setting_permissions'] = true;
+			// cascade permissions, and schemas on this asset that the parent has if the parent is not the root folder
+			$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
+
+			// setting permissions
 			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
 				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($link['asset']->id, $perm, null, false, false, true);
 				foreach ($set_perms as $userid => $access) {
@@ -358,7 +360,34 @@ class Asset extends MySource_Object
 					}
 				}
 			}
-			unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
+
+			// setting metadata schemas
+			$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+			$schemas = $mm->getSchemas($link['asset']->id);
+			foreach ($schemas as $schemaid => $access) {
+				if (!$mm->setSchema($this->id, $schemaid, $access)) {
+					$ms->abortLog();
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+					$this->id = 0;
+					return false;
+				}
+			}
+
+			// setting workflow schemas
+			$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+			$schemas = $wfm->getSchemas($link['asset']->id);
+			foreach ($schemas as $schemaid => $access) {
+				if (!$wfm->setSchema($this->id, $schemaid, $access)) {
+					$ms->abortLog();
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+					$this->id = 0;
+					return false;
+				}
+			}
+
+			unset($this->_tmp[__CLASS__.'_in_create_cascading']);
 
 			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
 				$ms->abortLog();
@@ -2481,7 +2510,7 @@ class Asset extends MySource_Object
 	function adminAccess($lock_type, $assetids=Array())
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
-		if (!$this->id || !empty($GLOBALS['SQ_INSTALL']) || !empty($this->_tmp[__CLASS__.'_in_create_setting_permissions'])) return true;
+		if (!$this->id || !empty($GLOBALS['SQ_INSTALL']) || !empty($this->_tmp[__CLASS__.'_in_create_cascading'])) return true;
 		if ($this->status == SQ_STATUS_LIVE) return $this->liveEditAccess($lock_type);
 		return $this->checkAccess(SQ_PERMISSION_ADMIN, $lock_type, $assetids);
 
