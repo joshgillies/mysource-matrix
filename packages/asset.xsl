@@ -1,13 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
-* Copyright (c) 2003 - Squiz Pty Ltd
+* +--------------------------------------------------------------------+
+* | MySource 3 - MySource Matrix                                       |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
 *
-* $Id: asset.xsl,v 1.4 2003/09/26 05:26:35 brobertson Exp $
+* $Id: asset.xsl,v 1.5 2003/11/18 15:37:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
-
-<?xml version="1.0" encoding="UTF-8"?>
 
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform">

@@ -1,8 +1,24 @@
 <?php
 /**
-* Copyright (c) 2003 - Squiz Pty Ltd
+* +--------------------------------------------------------------------+
+* | MySource 3 - MySource Matrix                                       |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.7 2003/09/26 05:26:36 brobertson Exp $
+* $Id: datetime_field.inc,v 1.8 2003/11/18 15:42:10 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
