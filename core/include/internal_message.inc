@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.40 2004/12/06 14:38:12 brobertson Exp $
+* $Id: internal_message.inc,v 1.41 2004/12/06 14:54:48 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    An internal message to be sent around the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 */
 class Internal_Message extends MySource_Object
@@ -168,15 +168,15 @@ class Internal_Message extends MySource_Object
 
 				$type_code_list = explode('.', $this->type);
 
-				if (in_Array($this->type, $types_w)) {
+				if (in_array($this->type, $types_w)) {
 					// this exact type is white listed
 					$allow_log = true;
-				} else if (in_Array($this->type, $types_b)) {
+				} else if (in_array($this->type, $types_b)) {
 					// this exact type is black listed
 					$allow_log = false;
 				} else {
 					$allow_log = false;
-					if (in_Array('*', $types_w) && !in_Array('*', $types_b)) {
+					if (in_array('*', $types_w) && !in_array('*', $types_b)) {
 						// all messages of this type are white listed and not black listed
 						$allow_log = true;
 					}
@@ -190,7 +190,7 @@ class Internal_Message extends MySource_Object
 								$check_code .= '.';
 							}
 							$check_code .= $type_code.'.*';
-							if (in_Array($check_code, $types_w) && !in_Array($check_code, $types_b)) {
+							if (in_array($check_code, $types_w) && !in_array($check_code, $types_b)) {
 								// this virtual type is white listed and not black listed
 								$allow_log = true;
 								break;
@@ -581,7 +581,7 @@ class Internal_Message extends MySource_Object
 		}// end if
 
 		$send_to = Array();
-		if (in_Array('0', $this->to)) {
+		if (in_array('0', $this->to)) {
 			// this message is being sent to the system
 			// so we need to keep the ZERO id in the array
 			$send_to[] = 0;

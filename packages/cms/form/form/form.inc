@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.71 2004/12/06 14:41:38 brobertson Exp $
+* $Id: form.inc,v 1.72 2004/12/06 14:55:32 brobertson Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -255,7 +255,7 @@ class Form extends Bridge
 	{
 		if (!is_numeric($assetid)) return Array();
 
-		if (!is_Array($type_code)) {
+		if (!is_array($type_code)) {
 			if (empty($type_code)) $type_code = Array();
 			else $type_code = Array($type_code);
 		}
@@ -293,7 +293,7 @@ class Form extends Bridge
 				}
 			} else {
 				$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code) + Array($type_code);
-				if (in_Array($data['question_type_code'], $type_desc)) {
+				if (in_array($data['question_type_code'], $type_desc)) {
 					$children[$this->id.':q'.$questionid] = $data['question_type_code'];
 				}
 			}
@@ -329,8 +329,8 @@ class Form extends Bridge
 		if (!is_numeric($assetid)) return Array($this->id);
 
 		$parents = Array();
-		if (!is_Array($type_code)) $type_code = Array($type_code);
-		if (!in_Array('form_section', $type_code) && !in_Array('form', $type_code)) return Array();
+		if (!is_array($type_code)) $type_code = Array($type_code);
+		if (!in_array('form_section', $type_code) && !in_array('form', $type_code)) return Array();
 
 		if (!isset($this->_tmp['getParents'][$assetid])) {
 			// this is so we get the sections as we go
@@ -714,7 +714,7 @@ class Form extends Bridge
 			return false;
 		}
 
-		if (in_Array('attributes', $components) || in_Array('all', $components)) {
+		if (in_array('attributes', $components) || in_array('all', $components)) {
 			$sort_order = $this->attr('sort_order');
 			$sort_order = str_replace($this->id.':q', $clone->id.':q', $sort_order);
 
@@ -1446,7 +1446,7 @@ class Form extends Bridge
 
 		$bodycopies = Array();
 		foreach ($bodycopy_links as $link_info) {
-			if (in_Array($link_info['minorid'], $parents)) {
+			if (in_array($link_info['minorid'], $parents)) {
 				$bodycopies[] = $link_info['value'];
 			}
 		}

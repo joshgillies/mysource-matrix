@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor_SSL_interface.inc,v 1.3 2004/12/06 14:42:21 brobertson Exp $
+* $Id: esec_processor_SSL_interface.inc,v 1.4 2004/12/06 14:55:49 brobertson Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 * Esec payment gateway processing object.
 * Implements a 'Web Redirect Model' or 'Web Proxy Model' scenario
 *
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -66,7 +66,7 @@ class Esec_Processor_SSL_Interface extends Esec_Processor
 			if ($name == 'EPS_MERCHANT') {
 				$merchant_id = $value;
 			}
-			if (is_Array($value)) {
+			if (is_array($value)) {
 				foreach ($value as $v) {
 					$query_string[] = $name.'='.urlencode($v);
 				}

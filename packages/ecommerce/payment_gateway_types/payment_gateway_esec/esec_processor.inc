@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor.inc,v 1.6 2004/12/06 14:42:21 brobertson Exp $
+* $Id: esec_processor.inc,v 1.7 2004/12/06 14:55:49 brobertson Exp $
 *
 */
 
@@ -40,7 +40,7 @@
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -195,13 +195,13 @@ class Esec_Processor
 	* @access private
 	* @return void
 	*/
-	function set_Array($name, $value)
+	function set_array($name, $value)
 	{
-		if (!is_Array($this->parameters[$name])) {
+		if (!is_array($this->parameters[$name])) {
 			$this->parameters[$name] = Array();
 		}
 		$this->parameters[$name][] = $value;
-	}//end set_Array()
+	}//end set_array()
 
 
 	/**
@@ -477,11 +477,11 @@ class Esec_Processor
 	*/
 	function setRedirectURL($value, $email=false)
 	{
-		if ($email && is_Array($this->get('EPS_RESULTURL'))) {
+		if ($email && is_array($this->get('EPS_RESULTURL'))) {
 			// mailto is only valid if we already have an email address
 			$value = 'mailto:'.$value;
 		}
-		$this->set_Array('EPS_RESULTURL', $value);
+		$this->set_array('EPS_RESULTURL', $value);
 
 	}//end setCardName()
 

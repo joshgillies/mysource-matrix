@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.27 2004/12/06 14:39:53 brobertson Exp $
+* $Id: datetime_field.inc,v 1.28 2004/12/06 14:55:04 brobertson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *     it uses: show, style, min, max, null, allow_circa, print_format
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package Fudge
 * @subpackage DateTime_Field
 */
@@ -168,8 +168,8 @@ class DateTime_Field
 	{
 		$show = &$this->getParam('show');
 		$null = &$this->getParam('null');
-		if (!is_Array($show)) $show = Array();
-		if (!is_Array($null)) $null = Array();
+		if (!is_array($show)) $show = Array();
+		if (!is_array($null)) $null = Array();
 		echo '<input type="hidden" name="'.$this->prefix.'show" value="'.implode('',$show).'" />';
 		$this->prefix .= 'value';
 		if ($this->getParam('allow_circa')) {
@@ -178,14 +178,14 @@ class DateTime_Field
 		foreach (Array('d','m','y','h','i','s','a') as $t) {
 			$u = $this->getUnit($t);
 
-			if (in_Array($t,$show)) {
-				$this->inputBox($t,$this->prefix,$u,in_Array($t,$null));
+			if (in_array($t,$show)) {
+				$this->inputBox($t,$this->prefix,$u,in_array($t,$null));
 			} elseif ($t != 'a') {
 				echo '<input type="hidden" name="'.$this->prefix.'['.$t.']" value="'.$u.'" />';
 			}
 			if ($t == 'y') echo ' ';
-			if ($t == 'h' && in_Array('h',$show) && in_Array('i',$show)) echo ':';
-			if ($t == 'i' && in_Array('i',$show) && in_Array('s',$show)) echo ':';
+			if ($t == 'h' && in_array('h',$show) && in_array('i',$show)) echo ':';
+			if ($t == 'i' && in_array('i',$show) && in_array('s',$show)) echo ':';
 		}
 
 	}//end printField()
@@ -368,7 +368,7 @@ class DateTime_Field
 	{
 		if (!strlen($value)) {
 			$value = $this->value;
-			$use_am_pm = in_Array('a', $this->getParam('show'));
+			$use_am_pm = in_array('a', $this->getParam('show'));
 		} else {
 			$use_am_pm = false;
 		}
@@ -467,7 +467,7 @@ class DateTime_Field
 	*/
 	function validateValue($value)
 	{
-		if (!is_Array($value)) {
+		if (!is_array($value)) {
 			$value = trim($value);
 			$l = strlen($value);
 			$value = preg_replace("/^c(irc[a]?)?\.?[\s]*/i",'',$value);
@@ -539,7 +539,7 @@ class DateTime_Field
 							$v['i'] = $matches[2];
 							$v['s'] = $matches[3];
 						} else if (preg_match("/([0-9]{1,2})[\:\.]([0-9]{1,2})([^0-9].*|)$/",$value,$matches)) {
-							if (in_Array('s',$show) && !in_Array('h',$show)) {
+							if (in_array('s',$show) && !in_array('h',$show)) {
 								$v['i'] = $matches[1];
 								$v['s'] = $matches[2];
 							} else {
@@ -838,11 +838,11 @@ class DateTime_Field
 		<table cellspacing="0" cellpadding="2" border="1">
 			<tr><td>
 				<?php
-					if (in_Array('c', $show)) {
+					if (in_array('c', $show)) {
 						combo_box($this->prefix.'_allow_circa',Array(''=>'','1'=>'Allow "circa."'),$c,'class=smallprint');
 						echo "<br />";
 					}
-					if (in_Array('t', $show)) {
+					if (in_array('t', $show)) {
 						combo_box($this->prefix.'_standard',Array('int'=>'Intl. (dd/mm/yyyy)','us'=>'US (mm/dd/yyyy)'),$t,'class=fineprint');
 					}
 				?>
@@ -857,14 +857,14 @@ class DateTime_Field
 
 			<?php
 					// checking if we should show field selection checkboxes
-					if (in_Array('s', $show)) {
+					if (in_array('s', $show)) {
 			?>
 			<tr>
 				<td><b>Show</b></td>
 			<?php
 				foreach ($us as $k => $v) {
 			?>
-				<td align=center><input type=checkbox name="<?php echo $this->prefix; ?>_show[]" value=<?php echo $k; ?> <?php echo ((in_Array($k,$s))?'checked':''); ?>></b>
+				<td align=center><input type=checkbox name="<?php echo $this->prefix; ?>_show[]" value=<?php echo $k; ?> <?php echo ((in_array($k,$s))?'checked':''); ?>></b>
 				</td>
 			<?php }//end foreach
 			?>
@@ -874,13 +874,13 @@ class DateTime_Field
 
 			<?php
 					// checking if we should show blank-allowed checkboxes
-					if (in_Array('n', $show)) {
+					if (in_array('n', $show)) {
 			?>
 			<tr>
 				<td><b>Allow blank</b></td>
 				<?php
 					foreach ($us as $k=>$v) {
-				?><td align=center><input type=checkbox name="<?php echo $this->prefix; ?>_null[]" value=<?php echo $k; ?> <?php echo ((in_Array($k,$n))?'checked':''); ?>></b>
+				?><td align=center><input type=checkbox name="<?php echo $this->prefix; ?>_null[]" value=<?php echo $k; ?> <?php echo ((in_array($k,$n))?'checked':''); ?>></b>
 				</td>
 			<?php }//end foreach
 			?>

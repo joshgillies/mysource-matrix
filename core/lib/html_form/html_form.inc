@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.70 2004/12/06 14:38:13 brobertson Exp $
+* $Id: html_form.inc,v 1.71 2004/12/06 14:54:48 brobertson Exp $
 *
 */
 
@@ -26,7 +26,7 @@
 * HTML Form Functions
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -290,8 +290,8 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 		$name .= '[]';
 	}
 
-	if (!is_Array($contents)) $contents = Array($contents);
-	if (!is_Array($defaults)) $defaults = Array($defaults);
+	if (!is_array($contents)) $contents = Array($contents);
+	if (!is_array($defaults)) $defaults = Array($defaults);
 
 	echo	'<select name="', htmlspecialchars($name), '" ',
 			'id="', htmlspecialchars($name), '" ',
@@ -306,7 +306,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 		}
 		$value = str_replace(' ', '&nbsp;', htmlspecialchars($value));
 		echo	'<option value="', htmlspecialchars($key), '"',
-				((in_Array((string) $key, $defaults)) ? ' selected="selected"' : ''),
+				((in_array((string) $key, $defaults)) ? ' selected="selected"' : ''),
 				'>',
 				$value,
 				'</option>';
@@ -540,7 +540,7 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 		$exts = Array();
 		foreach ($extensions as $v) $exts[] = strtolower($v);
 		$ext = strtolower(substr(strrchr($info['name'],"."), 1));
-		$in_arr = in_Array($ext, $exts);
+		$in_arr = in_array($ext, $exts);
 
 		// see $restrict_exts documentation in function header
 		if (($restrict_exts && !$in_arr) || (!$restrict_exts && $in_arr)) {
@@ -755,7 +755,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 
 	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
 	$type_codes_string = get_type_codes_string($type_codes);
-	echo '<input type="button" value="More..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_Array('clear', $buttons) ? 'true' : 'false').')" />';
+	echo '<input type="button" value="More..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
 	echo '<br />';
 	echo '</div>';
 
@@ -856,7 +856,7 @@ function validate_security_key()
 */
 function var_to_hidden_field($var, $name='')
 {
-	if (is_Array($var) || is_object($var)) {
+	if (is_array($var) || is_object($var)) {
 		foreach ($var as $k => $v) {
 			var_to_hidden_field($v, (($name) ? $name.'['.$k.']': $k));
 		}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.44 2004/12/06 14:38:08 brobertson Exp $
+* $Id: design_area_edit_fns.inc,v 1.45 2004/12/06 14:54:48 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -722,7 +722,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			if (!empty($asset->vars['var_references']['value'][$name])) {
 				$text .= ' id_name="'.htmlentities($asset->vars['var_references']['value'][$name]['id_name']).'" var="'.htmlentities($asset->vars['var_references']['value'][$name]['var']).'"';
 			} else {
-				$text .= ' value="'.htmlentities_Array($data['value']).'"';
+				$text .= ' value="'.htmlentities_array($data['value']).'"';
 			}
 			$text .= " />\n";
 		}

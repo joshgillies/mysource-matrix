@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.21 2004/12/06 14:38:07 brobertson Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.22 2004/12/06 14:54:48 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -281,7 +281,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			// delete existing notice links that are no longer being used
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 			foreach ($notice_links as $link_data) {
-				if (!in_Array($link_data['minorid'], $replace_assetids)) {
+				if (!in_array($link_data['minorid'], $replace_assetids)) {
 					if (!$asset->deleteLink($link_data['linkid'])) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
@@ -291,7 +291,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 			foreach ($replace_assetids as $assetid) {
-				if (!in_Array($assetid, $existing_links)) {
+				if (!in_array($assetid, $existing_links)) {
 					$ereg_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 					if ($ereg_asset->id) {
 

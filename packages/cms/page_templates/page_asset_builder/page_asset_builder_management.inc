@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.19 2004/12/06 14:41:39 brobertson Exp $
+* $Id: page_asset_builder_management.inc,v 1.20 2004/12/06 14:55:32 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -360,7 +360,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 				if ($asset->attr('create_location_optional')) {
 					$old_input_style = ($asset->attr('create_location_type') == 'select') ? 'dropdown' : 'radio';
 					$old_selectable_locations = array_values($asset->attr('create_location_optional'));
-					if (!is_Array($old_selectable_locations)) $old_selectable_locations = Array($old_selectable_locations);
+					if (!is_array($old_selectable_locations)) $old_selectable_locations = Array($old_selectable_locations);
 					$old_allow_multiple = $asset->attr('create_location_multiple') ? 1 : 0;
 					$selectable_locations_set_details = Array();
 					$location_details = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($old_selectable_locations);
@@ -395,7 +395,7 @@ class Page_Asset_Builder_Management extends Asset_Management
 								$new_rule['values'][] = $value;
 							}
 						}
-						if (is_Array($rule_details['_create_locations_'])) {
+						if (is_array($rule_details['_create_locations_'])) {
 							foreach ($rule_details['_create_locations_'] as $assetid) {
 								$new_rule['locations'][] = $assetid;
 								$new_rule['link_types'][] = $old_link_type;

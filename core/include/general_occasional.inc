@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general_occasional.inc,v 1.39 2004/12/06 14:38:12 brobertson Exp $
+* $Id: general_occasional.inc,v 1.40 2004/12/06 14:54:48 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package MySource_Matrix
 */
 
@@ -45,7 +45,7 @@ function link_type_name($type)
 {
 	$names = get_bit_names('SQ_LINK_', $type);
 
-	if (is_Array($names)) {
+	if (is_array($names)) {
 		$str = '';
 		for ($i = 0; $i < count($names); $i++) {
 			$str .= $names[$i];
@@ -74,7 +74,7 @@ function link_type_name($type)
 function permission_type_name($type)
 {
 	$name = get_bit_names('SQ_PERMISSION_', $type, false, true);
-	if (is_Array($name)) return 'Unknown';
+	if (is_array($name)) return 'Unknown';
 	return ucwords(strtolower($name));
 
 }//end permission_type_name()
@@ -103,7 +103,7 @@ function get_bit_names($prefix, $bit_value, $force_array=false, $exact_value=fal
 	$names = Array();
 
 	foreach ($constants as $name => $value) {
-		if (preg_match('/^'.$prefix.'(.*)$/', $name, $matches) && in_Array($value, $bit_values)) {
+		if (preg_match('/^'.$prefix.'(.*)$/', $name, $matches) && in_array($value, $bit_values)) {
 			$names[] = $matches[1];
 		}
 	}
@@ -300,7 +300,7 @@ function make_valid_web_paths($paths)
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $path);
 
 		// ignore blanks
-		if ($path !== '' && !in_Array($path, $valid_paths)) $valid_paths[] = $path;
+		if ($path !== '' && !in_array($path, $valid_paths)) $valid_paths[] = $path;
 	}
 	return $valid_paths;
 

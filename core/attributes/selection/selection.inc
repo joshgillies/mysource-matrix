@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.33 2004/12/06 14:38:11 brobertson Exp $
+* $Id: selection.inc,v 1.34 2004/12/06 14:54:48 brobertson Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -247,7 +247,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			$options = array_reverse($options);
 		}
 
-		if (!empty($this->_params['multiple']) && !is_Array($this->value)) {
+		if (!empty($this->_params['multiple']) && !is_array($this->value)) {
 			$value = $this->_str2ar($this->value);
 		} else {
 			$value = $this->value;
@@ -302,7 +302,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 						} else {
 							?>
 							<td>&nbsp;
-								<input type="checkbox" name="<?php echo $prefix."[$i]"; ?>" value="<?php echo $key; ?>"<?php echo ((is_Array($value) && in_Array($key, $value)) ? ' checked' : ''); ?>>
+								<input type="checkbox" name="<?php echo $prefix."[$i]"; ?>" value="<?php echo $key; ?>"<?php echo ((is_array($value) && in_array($key, $value)) ? ' checked' : ''); ?>>
 								<?php echo $val?>
 							</td>
 							<?php
@@ -334,7 +334,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		if (!isset($_REQUEST[$prefix.'_posted'])) return false;
 		$value = (isset($_REQUEST[$prefix])) ? $_REQUEST[$prefix] : '';
 
-		if (is_Array($value)) $value = $this->_ar2str($value);
+		if (is_array($value)) $value = $this->_ar2str($value);
 
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
@@ -357,7 +357,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	{
 		$options = $this->_params['options'];
 
-		if (is_Array($value)) $value = $this->_ar2str($value);
+		if (is_array($value)) $value = $this->_ar2str($value);
 		$value = trim((string) $value);
 		if ($value == '') return true;
 
@@ -366,7 +366,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 			if (!isset($options[$value])) return false;
 		} else {
 			$new_value = $this->_str2ar($value);
-			if (!is_Array($new_value)) return false;
+			if (!is_array($new_value)) return false;
 			$return_value = Array();
 			foreach ($new_value as $key) {
 				if (isset($options[$key])) $return_value[] = $key;
