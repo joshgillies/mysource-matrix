@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.34 2004/06/28 05:35:35 gsherwood Exp $
+* $Id: system_config.inc,v 1.35 2004/06/28 15:46:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -213,9 +213,21 @@ class System_Config extends Config
 			case 'SQ_CONF_LOG_FILE' :
 				if (!parent::_paintConfigVar($var_name, $value)) return false;
 				// if the value isn't empty, set the php error_log to the set value
-				if ($value != '') {
-					echo "ini_set('error_log',  '$value');\n";
+				if (trim($value) != '') {
+					if (!file_exists($value)) {
+						if (!is_dir(dirname($value)) || !touch($value)) {
+							trigger_error('Supplied Log File "'.$value.'" is invalid, either the directory does not exist or the file cannot be created', E_USER_WARNING);
+							return false;
+						}
+					} elseif (!is_writable($value)) {
+						trigger_error('Supplied Log File "'.$value.'" exists, but is not writable', E_USER_WARNING);
+						return false;
+					}
+					echo "ini_set('error_log',  ".var_export($value, true).");\n";
+				} else {
+					echo "ini_set('error_log',  SQ_DATA_PATH.'/private/logs/error.log');\n";
 				}
+
 				return true;
 				break;
 
