@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.20 2005/01/15 16:32:07 brobertson Exp $
+* $Id: bodycopy_container.inc,v 1.21 2005/01/19 16:52:08 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -316,7 +316,7 @@ class Bodycopy_Container extends Asset
 			// replace ./?a=xxx style links within the content
 			foreach ($sq_asset_url_list as $assetid => $href) {
 				if (strpos($assetid, ':') !== false) {
-					$s = './?a='.$assetid.'!';
+					$s = './?a='.$assetid.'$';
 					$output = str_replace($s, $href, $output);
 				} else {
 					$e = "(/?\./\\?a=$assetid)([^0-9:])";

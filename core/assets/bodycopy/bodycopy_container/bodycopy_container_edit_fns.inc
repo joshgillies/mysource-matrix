@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.24 2005/01/15 16:32:07 brobertson Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.25 2005/01/19 16:52:08 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -226,7 +226,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$output = preg_replace($e, $r, $output);
 
 		// replacing shadow assetids isn't so simple because they can have any characters...and therefore need to be escaped
-		$e = '|\\./\\?a=([0-9]+:[^!]*)!|';
+		$e = '|\\./\\?a=([0-9]+:[^$]*)\\$|';
 		if (preg_match_all($e, $output, $matches=Array(), PREG_PATTERN_ORDER)) {
 
 			$replacements = Array();
@@ -279,7 +279,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$notice_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE);
 		foreach ($notice_links as $link_data) $existing_links[] = $link_data['minorid'];
 
-		$e = '|\\./\\?a=([0-9]+(?::[^!]*)?)|';
+		$e = '|\\./\\?a=([0-9]+(?::[^$]*)?)|';
 		preg_match_all($e, $output, $matches=Array());
 		$replace_assetids = &$matches[1];
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.66 2005/01/15 16:43:42 brobertson Exp $
+* $Id: mysource.inc,v 1.67 2005/01/19 16:50:52 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.66 $
+* @version $Revision: 1.67 $
 * @package MySource_Matrix
 */
 class MySource
@@ -240,7 +240,7 @@ class MySource
 
 			// if we are using the 'a' querystring arg, remove any trailing exclamation marks 
 			// that are used as termination characters in different kinds of content
-			if (isset($_REQUEST['a'])) $_REQUEST['a'] = rtrim($_REQUEST['a'], '!');
+			if (isset($_REQUEST['a'])) $_REQUEST['a'] = rtrim($_REQUEST['a'], '$');
 
 		} else {
 			define('SQ_ROLLBACK_VIEW',        '0');
