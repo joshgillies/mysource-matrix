@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.38 2004/09/16 04:44:07 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.39 2004/09/16 23:18:02 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.38 $ - 1.0
+* @version $Revision: 1.39 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -96,7 +96,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		if ((!(isset($this) && is_a($this, "Calendar_Event_Recurring"))) && (func_num_args() < 5)) {
 			trigger_error('If Calendar_Event_Recurring::getFirstOccurrenceAfter() is called statically it must be called using all 5 arguments', E_USER_ERROR);
 		}
-		
+
 		if (is_null($start)) {
 			// called on an object
 			$freq_type = substr($this->attr('frequency'), 0, 3);
@@ -273,6 +273,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			trigger_error('If Calendar_Event_Recurring::hasOccurrenceOnDate() is called statically it must be called using all 5 arguments', E_USER_ERROR);
 		}
 		
+		// fill in defaults if we haven't been provided with all values
 		if (is_null($start)) {
 			// called on an object
 			$freq_type = substr($this->attr('frequency'), 0, 3);
@@ -281,18 +282,16 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$start = substr($this->attr('start_date'),0,10);
 			$stop = $this->attr('stop_date');
 		}
-		
 		if (is_null($date)) $date = date('Y-m-d'); 
-		
-		$seconds_per_day = 60 * 60 * 24;
-		$start_ts = iso8601_ts(iso8601_date_component($start));
 
-		$query_ts = iso8601_ts(iso8601_date_component($date));	
-		$stop_ts = iso8601_ts($stop);
-		if (($stop_ts != -1) && ($query_ts > ($stop_ts + $seconds_per_day))) return false;
-		if ($query_ts < $start_ts) return false;
+		// dispose of silly cases
+		if ($start > $date) return false;
+		if (($stop != '----------') && ($stop < $start)) return false;
 		
-		//$freq_type = substr($this->attr('frequency'), 0, 3);
+		// get components and get into it
+		$date_components = $this->getDateComponents($date);
+		$start_components = $this->getDateComponents($start);
+
 		if ($interval > 1) $freq_type .= 'x';
 
 		switch ($freq_type) {
@@ -303,96 +302,81 @@ class Calendar_Event_Recurring extends Calendar_Event
 
 			case 'DEDx':
 				// days between start_date and date must be a multiple of $interval
-				return ((($query_ts - $start_ts) / $seconds_per_day) % $interval == 0);
+				return (($date_components['ds'] - $start_components['ds']) % $interval == 0);
 			break;
 
 			case 'DWD':
 				// definitely occurs unless this is a weekend day
-				return !in_array(date('D', $query_ts), Array('Sat', 'Sun'));
+				return !in_array($date_components['wday'], Array(0, 6));
 			break;
 
 			case 'WEW':
 				// occurs if start_date and date are the same day of the week
-				return (date('D', $start_ts) == date('D', $query_ts));
+				return ($date_components['wday'] == $start_components['wday']);
 			break;
 
 			case 'WEWx':
 				// occurs if start_date and date are the same day of the week
 				// AND the number of weeks between start_date and date is a multiple of $interval
-				return ((date('D', $start_ts) == date('D', $query_ts)) 
-					&& (((($query_ts - $start_ts) / ($seconds_per_day * 7)) % $interval) == 0));
+				return ($date_components['wday'] == $start_components['wday']) 
+					&& (((($date_components['ds'] - $start_components['ds']) / 7) % $interval) == 0);
 			break;
 
 			case 'MFN':
 				// occurs if date and start_date are the same day of the month
-				return substr($start, 8, 2) == substr($date, 8, 2);
+				return ($date_components['mday'] == $start_components['mday']);
 			break;
 
 			case 'MFNx':
 				// occurs if date and start_date are the same day of the month
 				// AND the number of months in between is a multiple of $interval
-				return ((substr($start, 8, 2) == substr($date, 8, 2)) 
-					&& ((((((int)substr($date, 0, 4) - (int)substr($start, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start, 5, 2)) % $interval) == 0));
+				return ($date_components['mday'] == $start_components['mday']) 
+					&& ((($date_components['ms'] - $start_components['ms']) % $interval) == 0);
 			break;
 
 			case 'MFW':
 				// occurs if date and start_date are the same day of the week
 				// AND they are in the same week of the month
-				return (date('D', $start_ts) == date('D', $query_ts)) 
-					&& ((int)((date('j', $start_ts) - 1)/ 7) == (int)((date('j', $query_ts) - 1) / 7));
+				return ($date_components['wday'] == $start_components['wday']) 
+					&& ($date_components['wdom'] == $start_components['wdom']);
 			break;
 
 			case 'MFWx':
 				// occurs if date and start_date are the same day of the week
 				// AND they are in the same week of the month
 				// AND the number of months in between is a multiple of $interval
-				return ((date('D', $start_ts) == date('D', $query_ts)) 
-					&& ((int)(date('j', $start_ts) / 7) == (int)(date('j', $query_ts) / 7))) 
-					&& ((((((int)substr($date, 0, 4) - (int)substr($start, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start, 5, 2)) % $interval) == 0);
+				return ($date_components['wdom'] == $start_components['wdom'])
+					&& ((($date_components['ms'] - $start_components['ms']) % $interval) == 0);
 			break;
 
 			case 'MRN':
 				// occurs if monthlength - day_of_month is equal for date and start_date
-				return days_in_month(substr($start, 5, 2), substr($start, 0, 4)) - substr($start, 8, 2) == days_in_month(substr($date, 5, 2), substr($date, 0, 4)) - substr($date, 8, 2);
+				return ($start_components['rmday'] == $date_components['rmday']);
 			break;
 
 			case 'MRNx':
 				// occurs if monthlength - day_of_month is equal for date and start_date
 				// AND number of months between start_date and date is a multiple of $interval
-				return ((((((int)substr($date, 0, 4) - (int)substr($start, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start, 5, 2)) % $interval) == 0) 
-					&& (days_in_month(substr($start, 5, 2), substr($start, 0, 4)) - substr($start, 8, 2) == days_in_month(substr($date, 5, 2), substr($date, 0, 4)) - substr($date, 8, 2));
+				return ($start_components['rmday'] == $date_components['rmday'])
+					&& ((($date_components['ms'] - $start_components['ms']) % $interval) == 0);
 			break;
 
 			case 'MRW':
 				// occurs if date and start_date are the same day of the week...
-				if (date('D', $start_ts) != date('D', $query_ts)) return false;
-				
-				// ...AND they are in the same week from the end of the month
-				$start_back_week = (int)((days_in_month(date('m', $start_ts), date('Y', $start_ts)) - date('d', $start_ts)) / 7);
-				
-				$query_back_week = (int)((days_in_month(date('m', $query_ts), date('Y', $query_ts)) - date('d', $query_ts)) / 7);
-				
-				return $start_back_week == $query_back_week;
-				
+				// AND they are in the same week from the end of the month
+				return ($date_components['wday'] == $start_components['wday']) 
+					&& ($date_components['rwdom'] == $start_components['rwdom']);
 			break;
 
 			case 'MRWx':
 				// occurs if date and start_date are the same day of the week...
-				if (date('D', $start_ts) != date('D', $query_ts)) return false;
-				
-				// ...AND the number of months in between start_date and date is a multiple of $interval...
-				if ((((((int)substr($date, 0, 4) - (int)substr($start, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start, 5, 2)) % $interval) != 0) return false;
-				
-				// ...AND they are in the same week from the end of the month
-				$start_back_week = (int)((days_in_month(date('m', $start_ts), date('Y', $start_ts)) - date('d', $start_ts)) / 7);
-				
-				$query_back_week = (int)((days_in_month(date('m', $query_ts), date('Y', $query_ts)) - date('d', $query_ts)) / 7);
-				
-				return $start_back_week == $query_back_week;
-				
+				// AND they are in the same week from the end of the month
+				// AND the number of months between is a multiple of $interval
+				return ($date_components['wday'] == $start_components['wday']) 
+					&& ($date_components['rwdom'] == $start_components['rwdom'])
+					&& ((($date_components['ms'] - $start_components['ms']) % $interval) == 0);
 			break;
 		}
-
 		return false;
 
 	}//end hasOccurrenceOnDate()
