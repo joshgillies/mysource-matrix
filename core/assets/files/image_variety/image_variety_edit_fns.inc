@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.4 2005/02/03 18:57:17 brobertson Exp $
+* $Id: image_variety_edit_fns.inc,v 1.5 2005/02/11 17:15:52 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -76,56 +76,86 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		if (!$asset->id && !$wa) return false;
 
+		$variety_type = $asset->attr('variety_type');
+		$constrain    = $asset->attr('constrain');
+
 		$int_edit_params  = new XML_Tree_Node('int', '', Array('width' => 8));
 		$bool_edit_params = new XML_Tree_Node('boolean', '', Array('true_text' => 'Yes', 'false_text' => 'No'));
+		$sel_edit_params  = new XML_Tree_Node('selection', '', Array('style' => 'box', 'columns' => '3', 'extras' => ''));
 
-		$o->openSection(($asset->name) ? $asset->name : 'New');
-			if ($asset->id) {
-				$o->openField('Current File');
-					?>
-						<a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Click to open in a new window</a>
-					<?php
-				$o->closeField();
-			}
+		if ($asset->name == '') {
+			$o->openField('Name');
+				$text_edit_params = new XML_Tree_Node('text', '', Array('width' => 15));
+				$attr = &$asset->getAttribute('name');
+				$attr->setEditParams($text_edit_params);
+				$attr->paint($prefix.'_'.$attr->name, !$wa);
+				unset($attr);
+			$o->closeField();
+		}
 
-			if ($asset->name == '') {
-				$o->openField('Name');
-					$text_edit_params = new XML_Tree_Node('text', '', Array('width' => 15));
-					$name = &$asset->getAttribute('name');
-					$name->setEditParams($text_edit_params);
-					$name->paint($prefix.'_'.$name->name, !$wa);
-				$o->closeField();
-			}
+		$o->openField('Variety Type');
+			$js_prefix = preg_replace('/[^a-z0-9_]/', '_', $prefix);
+		?>
+			<script type="text/javascript">
+				<!-- //
 
-			$o->openField('', 'new_line');
-				$o->note('One of either the width or height attribute can be set to zero.');
-				$o->note('This will mean that this dimension is not important and will force the aspect ratio of the original image to be maintained');
-				$o->note('<b>OR</b>');
-				$o->note('You can choose to upload a completely different image file (perhaps a cropped version of the original image).');
-				$o->note('Image file must be the same type as the original image (e.g. jpg, gif or png)');
-				echo '<br>';
-			$o->closeField();
-			$o->openField('Width');
-				$width = &$asset->getAttribute('width');
-				$width->setEditParams($int_edit_params);
-				$width->paint($prefix.'_'.$width->name, !$wa);
-			$o->closeField();
-			$o->openField('Height');
-				$height = &$asset->getAttribute('height');
-				$height->setEditParams($int_edit_params);
-				$height->paint($prefix.'_'.$height->name, !$wa);
-			$o->closeField();
-			$o->openField('Using Upload');
-				$using_uploaded = &$asset->getAttribute('using_uploaded');
-				$using_uploaded->setEditParams($bool_edit_params);
-				$using_uploaded->paint($prefix.'_'.$using_uploaded->name, !$wa);
-			$o->closeField();
-			if ($asset->id) {
-				$o->openField('New Upload ?');
-					file_upload($prefix.'_upload_file');
-				$o->closeField();
+				function <?php echo $js_prefix; ?>_update_visible_fields() {
+
+					var variety_type = get_form_element_value("<?php echo $prefix; ?>_variety_type");
+					var constrain    = get_form_element_value("<?php echo $prefix; ?>_constrain");
+
+					document.getElementById('<?php echo $prefix; ?>_field_constrain').style.display	= (variety_type == 'resize') ? '' : 'none';
+					document.getElementById('<?php echo $prefix; ?>_field_width').style.display		= (variety_type == 'resize' && constrain != 'height') ? '' : 'none';
+					document.getElementById('<?php echo $prefix; ?>_field_height').style.display	= (variety_type == 'resize' && constrain != 'width')  ? '' : 'none';
+					document.getElementById('<?php echo $prefix; ?>_field_upload').style.display	= (variety_type == 'upload') ? '' : 'none';
+
+				}// end <?php echo $prefix; ?>_update_visible_fields()
+
+				// -->
+			</script>
+		<?php
+			$sel_edit_params->attributes['extras'] = 'onclick="javascript: '.$js_prefix.'_update_visible_fields();"';
+			$attr = &$asset->getAttribute('variety_type');
+			$attr->setEditParams($sel_edit_params);
+			$attr->paint($prefix.'_'.$attr->name, !$wa);
+			unset($attr);
+		$o->closeField();
+		
+		$o->openField('Constrain by', '', '', ($variety_type != 'resize'), $prefix.'_field_constrain');
+			$sel_edit_params->attributes['extras'] = 'onclick="javascript: '.$js_prefix.'_update_visible_fields();"';
+			$attr = &$asset->getAttribute('constrain');
+			$attr->setEditParams($sel_edit_params);
+			$attr->paint($prefix.'_'.$attr->name, !$wa);
+			unset($attr);
+		$o->closeField();
+
+		$o->openField('Width', '', '', ($variety_type != 'resize' || $constrain == 'height'), $prefix.'_field_width');
+			$attr = &$asset->getAttribute('width');
+			$attr->setEditParams($int_edit_params);
+			$attr->paint($prefix.'_'.$attr->name, !$wa);
+			unset($attr);
+		$o->closeField();
+		
+		$o->openField('Height', '', '', ($variety_type != 'resize' || $constrain == 'width'), $prefix.'_field_height');
+			$attr = &$asset->getAttribute('height');
+			$attr->setEditParams($int_edit_params);
+			$attr->paint($prefix.'_'.$attr->name, !$wa);
+			unset($attr);
+		$o->closeField();
+		
+		$o->openField('Upload', '', '', ($variety_type != 'upload'), $prefix.'_field_upload');
+			if ($wa) {
+				file_upload($prefix.'_upload_file');
 			}
-		$o->closeSection();
+		$o->closeField();
+
+		if ($asset->id) {
+			$o->openField('Current Variety');
+				?>
+					<a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Click to open in a new window</a>
+				<?php
+			$o->closeField();
+		}
 
 		return true;
 
@@ -148,7 +178,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		$changes_made = false;
 
-		$vars = Array('width', 'height', 'using_uploaded');
+		$vars = Array('variety_type', 'constrain', 'width', 'height');
 		if ($asset->attr('name') == '') array_unshift($vars, 'name');
 
 		foreach($vars as $attr_name) {
@@ -159,7 +189,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 			}
 		}
 
-		if ($asset->id && $asset->attr('using_uploaded')) {
+		if ($asset->_imageid && $asset->attr('variety_type') == 'upload') {
 			if ($this->_processUploadedFile($asset, $prefix)) {
 				$changes_made = true;
 			}
@@ -183,13 +213,16 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _processUploadedFile($asset, $prefix)
 	{
+		if (empty($asset->_imageid)) return false;
+		if ($asset->attr('name') == '') return false;
+
 		$info = get_file_upload_info($prefix.'_upload_file');
+
 		// return on failed or no upload
 		if ($info === false || empty($info)) return false;
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-
 		if (!is_dir($asset->data_path) && !create_directory($asset->data_path)) return false;
 
 		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_imageid);
@@ -204,7 +237,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$d_old_filename = $asset->attr('filename');
-		$d_new_filename = $asset->name.'.'.$img_ext;
+		$d_new_filename = $asset->attr('name').'.'.$img_ext;
 		$d_old_file     = $asset->data_path.'/'.$d_old_filename;
 		$d_new_file     = $asset->data_path.'/'.$d_new_filename;
 

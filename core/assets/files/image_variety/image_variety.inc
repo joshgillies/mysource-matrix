@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.9 2005/02/03 18:57:17 brobertson Exp $
+* $Id: image_variety.inc,v 1.10 2005/02/11 17:15:51 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -61,11 +61,9 @@ class Image_Variety extends Asset
 	function Image_Variety($assetid=0, $data=Array())
 	{
 		$this->Asset();
+		if (!$assetid) return;
 
-		if (!$assetid || empty($data)) return;
-		$this->id = $assetid;
-
-		list($this->_imageid, $this->_varietyid) = explode(':v', $this->id);
+		list($this->_imageid, $this->_varietyid) = explode(':v', $assetid);
 
 		$image = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_imageid);
 		if (is_null($image)) return;
@@ -74,6 +72,11 @@ class Image_Variety extends Asset
 		$this->data_path        = $image->data_path.'/varieties';
 		$this->data_path_suffix = $image->data_path_suffix.'/varieties';
 		$this->data_path_public = $image->data_path_public.'/varieties';
+
+		// if there is no varietyid then we haven't been created yet, so don't do anymore
+		if (!$this->_varietyid) return;
+
+		$this->id = $assetid;
 
 		foreach($data as $attr_name => $attr_value) {
 			if (!isset($this->vars[$attr_name])) continue;
@@ -102,16 +105,34 @@ class Image_Variety extends Asset
 	*/
 	function setAttrValue($name, $value)
 	{
-		if ($name == 'name') {
-			if (trim($this->attr('name')) != '') {
-				trigger_error('You cannot change the name of a variety', E_USER_WARNING);
-				return false;
-			} else { 
-				// make sure the name is valid for a web path
-				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-				list($value) = make_valid_web_paths(Array($value));
-			}
-		}
+		switch ($name) {
+			case 'name' :
+				if (trim($this->attr('name')) != '') {
+					trigger_error('You cannot change the name of a variety', E_USER_WARNING);
+					return false;
+				} else {
+					// make sure the name is valid for a web path
+					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+					list($value) = make_valid_web_paths(Array(trim($value)));
+				}
+				break;
+
+			case 'width' :
+			case 'height' :
+				if ((int) $value < 0) {
+					trigger_error('Unable to set '.$name.' in "'.$this->name.'" (#'.$this->id.') - it must be greater than or equal to zero', E_USER_WARNING);
+					return false;
+				}
+
+				if ((int) $value == 0 && ($this->attr('constrain') == 'none' || $this->attr('constrain') == $name)) {
+					trigger_error('Unable to set '.$name.' in "'.$this->name.'" (#'.$this->id.') - it must be greater than zero if it is going to be contrained to', E_USER_WARNING);
+					return false;
+				}
+				break;
+
+		}// end switch
+
+
 
 		return parent::setAttrValue($name, $value);
 
@@ -141,9 +162,9 @@ class Image_Variety extends Asset
 			return false;
 		}
 
-		if (!$this->attr('using_uploaded')) {
-			if ((int) $this->attr('width') < 0 || (int) $this->attr('height') < 0 || ((int) $this->attr('width') == 0 && (int) $this->attr('height') == 0)) {
-				trigger_error('At least one of the height or width needs to be greater than zero', E_USER_WARNING);
+		if ($this->attr('variety_type') == 'resize' && $this->attr('constrain') != 'none') {
+			if ((int) $this->attr($this->attr('constrain')) == 0) {
+				trigger_error('Unable to save "'.$this->name.'" (#'.$this->id.') - Unable to constrain by '.$this->attr('constrain').' and have '.$this->attr('constrain').' set to zero', E_USER_WARNING);
 				return false;
 			}
 		}
@@ -215,7 +236,7 @@ class Image_Variety extends Asset
 	function createImage()
 	{
 		// nothing to do if we are using an custom uploaded file
-		if ($this->attr('using_uploaded')) return true;
+		if ($this->attr('variety_type') != 'resize') return true;
 
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 		require_once SQ_FUDGE_PATH.'/image/image_manip.inc';
@@ -240,14 +261,30 @@ class Image_Variety extends Asset
 		$d_width        = (int) $this->attr('width');
 		$d_height       = (int) $this->attr('height');
 
-		if ($d_width < 0 || $d_height < 0 || ($d_width == 0 && $d_height == 0)) {
-			trigger_error('At least one of the height or width needs to be greater than zero', E_USER_WARNING);
-			return false;
+		// if either are blank calc the other to scale
+		switch($this->attr('constrain')) {
+			case 'width' :
+				if ($d_width <= 0) {
+					trigger_error('Cannot constrain to width if width is zero', E_USER_WARNING);
+					return false;
+				}
+
+				$d_height = round((int) $source_image_info['height'] * ($d_width / (int) $source_image_info['width']));
+				break;
+
+			case 'height' :
+				if ($d_height <= 0) {
+					trigger_error('Cannot constrain to height if height is zero', E_USER_WARNING);
+					return false;
+				}
+				$d_width  = round((int) $source_image_info['width']  * ($d_height / (int) $source_image_info['height']));
+				break;
 		}
 
-		// if either are blank calc the other to scale
-		if     ($d_width  == 0) $d_width  = round((int) $source_image_info['width']  * ($d_height / (int) $source_image_info['height']));
-		elseif ($d_height == 0) $d_height = round((int) $source_image_info['height'] * ($d_width  / (int) $source_image_info['width']));
+		if ($d_width <= 0 || $d_height <= 0) {
+			trigger_error('Both height and width needs to be greater than zero', E_USER_WARNING);
+			return false;
+		}
 
 		// if the filename has changed then we need to remove the old file
 		if ($d_old_filename != $d_new_filename) {
