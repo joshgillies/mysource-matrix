@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.33 2004/11/23 02:36:41 lwright Exp $
+* $Id: page_calendar_management.inc,v 1.34 2004/12/03 05:34:46 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.33 $ - 1.0
+* @version $Revision: 1.34 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -47,214 +47,208 @@ class Page_Calendar_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		// root nodes will be held in an array indexed by asset id and containing
-		// data such as CSS styles and other stuff (structure not yet determined)
-		$this->vars['root_nodes']			= Array(
-														'added'     => '0.1',
-														'type'      => 'serialise',
-														'default'   => Array(),
-														);
+		// The view types enabled for this calendar page
+		$this->vars['enabled_views'] = Array('added'     => '0.1',
+		                                     'type'      => 'serialise',
+		                                     'default'   =>	Array('year'   => 'calendar_format',
+		                                                          'month'  => 'calendar_format',
+		                                                          'week'   => 'calendar_format',
+		                                                          'month'  => 'calendar_format',
+		                                                          'day'    => 'calendar_format',
+		                                                          'event'  => 'single_event',
+		                                                    ),
+										);
 
+		// The view type you see when you first come to the page
+		$this->vars['initial_view'] = Array('added'       => '0.1',
+		                                    'type'        => 'selection',
+		                                    'default'     => 'year',
+		                                    'description' => 'The first view the user sees',
+	                                        'parameters'  => Array('options'  => Array('year'	=> 'Year', 
+		                                                                               'month'	=> 'Month',
+		                                                                               'week'   => 'Week',
+		                                                                               'day'    => 'Day',
+		                                                                         ),
+		                                                           'multiple' => false,
+		                                                     ),
+									  );
 		
-		// the view types enabled for this calendar page
-		$this->vars['enabled_views']			= Array(
-														'added'     => '0.1',
-														'type'      => 'serialise',
-														'default'   => Array(	'year'=>'calendar_format',
-																				'month'=>'calendar_format',
-																				'week'=>'calendar_format',
-																				'month'=>'calendar_format',
-																				'day'=>'calendar_format',
-																				'event'=>'single_event')
-													);
-		$this->vars['initial_view'] = Array(
-													'added'			=> '0.1',
-													'type'			=> 'selection',
-													'default'		=> 'year',
-													'description'	=> 'The first view the user sees',
-													'parameters'	=> Array(
-														'options' => Array(
-															'year'	=> 'Year', 
-															'month'	=> 'Month',
-															'week'  => 'Week',
-															'day'   => 'Day'),
-														'multiple' => false,
-													 )
+		// The locations from which we draw event assets, assetid => className, where classname
+		// is the CSS class that should be applied to representations of events from that location
+		$this->vars['root_nodes'] =	Array('added'     => '0.1',
+                                          'type'      => 'serialise',
+                                          'default'   => Array(),
+									);
+		
+		// Which of the root nodes should get their own column in day view
+		$this->vars['columnise_day_view_by_root_node'] = Array('added'		 => '0.2',
+															   'type'		 => 'serialise',
+															   'default'	 => Array(),
+															   'description' => 'list of root nodes which should have their own columns in day view, and * if you want a column for events that don\'t belong in any other column',
+														 );
+		// The name of the 'other' column in day view
+		$this->vars['other_column_name'] = Array('added'	=> '0.1',
+												 'type'		=> 'text',
+												 'default'	=> '',
+										   );
+		
+		// Earliest and latest times to display in week and day view, stored as strings
+		// rather than datetimes because we want to have 24:00 as a valid option
+		$this->vars['day_starts_at'] = Array('added'     => '0.1',
+		                                     'type'      => 'text',
+		                                     'default'   => '08:00',
+		                               );
+		
+		$this->vars['day_ends_at'] = Array('added'     => '0.1',
+		                                   'type'      => 'text',
+		                                   'default'   => '20:00',
+		                             );
+		
+		// Time-length of vertical partitions in the week and day views
+		$this->vars['day_partition_time'] = Array('added'			=> '0.1',
+										 		  'type'			=> 'selection',
+												  'default'		=> '60m',
+												  'description'	=> 'The spacing of intervals in the calendar week and day views',
+												  'parameters'	=> Array('options' => Array(
+																					'10m' => '10 mins', 
+															                        '15m'	=> '15 mins', 
+																					'20m'	=> '20 mins', 
+																					'30m'	=> '30 mins', 
+																					'60m'	=> '1 hour',
+																				      ),
+												                   ),
 											);
 
-		// These are stored as strings, 'hh:mm' because I want '24:00' to represent the
-		// latest possible end time (ie. end of the day) but that will be rejected by a
-		// datetime field as out of the range
-		$this->vars['day_starts_at']	= Array(
-														'added'     => '0.1',
-														'type'      => 'text',
-														'default'   => '08:00',
-														);
-		
-		$this->vars['day_ends_at']	= Array(
-														'added'     => '0.1',
-														'type'      => 'text',
-														'default'   => '20:00',
-														);
-														
-		
-		// spacing of the day view calendar, in minutes
-		$this->vars['day_partition_time']	= Array(
-													'added'			=> '0.1',
-													'type'			=> 'selection',
-													'default'		=> '60m',
-													'description'	=> 'The spacing of intervals in the calendar day view',
-													'parameters'	=> Array(
-														'options' => Array(
-															'10m'	=> '10 mins', 
-															'15m'	=> '15 mins', 
-															'20m'	=> '20 mins', 
-															'30m'	=> '30 mins', 
-															'60m'	=> '1 hour')
-													 )
-											);
-
-		$this->vars['day_partition_height'] = Array(
-													'added'			=> '0.1',
+		// Physical height of the vertical partitions in the week and day views
+		$this->vars['day_partition_height'] = Array('added'			=> '0.1',
 													'type'			=> 'int',
 													'default'		=> '20',
 													'description'   => 'The height of each day interval\'s row in the week and day tables, in pixels',
-												   );	
+										      );	
 
-		$this->vars['table_column_width'] = Array(
-													'added'			=> '0.1',
-													'type'			=> 'int',
-													'default'		=> '110',
-													'description'   => 'The width of each column in the WEEK table, in pixels',
-												   );	
-										
-		$this->vars['day_column_width'] = Array(
-													'added'			=> '0.1',
-													'type'			=> 'int',
-													'default'		=> '110',
-													'description'   => 'The width of each column in the DAY table, in pixels',
-												   );	
+		// The width of columns in week view (pardon the bad name, a historical artefact)
+		$this->vars['table_column_width'] = Array('added'			=> '0.1',
+												  'type'			=> 'int',
+												  'default'		=> '110',
+												  'description'   => 'The width of each column in the WEEK table, in pixels',
+											);	
 
-		$this->vars['columnise_day_view_by_root_node'] = Array(
-																'added'		=> '0.2',
-																'type'		=> 'serialise',
-																'default'	=> Array(),
-																'description' => 'list of root nodes which should have their own columns in day view, and * if you want a column for events that don\'t belong in any other column'
-														);
+		// The width of column in day view
+		$this->vars['day_column_width'] = Array('added'			=> '0.1',
+												'type'			=> 'int',
+												'default'		=> '110',
+												'description'   => 'The width of each column in the DAY table, in pixels',
+										  );	
 
-		$this->vars['week_starts_on']		= Array(
-													'added'			=> '0.1',
-													'type'			=> 'selection',
-													'default'		=> '1',
-													'description'	=> 'The first view the user sees',
-													'parameters'	=> Array(
-														'options' => Array(
-															0 => 'Sunday',
-															1 => 'Monday',
-															2 => 'Tuesday',
-															3 => 'Wednesday',
-															4 => 'Thursday',
-															5 => 'Friday',
-															6 => 'Saturday')
-													 )
-											);
+		// The day to show first in the week
+		$this->vars['week_starts_on'] = Array('added'		=> '0.1',
+											  'type'		=> 'selection',
+											  'default'		=> '1',
+											  'description'	=> 'First day of the week',
+											  'parameters'	=> Array('options' => Array(
+																					0 => 'Sunday',
+																					1 => 'Monday',
+																					2 => 'Tuesday',
+																					3 => 'Wednesday',
+																					4 => 'Thursday',
+																					5 => 'Friday',
+																					6 => 'Saturday'),
+													           ),
+										);
 														
-		// currently applies to week view, to display a selective day view
-		// defaults to every day
-		$this->vars['week_view_show_days']	= Array(
-													'added'     => '0.1',
-													'type'      => 'serialise',
-													'default'   => Array(1, 1, 1, 1, 1, 1, 1)
-												);
+		// Which weekdays to show in week view
+		$this->vars['week_view_show_days'] = Array('added'     => '0.1',
+												   'type'      => 'serialise',
+												   'default'   => Array(1, 1, 1, 1, 1, 1, 1)
+										     );
 
 
 		// Date format for calendar view titles
-		$this->vars['view_title_formats'] = Array(
-													'added'     => '0.1',
-													'type'      => 'serialise',
-													'default'   => Array(
-																		'year'	=> 'Y',
-																		'month'	=> 'F Y',
-																		'week'	=> '\W\e\e\k \o\f l j F Y',
-																		'day'	=> 'jS F Y',
-																		'event'	=> 't'
-																	)
-												  );
-
-		$this->vars['month_column_width']	= Array(
-													'added'			=> '0.1',
-													'type'			=> 'int',
-													'default'		=> '90',
-													'description'   => 'The width of the columns in the month calendar table, in pixels',
-											);
-												   
-		$this->vars['month_row_height']		= Array(
-													'added'			=> '0.1',
-													'type'			=> 'int',
-													'default'		=> '70',
-													'description'   => 'The height of the rows in the month calendar table, in pixels',
+		$this->vars['view_title_formats'] = Array('added'     => '0.1',
+												  'type'      => 'serialise',
+												  'default'   => Array('year'	=> 'Y',
+																	   'month'	=> 'F Y',
+																	   'week'	=> '\W\e\e\k \o\f l j F Y',
+																	   'day'	=> 'jS F Y',
+																	   'event'	=> 't'
+																 ),
 											);
 
-		// month view links on the side to week view...
-		$this->vars['month_links_to_week'] = Array(
-													'added'		=> '0.1',
-													'type'		=> 'boolean',
-													'default'	=> 'true',
-												);
+		// width of table columns in month view
+		$this->vars['month_column_width'] = Array('added'		=> '0.1',
+												  'type'		=> 'int',
+												  'default'		=> '90',
+												  'description' => 'The width of the columns in the month calendar table, in pixels',
+											);
+
+		// default height of table rows in month view														
+		$this->vars['month_row_height']	= Array('added'			=> '0.1',
+												'type'			=> 'int',
+												'default'		=> '70',
+												'description'   => 'The height of the rows in the month calendar table, in pixels',
+										  );
+
+		// Whether to show links to week view at the side of the month view table
+		$this->vars['month_links_to_week'] = Array('added'		=> '0.1',
+												   'type'		=> 'boolean',
+												   'default'	=> 'true',
+											 );
 		
-		$this->vars['up_link_text'] = Array(
-												'added'     => '0.1',
-												'type'      => 'text',
-												'default'   => '%v% view'
-											);
+		// Text for the link that takes you to the broader view
+		$this->vars['up_link_text'] = Array('added'     => '0.1',
+											'type'      => 'text',
+											'default'   => '%v% view',
+									  );
 											
-		$this->vars['next_link_text'] = Array(
-												'added'     => '0.1',
-												'type'      => 'text',
-												'default'   => 'Next %v% >>'
-											);
+		// Text for the link that takes you to the next year/month/week/day
+		$this->vars['next_link_text'] = Array('added'     => '0.1',
+											  'type'      => 'text',
+											  'default'   => 'Next %v% >>',
+										);
+
+		// Text for the link that takes you to the previous year/month/week/day
+		$this->vars['prev_link_text'] = Array('added'     => '0.1',
+											  'type'      => 'text',
+											  'default'   => '<< Previous %v%',
+										);
 											
-		$this->vars['prev_link_text'] = Array(
-												'added'     => '0.1',
-												'type'      => 'text',
-												'default'   => '<< Previous %v%'
+		// If you are using listing format for a view, this stores what sort
+		// of list entry you want - the full bodycopy or just the title
+		$this->vars['list_entry_types'] = Array('added'     => '0.1',
+												'type'      => 'serialise',
+												'default'   => Array('year'	=> 'title',
+																	 'month'	=> 'title',
+																	 'week'	=> 'title',
+																	 'day'	=> 'bodycopy',
+															   ),
+										  );
+
+		// If this is set the clicking on empty space in a table cell
+		// will redirect you to this asset builder page to add an event
+		$this->vars['asset_builder_page'] = Array('added'		=> '0.1',
+												  'type'		=> 'assetid',
+												  'default'	    => '0',
 											);
-											
-		$this->vars['list_entry_types'] = Array(
-													'added'     => '0.1',
-													'type'      => 'serialise',
-													'default'   => Array(
-																		'year'	=> 'title',
-																		'month'	=> 'title',
-																		'week'	=> 'title',
-																		'day'	=> 'bodycopy',
-																	)
-												  );
 
-		$this->vars['asset_builder_page'] = Array(
-													'added'		=> '0.1',
-													'type'		=> 'assetid',
-													'default'	=> '0'
-												);
+		// Whether you should be allowed to drag events around in week and day views
+		$this->vars['enable_event_dragging'] = Array('added'	=> '0.1',
+													 'type'		=> 'boolean',
+													 'default'	=> 'false',
+											   );
 
-		$this->vars['enable_event_dragging'] = Array(
-													'added'		=> '0.1',
-													'type'		=> 'boolean',
-													'default'	=> 'false'
-												);
+		// Whether you want to show a popup with the event description onmouseover
+		$this->vars['enable_description_popups'] = Array('added'	=> '0.1',
+													     'type'		=> 'boolean',
+														 'default'	=> 'false',
+												   );
 
-		$this->vars['enable_description_popups'] = Array(
-													'added'		=> '0.1',
-													'type'		=> 'boolean',
-													'default'	=> 'false'
-												);
-
-		// override name of the 'Other' column
-		$this->vars['other_column_name'] = Array(
-													'added'		=> '0.1',
-													'type'		=> 'text',
-													'default'	=> '',
-												);
+		// If this is nonzero, event DIVs will be sized so that there is always
+		// room for this number of them to sit side by side, even if there aren't
+		// ever this number of events occurring concurrently
+		$this->vars['column_capacity'] = Array('added'   => '0.4',
+		                                       'type'    => 'int',
+		                                       'default' => 0,
+		                                 );
 														
 	}//end Page_Calendar_Management()
 
