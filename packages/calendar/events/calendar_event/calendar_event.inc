@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.5 2004/07/22 06:36:26 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.6 2004/07/22 06:39:01 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH . '/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -287,7 +287,9 @@ class Calendar_Event extends Asset
 	{
 		if (strpos($this->attr('end_date'), '--:--:--') === FALSE) {
 			return readable_datetime(iso8601_ts($this->attr('end_date')));
-		} else { 
+		} elseif  (iso8601_ts($this->attr('end_date')) == -1) {
+			return '';
+		} else {
 			return date('d M Y', iso8601_ts($this->attr('end_date')));
 		}
 
@@ -315,7 +317,6 @@ class Calendar_Event extends Asset
 		} elseif (iso8601_ts($this->attr('end_date')) == -1) {
 			return $this->getFriendlyStart();
 		} else {
-			//bam(iso8601_ts($this->attr('end_date')));
 			return $this->getFriendlyStart().' - '.$this->getFriendlyEnd();
 		}
 
@@ -339,11 +340,11 @@ class Calendar_Event extends Asset
 			</tr>
 			<tr>
 				<td><b>Start Date</b></td>
-				<td><?php echo $this->friendlyStart(); ?></td>
+				<td><?php echo $this->getFriendlyStart(); ?></td>
 			</tr>
 			<tr>
 				<td><b>End Date</b></td>
-				<td><?php echo $this->friendlyEnd(); ?></td>
+				<td><?php echo $this->getFriendlyEnd(); ?></td>
 			</tr>
 			<tr>
 				<td><b>Duration</b></td>
