@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.10 2004/05/12 06:35:47 lwright Exp $
+* $Id: form_email_management.inc,v 1.11 2004/05/12 06:38:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -170,19 +170,6 @@ class Form_Email_Management extends Asset_Management
 	function getEventList()
 	{
 		return Array(
-				Array(
-					'event_name'				 => 'contentsUpdated',
-					'broadcast_type_code'		 => 'bodycopy_container',
-					'broadcast_strict_type_code'	=> false,	// div, table cell etc
-					'options'	=> Array(
-						'side_of_link'					=> 'minor',	// side of link where the broadcaster exists
-						'indirect'						=> true,
-						'exclusive'						=> null,
-						'dependant'						=> 1,
-						'value'							=> '',
-						'link_type'						=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
-					),
-				),
 				Array(
 					'event_name'				 => 'requestKeywords',
 					'broadcast_type_code'		 => 'content_type_wysiwyg',
