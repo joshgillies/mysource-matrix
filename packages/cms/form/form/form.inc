@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.81 2005/01/19 10:42:34 brobertson Exp $
+* $Id: form.inc,v 1.82 2005/01/19 22:35:48 lwright Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -450,51 +450,6 @@ class Form extends Asset
 		return $this->attr('questions');
 
 	}//end getQuestions()
-
-
-	/**
-	* get the question assets attached to this form
-	*
-	* @access public
-	* @return array
-	*/
-	function getQuestionAssets()
-	{
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$result = Array();
-
-		$questions = $this->attr('questions');
-		if (!empty($questions)) {
-			foreach ($questions as $q_id => $question) {
-				$id           = $this->id.':q'.$q_id;
-				$result[$id]  = $am->getAsset($id);
-			}
-		}
-
-		return $result;
-
-	}//end getQuestionAssets()
-
-
-	/**
-	* get the question assets attached to this form, even inside sections
-	*
-	* @access public
-	* @return array
-	*/
-	function getAllQuestionAssets()
-	{
-		$all_questions = $this->getQuestionAssets();
-
-		$sections = &$this->getSections();
-		foreach ($sections as $section) {
-			$questions = $section->getQuestionAssets();
-			$all_questions = array_merge($all_questions, $questions);
-		}
-
-		return $all_questions;
-
-	}//end getAllQuestionAssets()
 
 
 	/**
