@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.39 2004/09/16 23:18:02 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.40 2004/09/20 07:26:31 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.39 $ - 1.0
+* @version $Revision: 1.40 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -120,20 +120,20 @@ class Calendar_Event_Recurring extends Calendar_Event
 		switch ($freq_type) {
 			case 'DED':				
 				$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
-				$result = increment_iso_by_days($start, $interval * $periods_so_far);
+				$result = add_days_to_iso($start, $interval * $periods_so_far);
 			break;
 
 			case 'DWD':				
 				$periods_so_far = ceil(days_between_isos($after, $start) / $interval);
-				$result = increment_iso_by_days($start, $interval * $periods_so_far);
+				$result = add_days_to_iso($start, $interval * $periods_so_far);
 				while (in_array(date('D', iso8601_ts($result)), Array('Sat', 'Sun'))) {
-					$result = increment_iso_by_days($result, 1);
+					$result = add_days_to_iso($result, 1);
 				}
 			break;
 
 			case 'WEW':
 				$periods_so_far = ceil(days_between_isos($after, $start) / ($interval*7));
-				$result = increment_iso_by_days($start, $interval * 7 * $periods_so_far);
+				$result = add_days_to_iso($start, $interval * 7 * $periods_so_far);
 			break;
 
 			// Every 'x' months on the 'y'th day of the month
@@ -278,7 +278,6 @@ class Calendar_Event_Recurring extends Calendar_Event
 			// called on an object
 			$freq_type = substr($this->attr('frequency'), 0, 3);
 			$interval = substr($this->attr('frequency'), 3);
-			if (!$interval)	$interval = 1;
 			$start = substr($this->attr('start_date'),0,10);
 			$stop = $this->attr('stop_date');
 		}
@@ -292,6 +291,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		$date_components = $this->getDateComponents($date);
 		$start_components = $this->getDateComponents($start);
 
+		if (!$interval)	$interval = 1;
 		if ($interval > 1) $freq_type .= 'x';
 
 		switch ($freq_type) {
@@ -406,21 +406,21 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$period = substr($this->attr('frequency'), 3);
 			switch (substr($this->attr('frequency'), 0, 1)) {
 				case 'D':
-					$first_occur = increment_iso_by_days($date, -$period);
+					$first_occur = add_days_to_iso($date, -$period);
 				break;
 				
 				case 'W':
-					$first_occur = increment_iso_by_days($date, -$period);
+					$first_occur = add_days_to_iso($date, -$period);
 				break;
 				
 				case 'M':
-					$first_occur = increment_iso_by_months($date, -$period).'-'.date('d', $first_day);
+					$first_occur = add_months_to_iso($date, -$period).'-'.date('d', $date);
 				break;
 				
 			}
 			$res['start'] = $this->getFirstOccurrenceAfter($first_occur);
 		}
-		$res['end'] = increment_iso_by_days($res['start'], $this->getDuration() / -86400);
+		$res['end'] = add_days_to_iso($res['start'], $this->getDuration() / -86400);
 		if ($this->getStartTime()) $res['start'] .= ' '.$this->getStartTime();
 		if ($this->getEndTime()) $res['end'] .= ' '.$this->getEndTime();
 
