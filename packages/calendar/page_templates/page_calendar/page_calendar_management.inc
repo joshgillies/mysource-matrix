@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.35.2.4 2005/01/09 23:56:46 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.35.2.5 2005/02/15 23:28:23 lwright Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.35.2.4 $
+* @version $Revision: 1.35.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -310,7 +310,7 @@ class Page_Calendar_Management extends Asset_Management
 	function _updateOwnedAttribute($name, $curr_attr)
 	{
 		if (($name == 'columnise_day_view_by_root_node') && ($this->_am->getTypeInfo($this->getAssetType(), 'version') == '0.2')) {
-			$sql = 'SELECT type FROM sq_asset_attribute WHERE owning_type_code='.$this->_db->quote('page_calendar').' AND name='.$this->_db->quote('columnise_day_view_by_root_node');
+			$sql = 'SELECT type FROM '.SQ_TABLE_PREFIX.'ast_attr WHERE owning_type_code='.$this->_db->quote('page_calendar').' AND name='.$this->_db->quote('columnise_day_view_by_root_node');
 			$types = $this->_db->getCol($sql);
 			if (in_array('boolean', $types)) {
 				// when upgrading from v0.1 to v0.2 the columnise_day_view_by_root_node attribute

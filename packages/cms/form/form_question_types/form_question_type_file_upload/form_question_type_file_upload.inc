@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload.inc,v 1.4.2.1 2005/02/15 23:06:13 lwright Exp $
+* $Id: form_question_type_file_upload.inc,v 1.4.2.2 2005/02/15 23:24:14 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once dirname(__FILE__).'/../../form_question/form_question.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4.2.1 $
+* @version $Revision: 1.4.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -135,7 +135,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
 		
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
-		$existing_file = $db->getOne('select a.assetid from sq_asset a join sq_asset_link l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
+		$existing_file = $db->getOne('select a.assetid from sq_ast a join sq_ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
 
 		$ok = true;
 		if ($existing_file) {
@@ -152,7 +152,7 @@ class Form_Question_Type_File_Upload extends Form_Question
 					include_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					while ($existing_file) {					
 						$file['name'] = increment_filename($file['name']);
-						$existing_file = $db->getOne('select a.assetid from sq_asset a join sq_asset_link l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
+						$existing_file = $db->getOne('select a.assetid from sq_ast a join sq_ast_lnk l on a.assetid = l.minorid where l.majorid = '.$db->quoteSmart($create_loc).' and a.name = '.$db->quoteSmart($file['name']));
 					}
 				break;
 			}
