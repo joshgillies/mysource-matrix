@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.7 2004/02/24 07:37:35 gsherwood Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.8 2004/02/26 03:03:58 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -48,6 +48,45 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		Metadata_Field_Edit_Fns::Metadata_Field_Edit_Fns(); // calling super
 
 	}//end constructor
+
+
+	/**
+	* Paint the interface for viewing available date format keys
+	*
+	* @param object Metadata_Field		&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDateFormatKeys(&$asset, &$o, $prefix)
+	{
+		?>
+		<b>You can use the following set of Date object keys in order to define your own date format for this field.<br/>For a complete list of available keyword replacements <a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field_date/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=640,height=520'); return false;">click here </a></b>
+		<?php
+
+	}//end paintDateFormatKeys()
+
+
+	/**
+	* Processes the interface for viewing date format keys
+	*
+	* Note that keyword instructions are not processed so this function always
+	* returns false
+	*
+	* @param object Metadata_Field		$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean (false always)
+	* @access public
+	*/
+	function processDateFormatKeys(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processDateFormatKeys()
 
 
 	/**
@@ -141,6 +180,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 
 		$field = $this->_getEpochDateTimeField($asset, $prefix, $default);
 
+		echo "Value in this field is relevant only if you do not select a keyword replacement<br />";
+
 		// take into account lock, plus only root can edit
 		if ($asset->writeAccess('attributes')) $field->printField();
 		else echo $field->format();
@@ -193,6 +234,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 							'%asset_created%'	=> 'Creation date'
 		);
 
+		echo "Selected keyword replacement will be used instead of any entered default date values<br />";
+
 		// displaying default value if any values were actually saved in the array
 		if ($write_access) {
 			combo_box($prefix.'_repkeys', $select_options, false, $default);
@@ -242,6 +285,8 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 	function paintEpochSetup(&$asset, &$o, $prefix)
 	{
 		$field = $this->_getEpochDateTimeField($asset, $prefix);
+		
+		echo "Setup table below only affects how the field looks to the metadata editor,<br /> NOT how it is displayed in the META field of your web page.";
 
 		if ($asset->writeAccess('attributes')) {
 			// custom definition for edit interface
