@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.js,v 1.19 2004/01/20 03:17:30 mmcintyre Exp $
+* $Id: edit.js,v 1.20 2004/02/08 23:12:15 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,14 +79,11 @@ function switchEditingMode(contentDivID, editDivID, editor) {
 
 		editDiv.style.display = ""; // show the wysiwyg
 
-		// if we are using an iframe for this editor, we resize it
-		// and set its designMode property if we need to
+		// if we are using an iframe for this editor, we set its designMode property if we need to
 		if (editor._iframe) {
-			editor._iframe.style.width = "100%";
+			editor._iframe.style.width = editor.config.width;
 			if (setDesignMode && HTMLArea.is_gecko) { editor._iframe.contentWindow.document.designMode = "on"; }
-			var iframeHeight = contentDiv.offsetHeight - editor._toolbar.offsetHeight - editor._statusBar.offsetHeight;
-			if (iframeHeight < editor.config.height) { iframeHeight = editor.config.height; }
-			editor._iframe.style.height = iframeHeight + 'px';
+			editor._iframe.style.height = editor.config.height;
 		}
 		contentDiv.style.display = "none"; // hide the contents
 	} else if (editor._initialised == true) {
