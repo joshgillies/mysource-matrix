@@ -69,7 +69,8 @@ if (is_null($root_folder)) {
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('root_user');
 	$root_user = new Root_User();
 	$user_link = Array('asset' => &$system_group, 'link_type' => SQ_LINK_UNITE);
-	if (!$root_user->create($user_link, 'root@'.$_SERVER['HTTP_HOST'])) die('ROOT USER NOT CREATED');
+	$root_user->setAttrValue('email', 'root@'.$_SERVER['HTTP_HOST']);
+	if (!$root_user->create($user_link)) die('ROOT USER NOT CREATED');
 	pre_echo('Root User Asset Id : '.$root_user->id);
 	if ($root_user->id != 4) {
 		trigger_error('Major Problem: The new Root User Asset was not given assetid #4. This needs to be fixed by You, before the installation/upgrade can be completed', E_USER_ERROR);
