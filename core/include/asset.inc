@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.366 2005/02/21 19:31:14 brobertson Exp $
+* $Id: asset.inc,v 1.367 2005/02/22 22:37:57 lwright Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.366 $
+* @version $Revision: 1.367 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2924,10 +2924,14 @@ class Asset extends MySource_Object
 				// unless an asset overwrites this function
 				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
 
-				// use the current user and their groups
-				$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
+				// get the current user and groups we are not restricted from
+				$user =& $GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserId());
+				$assetids = $user->getUserGroups();
 				$assetids[] = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
-			}
+				
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($user);
+			} 
+			
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		}
 
