@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.9 2004/06/21 13:01:48 brobertson Exp $
+* $Id: search_manager.inc,v 1.10 2004/06/22 00:22:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.9 $ - 0.1
+* @version $Revision: 1.10 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -720,12 +720,12 @@ class Search_Manager extends Asset
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$total_asset_scores = null;
-		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->currentUserId() || (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin())); 
+		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->currentUserId() || (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
 
 
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(alt1.treeid, '.$db->quote('%').')' : '(alt1.treeid || '.$db->quote('%').')';
 
-		$search_sql = 'SELECT DISTINCT(a.assetid), '.$db->quote('1').'
+		$search_sql = 'SELECT DISTINCT(a.assetid), 1 AS score
 					   FROM
 							'.SQ_TABLE_PREFIX.'asset_link_tree alt1,
 							'.SQ_TABLE_PREFIX.'asset_link_tree alt2,
@@ -789,13 +789,24 @@ class Search_Manager extends Asset
 		if (!empty($userid_cond)) {
 			$search_sql .= $userid_cond;
 			$search_sql .= ' AND ap.permission >= '.$db->quote(SQ_PERMISSION_READ).'
-							AND ap.access = 1';
+							 AND ap.access = 1';
 		}
 
-		$result = $db->getAssoc($search_sql);
-		assert_valid_db_result($result);
+		$search_results = Array();
+		if (isset($search_info['limit'])) {
+			// limiting the search results
+			$result = $db->limitQuery($search_sql, 1, $search_info['limit']);
+			assert_valid_db_result($result);
 
-		return $result;
+			while ($result->fetchInto($row, DB_FETCHMODE_ASSOC)) {
+				$search_results[$row['assetid']] = 1;
+			}
+		} else {
+			$search_results = $db->getAssoc($search_sql);
+			assert_valid_db_result($search_results);
+		}
+		
+		return $search_results;
 
 	}//end processBasicSearch()
 
