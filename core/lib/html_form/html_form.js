@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.26 2004/01/16 00:41:04 mmcintyre Exp $
+* $Id: html_form.js,v 1.27 2004/01/16 00:45:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,9 +32,9 @@
 *
 * @access public
 */
-function submit_form()
+function submit_form(f)
 {
-	var f = document.main_form;
+	if (f == null) { f = document.main_form; }
 	// make sure we clean any stuff up before we submit
 	if (f.onsubmit()) {
 		f.submit();
@@ -49,9 +49,9 @@ function submit_form()
 *
 * @access public
 */
-function set_hidden_field(name, value)
+function set_hidden_field(name, value, f)
 {
-	var f = document.main_form;
+	if (f == null) { f = document.main_form; }
 	if (f.elements[name]) {
 		f.elements[name].value = value;
 	}
@@ -67,9 +67,9 @@ function set_hidden_field(name, value)
 *
 * @access public
 */
-function set_text_field(name, value)
+function set_text_field(name, value, f)
 {
-	var f = document.main_form;
+	if (f == null) { f = document.main_form; }
 	if (f.elements[name]) {
 		f.elements[name].value = value;
 	}
@@ -96,9 +96,9 @@ set_button_value = set_hidden_field;
 * @return object Form_Element
 * @access public
 */
-function get_form_element(name)
+function get_form_element(name, f)
 {
-	var f = document.main_form;
+	if (f == null) { f = document.main_form; }
 
 	if (f.elements[name]) {
 		return f.elements[name];
@@ -119,9 +119,9 @@ function get_form_element(name)
 * @return string
 * @access public
 */
-function get_form_element_value(name)
+function get_form_element_value(name, f)
 {
-	var f = document.main_form;
+	if (f == null) { f = document.main_form; }
 	return (f.elements[name]) ? form_element_value(f.elements[name]) : '';
 }// get_form_element_value()
 
