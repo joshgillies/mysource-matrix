@@ -130,6 +130,9 @@ TCell = function(parent)
 
         document.getElementById("bg").style.background = (this.bg == null)?"url(" + this.parent.parent.empty + ")":this.bg;
         document.getElementById("border").style.background = (this.borderColor == null)?"url(" + this.parent.parent.empty + ")":this.borderColor;
+
+        this.parent.parent.CellOptionsEditable(true);
+
     }
 }
 
@@ -211,6 +214,8 @@ TRow = function(parent, row)
 
         document.getElementById("bg").style.background = (this.bg == null)?"url(" + this.parent.empty + ")":this.bg;
         document.getElementById("border").style.background = (this.borderColor == null)?"url(" + this.parent.empty + ")":this.borderColor;
+
+        this.parent.CellOptionsEditable(false);
     }
 }
 
@@ -256,6 +261,48 @@ TTable = function(name, rows, cols)
             this.matrix.push(temp);
         }
     }
+
+
+
+    this.CellOptionsEditable = function(status)
+    {
+        var disabled	= !status;
+        var opacity		= (status)?"":0.5;
+        var alpha		= (status)?"":"alpha(opacity=50)";
+
+        document.getElementById("abbr").disabled = disabled;
+        document.getElementById("axis").disabled = disabled;
+        document.getElementById("scope").disabled = disabled;
+        document.getElementById("headings").disabled = disabled;
+        with (document.getElementById("addcolspan")) {
+            style.MozOpacity = opacity;
+            style.opacity = opacity;
+            style.filter = alpha;
+        }
+        with (document.getElementById("delcolspan")) {
+            style.MozOpacity = opacity;
+            style.opacity = opacity;
+            style.filter = alpha;
+        }
+        with (document.getElementById("addrowspan")) {
+            style.MozOpacity = opacity;
+            style.opacity = opacity;
+            style.filter = alpha;
+        }
+        with (document.getElementById("delrowspan")) {
+            style.MozOpacity = opacity;
+            style.opacity = opacity;
+            style.filter = alpha;
+        }
+        with (document.getElementById("THead")) {
+            style.MozOpacity = opacity;
+            style.opacity = opacity;
+            style.filter = alpha;
+        }
+
+    }
+    this.CellOptionsEditable(false);
+
 
     this.toString = function()
     {
@@ -533,6 +580,7 @@ TTable = function(name, rows, cols)
 
     this.showHeaders = function()
     {
+        if (this.c == null) return false;
         for (i=0;i<this.matrix[this.r].cells[this.c].headers.length;i++) {
             document.getElementById("td" + this.matrix[this.r].cells[this.c].headers[i].r + "_" + this.matrix[this.r].cells[this.c].headers[i].c).style.background = "url(" + this.semired + ")";
         }
@@ -541,6 +589,7 @@ TTable = function(name, rows, cols)
 
     this.toggleHeaders = function()
     {
+        if (this.c == null) return false;
         if (this.selector != "head") {
             this.selector = "head";
             this.showHeaders();
