@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.28 2004/10/17 23:14:01 arailean Exp $
+* $Id: form_question_edit_fns.inc,v 1.29 2004/10/22 03:50:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -356,7 +356,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		}//end if
 		?>
 
-		<p>Locking for this asset is controlled by its parent form<?php if (is_a($section_asset, 'form_section')) { echo ' section'; } ?>. Click to access this asset: <?php $href = $section_asset->getBackendHref('contents'); ?><a href="<?php echo $href?>"><?php echo $section_asset->_getName() ?></a></p><?php
+		<p>Locking for this asset is controlled by its parent form<?php if (is_a($section_asset, 'form_section')) { echo ' section'; } ?>. Click to access this asset: <?php $href = $section_asset->getBackendHref(is_a($section_asset, 'form_section') ? 'details' : 'contents'); ?><a href="<?php echo $href?>"><?php echo $section_asset->_getName() ?></a></p><?php
 		return true;
 
 	}//end paintLockMessage()
