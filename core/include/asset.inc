@@ -2829,7 +2829,7 @@ class Asset extends Resolve_Object
 						GROUP BY p.userid, p.assetid
 						HAVING MIN(p.revoked) = 0';
 
-				$subs = Array( 'SELECT DISTINCT '.$concat_userid_sub.'
+				$subs = Array( 'SELECT '.$concat_userid_sub.'
 								FROM sq_asset_link cl
 								  INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
 								  sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid 
