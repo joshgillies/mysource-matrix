@@ -480,6 +480,8 @@ class DateTime_Field {
 		}
 		
 		// Certain things we can't work out if the year is before 1970
+		$real_y = 0;
+		$c = 0;
 		if($y < 1970 && !stristr($es,'y')) {
 			$es .= 'DIlLrUwWzZ';
 			$real_y = $y;
