@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.90 2005/03/23 05:33:54 arailean Exp $
+* $Id: mysource.inc,v 1.91 2005/03/24 00:33:35 arailean Exp $
 *
 */
 
@@ -26,6 +26,7 @@
 require_once 'DB.php';
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/log_manager/log_manager.inc';
 
 /**
 * MySource
@@ -34,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.90 $
+* @version $Revision: 1.91 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1948,8 +1949,7 @@ class MySource
 	*/
 	function logSystemMessage($message, $level=E_USER_NOTICE)
 	{
-		$lm = &$this->getLogManager();
-		return $lm->log(SQ_CONF_LOG_FILE_SYSTEM, $message, $level);
+		return Log_Manager::log(SQ_CONF_LOG_FILE_SYSTEM, $message, $level);
 
 	}//end logSystemMessage()
 
@@ -1980,9 +1980,7 @@ class MySource
 		// strip out all references to the string identifying the root
 		$message = str_replace(SQ_CONF_ROOT_IDENTIFIER, '', $message);
 
-		$lm = &$this->getLogManager();
-
-		return $lm->log($log_name, $message, $level, false);
+		return Log_Manager::log($log_name, $message, $level, false);
 
 	}//end logErrorMessage()
 
