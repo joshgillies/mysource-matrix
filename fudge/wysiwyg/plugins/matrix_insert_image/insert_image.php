@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.23 2005/01/19 05:00:21 gsherwood Exp $
+* $Id: insert_image.php,v 1.24 2005/01/19 16:47:04 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -112,7 +112,7 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 		
 			function setImageInfo() {
 				// put a random no in the url to overcome any caching
-				var url = '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX; ?>/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=' + document.getElementById("f_imageid[assetid]").value + '&asset_ei_screen=image_info&ignore_frames=1&t=' + Math.random() * 1000;
+				var url = '<?php echo sq_web_path('root_url').'/'.SQ_CONF_BACKEND_SUFFIX; ?>/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid=' + escape(document.getElementById("f_imageid[assetid]").value) + '&asset_ei_screen=image_info&ignore_frames=1&t=' + Math.random() * 1000;
 				JsHttpConnector.submitRequest(url, populateImageInfo);
 
 			};
