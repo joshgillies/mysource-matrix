@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.15 2004/08/20 06:22:19 gsherwood Exp $
+* $Id: ldap_bridge.inc,v 1.15.2.1 2004/10/07 04:48:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -162,39 +162,61 @@ class LDAP_Bridge extends Bridge
 	{
 		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link])) {
 
+			$entries = null;
+
 			// the attribute mappings to the LDAP schemas
 			$attrs = $this->attr('attributes');
 
-			$ldap = $this->connectToLdap();
-
-			if ($assetid == $this->id) $base_dn = $this->attr('root_dn');
-			else $base_dn = $assetid;
-			
-			$filter = '';
-			foreach ($this->_group_types as $key => $value) {
-				if (empty($filter)) $filter = '(objectClass='.$key.')';
-				else $filter = '(|'.$filter.'(objectClass='.$key.'))';
+			if ($assetid != $this->id) {
+				// if we are using Active Directory, we have to get the members of a group from the member
+				// attribute of the group instead of using tree searches
+				if ($this->attr('system_type') == 'activedirectory') {
+					$asset = &$this->getAsset($assetid);
+					if ($asset->type() == 'ldap_user_group' && in_array('group', $asset->vars['objectclass'])) {
+						$members = $asset->vars['member'];
+						$entries = Array();
+						foreach ($members as $dn) {
+							$user = &$this->getAsset($dn);
+							$entries[$dn] = $user->vars;
+						}
+					}
+				}
 			}
-			foreach ($this->_user_types as $key => $value) {
-				if (empty($filter)) $filter = '(objectClass='.$key.')';
-				else $filter = '(|'.$filter.'(objectClass='.$key.'))';
-			}
 
-			$user_attrs = $this->attr('user_attributes');
-			$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : '';
+			if (is_null($entries)) {
+				$ldap = $this->connectToLdap();
 
-			$result = $ldap->search($base_dn, $filter, $sort_by, false);
-			if (!$result) {
+				if ($assetid == $this->id) $base_dn = $this->attr('root_dn');
+				else $base_dn = $assetid;
+				
+				$filter = '';
+				foreach ($this->_group_types as $key => $value) {
+					if (empty($filter)) $filter = '(objectClass='.$key.')';
+					else $filter = '(|'.$filter.'(objectClass='.$key.'))';
+				}
+				foreach ($this->_user_types as $key => $value) {
+					if (empty($filter)) $filter = '(objectClass='.$key.')';
+					else $filter = '(|'.$filter.'(objectClass='.$key.'))';
+				}
+	
+				$user_attrs = $this->attr('user_attributes');
+				$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : '';
+	
+				$result = $ldap->search($base_dn, $filter, $sort_by, false);
+				if (!$result) {
+					$ldap->disconnect();
+					return Array();
+				}
+	
+				$entries = $ldap->getEntries($result);
+				if (!$entries['count']) {
+					$ldap->disconnect();
+					return Array();
+				}
+				unset($entries['count']);
+				
 				$ldap->disconnect();
-				return Array();
 			}
-
-			$entries = $ldap->getEntries($result);
-			if (!$entries['count']) {
-				$ldap->disconnect();
-				return Array();
-			}
-			unset($entries['count']);
 
 			$links = Array();
 
@@ -202,7 +224,7 @@ class LDAP_Bridge extends Bridge
 			foreach ($entries as $data) {
 
 				$type = '';	
-				unset($data['objectclass']['count']);
+				if (isset($data['objectclass']['count'])) unset($data['objectclass']['count']);
 				foreach ($data['objectclass'] as $class) {
 					$class = strtolower($class);
 					foreach ($this->_group_types as $key => $value) {
@@ -226,10 +248,14 @@ class LDAP_Bridge extends Bridge
 					if (!empty($type)) break;
 				}
 				if (empty($type)) continue;
+				
+				// find the DN for the asset
+				if (is_array($data['dn'])) $dn = array_shift($data['dn']);
+				else $dn = $data['dn'];
 
 				$links[] = Array('linkid'          => 0,
 								 'majorid'         => $this->id,
-								 'minorid'         => $this->id.':'.$data['dn'],
+								 'minorid'         => $this->id.':'.$dn,
 								 'minor_type_code' => $type,
 								 'value'           => '',
 								 'link_type'       => SQ_LINK_TYPE_1,
@@ -240,8 +266,6 @@ class LDAP_Bridge extends Bridge
 				$i++;
 
 			}//end foreach entries
-
-			$ldap->disconnect();
 
 			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
 		}
@@ -336,6 +360,20 @@ class LDAP_Bridge extends Bridge
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
+		if ($assetid != $this->id) {
+			// if we are using Active Directory, the tree structure does not quite work the same
+			// as openLDAP, so we can only do one level for now
+			if ($this->attr('system_type') == 'activedirectory') {
+				$links = $this->getLinks($assetid, SQ_LINK_TYPE_1 & SQ_LINK_TYPE_2, $type_code, $strict_type_code, 'major', $sort_by);
+
+				$children = Array();
+				foreach ($links as $link_data) {
+					$children[$link_data['minorid']] = $link_data['minor_type_code'];
+				}
+				return $children;
+			}
+		}
+
 		if (!is_array($type_code)) {
 			if (empty($type_code)) $type_code = Array();
 			else $type_code = Array($type_code);
