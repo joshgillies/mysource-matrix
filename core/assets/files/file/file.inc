@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.85 2005/02/16 13:28:48 brobertson Exp $
+* $Id: file.inc,v 1.86 2005/02/24 01:22:18 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -81,7 +81,7 @@ class File extends Asset
 
 		$edit_fns = $clone->getEditFns();
 		if (!$edit_fns->processFileUpload($clone, $GLOBALS['SQ_SYSTEM']->backend->out, $clone->getPrefix(), $temp_info)) {
-			trigger_error('Could not clone file '.$this->name.' (#'.$this->id.')');
+			trigger_error('Could not clone file '.$this->name.' (#'.$this->id.')', E_USER_WARNING);
 			return false;
 		}
 
@@ -619,6 +619,12 @@ class File extends Asset
 					$ret_val |= $edit->processFileUpload($this, $o, $prefix);
 					$this->saveAttributes();
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+
+					if ($ret_val) {
+						// fire the 'Asset Created' event
+						$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', $this);
+					}
+
 					return $ret_val;
 				}
 

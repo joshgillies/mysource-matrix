@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.368 2005/02/23 05:14:15 gsherwood Exp $
+* $Id: asset.inc,v 1.369 2005/02/24 01:22:18 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.368 $
+* @version $Revision: 1.369 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -402,9 +402,6 @@ class Asset extends MySource_Object
 		unset($this->_tmp['__creating__']);
 		if (!$this->_updated()) return $this->_abortCreate();
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		// Fire the 'Asset Created' event
-		$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', $this);
 
 		$ms->closeLog();
 
@@ -3136,10 +3133,13 @@ class Asset extends MySource_Object
 		switch ($_POST['asset_action']) {
 			case 'create' :
 				if ($ei->process($this, $o, true)) {
-					return (bool) $this->create($link);
-				} else {
-					return false;
+					if ($this->create($link)) {
+						// fire the 'Asset Created' event
+						$GLOBALS['SQ_SYSTEM']->broadcastTriggerEvent('trigger_event_asset_created', $this);
+						return true;
+					}
 				}
+				return false;
 
 			default :
 				return $ei->process($this, $o, false);
