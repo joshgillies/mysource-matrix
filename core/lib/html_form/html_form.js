@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: html_form.js,v 1.19 2003/10/02 23:54:52 brobertson Exp $
+* $Id: html_form.js,v 1.20 2003/10/03 05:16:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -20,7 +20,7 @@ function submit_form()
 {
 	var f = document.main_form;
 	// make sure we clean any stuff up before we submit
-	if (form_on_submit()) {
+	if (f.onsubmit()) {
 		f.submit();
 	}
 }// end submit_form()
