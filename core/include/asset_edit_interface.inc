@@ -3,12 +3,12 @@
 require_once 'XML/Tree.php';
 
 /**
-* Edit_Interface
+* Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
 */
-class Edit_Interface extends Resolve_Object
+class Asset_Edit_Interface extends Resolve_Object
 {
 
 	/**
@@ -18,23 +18,29 @@ class Edit_Interface extends Resolve_Object
 	var $_type_code = '';
 
 	/**
+	* The Edit Fns object for dealing with any complex attribute painting and processing
+	* @var object Asset_Edit_Fns
+	*/
+	var $_edit_fns = null;
+
+	/**
 	* An array of dirs to check for certain files for this asset type
 	* @var Array()
 	*/
 	var $_dirs = Array();
 
 	/**
-	* An array of tab code names and their display names
+	* An array of screen code names and their display names
 	* @var Array()
 	*/
-	var $_tabs = Array();
+	var $_screens = Array();
 
 	/**
-	* The code name for default tab for the interface - used when no existing tab is specified
+	* The code name for default screen for the interface - used when no existing screen is specified
 	* @var string
 	*/
-	var $_default_tab = '';
-	 
+	var $_default_screen = '';
+
 	/**
 	* Constructor
 	*
@@ -42,31 +48,36 @@ class Edit_Interface extends Resolve_Object
 	*
 	* @access  public
 	*/
-	function Edit_Interface($type_code)
+	function Asset_Edit_Interface($type_code)
 	{
 		$this->_type_code = $type_code;
 
-		$this->_dirs = Array(SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_RESOLVE']->am->getInfo($this->_type_code, 'dir'));
+		$asset_dir = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_RESOLVE']->am->getInfo($this->_type_code, 'dir');
+		$class_name = $this->_type_code.'_edit_fns';
+		include_once $asset_dir.'/'.$class_name.'.inc';
+		$this->_edit_fns = new $class_name();
+
+		$this->_dirs = Array($asset_dir);
 		$parents = $GLOBALS['SQ_RESOLVE']->am->getParentList($this->_type_code, false);
 		foreach($parents as $parent_type) {
 			$this->_dirs[] = SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_RESOLVE']->am->getInfo($parent_type, 'dir');
 		}
 
-		// HERE BECAUSE Of The Need To Have A Default Interface Options for All Assets
-		pre_echo($this->_dirs);
+		// add the default for Asset
+		$this->_dirs[] = SQ_INCLUDE_PATH.'/asset_edit';
 
-		$this->_loadTabs();
+		$this->_loadScreens();
 	}
 
 	/**
-	* Looks for an 'edit_interface_tabs.xml' file in the base dir and loads it's information
+	* Looks for an 'edit_interface_screens.xml' file in the base dir and loads it's information
 	*
 	* @access  private
 	*/
-	function _loadTabs() 
+	function _loadScreens()
 	{
 
-		if(!($file = $this->_findFile('tabs'))) return;
+		if(!($file = $this->_findFile('screens'))) return;
 
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
@@ -75,18 +86,18 @@ class Edit_Interface extends Resolve_Object
 			return;
 		}
 
-		$this->_tabs = Array();
+		$this->_screens = Array();
 		for($i = 0; $i < count($root->children); $i++) {
 			$code_name = strtolower(preg_replace('/[^a-z_]/', '', $root->children[$i]->attributes['code_name']));
 			if (!$code_name) continue;
-			$this->_tabs[$code_name] = Array(
+			$this->_screens[$code_name] = Array(
 												'name' => $root->children[$i]->attributes['display_name'],
 												'icon' => $root->children[$i]->attributes['icon']
 											);
-			if (!empty($root->children[$i]->attributes['default'])) $this->_default_tab = $code_name;
+			if (!empty($root->children[$i]->attributes['default'])) $this->_default_screen = $code_name;
 		}
 
-	}// end _loadTabs();
+	}// end _loadScreens();
 
 
 	/**
@@ -98,35 +109,42 @@ class Edit_Interface extends Resolve_Object
 	*
 	* @access  public
 	*/
-	function paint(&$owner, &$o, $creating) 
+	function paint(&$owner, &$o, $creating)
 	{
-		// if there are no tabs, piss off
-		if (!count($this->_tabs)) return;
+		// if there are no screens, piss off
+		if (!count($this->_screens)) return;
 
+		$current_location = $o->getCurrentLocation();
+		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
+
+		// if there are no screens, piss off
+		for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
+			$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
+		}// end for
 
 		$create_sections = Array();
-		$active_tab = (empty($_GET['edit_interface_tab'])) ? $this->_default_tab : $_GET['edit_interface_tab'];
+		$active_screen = (empty($_GET['asset_ei_screen'])) ? $this->_default_screen : $_GET['asset_ei_screen'];
 
 		// if we are creating open the create file to see which fields we are supposed to print out
 		if ($creating) {
-			list($create_sections, $active_tab) = $this->_getCreateSections();
+			list($create_sections, $active_screen) = $this->_getCreateSections();
 			if (!count($create_sections)) return;
 		}// end if create
 
-		$active_tab = (empty($_GET['edit_interface_tab'])) ? $this->_default_tab : $_GET['edit_interface_tab'];
+		$active_screen = (empty($_GET['asset_ei_screen'])) ? $this->_default_screen : $_GET['asset_ei_screen'];
 
-		if (empty($this->_tabs[$active_tab])) {
-			trigger_error('Active Tab ("'.$active_tab.'") unknown', E_USER_WARNING);
+		if (empty($this->_screens[$active_screen])) {
+			trigger_error('Active Screen ("'.$active_screen.'") unknown', E_USER_WARNING);
 			return;
 		}
 
 		// try and find the file
-		if(!($file = $this->_findFile('tab_'.$active_tab))) return;
+		if(!($file = $this->_findFile('screen_'.$active_screen))) return;
 
-		// make sure that we have the tab for next time
-		$o->addFormActionGetVar('edit_interface_tab', $active_tab);
+		// make sure that we have the screen for next time
+		$o->addFormActionGetVar('asset_ei_screen', $active_screen);
 
-		$o->setHeading($this->_tabs[$active_tab]['name'], $this->_tabs[$active_tab]['icon']);
+		$o->setHeading($this->_screens[$active_screen]['name'], $this->_screens[$active_screen]['icon']);
 
 		$input = new XML_Tree($file);
 		$root  = &$input->getTreeFromFile();
@@ -151,19 +169,30 @@ class Edit_Interface extends Resolve_Object
 				// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
 				if ($field->name != 'field'  || ($creating && !in_array($field->attributes['attribute'], $create_sections[$section->attributes['name']]))) continue;
 
-				$attr = &$owner->getAttribute($field->attributes['attribute']);
-				if (is_null($attr)) continue;
-
 				if ($field->children[0]->name != 'display_name') {
 					trigger_error('Display Name for "'.$field->attributes['attribute'].'" not found', E_USER_WARNING);
 					continue;
 				}
 
-				if (!$attr->setEditParams($field->children[2])) continue;
-
 				$o->openField($field->children[0]->content);
 
-				$attr->paint($prefix);
+				if (!empty($field->attributes['attribute'])) {
+					$attr = &$owner->getAttribute($field->attributes['attribute']);
+					if (is_null($attr)) continue;
+					if (!$attr->setEditParams($field->children[2])) continue;
+					$attr->paint($prefix);
+
+				} else if ($field->children[2]->name == 'function_call') {
+
+					$paint_node = &$field->children[2]->children[0];
+
+					if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
+						echo 'Function not found for paintingfor';
+					} else {
+						$this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix);
+					}
+
+				}// end if
 
 				if ($field->children[1]->name == 'note' && $field->children[1]->content) {
 					$o->note($field->children[1]->content);
@@ -171,7 +200,7 @@ class Edit_Interface extends Resolve_Object
 
 			}// end for
 
-		}// end for 
+		}// end for
 
 		$o->commitButton('Commit');
 
@@ -179,7 +208,7 @@ class Edit_Interface extends Resolve_Object
 
 
 	/**
-	* Processes the results of the form posting, returns an array of the attribute names that 
+	* Processes the results of the form posting, returns an array of the attribute names that
 	* where processed
 	*
 	* @param object Asset	$owner		the asset whose interface we are painting
@@ -188,36 +217,36 @@ class Edit_Interface extends Resolve_Object
 	* @return Array()
 	* @access public
 	*/
-	function process(&$owner, $creating) 
+	function process(&$owner, $creating)
 	{
-		// if there are no tabs, piss off
-		if (!count($this->_tabs)) return;
+		// if there are no screens, piss off
+		if (!count($this->_screens)) return;
 
 		$processed = Array();
 		$create_sections = Array();
-		$active_tab = (empty($_GET['edit_interface_tab'])) ? $this->_default_tab : $_GET['edit_interface_tab'];
+		$active_screen = (empty($_GET['asset_ei_screen'])) ? $this->_default_screen : $_GET['asset_ei_screen'];
 
 		// if we are creating open the create file to see which fields we are supposed to print out
 		if ($creating) {
-			list($create_sections, $active_tab) = $this->_getCreateSections();
+			list($create_sections, $active_screen) = $this->_getCreateSections();
 			if (!count($create_sections)) return $processed;
 		}// end if create
 
-		if (empty($_GET['edit_interface_tab']) || empty($this->_tabs[$_GET['edit_interface_tab']])) {
-			trigger_error('Active Tab unknown unable to process', E_USER_WARNING);
+		if (empty($_GET['asset_ei_screen']) || empty($this->_screens[$_GET['asset_ei_screen']])) {
+			trigger_error('Active Screen unknown unable to process', E_USER_WARNING);
 			return $processed;
 		}
 
 		$file = '';
 		for($i = 0; $i < count($this->_dirs); $i++) {
-			if (file_exists($this->_dirs[$i].'/edit_interface_tab_'.$active_tab.'.xml')) {
-				$file = $this->_dirs[$i].'/edit_interface_tab_'.$active_tab.'.xml';
+			if (file_exists($this->_dirs[$i].'/edit_interface_screen_'.$active_screen.'.xml')) {
+				$file = $this->_dirs[$i].'/edit_interface_screen_'.$active_screen.'.xml';
 				break;
 			}
 		}
 
 		if(!$file) {
-			trigger_error('edit_interface_tabs.xml not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
+			trigger_error('edit_interface_screens.xml not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
 			return $processed;
 		}
 
@@ -251,7 +280,7 @@ class Edit_Interface extends Resolve_Object
 
 			}// end for
 
-		}// end for 
+		}// end for
 
 		return $processed;
 
@@ -265,9 +294,10 @@ class Edit_Interface extends Resolve_Object
 	* @param string	$file_name	the file to find
 	*
 	* @return string
-	* @access public
+	* @access private
 	*/
-	function _findFile($file_name) {
+	function _findFile($file_name)
+	{
 
 		$file_name = 'edit_interface_'.$file_name.'.xml';
 
@@ -288,13 +318,14 @@ class Edit_Interface extends Resolve_Object
 	}// end _findFile()
 
 	/**
-	* Returns the Sections and fields that are to be used in a create interface 
-	* and the tab that these belong to
+	* Returns the Sections and fields that are to be used in a create interface
+	* and the screen that these belong to
 	*
 	* @return Array
-	* @access public
+	* @access private
 	*/
-	function _getCreateSections() {
+	function _getCreateSections()
+	{
 
 		$create_sections = Array();
 
@@ -321,9 +352,9 @@ class Edit_Interface extends Resolve_Object
 
 			}// end for
 
-		}// end for 
+		}// end for
 
-		return Array($create_sections, $root->attributes['tab']);
+		return Array($create_sections, $root->attributes['screen']);
 
 	}// end _getCreateSections()
 

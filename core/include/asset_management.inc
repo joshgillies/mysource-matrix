@@ -12,7 +12,7 @@ require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 *
 *
 *    !IMPORTANT! Only to be used by the Package_Manager
-*    
+*
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
@@ -24,7 +24,7 @@ class Asset_Management extends Resolve_Object
 	* @var object Package_Manager
 	*/
 	var $_pm;
-	
+
 	/**
 	* @var object Asset_Manager
 	*/
@@ -66,7 +66,7 @@ class Asset_Management extends Resolve_Object
 	*
 	* @access public
 	*/
-	function getAssetType() 
+	function getAssetType()
 	{
 
 		$class = get_class($this);
@@ -79,7 +79,7 @@ class Asset_Management extends Resolve_Object
 	*
 	* @access public
 	*/
-	function update() 
+	function update()
 	{
 
 		// if the asset manager knows about it it is installed, so upgrade...
@@ -96,7 +96,7 @@ class Asset_Management extends Resolve_Object
 	*
 	* @access public
 	*/
-	function _install() 
+	function _install()
 	{
 
 		$type_code   = $this->getAssetType();
@@ -110,10 +110,10 @@ class Asset_Management extends Resolve_Object
 		$sql = 'INSERT INTO sq_asset_type
 				(type_code, version, name, description, instantiable, system_only, parent_type, level, dir, customisation, editing_options)
 				VALUES
-				('.$this->_db->quote($type_code).', '.$this->_db->quote($info['version']).', 
+				('.$this->_db->quote($type_code).', '.$this->_db->quote($info['version']).',
 				'.$this->_db->quote($info['name']).', '.$this->_db->quote($info['description']).',
-				'.$this->_db->quote($info['instantiable']).', '.$this->_db->quote($info['system_only']).', 
-				'.$this->_db->quote($info['parent_type']).', '.$this->_db->quote($level).', 
+				'.$this->_db->quote($info['instantiable']).', '.$this->_db->quote($info['system_only']).',
+				'.$this->_db->quote($info['parent_type']).', '.$this->_db->quote($level).',
 				'.$this->_db->quote($info['dir']).', 0, '.$this->_db->quote(serialize($editing_options)).')';
 #		pre_echo($sql);
 		$result = $this->_db->query($sql);
@@ -144,7 +144,7 @@ class Asset_Management extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function _upgrade($current_version) 
+	function _upgrade($current_version)
 	{
 
 		// get how deep we are in the heirarchy
@@ -182,7 +182,7 @@ class Asset_Management extends Resolve_Object
 				FROM sq_asset_attribute
 				WHERE type_code = '.$this->_db->quote($this->getAssetType());
 		$current_vars = $this->_db->getCol($sql);
-	
+
 		// we only need to check the vars that we defined, we don't need to worry about those
 		// we inherit because the owner of those attrs will look after any updates to them
 		for(reset($this->vars); null !== ($name = key($this->vars)); next($this->vars)) {
@@ -208,7 +208,7 @@ class Asset_Management extends Resolve_Object
 	* @return Array
 	* @access private
 	*/
-	function _getEditingOptions() 
+	function _getEditingOptions()
 	{
 
 		$parents = $this->_pm->getParentList($this->getAssetType());
@@ -248,14 +248,14 @@ class Asset_Management extends Resolve_Object
 	* @return Array(string);
 	* @access public
 	*/
-	function _getAllVars() 
+	function _getAllVars()
 	{
 
 		$sql = 'SELECT DISTINCT atr.name
 				FROM sq_asset_type_inherited i, sq_asset_attribute atr
 				WHERE i.type_code = '.$this->_db->quote($this->getAssetType()).'
 				  AND i.inherited_type_code = atr.type_code';
-	
+
 		$parent_vars = $this->_db->getCol($sql);
 		// array_values() to get proper indexed array
 		$vars = array_values(array_unique(array_merge($parent_vars, array_keys($this->vars))));
@@ -271,7 +271,7 @@ class Asset_Management extends Resolve_Object
 	* @return boolean
 	* @access private
 	*/
-	function _addAttribute($name) 
+	function _addAttribute($name)
 	{
 
 		$type_code = $this->getAssetType();
@@ -323,7 +323,7 @@ class Asset_Management extends Resolve_Object
 
 			// OK, what's happening is that the asset type that is represented by the min level
 			// is the owner of the attribute, so from there we get all the attribute information
-			// except for the default value, because this might have been overridden by an asset type 
+			// except for the default value, because this might have been overridden by an asset type
 			// further down the line, this is where the max level come in. The Max Level is really our parent
 			// asset type and from here we get the current default value and the what that default value
 			// was set by (the default_type_code). From these values we can se-up the attribute correctly
@@ -350,7 +350,7 @@ class Asset_Management extends Resolve_Object
 			if (isset($this->vars[$name]['default'])) {
 				$attr_info['default_type_code'] = $type_code;
 				$attr_info['default_value']     = $this->vars[$name]['default'];
-			
+
 			// else we want to inherit the default value
 			} else {
 
@@ -377,15 +377,15 @@ class Asset_Management extends Resolve_Object
 		}
 
 		// OK, all seems fine, let's add the bloody thing
-		$sql = 'INSERT INTO sq_asset_attribute 
+		$sql = 'INSERT INTO sq_asset_attribute
 				(attributeid, type_code, owning_type_code, name, type, default_type_code, default_value)
 				VALUES
-				('.$this->_db->quote($attributeid).', 
-				'.$this->_db->quote($type_code).', 
-				'.$this->_db->quote($attr_info['owning_type_code']).', 
-				'.$this->_db->quote($name).', 
-				'.$this->_db->quote($attr_info['type']).', 
-				'.$this->_db->quote($attr_info['default_type_code']).', 
+				('.$this->_db->quote($attributeid).',
+				'.$this->_db->quote($type_code).',
+				'.$this->_db->quote($attr_info['owning_type_code']).',
+				'.$this->_db->quote($name).',
+				'.$this->_db->quote($attr_info['type']).',
+				'.$this->_db->quote($attr_info['default_type_code']).',
 				'.$this->_db->quote($attr_info['default_value']).')';
 
 #		pre_echo($sql);
@@ -409,7 +409,7 @@ class Asset_Management extends Resolve_Object
 	* @return boolean
 	* @access private
 	*/
-	function _updateAttribute($name, $current_version) 
+	function _updateAttribute($name, $current_version)
 	{
 
 		$type_code = $this->getAssetType();
@@ -439,7 +439,7 @@ class Asset_Management extends Resolve_Object
 			// if this asset type owns this var, we can change it how ever we want
 			if ($curr_attr['owning_type_code'] == $type_code) {
 				return $this->_updateOwnedAttribute($name);
-			
+
 			// if we have set the default value in the vars
 			} else if (isset($this->vars[$name]['default'])) {
 				return $this->_updateDefaultAttribute($name, $curr_attr);
@@ -462,7 +462,7 @@ class Asset_Management extends Resolve_Object
 	* @return boolean
 	* @access private
 	*/
-	function _updateOwnedAttribute($name) 
+	function _updateOwnedAttribute($name)
 	{
 
 		$type_code = $this->getAssetType();
@@ -470,7 +470,7 @@ class Asset_Management extends Resolve_Object
 		trigger_error('Need to have check to make sure that the variable type is valid' , E_USER_WARNING);
 
 		// update all the attributes that we own
-		$sql = 'UPDATE sq_asset_attribute 
+		$sql = 'UPDATE sq_asset_attribute
 				SET type = '.$this->_db->quote($this->vars[$name]['type']).'
 				WHERE owning_type_code = '.$this->_db->quote($type_code).'
 				  AND name = '.$this->_db->quote($name);
@@ -484,7 +484,7 @@ class Asset_Management extends Resolve_Object
 
 
 		// update all the attributes that are still using our default
-		$sql = 'UPDATE sq_asset_attribute 
+		$sql = 'UPDATE sq_asset_attribute
 				SET default_value = '.$this->_db->quote($this->vars[$name]['default']).'
 				WHERE default_type_code = '.$this->_db->quote($type_code).'
 				  AND name = '.$this->_db->quote($name);
@@ -509,16 +509,16 @@ class Asset_Management extends Resolve_Object
 	* @return boolean
 	* @access private
 	*/
-	function _updateDefaultAttribute($name, $curr_attr) 
+	function _updateDefaultAttribute($name, $curr_attr)
 	{
 		$type_code = $this->getAssetType();
 
 
 		// OK, the reason that we are setting the default type code for the attributes
 		// is so that if this is the first time that we are setting the default value
-		// then all the asset types below us that were inheriting the default value from the 
+		// then all the asset types below us that were inheriting the default value from the
 		// the same asset type as we used to be will be converted to using our default value
-		$sql = 'UPDATE sq_asset_attribute 
+		$sql = 'UPDATE sq_asset_attribute
 				SET default_type_code = '.$this->_db->quote($type_code).',
 					default_value     = '.$this->_db->quote($this->vars[$name]['default']).'
 				WHERE attributeid = '.$this->_db->quote($curr_attr['attributeid']).'
@@ -552,7 +552,7 @@ class Asset_Management extends Resolve_Object
 	* Returns the information from the passed asset.xml
 	* This function can be called without creating an instance of the class
 	* ie $info = Asset_Management::getAssetInfo($file);
-	* 
+	*
 	* @param string $file  the asset.xml file path
 	*
 	* @return Array
@@ -598,14 +598,14 @@ class Asset_Management extends Resolve_Object
 																);
 
 		}//end if
-		
+
 		return $GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file];
 
 	}//end getAssetInfo()
 
 	/*
 	* Used by the XML_Array()
-	* 
+	*
 	* @see XML_Array::XML_Array()
 	*
 	* @return Array

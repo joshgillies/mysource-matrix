@@ -32,7 +32,7 @@ class Asset_Manager extends Resolve_Object
 	* Constructor
 	*
 	*/
-	function Asset_Manager() 
+	function Asset_Manager()
 	{
 		$this->Resolve_Object();
 		$this->_loadAssetTypes();
@@ -45,6 +45,7 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function _loadAssetTypes()
 	{
+		$this->_asset_types = Array();
 
 		$db = &$GLOBALS['SQ_RESOLVE']->db;
 		$sql = 'SELECT type_code, version, name, instantiable, system_only, parent_type, dir, customisation
@@ -62,7 +63,7 @@ class Asset_Manager extends Resolve_Object
 
 	/**
 	* Refreshes the passed asset types data in the assets array
-	* Also updates the sq_asset_type_inherited table so as to have all 
+	* Also updates the sq_asset_type_inherited table so as to have all
 	* links pointing correctly
 	*
 	* @access public
@@ -103,13 +104,13 @@ class Asset_Manager extends Resolve_Object
 		}
 
 		foreach($deletes as $inherited_type_code) {
-			$sql = 'DELETE FROM sq_asset_type_inherited 
+			$sql = 'DELETE FROM sq_asset_type_inherited
 					WHERE inherited_type_code = '.$db->quote($inherited_type_code).'
 					  AND type_code = '.$db->quote($type_code);
 			$result = $db->query($sql);
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_ERROR);
 		}
-			
+
 	}//end refreshAssetType()
 
 	/**
@@ -130,7 +131,8 @@ class Asset_Manager extends Resolve_Object
 	* @return array
 	* @access public
 	*/
-	function getTypeList() {
+	function getTypeList()
+	{
 		return array_keys($this->_asset_types);
 	}//end getInfo()
 
@@ -143,7 +145,8 @@ class Asset_Manager extends Resolve_Object
 	* @return mixed
 	* @access public
 	*/
-	function getInfo($type_code, $field='') {
+	function getInfo($type_code, $field='')
+	{
 
 		if (!isset($this->_asset_types[$type_code])) {
 			trigger_error('Asset "'.$type_code.'" is not installed on the system', E_USER_WARNING);
@@ -179,7 +182,8 @@ class Asset_Manager extends Resolve_Object
 	* @return array
 	* @access public
 	*/
-	function getAssetTypeHierarchy($base_type_code='asset', $ignore_system_only=false) {
+	function getAssetTypeHierarchy($base_type_code='asset', $ignore_system_only=false)
+	{
 
 		if (empty($base_type_code)) $base_type_code = 'asset';
 
@@ -208,7 +212,8 @@ class Asset_Manager extends Resolve_Object
 
 	}// end getAssetTypeHierarchy()
 
-	function _recurseGetAssetTypeHierarchy($offspring, $base_type_code) {
+	function _recurseGetAssetTypeHierarchy($offspring, $base_type_code)
+	{
 		if (empty($offspring[$base_type_code])) return Array();
 		$arr = Array();
 		for($i = 0; $i < count($offspring[$base_type_code]); $i++) {
@@ -228,7 +233,8 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function includeAsset($type_code) {
+	function includeAsset($type_code)
+	{
 
 		if (!isset($this->_asset_types[$type_code])) {
 			trigger_error('Asset "'.$type_code.'" is not installed on the system, unable to include it\'s Source File', E_USER_ERROR);
@@ -247,7 +253,8 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function getParentList($type_code, $include_asset=true) {
+	function getParentList($type_code, $include_asset=true)
+	{
 
 		if (!isset($this->_asset_types[$type_code])) {
 			trigger_error('Asset Type "'.$type_code.'" is not installed on the system', E_USER_ERROR);
@@ -256,7 +263,7 @@ class Asset_Manager extends Resolve_Object
 
 		$arr = Array();
 
-		while($this->_asset_types[$type_code]['parent_type'] != 'asset') { 
+		while($this->_asset_types[$type_code]['parent_type'] != 'asset') {
 			// this should NEVER happen, if it does DIE
 			if (!isset($this->_asset_types[$this->_asset_types[$type_code]['parent_type']])) {
 				trigger_error('Asset "'.$this->_asset_types[$type_code]['parent_type'].'" is not installed on the system,<br>'
@@ -282,7 +289,8 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function &getAsset($assetid, $type_code='', $mute_errors=false) {
+	function &getAsset($assetid, $type_code='', $mute_errors=false)
+	{
 
 		if (!isset($this->_assets[$assetid]) || !is_object($this->_assets[$assetid])) {
 
@@ -319,7 +327,8 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function registerAsset(&$obj) {
+	function registerAsset(&$obj)
+	{
 
 		// wrong class or no id, fuck off
 		if (!is_object($obj) || is_a($obj, 'Asset') || !$obj->id) return;
@@ -335,7 +344,8 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function printBackend(&$backend) {
+	function printBackend(&$backend)
+	{
 
 		$o  = &$backend->out;
 
@@ -349,13 +359,13 @@ class Asset_Manager extends Resolve_Object
 				if (is_null($parent)) {
 					trigger_error('Parent Asset #'.$_GET['parent_assetid'].' not found', E_USER_WARNING);
 					break;
-				} 
+				}
 
 				// make sure that we are allowed to link this type to the parent
 				if (($err_msg = $parent->canLinkToType($_GET['type_code'], $_GET['link_type'])) !== true) {
 					trigger_error($err_msg, E_USER_WARNING);
 					break;
-				} 
+				}
 
 				$o->addFormActionGetVar('parent_assetid', $_GET['parent_assetid']);
 				$o->addFormActionGetVar('pos',            $_GET['pos']);
@@ -399,7 +409,7 @@ class Asset_Manager extends Resolve_Object
 				if (is_null($asset)) {
 					trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
 					break;
-				} 
+				}
 
 				// if the form has been submitted then, process it
 				// and if that is successfull, then create the link to the parent asset
@@ -433,7 +443,7 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function _printAssetList(&$o) 
+	function _printAssetList(&$o)
 	{
 
 		if (!empty($_REQUEST['am_action'])) {
@@ -466,7 +476,7 @@ class Asset_Manager extends Resolve_Object
 		$o->setHeading('Assets Types', 'create');
 		$o->addHiddenField('am_action');
 		$o->addHiddenField('am_new_type_code');
-	
+
 		$o->openSection('Existing Assets');
 		$o->openField('', 'new_line');
 
@@ -478,7 +488,7 @@ class Asset_Manager extends Resolve_Object
 			$offspring[$parent][] = $type_code;
 		}//end for
 
-	?> 
+	?>
 		<script language="JavaScript" type="text/javascript">
 		<!--
 
@@ -498,7 +508,7 @@ class Asset_Manager extends Resolve_Object
 			function create_custom() {
 
 				if (get_element_value('am_type_code')) {
-					
+
 					var type_codes = new Array("<?php echo implode('", "', array_keys($this->_asset_types)); ?>");
 					var new_type_code = '';
 					var prompt_str = '';
@@ -542,31 +552,31 @@ class Asset_Manager extends Resolve_Object
 			<tr>
 				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
 				<td class="sq-backend-data">
-			<?php 
+			<?php
 				$this->_recursePrintAssetList($o, $offspring, 'asset');
-			?> 
+			?>
 				</td>
 			</tr>
 			<tr>
 				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
 				<td class="sq-backend-data">
-			<?php 
+			<?php
 				$o->submit_button('create_button', 'Create Custom Asset', 'return create_custom();');
 				$o->submit_button('edit_button', '- - - - - - - - - - - - -', 'if (this.value.substr(0, 4) == \'Edit\') { set_hidden_field(\'am_action\', \'edit\'); return true; } else { return false };');
-			?> 
+			?>
 				</td>
 			</tr>
 		</table>
-	<?php 
+	<?php
 
 	}// end printAssetList()
 
 	function _recursePrintAssetList(&$o, &$offspring, $parent)
 	{
 
-	?> 
+	?>
 		<table cellpadding="0" cellspacing="0" border="0">
-	<?php 
+	<?php
 		$num_kids = count($offspring[$parent]);
 		for ($i = 0; $i < $num_kids; $i++) {
 
@@ -575,34 +585,34 @@ class Asset_Manager extends Resolve_Object
 //			$bg_img = 'images/page_'.(($page[effective_visible]) ? '' : 'in').'visible_'.page::get_status_colour($page[effective_status]).'.gif';
 
 			$bg = ($end) ? '' : 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
-		?> 
+		?>
 			<tr>
 				<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
 				<td class="sq-backend-data">
-				<?php 
+				<?php
 				$o->radio_button('am_type_code', $type_code, false, 'asset_checked(\''.addslashes($this->_asset_types[$type_code]['name']).'\', '.(($this->_asset_types[$type_code]['customisation']) ? 'true' : 'false').');');
 				?>
 					<span class="sq-backend-<?php echo ($this->_asset_types[$type_code]['customisation']) ? 'custom-' : ''?>asset"><?php echo $this->_asset_types[$type_code]['name'].' ('.$type_code.')';?></span>
 				</td>
 			</tr>
-		<?php 
+		<?php
 			if (!empty($offspring[$type_code])) {
-			?> 
+			?>
 				<tr>
 					<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
 					<td class="sq-backend-data">
-				<?php 
+				<?php
 					$this->_recursePrintAssetList($o, $offspring, $type_code);
-				?> 
+				?>
 					</td>
 				</tr>
-			<?php 
+			<?php
 			}//end if
 
 		}//end for
-	?> 
+	?>
 		</table>
-	<?php 
+	<?php
 
 	}//end _printAssetList()
 
@@ -617,7 +627,8 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function &getAssetFromURL($url='', $exact_match=true, $mute_errors=false) {
+	function &getAssetFromURL($url='', $exact_match=true, $mute_errors=false)
+	{
 
 		if (trim((string) $url) == '') {
 			$url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];

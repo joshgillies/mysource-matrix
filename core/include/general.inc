@@ -72,8 +72,9 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 
 	// OK, because we want our errors to actually be displayed, kill any output buffering
+
 	$buffers = Array();
-	while(ob_get_level() > 1) {
+	while(ob_get_level() > SQ_INIT_OB_LEVEL) {
 		$buffers[] = ob_get_contents();
 		ob_end_clean();
 	}

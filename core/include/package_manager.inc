@@ -55,10 +55,10 @@ class Package_Manager extends Resolve_Object
 	* Constructor
 	*
 	*/
-	function Package_Manager($package) 
+	function Package_Manager($package)
 	{
 		$this->Resolve_Object();
-	
+
 		// OK, if this is the "core" package then we just need to fiddle with the path
 		$this->_base_path = ($package == '__core__') ? 'core/assets' : 'packages/'.$package;
 		$this->_full_path = SQ_SYSTEM_ROOT.'/'.$this->_base_path;
@@ -96,7 +96,8 @@ class Package_Manager extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function checkPackageDetails() {
+	function checkPackageDetails()
+	{
 
 		if (!$this->package) {
 			trigger_error('Package is not available for install or upgrade on this system', E_USER_WARNING);
@@ -118,7 +119,7 @@ class Package_Manager extends Resolve_Object
 				return false;
 			}//endif
 
-			// OK, let's check that this asset is of an available type, 
+			// OK, let's check that this asset is of an available type,
 			// or that the type is in this package that we are checking
 			$parent_type = $this->assets[$type_code]['parent_type'];
 			if ($parent_type != 'asset' && !$am->installed($parent_type) && !isset($this->assets[$parent_type])) {
@@ -137,7 +138,8 @@ class Package_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function updatePackageDetails() {
+	function updatePackageDetails()
+	{
 
 		if (!$this->package) {
 			trigger_error('Package is not available for install or upgrade on this system', E_USER_WARNING);
@@ -218,7 +220,7 @@ class Package_Manager extends Resolve_Object
 		return true;
 
 	}//end updatePackageDetails()
-	
+
 	/*
 	* Recursivly searches through the passed package's directory for asset.xml files
 	* and enter's them into the $this->assets array with the details
@@ -270,7 +272,8 @@ class Package_Manager extends Resolve_Object
 	*
 	* @access private
 	*/
-	function _getInstallOrder() {
+	function _getInstallOrder()
+	{
 
 		$asset_types = array_keys($this->assets);
 		$install_order = Array();
@@ -305,14 +308,14 @@ class Package_Manager extends Resolve_Object
 					$install_order[] = $type_code;
 					$remove = true;
 
-				
-				// if this type is not inheriting from a type that is yet to be dealt with, then 
+
+				// if this type is not inheriting from a type that is yet to be dealt with, then
 				// the type is in heriting from something that doesn't exist
 				} elseif (!in_array($parent, $asset_types)) {
 					trigger_error('Asset "'.$type_code.'" attempts to inherit from the unknown type "'.$parent.'"', E_USER_WARNING);
 					$remove = true;
 				}
-				// else we do nothing with the asset_type 
+				// else we do nothing with the asset_type
 
 				if ($remove) {
 					unset($asset_types[$i]);
@@ -336,16 +339,17 @@ class Package_Manager extends Resolve_Object
 
 	/*
 	* checks the requirements of the passed asset.xml file
-	* see checkRequirements() for more info 
+	* see checkRequirements() for more info
 	*
 	* @param string  $file              the code name for the asset that you want to check
-	* @param boolean $need_feedback  
-	* @param array   $ignore_assets     if the requirement is an asset, but is in this list, the requirement is considered to have passed  
+	* @param boolean $need_feedback
+	* @param array   $ignore_assets     if the requirement is an asset, but is in this list, the requirement is considered to have passed
 	*
 	* @return mixed
 	* @access public
 	*/
-	function checkRequirementsFromFile($file, $need_feedback=false) {
+	function checkRequirementsFromFile($file, $need_feedback=false)
+	{
 
 		$xml_array = new XML_Array(Asset_Management::getAssetArrayPaths());
 		$info = $xml_array->getArrayFromFile($file);
@@ -368,13 +372,13 @@ class Package_Manager extends Resolve_Object
 					$installed_version = $GLOBALS['SQ_RESOLVE']->db->getOne('SELECT version FROM sq_package WHERE code_name = '.$GLOBALS['SQ_RESOLVE']->db->quote($req['code']['value']));
 					if (DB::isError($installed_version)) trigger_error($installed_version->getMessage().'<br>'.$installed_version->getUserInfo(), E_USER_ERROR);
 
-					if ($installed_version) { 
+					if ($installed_version) {
 						$ok = version_compare($installed_version, $req['version']['value'], '>=');
 					}
 					break;
 
 				case 'asset' :
-					if ($GLOBALS['SQ_RESOLVE']->am->installed($req['code']['value'])) { 
+					if ($GLOBALS['SQ_RESOLVE']->am->installed($req['code']['value'])) {
 						$ok = version_compare($GLOBALS['SQ_RESOLVE']->am->getInfo($req['code']['value'], 'version'), $req['version']['value'], '>=');
 					}
 					// if the test failed, but this asset is in this package, check it's version from that
@@ -430,7 +434,8 @@ class Package_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function getParentList($type_code) {
+	function getParentList($type_code)
+	{
 
 		if (!isset($this->assets[$type_code])) {
 			trigger_error('Asset "'.$type_code.'" does not exist in the <b>'.$this->package.'</b> package', E_USER_ERROR);
@@ -440,7 +445,7 @@ class Package_Manager extends Resolve_Object
 
 		$arr = Array();
 
-		while(isset($this->assets[$type_code]) && $this->assets[$type_code]['parent_type'] != 'asset') { 
+		while(isset($this->assets[$type_code]) && $this->assets[$type_code]['parent_type'] != 'asset') {
 			$type_code = $this->assets[$type_code]['parent_type'];
 			$arr[]     = $type_code;
 		}
@@ -469,7 +474,8 @@ class Package_Manager extends Resolve_Object
 	* @return mixed
 	* @access public
 	*/
-	function getInfo($type_code, $field='') {
+	function getInfo($type_code, $field='')
+	{
 
 		if (!isset($this->assets[$type_code])) {
 			trigger_error('Asset "'.$type_code.'" does not exist in the <b>'.$this->package.'</b> package', E_USER_WARNING);

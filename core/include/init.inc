@@ -8,6 +8,12 @@
 error_reporting(E_ALL);
 set_magic_quotes_runtime(0);
 
+// We need this so that our error handler won't kill itself attempting to try and remove 
+// all existing buffers, especially important when Zend Performance Suite is installed because
+// it adds another OB level
+define('SQ_INIT_OB_LEVEL', ob_get_level());
+
+
 /*
 * Set the current version of the system core
 * We mustn't forget to update this (until someone

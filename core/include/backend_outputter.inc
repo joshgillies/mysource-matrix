@@ -27,51 +27,50 @@ define('SQ_BO_MSG_ERROR',       3);
 class Backend_Outputter 
 {
 
-	# any messages to be displayed to the user
+	// any messages to be displayed to the user
 	var $_messages = Array();
 
-	# an link to redirect to when we print, any messages will be carried over to the next page
+	// an link to redirect to when we print, any messages will be carried over to the next page
 	var $_redirect = '';
 
-	# an array of fns to be called when the page loads
+	// an array of fns to be called when the page loads
 	var $_on_load_calls = Array();
 
-	# the form action
+	// the form action
 	var $_action  = '';
 
-	# the anchor the form will be submitted to
+	// the anchor the form will be submitted to
 	var $_anchor  = '';
 	
-	# the page heading
+	// the page heading
 	var $_heading  = '';
 	var $_heading_icon = '';
 	var $_sub_heading  = '';
 	var $_sub_heading_icon = '';
 	
-	# stylesheet files to include
+	// stylesheet files to include
 	var $_css_includes = Array();
 
-	# javascript files to include
+	// javascript files to include
 	var $_js_includes = Array();
 
-	# an array of fns to be called when the form is submitted
+	// an array of fns to be called when the form is submitted
 	var $_on_submit_calls = Array();
 
-	# hidden fields for the form Array([field name] => [value])
+	// hidden fields for the form Array([field name] => [value])
 	var $_hidden_fields = Array();
 
-	# bread crumming
-	var $_crumming      = Array();
-	var $_show_crumming = true;
+	// edit screens
+	var $_screens = Array();
 
-	# the contents of the page split into sections
+	// the contents of the page split into sections
 	var $_contents = Array();
 
-	# used to make sure that each img gets a unique name
+	// used to make sure that each img gets a unique name
 	var $_img_button_count = 0;
 
-	# all the preload images names on the page and their preloaded images
-    # Array(name => img);
+	// all the preload images names on the page and their preloaded images
+    // Array(name => img);
 	var $_preload_imgs = Array();
 
 	var $_files_path;
@@ -85,11 +84,11 @@ class Backend_Outputter
 	function Backend_Outputter() 
 	{
 
-		# if there are some messages from the previous page we had better add them in
+		// if there are some messages from the previous page we had better add them in
 		if (!empty($_SESSION['backend_outputter_msgs'])) {
 			$this->_messages = $_SESSION['backend_outputter_msgs'];
 			$_SESSION['backend_outputter_msgs'] = Array();
-		}#end if
+		}//end if
 
 		$this->_files_path = SQ_WWW_LIB_DIR.'/web';
 		$this->_action = $_SERVER['PHP_SELF'];
@@ -97,12 +96,12 @@ class Backend_Outputter
 
 	}
 
-	 ############################
-	# set the redirect for page
+	 ////////////////////////////////////////////////////////
+	// set the redirect for page
 	function setRedirect($link) 
 	{
 		$this->_redirect = trim($link);
-	}#end setRedirect()
+	}//end setRedirect()
 
 
 	/**
@@ -130,7 +129,7 @@ class Backend_Outputter
 	function addFormActionGetVar($name, $value) 
 	{
 		$this->_action .= ((strstr($this->_action, '?')) ? '&' : '?').rawurlencode($name).'='.rawurlencode($value);
-	}#end addFormActionGetVar()
+	}//end addFormActionGetVar()
 
 	/**
 	* returns the current action, which realistically is going to be the 
@@ -141,16 +140,16 @@ class Backend_Outputter
 	function getCurrentLocation() 
 	{
 		return $this->_action;
-	}#end getCurrentLocation()
+	}//end getCurrentLocation()
 
 
-	 ############################
-	# set the anchor that the page will submit to
+	 ////////////////////////////////////////////////////////
+	// set the anchor that the page will submit to
 	function setFormAnchor($anchor) 
 	{
 		$anchor = trim($anchor);
-		$this->_anchor = ($anchor) ? '#'.$anchor : '';
-	}#end setFormAnchor()
+		$this->_anchor = ($anchor) ? '//'.$anchor : '';
+	}//end setFormAnchor()
 
 	/**
 	* set the heading for page
@@ -164,7 +163,7 @@ class Backend_Outputter
 	{
 		$this->_heading = trim($heading);
 		$this->_heading_icon = $icon;
-	}#end setHeading()
+	}//end setHeading()
 
 
 	/**
@@ -180,70 +179,73 @@ class Backend_Outputter
 		trigger_error('Sub Heading not outputting, fix in _paintHeader()', E_USER_WARNING);
 		$this->_sub_heading = trim($heading);
 		$this->_sub_heading_icon = $icon;
-	}#end setSubHeading()
+	}//end setSubHeading()
 
-	 ############################################
-	# add a message to be displayed to the user
+	 ////////////////////////////////////////////////////////////////////////////////////////
+	// add a message to be displayed to the user
 	function addMessage($type, $msg) 
 	{
 		$msg = trim($msg);
-		# if the type is valid and there is a message
+		// if the type is valid and there is a message
 		if(strlen($msg)) {
 			$this->_messages[] = Array('type' => $type, 'msg' => $msg);
 		}
-	}#end addMessage()
+	}//end addMessage()
 	
-	 ############################################
-	# add a stylesheet file to the page
+	 ////////////////////////////////////////////////////////////////////////////////////////
+	// add a stylesheet file to the page
 	function addCssInclude($file) 
 	{
 		if (in_array($file, $this->_css_includes)) return;
 		$this->_css_includes[] = $file;
-	}#end addCssInclude()
+	}//end addCssInclude()
 
-	 ############################################
-	# add a javascript file to the page
+	 ////////////////////////////////////////////////////////////////////////////////////////
+	// add a javascript file to the page
 	function addJsInclude($file) 
 	{
 		if (in_array($file, $this->_js_includes)) return;
 		$this->_js_includes[] = $file;
-	}#end addJsInclude()
+	}//end addJsInclude()
 
-	 ############################################
-	# add an onSubmit call, something JS that
-    # needs to be executed before the form submits
+	 ////////////////////////////////////////////////////////////////////////////////////////
+	// add an onSubmit call, something JS that
+    // needs to be executed before the form submits
 	function addOnSubmit($call) 
 	{
 		$this->_on_submit_calls[] = $call;
-	}#end addOnSubmit()
+	}//end addOnSubmit()
 
-	 ############################################
-	# add a hidden field to the output
+	 ////////////////////////////////////////////////////////////////////////////////////////
+	// add a hidden field to the output
 	function addHiddenField($name, $value='') 
 	{
 		$this->_hidden_fields[$name] = $value;
-	}#end addHiddenField()
+	}//end addHiddenField()
 
-	 ############################################
-	# adds a crumming link
-	function addCrummingLink($name, $link, $target='_self') 
+	/**
+	* Adds a screen options to the drop down
+	*
+	* @param string $url
+	* @param string $name
+	*
+	* @access public
+	*/
+	function addScreen($url, $name) 
 	{
-		$this->_crumming[] = '<a href="'.$link.'" class="crumming" target="'.$target.'">'.$name.'</a>';
-	}#end addCrummingLink()
+		if (empty($url)) return;
+		if (in_array($name, $this->_screens)) {
+			trigger_error('Screen Code "'.$name.'" already in use', E_USER_ERROR);
+		}
+		$this->_screens[$url] = $name;
+	}//end addScreen()
 
-	 ############################################
-	# turns crumming on and off
-	function showCrumming($on) 
-	{
-		$this->_show_crumming = ($on) ? true : false;
-	}#end showCrumming()
-
-	 ############################################
-	# adds a preload image
+	 ////////////////////////////////////////////////////////////////////////////////////////
+	// adds a preload image
 	function addPreloadImg($file) 
 	{
 		$this->_preload_imgs[] = $file;
-	}#end add_img_rollover()
+	}//end add_img_rollover()
 
 	/**
 	* Opens a section of the page for raw output
@@ -391,7 +393,7 @@ class Backend_Outputter
 
 		$this->_paintFooter();
 		
-	}#end paint();
+	}//end paint();
 
 	/**
 	* returns the outputters painted contents as a string
@@ -409,7 +411,7 @@ class Backend_Outputter
 		ob_end_clean();
 		return $str;
 		
-	}#end getAsString()
+	}//end getAsString()
 
 	/**
 	* paint the header of the page
@@ -428,7 +430,7 @@ class Backend_Outputter
 			$this->_paintCssInclude($this->filesPath('css/edit.css'));
 			foreach($this->_css_includes as $file) {
 				$this->_paintCssInclude($file);
-			}#end foreach
+			}//end foreach
 
 			$this->_paintJsInclude(SQ_WWW_LIB_DIR.'/html_form/html_form.js');
 			$this->_paintJsInclude(SQ_WWW_LIB_DIR.'/js/general.js');
@@ -438,7 +440,7 @@ class Backend_Outputter
 			//$this->_paintJsInclude(SQ_WWW_LIB_DIR.'/js/general.js');
 			foreach($this->_js_includes as $file) {
 				$this->_paintJsInclude($file);
-			}#end foreach
+			}//end foreach
 		?>
 
 			<script language="Javascript" type="text/javascript">
@@ -450,7 +452,7 @@ class Backend_Outputter
 				?>
 					<?php echo $call;?>;
 				<?php
-				}#end foreach
+				}//end foreach
 			?>
 				}// end page_on_load()
 
@@ -460,7 +462,7 @@ class Backend_Outputter
 				?>
 					<?php echo $call;?>;
 				<?php
-				}#end foreach
+				}//end foreach
 			?>
 					// basically if they get this far then we can submit
 					return true;
@@ -473,18 +475,18 @@ class Backend_Outputter
 
 					preload_image('<?php echo $file;?>');
 				<?php
-				}#end foreach
+				}//end foreach
 			?>
 
 			// -->
 			</script>
 		</head>
-		<body bgcolor="#ffffff" onLoad="javascript: page_on_load();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
+		<body bgcolor="//ffffff" onLoad="javascript: page_on_load();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
 		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
 		foreach($this->_hidden_fields as $name => $value) {
 			$this->hidden_field($name, $value);
-		}#end foreach
+		}//end foreach
 //	>
 //
 //		<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
@@ -498,20 +500,19 @@ class Backend_Outputter
 //
 //		foreach($this->_messages as $type => $msgs) {
 //			$this->_paintMessages($type, $msgs);
-//		}#end foreach
+//		}//end foreach
 //		
 //		if ($this->_heading) {
 //			$this->_paintRow($this->_heading, 'page-heading');
 //		}
 //
-
 		if (count($this->_messages)) {
 			pre_echo("MESSAGES : ");
 			pre_echo($this->_messages);
 		}
 
-		if($this->_heading) {
-		?>
+		if ($this->_heading || count($this->_screens)) {
+			?>
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
 					<td class="sq-backend-heading">
@@ -520,12 +521,15 @@ class Backend_Outputter
 					<?php } ?>
 						<?php echo $this->_heading;?>
 					</td>
+					<td class="sq-backend-heading" style="text-align: right;">
+						<?php $this->combo_box('', $this->_screens, '', 'onChange="javascript: self.location = element_value(this);"', 0, 1); ?>
+					</td>
 				</tr>
 			</table>
-		<?php 
-		}
+			<?php 
+		}// end if
 		
-	}#end _paintHeader()
+	}//end _paintHeader()
 
 	/**
 	* paint the contents of the page
@@ -597,9 +601,9 @@ class Backend_Outputter
 								</td>
 							</tr>
 						<?php
-					}#end switch
+					}//end switch
 
-				}#end for
+				}//end for
 
 				// if this ain't the last section, add a spacer
 				if ($i < count($this->_contents) - 1) {
@@ -612,11 +616,11 @@ class Backend_Outputter
 				<table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td width="100%" background="<?php echo $this->filesPath('images/section_dots.gif');?>"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="1" /></td></tr></table>
 			<?php
 
-			}#end if
+			}//end if
 
-		}#end for
+		}//end for
 
-	}#end _paintContents()
+	}//end _paintContents()
 
 	/**
 	* paint the footer of the page
@@ -632,10 +636,10 @@ class Backend_Outputter
 		</html>
 	<?php
 
-	}#end _paintFooter()		
+	}//end _paintFooter()		
 
-//	 ############################################################
-//	# just paints a row for the output table in paint() above
+//	 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//	// just paints a row for the output table in paint() above
 //	function _paintMessages($type, $msgs) 
 //	{
 //		if (!count($msgs)) return;
@@ -643,7 +647,7 @@ class Backend_Outputter
 //		$class = '';
 //		$html  = '<table border="0" cellspacing="0" cellpadding="0" width="80%">';
 //		
-//		# the notice, warning and error messages will be listed
+//		// the notice, warning and error messages will be listed
 //		if ($type == SQ_MSG_INFORMATION) {
 //
 //			$html .= '<tr><td class="'.$class.'" valign="top">&nbsp;</td></tr>';
@@ -663,30 +667,30 @@ class Backend_Outputter
 //				$html .= '<tr><td class="'.$class.'" valign="top"><li>&nbsp;</td><td class="'.$class.'" valign="top" width="100%">'.$s.'</td></tr>';
 //			}
 //	
-//		}#end if
+//		}//end if
 //		
 //		$html .= '</table>';
 //		$this->_paintRow($html, $class);
 //		
-//	}#end _paintMessages()
+//	}//end _paintMessages()
 
-	 #########################################################
-	# outputs a stylesheet include line for the passed file
+	 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// outputs a stylesheet include line for the passed file
 	function _paintCssInclude($file) 
 	{
 		?> 
 			<link rel="stylesheet" type="text/css" href="<?php echo $file;?>" />
 		<?php
-	}#end _paintCssInclude()
+	}//end _paintCssInclude()
 
-	 #########################################################
-	# outputs a javascript include line for the passed file
+	 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	// outputs a javascript include line for the passed file
 	function _paintJsInclude($file) 
 	{
 		?> 
 			<script type="text/javascript" language="javascript" src="<?php echo $file;?>"></script>
 		<?php
-	}#end _paintJsInclude()
+	}//end _paintJsInclude()
 
 	/**
 	* Outputs a note in the proper css format
@@ -696,7 +700,7 @@ class Backend_Outputter
 	function note($str) 
 	{
 		echo '<div class="sq-backend-smallprint">'.$str.'</div>';
-	}#end note()
+	}//end note()
 
 	/**
 	* Creates a standardised commit button
@@ -761,7 +765,7 @@ class Backend_Outputter
 		commit_file_upload($file, $dest, $overwrite);
 	}
 
-}#end class
+}//end class
 
 
 ?>

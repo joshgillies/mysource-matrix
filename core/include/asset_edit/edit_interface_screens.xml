@@ -1,0 +1,3 @@
+<screens>
+	<screen code_name="paths" display_name="Web Paths" icon="web" default="1" />
+</screens>

@@ -990,9 +990,9 @@ class Asset extends Resolve_Object
 	*/
 	function &getEI() 
 	{
-		if (empty($this->_tmp['ei']) || get_class($this->_tmp['ei']) != 'edit_interface') {
-			include_once SQ_INCLUDE_PATH.'/edit_interface.inc';
-			$this->_tmp['ei'] = new Edit_Interface($this->type());
+		if (empty($this->_tmp['ei']) || get_class($this->_tmp['ei']) != 'asset_edit_interface') {
+			include_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
+			$this->_tmp['ei'] = new Asset_Edit_Interface($this->type());
 		}
 		return $this->_tmp['ei'];
 	}// end getEI()

@@ -14,7 +14,8 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
 */
-class Resolve {
+class Resolve
+{
 
 	/**
 	* this is the DB object
@@ -46,7 +47,8 @@ class Resolve {
 	* Constructor
 	*
 	*/
-	function Resolve() {
+	function Resolve()
+	{
 		session_name('SQ_RESOLVE_SESSION');
 		session_save_path(SQ_SYSTEM_ROOT.'/cache');
 		session_start();
@@ -65,7 +67,8 @@ class Resolve {
 	*
 	* @access public
 	*/
-	function start() {
+	function start()
+	{
 
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
@@ -125,7 +128,8 @@ class Resolve {
 	*
 	* @access private
 	*/
-	function _processGlobalActions() {
+	function _processGlobalActions()
+	{
 
 		switch($_GET['SQ_ACTION']) {
 			case 'login' :
@@ -166,7 +170,8 @@ class Resolve {
 	*
 	* @access public
 	*/
-	function currentUser($user) {
+	function currentUser($user)
+	{
 		return ($this->user && $this->user->id == $user->id);
 	}//end currentUser()
 
@@ -175,7 +180,8 @@ class Resolve {
 	*
 	* @access public
 	*/
-	function currentUserId() {
+	function currentUserId()
+	{
 		return ($this->user) ? $this->user->id : 0;
 	}//end currentUserId()
 
@@ -184,7 +190,8 @@ class Resolve {
 	*
 	* @access public
 	*/
-	function generateLoginKey() {
+	function generateLoginKey()
+	{
 		include_once SQ_LIB_PATH.'/general/general.inc';
 		return $_SESSION['SQ_LOGIN_KEY'] = random_password(20);
 	}
@@ -194,7 +201,8 @@ class Resolve {
 	*
 	* @access public
 	*/
-	function loginKey() {
+	function loginKey()
+	{
 		return $_SESSION['SQ_LOGIN_KEY'];
 	}
 
@@ -203,7 +211,8 @@ class Resolve {
 	*
 	* @access public
 	*/
-	function addMessage($msg) {
+	function addMessage($msg)
+	{
 		$this->_msgs[] = $msg;
 	}
 
@@ -213,7 +222,8 @@ class Resolve {
 	* @return Array(string)
 	* @access public
 	*/
-	function messages() {
+	function messages()
+	{
 		return $this->_msgs;
 	}
 
