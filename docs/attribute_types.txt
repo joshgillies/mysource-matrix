@@ -1,0 +1,17 @@
+
+Attribute Types
+---------------
+
+Text
+Number
+Datetime
+Colour
+
+Hyperlink - Name & URL
+Selection
+
+Form
+BodyCopy
+
+Meta
+

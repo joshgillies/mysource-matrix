@@ -1,26 +1,40 @@
++----------------------------------------------------------------------------------------+
+|                            SHORT TERM ( < 3 weeks )                                    |
++----------------------------------------------------------------------------------------+
+
+  - Write Users_Group
+  - Attribute Types
+    - In Asset have diff update case for diff types of attr
+  
+  - Unique Usernames (or attr values in general) across system
+  - Flash Asset Tree
+  - Customising Asset's
+  - Enable removing of attributes from asset types in Asset_Management
+  - Write Permissions_Group Asset
+    - Same form as windows directory permissions ? 
+      (ie permissions for as many groups and individuals as you want)
+    - Permissions for links  (Read/Write/Delete ?)
+    - Permissions for assets (Read/Write/Delete ?)
+
++----------------------------------------------------------------------------------------+
+|                            LONG  TERM ( > 3 weeks )                                    |
++----------------------------------------------------------------------------------------+
+
+  - Workflow Asset
+  - User Preferences Config...
+  - CVS Passwd Manager
 
 
-Main Assets to Write
-------
-Folder
-Permissions_Group
 
 
-Asset -> for diff types of attr have different update cases
-
-Make sure usernames are unique system wide (LOCK TABLES ?)
-
-Enable removing of attributes from assets in Asset_Management
-
-User Preferences Config...
 
 
-Base Package Installation of Pears, see http://pear.php.net/manual/en/faq.flat-structure.php
++----------------------------------------------------------------------------------------+
 
-Use PEAR DB Object
+Base Package Installation of Pear, see http://pear.php.net/manual/en/faq.flat-structure.php
 
-
-Giving Assets "Purposes" where assets have an original file (.doc, .pdf, image) and can be given another "purpose". eg, have orig img at high resolution, but create smaller imgs from it for other purposes. Or have .doc and have it exported to pdf for certain purposes
-
-Dynamic Tree Nav for the backend
+Giving Assets "Purposes" where assets have an original file (.doc, .pdf, image) 
+and can be given another "purpose". eg, have orig img at high resolution, but 
+create smaller imgs from it for other purposes. Or have .doc and have it 
+exported to pdf for certain purposes
 

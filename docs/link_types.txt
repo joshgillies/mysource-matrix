@@ -1,0 +1,40 @@
+
++----------------------------------------------------------------------------------------+
+|                                    LINK TYPES                                          |
++----------------------------------------------------------------------------------------+
+
+The combination of a major and a minor asset come together to form a link. The Major asset
+is always the asset on which createLink() and deleteLink() is called.
+
++-------------+
+   EXCLUSIVE   
++-------------+
+
+  * This type of link is the "strongest".
+  * EXCLUSIVE links are used for asset navigation
+  * The Minor Asset cannot be created as another minor asset in either an EXCLUSIVE or UNITE link
+  * When the major asset is deleted (moved to trash) so is the minor asset
+  * When the minor asset is deleted, nothing happens to the major asset
+
++-------------+
+     UNITE     
++-------------+
+
+  * This type of link is used for the elementary parent-child relationship
+  * UNITE links are used for asset navigation
+  * When the major asset of this link is deleted (moved to trash), the minor asset is checked to 
+    see if it is a minor asset in any other UNITE link, if not then it is deleted.
+  * When the minor asset is deleted, nothing happens to the major asset
+
++-------------+
+    NOTICE     
++-------------+
+
+  * This link is used just to notify the minor asset that another asset is linking to it 
+    (either in content or some such event), but it's not a critical situation if the link 
+    ends up disappearing
+  * When the major asset is deleted, nothing happens to the minor asset
+  * When the minor asset is deleted, it notifies the major asset of this deletion so any
+    content can be updated (or at least the maintainers notified)
+
+
