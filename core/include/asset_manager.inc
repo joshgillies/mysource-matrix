@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.118 2003/09/26 06:56:49 brobertson Exp $
+* $Id: asset_manager.inc,v 1.119 2003/10/01 22:41:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3203,7 +3203,7 @@ class Asset_Manager extends MySource_Object
 
 		if (!empty($the_rest)) {
 			$assetid_cond_array = $the_rest;
-			for($i = 0; $i < count($the_rest); $i++) $assetid_cond_array[$i] = $db->quote($assetid_cond_array[$i]);
+			for (reset($assetid_cond_array); null !== $k = key($assetid_cond_array); next($assetid_cond_array)) $assetid_cond_array[$k] = $db->quote($assetid_cond_array[$k]);
 			$assetid_cond = 'IN ('.implode(', ', $assetid_cond_array).')';
 
 			$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
