@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport.inc,v 1.1.2.6 2004/02/14 21:11:04 brobertson Exp $
+* $Id: replication_system_transport.inc,v 1.1.2.7 2004/02/14 21:39:29 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -187,14 +187,17 @@ class Replication_System_Transport extends MySource_Object
 	/**
 	* returns the host and port string of the active socket
 	*
+	* @param boolean $host_only	whether you want the port tacked on or not
+	*
 	* @return string    "[host]:[port]"
 	* @access public
 	*/
-	function getPeerInfo()
+	function getPeerInfo($host_only=false)
 	{
 		if (is_resource($this->_sd)) {
 			socket_getpeername($this->_sd, $peer_host='', $peer_port='');
-			return $peer_host.':'.$peer_port;
+			if ($host_only) return $peer_host;
+			else return $peer_host.':'.$peer_port;
 		} else {
 			return '';
 		}
