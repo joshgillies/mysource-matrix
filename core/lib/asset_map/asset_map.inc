@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.150 2004/06/21 13:36:38 brobertson Exp $
+* $Id: asset_map.inc,v 1.151 2004/06/22 04:39:53 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,28 +83,6 @@ class Asset_Map
 		<script language="JavaScript" type="text/javascript">
 		<!--
 			init_asset_map();
-
-			/**
-			* Open up a help window
-			*/
-			function open_help(params)
-			{
-				var popup_win = window.open("<?php echo sq_web_path('lib'); ?>/web/asset_map_help.php", 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=180');
-
-			}//end open_help()
-			//registerFlashToJsCall('open_help', open_help);
-
-
-
-			/** 
-			* Open up a help window
-			*/
-			function open_legend(params)
-			{
-				var popup_win = window.open("<?php echo sq_web_path('lib'); ?>/web/asset_map_key.php", 'sq_asset_map_popup', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=350,height=300');
-
-			}//end open_legend()
-			//registerFlashToJsCall('open_legend', open_legend);
 		//-->
 		</script>
 
@@ -191,7 +169,7 @@ class Asset_Map
 				if ($type == 'complex')
 				echo '<param name="INBOX_URL" value="'.rawurlencode($inbox_url).'" />';
 			?>
-			
+
 			Java is not installed on your system. Please download the latest version of the <a href="http://java.sun.com/webapps/getjava/BrowserRedirect?locale=en&host=www.java.com:80">Java Runtime Environment</a> and return once it has been installed.
 		</applet>
 		<?php
@@ -208,7 +186,6 @@ class Asset_Map
 	*/
 	function _send($output)
 	{
-		#error_log($output->get(), 3, SQ_DATA_PATH.'/asset_map.log');
 		header("Content-Type: text/xml");
 		$output->dump();
 
@@ -334,11 +311,6 @@ class Asset_Map
 
 		$this->_getChildAssets($root, $root_folder->id);
 
-		//// Add the root folder
-		//if (!$this->_addAssetToXML($root, $root_folder->id, true)) {
-	//		return;
-	//	}
-
 		// just get the root's XML not the tree's, because it is part of bigger things and we dont want the version info
 		$assets_xml = $root->get();
 
@@ -347,12 +319,13 @@ class Asset_Map
 		echo "<initialisation>\n";
 		echo "<asset_types>\n";
 		$dir = SQ_DATA_PATH.'/private/asset_map';
+		
 		if ($d = @opendir($dir)) {
 			while (($file = readdir($d)) !== false) {
 				if (substr($file, -4) == '.xml') {
 					@readfile($dir.'/'.$file);
 				}
-			}// end while
+			}
 			closedir($d);
 		}// end if
 		echo "</asset_types>\n";
@@ -361,13 +334,25 @@ class Asset_Map
 		echo $assets_xml;
 
 		echo "</initialisation>\n";
-		#error_log(ob_get_contents(), 3, SQ_DATA_PATH.'/asset_map.log');
-		ob_end_flush();
+		$out = ob_get_contents();
+		ob_end_clean();
+		echo $out;
 
 	}//end _doInitialise()
 	
-
-	function _getChildAssets(&$root, $assetid)
+	
+	/**
+	* Appends the child assets of the specified asset in xml form
+	* to the specified node.
+	*
+	* @param &object XML_Tree 	$root 			the root to append the child assets to
+	* @param string 		$assetid		the asset of the parent asset
+	* @param boolean 		$include_parent		if TRUE, the parent will be included in the output
+	*
+	* @return void
+	* @access private
+	*/
+	function _getChildAssets(&$root, $assetid, $include_parent=false)
 	{
 		$output = new XML_Tree();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -391,9 +376,13 @@ class Asset_Map
 		// relevent protocol for the preview urls
 		$primary_protocol = current_protocol();
 		if (empty($primary_protocol)) $primary_protocol = 'http';
-		if ($primary_protocol == 'http') $secondary_protocol = 'https';
-		else $secondary_protocol = 'http';
-
+		
+		if ($primary_protocol == 'http') {
+			$secondary_protocol = 'https';
+		} else {
+			$secondary_protocol = 'http';
+		}
+		
 		$sql  = 'SELECT DISTINCT(a.assetid), a.short_name, a.type_code, a.status,
 					l.linkid, l.link_type, l.sort_order, lt.num_immediate_kids, u.url, ap.path,
 					CASE u.'.$primary_protocol.'
@@ -423,8 +412,15 @@ class Asset_Map
 		
 		$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree lt';
 		$where = '	a.assetid = l.minorid AND
-					l.linkid = lt.linkid AND
-					l.majorid = '.$db->quote($assetid).' AND
+				l.linkid = lt.linkid AND ';
+					
+		// if we are going to include the parent, 
+		// then we want either its children or the parent itself
+		$where .= ($include_parent) 
+			? '(l.majorid = '.$db->quote($assetid).' OR l.minorid = '.$assetid.')'
+			: 'l.majorid = '.$db->quote($assetid);
+					
+		$where .= ' AND
 					l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
@@ -516,18 +512,19 @@ class Asset_Map
 
 			$root->addChild('asset', '', $attrs);
 		}
-	}
+		
+	}//end _getChildAssets()
 
+	
 	/**
-	* Processes the get assets request
+	* Processes the get assets request and outputs the xml to startdard out
 	*
-	* @param object XML_Tree $input	the request info from the Flash
+	* @param &object XML_Tree $input the request info from the Flash
 	*
 	* @access private
 	*/
 	function _getAssets(&$input)
 	{
-
 		if (!count($input->root->children)) {
 			$this->_error('No assets were returned for loading');
 		}
@@ -537,10 +534,10 @@ class Asset_Map
 		if (count($input->root->children) == 1) {
 			$assetid = $input->root->children[0]->attributes['assetid'];
 			$root = &$output->addRoot('assets', '', Array('assetid' => $assetid));
-			$this->_getChildAssets($root, rawurldecode($assetid));
+			$this->_getChildAssets($root, rawurldecode($assetid), true);
 		} else {
 			$root = &$output->addRoot('assets', '');
-			
+
 			for ($i = 0; $i < count($input->root->children); $i++){
 				$node = &$input->root->children[$i];
 				if (empty($node->attributes['assetid'])) continue;
