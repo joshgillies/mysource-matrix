@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_herder.inc,v 1.53 2005/02/24 10:11:53 brobertson Exp $
+* $Id: hipo_herder.inc,v 1.54 2005/03/15 05:01:17 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) Herder (Manager ;P)
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -754,7 +754,7 @@ class HIPO_Herder extends MySource_Object
 						$GLOBALS['SQ_SYSTEM']->setCurrentUser($user);
 						$source_job->abort();
 						$GLOBALS['SQ_SYSTEM']->restoreCurrentUser();
-					} elseif ($source_job->userid == $current_user_id) {
+					} else if ($source_job->userid == $current_user_id) {
 						$source_job->abort();
 					} else {
 						continue;
@@ -854,11 +854,11 @@ class HIPO_Herder extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT source_code_name, code_name, job_type
-					FROM '.SQ_TABLE_PREFIX.'hipo_job WHERE true';
+					FROM '.SQ_TABLE_PREFIX.'hipo_job';
 
 			// regular users can only see own HIPO
 			if (!$hipo_admin) {
-				$sql .= ' AND "userid" = '.$current_user_id.'';
+				$sql .= ' WHERE '.$db->quoteIdentifier('userid').' = '.$db->quoteSmart($current_user_id);
 			}
 
 			$result = $db->query($sql);
