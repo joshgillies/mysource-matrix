@@ -21,7 +21,11 @@ class Root_Folder_Management extends Asset_Management
 	{
 		$this->Asset_Management(&$pm);
 
-	}#end constructor
+		// only need to have the default here because the other information will be 
+		// gleaned from the 'folder' type
+		$this->vars = Array('name' => Array('default'   => '/'));
 
-}#end class
+	}//end constructor
+
+}//end class
 ?>
