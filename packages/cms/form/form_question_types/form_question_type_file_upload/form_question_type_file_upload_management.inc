@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_file_upload_management.inc,v 1.2 2004/11/09 04:55:38 lwright Exp $
+* $Id: form_question_type_file_upload_management.inc,v 1.3 2004/11/09 22:19:19 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -64,13 +64,13 @@ class Form_Question_Type_File_Upload_Management extends Asset_Management
 							'overwrite_rule'	=> Array(
 									'added'     => '0.0.1',
 									'type'      => 'selection',  
-									'default'   => false,
+									'default'   => 'D',
 									'parameters'	=> Array(
 											'allow_empty' => false,
 											'options'	=> Array(
 												// overwrite, rename, deny
 												'O'	=> 'Overwrite Existing File',
-												'R'	=> 'Rename File',
+												'R'	=> 'Rename Uploaded File',
 												'D'	=> 'Raise a Submission Error',
 												),
 											),								
