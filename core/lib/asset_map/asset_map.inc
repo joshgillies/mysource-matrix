@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.110 2003/12/17 04:52:03 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.111 2003/12/18 04:47:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,6 +46,7 @@ class Asset_Map
 	*/
 	function Asset_Map()
 	{
+
 	}//end constructor
 
 
@@ -274,6 +275,7 @@ class Asset_Map
 			<embed src="<?php echo sq_web_path('lib'); ?>/asset_map/flash/asset_map.swf" FlashVars="<?php echo $flash_vars; ?>" id="asset_map" name="asset_map" quality="high" scale="noscale" salign="lt" bgcolor="#342939" width="100%" height="99%" swliveconnect="true" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed>
 		</object>
 		<?php
+
 	}//end paint()
 
 
@@ -288,6 +290,7 @@ class Asset_Map
 	{
 		header("Content-Type: text/xml");
 		$output->dump();
+
 	}//end _send()
 
 
@@ -427,7 +430,7 @@ class Asset_Map
 		ob_end_clean();
 		echo $out;
 
-	}// end _doInitialise()
+	}//end _doInitialise()
 
 
 	/**
@@ -480,7 +483,7 @@ class Asset_Map
 
 		$this->_send($output);
 
-	}// end _getAssets()
+	}//end _getAssets()
 
 
 	/**
@@ -559,7 +562,7 @@ class Asset_Map
 
 		return true;
 
-	}// end _assAssetToXML()
+	}//end _assAssetToXML()
 
 
 	/**
@@ -594,7 +597,7 @@ class Asset_Map
 
 		$this->_send($output);
 
-	}// end _getMenuItems()
+	}//end _getMenuItems()
 
 
 	/**
@@ -626,7 +629,7 @@ class Asset_Map
 			}
 		}
 
-	}// end _recurseAddMenu()
+	}//end _recurseAddMenu()
 
 
 	/**
@@ -719,7 +722,7 @@ class Asset_Map
 
 		$this->_send($output);
 
-	}// end _getURL()
+	}//end _getURL()
 
 
 	/**
@@ -759,6 +762,10 @@ class Asset_Map
 
 			$linkid = $link['linkid'];
 
+			$successTree = new XML_Tree();
+			$successTree->addRoot('success', '', Array('linkid' => $linkid));
+			$output->insertChild(Array('responses'), $response_count++, $successTree);
+
 		} else {
 
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
@@ -779,28 +786,13 @@ class Asset_Map
 				return;
 			}
 
-			// if we are moving to the trash, so we need to check if this is the last significant link we
-			// are deleting so we can warn of side effects
-			$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-			if ($new_parent->id == $trash_folder->id) {
-				$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', true, $link['linkid']);
-				if (!$num_other_links) {
-					$url = '?SQ_BACKEND_PAGE=main&ignore_frames=1&backend_section=am&am_section=delete_asset&assetid='.$asset->id.'&linkid='.$link['linkid'];
-					$urlTree = new XML_Tree();
-					$urlTree->addRoot('url', $url, Array('js_function' => 'asset_map_popup'));
-					$output->insertChild(Array('responses'), $response_count++, $urlTree);
-					$this->_send($output);
-					return;
-				}
-			}
-
-			// Now let's move the link
-			$linkid = $GLOBALS['SQ_SYSTEM']->am->moveLink($link['linkid'], $new_parent->id, $link['link_type'], $input->root->attributes['to_parent_pos']);
-			if (!$linkid) return;
-
 			//// START HIPO PROCESSING ////
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array('assetid' => $asset->id, 'parentid' => $new_parent->id);
+			$vars = Array(	'linkid'        => $link['linkid'],
+							'parentid'      => $new_parent->id,
+							'old_parentid'  => $old_parent->id,
+							'link_type'     => $link['link_type'],
+							'to_parent_pos' => $input->root->attributes['to_parent_pos']);
 			$hh->queueHipo('hipo_job_create_link', $vars);
 			////  END HIPO PROCESSING  ////
 
@@ -816,12 +808,9 @@ class Asset_Map
 
 		}// end if
 
-		$successTree = new XML_Tree();
-		$successTree->addRoot('success', '', Array('linkid' => $linkid));
-		$output->insertChild(Array('responses'), $response_count++, $successTree);
 		$this->_send($output);
 
-	}// end _moveAsset()
+	}//end _moveAsset()
 
 
 	/**
@@ -871,7 +860,7 @@ class Asset_Map
 
 		$this->_send($output);
 
-	}// end _dupeAsset()
+	}//end _dupeAsset()
 
 
 	/**
@@ -917,15 +906,12 @@ class Asset_Map
 			return;
 		}
 
-		// First let's try and create the new link, if there are any issues then it will cryout for us
-		$linkid = $new_parent->createLink($asset, $link['link_type'], '', $input->root->attributes['to_parent_pos']);
-		if (!$linkid) return;
-
-
-		// check for any HIPOs that have been queued
 		//// START HIPO PROCESSING ////
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetid' => $asset->id, 'parentid' => $new_parent->id);
+		$vars = Array(	'assetid'       => $asset->id,
+						'parentid'      => $new_parent->id,
+						'link_type'     => $link['link_type'],
+						'to_parent_pos' => $input->root->attributes['to_parent_pos']);
 		$hh->queueHipo('hipo_job_create_link', $vars);
 		////  END HIPO PROCESSING  ////
 
@@ -937,12 +923,9 @@ class Asset_Map
 			$root =&$output->insertChild('responses', $response_count++, $urlTree);
 		}
 
-		$successTree = new XML_Tree();
-		$successTree->addRoot('success', '', Array('linkid' => $linkid));
-		$root = &$output->insertChild('responses', $response_count++, $successTree);
 		$this->_send($output);
 
-	}// end _newLink()
+	}//end _newLink()
 
 
 	/**
@@ -969,9 +952,6 @@ class Asset_Map
 		$messages = array_merge($read_messages, $unread_messages);
 		unset($read_messages);
 		unset($unread_messages);
-#		error_log("READ : \n".array_contents($read_messages));
-#		error_log("UNREAD : \n".array_contents($unread_messages));
-#		error_log("MSGS : \n".array_contents($messages));
 
 		$output = new XML_Tree();
 		$root = &$output->addRoot('mail');
@@ -999,7 +979,8 @@ class Asset_Map
 
 		$this->_send($output);
 
-	}// end _getMail()
+	}//end _getMail()
+
 
 }//end class
 

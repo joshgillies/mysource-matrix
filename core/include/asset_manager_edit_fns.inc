@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager_edit_fns.inc,v 1.67 2003/12/02 04:43:25 gsherwood Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.68 2003/12/18 04:47:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -196,10 +196,6 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 
 			case 'duplicate' :
 				$this->_dupeAsset();
-			break;
-
-			case 'delete_asset' :
-				$this->_deleteAsset();
 			break;
 
 			case 'forceably_acquire_lock' :
@@ -965,79 +961,8 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 	function _dupeStepReleaseLocksDone(&$pb)
 	{
 		$pb->setStatusMsg('');
+
 	}// end _dupeStepReleaseLocksDone()
-
-
-	/**
-	* Looks after the deletion of assets and their trees, includes the interface
-	*
-	* @access private
-	*/
-	function _deleteAsset()
-	{
-		$o = &$this->backend->out;
-
-		if (isset($_GET['delete_linkid'])) {
-			// they have confirmed their intention to delete this asset
-			$asset = &$this->am->getAsset($_GET['delete_assetid']);
-			$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($_GET['delete_linkid'], $asset->id, 'minor');
-			$parent = &$this->am->getAsset($link['majorid'], $link['major_type_code']);
-			$parent->deleteLink($link['linkid']);
-
-			//// START HIPO PROCESSING ////
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array('assetids' => Array($asset->id));
-			$hh->queueHipo('hipo_job_update_lookups', $vars);
-			////  END HIPO PROCESSING  ////
-
-			// check for any queued HIPOs
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$url = $hh->runQueuedJobs('Javascript: window.close()');
-			if (!empty($url)) {
-				$o->setRedirect($url);
-			}
-
-			$trash = &$this->am->getSystemAsset('trash_folder');
-			// action is done, close the window and refresh the asset map
-			require_once 'XML/Tree.php';
-			$xml = new XML_Tree();
-			$xml_root = &$xml->addRoot('assets');
-			$xml_root->addChild('asset', '', Array('assetid' => $parent->id));
-			$xml_root->addChild('asset', '', Array('assetid' => $trash->id));
-			?>
-			<script language="Javascript" type="text/javascript">
-				if (window.opener.top.sidenav && window.opener.top.sidenav.reload_asset) {
-					window.opener.top.sidenav.reload_assets("<?php echo str_replace("\n", "\\n", addslashes($xml->get())); ?>");
-				}
-				<?php if (empty($url)) echo 'window.close()'; ?>
-			</script>
-			<?php
-		} else {
-			$o->addFormActionGetVar('delete_assetid', $_GET['assetid']);
-			$o->addFormActionGetVar('delete_linkid', $_GET['linkid']);
-			$o->addFormActionGetVar('ignore_frames', '1');
-			$asset = &$this->am->getAsset($_GET['assetid']);
-			if (is_null($asset)) {
-				trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
-				break;
-			}
-
-			$o->openSection('Note');
-			$o->openField('&nbsp;');
-			echo 'You are deleting this asset to the trash. Below are a list of assets that will be affected by deleting this asset';
-			$ei = &$asset->getEI();
-			$ei->includeStaticScreen('linking');
-			paintLinking($asset, $o, $ei, false);
-
-			$o->closeSection();
-
-			$o->openField('', 'commit');
-			normal_button('cancel', 'Cancel', 'window.close()');
-			echo '&nbsp;';
-			submit_button('commit', 'Commit');
-		}
-
-	}// end _deleteAsset()
 
 
 	/**
