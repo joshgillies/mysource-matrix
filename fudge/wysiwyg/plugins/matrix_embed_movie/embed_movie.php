@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.13 2004/04/21 06:32:21 gsherwood Exp $
+* $Id: embed_movie.php,v 1.14 2004/08/25 01:11:10 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -168,7 +168,7 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 						<?php
 							include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
 							$asset_map = new Asset_Map();
-							$asset_map->embed_asset_map('simple');
+							$asset_map->embed_asset_map('simple', 200, 350);
 						?>
 					</td>
 					<td valign="top">
