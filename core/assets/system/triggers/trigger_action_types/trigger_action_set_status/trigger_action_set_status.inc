@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.4 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_action_set_status.inc,v 1.5 2005/03/21 06:22:21 gsherwood Exp $
 *
 */
 
@@ -30,36 +30,36 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * A trigger action that sets the status of an asset
 *
 *
-* @author   Andrei Railean <arailean@squiz.net>
-* @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @author  Andrei Railean <arailean@squiz.net>
+* @author  Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Action_Set_Status extends Trigger_Action
 {
 
+
 	/**
 	* Execute this action
 	*
-	* The settings used by this action are in the form:
+	* The settings used by this action are in the form:<BR />
 	* <PRE>
 	* Array(
-	*       'status' => int      // the status value to set the asset to
+	*       'status' => int // the status value to set the asset to
 	*       );
 	* </PRE>
 	*
-	* @param array(string=>mixed)   $settings   the stored settings for this action
-	* @param array(string=>mixed)   &$state the state that describes the asset the action is executing on
+	* @param array	$settings	the stored settings for this action
+	* @param array	&$state		the state that describes the asset the action is executing on
 	*
 	* @return boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
-		// check settings, status
+		// check required settings
 		if (empty($settings['status'])) {
-			// if no settings, fail
 			return false;
 		}
 
@@ -91,9 +91,9 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
-	* @param Array(string=>mixed)   $settings      settings that this condition saves in processInterface()
-	* @param string                 $prefix        unique prefix
-	* @param boolean                $write_access  determines whether the interface is editable
+	* @param array		$settings		settings that this condition saves in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	determines whether the interface is editable
 	*
 	* @access public
 	* @return boolean
@@ -115,14 +115,9 @@ class Trigger_Action_Set_Status extends Trigger_Action
 			$form_element_extras = '';
 		}
 
-		// capture anything printed
 		ob_start();
-
-		?>
-		Set the Asset's status to:
-		<?php
-		combo_box($prefix.'[status]', $status_list, false, $selected_status, null, $form_element_extras);
-
+			echo 'Set the Asset\'s status to: ';
+			combo_box($prefix.'[status]', $status_list, false, $selected_status, null, $form_element_extras);
 		return ob_get_clean();
 
 	}//end getInterface()
@@ -132,8 +127,9 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param Array          $settings       a container for any data the action might want to save
-	* @param string         $request_data   array of data corresponding to this action as specified by the $prefix in getInterface.
+	* @param array	$settings		a container for any data the action might want to save
+	* @param string	$request_data	array of data corresponding to this action as
+	* 								specified by the $prefix in getInterface.
 	*
 	* @access public
 	* @return boolean
@@ -173,6 +169,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 		return $status;
 
 	}//end _getStatusList()
+
 
 }//end class
 

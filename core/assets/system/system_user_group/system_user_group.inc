@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_user_group.inc,v 1.25 2004/12/06 14:38:10 brobertson Exp $
+* $Id: system_user_group.inc,v 1.26 2005/03/21 06:18:44 gsherwood Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.25 $
+* @version $Revision: 1.26 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class System_User_Group extends User_Group
 {
+
 
 	/**
 	* Constructor

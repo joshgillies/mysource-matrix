@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: public_user.inc,v 1.1 2005/01/25 00:26:17 lwright Exp $
+* $Id: public_user.inc,v 1.2 2005/03/21 06:18:44 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Public_User extends User
 		parent::setAttrValue('last_name', 'User');
 
 		if ($linkid = parent::create($link)) {
-			if (!system_asset_fns_create_cleanup($this))  {
+			if (!system_asset_fns_create_cleanup($this)) {
 				$linkid = false;
 			}
 		}

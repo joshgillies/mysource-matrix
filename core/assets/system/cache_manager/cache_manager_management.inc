@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager_management.inc,v 1.3 2005/01/20 13:07:36 brobertson Exp $
+* $Id: cache_manager_management.inc,v 1.4 2005/03/21 06:18:44 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $ - 0.1
+* @version $Revision: 1.4 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -46,14 +46,14 @@ class Cache_Manager_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-			'enabled' => Array (
-				'added'			=> '0.1',
-				'type'			=> 'boolean',
-				'default'		=> false,
-				'description'	=> 'Turns caching on or off',
-				'parameters' 	=> Array(
-										'allow_empty' => false
-									),
+			'permission_caching' => Array(
+				'added'       => '0.1',
+				'type'        => 'boolean',
+				'default'     => false,
+				'description' => 'Turns caching on or off',
+				'parameters'  => Array(
+					'allow_empty' => false
+				),
 			),
 			'public_caching' => Array (
 				'added'			=> '0.1',

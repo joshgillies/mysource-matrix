@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_link.inc,v 1.4 2005/03/03 00:42:03 gsherwood Exp $
+* $Id: trigger_action_create_link.inc,v 1.5 2005/03/21 06:21:51 gsherwood Exp $
 *
 */
 
@@ -30,9 +30,9 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * A trigger action that creates a link between two assets
 *
-* @author   Andrei Railean <arailean@squiz.net>
-* @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @author  Andrei Railean <arailean@squiz.net>
+* @author  Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,28 +42,28 @@ class Trigger_Action_Create_Link extends Trigger_Action
 	/**
 	* Execute this action
 	*
-	* The settings used by this action are in the form:
+	* The settings used by this action are in the form:<BR />
+	* <PRE>
 	* Array(
-	*       'assetid'       => int,     // the assetid to link to
-	*       'is_major'      => string,  // '1' or '0', determines whether the current asset is the 'major' or 'minor' side of the link
-	*       'link_type'     => int,     // the type of link, eg. type_1, type_2, type_3 or notice
-	*       'value'         => string,  // optional, the value associated with a link
-	*       'is_dependant'  => int,     // optional, whether the link is dependant
-	*       'is_exclusive'  => int      // optional, whether the link is exclusive
+	*       'assetid'      => int,     // the assetid to link to
+	*       'is_major'     => string,  // '1' or '0',
+	*       'link_type'    => int,     // the type of link,
+	*       'value'        => string,  // the value associated with a link (optional)
+	*       'is_dependant' => int,     // whether the link is dependant (optional)
+	*       'is_exclusive' => int      // whether the link is exclusive (optional)
 	*       );
 	* </PRE>
 	*
-	* @param array(string=>mixed)   $settings   the stored settings for this action
-	* @param array(string=>mixed)   &$state the state that describes the asset the action is executing on
+	* @param array	$settings	the stored settings for this action
+	* @param array	&$state		the state that describes the asset the action is executing on
 	*
 	* @return boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
-		// check settings, state
+		// check for required settings
 		if (empty($settings['assetid']) || !isset($settings['is_major']) || empty($settings['link_type'])) {
-			// if no settings, fail
 			return false;
 		}
 
@@ -72,12 +72,12 @@ class Trigger_Action_Create_Link extends Trigger_Action
 		}
 
 		// check the optional settings, assign defaults
-		$is_dependant       = array_get_index($settings, 'is_dependant', 0);
-		$is_exclusive       = array_get_index($settings, 'is_exclusive', 0);
+		$is_dependant = array_get_index($settings, 'is_dependant', 0);
+		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
 
 		// state
 		if (empty($state['asset'])) {
-			// grab the asset if assetid is given, but not the asset.
+			// grab the asset if assetid is given, but not the asset
 			if (empty($state['assetid'])) {
 				return false;
 			} else {
@@ -98,12 +98,13 @@ class Trigger_Action_Create_Link extends Trigger_Action
 
 
 		// the link is already there, so count as success
-		if ($am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], null, ($settings['is_major']?'major':'minor') )) {
+		$side_of_link = ($settings['is_major']) ? 'major' : 'minor';
+		if ($am->getLinkByAsset($state['assetid'], $settings['assetid'], $settings['link_type'], null, $side_of_link)) {
 			// update the lookup in case the original creator of the link didn't
 			$major->updateLookups();
 			$minor->updateLookups();
 			return true;
-		}// end if
+		}
 
 		// create a link
 		$am->createAssetLink(
@@ -128,9 +129,9 @@ class Trigger_Action_Create_Link extends Trigger_Action
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
-	* @param Array(string=>mixed)   $settings      settings that this condition saves in processInterface()
-	* @param string                 $prefix        unique prefix
-	* @param boolean                $write_access  determines whether the interface is editable
+	* @param array		$settings		settings that this condition saves in processInterface()
+	* @param string		$prefix			unique prefix
+	* @param boolean	$write_access	determines whether the interface is editable
 	*
 	* @access public
 	* @return boolean
@@ -156,9 +157,7 @@ class Trigger_Action_Create_Link extends Trigger_Action
 			$selected_assetid = 0;
 		}
 
-		$is_major_list  = Array(0 => 'Child',
-								1 => 'Parent'
-								);
+		$is_major_list  = Array(0 => 'Child', 1 => 'Parent');
 
 		$link_type_list = get_link_type_names();
 
@@ -214,17 +213,16 @@ class Trigger_Action_Create_Link extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param Array(string=>mixed)   $settings       a container for any data the action might want to save
-	* @param string                 $request_data   array of data corresponding to this action as specified by the $prefix in getInterface.
+	* @param array	$settings		a container for any data the action might want to save
+	* @param string	$request_data	array of data corresponding to this action as specified
+	* 								by the $prefix in getInterface.
 	*
 	* @access public
 	* @return boolean
 	*/
 	function processInterface(&$settings, $request_data)
 	{
-		$is_major_list = Array(0 => 'Child',
-							   1 => 'Parent'
-							   );
+		$is_major_list = Array(0 => 'Child', 1 => 'Parent');
 
 		$link_type_list = get_link_type_names();
 
@@ -241,14 +239,14 @@ class Trigger_Action_Create_Link extends Trigger_Action
 			return false;
 		}
 
-		$settings['assetid']        = $request_data['assetid']['assetid'];
-		$settings['is_major']       = $request_data['is_major'];
-		$settings['link_type']      = $request_data['link_type'];
+		$settings['assetid']   = $request_data['assetid']['assetid'];
+		$settings['is_major']  = $request_data['is_major'];
+		$settings['link_type'] = $request_data['link_type'];
 
 		// optional fields
-		$settings['value']          = array_get_index($request_data, 'value', '');
-		$settings['is_dependant']   = array_get_index($request_data, 'is_dependant', 0);
-		$settings['is_exclusive']   = array_get_index($request_data, 'is_exclusive', 0);
+		$settings['value']        = array_get_index($request_data, 'value', '');
+		$settings['is_dependant'] = array_get_index($request_data, 'is_dependant', 0);
+		$settings['is_exclusive'] = array_get_index($request_data, 'is_exclusive', 0);
 
 		return true;
 
