@@ -31,51 +31,27 @@ class Form_Management extends Asset_Management
 												),
 									
 							'wizard'		=> Array(
-												'added'     => '0.0.1',
-												'type'      => 'selection', 
-												'default'   => 0,
-												'parameters'	=> Array(
-													'options'	=> Array(
-														1	=> 'yes',
-														0	=> 'no',
-													),
-												),
+													'added'     => '0.0.1',
+													'type'      => 'boolean', 
+													'default'   => 0,
 										), // end wizard
 							
 							'validate'		=> Array(
 													'added'		=> '0.0.1',
-													'type'		=> 'selection',
+													'type'		=> 'boolean',
 													'default'	=> 0,
-													'parameters'	=> Array(	
-														'options'	=> Array(
-														1	=> 'yes',
-														0	=> 'no',
-													),
-											),
 										), // end validate
 
 							'log_submissions' => Array(
 													'added'		=> '0.0.1',
-													'type'		=> 'selection',
+													'type'		=> 'boolean',
 													'default'	=> 0,
-													'parameters'	=> Array(	
-														'options'	=> Array(
-														1	=> 'yes',
-														0	=> 'no',
-													),
-											),
 									), // end log_submission
 
 							'show_results' => Array(
 													'added'		=> '0.0.1',
-													'type'		=> 'selection',
+													'type'		=> 'boolean',
 													'default'	=> 1,
-													'parameters'	=> Array(	
-														'options'	=> Array(
-														1	=> 'yes',
-														0	=> 'no',
-													),
-											),
 									), // end hide_results
 
 							'cookie_time'	=> Array(
