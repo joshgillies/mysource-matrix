@@ -1,0 +1,29 @@
+<contents>
+	<section name="Details">
+		<field attribute="name">
+			<display_name>Schema Name</display_name>
+			<note />
+			<text width="20" height="1" />
+		</field>
+	</section>
+	<section name="Steps Defined For This Workflow">
+		<field>
+			<display_name></display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintSteps"   />
+				<process_function name="processSteps" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Create New Step" read_access="write">
+		<field>
+			<display_name></display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintNewStep"   />
+				<process_function name="processNewStep" />
+			</function_call>
+		</field>
+	</section>
+</contents>

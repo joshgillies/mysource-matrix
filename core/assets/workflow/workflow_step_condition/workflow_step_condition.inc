@@ -1,0 +1,66 @@
+<?php
+
+require_once SQ_INCLUDE_PATH.'/asset.inc';
+
+/**
+* Workflow_Step_Condition
+*
+* Purpose
+*
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve_Packages
+* @subpackage __core__
+*/
+class Workflow_Step_Condition extends Asset
+{
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Workflow_Step_Condition($assetid=0)
+	{
+		$this->Asset($assetid);
+
+	}//end constructor
+
+
+	/**
+	* Returns name of the asset
+	*
+	* @param bool	$short_name	whether or not we are after the shortname or the full name
+	*
+	* @see Asset::_getName()
+	* @access public
+	*/
+	function _getName($short_name=false)
+	{
+		return 'Step Condition';
+
+	}//end _getName();
+
+
+	/**
+	* Returns an array of all the permitted links type, the type asset and the cardinality
+	*
+	* @see Asset::_getAllowLinks()
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		return Array(SQ_LINK_TYPE_1 => Array(),
+					 SQ_LINK_TYPE_2 => Array(),
+					 SQ_LINK_TYPE_3 => Array(),
+					 SQ_LINK_NOTICE => Array()
+					);
+
+	}//end _getAllowedLinks()
+
+
+}//end class
+
+?>
