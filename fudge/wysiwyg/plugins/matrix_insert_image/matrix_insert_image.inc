@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: matrix_insert_image.inc,v 1.12 2003/10/20 05:14:36 gsherwood Exp $
+* $Id: matrix_insert_image.inc,v 1.13 2003/10/24 01:40:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,7 +52,7 @@ class matrix_insert_image extends wysiwyg_plugin {
 			// Called when the user clicks on "InsertImage" button
 			HTMLArea.prototype._matrixinsertImage = function() {
 				var editor = this; // for nested functions
-				
+
 				// disable the toolbar
 				this._tmp['disable_toolbar'] = true;
 				this.updateToolbar(false);
@@ -76,7 +76,7 @@ class matrix_insert_image extends wysiwyg_plugin {
 					var fragment = this._doc.createDocumentFragment();
 					var div = this._doc.createElement("div");
 					div.innerHTML = this.getSelectedHTML();
-					while (div.firstChild) { 
+					while (div.firstChild) {
 						if (div.firstChild.tagName == "IMG") {
 							is_image = true;
 							var image_tag = div.firstChild;
@@ -110,12 +110,12 @@ class matrix_insert_image extends wysiwyg_plugin {
 					re = new RegExp(e, "gi");
 					imageid = imageid.replace(re, "$3");
 				}
-				
+
 				editor_<?php echo $this->wysiwyg->name?>._object = this;
 				strPage = "<?php echo $this->get_popup_href('insert_image.php')?>?f_imageid=" + escape(imageid) + "&f_align=" + escape(align) + "&f_width=" + escape(width) + "&f_height=" + escape(height) + "&f_alt=" + escape(alt) + "&f_horiz=" + escape(hspace) + "&f_vert=" + escape(vspace) + "&f_border=" + escape(border) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>");
 
 				this._popupDialog("matrixInsertImage", strPage, 400, 300, false, function(param) {
-					if (!param) { 
+					if (!param) {
 						// user must have pressed Cancel
 						return false;
 					}
@@ -144,7 +144,13 @@ class matrix_insert_image extends wysiwyg_plugin {
 					}
 					html += '>';
 
-					editor.insertHTML(html, range);
+					if (!is_image || HTMLArea.is_gecko) {
+						// replace text with new image
+						editor.insertHTML(html, range);
+					} else {
+						// we are replacing an existing image in IE
+						image_tag.outerHTML = html;
+					}
 
 				}, null);
 			};
