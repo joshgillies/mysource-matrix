@@ -87,6 +87,22 @@
 				<default />
 				<description />
 			</column>
+			<column name="created" allow_null="0">
+				<type>TIMESTAMP</type>
+				<type_variations>
+					<mysql>DATETIME</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="created_userid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
 			<column name="last_updated" allow_null="0">
 				<type>TIMESTAMP</type>
 				<type_variations>
@@ -659,6 +675,47 @@
 				<column name="assetid"    />
 				<column name="userid"     />
 				<column name="permission" />
+			</primary_key>
+		</keys>
+		<indexes />
+	</table>
+	<table name="asset_metadata" require_rollback="1">
+		<columns>
+			<column name="assetid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default />
+				<description />
+			</column>
+			<column name="schemaid" allow_null="0">
+				<type>INT</type>
+				<type_variations>
+					<mysql>INT UNSIGNED</mysql>
+				</type_variations>
+				<default>0</default>
+				<description />
+			</column>
+			<column name="metadata" allow_null="0">
+				<type>TEXT</type>
+				<type_variations>
+					<mysql>LONGTEXT</mysql>
+				</type_variations>
+				<default>''</default>
+				<description />
+			</column>
+			<column name="access" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'0'</default>
+				<description />
+			</column>
+		</columns>
+		<keys>
+			<primary_key>
+				<column name="assetid"  />
+				<column name="schemaid" />
 			</primary_key>
 		</keys>
 		<indexes />
