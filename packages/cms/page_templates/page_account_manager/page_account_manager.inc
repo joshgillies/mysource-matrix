@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.10 2004/03/02 22:48:05 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.11 2004/03/14 23:52:43 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -150,7 +150,10 @@ class Page_Account_Manager extends Page_Asset_Builder
 					$default_screen = $aei->_default_screen;
 					if (empty($default_screen)) $default_screen = 'details';
 
-					if (!isset($allowed_screens[$default_screen])) {
+					$check_screen_restrictions = (!($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
+					if ($check_screen_restrictions) if (isset($allowed_screens['0']['0'])) $check_screen_restrictions = false;
+				
+					if ($check_screen_restrictions && !isset($allowed_screens[$default_screen])) {
 						$this->_replacements['edit_details_invite'] = '<p>You do not have access to edit your details.</p>';
 						$current_user->printBody();
 					} else {
