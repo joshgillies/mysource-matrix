@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.217 2004/06/09 11:12:51 brobertson Exp $
+* $Id: asset_manager.inc,v 1.218 2004/06/10 01:14:43 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1398,8 +1398,8 @@ class Asset_Manager extends MySource_Object
 				$lock['source_assetid'] = preg_replace('|^asset\.(.*)\.[\w]+$|', '\1', $lock['source_lockid']);
 				if ($full_chain) {
 					for(reset($lock['chained_assets']); NULL !== ($k = key($lock['chained_assets'])); next($lock['chained_assets'])) {
-						$lock['chained_assets'][$k]['assetid'] = (int) preg_replace('/^asset\.([0-9]+)\..*$/', '\1', $lock['chained_assets'][$k]['lockid']);
-						$lock['chained_assets'][$k]['source_assetid'] = (int) preg_replace('/^asset\.([0-9]+)\..*$/', '\1', $lock['chained_assets'][$k]['source_lockid']);
+						$lock['chained_assets'][$k]['assetid'] = preg_replace('/^asset\.([0-9]+(:.+)?)\..*$/', '\1', $lock['chained_assets'][$k]['lockid']);
+						$lock['chained_assets'][$k]['source_assetid'] = preg_replace('/^asset\.([0-9]+(:.+)?)\..*$/', '\1', $lock['chained_assets'][$k]['source_lockid']);
 					}
 				}
 			}
