@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links_edit_fns.inc,v 1.10 2005/01/20 13:18:40 brobertson Exp $
+* $Id: report_broken_links_edit_fns.inc,v 1.11 2005/02/16 06:05:31 dbaranovskiy Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -106,6 +106,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 				if (!is_null($asset)) {
 					$step_data['message'] = 'Generating broken links report...';
 
+					$content = '';
 					$wysiwyg_html = $asset->attr('html');
 
 					$master_matches = Array();
@@ -144,11 +145,16 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 
 						if ($validated_results === false) continue;
 
-						fwrite($temp_file, "\t<link assetid=\"".$asset->id."\" type=\"$link_type\" valid=\"".$validated_results['valid']."\">\n");
-						fwrite($temp_file, "\t\t<html><![CDATA[$match]]></html>\n");
-						fwrite($temp_file, "\t\t<description><![CDATA[".$validated_results['description']."]]></description>\n");
-						fwrite($temp_file, "\t</link>\n");
+						$content .= "\t\t".'<link type="'.$link_type.'" valid="'.$validated_results['valid'].'">'."\n";
+						$content .= "\t\t\t".'<html><![CDATA['.$match.']]></html>'."\n";
+						$content .= "\t\t\t".'<description><![CDATA['.$validated_results['description'].']]></description>'."\n";
+						$content .= "\t\t".'</link>'."\n";
 					}//end foreach
+
+					if (!empty($content)) {
+						$content = "\t".'<asset assetid="'.$asset->id.'" name="'.$asset->name.'" short_name="'.$asset->short_name.'" type_code="'.$asset->type().'" status="'.$asset->status.'">'."\n".$content."\t".'</asset>'."\n";
+						fwrite($temp_file, $content);
+					}
 
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 					unset($asset);
@@ -169,7 +175,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 			$step_data['complete']     = true;
 
 			// move the temp file to become the real report XML file
-			fwrite($temp_file, "</links>\n");
+			fwrite($temp_file, '</links>');
 			if (!copy($owner->data_path.'/report.tmp', $owner->data_path.'/report.xml')) {
 				trigger_error('Could not move temporary file, report generation aborted', E_USER_WARNING);
 				return false;
@@ -306,6 +312,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 	*/
 	function validateEmailLink($mailto)
 	{
+		error_log("Validating email $mailto");
 		require_once SQ_FUDGE_PATH.'/general/www.inc';
 		if (!valid_email($mailto)) {
 			$description = 'The email address does not appear to be valid';
@@ -355,32 +362,35 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 								);
 
 
-		foreach ($root->children as $link) {
-			if ($link->name != 'link') continue;
-			assert_isset_array_index($reported_links, $link->attributes['type'], 'Unkown link type "'.$link->attributes['type'].'"');
+		foreach ($root->children as $asset_element) {
+			if ($asset_element->name != 'asset') continue;
+			foreach ($asset_element->children as $link) {
+				if ($link->name != 'link') continue;
+				assert_isset_array_index($reported_links, $link->attributes['type'], 'Unkown link type "'.$link->attributes['type'].'"');
 
-			$new_link = Array();
-			foreach ($link->children as $link_child) {
-				switch ($link_child->name) {
-					case 'html' :
-						$new_link['html'] = $link_child->content;
+				$new_link = Array();
+				foreach ($link->children as $link_child) {
+					switch ($link_child->name) {
+						case 'html' :
+							$new_link['html'] = $link_child->content;
 
-						// get the assetid from the html link
-						if ($link->attributes['type'] == 'internal') {
-							$to_assetid = preg_replace('|\./\?a=([0-9]+)|', '\\1', $link_child->content);
-							$new_link['data'] = $to_assetid;
-						} else {
-							$new_link['data'] = $link_child->content;
-						}
-					break;
-					case 'description' :
-						$new_link['description'] = $link_child->content;
-					break;
-				}
-			}//end foreach
+							// get the assetid from the html link
+							if ($link->attributes['type'] == 'internal') {
+								$to_assetid = preg_replace('|\./\?a=([0-9]+)|', '\\1', $link_child->content);
+								$new_link['data'] = $to_assetid;
+							} else {
+								$new_link['data'] = $link_child->content;
+							}
+						break;
+						case 'description' :
+							$new_link['description'] = $link_child->content;
+						break;
+					}
+				}//end foreach
 
-			$new_link['valid'] = $link->attributes['valid'];
-			$reported_links[$link->attributes['type']][$link->attributes['assetid']][] = $new_link;
+				$new_link['valid'] = $link->attributes['valid'];
+				$reported_links[$link->attributes['type']][$asset_element->attributes['assetid']][] = $new_link;
+			}
 		}//end foreach
 
 
@@ -396,8 +406,8 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					<table class="sq-backend-table" style="border: 1px solid #DDDDDD;" border="0">
 						<tr>
-							<td colspan="4" class="sq-backend-table-header" style="width: 226px;">Found In</td>
-							<td colspan="4" class="sq-backend-table-header" style="width: 226px;">Linking To</td>
+							<td colspan="3" class="sq-backend-table-header" style="width: 226px;">Found In</td>
+							<td colspan="2" class="sq-backend-table-header" style="width: 226px;">Linking To</td>
 							<td class="sq-backend-table-header">Comments</td>
 						</tr>
 					<?php
@@ -412,11 +422,11 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 							if (is_null($to)) {
 								$to_type = '';
 								$to_string = 'Unkown asset #'.$link['data'];
-								$to_bg = 'FFFFFF';
+								$to_bg = 'FFF';
 								$to_status = '';
 							} else {
 								$to_type = $to->type();
-								$to_string = '<a href="#" onclick="Javscript: return false;" target="_blank" title="'.$to->name.'">'.ellipsisize($to->name, 40).'</a>';
+								$to_string = '<span title="'.$to->name.'">'.ellipsisize($to->name, 40).' [#'.$to->id.']</span>';
 								$to_bg = get_status_colour($to->status);
 								$to_status = get_status_description($to->status);
 							}
@@ -426,48 +436,33 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
 									<a href="<?php echo $from_info['backend_url']; ?>" title="Edit this asset">#<?php echo (int) $from_info['assetid']; ?></a>
 								</td>
-								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px;">
-									<div title="<?php echo $from_info['status']; ?>" style="border: 1px solid #CCCCCC; padding: 4px; background-color: #<?php echo $from_info['bg']; ?>; width: 8px; height: 8px;">&nbsp;</div>
-								</td>
 								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($from_info['type'])) {
 										?>
 										<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
-											<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
+											<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
 										</span>
 										<?php
 									}
 									?>
 								</td>
 								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px;">
-									<?php echo $from_info['string']; ?>
-								</td>
-								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
-									<?php
-									if (!empty($to_type)) {
-										echo '#'.(int) $to->id;
-									}
-									?>
-								</td>
-								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px;">
-									<div title="<?php echo $to_status; ?>" style="border: 1px solid #CCCCCC; padding: 4px; background-color: #<?php echo $to_bg; ?>; width: 8px; height: 8px;">&nbsp;</div>
+									<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $from_info['bg']; ?>"><?php echo $from_info['string']; ?></span>
 								</td>
 								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($to_type)) {
 										?>
 										<span title="<?php echo ucwords(str_replace('_', ' ', $to_type)); ?>">
-											<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($to_type); ?>", "16", "16", "");</script>
+											<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($to_type); ?>", "16", "16", "");</script>
 										</span>
 										<?php
 									}
 									?>
 								</td>
 								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px;">
-									<?php
-									echo $to_string;
-									?>
+									<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $to_bg; ?>"><?php echo $to_string; ?></span>
 								</td>
 								<td class="sq-backend-table-cell">
 									<?php
@@ -496,7 +491,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td colspan="4" class="sq-backend-table-header" style="width: 226px;">Found In</td>
+							<td colspan="3" class="sq-backend-table-header" style="width: 226px;">Found In</td>
 							<td class="sq-backend-table-header" style="width: 226px;">URL</td>
 							<td class="sq-backend-table-header">Comments</td>
 						</tr>
@@ -511,22 +506,19 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
 									<a href="<?php echo $from_info['backend_url']; ?>" title="Edit this asset">#<?php echo (int) $from_info['assetid']; ?></a>
 								</td>
-								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px;">
-									<div title="<?php echo $from_info['status']; ?>" style="border: 1px solid #CCCCCC; padding: 4px; background-color: #<?php echo $from_info['bg']; ?>; width: 8px; height: 8px;">&nbsp;</div>
-								</td>
 								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($from_info['type'])) {
 										?>
 										<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
-											<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
+											<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
 										</span>
 										<?php
 									}
 									?>
 								</td>
-								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px;">
-									<?php echo $from_info['string']; ?>
+								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px">
+									<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $from_info['bg']; ?>"><?php echo $from_info['string']; ?></span>
 								</td>
 								<td class="sq-backend-table-cell" style="width: 226px;">
 									<?php echo $to_string; ?>
@@ -558,7 +550,7 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 					?>
 					<table class="sq-backend-table">
 						<tr>
-							<td colspan="4" class="sq-backend-table-header" style="width: 226px;">Found In</td>
+							<td colspan="3" class="sq-backend-table-header" style="width: 226px;">Found In</td>
 							<td class="sq-backend-table-header" style="width: 274px;">Email</td>
 							<td class="sq-backend-table-header">Comments</td>
 						</tr>
@@ -572,22 +564,19 @@ class Report_Broken_Links_Edit_Fns extends Report_Edit_Fns
 								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px; text-align: right;">
 									<a href="<?php echo $from_info['backend_url']; ?>" title="Edit this asset">#<?php echo (int) $from_info['assetid']; ?></a>
 								</td>
-								<td class="sq-backend-table-cell" style="width: 10px; padding-right: 1px;">
-									<div title="<?php echo $from_info['status']; ?>" style="border: 1px solid #CCCCCC; padding: 4px; background-color: #<?php echo $from_info['bg']; ?>; width: 8px; height: 8px;">&nbsp;</div>
-								</td>
 								<td class="sq-backend-table-cell" style="width: 16px; padding-right: 0px; padding-left: 0px;">
 									<?php
 									if (!empty($from_info['type'])) {
 										?>
 										<span title="<?php echo ucwords(str_replace('_', ' ', $from_info['type'])); ?>">
-											<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
+											<script type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($from_info['type']); ?>", "16", "16", "");</script>
 										</span>
 										<?php
 									}
 									?>
 								</td>
 								<td class="sq-backend-table-cell" style="width: 190px; padding-left: 0px;">
-									<?php echo $from_info['string']; ?>
+									<span style="border: solid 1px #CCC; padding: 0 1ex;background: #<?php echo $from_info['bg']; ?>"><?php echo $from_info['string']; ?></span>
 								</td>
 								<td class="sq-backend-table-cell" style="width: 274px;">
 									<?php echo $to_string; ?>
