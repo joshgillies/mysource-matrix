@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.18 2004/08/11 01:03:27 gsherwood Exp $
+* $Id: boolean.inc,v 1.19 2004/09/02 01:06:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,6 +42,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 class Asset_Attribute_Boolean extends Asset_Attribute
 {
 
+
 	/**
 	* Constructor
 	*
@@ -51,7 +52,8 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	*/
 	function Asset_Attribute_Boolean($attributeid=0, $value=null)
 	{
-		$this->Asset_Attribute($attributeid, (($value) ? 1 : 0));
+		if ($value != '_') $value = (($value) ? 1 : 0);
+		$this->Asset_Attribute($attributeid, $value);
 		
 		// set default edit parameters
 		$this->_edit_params['true_text']  = 'True';
@@ -61,11 +63,10 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 
 
 	/**
-	* Takes an XML_Tree_Node from an edit interface XML file and creates
-	* the params array from it
+	* Takes an XML_Tree_Node from an edit interface XML file and creates the params array from it
 	*
 	* @param object XML_Tree_Node	$node
-	*
+	* 
 	* @return boolean
 	* @access public
 	*/
@@ -177,7 +178,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		if ($add) {
 			combo_box($prefix.'_'.$this->name, $options, false, $this->value, 0, $extras='', $maxlength=0);
 		} else {
-			combo_box($prefix, $options, false, null, 0, $extras='', $maxlength=0);
+			combo_box($prefix, $options, false, $this->value, 0, $extras='', $maxlength=0);
 		}
 
 	}//end paint()
