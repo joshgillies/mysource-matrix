@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_03.php,v 1.20 2003/11/11 04:32:05 mmcintyre Exp $
+* $Id: step_03.php,v 1.21 2003/11/18 12:18:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -208,7 +208,7 @@ if (is_null($root_folder)) {
 	// Re-generate the System Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
 	$sys_asset_cfg = new System_Asset_Config();
-	$sys_asset_cfg->save(Array(), true);
+	$sys_asset_cfg->save(Array(), false);
 
 	// From here on in, the user needs to be logged in to create assets and links
 	$GLOBALS['SQ_INSTALL'] = false;
