@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.21.2.1 2004/11/01 05:08:46 gsherwood Exp $
+* $Id: datetime.inc,v 1.21.2.2 2004/11/10 03:16:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -383,7 +383,7 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 			if (isset($matches[1])) $period_age  = $matches[1];
 			if (isset($matches[2])) $period_num  = $matches[2];
 			if (isset($matches[3])) $period_type = $matches[3];
-			return date('Y-m-d h:i:s', strtotime($period_age.$period_num.' '.$this->_period_options[$period_type]));
+			return date('Y-m-d H:i:s', strtotime($period_age.$period_num.' '.$this->_period_options[$period_type]));
 		}
 
 	}//end getISO8601()
