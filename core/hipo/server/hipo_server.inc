@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_server.inc,v 1.13 2004/01/08 15:03:40 brobertson Exp $
+* $Id: hipo_server.inc,v 1.14 2004/01/12 10:57:06 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -512,7 +512,7 @@ class HIPO_Server extends HIPO_Server_Common
 			default :
 				error_log('Forked PID : '.$child_pid);
 				$this->_tasks[$taskid] = $child_pid;
-				print_r($this->_tasks);
+#				print_r($this->_tasks);
 				socket_close($client_fd);
 				return '';
 
