@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.121 2004/11/25 23:11:44 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.122 2004/12/01 06:01:18 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.121 $ - 1.0
+* @version $Revision: 1.122 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -140,77 +140,13 @@ class Page_Calendar extends Page_Asset_Listing
 			$this->id = 0;
 			return false;
 		}
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
-
-		// create the page contents bodycopy and the event formats folder
-		$sub_assets= Array(
-			'type_formats'  => 'folder',
-			'page_contents' => 'bodycopy',
-		);
-		$type_formats = null;
-		foreach ($sub_assets as $name => $type) {
-			$asset = new $type();
-			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-
-			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
-			if (!$asset->create($copy_link)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$this->id = 0;
-				return false;
-			}
-			if ($name == 'type_formats') {
-				$type_formats = $asset;
-			}
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			unset($asset);
-		}
-
-		// put the default contents into the page contents bodycopy
-		$content_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, 'content_type', false));
-		if (empty($content_ids)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-		$content_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($content_ids[0]);
-		if (!$content_asset->id) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($content_asset->id, 'attributes')) {
-			trigger_error('Couldn\t get lock on page contents, couldn\'t create', E_USER_WARNING);
-			return false;
-		}
-		$content_asset->setAttrValue('html', '<h2 style="text-align: center">%calendar_title%</h2><p style="text-align: center">%prev_link%&nbsp;&nbsp;&nbsp;&nbsp;%up_link%&nbsp;&nbsp;&nbsp;&nbsp;%next_link%</p>%calendar_contents%');
-		$content_asset->saveAttributes();
-		$content_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($content_asset->id, 'bodycopy_container', false);
-		$parent_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($content_parents[0]);
-		$edit_fns = &$parent_asset->getEditFns();
-		$edit_fns->generateContentFile($parent_asset);
-		$GLOBALS['SQ_SYSTEM']->am->releaseLock($content_asset->id, 'attributes');
-
-		// create the event format bodycopies
-		$copy_link = Array('asset' => &$type_formats, 'value' => '' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-		$event_types = Array('single', 'recurring');
-		foreach ($event_types as $event_type) {
-			$copy_link['value'] = 'calendar_event_'.$event_type;
-			$asset = new Bodycopy();
-			$asset->setAttrValue('name', ucfirst($event_type).' Event Format');
-			if (!$asset->create($copy_link)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$this->id = 0;
-				return false;
-			}
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-			unset($asset);
-		}
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
 	}//end create()
+
+
+
 
 	/**
 	* Perform any additional processing required during the creation of this asset
@@ -233,7 +169,52 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function _createAdditional(&$link)
 	{
-		return Page::_createAdditional($link);
+		if (!Page::_createAdditional($link)) return false;
+
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
+
+		// create the page contents bodycopy
+		$page_contents_data = Array('content' => '<h2 style="text-align: center">%calendar_title%</h2><p style="text-align: center">%prev_link%&nbsp;&nbsp;&nbsp;&nbsp;%up_link%&nbsp;&nbsp;&nbsp;&nbsp;%next_link%</p>%calendar_contents%');
+		$asset = new Bodycopy();
+		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		$asset->setAttrValue('name', 'Page Contents');
+		if (!$asset->create($copy_link, $page_contents_data)) {
+			$this->id = 0;
+			return false;
+		}
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+		unset($asset);
+
+		// create the event formats folder
+		$copy_link = Array('asset' => &$this, 'value' => 'type_formats' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		$type_formats = new Folder();
+		$type_formats->setAttrValue('name', 'Type Formats');
+		if (!$type_formats->create($copy_link)) {
+			$this->id = 0;
+			return false;
+		}
+
+		// create the event format bodycopies
+		$copy_link = Array('asset' => &$type_formats, 'value' => '' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
+		$event_bodycopy_data = Array('content' => '%asset_contents%');
+		$event_types = Array('single', 'recurring');
+		foreach ($event_types as $event_type) {
+			$copy_link['value'] = 'calendar_event_'.$event_type;
+			$asset = new Bodycopy();
+			$asset->setAttrValue('name', ucfirst($event_type).' Event Format');
+			if (!$asset->create($copy_link, $event_bodycopy_data)) {
+				$this->id = 0;
+				return false;
+			}
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+			unset($asset);
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($type_formats);
+		unset($type_formats);
+
+		return true;
 
 	}//end _createAdditional()
 

@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2004/10/25 04:23:56 tbarrett Exp $
+* $Id: asset.xml,v 1.5 2004/12/01 06:01:18 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -41,5 +41,5 @@
 			<version>0.1</version>
 		</requirement>
 	</requirements>
-	<flash_menu_path>Pages</flash_menu_path>
+	<flash_menu_path>Calendar</flash_menu_path>
 </asset_info> 
