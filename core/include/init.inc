@@ -84,7 +84,7 @@ define('SQ_LINK_UNITE',        2); // minor is a child of major, but can be link
 define('SQ_LINK_NOTICE',       4); // for information purposes only, used to register href's from one asset to another so that deletions can warn of impending issues
 define('SQ_LINK_USES',         8); // minor asset is used by the major asset, but it is not something that is in the navigation, minor can be linked to many major's
 
-define('SQ_LINK_ANY',         15); // what all the main link types add up to
+define('SQ_LINK_ALL',         15); // what all the main link types add up to
 define('SQ_LINK_NAV',          3); // short hand for EXCLUSIVE | UNITE
 define('SQ_LINK_SIGNIFICANT', 11); // short hand for EXCLUSIVE | UNITE | USES
 
