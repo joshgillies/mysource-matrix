@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: permissions.inc,v 1.9 2004/12/03 15:33:23 brobertson Exp $
+* $Id: permissions.inc,v 1.10 2005/01/13 22:08:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -200,7 +200,11 @@ function paintPermissions(&$owner, &$o, &$ei)
 			<?php
 			}//end foreach inherited
 
-		}// end if
+		} else {
+			$o->openRaw();
+				echo 'No '.strtolower($title).' access permissions have been set';
+			$o->closeRaw();
+		}//end if
 
 		if ($admin_access) {
 			$o->openField('New ?', 'new_line');
@@ -214,10 +218,10 @@ function paintPermissions(&$owner, &$o, &$ei)
 				echo ' Specific Access ';
 				asset_finder($prefix.'_permissions['.$perm.'][new][userid]', 0, Array('user' => 'D', 'user_group' => 'D'));
 			$o->closeField();
-		}// end if
+		}//end if
 
 		$o->closeSection();
-	}// end foreach $perms
+	}//end foreach $perms
 
 	if ($admin_access) {
 		$kiddies = $GLOBALS['SQ_SYSTEM']->am->getChildren($owner->id);
