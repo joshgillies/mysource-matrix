@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.2 2004/10/13 22:28:38 lwright Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.3 2004/11/01 22:00:16 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -102,14 +102,14 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 
 		$question_contents = $this->attr('question_contents');
 		$datapath = sq_web_path('data').'/asset_types/form_question_type_tickbox_table/files';
-		$submission = array_get_index($this->_tmp,'submission',false);
+		$submission = array_get_index($this->_tmp, 'submission', false);
 
 		$to_output = '';
 
 		switch ($type)
 		{
 			// plaintext part for e-mail sending and submission confirmation
-			case 'plaintext':{
+			case 'plaintext':
 				if (empty($question_contents )) return "";
 				$header = array_shift($question_contents);
 				$title  = array_shift($header);
@@ -130,10 +130,10 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 					}
 				}
 				return implode("; \n", $output);
-			}
+			break;
 
 			// editor part for dynamic JavaScript page
-			case 'editor': {
+			case 'editor':
 				$header = array_shift($question_contents);
 				$to_output =	'<style type="text/css">@import url("'.$datapath.'/style.css");</style>'.
 								'<script type="text/javascript" src="'.$datapath.'/InputTable.js">//blank</script>'.
@@ -156,10 +156,10 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 								'	tb.setup(Quests);'.
 								'</script>';
 				return $to_output;
-			}
+			break;
 
 			// active and passive part for front-end and unlocked back-end view
-			default: {
+			default:
 				$to_output =	'<table border="0" cellpadding="0" cellspacing="0" class="sq-backend-table" id="'.$prefix.'">'.
 								'	<tr>'.
 								'		<td class="sq-backend-table-header">';
@@ -184,11 +184,11 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 						$to_output .= '<td class="sq-backend-table-header">'.array_shift($question).'</td>';
 						foreach ($question as $option_id=>$option) {
 							$to_output .= '<td class="sq-backend-table-cell">';
-							if (empty($option)) $to_output .= '&mdash;';
-							else
-							if ($type != 'passive') {
+							if (empty($option)) {
+								$to_output .= '&mdash;';
+							} elseif ($type != 'passive') {
 								ob_start();
-									check_box($prefix.'['.$question_id.']['.$option_id.']', '1', $submission and isset($submission[$question_id][$option_id]));
+									check_box($prefix.'['.$question_id.']['.$option_id.']', '1', $submission && isset($submission[$question_id][$option_id]));
 									$to_output .= ob_get_contents();
 								ob_end_clean();
 								$to_output .= ' <span onclick="this.previousSibling.previousSibling.checked = !this.previousSibling.previousSibling.checked">'.$option.'</span>';
@@ -201,7 +201,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 					}
 				}
 				$to_output .= '</table>';
-			}
+
 		}
 		return $to_output;
 
@@ -218,7 +218,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	{
 		$prefix = $this->getSafePrefix();
 
-		$submission = array_get_index($_REQUEST,$prefix,false);
+		$submission = array_get_index($_REQUEST, $prefix, false);
 		$this->_tmp['submission'] = $submission;
 		$form =& $this->getMySection();
 		$form->active_submission[$this->id] = $submission;
@@ -245,7 +245,8 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	* @access public
 	* @return string
 	*/
-	function getXMLstring() {
+	function getXMLstring()
+	{
 		$prefix = $this->getSafePrefix();
 
 		$question_contents = $this->attr('question_contents');
@@ -275,7 +276,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 				$to_output .= '<options>';
 				foreach ($question as $option_id=>$option) {
 					$checked = 'checked="0"';
-					if ($submission and isset($submission[$question_id][$option_id])) {
+					if ($submission && isset($submission[$question_id][$option_id])) {
 						$checked = 'checked="1"';
 					}
 					$to_output .= '<option id="'.$option_id.'" '.$checked.'><![CDATA['.$option.']]></option>';
@@ -287,7 +288,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 		}
 
 		return $to_output;
-		
+
 	}//end getXMLstring()
 
 
@@ -297,8 +298,9 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	* @access public
 	* @return string
 	*/
-	function getSafePrefix() {
-		return $prefix = str_replace(':','_',$this->getPrefix());
+	function getSafePrefix()
+	{
+		return $prefix = str_replace(':', '_', $this->getPrefix());
 
 	}//end getSafePrefix()
 
@@ -332,14 +334,14 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 
 		if ($submission) {
 			// decipher the option id
-			list($line,$option) = explode('_',$option_code);
+			list($line,$option) = explode('_', $option_code);
 
 			// check if the option was submitted
 			$result = !empty($submission[$line][$option]);
 		}
 
 		return $result;
-		
+
 	}//end isSelected()
 
 
@@ -359,7 +361,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 		$question_contents = $this->attr('question_contents');
 
 		// decipher the option id
-		list($line_id,$option_id) = explode('_',$option_code);
+		list($line_id,$option_id) = explode('_', $option_code);
 
 		$header = array_shift($question_contents);
 		//first column of first row is of no importance
@@ -383,7 +385,8 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	* @access public
 	* @return Array()
 	*/
-	function getOptions() {
+	function getOptions()
+	{
 		$options = Array();
 		$lines = $this->attr('question_contents');
 		$header = array_shift($lines);
