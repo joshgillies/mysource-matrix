@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.18 2004/09/23 04:45:08 tbarrett Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.19 2004/09/30 06:43:19 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -697,7 +697,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$current_rules = $asset->attr('create_location_rules');
 
-		$link_type_names = Array(SQ_LINK_TYPE_1=>'', SQ_LINK_TYPE_2=>'', SQ_LINK_TYPE_3=>'', SQ_LINK_NOTICE=>'');
+		$link_type_names = Array(SQ_LINK_TYPE_1 => '', SQ_LINK_TYPE_2 => '', SQ_LINK_TYPE_3 => '', SQ_LINK_NOTICE => '');
 		foreach ($link_type_names as $lt => $null) $link_type_names[$lt] = 	link_type_name($lt);
 
 		$comparators = Array('equals'      => 'equals',
@@ -708,11 +708,11 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 		$create_types = $asset->attr('create_type');
 		// print the rules for each create type
-		foreach($create_types as $create_type => $null) {
+		foreach ($create_types as $create_type => $null) {
 			echo '<p><b>Rules for Asset Type '.$create_type.'</b></p>';
 
 			$attributes = Array();
-			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name', 'attributeid', 'type'));
+			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name', 'attrid', 'type'));
 			foreach ($attrs as $name => $data) $attributes[$name] = ucwords(str_replace('_', ' ', $name));
 			$attributes = Array(''=>'--Choose Attribute--') + $attributes;
 
@@ -854,6 +854,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 	*/
 	function processConditionalCreateLocations(&$asset, &$o, $prefix)
 	{
+		if (!isset($_POST[$prefix.'_rules'])) return false;
 		$rules = $_POST[$prefix.'_rules'];
 
 		// remove empty elements from our array
@@ -910,7 +911,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 		$current = $asset->attr('required_fields');
 		
-		foreach(array_keys($asset->attr('create_type')) as $create_type) {
+		foreach (array_keys($asset->attr('create_type')) as $create_type) {
 		
 			$attributes = Array();
 			$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type, Array('name'));
@@ -972,7 +973,7 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 			if ($write_access) {
 				
 				$new_required = Array('' => '-- select attribute --');
-				foreach($attributes as $attr => $name) {
+				foreach ($attributes as $attr => $name) {
 					if (isset($current[$create_type][$attr])) continue;
 					$new_required[$attr] = $name;
 				}
