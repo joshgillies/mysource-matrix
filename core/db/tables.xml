@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: tables.xml,v 1.18 2003/09/26 05:26:30 brobertson Exp $
+* $Id: tables.xml,v 1.19 2003/09/29 00:53:57 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -140,7 +140,14 @@
 				<column name="assetid" />
 			</primary_key>
 		</keys>
-		<indexes />
+		<indexes>
+			<index>
+				<column name="type_code" />
+			</index>
+			<index>
+				<column name="name" />
+			</index>
+		</indexes>
 	</table>
 	<table name="asset_link" require_rollback="1">
 		<columns>
@@ -230,7 +237,17 @@
 				<column name="value"     />
 			</unique_key>
 		</keys>
-		<indexes />
+		<indexes>
+			<index>
+				<column name="majorid" />
+			</index>
+			<index>
+				<column name="minorid" />
+			</index>
+			<index>
+				<column name="link_type" />
+			</index>
+		</indexes>
 	</table>
 	<table name="asset_link_tree" require_rollback="1">
 		<columns>
@@ -343,7 +360,14 @@
 				<column name="type_code" />
 			</primary_key>
 		</keys>
-		<indexes />
+		<indexes>
+			<index>
+				<column name="type_code" />
+			</index>
+			<index>
+				<column name="level" />
+			</index>
+		</indexes>
 	</table>
 	<table name="asset_attribute" require_rollback="0">
 		<columns>
@@ -427,7 +451,14 @@
 				<column name="name"      />
 			</unique_key>
 		</keys>
-		<indexes />
+		<indexes>
+			<index>
+				<column name="type_code" />
+			</index>
+			<index>
+				<column name="name" />
+			</index>
+		</indexes>
 	</table>
 	<table name="asset_attribute_value" require_rollback="1">
 		<columns>
@@ -460,7 +491,14 @@
 				<column name="attributeid" />
 			</primary_key>
 		</keys>
-		<indexes />
+		<indexes>
+			<index>
+				<column name="attributeid" />
+			</index>
+			<index>
+				<column name="assetid" />
+			</index>
+		</indexes>
 	</table>
 	<table name="asset_attribute_unique_value" require_rollback="1">
 		<columns>
@@ -518,7 +556,14 @@
 				<column name="type_code" />
 			</primary_key>
 		</keys>
-		<indexes />
+		<indexes>
+			<index>
+				<column name="inherited_type_code" />
+			</index>
+			<index>
+				<column name="type_code" />
+			</index>
+		</indexes>
 	</table>
 	<table name="asset_url" require_rollback="1">
 		<columns>
