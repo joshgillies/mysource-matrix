@@ -127,6 +127,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				return false;
 			}//end if
 
+			// validate id name
+			if (!preg_match('/^[a-z][a-z0-9_]*$/i', $element['attributes']['id_name']) || $element['attributes']['id_name'] != preg_replace('/__+/', '', $element['attributes']['id_name'])) {
+				trigger_error('The id_name "'.$element['attributes']['id_name'].'" contains illegal characters, the id_name must be an alpha character, optionally followed by any number of alphanumeric characters or underscores.<br>NOTE: you cannot have more that one consecutive underscore', E_USER_WARNING);
+				return false;
+			}
+
 			$element['attributes']['design_area'] = 'design_area_'.strtolower($element['attributes']['design_area']);
 
 			// if there is a name and it's not the the same type as the current design area
