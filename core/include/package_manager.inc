@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.49 2004/09/08 04:02:52 gsherwood Exp $
+* $Id: package_manager.inc,v 1.50 2004/09/22 23:59:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -225,7 +225,7 @@ class Package_Manager extends MySource_Object
 	
 			for (reset($install_order); null !== ($k = key($install_order)); next($install_order)) {
 				$type_code =& $install_order[$k];
-	
+				print 'Asset: '. $type_code.".\n";
 				// now we simply call the management class for this object
 				$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$type_code.'_management.inc';
 				// include rather that require so that if it doesn't exist we can kill the transaction

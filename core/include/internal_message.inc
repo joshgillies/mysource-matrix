@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.36 2004/09/17 03:26:34 gsherwood Exp $
+* $Id: internal_message.inc,v 1.37 2004/09/22 23:59:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -616,6 +616,9 @@ class Internal_Message extends MySource_Object
 		}
 		
 		foreach ($this->to as $assetid) {
+			// skip the ZERO (system) assetid as it's already included
+			if ($assetid == 0) continue;
+			
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 			if (is_null($asset)) continue;
 			

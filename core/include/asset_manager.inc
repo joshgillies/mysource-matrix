@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.236 2004/09/21 04:47:51 lwright Exp $
+* $Id: asset_manager.inc,v 1.237 2004/09/22 23:59:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2491,14 +2491,16 @@ class Asset_Manager extends MySource_Object
 
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-		$sql = 'SELECT COUNT(*)
+		$sql = 'SELECT *
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l '.$extra_table.'
 				'.$where;
 
-		$result = $db->getOne($sql);
+		$result = $db->getAll($sql);
+		bam($result);
+		//if (count($result) > 0) die;
 		assert_valid_db_result($result);
 
-		return $result;
+		return count($result);
 
 	}//end countLinks()
 
@@ -3100,9 +3102,12 @@ class Asset_Manager extends MySource_Object
 		if ($link['link_type'] & SQ_SC_LINK_SIGNIFICANT) {
 
 			$num_other_links = $this->countLinks($minor->id, 'minor', SQ_SC_LINK_SIGNIFICANT, '', true, $linkid);
+			error_log('Number of other links found: '.$num_other_links.'.');
 
 			// we create a new link to the trash if this is the last significant link
 			// being deleted and if we are not purging the trash
+			error_log('Purging trash?: '.var_export($GLOBALS['SQ_PURGING_TRASH'],true).'.');
+
 			if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
 				// some assets may not be able to have their last significant link
 				// deleted, so lets check first before going ahead
