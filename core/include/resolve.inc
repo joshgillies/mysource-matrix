@@ -186,29 +186,31 @@ class Resolve
 
 
 	/**
-	* Is the current user the root user?
+	* Is the passed/current user the root user?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function userRoot()
+	function userRoot($user=false)
 	{
-		if (!$this->user->id) return false;
-		if (get_class($this->user) == 'root_user' && $this->user->id == 4) return true;
+		if (empty($user)) $user =& $this->user;
+		if (!$user->id) return false;
+		if (get_class($user) == 'root_user' && $user->id == 4) return true;
 		return false;
 	}
 
 
 	/**
-	* Is the current user a system administrator?
+	* Is the passed/current user a system administrator?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function userSystemAdmin()
+	function userSystemAdmin($user=false)
 	{
-		if (!$this->user->id) return false;
-		if (get_class($this->user) != 'system_user') return false;
+		if (empty($user)) $user =& $this->user;
+		if (!$user->id) return false;
+		if (get_class($user) != 'system_user') return false;
 		
 		// now make sure that the user is in the system administrators group
 		$sys_admin_group = &$this->am->getSystemAsset('system_user_group');
