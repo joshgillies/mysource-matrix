@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.116 2004/02/02 06:22:28 gsherwood Exp $
+* $Id: asset_map.inc,v 1.117 2004/02/10 22:03:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,7 +66,7 @@ class Asset_Map
 			$inbox_url = &$GLOBALS['SQ_SYSTEM']->user->getBackendHref();
 		} else {
 			$inbox_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_link['minorid'], $inbox_link['minor_type_code']);
-			$inbox_url = $inbox_asset->getBackendHref('mail');
+			$inbox_url = $inbox_asset->getBackendHref('details');
 		}
 
 		$flash_vars = 'server_exec_path='.rawurlencode($backend->getBackendUrl('asset_map_request')).
