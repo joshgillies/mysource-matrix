@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.18 2005/03/01 05:44:34 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.19 2005/03/01 06:10:06 tbarrett Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1001,8 +1001,7 @@ class Listing_Engine extends Page
 			foreach($asset_keywords as $keyword_name => $keyword) {
 				$keywords[$keyword_name] = $keyword['value'];
 			}
-
-			if (preg_match('|%asset_contents%|is', $contents)) {
+			if (preg_match('|%asset_contents%|is', $bodycopy->getRawBodycopyContent())) {
 				ob_start();
 					$asset->printBody();
 					$keywords['asset_contents'] = ob_get_contents();
