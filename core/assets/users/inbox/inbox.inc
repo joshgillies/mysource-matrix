@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox.inc,v 1.20 2004/06/22 01:22:27 gsherwood Exp $
+* $Id: inbox.inc,v 1.21 2004/11/18 05:06:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -168,9 +168,9 @@ class Inbox extends Asset
 	{
 		$edit = $this->getEditFns();
 		
-		if (isset($_REQUEST['messageid'])) {
+		if (isset($_REQUEST['msgid'])) {
 			// they want to print a single message
-			$edit->paintMessage($_REQUEST['messageid']);
+			$edit->paintMessage($_REQUEST['msgid']);
 		} else {
 			// they want to print all mail
 			$null = '';

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace.inc,v 1.23 2004/06/18 13:56:13 brobertson Exp $
+* $Id: workspace.inc,v 1.24 2004/11/18 05:06:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,12 +63,12 @@ class Workspace extends Folder
 	*
 	* @param Array	&$link	information used to create the initial link<br/>
 	* <PRE>
-	* Array ('asset'      => [ref major asset to create link under],
-	*        'link_type'  => SQ_LINK_?,
-	*        'value'      => [link value],
-	*        'sort_order' => [link sort order],
-	*        'dependant'  => [0|1],
-	*        'exclusive'  => [0|1]
+	* Array ('asset'         => [ref major asset to create link under],
+	*        'link_type'     => SQ_LINK_?,
+	*        'value'         => [link value],
+	*        'sort_order'    => [link sort order],
+	*        'is_dependant'  => [0|1],
+	*        'is_exclusive'  => [0|1]
 	*        )
 	* </PRE>
 	*
@@ -77,7 +77,6 @@ class Workspace extends Folder
 	*/
 	function create(&$link)
 	{
-		
 		$username = $link['asset']->attr('username');
 		
 		// check that we are not going to have web path conflicts

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.27 2004/11/05 00:08:51 lwright Exp $
+* $Id: form_section.inc,v 1.28 2004/11/18 05:11:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,13 +32,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.27 $
+* @version $Revision: 1.28 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Section extends Bridge
 {
-
 
 	/**
 	* the question index type
@@ -147,7 +146,7 @@ class Form_Section extends Bridge
 			// mould it all to the asset map's liking
 			$link['url'] = '';
 			$link['path'] = '';
-			$link['num_immediate_kids'] = 0;
+			$link['num_kids'] = 0;
 			$link['accessible'] = 1;
 
 			$link['assetid'] = $link['minorid'];
@@ -162,8 +161,8 @@ class Form_Section extends Bridge
 			unset($link['majorid']);
 			unset($link['minorid']);
 			unset($link['value']);
-			unset($link['dependant']);
-			unset($link['exclusive']);
+			unset($link['is_dependant']);
+			unset($link['is_exclusive']);
 
 		}
 
@@ -208,15 +207,15 @@ class Form_Section extends Bridge
 
 			foreach ($entries as $questionid => $data) {
 
-				$links[] = Array('linkid' => 0,
-								 'majorid' => $this->id,
-								 'minorid' => $this->id.':q'.$questionid,
+				$links[] = Array('linkid'          => 0,
+								 'majorid'         => $this->id,
+								 'minorid'         => $this->id.':q'.$questionid,
 								 'minor_type_code' => $data['question_type_code'],
-								 'value' => '',
-								 'link_type' => SQ_LINK_TYPE_2,
-								 'dependant' => true,
-								 'exclusive' => false,
-								 'sort_order' => $i,
+								 'value'           => '',
+								 'link_type'       => SQ_LINK_TYPE_2,
+								 'is_dependant'    => true,
+								 'is_exclusive'    => false,
+								 'sort_order'      => $i,
 								);
 				$i++;
 			}
@@ -332,7 +331,8 @@ class Form_Section extends Bridge
 	* @access public
 	* @return array
 	*/
-	function getQuestionAssets() {
+	function getQuestionAssets()
+	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$result = Array();
 
@@ -466,33 +466,6 @@ class Form_Section extends Bridge
 		return true;
 
 	}//end deleteQuestion()
-
-
-	/**
-	* Create this asset
-	*
-	* @param array	&$link	information used to create the initial link
-	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
-	*/
-	function create(&$link)
-	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
-
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	}//end create()
 
 
 	/**

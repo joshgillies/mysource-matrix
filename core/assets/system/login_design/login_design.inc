@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: login_design.inc,v 1.7 2004/08/09 09:32:43 brobertson Exp $
+* $Id: login_design.inc,v 1.8 2004/11/18 05:00:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design/design.inc';
 */
 class Login_Design extends Design
 {
+
+
 	/**
 	* Constructor
 	*
@@ -47,6 +49,7 @@ class Login_Design extends Design
 	function Login_Design($assetid=0)
 	{
 		$this->Design($assetid);
+
 	}//end constructor
 
 
@@ -72,11 +75,8 @@ class Login_Design extends Design
 			}
 		}
 
-		if ($linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		}
+		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
 		return $linkid;
 

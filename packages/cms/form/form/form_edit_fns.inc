@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.43 2004/11/05 00:08:41 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.44 2004/11/18 05:11:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -501,8 +501,8 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 
 			$am->includeAsset('form_section');
 			$section = new Form_Section();
-			$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 0, 'exclusive' => 0);
-
+			$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 0, 'is_exclusive' => 0);
+		
 			$section->setAttrValue('name', 'Section '.$section_count);
 
 			if (!$section->create($copy_link)) {

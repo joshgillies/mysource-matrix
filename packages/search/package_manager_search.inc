@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_search.inc,v 1.7 2004/07/14 05:31:25 gsherwood Exp $
+* $Id: package_manager_search.inc,v 1.8 2004/11/18 05:10:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,7 +79,7 @@ class Package_Manager_Search extends Package_Manager
 	
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('search_manager');
 		$search_manager = new Search_Manager();
-		$search_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+		$search_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'is_exclusive' => 1);
 		if (!$search_manager->create($search_manager_link)) trigger_error('Search Manager NOT CREATED', E_USER_ERROR);
 		pre_echo('Search Manager Asset Id : '.$search_manager->id);
 

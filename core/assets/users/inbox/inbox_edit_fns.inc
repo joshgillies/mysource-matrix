@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.32 2004/02/16 22:30:26 gsherwood Exp $
+* $Id: inbox_edit_fns.inc,v 1.33 2004/11/18 05:06:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,6 +50,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		$this->static_screens = Array(	'details'		=> Array(
 															'name'			=> 'Inbox',
+															'use_tab'		=> true,
 															'force_unlock'	=> false,
 															'lock_type'		=> 'mail',
 															),
@@ -104,7 +105,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					var iframe = document.getElementById('sq_message_body');
 					if (iframe == null) return;
 					
-					var url='<?php echo $_SERVER['PHP_SELF']; ?>' + '?a=<?php echo $asset->id; ?>&messageid=' + messageid;
+					var url='<?php echo $_SERVER['PHP_SELF']; ?>' + '?a=<?php echo $asset->id; ?>&msgid=' + messageid;
 					iframe.src = url;
 				}
 			</script>
@@ -167,13 +168,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					<td class="<?php echo $class ?>" nowrap>
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/priority_<?php echo $data['priority'];?>.png", "16", "16", "");</script>
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $sender_img; ?>", "16", "16", "");</script>
-						<a name="msg_<?php echo $data['messageid'];?>"></a>
+						<a name="msg_<?php echo $data['msgid'];?>"></a>
 						&nbsp;<?php echo $data['from_name'];?>
-						<?php hidden_field($prefix.'_messages['.$data['messageid'].']', '1'); ?>
+						<?php hidden_field($prefix.'_messages['.$data['msgid'].']', '1'); ?>
 					</td>
 					<td class="<?php echo $class ?>">
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_subject.png", "16", "16", "");</script>
-						&nbsp;<a href="#" onClick="Javascript: showMessageBody('<?php echo $data['messageid'];?>'); return false;" style="text-decoration:none;"><?php echo $data['subject'];?></a>
+						&nbsp;<a href="#" onClick="Javascript: showMessageBody('<?php echo $data['msgid'];?>'); return false;" style="text-decoration:none;"><?php echo $data['subject'];?></a>
 					</td>
 					<td class="<?php echo $class ?>" nowrap>
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $time_img; ?>", "16", "16", "");</script>
@@ -182,7 +183,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					<td class="<?php echo $class ?>" nowrap>
 						<?php
 						if ($asset->writeAccess('mail')) {
-							check_box($prefix.'_mark_as_read['.$data['messageid'].']', '1', ($data['status'] == SQ_MSG_READ));
+							check_box($prefix.'_mark_as_read['.$data['msgid'].']', '1', ($data['status'] == SQ_MSG_READ));
 						}
 						?>
 						&nbsp;<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_<?php echo (($data['status'] == SQ_MSG_UNREAD) ? 'un' : ''); ?>read.png", "16", "16", "");</script>
@@ -191,7 +192,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					if ($write_access) {
 						?>
 						<td class="<?php echo $class ?>" nowrap>
-							<?php check_box($prefix.'_delete['.$data['messageid'].']'); ?>
+							<?php check_box($prefix.'_delete['.$data['msgid'].']'); ?>
 						</td>
 						<?php
 					}
@@ -282,24 +283,24 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		if (!empty($messages)) {
 			foreach ($messages as $data) {
-				if (!in_array($data['messageid'], $msgs)) continue;
-				$message = $ms->getMessageById($data['messageid']);
+				if (!in_array($data['msgid'], $msgs)) continue;
+				$message = $ms->getMessageById($data['msgid']);
 
 				// change message status (read/unread)
-				if (in_array($data['messageid'], $read) && $data['status'] != SQ_MSG_READ) {
+				if (in_array($data['msgid'], $read) && $data['status'] != SQ_MSG_READ) {
 					if (!$message->updateStatus(SQ_MSG_READ)) {
-						trigger_error('Status of message '.$data['messageid'].' was not updated', E_USER_WARNING);
+						trigger_error('Status of message '.$data['msgid'].' was not updated', E_USER_WARNING);
 					}
-				} else if (!in_array($data['messageid'], $read) && $data['status'] == SQ_MSG_READ) {
+				} else if (!in_array($data['msgid'], $read) && $data['status'] == SQ_MSG_READ) {
 					if (!$message->updateStatus(SQ_MSG_UNREAD)) {
-						trigger_error('Status of message '.$data['messageid'].' was not updated', E_USER_WARNING);
+						trigger_error('Status of message '.$data['msgid'].' was not updated', E_USER_WARNING);
 					}
 				}
 
 				// delete messages
-				if (in_array($data['messageid'], $delete) && $data['status'] != SQ_MSG_DELETED) {
+				if (in_array($data['msgid'], $delete) && $data['status'] != SQ_MSG_DELETED) {
 					if (!$message->updateStatus(SQ_MSG_DELETED)) {
-						trigger_error('Message '.$data['messageid'].' was not deleted', E_USER_WARNING);
+						trigger_error('Message '.$data['msgid'].' was not deleted', E_USER_WARNING);
 					}
 				}
 			}
@@ -339,7 +340,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					var iframe = document.getElementById('sq_message_body');
 					if (iframe == null) return;
 					
-					var url='<?php echo $_SERVER['PHP_SELF']; ?>' + '?a=<?php echo $asset->id; ?>&messageid=' + messageid;
+					var url='<?php echo $_SERVER['PHP_SELF']; ?>' + '?a=<?php echo $asset->id; ?>&msgid=' + messageid;
 					iframe.src = url;
 				}
 			</script>
@@ -399,13 +400,13 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 					<td class="<?php echo $class ?>" nowrap>
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/priority_<?php echo $data['priority'];?>.png", "16", "16", "");</script>
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $sender_img; ?>", "16", "16", "");</script>
-						<a name="msg_<?php echo $data['messageid'];?>"></a>
+						<a name="msg_<?php echo $data['msgid'];?>"></a>
 						&nbsp;<?php echo $data['from_name'];?>
-						<?php hidden_field($prefix.'_messages['.$data['messageid'].']', '1'); ?>
+						<?php hidden_field($prefix.'_messages['.$data['msgid'].']', '1'); ?>
 					</td>
 					<td class="<?php echo $class ?>">
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/internal_message/message_subject.png", "16", "16", "");</script>
-						&nbsp;<a class="sq-backend-table-cell" href="#" onClick="Javascript: showMessageBody('<?php echo $data['messageid'];?>'); return false;" style="text-decoration: none;"><?php echo $data['subject'];?></a>
+						&nbsp;<a class="sq-backend-table-cell" href="#" onClick="Javascript: showMessageBody('<?php echo $data['msgid'];?>'); return false;" style="text-decoration: none;"><?php echo $data['subject'];?></a>
 					</td>
 					<td class="<?php echo $class ?>" style="white-space: nowrap;">
 						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $time_img; ?>", "16", "16", "");</script>
@@ -417,12 +418,12 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 						?>
 						<td class="<?php echo $class ?>" nowrap>
 							<?php
-							if ($asset->writeAccess('mail')) check_box($prefix.'_recover['.$data['messageid'].']');
+							if ($asset->writeAccess('mail')) check_box($prefix.'_recover['.$data['msgid'].']');
 							else echo '&nbsp;';
 							?>
 						</td>
 						<td class="<?php echo $class ?>" nowrap>
-							<?php check_box($prefix.'_purge['.$data['messageid'].']'); ?>
+							<?php check_box($prefix.'_purge['.$data['msgid'].']'); ?>
 						</td>
 						<?php
 					}

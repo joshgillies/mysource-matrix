@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type.inc,v 1.4 2004/06/18 13:56:13 brobertson Exp $
+* $Id: content_type.inc,v 1.5 2004/11/18 05:08:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_FUDGE_PATH.'/general/text.inc';
+
 /**
 * Content_Type
 *
@@ -38,6 +39,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 */
 class Content_Type extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -55,11 +57,11 @@ class Content_Type extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
 	* @return mixed int or false
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{

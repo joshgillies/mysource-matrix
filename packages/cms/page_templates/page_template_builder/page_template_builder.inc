@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder.inc,v 1.1 2004/11/18 00:49:24 lwright Exp $
+* $Id: page_template_builder.inc,v 1.2 2004/11/18 05:12:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,20 +55,23 @@ class Page_Template_Builder extends Page
 
 	}//end Page_Template_Builder()
 
-	
+
 	/**
-	* Constructor
+	* Perform any additional processing required during the creation of this asset
 	*
-	* @param int	$assetid	the asset id to be loaded
+	* Folders set an initial web path when they are created
 	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _createAdditional(&$link)
 	{
-		if (!parent::create($link)) return false;
-		$this->createBodycopy('Template Bodycopy', 'template');
-		return true;
-		
-	}//end create()
+		if (!parent::_createAdditional($link)) return false;
+		return $this->createBodycopy('Template Bodycopy', 'template');
+
+	}//end _createAdditional()
 
 	
 	/**
@@ -114,7 +117,6 @@ class Page_Template_Builder extends Page
 		
 		if (!$bc_asset->create($copy_link, $attributes)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
 			return false;
 		}
 		

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage.inc,v 1.9 2004/06/18 13:56:13 brobertson Exp $
+* $Id: cron_job_future_lineage.inc,v 1.10 2004/11/18 05:00:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,8 +38,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 */
 class Cron_Job_Future_Lineage extends Cron_Job
 {
-	
-	
+
+
 	/**
 	* Constructor
 	*
@@ -55,49 +55,36 @@ class Cron_Job_Future_Lineage extends Cron_Job
 
 
 	/**
-	* Create this asset
+	* Perform any additional processing required during the creation of this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _createAdditional(&$link)
 	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$linkid = parent::create($link);
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return 0;
-		}
+		if (!parent::_createAdditional($link)) return false;
 
 		if (!empty($this->_tmp['asset_in_link'])) {
 			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'links')) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$this->id = 0;
-				return 0;
+				trigger_error('Could not create future lineage cron job, unable to aquire "links" lock', E_USER_WARNING);
+				return false;
 			}
 
-			foreach($this->_tmp['asset_in_link'] as $side_of_link => $link) {
+			foreach ($this->_tmp['asset_in_link'] as $side_of_link => $link) {
 				$asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 				if (is_null($asset) || !$this->setAssetInLink($asset, $side_of_link)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$this->id = 0;
-					return 0;
+					trigger_error('Could not create future lineage cron job, could not set asset in link', E_USER_WARNING);
+					return false;
 				}
-			}// end foreach
+			}
 			unset($this->_tmp['asset_in_link']);
 			$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links');
+		}
+		return true;
 
-		}// end if
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	}//end create()
+	}//end _createAdditional()
 
 
 	/**
@@ -337,18 +324,18 @@ class Cron_Job_Future_Lineage extends Cron_Job
 		if (!is_null($new_major)) {
 
 			$link_info = $this->attr('link_info');
-			if (!isset($link_info['value']))		$link_info['value']			= '';
-			if (!isset($link_info['sort_order']))	$link_info['sort_order']	= null;
-			if (!isset($link_info['dependant']))	$link_info['dependant']		= '0';
-			if (!isset($link_info['exclusive']))	$link_info['exclusive']		= '0';
+			if (!isset($link_info['value']))		$link_info['value']          = '';
+			if (!isset($link_info['sort_order']))	$link_info['sort_order']     = null;
+			if (!isset($link_info['is_dependant']))	$link_info['is_dependant']   = '0';
+			if (!isset($link_info['is_exclusive']))	$link_info['is_exclusive']   = '0';
 
 
 			$linkid = $new_major->createLink($minor,
 												$link_info['link_type'],
 												$link_info['value'],
 												$link_info['sort_order'],
-												$link_info['dependant'],
-												$link_info['exclusive']);
+												$link_info['is_dependant'],
+												$link_info['is_exclusive']);
 
 			$create_ok = ($linkid > 0);
 

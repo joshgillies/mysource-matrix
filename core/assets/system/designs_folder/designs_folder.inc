@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: designs_folder.inc,v 1.19 2004/03/02 04:21:19 mmcintyre Exp $
+* $Id: designs_folder.inc,v 1.20 2004/11/18 05:00:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,16 +69,13 @@ class Designs_Folder extends Folder
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
-			if (!system_asset_fns_create_cleanup($this))  {
+			if (!system_asset_fns_create_cleanup($this)) {
 				$linkid = false;
 			}
 		}
 
-		if ($linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		}
+		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
 		return $linkid;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.54 2004/11/05 17:07:06 brobertson Exp $
+* $Id: design_area_menu_type.inc,v 1.55 2004/11/18 05:05:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -409,17 +409,17 @@ class Design_Area_Menu_Type extends Design_Area
 					if (!empty($USERIDS_COND)) {
 						$USERIDS_COND .= \'
 										  GROUP BY a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
-										  HAVING MAX(p.access) = 1\';
+										  HAVING MAX(p.granted) = 1\';
 					}
 				}
 
 				$sql    = \'SELECT DISTINCT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, pt.path, l.sort_order
-						   FROM \'.SQ_TABLE_RUNNING_PREFIX.\'asset a
-						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_link l ON a.assetid = l.minorid
-						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_path pt ON a.assetid = pt.assetid \';
+						   FROM \'.SQ_TABLE_RUNNING_PREFIX.\'ast a
+						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_lnk l ON a.assetid = l.minorid
+						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_path pt ON a.assetid = pt.assetid \';
 				if (!empty($USERIDS_COND)) {
 				$sql   .= \'
-						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_permission p ON a.assetid = p.assetid \';
+						     INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'ast_perm p ON a.assetid = p.assetid \';
 				}
 				$where  = \'l.majorid IN (\'.substr($majorids_str, 0, -1).\')
 						     AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0 \';

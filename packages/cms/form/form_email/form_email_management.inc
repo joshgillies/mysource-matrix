@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.17 2004/09/08 04:00:00 gsherwood Exp $
+* $Id: form_email_management.inc,v 1.18 2004/11/18 05:11:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -233,16 +233,16 @@ class Form_Email_Management extends Asset_Management
 	{
 		return Array(
 				Array(
-					'event_name'				 => 'requestKeywords',
-					'broadcast_type_code'		 => 'content_type_wysiwyg',
+					'event_name'                 => 'requestKeywords',
+					'broadcast_type_code'        => 'content_type_wysiwyg',
 					'broadcast_strict_type_code' => true,
 					'options'	=> Array(
-						'side_of_link'		=> 'major',
-						'indirect'			=> true,
-						'exclusive'			=> null,
-						'dependant'			=> 1,
-						'value'				=> '',
-						'link_type'			=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+						'side_of_link' => 'major',
+						'indirect'     => true,
+						'is_exclusive' => null,
+						'is_dependant' => 1,
+						'value'        => '',
+						'link_type'    => SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
 					),
 				),
 		);

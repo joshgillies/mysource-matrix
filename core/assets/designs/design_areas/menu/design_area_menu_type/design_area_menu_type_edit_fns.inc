@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.36 2004/04/08 02:19:53 gsherwood Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.37 2004/11/18 05:05:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -233,7 +233,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 			
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 			$sub = new $design_area();
-			$sub_link = Array('asset' => &$design, 'link_type' => SQ_LINK_TYPE_3, 'value' => $asset->attr('id_name').'__sub_menu', 'dependant' => 1);
+			$sub_link = Array('asset' => &$design, 'link_type' => SQ_LINK_TYPE_3, 'value' => $asset->attr('id_name').'__sub_menu', 'is_dependant' => 1);
 			$sub->setAttrValue('id_name', $asset->attr('id_name').'__sub_menu');
 			if (!$sub->create($sub_link)) return false;
 

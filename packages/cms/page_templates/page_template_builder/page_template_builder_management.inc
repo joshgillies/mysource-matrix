@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder_management.inc,v 1.1 2004/11/18 00:49:24 lwright Exp $
+* $Id: page_template_builder_management.inc,v 1.2 2004/11/18 05:12:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -76,8 +76,8 @@ class Page_Template_Builder_Management extends Asset_Management
 					'options'	=> Array(
 						'side_of_link'		=> 'major',
 						'indirect'			=> true,
-						'exclusive'			=> null,
-						'dependant'			=> 1,
+						'is_exclusive'		=> null,
+						'is_dependant'		=> 1,
 						'value'				=> '',
 						'link_type'			=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
 					),

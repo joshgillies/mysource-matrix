@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.6 2004/09/28 01:32:15 gsherwood Exp $
+* $Id: pdf_file.inc,v 1.7 2004/11/18 05:08:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,7 +139,7 @@ class PDF_File extends File
 		$weightings = $this->getWeightings();
 
 		foreach (get_word_counts($output) as $word => $count) {
-			$this->buildKeyData($keydata, $word, 'text', 'attr:'.$this->type().':contents', $count * $weightings['contents']['weighting']);
+			$this->buildKeyData($keydata, $word, 'text', 'attr:'.$this->type().':contents', $count * $weightings['contents']['weight']);
 		}
 
 		return $keydata;

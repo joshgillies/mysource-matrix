@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_user.inc,v 1.32 2004/03/02 04:21:19 mmcintyre Exp $
+* $Id: root_user.inc,v 1.33 2004/11/18 05:00:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/system_user/system_user.inc';
 */
 class Root_User extends System_User
 {
+
+
 	/**
 	* Constructor
 	*
@@ -54,7 +56,7 @@ class Root_User extends System_User
 	/**
 	* Create this asset
 	*
-	* @param array(string)	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
@@ -72,11 +74,8 @@ class Root_User extends System_User
 			}
 		}
 
-		if ($linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		}
+		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
 		return $linkid;
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager.inc,v 1.7 2004/06/18 13:56:13 brobertson Exp $
+* $Id: layout_manager.inc,v 1.8 2004/11/18 05:00:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.7 $ - 0.1
+* @version $Revision: 1.8 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -59,9 +59,9 @@ class Layout_Manager extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
 	* @return mixed int or false
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
@@ -70,16 +70,13 @@ class Layout_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
-			if (!system_asset_fns_create_cleanup($this))  {
+			if (!system_asset_fns_create_cleanup($this)) {
 				$linkid = false;
 			}
 		}
 
-		if ($linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		}
+		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
 		return $linkid;
 

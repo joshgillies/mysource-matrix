@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.34 2004/11/15 01:13:08 tbarrett Exp $
+* $Id: page_asset_builder.inc,v 1.35 2004/11/18 05:12:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -107,44 +107,32 @@ class Page_Asset_Builder extends Page
 
 
 	/**
-	* Create this asset
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Asset builders create bodycopy assets when they are created
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _createAdditional(&$link)
 	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
-
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		if (!parent::_createAdditional($link)) return false;
 
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1, 'value' => '');
+		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => '');
 
 		foreach ($this->_bodycopies as $name => $value) {
 			$bodycopy = new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
 			$copy_link['value'] = $value;
-			if (!$bodycopy->create($copy_link)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$this->id = 0;
-				return false;
-			}
+			if (!$bodycopy->create($copy_link)) return false;
 		}
+		return true;
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	}//end create()
+	}//end _createAdditional()
 
 
 	/**

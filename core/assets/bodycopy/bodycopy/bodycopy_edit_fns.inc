@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.20 2004/11/11 04:47:40 gsherwood Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.21 2004/11/18 05:02:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,7 +79,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'SELECT designid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ';
+			$sql = 'SELECT designid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_design ';
 			$where = 'url='.$db->quote($url);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
@@ -357,7 +357,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		</div>
 		<!-- End Popup -->
 
-		<table border="0" cellspacing="0" cellpadding="0" width="100%" class="bodytext">
+		<table border="0" cellspacing="0" cellpadding="0" class="bodytext">
 
 		<?php
 
@@ -572,7 +572,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		if (!$bc_data['before']) $containerid++;
 
 		// now add the container
-		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => $containerid, 'dependant' => 1);
+		$copy_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => $containerid, 'is_dependant' => 1);
 
 		$asset_type = 'bodycopy_'.$type;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($asset_type);

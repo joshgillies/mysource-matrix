@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table.inc,v 1.7 2004/10/25 06:49:54 lwright Exp $
+* $Id: bodycopy_table.inc,v 1.8 2004/11/18 05:02:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once(dirname(__FILE__).'/bodycopy_table_cell.inc');
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -66,23 +66,39 @@ class Bodycopy_Table extends Bodycopy_Container
 	function create(&$link, $bc_data)
 	{
 		$name = trim($this->attr('name'));
-
 		if ($name == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
 		}
+		
+		// store this data for later use during the create process in _createAdditional()
+		$this->_tmp['bodycopy_create_data'] = $bc_data;
 
+		return parent::create($link);
+
+	}//end create()
+	
+	
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Bodycopy tables create rows and columns when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		// grab the bodycopy data that we stored in the create() function
+		$bc_data = $this->_tmp['bodycopy_create_data'];
+		unset($this->_tmp['bodycopy_create_data']);
+
+		if (!parent::_createAdditional($link)) return false;
+		
 		$num_rows = $bc_data['num_rows'];
 		$num_cols = $bc_data['num_cols'];
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
-
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
 
 		for ($i = 0; $i < $num_rows; $i++) {
 			$rows[$i] = Array();
@@ -92,8 +108,6 @@ class Bodycopy_Table extends Bodycopy_Container
 				$rows[$i]['cells'][$x]	= new Bodycopy_Table_Cell();
 				// short and long names are the same to begin with
 				if (!$rows[$i]['cells'][$x]->setContentType($this, 'content_type_wysiwyg', $i, $x)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$this->id = 0;
 					return false;
 				}
 			}
@@ -102,15 +116,12 @@ class Bodycopy_Table extends Bodycopy_Container
 		// set row information
 		$this->setAttrValue('rows', $rows);
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes') || !$this->saveAttributes()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}//end create()
+	}//end _createAdditional()
 
 
 	/**

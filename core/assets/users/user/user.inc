@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.72 2004/10/01 01:06:37 gsherwood Exp $
+* $Id: user.inc,v 1.73 2004/11/18 05:06:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,11 +56,11 @@ class User extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
 	* @return mixed int or false
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
@@ -72,89 +72,77 @@ class User extends Asset
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
+		return parent::create($link);
 
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+	}//end create()
+	
+	
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Standard pages create a bodycopy asset when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
 
-		$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+		$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		// create an inbox
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
 		$inbox = new Inbox();
-		if (!$inbox->create($user_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		if (!$inbox->create($user_link)) return false;
 
 		// create a workspace
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('workspace');
 		$workspace = new Workspace();
 		$workspace->setAttrValue('name', 'Workspace');
-		if (!$workspace->create($user_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		if (!$workspace->create($user_link)) return false;
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
 			trigger_error('Could not create user - "permissions" lock not acquired on user asset "'.$this->name.'"', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
 			return false;
 		}
 
 		// give the user admin access to him/herself
 		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $this->id, SQ_PERMISSION_READ, 1)) {
 			trigger_error('Could not create user - permission could not be set on user asset "'.$this->name.'"', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
 			return false;
 		}
 
 		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
 			trigger_error('Could not create user - "permissions" lock could not be released on user asset "'.$this->name.'"', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
 			return false;
 		}
 
-	// now get the sublinks (Inbox and Workspace, duh!)
-	$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'asset', false, 'major', '', 1);
-	foreach($links as $link) {
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['minorid'], 'permissions')) {
-			trigger_error('Could not create user - "permissions" lock not acquired on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
+		// now get the sublinks (inbox and workspace)
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'asset', false, 'major', '', 1);
+		foreach ($links as $link) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['minorid'], 'permissions')) {
+				trigger_error('Could not create user - "permissions" lock not acquired on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
+				return false;
+			}
+	
+			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($link['minorid'], $this->id, SQ_PERMISSION_READ, 1)) {
+				trigger_error('Could not create user - permission could not be set on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
+				return false;
+			}
+	
+			// try to unlock the asset
+			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['minorid'], 'permissions')) {
+				trigger_error('Could not create user - "permissions" lock not released on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
+				return false;
+			}
 		}
 
-		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($link['minorid'], $this->id, SQ_PERMISSION_READ, 1)) {
-			trigger_error('Could not create user - permission could not be set on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		// try to unlock the asset
-		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['minorid'], 'permissions')) {
-			trigger_error('Could not create user - "permissions" lock not released on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-	}
-
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}//end create()
+	}//end _createAdditional()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.75 2004/11/04 03:51:17 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.76 2004/11/18 05:05:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -441,7 +441,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			if (is_null($da)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
 				$da = new $design_area();
-				$da_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'value' => $id_name, 'dependant' => '1');
+				$da_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_3, 'value' => $id_name, 'is_dependant' => '1');
 				$da->setAttrValue('id_name', $id_name);
 				if (!$da->create($da_link)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -720,7 +720,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 							break;
 						} else {
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset('file');
-							$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
+							$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'is_dependant' => 1);
 
 							foreach ($files as $filename) {
 								$filename = preg_replace('|^'.$remove_path.'/|', '', $filename);
@@ -781,7 +781,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$new_file =& new File();
 			$new_file->_tmp['uploading_file'] = true;
 			$new_file->setAttrValue('name', $info['name']);
-			$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
+			$design_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'is_dependant' => 1);
 
 			if (!$new_file->create($design_link, $info)) return false;
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.12 2004/08/19 05:17:45 gsherwood Exp $
+* $Id: bodycopy.inc,v 1.13 2004/11/18 05:02:27 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,10 +40,9 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 class Bodycopy extends Asset
 {
 
-
 	/**
-	* An Array of keywords and their replacements
-	* @var Array()
+	* An array of keywords and their replacements
+	* @var array
 	*/
 	var $keyword_replacements = Array();
 
@@ -122,7 +121,7 @@ class Bodycopy extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
 	* @return mixed int or false
@@ -131,37 +130,39 @@ class Bodycopy extends Asset
 	function create(&$link)
 	{
 		$name = trim($this->attr('name'));
-
 		if ($name == '') {
 			trigger_error('Unable to create a Bodycopy with a blank name', E_USER_WARNING);
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
+		return parent::create($link);
 
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+	}//end create()
+	
+	
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Bodycopies create a DIV when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
 
 		// create a DIV
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_div');
 		$bodycopy_div =& new Bodycopy_DIV();
-		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
+		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'is_dependant' => 1);
 		$bodycopy_div->setAttrValue('name', 'Content DIV');
 		$attributes = Array();
-		if (!$bodycopy_div->create($copy_link, $attributes)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		return $bodycopy_div->create($copy_link, $attributes);
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return true;
-
-	}//end create()
+	}//end _createAdditional()
 
 
 	/**
@@ -366,7 +367,7 @@ class Bodycopy extends Asset
 	*/
 	function getKeywords()
 	{
-		require_once SQ_FUDGE_PATH."/general/text.inc";
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
 		$content = $this->getRawBodycopyContent();
 		$keywords = retrieve_keywords_replacements($content);
 		

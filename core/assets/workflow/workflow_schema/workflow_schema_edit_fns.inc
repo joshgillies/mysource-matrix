@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_schema_edit_fns.inc,v 1.15 2004/09/15 04:22:18 gsherwood Exp $
+* $Id: workflow_schema_edit_fns.inc,v 1.16 2004/11/18 05:08:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -95,7 +95,7 @@ class Workflow_Schema_Edit_Fns extends Folder_Edit_Fns
 			$new_step_name = trim($_POST[$prefix.'_new_step']);
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('workflow_step');
 			$new_step =& new Workflow_Step();
-			$schema_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'dependant' => 1);
+			$schema_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1);
 			$new_step->setAttrValue('name', $new_step_name);
 			if (!$new_step->create($schema_link)) return false;
 		}

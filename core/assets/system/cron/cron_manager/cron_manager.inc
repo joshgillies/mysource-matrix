@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.30 2004/09/29 01:41:41 gsherwood Exp $
+* $Id: cron_manager.inc,v 1.31 2004/11/18 05:00:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -255,7 +255,7 @@ class Cron_Manager extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'exclusive' => '1');
+		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_exclusive' => '1');
 		$success = false;
 		if ($job->create($link)) {
 			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($job->id, 'links')) {
@@ -686,9 +686,9 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		$build_up = Array();
 
 		$build_up['hour'] = Array(
-			'bridge' => 'av.custom_value BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%59').' OR
-						 av.custom_value BETWEEN '.$db->quote('%C%00').' AND '.$db->quote('%D%'.$end_f['minutes']),
-			'all'    => 'av.custom_value BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%'.$end_f['minutes']),
+			'bridge' => 'av.custom_val BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%59').' OR
+						 av.custom_val BETWEEN '.$db->quote('%C%00').' AND '.$db->quote('%D%'.$end_f['minutes']),
+			'all'    => 'av.custom_val BETWEEN '.$db->quote('%A%'.$start_f['minutes']).' AND '.$db->quote('%B%'.$end_f['minutes']),
 		);
 
 
@@ -739,7 +739,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 		$type = 'all';
 
 		if ($over_one_hour_ago) {
-			$hourly = 'av.custom_value LIKE '.$db->quote('HR=%');
+			$hourly = 'av.custom_val LIKE '.$db->quote('HR=%');
 		} else {
 			// if it has ticked over the hour since the last call
 			$type = ($end['minutes'] < $start['minutes']) ? 'bridge' : 'all';
@@ -748,7 +748,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 
 		if ($over_one_day_ago) {
-			$daily = 'av.custom_value LIKE '.$db->quote('DL=%');
+			$daily = 'av.custom_val LIKE '.$db->quote('DL=%');
 		} else {
 			// if it has ticked over the day since the last call
 			$type = ($end['hours'] < $start['hours']) ? 'bridge' : 'all';
@@ -757,7 +757,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 
 		if ($over_one_week_ago) {
-			$weekly = 'av.custom_value LIKE '.$db->quote('WK=%');
+			$weekly = 'av.custom_val LIKE '.$db->quote('WK=%');
 		} else {
 			// if it has ticked over the week since the last call
 			$type = ($end['wday'] < $start['wday']) ? 'bridge' : 'all';
@@ -766,7 +766,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 
 		if ($over_one_month_ago) {
-			$monthly = 'av.custom_value LIKE '.$db->quote('MT=%');
+			$monthly = 'av.custom_val LIKE '.$db->quote('MT=%');
 		} else {
 			// if it has ticked over the month since the last call
 			$type = ($end['mday'] < $start['mday']) ? 'bridge' : 'all';
@@ -775,7 +775,7 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 
 		if ($over_one_year_ago) {
-			$yearly = 'av.custom_value LIKE '.$db->quote('YR=%');
+			$yearly = 'av.custom_val LIKE '.$db->quote('YR=%');
 		} else {
 			// if it has ticked over the year since the last call
 			$type = ($end['mon'] < $start['mon']) ? 'bridge' : 'all';
@@ -786,14 +786,14 @@ echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $r
 
 		$sql   = 'SELECT l.linkid, a.assetid, a.type_code
 				  FROM sq_asset_link l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av ON a.assetid = av.assetid
-						INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute at ON av.attributeid = at.attributeid ';
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON l.minorid = a.assetid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val av ON a.assetid = av.assetid
+						INNER JOIN '.SQ_TABLE_PREFIX.'ast_attr at ON av.attrid = at.attrid ';
 		$where = 'l.majorid = '.$db->quote($this->id).'
 				  AND a.type_code IN (
 									SELECT type_code
-									FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-									WHERE inherited_type_code = '.$db->quote('cron_job').'
+									FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
+									WHERE inhd_type_code = '.$db->quote('cron_job').'
 				  					)
 				  AND at.name = '.$db->quote('when').'
 				  AND ('.$hourly.'

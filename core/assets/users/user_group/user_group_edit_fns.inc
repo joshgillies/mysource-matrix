@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_group_edit_fns.inc,v 1.13 2004/04/19 01:40:13 gsherwood Exp $
+* $Id: user_group_edit_fns.inc,v 1.14 2004/11/18 05:06:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,7 +63,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT type_code, screen, section
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_editing_access ';
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_edit_access ';
 		$where = 'userid = '.$db->quote($asset->id);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
@@ -125,7 +125,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 							'screen'    => '0',
 							'section'   => '0',
 							);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_editing_access', $values)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_edit_access', $values)) {
 				return false;
 			}
 		} else if (!isset($_POST[$prefix.'_unrestricted']) && $unrestricted) {
@@ -134,7 +134,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 							  AND type_code = '.$db->quote('0').'
 							  AND screen    = '.$db->quote('0').'
 							  AND section   = '.$db->quote('0');
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_editing_access', $where_cond)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_edit_access', $where_cond)) {
 				return false;
 			}
 		}
@@ -292,7 +292,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 								'screen'    => 'details',
 								'section'   => '0',
 								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_editing_access', $values)) {
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_edit_access', $values)) {
 					return false;
 				}
 			}
@@ -316,7 +316,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 										'screen'    => 'details',
 										'section'   => '0',
 										);
-						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_editing_access', $values)) {
+						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_edit_access', $values)) {
 							return false;
 						}
 					}
@@ -327,7 +327,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 									  AND type_code = '.$db->quote($type_code).'
 									  AND screen    = '.$db->quote("$doomed_screen").'
 									  AND section   = '.$db->quote('0');
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_editing_access', $where_cond)) {
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_edit_access', $where_cond)) {
 						return false;
 					}
 				}
@@ -347,7 +347,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 								'screen'    => $new_screen,
 								'section'   => '0',
 								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_editing_access', $values)) {
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_edit_access', $values)) {
 					return false;
 				}
 			}

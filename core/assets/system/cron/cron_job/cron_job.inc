@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.18 2004/03/02 04:21:19 mmcintyre Exp $
+* $Id: cron_job.inc,v 1.19 2004/11/18 05:00:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,11 +60,11 @@ class Cron_Job extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
 	* @return mixed int or false
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{

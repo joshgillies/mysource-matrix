@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.14 2004/11/15 02:10:28 gsherwood Exp $
+* $Id: bodycopy_container.inc,v 1.15 2004/11/18 05:02:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,6 +99,7 @@ class Bodycopy_Container extends Asset
 
 	/**
 	* Saves a copy of this asset at this point in time
+	*
 	* This copy gets used when the asset is live and the user does not have write access
 	*
 	* @return boolean

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.5 2004/09/02 06:36:37 arailean Exp $
+* $Id: search_manager_edit_fns.inc,v 1.6 2004/11/18 05:10:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -92,7 +92,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 			$weightings = $am->getTypeDefaultWeightings($typeCode);
 			// filter out the dead ones
 			foreach ($weightings as $component => $data) {
-				if ($data['weighting'] < 0)
+				if ($data['weight'] < 0)
 					unset($weightings[$component]);
 			}
 			if (!empty($weightings)) {
@@ -101,10 +101,10 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 					$o->openField($data['description']);
 
 					if (!$wa) {
-						echo $data['weighting'];
+						echo $data['weight'];
 					} else {
 
-						if ($data['weighting'] == 0) {
+						if ($data['weight'] == 0) {
 							$disabled = '1';
 						} else {
 							$disabled = '0';
@@ -116,7 +116,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 
 						if (!$disabled) {
 							echo "&nbsp;Weight: ";
-							text_box ($prefix. "weights[$typeCode][$component]", $data['weighting'], 3);
+							text_box ($prefix. "weights[$typeCode][$component]", $data['weight'], 3);
 						} else {
 							$o->addHiddenField($prefix. "weights[$typeCode][$component]", 1);
 						}

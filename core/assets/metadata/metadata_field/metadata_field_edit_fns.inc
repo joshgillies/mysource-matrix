@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_edit_fns.inc,v 1.24 2004/11/07 22:40:42 gsherwood Exp $
+* $Id: metadata_field_edit_fns.inc,v 1.25 2004/11/18 05:08:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -274,7 +274,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			echo combo_box('weighting_include', array('0' => 'Do not include in searches', '1' => 'Include in searches'), false, ($weighting >= 0)?'1':'0');
 
-			if ($weighting >= 0) echo text_box('weighting', $weighting, 5);
+			if ($weighting >= 0) echo text_box('weight', $weighting, 5);
 
 		} else {
 			echo ($weighting >= 0) ? $weighting : "Not included in searching.";
@@ -294,7 +294,7 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 		$oldWeighting = $asset->attr('weighting');
 		if($_POST['weighting_include']) {
-			if (isset($_POST['weighting'])) $newWeighting = max(0, $_POST['weighting']);
+			if (isset($_POST['weight'])) $newWeighting = max(0, $_POST['weight']);
 			else $newWeighting = 1;
 		} else {
 			$newWeighting = -1;

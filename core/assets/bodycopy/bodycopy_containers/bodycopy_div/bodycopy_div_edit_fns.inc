@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.16 2004/10/25 06:49:54 lwright Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.17 2004/11/18 05:02:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -268,7 +268,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			$content_prefix = '';
 		}
 		
-		// require library functions needed for drawing the bodycopy divs.
+		// require library functions needed for drawing the bodycopy divs
 		$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
 		require_once SQ_SYSTEM_ROOT.'/'.$type_info['dir'].'/files/bodycopy_general.inc';
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.18 2004/11/15 02:10:28 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.19 2004/11/18 05:02:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -353,7 +353,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 			$url = preg_replace('|^http[s]?://|', '', $url);
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
-			$sql = 'SELECT designid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ';
+			$sql = 'SELECT designid FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_design ';
 			$where = 'url='.$db->quote($url);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 

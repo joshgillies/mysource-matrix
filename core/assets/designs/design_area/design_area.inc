@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.34 2004/09/07 10:52:20 brobertson Exp $
+* $Id: design_area.inc,v 1.35 2004/11/18 05:05:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,7 +56,7 @@ class Design_Area extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
 	* @return mixed int or false
@@ -65,7 +65,6 @@ class Design_Area extends Asset
 	function create(&$link)
 	{
 		$id_name = trim($this->attr('id_name'));
-
 		if ($id_name == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank id name', E_USER_WARNING);
 			return false;

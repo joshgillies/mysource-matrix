@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.37 2004/11/10 03:41:04 mmcintyre Exp $
+* $Id: page_asset_listing.inc,v 1.38 2004/11/18 05:12:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -75,6 +75,31 @@ class Page_Asset_Listing extends Page
 			return false;
 		}
 
+		
+
+		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+		unset($asset);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return $linkid;
+
+	}//end create()
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Asset listings create bopycopy and folder asset when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
+
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
@@ -88,37 +113,23 @@ class Page_Asset_Listing extends Page
 		$type_formats = null;
 		foreach ($sub_assets as $name => $type) {
 			$asset = new $type();
-			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 			$asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
-			if (!$asset->create($copy_link)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$this->id = 0;
-				return false;
-			}
-			if ($name == 'type_formats') {
-				$type_formats = $asset;
-			}
+			if (!$asset->create($copy_link)) return false;
+
+			if ($name == 'type_formats') $type_formats = $asset;
+
 			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			unset($asset);
 		}
 		$asset = new Bodycopy();
-		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+		$copy_link = Array('asset' => &$type_formats, 'value' => 'default_format' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Default Format');
 
-		if (!$asset->create($copy_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		return $asset->create($copy_link);
 
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-		unset($asset);
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	}//end create()
+	}//end _createAdditional()
 
 
 	/**
@@ -683,7 +694,7 @@ class Page_Asset_Listing extends Page
 		}
 
 		$filtered_assets = $db->getCol('SELECT assetid
-										FROM '.SQ_TABLE_PREFIX.'asset
+										FROM '.SQ_TABLE_PREFIX.'ast
 										WHERE assetid IN ('.implode(',', $assetids).')
 										  AND status >= '.$db->quote(SQ_STATUS_LIVE)
 										);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workspace_management.inc,v 1.10 2004/02/11 01:29:53 gsherwood Exp $
+* $Id: workspace_management.inc,v 1.11 2004/11/18 05:06:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -65,16 +65,16 @@ class Workspace_Management extends Asset_Management
 	{
 		return Array(
 				Array(
-					'event_name'				 => 'usernameUpdated',
-					'broadcast_type_code'		 => 'user',
-					'broadcast_strict_type_code'	=> false,	// user, root_user, backend_user, system_user
+					'event_name'                 => 'usernameUpdated',
+					'broadcast_type_code'        => 'user',
+					'broadcast_strict_type_code' => false,
 					'options'	=> Array(
-						'side_of_link'					=> 'major',	// side of link where the broadcaster exists
-						'indirect'						=> false,
-						'exclusive'						=> null,
-						'dependant'						=> 1,
-						'value'							=> '',
-						'link_type'						=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+						'side_of_link' => 'major',
+						'indirect'     => false,
+						'is_exclusive' => null,
+						'is_dependant' => 1,
+						'value'        => '',
+						'link_type'    => SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
 					),
 				),
 		);

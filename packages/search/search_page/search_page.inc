@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.62 2004/10/20 00:04:57 mmcintyre Exp $
+* $Id: search_page.inc,v 1.63 2004/11/18 05:10:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.62 $ - 1.0
+* @version $Revision: 1.63 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -109,27 +109,21 @@ class Search_Page extends Page
 		$this->Page($assetid);
 
 	}//end constructor
-
-
+	
+	
 	/**
-	* Create this asset
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Search pages create a few bodycopy assets when they are created
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _createAdditional(&$link)
 	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
-
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		if (!parent::_createAdditional($link)) return false;
 
 		// add a bodycopy for the initial search page layout, result page layout, and result rows
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
@@ -138,24 +132,18 @@ class Search_Page extends Page
 			$copy_link = Array(
 				'asset'        => &$this,
 				'link_type'    => SQ_LINK_TYPE_2,
-				'dependant' => 1,
-				'exclusive' => 1,
+				'is_dependant' => 1,
+				'is_exclusive' => 1,
 				'value'        => $value
 			);
 
 			$bodycopy = new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
-			if (!$bodycopy->create($copy_link)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$this->id = 0;
-				return false;
-			}
+			if (!$bodycopy->create($copy_link)) return false;
 		}
+		return true;
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	}//end create()
+	}//end _createAdditional()
 
 
 	/**

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_cell.inc,v 1.8 2004/08/23 04:07:03 gsherwood Exp $
+* $Id: bodycopy_table_cell.inc,v 1.9 2004/11/18 05:02:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,7 +86,7 @@ class BodyCopy_Table_Cell extends MySource_Object
 	function setContentType(&$table, $type, $rowid, $cellid)
 	{
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type);
-		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$content_type = new $type();
 		$content_type->setAttrValue('name', 'Row '.($rowid+1).' Cell '.($cellid+1));
 		$this->attributes['linkid'] = $content_type->create($content_link);

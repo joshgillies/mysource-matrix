@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.19 2004/09/14 01:48:21 gsherwood Exp $
+* $Id: search_page_management.inc,v 1.20 2004/11/18 05:10:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -270,8 +270,8 @@ class Search_Page_Management extends Asset_Management
 					'options' => Array(
 						'side_of_link'  => 'major',
 						'indirect'      => true,
-						'exclusive'     => null,
-						'dependant'     => 1,
+						'is_exclusive'  => null,
+						'is_dependant'  => 1,
 						'value'         => '',
 						'link_type'     => SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
 					),

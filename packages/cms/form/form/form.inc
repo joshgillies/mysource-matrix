@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.63 2004/11/09 04:13:33 lwright Exp $
+* $Id: form.inc,v 1.64 2004/11/18 05:11:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -173,8 +173,8 @@ class Form extends Bridge
 								 'minor_type_code' => $data['question_type_code'],
 								 'value'           => '',
 								 'link_type'       => SQ_LINK_TYPE_2,
-								 'dependant'       => true,
-								 'exclusive'       => false,
+								 'is_dependant'    => true,
+								 'is_exclusive'    => false,
 								 'sort_order'      => $i + array_search($this->id.':q'.$questionid, $this->attr('sort_order')),
 								);
 			}
@@ -215,7 +215,7 @@ class Form extends Bridge
 			// mould it all to the asset map's liking
 			$link['url'] = '';
 			$link['path'] = '';
-			$link['num_immediate_kids'] = 0;
+			$link['num_kids'] = 0;
 			$link['accessible'] = 1;
 
 			$link['assetid'] = $link['minorid'];
@@ -230,8 +230,8 @@ class Form extends Bridge
 			unset($link['majorid']);
 			unset($link['minorid']);
 			unset($link['value']);
-			unset($link['dependant']);
-			unset($link['exclusive']);
+			unset($link['is_dependant']);
+			unset($link['is_exclusive']);
 
 		}
 
@@ -922,7 +922,7 @@ class Form extends Bridge
 			$folder = new Folder();
 			$folder->setAttrValue('name', 'Bodycopies');
 
-			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'bodycopies_folder', 'dependant' => 1, 'exclusive' => 1);
+			$folder_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'bodycopies_folder', 'is_dependant' => 1, 'is_exclusive' => 1);
 
 			if (!$folder->create($folder_link)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -940,7 +940,7 @@ class Form extends Bridge
 
 		// bodycopy doesn't exist, so create it willya
 		// create a link to the folder so we can put the bodycopies in it
-		$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1, 'value' => $name);
+		$copy_link = Array('asset' => &$folder, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => $name);
 
 		// create the thing
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');

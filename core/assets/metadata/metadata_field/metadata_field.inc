@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field.inc,v 1.6 2004/06/18 13:56:13 brobertson Exp $
+* $Id: metadata_field.inc,v 1.7 2004/11/18 05:08:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,7 +56,7 @@ class Metadata_Field extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
 	* @return mixed int or false
@@ -65,7 +65,6 @@ class Metadata_Field extends Asset
 	function create(&$link)
 	{
 		$name = trim($this->attr('name'));
-
 		if ($name == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;

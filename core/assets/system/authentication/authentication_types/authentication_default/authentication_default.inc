@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.2 2004/09/29 01:51:41 gsherwood Exp $
+* $Id: authentication_default.inc,v 1.3 2004/11/18 05:00:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,16 +71,16 @@ class Authentication_Default extends Authentication
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql   = 'SELECT a.assetid, a.type_code
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a, '.SQ_TABLE_PREFIX.'asset_attribute at, '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av ';
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast a, '.SQ_TABLE_PREFIX.'ast_attr at, '.SQ_TABLE_RUNNING_PREFIX.'ast_attr_val av ';
 		$where = 'a.type_code IN (
 								SELECT type_code
-								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-								WHERE inherited_type_code = '.$db->quote('user').'
+								FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
+								WHERE inhd_type_code = '.$db->quote('user').'
 								)
 				  AND at.name         = '.$db->quote('username').'
-				  AND at.attributeid  = av.attributeid
+				  AND at.attrid  = av.attrid
 				  AND av.assetid      = a.assetid
-				  AND av.custom_value = '.$db->quote($username);
+				  AND av.custom_val = '.$db->quote($username);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
 

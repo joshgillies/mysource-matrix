@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.73 2004/09/07 10:52:20 brobertson Exp $
+* $Id: design.inc,v 1.74 2004/11/18 05:05:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,42 +50,30 @@ class Design extends Design_Area
 		$this->Design_Area($assetid);
 
 	}//end constructor
-
-
+	
+	
 	/**
-	* Create this asset
+	* Perform any additional processing required during the creation of this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* Designs set an initial web path when they are created
 	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _createAdditional(&$link)
 	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		if (!parent::_createAdditional($link)) return false;
 
 		// set an initial web path
 		$initial_path = strtolower($this->name);
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_paths = make_valid_web_paths(Array($initial_path));
 		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
-		if (!$this->saveWebPaths($good_paths)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		return $this->saveWebPaths($good_paths);
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	}//end create()
+	}//end _createAdditional()
 
 
 	/*
@@ -117,6 +105,7 @@ class Design extends Design_Area
 	*/
 	function printFrontend()
 	{
+
 	}//end printFrontend()
 
 
@@ -470,9 +459,9 @@ class Design extends Design_Area
 			default :
 				return parent::processBackend($o, $link);
 
-		}// end switch
+		}//end switch
 
-	}// end processBackend()
+	}//end processBackend()
 
 
 	/**
@@ -494,7 +483,7 @@ class Design extends Design_Area
 			}
 		}// end foreach
 
-	}// end _updateCustomisations()
+	}//end _updateCustomisations()
 
 
 	/**
@@ -730,6 +719,7 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		}// end if
 
 	}//end generateDesignFile()
+
 
 }//end class
 

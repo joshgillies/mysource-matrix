@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.2 2004/08/25 02:20:56 gsherwood Exp $
+* $Id: cache_manager.inc,v 1.3 2004/11/18 05:00:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.2 $ - 0.1
+* @version $Revision: 1.3 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -69,9 +69,9 @@ class Cache_Manager extends Asset
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
 	* @return mixed int or false
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
@@ -80,16 +80,13 @@ class Cache_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
-			if (!system_asset_fns_create_cleanup($this))  {
+			if (!system_asset_fns_create_cleanup($this)) {
 				$linkid = false;
 			}
 		}
 
-		if ($linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		}
+		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
 		return $linkid;
 
@@ -232,10 +229,10 @@ class Cache_Manager extends Asset
 
 					// note that we dont use the cache in rollback view mode so we dont have
 					// to run this query through the rollback functions
-					$sql = 'SELECT MAX(permission) FROM '.SQ_TABLE_PREFIX.'asset_permission
+					$sql = 'SELECT MAX(permission) FROM '.SQ_TABLE_PREFIX.'ast_perm
 							WHERE assetid = '.$db->quote($asset->id).' 
 							  AND userid IN ('.implode(',', $userids).')
-							  AND access = 1';
+							  AND granted = 1';
 
 					$permission = $db->getOne($sql);
 					assert_valid_db_result($permission);

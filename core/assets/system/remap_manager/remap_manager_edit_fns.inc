@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager_edit_fns.inc,v 1.9 2004/08/25 03:32:45 amiller Exp $
+* $Id: remap_manager_edit_fns.inc,v 1.10 2004/11/18 05:00:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $ - 1.0
+* @version $Revision: 1.10 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -80,7 +80,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT url, remap_url, expires
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_remap';
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
 		$remap_urls = $db->getAll($sql);
 		if (DB::isError($remap_urls)) {
 			trigger_error($remap_urls->getMessage().'<br/>'.$remap_urls->getUserInfo(), E_USER_ERROR);
@@ -177,7 +177,7 @@ class Remap_Manager_Edit_Fns extends Asset_Edit_Fns
 			foreach ($_POST[$prefix.'_delete_remap'] as $url => $on) $deletes[] = $db->quote($url);
 
 			$where_cond = 'url IN ('.implode(',', $deletes).')';
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_remap', $where_cond)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_remap', $where_cond)) {
 				return false;
 			}
 		}

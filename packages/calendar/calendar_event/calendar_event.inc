@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.32 2004/11/16 04:21:12 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.33 2004/11/18 05:16:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.32 $ - 1.0
+* @version $Revision: 1.33 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -61,7 +61,7 @@ class Calendar_Event extends Asset
 	/**
 	* Create this asset
 	*
-	* @param Array	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @return mixed int or boolean	the link ID or the create status if no link
 	* @access public
@@ -69,33 +69,36 @@ class Calendar_Event extends Asset
 	*/
 	function create(&$link) 
 	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		
-		$name = $this->attr('name');
-		
 		// should not be able to create an event with a blank name
+		$name = $this->attr('name');
 		if ($name == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 		
-		if (!parent::create($link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		};
-		
-		if ($this->cacheCalendarData(false)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-			return true;
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
+		return parent::create($link);
 
 	}//end create()
 	
 	
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Folders set an initial web path when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
+		return $this->cacheCalendarData(false);
+
+	}//end _createAdditional()
+
+
 	/**
 	* Delete this asset from the trash
 	*
@@ -114,7 +117,7 @@ class Calendar_Event extends Asset
 		// asset id becomes a where condition
 		$where = ' assetid = '.$db->quote($this->id);
 		
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('calendar_date_value', $where)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('cal_date_val', $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -128,8 +131,8 @@ class Calendar_Event extends Asset
 		return true;
 		
 	}//end delete()
-	
-	
+
+
 	/**
 	* Returns name of the asset
 	*

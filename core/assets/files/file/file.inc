@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.70 2004/09/29 01:07:32 gsherwood Exp $
+* $Id: file.inc,v 1.71 2004/11/18 05:08:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -443,17 +443,19 @@ class File extends Asset
 		unset($this->_tmp['href']);
 
 		// Remove all the old URLs
+
 		$sub_sql = 'SELECT url
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 					'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l');
 
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_design', 'url IN ('.$sub_sql.')')) {
+
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_design', 'url IN ('.$sub_sql.')')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		$where_cond = 'assetid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where_cond)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -510,7 +512,7 @@ class File extends Asset
 						'https'      => $url_data['https'],
 						'root_urlid' => 0,
 					);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}

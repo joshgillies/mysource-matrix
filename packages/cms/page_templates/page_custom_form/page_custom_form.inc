@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.10 2004/06/16 06:11:04 mmcintyre Exp $
+* $Id: page_custom_form.inc,v 1.11 2004/11/18 05:12:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 class Page_Custom_Form extends Page
 {
 
+
 	/**
 	* Constructor
 	*
@@ -49,46 +50,32 @@ class Page_Custom_Form extends Page
 	{
 		$this->Page($assetid);
 
-	} // end Page_Custom_Form()
+	}// end Page_Custom_Form()
 
 
 	/**
-	* Create this asset
+	* Perform any additional processing required during the creation of this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* Custom forms create a form asset when they are created
 	*
-	* @see Asset::create()
-	* @return mixed int or false
-	* @access public
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _createAdditional(&$link)
 	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
-
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		if (!parent::_createAdditional($link)) return false;
 
 		// create a new form_email (form with emailing abilities)
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('form_email');
 		$form = new Form_Email();
-		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		$form->setAttrValue('name', 'Form Contents');
-		if (!$form->create($copy_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		return $form->create($copy_link);
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		return $linkid;
-
-	}//end create()
+	}//end _createAdditional()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.18 2004/11/10 22:37:57 tbarrett Exp $
+* $Id: page_account_manager.inc,v 1.19 2004/11/18 05:12:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -131,7 +131,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		if ($this->attr('use_email_validation')) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', true, 'pending_accounts');
 			if (empty($link)) {
-				$group_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => 0, 'dependant' => 1, 'exclusive' => 1, 'value' => 'pending_accounts');
+				$group_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => 0, 'is_dependant' => 1, 'is_exclusive' => 1, 'value' => 'pending_accounts');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
 
 				$group = new User_Group();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow_step_edit_fns.inc,v 1.19 2004/11/02 03:34:00 mmcintyre Exp $
+* $Id: workflow_step_edit_fns.inc,v 1.20 2004/11/18 05:08:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -194,7 +194,7 @@ class Workflow_Step_Edit_Fns extends Folder_Edit_Fns
 		if (isset($_POST[$prefix.'_new_condition']['assetid']) && $_POST[$prefix.'_new_condition']['assetid'] > 0) {
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('workflow_step_condition');
 			$new_cond =& new Workflow_Step_Condition();
-			$step_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'dependant' => 1, 'exclusive' => 1);
+			$step_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1, 'is_exclusive' => 1);
 			$new_cond->setAttrValue('userid', $_POST[$prefix.'_new_condition']['assetid']);
 			if ($new_cond->create($step_link)) $updated = true;
 		}

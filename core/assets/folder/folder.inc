@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: folder.inc,v 1.34 2004/06/18 13:56:13 brobertson Exp $
+* $Id: folder.inc,v 1.35 2004/11/18 05:08:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,47 +55,53 @@ class Folder extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
 	* @return mixed int or false
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
 		$name = trim($this->attr('name'));
-
 		if ($name == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
 		}
 
-		$linkid = parent::create($link);
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		return parent::create($link);
+
+	}//end create()
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Folders set an initial web path when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
 
 		// set a web path if we are linking this folder somewhere
 		// NOTE: the main time we wont want to do this is if we are creating
 		// the root folder as it is not linked anywhere
 		if (!empty($link)) {
 			// set an initial web path
-			$initial_path = strtolower($name);
+			$initial_path = strtolower($this->attr('name'));
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$valid_paths = make_valid_web_paths(Array($initial_path));
 			$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
-			if (!$this->saveWebPaths($good_paths)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				$this->id = 0;
-				return false;
-			}
+			if (!$this->saveWebPaths($good_paths)) return false;
 		}
+		return true;
 
-		return $linkid;
-
-	}//end create()
+	}//end _createAdditional()
 
 
 	/**

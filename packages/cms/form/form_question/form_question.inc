@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.36 2004/11/05 00:08:47 lwright Exp $
+* $Id: form_question.inc,v 1.37 2004/11/18 05:11:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.36 $ - 1.0
+* @version $Revision: 1.37 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -111,16 +111,16 @@ class Form_Question extends Asset
 		$this->data_path_suffix = $form->data_path_suffix.'/'.$data['questionid'];
 		$this->data_path_public = $form->data_path_public.'/'.$data['questionid'];
 
-		$asset_attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes(get_class($this), Array('name', 'type','default_value','attributeid'));
+		$asset_attributes = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes(get_class($this), Array('name', 'type','default_val','attrid'));
 
-		foreach($asset_attributes as $attribute_name => $asset_attribute)
+		foreach ($asset_attributes as $attribute_name => $asset_attribute)
 		{
 			$this->vars[$attribute_name]['type'] = $asset_attribute['type'];
-			$this->vars[$attribute_name]['attributeid'] = $asset_attribute['attributeid'];
+			$this->vars[$attribute_name]['attributeid'] = $asset_attribute['attrid'];
 			if (isset($data['attributes'][$attribute_name])) {
 				$this->vars[$attribute_name]['value'] = (($asset_attribute['type'] == 'serialise') ? unserialize($data['attributes'][$attribute_name]) : $data['attributes'][$attribute_name]);
 			} else {
-				$this->vars[$attribute_name]['value'] = (($asset_attribute['type'] == 'serialise') ? unserialize($asset_attribute['default_value']) : $asset_attribute['default_value']);
+				$this->vars[$attribute_name]['value'] = (($asset_attribute['type'] == 'serialise') ? unserialize($asset_attribute['default_val']) : $asset_attribute['default_val']);
 			}
 		}
 
@@ -182,7 +182,7 @@ class Form_Question extends Asset
 
 		// find any previous entries
 		$atrr_id_cond = 'IN ('.implode(', ', $attr_ids).')';
-		$sql   = 'SELECT name, default_value FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute ';
+		$sql   = 'SELECT name, default_val FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_attr ';
 		$where = 'type_code = '.$db->quote($this->vars['question_type_code']['value']);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
@@ -195,7 +195,7 @@ class Form_Question extends Asset
 		}
 
 		// check against default values; we don't need to save that attribute if it is
-		foreach($existing as $name => $default_value) {
+		foreach ($existing as $name => $default_value) {
 			if ($saved_vars[$name]['value'] == $default_value) {
 				unset($saved_vars[$name]);
 			}

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.29 2004/09/14 01:48:21 gsherwood Exp $
+* $Id: search_page_edit_fns.inc,v 1.30 2004/11/18 05:10:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.29 $ - 1.0
+* @version $Revision: 1.30 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -344,7 +344,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 		
 						if (!empty($search_type)) {
 							
-							$asset_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attributeid', 'name'));
+							$asset_type_attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($search_type, Array('attrid', 'name'));
 		
 							if ($write_access) {
 								$type_attrs = Array('' => '- attribute -');
@@ -1126,7 +1126,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 					$format_folder = new Folder();
-					$copy_link = Array('asset' => &$asset, 'value' => 'format_folder', 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+					$copy_link = Array('asset' => &$asset, 'value' => 'format_folder', 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		
 					$format_folder->setAttrValue('name', 'Search Forms');
 		
@@ -1146,7 +1146,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 					$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 					$bodycopy = new Bodycopy();
-					$copy_link = Array('asset' => &$format_folder, 'value' => $value, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+					$copy_link = Array('asset' => &$format_folder, 'value' => $value, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 					$bodycopy->setAttrValue('name', $form_name);
 

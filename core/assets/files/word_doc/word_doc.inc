@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.5 2004/09/23 22:13:35 amiller Exp $
+* $Id: word_doc.inc,v 1.6 2004/11/18 05:08:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -139,7 +139,7 @@ class Word_Doc extends File
 		$weightings = $this->getWeightings();
 
 		foreach (get_word_counts($output) as $word => $count) {
-			$this->buildKeyData($keydata, $word, 'text', 'attr:'.$this->type().':contents', $count * $weightings['contents']['weighting']);
+			$this->buildKeyData($keydata, $word, 'text', 'attr:'.$this->type().':contents', $count * $weightings['contents']['weight']);
 		}
 
 		return $keydata;

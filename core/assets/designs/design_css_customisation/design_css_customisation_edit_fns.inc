@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_customisation_edit_fns.inc,v 1.2 2004/09/07 10:52:21 brobertson Exp $
+* $Id: design_css_customisation_edit_fns.inc,v 1.3 2004/11/18 05:05:08 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -160,12 +160,12 @@ class Design_Css_Customisation_Edit_Fns extends Design_Css_Edit_Fns
 			$da = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code'], false);
 			if (is_null($da)) continue;
 			
-			$create_link = Array (	'asset' => &$asset,
-									'link_type'  => SQ_LINK_TYPE_3,
-									'value'      => $link['value'],
-									'sort_order' => null,
-									'dependant'  => 1,
-									'exclusive'  => 0
+			$create_link = Array (	'asset'         => &$asset,
+									'link_type'     => SQ_LINK_TYPE_3,
+									'value'         => $link['value'],
+									'sort_order'    => null,
+									'is_dependant'  => 1,
+									'is_exclusive'  => 0
 								 );
 
 			// First let's duplicate the DA, ignoring the directory with the files

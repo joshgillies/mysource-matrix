@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.42 2004/06/18 13:56:13 brobertson Exp $
+* $Id: root_folder.inc,v 1.43 2004/11/18 05:00:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 */
 class Root_Folder extends Folder
 {
+
 
 	/**
 	* Constructor
@@ -78,12 +79,8 @@ class Root_Folder extends Folder
 				return false;
 			}
 
-			$linkid = $db->nextId('sq_sequence_asset_link');
-			if (DB::isError($linkid)) {
-				trigger_error($linkid->getMessage().'<br/>'.$linkid->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
+			$linkid = $db->nextId('sq_ast_lnk');
+			assert_valid_db_result($linkid);
 
 			if ($linkid != 1) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -91,7 +88,7 @@ class Root_Folder extends Folder
 				return false;
 			}
 
-			// Right we need to do some manipulation for the link table to put in some initial values
+			// right, we need to do some manipulation for the link table to put in some initial values
 			// so that the root folder, like everything else, has a link where it is a minor party
 			$values = Array('linkid'         => 1,
 							'majorid'        => 0,
@@ -99,21 +96,21 @@ class Root_Folder extends Folder
 							'link_type'      => SQ_LINK_TYPE_1,
 							'value'          => '',
 							'sort_order'     => 0,
-							'dependant'      => 1,
-							'exclusive'      => 1,
+							'is_dependant'   => 1,
+							'is_exclusive'   => 1,
 							'updated'        => ts_iso8601(time()),
 							'updated_userid' => 0,
 							);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link', $values)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lnk', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
-			$values = Array('treeid'             => '',
-							'linkid'             => 1,
-							'num_immediate_kids' => 0
+			$values = Array('treeid'   => '',
+							'linkid'   => 1,
+							'num_kids' => 0
 						);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_link_tree', $values)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lnk_tree', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -123,14 +120,13 @@ class Root_Folder extends Folder
 				return false;
 			}
 
-
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-		// create failed
 		} else {
+			// create failed
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
-		}// end if ret_val
+		}//end if ret_val
 
 		unset($this->_tmp[__CLASS__.'_in_create']);
 		return $ret_val;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.6 2004/06/16 06:10:37 mmcintyre Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.7 2004/11/18 05:12:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -381,7 +381,7 @@ class Page_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 				$bodycopy = new Bodycopy();
-				$copy_link = Array('asset' => &$folder, 'value' => $type, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+				$copy_link = Array('asset' => &$folder, 'value' => $type, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 				$bodycopy->setAttrValue('name', ucwords(str_replace('_',' ', $type)).' Format');
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.1 2004/08/19 05:52:22 gsherwood Exp $
+* $Id: search_list.inc,v 1.2 2004/11/18 05:10:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -51,47 +51,30 @@ class Search_List extends Page_Asset_Listing
 		$this->Page_Asset_Listing($assetid);
 
 	}//end constructor
-
-
+	
+	
 	/**
-	* Create this asset
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Search lists create a bodycopy asset when they are created
 	*
 	* @param array	&$link	information used to create the initial link
 	*
-	* @return mixed int or false
-	* @access public
+	* @access private
+	* @return boolean
 	*/
-	function create(&$link)
+	function _createAdditional(&$link)
 	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = page::create($link);
+		if (!page::_createAdditional($link)) return false;
 
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-
 		$asset = new Bodycopy();
-		$copy_link = Array('asset' => &$this, 'value' => 'page_contents', 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1, 'exclusive' => 1);
+		$copy_link = Array('asset' => &$this, 'value' => 'page_contents', 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
 
-		if (!$asset->create($copy_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		return $asset->create($copy_link);
 
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
-		unset($asset);
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	}//end create()
+	}//end _createAdditional()
 
 
 	/**

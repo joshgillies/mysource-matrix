@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.5 2004/11/08 04:03:19 gsherwood Exp $
+* $Id: search_folder.inc,v 1.6 2004/11/18 05:10:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -102,7 +102,7 @@ class Search_Folder extends Bridge
 			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
 			// if we have not selected to search any statuses, we are going to return no results
 			if (empty($search_info['search_statuses'])) return Array();
-
+			
 			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
 	
 			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
@@ -127,8 +127,8 @@ class Search_Folder extends Bridge
 								'link_type'    	  => SQ_LINK_TYPE_1,
 								'minor_type_code' => $info['type_code'],
 								'sort_order'      => $sort_order,
-								'dependant'       => '0',
-								'exclusive'       => '0',
+								'is_dependant'    => '0',
+								'is_exclusive'    => '0',
 							);
 	
 				$sort_order++;
@@ -163,11 +163,11 @@ class Search_Folder extends Bridge
 			$search_info['search_types'] = (isset($settings['types'])) ? $settings['types'] : Array();
 			$search_info['search_statuses'] = (isset($settings['statuses'])) ? $settings['statuses'] : Array();
 			$search_info['root_assetid'] = (isset($settings['root']) && $settings['root']) ? $settings['root'] : 1;
-
+			
 			// if we have not selected to search any types or statuses, we are going to return no results
 			if (empty($search_info['search_types'])) return Array();
 			if (empty($search_info['search_statuses'])) return Array();
-
+			
 			if (!isset($settings['phrase']) || trim($settings['phrase']) == '') {
 				$search_results = $sm->processBasicSearch($search_info);
 			} else {
@@ -184,18 +184,18 @@ class Search_Folder extends Bridge
 			$sort_order = 0;
 			foreach ($asset_info as $assetid => $info) {
 				$links[] = Array(
-								'assetid'            => $assetid,
-								'short_name'         => $info['short_name'],
-								'name'               => $info['name'],
-								'accessible'         => 1,
-								'type_code'          => $info['type_code'],
-								'status'             => $info['status'],
-								'linkid'             => '0',
-								'link_type'          => SQ_LINK_TYPE_1,
-								'num_immediate_kids' => 0,
-								'sort_order'         => $sort_order,
-								'url'          	     => '',
-								'path'               => '',
+								'assetid'    => $assetid,
+								'short_name' => $info['short_name'],
+								'name'       => $info['name'],
+								'accessible' => 1,
+								'type_code'  => $info['type_code'],
+								'status'     => $info['status'],
+								'linkid'     => '0',
+								'link_type'  => SQ_LINK_TYPE_1,
+								'num_kids'   => 0,
+								'sort_order' => $sort_order,
+								'url'        => '',
+								'path'       => '',
 							);
 	
 				$sort_order++;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.33 2004/11/05 00:08:47 lwright Exp $
+* $Id: form_email.inc,v 1.34 2004/11/18 05:11:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -53,31 +53,6 @@ class Form_Email extends Form
 		$this->Form($assetid);
 
 	}//end constructor
-
-
-	/**
-	* Create this asset
-	*
-	* @param array	&$link	information used to create the initial link
-	*
-	* @return mixed int or false
-	* @access public
-	* @see Asset::create()
-	*/
-	function create(&$link)
-	{
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $linkid;
-
-	}//end create()
 
 
 	/**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_management.inc,v 1.28 2004/11/05 00:08:41 lwright Exp $
+* $Id: form_management.inc,v 1.29 2004/11/18 05:11:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -245,16 +245,16 @@ class Form_Management extends Asset_Management
 	{
 		return Array(
 				Array(
-					'event_name'				 => 'requestKeywords',
-					'broadcast_type_code'		 => 'content_type_wysiwyg',
+					'event_name'                 => 'requestKeywords',
+					'broadcast_type_code'        => 'content_type_wysiwyg',
 					'broadcast_strict_type_code' => true,
 					'options'	=> Array(
-						'side_of_link'		=> 'major',
-						'indirect'			=> true,
-						'exclusive'			=> null,
-						'dependant'			=> 1,
-						'value'				=> '',
-						'link_type'			=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+						'side_of_link' => 'major',
+						'indirect'     => true,
+						'is_exclusive' => null,
+						'is_dependant' => 1,
+						'value'        => '',
+						'link_type'    => SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
 					),
 				),
 		);

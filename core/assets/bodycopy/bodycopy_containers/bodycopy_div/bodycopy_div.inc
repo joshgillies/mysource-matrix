@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div.inc,v 1.7 2004/11/11 04:47:40 gsherwood Exp $
+* $Id: bodycopy_div.inc,v 1.8 2004/11/18 05:02:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,20 +66,36 @@ class Bodycopy_Div extends Bodycopy_Container
 	function create(&$link, $bc_data)
 	{
 		$name = trim($this->attr('name'));
-
 		if ($name == '') {
 			trigger_error('Unable to create a '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' with a blank name', E_USER_WARNING);
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$linkid = parent::create($link);
+		// store this data for later use during the create process in _createAdditional()
+		$this->_tmp['bodycopy_create_data'] = $bc_data;
 
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		return parent::create($link);
+
+	}//end create()
+
+
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Bodycopy DIVs create a WYSIWYG content type when they are created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		// grab the bodycopy data that we stored in the create() function
+		$bc_data = $this->_tmp['bodycopy_create_data'];
+		unset($this->_tmp['bodycopy_create_data']);
+
+		if (!parent::_createAdditional($link)) return false;
 
 		// set the name to what they entered - if they entered anything, otherwise use a default unique name
 		$acquire_lock = empty($bc_data);
@@ -92,37 +108,26 @@ class Bodycopy_Div extends Bodycopy_Container
 		// create a wysiwyg content type
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('content_type_wysiwyg');
 		$wysiwyg =& new Content_Type_Wysiwyg();
-		$div_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'div_contents', 'sort_order' => 1, 'dependant' => 1, 'exclusive' => 1);
+		$div_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => 'div_contents', 'sort_order' => 1, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$wysiwyg->setAttrValue('name', 'DIV Content');
-		if (!$wysiwyg->create($div_link)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		if (!$wysiwyg->create($div_link)) return false;
 
 		if ($acquire_lock && !$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
 			return false;
 		}
-		
+
 		$edit_fns = $this->getEditFns();
 		if (!$this->saveAttributes() || !$edit_fns->generateContentFile($this)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-		
-		if ($acquire_lock && !$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'atttributes')) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		if ($acquire_lock && !$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'atttributes')) {
+			return false;
+		}
+
 		return true;
 
-	}//end create()
+	}//end _createAdditional()
 
 
 	/**

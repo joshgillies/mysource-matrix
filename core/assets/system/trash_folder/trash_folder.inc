@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.51 2004/06/07 05:31:04 gsherwood Exp $
+* $Id: trash_folder.inc,v 1.52 2004/11/18 05:00:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,8 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 */
 class Trash_Folder extends Folder
 {
+
+
 	/**
 	* Constructor
 	*
@@ -72,23 +74,32 @@ class Trash_Folder extends Folder
 			}
 		}
 
-		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
+		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
-		// set public read access in the DB so it comes up in the asset map
-		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, 0, SQ_PERMISSION_READ, true)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
 	}//end create()
+	
+	
+	/**
+	* Perform any additional processing required during the creation of this asset
+	*
+	* Trash folder grants public read access when it is created
+	*
+	* @param array	&$link	information used to create the initial link
+	*
+	* @access private
+	* @return boolean
+	*/
+	function _createAdditional(&$link)
+	{
+		if (!parent::_createAdditional($link)) return false;
+
+		// set public read access in the DB so it comes up in the asset map
+		return $GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, 0, SQ_PERMISSION_READ, true);
+
+	}//end _createAdditional()
 
 
 	/**

@@ -18,103 +18,98 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.1 2004/11/16 03:41:00 lwright Exp $
+* $Id: tables.xml,v 1.2 2004/11/18 05:10:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <schema>
-<tables>
-	<table name="asset_indexing" require_rollback="0">
-		<columns>
-			<column name="value" allow_null="0">
-				<type>VARCHAR(255)</type>
-				<type_variations />
-				<default />
-				<description>Value of the keydata.</description>
-			</column>
-			<column name="assetid" allow_null="0">
-				<type>VARCHAR(15)</type>
-				<type_variations />
-				<default />
-				<description>ID of the asset to which this keydata applies to.</description>
-			</column>
-			<column name="component" allow_null="1">
-				<type>VARCHAR(255)</type>
-				<type_variations />
-				<default>''</default>
-				<description>Which component of the asset this keydata applies to (e.g. attribute:23) </description>
-			</column>
-			<column name="type" allow_null="0">
-				<type>VARCHAR(255)</type>
-				<type_variations />
-				<default>'word'</default>
-				<description>The type of the keydata (e.g. 'date', 'word', 'number').</description>
-			</column>
-			<column name="score" allow_null="0">
-				<type>INT</type>
-				<type_variations />
-				<default>0</default>
-			</column>
-		</columns>
-		<keys>
-			<primary_key>
-				<column name="value" />
-				<column name="assetid" />
-				<column name="component" />
-				<column name="type" />
-				<column name="score" />
-			</primary_key>
-		</keys>
-		<indexes>
-			<index>
-				<column name="value" />
-			</index>
-			<index>
-				<column name="assetid" />
-			</index>
-			<index>
-				<column name="type" />
-			</index>
-			<index>
-				<column name="component" />
-			</index>
-		</indexes>
-	</table>
-	<table name="asset_indexing_weightings" require_rollback="0">
-		<columns>
-			<column name="assetid" allow_null="0">
-				<type>VARCHAR(15)</type>
-				<type_variations />
-				<default />
-				<description>ID of the asset to which this component-weighting applies to.</description>
-			</column>
-			<column name="component" allow_null="1">
-				<type>VARCHAR(255)</type>
-				<type_variations />
-				<default>''</default>
-				<description>The component.</description>
-			</column>
-			<column name="weighting" allow_null="0">
-				<type>INT</type>
-				<type_variations />
-				<default>0</default>
-				<description>The weighting. </description>
-			</column>
-		</columns>
-		<keys>
-			<primary_key>
-				<column name="assetid" />
-				<column name="component" />
-			</primary_key>
-		</keys>
-		<indexes>
-			<index>
-				<column name="assetid" />
-				<column name="component" />
-			</index>
-		</indexes>
-	</table>
-</tables>
-<sequences />
+	<tables>
+		<table name="sch_idx" require_rollback="0">
+			<columns>
+				<column name="value" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default />
+					<description>Value of the keydata.</description>
+				</column>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>ID of the asset to which this keydata applies to.</description>
+				</column>
+				<column name="component" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description>Which component of the asset this keydata applies to (e.g. attribute:23) </description>
+				</column>
+				<column name="type" allow_null="0">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>'word'</default>
+					<description>The type of the keydata (e.g. 'date', 'word', 'number').</description>
+				</column>
+				<column name="score" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default>0</default>
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="value" />
+					<column name="assetid" />
+					<column name="component" />
+					<column name="type" />
+					<column name="score" />
+				</primary_key>
+			</keys>
+			<indexes>
+				<index>
+					<column name="value" />
+				</index>
+				<index>
+					<column name="assetid" />
+				</index>
+				<index>
+					<column name="type" />
+				</index>
+				<index>
+					<column name="component" />
+				</index>
+			</indexes>
+		</table>
+		<table name="sch_idx_wgt" require_rollback="0">
+			<columns>
+				<column name="assetid" allow_null="0">
+					<type>VARCHAR(15)</type>
+					<type_variations />
+					<default />
+					<description>ID of the asset to which this component-weighting applies to.</description>
+				</column>
+				<column name="component" allow_null="1">
+					<type>VARCHAR(255)</type>
+					<type_variations />
+					<default>''</default>
+					<description>The component.</description>
+				</column>
+				<column name="weight" allow_null="0">
+					<type>INT</type>
+					<type_variations />
+					<default>0</default>
+					<description />
+				</column>
+			</columns>
+			<keys>
+				<primary_key>
+					<column name="assetid" />
+					<column name="component" />
+				</primary_key>
+			</keys>
+			<indexes />
+		</table>
+	</tables>
+	<sequences />
 </schema>

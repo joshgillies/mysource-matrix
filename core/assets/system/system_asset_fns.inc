@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_fns.inc,v 1.4 2003/12/16 12:19:31 brobertson Exp $
+* $Id: system_asset_fns.inc,v 1.5 2004/11/18 05:00:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,7 +47,7 @@ function system_asset_fns_create_pre_check(&$asset)
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 	$sql = 'SELECT COUNT(*) 
-			FROM '.SQ_TABLE_RUNNING_PREFIX.'asset 
+			FROM '.SQ_TABLE_RUNNING_PREFIX.'ast 
 			';
 	$where = 'type_code = '.$db->quote($asset->type());
 	$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -74,17 +74,16 @@ function system_asset_fns_create_pre_check(&$asset)
 */
 function system_asset_fns_create_cleanup(&$asset)
 {
-	//// Remove any write and admin permissions that have been set on this asset and it's dependants ////
+	// remove any write and admin permissions that have been set on this asset and it's dependants
 	$assetids = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
 	foreach($assetids as $assetid) {
 		foreach (Array(SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
 			$unset_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($assetid, $perm, null, false, false, true);
 			foreach ($unset_perms as $userid => $access) {
-#				echo "REMOVE $assetid : $perm -> $userid : $access\n";
 				if (!$GLOBALS['SQ_SYSTEM']->am->deletePermission($assetid, $userid, $perm)) return false;
-			}// end foreach
-		}// end foreach
-	}// end foreeach
+			}
+		}
+	}
 
 	return true;
 

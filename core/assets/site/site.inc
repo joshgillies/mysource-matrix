@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.59 2004/10/26 01:40:50 lwright Exp $
+* $Id: site.inc,v 1.60 2004/11/18 05:08:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -154,7 +154,7 @@ class Site extends Folder
 	{
 		if (!isset($this->_tmp['urls_info'])) {
 			$sql = 'SELECT urlid, url, http, https
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_url
 					';
 			$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -262,7 +262,7 @@ class Site extends Folder
 									'http'  => $db->quote($save_urls[$save_urlid]['http']),
 									'https' => $db->quote($save_urls[$save_urlid]['https'])
 									);
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_url', $values, $where)) {
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_url', $values, $where)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
@@ -271,7 +271,7 @@ class Site extends Folder
 
 			} else {
 
-				$curr_urlid = $db->nextId('sq_sequence_asset_url');
+				$curr_urlid = $db->nextId('sq_ast_url');
 				if (DB::isError($curr_urlid)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					trigger_error($curr_urlid->getMessage().'<br/>'.$new_urlid->getUserInfo(), E_USER_ERROR);
@@ -283,7 +283,7 @@ class Site extends Folder
 								'http'    => $save_urls[$save_urlid]['http'],
 								'https'   => $save_urls[$save_urlid]['https']
 								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_url', $values)) {
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_url', $values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -302,7 +302,7 @@ class Site extends Folder
 		foreach ($delete_urlids as $urlid) {
 			// remove all the old URLs
 			$where_cond = 'urlid = '.$db->quote($urlid);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_url', $where_cond)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_url', $where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -353,18 +353,20 @@ class Site extends Folder
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
 
+
 		// remove all the old URLs
 		$sub_sql = 'SELECT url
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
 					'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l');
 
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_design', 'url IN ('.$sub_sql.')')) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_design', 'url IN ('.$sub_sql.')')) {
+
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
 		$where_cond = 'assetid = '.$db->quote($this->id);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup', $where_cond)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup', $where_cond)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -388,7 +390,7 @@ class Site extends Folder
 							'https'       => $urls[$urlid]['https'],
 							'root_urlid'  => $urlid,
 						);
-			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -398,7 +400,7 @@ class Site extends Folder
 								'name'     => $name,
 								'designid' => $designid,
 								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup_design', $values)) {
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_design', $values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -505,9 +507,9 @@ class Site extends Folder
 		
 		if (empty($result)) {
 			$sql = 'SELECT ld.designid, a.type_code
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
-							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_design ld ON l.url = ld.url
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON ld.designid = a.assetid
 					';
 			$where ='l.assetid  = '.$db->quote($asset->id).'
 					  AND ld.url  LIKE '.$db->quote($url.'%').'

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.12 2004/06/18 13:56:13 brobertson Exp $
+* $Id: remap_manager.inc,v 1.13 2004/11/18 05:00:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,13 +31,14 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $ - 0.1
+* @version $Revision: 1.13 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 
 class Remap_Manager extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -55,11 +56,11 @@ class Remap_Manager extends Asset
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
-	* @see Asset::create()
 	* @return mixed int or false
 	* @access public
+	* @see Asset::create()
 	*/
 	function create(&$link)
 	{
@@ -68,16 +69,13 @@ class Remap_Manager extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		if ($linkid = parent::create($link)) {
-			if (!system_asset_fns_create_cleanup($this))  {
+			if (!system_asset_fns_create_cleanup($this)) {
 				$linkid = false;
 			}
 		}
 
-		if ($linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		} else {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-		}
+		if ($linkid) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		else $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 
 		return $linkid;
 
@@ -185,7 +183,7 @@ class Remap_Manager extends Asset
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT COUNT(*)
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_remap';
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
 		$where = 'url = '.$db->quote($old_url);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
@@ -199,13 +197,13 @@ class Remap_Manager extends Asset
 
 		// check if the new URL is already remapping to something else, and delete it
 		$where_cond = 'url = '.$db->quote($new_url);
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_remap', $where_cond)) return false;
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_remap', $where_cond)) return false;
 
 		$values = Array('url'       => $old_url,
 						'remap_url' => $new_url,
 						'expires'   => (is_null($expires)) ? $expires : ts_iso8601($expires),
 						);
-		return (int)$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup_remap', $values);
+		return (int)$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_remap', $values);
 
 	}//end addRemapURL()
 
@@ -225,7 +223,7 @@ class Remap_Manager extends Asset
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT url, http, https
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup';
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup';
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
@@ -278,7 +276,7 @@ class Remap_Manager extends Asset
 		$db  =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$sql   = 'SELECT remap_url
-				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_remap';
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_remap';
 		$where = 'url = '.$db->quote($url).'
 				  AND (expires IS NULL OR expires > NOW())';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -395,9 +393,9 @@ class Remap_Manager extends Asset
 		
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT ld.designid, a.type_code
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup_design ld ON l.url = ld.url
-						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON ld.designid = a.assetid
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_design ld ON l.url = ld.url
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast a ON ld.designid = a.assetid
 				';
 		$where ='l.assetid  = '.$db->quote($asset->id);
 		if (!is_null($url)) $where .= ' AND ld.url  LIKE '.$db->quote($url.'%');

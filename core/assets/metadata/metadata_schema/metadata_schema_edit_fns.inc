@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.27 2004/09/17 06:44:22 gsherwood Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.28 2004/11/18 05:08:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -90,7 +90,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 			$new_section_name = trim($_POST[$prefix.'_new_section']);
 			$GLOBALS['SQ_SYSTEM']->am->includeAsset('metadata_section');
 			$new_section =& new Metadata_Section();
-			$schema_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'dependant' => 1);
+			$schema_link = Array('asset' => &$asset, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => -1, 'is_dependant' => 1);
 			$new_section->setAttrValue('name', $new_section_name);
 			if (!$new_section->create($schema_link)) return false;
 		}
