@@ -18,11 +18,12 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.45 2004/09/26 22:44:31 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.46 2004/10/05 02:35:18 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
 require_once  dirname(__FILE__).'/../../calendar_event/calendar_event.inc';
+require_once  dirname(__FILE__).'/../../lib/calendar_common.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
@@ -33,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.45 $ - 1.0
+* @version $Revision: 1.46 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -290,8 +291,8 @@ class Calendar_Event_Recurring extends Calendar_Event
 		if ((!is_null($stop)) && ($stop < $date)) return false;
 
 		// get components and get into it
-		$date_components = $this->getDateComponents($date);
-		$start_components = $this->getDateComponents($start);
+		$date_components = get_date_components($date);
+		$start_components = get_date_components($start);
 
 		if (!$interval)	$interval = 1;
 		if ($interval > 1) $freq_type .= 'x';
@@ -921,7 +922,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	
 		$date_values = Array();
 		foreach(Array('start_date', 'end_date') as $date_comp) {
-			$date_values += $this->getDateComponents($this->attr($date_comp), $date_comp.'_');
+			$date_values += get_date_components($this->attr($date_comp), $date_comp.'_');
 		}
 		
 		// frequency field => as thy will be set in the standard attribute value table
