@@ -96,190 +96,8 @@ class Asset extends Resolve_Object
 		} else {
 			$this->_loadVars();
 		}
-	}
 
-
-	/**
-	* Saves a copy of this asset at this point in time
-	* This copy gets used when the asset is live and the user does not have write access
-	*
-	* @return boolean
-	* @access public
-	*/
-	function saveSystemVersion()
-	{
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
-		// make sure our data directories exists
-		if (!create_directory($this->data_path)) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted data directory', E_USER_WARNING);
-			return false;
-		}
-
-		// make sure our system directories exists
-		if (!create_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted system directory', E_USER_WARNING);
-			return false;
-		}
-
-		// make sure there is nothing in the system directories
-		if (!clear_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear restricted system directory', E_USER_WARNING);
-			return false;
-		}
-
-		// save the object for later (in the restricted directory)
-		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
-			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not write object data file', E_USER_WARNING);
-			return false;
-		}
-
-		// move all the other files in our data directories
-		// into the new system directories for later use
-		$files_to_copy = list_files($this->data_path);
-		foreach ($files_to_copy as $filename) {
-			if (!copy_file($this->data_path.'/'.$filename, $this->data_path.'/.sq_system/'.$filename)) {
-				trigger_error('Failed saving asset "'.$this->name.'" to cache, could not copy file "'.$filename.'" to restricted system directory', E_USER_WARNING);
-				return false;
-			}
-		}
-
-		return true;
-	}//end saveSystemVersion()
-
-
-	/**
-	* Clears the directory for saving the system version
-	*
-	* @return boolean
-	* @access public
-	*/
-	function clearSystemVersion()
-	{
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
-		// make sure our data directory exists
-		if (!create_directory($this->data_path)) {
-			trigger_error('Failed clearing system version of asset "'.$this->name.'", could not create data directory', E_USER_WARNING);
-			return false;
-		}
-
-		// make sure our system directory exists
-		if (!create_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed clearing system version of asset "'.$this->name.'", could not create system directory', E_USER_WARNING);
-			return false;
-		}
-
-		if (!clear_directory($this->data_path.'/.sq_system')) {
-			trigger_error('Failed clearing system version of asset "'.$this->name.'"', E_USER_WARNING);
-			return false;
-		}
-
-		return true;
-	}//end clearSystemVersion()
-
-
-	/**
-	* Loads the asset from the cached version
-	* The cached version is saved when the asset status becomes SQ_STATUS_LIVE
-	*
-	* @return boolean
-	* @access public
-	*/
-	function loadSystemVersion()
-	{
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
-		// make sure our data directory exists
-		if (!file_exists($this->data_path.'/.object_data')) {
-			trigger_error('Failed loading asset "'.$this->id.'" from cache, object data file "'.$this->data_path.'/.object_data'.'" not found', E_USER_WARNING);
-			return false;
-		}
-
-		$real_status = $this->status;
-		$this = unserialize(file_to_string($this->data_path.'/.object_data'));
-		$this->status = $real_status;
-		return true;
-	}//end loadSystemVersion()
-
-
-	/**
-	* Replaces the editing version with the system (live) version
-	*
-	* @return boolean
-	* @access public
-	*/
-	function revertToSystemVersion()
-	{
-		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-
-		// load our object data in as it was before
-		if (is_file($this->data_path.'/.sq_system/.object_data')) {
-			$old_version = unserialize(file_to_string($this->data_path.'/.sq_system/.object_data'));
-		} else {
-			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not locate object data file', E_USER_WARNING);
-			return false;
-		}
-
-		// copy over the old files we stored in the system directory
-		$files_to_copy = list_files($this->data_path.'/.sq_system');
-		foreach ($files_to_copy as $filename) {
-			// skip hidden files
-			if (strpos($filename, '.') === 0) continue;
-
-			if (!copy_file($this->data_path.'/.sq_system/'.$filename, $this->data_path.'/'.$filename)) {
-				trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not copy file "'.$filename.'" to restricted data directory', E_USER_WARNING);
-				return false;
-			}
-		}
-
-		if (!$this->clearSystemVersion()) {
-			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not clear system version', E_USER_WARNING);
-			return false;
-		}
-
-		// update all the vars
-		foreach ($old_version->vars as $var_name => $var_data) {
-			if ($var_data['type'] == 'serialise') $var_data['value'] = serialize($var_data['value']);
-			if (!$this->setAttrValue($var_name, $var_data['value'], true)) {
-				trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not save value of attribute "'.$var_name.'"', E_USER_WARNING);
-				return false;
-			}
-		}
-
-		// ITS ALIVE... ITS ALIVE...
-		$this = $old_version;
-
-		// save this old version to the db
-		$this->_updated();
-
-		return true;
-
-	}//end revertToSystemVersion()
-
-
-	/**
-	* Should the current user be shown the cached version or not
-	*
-	* @return boolean
-	* @access public
-	*/
-	function useSystemVersion()
-	{
-		return (($this->status & SQ_STATUS_SAFE_EDITING) && !$this->writeAccess(Array(), false));
-	}//end useSystemVersion()
-
-
-	/**
-	* The type that this asset is
-	*
-	* @return string
-	* @access public
-	*/
-	function type()
-	{
-		return get_class($this);
-	}//end type();
+	}//end constructor
 
 
 	/**
@@ -406,7 +224,172 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Creates a duplicate of this asset.
+	* The only child assetst that are duplicated are the ones that are DEPENDANTLY linked to this asset
+	* NO OTHER linked assets are duplicated
+	* Returns a reference to the new object or if an error occured NULL
+	*
+	* @param Array	&$link				information used to create the initial link,
+	*									Array ('asset' => [ref major asset to create link under],
+	*									'link_type' => SQ_LINK_?, 'value' => [link value],
+	*									'sort_order' => [link sort order], 'dependant' = [boolean],
+										'exclusive' = [boolean])
+	* @param Array	&$dupe_map			a map for that can be used for re-indexing data held in
+	*									assets of the form Array([old asset id] => [new asset id]);
+	* @param bool	$dupe_dependants	whether or not to duplicate any assets that are dependantly
+	*									linked to this asset, only works if $link is not empty
+	* @param bool	$dupe_directory		whether or not to duplicate this assets data directory
+	*
+	* @return object Asset | NULL
+	* @access public
+	*/
+	function &duplicate(&$link, &$dupe_map, $dupe_dependants=true, $dupe_directory=true)
+	{
+		if (!empty($link)) {
+			// make sure the initial link information is passed in
+			if (!isset($link['asset']))     trigger_error('Cant create asset without an asset to link to', E_USER_ERROR);
+			if (!isset($link['link_type'])) trigger_error('Cant create asset without a link type', E_USER_ERROR);
+		}
+
+		$null = null; // needed because we return by reference
+
+		if (!$this->id) return $null;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
+		$assetid = $db->nextId('sq_sequence_asset');
+		if (DB::isError($assetid)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
+		}
+
+		$now    = time();
+		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+
+		$sql = 'INSERT INTO sq_asset
+				(assetid, type_code, name, short_name, status, last_updated, last_userid)
+				VALUES
+				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($this->name.' - Duplicate').', '.$db->quote($this->short_name.' - Duplicate').', '.$db->quote(SQ_STATUS_UNDER_CONSTRUCTION).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return $null;
+		}
+
+		$dupe = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->type());
+		if (is_null($dupe)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $null;
+		}
+
+		// Now we set all the attributes
+		foreach($this->vars as $name => $data) {
+			if (!$dupe->setAttrValue($name, $data['value'])) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return $null;
+			}
+		}
+
+		if (!empty($link)) {
+			// create the initial link
+			if (!isset($link['value']))	     $link['value']      = '';
+			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
+			if (!isset($link['dependant']))	 $link['dependant']  = 0;
+			if (!isset($link['exclusive']))	 $link['exclusive']  = 0;
+			$linkid = $link['asset']->createLink($dupe, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
+			if(empty($linkid)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return $null;
+			}
+
+			// OK now that we are linked up let's our dependants
+			if ($dupe_dependants) {
+				$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+
+				if (!empty($dependant_links)) {
+					$create_link = Array('asset'      => &$dupe,
+										 'link_type'  => null,
+										 'value'      => null,
+										 'sort_order' => -1,
+										 'dependant'  => '1',
+										 'exclusive'  => '0');
+					$am = &$GLOBALS['SQ_SYSTEM']->am;
+					foreach($dependant_links as $data) {
+						// If this asset has already been duplicated in this duplication run
+						// then just link it to the new duplicate of ourselves
+						if (isset($dupe_map[$data['minorid']])) {
+
+							$duped_child = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dupe_map[$data['minorid']], $data['type_code']);
+							if (is_null($duped_child)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return $null;
+							}// end if
+
+							$linkid = $dupe->createLink($duped_child, $data['link_type'], $data['value'], $data['sort_order'], '1', $data['exclusive']);
+							if (!$linkid) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return $null;
+							}// end if
+
+						// otherwise duplicate and link
+						} else {
+							$child = &$am->getAsset($data['minorid'], $data['type_code']);
+							if (is_null($child)) continue;
+							$create_link['link_type']	= $data['link_type'];
+							$create_link['value']		= $data['value'];
+							$create_link['sort_order']	= $data['sort_order'];
+							$create_link['exclusive']	= $data['exclusive'];
+							$duped_child = &$child->duplicate($create_link, $dupe_map, true, $dupe_directory);
+							if (is_null($duped_child)) {
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+								return $null;
+							}
+						}// end if
+					}// end fpr
+				}// end if empty
+			}// end if dupe dependants
+
+		}// end if !empty(link)
+
+		// OK if we got this far let's copy the directory (if it exists)
+		if ($dupe_directory && is_dir($this->data_path)) {
+			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+			if (!copy_directory($this->data_path, $dupe->data_path)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return $null;
+			}
+		}
+
+		// if we got this far all is well,
+		// so add to the map and return the duplicate
+		$dupe_map[$this->id] = $dupe->id;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return $dupe;
+
+	}//end duplicate()
+
+
+	/**
+	* Can this asset have its last significant link removed (putting it in the trash)?
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canDelete()
+	{
+		return true;
+
+	}//end canDelete()
+
+
+	/**
 	* Delete this asset from the trash
+	*
+	* @param boolean	$release_lock	should we realease the lock after deleting
 	*
 	* @return boolean
 	* @access public
@@ -481,6 +464,265 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Returns a name to use to describe this instance of this asset
+	* should be overridden, used to set $this->name and $this->short_name
+	*
+	* @param boolean	$short_name	whether or not we are after the shortname or the full name
+	*
+	* @access private
+	*/
+	function _getName($short_name=false)
+	{
+		return ucwords(str_replace('_', ' ', $this->type())).' #'.$this->id;
+
+	}//end _getName()
+
+
+	/**
+	* The type that this asset is
+	*
+	* @return string
+	* @access public
+	*/
+	function type()
+	{
+		return get_class($this);
+
+	}//end type()
+
+
+	/**
+	* Returns an array of all assets types that this asset extends from
+	*
+	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
+	*									even though it's an unistantiable object
+	*
+	* @see Asset_Manager::getTypeAncestors()
+	* @access public
+	*/
+	function getTypeAncestors($include_asset=true)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->type(), $include_asset);
+
+	}//end getTypeAncestors()
+
+
+	/**
+	* Get all asset ids that are above this asset in the various trees in which it exists
+	*
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getParents($type_code='', $strict_type_code=true)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);
+
+	}//end getParents()
+
+
+	/**
+	* Get all asset ids that are below this asset in the various trees in which it exists
+	*
+	* @param string|array	$type_code			the type of asset that is linked
+	*											(eg 'Page', 'File', etc)
+	*											if an array returns link if matches any
+	*											of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	*											or $type_code and any of it's sub-classes
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getChildren($type_code='', $strict_type_code=true)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, $type_code, $strict_type_code);
+
+	}//end getChildren()
+
+
+	/**
+	* Should the current user be shown the cached version or not
+	*
+	* @return boolean
+	* @access public
+	*/
+	function useSystemVersion()
+	{
+		return (($this->status & SQ_STATUS_SAFE_EDITING) && !$this->writeAccess(Array(), false));
+
+	}//end useSystemVersion()
+
+
+	/**
+	* Loads the asset from the cached version
+	* The cached version is saved when the asset status becomes SQ_STATUS_LIVE
+	*
+	* @return boolean
+	* @access public
+	*/
+	function loadSystemVersion()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// make sure our data directory exists
+		if (!file_exists($this->data_path.'/.object_data')) {
+			trigger_error('Failed loading asset "'.$this->id.'" from cache, object data file "'.$this->data_path.'/.object_data'.'" not found', E_USER_WARNING);
+			return false;
+		}
+
+		$real_status = $this->status;
+		$this = unserialize(file_to_string($this->data_path.'/.object_data'));
+		$this->status = $real_status;
+		return true;
+
+	}//end loadSystemVersion()
+
+
+	/**
+	* Saves a copy of this asset at this point in time
+	* This copy gets used when the asset is live and the user does not have write access
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveSystemVersion()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// make sure our data directories exists
+		if (!create_directory($this->data_path)) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted data directory', E_USER_WARNING);
+			return false;
+		}
+
+		// make sure our system directories exists
+		if (!create_directory($this->data_path.'/.sq_system')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create restricted system directory', E_USER_WARNING);
+			return false;
+		}
+
+		// make sure there is nothing in the system directories
+		if (!clear_directory($this->data_path.'/.sq_system')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear restricted system directory', E_USER_WARNING);
+			return false;
+		}
+
+		// save the object for later (in the restricted directory)
+		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not write object data file', E_USER_WARNING);
+			return false;
+		}
+
+		// move all the other files in our data directories
+		// into the new system directories for later use
+		$files_to_copy = list_files($this->data_path);
+		foreach ($files_to_copy as $filename) {
+			if (!copy_file($this->data_path.'/'.$filename, $this->data_path.'/.sq_system/'.$filename)) {
+				trigger_error('Failed saving asset "'.$this->name.'" to cache, could not copy file "'.$filename.'" to restricted system directory', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		return true;
+
+	}//end saveSystemVersion()
+
+
+	/**
+	* Clears the directory for saving the system version
+	*
+	* @return boolean
+	* @access public
+	*/
+	function clearSystemVersion()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// make sure our data directory exists
+		if (!create_directory($this->data_path)) {
+			trigger_error('Failed clearing system version of asset "'.$this->name.'", could not create data directory', E_USER_WARNING);
+			return false;
+		}
+
+		// make sure our system directory exists
+		if (!create_directory($this->data_path.'/.sq_system')) {
+			trigger_error('Failed clearing system version of asset "'.$this->name.'", could not create system directory', E_USER_WARNING);
+			return false;
+		}
+
+		if (!clear_directory($this->data_path.'/.sq_system')) {
+			trigger_error('Failed clearing system version of asset "'.$this->name.'"', E_USER_WARNING);
+			return false;
+		}
+
+		return true;
+
+	}//end clearSystemVersion()
+
+
+	/**
+	* Replaces the editing version with the system (live) version
+	*
+	* @return boolean
+	* @access public
+	*/
+	function revertToSystemVersion()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// load our object data in as it was before
+		if (is_file($this->data_path.'/.sq_system/.object_data')) {
+			$old_version = unserialize(file_to_string($this->data_path.'/.sq_system/.object_data'));
+		} else {
+			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not locate object data file', E_USER_WARNING);
+			return false;
+		}
+
+		// copy over the old files we stored in the system directory
+		$files_to_copy = list_files($this->data_path.'/.sq_system');
+		foreach ($files_to_copy as $filename) {
+			// skip hidden files
+			if (strpos($filename, '.') === 0) continue;
+
+			if (!copy_file($this->data_path.'/.sq_system/'.$filename, $this->data_path.'/'.$filename)) {
+				trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not copy file "'.$filename.'" to restricted data directory', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		if (!$this->clearSystemVersion()) {
+			trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not clear system version', E_USER_WARNING);
+			return false;
+		}
+
+		// update all the vars
+		foreach ($old_version->vars as $var_name => $var_data) {
+			if ($var_data['type'] == 'serialise') $var_data['value'] = serialize($var_data['value']);
+			if (!$this->setAttrValue($var_name, $var_data['value'], true)) {
+				trigger_error('Failed reverting asset "'.$this->name.'" to system version, could not save value of attribute "'.$var_name.'"', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		// ITS ALIVE... ITS ALIVE...
+		$this = $old_version;
+
+		// save this old version to the db
+		$this->_updated();
+
+		return true;
+
+	}//end revertToSystemVersion()
+
+
+	/**
 	* Load the asset represented by the passed asset id
 	*
 	* @param int	$assetid	the asset id to be loaded
@@ -538,6 +780,7 @@ class Asset extends Resolve_Object
 		$this->data_path = SQ_DATA_PATH.'/restricted/'.$this->type().'/'.$this->id;
 		$this->data_path_unrestricted = SQ_DATA_PATH.'/unrestricted/'.$this->type().'/'.$this->id;
 		if ($this->useSystemVersion()) $this->data_path .= '/.sq_system';
+
 	}//end _loadDataPaths()
 
 
@@ -589,7 +832,6 @@ class Asset extends Resolve_Object
 	*/
 	function _updated()
 	{
-
 		$last_updated = time();
 		$last_userid  = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		$name         = $this->_getName();
@@ -641,27 +883,14 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Returns a name to use to describe this instance of this asset
-	* should be overridden, used to set $this->name and $this->short_name
-	*
-	* @param bool	$short_name	whether or not we are after the shortname or the full name
-	*
-	* @access private
-	*/
-	function _getName($short_name=false)
-	{
-		return ucwords(str_replace('_', ' ', $this->type())).' #'.$this->id;
-	}//end _getName()
-
-
-	/**
 	* Returns an array of statii that the current user can set for this asset
 	* Value returned is a key => value array for a drop down
 	*
 	* @return array
 	* @access public
 	*/
-	function getAvailableStatii() {
+	function getAvailableStatii()
+	{
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 		$wfm = new Workflow_Manager($this);
 
@@ -728,6 +957,7 @@ class Asset extends Resolve_Object
 		}
 
 		return $statii;
+
 	}// end getAvailableStatii()
 
 
@@ -745,6 +975,7 @@ class Asset extends Resolve_Object
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		if (!$status) $status = $this->status;
 		return getStatusDescription($status);
+
 	}//end getStatusDescription()
 
 
@@ -1029,158 +1260,6 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Creates a duplicate of this asset.
-	* The only child assetst that are duplicated are the ones that are DEPENDANTLY linked to this asset
-	* NO OTHER linked assets are duplicated
-	* Returns a reference to the new object or if an error occured NULL
-	*
-	* @param Array	&$link				information used to create the initial link,
-	*									Array ('asset' => [ref major asset to create link under],
-	*									'link_type' => SQ_LINK_?, 'value' => [link value],
-	*									'sort_order' => [link sort order], 'dependant' = [boolean],
-										'exclusive' = [boolean])
-	* @param Array	&$dupe_map			a map for that can be used for re-indexing data held in
-	*									assets of the form Array([old asset id] => [new asset id]);
-	* @param bool	$dupe_dependants	whether or not to duplicate any assets that are dependantly
-	*									linked to this asset, only works if $link is not empty
-	* @param bool	$dupe_directory		whether or not to duplicate this assets data directory
-	*
-	* @return object Asset | NULL
-	* @access public
-	*/
-	function &duplicate(&$link, &$dupe_map, $dupe_dependants=true, $dupe_directory=true)
-	{
-
-		if (!empty($link)) {
-			// make sure the initial link information is passed in
-			if (!isset($link['asset']))     trigger_error('Cant create asset without an asset to link to', E_USER_ERROR);
-			if (!isset($link['link_type'])) trigger_error('Cant create asset without a link type', E_USER_ERROR);
-		}
-
-		$null = null; // needed because we return by reference
-
-		if (!$this->id) return $null;
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
-		$assetid = $db->nextId('sq_sequence_asset');
-		if (DB::isError($assetid)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
-		}
-
-		$now    = time();
-		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
-
-		$sql = 'INSERT INTO sq_asset
-				(assetid, type_code, name, short_name, status, last_updated, last_userid)
-				VALUES
-				('.$db->quote($assetid).','.$db->quote($this->type()).', '.$db->quote($this->name.' - Duplicate').', '.$db->quote($this->short_name.' - Duplicate').', '.$db->quote(SQ_STATUS_UNDER_CONSTRUCTION).', '.$db->quote(ts_iso8601($now)).', '.$db->quote($userid).')';
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return $null;
-		}
-
-		$dupe = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $this->type());
-		if (is_null($dupe)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return $null;
-		}
-
-		// Now we set all the attributes
-		foreach($this->vars as $name => $data) {
-			if (!$dupe->setAttrValue($name, $data['value'])) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return $null;
-			}
-		}
-
-		if (!empty($link)) {
-			// create the initial link
-			if (!isset($link['value']))	     $link['value']      = '';
-			if (!isset($link['sort_order'])) $link['sort_order'] = -1;
-			if (!isset($link['dependant']))	 $link['dependant']  = 0;
-			if (!isset($link['exclusive']))	 $link['exclusive']  = 0;
-			$linkid = $link['asset']->createLink($dupe, $link['link_type'], $link['value'], $link['sort_order'], $link['dependant'], $link['exclusive']);
-			if(empty($linkid)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return $null;
-			}
-
-
-			// OK now that we are linked up let's our dependants
-			if ($dupe_dependants) {
-				$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
-
-				if (!empty($dependant_links)) {
-					$create_link = Array('asset'      => &$dupe,
-										 'link_type'  => null,
-										 'value'      => null,
-										 'sort_order' => -1,
-										 'dependant'  => '1',
-										 'exclusive'  => '0');
-					$am = &$GLOBALS['SQ_SYSTEM']->am;
-					foreach($dependant_links as $data) {
-						// If this asset has already been duplicated in this duplication run
-						// then just link it to the new duplicate of ourselves
-						if (isset($dupe_map[$data['minorid']])) {
-
-							$duped_child = &$GLOBALS['SQ_SYSTEM']->am->getAsset($dupe_map[$data['minorid']], $data['type_code']);
-							if (is_null($duped_child)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return $null;
-							}// end if
-
-							$linkid = $dupe->createLink($duped_child, $data['link_type'], $data['value'], $data['sort_order'], '1', $data['exclusive']);
-							if (!$linkid) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return $null;
-							}// end if
-
-						// otherwise duplicate and link
-						} else {
-							$child = &$am->getAsset($data['minorid'], $data['type_code']);
-							if (is_null($child)) continue;
-							$create_link['link_type']	= $data['link_type'];
-							$create_link['value']		= $data['value'];
-							$create_link['sort_order']	= $data['sort_order'];
-							$create_link['exclusive']	= $data['exclusive'];
-							$duped_child = &$child->duplicate($create_link, $dupe_map, true, $dupe_directory);
-							if (is_null($duped_child)) {
-								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-								return $null;
-							}
-						}// end if
-					}// end fpr
-				}// end if empty
-			}// end if dupe dependants
-
-		}// end if !empty(link)
-
-		// OK if we got this far let's copy the directory (if it exists)
-		if ($dupe_directory && is_dir($this->data_path)) {
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			if (!copy_directory($this->data_path, $dupe->data_path)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return $null;
-			}
-		}
-
-		// if we got this far all is well,
-		// so add to the map and return the duplicate
-		$dupe_map[$this->id] = $dupe->id;
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		return $dupe;
-
-	}//end duplicate()
-
-
-	/**
 	* Remaps existing assetids used by this asset to new ones
 	*
 	* @param Array	&$map	a map of the form Array([old asset id] => [new asset id]);
@@ -1191,6 +1270,7 @@ class Asset extends Resolve_Object
 	function remapAssetids($map)
 	{
 		return true;
+
 	}// end remapAssetids()
 
 
@@ -1362,77 +1442,13 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Returns an array of all assets types that this asset extends from
-	*
-	* @param boolean	$include_asset	when true adds the "Asset" type to the parent list,
-	*									even though it's an unistantiable object
-	*
-	* @see Asset_Manager::getTypeAncestors()
-	* @access public
-	*/
-	function getTypeAncestors($include_asset=true)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($this->type(), $include_asset);
-	}//end getTypeAncestors()
-
-
-	/**
-	* Get all asset ids that are above this asset in the various trees in which it exists
-	*
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	*
-	* @return array(int)
-	* @access public
-	*/
-	function getParents($type_code='', $strict_type_code=true)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getParents($this->id, $type_code, $strict_type_code);
-	}//end getParents()
-
-
-	/**
-	* Get all asset ids that are below this asset in the various trees in which it exists
-	*
-	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
-	*											or $type_code and any of it's sub-classes
-	*
-	* @return array(int)
-	* @access public
-	*/
-	function getChildren($type_code='', $strict_type_code=true)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getChildren($this->id, $type_code, $strict_type_code);
-	}//end getChildren()
-
-
-	/**
-	* Can this asset have its last significant link removed (putting it in the trash)?
-	*
-	* @return boolean
-	* @access public
-	*/
-	function canDelete()
-	{
-		return true;
-	}//end canDelete()
-
-
-	/**
 	* Can the current user forceably aquire the current lock on this asset?
 	*
 	* @return boolean
 	* @access public
 	*/
-	function canForceablyAquireLock() {
+	function canForceablyAquireLock()
+	{
 		$current_lock = $this->getLockInfo();
 		if (empty($current_lock)) return false;
 
@@ -1455,6 +1471,7 @@ class Asset extends Resolve_Object
 		}
 
 		return $can_aquire_lock;
+
 	}//end canForceablyAquireLock()
 
 
@@ -1555,7 +1572,8 @@ class Asset extends Resolve_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-	}//end aquireLock();
+
+	}//end aquireLock()
 
 
 	/**
@@ -1584,7 +1602,8 @@ class Asset extends Resolve_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-	}//end aquireLock();
+
+	}//end releaseLock()
 
 
 	/**
@@ -1618,7 +1637,8 @@ class Asset extends Resolve_Object
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-	}//end updateLock();
+
+	}//end updateLock()
 
 
 	/**
@@ -1654,6 +1674,7 @@ class Asset extends Resolve_Object
 		}
 
 		return $result;
+
 	}//end getLockInfo()
 
 
@@ -1683,45 +1704,8 @@ class Asset extends Resolve_Object
 		}
 
 		return true;
+
 	}//end cleanupLock()
-
-
-	/**
-	* Returns the link information for a specific link that this asset is the major asset in
-	*
-	* @param int	$linkid
-	* @param string	$side_of_link	Which side of the link this (the current) 
-	*								asset is on ('major' or 'minor')
-	* @param bool	$ignore_this	if true we don't care whether this link is ours or not
-	*
-	* @return Array
-	* @access public
-	*/
-	function getLinkById($linkid, $side_of_link='major', $ignore_this=false)
-	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
-			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
-
-		if (!$this->id) return Array();
-
-		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						a.type_code, l.sort_order, l.dependant, l.exclusive
-				FROM sq_asset_link l, sq_asset a
-				WHERE l.linkid = '.$db->quote($linkid).'
-				  AND l.'.$other_side.'id = a.assetid';
-
-		if (!$ignore_this) $sql .= ' AND l.'.$side_of_link.'id = '.$db->quote($this->id);
-
-		$result = $db->getRow($sql);
-		if (DB::isError($result))
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
-		return $result;
-
-	}//end getLinkById()
 
 
 	/**
@@ -1804,6 +1788,44 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Returns the link information for a specific link that this asset is the major asset in
+	*
+	* @param int	$linkid
+	* @param string	$side_of_link	Which side of the link this (the current)
+	*								asset is on ('major' or 'minor')
+	* @param bool	$ignore_this	if true we don't care whether this link is ours or not
+	*
+	* @return Array
+	* @access public
+	*/
+	function getLinkById($linkid, $side_of_link='major', $ignore_this=false)
+	{
+		if ($side_of_link != 'major' && $side_of_link != 'minor')
+			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
+
+		if (!$this->id) return Array();
+
+		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
+						a.type_code, l.sort_order, l.dependant, l.exclusive
+				FROM sq_asset_link l, sq_asset a
+				WHERE l.linkid = '.$db->quote($linkid).'
+				  AND l.'.$other_side.'id = a.assetid';
+
+		if (!$ignore_this) $sql .= ' AND l.'.$side_of_link.'id = '.$db->quote($this->id);
+
+		$result = $db->getRow($sql);
+		if (DB::isError($result))
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+		return $result;
+
+	}//end getLinkById()
+
+
+	/**
 	* Return all links that this asset has to other assets
 	*
 	* @param int			$link_types			integer that can be the product of bitwise operations
@@ -1879,6 +1901,29 @@ class Asset extends Resolve_Object
 		return $result;
 
 	}//end getLinks()
+
+
+	/**
+	* Returns an array of all the permitted links type, the type asset and the cardinality
+	* In the form
+	*
+	*    Array('[link_type]' => Array('[type_code]' => '[cardinality]));
+	* Where:
+	*   link_type   = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
+	*   cardinality = 1|M
+	*
+	* @return Array()
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		return Array(SQ_LINK_TYPE_1 => Array(),
+					 SQ_LINK_TYPE_2 => Array(),
+					 SQ_LINK_TYPE_3 => Array(),
+					 SQ_LINK_NOTICE => Array()
+					);
+
+	}//end _getAllowedLinks()
 
 
 	/**
@@ -2050,6 +2095,66 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Checks whether a link of a certain type can be made to this asset
+	* Returns TRUE if link allowed and a string containing the error if it is not
+	*
+	* @param string $type_code		the type code that we want to check
+	* @param string $link_type		the type of link to check
+	* @param int	$ignore_linkid	if it gets down to the checking of the cardinality,
+	*								ignore the link represented by this link id
+	* @param int	$exclusive		the exclusive status of the link
+	*
+	* @return TRUE | string
+	* @access public
+	*/
+	function canLinkToType($type_code, $link_type, $ignore_linkid=0, $exclusive=0)
+	{
+		// get the minor assets parents and add it's type to the front of the indexed array
+		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
+		array_unshift($types, $type_code);
+
+		$allowed_links = $this->_getAllowedLinks();
+
+		// we will be ascending up the parent tree from the current asset type.
+		// that way the major asset can have specific cardinality for different assets types
+		// EG, assets => 'M', user => '1' -> this means that many assets can be linked to this asset
+		//     and only one user, but because 'user' is an 'asset' we need to check for any 'user' references
+		//     before we check for any 'asset' references
+		$type = '';
+		for($i = 0; $i < count($types); $i++) {
+			$type = $types[$i];
+			if (!empty($allowed_links[$link_type][$type])) break;
+		}
+
+		if (empty($allowed_links[$link_type][$type])) {
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			return 'Assets of Type "'.$type_code.'" cannot be "'.link_type_name($link_type).'" linked to a "'.$this->type().'"';
+		}
+
+		if (!$exclusive && $allowed_links[$link_type][$type]['exclusive']) {
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			return 'Assets of Type "'.$type_code.'" must be "'.link_type_name($link_type).'" exclusivly linked to a "'.$this->type().'"';
+		}
+
+		//// Now we need to check that the cardinality is kept valid ////
+
+		// if we are only allowed one of these links
+		if ($allowed_links[$link_type][$type]['card'] == 1) {
+			$num_curr_links = $this->countLinks('major', $link_type, $type, true, $ignore_linkid);
+			//  and we already have our one link, bugger off
+			if ($num_curr_links > 0) {
+				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+				return 'Assets of Type "'.$this->type().'" can only have one "'.link_type_name($link_type).'" link to a "'.$type.'"';
+			}
+		}//end if
+
+		// if we get this far all is OK
+		return true;
+
+	}// canLinkToType()
+
+
+	/**
 	* Creates a link between this asset and the passed asset, of a certain type
 	* and returns the linkid of the created link
 	*
@@ -2068,7 +2173,6 @@ class Asset extends Resolve_Object
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
-
 		if (!$this->id) return 0;
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 
@@ -2182,8 +2286,6 @@ class Asset extends Resolve_Object
 				$minor_tree['treeid'] = (string) $minor_tree['treeid'];
 				$minor_tree['num_immediate_kids'] = (int) $minor_tree['num_immediate_kids'];
 			}
-#			pre_echo('minor tree : ');
-#			pre_echo($minor_tree);
 
 			// when links are deleted their entries in the tree table are set to have a linkid of zero
 			// (see deleteLink()) so we can attempt to find unused treeid's that are forming gaps
@@ -2283,7 +2385,7 @@ class Asset extends Resolve_Object
 			// we are the root folder, so do a simple insert
 			if ((string) $existing_treeid == '') {
 				$sql = $insert.' VALUES ('.$db->quote($free_childid).', '.$db->quote($linkid).', '.$db->quote($minor_tree['num_immediate_kids']).')';
-#pre_echo($sql);
+
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -2300,7 +2402,7 @@ class Asset extends Resolve_Object
 				$select = 'SELECT '.$concat.', '.$db->quote($linkid).', '.$db->quote($minor_tree['num_immediate_kids']).'
 							FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
 							WHERE l.minorid = '.$db->quote($this->id);
-#pre_echo($select);
+
 				$result = db_extras_insert_select($db, $insert, $select);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -2323,14 +2425,13 @@ class Asset extends Resolve_Object
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
-#pre_echo($sql);
+
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
 			}
-
 
 			// if this minor has already been linked so do a select into
 			if ($minor_tree['treeid'] != '') {
@@ -2444,104 +2545,321 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Checks whether a link of a certain type can be made to this asset
-	* Returns TRUE if link allowed and a string containing the error if it is not
+	* Returns TRUE if we can delete the passed link, or a string with the error msg
 	*
-	* @param string $type_code		the type code that we want to check
-	* @param string $link_type		the type of link to check
-	* @param int	$ignore_linkid	if it gets down to the checking of the cardinality,
-	*								ignore the link represented by this link id
-	* @param int	$exclusive		the exclusive status of the link
+	* @param int	$linkid	the link id of the link to remove
 	*
-	* @return TRUE | string
+	* @return TRUE|string
 	* @access public
 	*/
-	function canLinkToType($type_code, $link_type, $ignore_linkid=0, $exclusive=0)
+	function canDeleteLink($linkid)
 	{
-
-		// get the minor assets parents and add it's type to the front of the indexed array
-		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
-		array_unshift($types, $type_code);
-
-		$allowed_links = $this->_getAllowedLinks();
-
-		// we will be ascending up the parent tree from the current asset type.
-		// that way the major asset can have specific cardinality for different assets types
-		// EG, assets => 'M', user => '1' -> this means that many assets can be linked to this asset
-		//     and only one user, but because 'user' is an 'asset' we need to check for any 'user' references
-		//     before we check for any 'asset' references
-		$type = '';
-		for($i = 0; $i < count($types); $i++) {
-			$type = $types[$i];
-			if (!empty($allowed_links[$link_type][$type])) break;
-		}
-
-		if (empty($allowed_links[$link_type][$type])) {
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			return 'Assets of Type "'.$type_code.'" cannot be "'.link_type_name($link_type).'" linked to a "'.$this->type().'"';
-		}
-
-		if (!$exclusive && $allowed_links[$link_type][$type]['exclusive']) {
-			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			return 'Assets of Type "'.$type_code.'" must be "'.link_type_name($link_type).'" exclusivly linked to a "'.$this->type().'"';
-		}
-
-		//// Now we need to check that the cardinality is kept valid ////
-
-		// if we are only allowed one of these links
-		if ($allowed_links[$link_type][$type]['card'] == 1) {
-			$num_curr_links = $this->countLinks('major', $link_type, $type, true, $ignore_linkid);
-			//  and we already have our one link, bugger off
-			if ($num_curr_links > 0) {
-				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-				return 'Assets of Type "'.$this->type().'" can only have one "'.link_type_name($link_type).'" link to a "'.$type.'"';
-			}
-		}//end if
-
-		// if we get this far all is OK
 		return true;
 
-	}// canLinkToType()
+	}//end canDeleteLink()
 
 
 	/**
-	* Returns an array of all the permitted links type, the type asset and the cardinality
-	* In the form
+	* Removes a link where this asset is the major player
 	*
-	*    Array('[link_type]' => Array('[type_code]' => '[cardinality]));
-	* Where:
-	*   link_type   = SQ_LINK_TYPE_1|SQ_LINK_TYPE_2|SQ_LINK_TYPE_3|SQ_LINK_NOTICE
-	*   cardinality = 1|M
-	*
-	* @return Array()
-	* @access private
-	*/
-	function _getAllowedLinks()
-	{
-
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array()
-					);
-
-	}//end _getAllowedLinks()
-
-
-	/**
-	* Called whenever any type of link is changed, allows caching of objects, links and other stuff
-	* to occur but not cause integrity issues during script execution
-	* returns true it it's successfull
+	* @param int	$linkid	the link id of the link to remove
 	*
 	* @return boolean
-	* @access private
+	* @access public
 	*/
-	function _linksUpdated()
+	function deleteLink($linkid)
 	{
-		if (!$this->_updated()) return false;
-		unset($this->_tmp['dependant_links']);
+		// first, we should try and find the link
+		$link = $this->getLinkById($linkid);
+		if (empty($link)) {
+			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			return false;
+		}
+
+		// if you dont have write access to this asset you cant delete any links
+		if (!$this->writeAccess(Array(), false)) {
+			trigger_error('Cannot delete link, permission denied', E_USER_WARNING);
+			return false;
+		}
+
+		// check if we are allowed to delete this link
+		if (($err_msg = $this->canDeleteLink($linkid)) !== true) {
+			trigger_error($err_msg, E_USER_WARNING);
+			return 0;
+		}
+
+		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// if this is a significant link
+		if ($link['link_type'] & SQ_LINK_SIGNIFICANT) {
+
+			$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+			if (is_null($minor)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+			$num_other_links = $minor->countLinks('minor', SQ_LINK_SIGNIFICANT, '', true, $linkid);
+
+			// we create a new link to the trash if this is the last significant link
+			// being deleted and if we are not purging the trash
+			if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
+				// some assets may not be able to have their last significant link
+				// deleted, so lets check first before going ahead
+				if (!$minor->canDelete()) {
+					trigger_error($minor->name.' can not have its last significant link removed' , E_USER_WARNING);
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+				if (is_null($trash_folder)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+
+				// this asset is destined for the trash, so we need to set its permissions to
+				// whatever it is inheriting right now so it keeps the while in the trash
+				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
+				foreach ($perms as $perm) {
+					$userids = array_keys($minor->getPermission($perm, false));
+					foreach($userids as $userid) $minor->grantPermission($userid, $perm);
+				}
+
+				if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}
+
+			//// UPDATE PERMISSIONS LOOKUP TABLE ////
+
+			// Remove all lookup references to the permissions that occured below this link
+			$sql = 'DELETE FROM sq_asset_permission_lookup
+					WHERE start_treeid in (~SQ0~)';
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')' : 't.treeid || '.$db->quote('%');
+			$subs = Array('SELECT pl.start_treeid
+							FROM sq_asset_link_tree t, sq_asset_permission_lookup pl
+							WHERE t.linkid = '.$db->quote($linkid).'
+							  AND pl.start_treeid LIKE '.$concat);
+			$sql = db_extras_subquery($db, $sql, $subs);
+			if (DB::isError($sql)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
+			//// UPDATE THE TREE ////
+
+			// Update the parents to tell them that they are going to be one kid less
+			$sql = 'UPDATE sq_asset_link_tree
+					   SET num_immediate_kids = num_immediate_kids - 1
+					WHERE treeid IN (~SQ0~)';
+			$subs = Array('SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
+							FROM sq_asset_link_tree t
+							WHERE t.linkid = '.$db->quote($linkid));
+
+			$sql = db_extras_subquery($db, $sql, $subs);
+			if (DB::isError($sql)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
+			// We can delete all the links under these nodes because it will be a clean start
+			// when we insert into the gap's we create below
+			$sql = 'DELETE FROM sq_asset_link_tree
+					WHERE treeid in (~SQ0~)';
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
+			$subs = Array('SELECT ct.treeid
+							FROM sq_asset_link_tree pt, sq_asset_link_tree ct
+							WHERE pt.linkid = '.$db->quote($linkid).'
+							  AND ct.treeid LIKE '.$concat.'
+							  AND ct.treeid > pt.treeid');
+
+			$sql = db_extras_subquery($db, $sql, $subs);
+			if (DB::isError($sql)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
+			// We are going to set the treeid nodes that this link is associated
+			// with to zero so that we can find it as a gap when we createLink() later on
+			$sql = 'UPDATE sq_asset_link_tree
+					   SET linkid = 0,
+					       num_immediate_kids = 0
+					WHERE linkid = '.$db->quote($linkid);
+
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return false;
+			}
+
+		}// end if significant link
+
+		// move 'em up, higher
+		$sql = 'UPDATE sq_asset_link
+				SET sort_order = sort_order - 1
+				WHERE majorid    = '.$db->quote($this->id).'
+				  AND sort_order > '.$db->quote($link['sort_order']);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		$sql = 'DELETE FROM sq_asset_link
+				WHERE linkid  = '.$db->quote($linkid).'
+				  AND majorid = '.$db->quote($this->id);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		// tell, the asset it has updated
+		if (!$this->_linksUpdated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
+		if ($link['link_type'] & SQ_LINK_FRONTEND_NAV) {
+			if (!$minor->updateLookups()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return 0;
+			}
+		}
+
+		// if this is a significant link, it's time to refresh the permissions lookup
+		if ($link['link_type'] & SQ_LINK_SIGNIFICANT) {
+			//// UPDATE OUR PERMISSIONS LOOKUP'S ////
+			if (!$this->_refreshPermissionLookups()) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return 0;
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $this->id, 'linkid' => $linkid));
+
 		return true;
-	}//end _linksUpdated()
+
+	}//end deleteLink()
+
+
+	/**
+	* Move a link to a new parent
+	*
+	* @param int	$linkid			the link id of the link to move
+	* @param int	$to_parentid	the asset id of the new parent asset
+	* @param int	$link_type		the type of the new link
+	* @param int	$to_parent_pos	the position under the new parent
+	*
+	* @return boolean
+	* @access public
+	*/
+	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
+	{
+		// first, we should try and find the link
+		$link = $this->getLinkById($linkid);
+		if (empty($link)) {
+			trigger_error('Existing Link #'.$linkid.' not found, unable to move link', E_USER_WARNING);
+			return false;
+		}
+
+		// now check that the new parent exists
+		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($to_parentid);
+		if (!$new_parent->id) {
+			trigger_error('Unable to Move Asset, new parent (Asset #"'.$to_parentid.'") not found', E_USER_WARNING);
+			return false;
+		}
+
+		// cant link to the new parent if it is in the trash
+		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($new_parent->id, true)) {
+			trigger_error('Unable to Move Asset, new parent (Asset #"'.$new_parent->id.'") is in the trash');
+			return;
+		}
+
+		// if you dont have write access to this asset you cant delete any links
+		if (!$this->writeAccess(Array(), false)) {
+			trigger_error('Unable to Move Asset, permission denied to old parent "'.$this->name.'"', E_USER_WARNING);
+			return false;
+		}
+
+		// if you dont have write access to the new parent asset you cant create any links
+		if (!$new_parent->writeAccess(Array(), false)) {
+			trigger_error('Unable to Move Asset, permission denied to new parent "'.$new_parent->name.'"', E_USER_WARNING);
+			return false;
+		}
+
+		// this is the asset we are moving
+		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
+		if (!$minor->id) {
+			trigger_error('Unable to Move Asset, minor (Asset #"'.$link['minorid'].'") not found', E_USER_WARNING);
+			return false;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$new_parent->aquireLock();
+		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
+		$new_parent->releaseLock();
+		if (!$new_linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// Now let's try and delete the old link
+		$this->aquireLock();
+		$deleted = $this->deleteLink($linkid);
+		$this->releaseLock();
+		if (!$deleted) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end moveLink()
 
 
 	/**
@@ -2567,6 +2885,23 @@ class Asset extends Resolve_Object
 		}
 
 	}//end moveLinkPos()
+
+
+	/**
+	* Called whenever any type of link is changed, allows caching of objects, links and other stuff
+	* to occur but not cause integrity issues during script execution
+	* returns true it it's successfull
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _linksUpdated()
+	{
+		if (!$this->_updated()) return false;
+		unset($this->_tmp['dependant_links']);
+		return true;
+
+	}//end _linksUpdated()
 
 
 	/**
@@ -2668,7 +3003,6 @@ class Asset extends Resolve_Object
 			}
 		}
 
-
 		if ($sort_order_changed) {
 			// move 'em up, higher
 			if ($link['sort_order'] > $sort_order) {
@@ -2699,326 +3033,6 @@ class Asset extends Resolve_Object
 		return true;
 
 	}//end _updateLink()
-
-
-	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return TRUE|string
-	* @access public
-	*/
-	function canDeleteLink($linkid)
-	{
-		return true;
-	}//end canDeleteLink()
-
-
-	/**
-	* Removes a link where this asset is the major player
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return boolean
-	* @access public
-	*/
-	function deleteLink($linkid)
-	{
-
-		// first, we should try and find the link
-		$link = $this->getLinkById($linkid);
-		if (empty($link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
-			return false;
-		}
-
-		// if you dont have write access to this asset you cant delete any links
-		if (!$this->writeAccess(Array(), false)) {
-			trigger_error('Cannot delete link, permission denied', E_USER_WARNING);
-			return false;
-		}
-
-		// check if we are allowed to delete this link
-		if (($err_msg = $this->canDeleteLink($linkid)) !== true) {
-			trigger_error($err_msg, E_USER_WARNING);
-			return 0;
-		}
-
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		// if this is a significant link
-		if ($link['link_type'] & SQ_LINK_SIGNIFICANT) {
-
-			$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
-			if (is_null($minor)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-
-			$num_other_links = $minor->countLinks('minor', SQ_LINK_SIGNIFICANT, '', true, $linkid);
-
-			// we create a new link to the trash if this is the last significant link
-			// being deleted and if we are not purging the trash
-			if (!$num_other_links && !$GLOBALS['SQ_PURGING_TRASH']) {
-				// some assets may not be able to have their last significant link
-				// deleted, so lets check first before going ahead
-				if (!$minor->canDelete()) {
-					trigger_error($minor->name.' can not have its last significant link removed' , E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-
-				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-				if (is_null($trash_folder)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-
-				// this asset is destined for the trash, so we need to set its permissions to
-				// whatever it is inheriting right now so it keeps the while in the trash
-				$perms = Array(SQ_PERMISSION_ADMIN, SQ_PERMISSION_WRITE, SQ_PERMISSION_READ);
-				foreach ($perms as $perm) {
-					$userids = array_keys($minor->getPermission($perm, false));
-					foreach($userids as $userid) $minor->grantPermission($userid, $perm);
-				}
-
-				if (!$trash_folder->createLink($minor, SQ_LINK_TYPE_2)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-			}
-
-			//// UPDATE PERMISSIONS LOOKUP TABLE ////
-
-			// Remove all lookup references to the permissions that occured below this link
-			$sql = 'DELETE FROM sq_asset_permission_lookup
-					WHERE start_treeid in (~SQ0~)';
-			$concat = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')' : 't.treeid || '.$db->quote('%');
-			$subs = Array('SELECT pl.start_treeid
-							FROM sq_asset_link_tree t, sq_asset_permission_lookup pl
-							WHERE t.linkid = '.$db->quote($linkid).'
-							  AND pl.start_treeid LIKE '.$concat);
-			$sql = db_extras_subquery($db, $sql, $subs);
-			if (DB::isError($sql)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-
-
-			//// UPDATE THE TREE ////
-
-			// Update the parents to tell them that they are going to be one kid less
-			$sql = 'UPDATE sq_asset_link_tree
-					   SET num_immediate_kids = num_immediate_kids - 1
-					WHERE treeid IN (~SQ0~)';
-			$subs = Array('SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
-							FROM sq_asset_link_tree t
-							WHERE t.linkid = '.$db->quote($linkid));
-
-			$sql = db_extras_subquery($db, $sql, $subs);
-			if (DB::isError($sql)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-#pre_echo($sql);
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-
-			// We can delete all the links under these nodes because it will be a clean start
-			// when we insert into the gap's we create below
-			$sql = 'DELETE FROM sq_asset_link_tree
-					WHERE treeid in (~SQ0~)';
-			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
-			$subs = Array('SELECT ct.treeid
-							FROM sq_asset_link_tree pt, sq_asset_link_tree ct
-							WHERE pt.linkid = '.$db->quote($linkid).'
-							  AND ct.treeid LIKE '.$concat.'
-							  AND ct.treeid > pt.treeid');
-
-			$sql = db_extras_subquery($db, $sql, $subs);
-			if (DB::isError($sql)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-#pre_echo($sql);
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-
-			// We are going to set the treeid nodes that this link is associated 
-			// with to zero so that we can find it as a gap when we createLink() later on
-			$sql = 'UPDATE sq_asset_link_tree
-					   SET linkid = 0,
-					       num_immediate_kids = 0
-					WHERE linkid = '.$db->quote($linkid);
-#pre_echo($sql);
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return false;
-			}
-
-		}// end if significant link
-
-		// move 'em up, higher
-		$sql = 'UPDATE sq_asset_link
-				SET sort_order = sort_order - 1
-				WHERE majorid    = '.$db->quote($this->id).'
-				  AND sort_order > '.$db->quote($link['sort_order']);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
-
-		$sql = 'DELETE FROM sq_asset_link
-				WHERE linkid  = '.$db->quote($linkid).'
-				  AND majorid = '.$db->quote($this->id);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
-
-		// tell, the asset it has updated
-		if (!$this->_linksUpdated()) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
-		if ($link['link_type'] & SQ_LINK_FRONTEND_NAV) {
-			if (!$minor->updateLookups()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-		}
-
-		// if this is a significant link, it's time to refresh the permissions lookup
-		if ($link['link_type'] & SQ_LINK_SIGNIFICANT) {
-			//// UPDATE OUR PERMISSIONS LOOKUP'S ////
-			if (!$this->_refreshPermissionLookups()) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return 0;
-			}
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		$GLOBALS['SQ_SYSTEM']->broadcastEvent('DeleteLink', Array('assetid' => $this->id, 'linkid' => $linkid));
-
-		return true;
-
-	}//end deleteLink()
-
-
-	/**
-	* Move a link to a new parent
-	*
-	* @param int	$linkid			the link id of the link to move
-	* @param int	$to_parentid	the asset id of the new parent asset
-	* @param int	$link_type		the type of the new link
-	* @param int	$to_parent_pos	the position under the new parent
-	*
-	* @return boolean
-	* @access public
-	*/
-	function moveLink($linkid, $to_parentid, $link_type, $to_parent_pos)
-	{
-
-		// first, we should try and find the link
-		$link = $this->getLinkById($linkid);
-		if (empty($link)) {
-			trigger_error('Existing Link #'.$linkid.' not found, unable to move link', E_USER_WARNING);
-			return false;
-		}
-
-		// now check that the new parent exists
-		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($to_parentid);
-		if (!$new_parent->id) {
-			trigger_error('Unable to Move Asset, new parent (Asset #"'.$to_parentid.'") not found', E_USER_WARNING);
-			return false;
-		}
-
-		// cant link to the new parent if it is in the trash
-		if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($new_parent->id, true)) {
-			trigger_error('Unable to Move Asset, new parent (Asset #"'.$new_parent->id.'") is in the trash');
-			return;
-		}
-
-		// if you dont have write access to this asset you cant delete any links
-		if (!$this->writeAccess(Array(), false)) {
-			trigger_error('Unable to Move Asset, permission denied to old parent "'.$this->name.'"', E_USER_WARNING);
-			return false;
-		}
-
-		// if you dont have write access to the new parent asset you cant create any links
-		if (!$new_parent->writeAccess(Array(), false)) {
-			trigger_error('Unable to Move Asset, permission denied to new parent "'.$new_parent->name.'"', E_USER_WARNING);
-			return false;
-		}
-
-		// this is the asset we are moving
-		$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
-		if (!$minor->id) {
-			trigger_error('Unable to Move Asset, minor (Asset #"'.$link['minorid'].'") not found', E_USER_WARNING);
-			return false;
-		}
-
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		// open the transaction
-		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-		$new_parent->aquireLock();
-		$new_linkid = $new_parent->createLink($minor, $link_type, '', $to_parent_pos);
-		$new_parent->releaseLock();
-		if (!$new_linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		// Now let's try and delete the old link
-		$this->aquireLock();
-		$deleted = $this->deleteLink($linkid);
-		$this->releaseLock();
-		if (!$deleted) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		return true;
-
-	}//end moveLink()
 
 
 	/**
@@ -3133,7 +3147,7 @@ class Asset extends Resolve_Object
 	/**
 	* Easy way to get the value of an attribute
 	*
-	* @param string	$name
+	* @param string	$name the name of the attribute whos value you want to get
 	*
 	* @return mixed
 	* @access public
@@ -3145,7 +3159,8 @@ class Asset extends Resolve_Object
 			return null;
 		}
 		return $this->vars[$name]['value'];
-	}//end attr();
+
+	}//end attr()
 
 
 	/**
@@ -3161,7 +3176,6 @@ class Asset extends Resolve_Object
 	*/
 	function &getAttribute($name, $mute_errors=false)
 	{
-
 		if (!isset($this->_tmp['attributes'][$name]) || !is_object($this->_tmp['attributes'][$name])) {
 
 			if (empty($this->_tmp['attributes'])) $this->_tmp['attributes'] = Array();
@@ -3184,6 +3198,112 @@ class Asset extends Resolve_Object
 		return $this->_tmp['attributes'][$name];
 
 	}//end getAttribute()
+
+
+	/**
+	* Returns an array of all user or user_group assets that have the passed permission for this asset
+	*
+	* @param string		$permission		the permission code you are getting
+	* @param boolean	$and_greater	get effective permission (eg read access = read
+	*									or write or admin)
+	* @param boolean	$and_inherited	Whether to get inherited permissions as well
+	* @param boolean	$access			Type of Access : null = all, true = granted, false = denied
+	* @param boolean	$expand_groups	expand user groups so only user ids get returned
+	*									(NOTE: only valid if $all_info is false)
+	* @param boolean	$all_info		when false fn just returns an array of userids for
+	*									those that have permission
+	*									When true fn returns all info about the permission in the form of
+	*									Array(userid => Array(assetid => access))
+	*									(NOTE: TRUE is only valid if $and_greater and
+	*									$expand_groups are false)
+	*
+	* @return array()
+	* @access public
+	*/
+	function getPermission($permission, $and_greater=true, $and_inherited=true, $access=null, $expand_groups=false, $all_info=false)
+	{
+		$permission = (int) $permission;
+		// can't be and_greater with workflow
+		if ($permission == SQ_PERMISSION_WORKFLOW) $and_greater = false;
+
+		if (($and_greater || $expand_groups) && $all_info) {
+			trigger_error(__CLASS__.'::'.__FUNCTION__.'() - You cannot have either and_greater or expand_groups arguments set to true if you want to have all_info set to true', E_USER_NOTICE);
+			$all_info = false;
+		}
+
+		// return cached version if we can
+		$storage_name =(($and_greater) ? 'effective_' : '').'permission_'.$permission;
+		if (!isset($this->_tmp['permission_cache'][$storage_name])) {
+
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$concat_1 = ($db->phptype == 'mysql') ? 'CONCAT(pl1.start_treeid, '.$db->quote('%').')' : 'pl1.start_treeid || '.$db->quote('%');
+			$concat_2 = ($db->phptype == 'mysql') ? 'CONCAT(t2.treeid, '.$db->quote('%').')'        : 't2.treeid || '.$db->quote('%');
+
+			// NOTE: we can't really join the userid to the asset table to get the type code
+			//       because that would cause public access (ie userid 0) to not be found
+			$sql = 'SELECT DISTINCT p1.assetid, p1.userid, p1.access
+					FROM sq_asset_permission_lookup pl1
+							INNER JOIN sq_asset_permission p1 ON pl1.permissionid = p1.permissionid,
+						sq_asset_link l2
+							INNER JOIN sq_asset_link_tree t2 ON l2.linkid = t2.linkid
+					WHERE l2.minorid = '.$db->quote($this->id).'
+					  AND t2.treeid       LIKE '.$concat_1.'
+					  AND pl1.stop_treeid LIKE '.$concat_2.'
+					  AND pl1.start_treeid <= t2.treeid
+					  AND (t2.treeid < pl1.stop_treeid OR (pl1.stop_treeid = t2.treeid AND pl1.inc_stop = '.$db->quote('1').'))
+					  AND p1.permission '.(($and_greater) ? '>= ' : '= ').$db->quote($permission);
+
+#			pre_echo($sql);
+			$result = $db->getAll($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return Array();
+			}
+
+			// cache the result for next time
+			$this->_tmp['permission_cache'][$storage_name] = $result;
+
+		}// end if
+
+		$ret_val = Array();
+		foreach($this->_tmp['permission_cache'][$storage_name] as $data) {
+			if (!$and_inherited && $data['assetid'] != $this->id) continue;
+
+			if      ($access === false && $data['access'] != '0') continue;
+			else if ($access === true  && $data['access'] != '1') continue;
+
+			// return all info
+			if ($all_info) {
+				if(!isset($ret_val[$data['userid']])) $ret_val[$data['userid']] = Array();
+				$ret_val[$data['userid']][$data['assetid']] = $data['access'];
+
+			// else we just want user ids
+			} else {
+				// if we are expanding user groups and we aren't public access
+				if ($expand_groups && $data['userid']) {
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userid']);
+					if (!is_null($user)) {
+						if (is_a($user, 'user_group')) {
+							$ret_val = array_merge($ret_val, $user->getChildren(Array('user'), false));
+						} else {
+							$ret_val[] = $user->id;
+						}
+					}// end if
+				} else {
+					$ret_val[] = $data['userid'];
+				}// end if
+			}// end if all info
+
+		}// end foreach
+
+		if ($all_info) {
+			return $ret_val;
+		} else {
+			return array_unique($ret_val);
+		}
+
+	}//end getPermission()
 
 
 	/**
@@ -3331,10 +3451,11 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Resets the permission lookup table for this asset, by removing, then adding the permissions to the lookup
+	* Resets the permission lookup table for this asset
+	* Done by removing and then adding the permissions to the lookup
 	*
 	* @return boolean
-	* @see _addPermissionsLookup() 
+	* @see _addPermissionsLookup()
 	* @see _deletePermissionsLookup()
 	* @access protected
 	*/
@@ -3360,16 +3481,13 @@ class Asset extends Resolve_Object
 				  AND pl1.stop_treeid LIKE '.$concat_2.'
 				  AND pl1.start_treeid <= t2.treeid
 				  AND (t2.treeid < pl1.stop_treeid OR (pl1.stop_treeid = t2.treeid AND pl1.inc_stop = '.$db->quote('1').'))';
-#pre_echo($sql);
+
 		$lookups = $db->getAll($sql);
 		if (DB::isError($lookups)) {
 			trigger_error($lookups->getMessage().'<br/>'.$lookups->getUserInfo(), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-
-#pre_echo('Lookups : ');
-#pre_echo($lookups);
 
 		// if there are no permissions we are all done
 		if (empty($lookups)) {
@@ -3380,30 +3498,17 @@ class Asset extends Resolve_Object
 		foreach($lookups as $data) {
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['assetid'], $data['type_code']);
 			if(is_null($asset)) continue;
-#			pre_echo("USING ASSET : ".$asset->id." - ".$asset->name);
-
-#pre_echo('A) ALL : ');
-#pre_echo($GLOBALS['SQ_SYSTEM']->db->getAll('select pl.permissionid, p.assetid, p.userid, p.permission, p.access, pl.start_treeid, pl.stop_treeid from sq_asset_permission_lookup pl left outer join sq_asset_permission p on pl.permissionid = p.permissionid order by  userid, permission, stop_treeid, start_treeid'));
 
 			if (!$asset->_deletePermissionLookup((int) $data['permissionid'], (int) $data['userid'], (int) $data['permission'], false)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
-#pre_echo('B) ALL : ');
-#pre_echo($GLOBALS['SQ_SYSTEM']->db->getAll('select pl.permissionid, p.assetid, p.userid, p.permission, p.access, pl.start_treeid, pl.stop_treeid from sq_asset_permission_lookup pl left outer join sq_asset_permission p on pl.permissionid = p.permissionid order by  userid, permission, stop_treeid, start_treeid'));
-			
 			if (!$asset->_addPermissionLookup((int) $data['permissionid'], (int) $data['userid'], (int) $data['permission'])) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 		}// end foreach
-#$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-#return false;
-
-#pre_echo('C) ALL : ');
-#pre_echo($GLOBALS['SQ_SYSTEM']->db->getAll('select pl.permissionid, p.assetid, p.userid, p.permission, p.access, pl.start_treeid, pl.stop_treeid from sq_asset_permission_lookup pl left outer join sq_asset_permission p on pl.permissionid = p.permissionid order by  userid, permission, stop_treeid, start_treeid'));
-
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
@@ -3427,7 +3532,7 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		// First we check to see if this permission will be inserting into the 
+		// First we check to see if this permission will be inserting into the
 		// middle of another currently set permission
 		$concat_1 = ($db->phptype == 'mysql') ? 'CONCAT(pl.start_treeid, '.$db->quote('%').')' : 'pl.start_treeid || '.$db->quote('%');
 		$concat_2 = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')'        : 't.treeid || '.$db->quote('%');
@@ -3441,7 +3546,7 @@ class Asset extends Resolve_Object
 				  AND (t.treeid < pl.stop_treeid OR (pl.stop_treeid = t.treeid AND pl.inc_stop = '.$db->quote('1').'))
 				  AND p.permission = '.$db->quote($permission).'
 				  AND p.userid  = '.$db->quote($userid);
-#pre_echo($sql);
+
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -3475,8 +3580,6 @@ class Asset extends Resolve_Object
 				';
 		if ($in_str) $sql .= '  AND pt.treeid NOT IN ('.$in_str.')';
 
-
-#pre_echo($sql);
 		$leaf_treeids = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 		if (DB::isError($leaf_treeids)) {
 			trigger_error($leaf_treeids->getMessage().'<br/>'.$leaf_treeids->getUserInfo(), E_USER_WARNING);
@@ -3494,22 +3597,13 @@ class Asset extends Resolve_Object
 				  AND p.permission = '.$db->quote($permission).'
 				  AND p.userid  = '.$db->quote($userid);
 		if ($in_str) $sql .= '  AND t.treeid NOT IN ('.$in_str.')';
-#pre_echo($sql);
+
 		$perms_below = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 		if (DB::isError($perms_below)) {
 			trigger_error($perms_below->getMessage().'<br/>'.$perms_below->getUserInfo(), E_USER_WARNING);
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-
-#pre_echo('Existing Perms : ');
-#pre_echo($existing_perms);
-#pre_echo('leaf_treeids : ');
-#pre_echo($leaf_treeids);
-#pre_echo('perms_below : ');
-#pre_echo($perms_below);
-#$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-#return false;
 
 		foreach($existing_perms as $our_treeid => $existing_perm) {
 			foreach($existing_perm as $start_treeid => $existing_perm_data) {
@@ -3520,7 +3614,7 @@ class Asset extends Resolve_Object
 						WHERE start_treeid = '.$db->quote($start_treeid).'
 						  AND stop_treeid IN ('.implode(',', $existing_perm_data['stop_treeids']).')
 						  AND permissionid = '.$db->quote($existing_perm_data['permissionid']);
-#				pre_echo($sql);
+
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -3534,7 +3628,7 @@ class Asset extends Resolve_Object
 						(permissionid, start_treeid, stop_treeid, inc_stop)
 						VALUES
 						('.$db->quote($existing_perm_data['permissionid']).', '.$db->quote($start_treeid).', '.$db->quote($our_treeid).', '.$db->quote('0').')';
-#				pre_echo($sql);
+
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -3545,12 +3639,10 @@ class Asset extends Resolve_Object
 			}// end foreach
 		}// end foreach
 
-
 		$inserted_perm_belows = Array();
 		foreach($leaf_treeids as $our_treeid => $leafs) {
 			$start_points = Array();
 			foreach($leafs as $leaf) {
-#pre_echo("Leaf : $leaf");
 				$stop_treeid = $leaf;
 				$inc_stop    = '1';
 				if (!empty($perms_below[$our_treeid])) {
@@ -3574,8 +3666,6 @@ class Asset extends Resolve_Object
 							}
 						}
 					}// end foreach
-
-
 				}// endif
 
 				$sql = 'INSERT INTO sq_asset_permission_lookup
@@ -3583,7 +3673,6 @@ class Asset extends Resolve_Object
 						VALUES
 						('.$db->quote($permissionid).', '.$db->quote($our_treeid).', '.$db->quote($stop_treeid).', '.$db->quote($inc_stop).')';
 
-#				pre_echo($sql);
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -3595,8 +3684,6 @@ class Asset extends Resolve_Object
 
 		}// end foreach leaf treeids
 
-#$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-#return false;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
@@ -3609,7 +3696,8 @@ class Asset extends Resolve_Object
 	* @param string		$permissionid		the id of the permission to remove
 	* @param int		$userid				the id of the user or user_group to add the permission for
 	* @param string		$permission			the permission code you are adding
-	* @param boolean	$reset_inherited	whether or not to reset the inherited permissions lookups (only false when called from _refreshPermissionsLookups())
+	* @param boolean	$reset_inherited	whether or not to reset the inherited permissions lookups
+	*										(only false when called from _refreshPermissionsLookups())
 	*
 	* @return boolean
 	* @access protected
@@ -3626,7 +3714,7 @@ class Asset extends Resolve_Object
 				WHERE l.minorid = '.$db->quote($this->id).'
 				  AND p.start_treeid = t.treeid
 				  AND p.permissionid = '.$db->quote($permissionid);
-#pre_echo($sql);
+
 		$existing_perms = $db->getCol($sql);
 		if (DB::isError($existing_perms)) {
 			trigger_error($existing_perms->getMessage().'<br/>'.$existing_perms->getUserInfo(), E_USER_WARNING);
@@ -3642,7 +3730,7 @@ class Asset extends Resolve_Object
 					  AND pl.stop_treeid = t.treeid
 					  AND p.permission = '.$db->quote($permission).'
 					  AND p.userid  = '.$db->quote($userid);
-	#pre_echo($sql);
+
 			$inherited_perms = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC);
 			if (DB::isError($inherited_perms)) {
 				trigger_error($inherited_perms->getMessage().'<br/>'.$inherited_perms->getUserInfo(), E_USER_WARNING);
@@ -3653,10 +3741,7 @@ class Asset extends Resolve_Object
 
 
 		if (!empty($existing_perms)) {
-#pre_echo('Existing : ');
-#pre_echo($existing_perms);
-#pre_echo('Inherited : ');
-#pre_echo($inherited_perms);
+
 			foreach($existing_perms as $our_treeid) {
 
 				if ($reset_inherited && !empty($inherited_perms[$our_treeid])) {
@@ -3665,7 +3750,7 @@ class Asset extends Resolve_Object
 					$sql = 'DELETE FROM sq_asset_permission_lookup
 							WHERE stop_treeid  = '.$db->quote($our_treeid).'
 							  AND permissionid = '.$db->quote($inherited_perms[$our_treeid]['permissionid']);
-#					pre_echo(__LINE__."\n".$sql);
+
 					$result = $db->query($sql);
 					if (DB::isError($result)) {
 						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -3679,7 +3764,7 @@ class Asset extends Resolve_Object
 								permissionid = '.$db->quote($inherited_perms[$our_treeid]['permissionid']).'
 							WHERE start_treeid = '.$db->quote($our_treeid).'
 							  AND permissionid = '.$db->quote($permissionid);
-#					pre_echo($sql);
+
 					$result = $db->query($sql);
 					if (DB::isError($result)) {
 						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -3693,7 +3778,7 @@ class Asset extends Resolve_Object
 					$sql = 'DELETE FROM sq_asset_permission_lookup
 							WHERE start_treeid  = '.$db->quote($our_treeid).'
 							  AND permissionid = '.$db->quote($permissionid);
-#					pre_echo(__LINE__."\n".$sql);
+
 					$result = $db->query($sql);
 					if (DB::isError($result)) {
 						trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -3706,8 +3791,6 @@ class Asset extends Resolve_Object
 			}// end foreach
 
 		}// end if existing perms
-#$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-#return false;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
@@ -3716,107 +3799,115 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Returns an array of all user or user_group assets that have the passed permission for this asset
+	* Returns true if at least one of the passed assetids has read access to this asset
 	*
-	* @param string		$permission		the permission code you are getting
-	* @param boolean	$and_greater	get effective permission (eg read access = read
-	*									or write or admin)
-	* @param boolean	$and_inherited	Whether to get inherited permissions as well
-	* @param boolean	$access			Type of Access : null = all, true = granted, false = denied
-	* @param boolean	$expand_groups	expand user groups so only user ids get returned (NOTE: only valid if $all_info is false)
-	* @param boolean	$all_info		when false fn just returns an array of userids for those that have permission.
-	*									When true fn returns all info about the permission in the form of 
-	*									Array(userid => Array(assetid => access))
-	*									(NOTE: TRUE is only valid if $and_greater and $expand_groups are false)
+	* @param array	$assetids	An array of user_group and/or user ids to check for read access
+	*							If the array is empty, the current user will be checked
 	*
-	* @return array()
+	* @return boolean
 	* @access public
 	*/
-	function getPermission($permission, $and_greater=true, $and_inherited=true, $access=null, $expand_groups=false, $all_info=false)
+	function readAccess($assetids=Array())
 	{
-		$permission = (int) $permission;
-		// can't be and_greater with workflow
-		if ($permission == SQ_PERMISSION_WORKFLOW) $and_greater = false;
+		if (!$this->id) return true;
 
-		if (($and_greater || $expand_groups) && $all_info) {
-			trigger_error(__CLASS__.'::'.__FUNCTION__.'() - You cannot have either and_greater or expand_groups arguments set to true if you want to have all_info set to true', E_USER_NOTICE);
-			$all_info = false;
+		// if asset is not live or asset does not give public read access
+		// we really need to check for write access
+		if ($this->status < SQ_STATUS_LIVE ||
+			!$this->_checkPermissionAccess(SQ_PERMISSION_READ, Array('0'))) {
+			return $this->writeAccess($assetids, false);
 		}
 
-		// return cached version if we can
-		$storage_name =(($and_greater) ? 'effective_' : '').'permission_'.$permission;
-		if (!isset($this->_tmp['permission_cache'][$storage_name])) {
+		return $this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids);
 
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-			$concat_1 = ($db->phptype == 'mysql') ? 'CONCAT(pl1.start_treeid, '.$db->quote('%').')' : 'pl1.start_treeid || '.$db->quote('%');
-			$concat_2 = ($db->phptype == 'mysql') ? 'CONCAT(t2.treeid, '.$db->quote('%').')'        : 't2.treeid || '.$db->quote('%');
-
-			// NOTE: we can't really join the userid to the asset table to get the type code
-			//       because that would cause public access (ie userid 0) to not be found
-			$sql = 'SELECT DISTINCT p1.assetid, p1.userid, p1.access
-					FROM sq_asset_permission_lookup pl1 
-							INNER JOIN sq_asset_permission p1 ON pl1.permissionid = p1.permissionid,
-						sq_asset_link l2
-							INNER JOIN sq_asset_link_tree t2 ON l2.linkid = t2.linkid
-					WHERE l2.minorid = '.$db->quote($this->id).'
-					  AND t2.treeid       LIKE '.$concat_1.'
-					  AND pl1.stop_treeid LIKE '.$concat_2.'
-					  AND pl1.start_treeid <= t2.treeid
-					  AND (t2.treeid < pl1.stop_treeid OR (pl1.stop_treeid = t2.treeid AND pl1.inc_stop = '.$db->quote('1').'))
-					  AND p1.permission '.(($and_greater) ? '>= ' : '= ').$db->quote($permission);
-
-#			pre_echo($sql);
-			$result = $db->getAll($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				return Array();
-			}
-
-			// cache the result for next time
-			$this->_tmp['permission_cache'][$storage_name] = $result;
-
-		}// end if
+	}//end readAccess()
 
 
-		$ret_val = Array();
-		foreach($this->_tmp['permission_cache'][$storage_name] as $data) {
-			if (!$and_inherited && $data['assetid'] != $this->id) continue;
+	/**
+	* Returns true if at least one of the passed assetids has write access to this asset
+	*
+	* @param array		$assetids	an array of user_group and/or user ids to check for write access
+	*								If the array is empty, the current user will be checked
+	* @param boolean	$effective	effective access based on locking and status
+	*
+	* @return boolean
+	* @access public
+	*/
+	function writeAccess($assetids=Array(), $effective=true, $editing=true)
+	{
+		if (!$this->id) return true;
+		if ($effective && $editing && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
+		return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids, $effective);
 
-			if      ($access === false && $data['access'] != '0') continue;
-			else if ($access === true  && $data['access'] != '1') continue;
+	}//end writeAccess()
 
-			// return all info
-			if ($all_info) {
-				if(!isset($ret_val[$data['userid']])) $ret_val[$data['userid']] = Array();
-				$ret_val[$data['userid']][$data['assetid']] = $data['access'];
 
-			// else we just want user ids
-			} else {
-				// if we are expanding user groups and we aren't public access
-				if ($expand_groups && $data['userid']) {
-					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userid']);
-					if (!is_null($user)) {
-						if (is_a($user, 'user_group')) {
-							$ret_val = array_merge($ret_val, $user->getChildren(Array('user'), false));
-						} else {
-							$ret_val[] = $user->id;
-						}
-					}// end if
-				} else {
-					$ret_val[] = $data['userid'];
-				}// end if
-			}// end if all info
+	/**
+	* Returns true if at least one of the passed assetids has admin access to this asset
+	*
+	* @param array		$assetids	an array of user_group and/or user ids to check for write access
+	*								If the array is empty, the current user will be checked
+	* @param boolean	$effective	effective access based on locking and status
+	*
+	* @return boolean
+	* @access public
+	*/
+	function adminAccess($assetids=Array(), $effective=true, $editing=true)
+	{
+		if (!$this->id) return true;
+		if ($effective && $editing && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
+		return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids, $effective);
 
-		}// end foreach
+	}//end adminAccess()
 
-		if ($all_info) {
-			return $ret_val;
-		} else {
-			return array_unique($ret_val);
+
+	/**
+	* Returns true if the current user can live edit this asset
+	* Live edit means the asset is currently SQ_STATUS_LIVE but this
+	* user can edit the asset without going through a safe edit
+	* NOTE: will return false if asset is not currently live
+	*
+	* @param boolean	$effective	effective access based on locking and status
+	*
+	* @return boolean
+	* @access public
+	*/
+	function liveEditAccess($effective=true)
+	{
+		if (!$this->id) return true;
+		if ($this->status != SQ_STATUS_LIVE) return true;
+
+		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+		$wfm = new Workflow_Manager($this);
+
+		if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
+			// no workflow set for this asset at all, so anyone with admin
+			// access can live edit the asset
+			return $this->checkAccess(SQ_PERMISSION_ADMIN, Array(), $effective);
 		}
 
-	}//end getPermission()
+		// if there is workflow defined for this asset, the current user
+		// must be the only concerned user to be able to live edit
+		$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
+		if ($status == 'complete') return $this->checkAccess(SQ_PERMISSION_WRITE, Array(), $effective);
+
+		return false;
+
+	}//end liveEditAccess()
+
+
+	/**
+	* Returns true if this asset is effectivly readable by everyone
+	* This function is really just shorthand for getting public read access
+	*
+	* @return boolean
+	* @access public
+	*/
+	function effectiveUnrestricted()
+	{
+		return $this->readAccess(Array(0));
+
+	}//end effectiveUnrestricted()
 
 
 	/**
@@ -3857,8 +3948,8 @@ class Asset extends Resolve_Object
 
 		} else {
 			return $this->_checkPermissionAccess($perm, $assetids);
-
 		}
+
 	}//end checkAccess()
 
 
@@ -3892,114 +3983,8 @@ class Asset extends Resolve_Object
 		if (in_array('0', $perms)) return true;
 		$common = array_intersect($assetids, $perms);
 		return (!empty($common));
+
 	}//end _checkDbAccess()
-
-
-	/**
-	* Returns true if at least one of the passed assetids has read access to this asset
-	*
-	* @param array	$assetids	An array of user_group and/or user ids to check for read access
-	*							If the array is empty, the current user will be checked
-	*
-	* @return boolean
-	* @access public
-	*/
-	function readAccess($assetids=Array())
-	{
-		if (!$this->id) return true;
-
-		// if asset is not live or asset does not give public read access
-		// we really need to check for write access
-		if ($this->status < SQ_STATUS_LIVE ||
-			!$this->_checkPermissionAccess(SQ_PERMISSION_READ, Array('0'))) {
-			return $this->writeAccess($assetids, false);
-		}
-
-		return $this->_checkPermissionAccess(SQ_PERMISSION_READ, $assetids);
-	}//end readAccess()
-
-
-	/**
-	* Returns true if at least one of the passed assetids has write access to this asset
-	*
-	* @param array		$assetids	an array of user_group and/or user ids to check for write access
-	*								If the array is empty, the current user will be checked
-	* @param boolean	$effective	effective access based on locking and status
-	*
-	* @return boolean
-	* @access public
-	*/
-	function writeAccess($assetids=Array(), $effective=true, $editing=true)
-	{
-		if (!$this->id) return true;
-		if ($effective && $editing && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
-		return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids, $effective);
-	}//end writeAccess()
-
-
-	/**
-	* Returns true if at least one of the passed assetids has admin access to this asset
-	*
-	* @param array		$assetids	an array of user_group and/or user ids to check for write access
-	*								If the array is empty, the current user will be checked
-	* @param boolean	$effective	effective access based on locking and status
-	*
-	* @return boolean
-	* @access public
-	*/
-	function adminAccess($assetids=Array(), $effective=true, $editing=true)
-	{
-		if (!$this->id) return true;
-		if ($effective && $editing && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
-		return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids, $effective);
-	}//end adminAccess()
-
-
-	/**
-	* Returns true if the current user can live edit this asset
-	* Live edit means the asset is currently SQ_STATUS_LIVE but this
-	* user can edit the asset without going through a safe edit
-	* NOTE: will return false if asset is not currently live
-	*
-	* @param boolean	$effective	effective access based on locking and status
-	*
-	* @return boolean
-	* @access public
-	*/
-	function liveEditAccess($effective=true)
-	{
-		if (!$this->id) return true;
-		if ($this->status != SQ_STATUS_LIVE) return true;
-
-		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-		$wfm = new Workflow_Manager($this);
-
-		if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
-			// no workflow set for this asset at all, so anyone with admin
-			// access can live edit the asset
-			return $this->checkAccess(SQ_PERMISSION_ADMIN, Array(), $effective);
-		}
-
-		// if there is workflow defined for this asset, the current user
-		// must be the only concerned user to be able to live edit
-		$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
-		if ($status == 'complete') return $this->checkAccess(SQ_PERMISSION_WRITE, Array(), $effective);
-
-		return false;
-	}//end liveEditAccess()
-
-
-	/**
-	* Returns true if this asset is effectivly readable by everyone
-	* This function is really just shorthand for getting public read access
-	*
-	* @return boolean
-	* @access public
-	*/
-	function effectiveUnrestricted()
-	{
-		return $this->readAccess(Array(0));
-	}//end effectiveUnrestricted()
 
 
 	/**
@@ -4047,6 +4032,7 @@ class Asset extends Resolve_Object
 	*/
 	function printBody()
 	{
+
 	}// end printBody()
 
 
@@ -4063,6 +4049,7 @@ class Asset extends Resolve_Object
 		$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
 		$ei = &$this->getEI();
 		$ei->paint($this, $o, empty($this->id));
+
 	}// end paintBackend()
 
 
@@ -4098,19 +4085,62 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Returns a reference to the edit interface for this asset type
+	* Returns the href for getting to the nearest backend for this asset
 	*
-	* @return object Asset_Edit_Interface
+	* @param string	$screen	the screen that you want displayed when the asset is loaded
+	*
 	* @access public
 	*/
-	function &getEI()
+	function getBackendHref($screen='')
 	{
-		if (empty($this->_tmp['ei']) || get_class($this->_tmp['ei']) != 'asset_edit_interface') {
-			require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
-			$this->_tmp['ei'] = new Asset_Edit_Interface($this->type());
-		}
-		return $this->_tmp['ei'];
-	}// end getEI()
+		return sq_web_path('edit').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$this->id.'&asset_ei_screen='.$screen;
+
+	}//end getBackendHref()
+
+
+	/**
+	* Returns the URL for this asset, closest to the $base_url
+	*
+	* @param string	$base_url	the url that we are want to match closest to
+	*
+	* @return string
+	* @access public
+	*/
+	function getURL($base_url=null)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url);
+
+	}//end getURL()
+
+
+	/**
+	* Returns the href for this asset closest to the $base_url, but relative to the current url
+	*
+	* @param string	$base_url	the url that we are want to match closest to
+	*
+	* @return string
+	* @access public
+	*/
+	function getHref($base_url=null)
+	{
+		return $GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->id, $base_url);
+
+	}//end getHref()
+
+
+	/**
+	* Returns the href for this asset closest to the $base_url, but relative to the current url
+	*
+	* @param string	$base_url	the url that we are want to match closest to
+	*
+	* @return string
+	* @access public
+	*/
+	function getWebDataPath()
+	{
+		return '__data/'.$this->type().'/'.$this->id;
+
+	}//end getWebDataPath()
 
 
 	/**
@@ -4162,7 +4192,8 @@ class Asset extends Resolve_Object
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$save_paths = makeValidWebPaths($paths);
 
-		// if there is no difference in the arrays (including in the sort order), then there is nothing to do
+		// if there is no difference in the arrays (including in the sort order),
+		// then there is nothing to do
 		if (!array_diff_assoc($save_paths, $current_paths) &&
 			!array_diff_assoc($current_paths, $save_paths)) return true;
 
@@ -4343,6 +4374,7 @@ class Asset extends Resolve_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+
 	}// end updateLookups
 
 
@@ -4358,7 +4390,6 @@ class Asset extends Resolve_Object
 	*/
 	function _updateLookups()
 	{
-
 		$paths = $this->getWebPaths();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -4429,6 +4460,23 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Returns a reference to the edit interface for this asset type
+	*
+	* @return object Asset_Edit_Interface
+	* @access public
+	*/
+	function &getEI()
+	{
+		if (empty($this->_tmp['ei']) || get_class($this->_tmp['ei']) != 'asset_edit_interface') {
+			require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
+			$this->_tmp['ei'] = new Asset_Edit_Interface($this->type());
+		}
+		return $this->_tmp['ei'];
+
+	}// end getEI()
+
+
+	/**
 	* Returns the Edit_Fns object appropriate for whatever asset type we are
 	*
 	* @return object Asset_Edit_Fns
@@ -4439,62 +4487,8 @@ class Asset extends Resolve_Object
 		$class_name = $this->type().'_edit_fns';
 		require_once SQ_SYSTEM_ROOT.'/'.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'dir').'/'.$class_name.'.inc';
 		return new $class_name();
+
 	}// end getEditFns()
-
-
-	/**
-	* Returns the href for getting to the nearest backend for this asset
-	*
-	* @param string	$screen	the screen that you want displayed when the asset is loaded
-	*
-	* @access public
-	*/
-	function getBackendHref($screen='')
-	{
-		return sq_web_path('edit').'/?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&assetid='.$this->id.'&asset_ei_screen='.$screen;
-	}//end getBackendHref()
-
-
-	/**
-	* Returns the URL for this asset, closest to the $base_url
-	*
-	* @param string	$base_url	the url that we are want to match closest to
-	*
-	* @return string
-	* @access public
-	*/
-	function getURL($base_url=null)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getAssetURL($this->id, $base_url);
-	}//end getURL()
-
-
-	/**
-	* Returns the href for this asset closest to the $base_url, but relative to the current url
-	*
-	* @param string	$base_url	the url that we are want to match closest to
-	*
-	* @return string
-	* @access public
-	*/
-	function getHref($base_url=null)
-	{
-		return $GLOBALS['SQ_SYSTEM']->am->getAssetHref($this->id, $base_url);
-	}//end getHref()
-
-
-	/**
-	* Returns the href for this asset closest to the $base_url, but relative to the current url
-	*
-	* @param string	$base_url	the url that we are want to match closest to
-	*
-	* @return string
-	* @access public
-	*/
-	function getWebDataPath()
-	{
-		return '__data/'.$this->type().'/'.$this->id;
-	}//end getWebDataPath()
 
 
 }//end class
