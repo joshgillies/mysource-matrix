@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.25 2004/08/11 01:03:27 gsherwood Exp $
+* $Id: text.inc,v 1.26 2004/08/20 03:42:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -169,9 +169,9 @@ class Asset_Attribute_Text extends Asset_Attribute
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		if($this->_edit_params['height'] > 1) {
-			text_area($prefix.'_'.$this->name, $this->value, $this->_edit_params['width'], $this->_edit_params['height'], $this->_params['max_length']);
+			text_area($prefix, $this->value, $this->_edit_params['width'], $this->_edit_params['height'], $this->_params['max_length']);
 		} else {
-			text_box($prefix.'_'.$this->name, $this->value, $this->_edit_params['width'], $this->_params['max_length']);
+			text_box($prefix, $this->value, $this->_edit_params['width'], $this->_params['max_length']);
 		}
 
 	}//end paint()
@@ -187,8 +187,8 @@ class Asset_Attribute_Text extends Asset_Attribute
 	*/
 	function process($prefix)
 	{
-		if (!isset($_POST[$prefix.'_'.$this->name])) return false;
-		$value = (string) $_POST[$prefix.'_'.$this->name];
+		if (!isset($_POST[$prefix])) return false;
+		$value = (string) $_POST[$prefix];
 		if ($this->value != $value && $this->setValue($value)) {
 			$this->processed = true;
 		} else {
