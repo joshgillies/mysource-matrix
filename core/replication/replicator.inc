@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator.inc,v 1.1.2.4 2004/02/13 18:29:11 brobertson Exp $
+* $Id: replicator.inc,v 1.1.2.5 2004/02/14 17:43:55 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -266,6 +266,95 @@ class Replicator extends MySource_Object
 	function replicate($systemid, $client_fd)
 	{
 	}// end replicate()
+
+
+	/**
+	* Sets up the error handler, which is going to be logging to our log, then sending error to current
+	* error handler
+	*
+	* @returns void
+	* @access private
+	*/
+	function _setErrorHandler() 
+	{
+		$this->_tmp['old_error_handler'] = set_error_handler(Array(&$this, '_errorHandler'));
+	}// end _setErrorHandler()
+
+
+	/**
+	* Restores the error handler, to what it was previously
+	*
+	* @returns void
+	* @access private
+	*/
+	function _restoreErrorHandler() 
+	{
+		unset($this->_tmp['old_error_handler']);
+		restore_error_handler();
+	}// end _restoreErrorHandler()
+
+
+	/**
+	* This function captures all errors and warnings that occur during the execution of replicate()
+	*
+	* @param int	$err_no		The type of error (E_*)
+	* @param string	$err_msg	The error message
+	* @param string	$err_file	The file the error occured in
+	* @param string	$err_line	The line the error occured on
+	*
+	* @returns void
+	* @access private
+	* @see replicate()
+	*/
+	function _errorHandler($err_no, $err_msg, $err_file, $err_line)
+	{
+		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
+
+		// if the function didn't have an '@' prepended OR if we are about to terminate
+		// catch the error
+		if (error_reporting() || $terminate) {
+
+			// Strip out the file path begining
+			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), '', $err_file);
+			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), '', $err_msg);
+
+			$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+
+			$err_name = '';
+			switch($err_no) {
+				case E_USER_ERROR	: $err_name = SQ_SYSTEM_SHORT_NAME.' Error';	break;
+				case E_USER_WARNING	: $err_name = SQ_SYSTEM_SHORT_NAME.' Warning';	break;
+				case E_USER_NOTICE	: $err_name = SQ_SYSTEM_SHORT_NAME.' Notice';	break;
+				case E_ERROR		: $err_name = 'PHP Error';						break;
+				case E_WARNING		: $err_name = 'PHP Warning';					break;
+				case E_NOTICE		: $err_name = 'PHP Notice';						break;
+				default				: $err_name = 'Unknown Error Type - '.$err_no;
+			}
+
+			$log_msg = '['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$text_msg;
+			$this->_log($log_msg, 'error');
+
+		}// end if error_reporting
+
+		if (!empty($this->_tmp['old_error_handler'])) {
+			// if it's an array, it's an object and method combination
+			if (is_array($this->_tmp['old_error_handler'])) {
+				$fn = $this->_tmp['old_error_handler'][1];
+				$this->_tmp['old_error_handler'][0]->$fn($err_no, $err_msg, $err_file, $err_line);
+
+			// else just a plain error handler
+			} else {
+				$this->_tmp['old_error_handler']($err_no, $err_msg, $err_file, $err_line);
+			}
+		}
+
+		// we may never get here if there is an old error handler, because it should do any termination for us
+		if ($terminate) {
+			exit(1);
+		}
+
+
+	}// end _errorHandler()
 
 }//end class
 
