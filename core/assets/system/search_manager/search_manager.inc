@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.12 2004/03/10 00:38:31 gsherwood Exp $
+* $Id: search_manager.inc,v 1.13 2004/03/10 22:44:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.12 $ - 0.1
+* @version $Revision: 1.13 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -172,12 +172,12 @@ class Search_Manager extends Asset
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$start_sql .= ' AND a.type_code IN (~SQ0~)';
 		$subs = Array( 'SELECT type_code
-                        FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-                        WHERE inherited_type_code '.$type_code_cond );
-        $start_sql = db_extras_subquery($db, $start_sql, $subs);
-        if (DB::isError($start_sql)) {
-            trigger_error($start_sql->getMessage().'<br/>'.$start_sql->getUserInfo(), E_USER_ERROR);
-	    }
+						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+						WHERE inherited_type_code '.$type_code_cond );
+		$start_sql = db_extras_subquery($db, $start_sql, $subs);
+		if (DB::isError($start_sql)) {
+			trigger_error($start_sql->getMessage().'<br/>'.$start_sql->getUserInfo(), E_USER_ERROR);
+		}
 
 		$userid_cond = '';
 		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
