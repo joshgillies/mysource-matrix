@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.162 2004/01/13 05:57:51 diarandine Exp $
+* $Id: asset_manager.inc,v 1.163 2004/01/13 09:32:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1582,8 +1582,8 @@ class Asset_Manager extends MySource_Object
 		// if we are the root folder then we just need to select from the asset table
 		if ($assetid == 1) {
 			$sql = 'SELECT a.assetid
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a ';
-			$where = 'WHERE ';
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
 
 		// OK, normal asset, let's find a reference to them in the tree and go from there
 		} else {
