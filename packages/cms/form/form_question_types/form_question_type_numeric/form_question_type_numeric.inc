@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric.inc,v 1.6 2004/11/15 05:39:28 arailean Exp $
+* $Id: form_question_type_numeric.inc,v 1.7 2004/11/28 22:03:05 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,13 +83,15 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 			$val = $_POST[$this->id];
 
 			// Add Force Numeric in any case
-			$req_rule = Array('rule_code' => 'numeric', 'operator' => 1);
-			array_push($this->vars['rules']['value'], $req_rule);
-
-			// Add Force Integer if required
-			if ($this->attr('is_int')) {
-				$req_rule = Array('rule_code' => 'integer', 'operator' => 1);
+			if (!empty($val)) {
+				$req_rule = Array('rule_code' => 'numeric', 'operator' => 1);
 				array_push($this->vars['rules']['value'], $req_rule);
+	
+				// Add Force Integer if required
+				if ($this->attr('is_int')) {
+					$req_rule = Array('rule_code' => 'integer', 'operator' => 1);
+					array_push($this->vars['rules']['value'], $req_rule);
+				}
 			}
 
 			$form->active_submission->setAnswer($this->id, $val);
@@ -97,10 +99,12 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 
 			parent::processForm();
 
-			if ($this->attr('is_int')) {						// Remove Force Integer
-				array_pop($this->vars['rules']['value']);
+			if (!empty($val)) {
+				if ($this->attr('is_int')) {						// Remove Force Integer
+					array_pop($this->vars['rules']['value']);
+				}
+				array_pop($this->vars['rules']['value']);			// Remove Force Numeric in any case
 			}
-			array_pop($this->vars['rules']['value']);			// Remove Force Numeric in any case
 
 		}
 
