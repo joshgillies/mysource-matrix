@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager_edit_fns.inc,v 1.4 2004/06/10 03:43:31 gsherwood Exp $
+* $Id: search_manager_edit_fns.inc,v 1.5 2004/09/02 06:36:37 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -158,7 +158,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 		return true;
 
-	}//end processWeights();
+	}//end processWeights()
 
 
 	/**
@@ -217,6 +217,123 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	}//end processReindexing()
 
 
-}//end class
+	/**
+	* Paint the interface for Noise Words
+	*
+	* @param object Search_Manager		&$asset		the search manager asset
+	* @param object	Backend_Outputter	&$o			the backend outputter object
+	* @param string						$prefix		the prefix for field
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintNoiseWords(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
 
+		$noise_words = $asset->attr('noise_word_list');
+		$noise_words = (is_array($noise_words))? implode(' ', $noise_words):'';
+
+		if ($write_access) {
+			text_area($prefix.'_noise_words', $noise_words, 60, 5);
+		} else {
+			echo $noise_words;
+		}
+		return $write_access;
+
+	}//end paintNoiseWords()
+
+
+	/**
+	* Process the interface for adding noise words
+	*
+	* @param object Search_Manager		&$asset		the search manager asset
+	* @param object	Backend_Outputter	&$o			the backend outputter object
+	* @param string						$prefix		the prefix for field
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processNoiseWords(&$asset, &$o, $prefix)
+	{
+
+		$words = array_get_index($_POST, $prefix.'_noise_words', false);
+
+		$matches	= Array();
+		$new_words	= Array();
+
+		if (preg_match_all('/\w+/i', $words, $matches, PREG_SET_ORDER)) {
+			foreach ($matches as $match){
+				$word = array_pop($match);
+				$new_words[$word] = $word;
+			}
+		}
+
+		$asset->setAttrValue('noise_word_list', $new_words);
+
+		return true;
+
+	}//end processNoiseWords()
+
+
+	/**
+	* Paint the interface for White Words
+	*
+	* @param object Search_Manager		&$asset		the search manager asset
+	* @param object	Backend_Outputter	&$o			the backend outputter object
+	* @param string						$prefix		the prefix for field
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintWhiteWords(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+
+		$words = $asset->attr('white_word_list');
+		$words = (is_array($words))? implode(' ', $words):'';
+
+		if ($write_access) {
+			text_area($prefix.'_white_words', $words, 60, 5);
+		} else {
+			echo $words;
+		}
+		return $write_access;
+
+	}//end paintWhiteWords()
+
+
+	/**
+	* Process the interface for adding white words
+	*
+	* @param object Search_Manager		&$asset		the search manager asset
+	* @param object	Backend_Outputter	&$o			the backend outputter object
+	* @param string						$prefix		the prefix for field
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processWhiteWords(&$asset, &$o, $prefix)
+	{
+
+		$words = array_get_index($_POST, $prefix.'_white_words', false);
+
+		$matches	= Array();
+		$new_words	= Array();
+
+		if (preg_match_all('/\w+/i', $words, $matches, PREG_SET_ORDER)) {
+			foreach ($matches as $match){
+				$word = array_pop($match);
+				$new_words[$word] = $word;
+			}
+		}
+
+		$asset->setAttrValue('white_word_list', $new_words);
+
+		return true;
+
+	}//end processWhiteWords()
+
+
+}//end class
 ?>
