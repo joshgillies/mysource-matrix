@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.20.2.1 2004/12/09 03:17:24 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.20.2.2 2005/03/17 22:47:14 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20.2.1 $
+* @version $Revision: 1.20.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -425,7 +425,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/layer_handler.js';?>"				></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/general.js';?>"					></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/debug.js';?>"						></script>
-		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/tooltips.js';?>"					></script>
+		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/js/tooltip.js';?>"					></script>
 		<script language="JavaScript" src="<?php echo sq_web_path('lib').'/html_form/html_form.js';?>"			></script>
 
 		<script language="JavaScript" type="text/javascript">
