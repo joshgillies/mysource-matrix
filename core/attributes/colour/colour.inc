@@ -5,7 +5,9 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 /**
 * Colour Asset Attribute
 *
-* 
+* parameters => Array(
+*                     'allow_blanks' => [true|false]
+*               )
 *
 *
 * <!-- Sample Edit Interface XML Node -->
@@ -29,6 +31,10 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	function Asset_Attribute_Colour($attributeid=0, $value=null) 
 	{
 		$this->Asset_Attribute($attributeid, $value);
+		if (!$attributeid) {
+			// Set Some default params for when we are loaded without an ID
+			$this->_params = Array('allow_blanks' => false);
+		}
 	}// end constructor
 
 
@@ -86,8 +92,13 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	{
 		$value = trim($value);
 		$new_value = preg_replace('/[^0-9a-f]/', '0', (string) $value);
-		if ($new_value != $value) return false;
-		return true;
+		// only valid if the values are the same and there are six chars
+		// or if we can allow blanks then no chars
+		return ($new_value == $value && 
+					(strlen($value) == 6 || 
+						(!empty($this->_params['allow_blanks']) && strlen($value) == 0)
+					)
+				);
 	}//end validateValue()
 
 }//end class
