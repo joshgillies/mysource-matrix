@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.65 2004/11/25 11:38:56 brobertson Exp $
+* $Id: search_page.inc,v 1.66 2004/11/30 22:52:46 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $ - 1.0
+* @version $Revision: 1.66 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -67,34 +67,34 @@ class Search_Page extends Page
 	* @var array
 	*/
 	var $keywords = Array(
-		'initial' => Array(
-			'submit_button'		=> Array('description' => '<input type="button" value="Search" />', 'type' => 'special'),
-			'results_per_page'	=> Array('description' => '<input type="text" value="Results per page" />', 'type' => 'special'),
-								),
-		'results' => Array(
-			'result_list'				=> Array('description' => 'List of search results', 'type' => 'block'),
-			'result_count'				=> Array('description' => 'Number of results found', 'type' => 'inline'),
-			'current_result_page'		=> Array('description' => 'Page of results we are on', 'type' => 'inline'),
-			'total_result_pages'		=> Array('description' => 'Total number of result pages', 'type' => 'inline'),
-			'result_page_index'			=> Array('description' => 'List of result pages', 'type' => 'inline'),
-			'previous_result_page_link'	=> Array('description' => 'Previous', 'type' => 'inline'),
-			'next_result_page_link'		=> Array('description' => 'Next', 'type' => 'inline'),
-			'initial_layout'			=> Array('description' => 'New search', 'type' => 'block'),
-			'category_list_linked'		=> Array('description' => 'Linked list of categories', 'type' => 'inline'),
-								),
-		'result_element' => Array(
-			'score'						=> Array('description' => 'Result score', 'type' => 'inline'),
-			'result_number'				=> Array('description' => 'No.', 'type' => 'inline'),
-			'asset_id'					=> Array('description' => 'Asset ID', 'type' => 'inline'),
-			'asset_name'				=> Array('description' => 'Name of the asset', 'type' => 'inline'),
-			'asset_name_linked'			=> Array('description' => 'Name of the asset (linked)', 'type' => 'inline'),
-			'asset_short_name'			=> Array('description' => 'Short name of the asset', 'type' => 'inline'),
-			'asset_short_name_linked'	=> Array('description' => 'Short name of the asset (linked)', 'type' => 'inline'),
-			'asset_url'					=> Array('description' => 'URL of the asset', 'type' => 'inline'),
-			'asset_lineage'				=> Array('description' => 'Lineage to the asset', 'type' => 'inline'),
-			'asset_lineage_linked'		=> Array('description' => 'Lineage to the asset (linked)', 'type' => 'inline'),
-								),
-		);
+						'initial' => Array(
+											'submit_button',
+											'results_per_page',
+											),
+						'results' => Array(
+											'result_list',
+											'result_count',
+											'current_result_page',
+											'total_result_pages',
+											'result_page_index',
+											'previous_result_page_link',
+											'next_result_page_link',
+											'initial_layout',
+											'category_list_linked',
+											),
+						'result_element' => Array(
+											'score',
+											'result_number',
+											'asset_id',
+											'asset_name',
+											'asset_name_linked',
+											'asset_short_name',
+											'asset_short_name_linked',
+											'asset_url',
+											'asset_lineage',
+											'asset_lineage_linked',
+											),
+						);
 
 
 	/**
@@ -1784,20 +1784,16 @@ class Search_Page extends Page
 				// work out the query replacements
 				$fields = $this->attr('fields');
 				foreach ($fields as $field => $field_data) {
-					$name = 'Search Field ('.$field.')';
-					$description = '<input type="text" width="'.$this->defaults['query_width'].'" value="Search terms here" />';
-					$keywords[$field.'_query'] = Array('name' => $name, 'default' => $description, 'type' => 'special');
+					$keywords[$field.'_query'] = 'Search Field ('.$field.')';
 				}
 			} else if ($bodycopy == 'result_element') {
 				$default_keywords = $broadcaster->getAssetKeywords(true);
 				foreach ($default_keywords as $keyword => $info) {
-					$name = ucwords(str_replace('_', ' ', $keyword));
-					$keywords[$keyword] = Array('name' => $name, 'default' => $info['description'], 'type' => 'inline');
+					$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
 				}
 			}
-			foreach ($this->keywords[$bodycopy] as $keyword => $info) {
-				$name = ucwords(str_replace('_', ' ', $keyword));
-				$keywords[$keyword] = Array('name' => $name, 'default' => $info['description'], 'type' => $info['type']);
+			foreach ($this->keywords[$bodycopy] as $keyword) {
+				$keywords[$keyword] = ucwords(str_replace('_', ' ', $keyword));
 			}
 		}
 
