@@ -79,6 +79,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		}
 		$this->_printExistingFileInfo($asset);
 		return true;
+
 	}//end paintFileUpload()
 
 

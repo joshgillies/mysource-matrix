@@ -355,8 +355,7 @@ class File extends Asset
 
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 
-		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('');
-		$sql = 'SELECT urlid, url FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url '.$where;
+		$sql = 'SELECT urlid, url FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url '.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('');
 		$base_urls = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC);
 		if (DB::isError($base_urls)) {
 			trigger_error($base_urls->getMessage().'<br/>'.$base_urls->getUserInfo(), E_USER_ERROR);
@@ -577,6 +576,47 @@ class File extends Asset
 
 
 	/**
+	* Returns the URL for this asset, closest to the $base_url
+	*
+	* @param string		$base_url			the url that we are want to match closest to
+	* @param boolean	$ignore_rollback	ignore rollback checks in asset manager?
+	*										this should only get set by the asset manager itself
+	*
+	* @return string
+	* @access public
+	*/
+	function getURL($base_url=null, $ignore_rollback=false)
+	{
+		if (SQ_ROLLBACK_VIEW) {
+			if (is_null($base_url)) $base_url = current_url(false);
+			$base_url = strip_url($base_url, true);
+			return $base_url.'/?a='.$this->id;
+		} else {
+			return parent::getURL($base_url, $ignore_rollback);
+		}
+
+	}//end getURL()
+
+
+	/**
+	* Returns the href for this asset closest to the $base_url, but relative to the current url
+	*
+	* @param string		$base_url			the url that we are want to match closest to
+	* @param boolean	$ignore_rollback	ignore rollback checks in asset manager?
+	*										this should only get set by the asset manager itself
+	*
+	* @return string
+	* @access public
+	*/
+	function getHref($base_url=null, $ignore_rollback=false)
+	{
+		if (SQ_ROLLBACK_VIEW) return './?a='.$this->id;
+		else return parent::getHref($base_url, $ignore_rollback);
+
+	}//end getHref()
+
+
+	/**
 	* Get an array of some useful data about the existing uploaded file
 	*
 	* @return array(string)
@@ -584,13 +624,23 @@ class File extends Asset
 	*/
 	function _getExistingFile()
 	{
-		// check for an existing file
 		$existing = Array();
-		$path = $this->data_path.'/'.$this->attr('name');
+
+		if (SQ_ROLLBACK_VIEW) {
+			// get an older version of this file
+			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+			$rep_file = $this->data_path_suffix.'/'.$this->name;
+			$then = iso8601_ts($_SESSION['sq_rollback_view']['rollback_time']);
+			$info = $fv->_checkOutCheck($rep_file, null, $then);
+			$path = $info['source_file'];
+		} else {
+			// get the latest file
+			$path = $this->data_path.'/'.$this->attr('name');
+		}
 
 		if (is_file($path)) {
 			$existing['path'] = $path;
-			$existing['filename'] = $this->attr('name');
+			$existing['filename'] = $this->name;
 			$existing['modified'] = filemtime($existing['path']);
 			$existing['size'] = filesize($existing['path']);
 			$size = getimagesize($path);
