@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder.inc,v 1.11 2004/12/06 14:38:10 brobertson Exp $
+* $Id: system_management_folder.inc,v 1.12 2005/01/28 04:18:22 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -108,6 +108,7 @@ class System_Management_Folder extends Folder
 	{
 		trigger_error('Unable to morph '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 		return false;
+
 	}//end morph()
 
 
@@ -251,6 +252,7 @@ class System_Management_Folder extends Folder
 			}
 		}
 		return false;
+
 	}//end writeAccess()
 
 
