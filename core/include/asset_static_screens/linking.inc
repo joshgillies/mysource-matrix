@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: linking.inc,v 1.4 2004/03/01 17:14:58 brobertson Exp $
+* $Id: linking.inc,v 1.5 2004/05/27 01:01:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -299,15 +299,14 @@ function processLinking(&$owner, &$o, &$ei)
 							if ($cron_mgr->removeJob($fl_jobs[$i])) {
 								$is_updated = true;
 							}
-						}// end if
-					}// end for
+						}
+					}
 
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_mgr->id, 'links');
 
 				} else {
 					trigger_error('Unable to acquire the lock on the Cron Manager, unable to remove jobs', E_USER_NOTICE);
-
-				}// end if
+				}
 
 			}// end if
 		}// end if
@@ -322,8 +321,7 @@ function processLinking(&$owner, &$o, &$ei)
 			} else {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			}
-
-		}// end if
+		}
 
 	}// end if
 
