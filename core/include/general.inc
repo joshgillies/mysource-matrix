@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.71 2005/03/23 10:31:44 brobertson Exp $
+* $Id: general.inc,v 1.72 2005/03/24 04:57:12 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.71 $
+* @version $Revision: 1.72 $
 * @package MySource_Matrix
 */
 
@@ -93,9 +93,7 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		// send a report to the system error log
 		if (ini_get('log_errors')) {
 			$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
-			$log_msg  = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$text_msg;
-			$log_msg  = str_replace(SQ_CONF_ROOT_IDENTIFIER, '', $log_msg); 	 
-			error_log($log_msg);
+			log_error($text_msg, $err_no, $err_file, $err_line);
 		}
 
 		// OK, because we want our errors to actually be displayed, kill any output buffering
@@ -670,5 +668,121 @@ function implements_interface($class, $interface)
 	return false;
 
 }//end implements_interface()
+
+
+/**
+* Writes a log message to file
+*
+* Takes the log name, data, and optionally the log level, and passes it out to be encoded and logged to file
+* Defaults to writing to the system log
+*
+* @param mixed string|array		$data		The data to write to the log file
+* @param string					$logname	The prefix of the file to log to, eg. 'error'
+* @param int					$level		The log level, eg. E_USER_ERROR
+* @param boolean				$encode		If true, encodes elements such as newlines that mess up the log format
+*
+* @access public
+* @return boolean
+*/
+function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE, $encode=true)
+{
+	if (empty($logname) || empty($level)) {
+		trigger_error('Cannot Log. An error has occured', E_USER_ERROR);
+		return false;
+	}
+
+	// grab metadata
+	$current_user = $GLOBALS['SQ_SYSTEM']->user;
+	$userid = 0;
+	$username = '';
+
+	if (is_null($current_user)) {
+		$username = SQ_SYSTEM_SHORT_NAME.' System';
+	} else {
+		$userid   = $current_user->id;
+		$username = $current_user->name;
+	}
+
+	$chars_to_escape = Array('[',']',':');
+	$replacements = Array('&#91;','&#93;','&#58;');
+
+	$username   = str_replace($chars_to_escape, $replacements, $username);
+	$level_name = strtolower(get_error_name($level));
+
+	// mark the data as 'R'(raw), 'S'(serialised) or ' ' (unserialised)
+	if (is_string($data)) {
+		$flag = ' ';
+	} else {
+		$data = serialize($data);
+		$flag = 'S';
+	}
+
+	if ($encode) {
+		$data = str_replace("\n", '&#10;', $data);
+	} else {
+		// NOTE: if data is serialised, but requested to be logged raw, we simply mark it as raw
+		// it will not be unserializable
+		$flag = 'R';
+	}
+
+	$date = date('Y-m-d H:i:s');
+	$log_entry  = "[$date][$userid:$username][$level:$level_name][$flag] $data\n";
+
+	if (!$log_entry) {
+		return false;
+	}
+
+	$logfile = SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION;
+	// check if filename is valid
+
+	// set the UMASK to u=rw,g=rw,o=r (0002), so that the user can write the logfiles
+	// needed so that step_03 can be run
+	if (substr(PHP_OS, 0, 3) != 'WIN') {
+		umask(0113);
+	}
+
+	$handle = fopen($logfile, 'a');
+	if (!fwrite($handle, $log_entry)) {
+		trigger_error("Cannot Write to log file: $logfile", E_USER_WARNING);
+		return false;
+	}
+	fclose($handle);
+	return true;
+
+}//end log_write()
+
+
+/**
+* Log an Error message
+*
+* NOTE: Logs are always unencoded, i.e. special chars are preserved
+*
+* @param string	$message	Message to log
+* @param int	$level		log level, eg. E_USER_ERROR
+* @param string	$file		file that caused the error (from trigger_error)
+* @param string	$line		line where the error occured (from trigger_error)
+* @param string	$log_name	logfile to write to (instead of default)
+*
+* @access public
+* @return boolean
+*/
+function log_error($message, $level=E_USER_NOTICE, $file='', $line='', $log_name=SQ_CONF_LOG_FILE_SYSTEM)
+{
+	if (!is_string($message)){
+		trigger_error('Ivalid message format for error log', E_USER_WARNING);
+		return false;
+	}
+
+	if (is_null($file)) {
+		$message = "($file:$line) - $message";
+	}
+
+	// strip out all references to the string identifying the root
+	$message = str_replace(SQ_CONF_ROOT_IDENTIFIER, '', $message);
+
+	return log_write($message, $log_name, $level, false);
+
+}//end log_error()
+
 
 ?>
