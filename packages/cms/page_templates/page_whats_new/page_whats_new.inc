@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.1 2004/08/19 05:48:35 gsherwood Exp $
+* $Id: page_whats_new.inc,v 1.2 2004/08/30 04:47:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -135,7 +135,7 @@ class Page_Whats_New extends Page_Asset_Listing
 
 		if ($this->attr('subs_only')) {
 
-			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $sort_by);
+			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $sort_by, SQ_PERMISSION_READ);
 			$query['where'] .= $where;
 
 			// special case for A-Z listings because they require another field selected from the database
@@ -165,7 +165,7 @@ class Page_Whats_New extends Page_Asset_Listing
 
 			if ($group_by == 'random') $sort_by = null;
 
-			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by);
+			$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
 			$query['where'] .= $where;
 
 			// special case for A-Z listings because they require another field selected from the database

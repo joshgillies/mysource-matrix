@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.33 2004/08/26 07:19:22 tbarrett Exp $
+* $Id: page_asset_listing.inc,v 1.34 2004/08/30 04:47:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -520,13 +520,13 @@ class Page_Asset_Listing extends Page
 
 			switch ($group_by) {
 				case 'number' :
-					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $sort_by);
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $sort_by, SQ_PERMISSION_READ);
 					foreach ($links as $link_info) $children[$link_info['minorid']] = $link_info['minor_type_code'];
 					if ($this->attr('reverse_sort')) $children = array_reverse($children, true);
 				break;
 
 				case 'letter' :
-					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $sort_by);
+					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetLinksQuery($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, $sort_by, SQ_PERMISSION_READ);
 					if (empty($query)) return Array();
 					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 
@@ -540,7 +540,7 @@ class Page_Asset_Listing extends Page
 				break;
 				
 				case 'random' :
-					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, null);
+					$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($root_asset->id, SQ_SC_LINK_BACKEND_NAV, array_keys($wanted_types), false, 'major', null, null, null, null, SQ_PERMISSION_READ);
 					foreach ($links as $link_info) $children[$link_info['minorid']] = $link_info['minor_type_code'];
 				break;
 			}//end switch
@@ -549,12 +549,12 @@ class Page_Asset_Listing extends Page
 
 			switch ($group_by) {
 				case 'number' :
-					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, $sort_by);
+					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
 					if ($this->attr('reverse_sort')) $children = array_reverse($children, true);
 				break;
 
 				case 'letter' :
-					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by);
+					$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
 					if (empty($query)) return Array();
 					$query['select'] .= ', SUBSTRING(a.'.$sort_by.', 1, 1) AS first_letter';
 
@@ -567,7 +567,7 @@ class Page_Asset_Listing extends Page
 				break;
 				
 				case 'random' :
-					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, null);
+					$children = $GLOBALS['SQ_SYSTEM']->am->getChildren($root_asset->id, array_keys($wanted_types), false, null, SQ_PERMISSION_READ);
 				break;
 			}//end switch
 
