@@ -1301,7 +1301,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
-	* Paints the interface for viewing locking details
+	* Paints the interface for viewing dependants details
 	*
 	* @param object	Asset				$owner	the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o		the outputter class
@@ -1309,7 +1309,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function paintLocking(&$owner, &$o)
+	function paintDependants(&$owner, &$o)
 	{
 		$o->openSection('Current Lock Status');
 		$o->openField('&nbsp;');
@@ -1339,7 +1339,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			</tr>
 			<tr>
 				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
-				<td class="sq-backend-data"><?php $this->_recursePaintLocking($owner, $o); ?></td>
+				<td class="sq-backend-data"><?php $this->_recursePaintDependants($owner, $o); ?></td>
 			</tr>
 		</table>
 		<?php
@@ -1349,7 +1349,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
-	* Paints an asset dependancy tree with stalks and locking info
+	* Paints an asset dependancy tree with stalks and dependant info
 	*
 	* @param object	Asset				$owner	the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o		the outputter class
@@ -1357,7 +1357,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	* @return void
 	* @access public
 	*/
-	function _recursePaintLocking(&$asset, &$o)
+	function _recursePaintDependants(&$asset, &$o)
 	{
 		?>
 		<table cellpadding="0" cellspacing="0" border="0">
@@ -1389,7 +1389,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			<tr>
 				<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
 				<td class="sq-backend-data">
-					<a href="<?php echo $dep_asset->getBackendHref('locking'); ?>"><b><?php echo $dep_asset->name; ?></b></a>&nbsp;<?php echo '('.$dep_asset->getStatusDescription().') :: '.$lock_message; ?>
+					<a href="<?php echo $dep_asset->getBackendHref('dependants'); ?>"><b><?php echo $dep_asset->name; ?></b></a>&nbsp;<?php echo '('.$dep_asset->getStatusDescription().') :: '.$lock_message; ?>
 				</td>
 			</tr>
 			<?php
@@ -1398,7 +1398,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				?>
 				<tr>
 					<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/blank.gif'); ?>" width="1" height="1" alt="blank" /></td>
-					<td class="sq-backend-data"><?php $this->_recursePaintLocking($dep_asset, $o); ?></td>
+					<td class="sq-backend-data"><?php $this->_recursePaintDependants($dep_asset, $o); ?></td>
 				</tr>
 				<?php
 			}
@@ -1410,7 +1410,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
-	* Processes the interface for viewing locking
+	* Processes the interface for viewing depedants
 	* Note that this function doesnt do anything
 	*
 	* @param object	Asset				$owner	the asset whose interface we are painting
@@ -1419,7 +1419,7 @@ class Asset_Edit_Interface extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function processLocking(&$owner, &$o)
+	function processDependants(&$owner, &$o)
 	{
 		return false;
 	}//end processLocking()

@@ -23,8 +23,8 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	var $static_screens = Array('details'     => Array('name' => 'Details',
 													   'force_unlock' => true
 													  ),
-								'locking'     => Array('name' => 'Locking',
-													  'force_unlock' => true
+								'dependants'  => Array('name' => 'Dependants',
+													   'force_unlock' => true
 													  )
 								);
 
