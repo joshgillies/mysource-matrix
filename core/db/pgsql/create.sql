@@ -64,6 +64,7 @@ CREATE TABLE sq_asset_attribute (
   default_type_code VARCHAR(100) NOT NULL DEFAULT '',
   default_value     TEXT NOT NULL DEFAULT '',
   order_no          INT  NOT NULL DEFAULT 0, /* Order this atribute appears in relation to others in its context */
+  description       TEXT NOT NULL DEFAULT '',
   PRIMARY KEY(attributeid),
   UNIQUE(type_code,name)
 );
