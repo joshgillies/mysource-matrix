@@ -159,13 +159,11 @@ class Cron_Manager extends Asset
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
-	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value, $dont_run_updated=false)
+	function setAttrValue($name, $value)
 	{
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot()) {
 			trigger_error('Unable to set "'.$name.'". You can only set the attributes of the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' if you are the Root User', E_USER_WARNING);
@@ -199,7 +197,7 @@ class Cron_Manager extends Asset
 			}
 		}// endi f
 
-		return parent::setAttrValue($name, $value, $dont_run_updated);
+		return parent::setAttrValue($name, $value);
 
 	}// end setAttrValue()
 
@@ -252,7 +250,7 @@ class Cron_Manager extends Asset
 			return false;
 		}
 
-		$link = $this->getLinkByAsset($job->id);
+		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id);
 		if (empty($link)) return false;
 
 		return $this->deleteLink($link['linkid']);
@@ -381,6 +379,7 @@ class Cron_Manager extends Asset
 			// now update this last run time, so that we know for next time
 			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 0, true)) {
 				$this->setAttrValue('run_check', (int) $this->attr('run_check') + 1);
+				$this->saveAttributes();
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 
 			} else {
@@ -415,7 +414,7 @@ class Cron_Manager extends Asset
 			}// end if
 
 			// now get the lock, set the running flag and reset the run_check
-			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0)) {
+			if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 0, true) && $this->setAttrValue('running', true) && $this->setAttrValue('run_check', 0) && $this->saveAttributes()) {
 
 				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 
@@ -446,12 +445,12 @@ class Cron_Manager extends Asset
 						$cron_job = &$am->getAsset($job_info['assetid'], $job_info['type_code']);
 						if (is_null($cron_job)) continue;
 
-#echo "RUN    : ".$cron_job->id.' .... '.$cron_job->name."\n";
+echo "RUN    : ".$cron_job->id.' .... '.$cron_job->name."\n";
 
 						$result = $cron_job->run();
 
 						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-#echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true))."\n\n";
+echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true))."\n\n";
 
 						// We have been asked to remove this cron job
 						if ($result & SQ_CRON_JOB_REMOVE) {
@@ -508,7 +507,7 @@ class Cron_Manager extends Asset
 					// give it three seconds to get the lock
 					$lock_count = 0;
 					while(1) {
-						if ($acquired = parent::acquireLock($this->id, 0, true)) {
+						if ($acquired = $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 0, true)) {
 							break;
 						} elseif ($lock_count < 3) {
 							$lock_count++;
@@ -527,6 +526,8 @@ class Cron_Manager extends Asset
 								$this->deleteLink($linkid);
 							}
 						}// end if
+
+						$this->saveAttributes();
 
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 
@@ -549,7 +550,7 @@ class Cron_Manager extends Asset
 
 				// now update this last run time, so that we know for next time
 				if ($GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 0, true)) {
-					if ($this->setAttrValue('last_run', $this_run) && $this->setAttrValue('running', false)) {
+					if ($this->setAttrValue('last_run', $this_run) && $this->setAttrValue('running', false) && $this->saveAttributes()) {
 						$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id);
 					} else {
 						trigger_error('Unable to unset the last run and/or running flag of "'.$this->name.'", aborting run', E_USER_WARNING);
