@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.45 2003/12/16 12:21:49 brobertson Exp $
+* $Id: step_02.php,v 1.46 2004/01/15 14:53:08 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -194,7 +194,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 		}// end for
 
 
-		//// NORMAL TABLE DEFINITION ////
+//--        NORMAL TABLE DEFINITION        --//
 		ob_start();
 		echo 'CREATE TABLE '.SQ_TABLE_PREFIX.$table_name.' (';
 		echo $table_columns_string;
@@ -215,7 +215,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 		}
 
 
-		//// ROLLBACK TABLE DEFINITION ////
+//--        ROLLBACK TABLE DEFINITION        --//
 		if ($require_rollback) {
 			// type variations
 			switch ($db->phptype) {
@@ -250,7 +250,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 		}
 
 
-		//// TABLE INDEXES ////
+//--        TABLE INDEXES        --//
 
 		// check for any indexes that need creating
 		$table_indexes = &$table->children[2]->children;
@@ -292,6 +292,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 
 	pre_echo("DATABASE SEQUENCE CREATION COMPLETE");
 
+//--        PGSQL GRANT_ACCESS()        --//
 	// If this is PostgreSQL we need to do a couple of other things for the secondary user
 	if ($db->phptype == 'pgsql') {
 
@@ -341,6 +342,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 
 }//end if table column cache file does not exist
 
+//--        CACHE TABLES        --//
 // if we didnt just create the database tables, loop through and work out the
 // columns in each of our database tables
 if (empty($cached_table_columns)) {

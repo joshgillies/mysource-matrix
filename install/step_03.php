@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.29 2004/01/14 19:26:30 brobertson Exp $
+* $Id: step_03.php,v 1.30 2004/01/15 14:53:08 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -90,10 +90,7 @@ $db = &$GLOBALS['SQ_SYSTEM']->db;
 
 
 
-
-  ////////////////////
- //  INSTALL CORE  //
-////////////////////
+//--        INSTALL CORE        --//
 
 require_once(SQ_INCLUDE_PATH.'/package_manager.inc');
 $pm = new Package_Manager('__core__');
@@ -207,9 +204,7 @@ if (is_null($root_folder)) {
 
 
 
-  ////////////////////////
- //  INSTALL PACKAGES  //
-////////////////////////
+//--        INSTALL PACKAGES        --//
 
 // Right now that we have sorted all that out we can install the packages
 $d = dir(SQ_PACKAGES_PATH);
@@ -229,9 +224,7 @@ $d->close();
 
 
 
-  ///////////////////////////////////
- //  GENERATE GLOBAL PREFERENCES  //
-///////////////////////////////////
+//--        GENERATE GLOBAL PREFERENCES        --//
 
 // we need to install any event listeners here, now that we have installed all the asset types.
 $packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
@@ -252,9 +245,7 @@ pre_echo('GLOBAL PREFERENCES DONE');
 
 
 
-  ///////////////////////////////
- //  INSTALL EVENT LISTENERS  //
-///////////////////////////////
+//--        INSTALL EVENT LISTENERS        --//
 
 // we need to install any event listeners here, now that we have installed all the asset types.
 $packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
@@ -273,9 +264,7 @@ pre_echo('EVENT LISTENERS DONE');
 
 
 
-  /////////////////////////////////////////
- //  FUNCTIONS TO CREATE SYSTEM ASSETS  //
-/////////////////////////////////////////
+//--        FUNCTIONS TO CREATE SYSTEM ASSETS        --//
 
 /**
 * Create the root folder system asset
