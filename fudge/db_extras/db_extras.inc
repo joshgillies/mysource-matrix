@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_extras.inc,v 1.13 2005/02/08 17:50:31 brobertson Exp $
+* $Id: db_extras.inc,v 1.14 2005/04/06 23:44:32 mmcintyre Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     like Sub-Queries
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package Fudge
 * @subpackage DB_Extras
 */
@@ -117,7 +117,8 @@ function db_extras_insert_select(&$db, $insert, $select)
 	switch ($db->phptype) {
 		// INSERT INTO ... SELECT FROM Compatible DB's
 		case 'pgsql' :
-
+		case 'oci8'  :
+		
 			$result = $db->query($insert.' '.$select);
 			if (DB::isError($result)) return $result;
 			return TRUE;
@@ -153,5 +154,55 @@ function db_extras_insert_select(&$db, $insert, $select)
 	}//end switch
 
 }//end db_extras_insert_select()
+
+
+/**
+* Generates a sql fragment for performing bitand operations depending
+* on the current database type.
+*
+* Example use:
+* <pre>
+*   $sql = 'SELECT link_type FROM sq_ast_lnk'.
+*          'WHERE '.db_extras_bitand('link_type, '.$link_types).' > 0';
+* </pre>
+*
+* @param &object DB	$db		the db object
+* @param int		$val1	the first value
+* @param int		$val2	the second value
+*
+* @return string the sql fragment
+* @access public
+*/
+function db_extras_bitand(&$db, $val1, $val2)
+{
+	if ((int) $val1 != $val1) $val1 = $db->quote($val1);
+	if ((int) $val2 != $val2) $val2 = $db->quote($val2);
+	
+	if ($db->phptype == 'oci8') {
+		$bit_op = 'BITAND('.$val1.', '.$val2.')';
+	} else {
+		$bit_op = '('.$val1.' & '.$val2.')';
+	}
+
+	return $bit_op;
+
+}//end db_extras_bitand()
+
+
+/**
+* Returns an sql fragment to be used for inserting dates
+* into the database.
+*
+* @param &object DB	$db				the db object
+* @param string		$iso8601_date	the date in iso8601 format
+*
+* @return string
+* @access public
+*/
+function db_extras_todate(&$db, $iso8601_date)
+{
+	return 'TO_DATE('.$db->quote($iso8601_date).','.$db->quote('YYYY-MM-DD HH24:MI:SS').')';
+
+}//end db_extras_todate()
 
 ?>
