@@ -42,6 +42,18 @@ class Cron_Manager_Management extends Asset_Management
 								'default'		=> false,
 								'description'	=> 'Are we currently running ?',
 							),
+							'run_check' => Array(
+								'added'			=> '0.1',
+								'type'			=> 'int',
+								'default'		=> 0,
+								'description'	=> 'The number of times that run() has been started and stopped because running is true, this get\'s reset in run() after each pass over what jobs have to be done',
+							),
+							'warn_after_num_run_checks' => Array(
+								'added'			=> '0.1',
+								'type'			=> 'int',
+								'default'		=> 3,
+								'description'	=> 'When run_check hits this number a warning will be sent out to announce the possible un-removed locking',
+							),
 							'num_failed_attempts' => Array(
 								'added'			=> '0.1',
 								'type'			=> 'int',

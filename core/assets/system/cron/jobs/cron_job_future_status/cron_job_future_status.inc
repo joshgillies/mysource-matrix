@@ -201,22 +201,34 @@ class Cron_Job_Future_Status extends Cron_Job
 	*/
 	function _exec()
 	{
+		trigger_error('TRIGGER TERMINATE ERROR', E_USER_ERROR);
+
+
+
+		return SQ_CRON_JOB_ERROR;
+
 		$asset = &$this->getAssetToUpdate();
-		if (is_null($asset)) {
-			trigger_error('Unable to run "'.$this->name.'" (#'.$this->id.'), couldn\'t find asset to update', E_USER_WARNING);
-			// we can be removed because the asset we need to deal with doesn't exist
-			return SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
+		if (!is_null($asset)) {
+
+			// Let's just process the status change
+			if ($asset->processStatusChange($this->attr('status'))) {
+				// All OK, and we can be removed because we have done our one off task
+				return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
+
+			// process failed
+			} else {
+				trigger_error('Changing Status of "'.$asset->name.'" (#'.$asset->id.') Failed', E_USER_WARNING);
+
+			}
+
+		// asset not found
+		} else {
+			trigger_error('Couldn\'t find asset to update the status of', E_USER_WARNING);
+
 		}
 
-		// First let's get the lock
-		if (!$asset->acquireLock()) return false;
-
-		trigger_error ("CHANGE STATUS OF ".$asset."\n");
-
-		$asset->releaseLock();
-
-		// All OK, and we can be removed because we have done our one off task
-		return SQ_CRON_JOB_COMPLETED | SQ_CRON_JOB_REMOVE;
+		// we can be removed because the error is beyound our control
+		return SQ_CRON_JOB_ERROR | SQ_CRON_JOB_REMOVE;
 
 	}// end _exec()
 

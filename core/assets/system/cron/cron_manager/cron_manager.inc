@@ -16,6 +16,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 class Cron_Manager extends Asset
 {
 	/**
+	* @var string suffix to data dir where the error log should be stored when we are run()ning
+	*/
+	var $error_log_path = 'private/logs/cron_errors.log';
+
+
+	/**
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
@@ -45,7 +51,7 @@ class Cron_Manager extends Asset
 
 		$where = 'type_code = '.$db->quote($this->type());
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT count(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
+		$sql = 'SELECT COUNT(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
 		$exists = $db->getOne($sql);
 		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
 
@@ -126,6 +132,35 @@ class Cron_Manager extends Asset
 		return false;
 	}//end morph()
 
+
+	/**
+	* Acquires a lock on this asset and its dependant assets
+	*
+	* @param int		$source		the id of the asset that started this locking process
+	* @param boolean	$force		attempt to forcibly acquire (if allowed)
+	* @param int		$expires	when the lock expires (timestamp)
+	* @param boolean	$wait		whether this function should keep trying to acquire
+	*								(forces it to wait 1 sec, then try again)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function acquireLock($source=0, $force=false, $expires=null, $wait=false)
+	{
+if ($wait) $GLOBALS['BCR'] = true;
+		if (parent::acquireLock($source, $force, $expires)) return true;
+$i = 0;
+		while($wait) {
+$i++;
+pre_echo("WAIT : $i");
+if ($i >= 5) $GLOBALS['BCR'] = false;
+			sleep(1);
+			if (parent::acquireLock($source, $force, $expires, $wait)) return true;
+
+		}
+		return false;
+
+	}// end acquireLock()
 
 	/**
 	* Moves a link from one place in this assets links order to another position
@@ -214,118 +249,199 @@ class Cron_Manager extends Asset
 	*/
 	function run()
 	{
+		$old_log_errors = ini_set('log_errors', '1');
+		$old_error_log  = ini_set('error_log',  SQ_DATA_PATH.'/'.$this->error_log_path);
+		set_error_handler(Array(&$this, '_errorHandler'));
+
 		// if we are currently running then we should just leave this alone
-		if ($this->attr('running')) return;
+		if ($this->attr('running')) {
 
-		// now update this last run time, so that we know for next time
-		if (!$this->acquireLock(0, true)) {
-			trigger_error('Unable to acquire lock of "'.$this->name.'", aborting run', E_USER_WARNING);
-			return;
-		}
-		$this->setAttrValue('running', true);
-		$this->releaseLock();
+			// if we have been stopped too many times without the while loop below
+			// looping over
+			if ((int) $this->attr('run_check') >= (int) $this->attr('warn_after_num_run_checks')) {
 
-		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
+				$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+				$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
 
-		$set_last_run = true;
+pre_echo("DEAD LOCK");
 
-		// first get some times
-		$last_run = (int) $this->attr('last_run');
-		$this_run = time();
-		$next_run = $this_run + (int) $this->attr('refresh_time');
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$msg = $ms->newMessage();
+				$msg->subject = 'POTENTIAL CRON MANAGER DEAD LOCK ISSUE';
+				$msg->body	  = 'The cron manager for the system "'.SQ_CONF_SYSTEM_NAME.'" has attempted to run '.$this->attr('warn_after_num_run_checks').' times, but has not been able to for one of two reasons' ."\n"
+								.'1) An existing cron manager is currently running an extremely long running job.'."\n"
+								.'2) Some thing has caused the cron manager to exit uncleanly and the lock wasn\'t able to be removed.'."\n"
+								.'Check the cron error log (in [DATA DIR]/'.$this->error_log_path.') for any information'."\n"
+								."\n"
+								.'(System Root Urls : '.str_replace("\n", ',', SQ_CONF_SYSTEM_ROOT_URLS).')'."\n";
 
-		$jobs = $this->getJobsToRun($last_run, $this_run);
-		pre_echo("JOBS : ".var_export($jobs, true));
+				// userid zero sends a msg to SQ_CONF_DEFAULT_EMAIL and SQ_CONF_TECH_EMAIL
+				$msg->to   = Array(0, $root_user->id, $sys_admins->id);
+				$msg->from = 0; // a system message
 
+				$msg->send();
 
-		$failed_runs = Array(); // Array([assetid] => [number of failed runs]);
-
-		while (!empty($jobs)) {
-
-			$ms->openQueue();
-			$remove_jobs = Array();
-			foreach($jobs as $job_info) {
-				$cron_job = &$am->getAsset($job_info['assetid'], $job_info['type_code']);
-				if (is_null($cron_job)) continue;
-
-				echo "RUN    : ".$cron_job->id.' .... '.$cron_job->name."\n";
-
-				$result = $cron_job->run();
-
-				require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-				echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true))."\n\n";
-
-				// We have been asked to remove this cron job
-				if ($result & SQ_CRON_JOB_REMOVE) {
-					$remove_jobs[] = $job_info['linkid'];
-
-				// If they want to have another go
-				} elseif ($result & SQ_CRON_JOB_RETRY) {
-
-					// if they resulted in an error, we need to check this hasn't happened before
-					if ($result & SQ_CRON_JOB_ERROR) {
-
-						if (isset($failed_runs[$cron_job->id])) {
-							$failed_runs[$cron_job->id]++;
-						} else {
-							$failed_runs[$cron_job->id] = 1;
-						}
-
-						// if they have had their fair share get rid of them
-						if ($failed_runs[$cron_job->id] < (int) $this->attr('num_failed_attempts')) {
-							$remove_jobs[] = $job_info['linkid'];
-						}// end if
-
-					}// end if error
-
-				}// end if
-
-				$am->unregisterAsset($cron_job);
-
-			}// end foreach
-
-			// send all the messages for this run
-			$ms->closeQueue();
+			}// end if run_check
 
 
-break;
+			// now update this last run time, so that we know for next time
+			if ($this->acquireLock(0, true, null, true)) {
+pre_echo("SET RUN CHECK : ".((int) $this->attr('run_check') + 1));
+				$this->setAttrValue('run_check', (int) $this->attr('run_check') + 1);
+				$this->releaseLock();
 
-			if (!empty($remove_jobs)) {
-				// now update this last run time, so that we know for next time
-				if (!$this->acquireLock(0, true)) {
-					trigger_error('Unable to acquire lock of "'.$this->name.'", aborting run', E_USER_WARNING);
-					return;
-				}
-				foreach($remove_jobs as $linkid) {
-					$this->deleteLink($linkid);
-				}
+			} else {
+
+				trigger_error('Unable to acquire lock of "'.$this->name.'"', E_USER_WARNING);
+
+			}
+
+		// we aren't already running
+		} else {
+
+			// now update this last run time, so that we know for next time
+			if ($this->acquireLock(0, true) && $this->setAttrValue('running', true)) {
 
 				$this->releaseLock();
 
-			}// end if
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-			// if we have gone into the next run's time then we need to do it's work as well
-			if (time() > $next_run) {
-				$this_run = $next_run;
-				$next_run += (int) $this->attr('refresh_time');
-			}
+				// first get some times
+				$last_run = (int) $this->attr('last_run');
+				$this_run = time();
+				$next_run = $this_run + (int) $this->attr('refresh_time');
 
-			$jobs = $this->getJobsToRun($last_run, $this_run);
-			pre_echo("JOBS : ".var_export($jobs, true));
-
-		}// end while
+				$jobs = $this->getJobsToRun($last_run, $this_run);
+				pre_echo("JOBS : ".var_export($jobs, true));
 
 
-		// now update this last run time, so that we know for next time
-		if (!$this->acquireLock(0, true)) {
-			trigger_error('Unable to acquire lock of "'.$this->name.'", aborting run', E_USER_WARNING);
-			return;
-		}
-		$this->setAttrValue('running', false);
-		$set_last_run = false;
-		if ($set_last_run) $this->setAttrValue('last_run', time());
-		$this->releaseLock();
+				// holds the number of times that a job has failed
+				// Array([assetid] => [number of failed runs]);
+				$failed_runs = Array();
+				// holds the assetids for jobs to ignore - because they have failed to many times
+				// Array([assetid]);
+				$ignore_jobs = Array();
+
+				while (!empty($jobs)) {
+
+					$ms->openQueue();
+					$remove_jobs = Array();
+					foreach($jobs as $job_info) {
+
+						$cron_job = &$am->getAsset($job_info['assetid'], $job_info['type_code']);
+						if (is_null($cron_job)) continue;
+
+						echo "RUN    : ".$cron_job->id.' .... '.$cron_job->name."\n";
+
+						$result = $cron_job->run();
+
+						require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+						echo "RESULT : ".$result.' .... '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true))."\n\n";
+
+						// We have been asked to remove this cron job
+						if ($result & SQ_CRON_JOB_REMOVE) {
+							$remove_jobs[] = $job_info['linkid'];
+							$ignore_jobs[] = $cron_job->id;
+
+						// If they want to have another go
+						} elseif ($result & SQ_CRON_JOB_RETRY) {
+
+							// if they resulted in an error, we need to check this hasn't happened before
+							if ($result & SQ_CRON_JOB_ERROR) {
+
+								if (isset($failed_runs[$cron_job->id])) {
+									$failed_runs[$cron_job->id]++;
+								} else {
+									$failed_runs[$cron_job->id] = 1;
+								}
+
+								// if they have had their fair share, get rid of them
+								if ($failed_runs[$cron_job->id] >= (int) $this->attr('num_failed_attempts')) {
+									$remove_jobs[] = $job_info['linkid'];
+									$ignore_jobs[] = $cron_job->id;
+
+									$user       = &$cron_job->getRunningUser();
+									$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+									$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+
+									$msg = $ms->newMessage();
+									$msg->subject = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($cron_job->type(), 'name').' Forced Failure';
+									$msg->body	  = 'The job "'.$this->name.'" (#'.$this->id.') has failed to run '.$this->attr('num_failed_attempts').' times.'."\n"
+													.'It will be removed from the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' and will NOT be run again';
+									$msg->to   = Array($user->id, $root_user->id, $sys_admins->id);
+									$msg->from = 0; // a system message
+
+									$msg->send();
+
+								}// end if
+
+							}// end if error
+
+						// they don't want another go but they don't want to be removed either ? just ignore them
+						} else {
+							$ignore_jobs[] = $cron_job->id;
+
+						}// end if
+
+						$am->unregisterAsset($cron_job);
+
+					}// end foreach
+
+					// send all the messages for this run
+					$ms->closeQueue();
+
+					// now update this last run time, so that we know for next time
+					if ($this->acquireLock(0, true, null, true)) {
+
+						$this->setAttrValue('run_check', (int) $this->attr('run_check') + 1);
+						if (!empty($remove_jobs)) {
+							foreach($remove_jobs as $linkid) {
+								$this->deleteLink($linkid);
+							}
+						}// end if
+
+						$this->releaseLock();
+
+					} else {
+						trigger_error('Unable to acquire lock of "'.$this->name.'", aborting run', E_USER_WARNING);
+						return;
+					}
+
+					// if we have gone into the next run's time then we need to do it's work as well
+					if (time() > $next_run) {
+						$this_run = $next_run;
+						$next_run += (int) $this->attr('refresh_time');
+					}
+
+					$jobs = $this->getJobsToRun($last_run, $this_run, $ignore_jobs);
+					pre_echo("JOBS : ".var_export($jobs, true));
+
+				}// end while
+
+				// now update this last run time, so that we know for next time
+				if ($this->acquireLock(0, true)) {
+					#if ($this->setAttrValue('last_run', time()) && $this->setAttrValue('running', false)) {
+					if ($this->setAttrValue('running', false)) {
+						$this->releaseLock();
+					} else {
+						trigger_error('Unable to unset the last run and/or running flag of "'.$this->name.'", aborting run', E_USER_WARNING);
+					}
+				} else {
+					trigger_error('Unable to acquire lock of "'.$this->name.'", aborting run', E_USER_WARNING);
+				}
+
+			// else aquire or set running failed
+			} else {
+				trigger_error('Unable to acquire lock and set running flag of "'.$this->name.'", aborting run', E_USER_WARNING);
+
+			}// end if aquire lock
+
+		}// end if already running
+
+		ini_set('log_errors', $old_log_errors);
+		ini_set('error_log',  $old_error_log);
+		restore_error_handler();
 
 	}// end run()
 
@@ -333,13 +449,14 @@ break;
 	/**
 	* Get the jobs that need to be run for the passed time period
 	*
-	* @param int	$start_ts	the starting timestamp of the time period
-	* @param int	$end_ts		the ending timestamp of the time period
+	* @param int		$start_ts		the starting timestamp of the time period
+	* @param int		$end_ts			the ending timestamp of the time period
+	* @param Array(int)	$ignore_jobs	a list of assetids to ignore
 	*
 	* @return Array()
 	* @access public
 	*/
-	function getJobsToRun($start_ts, $end_ts)
+	function getJobsToRun($start_ts, $end_ts, $ignore_jobs=Array())
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
@@ -513,6 +630,12 @@ break;
 					   OR '.$yearly.'
 					   OR '.$one_off.'
 					   )';
+
+		if (!empty($ignore_jobs)) {
+			for($i = 0; $i < count($ignore_jobs); $i++) $ignore_jobs[$i] = $db->quote($ignore_jobs[$i]);
+			$where .= ' AND a.assetid NOT IN ('.implode(',', $ignore_jobs).')';
+		}// endif
+
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
 		$sql = 'SELECT l.linkid, a.assetid, a.type_code, av.custom_value as when
@@ -565,6 +688,102 @@ break;
 		if ($a_ts == $b_ts) return 0;
 		return ($a_ts < $b_ts) ? -1 : 1;
 	}// end getJobsToRunCmp()
+
+
+	/**
+	* This function captures all errors and warnings that occur during the execution of run()
+	*
+	* @param int	$err_no		The type of error (E_*)
+	* @param string	$err_msg	The error message
+	* @param string	$err_file	The file the error occured in
+	* @param string	$err_line	The line the error occured on
+	*
+	* @returns void
+	* @access private
+	* @see run()
+	*/
+	function _errorHandler($err_no, $err_msg, $err_file, $err_line)
+	{
+
+		$terminate = ((E_USER_ERROR | E_ERROR) & $err_no);
+
+		// if the function didn't have an '@' prepended OR if we are about to terminate
+		// catch the error
+		if (error_reporting() || $terminate) {
+
+			// Strip out the file path begining
+			$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_file);
+			$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $err_msg);
+
+			$err_name = '';
+			switch($err_no) {
+				case E_USER_ERROR	: $err_name = SQ_SYSTEM_SHORT_NAME.' Error';	break;
+				case E_USER_WARNING	: $err_name = SQ_SYSTEM_SHORT_NAME.' Warning';	break;
+				case E_USER_NOTICE	: $err_name = SQ_SYSTEM_SHORT_NAME.' Notice';	break;
+				case E_ERROR		: $err_name = 'PHP Error';						break;
+				case E_WARNING		: $err_name = 'PHP Warning';					break;
+				case E_NOTICE		: $err_name = 'PHP Notice';						break;
+				default				: $err_name = 'Unknown Error Type - '.$err_no;
+			}//end switch
+
+			// send a report to the system error log
+			if (ini_get('log_errors')) {
+				$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+				$log_msg  = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$text_msg;
+				$log_msg  = str_replace('[SYSTEM_ROOT]', '', $log_msg);
+				error_log($log_msg);
+			}
+
+			// if they haven't put tags in the err msg assume it to be plain text
+			$err_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+			$lines = explode("\n", $err_msg);
+			$len = 7 + strlen($err_file);
+			$len = max($len, 7 + strlen($err_line));
+			foreach($lines as $line) $len = max($len, strlen($line));
+			$len += 2;
+			$str =	'+'.str_repeat('-', $len)."+\n".
+					'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
+					'|'.str_repeat('-', $len)."|\n".
+					'| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
+					'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
+					'|'.str_repeat('-', $len)."|\n";
+			foreach($lines as $line) {
+				$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
+			}
+
+			$str .= '+'.str_repeat('-', $len)."+\n";
+
+			if (!isset($this->_tmp['running_errors'])) $this->_tmp['running_errors'] = '';
+			$this->_tmp['running_errors'] .= $str;
+
+		}// end error_reporting
+
+		// if this is an irrercoverable error, send a distress email, delete ourselves and die
+		if ($terminate && empty($this->_tmp['terminate_error'])) {
+			$this->_tmp['terminate_error'] = true; // stop possible recursion
+
+			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+			$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
+
+			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$msg = $ms->newMessage();
+			$msg->subject = 'TERMINATION of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
+			$msg->body	  = 'The cron manager for the system "'.SQ_CONF_SYSTEM_NAME.'" fatally triggered an error, terminating the cron manager\'s run.'."\n"
+							.'Check the cron error log (in [DATA DIR]/'.$this->error_log_path.') for any information'."\n"
+							."\n"
+							.'(System Root Urls : '.str_replace("\n", ',', SQ_CONF_SYSTEM_ROOT_URLS).')'."\n";
+
+			// userid zero sends a msg to SQ_CONF_DEFAULT_EMAIL and SQ_CONF_TECH_EMAIL
+			$msg->to   = Array(0, $root_user->id, $sys_admins->id);
+			$msg->from = 0; // a system message
+
+			$msg->send();
+
+			exit(1);
+
+		}// end if
+
+	}// end _errorHandler()
 
 }//end class
 ?>

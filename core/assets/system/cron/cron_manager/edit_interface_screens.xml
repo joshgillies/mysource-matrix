@@ -1,2 +1,3 @@
-<!-- No screens means no interface -->
-<screens />
+<screens>
+	<screen code_name="status" display_name="Running Status" icon="page" />
+</screens>

@@ -1,0 +1,8 @@
+<contents>
+	<section name="Running Status">
+		<function_call>
+			<paint_function   name="paintCurrentRunStatus"   />
+			<process_function name="processCurrentRunStatus"   />
+		</function_call>
+	</section>
+</contents>

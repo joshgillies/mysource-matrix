@@ -422,15 +422,18 @@ class Cron_Job extends Asset
 			$msg->to = Array($user->id);
 		}
 
+		$msg->body = $this->name."\n"
+					.'Scheduled as : '.$this->readableWhen()."\n";
+
 		// Exec failed
 		if ($result & SQ_CRON_JOB_ERROR) {
 			$msg->subject .= 'Failure';
-			$msg->body = $this->name.' Failed';
+			$msg->body    .= 'Failed';
 
 		// Exec successful and completed
 		} elseif ($result & SQ_CRON_JOB_COMPLETED) {
 			$msg->subject .= 'Success';
-			$msg->body = $this->name.' Completed Successfully';
+			$msg->body    .= 'Completed Successfully';
 
 			// If we are a one off type and we aren't yet being removed do so
 			if ($this->attr('type') == 'one_off' && !($result & SQ_CRON_JOB_REMOVE)) {
@@ -441,15 +444,17 @@ class Cron_Job extends Asset
 		// Exec successful and but still more to do
 		} elseif ($result & SQ_CRON_JOB_NOT_COMPLETE) {
 			$msg->subject .= 'Success';
-			$msg->body = $this->name.' Successful, but there is still more work to do';
+			$msg->body    .= 'Successful, but there is still more work to do';
 
 		// Exec stuffed up, email the sys admins - SHOULD NEVER HAPPEN ;)
 		} else {
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-			$msg->subject .= ' ERROR';
-			$msg->body = $this->name.' RETURNED AN INVALID RESULT FROM _exec()'
-						 ."\n Returned Value : ".$result
-						 ."\n(Transated : ".implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true)).')';
+			$msg->subject .= 'ERROR';
+			$msg->body    .= '###################################################################'."\n"
+							.'#  RETURNED AN INVALID RESULT FROM _exec()'."\n"
+							.'#  Returned Value : '.$result."\n"
+							.'#  (Transated : '.implode(', ', get_bit_names('SQ_CRON_JOB_', $result, true)).')'."\n"
+							.'###################################################################';
 
 			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
 			$sys_admins = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('system_user_group');
@@ -462,11 +467,9 @@ class Cron_Job extends Asset
 			$msg->body .= "\nError Messages :\n".$this->_tmp['running_errors'];
 		}
 
-		$msg->body .= "\n----------------------------------------------------------------\n";
-
 pre_echo("MESSAGE : \n".$msg->body);
 
-		$ms->enqueueMessage($msg);
+		#$ms->enqueueMessage($msg);
 		$ms->closeQueue();
 
 
@@ -512,10 +515,11 @@ pre_echo("MESSAGE : \n".$msg->body);
 			}//end switch
 
 			// send a report to the system error log
-			if (SQ_CONF_ERRORS_LOG) {
-				$log_msg = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$err_msg."\n";
-				$log_msg = str_replace('[SYSTEM_ROOT]', '', $log_msg);
-				error_log($log_msg, 3, SQ_SYSTEM_ROOT.'/cache/error.log');
+			if (ini_get('log_errors')) {
+				$text_msg = strip_tags(preg_replace(Array('/<br\\/?>/i', '/<p[^>]*>/i'), Array("\n", "\n\n"), $err_msg));
+				$log_msg  = date('D d/m/Y H:i:s').' ['.strtolower($err_name).'] ('.$err_file.':'.$err_line.') - '.$text_msg;
+				$log_msg  = str_replace('[SYSTEM_ROOT]', '', $log_msg);
+				error_log($log_msg);
 			}
 
 			// if they haven't put tags in the err msg assume it to be plain text
@@ -546,11 +550,13 @@ pre_echo("MESSAGE : \n".$msg->body);
 		if ($terminate && empty($this->_tmp['terminate_error'])) {
 			$this->_tmp['terminate_error'] = true; // stop possible recursion
 
-			$cron_mgr_link = $this->getLink(SQ_LINK_TYPE_3, 'cron_manager', true, null, 'minor');
-			if (!empty($cron_mgr_link)) {
-				$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
-				$cron_mgr->deleteLink($cron_mgr_link['linkid']);
-			}
+			$cm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
+			$link = $cm->getLinkByAsset($this);
+			pre_echo("LINK : \n".var_export($link, true));
+			if (!empty($link)) {
+				pre_echo("DELETE LINK : \n".var_export($link, true));
+				#$cm->deleteLink($link['linkid']);
+			}// end if
 
 			$user       = &$this->getRunningUser();
 			$root_user  = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
@@ -559,11 +565,12 @@ pre_echo("MESSAGE : \n".$msg->body);
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$msg = $ms->newMessage();
 			$msg->subject = 'TERMINATION of '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name');
-			$msg->body	  = "The above mention job fatally triggered an error and terminated the cron script.\n"
+			$msg->body	  = "The job \"".$this->name."\" (#".$this->id.") fatally triggered an error and terminated the cron script.\n"
 							."It has been removed from the cron manager\n\nError Messages :\n"
 							.$this->_tmp['running_errors'];
 
-			$msg->to   = Array($user->id, $root_user->id, $sys_admins->id);
+			// userid zero sends a msg to SQ_CONF_DEFAULT_EMAIL and SQ_CONF_TECH_EMAIL
+			$msg->to   = Array(0, $user->id, $root_user->id, $sys_admins->id);
 			$msg->from = 0; // a system message
 
 			$msg->send();
