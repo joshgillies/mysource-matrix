@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.30 2004/06/18 00:19:17 mnyeholt Exp $
+* $Id: system_config.inc,v 1.31 2004/06/21 01:20:49 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -124,11 +124,12 @@ class System_Config extends Config
 	* @param Array		$vars				the array with any new values (that are allowed to be edited)
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
-	*
+	* @param boolean 	$send_message		whether to send a message using the messaging system
+	
 	* @return boolean	indicates whether the file was written
 	* @access public
 	*/
-	function save($vars, $backup_existing=false)
+	function save($vars, $backup_existing=false, $send_message=true)
 	{
 		if (empty($GLOBALS['SQ_INSTALL'])) {
 

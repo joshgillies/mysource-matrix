@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.14 2004/01/22 13:06:02 brobertson Exp $
+* $Id: config.inc,v 1.15 2004/06/21 01:19:49 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,10 +75,11 @@ class Config extends MySource_Object
 	*										Array('[config_var_name]' => [scalar value])
 	* @param boolean	$backup_existing	whether we should backup the existing config file first
 	*
+	* @param boolean 	$send_message		whether to send a message using the messaging system
 	* @return boolean	indicates whether the file was written
 	* @access public
 	*/
-	function save($vars, $backup_existing=false)
+	function save($vars, $backup_existing=false, $send_message=true)
 	{
 		if (!$this->writeAccess()) {
 			trigger_error('Unable to save "'.$this->name.'", permission denied', E_USER_WARNING);
@@ -141,7 +142,8 @@ class Config extends MySource_Object
 		// and save the file
 		if (!string_to_file($str, $this->config_file)) return false;
 
-		if ($changed_vars) {
+		// Check if a message should be sent.
+		if ($changed_vars && $send_message) {
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 			$message_body = '';
 			foreach($changed_vars as $var_name => $values) {
