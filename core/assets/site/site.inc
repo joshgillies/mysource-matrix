@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.57 2004/08/09 08:49:33 brobertson Exp $
+* $Id: site.inc,v 1.58 2004/09/28 23:25:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 */
 class Site extends Folder
 {
+
 
 	/**
 	* Constructor
@@ -77,7 +78,7 @@ class Site extends Folder
 		// because we never have paths, we can only return the urls
 		return Array();
 
-	}// end getWebPaths()
+	}//end getWebPaths()
 
 
 	/**
@@ -93,7 +94,7 @@ class Site extends Folder
 	{
 		return false;
 
-	}// end addWebPath()
+	}//end addWebPath()
 
 
 	/**
@@ -109,7 +110,7 @@ class Site extends Folder
 	{
 		return false;
 
-	}// end deleteWebPath()
+	}//end deleteWebPath()
 
 
 	/**
@@ -164,14 +165,13 @@ class Site extends Folder
 				$this->_tmp['urls_info'] = Array();
 			} else {
 				$this->_tmp['urls_info'] = $result;
+			}
 
-			}// end if
-
-		}// end if
+		}//end if not cached
 
 		return $this->_tmp['urls_info'];
 
-	}// end getSiteURLs()
+	}//end getSiteURLs()
 
 
 	/**
@@ -192,7 +192,8 @@ class Site extends Folder
 		$processed_urlids = Array();
 		$current_urls = $this->getSiteURLs();
 		$system_root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
-		for(reset($save_urls); null !== ($save_urlid = key($save_urls)); next($save_urls)) {
+
+		for (reset($save_urls); null !== ($save_urlid = key($save_urls)); next($save_urls)) {
 
 			$curr_urlid = $save_urlid;
 
@@ -203,7 +204,8 @@ class Site extends Folder
 			$paths = explode('/', $save_urls[$save_urlid]['url']);
 			// remove the domain
 			array_shift($paths);
-			foreach($paths as $path) {
+			
+			foreach ($paths as $path) {
 				$clean_paths = make_valid_web_paths(Array($path));
 				$clean_path = (empty($clean_paths)) ? '' : $clean_paths[0];
 				if ($path != $clean_path) {
@@ -211,13 +213,12 @@ class Site extends Folder
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
-
-			}// end foreach
+			}
 
 			//// Next let's see if this url based upon a root url ////
 
 			$found_root_url = false;
-			foreach($system_root_urls as $root_url) {
+			foreach ($system_root_urls as $root_url) {
 				if (substr($save_urls[$save_urlid]['url'], 0, strlen($root_url)) == $root_url) {
 					$found_root_url = true;
 					break;
@@ -233,12 +234,12 @@ class Site extends Folder
 			//// Next let's try and see if this URL is already in use by something ////
 
 			$found = false;
-			for(reset($current_urls); null !== ($i = key($current_urls)); next($current_urls)) {
+			for (reset($current_urls); null !== ($i = key($current_urls)); next($current_urls)) {
 				if ($save_urls[$save_urlid]['url'] == $current_urls[$i]['url']) {
 					$found = true;
 					break;
 				}
-			}// end for
+			}
 
 			// We don't have it ? does anyone else
 			if (!$found) {
@@ -248,6 +249,7 @@ class Site extends Folder
 					continue;
 				}
 			}
+
 			// are we an existing or an new one
 			if ($save_urlid) {
 				if ($current_urls[$save_urlid]['url']   != $save_urls[$save_urlid]['url'] ||
@@ -288,17 +290,17 @@ class Site extends Folder
 
 				$updated = true;
 
-			}// end if urlid
+			}//end if save_urlid
 
 			$current_urls[$curr_urlid] = $save_urls[$save_urlid];
 			$processed_urlids[] = $curr_urlid;
 
-		}// end for
+		}//end for save_urls
 
 		$delete_urlids = array_diff(array_keys($current_urls), $processed_urlids);
 
-		foreach($delete_urlids as $urlid) {
-			// Remove all the old URLs
+		foreach ($delete_urlids as $urlid) {
+			// remove all the old URLs
 			$where_cond = 'urlid = '.$db->quote($urlid);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_url', $where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -312,7 +314,7 @@ class Site extends Folder
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}// end saveWebURLs()
+	}//end saveWebURLs()
 
 
 	/**
@@ -344,7 +346,6 @@ class Site extends Folder
 	*/
 	function updateLookups()
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -352,20 +353,12 @@ class Site extends Folder
 		unset($this->_tmp['url']);
 		unset($this->_tmp['href']);
 
-		// Remove all the old URLs
-		$subs = Array( 'SELECT url
-						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
-						'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l'));
+		// remove all the old URLs
+		$sub_sql = 'SELECT url
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+					'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('assetid = '.$db->quote($this->id), 'l');
 
-		$where = 'url IN (~SQ0~)';
-		$where = db_extras_subquery($db, $where, $subs);
-		if (DB::isError($where)) {
-			trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_design', $where)) {
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_lookup_design', 'url IN ('.$sub_sql.')')) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -378,49 +371,44 @@ class Site extends Folder
 
 		$our_design_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design', false);
 		$our_designs = Array();
-		foreach($our_design_links as $link) {
+		foreach ($our_design_links as $link) {
 			if (preg_match('/^(system_design|user_design)::(.*)$/', $link['value'], $matches)) {
 				$our_designs[$link['value']] = $link['minorid'];
-			}// end if
-		}// end foreach
-
+			}
+		}
 
 		$urls = $this->getSiteURLs();
+
 		// if we have urls then do some url inserting
-		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
+		for (reset($urls); null !== ($urlid = key($urls)); next($urls)) {
 			$values = Array(
-							'url'               => $urls[$urlid]['url'],
-							'assetid'           => $this->id,
-							'http'              => ($this->force_secure) ? '0' : $urls[$urlid]['http'],
-							'https'             => $urls[$urlid]['https'],
-							'root_urlid'        => $urlid,
+							'url'         => $urls[$urlid]['url'],
+							'assetid'     => $this->id,
+							'http'        => ($this->force_secure) ? '0' : $urls[$urlid]['http'],
+							'https'       => $urls[$urlid]['https'],
+							'root_urlid'  => $urlid,
 						);
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
-
-
-			foreach($our_designs as $name => $designid) {
-				$values = Array(
-								'url'      => $urls[$urlid]['url'],
+			foreach ($our_designs as $name => $designid) {
+				$values = Array('url'      => $urls[$urlid]['url'],
 								'name'     => $name,
 								'designid' => $designid,
-							);
+								);
 				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup_design', $values)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
-			}// endforeach
-
-
-		}// end for urls
+			}
+		}//end for urls
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
-	}// end updateLookups()
+	}//end updateLookups()
 
 
 	/**
@@ -463,13 +451,13 @@ class Site extends Folder
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
 			return;
 		}
+
 		$index_page = &$this->getSpecialPage('index');
 		if (is_null($index_page)) {
 			trigger_error('No Index Page Set for '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' "'.$this->name.'" (Id #'.$this->id.')', E_USER_NOTICE);
 			return;
 		}
 		$this->paintAsset($index_page);
-		
 
 	}//end printFrontend()
 
@@ -496,8 +484,8 @@ class Site extends Folder
 			return;
 		}
 
-		if($asset->charset)   header("Content-type: text/html; charset=$this->charset");
-		if($asset->languages) header("Content-language: $this->languages");
+		if ($asset->charset)   header("Content-type: text/html; charset=$this->charset");
+		if ($asset->languages) header("Content-language: $this->languages");
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url($this->getURL(), true);
@@ -514,11 +502,9 @@ class Site extends Folder
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql .= $where.' LIMIT 1';
+
 		$result = $db->getRow($sql);
-		
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-		}
+		assert_valid_db_result($result);
 
 		$asset_url = strip_url($asset->getURL(null, true), true);
 
@@ -530,8 +516,8 @@ class Site extends Folder
 			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
 			if (SQ_IN_LIMBO) $design->paint($this);
 			else $design->paint($asset);
-		// shit we can't find a design, oh well let's just print out our body
 		} else {
+			// we can't find a design, oh well let's just print out our body
 			$asset->printBody();
 		}
 		
@@ -571,18 +557,17 @@ class Site extends Folder
 	*/
 	function getSpecialPageLink($page)
 	{
-		switch($page) {
-			case 'index' :
+		switch ($page) {
+			case 'index'     :
 			case 'not_found' :
 			case 'forbidden' :
 				return $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, $page);
-				break;
+			break;
 
 			default :
 				trigger_error('Special Page "'.$page.'" unknown');
 				return Array();
-
-		}// end switch
+		}
 
 	}//end getSpecialPageLink()
 
