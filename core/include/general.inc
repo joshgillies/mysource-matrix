@@ -237,6 +237,10 @@ function sq_web_path($path='base')
 			$paths[$path] = sq_web_path('root_url').'/__data';
 			break;
 
+		case 'fudge'  : 
+			$paths[$path] = sq_web_path('root_url').'/__fudge';
+			break;
+
 	}// end switch
 
 	return $paths[$path];
