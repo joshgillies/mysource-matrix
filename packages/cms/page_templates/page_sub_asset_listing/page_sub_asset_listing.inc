@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_sub_asset_listing.inc,v 1.5 2003/10/10 06:49:28 brobertson Exp $
+* $Id: page_sub_asset_listing.inc,v 1.6 2003/10/13 06:29:18 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -258,19 +258,20 @@ class Page_Sub_Asset_Listing extends Page
 
 		if (empty($children)) return false;
 
-		$keywords = Array();
-		$formats = Array();
-		$default_format = '';
-		$is_default = Array();
-		$folder = &$this->getFolder('type_formats');
-		$type_folder_id = $folder->id;
-		$global_contents = '';
+		$keywords			= Array();								// an array of keywords/replacements per asset base
+		$formats			= Array();								// an array of customised formats html
+		$default_format		= '';									// the default format html
+		$is_default			= Array();								// array of types using the default format
+		$folder				= &$this->getFolder('type_formats');	// the folder asset for type formats
+		$type_folder_id		= $folder->id;							// the format types folder id
+		$global_contents	= '';									// the entire contents of the SAL
+		$mm					= null;									// metadata manager
 
 		foreach ($children as $info) {
 			$assetid = $info['minorid'];
 			$type_code = $info['minor_type_code'];
-			
-			$contents = '';
+			$contents = ''; // temp contents for this asset
+
 			// check to see if this is a bodycopy that is used for a format
 			if (in_array(strtolower($info['value']), $wanted_types)) continue;
 			if (strtolower($info['value'] == 'default_format')) continue;
@@ -307,7 +308,7 @@ class Page_Sub_Asset_Listing extends Page
 				} else {
 					$is_default[] = $type_code;
 				}
-			}
+			} // end if
 
 			if (in_array($type_code, $is_default)) {
 				if (!$default_format) {
@@ -324,11 +325,25 @@ class Page_Sub_Asset_Listing extends Page
 			} else {
 				$contents = $formats[$type_code];
 			}
+			if (preg_match_all('|%asset_metadata_([^%]+)%|is', $contents, $matches)) {
+				if (is_null($mm)) $mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+				// get all the metadata keywords for this asset
+				$replacements = $mm->getMetadataFieldValues($assetid, $matches[1]);
+				
+				foreach ($replacements as $field => $value) {
+					$keywords['asset_metadata_'.$field]['value'] = $value;
+				}
+			}
 			foreach ($keywords as $keyword => $info) {
 				$contents = str_replace('%'.$keyword.'%', $info['value'], $contents);
 			}
 			$global_contents .= $contents;
-		}
+		
+		} // end foreach
+
+		// if we have any blank keywords, replace them with nothing
+		$global_contents = preg_replace('|%[^%]+%|', '', $global_contents);
+
 		return $global_contents;
 
 	}// end getBodyReplacement()

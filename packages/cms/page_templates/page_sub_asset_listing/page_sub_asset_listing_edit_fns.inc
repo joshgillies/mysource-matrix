@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_sub_asset_listing_edit_fns.inc,v 1.6 2003/10/13 01:06:49 gsherwood Exp $
+* $Id: page_sub_asset_listing_edit_fns.inc,v 1.7 2003/10/13 06:29:18 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,6 +69,7 @@ class Page_Sub_Asset_Listing_Edit_Fns extends Page_Edit_Fns
 		return true;
 
 	} // end processBodycopyInformation()
+
 
 	/**
 	* paints a link to the default format
