@@ -89,9 +89,10 @@ define('SQ_LINK_SIGNIFICANT', 11); // short hand for EXCLUSIVE | UNITE | USES
 /*
 * PERMISSION TYPES
 */
-define('SQ_PERMISSION_READ',  1); // read access
-define('SQ_PERMISSION_WRITE', 2); // write access
-define('SQ_PERMISSION_ADMIN', 3); // admin access
+define('SQ_PERMISSION_READ',     1); // read access
+define('SQ_PERMISSION_WRITE',    2); // write access
+define('SQ_PERMISSION_ADMIN',    3); // admin access
+define('SQ_PERMISSION_WORKFLOW', 4); // workflow
 
 // Create the system object
 require_once SQ_INCLUDE_PATH.'/resolve.inc';
