@@ -104,6 +104,7 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 
 		statusBar.setSize(toolbar.getPreferredSize());
 		mainPane.add(statusBar, BorderLayout.SOUTH);
+		mainPane.addKeyListener(this);
 
 		Menus m = new Menus(this, null);
 		String err2 = m.addMenuBar();
@@ -261,6 +262,7 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 	public void mouseEntered(MouseEvent e) {}
 
  	public void keyPressed(KeyEvent e) {
+		System.out.println("Key pressed "+e);
 		int keyCode = e.getKeyCode();
 		IJ.setKeyDown(keyCode);
 		hotkey = false;
@@ -278,9 +280,16 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 		ImagePlus imp = IJ.getInstance().getImagePlus();
 		boolean isStack = (imp!=null) && (imp.getStackSize()>1);
 		
+		if (control && (keyCode == e.VK_D)) {
+			// hard coding the control-d shortcut until we fix the menu shortcuts
+			doCommand("ij.plugin.filter.Filler(\"draw\")");
+			imp.killRoi();
+		}
+
 		if (imp!=null && !control && ((keyChar>=32 && keyChar<=255) || keyChar=='\b' || keyChar=='\n')) {
 			Roi roi = imp.getRoi();
 			if (roi instanceof TextRoi) {
+				System.out.println("have a text roi");
 				if ((flags & e.META_MASK)!=0 && IJ.isMacOSX()) return;
 				if (alt)
 					switch (keyChar) {
@@ -288,6 +297,7 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 						case 'A': keyChar = IJ.angstromSymbol; break;
 						default:
 					}
+				System.out.println("adding char");
 				((TextRoi)roi).addChar(keyChar);
 				return;
 			}
@@ -423,6 +433,10 @@ public class ImageJ extends javax.swing.JApplet implements ActionListener,
 	{
 		return getAssetName() + getFileType();
 	}
-
+	
+	public boolean isFocusable() 
+	{
+		return true;
+	}
 	
 } //class ImageJ

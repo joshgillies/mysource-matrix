@@ -349,10 +349,13 @@ public class IJ {
 		if (ij!=null) {
 			if (msg.startsWith("<html>") && isJava2())
 				new HTMLDialog(title, msg);
-			else
+			else {
 				JOptionPane.showMessageDialog(null, msg);
-		} else
+				ij.repaint();
+			}
+		} else {
 			System.out.println(msg);
+		}
 	}
 
 	/** Displays a message in a dialog box titled "Message".
@@ -364,8 +367,10 @@ public class IJ {
 	/** Displays a message in a dialog box titled "ImageJ". Writes
 		to the Java console if the ImageJ window is not present. */
 	public static void error(String msg) {
-		if (ij!=null)
+		if (ij!=null) {
 			JOptionPane.showMessageDialog(null, msg);
+			ij.repaint();
+		}
 		else
 			System.out.println(msg);
 	}

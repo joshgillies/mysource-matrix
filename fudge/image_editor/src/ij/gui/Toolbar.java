@@ -17,18 +17,18 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 	public static final int LINE = 4;
 	public static final int POLYLINE = 5;
 	public static final int FREELINE = 6;
-	public static final int CROSSHAIR = 7;
-	public static final int WAND = 8;
-	public static final int TEXT = 9;
-	public static final int MAGNIFIER = 10;
-	public static final int HAND = 11;
-	public static final int DROPPER = 12;
+	public static final int WAND = 7;
+	public static final int TEXT = 8;
+	public static final int MAGNIFIER = 9;
+	public static final int HAND = 10;
+	public static final int DROPPER = 11;
 
 	// deprecated
 	public static final int ANGLE = 999;
+	public static final int CROSSHAIR = 999;
 
 
-	public static final int NUM_TOOLS = 13;
+	public static final int NUM_TOOLS = 12;
 
 	public static final int DIVIDER = 100;
 	public static final int SPARE = 101;
@@ -41,14 +41,15 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 		LINE,
 		POLYLINE,
 		FREELINE,
-		DIVIDER,
-		CROSSHAIR,
 		WAND,
+		DIVIDER,
+		DROPPER,
+		DIVIDER,
 		TEXT,
 		DIVIDER,
 		MAGNIFIER,
 		HAND,
-		DROPPER
+		
 	};
 		
 	private static final int SIZE = 22;
@@ -307,43 +308,44 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 	}
 	
 	private void showMessage(int tool) {
+		if (tool == -1) return;
 		if ((tool < names.length) && (tool >= 0) && (names[tool]!=null)) {
 			IJ.showStatus(names[tool]);
 			return;
 		}
 		switch (tool) {
 			case RECTANGLE:
-				IJ.showStatus("Rectangular selections");
+				IJ.showStatus("Rectangular selection tool");
 				return;
 			case OVAL:
-				IJ.showStatus("Oval selections");
+				IJ.showStatus("Oval selection tool");
 				return;
 			case POLYGON:
-				IJ.showStatus("Polygon selections");
+				IJ.showStatus("Polygon selection tool");
 				return;
 			case FREEROI:
-				IJ.showStatus("Freehand selections");
+				IJ.showStatus("Freehand selection tool");
 				return;
 			case LINE:
-				IJ.showStatus("Straight line selections");
+				IJ.showStatus("Straight line selection tool");
 				return;
 			case POLYLINE:
-				IJ.showStatus("Segmented line selections");
+				IJ.showStatus("Segmented line selection tool");
 				return;
 			case FREELINE:
-				IJ.showStatus("Freehand line selections");
+				IJ.showStatus("Freehand line selection tool");
 				return;
 			case CROSSHAIR:
 				IJ.showStatus("Crosshair (mark and count) tool");
 				return;
 			case WAND:
-				IJ.showStatus("Wand (tracing) tool");
+				IJ.showStatus("Wand (tracing) tool: click an object to select it");
 				return;
 			case TEXT:
-				IJ.showStatus("Text tool");
+				IJ.showStatus("Text tool: click and drag to create a text box");
 				return;
 			case MAGNIFIER:
-				IJ.showStatus("Zoom in/out");
+				IJ.showStatus("Zoom Tool: left-click to zoom in, right-click to zoom out");
 				return;
 			case HAND:
 				IJ.showStatus("Scrolling tool");
@@ -433,30 +435,11 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 		tb.drawButton(g, CROSSHAIR);
 		g.dispose();
 	}
-	
-	// Returns the toolbar position index of the specified tool
-    int toolIndex(int tool){
-		return tool;/*
-        if(tool<=FREELINE || tool>ANGLE)
-            return tool;
-        if(tool == ANGLE)
-            return 7;
-        return tool + 1;*/
-    }
-
-	// Returns the tool corresponding to the specified tool position index
-    int toolID(int index) {
-		return index;/*
-        if(index<=6 || index>14)
-            return index;
-        if(index == 7)
-            return ANGLE;
-        return index - 1;*/
-    }
 
 	public void mousePressed(MouseEvent e) {
 		int x = e.getX();
 		int newTool = getToolFromCoord(x);
+		if (newTool == -1) return;
 		
 		System.out.println("new tools is "+newTool);
 
@@ -523,6 +506,7 @@ public class Toolbar extends JPanel implements MouseListener, MouseMotionListene
 		while (offset < x) {
 			offset += getButtonWidth(BUTTON_SEQUENCE[i]);
 			i++;
+			if (i == BUTTON_SEQUENCE.length) return -1;
 		}
 		return BUTTON_SEQUENCE[i-1];
 	}
