@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.21 2004/08/27 01:56:32 tbarrett Exp $
+* $Id: datetime.inc,v 1.22 2004/08/27 01:56:55 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -316,7 +316,7 @@ function days_in_month($month, $year)
 }//end days_in_month()
 
 
-**
+/**
 * Increments the given date by the specified number of days
 *
 * Months and years are rolled over as necessary
