@@ -1342,13 +1342,13 @@ class Asset extends Resolve_Object
 	/**
 	* Returns information for a link that this asset is the major asset in
 	*
-	* @param int			$link_type		integer that should be a single integer of the SQ_LINK_* constants
-	* @param string|array	$type_code		the type of asset that is linked (eg 'Page', 'File', etc) 
-	*										if an array returns link if matches any of the array values
-	* @param bool			$strict			whether we are finding an asset that are just a $type_code 
-	*										or $type_code and any of it's sub-classes
-	* @param string			$value			the value that is associated with this link
-	* @param string			$side_of_link	Which side of the link this (the current) asset is on ('major' or 'minor')
+	* @param int			$link_type			integer that should be a single integer of the SQ_LINK_* constants
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) 
+	*											if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding an asset that are just a $type_code 
+	*											or $type_code and any of it's sub-classes
+	* @param string			$value				the value that is associated with this link
+	* @param string			$side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
 	*
 	* @return Array()
 	* @access public
