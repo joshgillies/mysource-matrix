@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.23 2004/05/17 05:53:48 lwright Exp $
+* $Id: form_question.inc,v 1.24 2004/06/10 23:09:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,8 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Version$ - 1.0
+* @author  Luke Wright <lwright@squiz.net>
+* @version $Revision: 1.24 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -90,6 +91,7 @@ class Form_Question extends Asset
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
+	* @param Array	$data		the shadow asset data that will construct this question
 	*
 	*/
 	function Form_Question($formid=0, $data=Array()) 
@@ -264,9 +266,8 @@ class Form_Question extends Asset
 	*/
 	function _updated()
 	{
-		if (!parent::_updated()) return false;
-
-		// this will either be a form or a section
+		// We should not be running our _updated() because we don't have anything in the asset table
+		// to update... but we should run our form/section's update, if only to increment the version
 		if (SQ_IN_BACKEND) {
 			$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_formid);
 			return $form->_updated();
@@ -283,10 +284,14 @@ class Form_Question extends Asset
 	* used for generating forms eg. if value is 'answer', this
 	* function returns the html for this question type
 	*
-	* @param	string	 $val
+	* @param string	$val	The value , can be one of the following
+	*						'title'  : The name of the question
+	*						'answer' : The HTML for the form field
+	*						'note'   : The note attached to the question
+	*						'value'  : The current value of the question
 	* 
 	* @access public
-	* @return string
+	* @return string relating to the $val field as described above, or empty string if other
 	*/
 	function getVal($val = '')
 	{
@@ -300,6 +305,8 @@ class Form_Question extends Asset
 				return $this->attr('note');
 			case 'value' :
 				return $this->getValue();
+			default:
+				return '';
 		}
 	}//end getVal()
 
@@ -344,10 +351,10 @@ class Form_Question extends Asset
 
 
 	/**
-	* returns the current value
+	* returns the current value of the question, or the default value if no current value exists
 	*
 	* @access public
-	* @return void
+	* @return mixed type depends on the subclass of question
 	*/
 	function getValue()
 	{
@@ -369,7 +376,8 @@ class Form_Question extends Asset
 	* @param Array|int $offset the offset(s) to the answers
 	*
 	* @access public
-	* @return mixed
+	* @return mixed (Array | string) Array of selection options if an array is passed, or a single
+	*								 option if an int is passed
 	*/
 	function getAnswerByOffset($offset = 0)
 	{
@@ -438,7 +446,7 @@ class Form_Question extends Asset
 	function getAllowedRules()
 	{
 		// this should be overridden with something like (substitute actual allowed rules)
-		//return Array('regexp', 'comparison', 'numeric', 'found_in', 'contain', 'length', 'email', 'begins_with', 'ends_with', 'select_limit');
+		// eg. return Array('regexp', 'comparison', 'numeric', 'found_in', 'contain', 'length', 'email', 'begins_with', 'ends_with', 'select_limit');
 
 		return Array();
 	
@@ -448,8 +456,9 @@ class Form_Question extends Asset
 	/**
 	* adds a validation rule to this question
 	*
-	* @param string $rule_code the code of the rule that will be 
-	* @param mixed $rule_conditions any conditions or parameters attached to the rule
+	* @param string $rule_code the code of the rule that will be added
+	* @param mixed $operator the operator being used by the rule - Possible values defined by rule, comparison questions generally have a string like '==', is/is not rules use a 0|1 integer
+	* @param mixed $value the value to compare the question's response to
 	*
 	* @access public
 	* @return Array(link)
@@ -466,29 +475,22 @@ class Form_Question extends Asset
 	
 	
 	/**
-	* removes a validation rule from this question
+	* removes a validation rule(s) from this question
 	*
-	* @param Array $rule the rule that will be removed
+	* @param Array &$deleted_rule the rule(s) that will be removed
 	*
 	* @access public
 	* @return Array(link)
 	*/
 	function &removeRule(&$deleted_rule)
 	{
-		/*$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$links = $this->getRuleLinks();
-		$rules = Array();
-		
-		foreach ($links as $link) {
-			$rules[] = &$am->getAsset($link['minorid'], $link['minor_type_code']);
-		}*/
 		$rules = &$this->attr('rules');
 		$rules = array_diff($rules, $deleted_rule);
 		$this->setAttrValue('rules', $rules);
 		$this->saveAttributes();
 		return $rules;
 	
-	}//end getRules()
+	}//end removeRule()
 	
 	
 	/**
@@ -499,13 +501,6 @@ class Form_Question extends Asset
 	*/
 	function &getRules()
 	{
-		/*$am = &$GLOBALS['SQ_SYSTEM']->am;
-		$links = $this->getRuleLinks();
-		$rules = Array();
-		
-		foreach ($links as $link) {
-			$rules[] = &$am->getAsset($link['minorid'], $link['minor_type_code']);
-		}*/
 		return $this->attr('rules');
 	
 	}//end getRules()
@@ -520,52 +515,8 @@ class Form_Question extends Asset
 	function getRuleCount()
 	{
 		return count($this->getRules());
-		//return $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'major', SQ_LINK_TYPE_3, 'form_question_rule', false);
 	
 	}//end getRuleCount()
-
-
-	/**
-	* catches the special information change and sets it in this question's forms
-	* 
-	* @see Asset::setAttrValue()
-	*
-	* @param string		$name				the name of the attribute
-	* @param mixed		$value				the value to set 
-	* @param boolean	$dont_run_updated	run an update or not
-	*
-	* @access public
-	* @return boolean
-	*/
-	/*function setAttrValue($name, $value, $dont_run_updated=false) 
-	{
-		if ($name == 'special_info') {
-			$forms = &$this->getForms();
-			for (reset($forms); null !== ($k = key($forms)); next($forms)) {
-				$form =& $forms[$k];
-				$form->setSpecialInformation($this->id, $value);
-			}
-		}
-		return parent::setAttrValue($name, $value, $dont_run_updated);
-		
-	}*///end setAttrValue()
-
-
-	/**
-	* sets the name of the section that this question belongs to	
-	*
-	* @param string $name the name of the section
-	*
-	* @access public
-	* @return boolean 
-	*/
-	function setSection($name = '', $id)
-	{
-		$this->section_name = $name;
-		$this->section_id   = $id;
-		return true;
-	
-	}//end setSection()
 
 
 	/**
@@ -584,7 +535,7 @@ class Form_Question extends Asset
 
 
 	/**
-	* returns the answer for this question for the summary, generally overriden by children
+	* returns the answer for this question for the summary, generally overidden by children
 	*
 	* @param $answer the answer of the question
 	*
@@ -678,7 +629,7 @@ class Form_Question extends Asset
 	* with a form variable named 'form' passed (this is done when generating the content file).
 	*
 	* @access public
-	* @return string
+	* @return string the javascript code used for client-side validation
 	*/
 	function generateJSCode()
 	{
@@ -716,7 +667,7 @@ class Form_Question extends Asset
 	* returns an answer summary in XML format (suitable for submission logs)
 	* 
 	* @access public
-	* @return string
+	* @return string the summary XML
 	*/
 	function getXML($answer)
 	{
