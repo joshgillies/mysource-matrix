@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: external_tools_config.inc,v 1.1 2004/09/08 07:20:07 amiller Exp $
+* $Id: external_tools_config.inc,v 1.2 2004/09/08 23:39:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -84,7 +84,6 @@ class External_Tools_Config extends Config
 	function save($vars, $backup_existing=false, $send_message=true)
 	{
 		if (empty($GLOBALS['SQ_INSTALL'])) {
-
 			$is_root  = $GLOBALS['SQ_SYSTEM']->userRoot();
 			$is_admin = ($is_root || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 
@@ -93,30 +92,7 @@ class External_Tools_Config extends Config
 				trigger_error('You need to be either the Root User or a System Administrator to save the '.$this->name, E_USER_WARNING);
 				return false;
 			}
-			
-			// check to see if the path provided is valid
-			foreach ($vars as $var => $path) {
-				if (function_exists('is_executable')) {
-					if (!is_executable($path)) {
-						switch ($var) {
-							case 'SQ_TOOL_HTML_TIDY_PATH' :
-								$broken = 'HTML Tidy';
-								break;
-							case 'SQ_TOOL_PDFTOHTML_PATH' :
-								$broken = 'pdftohtml';
-								break;
-							case 'SQ_TOOL_ANTIWORD_PATH' :
-								$broken = 'Antiword';
-								break;
-						}
-							
-						trigger_error('Path provided for '.$broken.' is not executable.', E_USER_WARNING);
-						return false;
-					}
-				}
-			} //end foreach
-			
-		}// end if
+		}
 
 		return parent::save($vars, $backup_existing, $send_message);
 
@@ -176,7 +152,7 @@ class External_Tools_Config extends Config
 	* If you (as a sub-class) put your config vars so that when they are submitted appear in 
 	* $_POST[get_class($this)] then you probably won't need to override processBackend()
 	*
-	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	* @param object Backend_Outputter	&$o		reference to the backend outputter
 	*
 	* @return void
 	* @access public
@@ -195,10 +171,16 @@ class External_Tools_Config extends Config
 		$o->openSection('WYSIWYG Editor Tools');
 
 			$o->openField('Path to HTML Tidy');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_TOOL_HTML_TIDY_PATH]', SQ_TOOL_HTML_TIDY_PATH, 30);
 			} else {
 				echo SQ_TOOL_HTML_TIDY_PATH;
+			}
+
+			if (!is_file(SQ_TOOL_HTML_TIDY_PATH)) {
+				?><br /><span class="sq-backend-warning">The path to HTML Tidy is not valid</span><?php
+			} else if (!is_executable(SQ_TOOL_HTML_TIDY_PATH)) {
+				?><br /><span class="sq-backend-warning">The path to HTML Tidy is not executable</span><?php
 			}
 			
 		$o->closeSection();
@@ -206,17 +188,29 @@ class External_Tools_Config extends Config
 		$o->openSection('Keyword Extraction Tools');
 			
 			$o->openField('Path to pdftohtml');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_TOOL_PDFTOHTML_PATH]', SQ_TOOL_PDFTOHTML_PATH, 30);
 			} else {
 				echo SQ_TOOL_PDFTOHTML_PATH;
 			}
-			
+
+			if (!is_file(SQ_TOOL_PDFTOHTML_PATH)) {
+				?><br /><span class="sq-backend-warning">The path to PDFTOHTML is not valid</span><?php
+			} else if (!is_executable(SQ_TOOL_PDFTOHTML_PATH)) {
+				?><br /><span class="sq-backend-warning">The path to PDFTOHTML is not executable</span><?php
+			}
+
 			$o->openField('Path to Antiword');
-			if($write_access) {
+			if ($write_access) {
 				text_box($class.'[SQ_TOOL_ANTIWORD_PATH]', SQ_TOOL_ANTIWORD_PATH, 30);
 			} else {
 				echo SQ_TOOL_ANTIWORD_PATH;
+			}
+
+			if (!is_file(SQ_TOOL_ANTIWORD_PATH)) {
+				?><br /><span class="sq-backend-warning">The path to Antiword is not valid</span><?php
+			} else if (!is_executable(SQ_TOOL_ANTIWORD_PATH)) {
+				?><br /><span class="sq-backend-warning">The path to Antiword is not executable</span><?php
 			}
 
 		$o->closeSection();
