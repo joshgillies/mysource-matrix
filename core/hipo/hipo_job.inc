@@ -76,7 +76,7 @@ class HIPO_Job extends Resolve_Object
 	*			'name'			=> [name of the step],
 	*		[
 	*			'function_call'	=> Array(
-	*									'paint_function'   => 'paintSomething(&$step_data, $prefix)',
+	*									['paint_function'   => 'paintSomething(&$step_data, $prefix)',]
 	*									'process_function' => 'processSomething(&$step_data, $prefix)',
 	*								),
 	*		|
@@ -554,7 +554,7 @@ class HIPO_Job extends Resolve_Object
 		echo '<p>';
 		// if we have more than one step we need to "total" progress bar
 		if (count($this->_steps) > 1) {
-			$this->paintProgressBar($this->_hipo_vars['percent_done'], '#412F49', 'Total HIPO Progress - '.$status_msg);
+			$this->paintProgressBar($this->_hipo_vars['percent_done'], 'Total HIPO Progress - '.$status_msg);
 		} else {
 			echo '<b>'.$status_msg.'</b>';
 		}
@@ -571,7 +571,7 @@ class HIPO_Job extends Resolve_Object
 		if ($step_data) {
 
 			if (!empty($this->_steps[$step]['function_call'])) {
-				$fn = $this->_steps[$step]['function_call']['paint_function'];
+				$fn = (empty($this->_steps[$step]['function_call']['paint_function'])) ? 'paintStepDefault' : $this->_steps[$step]['function_call']['paint_function'];
 				$prefix = $this->code_name.'step'.$step;
 				$this->$fn($this->_steps[$step], $prefix);
 
@@ -990,16 +990,31 @@ class HIPO_Job extends Resolve_Object
 
 
 	/**
+	* A default function for painting the progess of a step
+	*
+	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param string		$prefix		prefix for form vars
+	*
+	* @access public
+	*/
+	function paintStepDefault(&$step_data, $prefix)
+	{
+		$this->paintProgressBar($step_data['percent_done'], $step_data['message']);
+
+	}//end paintStepDefault()
+
+	
+	/**
 	* Paint a progress bar for a HIPO
 	*
 	* @param float	$percent_done	the percentage of progress completed
-	* @param string	$colour			the colour to paint the progress bar
 	* @param string	$message		a status message to display above the progress bar
+	* @param string	$colour			the colour to paint the progress bar
 	*
 	* @return void
 	* @access public
 	*/
-	function paintProgressBar($percent_done, $colour='#412F49', $message='')
+	function paintProgressBar($percent_done, $message='', $colour='#412F49')
 	{
 		?>
 		<table width="100%" border="0" cellspacing="2" cellpadding="1">

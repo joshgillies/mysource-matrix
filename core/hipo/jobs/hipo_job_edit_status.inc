@@ -26,7 +26,6 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 					Array(
 						'name'             => 'Editing Status',
 						'function_call'    => Array(
-												'paint_function'   => 'paintStatus',
 												'process_function' => 'processStatus',
 												),
 						'running_mode'     => 'server',
@@ -138,22 +137,6 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 		return true;
 
 	}//end processServer()
-
-
-	/**
-	* Paint a progress bar showing where we are up to
-	*
-	* @param array()	&$step_data	a reference to the array of information about the current step
-	* @param string		$prefix		prefix for form vars
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintStatus(&$step_data, $prefix)
-	{
-		$this->paintProgressBar($step_data['percent_done'], '#412F49', $step_data['message']);
-
-	}//end paintStatus()
 
 
 	/**
