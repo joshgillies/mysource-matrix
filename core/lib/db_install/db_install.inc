@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.11 2005/02/17 04:29:14 arailean Exp $
+* $Id: db_install.inc,v 1.12 2005/02/21 10:24:04 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -171,7 +171,7 @@ function db_install($xml_file, $quiet=false)
 				$key_columns[] = $col_name;
 
 				// cache the primary key columns for this table
-				if ($table_key->name == 'primary_key') {
+				if ($table_key->name == 'primary_key' && !in_array($col_name, $cached_table_columns[$table_name]['primary_key'])) {
 					$cached_table_columns[$table_name]['primary_key'][] = $col_name;
 				}
 			}
