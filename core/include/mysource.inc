@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.34.2.8 2004/03/16 16:55:34 brobertson Exp $
+* $Id: mysource.inc,v 1.34.2.9 2004/03/18 11:53:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -188,11 +188,11 @@ class MySource
 			// check if we are in rollback view mode
 			if (!empty($_SESSION['sq_rollback_view'])) {
 				// we are viewing the system at some time in the past
-				define('SQ_ROLLBACK_VIEW',        '1');
-				define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_ROLLBACK_PREFIX);
+				$GLOBALS['SQ_ROLLBACK_VIEW'] = '1';
+				$GLOBALS['SQ_TABLE_RUNNING_PREFIX'] = SQ_TABLE_ROLLBACK_PREFIX;
 			} else {
-				define('SQ_ROLLBACK_VIEW',        '0');
-				define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_PREFIX);
+				$GLOBALS['SQ_ROLLBACK_VIEW'] = '0';
+				$GLOBALS['SQ_TABLE_RUNNING_PREFIX'] = SQ_TABLE_PREFIX;
 			}
 
 			// If there is a userid in the session then someone is logged in,
@@ -222,8 +222,8 @@ class MySource
 			$this->_user_is_sys_admin = $_SESSION['user_is_sys_admin'];
 
 		} else {
-			define('SQ_ROLLBACK_VIEW',        '0');
-			define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_PREFIX);
+			$GLOBALS['SQ_ROLLBACK_VIEW'] = '0';
+			$GLOBALS['SQ_TABLE_RUNNING_PREFIX'] = SQ_TABLE_PREFIX;
 		}// end if
 
 		// process any global actions we have
@@ -489,9 +489,9 @@ class MySource
 						return Array();
 					}
 
-					$_SESSION['sq_rollback_view'] = Array('rollback_time' => $then);
+					$this->startRollbackView(iso8601_ts($then));
 				} else {
-					$_SESSION['sq_rollback_view'] = Array();
+					@$this->stopRollbackView();
 				}
 
 				unset($_GET['assetid']);
@@ -499,7 +499,7 @@ class MySource
 			break;
 
 			case 'rollback_view_stop' :
-				if (isset($_SESSION['sq_rollback_view'])) unset($_SESSION['sq_rollback_view']);
+				$this->stopRollbackView();
 			break;
 
 			case 'hipo' :
@@ -1101,6 +1101,43 @@ class MySource
 
 
 	/**
+	* Start Working in rollback mode
+	* This set's session variables so if stopRollbackView() is not called before the end of the script 
+	* then this setting will continue on the next script execution
+	*
+	* @param int	$timestamp		the time we want to view in rollback mode
+	*
+	* @return void
+	* @access public
+	*/
+	function startRollbackView($timestamp)
+	{
+		if (time() <= $timestamp) {
+			trigger_error('You can only set rollback view to be a time in the past', E_USER_ERROR);
+		}
+		$GLOBALS['SQ_ROLLBACK_VIEW'] = '1';
+		$GLOBALS['SQ_TABLE_RUNNING_PREFIX'] = SQ_TABLE_ROLLBACK_PREFIX;
+		$_SESSION['sq_rollback_view'] = Array('rollback_time' => ts_iso8601($timestamp));
+
+	}// end startRollbackView()
+
+
+	/**
+	* Stop Working in rollback mode
+	*
+	* @return void
+	* @access public
+	*/
+	function stopRollbackView()
+	{
+		$GLOBALS['SQ_ROLLBACK_VIEW'] = '0';
+		$GLOBALS['SQ_TABLE_RUNNING_PREFIX'] = SQ_TABLE_PREFIX;
+		if (isset($_SESSION['sq_rollback_view'])) unset($_SESSION['sq_rollback_view']);
+
+	}// end stopRollbackView()
+
+
+	/**
 	* Given a WHERE clause, this function will append extra where conditions to the clause
 	* that allow selection of rollback entries based on the current rollback view mode settings
 	*
@@ -1123,7 +1160,7 @@ class MySource
 		if (strtoupper(substr($where, 0, strlen($prefix))) == strtoupper($prefix)) $where = substr($where, strlen($prefix));
 
 
-		if (!SQ_ROLLBACK_VIEW) {
+		if (!$GLOBALS['SQ_ROLLBACK_VIEW']) {
 			// we are not in rollback view so we dont need anything special in the where clause
 			if (empty($where)) return '';
 			else return ' '.$prefix.' '.$where;
@@ -1162,7 +1199,7 @@ class MySource
 	function _addRollbackEntry($table_name, $where_cond, $deletion)
 	{
 		// if we are in rollback view, pretend we did our job but really just slack off
-		if (SQ_ROLLBACK_VIEW) return true;
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) return true;
 
 		if (!SQ_CONF_ROLLBACK_ENABLED) {
 			// rollback is not enabled on the system, so return true
@@ -1258,7 +1295,7 @@ class MySource
 	function rollbackUpdate($table_name, $update_values, $where_cond)
 	{
 		// if we are in rollback view, pretend we did our job but really just slack off
-		if (SQ_ROLLBACK_VIEW) return true;
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) return true;
 
 		$this->doTransaction('BEGIN');
 
@@ -1330,7 +1367,7 @@ class MySource
 	function rollbackInsert($table_name, $insert_values)
 	{
 		// if we are in rollback view, pretend we did our job but really just slack off
-		if (SQ_ROLLBACK_VIEW) return true;
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) return true;
 
 		// we work out the primary key fields for the table we are inserting into
 		// so we can generate a WHERE clause based on the primary key fields and send
@@ -1402,7 +1439,7 @@ class MySource
 	function rollbackInsertSelect($table_name, $select_from, $insert_values, $where_cond)
 	{
 		// if we are in rollback view, pretend we did our job but really just slack off
-		if (SQ_ROLLBACK_VIEW) return true;
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) return true;
 
 		// we work out the primary key fields for the table we are inserting into
 		// so we can generate a WHERE clause based on the primary key fields and send
@@ -1499,7 +1536,7 @@ class MySource
 	function rollbackDelete($table_name, $where_cond)
 	{
 		// if we are in rollback view, pretend we did our job but really just slack off
-		if (SQ_ROLLBACK_VIEW) return true;
+		if ($GLOBALS['SQ_ROLLBACK_VIEW']) return true;
 
 		$this->doTransaction('BEGIN');
 
