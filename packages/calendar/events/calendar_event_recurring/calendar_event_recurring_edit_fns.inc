@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.3 2004/07/27 02:09:06 tbarrett Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.4 2004/07/27 02:22:55 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../event/calendar_event_edit_fns.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -100,7 +100,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				}
 				function daysInFebruary(year){
 					// February has 29 days in any year evenly divisible by four,
-					// EXCEPT for centurial years which are not also divisible by 400.
+					// EXCEPT for centennial years which are not also divisible by 400.
 					return (((year % 4 == 0) && ( (!(year % 100 == 0)) || (year % 400 == 0))) ? 29 : 28 );
 				}
 
@@ -342,7 +342,7 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 	*/
 	function processRecurringStartEndChooser(&$asset, &$o, $prefix)
 	{
-		parent::processStartEndChooser($asset, $o, $prefix);
+		$this->processStartEndChooser($asset, $o, $prefix);
 
 	}//end processRecurringStartEndChooser()
 
