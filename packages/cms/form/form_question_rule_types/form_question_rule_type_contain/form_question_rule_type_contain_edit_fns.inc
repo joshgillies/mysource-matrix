@@ -1,9 +1,9 @@
 <?php
 
-require_once dirname(__FILE__).'/../../question_rule/question_rule_edit_fns.inc';
+require_once dirname(__FILE__).'/../../form_question_rule/form_question_rule_edit_fns.inc';
 
 /**
-* Question_Rule_Type_Contain_Edit_Fns
+* Form_Question_Rule_Type_Contain_Edit_Fns
 *
 * Purpose
 *
@@ -13,16 +13,16 @@ require_once dirname(__FILE__).'/../../question_rule/question_rule_edit_fns.inc'
 * @package Resolve_Packages
 * @subpackage cms
 */
-class Question_Rule_Type_Contain_Edit_Fns extends Question_Rule_Edit_Fns
+class Form_Question_Rule_Type_Contain_Edit_Fns extends Form_Question_Rule_Edit_Fns
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Question_Rule_Type_Contain_Edit_Fns()
+	function Form_Question_Rule_Type_Contain_Edit_Fns()
 	{
-		$this->Question_Rule_Edit_Fns();
+		$this->Form_Question_Rule_Edit_Fns();
 	}
 	
 	function paintInlineBackend(&$asset, &$o, $prefix)
