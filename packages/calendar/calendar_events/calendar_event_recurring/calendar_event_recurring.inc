@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.13 2004/08/03 00:59:00 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.14 2004/08/03 04:51:29 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.13 $ - 1.0
+* @version $Revision: 1.14 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -58,7 +58,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*
 	* @param int	&$month	The month to add to
 	* @param int	&$year	The year to add to
-	* @param int	&$num	The number of months to add
+	* @param int	$num	The number of months to add
 	*
 	* @access private
 	*/
@@ -75,7 +75,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 	/**
 	* Returns the number of seconds since the start of the day
 	*
-	* @param int	&$timestamp
+	* @param int	$timestamp
 	*
 	* @access private
 	*/
@@ -108,7 +108,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			case 'DED':
 				$interval_length = $seconds_per_day * $interval;
 				$periods_so_far = (int)(($after - $start_ts) / ($interval_length));
-				return $start_ts + ($interval_length * ($periods_so_far + 1));
+				$result = $start_ts + ($interval_length * ($periods_so_far + 1));
 			break;
 
 			case 'DWD':
@@ -118,13 +118,13 @@ class Calendar_Event_Recurring extends Calendar_Event
 				while (in_array(gmdate('D', $res), Array('Sat', 'Sun'))) {
 					$res += $seconds_per_day;
 				}
-				return $res;
+				$result =  $res;
 			break;
 
 			case 'WEW':
 				$interval_length = 7 * $seconds_per_day * $interval;
 				$periods_so_far = (int)(($after - $start_ts) / ($interval_length));
-				return $start_ts + ($interval_length * ($periods_so_far + 1));
+				$result =  $start_ts + ($interval_length * ($periods_so_far + 1));
 			break;
 
 			case 'MFN':
@@ -140,7 +140,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 				}
 				while (gmdate('j', $start_ts) > days_in_month($res_month, $res_year))
 					$this->_addMonths($res_month, $res_year, $interval);
-				return strtotime($res_year.'-'.sprintf('%02d', $res_month).gmdate('-d H:i:00', $start_ts).' GMT');
+				$result =  strtotime($res_year.'-'.sprintf('%02d', $res_month).gmdate('-d H:i:00', $start_ts).' GMT');
 			break;
 
 			case 'MFW':
@@ -175,7 +175,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 						$res_day = ($target_week_of_month * 7)+1;
 					}
 				}
-				return strtotime($res_year.'-'.sprintf('%02d', $res_month).'-'.sprintf('%02d', $res_day).gmdate(' H:i', $start_ts).' GMT');
+				$result =  strtotime($res_year.'-'.sprintf('%02d', $res_month).'-'.sprintf('%02d', $res_day).gmdate(' H:i', $start_ts).' GMT');
 			break;
 
 			case 'MRN':
@@ -196,7 +196,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 					$this->_addMonths($res_month, $res_year, $interval);
 				}
 
-				return strtotime($res_year.'-'.$res_month.'-'.sprintf('%02d', days_in_month($res_month, $res_year) - $target_days_from_end).gmdate(' H:i:00', $start_ts).' GMT');
+				$result =  strtotime($res_year.'-'.$res_month.'-'.sprintf('%02d', days_in_month($res_month, $res_year) - $target_days_from_end).gmdate(' H:i:00', $start_ts).' GMT');
 			break;
 
 			case 'MRW':
@@ -232,10 +232,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 						$min_day = 1;
 					}
 				}
-				return strtotime($res_year.'-'.sprintf('%02d', $res_month).'-'.$res_day.gmdate(' H:i:00', $start_ts).' GMT');
+				$result =  strtotime($res_year.'-'.sprintf('%02d', $res_month).'-'.$res_day.gmdate(' H:i:00', $start_ts).' GMT');
 			break;
 		}
-		return false;
+		if ($result > iso8601_ts($this->attr('stop_date'))) {
+			return false;
+		} else {
+			return $result;
+		}
 		
 	}//end getFirstOccurrenceAfter()
 
@@ -252,12 +256,14 @@ class Calendar_Event_Recurring extends Calendar_Event
 	function hasOccurrenceOnDate($date=null) {
 		if (is_null($date)) $date = date('Y-m-d'); 
 		
+		$seconds_per_day = 60 * 60 * 24;
 		$start_date = $this->getStartDate();
 		$start_ts = strtotime($start_date);
-		$query_ts = strtotime(substr($date,0,10));		
-		$seconds_per_day = 60 * 60 * 24;
-		
+		$query_ts = strtotime(substr($date,0,10));	
+		if ($query_ts > (iso9601_ts($this->attr('stop_date')) + $seconds_per_day)) return false;
 		if ($query_ts < $start_ts) return false;
+
+		
 		$freq_type = substr($this->attr('frequency'), 0, 3);
 		if ($interval = substr($this->attr('frequency'), 3)) $freq_type .= 'x';
 
@@ -513,6 +519,35 @@ class Calendar_Event_Recurring extends Calendar_Event
 		return $links;
 
 	}//end _getAllowedLinks()
+
+	
+	/**
+	* Return the keywords with their replacements
+	*
+	* The return value is in the form:
+	* <pre>
+	* Array(
+	*     'name' => Array (
+	*          'value' => 'page',
+	*          'description' => 'the asset name',
+	*     ),
+	* )
+	* </pre>
+	*
+	* @param boolean $descriptions if TRUE descriptions will be included in the array
+	*
+	* @access public
+	* @return Array(mixed)
+	*/
+	function getAssetKeywords($descriptions=false)
+	{
+		$keywords = parent::getAssetKeywords($descriptions);
+		$keywords['event_frequency'] = Array('value'=> $this->getFriendlyFrequency());
+		if ($descriptions) {
+			$keywords['event_frequency']['description'] = 'The frequency with which this event recurs';
+		}
+		return $keywords;
+	}
 
 
 }//end class

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.7 2004/08/03 02:44:38 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.8 2004/08/03 04:51:29 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -390,8 +390,8 @@ class Calendar_Event extends Asset
 	* </PRE>
 	* If only date components are specified:<PRE>
 	* if (start date != end date)		"23 Jul 2004 - 25 Jul 2004"
-	* if (start date == end date)
-	* 	OR (end date is empty)			"23 Jul 2004"
+	* if (start date == end date)		"23 Jul 2004 (all day)"
+	* if (end date is empty)			"23 Jul 2004"
 	* </PRE>
 	*
 	* @return string
