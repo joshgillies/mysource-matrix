@@ -92,7 +92,9 @@ class Resolve
 		if(!empty($_SESSION['userid']) && $_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR']) {
 			$this->user = &$this->am->getAsset($_SESSION['userid']);
 		} else {
-			$_SESSION['userid'] = 0;
+			$_SESSION['userid']				= 0;
+			$_SESSION['user_is_root']		= false;
+			$_SESSION['user_is_sys_admin']	= false;
 			$this->user = null;
 		}//end if
 
@@ -117,9 +119,13 @@ class Resolve
 
 		if (SQ_IN_BACKEND) {
 			if ($this->user) {
-				require_once SQ_INCLUDE_PATH.'/backend.inc';
-				$backend = new Backend();
-				$backend->paint();
+				if (is_a($this->user, 'backend_user')) {
+					require_once SQ_INCLUDE_PATH.'/backend.inc';
+					$backend = new Backend();
+					$backend->paint();
+				} else {
+					$this->paintLogin('Login', 'You need to be a backend user in order to access the backend');
+				}
 			} else {
 				$this->paintLogin('Login', 'You need to login before you can access the backend');
 			}
@@ -204,7 +210,7 @@ class Resolve
 			case 'login' :
 				if ($this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
 					$this->am->includeAsset('user');
-					list($userid, $user_type) = User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD'], 'backend_user');
+					list($userid, $user_type) = User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD']);
 					if ($userid) {
 						$user = &$this->am->getAsset($userid, $user_type);
 						// okay, we have a user, but we need to check that this user
@@ -218,7 +224,10 @@ class Resolve
 							// they have to re-enter the details
 							$this->generateLoginKey();
 
+							$_SESSION['user_is_root']      = $this->userRoot($user);
+							$_SESSION['user_is_sys_admin'] = $this->userSystemAdmin($user);
 							$this->user = &$user;
+
 						}
 						break;
 
@@ -233,7 +242,9 @@ class Resolve
 				// deliberalty don't have a break here so it the
 				// login fails we make sure that we're logged out
 			case 'logout' :
-				$_SESSION['userid'] = 0;
+				$_SESSION['userid']				= 0;
+				$_SESSION['user_is_root']		= false;
+				$_SESSION['user_is_sys_admin']	= false;
 				$this->user = null;
 				break;
 		}//end switch
@@ -254,7 +265,7 @@ class Resolve
 	*/
 	function userRoot($user=null)
 	{
-		if (empty($user)) $user =& $this->user;
+		if (is_null($user)) return $_SESSION['user_is_root'];
 		if (!$user->id) return false;
 		if (get_class($user) == 'root_user' && $user->id == 4) return true;
 		return false;
@@ -271,7 +282,7 @@ class Resolve
 	*/
 	function userSystemAdmin($user=null)
 	{
-		if (empty($user)) $user =& $this->user;
+		if (is_null($user)) return $_SESSION['user_is_sys_admin'];
 		if (!$user->id) return false;
 		if (get_class($user) != 'system_user') return false;
 
