@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.306 2004/06/24 05:49:45 lwright Exp $
+* $Id: asset.inc,v 1.307 2004/06/28 05:29:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3367,7 +3367,7 @@ class Asset extends MySource_Object
 	*/
 	function saveComponentWeightings($new_weightings)
 	{
-		$sm =& $GLOBALS['SQ_SYSTEM']->getSystemAsset('search_manager');
+		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		if (!$sm) return false;
 		$dirty = false;
 		$weightings =& $this->getWeightings();

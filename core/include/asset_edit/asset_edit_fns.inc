@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.35 2004/05/13 04:12:58 lwright Exp $
+* $Id: asset_edit_fns.inc,v 1.36 2004/06/28 05:29:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -257,7 +257,7 @@ class Asset_Edit_Fns extends MySource_Object
 	{
 		$weightings = $_POST[$prefix.'weightings'];
 		$included   = $_POST[$prefix.'include'];
-		$sm =& $GLOBALS['SQ_SYSTEM']->getSystemAsset('search_manager');
+		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 		if (!$sm) return false;
 
 		foreach ($weightings as $component => $weightingData) {
