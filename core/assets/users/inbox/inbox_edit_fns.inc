@@ -159,7 +159,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$user = &$asset->_getUser();
 
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		$messages = $ms->getMessages($user->id, Array(SQ_MSG_DELETED));
+		$messages = $ms->getMessages($user->id, Array(SQ_MSG_DELETED), null, null, 'name');
 
 		if (empty($messages)) {
 			echo 'Your trash is empty';
@@ -177,11 +177,9 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			</tr>
 			<?php
 			foreach ($messages as $data) {
-				// work out who the sender was
-				$from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userfrom']);
 				?>
 				<tr>
-					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $from->name?></td>
+					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['from_name'];?></td>
 					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['subject']?></td>
 					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $data['body']?></td>
 					<td class="sq-backend-message-item" bgcolor="#FFFFFF" width="130"><?php echo $data['sent']?></td>
