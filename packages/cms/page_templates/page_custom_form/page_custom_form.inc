@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_custom_form.inc,v 1.11 2004/11/18 05:12:48 gsherwood Exp $
+* $Id: page_custom_form.inc,v 1.12 2004/11/23 05:43:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,6 +94,28 @@ class Page_Custom_Form extends Page
 	}//end _getAllowedLinks()
 
 
+	/**
+	* print out headers or HTML that the asset requires to be printed before the design
+	*
+	* @return void
+	* @access public
+	*/
+	function printFrontend()
+	{
+		$form_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'form_email', true, '', 'major');
+		$form = &$GLOBALS['SQ_SYSTEM']->am->getAsset($form_link['minorid'], $form_link['minor_type_code']);
+
+		if (is_null($form)) {
+			trigger_error('Could not locate the form asset for Custom Form "'.$this->name.'"', E_USER_ERROR);
+			return false;
+		}
+		$form->printFrontend();
+
+		return true;
+		
+	}
+	
+	
 	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
