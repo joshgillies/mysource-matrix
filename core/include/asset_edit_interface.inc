@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.192 2003/12/04 05:13:00 mmcintyre Exp $
+* $Id: asset_edit_interface.inc,v 1.193 2003/12/21 22:48:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -174,7 +174,7 @@ class Asset_Edit_Interface extends MySource_Object
 		  /////////////////////////////
 		 //  ALLOWED SCREEN ACCESS  //
 		/////////////////////////////
-		$check_screen_restrictions = !$owner->adminAccess('');
+		$check_screen_restrictions = !($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if ($check_screen_restrictions) {
 			$allowed_screens = $this->getAllowedScreens($owner);
 			if (isset($allowed_screens['0']['0'])) $check_screen_restrictions = false;
@@ -1466,7 +1466,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// get all the user groups that we exist in
-		$groups = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group');
+		$groups = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
 		if (empty($groups)) return Array();
 
 		for (reset($groups); NULL !== ($k = key($groups)); next($groups)) $groups[$k] = $db->quote($groups[$k]);
