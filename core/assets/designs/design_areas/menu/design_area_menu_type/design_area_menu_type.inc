@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_menu_type.inc,v 1.44 2004/04/06 01:14:10 gsherwood Exp $
+* $Id: design_area_menu_type.inc,v 1.45 2004/04/07 23:16:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,8 +50,8 @@ class Design_Area_Menu_Type extends Design_Area
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
 					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array('design_area_menu_type' => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_NOTICE => Array()
+					 SQ_LINK_TYPE_3 => Array(),
+					 SQ_LINK_NOTICE => Array('design_area_menu_type' => Array('card' => 'M', 'exclusive' => false))
 					);
 
 	}//end _getAllowedLinks()
@@ -222,7 +222,7 @@ class Design_Area_Menu_Type extends Design_Area
 	function getSubMenuLink()
 	{
 		if (!isset($this->_tmp['sub_menu_link'])) {
-			$this->_tmp['sub_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu');
+			$this->_tmp['sub_menu_link'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, 'design_area_menu_type', false, 'sub_menu');
 		}
 		return $this->_tmp['sub_menu_link'];
 
