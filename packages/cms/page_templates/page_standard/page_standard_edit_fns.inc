@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once dirname(__FILE__).'/../../page/page_edit_fns.inc';
 
 /**
 * Page_Standard_Edit_Fns
@@ -13,7 +13,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @package Resolve_Packages
 * @subpackage cms
 */
-class Page_Standard_Edit_Fns extends Asset_Edit_Fns
+class Page_Standard_Edit_Fns extends Page_Edit_Fns
 {
 
 	/**
@@ -22,7 +22,7 @@ class Page_Standard_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Page_Standard_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
+		$this->Page_Edit_Fns();
 	}
 
 }//end class
