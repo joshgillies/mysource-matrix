@@ -51,7 +51,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		$this->_edit_params['height']    = empty($node->attributes['height'])    ? ''      : $node->attributes['height'];
 		$this->_edit_params['columns']   = empty($node->attributes['columns'])   ? '1'     : $node->attributes['columns'];
 		return true;
-	}
+	}// end setEditParams()
 
 
 	/**
@@ -62,9 +62,10 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	* @return string
 	* @access private
 	*/
-	function _ar2str($array) {
+	function _ar2str($array)
+	{
 		return implode('|',array_intersect(array_keys($this->_params['options']),$array));
-	}
+	}// end _ar2str()
 
 
 	/**
@@ -75,9 +76,10 @@ class Asset_Attribute_Selection extends Asset_Attribute
 	* @return array
 	* @access private
 	*/
-	function _str2ar($string) {
+	function _str2ar($string)
+	{
 		return array_intersect(array_keys($this->_params['options']),explode('|',$string));
-	}
+	}// end _str2ar()
 
 
 	/**
