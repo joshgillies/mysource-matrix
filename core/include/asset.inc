@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.274 2004/02/10 04:16:42 gsherwood Exp $
+* $Id: asset.inc,v 1.275 2004/02/10 15:54:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3341,8 +3341,6 @@ class Asset extends MySource_Object
 	* Retrieves a list of key data from this asset (used by the indexing service).
 	* Subclasses override this to give the content they want to make searchable.
 	*
-	* @param mixed $component	if it is not false, then it is assumed to be the name of a
-	*							component of this asset (defined and controlled by subclasses)
 	* @return array				an array of all the keydata for this asset. Keydata is of the form
 	* <pre>
 	* Array (
@@ -3356,20 +3354,28 @@ class Asset extends MySource_Object
 	* </pre>
 	* @access public
 	*/
-	function getKeyData($component=null)
+	function getKeyData()
 	{
+		require_once SQ_FUDGE_PATH.'/general/text.inc';
+
 		// index metadata
 		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$schemaids = $mm->getSchemas($this->id, true);
-		$keydata = $mm->getMetadataKeyData($this->id, $schemaids);
+		$keydata   = $mm->getMetadataKeyData($this->id, $schemaids);
+
+		$weightings = $this->getWeightings();
+
+		// supply name
+		$value = $this->name;
+		foreach (get_word_counts($value) as $word => $count) {
+			$this->buildKeyData($keydata, $word, 'text', '__name__', $count * $weightings['__name__']['weighting']);
+		}
 
 		// index attributes
-		$weightings = $this->getWeightings();
 		foreach ($this->vars as $var_name => $var_data) {
 			if (!isset($weightings[$var_name])) continue;
-			if (!is_null($component) && $component != $var_name) continue;
 
-			// skip non saclar values because we cant index them properly
+			// skip non scalar values because we cant index them properly
 			if (!is_scalar($var_data['value'])) continue;
 
 			$attribute = &$this->getAttribute($var_name);
@@ -3452,7 +3458,7 @@ class Asset extends MySource_Object
 	* @return void
 	* @access protected
 	*/
-	function buildKeyData(&$keydata, $value, $type='text', $component=false, $score=1, $force_processing=0)
+	function buildKeyData(&$keydata, $value, $type='text', $component='', $score=1, $force_processing=0)
 	{
 		// checking if we should skip initial test of given values, because
 		// they are almost always null if we are indexing metadata fields
