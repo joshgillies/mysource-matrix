@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.16 2004/08/30 05:37:26 lwright Exp $
+* $Id: calendar_event.inc,v 1.17 2004/08/30 23:15:55 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.16 $ - 1.0
+* @version $Revision: 1.17 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -167,12 +167,14 @@ class Calendar_Event extends Asset
 		if (empty($total_time)) $total_time = 'N/A';
 
 		$keywords['event_duration'] = Array('value'=>$total_time);
+		$keywords['edit_link'] = Array('value'=>'<a href="./_edit?limbo_assetid='.$this->id.'">Edit</a>');
 
 		if ($descriptions) {
 			$keywords['event_start_datetime']['description'] = 'event start date and time';
 			$keywords['event_end_datetime']['description'] = 'event end date and time';
 			$keywords['event_datetime_summary']['description'] = 'friendly display of event dates and times';
 			$keywords['event_duration']['description'] = 'event duration';
+			$keywords['edit_link']['description'] = 'link to edit this eveent in Limbo';
 		}
 		return $keywords;
 
