@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_edit_fns.inc,v 1.2 2003/12/16 12:18:05 brobertson Exp $
+* $Id: content_type_edit_fns.inc,v 1.3 2004/01/22 02:49:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,7 +61,7 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Paints raw HTML to be printed on the frontend
 	*
-	* @param object Content_Type	$asset		the content type we are painting
+	* @param object Content_Type	&$asset		the content type we are painting
 	* @param string					$prefix		prefix for form elements
 	* @param boolean				$generating	are we genenerating the cache file
 	*
@@ -70,6 +70,7 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function paint(&$asset, $prefix, $generating=false)
 	{
+		echo $asset->attr('html');
 
 	}//end paint()
 
@@ -87,6 +88,7 @@ class Content_Type_Edit_Fns extends Asset_Edit_Fns
 	{
 
 	}//end paintBackendIcons()
+
 
 }//end class
 
