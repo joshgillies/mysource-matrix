@@ -2,9 +2,9 @@
 
 /**
 * Progress Bar
-* 
-* //// NOTE //// 
-*   construct by REFERENCE, otherwise unexpected results could eventuate 
+*
+* //// NOTE ////
+*   construct by REFERENCE, otherwise unexpected results could eventuate
 *   because the _obj will be a copy of original
 *
 * Example
@@ -53,11 +53,14 @@ class Progress_Bar
 	var $loaded = false;
 
 	/**
-	* If we are testing then there are a couple of things that get changed in the pop-up, 
-	* like being able to resize, opt to reload or not
-	* @var bool
+	* If we are testing then there are a couple of things that can get changed in the pop-up
+	* Bit wise operator :
+	*   1 : able to resize pop-up
+	*   2 : confirm the reloading of pop-up or not
+	*   4 : don't auto reload, have to be done manually
+	* @var int
 	*/
-	var $testing = false;
+	var $testing = 0;
 
 	/**
 	* Some random key that we use to identify this Progress Bar in this session
@@ -137,6 +140,13 @@ class Progress_Bar
 	var $_done			= false;
 
 	/**
+	* Has something has gone a-mis in the execution of the progress bar ?
+	* @var bool
+	*/
+	var $_abort			= false;
+
+
+	/**
 	* Array that stores any running variables that any of the call-back functions use
 	* @var Array()
 	*/
@@ -183,6 +193,7 @@ class Progress_Bar
 		$_SESSION['progress_bar'][$this->_key] = $vars;
 
 	}// end _save()
+
 
 	/**
 	* Loads the information for this progress bar from the session
@@ -326,10 +337,27 @@ class Progress_Bar
 
 
 	/**
+	* Returns the vars that the call-back fns use
+	*
+	* @return Array
+	*/
+	function abort()
+	{
+		if (!$this->inPopUp()) {
+			trigger_error('You cannot call abort when we are not in the pop up', E_USER_ERROR);
+		}
+		return $this->_abort = true;
+	}// end abort()
+
+
+	/**
 	* Runs the difference call-back function depending on what the current status of the progress bar is
 	*/
 	function run()
 	{
+		// if we have aborted get out of here
+		if ($this->_abort) return;
+
 		// have we initialised globally ?
 		if (!$this->_initialised) {
 			$fn = $this->_init_fn;
@@ -372,7 +400,7 @@ class Progress_Bar
 			}// end if
 
 		// we must be finished, run global done command
-		} elseif (!is_null($this->_done_fn)) {
+		} elseif (!$this->_done && !is_null($this->_done_fn)) {
 			$fn = $this->_done_fn;
 			$this->_obj->$fn($this);
 			$this->_done = true;
@@ -382,6 +410,7 @@ class Progress_Bar
 		$this->_save();
 
 	}// end run()
+
 
 	/**
 	* Returns a url to use for the pop-up
@@ -398,8 +427,9 @@ class Progress_Bar
 
 	}// end popUpUrl()
 
+
 	/**
-	* Paint's either the progress bar, it's initiating code or the _init_paint_fn 
+	* Paint's either the progress bar, it's initiating code or the _init_paint_fn
 	* depending on what's happening
 	*/
 	function paint()
@@ -419,13 +449,18 @@ class Progress_Bar
 
 		} else if (!$this->inPopUp()) {
 
-			// size of progress bars is about 55 pixels
-			$window_height = (55 * count($this->_steps));
+			$scrollbars = ($this->testing & 1);
+
+			// size of progress bars is about 75 pixels
+			$window_height = (75 * count($this->_steps));
 			// size of close button is about 30 pixels
 			if ($this->_options['auto_close']) $window_height += 30;
-			// just to be on the safe side
-			if ($window_height > 400) $window_height = 400;
 
+			// just to be on the safe side
+			if ($window_height > 400) {
+				$window_height = 400;
+				$scrollbars = true;
+			}
 
 			?>
 			<script language="Javascript" type="text/javascript">
@@ -452,7 +487,7 @@ class Progress_Bar
 						PROGRESS_BAR.form = form;
 
 						PROGRESS_BAR.started = true;
-						PROGRESS_BAR.popup = window.open(PROGRESS_BAR.url, PROGRESS_BAR.key, 'height=<?php echo $window_height; ?>,width=400,toolbar=no,location=no,menubar=no,resizable=<?php echo ($this->testing) ? 'yes' : 'no'; ?>,nominimize,nomaximize,norestore,scrollbars=yes');
+						PROGRESS_BAR.popup = window.open(PROGRESS_BAR.url, PROGRESS_BAR.key, 'height=<?php echo $window_height; ?>,width=400,toolbar=no,location=no,menubar=no,resizable=<?php echo ($scrollbars) ? 'yes' : 'no'; ?>,nominimize,nomaximize,norestore,scrollbars=yes');
 						PROGRESS_BAR.popup.focus();
 
 						PROGRESS_BAR.form.elements['progress_bar_btn'].value = 'Running...';
@@ -511,12 +546,18 @@ class Progress_Bar
 				$msg = 'Step 0 of '.count($this->_steps)."\n".$msg;
 				$rows++;
 			}
-			text_area('progress_bar_msgbox', $msg, 30, $rows, 'style="border-style: none; border-width: 0px;" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
+			text_area('progress_bar_msgbox', $msg, 30, $rows, 'style="border-style: none; border-width: 0px;" onFocus="javascript: this.temp_value = this.value;" onBlur="javascript: this.value = this.temp_value;"');
 			echo '<br/>';
 			normal_button('progress_bar_btn', 'Start...', 'progress_bar_start(this.form);');
 
 		// else we are in the popup
 		} else {
+
+			// if we have aborted get out of here
+			if($this->_abort) {
+				trigger_error('Progress Bar Aborted', E_USER_WARNING);
+				return;
+			}
 
 			?>
 			<script language="Javascript" type="text/javascript">
@@ -540,10 +581,14 @@ class Progress_Bar
 					function progress_bar_onload() {
 
 						PROGRESS_BAR_other_onload();
-					<?php if ($this->testing) { ?>
+					<?php if ($this->testing & 2) { ?>
 						if (!confirm("Go ?")) return;
 					<?php } // end if ?>
-						self.location = '<?php echo addslashes($this->popUpUrl()); ?>';
+					<?php if (!($this->testing & 4)) { ?>
+						// pause for 1/100th of a second to let the server have a break
+						setTimeout("self.location = '<?php echo addslashes($this->popUpUrl()); ?>';", 10);
+					<?php } // end if ?>
+
 
 					}// end progress_bar_onunload()
 
