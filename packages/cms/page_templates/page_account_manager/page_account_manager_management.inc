@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager_management.inc,v 1.17 2004/12/06 14:41:39 brobertson Exp $
+* $Id: page_account_manager_management.inc,v 1.18 2005/02/11 05:43:46 tbarrett Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -115,8 +115,8 @@ class Page_Account_Manager_Management extends Asset_Management
 		return Array(
 				Array(
 					'event_name'                 => 'requestKeywords',
-					'broadcast_type_code'        => 'content_type_wysiwyg',
-					'broadcast_strict_type_code' => true,
+					'broadcast_type_code'        => 'content_type',
+					'broadcast_strict_type_code' => false,
 					'options'	=> Array(
 						'side_of_link' => 'major',
 						'indirect'     => true,

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.74 2005/02/11 00:48:55 lwright Exp $
+* $Id: search_page.inc,v 1.75 2005/02/11 05:44:21 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1867,7 +1867,6 @@ class Search_Page extends Listing_Engine
 		$keywords = parent::onRequestKeywords($broadcaster, $vars);
 		
 		if (!isset($vars['keywords'])) return;
-		if (!is_a($broadcaster, 'content_type_wysiwyg')) return;
 
 		// lets work out which bodycopy the WYSIWYG cell that wants our keywords
 		// is in so we can return the correct keywords for the screen

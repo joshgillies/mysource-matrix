@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.20 2004/12/06 14:55:32 brobertson Exp $
+* $Id: page_asset_builder_management.inc,v 1.21 2005/02/11 05:43:47 tbarrett Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -175,8 +175,8 @@ class Page_Asset_Builder_Management extends Asset_Management
 		return Array(
 				Array(
 					'event_name'                 => 'requestKeywords',
-					'broadcast_type_code'        => 'content_type_wysiwyg',
-					'broadcast_strict_type_code' => true,
+					'broadcast_type_code'        => 'content_type',
+					'broadcast_strict_type_code' => false,
 					'options'	=> Array(
 						'side_of_link' => 'major',
 						'indirect'     => true,

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_management.inc,v 1.19 2004/12/06 14:41:38 brobertson Exp $
+* $Id: form_email_management.inc,v 1.20 2005/02/11 05:43:40 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -234,8 +234,8 @@ class Form_Email_Management extends Asset_Management
 		return Array(
 				Array(
 					'event_name'                 => 'requestKeywords',
-					'broadcast_type_code'        => 'content_type_wysiwyg',
-					'broadcast_strict_type_code' => true,
+					'broadcast_type_code'        => 'content_type',
+					'broadcast_strict_type_code' => false,
 					'options'	=> Array(
 						'side_of_link' => 'major',
 						'indirect'     => true,
