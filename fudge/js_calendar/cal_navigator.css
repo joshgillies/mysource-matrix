@@ -1,0 +1,179 @@
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: cal_navigator.css,v 1.1 2004/09/10 01:21:56 gsherwood Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/** CALENDAR NAVIGATION STYLES */
+
+
+/* Whole calendar table		*/
+.cal
+{
+	border:solid 1px #000000;
+	background:#999999
+}
+
+
+/* Basic for all TD		*/
+.cal td
+{
+	font:9px Tahoma
+}
+
+
+/* Week selectors style		*/
+.cal_week
+{
+	background:#999999;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer
+}
+
+
+/* Top week day cells		*/
+.cal_week_day
+{
+	background:#CCCCCC;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer
+}
+
+
+/* Previous and next month dates*/
+.cal_empty
+{
+	background:#EEEEEE;
+	color:#999999;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer
+}
+
+
+/* Simple days			*/
+.cal_day
+{
+	background:#FFFFFF;
+	color:#000000;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer
+}
+
+
+/* Holydays (Sun & Sat)		*/
+.cal_hol
+{
+	background:#DDDDDD;
+	color:#000000;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer
+}
+
+
+/* Mouse over the day		*/
+.cal_ovr
+{
+	background:#000000;
+	color:#FFFFFF;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer
+}
+
+
+/* Mouse over the week		*/
+.cal_ovr td
+{
+	background:#000000;
+	color:#FFFFFF;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer
+}
+
+
+/* Selected day			*/
+.cal_day_sel
+{
+	background:#FFCC99;
+	color:#000000;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer
+}
+
+
+/* Selected holiday		*/
+.cal_hol_sel
+{
+	background:#DDAA77;
+	color:#FFFFFF;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer
+}
+
+
+/* Next, prev month & year arrows		*/
+.cal_arrow
+{
+	background:#999999;
+	color:#000000;
+	vertical-align:middle;
+	cursor:pointer
+}
+
+
+/* Month caption		*/
+.cal_month
+{
+	background:#999999;
+	color:#000000;
+	text-align:center;
+	vertical-align:top;
+	cursor:pointer
+}
+
+
+/* Year caption 		*/
+.cal_year
+{
+	background:#999999;
+	color:#000000;
+	text-align:center;
+	vertical-align:top;
+	cursor:pointer
+}
+
+
+/* Today date			*/
+.cal_today
+{
+	background:#99CCFF;
+	color:#000000;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer
+}
