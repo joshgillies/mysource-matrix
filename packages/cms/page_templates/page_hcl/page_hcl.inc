@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl.inc,v 1.2 2004/01/14 22:54:28 diarandine Exp $
+* $Id: page_hcl.inc,v 1.3 2004/01/19 00:56:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,7 +67,22 @@ class Page_HCL extends Page
 	}//end _getAllowedLinks()
 
 
-	/** 
+	/**
+	* Returns a list of lock types available for this asset type
+	*
+	* @return Array()
+	* @access public
+	*/
+	function lockTypes()
+	{
+		$lock_types = parent::lockTypes();
+		$lock_types['content'] = ($lock_types['attributes'] | $lock_types['links']);
+		return $lock_types;
+
+	}//end lockTypes()
+
+
+	/**
 	* Creates XML formatted list of the metadata entries
 	*
 	* @param int	$rootid		asset ID of the root element to start processing with
@@ -78,12 +93,12 @@ class Page_HCL extends Page
 	*/
 	function createAndOutputHCL($rootid, $schemas)
 	{
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager(); 
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		
+
 		$output = new XML_Tree();
 		$root = &$output->addRoot('tmp', '');
-	
+
 		$str = '';
 
 		// starting to fill in the string with XML_Tree nodes. We will not have here any <xml> tags etc.
@@ -91,7 +106,7 @@ class Page_HCL extends Page
 		$record_attrs = Array ('xmlns'		=> 'http://www.openarchives.org/OAI/1.1/OAI_GetRecord',
 							   'xmlns:xsi'	=> 'http://www.w3.org/2001/XMLSchema-instance',
 							   'xsi:schemaLocation'	=> 'http://www.openarchives.org/OAI/1.1/OAI_GetRecord.xsd'
-							  );	
+							  );
 		$getrecord_node = &$root->addChild('GetRecord', '', $record_attrs);
 
 		// taking current date to fill the 'responseDate' node
@@ -100,27 +115,27 @@ class Page_HCL extends Page
 		$date .= substr($offset, 0, 3).':'.substr($offset, 3, 2);
 
 		$response_node  = &$getrecord_node->addChild('responseDate', $date);
-		$request_node   = &$getrecord_node->addChild('requestURL'); 
-		
+		$request_node   = &$getrecord_node->addChild('requestURL');
+
 		// processing starts: getting all the assets under root element
-		$root_kids = $am->getChildren($rootid, 'page_standard', false); 
+		$root_kids = $am->getChildren($rootid, 'page_standard', false);
 
 		// looping through obtained children IDs and processing every single asset (pages)
-		foreach ($root_kids as $asset_id) {
-			
+		foreach ($root_kids as $asset_id => $asset_type) {
+
 			// work with this asset only if it allows metadata (i.e. is not a bodycopy, etc.)
 			if ($mm->allowsMetadata($asset_id)) {
 
-				$record_node = &$getrecord_node->addChild('record'); 
+				$record_node = &$getrecord_node->addChild('record');
 
-				// inserting header element right after the <record>. 
+				// inserting header element right after the <record>.
 				$header_node = &$record_node->addChild('header');
 
 				// inserting two more nodes into the header node
-				$asset = &$am->getAsset($asset_id); 
+				$asset = &$am->getAsset($asset_id, $asset_type);
 				$identifier = $asset->getURL();
 				$datestamp = date('Y-m-d', $asset->created);
-	
+
 				$header_node->addChild('identifier', $identifier);
 				$header_node->addChild('datestamp', $datestamp); // format should be '2004-01-06'
 
@@ -132,23 +147,23 @@ class Page_HCL extends Page
 
 				// looping through supplied schema IDs...
 				foreach ($schemas as $schema_id) {
-				
+
 					// now checking if current schema ID actually is applied to this particular asset
 					if (in_array($schema_id, $current_schemas)) {
 
-						// If yes, then we can process the fields for 
+						// If yes, then we can process the fields for
 						// this schema id for current asset:
-						
+
 						// 1). Getting the name of this schema and adding another XML node with this name
 						$schema = &$am->getAsset($schema_id, 'metadata_schema');
-						$tempname = strtolower($schema->name); // making the string lowercase
-						$schema_node = &$metadata_node->addChild($tempname); // adding node...
-	
+						$tempname = strtolower($schema->name);
+						$schema_node = &$metadata_node->addChild($tempname);
+
 						// 2). Get all the IDs of schema fields and then the array of their attribs
-						$schema_fields = $mm->getMetadataFields($schema_id); 
+						$schema_fields = $mm->getMetadataFields($schema_id);
 						$type_codes	   = Array('metadata_field');
-						$schema_field_attribs = $am->getAssetInfo($schema_fields, $type_codes, true); 
-						
+						$schema_field_attribs = $am->getAssetInfo($schema_fields, $type_codes, true);
+
 						// 3). Filling the new array with the names of the fields
 						$tempname_arr = Array();
 						foreach ($schema_field_attribs as $key => $field_attrs) {
@@ -161,15 +176,15 @@ class Page_HCL extends Page
 
 						// 5). Looping through obtained field value pairs
 						foreach ($field_values as $field_key => $field_val) {
-							
+
 							// 5.1). Before displaying the field name ('field_key'), we need
 							//       to cut off the first part until the first separating dot
-							$dotpos = (strpos($field_key, '.')) + 1; 
+							$dotpos = (strpos($field_key, '.')) + 1;
 							$field_key = substr_replace($field_key, '', 0, $dotpos);
 
 							// 6). Adding the new field XML node
 							$schema_node->addChild($field_key, $field_val);
-						
+
 						} // end foreach field name/value
 					} // end if in_array
 				} // end foreach schemas
@@ -181,15 +196,14 @@ class Page_HCL extends Page
 
 		$str .= $getrecord_node->get(); // assembling the output string from the top XML node
 
-		// writing the XML to the screen
 		header("Content-type: text/xml");
 		echo "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n";
-		echo $str; // our contents...
+		echo $str;
 
 	}//end createAndOutputHCL()
 
 
-	/** 
+	/**
 	* Creates RDF formatted list of the metadata entries
 	*
 	* @param int	 $rootid	asset ID of the root element to start processing with
@@ -200,9 +214,9 @@ class Page_HCL extends Page
 	*/
 	function createAndOutputRDF($rootid, $schemas)
 	{
-		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager(); 
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		
+
 		$output = new XML_Tree();
 
 		// REGISTERING XML NAMESPACES for the future reference...
@@ -212,7 +226,7 @@ class Page_HCL extends Page
 		$output->registerName('edna', 'http://www.edna.edu.au/metadata/v1.1');
 
 		$root = &$output->addRoot('tmp', '');
-		
+
 		$str = '';
 
 		// init empty namespace definitions array
@@ -223,11 +237,11 @@ class Page_HCL extends Page
 
 		// looping through the array of schemas and adding their 'namespace' => 'namespace URI' to attrs
 		foreach ($schemas as $schema_id) {
-				
-				$schema_asset = &$am->getAsset($schema_id); 
+
+				$schema_asset = &$am->getAsset($schema_id);
 				$namespace    = $schema_asset->attr('namespace');
 				$nsurl	      = $schema_asset->attr('nsurl');
-				
+
 				if (isset($namespace) && isset($nsurl)) {
 					$rdf_attrs[$namespace] = $nsurl;
 				}
@@ -242,60 +256,58 @@ class Page_HCL extends Page
 		$root_kids = $am->getChildren($rootid, 'page_standard', false); // leave type_code empty ??
 
 		// looping through obtained children IDs and processing every single asset (pages)
-		foreach ($root_kids as $asset_id) {
-			
+		foreach ($root_kids as $asset_id => $asset_type) {
+
 			// work with this asset only if it allows metadata (i.e. is not a bodycopy, etc.)
 			if ($mm->allowsMetadata($asset_id)) {
-				
-				$asset = &$am->getAsset($asset_id); // getting the asset object
-				$desc_node_attrs  = Array ('about' => $asset->getURL()); 
-				$description_node = &$rdf_root_node->addChild('rdf:Description', '', $desc_node_attrs); 
 
-				// getting the array of all metadata schemas applied to current examined asset...
+				$asset = &$am->getAsset($asset_id, $asset_type);
+				$desc_node_attrs  = Array ('about' => $asset->getURL());
+				$description_node = &$rdf_root_node->addChild('rdf:Description', '', $desc_node_attrs);
+
 				$current_schemas = $mm->getSchemas($asset_id, true);
 
-				// looping through supplied schema IDs...
 				foreach ($schemas as $schema_id) {
-				
+
 					// now checking if current schema ID actually is applied to this particular asset
 					if (in_array($schema_id, $current_schemas)) {
 
-						// If yes, then we can process the fields for 
+						// If yes, then we can process the fields for
 						// this schema id for current asset:
-						
-						// 1). Getting the name of this schema and storing it to use later as namespace pointer
-						$schema = &$am->getAsset($schema_id, 'metadata_schema');
-						$namespace = strtolower($schema->name); 
 
-						// 2). Get all the IDs of schema fields and then the array of their attribs
-						$schema_fields = $mm->getMetadataFields($schema_id); 
+						// Getting the name of this schema and storing it to use later as namespace pointer
+						$schema = &$am->getAsset($schema_id, 'metadata_schema');
+						$namespace = strtolower($schema->name);
+
+						// Get all the IDs of schema fields and then the array of their attribs
+						$schema_fields = $mm->getMetadataFields($schema_id);
 						$type_codes	   = Array('metadata_field');
-						$schema_field_attribs = $am->getAssetInfo($schema_fields, $type_codes, true); 
-						
-						// 3). Filling the new array with the names of the fields
+						$schema_field_attribs = $am->getAssetInfo($schema_fields, $type_codes, true);
+
+						// Filling the new array with the names of the fields
 						$tempname_arr = Array();
 						foreach ($schema_field_attribs as $key => $field_attrs) {
 							array_push($tempname_arr, $field_attrs['name']);
 						}
 
-						// 4). Getting key-value pairs for these field names
+						// Getting key-value pairs for these field names
 						$field_values = Array();
 						$field_values = $mm->getMetadataFieldValues($asset_id, $tempname_arr);
 
-						// 5). Looping through obtained field value pairs
+						// Looping through obtained field value pairs
 						foreach ($field_values as $field_key => $field_val) {
-							
-							// 5.1). Before displaying the field name ('field_key'), we need
-							//       to cut off the first part until the first separating dot
-							$dotpos = (strpos($field_key, '.')) + 1; 
+
+							// Before displaying the field name ('field_key'), we need
+							// to cut off the first part until the first separating dot
+							$dotpos = (strpos($field_key, '.')) + 1;
 							$field_key = substr_replace($field_key, '', 0, $dotpos);
 
-							// 5.2). Adding the namespace to the field key (name)
+							// Adding the namespace to the field key (name)
 							$field_key = $namespace . ':' . $field_key;
 
-							// 6). Adding the new field XML node with the namespace
+							// Adding the new field XML node with the namespace
 							$description_node->addChild($field_key, $field_val);
-						
+
 						} // end foreach field name/value
 					} // end if in_array
 				} // end foreach schemas
@@ -333,36 +345,28 @@ class Page_HCL extends Page
 	{
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
-			return;
+			exit();
 		}
 
-		// getting assoc. array of links 
-		$schema_links = Array();
 		$schema_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, 'metadata_schema', false, 'major', 'schema');
 
 		// looping through schema links assoc. array, extracting a value, adding to a normal array
 		$schemas = Array();
-		foreach ($schema_links as $key => $schema_link) {
-			array_push($schemas, $schema_link['minorid']);
-		}
+		foreach ($schema_links as $key => $schema_link) array_push($schemas, $schema_link['minorid']);
 
-		// getting one-element array of rootid
-		$rootarr = Array();
 		$rootarr = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
 
-		if (empty($schemas) || empty ($rootarr)) return false; // not going to continue if arrays empty
+		if (empty($schemas) || empty ($rootarr)) return; // not going to continue if arrays empty
 
 		$rootid  = $rootarr['minorid'];
-
 		$type = $this->attr('type');
-		
-		if ($type == "rdf") {
-			$testresult = $this->createAndOutputRDF($rootid, $schemas);
-		} else {
-			$testresult = $this->createAndOutputHCL($rootid, $schemas);
-		}
+
+		if ($type == 'rdf') $testresult = $this->createAndOutputRDF($rootid, $schemas);
+		else $testresult = $this->createAndOutputHCL($rootid, $schemas);
 
 	}//end printFrontend()
 
+
 }//end class
+
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_hcl_edit_fns.inc,v 1.4 2004/01/16 00:44:26 gsherwood Exp $
+* $Id: page_hcl_edit_fns.inc,v 1.5 2004/01/19 00:56:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,6 +45,7 @@ class Page_HCL_Edit_Fns extends Page_Edit_Fns
 	function Page_HCL_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
+		$this->static_screens['details']['lock_type'] = 'content';
 
 	}//end constructor
 
