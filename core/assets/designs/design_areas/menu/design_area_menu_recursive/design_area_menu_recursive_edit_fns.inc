@@ -51,19 +51,21 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 	/**
 	* Performs any outputting needed to intialise menu type outputs
 	*
+	* @param int	$designid	the id of the design we are currently printing
+	*
 	* @access private
 	*/
-	function _initDesignFileOutput() {
-		if (!empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN'])) return;
+	function _initDesignFileOutput($designid) {
+		if (!empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$designid])) return;
 
-		parent::_initDesignFileOutput();
+		parent::_initDesignFileOutput($designid);
 
 		echo '<', '?php
 			// because we need to be able to get to these with the recurse fn
 			$GLOBALS[\'RECURSIVE_MENU_PAGE_LINEAGE\'] = &$PAGE_LINEAGE;
 		?', '>';
 
-		$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN'] = true;
+		$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$designid] = true;
 
 	} // _initDesignFileOutput()
 
@@ -80,7 +82,7 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 	*/
 	function _createDesignFileOutput($contents, &$asset, &$design)
 	{
-		$this->_initDesignFileOutput();
+		$this->_initDesignFileOutput($design->id);
 		if ($asset->attr('show_stalks') && $asset->attr('indent') && $asset->attr('min_height')) {
 			if (!$this->_createStalkImages($asset)) return false;
 		}

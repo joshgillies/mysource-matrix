@@ -174,15 +174,17 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Performs any outputting needed to intialise menu type outputs
 	*
+	* @param int	$designid	the id of the design we are currently printing
+	*
 	* @access private
 	*/
-	function _initDesignFileOutput() {
-		if (!empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN'])) return;
+	function _initDesignFileOutput($designid) {
+		if (!empty($GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$designid])) return;
 
 		echo '<', '?php
 		$PAGE_LINEAGE = $am->getLineageFromURL();
 		?', '>';
-		$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN'] = true;
+		$GLOBALS['SQ_'.__CLASS__.__FUNCTION__.'_RUN_'.$designid] = true;
 
 	} // _initDesignFileOutput()
 
@@ -199,7 +201,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _createDesignFileOutput($contents, &$asset, &$design)
 	{
-		$this->_initDesignFileOutput();
+		$this->_initDesignFileOutput($design->id);
 
 		echo '<', '?php
 		$'.$asset->attr('id_name').'_level    = '.((int) $asset->attr('level')).';
