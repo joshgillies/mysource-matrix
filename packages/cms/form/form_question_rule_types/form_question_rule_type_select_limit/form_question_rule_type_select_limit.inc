@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.5.4.1 2005/02/22 05:08:26 lwright Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.5.4.2 2005/02/22 05:28:25 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -221,7 +221,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 			$q_id = $q_asset->id.'[]';
 		}
 
-		$code .= 'var select = document.getElementById("'.$q_id.'"); ';
+		$code .= 'var select = document.getElementById("'.$q_id.'");';
 
 		$operators = eval('return '.__CLASS__.'::_getOperators();');	// get private operator texts
 
@@ -240,7 +240,7 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 		if (is_a($q_asset, 'form_question_type_select')) {
 			$loop_code = ' for(i=0; i<select.options.length; i++) {if (select.options[i].selected) {selectCount++;} }';
 		} else {			// tickbox (or option) list needs something else
-			$loop_code = 'for(i=0; i<select.elements.length; i++) {if (select.elements[i].checked) {selectCount++;} }';
+			$loop_code = 'for(i=0; i<select.length; i++) {if (select.elements[i].checked) {selectCount++;} }';
 		}
 
 		$code .= $loop_code;		// add loop code
