@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content.inc,v 1.16 2004/01/19 22:21:00 gsherwood Exp $
+* $Id: content_type_nest_content.inc,v 1.17 2004/08/19 05:16:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,6 +38,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 */
 class Content_Type_Nest_Content extends Content_Type
 {
+
 
 	/**
 	* Constructor
@@ -92,7 +93,7 @@ class Content_Type_Nest_Content extends Content_Type
 	{
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid);
 		if ($link['value'] == 'nested_asset') {
-				return 'The asset being nested in a nest content cell';
+			return 'The asset being nested in a nest content cell';
 		}
 
 	}//end describeLink()
