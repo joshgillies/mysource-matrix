@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.7 2004/07/22 06:40:23 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.8 2004/07/22 06:47:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH . '/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -102,7 +102,12 @@ class Calendar_Event extends Asset
 		$keywords['event_start_datetime'] = Array('value'=>$this->getFriendlyStart());
 		$keywords['event_end_datetime'] = Array('value'=>$this->getFriendlyEnd());
 		$keywords['event_datetime_summary'] = Array('value'=>$this->getFriendlyDatesAndTimes());
-		$keywords['event_duration'] = Array('value'=>easy_time_total($this->getDuration(), true));
+
+		// give useful info if no duration (single point in time) - easy_time_total returns empty string
+		$total_time = easy_time_total($this->getDuration(), true);
+		if (empty($total_time)) $total_time = 'N/A';
+
+		$keywords['event_duration'] = Array('value'=>$total_time);
 
 		if ($descriptions) {
 			$keywords['event_start_datetime']['description'] = 'event start date and time';
@@ -348,7 +353,11 @@ class Calendar_Event extends Asset
 			</tr>
 			<tr>
 				<td><b>Duration</b></td>
-				<td><?php echo easy_time_total($this->getDuration(), true); ?></td>
+				<td><?php
+						// give useful info if no duration - easy_time_total returns empty string
+						$total_time = easy_time_total($this->getDuration(), true);
+						echo (empty($total_time) ? 'N/A' : $total_time);
+					?></td>
 			</tr>
 			<tr>
 				<td><b>Description</b></td>
