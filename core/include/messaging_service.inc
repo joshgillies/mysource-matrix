@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.33 2004/12/06 14:38:12 brobertson Exp $
+* $Id: messaging_service.inc,v 1.34 2004/12/07 22:01:51 gsherwood Exp $
 *
 */
 
@@ -42,7 +42,7 @@ define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 *    Facilitate the sending and management of internal messages
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix
 */
 class Messaging_Service extends MySource_Object
@@ -427,6 +427,16 @@ class Messaging_Service extends MySource_Object
 						$result[$i]['from_name'] = $shadow->$get_user_name;
 						$result[$i]['type_code'] = $shadow->type();
 					}
+				}
+
+				// if we couldnt find the name of the user, set a default
+				if (empty($result[$i]['from_name'])) {
+					$result[$i]['from_name'] = 'Unknown User';
+				}
+
+				// if we couldnt find the type code user, set a default
+				if (empty($result[$i]['type_code'])) {
+					$result[$i]['type_code'] = 'user';
 				}
 			}
 		}
