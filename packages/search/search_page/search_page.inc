@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_page.inc,v 1.2 2003/10/13 07:01:45 dwong Exp $
+* $Id: search_page.inc,v 1.3 2003/10/14 04:30:11 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -30,7 +30,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.2 $ - 1.0
+* @version $Revision: 1.3 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -583,6 +583,7 @@ class Search_Page extends Page
 	{
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
 		$sm =& $am->getSystemAsset('search_manager');
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		
 		$fields = $this->attr('fields');
 		if (is_scalar($fields))
@@ -591,6 +592,9 @@ class Search_Page extends Page
 		$queries = $_REQUEST['queries'];
 
 		$logic = $this->attr('logic');
+		$root_assetid = $this->attr('root_assetid');
+		if ($root_assetid <= 0)
+			$root_assetid = 1;
 
 		$score_words = array();
 
@@ -615,6 +619,21 @@ class Search_Page extends Page
 			$field =& $fields[$query_name];
 
 
+			$search_sql = "SELECT DISTINCT ai.assetid
+				FROM " . 
+				SQ_TABLE_PREFIX . "asset_indexing ai,\n"	.
+				SQ_TABLE_PREFIX . "asset a,\n"				.
+				SQ_TABLE_PREFIX . "asset_link_tree alt1,\n"	.
+				SQ_TABLE_PREFIX . "asset_link_tree alt2,\n"	.
+				SQ_TABLE_PREFIX . "asset_link al1,\n"		.
+				SQ_TABLE_PREFIX . "asset_link al2\n"		.
+				"WHERE ".
+				"al1.minorid = " . $db->quote((int)$root_assetid)	.	// all links that root asset is a minor in
+				" AND al1.linkid = alt1.linkid "						.	// all treeids with those links
+				" AND alt2.treeid LIKE alt1.treeid || '%' "			.	// all treeids that start with those treeids
+				" AND alt2.linkid = al2.linkid "						.	// all links with those treeids
+				" AND ai.assetid = al2.minorid "						;	// and the indexing data for those assets
+
 			switch($field['type']) {
 				case 'include_all':
 				case 'include_any':
@@ -626,11 +645,12 @@ class Search_Page extends Page
 							if ($field['type'] == 'include_any')
 								$asset_list_sql .= "\nUNION\n";
 						}
-						$asset_list_sql .= "(SELECT ai.assetid
-							FROM sq_asset_indexing ai
-							WHERE ai.type = 'text' AND ai.value LIKE '". $words[$i] ."')";
+						$asset_list_sql .= "(" .$search_sql .
+							"AND ai.type = 'text' " .
+							"AND ai.value LIKE '"	. $words[$i] . 
+							"')";
 					}
-					
+
 				break;
 
 				
@@ -640,9 +660,10 @@ class Search_Page extends Page
 						if ($asset_list_sql != '') {
 							$asset_list_sql .= "\nEXCEPT\n";
 						}
-						$asset_list_sql .= "(SELECT ai.assetid
-							FROM sq_asset_indexing ai
-							WHERE ai.type = 'text' AND (ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."'))";
+						$asset_list_sql .= "(" .$search_sql .
+							"ai.type = 'text' AND 
+							(ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."')
+							)";
 					}
 
 				break;
@@ -654,9 +675,8 @@ class Search_Page extends Page
 					if ($asset_list_sql != '')
 						$asset_list_sql .= "\nINTERSECT\n";
 
-					$asset_list_sql .= "(SELECT ai.assetid
-							FROM sq_asset_indexing ai
-							WHERE ai.type = 'text' 
+					$asset_list_sql .= "(" .$search_sql .
+							"AND ai.type = 'text' 
 							AND ai.component = 'metadata:". (int)$field['params']['metadata_field'] . "' 
 							AND (ai.value LIKE '". implode ("' OR ai.value LIKE '", $words) ."'))";
 				break;
@@ -674,16 +694,16 @@ class Search_Page extends Page
 
 		if (empty($score_words))
 			return Array();
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
-		bam(str_replace("\t", " ", $sql));
+//		speed_check();
 		$results = $db->getAll($sql);
-		bam($results);
+//		speed_check("done with query");
 		$matches = array();
 		foreach($results as $result) {
 			$matches[$result['assetid']] = $result;
 		}
 		$results = $this->climbToAssetTypes($matches, array('file', 'page'));
+//		speed_check("climbing done");
 		
 		return $results;
 	} // end processSearch()
@@ -734,6 +754,12 @@ class Search_Page extends Page
 				$unsorted[$nextAssetId] = $nextMatch;
 				$scores[$nextAssetId] = $nextMatch['score'];
 			} else {
+				// doesn't match one of the types, go up
+				
+				// if we are the root asset for this search, then don't go up from here
+				if ($nextAssetId == $this->attr('root_assetid'))
+					continue;
+
 				$parentLinks = $am->getLinks($nextAssetId, SQ_SC_LINK_ALL, '', false, 'minor', null, true);
 				foreach ($parentLinks as $parentLink) {
 					$parentAssetId = $parentLink['majorid'];
