@@ -1082,7 +1082,7 @@ class Asset extends Resolve_Object
 							// send an internal message
 							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$body = 'The workflow process for '.$this->type().' "'.$this->name.'" has been completed. "'.$this->name.'" is now live.';
-							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Workflow Completed', $body);
+							$ms->sendMessage($this->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Workflow Completed', $body);
 
 							$wfm->save();
 							break;
@@ -4007,7 +4007,7 @@ class Asset extends Resolve_Object
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 		}
 
-		$perms = array_keys($this->getPermission($perm));
+		$perms = $this->getPermission($perm);
 		if (in_array('0', $perms)) return true;
 		$common = array_intersect($assetids, $perms);
 		return (!empty($common));
