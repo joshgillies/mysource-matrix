@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table_management.inc,v 1.1 2004/10/13 01:10:28 arailean Exp $
+* $Id: form_question_type_tickbox_table_management.inc,v 1.2 2004/10/13 06:47:10 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,7 +79,8 @@ class Form_Question_Type_Tickbox_Table_Management extends Asset_Management
 		return Array(
 					 'files/cross.PNG',
 					 'files/cross2.PNG',
-					 'files/InputTable.js'
+					 'files/InputTable.js',
+					 'files/style.css'
 					 );
 
 	}//end _getFileList()
