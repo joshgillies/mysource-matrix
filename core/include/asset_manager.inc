@@ -73,7 +73,6 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function refreshAssetType($type_code)
 	{
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation
 				FROM sq_asset_type
@@ -88,7 +87,19 @@ class Asset_Manager extends Resolve_Object
 			$this->_asset_types[$result['type_code']] = $result;
 		}
 
-		$parents = $this->getTypeAncestors($type_code);
+		$parents = Array();
+		$tmp_type_code = $type_code;
+		while($this->_asset_types[$tmp_type_code]['parent_type'] != 'asset') {
+			// this should NEVER happen, if it does DIE
+			if (!isset($this->_asset_types[$this->_asset_types[$tmp_type_code]['parent_type']])) {
+				trigger_error('Asset "'.$this->_asset_types[$tmp_type_code]['parent_type'].'" is not installed on the system,<br/>'
+							 .'therefore we cannot get the parent type of Asset "'.$tmp_type_code.'".<br/>'
+							 .'Check that you got the Asset_Manager by reference', E_USER_ERROR);
+			}
+			$tmp_type_code = $this->_asset_types[$tmp_type_code]['parent_type'];
+			$parents[] = $tmp_type_code;
+		}
+		$parents[] = 'asset';
 
 		$sql = 'SELECT inherited_type_code
 				FROM sq_asset_type_inherited
