@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.156 2003/10/06 23:35:39 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.157 2003/10/10 05:59:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3088,7 +3088,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql   = 'SELECT DISTINCT type FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message ';
-		$where = 'userto = 0';
+		$where = 'userto = 0 AND type LIKE "asset%"';
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
 		$log_types = $db->getCol($sql.$where);
