@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.12 2003/10/17 05:50:39 brobertson Exp $
+* $Id: mysource.inc,v 1.13 2003/10/19 22:54:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -314,13 +314,21 @@ class MySource
 							$_SESSION['userid']         = $user->id;
 							$_SESSION['user_type_code'] = $user->type();
 							$_SESSION['remote_addr']    = $_SERVER['REMOTE_ADDR'];
+
+							// log a message so we know someone has logged in
+							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+							$log_body = 'User "'.$user->name.'" logged in';
+							$log = $ms->newMessage(Array(), 'User Logged In', $log_body, 'system.security.login');
+							$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+							$log->send();
+
 							// generate a new login key so that when they try and login next
 							// they have to re-enter the details
 							$this->generateLoginKey();
 
 							$_SESSION['user_is_root']      = $this->_user_is_root;
 							$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin;
-							$_SESSION['user_last_access'] = time();
+							$_SESSION['user_last_access']  = time();
 							unset($_SESSION['user_login_attempts']);
 							return;
 						}
@@ -335,10 +343,23 @@ class MySource
 							$user = &User::find($username);
 							if (!is_null($user) && $user->canLogin()) {
 								if ($this->setCurrentUser($this->am->getSystemAsset('root_user'))) {
+									$success = false;
 									if ($user->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION)) {
 										$this->addMessage('User "'.$username.'" locked');
+										$success = true;
 									}
 									$this->restoreCurrentUser();
+
+									// log a message so we know someone has had their account locked
+									// we need to do this here because before we restore the current user
+									// we are actually logged in as ROOT
+									if ($success) {
+										$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+										$log_body = 'User "'.$username.'" has had their account locked after '.(int)SQ_CONF_MAX_LOGIN_ATTEMPTS.' unsuccessful login attempts';
+										$log = $ms->newMessage(Array(), 'User Account Locked', $log_body, 'system.security.login');
+										$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+										$log->send();
+									}
 								}
 							}
 						}
@@ -354,6 +375,15 @@ class MySource
 				// deliberalty don't have a break here so it the
 				// login fails we make sure that we're logged out
 			case 'logout' :
+				if ($this->user) {
+					// log a message so we know someone has logged out
+					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$log_body = 'User "'.$this->user->name.'" logged out';
+					$log = $ms->newMessage(Array(), 'User Logged Out', $log_body, 'system.security.login');
+					$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
+					$log->send();
+				}
+
 				$_SESSION['userid']				= 0;
 				$_SESSION['user_type_code']		= '';
 				$_SESSION['user_is_root']		= false;
