@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetMap.java,v 1.10 2005/02/20 22:41:14 mmcintyre Exp $
+* $Id: AssetMap.java,v 1.11 2005/03/01 00:50:17 mmcintyre Exp $
 *
 */
 
@@ -36,7 +36,8 @@ import java.net.*;
 import netscape.javascript.*;
 import javax.swing.plaf.metal.*;
 import javax.swing.border.*;
-import java.awt.image.*;
+import net.squiz.matrix.debug.*;
+import java.io.IOException;
 
 /**
  * The main applet class
@@ -81,38 +82,16 @@ public class AssetMap extends JApplet implements InitialisationListener {
 		window.call("open_hipo", new Object[] { url } );
 	}
 
-	public void start() {}
-
 	public void initialisationComplete(InitialisationEvent evt) {}
 
-
 	public void init() {
-		// load the parameters from the applet tag and add them to
-		// our property set
-		String paramStr = getParameter("parameter.params");
-		String[] params = paramStr.split(",");
-
-		for (int i = 0; i < params.length; i++) {
-			Matrix.setProperty(params[i], getParameter(params[i]));
-		}
 		window = JSObject.getWindow(this);
-
-		createApplet();
+		loadParameters();
 		getContentPane().add(createApplet());
-		AssetManager.addInitialisationListener(this);
-
-		SwingWorker worker = new SwingWorker() {
-			public Object construct() {
-				AssetManager.init();
-				return null;
-			}
-		};
-		worker.start();
-
+		
 		// Polling timer
 		ActionListener taskPerformer = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
-
 				if (window == null)
 					JSObject.getWindow(AssetMap.this);
 
@@ -127,7 +106,49 @@ public class AssetMap extends JApplet implements InitialisationListener {
 		timer = new javax.swing.Timer(2000, taskPerformer);
 		timer.setDelay(5000);
 		timer.start();
-		
+	}
+
+	/**
+	 * Starts the applet.
+	 * @see JApplet.start()
+	 * @see stop()
+	 * @see init()
+	 */
+	public void start() {
+		// get a swing worker to call init in AssetManager
+		// when it returns set the root node to all trees
+		SwingWorker worker = new SwingWorker() {
+			public Object construct() {
+				MatrixStatusBar.setStatus("Initialising...");
+				MatrixTreeNode root = null;
+				try {
+					root = AssetManager.init();
+				} catch (IOException ioe) {
+					GUIUtilities.error(
+						AssetMap.this, ioe.getMessage(), "Initilisation Failed!");
+					MatrixStatusBar.setStatusAndClear("Initilisation Failed!", 1000);
+					Log.log("Could not initialise the asset map", AssetMap.class, ioe);
+				}
+				return root;
+			}
+			public void finished() {
+				MatrixTreeModelBus.setRoot((MatrixTreeNode) get());
+				MatrixStatusBar.setStatusAndClear("Success!", 1000);
+			}
+		};
+		worker.start();
+	}
+	
+	/**
+	 * Load the parameters from the applet tag and add them to
+	 * our property set.
+	 */
+	public void loadParameters() {
+		String paramStr = getParameter("parameter.params");
+		String[] params = paramStr.split(",");
+
+		for (int i = 0; i < params.length; i++)
+			Matrix.setProperty(params[i], getParameter(params[i]));
 	}
 
 	public void stop() {
