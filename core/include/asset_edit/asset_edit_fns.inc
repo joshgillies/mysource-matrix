@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_fns.inc,v 1.25 2003/10/21 06:24:52 dwong Exp $
+* $Id: asset_edit_fns.inc,v 1.26 2003/10/21 06:59:56 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -180,7 +180,7 @@ class Asset_Edit_Fns extends MySource_Object
 	* @param object	Backend_Outputter	&$o		the outputter class
 	* @param string						$prefix	prefix for the form element
 	*
-	* @return void
+	* @return booleam
 	* @access public
 	*/
 	function paintWeights(&$owner, &$o, $prefix)
@@ -221,6 +221,7 @@ class Asset_Edit_Fns extends MySource_Object
 
 			$o->closeField();
 		}
+		return true;
 	}
 	/**
 	* Process the weights posted in paintWeights

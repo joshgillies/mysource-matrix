@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_manager_edit_fns.inc,v 1.6 2003/10/21 06:30:43 dwong Exp $
+* $Id: search_manager_edit_fns.inc,v 1.7 2003/10/21 07:00:17 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -16,7 +16,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.6 $ - 1.0
+* @version $Revision: 1.7 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,6 +34,17 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	}//end constructor
 
 
+	/** 
+	* Paint the interface for painting default weights for each registered asset type.
+	* 
+	* @access public
+	*
+	* @param Search_Mananger		&$asset The search manager asset.
+	* @param Backend_Outputter		&$o		The backend outputter.
+	* @param string					$prefix	The prefix for fields.
+	* 
+	* @return boolean 
+	*/
 
 	function paintWeights(&$asset, &$o, $prefix)
 	{
@@ -41,8 +52,20 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		$typeHierarchy = $am->getAssetTypeHierarchy();
 
 		$this->paintAssetTypeSection($asset, $o, $prefix, $typeHierarchy);
-	}
+		return true;
+	} // end paintWeights()
 
+	/** 
+	* Paint the interface for painting default weights for a particular asset type.
+	* 
+	* @access public
+	*
+	* @param Search_Mananger		&$asset The search manager asset.
+	* @param Backend_Outputter		&$o		The backend outputter.
+	* @param string					$prefix	The prefix for fields.
+	* 
+	* @return boolean 
+	*/
 	function paintAssetTypeSection(&$asset, &$o, $prefix, $typeHierarchy)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
@@ -134,7 +157,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			asset_finder($prefix."_reindexing_root_assetid", '');
 		}
-	}
+	} //end paintReindexing()
 
 	/** 
 	* Processes the interface for queuing a HIPO to reindex the system. 
@@ -156,7 +179,7 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		return false;
-	}
+	} // end processReindexing()
 
 	
 
