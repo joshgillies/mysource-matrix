@@ -135,7 +135,8 @@ class Resolve
 			case 'login' :
 				if ($this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
 					$this->am->includeAsset('user');
-					if (list($userid, $user_type) = User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD'])) {
+					list($userid, $user_type) = User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD']);
+					if ($userid) {
 						$user = &$this->am->getAsset($userid, $user_type);
 						$_SESSION['userid']      = $userid;
 						$_SESSION['remote_addr'] = $_SERVER['REMOTE_ADDR'];
