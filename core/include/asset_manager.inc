@@ -170,26 +170,76 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function getTypeInfo($type_code, $field='')
 	{
-		if (!isset($this->_asset_types[$type_code])) {
-			trigger_error('Asset "'.$type_code.'" is not installed on the system', E_USER_WARNING);
-			return ($field) ? null : Array();
-		}
+		$do_query = false;
+		
+		// multiple typecodes
+		if (is_array($type_code)) {
 
-		// because we don't get the load all the information about a type, if we don't know about a field
-		// get it from the DB
-		if ($field && !isset($this->_asset_types[$type_code][$field])) {
-
+			if (empty($type_code)) return Array();
+			
+			// we want to create a query with only the type_codes that
+			// we do not have cached, but keep the type_code array intact for
+			// looping through later
+			$tmp = $type_code;
+			
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			for($i = 0; $i < count($type_code); $i++) {
+				if (!isset($this->_asset_types[$type_code[$i]])) {
+					trigger_error('Asset "'.$type_code[$i].'" is not installed on the system', E_USER_WARNING);
+					unset($type_code[$i]);
+					unset($tmp[$i]);
+					continue;
+				} else {
+					if ($field && !isset($this->_asset_types[$type_code[$i]][$field])) {
+						$do_query = true;
+						$tmp[$i] = $db->quote($type_code[$i]);
+					} else {
+						unset($tmp[$i]);
+					}
+				}
+			}// end for
+			$type_code_cond = 'IN ('.implode(', ', $tmp).')';
+		
+		// just a single typecode
+		} else {
+			if (!isset($this->_asset_types[$type_code])) {
+				trigger_error('Asset "'.$type_code.'" is not installed on the system', E_USER_WARNING);
+				return ($field) ? null : Array();
+			}
+			if ($field && !isset($this->_asset_types[$type_code][$field])) {
+				$do_query = true;
+				$db = &$GLOBALS['SQ_SYSTEM']->db;
+				$type_code_cond = '= '.$db->quote($type_code);
+			}
+		}// end if
+
+		if ($do_query) {
+
 			$sql = 'SELECT '.$field.'
 					FROM '.SQ_TABLE_PREFIX.'asset_type
-					WHERE type_code = '.$db->quote($type_code);
-			$result = $db->getOne($sql);
+					WHERE type_code '.$type_code_cond;
+			$result = $db->getAll($sql);
+			
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
-			$this->_asset_types[$type_code][$field] = $result;
+			if (is_array($type_code)) {
+				for ($i = 0; $i < count($type_code); $i++) {
+					$this->_asset_types[$type_code[$i]][$field] = $result[$i][$field];
+				}
+			} else {
+				$this->_asset_types[$type_code][$field] = $result;
+			}
 
 		}// end if
 
+		if (is_array($type_code)) {
+			$type_codes = Array();
+			foreach ($type_code as $code) {
+				($field) 
+					? $type_codes[$code] = $this->_asset_types[$code][$field] 
+					: $type_codes[$code] = $this->_asset_types[$code];
+			}
+			return $type_codes;
+		}
 		return ($field) ? $this->_asset_types[$type_code][$field] : $this->_asset_types[$type_code];
 
 	}//end getTypeInfo()
