@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.1 2004/08/19 05:42:41 gsherwood Exp $
+* $Id: cache_manager.inc,v 1.2 2004/08/25 02:20:56 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.1 $ - 0.1
+* @version $Revision: 1.2 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -150,6 +150,8 @@ class Cache_Manager extends Asset
 	function loadFromCache(&$asset, $key='')
 	{
 		if (SQ_ROLLBACK_VIEW) return '';
+		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) return '';
+
 		assert_is_a($asset, 'asset', 'Cannot load cache of non asset object');
 		if (!$this->cacheEnabled($asset->type())) return '';
 
@@ -180,6 +182,8 @@ class Cache_Manager extends Asset
 	function saveToCache(&$asset, $key, $contents)
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
+		if (isset($_REQUEST['no_cache']) && $_REQUEST['no_cache']) return false;
+
 		assert_is_a($asset, 'asset', 'Cannot save cache of non asset object');
 		if (!$this->cacheEnabled($asset->type())) return false;
 
