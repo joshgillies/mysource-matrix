@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.8 2004/04/23 07:28:07 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.9 2004/05/05 06:52:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -68,20 +68,13 @@
 		</field>
 		<field attribute="question_col_width">
 			<display_name>Question Width</display_name>
-			<note>The width of the column for question names. This can be a number of pixels or a percentage of the section width</note>
+			<note>The width of the column for question names. This can be a number of pixels or a percentage of the form width</note>
 			<html_width />
 		</field>
 		<field attribute="answer_col_width">
 			<display_name>Answer Width</display_name>
-			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the section width</note>
+			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the form width</note>
 			<html_width />
-		</field>
-	</section>
-	<section name="Submission Logs">
-		<field attribute="email_submission">
-			<display_name>Email Submission To</display_name>
-			<note>Send submissions to this e-mail address. If left blank, no e-mail will be sent</note>
-			<email width="30" height="1" />
 		</field>
 	</section>
 </contents>
