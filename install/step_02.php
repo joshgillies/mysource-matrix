@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.49 2004/08/10 01:05:06 lwright Exp $
+* $Id: step_02.php,v 1.50 2004/08/10 01:15:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -230,9 +230,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 		ob_end_clean();
 		
 		// using old MySQL version that doesn't support SET table_type?
-		if ($is_old_mysql) {
-			$table_sql .= ' TYPE=innodb';	
-		}
+		if ($is_old_mysql) $table_sql .= ' TYPE=innodb';
 
 		$result = $db->query($table_sql);
 		if (DB::isError($result)) {
@@ -271,9 +269,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 			ob_end_clean();
 			
 			// using old MySQL version that doesn't support SET table_type?
-			if ($is_old_mysql) {
-				$table_sql .= ' TYPE=innodb';	
-			}
+			if ($is_old_mysql) $table_sql .= ' TYPE=innodb';
 
 			$result = $db->query($table_sql);
 			if (DB::isError($result)) {
