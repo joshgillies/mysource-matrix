@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.10 2004/02/16 01:05:24 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.11 2004/02/17 00:26:58 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -515,9 +515,9 @@ class Page_Asset_Listing extends Page
 			if (preg_match_all('|%asset_metadata_([^%]+)%|is', $contents, $matches)) {
 				if (is_null($mm)) $mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 				// get all the metadata keywords for this asset
-				$replacements = $mm->getMetadataFieldValues($assetid, $matches[1]);
+				$metadata_keywords = $mm->getMetadataFieldValues($assetid, $matches[1]);
 
-				foreach ($replacements as $field => $value) {
+				foreach ($metadata_keywords as $field => $value) {
 					$keywords['asset_metadata_'.$field]['value'] = $value;
 				}
 			}
