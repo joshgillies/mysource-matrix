@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.68 2004/08/02 00:02:30 amiller Exp $
+* $Id: design.inc,v 1.69 2004/08/02 00:18:51 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -611,7 +611,17 @@ class Design extends Design_Area
 					echo '}'."\n";
 					echo '?', '>';
 			break;
-
+			
+			case 'asset_thumbnail_url' :
+					echo '<', '?php ';
+					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
+					echo 'if (!empty($link)) {'."\n";
+					echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+					echo 'echo $thumbnail->getURL('.$this->_escapeVar('$ASSET->id', $args).');'."\n";
+					echo '}'."\n";
+					echo '?', '>';
+			break;
+			
 			default :
 				parent::printVar($var, $args);
 
