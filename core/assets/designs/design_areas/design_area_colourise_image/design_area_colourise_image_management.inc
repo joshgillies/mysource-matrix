@@ -27,18 +27,18 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 							'image' => Array(
 								'added'     => '0.0.1',
 								'type'      => 'text',
-								'default'   => ''
+								'default'   => '',
 							),
 							'colours' => Array(
 								'added'       => '0.0.1',
 								'type'        => 'serialise',
 								'default'     => Array(),
-								'description' => 'Associative Array of colours that are going to be used in the converison process'
+								'description' => 'Associative Array of colours that are going to be used in the converison process',
 							),
 							'filename_only' => Array(
 								'added'     => '0.0.1',
 								'type'      => 'boolean',
-								'default'   => 0
+								'default'   => 0,
 							),
 							'type' => Array(
 								'added'			=> '0.0.1',
@@ -47,19 +47,19 @@ class Design_Area_Colourise_Image_Management extends Asset_Management
 								'parameters'	=> Array(
 									'options' => Array(
 										'greyscale'			=> 'Greyscale', 
-										'multiple_colours'	=> 'Multiple Colours'
+										'multiple_colours'	=> 'Multiple Colours',
 									),
 								),
 							),
 							'tolerance' => Array(
 								'added'     => '0.0.1',
 								'type'      => 'float',
-								'default'   => 0.2
+								'default'   => 0.2,
 							),
 							'extra' => Array(
 								'added'     => '0.0.1',
 								'type'      => 'text',
-								'default'   => ''
+								'default'   => '',
 							),
 						);
 
