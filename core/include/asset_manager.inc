@@ -669,8 +669,8 @@ class Asset_Manager extends Resolve_Object
 	* returns a reference to the asset that has the passed url
 	* if no url is passed the current (aka PHP_SELF) one is used
 	*
-	* @param string		$protocol		the protocol to match
-	* @param string		$url			the urls to check for
+	* @param string		$protocol		the protocol to match -> null means it is ignored
+	* @param string		$url			the urls to check for -> null defaults it to current url
 	* @param boolean	$exact_match	when true only returns an asset if there is an exact match on the url, if false searches back along the URL path for the asset that matches
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't use the '@' operator when returning by reference
 	*
@@ -684,9 +684,7 @@ class Asset_Manager extends Resolve_Object
 		// remove any trailing slashes
 		$url = preg_replace('/\/+$/', '', $url);
 
-		if (!is_null($protocol) && $protocol != 'https') {
-			$protocol = 'http';
-		}
+		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -732,6 +730,66 @@ class Asset_Manager extends Resolve_Object
 		}// end if
 
 	}//end getAssetFromURL()
+
+	/**
+	* returns an array of assetid's in the order that they propogate out from the site url
+	* if no url is passed the current (aka PHP_SELF) one is used
+	*
+	* @param string		$protocol		the protocol to match -> null means it is ignored
+	* @param string		$url			the urls to check for -> null defaults it to current url
+	*
+	* @return Array
+	* @access public
+	*/
+	function getLineageFromURL($protocol=null, $url=null)
+	{
+
+		if (is_null($url))		$url = $_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'];
+		// remove any trailing slashes
+		$url = preg_replace('/\/+$/', '', $url);
+
+		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sections = explode('/', $url);
+		$option  = '';
+		$url_condition = ' IN (';
+		foreach($sections as $piece) {
+			$url_condition .= (($option) ? ',' : '').$db->quote($option.$piece);
+			$option .= $piece.'/';
+		}
+		$url_condition .= ') ';
+
+		$extra_table = '';
+		$extra_where = '';
+		if (!is_null($protocol)) {
+			$extra_table = ', sq_asset_url u';
+			$extra_where = ' AND l.root_urlid = u.urlid AND u.'.$protocol.' = '.$db->quote(1);
+		}
+
+		$sql = 'SELECT l.url, l.assetid, a.name, a.type_code
+				FROM sq_asset_lookup l, sq_asset a '.$extra_table.'
+				WHERE l.url '.$url_condition.'
+				AND l.assetid = a.assetid
+				'.$extra_where.'
+				ORDER BY CHARACTER_LENGTH(l.url) ASC';
+		$result = $db->getAll($sql);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+		pre_echo($result);
+
+		// No urls found or we only found some of the parents, but not the passed url
+		if (empty($result) || $result[count($result) - 1]['url'] != $url) {
+			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
+			trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'"', E_USER_WARNING);
+			return null;
+
+		} else {
+			return $result;
+		}// end if
+
+	}//end getLineageFromURL()
 
 }//end class
 ?>
