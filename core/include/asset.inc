@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.253 2003/11/07 05:38:52 gsherwood Exp $
+* $Id: asset.inc,v 1.254 2003/11/09 22:23:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -233,7 +233,8 @@ class Asset extends MySource_Object
 		// do this so that all calls to getAsset() get a reference to us, and don't load a new instance from the DB
 		$GLOBALS['SQ_SYSTEM']->am->rememberAsset($this);
 
-		// OK, what we need to do here is set write access for this asset to the current user so that they can actually do anything
+		// OK, what we need to do here is set write access for this asset to the current user
+		// so that they can actually do anything
 		// NOW normally this would require admin access but this is a very special case
 		$this->_tmp[__CLASS__.'_in_create_setting_permissions'] = true;
 		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
@@ -244,12 +245,17 @@ class Asset extends MySource_Object
 			return false;
 		}
 
-		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, true)) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-			$this->id = 0;
-			return false;
+		// only set the permission if there is a userid to set it for - otherwise we are going
+		// to be setting public write access
+		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $GLOBALS['SQ_SYSTEM']->currentUserId(), SQ_PERMISSION_WRITE, true)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+				$this->id = 0;
+				return false;
+			}
 		}
+
 		unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
 
 		$message_body = 'New '.$this->type().' "'.$this->name.'" created';
@@ -317,22 +323,20 @@ class Asset extends MySource_Object
 			$new_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id, 'minor');
 
 			// set permission on this asset that the parent has if the parent is not the root folder
-			if ((int)$link['asset']->id !== 1) {
-				$this->_tmp[__CLASS__.'_in_create_setting_permissions'] = true;
-				foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-					$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($link['asset']->id, $perm, null, false, false, true);
-					foreach ($set_perms as $userid => $access) {
-						if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $userid, $perm, $access)) {
-							$ms->abortLog();
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-							$this->id = 0;
-							return false;
-						}
+			$this->_tmp[__CLASS__.'_in_create_setting_permissions'] = true;
+			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
+				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($link['asset']->id, $perm, null, false, false, true);
+				foreach ($set_perms as $userid => $access) {
+					if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $userid, $perm, $access)) {
+						$ms->abortLog();
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
+						$this->id = 0;
+						return false;
 					}
 				}
-				unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
 			}
+			unset($this->_tmp[__CLASS__.'_in_create_setting_permissions']);
 
 			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
 				$ms->abortLog();
