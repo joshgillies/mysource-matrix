@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.163 2004/01/13 09:32:24 brobertson Exp $
+* $Id: asset_manager.inc,v 1.164 2004/01/14 22:11:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1584,6 +1584,7 @@ class Asset_Manager extends MySource_Object
 			$sql = 'SELECT a.assetid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a';
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
+			if (!empty($where) && !empty($type_code)) $where .= ' AND ';
 
 		// OK, normal asset, let's find a reference to them in the tree and go from there
 		} else {
@@ -1617,6 +1618,8 @@ class Asset_Manager extends MySource_Object
 		}// end if assetid == 1
 
 		if (!empty($type_code)) {
+
+			if (empty($where)) $where = ' WHERE ';
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
