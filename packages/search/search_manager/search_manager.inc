@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.46 2005/03/24 00:48:38 dheppell Exp $
+* $Id: search_manager.inc,v 1.47 2005/03/29 02:30:26 arailean Exp $
 *
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.46 $
+* @version $Revision: 1.47 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -414,10 +414,10 @@ class Search_Manager extends Asset
 		foreach ($results as $result) {
 			$weightings[$result['component']] =
 				Array(
-					  'default'     => ($result['def'] == 't') ? 1 : 0,
-					  'weight'      => $result['weight'],
-					  'description' => $result['description'],
-					  );
+					'default'		=> ($result['def'] == 't') ? 1 : 0,
+					'weight'		=> $result['weight'],
+					'description'	=> $result['description'],
+				);
 		}
 
 		return $weightings;
@@ -580,6 +580,18 @@ class Search_Manager extends Asset
 	*
 	* Formulates search query and returns the results
 	*
+	* Each search request is logged to the 'search' log in the format:
+	* <PRE>
+	* Array('terms'   => array (
+	*						first term => count of result assets for this term only
+	*						second term => ...
+	*						),
+	*		'results' => total number of result assets for this request,
+	*		'assetid' => id of the asset requesting this search
+	* );
+	* </PRE>
+	* This array will be in the 'data' section of the log entry (to be accessed via the log manager)
+	*
 	* @param array	$search_info	an array of search settings in the form
 	* <PRE>
 	* Array('root_assetid'    => asset ID to search under,
@@ -599,6 +611,7 @@ class Search_Manager extends Asset
 	*                                                  'words'  => Array( ..search terms.. ),
 	*                                                  'params' => Array('assetid' => FIELD_ID)
 	*                                                    )
+	*       'assetid'           => asset ID of asset requesting the search,
 	* );
 	*</PRE>
 	*
@@ -607,6 +620,7 @@ class Search_Manager extends Asset
 	*/
 	function processSearch($search_info, $include_context=false)
 	{
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$total_asset_scores = null;
 
@@ -686,6 +700,11 @@ class Search_Manager extends Asset
 						if ($field_search_logic != 'AND' && $field_search_logic != 'OR') $field_search_logic = 'AND';
 
 						foreach ($attr_info['words'] as $word) {
+							$this->_tmp['terms_used'][$word] = $word;
+							if (!$this->isWordIndexable($word)){
+								continue;
+							}
+
 							$result = $cm->loadFromCache($this, $search_cache_key.'asset_attrib'.$word);
 							if (empty($result)) {
 								$sql = $start_sql.'
@@ -700,17 +719,12 @@ class Search_Manager extends Asset
 								$result = unserialize($result);
 							}
 
-							if (is_null($field_asset_scores)) {
-								$field_asset_scores = $result;
-							} else {
-								$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, $field_search_logic);
-							}
+							$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, $field_search_logic, $word);
 						}
 					break;
 				}//end switch attribute type
 
-				if (is_null($total_asset_scores)) $total_asset_scores = $field_asset_scores;
-				else $total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
+				$total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
 			}
 		}
 
@@ -750,8 +764,7 @@ class Search_Manager extends Asset
 					$result = unserialize($result);
 				}
 
-				if (is_null($total_asset_scores)) $total_asset_scores = $result;
-				else $total_asset_scores = $this->combineAssetScores($total_asset_scores, $result, $search_info['logic']);
+				$total_asset_scores = $this->combineAssetScores($total_asset_scores, $result, $search_info['logic']);
 			}
 		}
 
@@ -764,15 +777,22 @@ class Search_Manager extends Asset
 			foreach ($search_info['include_all'] as $attr_name => $attr_info) {
 
 				$field_search_logic = array_get_index($attr_info, 'search_logic', 'AND');
-				if ($field_search_logic != 'AND' && $field_search_logic != 'OR') $field_search_logic = 'AND';
+				if ($field_search_logic != 'AND' && $field_search_logic != 'OR') {
+					$field_search_logic = 'AND';
+				}
 
 				$field_asset_scores = null;
 				foreach ($attr_info['words'] as $word) {
+					$this->_tmp['terms_used'][$word] = $word;
+
+					if (!$this->isWordIndexable($word)){
+						continue;
+					}
+
 					$result = $cm->loadFromCache($this, $search_cache_key.'include_all'.$word);
 					assert_valid_db_result($result);
 					if (empty($result)) {
-						$sql = $start_sql.'
-							AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by;
+						$sql = $start_sql.' AND (ai.value LIKE '.$db->quote('%'.$word.'%').') '.$group_by;
 
 						if ($include_context)  $result = $db->getAll($sql);
 						else $result = $db->getAssoc($sql);
@@ -784,15 +804,10 @@ class Search_Manager extends Asset
 						$result = unserialize($result);
 					}
 
-					if (is_null($field_asset_scores)) {
-						$field_asset_scores = $result;
-					} else {
-						$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, $field_search_logic);
-					}
+					$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, $field_search_logic, $word);
 				}
 
-				if (is_null($total_asset_scores)) $total_asset_scores = $field_asset_scores;
-				else $total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
+				$total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
 			}
 		}
 
@@ -836,8 +851,7 @@ class Search_Manager extends Asset
 							$result = unserialize($result);
 						}
 
-						if (is_null($field_asset_scores)) $field_asset_scores = $result;
-						else $field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
+						$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, 'AND');
 					break;
 
 					default :
@@ -858,6 +872,8 @@ class Search_Manager extends Asset
 						if ($field_search_logic != 'AND' && $field_search_logic != 'OR') $field_search_logic = 'AND';
 
 						foreach ($attr_info['words'] as $word) {
+							$this->_tmp['terms_used'][$word] = $word;
+
 							$result = $cm->loadFromCache($this, $search_cache_key.'metadata'.$word);
 							if (empty($result)) {
 								$sql = $start_sql.'
@@ -873,17 +889,12 @@ class Search_Manager extends Asset
 								$result = unserialize($result);
 							}
 
-							if (is_null($field_asset_scores)) {
-								$field_asset_scores = $result;
-							} else {
-								$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, $field_search_logic);
-							}
+							$field_asset_scores = $this->combineAssetScores($field_asset_scores, $result, $field_search_logic, $word);
 						}//end foreach word
 					break;
 				}
 
-				if (is_null($total_asset_scores)) $total_asset_scores = $field_asset_scores;
-				else $total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
+				$total_asset_scores = $this->combineAssetScores($total_asset_scores, $field_asset_scores, $search_info['logic']);
 			}
 		}
 
@@ -902,7 +913,10 @@ class Search_Manager extends Asset
 				assert_valid_db_result($result);
 
 				foreach (array_keys($result) as $exclude_assetid) {
-					if (isset($total_asset_scores[$exclude_assetid])) unset($total_asset_scores[$exclude_assetid]);
+					if (isset($total_asset_scores[$exclude_assetid])) {
+						unset($total_asset_scores[$exclude_assetid]);
+						unset($this->tmp_['term_totals'][$exclude_assetid]);
+					}
 				}
 			}
 		}
@@ -932,6 +946,13 @@ class Search_Manager extends Asset
 				foreach ($results as $assetid => $search_score) $total_asset_scores[$assetid] = $search_score;
 			}
 		}
+
+		$log_contents['terms']   = $this->_getTermTotals();
+		$log_contents['results'] = count($total_asset_scores);
+		$log_contents['assetid'] = $search_info['assetid'];
+
+		log_write($log_contents, 'search');
+
 		return $total_asset_scores;
 
 	}//end processSearch()
@@ -1047,6 +1068,36 @@ class Search_Manager extends Asset
 		return $search_results;
 
 	}//end processBasicSearch()
+
+
+	/**
+	* Counts the number of result asset ids each term relates to
+	*
+	* @access private
+	* @return void
+	*/
+	function _getTermTotals()
+	{
+		$terms_used  = array_get_index($this->_tmp, 'terms_used', Array());
+		$term_totals = array_get_index($this->_tmp, 'term_totals', Array());
+		if (empty($terms_used)) {
+			return Array();
+		}
+
+		$final_term_totals = Array();
+		foreach ($terms_used as $term) {
+			$final_term_totals[$term] = 0;
+		}
+
+		foreach ($term_totals as $asset_id => $terms) {
+			foreach ($terms as $term) {
+				$final_term_totals[$term]++;
+			}
+		}
+
+		return $final_term_totals;
+
+	}//end _getTermTotals()
 
 
 	/**
@@ -1276,11 +1327,26 @@ class Search_Manager extends Asset
 	* @return array
 	* @access private
 	*/
-	function combineAssetScores($asset_scores1, $asset_scores2, $logic='AND')
+	function combineAssetScores($asset_scores1, $asset_scores2, $logic='AND', $word=null)
 	{
-		if (!is_array($asset_scores1) && !is_array($asset_scores2)) return Array();
-		else if (!is_array($asset_scores2)) return $asset_scores1;
-		else if (!is_array($asset_scores1)) return $asset_scores2;
+
+		$result_scores = null;
+		if (!is_array($asset_scores1) && !is_array($asset_scores2)) {
+			$result_scores = Array();
+		} else if (!is_array($asset_scores2)) {
+			$result_scores = $asset_scores1;
+		} else if (!is_array($asset_scores1)) {
+			$result_scores = $asset_scores2;
+		}
+
+		if (!is_null($result_scores)) {
+			if (is_array($result_scores) && !empty($result_scores) && !empty($word)) {
+				foreach ($result_scores as $assetid => $data) {
+					$this->_tmp['term_totals'][$assetid][$word] = $word;
+				}
+			}
+			return $result_scores;
+		}
 
 		// find the intersection/union (depending on logic) of the assetids in field_asset_scores and results
 		$assets1 = array_keys($asset_scores1);
@@ -1289,12 +1355,16 @@ class Search_Manager extends Asset
 		$out_asset_scores = $asset_scores1;
 
 		if ($logic == 'AND') {
-
 			$common_assets = array_intersect($assets1, $assets2);
 
 			// get the assets that are to be removed in field_asset_scores
 			$removed_assets = array_diff($assets1, $assets2);
-			foreach ($removed_assets as $assetid) unset ($out_asset_scores[$assetid]);
+			foreach ($removed_assets as $assetid) {
+				unset($out_asset_scores[$assetid]);
+				if (isset($this->_tmp['term_totals'][$assetid])) {
+					unset($this->_tmp['term_totals'][$assetid]);
+				}
+			}
 
 			foreach ($common_assets as $assetid) {
 				if (isset($out_asset_scores[$assetid])) {
@@ -1302,6 +1372,11 @@ class Search_Manager extends Asset
 				} else {
 					$out_asset_scores[$assetid] = $asset_scores2[$assetid];
 				}
+
+				if (!empty($word)) {
+					$this->_tmp['term_totals'][$assetid][$word] = $word;
+				}
+
 			}
 
 		} else if ($logic == 'OR') {
@@ -1312,8 +1387,12 @@ class Search_Manager extends Asset
 				} else {
 					$out_asset_scores[$assetid] = $asset_scores2[$assetid];
 				}
-			}
 
+				if (!empty($word)) {
+					$this->_tmp['term_totals'][$assetid][$word] = $word;
+				}
+
+			}
 		}
 		return $out_asset_scores;
 
