@@ -198,18 +198,19 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 
 
 	/**
-	* Paint the interface for setting the design for this site
+	* Paint the interface for setting the designs for this site
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param string						$design_name	the name of the design (really just the value for the link)
+	* @param object Asset				$owner			the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o				the outputter class
+	* @param string						$prefix			prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintDesign(&$asset, &$o, $prefix) 
+	function _paintDesign($design_name, &$asset, &$o, $prefix) 
 	{
-		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false);
+		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false, $design_name);
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
 		if (!$asset->writeAccess()) {
@@ -233,28 +234,30 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		}
 
 		asort($contents);
-		combo_box($prefix.'_designid', $contents, false, $designid);
+		combo_box($prefix.'_'.$design_name.'_designid', $contents, false, $designid);
 
-	}// end paintDesign
+	}// end _paintDesign()
+
 
 	/**
-	* Processes the setting of the Design for this site
+	* Processes the setting of Designs for this site
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
+	* @param string						$design_name	the name of the design (really just the value for the link)
+	* @param object Asset				$owner			the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o				the outputter class
+	* @param string						$prefix			prefix for the form element
 	*
 	* @return boolean
-	* @access public
+	* @access private
 	*/
-	function processDesign(&$asset, &$o, $prefix) 
+	function _processDesign($design_name, &$asset, &$o, $prefix) 
 	{
-		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false);
+		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false, $design_name);
 		$designid = (empty($design_link)) ? 0 : $design_link['minorid'];
 
-		if (!isset($_POST[$prefix.'_designid'])) return false;
+		if (!isset($_POST[$prefix.'_'.$design_name.'_designid'])) return false;
 
-		$new_designid = $_POST[$prefix.'_designid'];
+		$new_designid = $_POST[$prefix.'_'.$design_name.'_designid'];
 
 		// if they are the same then there is nothing to do.
 		if ($designid == $new_designid) return true;
@@ -275,7 +278,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-			if (!$asset->createLink($design, SQ_LINK_USES)) {
+			if (!$asset->createLink($design, SQ_LINK_USES, $design_name)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -288,6 +291,70 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
 
+	}// end _processDesign()
+
+
+	/**
+	* Paint the interface for setting the design for this site
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintDesign(&$asset, &$o, $prefix) 
+	{
+		return $this->_paintDesign('design', $asset, $o, $prefix);
+	}// end paintDesign
+
+
+	/**
+	* Processes the setting of the Design for this site
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processDesign(&$asset, &$o, $prefix) 
+	{
+		return $this->_processDesign('design', $asset, $o, $prefix);
+	}// end processDesign()
+
+
+	/**
+	* Paint the interface for setting the design for this site
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintLoginDesign(&$asset, &$o, $prefix) 
+	{
+		return $this->_paintDesign('login_design', $asset, $o, $prefix);
+	}// end paintDesign
+
+
+	/**
+	* Processes the setting of the Design for this site
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processLoginDesign(&$asset, &$o, $prefix) 
+	{
+		return $this->_processDesign('login_design', $asset, $o, $prefix);
 	}// end processDesign()
 
 

@@ -120,6 +120,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 	}// end _processContents()
 
+
 	/**
 	* Takes the contents for the sub menu element and attempts to process it, 
 	* is a separate fn to allow menu types that don't want to allow sub menu's to override

@@ -281,22 +281,17 @@ class Design_Area_Menu_Type extends Design_Area
 			}// end if
 		} else {
 
-			if (!empty($args['escape']) && strtolower($args['escape']) != 'no') { 
-				$value_prefix = 'addslashes('.$value_prefix;
-				$value_suffix = $value_suffix.')';
-			}
-
 			switch($var) {
 				case 'page_link' :
 					echo '<', '?php echo $'.$this->attr('id_name').'_kid->getHref($'.$this->attr('id_name').'_base_url); ?', '>';
 					break;
 
 				case 'page_short_name' :
-					echo '<', '?php echo ', $value_prefix, '$'.$this->attr('id_name').'_kid->short_name', $value_suffix, '; ?', '>';
+					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_kid->short_name'.$value_suffix, $args), '; ?', '>';
 					break;
 
 				case 'page_name' :
-					echo '<', '?php echo ', $value_prefix, '$'.$this->attr('id_name').'_kid->name', $value_suffix, '; ?', '>';
+					echo '<', '?php echo ', $this->_escapeVar($value_prefix.'$'.$this->attr('id_name').'_kid->name'.$value_suffix, $args), '; ?', '>';
 					break;
 
 				default :

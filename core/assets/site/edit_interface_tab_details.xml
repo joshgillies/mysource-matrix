@@ -13,6 +13,14 @@
 				<process_function name="processDesign" />
 			</function_call>
 		</field>
+		<field>
+			<display_name>Login Design</display_name>
+			<note>The Design that is to be used whenever someone attempts to access an area that they aren't allowed to</note>
+			<function_call>
+				<paint_function   name="paintLoginDesign"   />
+				<process_function name="processLoginDesign" />
+			</function_call>
+		</field>
 	</section>
 	<section name="Special Page Links">
 		<field>

@@ -46,6 +46,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 	}// end paintParseFile()
 
+
 	/**
 	* Processes the URLs posted from the paintURLs fn above
 	*
@@ -63,17 +64,30 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		if (commit_file_upload($prefix.'_parse_file', $parse_file, true)) {
 			// tell the asset to update the customisation at the end of the interface processing
 			$asset->_tmp['update_customisations'] = true;
-
-			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			$str = file_to_string($parse_file);
-			$contents = $this->_parseString($str);
-
-			if (!is_null($contents) && $this->_processContents($asset, $contents)) {
-				$changes = true;
-			}
+			$changes = $this->parseAndProcessFile($asset);
 		}
 		return $changes;
 	}// end processParseFile()
+
+
+	/**
+	* Parses the parse file and processes the contents
+	*
+	* @param object Asset				$asset	the asset to which we belong
+	*
+	* @return boolean
+	* @access public
+	*/
+	function parseAndProcessFile(&$asset)
+	{
+		$parse_file = $asset->data_path.'/parse.txt';
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$str = file_to_string($parse_file);
+		$contents = $this->_parseString($str);
+		return (!is_null($contents) && $this->_processContents($asset, $contents));
+
+	}// end parseAndProcessFile()
+
 
 	/**
 	* Parses the string into an array recursively cut up into html and tag pieces
@@ -275,6 +289,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*
 	* @param object Asset	$asset		the asset to which we belong
 	*
+	* @return boolean
 	* @access private
 	*/
 	function createDesignFile(&$asset)

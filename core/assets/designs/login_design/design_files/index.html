@@ -1,0 +1,92 @@
+<html>
+<head>
+	<title>Login</title>
+	<link rel="stylesheet" type="text/css" href="files/styles.css">
+</head>
+<body marginwidth="0" marginheight="0" leftmargin="0" topmargin="0" bgcolor="#ffffff">
+<Resolve_AREA id_name="login_form" design_area="login_form">
+	<table height="100%" width="100%"cellspacing="0" cellpadding="0" border="1"><tr><td align="center" valign="middle">
+	<table width="400" cellpadding="1" cellspacing="1" border="0" align="center" bgcolor="#000000">
+		<tr>
+			<td class="sq-backend-heading" bgcolor="#FFFFFF">
+				<img src="files/swish.gif" width="20" height="20" border="0" align="left" alt="<Resolve_PRINT var='login_heading' />" />
+				<Resolve_PRINT var="login_heading" />
+			</td>
+		</tr>
+		<tr>
+			<td bgcolor="#FFFFFF">
+			<Resolve_LOGIN_SECTION>
+				<Resolve_SET name="give_username_focus"		value="true" />
+				<Resolve_SET name="forward_www_vars"		value="true" />
+				<Resolve_PRINT var="form_open" />
+				<table border="0" width="100%" cellspacing="0" cellpadding="0">
+					<tr>
+						<td>
+							<table cellpadding="3" cellspacing="0" border="0" width="100%">
+								<tr>
+									<td valign="top" class="sq-backend-warning">
+										<Resolve_PRINT var="system_messages" />
+									</td>
+								</tr>
+								<tr>
+									<td valign="top" class="sq-backend-sectionheading" style="font-weight: bold;">
+										Currently Logged in as : <Resolve_PRINT id_name="__global__" var="current_user" default="[Not Logged In]" attr="name" />
+									</td>
+								</tr>
+								<tr>
+									<td valign="top" class="sq-backend-data">
+										<Resolve_PRINT var="login_message" />
+									</td>
+								</tr>
+								<tr>
+									<td valign="top" class="sq-backend-field">
+										<table width="100%" border="0" cellspacing="0" cellpadding="3">
+											<tr>
+												<td rowspan="3" valign="bottom" class="sq-backend-field">
+													<input type="button" class="sq-backend-data" value="&lt;- Back" onclick="javascript: var referer = '<Resolve_PRINT var='referer' escape='yes' />'; if (referer.length) { window.location = referer } else { alert('Unable to derive where you came from'); } ">&nbsp;
+												</td>
+												<td nowrap valign="top" class="sq-backend-field">
+													Username: 
+												</td>
+												<td width="100%" valign="top" class="sq-backend-data">
+													<Resolve_PRINT var="username_box" size="10" class="sq-backend-data" />
+												</td>
+												<td rowspan="2" valign="bottom" align="right" class="sq-backend-field">
+													&nbsp;
+												</td>
+											</tr>
+											<tr>
+												<td nowrap valign="top" class="sq-backend-field">
+													Password: 
+												</td>
+												<td width="100%" valign="top" class="sq-backend-data">
+													<Resolve_PRINT var="password_box" size="10" class="sq-backend-data" />
+												</td>
+											</tr>
+											<tr>
+												<td class="sq-backend-field">
+													&nbsp;
+												</td>
+												<td class="sq-backend-field">
+													&nbsp;
+												</td>
+												<td valign="bottom" align="right" class="sq-backend-field">
+													<Resolve_PRINT var="submit_button" value="Login -&gt;" class="sq-backend-data" />
+												</td>
+											</tr>
+										</table>
+									</td>
+								</tr>
+							</table>
+						</td>
+					</tr>
+				</table>
+				<Resolve_PRINT var="form_close" />
+			</Resolve_LOGIN_SECTION>
+			</td>
+		</tr>
+	</table>
+	</td></tr></table>
+</Resolve_AREA>
+</body>
+</html>

@@ -1,0 +1,163 @@
+/*  ##############################################
+   ### MySource ------------------------------###
+  ##- Backend Edit file -- CSS ---------------##
+ #-- Copyright Squiz.net ---------------------#
+##############################################
+## This file is subject to version 1.0 of the
+## MySource License, that is bundled with
+## this package in the file LICENSE, and is
+## available at through the world-wide-web at
+## http://mysource.squiz.net/
+## If you did not receive a copy of the MySource
+## license and are unable to obtain it through
+## the world-wide-web, please contact us at
+## mysource@squiz.net so we can mail you a copy
+## immediately.
+##
+## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/assets/designs/login_design/design_files/files/Attic/styles.css,v $
+## $Revision: 1.1 $
+## $Author: brobertson $
+## $Date: 2003/06/21 08:28:19 $
+#######################################################################
+*/
+
+body {
+	background-color: #ffffff;
+}
+body, p, td, ul, li, input, select, textarea {
+	color: #000000;
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-size: 13px;
+}
+
+.sq-backend-smallprint {
+	color: #000000;
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: normal;
+}
+
+.sq-backend-fineprint {
+	color: #000000;
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+}
+
+.sq-backend-tabs {
+	color: #000000;
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-size: 9px;
+	font-weight: bold;
+}
+
+.sq-backend-mainheading {
+	color: #000000;
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 21px;
+}
+
+.sq-backend-heading {
+	color: #666666;
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.sq-backend-subheading {
+	color: #000000;
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+.sq-backend-sectionheading {
+	background-color: #b1bdcd;
+	color: #000000;
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-weight: bold;
+	font-size: 11px;
+}
+
+a, a.sq-backend {
+	color: black;
+	text-decoration: none;
+}
+
+a:hover, a.sq-backend:hover {
+	text-decoration: underline;
+}
+
+.sq-backend-field {
+	color: #000000;
+	background-color: #e0e0e0;
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+	font-weight: bold;
+}
+
+.sq-backend-data, td.sq-backend-data, .sq-form-field {
+	color: #000000;
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 11px;
+}
+
+td.sq-backend-data {
+	background-color: #f0f0f0;
+}
+
+.sq-backend-warning {
+	color: #000000;
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-size: 13px;
+	color: red;
+}
+
+.sq-backend-page-lineage, a.sq-backend-page-lineage {
+	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	font-weight: bold;
+	color: #ffffff;
+}
+
+a.sq-backend-page-lineage:hover {
+	color: #ffffff;
+}
+
+
+.sq-backend-asset {
+	color: #b1bdcd;
+}
+.sq-backend-custom-asset {
+	color: #000000;
+}
+
+
+.sq-backend-header-cell, .sq-backend-header-item {
+	background-color: #212E61;
+}
+
+.sq-backend-header-item {
+	color: #ffffff;
+	font-family:     Verdana, Arial, Helvetica, sans-serif;
+	font-size:       11px;
+	font-weight:     bold;
+	text-decoration: none; 
+}
+
+
+.sq-backend-message-header {
+	color: #000000;
+	font-family:     Verdana, Arial, Helvetica, sans-serif;
+	font-size:       11px;
+	font-weight:     bold;
+	text-decoration: none; 
+}
+
+.sq-backend-message-item {
+	color: #000000;
+	background-color: #ffffff;
+	font-family:     Verdana, Arial, Helvetica, sans-serif;
+	font-size:       10px;
+	text-decoration: none; 
+}

@@ -250,39 +250,36 @@ class Site extends Folder
 			return false;
 		}
 
-		$design_link = $this->getLink(SQ_LINK_USES, 'design', false);
+		$design_link = $this->getLink(SQ_LINK_USES, 'design', false, 'design');
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
+		$login_design_link = $this->getLink(SQ_LINK_USES, 'design', false, 'login_design');
+		$login_designid = (is_null($login_design_link)) ? 0 : $login_design_link['minorid'];
 
-		$index_link = $this->getSpecialPageLink('index');
-		// we can only create urls if we have an index page set
-		// because we set that assets id as the one attached to our urls in the lookup
-		if(!empty($index_link)) {
-			$urls = $this->getSiteURLs();
-			// if we have urls then do some url inserting
-			for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
-				$sql = 'INSERT INTO sq_asset_lookup
-						(url, assetid, root_urlid, designid)
-						VALUES
-						('.$db->quote($urls[$urlid]['url']).', 
-						'.$db->quote($this->id).', 
-						'.$db->quote($urlid).', 
-						'.$db->quote($designid).')';
-				$result = $db->query($sql);
-				if (DB::isError($result)) {
-					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-					return false;
-				}
-			}// end for urls
+		$urls = $this->getSiteURLs();
+		// if we have urls then do some url inserting
+		for(reset($urls); null !== ($urlid = key($urls)); next($urls)) {
+			$sql = 'INSERT INTO sq_asset_lookup
+					(url, assetid, root_urlid, designid, login_designid)
+					VALUES
+					('.$db->quote($urls[$urlid]['url']).', 
+					'.$db->quote($this->id).', 
+					'.$db->quote($urlid).', 
+					'.$db->quote($designid).',
+					'.$db->quote($login_designid).')';
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+				return false;
+			}
+		}// end for urls
 
-			// recusively call the kids update
-			$kids = $this->getLinks(SQ_LINK_NAV);
-			for($i = 0; $i < count($kids); $i++) {
-				$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
-				if (is_null($kid)) continue;
-				if (!$kid->_updateLookups()) return false;
-			}// end for kids
-
-		}// end if
+		// recusively call the kids update
+		$kids = $this->getLinks(SQ_LINK_NAV);
+		for($i = 0; $i < count($kids); $i++) {
+			$kid = &$GLOBALS['SQ_SYSTEM']->am->getAsset($kids[$i]['minorid'], $kids[$i]['type_code']);
+			if (is_null($kid)) continue;
+			if (!$kid->_updateLookups()) return false;
+		}// end for kids
 
 		return true;
 

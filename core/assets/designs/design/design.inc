@@ -178,15 +178,6 @@ class Design extends Design_Area
 	*/
 	function printVar($var, $args)
 	{
-
-		if (empty($args['escape']) || strtolower($args['escape']) == 'no') { 
-			$escape_start = '';
-			$escape_end = '';
-		} else {
-			$escape_start = 'addslashes(';
-			$escape_end = ')';
-		}
-
 		switch($var) {
 			case 'html_header' :
 				echo '
@@ -212,20 +203,41 @@ class Design extends Design_Area
 				break;
 
 			case 'page_link' :
-				echo '<?', 'php echo $ASSET->getHref(); ?', '>';
+				echo '<', '?php echo $ASSET->getHref(); ?', '>';
 				break;
 
 			case 'page_name' :
-				echo '<?', 'php echo ', $escape_start, '$ASSET->name', $escape_end, '; ?', '>';
+				echo '<', '?php echo ', $this->_escapeVar('$ASSET->name', $args), '; ?', '>';
+				break;
+
+			case 'current_user' :
+				
+				if (empty($args['attr'])) $args['attr'] = 'name';
+				switch($args['attr']) {
+					case 'username'   : 
+					case 'first_name' : 
+					case 'last_name'  : 
+						$attr = 'attr(\''.$args['attr'].'\')';
+						break;
+
+					case 'name' :
+					default :
+						$attr = 'name';
+
+				}// end switch
+
+				$default = (empty($args['default'])) ? '' : $args['default'];
+
+				echo '<', '?php echo ', $this->_escapeVar('($GLOBALS[\'SQ_SYSTEM\']->currentUserId()) ? $GLOBALS[\'SQ_SYSTEM\']->user->'.$attr.' : '.var_export($default, true), $args), '; ?', '>';
 				break;
 
 
 			case 'file_path' :
-				echo '<?php echo $DATA_PATH;?>/'.$this->webFileSuffix($args['filename']);
+				echo '<','?php echo $DATA_PATH;?', '>/', $this->webFileSuffix($args['filename']);
 				break;
 
 			default :
-				parent::printVar($var);
+				parent::printVar($var, $args);
 
 		}// end switch
 

@@ -177,6 +177,7 @@ class Design_Area extends Asset
 		return $edit_fns->_createDesignFileOutput($this->attr('contents'), $this, $design);
 	}//end printArea()
 
+
 	/**
 	* Outputs the var either as straight HTML or PHP code, depending on the type
 	*
@@ -187,7 +188,25 @@ class Design_Area extends Asset
 	*/
 	function printVar($var, $args)
 	{
-		echo $this->attr($var);
+		echo $this->_escapeVar($this->attr($var), $args);
+	}//end printVar()
+
+
+	/**
+	* Escapes a simple var (if requested) that is going to be printed in the PHP
+	*
+	* @param string	$value	the value 
+	* @param Array	$args	array of any extra arguments that existed in the print command
+	*
+	* @access public
+	*/
+	function _escapeVar($value, $args)
+	{
+		if (empty($args['escape']) || strtolower($args['escape']) == 'no') { 
+			return $value;
+		} else {
+			return 'addslashes('.$value.')';
+		}
 	}//end printVar()
 
 }//end class
