@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.162 2003/10/15 06:46:00 mmcintyre Exp $
+* $Id: asset_edit_interface.inc,v 1.163 2003/10/15 09:17:20 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -476,6 +476,7 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 							if (is_null($attr)) continue;
 							if (!$attr->setEditParams($field->children[2])) continue;
 							$attr->paint($prefix, !($field_access & SQ_EI_WRITE));
+							if ($field_access & SQ_EI_WRITE) $print_commit_button = true;
 
 							if ($field->children[1]->name == 'note' && $field->children[1]->content) {
 								$field->children[1]->content = str_replace('%description%', $attr->description, $field->children[1]->content);
