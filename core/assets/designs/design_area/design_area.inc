@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area.inc,v 1.32 2004/06/18 13:56:13 brobertson Exp $
+* $Id: design_area.inc,v 1.33 2004/08/30 03:50:31 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -118,7 +118,6 @@ class Design_Area extends Asset
 	function processBackend(&$o, &$link)
 	{
 		if (parent::processBackend($o, $link)) {
-
 			$designs = &$this->getDesigns();
 			for($i = 0, $max = count($designs); $i < $max; $i++) {
 				$designs[$i]->generateDesignFile(false);

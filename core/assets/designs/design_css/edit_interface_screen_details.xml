@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2004/08/21 08:18:53 amiller Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2004/08/30 03:50:31 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -29,13 +29,6 @@
 			<display_name>Design Name</display_name>
 			<note />
 			<text width="60" height="1" />
-		</field>
-		<field>
-			<display_name>Virtual Path</display_name>
-			<note>Use this path within your design parsefile to reference this CSS File</note>
-			<function_call>
-				<paint_function  name="paintVirtualPath" />
-			</function_call>
 		</field>
 	</section>
 	<section name="Parse File" write_access="write:parsing" read_access="write:">

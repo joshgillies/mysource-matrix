@@ -18,11 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.1 2004/08/20 06:48:30 amiller Exp $
+* $Id: edit_interface_screens.xml,v 1.2 2004/08/30 03:50:31 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <screens>
 	<screen code_name="parse_file"      display_name="Edit Parse File" icon="create" force_unlock="0" lock_type="parsing" />
+	<screen code_name="customisations"  display_name="Customisations"  icon="page"   lock_type="all" />
 </screens>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css_edit_fns.inc,v 1.2 2004/08/21 08:18:53 amiller Exp $
+* $Id: design_css_edit_fns.inc,v 1.3 2004/08/30 03:50:31 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -121,23 +121,6 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		return parent::_processUploadedFile($asset, $info);
 
 	}//end _processUploadedFile()
-	
-	
-	/**
-	* Paint the interface for the virtual path to the current css file
-	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintVirtualPath(&$asset, &$o, $prefix)
-	{
-		echo 'mysource_css/'.$asset->attr('id_name');
-		return false;
-	}//end paintVirtualPath()
 	
 	
 	/**
@@ -270,6 +253,154 @@ class Design_Css_Edit_Fns extends Design_Edit_Fns
 		return true;
 
 	}//end createDesignFile()
+
+
+	/**
+	*
+	* @param object Asset				$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintNewCustomisation(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) return false;
+		check_box($prefix.'_new_customisation');
+		text_box($prefix.'_new_customisation_name', $asset->name.'.css', 40);
+		return true;
+
+	}//end paintNewCustomisation()
+
+
+	/**
+	*
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processNewCustomisation(&$asset, &$o, $prefix)
+	{
+		if (empty($_POST[$prefix.'_new_customisation']) || !($new_name = trim($_POST[$prefix.'_new_customisation_name']))) {
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// First let's duplicate ourselves, ignoring dependants and the directory with the files
+		$map = Array();
+		$create_link = Array();
+
+		$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($asset, $create_link, $map, Array('attributes', 'permissions'), false);
+		if (is_null($clone)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->am->rememberAsset($da);
+
+		// Acquire a lock on the new object
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($clone->id, 'all')) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// Now let's morph the dupe into a design customisation
+		if (!$clone->morph('design_css_customisation')) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// and link it back to ourselves
+		if (!$asset->createLink($clone, SQ_LINK_TYPE_2, 'customisation', null, '1')) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		if (!($clone->setAttrValue('id_name', $new_name) && $clone->saveAttributes())) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+		// Now create the links to our design areas
+		$da_links = $asset->getDesignAreaLink();
+		foreach($da_links as $link) {
+			$da = &$am->getAsset($link['minorid'], $link['minor_type_code'], true);
+			if (is_null($da)) continue;
+			if (!$clone->createLink($da, SQ_LINK_TYPE_3, $link['value'], null, '1')) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}// end foreach
+
+		// set an initial web path
+		$initial_path = strtolower($new_name);
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($asset, $valid_paths, $clone->id, true);
+		if (!$clone->saveWebPaths($good_paths)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// link up all the files from this design to the customisation
+		$file_link_ids = Array();
+		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
+		foreach ($file_links as $link) {
+			$minor = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (!$clone->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
+				trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+				$am->forgetAsset($minor);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+		}
+		$am->forgetAsset($minor);
+		
+		// release the lock on the new object
+		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($clone->id, 'all')) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end processNewCustomisation()
+	
+	
+	/**
+	*
+	* @param object Asset				$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCurrentCustomisations(&$asset, &$o, $prefix)
+	{
+		$customisation_links = &$GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
+		if ($customisation_links) {
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			foreach($customisation_links as $link) {
+				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+				if (is_null($customisation)) continue;
+				echo '# ', $customisation->id, '&nbsp;&nbsp;<a href="', $customisation->getBackendHref(), '">', $customisation->name, '</a><br>';
+
+			}
+
+		} else {
+			?> No Customisations Created <?php
+		}
+
+	}//end paintCurrentCustomisations()
 
 }//end class
 

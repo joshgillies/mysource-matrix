@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.72 2004/08/27 05:36:23 amiller Exp $
+* $Id: design_edit_fns.inc,v 1.73 2004/08/30 03:50:31 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,8 +71,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		return false;
 
 	}//end paintParseFile()
-
-
+	
+	
 	/**
 	* Processes the interface for the parse file uploading
 	*
@@ -220,7 +220,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 	}//end paintEditParseFile()
 
-
+	
 	/**
 	* Processes the interface for the editing the parse file
 	*
@@ -301,7 +301,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		return (!is_null($contents) && $this->_processContents($asset, $contents) && $asset->saveAttributes());
 
 	}//end parseAndProcessFile()
-
+	
 
 	/**
 	* Parses the string into an array recursively cut up into html and tag pieces
@@ -406,7 +406,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$GLOBALS['SQ_PROCESSED_DESIGN_AREAS'] = Array();
 		}
 
-
 		// validate the design areas that we are going to use
 
 		$design_areas = Array();
@@ -427,7 +426,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				unset($da); // unset so we don't set the value or all ref's to null
 				$da = null; // do this so a new version will be created
 			}
-
+			
 			// if it doesn't exist, create it, and acquire the lock
 			if (is_null($da)) {
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset($design_area);
@@ -447,6 +446,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$design_areas[$id_name] = &$da;
 
 		}// end foreach
+		
 
 		// Now that we have set all the design areas up we can get on with the processing of the contents array
 		$remove_indexes = Array();
@@ -465,7 +465,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
-
 
 			// if they want this design area to be printed then what we need to do is alter the contents
 			// array to become a _PRINT operation
@@ -487,7 +486,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			}// end switch
 
 		}//end foreach
-
+		
 		// Now remove the elems
 		// reverse the order so we don't throw the numbers out of whack by removing one from the start
 		rsort($remove_indexes, SORT_NUMERIC);
@@ -582,6 +581,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// because we need other assets to be able to modify the lineage, for
 		// instance 404 pages.
 		$pre_str = '<?php
+		header("Content-type: text/html");
 		global $ASSET_LINEAGE;
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
 		if (!isset($ASSET_LINEAGE) || empty($ASSET_LINEAGE)) $ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
@@ -954,155 +954,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 	}//end paintCurrentCustomisations()
-
-
-	/**
-	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintCurrentCSSFiles(&$asset, &$o, $prefix)
-	{
-		$css_links = &$GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'design_css', true, 'major', 'design_css');
-		if ($css_links) {
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-			foreach($css_links as $link) {
-				$css = &$am->getAsset($link['minorid'], $link['minor_type_code']);
-				if (is_null($css)) continue;
-				echo '# ', $css->id, '&nbsp;&nbsp;<a href="', $css->getBackendHref(), '">', $css->name, '</a><br>';
-
-			}
-
-		} else {
-			?> No CSS Files Created <?php
-		}
-
-	}//end paintCurrentCSSFiles()
-
-
-/**
-	*
-	* @param object Asset				$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintNewCSSFile(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('links')) return false;
-		check_box($prefix.'_new_css_file');
-		text_box($prefix.'_new_css_file_name', $asset->name.'.css', 40);
-		return true;
-
-	}//end paintNewCSSFile()
-
-
-	/**
-	*
-	* @param object Asset				$asset	the asset to which we belong
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processNewCSSFile(&$asset, &$o, $prefix)
-	{
-		if (empty($_POST[$prefix.'_new_css_file']) || !($new_name = trim($_POST[$prefix.'_new_css_file_name']))) {
-			return false;
-		}
-		
-		// no ampersands in css file name
-		$new_name = str_replace('&', '_and_',  $new_name);
-
-		// no spaces in css file name
-		$new_name = preg_replace('/\\s+/', '_', $new_name);
-		
-		// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
-		$new_name = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $new_name);
-		
-		// ensure a virtual .css file extension
-		if (substr($new_name, -4) != '.css') $new_name = $new_name.'.css';
-		
-		$existing_ids = Array();
-		$existing = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3, 'design_css', false);
-		foreach ($existing as $link) $existing_ids[$link['minorid']] = $link['linkid'];
-		$existing_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($existing_ids));
-		
-		$existing_cssid = 0;
-		foreach ($existing_info as $existing_info) {
-			// if the name is the same, delete the link
-			if ($existing_info['name'] == $new_name) {
-				$existing_cssid = $existing_info['assetid'];
-				break;
-			}
-		}
-
-		if (!$existing_cssid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('design_css');
-			$css_file = new Design_Css();
-			$css_link = Array('asset' => $asset, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1);
-	
-			$css_file->setAttrValue('id_name', $new_name);
-	
-			if (!$css_file->create($css_link)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-		} else {
-			// we already have a design file with the same name, so we need to remove
-			// the TYPE_3 link and lookups and create a new CSS File asset instead
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-			foreach ($existing as $link) {
-				if (!$asset->deleteLink($link['linkid'])) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-				$existing_css = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid']);
-				$existing_css->updateLookups();
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($existing_css);
-			}
-			
-			// now create a new asset
-			$GLOBALS['SQ_SYSTEM']->am->includeAsset('design_css');
-			$css_file = new Design_Css();
-			$css_link = Array('asset' => $asset, 'link_type' => SQ_LINK_TYPE_2, 'dependant' => 1);
-	
-			$css_file->setAttrValue('id_name', $new_name);
-	
-			if (!$css_file->create($css_link)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			} 
-		}
-		
-		// link up all the files from this design to the new CSS file
-		$file_link_ids = Array();
-		$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
-
-		foreach ($file_links as $link) {
-			$minor = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-			if (!$css_file->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
-				trigger_error('Failed creating file link to CSS file', E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($minor);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-		}
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($minor);
-
-		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-
-		return true;
-
-	}//end processNewCustomisation()
 
 }//end class
 

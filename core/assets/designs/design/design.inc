@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.71 2004/08/27 05:36:22 amiller Exp $
+* $Id: design.inc,v 1.72 2004/08/30 03:50:31 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -97,11 +97,11 @@ class Design extends Design_Area
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array('design_customisation' => Array('card' => 'M', 'exclusive' => false),
-											 'design_css' 			=> Array('card' => 'M', 'exclusive' => false),
-											 'file'                 => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array('design_area'          => Array('card' => 'M', 'exclusive' => false)),
+		return Array(SQ_LINK_TYPE_1 => Array('design_css'              	=> Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_2 => Array('design_customisation' 	=> Array('card' => 'M', 'exclusive' => false),
+											 'design_css'              	=> Array('card' => 'M', 'exclusive' => false),
+ 											 'file'                 	=> Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_3 => Array('design_area'          	=> Array('card' => 'M', 'exclusive' => false)),
 					 SQ_LINK_NOTICE => Array()
 					);
 
@@ -186,12 +186,6 @@ class Design extends Design_Area
 			return true;
 		}
 		
-		if ($side_of_link == 'major' && is_a($asset, 'design_css')) {
-			$dependant = '1';
-			$value = "design_css";
-			return true;
-		}
-
 		return false;
 
 	}//end prepareLink()
@@ -258,40 +252,6 @@ class Design extends Design_Area
 
 		}//end if is_a file
 		
-		// special processing if we are creating a TYPE_2 linked CSS asset (inherited by customisations)
-		if (is_a($minor, 'design_css')) {
-
-			$am = &$GLOBALS['SQ_SYSTEM']->am;
-
-			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
-			foreach($customisation_links as $link) {
-				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
-				if (is_null($customisation)) continue;
-
-				$css_link_ids = Array();
-				$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($customisation->id, SQ_LINK_TYPE_2, 'design_css', false);
-				foreach ($css_links as $css) $css_link_ids[] = $css['minorid'];
-				$css_link_info = $am->getAssetInfo(array_unique($css_link_ids));
-
-				// is there already a direct file with the same name
-				$insert_link = true;
-				foreach ($css_link_info as $info) if ($info['name'] == $minor->name) $insert_link = false;
-
-				if ($insert_link) {
-					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
-						trigger_error('Failed creating CSS link to customisation', E_USER_WARNING);
-						$am->forgetAsset($customisation);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-				}
-
-				$am->forgetAsset($customisation);
-
-			}//end foreach customisation
-
-		}//end if is_a design_css
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
 
@@ -347,34 +307,6 @@ class Design extends Design_Area
 
 			}//end foreach customisation
 		} //end is_a file
-
-		// special processing if we are deleting a TYPE_2 linked CSS asset (a css asset overridding a design css)
-		if (is_a($minor, 'design_css')) {
-
-			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_customisation', true, 'major', 'customisation');
-			foreach($customisation_links as $link) {
-				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
-				if (is_null($customisation)) continue;
-
-				$css_link_ids = Array();
-				$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($customisation->id, SQ_LINK_TYPE_3, 'design_css', false);
-
-				foreach ($css_links as $link) {
-					if ($link['minorid'] == $delete_link['minorid']) {
-						// found the link to delete
-						if (!$customisation->deleteLink($link['linkid'])) {
-							trigger_error('Failed deleting CSS link from customisation', E_USER_WARNING);
-							$am->forgetAsset($customisation);
-							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							return false;
-						}
-					}
-				}// end foreach $file_links
-
-				$am->forgetAsset($customisation);
-
-			}//end foreach customisation
-		} //end is_a design_css
 		
 		if (!parent::deleteLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -436,16 +368,6 @@ class Design extends Design_Area
 			}
 		}
 		
-		// now get all design_css assets associated with this design as well
-		$css_link_ids = Array();
-		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'design_css', false);
-		foreach ($css_links as $link) $css_link_ids[] = $link['minorid'];
-		$css_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($css_link_ids));
-		
-		foreach($css_link_info as $css_info) {
-				$return_values[$css_info['assetid']] = $css_info['name'];
-		}
-		
 		return $return_values;
 
 	}//end getStylesheets()
@@ -465,7 +387,13 @@ class Design extends Design_Area
 		if ($id_name) {
 			return @$GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, 'design_area', false, $id_name);
 		} else {
-			return @$GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design_area', false);
+			// we have to remove the real CSS links, as they are not true design areas
+			$all_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_3, 'design_area', false);
+			$return_links = Array();
+			foreach ($all_links as $link) {
+				if ($link['minor_type_code'] != 'design_css') $return_links[] = $link;
+			}
+			return $return_links;
 		}
 
 	}//end getDesignAreaLink()
@@ -757,20 +685,6 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 			$FILE_URLS[$file_info['name']] = $file_url;
 		}
 		
-		// generate an array of all the URLs we are going to need for the attached CSS in this design
-		$css_link_ids = Array();
-		$css_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css', false);
-		foreach ($css_links as $link) $css_link_ids[] = $link['minorid'];
-
-		$css_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_unique($css_link_ids));
-		$css_link_urls = $GLOBALS['SQ_SYSTEM']->am->getAssetURL(array_unique($css_link_ids));
-
-		foreach ($css_link_info as $minorid => $css_info) {
-			$css_url = $css_link_urls[$minorid];
-			if ($css_url == '') $css_url = $system_root_url.'/?a='.$minorid;
-			$CSS_URLS[$css_info['name']] = $css_url;
-		}
-
 		$DATA_PATH = sq_web_path('data'); // this works because we know that all design areas are not going to be restricted
 		$LIB_PATH  = sq_web_path('lib');
 

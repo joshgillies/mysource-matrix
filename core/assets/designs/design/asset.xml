@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.9 2004/08/20 06:46:18 amiller Exp $
+* $Id: asset.xml,v 1.10 2004/08/30 03:50:31 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -41,5 +41,5 @@
 			<version>0.1</version>
 		</requirement>
 	</requirements>
-	<flash_menu_path />
+	<flash_menu_path>Design</flash_menu_path>
 </asset_info>

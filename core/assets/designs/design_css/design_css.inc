@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.2 2004/08/21 08:18:53 amiller Exp $
+* $Id: design_css.inc,v 1.3 2004/08/30 03:50:31 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,6 +54,38 @@ class Design_Css extends Design
 	}//end constructor
 
 
+	/**
+	* Create this asset
+	*
+	* @param array()	&$link	information used to create the initial link
+	*
+	* @see Asset::create()
+	* @return mixed int or false
+	* @access public
+	*/
+	function create(&$link)
+	{
+		$new_name = strtolower(trim($this->attr('id_name')));
+		
+		// no ampersands in css file name
+		$new_name = str_replace('&', '_and_',  $new_name);
+		
+		// no spaces in css file name
+		$new_name = preg_replace('/\\s+/', '_', $new_name);
+		
+		// taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
+		$new_name = preg_replace('/[^a-zA-Z0-9\-$_@.!*~(),]/', '',  $new_name);
+		
+		// ensure a virtual .css file extension
+		if (substr($new_name, -4) != '.css') $new_name = $new_name.'.css';
+		
+		$this->setAttrValue('id_name', $new_name);
+		
+		return parent::create($link);
+
+	}//end create()
+	
+	
 	/*
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
@@ -64,10 +96,9 @@ class Design_Css extends Design
 	function _getAllowedLinks()
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array('design_customisation' => Array('card' => 'M', 'exclusive' => false),
-											 'file'                 => Array('card' => 'M', 'exclusive' => false)),
-					 SQ_LINK_TYPE_3 => Array('design_area'          => Array('card' => 'M', 'exclusive' => false),
-											 'file'                 => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_2 => Array('design_css_customisation' => Array('card' => 'M', 'exclusive' => false),
+											 'file'                 	=> Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_TYPE_3 => Array('design_area'          	=> Array('card' => 'M', 'exclusive' => false)),
 					 SQ_LINK_NOTICE => Array()
 					);
 
@@ -93,41 +124,40 @@ class Design_Css extends Design
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!$this->deleteExistingLink($linkid)) {
+		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
+		if (is_a($minor, 'file')) {
+
+			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
+			foreach($customisation_links as $link) {
+				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+				if (is_null($customisation)) continue;
+
+				$file_link_ids = Array();
+				$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($customisation->id, SQ_LINK_TYPE_3, 'file', false);
+
+				foreach ($file_links as $link) {
+					if ($link['minorid'] == $delete_link['minorid']) {
+						// found the link to delete
+						if (!$customisation->deleteLink($link['linkid'])) {
+							trigger_error('Failed deleting file link from customisation', E_USER_WARNING);
+							$am->forgetAsset($customisation);
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							return false;
+						}
+					}
+				}// end foreach $file_links
+
+				$am->forgetAsset($customisation);
+
+			}//end foreach customisation
+		} //end is_a file
+
+		if (!parent::deleteLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
-		}
-
-		// special processing if we are deleting a TYPE_2 linked file (a file overridding a design file)
-		if ($delete_link['link_type'] == SQ_LINK_TYPE_2 && is_a($minor, 'file')) {
-
-			$design =& $this->getParentDesign();
-
-			// go through all the links of the design we are customisaing and find a file
-			// linked to it with the same name as the one we just deleted so it can take its place
-			$file_link_ids = Array();
-			$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($design->id, SQ_LINK_TYPE_2, 'file', false);
-			foreach ($file_links as $link) $file_link_ids[$link['minorid']] = $link['linkid'];
-			$file_link_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(array_keys($file_link_ids));
-
-			foreach ($file_link_info as $info) {
-				if ($info['name'] == $minor->name) {
-					// found the link to create
-					$new_minor = &$am->getAsset($info['assetid']);
-					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
-						trigger_error('Failed creating file link to CSS file', E_USER_WARNING);
-						$am->forgetAsset($design);
-						$am->forgetAsset($new_minor);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-					$am->forgetAsset($new_minor);
-				}
-			}// end foreach $file_links
-
-			$am->forgetAsset($design);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -194,11 +224,8 @@ class Design_Css extends Design
 	*/
 	function &getParentDesign()
 	{
-		if (empty($this->_tmp['parent_design'])) {
-			$parent_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'design', false, 'design_css', 'minor');
-			$this->_tmp['parent_design'] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_link['majorid'], $parent_link['major_type_code']);
-		}
-		return $this->_tmp['parent_design'];
+		// a css file is its own customisation
+		return $this;
 
 	}//end getParentDesign()
 
@@ -233,6 +260,23 @@ echo '/*   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
 		}// end switch
 
 	}//end printVar()
+
+
+	/**
+	* Processes a backend submission from this asset, returns true if all OK
+	*
+	* @param object Backend_Outputter	$o
+	* @param array(string)				&$link	information used to create the initial link
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processBackend(&$o, &$link)
+	{
+		$this->_tmp['generate_design'] = false;
+		return parent::processBackend($o, $link);
+
+	}// end processBackend()
 
 
 	/**
