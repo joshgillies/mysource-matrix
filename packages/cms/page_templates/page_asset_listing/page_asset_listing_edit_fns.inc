@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.20 2005/02/15 22:07:08 amiller Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.21 2005/02/16 09:03:29 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -55,7 +55,7 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 	}//end constructor
 
 
-/**
+	/**
 	* Paints the root node selection box
 	*
 	* @param object	Asset_Listing		&$rootid	asset being painted
@@ -140,7 +140,7 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 		
 		// now, create the new node links
 		foreach ($new_root_nodes as $index => $node) {
-			//first test to see if the node already exists -- if so, ignore it
+			// first test to see if the node already exists -- if so, ignore it
 			foreach($root_links as $root_link) {
 				if ($root_link['minorid'] == $node['assetid']) continue 2;
 			}
@@ -150,6 +150,7 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 				if (!$asset->createLink($new_root, SQ_LINK_NOTICE, 'root')) {
 					$ok = false;
 					trigger_error('Failed adding new root node "'.$new_root->name.'" [#'.$new_root->id.']', E_USER_WARNING);
+					break;
 				}
 			}
 		}
