@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: package_manager.inc,v 1.35 2003/11/10 03:00:33 mmcintyre Exp $
+* $Id: package_manager.inc,v 1.36 2003/11/11 04:30:18 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -194,7 +194,6 @@ class Package_Manager extends MySource_Object
 					'.$db->quote($this->info['name']).','.$db->quote($this->info['description']).')';
 		}//end if
 
-#		pre_echo($sql);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			// Abort Transaction
@@ -207,7 +206,6 @@ class Package_Manager extends MySource_Object
 		for (reset($install_order); null !== ($k = key($install_order)); next($install_order)) {
 			$type_code =& $install_order[$k];
 
-#			pre_echo('Updating : '.$type_code);
 			// now we simply call the management class for this object
 			$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$type_code.'_management.inc';
 			// include rather that require so that if it doesn't exist we can kill the transaction
@@ -222,21 +220,6 @@ class Package_Manager extends MySource_Object
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
-				// create an entry for event listeners
-				$listeners = $management->getEventList();
-				
-				if (!is_array($listeners)) {
-					trigger_error('Expected Array in function getEventList() (Asset "'.$type_code.'")', E_USER_WARNING);
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					return false;
-				}
-				if (!empty($listeners)) {
-					if (!$this->_addEventListeners($listeners, $type_code)) {
-						trigger_error('Could not add event Listeners for Asset "'.$type_code.'"', E_USER_WARNING);
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
-					}
-				}
 				
 			} else {
 				trigger_error('Asset "'.$type_code.'" does not have a management class defined for it in '.$file, E_USER_WARNING);
@@ -246,13 +229,6 @@ class Package_Manager extends MySource_Object
 			}
 
 		}//end for
-		if (isset($this->_tmp['event_listeners']) && !empty($this->_tmp['event_listeners'])) {
-			if (!$this->_writeEventsCacheFile()) {
-				trigger_error('Unable to write Event Listeners to cache file', E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				return false;
-			}
-		}
 
 		// create the xml summarys of screens info for the asset map
 		if (!$this->_createAssetMapScreensXML()) {
@@ -270,81 +246,6 @@ class Package_Manager extends MySource_Object
 
 
 	/**
-	* add static event listeners
-	* 
-	* @param Array		$listeners				array of listeners
-	* @param string		$listener_type_code		the type code of the listener
-	* @param boolean	$recursive_call			if TRUE this call is recursive
-	*
-	* @access private
-	* @return boolean
-	*/
-	function _addEventListeners($listeners=Array(), $listener_type_code='', $recurse_call=false)
-	{
-		if (!is_array($listeners)|| empty($listeners)) return false;
-		if (!isset($this->_tmp['event_listeners'])) $this->_tmp['event_listeners'] = Array();
-		
-		foreach ($listeners as $info) {
-			if (!in_array($info['broadcast_type_code'], $this->_tmp['event_listeners'])) {
-				$this->_tmp['event_listeners'][$info['broadcast_type_code']] = Array();
-			}
-			if (!in_array($info['event_name'], $this->_tmp['event_listeners'])) {
-				$this->_tmp['event_listeners'][$info['broadcast_type_code']][$info['event_name']] = Array();
-			}
-
-			// if they have been lazy, do some cleanup
-			if (!isset($info['options']['dependant'])) $info['options']['dependant'] = false;
-			if (!isset($info['options']['exclusive'])) $info['options']['exclusive'] = false;
-			if (!isset($info['options']['value'])) $info['options']['value'] = '';
-
-			if (!is_array($info['options'])) {
-				trigger_error('Event options for type_code "'.$listener_type_code.'" corrupt.', E_USER_WARNING);
-				return false;
-			}
-
-			$this->_tmp['event_listeners'][$info['broadcast_type_code']][$info['event_name']][$listener_type_code] = $info['options'];
-
-			// if the broadcast type code can be of multiple types, then we have to add some more
-			// entries for these in the array
-			
-			if (!$info['broadcast_strict_type_code'] && !$recurse_call) {
-				$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($info['broadcast_type_code']);
-				if (empty($type_codes)) continue;
-				foreach ($type_codes as $type_code) {
-					$info['broadcast_type_code'] = $type_code;
-					$this->_addEventListeners(Array($info), $listener_type_code, true);
-				}
-			}
-		}
-		return true;
-
-	} // end _addEventListeners()
-
-
-	/**
-	* writes the events to a file containing an array
-	*
-	* @access private
-	* @return boolean
-	*/
-	function _writeEventsCacheFile()
-	{
-		$output = '<'.'?php'."\n".' $cached_event_listeners_array = ';
-		$output .= var_export($this->_tmp['event_listeners'], true);
-		$output .= "\n?".">";
-		
-		if (!string_to_file($output, SQ_DATA_PATH.'/private/events/event_listeners.inc')) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-		unset($this->_tmp['event_listeners']);
-		
-		return true;
-
-	} // end _writeEventsCacheFile()
-
-
-	/**
 	* Recursivly searches through the passed package's directory for asset.xml files
 	* and enter's them into the $this->assets array with the details
 	*
@@ -357,6 +258,16 @@ class Package_Manager extends MySource_Object
 	}//end _loadPackageAssets()
 
 
+	/**
+	* Recusively load information for the assets in this package
+	*
+	* @param Array		&$assets	the assets to load the information for
+	* @param string		$full_path	the absolute path to the directory where the assets exist
+	* @param string		$base_path	the base path where the assets exists eg. for cms base_path=package/cms
+	*
+	* @return void
+	* @access private
+	*/
 	function _recurseLoadPackageAssets(&$assets, $full_path, $base_path)
 	{
 		$d = dir($full_path);
@@ -404,8 +315,6 @@ class Package_Manager extends MySource_Object
 
 		while(count($asset_types)) {
 
-#			pre_echo('---- Start While : '.$x.'----');
-
 			$last_count = count($asset_types);
 
 			for($i = 0; $i < count($asset_types); $i++) {
@@ -413,22 +322,16 @@ class Package_Manager extends MySource_Object
 				$type_code = $asset_types[$i];
 				$parent    = $this->assets[$type_code]['parent_type'];
 
-#				pre_echo('---- Start For : '.$i.', '.$type_code.', '.$parent.' ----');
-#				pre_echo($asset_types);
-#				pre_echo($install_order);
-
 				$remove = false;
 
 				// if this type is inheritted from an existing type, then all OK
 				// but not if this type is in this package
 				if (($parent == 'asset' || $GLOBALS['SQ_SYSTEM']->am->installed($parent)) && !in_array($parent, $asset_types)) {
-#					pre_echo('Asset Installed');
 					$install_order[] = $type_code;
 					$remove = true;
 
 				// if this type is inheriting from a type that will be installed before it, then all OK
 				} elseif (in_array($parent, $install_order)) {
-#					pre_echo('Asset to be installed before');
 					$install_order[] = $type_code;
 					$remove = true;
 
@@ -641,8 +544,6 @@ class Package_Manager extends MySource_Object
 
 		}
 
-#		pre_echo($arr);
-
 		return $arr;
 
 	}//end getTypeAncestors()
@@ -667,6 +568,36 @@ class Package_Manager extends MySource_Object
 		return ($field) ? $this->assets[$type_code][$field] : $this->assets[$type_code];
 
 	}//end getTypeInfo()
+
+
+	/**
+	* Iterate through the asset management class and install any events.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function installEventListeners()
+	{
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+
+		foreach (array_keys($this->assets) as $type_code) {
+			$file = SQ_SYSTEM_ROOT.'/'.$this->assets[$type_code]['dir'].'/'.$type_code.'_management.inc';
+			require_once $file;
+			$class = $type_code.'_management';
+
+			// make sure the class exists
+			if (class_exists($class)) {
+				$management = new $class($this);
+				$events = $management->getEventList();
+				if (!is_array($events)) {
+					trigger_error('Expected Array in function getEventList() (Asset "'.$type_code.'"), got '.gettype($events), E_USER_WARNING);
+					return false;
+				}
+				if (empty($events)) continue;
+				$em->installStaticEvents($events, $type_code);
+			}
+		}//end foreach
+	}//end installEventListeners()
 
 }//end class
 

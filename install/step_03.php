@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: step_03.php,v 1.19 2003/10/21 04:07:59 brobertson Exp $
+* $Id: step_03.php,v 1.20 2003/11/11 04:32:05 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -231,5 +231,21 @@ while (false !== ($entry = $d->read())) {
 	}
 }
 $d->close();
+
+/* INSTALL EVENT LISTENERS */
+
+// we need to install any event listeners here, now that we have installed all the asset types.
+$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
+
+foreach ($packages as $package) {
+	$pm = new Package_Manager($package['code_name']);
+	if ($pm->package) {
+		$pm->installEventListeners();
+	}
+}
+$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+$em->writeStaticEventsCacheFile();
+
+pre_echo('EVENT LISTENERS DONE');
 
 ?>

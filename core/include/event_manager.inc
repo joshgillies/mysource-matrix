@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: event_manager.inc,v 1.1 2003/11/10 02:55:12 mmcintyre Exp $
+* $Id: event_manager.inc,v 1.2 2003/11/11 04:31:46 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -225,7 +225,10 @@ class Event_Manager extends MySource_Object
 		
 		// create a temp entry for the event listeners (runtime wide as event_manager is cached)
 		if (!isset($this->_tmp['event_listeners'])) {
+			if (!file_exists(SQ_DATA_PATH.'/private/events/event_listeners.inc')) return false;
+			
 			require_once SQ_DATA_PATH.'/private/events/event_listeners.inc';
+			if (!isset($cached_event_listeners_array)) return false;
 			$this->_tmp['event_listeners'] = $cached_event_listeners_array;
 		}
 
@@ -350,6 +353,80 @@ class Event_Manager extends MySource_Object
 
 	}//end _getDiscreteAssets()
 
+	
+	/**
+	* writes the cache file of the current static events in the system
+	*
+	* @return boolean
+	* @access public
+	*/
+	function writeStaticEventsCacheFile()
+	{
+		if (!isset($this->_tmp['event_listeners']) || empty($this->_tmp['event_listeners'])) return false;
+		
+		$output = '<'.'?php'."\n".' $cached_event_listeners_array = ';
+		$output .= var_export($this->_tmp['event_listeners'], true);
+		$output .= "\n?".">";
+		
+		if (!string_to_file($output, SQ_DATA_PATH.'/private/events/event_listeners.inc')) return false;
+		unset($this->_tmp['event_listeners']);
+		
+		return true;
+
+	}//end writeStaticEventsCacheFile()
+
+
+	/**
+	* add static event listeners
+	* 
+	* @param Array		$listeners				array of listeners
+	* @param string		$listener_type_code		the type code of the listener
+	* @param boolean	$recursive_call			if TRUE this call is recursive
+	*
+	* @access private
+	* @return boolean
+	*/
+	function installStaticEvents($listeners=Array(), $listener_type_code='', $recursive_call=false)
+	{
+		if (!is_array($listeners)|| empty($listeners)) return false;
+		if (!isset($this->_tmp['event_listeners'])) $this->_tmp['event_listeners'] = Array();
+
+		foreach ($listeners as $info) {
+			
+			if (!isset($this->_tmp['event_listeners'][$info['broadcast_type_code']])) {
+				$this->_tmp['event_listeners'][$info['broadcast_type_code']] = Array();
+			}
+			if (!isset($this->_tmp['event_listeners'][$info['broadcast_type_code']][$info['event_name']])) {
+				$this->_tmp['event_listeners'][$info['broadcast_type_code']][$info['event_name']] = Array();
+			}
+
+			// if they have been lazy, do some cleanup
+			if (!isset($info['options']['dependant'])) $info['options']['dependant'] = false;
+			if (!isset($info['options']['exclusive'])) $info['options']['exclusive'] = false;
+			if (!isset($info['options']['value'])) $info['options']['value'] = '';
+
+			if (!is_array($info['options'])) {
+				trigger_error('Expecting Array for event options for "'.$listener_type_code.'", got '.gettype($info['options']), E_USER_WARNING);
+				return false;
+			}
+				
+			$this->_tmp['event_listeners'][$info['broadcast_type_code']][$info['event_name']][$listener_type_code] = $info['options'];
+
+			// if the broadcast type code can be of multiple types, then we have to add some more
+			// entries for these in the array
+			
+			if (!$info['broadcast_strict_type_code'] && !$recursive_call) {
+				$type_codes = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($info['broadcast_type_code']);
+				if (empty($type_codes)) continue;
+				foreach ($type_codes as $type_code) {
+					$info['broadcast_type_code'] = $type_code;
+					$this->installStaticEvents(Array($info), $listener_type_code, true);
+				}
+			}
+		}
+		return true;
+
+	} // end installStaticEvents()
 
 }//end class
 
