@@ -1,6 +1,7 @@
 <?php
 
 require_once  dirname(__FILE__).'/../form/form.inc';
+require_once SQ_FUDGE_PATH .'/general/www.inc';
 
 /**
 * Form_Email
@@ -25,7 +26,8 @@ class Form_Email extends Form
 	function Form_Email($assetid=0) 
 	{
 		$this->Form($assetid);
-	}
+	
+	} // end Form_Email()
 
 
 	/**
@@ -58,7 +60,6 @@ class Form_Email extends Form
 			$this->id = 0;
 			return false;
 		}
-		
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return $linkid;
@@ -87,61 +88,6 @@ class Form_Email extends Form
 
 
 	/**
-	* Returns TRUE if we can delete the passed link, or a string with the error msg
-	*
-	* @param int	$linkid	the link id of the link to remove
-	*
-	* @return mixed TRUE or error msg string
-	* @access public
-	*/
-	function canDeleteLink($linkid)
-	{
-		return parent::canDeleteLink($linkid);
-	
-	}//end canDeleteLink()
-
-
-	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @see Asset::_getAllowLinks()
-	* @access private
-	*/
-	function _getAllowedLinks()
-	{
-		$page_links = parent::_getAllowedLinks();
-		return $page_links;
-
-	}//end _getAllowedLinks()
-
-
-	/**
-	* Prints out the backend interface for the asset
-	*
-	* @param object Backend_Outputter $o
-	*
-	* @access public
-	*/
-	function paintBackend(&$o)
-	{
-		parent::paintBackend($o);
-
-	}// end paintBackend()
-
-
-	/**
-	* Called by the design to print the body of this asset
-	* it's up to the kids to override
-	*
-	* @access public
-	*/
-	function printBody()
-	{
-		parent::printBody();
-			
-	}// end printBody()
-
-	/**
 	* Returns name of the asset
 	*
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
@@ -152,16 +98,26 @@ class Form_Email extends Form
 	function _getName($short_name=false)
 	{
 		return $this->attr('name');
-	}//end _getName();
+	
+	}// end _getName();
 
 
+	/**
+	* sends all the emails when the form is completed
+	*
+	* @access public
+	* @return boolean
+	*/
 	function finishForm()
 	{
 		parent::finishForm();
 		$this->mailRecipients();
 		$this->mailReceipt();
 		$this->SendToFriends();
-	}
+
+		return true;
+
+	} // end finishForm()
 
 	/**
 	* returns form information (site name, site id, page name, page id, url, submission date)
@@ -184,7 +140,8 @@ class Form_Email extends Form
 		}
 		$information .= ($html) ? "</table>" : '';
 		return $information;
-	}
+
+	} // end getFormInfo
 
 
 	/**
@@ -267,14 +224,15 @@ class Form_Email extends Form
 		// spam... baby, spam!
 		foreach ($addresses as $address) {
 			// make sure these are valid emails, otherwise, just strip them out
-			if (!$this->isValidEmail(trim($address))) continue;
+			if (!valid_email(trim($address))) continue;
 			
 			$from_address = ($si_address) ? $si_address : trim($address);
 			mail(trim($address), $subject, $body, 'From: '.$from_address.$extras);
 		}
 		
 		return true;
-	}
+
+	} // end mailRecipients()
 
 
 	/**
@@ -295,7 +253,7 @@ class Form_Email extends Form
 			$friends = explode(',', $friends);
 
 			foreach ($friends as $friend) {
-				if (!$this->isValidEmail(trim($friend))) continue;
+				if (!valid_email(trim($friend))) continue;
 				mail(trim($friend), $subject, $message, 'From: '.$from_address);
 			}
 			return true;
@@ -303,21 +261,6 @@ class Form_Email extends Form
 		return false;
 	
 	} // end sendToFriends()
-
-
-	/**
-	* returns if a email is valid or not
-	*
-	* @param string $email the address to check 
-	*
-	* @access public
-	* @return boolean
-	*/
-	function isValidEmail($email)
-	{
-		return preg_match('/^([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-]+)*@([a-zA-Z0-9])+(\.[a-zA-Z0-9_-]+)+$/', $email);
-	}
-
 
 }//end class
 ?>
