@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.140 2003/10/16 01:58:25 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.141 2003/10/17 01:33:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3580,7 +3580,7 @@ class Asset_Manager extends MySource_Object
 	*
 	* @param string	$asset_type	the type code to get the icon for
 	*
-	* @return array(int => string) returns an array of assetid and hrefs to the wanted screen
+	* @return string
 	* @access public
 	*/
 	function getAssetIconURL($asset_type)
