@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.26 2004/02/12 01:33:08 diarandine Exp $
+* $Id: metadata_manager.inc,v 1.27 2004/02/16 23:42:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -363,11 +363,13 @@ class Metadata_Manager extends MySource_Object
 			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
 			if (is_null($schema)) {
 				trigger_error('Failed setting metadata, Schema #'.$schemaid.' does not exist', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
 			if (!is_a($schema, 'metadata_schema')) {
 				trigger_error('Failed setting metadata, "'.$schema->name.'" (Asset #'.$schemaid.') is not a metadata schema', E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
@@ -445,7 +447,7 @@ class Metadata_Manager extends MySource_Object
 				foreach ($fieldids as $fieldid => $field_type) {
 
 					$field =& $am->getAsset($fieldid, $field_type);
-
+					
 					if (isset($metadata['sections'][$section->name]['fields'][$field->name]['value'])) {
 						$value = $metadata['sections'][$section->name]['fields'][$field->name]['value'];
 					} else {
