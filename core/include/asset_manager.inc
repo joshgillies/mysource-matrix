@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.177 2004/02/16 01:05:23 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.178 2004/02/16 05:17:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3544,9 +3544,12 @@ class Asset_Manager extends MySource_Object
 
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-		$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, '.$protocol_select.'
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.assetid = a.assetid
+		$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, '.$protocol_select.', MIN(al.link_type) AS link_type
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l
+				  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.assetid = a.assetid
+				  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link al ON a.assetid = al.minorid
 				'.$where.'
+				GROUP BY l.url, l.assetid, a.name, a.short_name, a.type_code, protocol
 				ORDER BY l.url ASC';
 
 		$result = $db->getAll($sql);
