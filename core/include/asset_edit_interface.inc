@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.229 2004/11/23 22:17:23 tbarrett Exp $
+* $Id: asset_edit_interface.inc,v 1.230 2004/11/24 05:35:14 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.229 $
+* @version $Revision: 1.230 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -289,7 +289,7 @@ class Asset_Edit_Interface extends MySource_Object
 					$o->openSection('Locking / Editing');
 					$o->openField('&nbsp;');
 
-					?><p style="margin-top: 5px;"><?php
+					?><p style="margin-top: 5px; margin-bottom: 2px"><?php
 						if (!$have_all_locks) {
 							if ($need_force_locks) {
 								if ($can_force_locks) {
@@ -301,7 +301,7 @@ class Asset_Edit_Interface extends MySource_Object
 						}
 						if ($have_any_locks) echo 'Press the <span class="sq-backend-button-fake">Release Lock(s)</span> button to release the locks you hold on "'.$owner->name.'". ';
 						?>
-						<b><a href="#" onClick="Javascript: sq_toggle_lock_info();" id="sq_lock_info_toggle">Show Lock Details</a></b><br/><br/>
+						<b><a href="#" onClick="Javascript: sq_toggle_lock_info();" id="sq_lock_info_toggle">Show Lock Details</a></b><br/>
 					</p>
 
 					<div id="sq_lock_info" style="display: none;">
@@ -383,7 +383,7 @@ class Asset_Edit_Interface extends MySource_Object
 				<?php
 
 				if (!$have_all_locks || $have_any_locks) {
-					?><div style="margin-top: 4px;"><?php
+					?><div style="margin-top: 4px; margin-bottom: 0px"><?php
 				}
 
 				if (!$have_all_locks) {
