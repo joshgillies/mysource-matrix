@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.251 2005/03/31 04:26:46 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.252 2005/03/31 04:54:26 lwright Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.251 $
+* @version $Revision: 1.252 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -1653,6 +1653,8 @@ class Asset_Edit_Interface extends MySource_Object
 								continue;
 							}
 
+							$last_child = count($field->children)-1;
+
 							$field_access = $this->_getAccess($owner, $field, $prefix, $section_access);
 							if (!($field_access & SQ_EI_WRITE)) continue;
 
@@ -1662,7 +1664,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 								$attr = &$owner->getAttribute($field->attributes['attribute']);
 								if (is_null($attr)) continue;
-								if (!$attr->setEditParams($field->children[2])) continue;
+								if (!$attr->setEditParams($field->children[$last_child])) continue;
 
 								$revert_attr = $attr;
 								$attr->process($prefix.'_'.$attr->id);
@@ -1674,9 +1676,9 @@ class Asset_Edit_Interface extends MySource_Object
 								}
 								unset($revert_attr);
 
-							} else if ($field->children[2]->name == 'function_call') {
+							} else if ($field->children[$last_child]->name == 'function_call') {
 
-								$process_node = &$field->children[2]->children[1];
+								$process_node = &$field->children[$last_child]->children[1];
 
 								// if this ain't a field, or if we are printing the create interface and this field is not included in that, ignore it
 								if ($field->name != 'field' || ($creating && !in_array($process_node->attributes['name'], $create_sections[$section->attributes['name']]))) continue;
@@ -1686,7 +1688,7 @@ class Asset_Edit_Interface extends MySource_Object
 									continue;
 								// There is something declared but the bloody thing doesn't exist - inform the Idiot
 								} else if (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
-									trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[2]->content.'"', E_USER_WARNING);
+									trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[$last_child]->content.'"', E_USER_WARNING);
 								} else {
 									if ($this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix)) $ret_val = true;
 								}
