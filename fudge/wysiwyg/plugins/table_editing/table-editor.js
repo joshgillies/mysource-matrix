@@ -44,7 +44,7 @@ TCell = function(parent)
 		if (this.rowspan > 1) out += ' rowspan="' + this.rowspan + '"';
 		if (this.abbr != null) out += ' abbr="' + this.abbr + '"';
 		if (this.scope != null) out += ' scope="' + this.scope + '"';
-		if (this.align != "left") out += ' align="' + this.align + '"';
+		if ((this.align != "left" && !this.th) || (this.align != "center" && this.th)) out += ' align="' + this.align + '"';
 		if (this.valign != "middle") out += ' valign="' + this.valign + '"';
 		if (this.headers.length > 0) {
 			out +=' headers="';
@@ -84,7 +84,7 @@ TCell = function(parent)
 		if (this.rowspan > 1) out += ' rowspan="' + this.rowspan + '"';
 		if (this.abbr != null && this.abbr != "") out += ' abbr="' + this.abbr + '"';
 		if (this.scope != null && this.scope != "") out += ' scope="' + this.scope + '"';
-		if (this.align != "left") out += ' align="' + this.align + '"';
+		if ((this.align != "left" && !this.th) || (this.align != "center" && this.th)) out += ' align="' + this.align + '"';
 		if (this.valign != "middle") out += ' valign="' + this.valign + '"';
 		if (this.headers.length > 0) {
 			out +=' headers="';
