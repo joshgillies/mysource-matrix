@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.193 2003/12/21 22:48:49 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.194 2003/12/28 21:27:03 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -728,7 +728,7 @@ class Asset_Edit_Interface extends MySource_Object
 							$o->openField($field->children[0]->content, $field->attributes['format']);
 
 							if (empty($paint_node->attributes['name']) || !method_exists($this->_edit_fns, $paint_node->attributes['name'])) {
-								echo 'Function not found for painting';
+								echo 'Function "'.$paint_node->attributes['name'].'" not found for painting';
 							} else {
 								if ($this->_edit_fns->{$paint_node->attributes['name']}($owner, $o, $prefix)) {
 									$print_commit_button = true;
