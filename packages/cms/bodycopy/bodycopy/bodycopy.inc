@@ -194,8 +194,6 @@ class Bodycopy extends Asset
 					$sq_asset_url_list[$assetid] = $href;
 				}
 
-				bam($sq_asset_url_list);
-
 				include($this->data_path.'/content_file.php');
 			}
 		} else {
