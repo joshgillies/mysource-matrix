@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cal_navigator.css,v 1.1 2004/09/10 01:21:56 gsherwood Exp $
+* $Id: cal_navigator.css,v 1.2 2004/09/10 01:48:05 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,7 +55,7 @@
 	background:#CCCCCC;
 	text-align:center;
 	vertical-align:middle;
-	cursor:pointer
+	cursor:default;
 }
 
 
@@ -176,4 +176,15 @@
 	text-align:center;
 	vertical-align:middle;
 	cursor:pointer
+}
+
+/* Close button			*/
+.cal_close
+{
+	color:#FF0000;
+	text-align:center;
+	vertical-align:middle;
+	cursor:pointer;
+	widht: 10px;
+	height: 10px;
 }

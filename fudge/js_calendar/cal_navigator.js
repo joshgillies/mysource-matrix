@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cal_navigator.js,v 1.1 2004/09/10 01:21:56 gsherwood Exp $
+* $Id: cal_navigator.js,v 1.2 2004/09/10 01:48:05 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -93,6 +93,26 @@ function c_show(e)
 	div.style.left = e.clientX + "px";
 	div.style.top  = e.clientY + "px";
 	div.innerHTML = this.output();
+	if (document.getElementById('ie_'+this.varname+'_iframe') == null && document.body.insertAdjacentHTML) {
+		var iframe = '<iframe id="ie_'+this.varname+'_iframe" scrolling="no" border="0" frameborder="0" style="position:absolute;top:-1000px;left:-1000px;width:10px; height:10px;visibility:hidden" src="about:blank"></iframe>'+div.outerHTML;
+		document.body.insertAdjacentHTML('beforeEnd', iframe);
+		div.id = this.divname + "_old";
+		div.innerHTML = "";
+		
+		div = document.getElementById(this.divname);
+	}
+	if (document.body.insertAdjacentHTML) {
+		var cal_height = document.getElementById(this.divname).offsetHeight;
+		var cal_width  = document.getElementById(this.divname).offsetWidth;
+		var cal_top    = document.getElementById(this.divname).style.top;
+		var cal_left   = document.getElementById(this.divname).style.left;
+		var iframe = document.getElementById('ie_'+this.varname+'_iframe');
+		iframe.style.top	= cal_top;
+		iframe.style.left	= cal_left;
+		iframe.style.width	= cal_width + "px";
+		iframe.style.height	= cal_height + "px";
+		iframe.style.visibility	= "visible";
+	}
 	div.style.visibility = "visible";
 
 }//end c_show()
@@ -110,6 +130,7 @@ function c_hide()
 	this.popup = true;
 	var div = document.getElementById(this.divname);
 	div.style.visibility = "hidden";
+	if (window.event) document.getElementById('ie_'+this.varname+'_iframe').style.visibility = "hidden";
 
 }//end c_hide()
 
@@ -128,7 +149,7 @@ function c_draw()
 	if (!this.popup || !this.first_time) document.getElementById(this.divname).innerHTML = this.output();
 	else	if (this.imageURL != null) output = '<img src="' + this.imageURL + '" style="cursor:pointer" onclick="'+this.varname+'.show(event);">';
 	        else output = '<div style="width:20px;height:20px;background:#CCCCCC;border:solid 1px #DDDDDD;cursor:pointer" onclick="'+this.varname+'.show(event);"';
-	
+
 	if (this.popup && this.first_time) document.write(output);
 	
 	this.first_time = false;
@@ -241,7 +262,8 @@ function c_output()
 	//table difinition
 	var output = '<table class="cal" cellspacing="1" width="' + this.width + '" height="' + this.height + '">';
 	
-	//
+	//top bar for popup
+	if (this.popup)	output += '<tr style="height:1px"><td colspan="' + (colspan + 2) + '" align="right"><span class="cal_close" onclick="' + this.varname +'.hide();">&times;</span></td></tr>';
 	
 	
 	//month caption
