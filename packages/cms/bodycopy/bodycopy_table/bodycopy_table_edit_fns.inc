@@ -26,7 +26,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	function Bodycopy_Table_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-	}
+	}//end constructor
 
 
 	/**
@@ -553,9 +553,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		if ($updated) $this->generateContentFile($asset);
-	
 		return $updated;
-
 	}//end processTable()
 
 
@@ -567,7 +565,8 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function generateContentFile(&$asset) {
+	function generateContentFile(&$asset)
+	{
 		ob_start();
 		$this->paint($asset, true);
 		$output = ob_get_contents();
@@ -583,7 +582,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				if ($ereg_asset->id) {
 					
 					// dont show errors here if the link already exists
-					// as we rely on the fact that this ereg)asset cant be notice linked
+					// as we rely on the fact that this ereg_asset cant be notice linked
 					// to asset mutiple times to step redunant links from
 					// being created (eg same image on page 10 times should only
 					// produce one notice link)
@@ -599,7 +598,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		create_directory($asset->data_path);
 		if (string_to_file($output, $asset->data_path.'/content_file.inc')) return true;
 		return false;
-	}
+	}//end generateContentFile()
 
 
 	/**

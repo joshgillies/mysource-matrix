@@ -27,7 +27,7 @@ class Bodycopy_Table extends Asset
 	{
 		$this->_ser_attrs = true;
 		$this->Asset($assetid);
-	}
+	}//end constructor
 
 
 	/**
@@ -83,8 +83,8 @@ class Bodycopy_Table extends Asset
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		return true;
-
 	}//end create()
+
 
 	/**
 	* Creates a link between this asset and the passed asset, of a certain type
@@ -100,9 +100,7 @@ class Bodycopy_Table extends Asset
 		if (is_a($minor, 'content_type')) {
 			$dependant = '1';
 		}
-
 		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant);
-
 	}// end createLink()
 
 

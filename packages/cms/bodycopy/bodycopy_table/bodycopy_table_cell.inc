@@ -22,7 +22,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	function BodyCopy_Table_Cell()
 	{
 		parent::Resolve_Object();
-	}
+	}//end constructor
 
 
 	/**
@@ -67,7 +67,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		if (!$this->attributes['linkid']) return false;
 		$this->attributes['content_type'] = $type;
 		return true;
-	}
+	}//end setContentType()
 
 
 	/**
@@ -89,7 +89,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		if (!$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'])) return false;
 		if (!$content_type->setAttrValue('name', 'Row '.($new_rowid+1).' Cell '.($new_cellid+1))) return false;
 		return true;
-	}
+	}//end updateContentType()
 
 
 	/**
@@ -183,9 +183,9 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 				$cell_content = preg_replace("/\n/", "\n\t\t\t", $cell_content);
 				echo $cell_content;
 			}
-		}// end if
+		}
 		echo "\n\t\t</td>\n";
-	}
+	}//end paint()
 
 
 	/**
@@ -295,7 +295,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		$this->setAttribute('content_type', $new_type);
 
 		return true;
-	}
+	}//end _updateCellType()
 
 
 	/**
