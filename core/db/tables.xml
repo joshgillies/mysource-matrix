@@ -43,6 +43,12 @@
 				<default />
 				<description />
 			</column>
+			<column name="type_code" allow_null="0">
+				<type>VARCHAR(100)</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
 			<column name="version" allow_null="0">
 				<type>VARCHAR(20)</type>
 				<type_variations />
@@ -81,10 +87,10 @@
 				<default>''</default>
 				<description />
 			</column>
-			<column name="type_code" allow_null="0">
-				<type>VARCHAR(100)</type>
+			<column name="force_secure" allow_null="0">
+				<type>CHAR(1)</type>
 				<type_variations />
-				<default />
+				<default>'0'</default>
 				<description />
 			</column>
 			<column name="created" allow_null="0">
@@ -595,6 +601,18 @@
 					<mysql>VARCHAR(221)</mysql>
 				</type_variations>
 				<default>''</default>
+				<description />
+			</column>
+			<column name="http" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'0'</default>
+				<description />
+			</column>
+			<column name="https" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'0'</default>
 				<description />
 			</column>
 			<column name="assetid" allow_null="0">
