@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: content_type_wysiwyg_edit_fns.inc,v 1.27 2003/10/16 01:06:41 gsherwood Exp $
+* $Id: content_type_wysiwyg_edit_fns.inc,v 1.28 2003/11/03 01:22:29 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -113,7 +113,7 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paintBackendIcons(&$asset, $prefix)
 	{
-		print_bodycopy_icon("Javascript: switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.");", 'Edit Cell Contents', 'Switch between preview and edit mode', 'edit_mode');
+		print_bodycopy_icon("Javascript: switchEditingMode('".$prefix."_contents_div','".$prefix."_wysiwyg_div', editor_".$prefix.");", 'Edit Contents', 'Switch between preview and edit mode', 'edit_mode');
 
 	}//end paintBackendIcons()
 
