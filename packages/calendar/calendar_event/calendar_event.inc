@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.28 2004/09/16 04:05:00 lwright Exp $
+* $Id: calendar_event.inc,v 1.29 2004/09/20 07:43:00 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.28 $ - 1.0
+* @version $Revision: 1.29 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -374,8 +374,8 @@ class Calendar_Event extends Asset
 	*/
 	function getStartTime() 
 	{
-		$res = substr($this->attr('start_date'), 11);
-		return ($res == '--:--:--') ? false : $res;
+		$res = substr($this->attr('start_date'), 11, 5);
+		return ($res == '--:--') ? false : $res;
 		
 	}//end getStartTime()
 
@@ -389,8 +389,8 @@ class Calendar_Event extends Asset
 	*/
 	function getEndTime() 
 	{
-		$res = substr($this->attr('end_date'), 11);
-		return ($res == '--:--:--') ? false : $res;
+		$res = substr($this->attr('end_date'), 11, 5);
+		return ($res == '--:--') ? false : $res;
 		
 	}//end getEndTime()
 	
