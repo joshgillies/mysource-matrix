@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: workflow.inc,v 1.5 2004/04/22 04:00:44 gsherwood Exp $
+* $Id: workflow.inc,v 1.5.2.1 2004/10/06 00:13:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -428,22 +428,24 @@ function paintWorkflow(&$owner, &$o, &$ei, $keywords=null)
 					// lets show some workflow warnings about metadata if we need to
 					if ($owner->status & SQ_SC_STATUS_PENDING) {
 						$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
-						$m_complete = $mm->requiredFieldsComplete($owner->id);
-						if (!$m_complete) {
-							$o->openField('');
-								if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) ob_start();
-								
-								?>
-								<p class="sq-backend-data"><span style="color:#880000"><b>WARNING:</b></span> "<?php echo $owner->name; ?>" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "<?php echo $owner->name; ?>" can become 'Approved' to go live.</p>
-								<p class="sq-backend-data">These metadata fields can be completed by any editor or administrator of "<?php echo $owner->name; ?>" by going to the <a href="<?php echo $owner->getBackendHref('metadata'); ?>">Metadata screen</a>.</p>
-								<?php
-								
-								// if there is a keyword replacement for this, add it to the replacements
-								if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) {
-									$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_metadata_warning']] = ob_get_contents();
-									ob_end_flush();
-								}
-							$o->closeField();
+						if ($mm->allowsMetadata($owner->id)) {
+							$m_complete = $mm->requiredFieldsComplete($owner->id);
+							if (!$m_complete) {
+								$o->openField('');
+									if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) ob_start();
+									
+									?>
+									<p class="sq-backend-data"><span style="color:#880000"><b>WARNING:</b></span> "<?php echo $owner->name; ?>" is currently in an approval process but some required metadata fields are not yet compelete. These fields must be completed before "<?php echo $owner->name; ?>" can become 'Approved' to go live.</p>
+									<p class="sq-backend-data">These metadata fields can be completed by any editor or administrator of "<?php echo $owner->name; ?>" by going to the <a href="<?php echo $owner->getBackendHref('metadata'); ?>">Metadata screen</a>.</p>
+									<?php
+									
+									// if there is a keyword replacement for this, add it to the replacements
+									if (!is_null($keywords) && isset($keywords['fields']['workflow_metadata_warning'])) {
+										$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['workflow_metadata_warning']] = ob_get_contents();
+										ob_end_flush();
+									}
+								$o->closeField();
+							}
 						}
 					}
 
