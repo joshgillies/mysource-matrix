@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.23 2005/03/23 00:22:34 ndvries Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.24 2005/03/23 22:57:15 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -46,43 +46,43 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-					Array(
-						'name'          => 'Acquiring Workflow Locks',
-						'hipo_job'      => Array(
-												 'init_details_function' => 'getLockAssetDetails',
-												 ),
-						'running_mode'  => 'server',
-						'auto_step'     => true,
-						'allow_cancel'  => true,
-						'percent_done'  => 0,
-						'complete'      => false,
-						'message'       => '',
-					),
-					Array(
-						'name'          => 'Updating Workflow Schemas',
-						'function_call' => Array(
-												 'process_function' => 'processSchemas',
-												 ),
-						'running_mode'  => 'server',
-						'auto_step'     => true,
-						'allow_cancel'  => true,
-						'percent_done'  => 0,
-						'complete'      => false,
-						'message'       => '',
-					),
-					Array(
-						'name'          => 'Releasing Workflow Locks',
-						'function_call' => Array(
-												 'process_function' => 'releaseLocks',
-												 ),
-						'running_mode'  => 'server',
-						'auto_step'     => true,
-						'allow_cancel'  => false,
-						'percent_done'  => 0,
-						'complete'      => false,
-						'message'       => '',
-					),
-				);
+						Array(
+							  'name'         => 'Acquiring Workflow Locks',
+							  'hipo_job'     => Array(
+												 	 'init_details_function' => 'getLockAssetDetails',
+													  ),
+							  'running_mode' => 'server',
+							  'auto_step'    => true,
+							  'allow_cancel' => true,
+							  'percent_done' => 0,
+							  'complete'     => false,
+							  'message'      => '',
+							  ),
+						Array(
+							  'name'          => 'Updating Workflow Schemas',
+							  'function_call' => Array(
+													   'process_function' => 'processSchemas',
+													   ),
+							  'running_mode'  => 'server',
+							  'auto_step'     => true,
+							  'allow_cancel'  => true,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						Array(
+							  'name'          => 'Releasing Workflow Locks',
+							  'function_call' => Array(
+													   'process_function' => 'releaseLocks',
+													   ),
+							  'running_mode'  => 'server',
+							  'auto_step'     => true,
+							  'allow_cancel'  => false,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  ),
+						);
 
 
 	/**
@@ -136,8 +136,8 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	function getConfigVars()
 	{
 		return Array(
-			'SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD' => Array('editable' => 1, 'default' => 1),
-		);
+					 'SQ_HIPO_WORKFLOW_SCHEMAS_THRESHOLD' => Array('editable' => 1, 'default' => 1),
+					 );
 
 	}//end getConfigVars()
 
@@ -255,7 +255,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 					if ($set_data['schemaid']) {
 						$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($set_data['schemaid']);
 						if (is_null($schema)) $schema_name = 'Unknown Schema';
-						else                  $schema_name = $schema->name;
+						else $schema_name = $schema->name;
 					} else {
 						continue;
 					}
@@ -277,7 +277,7 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 						$schemas = $wfm->getSchemas($asset->id);
 						if (!isset($schemas[$set_data['schemaid']])) {
 							continue;
-						} elseif ($schemas[$set_data['schemaid']] != $set_data['previous_access']) {
+						} else if ($schemas[$set_data['schemaid']] != $set_data['previous_access']) {
 							$new_access     = ($set_data['previous_access']) ? 'revoke'  : 'apply';
 							$current_access = ($set_data['previous_access']) ? 'applied' : 'denied';
 							$this->_addError('Could not '.$new_access.' schema "'.$schema_name.'" on "'.$asset->name.'" because this asset already has this schema '.$current_access.'. The current schema setting for "'.$asset->name.'" has been retained.', true);
@@ -344,11 +344,11 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 		$options['auto_complete'] = true;
 
 		$running_vars = Array(
-							'assetids'			=> array_keys($this->_running_vars['assets']),
-							'lock_type'			=> Array('workflow'),
-							'forceably_acquire'	=> false,
-							'dependants_only'	=> false,
-						);
+							  'assetids'          => array_keys($this->_running_vars['assets']),
+							  'lock_type'         => Array('workflow'),
+							  'forceably_acquire' => false,
+							  'dependants_only'   => false,
+							  );
 
 	}//end getLockAssetDetails()
 
