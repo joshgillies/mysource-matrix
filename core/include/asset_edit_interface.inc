@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.205 2004/04/18 23:13:41 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.206 2004/04/20 00:12:25 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -571,6 +571,11 @@ class Asset_Edit_Interface extends MySource_Object
 			$o->addHiddenField('ignore_frames', '1');		
 		}
 
+		// set the current screen for both backend and frontend editing
+		$current_location = $o->getCurrentLocation();
+		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
+		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
+
 		// once we have a preview URL, we can paint the layout if there is one
 		// paint the layout now, if needed
 		if ($paint_layout) {
@@ -640,9 +645,6 @@ class Asset_Edit_Interface extends MySource_Object
 		  ///////////////////
 		 //  SCREEN MENU  //
 		///////////////////
-		$current_location = $o->getCurrentLocation();
-		$current_location .= (strstr($current_location, '?')) ? '&' : '?';
-
 		// add all the screens to the combo, but only if we aren't creating the object
 		if (!$creating) {
 			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
@@ -661,8 +663,6 @@ class Asset_Edit_Interface extends MySource_Object
 			list($create_sections, $active_screen) = $this->_getCreateSections(true);
 			if (!count($create_sections)) return;
 		}
-
-		$o->setCurrentScreen($current_location.'asset_ei_screen='.rawurlencode($active_screen));
 
 
 		  //////////////////////
@@ -938,16 +938,39 @@ class Asset_Edit_Interface extends MySource_Object
 					$replacements['__custom-'.$keyword] = $replacement;
 				}
 				$this->_tmp['layout_keyword_replacements'] = array_merge($this->_tmp['layout_keyword_replacements'], $replacements);
+				$print_commit_button = true;
 
 			}//end if
 
 		}//end if
 
 		// we have printed an editable interface on a static screen - show the commit button
-		if ($print_commit_button) {
+		if (in_array('commit_button', $keywords['layout']) && $print_commit_button) {
 			ob_start();
 				$o->commitButton('Commit', false);
 				$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
+			ob_end_clean();
+		}
+		
+		// show the screen selection menu
+		if (in_array('screen_menu', $keywords['layout'])) {
+			$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
+			$current_location = $o->getCurrentLocation();
+			$current_location .= (strstr($current_location, '?')) ? '&' : '?';
+			
+			for(reset($this->_screens); null !== ($code = key($this->_screens)); next($this->_screens)) {
+				if (!$lm->hasLayout($owner->type(), $code)) continue;
+				$o->addScreen($current_location.'asset_ei_screen='.rawurlencode($code), $this->_screens[$code]['name']);
+			}
+			foreach ($this->_edit_fns->static_screens as $code_name => $data) {
+				if (!$lm->hasLayout($owner->type(), $code_name)) continue;
+				$url = $current_location.'asset_ei_screen='.rawurlencode($code_name);
+				$o->addStaticScreen($url, $data['name']);
+			}
+			
+			ob_start();
+				$o->printScreenMenu();
+				$this->_tmp['layout_keyword_replacements']['screen_menu'] = ob_get_contents();
 			ob_end_clean();
 		}
 
