@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_sub_asset_listing.inc,v 1.7 2003/10/13 23:05:43 gsherwood Exp $
+* $Id: page_sub_asset_listing.inc,v 1.8 2003/10/21 01:34:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -164,7 +164,8 @@ class Page_Sub_Asset_Listing extends Page
 	function _getAllowedLinks()
 	{
 		$page_links = parent::_getAllowedLinks();
-		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1, 'exclusive' => true);
+		$page_links[SQ_LINK_TYPE_2]['bodycopy'] = Array('card' => 1,   'exclusive' => true);
+		$page_links[SQ_LINK_TYPE_2]['folder']   = Array('card' => 'M', 'exclusive' => false);
 		return $page_links;
 
 	}//end _getAllowedLinks()
