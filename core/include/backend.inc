@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.68 2003/10/30 01:09:23 gsherwood Exp $
+* $Id: backend.inc,v 1.69 2003/10/30 01:26:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -370,7 +370,15 @@ class Backend extends MySource_Object
 					$options = Array();
 					$options[] = Array(
 									'url'     => '#',
-									'onclick' => "Javascript: if(top.main.main_form.sq_preview_url) { window.open(top.main.main_form.sq_preview_url.value, 'sq_preview_window'); }",
+									'onclick' => "Javascript:
+									if(top.main.main_form.sq_preview_url) {
+										if(top.main.main_form.sq_preview_url.value) {
+											window.open(top.main.main_form.sq_preview_url.value, 'sq_preview_window');
+										} else {
+											alert('No preview is available');
+										}
+										return false;
+									}",
 									'title'   => 'Preview on frontend',
 									'icon'    => 'preview.png',
 									);
