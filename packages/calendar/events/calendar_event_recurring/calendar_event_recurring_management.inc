@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_management.inc,v 1.1.1.1 2004/07/21 04:31:53 lwright Exp $
+* $Id: calendar_event_recurring_management.inc,v 1.2 2004/07/22 04:42:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.1.1.1 $ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -54,31 +54,31 @@ class Calendar_Event_Recurring_Management extends Asset_Management
 							'description' => Array(
 												'added'       => '0.0.1',
 												'type'        => 'text',  'default'   => '',
-												'description' => 'A longer description of the event (this is mainly used when viewing an event\'s detail)',
+												'description' => 'Description of the event',
 												),
 							'start_date' => Array(
 												'added'       => '0.0.1',
 												'type'        => 'datetime',
-												'default'   => '---------- --:--:--',
+												'default'     => '2003-01-01 --:--:--',
 												'description' => 'The starting date and/or time of the event',
 												),
 							'end_date' => Array(
 												'added'       => '0.0.1',
 												'type'        => 'datetime',
-												'default'   => '---------- --:--:--',
+												'default'     => '---------- --:--:--',
 												'description' => 'The ending date and/or time of the event',
 												),
 							'frequency' => Array(
 												'added'       => '0.0.1',
 												'type'        => 'text',
-												'default'   => '',
-												'description' => 'The frequency of the recurrence, expressed in a crontab-style format',
+												'default'     => '',
+												'description' => 'The frequency of the recurrence',
 												),
 							'stop_date' => Array(
 												'added'       => '0.0.1',
 												'type'        => 'datetime',
-												'default'   => '---------- --:--:--',
-												'parameters' => Array('allow_null' => true),
+												'default'     => '---------- --:--:--',
+												'parameters'  => Array('allow_null' => true),
 												'description' => 'No occurrences will occur after this date',
 												),
 							);
