@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.36 2004/02/11 01:44:59 gsherwood Exp $
+* $Id: tables.xml,v 1.37 2004/04/02 02:22:55 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -1326,10 +1326,8 @@
 				<description>The LockId for the parent of this chain of locks</description>
 			</column>
 			<column name="userid" allow_null="0">
-				<type>INT</type>
-				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(255)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
