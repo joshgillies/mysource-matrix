@@ -1,9 +1,12 @@
 
 // Create the Class
-function AssetType(type_code, name, version, instantiable, allowed_access, parent_type, edit_screens) 
+function AssetType(type_code, name, menu_path, version, instantiable, allowed_access, parent_type, edit_screens) 
 {
+//	trace (this._target + "::AssetType.(constructor)(" + type_code +", " + name + ", " + menu_path + ")");
+
 	this.type_code		= type_code;
 	this.name			= name;
+	this.menu_path		= menu_path;
 	this.version		= version;
 	this.instantiable	= instantiable;
 	this.allowed_access	= allowed_access;
@@ -27,7 +30,8 @@ AssetType.prototype.toString = function()
 
 
 	return "Type Code: " + this.type_code + 
-			", Name: " + this.name + 
+			", Name: " + this.name +
+			", Menu Path: " + this.menu_path +
 			", Version: " + this.version + 
 			", Sys Only: " + this.allowed_access + 
 			", Parent Type: " + this.parent_type +
@@ -65,7 +69,13 @@ AssetType.prototype.isType = function(type)
 	return false;
 }
 
-Asset.prototype.getIconID = function()
+/**
+* Returns the iconID of the asset type.
+*
+* @return string
+*/
+
+AssetType.prototype.getIconID = function()
 {
 	return "mc_asset_type_" + this.type_code + "_icon";
 }

@@ -42,10 +42,12 @@ mcMenuContainerClass.prototype.onAssetManagerInitialised = function()
 	this.clear();
 
 	var types = _root.asset_manager.getTopTypes();
+	var menuRoot = _root.asset_manager.getTypeMenu();
+
 	var newMenu = this.addMenu ('Add', 'mcAddMenuIconID');
 	var newMenuContainer = newMenu.getContainer();
 
-	newMenuContainer.createFromArray (this._getAddAssetMenuArray(types));
+	newMenuContainer.createFromArray (_root.asset_manager.getTypeMenu());
 	this.hideChildMenus();
 }
 
@@ -68,26 +70,21 @@ mcMenuContainerClass.prototype.__addAssetFn = function()
 
 mcMenuContainerClass.prototype._getAddAssetMenuArray = function(types) 
 {
-//	trace (this + "::mcMenuContainerClass._getAddAssetMenuArray(" + types + ")");
 	var elementArray = new Array();
 
 	for (var i = 0; i < types.length; i++) {
 		var type = _root.asset_manager.asset_types[types[i]];
-//		trace ("i = " + i + " : " + type.type_code);
 		var subtypes = type.sub_types;
 		var createable = type.createable();
 		
 		
 		if (!createable && subtypes.length == 0) {
-//			trace ("can't create : " + type.type_code);
 			continue;
 		}
 
 		var element = new Object();
 
 		if (subtypes.length == 0) {
-//			trace ("item : " + type.type_code);
-
 			// createable leaf
 			element.type = 'item';
 			element.label = type.name;
@@ -96,19 +93,15 @@ mcMenuContainerClass.prototype._getAddAssetMenuArray = function(types)
 			element.action = this.__addAssetFn;
 
 		} else {
-//			trace ("menu : " + type.type_code);
-
 			element.type = 'menu';
 			element.label = type.name;
 			element.iconID = "mc_asset_type_" + type.type_code + "_menu_icon";
 
-			var childMenuArray = this._getAddAssetMenuArray (subtypes);
+			var childMenuArray = this._getAddAssetMenuArray(subtypes);
 			
 			if (createable) {
 				// createable node - add parent to the top of its own child list
 				element.label = type.name + " Types";
-
-//				trace ("item : " + type.type_code);
 
 				var childElement = new Object();
 				childElement.type = 'item';
@@ -118,7 +111,6 @@ mcMenuContainerClass.prototype._getAddAssetMenuArray = function(types)
 				childElement.value = type.type_code;
 
 				childMenuArray.unshift (childElement);
-//				trace (childMenuArray);
 			} else {
 				// if not createable AND there are no createable children
 				if (childMenuArray.length == 0)
@@ -126,11 +118,8 @@ mcMenuContainerClass.prototype._getAddAssetMenuArray = function(types)
 			}
 			element.children = childMenuArray;
 		}
-//		trace ("new element : " + element);
 		elementArray.push (element);
 	}
-
-//	trace (this + "::mcMenuContainerClass._getAddAssetMenuArray returning " + elementArray);
 	return elementArray;
 }
 

@@ -82,6 +82,7 @@ AssetManager.prototype.initFromXML = function(xml, exec_indentifier)
 
 			this.asset_types[type_node.attributes.type_code] = new AssetType(type_node.attributes.type_code,
 																		type_node.attributes.name,
+																		type_node.attributes.flash_menu_path,
 																		type_node.attributes.version,
 																		type_node.attributes.instantiable,
 																		type_node.attributes.allowed_access,
@@ -104,6 +105,72 @@ AssetManager.prototype.initFromXML = function(xml, exec_indentifier)
 
 }// end loadTypesFromXML()
 
+
+AssetManager.prototype.getTypeMenu = function()
+{
+	var out = new Array();
+
+	for(var typeCode in this.asset_types) {
+		var assetType = this.asset_types[typeCode];
+
+		if (assetType.parent_type == undefined || !assetType.createable())
+			continue;
+
+		var path = assetType.menu_path;
+		var children = out;
+
+		if (path != '') {
+			var pathComponents = path.split("\\");
+
+			// find the appropriate menu and attach element - creating menus if necessary
+			for (var j = 0; j < pathComponents.length; ++j) {
+				var component = pathComponents[j];
+				var menu = null;
+				// find any child menus that match the component name
+				for (k = 0; k < children.length; k++) {
+					if (children[k].label == component) {
+						menu = children[k];
+						break;
+					}
+				}
+				if (menu != null) {
+					children = menu.children;
+				} else {
+					// create it and descend
+					var element = new Object();
+					element.type = 'menu';
+					element.label = component;
+					element.iconID = null;
+					element.children = new Array();
+
+					// insert menu in the right order alphabetically
+					for (l = 0; l < children.length; ++l) {
+						if (element.label < children[l].label)
+							break;
+					}
+					children.splice(l, 0, element);
+					children = element.children;
+				}
+			}
+		}
+
+		var element = new Object();
+		element.type = 'item';
+		element.label = assetType.name;
+		element.iconID = assetType.getIconID();
+		element.value = assetType.type_code;
+		element.action = mcMenuContainerClass.__addAssetFn;
+
+		// insert item in the right order alphabetically
+		for (l = 0; l < children.length; ++l) {
+			if (element.label < children[l].label)
+				break;
+		}
+		children.splice(l, 0, element);
+	}
+
+	return out;
+}
 
 /**
 * Returns an array of the asset types code that have a parent "asset", ie are at the top of the tree
