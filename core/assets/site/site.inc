@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.52 2004/01/22 23:06:49 gsherwood Exp $
+* $Id: site.inc,v 1.53 2004/02/26 02:54:09 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -110,6 +110,37 @@ class Site extends Folder
 		return false;
 
 	}// end deleteWebPath()
+
+
+	/**
+	* Delete this asset from the trash
+	*
+	* Note that the asset <i>MUST</i> be in the trash to delete it <i>FROM</i> the trash.
+	*
+	* @param boolean	$release_lock	should we realease the lock after deleting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function delete($release_lock=true)
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		if (!$this->saveWebURLs(Array())) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		if (!parent::delete($release_lock)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end delete()
 
 
 	/**
