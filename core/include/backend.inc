@@ -406,8 +406,8 @@ class Backend extends Resolve_Object
 	*/
 	function _printMain()
 	{
-		if (!isset($_GET['backend_section'])) $_GET['backend_section'] = '';
-		if (!isset($_GET['assetid']))         $_GET['assetid'] = '';
+		if (empty($_GET['backend_section'])) $_GET['backend_section'] = 'am';
+		if (empty($_GET['assetid']))         $_GET['assetid'] = '';
 
 		$this->out->addFormActionGetVar('backend_section', $_GET['backend_section']);
 		$this->out->addHiddenField('backend_assetid', $_GET['assetid']);
@@ -431,7 +431,7 @@ class Backend extends Resolve_Object
 			break;
 
 			default :
-				$GLOBALS['SQ_SYSTEM']->am->paintBackend($this); // tmp entry
+				trigger_error('Backend Section "'.$_GET['backend_section'].'" not known', E_USER_ERROR);
 
 		}//end switch
 
