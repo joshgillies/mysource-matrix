@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.96 2003/10/28 04:21:44 dwong Exp $
+* $Id: asset_map.inc,v 1.97 2003/10/28 23:17:58 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -738,27 +738,13 @@ class Asset_Map
 
 			//// START HIPO PROCESSING ////
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array('assetids' => Array($asset->id));
-			$hh->queueHipo('hipo_job_update_lookups', $vars);
+			$vars = Array('assetid' => $asset->id, 'parentid' => $new_parent->id);
+			$hh->queueHipo('hipo_job_create_link', $vars);
 			////  END HIPO PROCESSING  ////
-
-			// if our new parent has permission set, do the popup thang to ask the user if
-			// they want to go ahead and cascade these puppies
-			$skip_perms = true;
-			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-				$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($new_parent->id, $perm);
-				if (!empty($set_perms)) $skip_perms = false;
-			}
-
-			$perm_url = '';
-			if (!$skip_perms) {
-				$perm_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=move_asset&assetid='.$asset->id.'&parentid='.$new_parent->id.'&old_parentid='.$old_parent->id;
-			}
 
 			// check for any HIPOs that have been queued
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$url = $hh->runQueuedJobs(((!empty($perm_url)) ? $perm_url : 'Javascript: window.close()'));
-			if (empty($url)) $url = $perm_url;
+			$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
 			if (!empty($url)) {
 				$urlTree = new XML_Tree();
@@ -872,32 +858,16 @@ class Asset_Map
 		// First let's try and create the new link, if there are any issues then it will cryout for us
 		$linkid = $new_parent->createLink($asset, $link['link_type'], '', $input->root->attributes['to_parent_pos']);
 		if (!$linkid) return;
-		//// START HIPO PROCESSING ////
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetids' => Array($asset->id));
-		$hh->queueHipo('hipo_job_update_lookups', $vars);
-		////  END HIPO PROCESSING  ////
 
-		// if our new parent has permission set, do the popup thang to ask the user if
-		// they want to go ahead and cascade these puppies
-		$skip_perms = true;
-		foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-			$set_perms = $GLOBALS['SQ_SYSTEM']->am->getPermission($new_parent->id, $perm);
-			if (!empty($set_perms)) {
-				$skip_perms = false;
-				break;
-			}
-		}
-
-		$perm_url = '';
-		if (!$skip_perms) {
-			$perm_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=link_asset&assetid='.$asset->id.'&parentid='.$new_parent->id;
-		}
 
 		// check for any HIPOs that have been queued
+		//// START HIPO PROCESSING ////
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$url = $hh->runQueuedJobs(((!empty($perm_url)) ? $perm_url : 'Javascript: window.close()'));
-		if (empty($url)) $url = $perm_url;
+		$vars = Array('assetid' => $asset->id, 'parentid' => $new_parent->id);
+		$hh->queueHipo('hipo_job_create_link', $vars);
+		////  END HIPO PROCESSING  ////
+
+		$url = $hh->runQueuedJobs('Javascript: function closeWindow() { setTimeout(\'window.close()\', 500); } closeWindow();');
 
 		if (!empty($url)) {
 			$urlTree = new XML_Tree();
