@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.14 2004/03/25 13:02:00 brobertson Exp $
+* $Id: search_manager.inc,v 1.15 2004/04/02 07:11:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.14 $ - 0.1
+* @version $Revision: 1.15 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -183,7 +183,7 @@ class Search_Manager extends Asset
 
 		$userid_cond = '';
 		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
-			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && $GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
 				array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
 				$userid_cond = ' AND ap.userid  IN ('.implode(',', $userids).')';
