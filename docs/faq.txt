@@ -21,3 +21,12 @@ Contributed by: Blair Robertson <blair@squiz.net>
 Q. Why is my toolbar still disabled when my popup window closes?
 A. You may have popup blocker software interfering with the contents of the popup. The google toolbar is a known culprit. Try allowing popups from the editing URL. For example, if you edit through the URL test.com/_edit - configure your popup blocking software to allow popups from the URL test.com.
 Contributed by: Greg Sherwood <greg@squiz.net>
+
+
++----------------+
+| DEVELOPER FAQ  |
++----------------+
+
+Q. When setting force_unlock="false" in the edit_interface_screens.xml, the lock is still released after commiting.
+A. the correct value to force unlock is force_unlock="0"
+Contributed by: Marc McIntyre <mmcintyre@squiz.net>
