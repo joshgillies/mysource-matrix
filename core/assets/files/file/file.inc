@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.71 2004/11/18 05:08:04 gsherwood Exp $
+* $Id: file.inc,v 1.72 2004/11/24 05:00:29 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -282,8 +282,12 @@ class File extends Asset
 		// check that a file was uploaded at least and that it succeeded
 		if (empty($info)) $info = get_file_upload_info($this->getPrefix());
 		if ($info === false || empty($info)) {
-			trigger_error('File upload failed. Unable to create '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
-			return false;
+			$edit = $this->getEditFns();
+			$info = $edit->getChosenFileInfo($this->getPrefix());
+			if ($info === false || empty($info)) {
+				trigger_error('File upload failed. Unable to create '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
+				return false;
+			}
 		}
 
 		// check that we are not going to have web path conflicts
@@ -591,7 +595,8 @@ class File extends Asset
 				if ($linkid && $GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
 					$edit = $this->getEditFns();
 					$this->_tmp['uploading_file'] = 1;
-					$ret_val = $edit->processFileUpload($this, $o, $prefix);
+					$ret_val = $edit->processFileChooser($this, $o, $prefix);
+					$ret_val |= $edit->processFileUpload($this, $o, $prefix);
 					$this->saveAttributes();
 					$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
 					return $ret_val;
@@ -705,6 +710,11 @@ class File extends Asset
 		$uploading_file = (!empty($this->_tmp['uploading_file'])) ? true : false;
 
 		if ($name == 'name' && !$uploading_file) {
+			// check that we are not going to have web path conflicts
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			$valid_names = make_valid_web_paths(Array($value));
+			$value = array_shift($valid_names);
+
 			if (is_file($this->data_path.'/'.$this->attr('name'))) $data_path = $this->data_path;
 			else $data_path = $this->data_path_public;
 

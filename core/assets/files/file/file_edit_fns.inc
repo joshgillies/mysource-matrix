@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.42 2004/07/23 07:09:00 mmcintyre Exp $
+* $Id: file_edit_fns.inc,v 1.43 2004/11/24 05:00:29 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,29 +59,6 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Prints info about the current uploaded file
-	*
-	* @param object File	&$asset	the file asset
-	*
-	* @return void
-	* @access public
-	*/
-	function printExistingFileInfo(&$asset)
-	{
-		$existing = $asset->_getExistingFile();
-		if (!empty($existing)) {
-			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-			?> 
-				<b><a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Current File</a></b><br/>
-				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
-				<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br/>
-			<?php
-		}
-
-	}//end printExistingFileInfo()
-
-
-	/**
 	* Prints the interface for uploading a file
 	*
 	* @param object File				&$asset	the file asset
@@ -95,6 +72,10 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	{
 		if ($asset->writeAccess('attributes')) {
 			file_upload($prefix);
+			if ($this->havePreUploadedFiles($asset)) {
+				echo '&nbsp;&nbsp;';
+				normal_button($prefix.'_choose_server_file_button', 'Choose a pre-uploaded file', 'this.parentNode.parentNode.style.display=\'none\';			 document.getElementById(\''.$prefix.'_simple_upload_button\').parentNode.parentNode.style.display=\'\'');
+			}
 		}
 		$this->printExistingFileInfo($asset);
 		return true;
@@ -104,6 +85,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 	/**
 	* Processes the interface for uploading a file
+	*
 	* If you want to process an upload of a file that was not uploaded through PHP
 	* (possible because of FTP or it was in a tar archive), ensure you pass the information
 	* about the file in the $info array.
@@ -112,7 +94,6 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	*     tmp_name          => the location of the file on the file system
 	*     non_uploaded_file => must equal TRUE
 	* 
-	*
 	* @param object File				&$asset	the file asset
 	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for form elements
@@ -124,7 +105,8 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
 		if (!$asset->writeAccess('attributes')) return false;
-
+		if (empty($info) && isset($_POST[$prefix.'_server_file']) && !empty($_POST[$prefix.'_server_file'])) return false;
+		
 		// assetid will not be set if we are creating
 		if (!$asset->id) return true;
 
@@ -234,6 +216,139 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		return $asset->_updated();
 
 	}//end processFileUpload()
+	
+		
+	/**
+	* Paint the interface for selecting a pre-uploaded file to use in this asset
+	*
+	* @param object File				&$asset	the file asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @access public
+	* @return boolean	true
+	*/
+	function paintFileChooser(&$asset, &$o, $prefix)
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		$options = $this->getPreuploadOptions($asset);
+		combo_box($prefix.'_server_file', Array(''=>'')+$options, false, Array());
+		echo '&nbsp;&nbsp;';
+		normal_button($prefix.'_simple_upload_button', 'Upload a new file', 'this.parentNode.parentNode.style.display=\'none\';			 document.getElementById(\''.$prefix.'_choose_server_file_button\').parentNode.parentNode.style.display=\'\'; document.getElementById(\''.$prefix.'_server_file\').value = \'\'');
+		return true;
+
+	}//end paintFileChooser()
+
+
+	/**
+	* Process the interface where you can choose a pre-uploaded file
+	*
+	* @param object File				&$asset	the file asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	* @access public
+	* @return boolean	true if a file was processed
+	*/
+	function processFileChooser(&$asset, &$o, $prefix) 
+	{
+		// don't try to do anything if the asset is not yet created - 
+		// this function will get called again by File::create()
+		if (!$asset->id) return true;
+		
+		if ($asset->writeAccess('attributes') && isset($_POST[$prefix.'_server_file']) && (!empty($_POST[$prefix.'_server_file']))) {
+			$info = $this->getChosenFileInfo($prefix);
+			if ($this->processFileUpload($asset, $o, $prefix, $info)) {
+				unlink($info['tmp_name']);
+				return true;
+			}
+		}
+		return false;
+	}	
+
+
+	/**
+	* Find out if there are any pre-uploaded files we can use
+	* 
+	* @param	&$asset		The asset that might use the files
+	*
+	* @access protected
+	* @return boolean	true if there are some files to use
+	*/
+	function havePreUploadedFiles(&$asset)
+	{
+		$preuploads = $this->getPreuploadOptions($asset);
+		return !empty($preuploads);
+	
+	}//end havePreUploadedFiles()
+
+
+//--        HELPERS        --//
+
+
+	/**
+	* Get a list of pre-uploaded files available for use
+	*
+	* Subclasses can override this to restrict file types
+	*
+	* @param	&$asset		The asset that might use the files
+	* 
+	* @access protected
+	* @return array		value => value to be used with combo_box
+	*/
+	function getPreuploadOptions(&$asset)
+	{
+		$options = Array();
+		foreach (list_files(SQ_TEMP_PATH) as $filename) $options[$filename] = $filename;
+		return $options;
+
+	}
+
+
+	/**
+	* Get the info on the pre-uploaded file chosen by the user
+	*
+	* @param string						$prefix	prefix for form elements
+	*
+	* @access protected
+	* @return array
+	*/
+	function getChosenFileInfo($prefix)
+	{
+		$info = Array();
+		if (isset($_POST[$prefix.'_server_file']) && (!empty($_POST[$prefix.'_server_file']))) {
+			$info['name'] = $_POST[$prefix.'_server_file'];
+			$info['tmp_name'] = SQ_TEMP_PATH.'/'.$_POST[$prefix.'_server_file'];
+			$info['non_uploaded_file'] = true;
+		}
+		return $info;
+	
+	}//end getChosenFileInfo()
+
+
+	/**
+	* Prints info about the current uploaded file
+	*
+	* @param object File	&$asset	the file asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printExistingFileInfo(&$asset)
+	{
+		$existing = $asset->_getExistingFile();
+		if (!empty($existing)) {
+			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+			?>
+				<div>
+				<b><a href="<?php echo current_url(true, true).'?a='.$asset->id?>&now=<?php echo time()?>" target="_blank">Current File</a></b><br/>
+				<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
+				<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?>
+				</div>
+
+			<?php
+		}
+
+	}//end printExistingFileInfo()
 
 
 }//end class

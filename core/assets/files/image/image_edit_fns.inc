@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_edit_fns.inc,v 1.21 2004/11/10 23:03:51 tbarrett Exp $
+* $Id: image_edit_fns.inc,v 1.22 2004/11/24 05:00:29 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,6 +42,8 @@ class Image_Edit_Fns extends File_Edit_Fns
 	/**
 	* Prints the interface for uploading a file
 	*
+	* In this case it gives us the option of launching the image editor too
+	*
 	* @param object Image				&$asset	the file asset
 	* @param object Backend_Outputter	&$o		the backend outputter
 	* @param string						$prefix	prefix for form elements
@@ -51,50 +53,21 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*/
 	function paintFileUpload(&$asset, &$o, $prefix)
 	{
+		parent::paintFileUpload($asset, $o, $prefix);
+		if (!$asset->id) {
+			// we are in the create screen, so offer the editor too
+			normal_button($prefix.'_use_editor_button', 'Use Image Editor', 'this.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_hide_editor_button\').parentNode.parentNode.style.display=\'\';');
+		}
 		if ($asset->writeAccess('attributes')) {
-			file_upload($prefix);
 			?><br/><span style="font-size: 7pt"><b>Note:</b> You may only upload files of type <?php echo $this->_getExtensionString($asset->allowed_extensions)?></span><br /><?php
 		}
-
-		$this->printExistingFileInfo($asset);
 		return true;
 	
 	}//end paintFileUpload()
 
 
-
 	/**
-	* Processes the interface for uploading a file
-	*
-	* @param object Image				&$asset	the file asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for form elements
-	* @param array(string)				$info	info about the uploaded file
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
-	{
-		if (!$asset->writeAccess('attributes')) {
-			return false;
-		}
-		
-		if (empty($info)) {
-			$info = get_file_upload_info($prefix);
-			// return on failed or no upload
-			if ($info === false || empty($info)) return false;
-		}
-		// check that the extension is allowed
-		if (!$asset->validFile($info['name'])) return false;
-		return parent::processFileUpload($asset, $o, $prefix, $info);
-
-	}//end processFileUpload()
-
-
-
-	/**
-	* Prints the interface for uploading a file
+	* Prints the image editor applet as it should appear in the create screen
 	*
 	* @param object Image				&$asset	the file asset
 	* @param object Backend_Outputter	&$o		the backend outputter
@@ -105,86 +78,158 @@ class Image_Edit_Fns extends File_Edit_Fns
 	*/
 	function paintCreateEditor(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST['imagej_submitted'])) {
-		?>
-
-IMAGEJ_REDIRECT: <?php echo current_url(); ?>?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&asset_ei_screen=<?php echo $_REQUEST['asset_ei_screen'] ?>&assetid=<?php echo $asset->id; ?>
-
+		if (!$asset->id) {
+			?>
 			<?php
-		} elseif (!$asset->id) {
-				?>
-				<script language="JavaScript">
-				<!--
-				function setAllSectionsDisplay(display) {
-					for (var i=0; i<20; i++) {
-						if (i == <?php echo $o->getCurrentSectionNumber(); ?>) continue;
-						var section = document.getElementById('backend_section_'+i);
-						if (section != null) {
-							section.style.display = display;
-						}
-					}
-				}
-				//-->
-				</script>
-				<input 
-					type="button" 
-					id = "ImageJButton"
-					value="Use Image Editor"
-					onclick="this.disabled = true;
-							if (this.value == 'Use Image Editor') {
-								this.value = 'Loading Applet...';
-								setAllSectionsDisplay('none');
-								document.getElementById('<?php echo $prefix; ?>_image_editor').style.display = 'block';
-								setTimeout('var elt = document.getElementById(\'ImageJButton\'); elt.value = \'Use Simple Upload\'; elt.disabled=false;', 400);
-							 } else {
-							    this.value = 'Closing Applet...';
-								setAllSectionsDisplay('');
-								document.getElementById('<?php echo $prefix; ?>_image_editor').style.display = 'none';
-								this.value = 'Use Image Editor';
-								this.disabled=false;
-							 }" />				
+			// we are in the create screen, so we'll print
+			normal_button($prefix.'_hide_editor_button', 'Use Simple Upload', 'this.parentNode.parentNode.style.display=\'none\'; document.getElementById(\''.$prefix.'_use_editor_button\').parentNode.parentNode.style.display=\'\';', 'style="margin-bottom: 5px"');
+			echo '<br />';
+			$this->_paintApplet($asset, $o, $prefix);
+			?>
 			<?php
-				$this->_paintApplet($asset, $o, $prefix);
 		}
 		return true;
 	
 	}//end paintCreateEditor()
 
+	
+	/**
+	* Process the results of the image editor in the create screen
+	*
+	* @param object Image				&$asset	the file asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @access public
+	* @return boolean true
+	*/
 	function processCreateEditor(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST['imagej_submitted'])) {
-			$this->processFileUpload($asset, $o, $prefix);
+		if (isset($_POST[$prefix.'_applet_temp_filename']) && !empty($_POST[$prefix.'_applet_temp_filename'])) {
+			$_POST[$prefix.'_server_file'] = $_POST[$prefix.'_applet_temp_filename'];
+			// processFileChooser, called from File::create(), can now do the rest
 		}
-	}
+		return true;
 
+	}//end processCreateEditor()
+
+
+	/**
+	* Print the "edit image" screen
+	*
+	* @param object Image				&$asset	the file asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @access public
+	* @return boolean true if edit interface printed
+	*/
 	function paintEditor(&$asset, &$o, $prefix)
 	{
-		if (isset($_POST['imagej_submitted'])) {
-			?>
-
-IMAGEJ_REDIRECT: <?php echo current_url(); ?>?SQ_BACKEND_PAGE=main&backend_section=am&am_section=edit_asset&asset_ei_screen=<?php echo $_REQUEST['asset_ei_screen'] ?>&assetid=<?php echo $asset->id; ?>
-
-			<?php
-		} elseif ($asset->writeAccess('attributes')) {
+		if ($asset->writeAccess('attributes')) {
 			$this->_paintApplet($asset, $o, $prefix);
+			return true;
 		} else {
 		?>
 			<img src="<?php echo $GLOBALS['SQ_SYSTEM']->am->getRootURL().'?a='.$asset->id; ?>&t=<?php echo time(); ?>" />
 		<?php
+			return false;
 		}
-		return false;
-	}
 
+	}//end paintEditor()
+
+
+	/**
+	* Process the "edit image" screen
+	*
+	* @param object Image				&$asset	the file asset
+	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$prefix	prefix for form elements
+	*
+	* @access public
+	* @return boolean true if edit interface printed
+	*/
 	function processEditor(&$asset, $o, $prefix)
 	{
-		if (isset($_POST['imagej_submitted'])) {
-			$this->processFileUpload($asset, $o, $prefix);
+		if (isset($_POST[$prefix.'_applet_temp_filename'])) {
+			$_POST[$prefix.'_server_file'] = $_POST[$prefix.'_applet_temp_filename'];
+			// processServerFile can now do the rest
+			$this->processFileChooser($asset, $o, $prefix);
 		}
-	}
+		return true;
+
+	}//end processEditor()
 
 
 //--        HELPERS        --//
 
+
+	/**
+	* Prints info about the current uploaded file
+	*
+	* @param object File	&$asset	the file asset
+	*
+	* @return void
+	* @access public
+	*/
+	function printExistingFileInfo(&$asset)
+	{
+		parent::printExistingFileInfo($asset);
+		$existing = $asset->_getExistingFile();
+		if (!empty($existing)) {
+			?><b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?> pixels<br/><?php
+		}
+
+	}//end printExistingFileInfo()
+	
+	
+	/**
+	* Get the info on the pre-uploaded file chosen by the user
+	*
+	* In this case the pre-uploaded file may have been uploaded by the image editor
+	* applet, and we want to make sure the filename typed into the applet is used
+	*
+	* @param string						$prefix	prefix for form elements
+	*
+	* @access protected
+	* @return array
+	*/
+	function getChosenFileInfo($prefix)
+	{
+		$info = parent::getChosenFileInfo($prefix);
+		if (isset($_POST[$prefix.'_applet_filename']) && !empty($_POST[$prefix.'_applet_filename'])) {
+			$info['name'] = $_POST[$prefix.'_applet_filename'];
+			$info['tmp_name'] = SQ_TEMP_PATH.'/'.$_POST[$prefix.'_applet_temp_filename'];
+		}
+		return $info;
+		
+	}//end getChosenFileInfo()
+
+
+	/**
+	* Get a list of pre-uploaded files available for use
+	*
+	* In this case we restrict the options to be valid image file types
+	*
+	* @param	&$asset		The asset that might use the files
+	* 
+	* @access protected
+	* @return array		value => value to be used with combo_box
+	*/
+	function getPreuploadOptions(&$asset)
+	{
+		require_once(SQ_FUDGE_PATH.'/general/file_system.inc');
+		$options = Array();
+		foreach (list_files(SQ_TEMP_PATH) as $filename) {
+			if (in_array(get_file_type($filename), $asset->allowed_extensions)) {
+				$options[$filename] = $filename;
+			}
+		}
+		return $options;
+
+	}//end getPreloadOptions()
+	
+	
 	/**
 	* Get a formatted string of extensions (eg 1,2,3 and 4)
 	*
@@ -218,56 +263,64 @@ IMAGEJ_REDIRECT: <?php echo current_url(); ?>?SQ_BACKEND_PAGE=main&backend_secti
 
 
 	/**
-	* Prints info about the current uploaded file
+	* Paint the Image Editor Applet, including the JS and hidden fields it needs
 	*
-	* @param object File	&$asset	the file asset
+	* We add our onsubmit function ourselves rather than letting the Backend_Outputter do it,
+	* since the backend outputter will let us down in an asset builder
 	*
-	* @return void
-	* @access public
+	* @param object Image				&$asset	the file asset
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for form elements
+	*
+	* @access private
+	* @return boolean	true
 	*/
-	function printExistingFileInfo(&$asset)
-	{
-		parent::printExistingFileInfo($asset);
-		$existing = $asset->_getExistingFile();
-		if (!empty($existing)) {
-			?><b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?> pixels<br/><?php
-		}
-
-	}//end printExistingFileInfo()
-
-
-	
 	function _paintApplet(&$asset, &$o, $prefix) 
 	{
 		$open_url = $asset->getURL();
 		if (empty($open_url)) $open_url = current_url(true, true).'?a='.$asset->id;
 		$open_url .= ((strpos($open_url, '?') === false) ? '?' : '&').'t='.time();
 		?>
-				<applet id="<?php echo $prefix; ?>_image_editor" name="<?php echo $prefix; ?>_image_editor" archive="<?php echo sq_web_path('fudge'); ?>/image_editor/imagej.jar?t=<?php echo time(); ?>" code="ij.ImageJ.class" width="90%" height="350" style="margin-top: 10px; <?php if (!$asset->id) echo 'display: none'; ?>">
-					<param name="SUBMIT_URL" 
-						   value="http://<?php echo $_SERVER['HTTP_HOST'] . $o->getCurrentLocation(); ?>&SESSION_ID=<?php echo session_id(); ?>&SESSION_KEY=<?php echo $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(); ?>" />
-					<param name="FILE_FIELD_NAME" value="<?php echo $prefix; ?>" />
-					<param name="REDIRECT_FRAME" value="sq_main" />
-					<param name="FIELD_NAME_0" value="process_form" />
-					<param name="FIELD_VALUE_0" value="1" />
-					<param name="FIELD_NAME_1" value="am_form_submitted" />
-					<param name="FIELD_VALUE_1" value="1" />
-					<param name="FIELD_NAME_2" value="asset_action" />
-					<param name="FIELD_VALUE_2" value="<?php echo ($asset->id) ? 'edit' : 'create'; ?>" />
-					<param name="FIELD_NAME_3" value="imagej_submitted" />
-					<param name="FIELD_VALUE_3" value="1" />
-					<?php 
-						if ($asset->id) {
-					?>
-					<param name="FIELD_NAME_4" value="backend_assetid" />
-					<param name="FIELD_VALUE_4" value="<?php echo $asset->id; ?>" />
-					<param name="OPEN_URL" value="<?php echo $open_url; ?>" />
-					<?php
-						 }
-					?>
-				</applet>
+
+		<script type="text/javascript"><!--
+			function getAppletResult() 
+			{
+				var applet = document.getElementById('<?php echo $prefix; ?>_image_editor');
+				if (applet.parentNode.parentNode.style.display != 'none') {
+					document.getElementById('<?php echo $prefix; ?>_applet_temp_filename').value = applet.doUpload();
+					document.getElementById('<?php echo $prefix; ?>_applet_filename').value = applet.getFilename();
+				}
+			}
+
+			forms = document.getElementsByTagName('FORM');
+			if (forms[0].onsubmit) {
+				var otherOnSubmit = forms[0].onsubmit;
+				forms[0].onsubmit = function() { otherOnSubmit(); getAppletResult(); return true; }
+			} else {
+				forms[0].onsubmit = function() { getAppletResult(); return true; }
+			}
+			// -->
+		</script>
+
+		<input type="hidden" name="<?php echo $prefix; ?>_applet_temp_filename" id="<?php echo $prefix; ?>_applet_temp_filename" value="" />
+		<input type="hidden" name="<?php echo $prefix; ?>_applet_filename" id="<?php echo $prefix; ?>_applet_filename" value="" />
+
+		<applet id="<?php echo $prefix; ?>_image_editor" name="<?php echo $prefix; ?>_image_editor" archive="<?php echo sq_web_path('fudge'); ?>/image_editor/imagej.jar?t=<?php echo time(); ?>" code="ij.ImageJ.class" width="90%" height="350">
+			<param name="SUBMIT_URL" 
+				   value="http://<?php $root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS); echo $root_urls[0]; ?>/__lib/web/accept_file_upload.php?SESSION_ID=<?php echo session_id(); ?>&SESSION_KEY=<?php echo $GLOBALS['SQ_SYSTEM']->getUniqueSessionKey(); ?>" />
+			<param name="FILE_FIELD_NAME" value="<?php echo $prefix; ?>" />
+		<?php 
+		if ($asset->id) {
+			?>
+			<param name="OPEN_URL" value="<?php echo $open_url; ?>" />
+			<?php
+		}
+		?>
+		</applet>
 		<?php
-	}
+		return true;
+
+	}//end _paintApplet()
 
 
 }//end class

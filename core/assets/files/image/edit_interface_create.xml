@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_create.xml,v 1.1 2004/11/10 02:15:08 tbarrett Exp $
+* $Id: edit_interface_create.xml,v 1.2 2004/11/24 05:00:29 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -32,14 +32,18 @@
 				<process_function	name="processFileUpload" />
 			</function_call>
 		</field>
-	</section>
-	<section name="">
+		<field hidden="hidden" show_if="havePreUploadedFiles">
+			<display_name>Choose Pre-Uploaded File</display_name>
+			<function_call>
+				<paint_function   name="paintFileChooser"   />
+				<process_function name="processFileChooser" />
+			</function_call>
+		</field>
 		<field>
 			<display_name></display_name>
 			<function_call>
 				<paint_function   name="paintCreateEditor"   />
 				<process_function name="processCreateEditor" />
 			</function_call>
-		</field>
-	</section>
+		</field>	</section>
 </contents>
