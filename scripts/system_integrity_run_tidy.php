@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_run_tidy.php,v 1.1 2004/10/18 21:30:07 amiller Exp $
+* $Id: system_integrity_run_tidy.php,v 1.2 2004/10/18 21:32:35 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -109,15 +109,15 @@ foreach ($wysiwygids as $wysiwygid => $type_code) {
 					exec($command, $tidy);
 					$new_html = implode("\n", $tidy);
 					unset($tidy);
+					
+					if (!$wysiwyg->setAttrValue('html', $new_html) || !$wysiwyg->saveAttributes()) {
+					printUpdateStatus('TIDY FAIL');
+					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg);
+					continue;
+					}
 				}
 			}
 		}
-	
-	if (!$wysiwyg->setAttrValue('html', $new_html) || !$wysiwyg->saveAttributes()) {
-		printUpdateStatus('TIDY FAIL');
-		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($wysiwyg);
-		continue;
-	}
 	
 	// try to unlock the WYSIWYG
 	if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($wysiwyg->id, 'attributes')) {
