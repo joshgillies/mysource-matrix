@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_whats_new.inc,v 1.4.2.2 2004/10/13 07:50:24 amiller Exp $
+* $Id: page_whats_new.inc,v 1.4.2.3 2004/11/10 03:17:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -211,6 +211,27 @@ class Page_Whats_New extends Page_Asset_Listing
 		return $children;
 
 	}//end getAssetList()
+
+
+	/**
+	* Work out the unique cache key to represent the current page
+	*
+	* @return string
+	* @access private
+	*/
+	function _getCacheKey()
+	{
+		$cache_key = parent::_getCacheKey();
+
+		$ranges = $this->attr('date_ranges');
+		if (!empty($ranges) && isset($_REQUEST['asset_'.$this->id.'_date_range']) && isset($ranges[$_REQUEST['asset_'.$this->id.'_date_range']])) {
+			// add our date range ID to the unique cache key
+			$cache_key .= ':'.$_REQUEST['asset_'.$this->id.'_date_range'];
+		}
+		
+		return $cache_key;
+
+	}//end _getCacheKey()
 
 
 	/**
