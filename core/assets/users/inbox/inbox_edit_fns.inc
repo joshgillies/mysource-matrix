@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: inbox_edit_fns.inc,v 1.43 2005/03/10 23:47:31 gsherwood Exp $
+* $Id: inbox_edit_fns.inc,v 1.44 2005/03/21 03:21:28 dheppell Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitry Baranovskiy <dbaranovskiy@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -455,7 +455,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				$message = $ms->getMessageById($data['msgid']);
 
 				// change message status (read/unread)
-				if (in_array($data['msgid'], $read) && $data['status'] != SQ_MSG_READ) {
+				if (in_array($data['msgid'], $read) && $data['status'] == SQ_MSG_UNREAD) {
 					if (!$message->updateStatus(SQ_MSG_READ)) {
 						trigger_error('Status of message '.$data['msgid'].' was not updated', E_USER_WARNING);
 					}
