@@ -1317,7 +1317,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
-	* Paints the interface for managing permissions
+	* Paint the interface for managing permissions
 	*
 	* @param object	Asset				$owner		the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o			the outputter class
@@ -1394,20 +1394,37 @@ class Asset_Edit_Interface extends Resolve_Object
 
 			if ($admin_access) {
 				$o->openField('New ?', 'new_line');
-				// if Public Access isn't set
-				if (!isset($direct['0'])) {
-					combo_box($prefix.'_permissions['.$perm.'][public_access]', Array('' => '', '1' => 'Grant', '0' => 'Deny'), false, '');
-					echo ' Public Access<br>';
-				}
+					// if Public Access isn't set
+					if (!isset($direct['0'])) {
+						combo_box($prefix.'_permissions['.$perm.'][public_access][access]', Array('' => '', '1' => 'Grant', '0' => 'Deny'), false, '');
+						echo ' Public Access<br/>';
+					}
 
-				combo_box($prefix.'_permissions['.$perm.'][new][access]', Array('' => '', '1' => 'Grant', '0' => 'Deny'), false, '');
-				echo ' Access for ';
-				asset_finder($prefix.'_permissions['.$perm.'][new][userid]', 0, Array('user' => 'D', 'user_group' => 'D'));
-
+					combo_box($prefix.'_permissions['.$perm.'][new][access]', Array('' => '', '1' => 'Grant', '0' => 'Deny'), false, '');
+					echo ' Access for ';
+					asset_finder($prefix.'_permissions['.$perm.'][new][userid]', 0, Array('user' => 'D', 'user_group' => 'D'));
+				$o->closeField();
 			}// end if
 
 			$o->closeSection();
 		}// end foreach $perms
+
+		if ($admin_access) {
+			$kiddies = $owner->getChildren();
+			if (count($kiddies)) {
+				$o->openSection('Casacde Permission Changes?');
+					$o->openField('Note');
+						?>
+						If you choose to cascade the changes to permissions you make on "<?php echo $owner->name; ?>", the changes will also be made on all assets that fall under "<?php echo $owner->name; ?>" in the various hierarchies in which it exists. This will affect <?php echo count($kiddies); ?> other assets.
+						<?php
+					$o->closeField();
+					$o->openField('&nbsp;');
+						check_box($prefix.'_permissions[cascade_changes]', '1', true);
+						echo ' Yes, cascade permission changes';
+					$o->closeField();
+				$o->closeSection();
+			}
+		}
 
 		return $admin_access;
 
@@ -1415,14 +1432,13 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 	/**
-	* Processes the interface for managing permissions
-	* returns true if there is a change
+	* Process the interface for managing permissions
 	*
 	* @param object	Asset				$owner	the asset whose interface we are painting
-	* @param object	Backend_Outputter	$o			the outputter class
+	* @param object	Backend_Outputter	$o		the outputter class
 	*
 	* @access public
-	* @return boolean
+	* @return boolean TRUE is there is a change, false on error or no change
 	*/
 	function processPermissions(&$owner, &$o)
 	{
@@ -1439,6 +1455,12 @@ class Asset_Edit_Interface extends Resolve_Object
 		$prefix = $owner->getPrefix();
 		if (!isset($_POST[$prefix.'_permissions'])) return false;
 
+		// are we cascading these permission changes to our children?
+		$cascade_changes = false;
+		if (isset($_POST[$prefix.'_permissions']['cascade_changes']) && $_POST[$prefix.'_permissions']['cascade_changes']) {
+			$cascade_changes = true;
+		}
+
 		$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
 		foreach ($perms as $title => $perm) {
 			// we need to check for write access each time because
@@ -1449,11 +1471,17 @@ class Asset_Edit_Interface extends Resolve_Object
 			$post_data = $_POST[$prefix.'_permissions'][$perm];
 
 			// grant public access
-			if (isset($post_data['public_access']) && $post_data['public_access'] != '') {
-				$permission_vars[$perm][] = Array('access'          => (int)$post_data['public_access'], 
-												  'userid'          => 0,
-												  'previous_access' => null,
-												  );
+			if (isset($post_data['public_access']['access']) && $post_data['public_access']['access'] != '') {
+				if ($cascade_changes) {
+					// cascading public access of some kind, so queue it up for the HIPO
+					$permission_vars[$perm][] = Array('access'          => (int)$post_data['public_access']['access'], 
+													  'userid'          => 0,
+													  'previous_access' => null,
+													  );
+				} else {
+					// lets do this ourselves
+					if (!$owner->setPermission(0, $perm, $post_data['public_access']['access'])) return false;
+				}
 			}
 
 			// grant access to a user
@@ -1461,23 +1489,34 @@ class Asset_Edit_Interface extends Resolve_Object
 				if (!isset($post_data['new']['access']) || $post_data['new']['access'] == '') {
 					trigger_error('You need to select the type of access in order to set a permission for Asset #'.$post_data['new']['userid'], E_USER_NOTICE);
 				} else {
-					$permission_vars[$perm][] = Array('access'          => (int)$post_data['new']['access'],
-													  'userid'          => (int)$post_data['new']['userid'],
-													  'previous_access' => null,
-													  );
+					if ($cascade_changes) {
+						// cascading access of some kind, so queue it up for the HIPO
+						$permission_vars[$perm][] = Array('access'          => (int)$post_data['new']['access'],
+														  'userid'          => (int)$post_data['new']['userid'],
+														  'previous_access' => null,
+														  );
+					} else {
+						// lets do this ourselves
+						if (!$owner->setPermission($post_data['new']['userid'], $perm, $post_data['new']['access'])) return false;
+
+					}
 				}
 			}
 
-			// revoke access (grant or deny can be revoked)
+			// revoke [delete] access (grant or deny can be revoked)
 			if (!empty($post_data['delete'])) {
 				foreach ($post_data['delete'] as $userid => $on) {
 					$userid = (int)$userid;
-					$current = $owner->getPermission($perm, null, false, false, true);
-					$current_access = $current[$userid];
-					$permission_vars[$perm][] = Array('access'          => -1,
-													  'userid'          => $userid,
-													  'previous_access' => $current_access,
-													  );
+					if ($cascade_changes) {
+						$current = $owner->getPermission($perm, null, false, false, true);
+						$current_access = $current[$userid];
+						$permission_vars[$perm][] = Array('access'          => -1,
+														  'userid'          => $userid,
+														  'previous_access' => $current_access,
+														  );
+					} else {
+						if (!$owner->deletePermission($userid, $perm)) return false;
+					}
 				}
 			}
 
