@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.302 2004/06/09 04:46:21 gsherwood Exp $
+* $Id: asset.inc,v 1.303 2004/06/18 04:30:10 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2317,6 +2317,8 @@ class Asset extends MySource_Object
 									'asset_updated_short',
 									'asset_created_readable',
 									'asset_updated_readable',
+									'asset_created_by_name',
+									'asset_updated_by_name',
 									'asset_url',
 									'asset_href',
 									);
@@ -2345,6 +2347,8 @@ class Asset extends MySource_Object
 			$keywords['asset_updated_short']['description']		= 'The date when the asset was last updated (dd/mm/yyyy)';
 			$keywords['asset_created_readable']['description']	= 'The date when the asset was created (dd m yyyy h:mm[am pm])';
 			$keywords['asset_updated_readable']['description']	= 'The date when the asset was last updated (dd m yyyy h:mm[am pm])';
+			$keywords['asset_created_by_name']['description']	= 'The name of the user who created this asset';
+			$keywords['asset_updated_by_name']['description']	= 'The name of the user who last updated this asset';
 			$keywords['asset_url']['description']				= 'The absolute url to the asset';
 			$keywords['asset_href']['description']				= 'The relative href to the asset';
 		}
