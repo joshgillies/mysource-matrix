@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.11 2004/02/12 01:33:56 gsherwood Exp $
+* $Id: search_page_edit_fns.inc,v 1.12 2004/02/12 01:42:59 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -28,8 +28,8 @@
 *
 *     Edit functions for search page
 *
-* @author  Dominic WOng <dwong@squiz.net>
-* @version $Revision: 1.11 $ - 1.0
+* @author  Dominic Wong <dwong@squiz.net>
+* @version $Revision: 1.12 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -427,9 +427,7 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 				}
 			break;
 			
-			//////////////////////// TESTING NEW FEATURE /////////////////////////
 			case 'asset_attrib': 
-
 				// printing out attribute selection combo box
 				if (!isset($fieldData['params']['searchtype'])) {
 					$search_type = '';
@@ -488,7 +486,6 @@ class Search_Page_Edit_Fns extends Page_Edit_Fns
 					}
 				}
 			break;
-			/////////////////////////////////////////////////////////////////////
 
 			case 'include_all':
 			case 'exclude':
