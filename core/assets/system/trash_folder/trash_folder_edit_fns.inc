@@ -223,7 +223,7 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 			
 			$assetid = $link_info['assetid'];
 			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			
+
 			// if there are outside links, we are not going to delete the asset
 			// but if there are not, then we need to check how many internal links
 			// there are before deciding if we should delete the asset or not
@@ -245,8 +245,15 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 					return;
 				}
 			} else {
-				// this is the last link for this asset, so
-				// lets delete it for good
+				// we have an asset ready to delete, but we need to check with
+				// the asset manager that we are allowed to delete it
+				if (!$GLOBALS['SQ_SYSTEM']->am->canPurgeAsset($asset)) {
+					trigger_error('Purge aborted, unable to delete "'.$asset->name.'" ['.$asset->id.']', E_USER_WARNING);
+					$pb->abort();
+					return;
+				}
+
+				// this is the last link for this asset, so lets delete it for good
 				if (!$asset->delete(false)) {
 					trigger_error('Purge aborted, unable to delete "'.$asset->name.'" ['.$asset->id.']', E_USER_WARNING);
 					$pb->abort();
