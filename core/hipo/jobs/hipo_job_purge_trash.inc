@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_purge_trash.inc,v 1.13 2004/05/21 01:57:38 gsherwood Exp $
+* $Id: hipo_job_purge_trash.inc,v 1.14 2004/06/04 06:28:40 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -183,10 +183,11 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 			return false;
 		}
 
-		$this->_running_vars['todo_links']    = $children;
-		$this->_running_vars['done_links']    = Array();
-		$this->_running_vars['trash_treeid']  = $treeid;    // the treeid of the trash folder
-		$this->_running_vars['trash_id']      = $trash->id; // the asset id of the trash folder
+		$this->_running_vars['todo_links']     = $children;
+		$this->_running_vars['done_links']     = Array();
+		$this->_running_vars['deleted_assets'] = Array();
+		$this->_running_vars['trash_treeid']   = $treeid;    // the treeid of the trash folder
+		$this->_running_vars['trash_id']       = $trash->id; // the asset id of the trash folder
 
 		return parent::prepare();
 	
@@ -235,12 +236,13 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 				$step_data['message'] = 'Skipping "'.$asset->name.'" as it has already been deleted';
 			} else {
 				$assetid = $link_info['assetid'];
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $link_info['type_code'], true);
-				if (is_null($asset)) {
-					// if the asset doesnt exist it was probably deleted earlier on
-					// thats why we mute errors above
+				
+				if (in_array($assetid, $this->_running_vars['deleted_assets'])) {
+					// asset was already deleted
 					$step_data['message'] = 'Skipping link #'.$link_info['linkid'].' as it has already been deleted';
 				} else {
+
+					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, $link_info['type_code'], true);
 
 					$db = &$GLOBALS['SQ_SYSTEM']->db;
 					
@@ -376,6 +378,7 @@ class HIPO_Job_Purge_Trash extends HIPO_Job
 								$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->_running_vars['trash_id'], 'all');
 
 								$step_data['message'] = 'Deleting "'.$asset->name.'" [#'.$assetid.']';
+								$this->_running_vars['deleted_assets'][] = $assetid;
 								$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 							}
 						}
