@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.271 2005/02/18 00:48:57 rhoward Exp $
+* $Id: asset_manager.inc,v 1.272 2005/02/21 11:27:29 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *    Holds information on installed packages, as represented by the DB
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.271 $
+* @version $Revision: 1.272 $
 * @package MySource_Matrix
 */
 class Asset_Manager extends MySource_Object
@@ -96,12 +96,13 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Returns the asset types and their information.
 	*
+	* @param  boolean   $instantiable		does the asset type need to instanstiable or not ? NULL = don't care
+	* @param  boolean   $non_system_access	we don't want assets that only have system access
 	*
-	* @param  boolean   $instantiable
 	* @return Array(type_code => Array(info))
 	* @access public
 	*/
-	function getAssetTypes($instantiable=null)
+	function getAssetTypes($instantiable=null, $non_system_access=false)
 	{
 		$asset_types = Array();
 
@@ -109,11 +110,15 @@ class Asset_Manager extends MySource_Object
 		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation
 				FROM '.SQ_TABLE_PREFIX.'ast_typ';
 
+		$where = '';
 		if (!is_null($instantiable)) {
-			$sql .= ' WHERE instantiable = '.$db->quote((int)$instantiable);
+			$where .= ' WHERE instantiable = '.$db->quote((int)$instantiable);
+		}
+		if ($non_system_access) {
+			$where .= (($where) ? ' AND' : ' WHERE').' allowed_access != '.$db->quote('system');
 		}
 
-		$result = $db->query($sql);
+		$result = $db->query($sql.$where);
 		assert_valid_db_result($result);
 
 		while (null !== ($row = $result->fetchRow())) {
@@ -417,12 +422,12 @@ class Asset_Manager extends MySource_Object
 	* or for under the the passed asset type
 	*
 	* @param string		$base_type_code			the asset type's hierarchy to return
-	* @param boolean	$ignore_allowed_access
+	* @param string		$allowed_access
 	*
 	* @return array
 	* @access public
 	*/
-	function getAssetTypeHierarchy($base_type_code='', $allowed_access=false)
+	function getAssetTypeHierarchy($base_type_code='', $allowed_access='')
 	{
 		if (empty($base_type_code)) $base_type_code = 'asset';
 
@@ -4308,6 +4313,36 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getDesignFromURL()
+
+
+	/**
+	* Return the lookup value for the passed URL
+	*
+	* @param string		$url		the url to get the design for
+	* @param string		$value_name	the code for the design (eg. design::system::frontend)
+	*
+	* @return string	the value
+	* @access public
+	*/
+	function getValueFromURL($url, $value_name)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT lv.value
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
+				';
+		$where ='l.url = '.$db->quote($url).'
+				   AND lv.name = '.$db->quote($value_name);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$sql .= $where;
+
+		$result = $db->getOne($sql);
+		assert_valid_db_result($result);
+		return $result;
+
+	}//end getValueFromURL()
 
 
 	/**

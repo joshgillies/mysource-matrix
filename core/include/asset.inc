@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.364 2005/02/18 00:07:10 arailean Exp $
+* $Id: asset.inc,v 1.365 2005/02/21 11:27:28 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.364 $
+* @version $Revision: 1.365 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3430,6 +3430,55 @@ class Asset extends MySource_Object
 
 
 	/**
+	* Returns a list of lookup value information associated with this asset matching the criteria
+	*
+	* @param boolean|null	$inherited		include inherited values (NULL = don't care, TRUE = Yes, FALSE = no)
+	* @param string			$prefix			a prefix to search for in the name field of ast_lookup_value
+	* @param boolean		$like_search	TRUE = LIKE $prefix, FALSE = NOT LIKE $prefix
+	*
+	* @return Array()	<pre>
+	*						Array([url] => Array(
+	*							[name] => Array('value' => [value], 'inhd' => [inhd]),
+	*							....
+	*						)
+	*					 </pre>
+	* @access public
+	*/
+	function getLookupValues($inherited=null, $prefix='', $like_search=true)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT l.url, lv.name, lv.value, lv.inhd
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lookup_value lv ON l.url = lv.url
+				';
+		$where = 'l.assetid = '.$db->quote($this->id);
+		if (!is_null($inherited)) {
+			$where .= ' AND lv.inhd = '.$db->quote((int) $inherited);
+		}
+		if ($prefix != '') {
+			$where .= ' AND lv.name '.((!$like_search) ? 'NOT' : '').' LIKE '.$db->quote('design::%');
+		}
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lv');
+
+		$result = $db->query($sql.$where);
+		assert_valid_db_result($result);
+
+		$ret_val = Array();
+		while (null !== ($row = $result->fetchRow())) {
+			if (!isset($ret_val[$row['url']])) $ret_val[$row['url']] = Array();
+			$ret_val[$row['url']][$row['name']] = Array('value' => $row['value'], 'inhd' => $row['inhd']);
+		}
+		$result->free();
+
+		return $ret_val;
+
+	}//end getLookupValues()
+
+
+	/**
 	* Called to force an update of this assets lookup information
 	*
 	* @return boolean
@@ -3458,12 +3507,16 @@ class Asset extends MySource_Object
 		$old_urls = $db->getAll($sql);
 		assert_valid_db_result($old_urls);
 
+
+		// get all the lookup information that we have set, ignoring designs as they are set on every url
+		$our_lookup_values = $this->getLookupValues(false, $prefix='design::', false);
+
+
 		$current_urls = Array();
 		foreach ($old_urls as $url_data) $current_urls[] = $db->quote($url_data['url']);
 
 		if (!empty($current_urls)) {
-			$where = 'url IN ('.implode(',', $current_urls).')
-					  AND name LIKE '.$db->quote('design::%');
+			$where = 'url IN ('.implode(',', $current_urls).')';
 			if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_value', $where)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
@@ -3486,7 +3539,10 @@ class Asset extends MySource_Object
 			$our_designs = Array();
 			foreach ($our_design_links as $link) {
 				if (preg_match('/^design::(system|user)::.*$/', $link['value'])) {
-					$our_designs[$link['value']] = $link['minorid'];
+					$our_designs[$link['value']] = Array(
+														'value' => $link['minorid'],
+														'inhd' => '0',
+													);
 				}// end if
 			}// end foreach
 
@@ -3501,7 +3557,7 @@ class Asset extends MySource_Object
 				if (is_null($parent)) continue;
 				$done_parents[] = $parent->id;
 
-				$parent_designs = $parent->getDesignLookups();
+				$parent_lookup_values = $parent->getLookupValues();
 
 				$parent_urls    = $parent->getLookups();
 				for ($j = 0, $num_parent_urls = count($parent_urls); $j < $num_parent_urls; $j++) {
@@ -3528,18 +3584,31 @@ class Asset extends MySource_Object
 							return false;
 						}
 
-						// get any of our parent's designs that we haven't overridden
-						$designs = $our_designs;
-						if (!empty($parent_designs[$parent_urls[$j]['url']])) {
-							foreach ($parent_designs[$parent_urls[$j]['url']] as $name => $designid) {
-								if (isset($designs[$name])) continue;
-								$designs[$name] = $designid;
+						$lookup_values = (isset($our_lookup_values[$new_url])) ? $our_lookup_values[$new_url] : Array();
+
+						// all designs go to all urls (at the moment anyway), so merge them all in
+						foreach ($our_designs as $name => $data) {
+							$lookup_values[$name] = Array(
+														'value' => $link['minorid'],
+														'inhd' => '0',
+													);
+						}
+
+						// get any of our parent's lookup values that we haven't overridden
+						if (!empty($parent_lookup_values[$parent_urls[$j]['url']])) {
+							foreach ($parent_lookup_values[$parent_urls[$j]['url']] as $name => $value_data) {
+								if (isset($lookup_values[$name])) continue;
+								$lookup_values[$name] = Array(
+													'value' => $value_data['value'],
+													'inhd' => '1',
+												);
 							}
 						}
-						foreach ($designs as $name => $designid) {
+						foreach ($lookup_values as $name => $data) {
 							$values = Array('url'   => $new_url,
 											'name'  => $name,
-											'value' => $designid,
+											'value' => $data['value'],
+											'inhd'  => $data['inhd'],
 											);
 							if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_value', $values)) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -3553,19 +3622,17 @@ class Asset extends MySource_Object
 
 			}// end for parents
 
-			foreach ($old_urls as $url_data) {
-				$old_url = $url_data['url'];
-				if (!isset($done_urls[$old_url])) {
-					$rm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
-					$new_url = array_shift(array_keys($done_urls));
-
-					if ($new_url != '') {	// don't add a remap if we don't have a URL to map to
-
-						if ($url_data['http'])  $rm->addRemapURL('http://'.$old_url,  'http://'.$new_url);
-						if ($url_data['https']) $rm->addRemapURL('https://'.$old_url, 'https://'.$new_url);
-
-					}
-
+			if (!empty($old_urls)) {
+				$rm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('remap_manager');
+				$new_url = array_shift(array_keys($done_urls));
+				if ($new_url != '') {	// don't add a remap if we don't have a URL to map to
+					foreach ($old_urls as $url_data) {
+						$old_url = $url_data['url'];
+						if (!isset($done_urls[$old_url])) {
+							if ($url_data['http'])  $rm->addRemapURL('http://'.$old_url,  'http://'.$new_url);
+							if ($url_data['https']) $rm->addRemapURL('https://'.$old_url, 'https://'.$new_url);
+						}
+					}//end foreach
 				}
 			}
 
@@ -3576,6 +3643,71 @@ class Asset extends MySource_Object
 		return true;
 
 	}//end updateLookups()
+
+
+	/**
+	* Set's the lookup values for this asset
+	*
+	* @param Array	$lookup_values	array of the values that we want to save
+	*								<pre>
+	*								"[url]" => array (
+	*									"[name]" => array (
+	*										"value" => "[value]",
+	*										"inhd" => "[inherited]",
+	*									),
+	*								),
+	*								</pre>
+	*								NOTE: 'inhd' is ignored - it exists only because it makes it 
+	*								easier to just modify the return value of Asset::getLookupValues()
+	*								all values in this array will be saved with inhd set to 0 (false)
+	*
+	* @return boolean
+	* @access public
+	* @see updateLookups()
+	*/
+	function setLookupValues($values)
+	{
+		if (!$this->writeAccess('lookups')) {
+			trigger_error('You do not have permission to set the lookup values of "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+			return false;
+		}
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// delete all values that we have set ourselves
+		$where = 'inhd = '.$db->quote('0').'
+				AND url IN (SELECT url FROM '.SQ_TABLE_PREFIX.'ast_lookup WHERE assetid = '.$db->quote($this->id).')';
+		if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lookup_value', $where)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$lookups = $this->getLookups('url');
+
+		foreach($values as $url => $values_data) {
+			if (!in_array($url, $lookups)) continue;
+			if (empty($values_data)) continue;
+			$names = Array();
+			foreach($values_data as $value_name => $value_data) {
+
+				$insert_values = Array(
+									'url'   => $url,
+									'name'  => $value_name,
+									'value' => $value_data['value'],
+									'inhd'  => '0',
+									);
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('ast_lookup_value', $insert_values)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}
+			}//end foreach
+		}//end foreach
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return true;
+
+	}//end setLookupValues()
 
 
 //--        INDEXING        --//

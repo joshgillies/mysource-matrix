@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_fns.inc,v 1.42 2005/02/04 04:18:52 gsherwood Exp $
+* $Id: asset_edit_fns.inc,v 1.43 2005/02/21 11:27:30 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.42 $
+* @version $Revision: 1.43 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Fns extends MySource_Object
@@ -96,6 +96,12 @@ class Asset_Edit_Fns extends MySource_Object
 														'force_unlock' => true,
 														'lock_type'    => 'none',
 													),
+								'lookupValues'		=> Array(
+														'name'         => 'Lookup Settings',
+														'force_unlock' => false,
+														'lock_type'    => 'all',
+													),
+
 								);
 
 
