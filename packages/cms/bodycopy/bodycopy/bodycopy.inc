@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy.inc,v 1.27 2003/09/26 05:26:40 brobertson Exp $
+* $Id: bodycopy.inc,v 1.28 2003/10/08 23:45:37 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -62,7 +62,7 @@ class Bodycopy extends Asset
 
 		// replace all ./?a=xx links with php echo's
 		$e = "/?\./\\?a=([0-9]+)([^0-9]+)";
-		$with = '<?php echo $sq_asset_url_list[\\1]; ?>';
+		$with = '<'.'?php echo $sq_asset_url_list[\\1]; ?'.'>';
 		$output = ereg_replace($e, $with.'\\2', $output);
 
 		// save the contents of the bodycopy
