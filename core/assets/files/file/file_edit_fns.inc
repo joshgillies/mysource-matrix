@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_edit_fns.inc,v 1.41 2004/06/28 16:16:13 brobertson Exp $
+* $Id: file_edit_fns.inc,v 1.42 2004/07/23 07:09:00 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,7 +66,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	* @return void
 	* @access public
 	*/
-	function _printExistingFileInfo(&$asset)
+	function printExistingFileInfo(&$asset)
 	{
 		$existing = $asset->_getExistingFile();
 		if (!empty($existing)) {
@@ -78,7 +78,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 			<?php
 		}
 
-	}//end _printExistingFileInfo()
+	}//end printExistingFileInfo()
 
 
 	/**
@@ -96,7 +96,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if ($asset->writeAccess('attributes')) {
 			file_upload($prefix);
 		}
-		$this->_printExistingFileInfo($asset);
+		$this->printExistingFileInfo($asset);
 		return true;
 
 	}//end paintFileUpload()
@@ -235,102 +235,6 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 	}//end processFileUpload()
 
-
-	/**
-	* Prints the interface for adding a thumbnail
-	*
-	* @param object File				&$asset	the file asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintThumbnail(&$asset, &$o, $prefix)
-	{
-		// get the current thumbnail if there is one
-		$thumb_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_3, 'thumbnail', true, 'thumbnail');
-		if (!empty($thumb_link)) {
-			$thumb = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thumb_link['minorid'], $thumb_link['minor_type_code'], true);
-			$existing = $thumb->_getExistingFile();
-			if (!empty($existing)) {
-				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-				?> 
-					<p style="font-size: 7pt">
-					<b><a href="<?php echo current_url().'?a='.$thumb->id?>" target="_blank">Current Thumbnail</a></b><br/>
-					<b>Filename:</b> <?php echo $thumb->attr('name')?><br/>
-					<b>Size:</b> <?php echo easy_filesize($existing['size'])?><br/>
-					<b>Dimensions:</b> <?php echo $existing['width'].' x '.$existing['height']?><br/>
-					<b>Updated:</b> <?php echo readable_datetime($existing['modified'])?><br/>
-					<input type="checkbox" name="<?php echo $prefix?>_delete_thumbnail" value="1">&nbsp;Remove Thumbnail<br/>
-					</p>
-				<?php
-			} else {
-				?> 
-					<p style="font-size: 7pt">
-					<b>Current Thumbnail</b><br/>
-					<b>Filename:</b> <?php echo $thumb->attr('name')?><br/>
-					<b>Note:</b> <i>No file has been uploaded for this thumbnail</i>
-					</p>
-				<?php
-			}
-		} else {
-			echo 'No thumbnail attached<br/>';
-		}
-
-		if ($asset->writeAccess('links')) asset_finder($prefix.'_thumbid', '', Array('thumbnail' => 'D'));
-
-	}//end paintThumbnail()
-
-
-	/**
-	* Processes the interface for creating a thumbnail
-	*
-	* @param object File				&$asset	the file asset
-	* @param object	Backend_Outputter	$o		the outputter class
-	* @param string						$prefix	prefix for form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processThumbnail(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('links')) return false;
-		if (!isset($_POST[$prefix.'_thumbid']['assetid'])) return false;
-
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-		
-		$thumbid = (int) $_POST[$prefix.'_thumbid']['assetid'];
-
-		if (isset($_POST[$prefix.'_delete_thumbnail'])) {
-			// they want to remove the thumbnail
-			$thumb_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_3, 'thumbnail', true, 'thumbnail');
-			if (!$asset->deleteLink($thumb_link['linkid'])) return false;
-		}
-
-		if (!$thumbid) return true;
-
-		$thumb = &$am->getAsset($thumbid, '', true);
-		if (!$thumb->id || get_class($thumb) != 'thumbnail') {
-			return false;
-		}
-		
-		// get the current thumbnail if there is one
-		$thumb_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_3, 'thumbnail', true, 'thumbnail');
-		
-		// return if they are trying to set the thumb to the current thumb
-		if ($thumb_link['minorid'] == $thumb->id) return true;
-
-		if (!empty($thumb_link)) {
-			if (!$asset->deleteLink($thumb_link['linkid'])) return false;
-		}
-
-		// create new link to thumbnail
-		$asset->createLink($thumb, SQ_LINK_TYPE_3, 'thumbnail');
-
-		return true;
-
-	}//end processThumbnail
 
 }//end class
 ?>
