@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user_management.inc,v 1.19 2004/02/10 04:13:30 gsherwood Exp $
+* $Id: user_management.inc,v 1.20 2004/02/10 16:20:23 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,23 +75,27 @@ class User_Management extends Asset_Management
 							),
 						);
 
-		$this->components['name']['default_weighting'] = '1';
-		$this->components['username'] = Array (
-											'description'      => 'Username',
-											'default_weighting' => '1',
-											);
-		$this->components['first_name'] = Array (
-											'description'      => 'First Name',
-											'default_weighting' => '1',
-											);
-		$this->components['last_name'] = Array (
-											'description'      => 'Last Name',
-											'default_weighting' => '1',
-											);
-		$this->components['email'] = Array (
-											'description'      => 'Email Address',
-											'default_weighting' => '1',
-											);
+		$this->components = Array(
+								'__name__' => Array(
+									'default_weighting' => '1',
+								),
+								'username' => Array (
+									'description'       => 'Username',
+									'default_weighting' => '1',
+								),
+								'first_name' => Array (
+									'description'       => 'First Name',
+									'default_weighting' => '1',
+								),
+								'last_name' => Array (
+									'description'       => 'Last Name',
+									'default_weighting' => '1',
+								),
+								'email' => Array (
+									'description'       => 'Email Address',
+									'default_weighting' => '1',
+								),
+							);
 
 	}//end constructor
 

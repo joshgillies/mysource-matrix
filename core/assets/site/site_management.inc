@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_management.inc,v 1.10 2003/11/26 00:50:59 gsherwood Exp $
+* $Id: site_management.inc,v 1.11 2004/02/10 16:22:37 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,7 +45,11 @@ class Site_Management extends Asset_Management
 	function Site_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
-		$this->components['name']['default_weighting'] = '1';
+		$this->components = Array(
+								'__name__' => Array(
+									'default_weighting' => '1',
+								),
+							);
 
 	}//end constructor
 
