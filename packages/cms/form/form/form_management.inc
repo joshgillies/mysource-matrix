@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_management.inc,v 1.8 2003/10/15 03:21:51 mmcintyre Exp $
+* $Id: form_management.inc,v 1.9 2003/11/10 03:01:28 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -17,7 +17,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage __core__
+* @subpackage __PACKAGES__
 */
 class Form_Management extends Asset_Management
 {
@@ -149,6 +149,32 @@ class Form_Management extends Asset_Management
 
 							);
 	}//end constructor
+
+
+	/**
+	* returns an array with information about the events that the form is listening for
+	*
+	* @access public
+	* @return boolean
+	*/
+	function getEventList()
+	{
+		return Array(
+				Array(
+					'event_name'				 => 'contentsUpdated',
+					'broadcast_type_code'		 => 'bodycopy_container',
+					'broadcast_strict_type_code'	=> false,	// div, table cell etc
+					'options'	=> Array(
+						'side_of_link'					=> 'minor',	// side of link where the broadcaster exists
+						'indirect'						=> true,
+						'exclusive'						=> null,
+						'dependant'						=> 1,
+						'value'							=> '',
+						'link_type'						=> SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+					),
+				),
+		);
+	}//end getEventList()
 
 }//end class
 ?>
