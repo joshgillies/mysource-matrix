@@ -1,1 +1,8 @@
-<contents />
+<contents>
+	<section name="Morphing">
+		<field code="morph_new_type">
+			<display_name>New Type</display_name>
+			<note />
+		</field>
+	</section>
+</contents>
