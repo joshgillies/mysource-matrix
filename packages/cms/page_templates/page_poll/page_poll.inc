@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.2 2004/12/23 23:07:51 rhoward Exp $
+* $Id: page_poll.inc,v 1.3 2004/12/24 02:48:02 rhoward Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -650,7 +650,6 @@ class Page_Poll extends Page
 
 			// if the poll is the active poll, and they don't want to print
 			// the active poll, jump to the next iteration.
-			echo $info_index.' - '.$active_question_id;
 			if ($info_index == $active_question_id && $no_active) {
 				continue;
 			}
