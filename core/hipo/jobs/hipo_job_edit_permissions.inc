@@ -79,12 +79,6 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			return false;
 		}
 
-		// we need a list of changes to perform before we can start this HIPO
-		if (empty($this->_running_vars['permission_changes'])) {
-			trigger_error('Cannot initialise Edit Permissions HIPO, no permission changes specified', E_USER_WARNING);
-			return false;
-		}
-
 		// so we have an assetid to start at, but make sure it is a valid assetid
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->_running_vars['assetid']);
 		if (is_null($asset)) {
@@ -92,12 +86,18 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 			return false;
 		}
 
-		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
-		// we will be affecting out list of permission changes on
-		$child_assets = Array();
-		$child_assets = array_merge(Array($asset->id), $asset->getChildren());
-		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
+		if (empty($this->_running_vars['permission_changes'])) {
+			// no permission changes, so do nothing
+			$this->_running_vars['todo_assetids'] = Array();
+		} else {
+			// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
+			// we will be affecting out list of permission changes on
+			$child_assets = Array();
+			$child_assets = array_merge(Array($asset->id), $asset->getChildren());
+			$this->_running_vars['todo_assetids'] = $child_assets;
+			$this->_running_vars['done_assetids'] = Array();
+		}
 
 		unset($asset);
 
@@ -137,7 +137,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 						if ($set_data['previous_access'] === null) {
 							// to edit this permission, there must not currently be a permission set
 							// at all - either grant OR deny - for this user
-							$current = $asset->getPermission($perm, null, false);
+							$current = $asset->getPermission($perm, null, false, false, true);
 							if (isset($current[$set_data['userid']])) {
 								$new_access     = ($set_data['access']) ? 'grant' : 'revoke';
 								$current_access = ($current[$set_data['userid']]) ? 'granted' : 'revoked';
