@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.228 2004/08/27 01:56:28 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.229 2004/08/30 04:47:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -810,7 +810,7 @@ class Asset_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$where = '';
 
-		for($i = 0; $i < count($assetids); $i++) $assetids[$i] = $db->quote($assetids[$i]);
+		for ($i = 0; $i < count($assetids); $i++) $assetids[$i] = $db->quote($assetids[$i]);
 		$where .= 'a.assetid IN ('.implode(', ', $assetids).')';
 
 		if (!empty($type_code)) {
@@ -1670,11 +1670,14 @@ class Asset_Manager extends MySource_Object
 	*											this (if not null)
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
+	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	* 											Specify that links should be returned for assets the user has read,
+	* 											write, or admin access for. Leave NULL to ignore permissions.
 	*
 	* @return array
 	* @access public
 	*/
-	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null, $sort_by=null)
+	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null, $sort_by=null, $access=null)
 	{
 		assert_valid_assetid($assetid);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
@@ -1707,7 +1710,7 @@ class Asset_Manager extends MySource_Object
 
 
 		// we couldnt palm the request off, so we better do it ourselves
-		$query = $this->generateGetLinksQuery($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by);
+		$query = $this->generateGetLinksQuery($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by, $access);
 		if (empty($query)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -1970,12 +1973,15 @@ class Asset_Manager extends MySource_Object
 	*											or $type_code and any of it's sub-classes
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
+	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	* 											Specify that links should be returned for assets the user has read,
+	* 											write, or admin access for. Leave NULL to ignore permissions.
 	*
 	* @return array(int => string)	returns an array of assetids and their type code
 	* @access public
 	* @see generateGetChildrenQuery()
 	*/
-	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
+	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
 	{
 		assert_valid_assetid($assetid);
 
@@ -2008,7 +2014,7 @@ class Asset_Manager extends MySource_Object
 			return $children;
 		}
 
-		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by);
+		$query = $this->generateGetChildrenQuery($asset, $type_code, $strict_type_code, $sort_by, $access);
 		$this->forgetAsset($asset);
 		unset($asset);
 		if (empty($query)) return Array();
@@ -4325,9 +4331,9 @@ class Asset_Manager extends MySource_Object
 	* @param int			$link_types			integer that can be the product of bitwise operations
 	*											on the SQ_LINK_* constants
 	* @param string|array	$type_code			the type of asset that is linked
-	*											(eg 'Page', 'File', etc)
-	*											if an array returns link if matches any
-	*											of the array values
+	* 											(eg 'Page', 'File', etc)
+	* 											if an array returns link if matches any
+	* 											of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link this (the current) asset
@@ -4339,11 +4345,14 @@ class Asset_Manager extends MySource_Object
 	*											this (if not null)
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
+	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	* 											Specify that links should be returned for assets the user has read,
+	* 											write, or admin access for. Leave NULL to ignore permissions.
 	*
 	* @return Array()
 	* @access public
 	*/
-	function generateGetLinksQuery($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null, $sort_by=null)
+	function generateGetLinksQuery($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null, $sort_by=null, $access=null)
 	{
 		assert_valid_assetid($assetid);
 		assert_false($side_of_link != 'major' && $side_of_link != 'minor', 'Unknown Side of Link "'.$side_of_link.'"');
@@ -4354,13 +4363,37 @@ class Asset_Manager extends MySource_Object
 
 		$select = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
 						a.type_code as '.$other_side.'_type_code, l.sort_order, l.dependant, l.exclusive';
-		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset a';
+		$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l,
+						'.SQ_TABLE_RUNNING_PREFIX.'asset a';
 		$where = 'l.'.$other_side.'id = a.assetid
 				  AND l.'.$side_of_link.'id = '.$db->quote($assetid).'
 				  AND (l.link_type & '.$db->quote($link_types).') > 0 ';
 		if (!is_null($value))		$where .= ' AND l.value     = '.$db->quote($value);
 		if (!is_null($dependant))	$where .= ' AND l.dependant = '.$db->quote(($dependant) ? '1' : '0');
 		if (!is_null($exclusive))	$where .= ' AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+		
+		$group_by = '';
+		if (!is_null($access)) {
+			$from .= ', '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p';
+			$where .= ' AND p.assetid = a.assetid';
+			$userid_cond = '';
+			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+					for(reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+						$userids[$i] = $db->quote($userids[$i]);
+					}
+					$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+				}
+			} else {
+				// public users
+				$userid_cond = ' AND p.userid = 0';
+			}
+			$where .= $userid_cond.' AND p.access >= '.$db->quote($access);
+			$group_by = 'GROUP BY l.linkid, l.'.$other_side.'id, l.value, l.link_type,
+						          a.type_code, l.sort_order, l.dependant, l.exclusive';
+		}
 
 		if (!empty($type_code)) {
 
@@ -4400,6 +4433,7 @@ class Asset_Manager extends MySource_Object
 		return Array('select'   => $select,
 					 'from'     => $from,
 					 'where'    => $where,
+					 'group_by' => $group_by,
 					 'order_by' => $order_by,
 					);
 
@@ -4423,12 +4457,15 @@ class Asset_Manager extends MySource_Object
 	*											or $type_code and any of it's sub-classes
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
+	* @param int			$access				SQ_PERMISSION_READ|SQ_PERMISSION_WRITE|SQ_PERMISSION_ADMIN
+	* 											Specify that links should be returned for assets the user has read,
+	* 											write, or admin access for. Leave NULL to ignore permissions.
 	*
 	* @return Array(int => string)	returns an array of assetids and their type code
 	* @access public
 	* @see getChildren()
 	*/
-	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=true, $sort_by=null)
+	function generateGetChildrenQuery(&$asset, $type_code='', $strict_type_code=true, $sort_by=null, $access=null)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -4437,7 +4474,7 @@ class Asset_Manager extends MySource_Object
 			$select = 'SELECT a.assetid, a.type_code';
 			$from   = 'FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a';
 			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
-			if (!empty($where) && !empty($type_code)) $where .= ' AND ';
+			if (!empty($where) && (!empty($type_code) || !is_null($access))) $where .= ' AND ';
 
 		// OK, normal asset, let's find a reference to them in the tree and go from there
 		} else {
@@ -4462,9 +4499,37 @@ class Asset_Manager extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-			if (!empty($type_code)) $where .= ' AND ';
+			
+			if (!empty($type_code) || !is_null($access)) $where .= ' AND ';
 
 		}// end if assetid == 1
+
+
+		$group_by = '';
+		if (!is_null($access)) {
+			$from .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p ON a.assetid = p.assetid';
+			$where .= 'p.assetid = a.assetid';
+			$userid_cond = '';
+			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
+				if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
+					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
+					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+					for(reset($userids); NULL !== ($i = key($userids)); next($userids)) {
+						$userids[$i] = $db->quote($userids[$i]);
+					}
+					$userid_cond = ' AND p.userid  IN ('.implode(',', $userids).')';
+				}
+			} else {
+				// public users
+				$userid_cond = ' AND p.userid = 0';
+			}
+			$where .= $userid_cond.' AND p.access >= '.$db->quote($access);
+			//$group_by = 'GROUP BY l.linkid, l.'.$other_side.'id, l.value, l.link_type,
+			//			          a.type_code, l.sort_order, l.dependant, l.exclusive';
+
+			if (!empty($type_code)) $where .= ' AND ';
+		}
+
 
 		if (!empty($type_code)) {
 
