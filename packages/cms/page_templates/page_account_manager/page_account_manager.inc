@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.7 2004/01/22 10:33:11 brobertson Exp $
+* $Id: page_account_manager.inc,v 1.8 2004/02/17 04:58:13 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -209,7 +209,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		if (isset($_POST['ASSET_BUILDER_ACTION'])) {
 			switch (strtolower($_POST['ASSET_BUILDER_ACTION'])) {
 				case 'create' :
-					if (empty($this->_errors)) {
+					if (empty($this->_errors) && !empty($this->_tmp['created_asset'])) {
 						// the new user was created and can log in, so make sure the page is in the right state
 						if ($this->attr('create_status') >= SQ_STATUS_LIVE) {
 							$this->_current_state = 'create_login';
