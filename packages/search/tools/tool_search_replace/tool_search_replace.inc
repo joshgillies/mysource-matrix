@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.2 2005/03/18 05:23:04 dheppell Exp $
+* $Id: tool_search_replace.inc,v 1.3 2005/03/23 00:55:45 ndvries Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -138,25 +138,25 @@ class Tool_Search_Replace extends Tool
 	{
 		//ensure we have a search string
 		if ($_REQUEST[$type_code.'_search_string'] == '') {
-			trigger_error('Required search string was blank', E_USER_WARNING);
+			trigger_error('Required search string was blank', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_search_types'])) {
-			trigger_error('No asset types were selected', E_USER_WARNING);
+			trigger_error('No asset types were selected', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_statuses'])) {
-			trigger_error('No asset statuses were selected', E_USER_WARNING);
+			trigger_error('No asset statuses were selected', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
 
 		if (!isset($_REQUEST[$type_code.'_root_assetid']) && !isset($_REQUEST[$type_code.'_root_folder'])) {
-			trigger_error('No root has been specified', E_USER_WARNING);
+			trigger_error('No root has been specified', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
@@ -196,7 +196,7 @@ class Tool_Search_Replace extends Tool
 
 		//no matches were found, trigger error and paint getInterface
 		if (!$search_results) {
-			trigger_error('No Matches for '.$_REQUEST[$type_code.'_search_string'].' could be found', E_USER_WARNING);
+			trigger_error('No Matches for '.$_REQUEST[$type_code.'_search_string'].' could be found', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
@@ -205,7 +205,7 @@ class Tool_Search_Replace extends Tool
 
 		//after formatting the results, there were no real replaceable matches
 		if (empty($formatted_results)) {
-			trigger_error('No Matches for '.$_REQUEST[$type_code.'_search_string'].' could be found', E_USER_WARNING);
+			trigger_error('No Matches for '.$_REQUEST[$type_code.'_search_string'].' could be found', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
