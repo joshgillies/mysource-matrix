@@ -3771,9 +3771,20 @@ class Asset extends Resolve_Object
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 		}
 
-		$perms = $this->getPermission($perm, true);
-		if (in_array('0', $perms)) return true;
-		$common = array_intersect($assetids, $perms);
+		$grants  = $this->getPermission($perm, true);
+		$revokes = $this->getPermission($perm, false);
+
+		// has their access been revoked at all?
+		if (!empty($revokes)) {
+			$revoked = array_intersect($assetids, $revokes);
+			if (!empty($revoked)) return false;
+		}
+
+		// is public access granted?
+		if (in_array('0', $grants)) return true;
+
+		// have they been granted access?
+		$common = array_intersect($assetids, $grants);
 		return (!empty($common));
 
 	}//end _checkDbAccess()
