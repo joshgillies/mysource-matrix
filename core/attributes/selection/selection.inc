@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.23 2004/06/25 16:10:23 brobertson Exp $
+* $Id: selection.inc,v 1.24 2004/06/25 16:12:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -372,12 +372,10 @@ class Asset_Attribute_Selection extends Asset_Attribute
 
 
 	/**
-	* Retrieve a list of indexable values from this attribute
+	* Returns an array of the current value with the individual selection values as keys 
+	* and the display names as values
 	*
-	* The return value not only contains the indexable values, but also the number of
-	* times they occur in this attributes value
-	*
-	* @return array(string => int)
+	* @return array(scalar => scalar)
 	* @access public
 	*/
 	function getValueArray()
