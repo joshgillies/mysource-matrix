@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.19 2004/11/16 05:00:57 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.20 2004/11/22 05:39:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.19 $ - 1.0
+* @version $Revision: 1.20 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -765,9 +765,9 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				<td class="sq-backend-table-cell">
 					<?php
 						if ($write_access) {
-							check_box($prefix.'_root_nodes_columnised[other]', '1', in_array('other', $current_column_nodes));
+							check_box($prefix.'_root_nodes_columnised[other]', '1', in_array('*', $current_column_nodes));
 						} else {
-							echo '<img src="'.sq_web_path('lib').'/web/images/'.(in_array('other', $current_column_nodes) ? 'tick' : 'cross').'.gif" width="15" height="15" />';
+							echo '<img src="'.sq_web_path('lib').'/web/images/'.(in_array('*', $current_column_nodes) ? 'tick' : 'cross').'.gif" width="15" height="15" />';
 						}
 					?>
 				</td>
@@ -789,16 +789,17 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	*/
 	function processColumnNodes(&$asset, &$o, $prefix)
 	{
-		$val = Array('other');
+		$val = Array();
 		if (isset($_REQUEST[$prefix.'_root_nodes_columnised']) && is_array($_REQUEST[$prefix.'_root_nodes_columnised']))  {
-			if (!(isset($_REQUEST[$prefix.'_root_nodes_columnised']['other']) && $_REQUEST[$prefix.'_root_nodes_columnised']['other'])) { 
-				$val = Array();
+			if ((isset($_REQUEST[$prefix.'_root_nodes_columnised']['other']) && $_REQUEST[$prefix.'_root_nodes_columnised']['other'])) { 
+				$val = Array('*');
 				unset($_REQUEST[$prefix.'_root_nodes_columnised']['other']);
 			}
 			foreach ($_REQUEST[$prefix.'_root_nodes_columnised'] as $id => $status) {
 				if ($status) $val[] = $id;
 			}
 		}
+		if (empty($val)) $val = Array('*');
 		return $asset->setAttrValue('columnise_day_view_by_root_node', $val);
 	}
 	
