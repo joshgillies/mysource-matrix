@@ -93,3 +93,14 @@ function _dialog_border_bottom_right(dialog, x, y, w, h, colour)
 	dialog.lineTo(x,         y + h - 1);
 	dialog.endFill();
 }
+
+function adjust_brightness (colour, brightness) {
+	var red = (colour >> 16) & 0xff;
+	var green = (colour >> 8) & 0xff;
+	var blue = (colour) & 0xff;
+
+	var new_colour = ((red * brightness) << 16) + ((green * brightness) << 8) + (blue * brightness);
+
+	return new_colour;
+
+}

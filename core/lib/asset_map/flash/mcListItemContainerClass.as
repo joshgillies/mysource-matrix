@@ -46,6 +46,7 @@ function mcListItemContainerClass()
 // Make it inherit from Nested Mouse Movements MovieClip
 mcListItemContainerClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS);
 
+
 /**
 * Event fired when the Asset Types object has finished recieving all the asset types from the server
 * We can then run init()
@@ -405,11 +406,13 @@ mcListItemContainerClass.prototype.refreshDisplay = function(start_i)
 
 	// now cycle through every item from the parent down and reset their positions
 	var branch_count = (start_i >= 0) ? this.items_order[start_i].branch_count : 0;
+	
 	for(var i = start_i; i < this.items_order.length; i++) {
 		// set for future use
 		this.items_order[i].branch_count = branch_count;
 		this[this.items_order[i].name].setPos(i);
 		this[this.items_order[i].name]._visible = true;
+		this[this.items_order[i].name].refresh();
 
 		// if we have come across an end branch,
 		// and if we aren't at the last item
@@ -423,6 +426,7 @@ mcListItemContainerClass.prototype.refreshDisplay = function(start_i)
 				}
 			}
 		}
+
 	}// end for
 
 }// end refreshDisplay()
@@ -651,8 +655,6 @@ mcListItemContainerClass.prototype.moveConfirm = function(move_type, params)
 		cmd_elem.attributes.to_parent_assetid   = params.parent_assetid;
 		cmd_elem.attributes.to_parent_pos       = params.relative_pos;
 		xml.appendChild(cmd_elem);
-
-		trace(xml);
 
 		// start the loading process
 		var exec_identifier = _root.server_exec.init_exec(xml, this, "xmlMoveItem", "");

@@ -24,11 +24,7 @@ function mcTabsClass()
 }
 
 // Make it inherit from Nested Mouse Movements MovieClip
-mcTabsClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS);
-mcTabsClass.prototype.colours = {
-									normal:   { fg: 0x000000, bg: 0xB1BDCD },
-									selected: { fg: 0x000000, bg: 0xE0E0E0 }
-								 };
+mcTabsClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS | NestedMouseMovieClip.NM_ON_ROLL);
 
 /**
 * Creates a tab using the passed export name and set's it to the passed name
@@ -39,7 +35,7 @@ mcTabsClass.prototype.colours = {
 *
 * @public
 */
-mcTabsClass.prototype.addTab = function(tab_type, name, label)
+mcTabsClass.prototype.addTab = function(tab_type, name, label, iconID)
 {
 	// bugger off if we already have a tab by this name
 	if (this.tabs.search(name) != null) return;
@@ -50,13 +46,14 @@ mcTabsClass.prototype.addTab = function(tab_type, name, label)
 	this.attachMovie("mcTabButtonID", "tab_button_" + name, depth + 2);
 
 	this["tab_button_" + name].setLabel(label);
+	this["tab_button_" + name].setIcon(iconID);
 	this["tab_button_" + name]._visible = true;
 	this["tab_button_" + name]._y = 0;
 
 	if (this.tabs.length > 0) {
 		var last_button_name = "tab_button_" + this.tabs[this.tabs.length - 1];
 		// + 1 is for black line
-		this["tab_button_" + name]._x = this[last_button_name]._x + 1 + this[last_button_name]._width;
+		this["tab_button_" + name]._x = this[last_button_name]._x + 3 + this[last_button_name]._width;
 	} else {
 		this["tab_button_" + name]._x = 0; 
 	}
@@ -64,10 +61,12 @@ mcTabsClass.prototype.addTab = function(tab_type, name, label)
 	this.tabs.push(name);
 
 	this[name]._x = 0;
-	this[name]._y = this["tab_button_" + this.tabs[0]]._height;
+	this[name]._y = this._parent.header._y  + this._parent.header._height;
 
 	if (this.current_tab == null) this.setCurrentTab(name);
 	if (this.tab_height  == null) this.tab_height = this["tab_button_" + name]._height;
+
+	this.refresh();
 
 }// addTab();
 
@@ -98,7 +97,6 @@ mcTabsClass.prototype.setCurrentTab = function(name)
 
 }// _setCurrentTab()
 
-
 /**
 * Set the size of the tabs
 *
@@ -109,34 +107,11 @@ mcTabsClass.prototype.setCurrentTab = function(name)
 */
 mcTabsClass.prototype.setSize = function(w, h)
 {
+//	trace (this + "::mcTabsClass.setSize (" + w + ", " + h + ")");
+
 	if (this.tabs.length == 0) return;
 	this.dims.w = w;
 	this.dims.h = h;
-
-	set_background_box(this, w, h, this.colours.normal.bg);
-
-
-	this.lineStyle(1, 0x000000);
-	for(var i = 0; i < this.tabs.length; i++) {
-		var line_x = this["tab_button_" + this.tabs[i]]._x + this["tab_button_" + this.tabs[i]]._width;
-//		trace("LINE X : " + line_x + " H : " + line_h);
-		this.moveTo(line_x, 0);
-		this.lineTo(line_x, this.tab_height);
-
-//		this.beginFill(0x000000, 100);
-//		// This is commented out because when we try and explicitly set it, 
-//		// an extra 2 pixels gets added to the width of the MC for no f!@#$ing reason
-//	//	this.lineStyle();
-//		var line_x = this["tab_button_" + name]._x + this["tab_button_" + name]._width;
-//		var line_h = this["tab_button_" + this.tabs[0]]._height;
-//		trace("LINE X : " + line_x + " H : " + line_h);
-//		this.moveTo(line_x,     0);
-//		this.lineTo(line_x + 1, 0);
-//		this.lineTo(line_x + 1, line_h);
-//		this.lineTo(line_x,     line_h);
-//		this.lineTo(line_x,     0);
-//		this.endFill();
-	}
 
 	this.refreshTab();
 
@@ -153,9 +128,24 @@ mcTabsClass.prototype.refreshTab = function()
 	if (this.current_tab == null) return;
 
 	// then just set the size of current tab contents area
-	this[this.current_tab].setSize(this.dims.w, this.dims.h - this.tab_height);
+	this[this.current_tab].setSize(this.dims.w, this.dims.h - this._parent.header._height);
 	this[name]._visible = true;
 
 }// refreshTab()
+
+mcTabsClass.prototype.refresh = function()
+{
+	if (this.tabs.length == 0) {
+		this._parent.header._y = 0;
+	} else {
+		this._parent.header._y = this["tab_button_" + this.tabs[0]]._height + 2;
+	}
+
+	for (var i = 0; i < this.tabs; i++) {
+		var nextTabArea = this[this.tabs[i]];
+
+		nextTabArea._y = this._parent._y + this._parent._height;
+	}
+}
 
 Object.registerClass("mcTabsID", mcTabsClass);

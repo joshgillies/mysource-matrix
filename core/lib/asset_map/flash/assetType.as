@@ -65,3 +65,8 @@ AssetType.prototype.isType = function(type)
 	return false;
 }
 
+Asset.prototype.getIconID = function()
+{
+	return "mc_asset_type_" + this.type_code + "_icon";
+}
+

@@ -13,7 +13,7 @@ function mcTabContentAreaClass()
 }
 
 // Make it inherit from Nested Mouse Movements MovieClip
-mcTabContentAreaClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS);
+mcTabContentAreaClass.prototype = new NestedMouseMovieClip(false, NestedMouseMovieClip.NM_ON_PRESS | NestedMouseMovieClip.NM_ON_ROLL);
 
 /**
 * Opens this tab in the tab container
@@ -46,6 +46,5 @@ mcTabContentAreaClass.prototype.onRelease = function()
 	_root.system_events.screenPress(this);
 	return true;
 }// end
-
 
 Object.registerClass("mcTabContentAreaID", mcTabContentAreaClass);

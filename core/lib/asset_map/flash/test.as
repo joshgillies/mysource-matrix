@@ -1,14 +1,12 @@
+_root.test_button1._visible = false;
+_root.test_button2._visible = false;
 
 _root.test_pressed_count = 0;
 
 
 function testOnClick1(component)
 { 
-	_root.tmp_text = new String(_root.tabs.mail.msgs_container.msg_5.subject_field.text);
-	trace("Width      : " + _root.tabs.mail.msgs_container.msg_5.subject_field._width);
-	trace("Text Width : " + _root.tabs.mail.msgs_container.msg_5.subject_field.textWidth);
-	trace("");
-
+	trace ("_root._height: " + _root._height);
 }
 
 function testOnClick2 (component)

@@ -17,6 +17,7 @@ function NestedMouseMovieClip(never_overlaps, event_types)
 /* Constants for deciding what events to provide the nested mouse movements for */
 NestedMouseMovieClip.NM_ON_PRESS			= 1; // onPress, onRelease, onReleaseOutside, onDragOver, onDragOut
 NestedMouseMovieClip.NM_ON_ROLL				= 2; // onRollOver, onRollOut
+NestedMouseMovieClip.NM_ALL					= 3; // everything
 
 NestedMouseMovieClip.prototype = new MovieClip();
 
@@ -40,6 +41,7 @@ NestedMouseMovieClip.prototype._NM_findMc = function(x, y)
 //			trace("---------- ---------- --------- ---------");
 //			trace("MS NAME    : " + this + "." + i);
 //			trace("targetPath : " + targetPath(this[i]));
+//			trace("depth      : " + this[i].getDepth());
 			mcs.push(i);
 			if (this.never_overlaps) break;
 		}
@@ -56,7 +58,7 @@ NestedMouseMovieClip.prototype._NM_findMc = function(x, y)
 	return null;
 }// end __findMc__
 
-NestedMouseMovieClip.prototype.onMouseMove = function() 
+NestedMouseMovieClip.prototype.onEnterFrame = function() 
 {
 	if (this._nm_on_press_mc != null || this._nm_on_roll_active) {
 		var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
@@ -65,14 +67,14 @@ NestedMouseMovieClip.prototype.onMouseMove = function()
 
 			// if we aren't still over the mc we onPress()ed, tell it we onDragOut()ed
 			if (this._nm_drag_in_mc && this._nm_on_press_mc != mc_name) {
-				trace(this[this._nm_on_press_mc] + ".onDragOut Defined : " + (this[this._nm_on_press_mc].onDragOut != undefined));
+//				trace(this[this._nm_on_press_mc] + ".onDragOut Defined : " + (this[this._nm_on_press_mc].onDragOut != undefined));
 				if (this[this._nm_on_press_mc].onDragOut != undefined) this[this._nm_on_press_mc].onDragOut();
 				this._nm_drag_in_mc = false;
 
 			// else if we have just dragged back onto the MC, inform it
 			// check objects because we can have 2 vars with diff names referencing same MC
 			} else if (!this._nm_drag_in_mc && this[this._nm_on_press_mc] === this[mc_name]) {
-				trace(this[this._nm_on_press_mc] + ".onDragOver Defined : " + (this[this._nm_on_press_mc].onDragOver != undefined));
+//				trace(this[this._nm_on_press_mc] + ".onDragOver Defined : " + (this[this._nm_on_press_mc].onDragOver != undefined));
 				if (this[this._nm_on_press_mc].onDragOver != undefined) this[this._nm_on_press_mc].onDragOver();
 				this._nm_drag_in_mc = true;
 
@@ -112,6 +114,7 @@ NestedMouseMovieClip.prototype.onRollOut = function()
 }
 NestedMouseMovieClip.prototype.onRollOver = function() 
 {
+//	trace("onRollOver : " + this);
 	this._nm_on_roll_active = true;
 }
 

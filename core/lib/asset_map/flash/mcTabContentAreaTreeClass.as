@@ -22,6 +22,7 @@ function mcTabContentAreaTreeClass()
 	this.attachMovie("mcMenuContainerID", "menu_container", 3);
 	this.menu_container._x = 0;
 	this.menu_container._y = 0;
+	this._initMenu();
 
 	this.attachMovie("FScrollPaneSymbol", "scroll_pane", 1);
 	this.scroll_pane.setHScroll(true);
@@ -31,7 +32,6 @@ function mcTabContentAreaTreeClass()
 
 	// Now the list container
 	this.attachMovie("mcListContainerID", "list_container", 2);
-
 	// Attach the container on to the scroll pane
 	this.scroll_pane.setScrollContent(this.list_container);
 
@@ -45,12 +45,28 @@ function mcTabContentAreaTreeClass()
 	// Used for Asset Finder
 	_root.external_call.addListener(this);
 
+	
+
 	this.finding_asset = false;
 
 }// end constructor()
 
 // Make it inherit from Tab Content Area
 mcTabContentAreaTreeClass.prototype = new mcTabContentAreaClass();
+
+mcTabContentAreaTreeClass.prototype._initMenu = function() 
+{
+	// this menu will get loaded before asset types are retrieved
+	var initialMenu = [
+		{
+			type:		'menu',
+			label:		'Add',
+			iconID:		'mcAddMenuIconID',
+			children:	[]
+		}
+	];
+	this.menu_container.createFromArray(initialMenu);
+}
 
 /**
 * Set the size of the tabs
@@ -76,9 +92,14 @@ mcTabContentAreaTreeClass.prototype.setSize = function(w, h)
 */
 mcTabContentAreaTreeClass.prototype.onRelease = function() 
 {
+//	trace (this + "mcTabContentAreaTreeClass.onRelease()")
 	return super.onRelease(); // Fucking flash see SUPER_METHOD_EG.as
 }// end
 
+mcTabContentAreaTreeClass.prototype.onRollOver = function() 
+{
+	return super.onRollOver(); // Fucking flash see SUPER_METHOD_EG.as
+}// end
 
 
 

@@ -7,6 +7,17 @@ function mcListItemMoveClass()
 // Make it inherit from MovieClip
 mcListItemMoveClass.prototype = new MovieClip();
 
+mcListItemMoveClass.prototype.setIcon = function(iconID)
+{
+	if (this.icon != undefined)
+		this.icon.removeMovieClip();
+
+	this.attachMovie(iconID, 'icon', 1);
+	if (typeof this.icon != "movieclip") {
+		this.attachMovie("mc_asset_type_default_icon", 'icon', 1);
+	}
+}
+
 mcListItemMoveClass.prototype.getState = function()
 {
 

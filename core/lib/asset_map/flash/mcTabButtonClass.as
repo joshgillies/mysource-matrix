@@ -14,7 +14,7 @@ function mcTabButtonClass()
 	this.dims = {w: 0, h: 0};
 
 	// create the text field
-	this.createTextField("label_text", 1, this.h_gap, this.v_gap, 0, 0);
+	this.createTextField("label_text", 1, 0, 0, 0, 0);
 	this.label_text.multiline = false;	// }
 	this.label_text.wordWrap  = false;	// } Using these 3 properties we have a text field that autosizes 
 	this.label_text.autoSize  = "left";	// } horizontally but not vertically
@@ -22,15 +22,22 @@ function mcTabButtonClass()
 	this.label_text.selectable = false;
 	this.label_text._visible   = true;
 
+	this.button_left._x = 0;
+	this.button_left._y = 0;
+	this.button_middle._x = 0;
+	this.button_middle._y = 0;
+	this.button_middle._width = 0;
+	this.button_right._x = 0;
+	this.button_right._y = 0;
 }
 
 // Make it inherit from MovieClip
 mcTabButtonClass.prototype = new MovieClip();
+
 mcTabButtonClass.prototype.text_format = new TextFormat();
 mcTabButtonClass.prototype.text_format.font  = "Arial";
-mcTabButtonClass.prototype.text_format.size  = 11;
-mcTabButtonClass.prototype.h_gap= 2;
-mcTabButtonClass.prototype.v_gap= 0;
+mcTabButtonClass.prototype.text_format.size  = 10;
+mcTabButtonClass.prototype.text_format.color = 0xffffff;
 
 /**
 * Returns the tab name that we belong to
@@ -60,9 +67,27 @@ mcTabButtonClass.prototype.setLabel = function(label)
 	this.clear(); 
 
 	this._setStyle('normal');
-
 }// end setLabel()
 
+
+/**
+* Sets the icon for the tab
+*
+* @param string iconID	the linkage ID of the movie clip to be used as an icon
+*
+* @access public
+*/
+
+mcTabButtonClass.prototype.setIcon = function (iconID)
+{
+//	trace (this + "::mcTabButtonClass.setIcon(" + iconID + ")");
+	if (this.icon != undefined)
+		this.icon.removeMovieClip();
+
+	this.attachMovie (iconID, 'icon', 100);
+//	trace ("this.icon: " + this.icon);
+	this.refresh();
+}
 
 /**
 * OK, set the width by creating with a BG filler
@@ -71,9 +96,8 @@ mcTabButtonClass.prototype.setLabel = function(label)
 */
 mcTabButtonClass.prototype._setStyle = function(style) 
 {
-	this.text_format.color = this._parent.colours[style].fg;
 	this.label_text.setTextFormat(this.text_format);
-	set_background_box(this, this.label_text._width + (2 * this.h_gap), this.label_text._height + (2 * this.v_gap), this._parent.colours[style].bg, 100);
+	this.refresh();
 }
 
 /**
@@ -84,6 +108,10 @@ mcTabButtonClass.prototype._setStyle = function(style)
 mcTabButtonClass.prototype.select = function() 
 {
 	this._setStyle('selected');
+	this.button_left.gotoAndStop('on');
+	this.button_right.gotoAndStop('on');
+	this.button_middle.gotoAndStop('on');
+	this._y += 3;
 }
 
 /**
@@ -94,6 +122,10 @@ mcTabButtonClass.prototype.select = function()
 mcTabButtonClass.prototype.unselect = function() 
 {
 	this._setStyle('normal');
+	this.button_left.gotoAndStop('off');
+	this.button_right.gotoAndStop('off');
+	this.button_middle.gotoAndStop('off');
+	this._y -= 3;
 }
 
 /**
@@ -110,5 +142,44 @@ mcTabButtonClass.prototype.onRelease = function()
 	return true;
 }// end 
 
+
+mcTabButtonClass.prototype.refresh = function()
+{
+//	trace (this + "::mcTabButtonClass.refresh()");
+	var nextX = 0;
+	var iconPadding = 5;
+	this.button_left._x = nextX;
+	this.button_left._y = 0;
+	nextX += this.button_left._width - 2;
+	
+	if (this.icon != undefined) {
+		nextX += iconPadding;
+		this.icon._x = nextX;
+		nextX += this.icon._width;
+		nextX += iconPadding;
+
+		this.icon._y = (this._height - this.icon._height) / 2;
+	}
+
+	this.label_text._x = nextX;
+	this.label_text._y = (this._height - this.label_text._height) / 2;
+	
+	if (this.icon != undefined) {
+		this.button_middle._x = this._icon._x;
+		this.button_middle._width = this.icon._width + this.label_text._width + 2 * iconPadding;
+	} else {
+		this.button_middle._x = this.label_text._x;
+		this.button_middle._width = this.label_text._width;
+	}
+
+	nextX += this.label_text._width;
+
+	this.button_middle._y = 0;
+
+
+	this.button_right._x = nextX;
+	this.button_right._y = 0;
+
+}
 
 Object.registerClass("mcTabButtonID", mcTabButtonClass);

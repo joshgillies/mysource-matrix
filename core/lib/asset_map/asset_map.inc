@@ -399,9 +399,10 @@ class Asset_Map
 			return false;
 		}
 		$attrs = Array('assetid' => $asset->id, 
-						'name'   => '['.$asset->id. '] '.$asset->short_name, 
+						'name'   => $asset->short_name.' ['.$asset->id. ']', 
 						'type_code'  => $asset->type(),
-						'accessible' => $asset->readAccess()
+						'accessible' => $asset->readAccess(),
+						'status' => $asset->status
 						);
 		$asset_node = &$root->addChild('asset', '', $attrs);
 

@@ -16,8 +16,9 @@ function mcListItemClass()
 	this._accessible = false;
 	this._active = true;
 
-	// the current state that the buttons is in (normal, selected)
-	this.state = "normal";
+	// the current state that the buttons is in 
+	this.state = 'normal';
+	this.selected = false;
 	this.actions_bar_interval = 0;
 
 	this.text_field.swapDepths(1);
@@ -25,17 +26,23 @@ function mcListItemClass()
 	// Create the Plus Minus Button
 	this.attachMovie("mcListItemPlusMinusID", "kids_button", 2);
 	this.kids_button._x = 3;
-	this.kids_button._y = 3;
+	this.kids_button._y = 5;
 
 	// Create the Move Button
 	this.attachMovie("mcListItemMoveID", "move_button", 3);
 	this.move_button.setState("off");
 	this.move_button._x = 20;
-	this.move_button._y = 3;
 
 	// set the text field up
 	this.text_field.text = "";
 	this.text_field.autoSize = "left";
+
+	// selected and normal text formats
+	this.normalTextFormat = new TextFormat();
+	this.normalTextFormat.color = 0x000000;
+
+	this.selectedTextFormat = new TextFormat();
+	this.selectedTextFormat.color = 0xffffff;
 
 }
 
@@ -55,7 +62,7 @@ mcListItemClass.prototype.getParentAssetid = function()
 
 mcListItemClass.prototype.setLinkId = function(linkid) 
 {
-	this.linkid = linkid
+	this.linkid = linkid;
 }
 
 mcListItemClass.prototype.setAsset = function(asset) 
@@ -66,14 +73,26 @@ mcListItemClass.prototype.setAsset = function(asset)
 
 mcListItemClass.prototype.setInfo = function(asset) 
 {
-	this.assetid     = asset.assetid;
-	this.type_code   = asset.type_code;
-	this._accessible = asset.accessible;
-	this.text_field.text = asset.name;
+//	trace (this + "::mcListItemClass.setInfo (" + asset + " )");
 
-	var text_format = this.text_field.getTextFormat();
-	text_format.italic = !this._accessible;
-	this.text_field.setTextFormat(text_format); 
+	this.assetid			= asset.assetid;
+	this.type_code			= asset.type_code;
+	this._accessible		= asset.accessible;
+	this.text_field.text	= asset.name;
+	this.asset_status		= asset.status;
+
+	this.move_button.setIcon("mc_asset_type_" + asset.type_code + "_icon");
+
+	if (asset.status & Asset.LIVE_STATUS)
+		this.state = 'live';
+	else if (asset.status & Asset.UNDER_CONSTRUCTION_STATUS)
+		this.state = 'under_construction';
+
+	if (!this._accessible) {
+		this.state = 'error';
+	}
+
+	this.base_colour = _root.LIST_ITEM_BG_COLOURS[this.state].colour;
 
 	if (asset.accessible && asset.links.length > 0) {
 		this.setKidState((this.expanded()) ? "minus" : "plus");
@@ -81,7 +100,7 @@ mcListItemClass.prototype.setInfo = function(asset)
 		this.setKidState("none");
 	}
 
-	this._drawBg();
+	this.refresh();
 }
 
 mcListItemClass.prototype.getKidState = function() 
@@ -195,7 +214,10 @@ mcListItemClass.prototype.onAssetChange = function(asset)
 */
 mcListItemClass.prototype.select = function() 
 {
-	this.state = "selected";
+	this.selected = true;
+	this.text_field.setTextFormat(this.selectedTextFormat);
+
+	this.base_colour = adjust_brightness (_root.LIST_ITEM_BG_COLOURS[this.state].colour, 0.5);
 	this._drawBg();
 }
 
@@ -204,7 +226,10 @@ mcListItemClass.prototype.select = function()
 */
 mcListItemClass.prototype.unselect = function() 
 {
-	this.state = "normal";
+	this.selected = false;
+	this.text_field.setTextFormat(this.normalTextFormat);
+
+	this.base_colour = _root.LIST_ITEM_BG_COLOURS[this.state].colour;
 	this._drawBg();
 }
 
@@ -278,26 +303,56 @@ mcListItemClass.prototype.onReleaseOutside = function()
 	return true;
 }// end onReleaseOutside()
 
+mcListItemClass.prototype.refresh = function()
+{
+//	trace (this + "::mcListItemClass.refresh()");
+
+	var iconPadding = 5;
+	var nextX = iconPadding;
+	
+	this.kids_button._x = nextX;
+	nextX += this.kids_button._width;
+	nextX += iconPadding;
+
+	this.move_button._x = nextX;
+	nextX += this.move_button._width;
+	nextX += iconPadding;
+	
+	nextX = Math.max (nextX, 20);
+	this.text_field._x = nextX;
+
+//	this.kids_button._y = (this._height - this.kids_button._y) / 2;
+//	this.move_button._y = (this._height - this.move_button._y) / 2;
+//	this.text_field._y = (this._height - this.text_field._y) / 2;
+
+	this._drawBg();
+
+}
+
 /**
 * Draw the Background for this list item
 */
 mcListItemClass.prototype._drawBg = function() 
 {
-	var xpos = Math.max(200, this.text_field._x + this.text_field._width + 3);
-	var ypos = _root.LIST_ITEM_POS_INCREMENT;
+	var list_container = this._parent._parent;
+	var left = -this._x;
+	var top = 2;
+	var right = Math.max (_root.tabs.tree.scroll_pane._width - this._x - 25, list_container.getRightEdge() - this._x + 5);
+	var bottom = _root.LIST_ITEM_POS_INCREMENT - 2;
 
 	this.clear();
-	this.beginFill(_root.LIST_ITEM_BG_COLOURS[this.state].colour, _root.LIST_ITEM_BG_COLOURS[this.state].alpha);
+
+	this.beginFill(this.base_colour, _root.LIST_ITEM_BG_COLOURS[this.state].alpha);
+
 	this.lineStyle();
-	this.moveTo(0, 0);
-	this.lineTo(xpos, 0);
-	this.lineTo(xpos, ypos);
-	this.lineTo(0, ypos);
-	this.lineTo(0, 0);
+	this.moveTo(left, top);
+	this.lineTo(right, top);
+	this.lineTo(right, bottom);
+	this.lineTo(left, bottom);
+	this.lineTo(left, top);
 	this.endFill();
 
 }// end _drawBg()
-
 
 Object.registerClass("mcListItemID", mcListItemClass);
 

@@ -18,21 +18,29 @@ function Asset()
 // Set ourselves up as a broadcaster
 ASBroadcaster.initialize(Asset.prototype);
 
+
+// all the ones we care about
+Asset.prototype.UNDER_CONSTRUCTION_STATUS = 1;
+Asset.prototype.LIVE_STATUS = 4;
+
+
 Asset.prototype.toString = function()
 {
 	return  "AssetId: " + this.assetid + 
 			", Type Code: " + this.type_code + 
 			", Name: " + this.name + 
 			", Accessible : " + this.accessible + 
+			", Status : " + this.status + 
 			", Links: " + this.links;
 }
 
-Asset.prototype.setInfo = function(assetid, type_code, name, accessible, links)
+Asset.prototype.setInfo = function(assetid, type_code, name, accessible, status, links)
 {
 	if (assetid    != undefined && assetid    != null) this.assetid    = assetid;
 	if (type_code  != undefined && type_code  != null) this.type_code  = type_code;
 	if (name       != undefined && name       != null) this.name       = name;
 	if (accessible != undefined && accessible != null) this.accessible = (accessible == "1") ? true : false;
+	if (status     != undefined && status     != null) this.status     = status;
 	if (links      != undefined && links      != null) this.links      = links;
 	this.broadcastMessage("onAssetChange", this);
 }

@@ -264,6 +264,7 @@ AssetManager.prototype._createAssetsFromXML = function(assets_node)
 											asset_node.attributes.type_code, 
 											asset_node.attributes.name, 
 											asset_node.attributes.accessible, 
+											asset_node.attributes.status,
 											links);
 
 			changes.new_assets[assetid] = this.assets[assetid];
@@ -314,7 +315,7 @@ AssetManager.prototype.reloadAllAssets = function()
 		if (this.assets[id] instanceof Asset) assetids.push(id);
 	}
 
-	trace("Asset Ids : " + assetids);
+//	trace("Asset Ids : " + assetids);
 	this.reloadAssets(assetids);
 
 }// end reloadAllAssets()

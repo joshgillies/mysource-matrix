@@ -17,6 +17,7 @@ function StageResize()
 StageResize.prototype.onResize = function()
 {
 	_root.tabs.setSize(Stage.width, Stage.height);
+	_root.header.refresh();
 
 //	var menu_height = 20;
 //	var scroller_height = Stage.height - menu_height - _root.msgs_bar.height();

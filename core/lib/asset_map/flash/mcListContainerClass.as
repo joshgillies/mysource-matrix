@@ -11,8 +11,8 @@ function mcListContainerClass()
 
 	// Create the container to hold all the list items
 	this.attachMovie("mcListItemContainerID", "list", 1);
-	this.list._x = 0;
-	this.list._y = 0;
+	this.list._x = 5;
+	this.list._y = 5;
 
 	// Create the Plus Minus Button
 	this.attachMovie("mcMoveIndicatorID", "move_indicator", 2);
@@ -261,5 +261,21 @@ mcListContainerClass.prototype.stopAssetFinder = function(type_codes)
 	this.list.restrictActiveTypes([]);
 }// end stopAssetFinder()
 
+mcListContainerClass.prototype.getRightEdge = function() 
+{
+//	trace (this + "::mcListContainerClass.getRightEdge()");
+//	trace (this.list);
+//	trace (this.list.items_order);
+	var max = null;
+	for(var i = 0; i < this.list.items_order.length; i++) {
+		var item = this.list[this.list.items_order[i].name];
+//		trace ("item: " + item);
+		var itemRight = item._x + item.text_field._x + item.text_field._width;
+		if (max == null || max < itemRight)
+			max = itemRight;
+	}
+//	trace (max);
+	return max;
+}
 
 Object.registerClass("mcListContainerID", mcListContainerClass);
