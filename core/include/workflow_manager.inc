@@ -120,19 +120,21 @@ class Workflow_Manager extends Resolve_Object
 
 		if ($and_inherited) {
 			// now lets do the inherited workflows
-			$users    = $this->_asset->getPermission(SQ_PERMISSION_WORKFLOW, false);
-			$inherits = $this->_asset->getInheritedPermission(SQ_PERMISSION_WORKFLOW, array_keys($users));
-			$revokes  = $this->_asset->getRevokedPermission(SQ_PERMISSION_WORKFLOW);
-			$revokes = array_keys($revokes);
-			
-			$inherited = array_keys($users) + array_keys($inherits);
+			$users = $this->_asset->getPermission(SQ_PERMISSION_WORKFLOW, false, true, true, false, false);
+pre_echo($users);
+#			$users    = $this->_asset->getPermission(SQ_PERMISSION_WORKFLOW, false);
+#			$inherits = $this->_asset->getInheritedPermission(SQ_PERMISSION_WORKFLOW, array_keys($users));
+#			$revokes  = $this->_asset->getRevokedPermission(SQ_PERMISSION_WORKFLOW);
+#			$revokes = array_keys($revokes);
+#
+#			$inherited = array_keys($users) + array_keys($inherits);
 
-			foreach ($inherited as $assetid) {
-				if (!empty($revokes) && in_array($assetid, $revokes)) continue;
+			foreach ($users as $assetid) {
+				if ($assetid == $this->_asset->id) continue;
 				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$this->inherited_workflows[$assetid] =& new Workflow_Manager($asset, true, false, false);
 			}
-			
+
 		}
 
 		return true;
@@ -200,7 +202,7 @@ class Workflow_Manager extends Resolve_Object
 		$continue = false;
 		for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
 			$step_data =& $workflow['steps'][$stepid];
-			
+
 			$workflow['current_step'] = $stepid;
 			$continue = false;
 			$completed_conds = 0;
@@ -208,7 +210,7 @@ class Workflow_Manager extends Resolve_Object
 			for (reset($step_data['conditions']); null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 				$continue = false;
 				$cond_data =& $step_data['conditions'][$pub];
-				
+
 				// safety code
 				if (!isset($cond_data['complete'])) $cond_data['complete'] = false;
 				if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
@@ -270,7 +272,7 @@ class Workflow_Manager extends Resolve_Object
 			}
 			if (!$continue) break;
 		}
-		
+
 		if ($continue) $workflow['current_step'] = 0;
 	}//end _loadCurrentStep()
 
@@ -398,7 +400,7 @@ class Workflow_Manager extends Resolve_Object
 			for (reset($workflow['steps']); null !== ($stepid = key($workflow['steps'])); next($workflow['steps'])) {
 				if ($stepid != $workflow['current_step']) continue;
 				$step_data =& $workflow['steps'][$stepid];
-				
+
 				for (reset($step_data['conditions']); null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
 					$cond_data =& $step_data['conditions'][$pub];
 					// work out who can publish this condition
@@ -486,7 +488,7 @@ class Workflow_Manager extends Resolve_Object
 
 		$this->recordPublish($publisher);
 		$new_state = $this->state;
-		
+
 		// set the vars back to their original values
 		// because we dont want to change anything
 		$this->current_workflows = $old_cw;
@@ -505,7 +507,7 @@ class Workflow_Manager extends Resolve_Object
 	function getRunningInheriting()
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		
+
 		$sql = 'SELECT workflowid FROM sq_asset_running_workflow
 				WHERE workflowid LIKE '.$db->quote('%~'.$this->_asset->id);
 
@@ -535,7 +537,7 @@ class Workflow_Manager extends Resolve_Object
 	function start()
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		
+
 		$workflows_todo = Array();
 		if (!empty($this->inherited_workflows)) {
 			foreach ($this->inherited_workflows as $assetid => $workflow) {
@@ -553,7 +555,7 @@ class Workflow_Manager extends Resolve_Object
 			$workflow = serialize($steps);
 			$sql = 'INSERT INTO sq_asset_running_workflow
 					(workflowid, complete, workflow)
-					VALUES 
+					VALUES
 					('.$db->quote($workflowid).', 0, '.$db->quote($workflow).')';
 
 			$result = $db->query($sql);
@@ -845,7 +847,7 @@ class Workflow_Manager extends Resolve_Object
 		$logic_num = (int)$logic_num;
 		$require = $logic.(($logic_num) ? " $logic_num" : '');
 		$this->steps[$stepid]['conditions'][$publisher] = Array('require' => $require, 'published_by' => Array());
-	
+
 		return true;
 	}//end addCondition()
 
@@ -892,7 +894,7 @@ class Workflow_Manager extends Resolve_Object
 		// work out the logic expression
 		$require = $logic.(($logic_num) ? " $logic_num" : '');
 		$this->steps[$stepid]['conditions'][$publisher]['require'] = $require;
-	
+
 		return true;
 	}//end setConditionLogic()
 
@@ -928,7 +930,7 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		unset($this->steps[$stepid]['conditions'][$publisher]);
-	
+
 		return true;
 	}//end deleteCondition()
 
