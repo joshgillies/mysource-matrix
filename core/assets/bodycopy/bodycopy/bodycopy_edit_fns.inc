@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_edit_fns.inc,v 1.23 2004/12/03 15:29:22 brobertson Exp $
+* $Id: bodycopy_edit_fns.inc,v 1.23.2.1 2004/12/14 06:00:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.23.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -580,7 +580,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$new_container->setAttrValue('name', 'New '.ucfirst($type));
 		$new_container->setAttrValue('attributes', $bc_data['attributes']);
 		$retval = (bool) $new_container->create($copy_link, $bc_data);
-		if ($retval) {
+		if ($retval && (!isset($bc_data['attributes']['identifier']) || trim($bc_data['attributes']['identifier']) == '')) {
 			// try and update the name to be unique - but dont stress if we couldn't update it
 			$new_container->setAttrValue('name', 'New '.ucfirst($type).' '.$new_container->id);
 			$new_container->saveAttributes();
