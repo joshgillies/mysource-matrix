@@ -41,26 +41,21 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processParseFile(&$asset, $prefix) 
 	{
-		$info = get_file_upload_info($prefix.'_parse_file');
-		if (!empty($info)) {
+		$parse_file = $asset->_data_path.'/parse.txt';
+
+		if (commit_file_upload($prefix.'_parse_file', $parse_file, true)) {
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
-			$str = file_to_string($info['tmp_name']);
+			$str = file_to_string($parse_file);
 			$contents = $this->_parseString($str, true);
-#			pre_echo("Contents : ".($contents === null));
-#			pre_echo($contents);
 
 			if ($contents !== null) {
-#				pre_echo("PROCESS CONTENTS");
 				if ($this->_processContents($asset, $contents)) {
-#					pre_echo("CREATE DESIGN FILE");
 					$this->createDesignFile($asset, $contents);
 				}
 			}
-
 		}
 		return true;
 	}// end processParseFile()
-
 
 	/**
 	* Parses the string into an array recursively cut up into html and tag pieces
@@ -143,8 +138,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 		}// end foreach
 
-#pre_echo($id_names);
-
 		$design_areas = Array();
 
 		// now let's check to see if any existing design areas exists 
@@ -166,7 +159,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				$da = new $design_area();
 				if ($da->create($id_name)) {
 					$GLOBALS['SQ_SYSTEM']->am->registerAsset($da);
-					$asset->createLink($da, SQ_LINK_UNITE, $id_name);
+					$asset->createLink($da, SQ_LINK_USES, $id_name);
 				}// end if
 			}// end if
 
@@ -274,8 +267,55 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintCurrentFiles(&$asset, &$o, $prefix) 
 	{
-		echo 'Not Done Yet';
-	}// end paintParseFile()
+		$files_dir = $asset->_data_path.'/files';
+		$files = Array();
+		$d = dir($files_dir);
+		while (false !== ($entry = $d->read())) {
+			if (is_dir($d->path.'/'.$entry)) continue;
+			if (is_file($d->path.'/'.$entry)) {
+				$files[] = $entry;
+			}
+		}
+		$d->close();
+		sort($files);
+		?>
+		<table cellspacing="2" cellpadding="2" border="0">
+			<tr>
+				<td class="sq-backend-data"><i>File</i></td>
+				<td class="sq-backend-data"><i>Last Modified</i></td>
+				<td class="sq-backend-data"><i>Remove ?</i></td>
+			</tr>
+		<?php
+		foreach($files as $file) {
+			$mod_time = filemtime($files_dir.'/'.$file);
+		?>
+			<tr>
+				<td class="sq-backend-data">
+					<?php echo $file; ?>
+				</td>
+				<td class="sq-backend-data">
+					<?php echo $GLOBALS['SQ_SYSTEM']->datetime($mod_time); ?>
+				</td>
+				<td class="sq-backend-data" align="center">
+					<input type="checkbox" name="<?php echo $prefix; ?>_remove_files[]" value="<?php echo $file; ?>">
+				</td>
+			</tr>
+		<?php
+
+		}#end for
+
+		if (empty($files)) {
+		?>
+			<tr>
+				<td class="sq-backend-data" colspan="3">No Files Uploaded</td>
+			</tr>
+		<?php
+		}#end if
+		?>
+		</table>
+		<?php
+
+	}// end paintCurrentFiles()
 
 	/**
 	*
@@ -287,9 +327,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processCurrentFiles(&$asset, $prefix) 
 	{
-		return false;
-	}
+		if (empty($_POST[$prefix.'_remove_files'])) return;
+		foreach($_POST[$prefix.'_remove_files'] as $file) {
+			$full_file = $asset->_data_path.'/files/'.$file;
+			unlink($full_file);
+		}
+		return true;
 
+	}// end processCurrentFiles()
 
 	/**
 	*
@@ -302,7 +347,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function paintNewFiles(&$asset, &$o, $prefix) 
 	{
-		echo 'Not Done Yet';
+		for($i = 0; $i < 5; $i++) {
+			file_upload($prefix.'_assoc_file_'.$i);
+			echo "<br>\n";
+		}
 	}// end paintParseFile()
 
 	/**
@@ -315,8 +363,123 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processNewFiles(&$asset, $prefix) 
 	{
-		return false;
-	}
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		$files_dir = $asset->_data_path.'/files';
+		// attempt to create it (if it doesn't already exist)
+		if (!create_directory($files_dir)) return false;
+
+		for($i = 0; $i < 5; $i++) {
+			$info = get_file_upload_info($prefix.'_assoc_file_'.$i);
+			if (empty($info)) continue;
+
+			// if this is a tar archive, extract it
+			if (preg_match('/\\.tar\\.gz$/', $info['name']) 
+				|| preg_match('/\\.tgz$/', $info['name']) 
+				|| preg_match('/\\.tar$/', $info['name']) ) {
+
+				require_once 'Archive/Tar.php';
+				$tar_ball = new Archive_Tar($info['tmp_name']);
+				if (($contents = $tar_ball->listContent()) != 0) {
+
+					// Basically we want to make sure that all the files in the 
+					// tar ball end up in a single directory, so we have to fuck about with the extracting a bit
+					$extract_list = Array();
+					foreach($contents as $entry) {
+						if ($entry['typeflag'] != '0' && $entry['typeflag'] != '') continue;
+
+						$k = dirname($entry['filename']);
+						if (!isset($extract_list[$k])) $extract_list[$k] = Array();
+						$extract_list[$k][] = $entry['filename'];
+
+					}// end foreach
+
+					foreach($extract_list as $remove_path => $files) {
+						pre_echo($files);
+						pre_echo($remove_path);
+						pre_echo('----------------');
+
+						$result = $tar_ball->extractList($files, $files_dir, $remove_path);
+						if (PEAR::isError($result)) {
+							trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+							return;
+						}
+					}// end foreach
+
+				}// end if
+
+			// just move it to the right place
+			} else {
+					commit_file_upload($prefix.'_assoc_file_'.$i, $files_dir, true);
+
+			}// end switch
+
+		}// end for
+
+		return true;
+
+	}// end processNewFiles()
+
+	/**
+	*
+	* @param object Asset				$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintNewCustomisation(&$asset, &$o, $prefix) 
+	{
+		check_box($prefix.'_new_customisation');
+		text_box($prefix.'_new_customisation_name', $asset->name.' - Customisation', 40);
+	}// end paintNewCustomisation()
+
+	/**
+	*
+	* @param object Asset	$asset	the asset to which we belong
+	* @param string			$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processNewCustomisation(&$asset, $prefix) 
+	{
+		if (!empty($_POST[$prefix.'_new_customisation'])) {
+			if ($new_name = trim($_POST[$prefix.'_new_customisation_name'])) {
+
+				echo "DO DUPE HERE<br>";
+				echo "SET ID NAME HERE<br>";
+
+			}
+		}
+	}// end processNewCustomisation()
+
+	/**
+	*
+	* @param object Asset				$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCurrentCustomisations(&$asset, &$o, $prefix) 
+	{
+		$customisation_links = &$asset->getLinks(SQ_LINK_UNITE, 'design');
+		if ($customisation_links) {
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			foreach($customisation_links as $link) {
+				if ($link['value'] != 'customisation') continue;
+				$customisation = &$am->getAsset($link['minorid'], $link['type_code']);
+				if (is_null($customisation)) continue;
+				echo "# ".$customisation->id." - ".$customisation->name."<br>\n";
+			}
+
+		} else {
+			?> No Customisations Created <?php
+		}
+	}// end paintCurrentCustomisations()
 
 }//end class
 ?>

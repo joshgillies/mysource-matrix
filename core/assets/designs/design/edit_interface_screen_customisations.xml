@@ -1,0 +1,21 @@
+<contents>
+	<section name="New Customisation">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintNewCustomisation"   />
+				<process_function name="processNewCustomisation" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Current Customisations">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function name="paintCurrentCustomisations" />
+			</function_call>
+		</field>
+	</section>
+</contents>

@@ -115,7 +115,7 @@ class Design_Area extends Asset
 	*/
 	function &getDesigns() 
 	{
-		$links = $this->getLinks(SQ_LINK_UNITE, 'design', true, 'minor');
+		$links = $this->getLinks(SQ_LINK_USES, 'design', true, 'minor');
 		$designs = Array();
 		foreach($links as $link) {
 			$designs[] = &$GLOBALS['SQ_RESOLVE']->am->getAsset($link['majorid'], 'design', true);

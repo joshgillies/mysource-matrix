@@ -33,8 +33,9 @@ class Design extends Design_Area
 	*/
 	function _getAllowedLinks() 
 	{
-		return Array(SQ_LINK_EXCLUSIVE => Array('design_area' => 'M'),
-					 SQ_LINK_UNITE     => Array('design_area' => 'M'),
+		return Array(SQ_LINK_EXCLUSIVE => Array(),
+					 SQ_LINK_UNITE     => Array(),
+					 SQ_LINK_USES      => Array('design_area' => 'M'),
 					 SQ_LINK_NOTICE    => Array()
 					);
 
@@ -52,9 +53,9 @@ class Design extends Design_Area
 	function getDesignAreaLink($id_name='') 
 	{
 		if ($id_name) {
-			return @$this->getLink(SQ_LINK_UNITE, 'design_area', false, $id_name);
+			return @$this->getLink(SQ_LINK_USES, 'design_area', false, $id_name);
 		} else {
-			return @$this->getLinks(SQ_LINK_UNITE, 'design_area', false);
+			return @$this->getLinks(SQ_LINK_USES, 'design_area', false);
 		}
 	}//end getDesignArea()
 
