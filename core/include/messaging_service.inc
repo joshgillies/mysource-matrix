@@ -118,6 +118,7 @@ class Messaging_Service extends Resolve_Object
 			$status_string = implode("', '", $stati);
 			$sql .= " AND status IN ('".$status_string."')";
 		}
+		$sql .= ' ORDER BY status DESC, sent DESC';
 
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
