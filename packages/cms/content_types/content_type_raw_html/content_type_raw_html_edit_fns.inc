@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_raw_html_edit_fns.inc,v 1.6 2005/02/11 04:58:23 tbarrett Exp $
+* $Id: content_type_raw_html_edit_fns.inc,v 1.7 2005/02/13 23:49:51 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -67,7 +67,7 @@ class Content_Type_Raw_HTML_Edit_Fns extends Content_Type_Edit_Fns
 			$html = $asset->attr('html');
 			$html = str_replace('&lt;?php', '<?php', $html);
 			$this->_paintKeywordInserter($asset, $prefix);
-			text_area($prefix.'_html', $html, $size['width'], $size['height'], 0, 'style="font-family: monospace"');
+			text_area($prefix.'_html', $html, $size['width'], $size['height'], 0, 'style="font-family: monospace; display: block"');
 		}
 		return true;
 
