@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.js,v 1.5 2004/11/16 04:02:42 tbarrett Exp $
+* $Id: js_calendar.js,v 1.6 2004/11/17 22:53:49 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,6 +32,8 @@
 * @param	month	initial month [optional]
 * @param	day	initial day [optional]
 *
+* @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
+*
 * @return object
 * @access public
 */
@@ -43,6 +45,8 @@ function Calendar(varname, divname, width, height, year, month, day)
 	this.selday = (typeof(day) == "undefined")?dt.getDate():day;
 	this.month = (typeof(month) == "undefined")?dt.getMonth():month - 1;
 	this.year = (typeof(year) == "undefined")?dt.getFullYear():year;
+	this.initMonth	= this.month;
+	this.initYear	= this.year;
 	this.prefix = "";
 	this.varname = varname;
 	this.divname = divname;
@@ -429,7 +433,7 @@ function c_output()
 	//month caption
 	output += '<tr style="height:1px"><td class="cal_arrow" onclick="' + this.varname +
 		'.setMonth(\'--\')" align="left">&laquo;</td><td class="cal_month" colspan="' + colspan + '" align="center" onclick="' +
-		this.varname + '.monthClick(1,' + ((this.month+1)) + ',' + this.year + ')">' +
+		this.varname + '.monthClick(1,' + (this.month + 1) + ',' + this.year + ')">' +
 		this.mon_names[this.month] + '</td><td class="cal_arrow" onclick="' + this.varname +
 		'.setMonth(\'++\')" align="right">&raquo;</td></tr>';
 	//year caption
@@ -490,7 +494,7 @@ function c_output()
 		}
 		if (dt.getDay() == 0 || dt.getDay() == 6) clss = "cal_hol";
 		else clss = "cal_day";
-		if (dt.getDate() == this.selday) clss += "_sel";
+		if (dt.getDate() == this.selday && dt.getMonth() == this.initMonth && dt.getFullYear() == this.initYear) clss += "_sel";
 		else if (dt.getFullYear() == td.getFullYear() && dt.getMonth() == td.getMonth() && dt.getDate() == td.getDate()) clss = "cal_today";
 		output += '<td onmouseover="this.className=\'cal_ovr\'" onmouseout="this.className=\'' + clss + '\'" class="' + clss + '" id="' + this.varname + '_td_' + dt.getDate() + '" onclick="' + this.varname + '.dayClick(' + dt.getDate() + ',' + (dt.getMonth()+1) + ',' + dt.getFullYear() + ')">' + dt.getDate() + '</td>';
 		dt.setDate(dt.getDate() + 1);
