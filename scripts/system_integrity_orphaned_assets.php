@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_orphaned_assets.php,v 1.1 2004/06/17 04:00:31 lwright Exp $
+* $Id: system_integrity_orphaned_assets.php,v 1.2 2004/09/28 03:48:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -105,7 +105,7 @@ foreach ($assets as $assetid => $type_code) {
 	$updated = false;
 	$errors = false;
 
-	foreach(array_keys($links) as $linkid) {
+	foreach (array_keys($links) as $linkid) {
 		$link =& $links[$linkid];	
 		if ($link['linkid'] == 1) continue;
 
@@ -118,8 +118,6 @@ foreach ($assets as $assetid => $type_code) {
 			// basically we need to do the whole rubbish regarding deleting asset links in here
 			// because deleteAssetLink() checks to see if the asset is alive... which it isn't >_>;;;
 
-			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			// open the transaction
@@ -130,65 +128,49 @@ foreach ($assets as $assetid => $type_code) {
 
 				//// UPDATE THE TREE ////
 
-				// Update the parents to tell them that they are going to be one kid less
-				$where_cond_string = 'treeid in (~SQ0~)';
+				// update the parents to tell them that they are going to be one kid less
+				$sub_sql = 'SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
+							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t ';
 				$sub_where = 't.linkid = '.$db->quote($link['linkid']);
 				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
-				$subs = Array(' SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
-							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t '.$sub_where);
-
-				$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
-				if (DB::isError($where_cond)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
-					$errors = true; break 2;
-				}
+				$sub_sql .= $sub_where;
 
 				// add a rollback entry for the tree
 				$values = Array('num_immediate_kids' => 'num_immediate_kids - 1');
 
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link_tree', $values, $where_cond)) {
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link_tree', $values, 'treeid in ('.$sub_sql.')')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$errors = true; break 2;
 				}
 
-				// We can delete all the links under these nodes because it will be a clean start
+				// we can delete all the links under these nodes because it will be a clean start
 				// when we insert into the gap's we create below
-				$where_cond_string = 'treeid in (~SQ0~)';
-				$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
+				$sub_sql   = 'SELECT ct.treeid
+							  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt,
+							    '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ';
 				$sub_where = 'pt.linkid = '.$db->quote($link['linkid']).'
-							  AND ct.treeid LIKE '.$concat.'
+							  AND ct.treeid LIKE pt.treeid || '.$db->quote('%').'
 							  AND ct.treeid > pt.treeid';
 				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'pt');
 				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ct');
-				$subs = Array('SELECT ct.treeid
-								FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt, '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct
-								'.$sub_where);
+				$sub_sql .= $sub_where;
 
-				$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
-				if (DB::isError($where_cond)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
-					$errors = true; break 2;
-				}
-
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link_tree', $where_cond)) {
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link_tree', 'treeid in ('.$sub_sql.')')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$errors = true; break 2;
 				}
 
-				// We are going to set the treeid nodes that this link is associated
+				// we are going to set the treeid nodes that this link is associated
 				// with to zero so that we can find it as a gap when we createLink() later on
-				$where = 'linkid = '.$db->quote($link['linkid']);
-				$values = Array('linkid' => $db->quote('0'),
+				$values = Array('linkid'             => $db->quote('0'),
 								'num_immediate_kids' => $db->quote('0')
 								);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link_tree', $values, $where)) {
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_link_tree', $values, 'linkid = '.$db->quote($link['linkid']))) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					$errors = true; break 2;
 				}
 
-			}// end if significant link
+			}//end if significant link
 
 			// move 'em up, higher
 			$where_cond = ' majorid        = '.$db->quote($link['majorid']).'
@@ -258,8 +240,9 @@ foreach ($assets as $assetid => $type_code) {
 */
 function printAssetName(&$asset)
 {
-	$str = $asset->name . ' [ # '. $asset->id. ' ]';
-	printf ('%s%'.(40 - strlen($str)).'s', $str,'');
+	$str = '[ #'.$asset->id.' ]'.$asset->name;
+	if (strlen($str) > 66) $str = substr($str, 0, 66).'...';
+	printf ('%s%'.(70 - strlen($str)).'s', $str,'');
 	
 }//end printAssetName()
 
