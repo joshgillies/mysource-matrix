@@ -91,11 +91,14 @@ function random_password($length)
 */
 function file_to_string ($filename) 
 {
-    if (!$f = fopen($filename,'r')) {
+    if (!$f = fopen($filename, 'r')) {
         trigger_error('Unable to open file for reading: '.$filename, E_USER_WARNING);
         return false;
     }
-    $s = fread($f,filesize($filename));
+	$s = '';
+	do {
+		$s .= fread($f, 4096);
+	} while (!feof($f));
     fclose($f);
     return $s;
 }
