@@ -961,7 +961,7 @@ class Asset extends Resolve_Object
 		// try and aquire locks on our dependants
 		$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
 		if (!empty($dependant_links)) {
-			$am =& $GLOBALS['SQ_SYSTEM']->am;
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach ($dependant_links as $link) {
 				$asset = &$am->getAsset($link['minorid']);
 				if (!$asset->aquireLock($source, $expires)) {

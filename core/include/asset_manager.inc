@@ -809,7 +809,7 @@ class Asset_Manager extends Resolve_Object
 			// if there is only one entry then this is the site root, so for completeness
 			// we will manually add in the index page to the index
 			if (count($result) == 1) {
-				$site = $this->getAsset($result[0]['assetid'], $result[0]['type_code']);
+				$site = &$this->getAsset($result[0]['assetid'], $result[0]['type_code']);
 				if (is_null($site)) {
 					return Array();
 				}

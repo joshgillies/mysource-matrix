@@ -183,7 +183,7 @@ class Backend extends Resolve_Object
 
 		if (isset($_SESSION['last_refresh'])) {
 
-			$db = $GLOBALS['SQ_SYSTEM']->db;
+			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT assetid 
 					FROM sq_asset
