@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.70 2003/10/30 23:47:13 dwong Exp $
+* $Id: backend.inc,v 1.71 2003/11/11 03:56:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -128,6 +128,14 @@ class Backend extends MySource_Object
 			}
 		}
 
+		// the URL for the main frame is either a normal load or a redirection from
+		// a non-frameset URL to this frameset
+		if (isset($_GET['sq_redirect_url'])) {
+			$main_url = urldecode($_GET['sq_redirect_url']);
+		} else {
+			$main_url = $_SERVER['PHP_SELF'].'?SQ_BACKEND_PAGE=main'.$main_extras;
+		}
+
 		?>
 		<html>
 			<head>
@@ -139,7 +147,7 @@ class Backend extends MySource_Object
 				<frameset cols="250,10,*" frameborder="0" border="0" id ="main_frameset">
 					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=sidenav" name="sidenav" scrolling="no" marginwidth="0" marginheight="0">
 					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=resizer" name="resizer" scrolling="no" marginwidth="0" marginheight="0">
-					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=main<?php echo $main_extras; ?>" name="main" marginwidth="0" marginheight="0" scrolling="yes">
+					<frame src="<?php echo $main_url;?>" name="main" marginwidth="0" marginheight="0" scrolling="yes">
 				</frameset>
 			</frameset>
 		</html>
@@ -564,6 +572,10 @@ class Backend extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->printRollbackWarning();
 			$this->out->closeRaw();
 		}
+
+		// add an onLoad event that checks if the current window is in the frameset
+		// and redirects the user to the frameset version if they are not
+		$this->out->addOnLoad('if (!top.header) { sq_redirect("'.strip_url(current_url()).'/?sq_redirect_url='.urlencode(str_replace('SQ_ACTION=login', '', $_SERVER['REQUEST_URI'])).'"); } ');
 
 		switch($_GET['backend_section']) {
 			case 'config' :

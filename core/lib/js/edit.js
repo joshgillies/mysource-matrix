@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit.js,v 1.12 2003/10/21 23:43:03 gsherwood Exp $
+* $Id: edit.js,v 1.13 2003/11/11 03:56:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,3 +38,27 @@ function sq_process_key_down() {
 	}//end switch
 
 }//end sq_process_key_down()
+
+
+// redirect the user to another page with a friendly message
+// and a manual click they can click if something goes wrong
+function sq_redirect(url) {
+
+	document.write("<html>");
+	document.write("	<head>");
+	document.write("		<style type=\"text/css\">");
+	document.write("			body {");
+	document.write("				font-size:			12px;");
+	document.write("				font-family:		Arial, Verdana Helvetica, sans-serif;");
+	document.write("				color:				#000000;");
+	document.write("				background-color:	#FFFFFF;");
+	document.write("			}");
+	document.write("		</style>");
+	document.write("	</head>");
+	document.write("	<body>");
+	document.write("		Please wait while you are redirected. If you are not redirected, please click <a href=\"" + url + "\" title=\"Click here to manually redirect\">here</a>");
+	document.write("	</body>");
+	document.write("</html>");
+	window.location = url;
+
+}//end sq_redirect()
