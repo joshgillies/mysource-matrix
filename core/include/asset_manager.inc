@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.159 2003/12/18 04:32:07 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.160 2003/12/19 04:01:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1402,6 +1402,93 @@ class Asset_Manager extends MySource_Object
 		return $result;
 
 	}//end getLinks()
+
+
+	/**
+	* For a given asset, get the lineages from the Root folder down to it
+	*
+	* Also returns basic information about the last link (linkid and link type)
+	*
+	* @param object	Asset	&$asset		the asset whose links lineages we are getting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function getLinkLineages(&$asset)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$assetids = Array();
+		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_ALL, '', true, 'minor');
+		
+		foreach ($asset_links as $link) $assetids[$link['majorid']] = Array();
+
+		if (empty($assetids)) {
+			$result = Array();
+		} else {
+
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
+			$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ON cl.linkid = ct.linkid,
+						 '.SQ_TABLE_RUNNING_PREFIX.'asset_link pl
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt ON pl.linkid = pt.linkid
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON a.assetid = pl.minorid
+					';
+			$where = 'cl.minorid IN ('.implode(', ', array_keys($assetids)).')
+					  AND ct.treeid LIKE '.$concat.'
+					  AND pt.treeid <= ct.treeid';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+			$sql .= $where.'
+					ORDER BY cl.linkid, ct.treeid, pt.treeid';
+
+
+			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return Array();
+			}
+		}
+
+		foreach ($asset_links as $link_data) $link_info[$link_data['majorid']][] = $link_data;
+
+		$link_lineages = Array();
+		foreach ($result as $treeid => $link_tree) {
+
+			// work out some values we are going to need
+			$parent_data = $link_tree[count($link_tree) -1];
+			$majorid = $parent_data['assetid'];
+
+			foreach ($link_info[$majorid] as $link_data) {
+
+				$link_type = $link_data['link_type'];
+				$linkid = $link_data['linkid'];
+
+				$asset_lineage = Array();
+				foreach ($link_tree as $tree_data) {
+					if ($tree_data['assetid'] == $majorid) continue;
+					$asset_lineage[] = $tree_data['name'];
+				}
+				$asset_lineage[] = $parent_data['name'];
+				if (isset($output_lineages[$asset_lineage]) && !$can_edit) continue;
+
+				$link_lineages[$linkid] = Array('linkid'    => $linkid,
+												'link_type' => $link_type,
+												'lineage'   => $asset_lineage,
+												);
+			}
+
+		}//end foreach result
+
+		return $link_lineages;
+
+	}//end getLinkLineages()
 
 
 	/**

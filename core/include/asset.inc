@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.265 2003/12/18 04:39:48 gsherwood Exp $
+* $Id: asset.inc,v 1.266 2003/12/19 04:01:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1863,7 +1863,22 @@ class Asset extends MySource_Object
 
 
 	/**
-	* returns TRUE if this link is deletable
+	* Return a human readable description of the passed link
+	*
+	* @param int	$linkid	the link ID of the link to describe
+	*
+	* @return string
+	* @access public
+	*/
+	function describeLink($linkid)
+	{
+		return '';
+
+	}//end describeLink()
+
+
+	/**
+	* Return TRUE if this link is deletable
 	*
 	* @param int	$linkid	the link id of the link to remove
 	*

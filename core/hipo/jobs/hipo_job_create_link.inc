@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.8 2003/12/18 04:47:18 gsherwood Exp $
+* $Id: hipo_job_create_link.inc,v 1.9 2003/12/19 04:01:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -245,41 +245,102 @@ class HIPO_Job_Create_Link extends HIPO_Job
 
 			// we are moving an asset
 			$o->openSection('Move Confirmation');
+
 				if (!empty($this->_tmp['message'])) {
 					$o->openField('<span style="color: #FF0000;">Error</span>');
 						echo $this->_tmp['message'];
 					$o->closeField();
 				}
+
+
+				$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->_running_vars['linkid']);
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
+				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
+
+
 				$o->openField('&nbsp;');
-						$link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($this->_running_vars['linkid']);
-						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
-						$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['major_type_code']);
-
-						echo '<p>Please confirm that you are moving "'.$asset->name.'" from under "'.$parent->name.'" to under "'.$new_parent->name.'".</p><p>Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.</p>';
-
-						// check to see if this asset is getting moved to the trash for good !!!
-						$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-						if ($new_parent->id == $trash_folder->id) {
-							// when checking for the number of links left in the system, make sure we disregard
-							// any link to the trash folder because even if this asset is already in the trash,
-							// we should warn about deleting it
-							$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
-							$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 + SQ_LINK_TYPE_2, '', true, $this->_running_vars['linkid']);
-							if (!empty($trash_link)) $num_other_links--;
-							
-							if (!$num_other_links) {
-								$o->openSection('Trash Warning');
-									$o->openField('WARNING');
-										// last visible link being moved to the trash
-										echo '<p>When this "'.$asset->name.'" is moved to the trash, any URLs that it has will be broken. Use the asset finder below to select another asset to remap the URLs of "'.$asset->name.'" to.<br/></p>';
-									$o->closeField();
-									$o->openField('Remap Asset');
-										asset_finder($prefix.'_remap_new_url', 0, Array(), 'window.opener.top');
-									$o->closeField();
-								$o->closeSection();
-							}
-						}
+					if ($new_parent->id == $trash_folder->id) {
+						echo '<p>Please confirm that you are moving "'.$asset->name.'" to the trash.</p>';
+					} else {
+						echo '<p>Please confirm that you are moving "'.$asset->name.'" from under "'.$parent->name.'" to under "'.$new_parent->name.'".</p>';
+					}
+					echo '<p>Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.</p>';
 				$o->closeField();
+				
+				if ($new_parent->id == $trash_folder->id) {
+					$o->openField('&nbsp;');
+						echo '<p>When "'.$asset->name.'" is moved to the trash, any URLs that it currently has will be broken. Use the asset finder below to select another asset to remap the URLs of "'.$asset->name.'" to. If you do not want to remap the URLs, just leave the field empty.</p>';
+						asset_finder($prefix.'_remap_new_url', $asset->id, Array(), 'window.opener.top');
+					$o->closeField();
+				}
+
+
+				// check to see if this asset is getting moved to the trash for good !!!
+				if ($new_parent->id == $trash_folder->id) {
+					// when checking for the number of links left in the system, make sure we disregard
+					// any link to the trash folder because even if this asset is already in the trash,
+					// we should warn about deleting it
+					$trash_link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($trash_folder->id, $asset->id, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
+					$num_other_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($asset->id, 'minor', SQ_LINK_TYPE_1 + SQ_LINK_TYPE_2, '', true, $this->_running_vars['linkid']);
+					if (!empty($trash_link)) $num_other_links--;
+
+					if (!$num_other_links) {
+
+						// now lets get all the other links this asset has in the system and
+						// display them to the user
+						// note that we are also going to ask the major asset in the link
+						// to describe it so it makes sense to the user looking at it
+						$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE, '', true, 'minor');
+
+						if (!empty($links)) {
+
+							$o->openSection('Warning - Moving To Trash');
+								$o->openField('&nbsp;');
+									?><p>Moving "<?php echo $asset->name; ?>" to the trash is going to affect other assets in the system. A list of the affected assets is shown below along with a description of their purpose.</p><?php
+
+									$link_lineages = $GLOBALS['SQ_SYSTEM']->am->getLinkLineages($asset, SQ_LINK_TYPE_3 + SQ_LINK_NOTICE);
+
+									?><table class="sq-backend-table"><?php
+									foreach ($links as $link_data) {
+										$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_data['majorid'], $link_data['major_type_code']);
+										$link_description = $major->describeLink($link_data['linkid']);
+										$link_lineage = $link_lineages[$link_data['linkid']]['lineage'];
+
+										// construct a human readable lineage
+										$num_in_lineage = count($link_lineage);
+										$lineage = '';
+										for ($i = 0; $i < $num_in_lineage; $i++) {
+											$entry = $link_lineage[$i];
+											if ($i == ($num_in_lineage -1)) {
+												continue;
+											} else if ($i <= 1 || $num_in_lineage <= 5) {
+												$lineage .= $entry.' &gt; ';
+											} else if ($num_in_lineage - $i <= 3 && $num_in_lineage > 5) {
+												$lineage .= $entry.' &gt; ';
+											} else if ($i == 2 && $num_in_lineage > 5) {
+												$lineage .= '... &gt; ';
+											}
+										}
+										$lineage .= '<b>'.$link_lineage[($num_in_lineage-1)].'</b>';
+										
+										?>
+										<tr>
+											<td class="sq-backend-table-cell">
+												<b><?php echo $lineage; ?></b>
+												<?php echo (!empty($link_description)) ? '<br/>'.$link_description : ''; ?>
+											</td>
+										</tr>
+										<?php
+									}
+									?></table><?php
+								$o->closeField();
+							$o->closeSection();
+
+						}//end if
+					}
+				}
+
 			$o->closeSection();
 
 		}//end if
@@ -308,7 +369,7 @@ class HIPO_Job_Create_Link extends HIPO_Job
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 
-			// if we are moving to trash and they want to remap the URL's of the asset that
+			// if we are moving to the trash and they want to remap the URL's of the asset that
 			// is being trashed to another asset, go through and do all this for them
 			if (isset($_POST[$prefix.'_remap_new_url'])) {
 				$assetid = $_POST[$prefix.'_remap_new_url']['assetid'];
