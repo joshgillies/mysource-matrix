@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder.inc,v 1.2 2004/11/18 05:12:48 gsherwood Exp $
+* $Id: page_template_builder.inc,v 1.3 2004/11/30 00:32:40 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -176,14 +176,10 @@ class Page_Template_Builder extends Page
 
 		$fields = Array();
 		
-		// return of preg_match_all:
-		// [1] = name of field
-		// [4] = type of bracket
-		// [5] = contents of the bracket
 		foreach($matches as $bc_fields) {
 			switch(count($bc_fields)) {
-				// everything specified - freeform text, size specified. For some reason this
-				// returns 10 back-references instead of 6... oh well
+				// eg. #Text Field(50x3)#
+				// everything specified - freeform text, size specified
 				case 10:
 					$fields[] = Array(	'name'   => $bc_fields[1],
 										'type'	 => $bc_fields[8],
@@ -192,8 +188,8 @@ class Page_Template_Builder extends Page
 										'is_select' => false,
 									);
 				break;
-				
-				// everything specified - multiple selection field (again, returns 8 fields)
+				// eg. #Multiple Selection{Option One|Option Two|Option Three}#
+				// everything specified - multiple selection field
 				case 8:
 					$fields[] = Array(	'name'   => $bc_fields[1],
 										'type'	 => $bc_fields[6],
@@ -202,8 +198,9 @@ class Page_Template_Builder extends Page
 										'is_select' => true,
 									);
 				break;
-				
-				// everything specified - selection field
+
+				// eg. #Single Selection[Option One|Option Two|Option Three]#				
+				// everything specified - single selection field
 				case 6:
 					$fields[] = Array(	'name'   => $bc_fields[1],
 										'type'	 => $bc_fields[4],
@@ -213,7 +210,9 @@ class Page_Template_Builder extends Page
 									);
 				break;
 				
-				case 5:			// bracket specified, no contents!!
+				// eg. #Multiple Selection{}# or #Single_Selection[]#
+				// bracket specified, no contents!!
+				case 5:
 					$fields[] = Array(	'name'   => $bc_fields[1],
 										'type'	 => $bc_fields[4],
 										'values' => Array(),
@@ -222,7 +221,9 @@ class Page_Template_Builder extends Page
 									);
 				break;
 				
-				default:		// no bracket specified at all = freeform text
+				// eg. #Text Field#
+				// no bracket specified at all = freeform text with default 40x1 size
+				default:		
 					$fields[] = Array(	'name'   => $bc_fields[1],
 										'type'	 => '',
 										'values' => Array(),
