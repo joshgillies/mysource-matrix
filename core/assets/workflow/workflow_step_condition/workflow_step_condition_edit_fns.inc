@@ -105,7 +105,7 @@ class Workflow_Step_Condition_Edit_Fns extends Asset_Edit_Fns
 		if (isset($_POST[$prefix.'_logic'])) {
 			$cond_logic = trim($_POST[$prefix.'_logic']);
 		}
-		if (isset($_POST[$prefix.'_logic_num'])) {
+		if (isset($_POST[$prefix.'_logic_num']) && $cond_logic != 'all') {
 			$cond_logic_num = trim($_POST[$prefix.'_logic_num']);
 		}
 		if (!$asset->setAttrValue('logic', $cond_logic)) {

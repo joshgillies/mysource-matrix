@@ -127,7 +127,7 @@ class Workflow_Step_Edit_Fns extends Asset_Edit_Fns
 		if (isset($_POST[$prefix.'_logic'])) {
 			$step_logic = trim($_POST[$prefix.'_logic']);
 		}
-		if (isset($_POST[$prefix.'_logic_num'])) {
+		if (isset($_POST[$prefix.'_logic_num']) && $step_logic != 'all') {
 			$step_logic_num = trim($_POST[$prefix.'_logic_num']);
 		}
 		if (!$asset->setAttrValue('logic', $step_logic)) {
