@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.1 2004/06/24 23:12:36 mnyeholt Exp $
+* $Id: install.inc,v 1.2 2004/06/25 01:30:49 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,7 +43,7 @@
 * @return void
 * @access public
 */
-function regenerateConfigs()
+function regenerate_configs()
 {
 	// Re-generate the System Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/system_config.inc';
@@ -65,7 +65,7 @@ function regenerateConfigs()
 	$ms_cfg = new Messaging_Service_Config();
 	$ms_cfg->save(Array(), false);
 
-}//end regenerateConfigs()
+}//end regenerate_configs()
 
 
 /**
@@ -75,13 +75,11 @@ function regenerateConfigs()
 * @return void
 * @access public
 */
-function uninstallAssetTypes()
+function uninstall_asset_types()
 {
 	$db = &$GLOBALS['SQ_SYSTEM']->db;
 	
 	$asset_types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
-	
-	//--        UNINSTALL ASSET TYPES        --//
 	
 	// Asset types are deleted if the .inc file for them does not exist (eg. for Page asset it would be
 	// page.inc) and no assets OR asset types currently depend on them in the system.
@@ -197,7 +195,7 @@ function uninstallAssetTypes()
 	
 	}// end if - asset types not empty
 	
-}//end uninstallAssetTypes()
+}//end uninstall_asset_types()
 
 
 /**
@@ -207,8 +205,10 @@ function uninstallAssetTypes()
 * @return void
 * @access public
 */
-function uninstallPackages()
+function uninstall_packages()
 {
+	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	
 	// If the package manager doesn't exist for a package, it does not exist.
 	// Assumption: packages live in the packages directory (Core never gets uninstalled).
 	$packages_installed = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
@@ -255,7 +255,8 @@ function uninstallPackages()
 	
 	}// end if - installed packages not empty
 	
-}//end uninstallPackages()
+}//end uninstall_packages()
+
 
 /**
 * Install core assets / modules / packages
@@ -264,7 +265,7 @@ function uninstallPackages()
 * @return void
 * @access public
 */
-function installCore()
+function install_core()
 {
 	require_once SQ_CORE_PACKAGE_PATH.'/package_manager_core.inc';
 	$pm = new Package_Manager_Core();
@@ -299,7 +300,7 @@ function installCore()
 	// the install process without permission denied errors
 	$GLOBALS['SQ_SYSTEM']->setCurrentUser($GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user'));
 	
-}//end installCore()
+}//end install_core()
 
 
 /**
@@ -309,7 +310,7 @@ function installCore()
 * @return void
 * @access public
 */
-function installPackages()
+function install_packages()
 {
 	// Right now that we have sorted all that out we can install the packages
 	$d = dir(SQ_PACKAGES_PATH);
@@ -333,7 +334,7 @@ function installPackages()
 	}
 	$d->close();
 	
-}//end installPackages()
+}//end install_packages()
 
 
 /**
@@ -343,7 +344,7 @@ function installPackages()
 * @return void
 * @access public
 */
-function installAuthenticationTypes()
+function install_authentication_types()
 {
 	
 	// get all the authentication types that are currently installed
@@ -371,7 +372,7 @@ function installAuthenticationTypes()
 	}
 	$GLOBALS['SQ_INSTALL'] = false;
 
-}//end installAuthenticationTypes()
+}//end install_authentication_types()
 
 
 /**
@@ -381,7 +382,7 @@ function installAuthenticationTypes()
 * @return void
 * @access public
 */
-function generateGlobalPreferences()
+function generate_global_preferences()
 {
 	// we need to install any event listeners here, now that we have installed all the asset types.
 	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
@@ -407,7 +408,7 @@ function generateGlobalPreferences()
 	
 	pre_echo('GLOBAL PREFERENCES DONE');
 	
-}//end generateGlobalPreferences()
+}//end generate_global_preferences()
 
 
 /**
@@ -417,7 +418,7 @@ function generateGlobalPreferences()
 * @return void
 * @access public
 */
-function installEventListeners()
+function install_event_listeners()
 {
 	// we need to install any event listeners here, now that we have installed all the asset types.
 	$packages = $GLOBALS['SQ_SYSTEM']->getInstalledPackages();
@@ -441,6 +442,6 @@ function installEventListeners()
 	
 	pre_echo('EVENT LISTENERS DONE');
 	
-}//end installEventListeners()
+}//end install_event_listeners()
 
 ?>
