@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_create_link.inc,v 1.13 2004/01/22 10:32:31 brobertson Exp $
+* $Id: hipo_job_create_link.inc,v 1.14 2004/01/23 03:55:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -207,13 +207,6 @@ class HIPO_Job_Create_Link extends HIPO_Job
 	}//end initialise()
 
 
-	function getHipoThreshold()
-	{
-		if (!isset($this->_running_vars)) return false;
-
-	}
-
-
 	/**
 	* Paints a confirmation screen for creating the link
 	*
@@ -268,19 +261,33 @@ class HIPO_Job_Create_Link extends HIPO_Job
 
 				$o->openField('&nbsp;');
 					if ($new_parent->id == $trash_folder->id) {
-						echo '<p>Please confirm that you are moving "'.$asset->name.'" to the trash.</p>';
+						?>
+						<table width="100%">
+							<tr>
+								<td valign="top">
+									<?php
+									include_once(SQ_LIB_PATH.'/asset_map/asset_map.inc');
+									$asset_map = new Asset_Map();
+									$asset_map->embed_asset_map('simple');
+									?>
+								</td>
+								<td width="100%" valign="top"><p>Please confirm that you are moving "<?php echo $asset->name; ?>" to the trash.</p>
+						<?php
 					} else {
 						echo '<p>Please confirm that you are moving "'.$asset->name.'" from under "'.$parent->name.'" to under "'.$new_parent->name.'".</p>';
 					}
 					echo '<p>Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.</p>';
-				$o->closeField();
-				
-				if ($new_parent->id == $trash_folder->id) {
-					$o->openField('&nbsp;');
+
+					if ($new_parent->id == $trash_folder->id) {
 						echo '<p>When "'.$asset->name.'" is moved to the trash, any URLs that it currently has will be broken. Use the asset finder below to select another asset to remap the URLs of "'.$asset->name.'" to. If you do not want to remap the URLs, just leave the field empty.</p>';
-						asset_finder($prefix.'_remap_new_url', $asset->id, Array(), 'window.opener.top');
-					$o->closeField();
-				}
+						asset_finder($prefix.'_remap_new_url', $asset->id, Array(), '');
+						?>
+								</td>
+							</tr>
+						</table>
+						<?php
+					}
+				$o->closeField();
 
 
 				// check to see if this asset is getting moved to the trash for good !!!
