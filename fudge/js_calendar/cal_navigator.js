@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cal_navigator.js,v 1.4 2004/09/13 02:10:10 gsherwood Exp $
+* $Id: cal_navigator.js,v 1.5 2004/09/13 02:13:19 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -43,8 +43,8 @@ function Calendar(varname, divname, width, height, year, month, day)
 	this.selday = (typeof(day) == "undefined")?dt.getDate():day;
 	this.month = (typeof(month) == "undefined")?dt.getMonth():month - 1;
 	this.year = (typeof(year) == "undefined")?dt.getFullYear():year;
-	this.prefix = varname;
-	this.varname = varname + "_cal";
+	this.prefix = "";
+	this.varname = varname;
 	this.divname = divname;
 	this.week_start = 1;
 	this.mon_names = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
