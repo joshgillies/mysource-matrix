@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.21 2004/02/24 07:37:35 gsherwood Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.22 2004/02/26 02:58:32 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -391,11 +391,11 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 		// need to have write access to make any changes
 		if ($asset->writeAccess('')) {
 			?>
-			<p>
-				Check the box below if your schema is named <B>AGLS</B>, <B>DCL</B> or <B>EDNA</B>, and if you want to use default namespace definition for it, instead of entering custom values in the text input fields.</p>
+			<p>You can use this section to define a namespace to be used for any Harvest Control List (HCL) page you have created using this metadata schema. If you are going to include this metadata schema on a HCL page, you <b>must</b> define an XML namespace, because HCL page must be a well-formed XML document.
+			</p>
 		<?php
 			check_box($prefix.'_default_ns');
-			echo '&nbsp;Use default XML namespace definitions (this will delete any custom values!)';
+			echo '&nbsp;<b>Use default XML namespace definitions:</b> If your schema has one of the standard names - \'<b>AGLS</b>\', \'<b>DC</b>\', \'<b>EDNA</b>\' - you can use a default namespace definition instead of entering the custom namespace and custom namespace URI into the fields below.';
 		} else {
 			echo 'Permission Denied to change this property'; 
 
@@ -434,7 +434,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 				$asset -> setAttrValue('namespace', 'xmlns:dc');
 				$asset -> setAttrValue('nsurl', 'http://purl.org/dc/elements/1.1/');
 
-			} else { // in this case it's EDNA
+			} elseif ($schema_name == "edna") { 
 				
 				$asset -> setAttrValue('namespace', 'xmlns:edna');
 				$asset -> setAttrValue('nsurl', 'http://www.edna.edu.au/metadata/v1.1');
