@@ -172,6 +172,23 @@ class Workflow_Manager extends Resolve_Object
 			if (!$workflow['complete']) $this->_loadCurrentStep($workflow['workflowid']);
 		}
 
+		// check all our running workflows
+		$cw =& $this->current_workflows['running'];
+		for (reset($cw); null !== ($workflowid = key($cw)); next($cw)) {
+			$workflow =& $cw[$workflowid];
+			if ($workflow['current_step'] === 0) {
+				$this->current_workflows['complete'][$workflowid] = $this->current_workflows['running'][$workflowid];
+			}
+		}
+
+		foreach ($this->current_workflows['running'] as $workflowid => $data) {
+			if (isset($this->current_workflows['complete'][$workflowid])) {
+				unset($this->current_workflows['running'][$workflowid]);
+			}
+		}
+
+		if (empty($this->current_workflows['running'])) $this->state = 'complete';
+
 		return true;
 	}//end loadRunning()
 

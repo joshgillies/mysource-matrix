@@ -954,6 +954,9 @@ class Asset extends Resolve_Object
 					}
 				}
 				break;
+			case 'complete' :
+				$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+			break;
 		}
 
 		return $statii;
@@ -1064,10 +1067,26 @@ class Asset extends Resolve_Object
 							break;
 						}
 					} else if ($this->status & SQ_STATUS_PENDING) {
-						// the asset is pending approval, there is a
-						// workflow to follow, but it has not been started
-						// so... something has gone horribly wrong
-						$wfm->start();
+						
+						if (empty($wfm->current_workflows['complete'])) {
+							// the asset is pending approval, there is a
+							// workflow to follow, but it has not been started
+							// so... something has gone horribly wrong
+							$wfm->start();
+						} else {
+							// the workflow is completed but has somehow not
+							// automatically finished, so we will save it now
+							$this->clearSystemVersion();
+							$this->status = SQ_STATUS_LIVE;
+
+							// send an internal message
+							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+							$body = 'The workflow process for '.$this->type().' "'.$this->name.'" has been completed. "'.$this->name.'" is now live.';
+							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Workflow Completed', $body);
+
+							$wfm->save();
+							break;
+						}
 					}
 				}
 
