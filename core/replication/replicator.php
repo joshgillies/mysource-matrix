@@ -18,27 +18,33 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_authentication_basic.inc,v 1.1.2.2 2004/02/13 17:18:58 brobertson Exp $
+* $Id: replicator.php,v 1.1.2.1 2004/02/13 17:18:58 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-require_once SQ_SYSTEM_ROOT.'/core/replication/replication_system_authentication.inc';
-
 /**
-* Replication_System_Authentication_Basic
-*
-* Purpose
-*
-*    Handle the authentication of connections between Master Server and Slaves using Basic authentication
-*    [TODO: define what "Basic Authentication" actually is]
+* Command Line interface to the Replicator
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix
 */
-class Replication_System_Authentication_Basic extends Replication_System_Authentication
-{
+ini_set('memory_limit', '8M');
+ini_set('display_errors', '1');
+ini_set('error_log', dirname(dirname(dirname(__FILE__))).'/cache/error.log');
+require_once dirname(dirname(__FILE__)).'/include/init.inc';
 
-}//end class
+$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+if (is_null($root_user)) {
+	trigger_error('Unable to get Root User', E_USER_ERROR);
+}
+
+if (!$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user)) {
+	trigger_error('Unable to set root user as the current user', E_USER_ERROR);
+}
+
+$sr = &$GLOBALS['SQ_SYSTEM']->getSystemReplicator();
+$exit_status = $sr->run();
+exit($exit_status);
 
 ?>

@@ -18,13 +18,9 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replicator.inc,v 1.1.2.2 2004/01/21 18:59:28 brobertson Exp $
+* $Id: replicator.inc,v 1.1.2.3 2004/02/13 17:18:58 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
-
-require_once dirname(__FILE__).'/replication_communication.inc';
-require_once dirname(__FILE__).'/replication_remote_system.inc';
-require_once SQ_SYSTEM_ROOT.'/data/private/conf/replication.inc';
 
 /**
 * Replicator
@@ -36,17 +32,20 @@ require_once SQ_SYSTEM_ROOT.'/data/private/conf/replication.inc';
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix
+* @abstract
 */
-class Replicator extends Replication_Communication
+class Replicator extends MySource_Object
 {
 
 	/**
-	* @var Array(object Replication_Remote_System)
+	* The path to the directory that we will put all data
+	* @var string
 	*/
-	var $_systems = Array();
+	var $_data_dir = '';
 
 	/**
-	* @var Array(object Replication_Remote_System)
+	* The path to the directory that we will put all our logs (because we can have diff types)
+	* @var string
 	*/
 	var $_log_dir = '';
 
@@ -57,11 +56,10 @@ class Replicator extends Replication_Communication
 	function Replicator()
 	{
 		$this->MySource_Object();
-		$this->_log_dir = SQ_DATA_PATH.'/private/logs/replication';
-		$this->_loadRemoteSystems();
+		$this->_data_dir = SQ_DATA_PATH.'/private/replication';
+		$this->_log_dir  = SQ_DATA_PATH.'/private/logs/replication';
 
 	}//end constructor
-
 
 	/**
 	* Appends something to the log
@@ -74,43 +72,8 @@ class Replicator extends Replication_Communication
 	function _log($msg, $log_type='general')
 	{
 		error_log(date('[d-M-Y H:i:s] ').$msg."\n", 3, $this->_log_dir.'/'.$log_type.'.log');
+
 	}// end _log()
-
-
-	/**
-	* Load's all the remote system object's that we have installed into our cache
-	*
-	* @return void
-	* @access private
-	*/
-	function _loadRemoteSystems()
-	{
-		trigger_error('LOAD REMOTE SYSTEMS');
-
-	}// end _loadRemoteSystems()
-
-
-	/**
-	* Check's the passed systemid to see whether it's valid or not
-	* Returns TRUE if so and the error msg if not
-	*
-	* @param string	$systemid		the id of the server to create
-	* @param string	$auth_method	the authentication method that is used by this server
-	*
-	* @return boolean
-	* @access public
-	*/
-	function createRemoteSystem($systemid, $auth_method, $enc_method)
-	{
-		if (true !== ($err_msg = Replication_Remote_System::validSystemId($systemid))) {
-			trigger_error('Unable to create a Remote System "'.$this->id.'" : '.$err_msg, E_USER_WARNING);
-			return false;
-		}
-
-		$rs = new Replication_Remote_System($systemid);
-		return $rs->create($auth_method);
-
-	}// end createRemoteSystem()
 
 
 	/**
@@ -121,105 +84,57 @@ class Replicator extends Replication_Communication
 	*/
 	function run()
 	{
-		if (!SQ_PHP_CLI) {
-			trigger_error(__CLASS__.'::'.__FUNCTION__.'() can only be run from the command line', E_USER_ERROR);
-		}
-		$cmd = (isset($_SERVER['argv'][1])) ? $_SERVER['argv'][1] : '';
-
-		switch($cmd) {
-			case 'init' :
-				require_once dirname(__FILE__).'/replication_config.inc';
-				$conf = new Replication_Config();
-				if ($conf->save(Array())) {
-					echo 'Configuration File "'.$conf->config_file.'" saved.'."\n";
-					return 0;
-				} else {
-					return 1;
-				}
-				break;
-
-			case 'create' :
-				pre_echo($_SERVER['argv']);
-				if (isset($_SERVER['argv'][2]) && isset($_SERVER['argv'][3])) {
-					if ($this->createRemoteSystem($_SERVER['argv'][2], $_SERVER['argv'][3])) {
-						echo 'Remote System "'.$_SERVER['argv'][2].'" created.'."\n";
-						echo 'You can now edit "'.$conf->config_file.'" saved.'."\n";
-						return 0;
-					}
-				}// end if
-				$this->printUsage('create');
-				return 1;
-
-				break;
-
-
-			case '-h'     :
-			case '--help' :
-			case 'help'   :
-				$this->printUsage(isset($_SERVER['argv'][2]) ? $_SERVER['argv'][2] : '');
-				break;
-
-			default :
-				$this->printUsage();
-				return 1;
-
-		}// end switch
-
+		return 1; // remember 1 is error from cmd line
 	}// end run()
 
 
 	/**
-	* Print out the command line usage for the replicator
+	* Simple fn to print a prompt and return what the user enters
 	*
-	* @param string	$cmd	show specific usage for the cmd
+	* @param string	$prompt	prompt to display before cursor
 	*
-	* @return void
-	* @access public
+	* @return string
+	* @access private
 	*/
-	function printUsage($cmd='')
+	function _getCmdLineInput($prompt='')
 	{
 		if (!SQ_PHP_CLI) {
 			trigger_error(__CLASS__.'::'.__FUNCTION__.'() can only be run from the command line', E_USER_ERROR);
 		}
+		echo $prompt;
+		// now get their entry and remove the trailing new line
+		return rtrim(fgets(STDIN, 4094));
 
-		$prog = basename($_SERVER['argv'][0]);
+	}// end _getCmdLineInput() 
 
-		$descs = Array(
-			'help'		=> 'Use "'.$prog.' help <command>" for more info on each command',
-			'init'		=> 'Create the initial replication config file',
-			'create'	=> 'Create a remote system entry',
-		);
 
-		$lines = Array();
+	/**
+	* Attempt to initialise this replicator type
+	*
+	* @return boolean
+	* @access public
+	* @abstract
+	*/
+	function initialise()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		// make sure the directory exists
+		if (!create_directory($this->_data_dir)) return false;
+		return touch($this->_data_dir.'/.'.get_class($this).'_initialised');
+	}// end initialise()
 
-		if ($cmd != '' && isset($descs[$cmd])) {
-			$lines[] = $descs[$cmd];
-			switch($cmd) {
-				case 'create' :
-					$lines[] = $prog.' create <systemid> <auth method>';
-					trigger_error('LIST VALID OF AUTH METHODS HERE');
-					break;
 
-				case 'help' :
-					$other_descs = $descs;
-					unset($other_descs['help']);
-					$lines[] = $prog.' help ['.implode('|', array_keys($other_descs)).']';
-					break;
-
-				default :
-					$lines[] = $prog.' '.$cmd;
-
-			}// end switch
-		} else {
-			$lines[] = 'Usage : '.$prog.' ['.implode('|', array_keys($descs)).']';
-			foreach($descs as $cmd => $desc) {
-				$lines[] = '  '.str_pad($cmd, 10, ' ').'- '.$desc;
-			}
-		}// end if
-
-		echo implode("\n", $lines)."\n";
-
-	}// end printUsage()
+	/**
+	* Whether we think that this replicator has been initialised on this system
+	*
+	* @return boolean
+	* @access public
+	*/
+	function initialised()
+	{
+		// no need for caching, see clearstatcache()
+		return file_exists($this->_data_dir.'/.'.get_class($this).'_initialised');
+	}// end initialised()
 
 
 	/**
@@ -231,8 +146,13 @@ class Replicator extends Replication_Communication
 	*/
 	function getAuthTypes()
 	{
-		$dir = dirname(__FILE__).'/authentication/';
-		return Replicator::getClassesFromDir($dir, '/^replication_system_authentication_(.*).inc$/');
+		static $auth_types = Array();
+		if (empty($auth_types)) {
+			$dir = SQ_SYSTEM_ROOT.'/core/replication/authentication/';
+			$auth_types = Replicator::getClassesFromDir($dir, '/^replication_system_authentication_(.*).inc$/');
+		}
+		return $auth_types;
+
 	}// end getAuthTypes()
 
 
@@ -245,8 +165,12 @@ class Replicator extends Replication_Communication
 	*/
 	function getTransportMethods()
 	{
-		$dir = dirname(__FILE__).'/transport/';
-		return Replicator::getClassesFromDir($dir, '/^replication_system_transport_(.*).inc$/');
+		static $trans_meths = Array();
+		if (empty($trans_meths)) {
+			$dir = SQ_SYSTEM_ROOT.'/core/replication/transport/';
+			$trans_meths = Replicator::getClassesFromDir($dir, '/^replication_system_transport_(.*).inc$/');
+		}
+		return $trans_meths;
 
 	}// end getTransportMethods()
 
@@ -280,39 +204,53 @@ class Replicator extends Replication_Communication
 
 
 	/**
-	* The Replicate fn, called from the Squiz Server Process Object
+	* Check's the passed system name to see whether it's valid or not
+	* Returns TRUE if so and the error msg if not
 	*
-	* @param string		$systemid		the systemid of the system that we are replicating with
-	* @param resource	$client_fd		the client socket resource
-	* 
+	* @param string	$system_name	the system name to check
+	*
+	* @return mixed	true if valid, string err msg if not
+	* @access public
+	* @static
+	*/
+	function validSystemName($system_name)
+	{
+		if (!preg_match('/^[a-z][a-z0-9.-]*$/', $system_name)) {
+			return 'Must be all lower-case, with an a-z as the first character, followed by zero or more a-z, 0-9, . or - characters';
+		}
+		return true;
+
+	}// end validSystemName()
+
+
+	/**
+	* Paints the interface for our config interface
+	*
+	* @param object Backend_Outputter	&$o				reference to the backend outputter
+	* @param boolean					$write_access	whether the replication config is locked or not
+	*
 	* @return void
 	* @access public
+	* @see processBackend()
 	*/
-	function replicate($systemid, $client_fd)
+	function paintBackend(&$o, $write_access=false)
 	{
-		$this->_log("IN REPLICATE FN : $systemid", 'debug');
-		if(SQ_REPLICATION_IS_MASTER) {
-			$this->_log("I AM THE MASTER, CHECK '$systemid' IS KNOWN TO US", 'debug');
-
-//			replicateMaster($systemid, $client_fd, true);
-
-		} else {
-			$this->_log("I AM A SLAVE, CHECK '$systemid' IS OUR MASTER", 'debug');
-			// make sure we think we are talking
-			if ($systemid != SQ_REPLICATION_MASTER_REPLICATION_SYSTEMID) {
-				$this->_log('System called "'.$systemid.'" attempted to replicate with us, but it is not our master server', 'error');
-				return;
-			}
-
-//			replicateSlave($client_fd, true);
-
-		}
-
-	}// end getClassesFromDir()
+	}// end paintBackend()
 
 
-//	function replicateMaster($systemid, $client_fd, $received_connection);
-//	function replicateSlave($client_fd, $received_connection);
+	/**
+	* Saves the config settings that were submitted
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	*
+	* @return boolean	false on error, true on everything else (including nothing happening)
+	* @access public
+	* @see paintBackend()
+	*/
+	function processBackend(&$o)
+	{
+		return true;
+	}// end processBackend()
 
 }//end class
 

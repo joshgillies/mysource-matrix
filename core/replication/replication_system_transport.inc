@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport.inc,v 1.1.2.1 2004/01/21 18:43:56 brobertson Exp $
+* $Id: replication_system_transport.inc,v 1.1.2.2 2004/02/13 17:18:58 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -63,25 +63,47 @@ class Replication_System_Transport extends MySource_Object
 
 
 	/**
-	* Gets the config vars that this authentication method requires
+	* Returns the method of authentication that this class is
 	*
-	* Config vars should be in the format:
-	* <PRE>
-	* Array(
-	*    'SQ_REPLICATION_TRANSPORT_[VAR_NAME_1]'   => Array('editable' => 0, 'default' => false),
-	*    'SQ_REPLICATION_TRANSPORT_[VAR_NAME_2]'   => Array('editable' => 0, 'default' => false),
-	* );
-	* </PRE>
-	* 
+	* @return string
+	* @access public
+	*/
+	function method()
+	{
+		return substr(get_class($this), 29);
+	}//end method()
+
+
+	/**
+	* Returns an array of data that can be later used with loadParams() to re-initiate this transport method
+	* The reason we do this rather than just serialising the whole object is so that it can be edited by
+	* hand if need be
+	*
 	* @access public
 	* @return Array()
-	* @static
+	* @see loadParams()
 	*/
-	function getConfigVars()
+	function extractParams()
 	{
 		return Array();
 	
-	}//end getConfigVars()
+	}//end extractParams()
+
+
+	/**
+	* Loads an array of data that came from extractParams() to re-initiate this transport method
+	*
+	* @param Array $params	the params array as retrieved from extractParams()
+	*
+	* @access public
+	* @return Array()
+	* @see extractParams()
+	*/
+	function loadParams($params)
+	{
+		return true;
+	
+	}//end loadParams()
 
 
 	/**

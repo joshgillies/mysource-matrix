@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport_plain_text.inc,v 1.1.2.1 2004/01/21 18:43:56 brobertson Exp $
+* $Id: replication_system_transport_plain_text.inc,v 1.1.2.2 2004/02/13 17:18:58 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
+require_once SQ_SYSTEM_ROOT.'/core/replication/replication_system_transport.inc';
 
 /**
 * Replication_System_Transport_Basic
@@ -34,7 +35,7 @@
 * @version $Version$ - 1.0
 * @package MySource_Matrix
 */
-class Replication_System_Transport_Plain_Text extends MySource_Object
+class Replication_System_Transport_Plain_Text extends Replication_System_Transport
 {
 
 }//end class
