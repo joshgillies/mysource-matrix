@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_expand_keywords.inc,v 1.6 2004/11/02 05:13:43 tbarrett Exp $
+* $Id: matrix_expand_keywords.inc,v 1.7 2004/11/10 05:18:58 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@
 *     to replace it with its full version as you type
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -78,7 +78,7 @@ class matrix_expand_keywords  extends wysiwyg_plugin {
 			return;
 		}
 
-		$thesaurus = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thesaurusid);
+		$thesaurus = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thesaurusid, '', true);
 		if (!$thesaurus->id) {
 			?>
 			<script type="text/javascript"> function expandKeywords() {} </script>
