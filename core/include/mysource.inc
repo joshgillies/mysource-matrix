@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.88 2005/03/23 02:58:21 arailean Exp $
+* $Id: mysource.inc,v 1.89 2005/03/23 05:28:08 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.88 $
+* @version $Revision: 1.89 $
 * @package MySource_Matrix
 */
 class MySource
@@ -749,7 +749,7 @@ class MySource
 		}
 
 		$tm = &$this->getTriggerManager();
-		if (!empty($tm)) {
+		if (!is_null($tm)) {
 			$tm->broadcastEvent($event_name, $broadcaster, $parameters);
 		}
 
@@ -1166,7 +1166,9 @@ class MySource
 		}
 
 		// this is a bypass to allow logging while Log Manager asset has not been installed yet
-		if (empty($this->log_manager)){
+		// necessary during installation, because we want ALL the log entries to be handled by the log manager,
+		// not only those that appeared after it was installed.
+		if (is_null($this->log_manager)){
 			return new Log_Manager();
 		}
 
@@ -1936,24 +1938,6 @@ class MySource
 
 
 	/**
-	* Log a message
-	*
-	* @param string					$logname	The prefix of the file to log to, eg. 'error'
-	* @param mixed string|array		$data		The data to write to the log file
-	* @param int					$level		The log level, eg. E_USER_ERROR.
-	*
-	* @access public
-	* @return boolean
-	*/
-	function log($logname, $data, $level=E_USER_NOTICE)
-	{
-		$lm = &$this->getLogManager();
-		return $lm->log($logname, $data, $level);
-
-	}//end log()
-
-
-	/**
 	* Log a System message
 	*
 	* @param string					$message	Message to log
@@ -1964,7 +1948,8 @@ class MySource
 	*/
 	function logSystemMessage($message, $level=E_USER_NOTICE)
 	{
-		return $this->log(SQ_CONF_LOG_FILE_SYSTEM, $message, $level);
+		$lm = &$this->getLogManager();
+		return $lm->log(SQ_CONF_LOG_FILE_SYSTEM, $message, $level);
 
 	}//end logSystemMessage()
 
@@ -1972,29 +1957,31 @@ class MySource
 	/**
 	* Log an Error message
 	*
-	* @param string					$message	Message to log
-	* @param int					$level		The log level, eg. E_USER_ERROR
+	* @param string	$message	Message to log
+	* @param int	$level		log level, eg. E_USER_ERROR
+	* @param string	$file		file that caused the error (from trigger_error)
+	* @param string	$line		line where the error occured (from trigger_error)
+	* @param string	$log_name	logfile to write to (instead of default)
 	*
 	* @access public
 	* @return boolean
 	*/
-	function logErrorMessage($message, $level=E_USER_NOTICE, $filename='', $line='', $log_name=null)
+	function logErrorMessage($message, $level=E_USER_NOTICE, $file='', $line='', $log_name=SQ_CONF_LOG_FILE_ERROR)
 	{
 		if (!is_string($message)){
 			trigger_error('Ivalid message format for error log', E_USER_WARNING);
 			return false;
 		}
 
-		if (!empty($filename)) {
-			$message = "($filename:$line) - $message";
+		if (is_null($file)) {
+			$message = "($file:$line) - $message";
 		}
 
 		// strip out all references to the string identifying the root
 		$message = str_replace(SQ_CONF_ROOT_IDENTIFIER, '', $message);
 
-		$log_name = !empty($log_name)?$log_name:SQ_CONF_LOG_FILE_ERROR;
-
-		return $this->log($log_name, $message, $level);
+		$lm = &$this->getLogManager();
+		return $lm->log($log_name, $message, $level);
 
 	}//end logErrorMessage()
 
