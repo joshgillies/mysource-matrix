@@ -3,7 +3,7 @@
 * | MySource Matrix - Instructional Document                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: faq.txt,v 1.14 2004/02/03 13:08:35 brobertson Exp $
+* $Id: faq.txt,v 1.15 2004/02/04 09:53:07 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -101,6 +101,17 @@ So, back out of the directory back to the packages directory, rename your PACKAG
   cvs -d /home/cvs/mysource_matrix/packages/PACKAGE co PACKAGE
 
 If everything looks fine in your checked out version, go ahead and remove the import directory - you wont need it any more.
+
+And the last thing that you need to do is to checkout the package in the phpdocs directory.
+So on beta go to /home/htdocs/mysource_matrix_phpdoc/mysource_matrix/packages (as it stands at the moment) and run the same checkout command as you did for your own version.
+
+  cd /home/htdocs/mysource_matrix_phpdoc/mysource_matrix/packages
+  cvs -d /home/cvs/mysource_matrix/packages/PACKAGE co PACKAGE
+  chgrp -R cvsusers PACKAGE
+  chmod -R g+w PACKAGE
+
+Once it has been checked out it will be updated automatically by the cron script.
+
 
 Contributed by: Greg Sherwood <greg@squiz.net>
 
