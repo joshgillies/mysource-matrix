@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.60 2005/01/18 11:29:41 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.61 2005/02/01 11:23:06 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.60 $
+* @version $Revision: 1.61 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -109,7 +109,8 @@ class Metadata_Manager extends MySource_Object
 	* @param boolean	$granted	type of access : null = all, true = applied, false = denied
 	*
 	* @access public
-	* @return array( schemaid => granted[1|0] )
+	* @return array()	if $granted is null returns Array(schemaid)  
+	*					otherwise returns Array(schemaid => granted[1|0])
 	*/
 	function getSchemas($assetid, $granted=null)
 	{
