@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: preview.inc,v 1.4 2005/02/16 13:39:44 brobertson Exp $
+* $Id: preview.inc,v 1.5 2005/03/11 20:04:49 brobertson Exp $
 */
 
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
@@ -27,7 +27,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * Preview Static Screen Functions
 *
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix
 */
 
@@ -76,6 +76,13 @@ function paintPreview(&$owner, &$o, &$ei)
 		}
 	}
 
+	if (empty($url_data)) {
+		// there is no URL's with lookup values for this asset
+		// so just do a straight call for lookups
+		$url_data = $owner->getLookups();
+	}
+
+
 	if (!empty($url_data)) {
 		$primary_url = '';
 		$preview_urls = Array();
@@ -93,13 +100,13 @@ function paintPreview(&$owner, &$o, &$ei)
 			$url_pieces = parse_url($protocol.$url_info['url']);
 			if ($url_pieces['host'] != $current_url['host']) $contains_diff_domain = true;
 
-			$design_name = $url_info['name'];
-
-			if (!preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches)) continue;
-			if ($matches[1] == 'user') {
-				$preview_designs[$matches[2]] = ucwords(str_replace('_', ' ', $matches[2]));
-			} else if ($design_name == 'design::system::frontend') {
-				$has_default_design = true;
+			if (!empty($url_info['name'])) {
+				if (!preg_match('/^design::(system|user)::(.*)$/', $design_name, $matches)) continue;
+				if ($matches[1] == 'user') {
+					$preview_designs[$matches[2]] = ucwords(str_replace('_', ' ', $matches[2]));
+				} else if ($design_name == 'design::system::frontend') {
+					$has_default_design = true;
+				}
 			}
 		}
 		if (!$has_default_design) $preview_designs[''] = 'None';
