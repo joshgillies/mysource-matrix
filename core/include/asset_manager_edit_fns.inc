@@ -132,18 +132,21 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 						//// START HIPO PROCESSING ////
 			
 						$vars = Array('assetid' => $asset->id, 'forceably_acquire' => (bool) $_POST['sq_acquire_by_force']);
-						$codename = 'HIPO_acquire_lock';
 						$complete_url = $_SERVER['REQUEST_URI'];
 
-						require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_acquire_lock.inc');
-						$hipo = new HIPO_Job_Acquire_Lock();
+						require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_acquire_lock.inc';
+						$init_hipo = new HIPO_Job_Acquire_Lock();
 
-						$hipo->setRunningVars($vars);
-						$hipo->setOption('on_complete_url', $complete_url);
+						$init_hipo->setRunningVars($vars);
+						$init_hipo->setOption('on_complete_url', $complete_url);
 
-						if ($hipo->initialise()) {
-							$url = $hipo->getProcessURL();
-							$o->setRedirect($url);
+						$code_name = $init_hipo->initialise();
+						if ($code_name) {
+							$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+							$hipo = &$hh->getJob($code_name, 'hipo_job_acquire_lock');
+							if (!is_null($hipo)) {
+								$o->setRedirect($hipo->getProcessURL());
+							}
 						}
 						
 						////  END HIPO PROCESSING  ////
@@ -1113,18 +1116,21 @@ speed_check('FINISHED');
 			//// START HIPO PROCESSING ////
 			
 			$vars = Array('assetid' => $_GET['link_assetid'], 'permission_changes' => $permission_vars);
-			$codename = 'HIPO_edit_permissions';
 			$complete_url = $_SERVER['REQUEST_URI'].'&link_completed=1';
 
-			require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_permissions.inc');
-			$hipo = new HIPO_Job_Edit_Permissions();
+			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_permissions.inc';
+			$init_hipo = new HIPO_Job_Edit_Permissions();
 
-			$hipo->setRunningVars($vars);
-			$hipo->setOption('on_complete_url', $complete_url);
+			$init_hipo->setRunningVars($vars);
+			$init_hipo->setOption('on_complete_url', $complete_url);
 
-			if ($hipo->initialise()) {
-				$url = $hipo->getProcessURL();
-				$o->setRedirect($url);
+			$code_name = $init_hipo->initialise();
+			if ($code_name) {
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hipo = &$hh->getJob($code_name, 'hipo_job_edit_permissions');
+				if (!is_null($hipo)) {
+					$o->setRedirect($hipo->getProcessURL());
+				}
 			}
 			
 			////  END HIPO PROCESSING  ////

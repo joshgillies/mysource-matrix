@@ -204,16 +204,22 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		$codename = 'HIPO_update_lookups';
 		$complete_url = $_SERVER['REQUEST_URI'];
 
-		require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc');
-		$hipo = new HIPO_Job_Update_Lookups();
+		require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc';
+		$init_hipo = new HIPO_Job_Update_Lookups();
 
-		$hipo->setRunningVars($vars);
-		$hipo->setOption('on_complete_url', $complete_url);
+		$init_hipo->setRunningVars($vars);
+		$init_hipo->setOption('on_complete_url', $complete_url);
 
-		if ($hipo->initialise()) {
-			$url = $hipo->getProcessURL();
-			$o->setRedirect($url);
+		$code_name = $init_hipo->initialise();
+		if ($code_name) {
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$hipo = &$hh->getJob($code_name, 'hipo_job_update_lookups');
+			if (!is_null($hipo)) {
+				pre_echo($hipo);
+				$o->setRedirect($hipo->getProcessURL());
+			}
 		}
+
 		
 		////  END HIPO PROCESSING  ////
 

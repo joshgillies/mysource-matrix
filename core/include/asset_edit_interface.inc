@@ -843,19 +843,22 @@ class Asset_Edit_Interface extends Resolve_Object
 			//// START HIPO PROCESSING ////
 			
 			$vars = Array('assetid' => $owner->id, 'new_status' => $_POST[$prefix.'_change_status']);
-			$codename = 'HIPO_edit_status';
 			$complete_url = $_SERVER['REQUEST_URI'];
 
 			require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_status.inc');
-			$hipo = new HIPO_Job_Edit_Status();
+			$init_hipo = new HIPO_Job_Edit_Status();
 
-			$hipo->setRunningVars($vars);
-			$hipo->setOption('on_complete_url', $complete_url);
+			$init_hipo->setRunningVars($vars);
+			$init_hipo->setOption('on_complete_url', $complete_url);
 
-			if ($hipo->initialise()) {
-				$url = $hipo->getProcessURL();
-				$o->setRedirect($url);
-				$is_updated = true;
+			$code_name = $init_hipo->initialise();
+			if ($code_name) {
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hipo = &$hh->getJob($code_name, 'hipo_job_edit_status');
+				if (!is_null($hipo)) {
+					$o->setRedirect($hipo->getProcessURL());
+					$is_updated = true;
+				}
 			}
 			
 			////  END HIPO PROCESSING  ////
@@ -1583,20 +1586,24 @@ class Asset_Edit_Interface extends Resolve_Object
 			//// START HIPO PROCESSING ////
 			
 			$vars = Array('assetid' => $owner->id, 'permission_changes' => $permission_vars);
-			$codename = 'HIPO_edit_permissions';
+			$code_name = 'HIPO_edit_permissions';
 			$complete_url = $_SERVER['REQUEST_URI'];
 
-			require_once(SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_permissions.inc');
-			$hipo = new HIPO_Job_Edit_Permissions();
+			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_edit_permissions.inc';
+			$init_hipo = new HIPO_Job_Edit_Permissions();
 
-			$hipo->setRunningVars($vars);
-			$hipo->setOption('on_complete_url', $complete_url);
+			$init_hipo->setRunningVars($vars);
+			$init_hipo->setOption('on_complete_url', $complete_url);
 
-			if ($hipo->initialise()) {
-				$url = $hipo->getProcessURL();
-				$o->setRedirect($url);
+			$code_name = $init_hipo->initialise();
+			if ($code_name) {
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				$hipo = &$hh->getJob($code_name, 'hipo_job_edit_permissions');
+				if (!is_null($hipo)) {
+					$o->setRedirect($hipo->getProcessURL());
+				}
 			}
-			
+
 			////  END HIPO PROCESSING  ////
 
 		}//end if we have permission to set
