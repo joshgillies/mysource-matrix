@@ -229,9 +229,9 @@ function setDateField(fieldName, dateVal) {
 		if (dateVal.getHours() % 12 === 0) {
 			hourElt.value = 12;
 		} else {
-			hourElt.value = make2digits(dateVal.getHours()) % 12;
+			hourElt.value = make2digits(dateVal.getHours() % 12);
 		}
-		document.getElementById(fieldName+'_minutes').value = dateVal.getMinutes();
+		document.getElementById(fieldName+'_minutes').value = make2digits(dateVal.getMinutes());
 	}
 	
 }//end setDateField()
