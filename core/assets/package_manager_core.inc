@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.18 2005/02/24 22:57:04 tbarrett Exp $
+* $Id: package_manager_core.inc,v 1.19 2005/02/27 22:38:08 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/package_manager.inc';
 *    uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <brobertson@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix
 */
 class Package_Manager_Core extends Package_Manager
@@ -611,11 +611,11 @@ class Package_Manager_Core extends Package_Manager
 						'is_exclusive'  => 1,
 						);
 		$job = new Cron_Job_Expired_WorkFlow();
+		$job->setAttrValue('running_as', $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_user'));
 		if (!$job->create($link)) {
 				trigger_error('Expired Workflow Cron Job NOT CREATED', E_USER_ERROR);
 		}
 		pre_echo('Expired Workflow Cron Job Id: '.$job->id);
-		$job->setAttrValue('running_as', $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('root_user'));
 		$GLOBALS['SQ_SYSTEM_ASSETS']['cron_job_expired_worflow'] = $job->id;
 		return $job;
 

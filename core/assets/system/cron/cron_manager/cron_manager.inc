@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.38 2005/02/22 05:58:35 tbarrett Exp $
+* $Id: cron_manager.inc,v 1.39 2005/02/27 22:38:09 tbarrett Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.38 $
+* @version $Revision: 1.39 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -819,7 +819,6 @@ class Cron_Manager extends Asset
 		$GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS'] = $start_ts;
 		usort($result, Array('Cron_Manager', 'getJobsToRunCmp'));
 		unset($GLOBALS['CRON_MANAGER_GET_JOBS_TO_RUN_START_TS']);
-
 		return $result;
 
 	}//end getJobsToRun()
