@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<?xml-stylesheet href="../../asset.xsl" type="text/xsl"?>
+
+<!--
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: asset.xml,v 1.1 2003/10/20 07:23:49 brobertson Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
+	<package>__core__</package>
+	<type_code>system_management_folder</type_code>
+	<version>0.1</version>
+	<name>System Management Folder</name>
+	<description>System Management Folder holds the system assets away from Non-Admin view</description>
+	<instantiable>yes</instantiable>
+	<allowed_access>system</allowed_access>
+	<parent_type>folder</parent_type>
+	<requirements>
+		<requirement type="asset">
+			<code>folder</code>
+			<version>0.1</version>
+		</requirement>
+	</requirements>
+	<flash_menu_path/>
+</asset_info>
