@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.24 2004/07/07 01:05:29 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.25 2004/07/15 06:51:02 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1149,7 +1149,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 						// only print if we need to compare with something
 						if ($asset->writeAccess('attributes')) {
 							if ($q_asset->isSelection() && !$attributes['force_text']) {
-								$options = $asset->getOptions();
+								$options = $q_asset->getOptions();
 								combo_box($rule_prefix.'_value', array_merge(Array(' ' => '------ Please Select ------'), $options), 
 						false, $rule['value']); 
 							} else {
