@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.6 2004/06/17 04:03:47 lwright Exp $
+* $Id: email_format.inc,v 1.7 2004/06/21 14:30:15 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -164,7 +164,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$current_to = '';
 		foreach ($current_value['to'] as $email) {
 			$current_to_string .= '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\''.$email.'\', \''.$prefix.'\', \'to\'); return false;">del</a> ] '.htmlspecialchars($email).'<br>';
-			$current_to .= $email.' ';
+			$current_to .= $email.';';
 		}
 
 		?>
@@ -178,9 +178,10 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				if (box.value == "") return;
 
 				div.innerHTML += '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\'' + box.value + '\', \'' + editor_name + '\', \'' + type + '\'); return false;">del</a> ] ' + box.value.replace('<', '&lt;').replace('>', '&gt;') + '<br>';
-				value.value += box.value + ";";
+				value.value   += box.value + ";";
 				
 				box.value = "";
+				box.focus();
 				
 			}//end emailFormatAddAddress()
 
@@ -269,7 +270,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					<?php text_box($prefix.'_new_to', '', 50); ?>
 					[ <a href="#" onclick="Javascript: emailFormatAddAddress('<?php echo $prefix ?>', 'to'); return false;">add</a> ]<br/>
 					<div id="<?php echo $prefix; ?>_current_to"><?php echo $current_to_string; ?></div>
-					<span style="display:none;"><?php text_box($prefix.'_to', $current_to, 5); ?></span>
+					<?php hidden_field($prefix.'_to', $current_to); ?>
 				</td>
 			</tr>
 			<tr>
