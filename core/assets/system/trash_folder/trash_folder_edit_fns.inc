@@ -16,6 +16,16 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 {
 
 	/**
+	* An array of tab code names and their display names
+	* @var Array()
+	*/
+	var $tabs = Array('details' => Array('name' => 'Details',
+										  'icon' => 'create'
+										  )
+					   );
+
+
+	/**
 	* Constructor
 	*
 	*/
