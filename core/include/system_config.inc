@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.21 2004/01/15 21:51:23 gsherwood Exp $
+* $Id: system_config.inc,v 1.22 2004/01/15 21:57:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -219,6 +219,7 @@ class System_Config extends Config
 	function writeAccess()
 	{
 		if (!parent::writeAccess()) return false;
+		if (!empty($GLOBALS['SQ_INSTALL'])) return true;
 		// need to be root or a sys admin
 		return ($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 

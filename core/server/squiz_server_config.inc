@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: squiz_server_config.inc,v 1.3 2004/01/15 21:55:32 gsherwood Exp $
+* $Id: squiz_server_config.inc,v 1.4 2004/01/15 21:57:31 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,6 +81,7 @@ class Squiz_Server_Config extends Config
 	function writeAccess()
 	{
 		if (!parent::writeAccess()) return false;
+		if (!empty($GLOBALS['SQ_INSTALL'])) return true;
 		// need to be root
 		return $GLOBALS['SQ_SYSTEM']->userRoot();
 
