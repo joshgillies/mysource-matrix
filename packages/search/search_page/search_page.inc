@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.83 2005/03/10 18:03:29 brobertson Exp $
+* $Id: search_page.inc,v 1.84 2005/03/11 00:55:31 gsherwood Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -82,18 +82,6 @@ class Search_Page extends Listing_Engine
 											'initial_layout',
 											'category_list_linked',
 											),
-/*						'result_element' => Array(
-											'score',
-											'result_number',
-											'asset_id',
-											'asset_name',
-											'asset_name_linked',
-											'asset_short_name',
-											'asset_short_name_linked',
-											'asset_url',
-											'asset_lineage',
-											'asset_lineage_linked',
-											),*/
 						);
 
 
@@ -1453,7 +1441,7 @@ class Search_Page extends Listing_Engine
 						$first = false;
 						$ancestor_asset = &$am->getAsset($parent_asset_id);
 						if ($keyword == 'asset_lineage_linked') $replacement .= '<a href="'.$ancestor_asset->getUrl().'">';
-						$replacement .= $ancestor_asset->name;
+						$replacement .= $ancestor_asset->short_name;
 						if ($keyword == 'asset_lineage_linked') $replacement .= '</a>';
 						$am->forgetAsset($ancestor_asset);
 					}
