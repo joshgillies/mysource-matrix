@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.158 2003/10/10 06:49:25 brobertson Exp $
+* $Id: asset_edit_interface.inc,v 1.159 2003/10/14 03:34:42 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -321,9 +321,6 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 					<?php
 						hidden_field('sq_lock_type', $screen_lock_type);
 
-						if ($have_any_locks) {
-							submit_button('sq_lock_release_manual', 'Release Lock(s)');
-						}
 						if (!$have_all_locks) {
 
 							if ($need_force_locks) {
@@ -344,6 +341,11 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 							} // end if
 
 						}// end if !have_all_locks
+
+						if ($have_any_locks) {
+							submit_button('sq_lock_release_manual', 'Release Lock(s)');
+						}
+
 					?>
 					</td>
 				</tr>
@@ -1550,11 +1552,13 @@ pre_echo("SCREEN LOCK TYPE : $screen_lock_type");
 
 		}// end if
 
-		//// START HIPO PROCESSING ////
-		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-		$vars = Array('assetids' => array_unique($assets_affected_lookups));
-		$hh->queueHipo('hipo_job_update_lookups', $vars);
-		////  END HIPO PROCESSING  ////
+		if (!empty($assets_affected_lookups)) {
+			//// START HIPO PROCESSING ////
+			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+			$vars = Array('assetids' => array_unique($assets_affected_lookups));
+			$hh->queueHipo('hipo_job_update_lookups', $vars);
+			////  END HIPO PROCESSING  ////
+		}// endif
 
 		return true;
 
