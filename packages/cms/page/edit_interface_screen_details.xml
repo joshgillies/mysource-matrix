@@ -1,7 +1,7 @@
 <contents>
 	<section name="Details">
 		<field attribute="name">
-			<display_name>Bodycopy Name</display_name>
+			<display_name>Page Name</display_name>
 			<note />
 			<text width="12" height="1" />
 		</field>
