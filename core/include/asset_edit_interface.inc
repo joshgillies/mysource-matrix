@@ -1412,7 +1412,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if ($admin_access) {
 			$kiddies = $owner->getChildren();
 			if (count($kiddies)) {
-				$o->openSection('Casacde Permission Changes?');
+				$o->openSection('Cascade Permission Changes?');
 					$o->openField('Note');
 						?>
 						If you choose to cascade the changes to permissions you make on "<?php echo $owner->name; ?>", the changes will also be made on all assets that fall under "<?php echo $owner->name; ?>" in the various hierarchies in which it exists. This will affect <?php echo count($kiddies); ?> other assets.
@@ -1421,6 +1421,20 @@ class Asset_Edit_Interface extends Resolve_Object
 					$o->openField('&nbsp;');
 						check_box($prefix.'_permissions[cascade_changes]', '1', true);
 						echo ' Yes, cascade permission changes';
+					$o->closeField();
+				$o->closeSection();
+
+				$o->openSection('Manually Cascade Permissions?');
+					$o->openField('Note');
+						?>
+						Manually cascading permissions will try to set the current permissions of "<?php echo $owner->name; ?>" on all assets that fall under "<?php echo $owner->name; ?>" in the various hierarchies in which it exists. This will affect <?php echo count($kiddies); ?> other assets.<br/>
+						<i>Any additional permissions set on affected assets will <b>not</b> be removed during a manual cascade. Any permissions set on affected assets that conflict with ones set on "<?php echo $owner->name; ?>" will also <b>not</b> be changed.</i><br/>
+						<b>NB. If you select to manually cascade, any permission changes you make will also cascade even if you do not select them to. Use the option on its own for more predicatable results.</b>
+						<?php
+					$o->closeField();
+					$o->openField('&nbsp;');
+						check_box($prefix.'_permissions[manual_cascade]');
+						echo ' Manually cascade permissions';
 					$o->closeField();
 				$o->closeSection();
 			}
@@ -1517,6 +1531,16 @@ class Asset_Edit_Interface extends Resolve_Object
 					} else {
 						if (!$owner->deletePermission($userid, $perm)) return false;
 					}
+				}
+			}
+
+			if (isset($_POST[$prefix.'_permissions']['manual_cascade']) && $_POST[$prefix.'_permissions']['manual_cascade']) {
+				$current = $owner->getPermission($perm, null, false, false, true);
+				foreach ($current as $userid => $access) {
+					$permission_vars[$perm][] = Array('access'          => $access,
+													  'userid'          => $userid,
+													  'previous_access' => null,
+													  );
 				}
 			}
 
