@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.17 2004/04/07 22:57:11 lwright Exp $
+* $Id: insert_link.php,v 1.18 2004/04/07 23:13:58 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,6 +61,8 @@ if (!isset($_GET['new_window']))  $_GET['new_window'] = 0;
 // If we have an anchor, it will have been stuck in the URL, so break it away
 if (strpos($_GET['url'], '#') !== false) {
 	list($_GET['url'], $_GET['anchor']) = explode('#', $_GET['url']);
+} else {
+	$_GET['anchor'] = '';
 }
 
 if (!isset($_GET['new_window'])) {
