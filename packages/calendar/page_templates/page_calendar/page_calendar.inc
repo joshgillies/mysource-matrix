@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.145 2005/02/17 00:26:48 dbaranovskiy Exp $
+* $Id: page_calendar.inc,v 1.146 2005/02/17 04:47:55 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.145 $
+* @version $Revision: 1.146 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -1314,6 +1314,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		$res = '';
 		foreach ($events as $assetid => $details) {
+			$assetid = strtok($assetid, ':');
 			$event_class = (isset($root_nodes[$details['root_node']]['class_name'])) ? $root_nodes[$details['root_node']] ['class_name'] : '';
 			$onclick_code =$show_event_link ? ' onclick="clickChild(this); "' : '';
 			$cursor_code = $show_event_link ? 'cursor: pointer; cursor: hand;' : '';
