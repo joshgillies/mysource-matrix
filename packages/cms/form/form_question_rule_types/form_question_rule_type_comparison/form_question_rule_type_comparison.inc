@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.15 2004/06/21 23:56:18 lwright Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.16 2004/06/22 00:19:53 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -107,10 +107,10 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 					$comparison = '"'.$options[(int)$comparison].'"';
 				}
 				// special case for "not equal to empty string" which is basically 'Is Required' rule
-				if (($operator == '!=') || ($compare_value == '')) {
+				if (($operator == '!=') || ($comparison == '')) {
 					$error = $q_asset->name.' must be filled in';
 				} else {
-					$error = $q_asset->name.' '.$operators[$operator].' '.$compare_value;
+					$error = $q_asset->name.' '.$operators[$operator].' '.$comparison;
 				}
 			}
 			$q_asset->submission_errors[] = $error;
@@ -176,16 +176,28 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 
 		$code .= 'var answer = document.getElementById("'.$q_asset->id.'").value; ';
 
+		if ($q_asset->type() == 'form_question_type_numeric') {
+			$code .= 'answer = parseFloat(answer); ';
+		}
+
 		$operators = eval('return '.__CLASS__.'::getOperators();');
 
 		if (is_a($comparison, 'form_question')) {
-			$compare_value = 'document.getElementById("'.$comparison->id.'").value; ';
+			$compare_value = 'document.getElementById("'.$comparison->id.'").value';
 		} else {	// sent just a value
 			$compare_value = '"'.$comparison.'"';
 		}
 
+		// I don't care what the comparison value is, if our question is numeric than we are
+		// comparing it as a number!
+		if ($q_asset->type() == 'form_question_type_numeric') {
+			$compare_value_parsed = 'parseFloat('.$compare_value.')';
+		} else {
+			$compare_value_parsed = $compare_value;
+		}
+
 		// this is a form question - get its current value from the form then
-		$code .= 'if (!(answer '.$operator.' '.$compare_value.')) {';	// START of js if
+		$code .= 'if (!(answer '.$operator.' '.$compare_value_parsed.')) {';	// START of js if
 			if (is_a($comparison, 'form_question')) {
 					$error = $q_asset->name.' '.$operators[$operator].
 						' '.$comparison->_getName().' in '.$comparison->getMySectionName().'
