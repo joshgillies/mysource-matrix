@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.5 2005/02/24 05:27:17 dbaranovskiy Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.6 2005/02/24 10:15:27 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -275,9 +275,10 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$options['auto_complete'] = true;
 
 		$running_vars = Array(
-							'assetids' => array_keys($this->_running_vars['assets']),
-							'lock_type' => Array('all'),
-							'forceably_acquire' => false,
+							'assetids'			=> array_keys($this->_running_vars['assets']),
+							'lock_type'			=> Array('all'),
+							'forceably_acquire'	=> false,
+							'dependants_only'	=> true,
 						);
 
 	}//end getLockAssetDetails()

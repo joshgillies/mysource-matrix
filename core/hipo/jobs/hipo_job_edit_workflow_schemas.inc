@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.20 2005/02/24 05:27:17 dbaranovskiy Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.21 2005/02/24 10:15:27 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -344,9 +344,10 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 		$options['auto_complete'] = true;
 
 		$running_vars = Array(
-							'assetids' => array_keys($this->_running_vars['assets']),
-							'lock_type' => Array('workflow'),
-							'forceably_acquire' => false,
+							'assetids'			=> array_keys($this->_running_vars['assets']),
+							'lock_type'			=> Array('workflow'),
+							'forceably_acquire'	=> false,
+							'dependants_only'	=> false,
 						);
 
 	}//end getLockAssetDetails()

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.24 2005/02/24 05:27:17 dbaranovskiy Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.25 2005/02/24 10:15:27 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -357,9 +357,10 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 		$options['auto_complete'] = true;
 
 		$running_vars = Array(
-							'assetids' => array_keys($this->_running_vars['assets']),
-							'lock_type' => Array('metadata'),
-							'forceably_acquire' => false,
+							'assetids'			=> array_keys($this->_running_vars['assets']),
+							'lock_type'			=> Array('metadata'),
+							'forceably_acquire'	=> false,
+							'dependants_only'	=> false,
 						);
 
 	}//end getLockAssetDetails()
