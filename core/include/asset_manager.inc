@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.223 2004/07/08 23:18:45 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.224 2004/07/12 09:51:33 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2512,7 +2512,7 @@ class Asset_Manager extends MySource_Object
 			// Get one of the treeids that we have
 			$sql   = 'SELECT t.treeid
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
-					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid ';
+							  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid ';
 			$where = 'l.minorid = '.$db->quote($major->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
