@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.17 2004/08/30 23:15:55 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.18 2004/09/01 02:26:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.17 $ - 1.0
+* @version $Revision: 1.18 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -562,7 +562,6 @@ class Calendar_Event extends Asset
 						
 			if (iso8601_time_component($iso) === false) {
 				if (($date_comp == 'end_date') && (iso8601_date_component($iso) !== false)) {
-					$iso = ts_iso8601(iso8601_ts(substr($iso,0,10)) + 86400);
 					$iso = substr($iso,0,10).' 24:00:00';
 				}
 			} else {
@@ -642,7 +641,7 @@ class Calendar_Event extends Asset
 			unset($this_date[0]);
 			
 			// add 'day-count stamp'
-			$this_date['ds'] = floor(strtotime(substr($iso,0,10).' 12:00:00 GMT') / 86400);
+			$this_date['ds'] = round(iso8601_ts(substr($iso,0,10)) / 86400);
 			
 			// 24:00:00 ISO time
 			if ($iso_24h) {
@@ -682,7 +681,7 @@ class Calendar_Event extends Asset
 				}
 				
 				// we can do these in any case
-				$this_date['ds'] = floor(strtotime(substr($iso,0,10).' 12:00:00 GMT') / 86400);
+				$this_date['ds'] = round(iso8601_ts(substr($iso,0,10)) / 86400);
 				$this_date['wday'] = date('w', $date_only_ts);
 				$this_date['yday'] = date('z', $date_only_ts) + 1;
 			}
