@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend_outputter.inc,v 1.64 2003/11/03 01:15:36 gsherwood Exp $
+* $Id: backend_outputter.inc,v 1.65 2003/11/04 00:59:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -767,6 +767,8 @@ class Backend_Outputter
 				<table width="100%" cellpadding="3" cellspacing="0" border="0">
 					<tr>
 						<td class="sq-backend-nav-history" valign="middle">
+						<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->filesPath('images/icons/history.png');?>", "20", "20", "Navigation History");</script>
+						&nbsp;
 						<span style="color: #342939">Back to : </span>
 						<?php
 							$nav_count = count($_SESSION['sq_nav_history']);
