@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.52 2004/09/01 01:25:02 arailean Exp $
+* $Id: general.inc,v 1.53 2004/09/01 15:13:56 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -515,7 +515,7 @@ function iso8601_ts($iso8601)
 */
 function ts_iso8601($timestamp)
 {
-	return date('Y-m-d H:i:s',$timestamp);
+	return date('Y-m-d H:i:s', $timestamp);
 
 }//end ts_iso8601()
 
@@ -536,14 +536,8 @@ function ts_iso8601($timestamp)
 function array_get_index($array, $index, $default=null)
 {
 	if (!is_array($array)) return $default;
-
-	if (isset($array[$index])) {
-		$value = $array[$index];
-	} else {
-		$value = $default;
-	}
-
-	return $value;
+	if (isset($array[$index])) return $array[$index];
+	return $default;
 
 }//end array_get_index()
 
