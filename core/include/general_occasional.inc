@@ -225,9 +225,16 @@ function make_valid_web_paths($paths)
 {
 	$valid_paths = Array();
 	foreach($paths as $path) {
+		$path = trim($path);
+
 		// get rid of paths that are the same as the backend suffix
 		if ($path == SQ_CONF_BACKEND_SUFFIX) {
 			trigger_error('Cannot set web path to "'.$path.'", this is reserved for backend access', E_USER_WARNING);
+			continue;
+		}
+		// get rid of paths that start with the two underscores
+		if (preg_match('/^__/', $path)) {
+			trigger_error('Cannot set web path to start with two underscores ("__"), these are reserved for system use only', E_USER_WARNING);
 			continue;
 		}
 
@@ -239,7 +246,6 @@ function make_valid_web_paths($paths)
 		
 		// Taken (in part) from info here -> http://www.w3.org/Addressing/URL/5_URI_BNF.html
 		$path = preg_replace('/[^a-zA-Z0-9\-$_@.!*(),]/', '',  $path);
-		$path = trim($path);
 		
 		// ignore blanks
 		if ($path && !in_array($path, $valid_paths)) $valid_paths[] = $path;
