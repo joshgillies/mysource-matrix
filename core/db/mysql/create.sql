@@ -164,14 +164,14 @@ CREATE TABLE sq_asset_running_workflow (
 
 
 CREATE TABLE sq_internal_message (
-  messageid  INT UNSIGNED NOT NULL,
-  userto     INT UNSIGNED NOT NULL DEFAULT 0,
-  userfrom   INT UNSIGNED NOT NULL DEFAULT 0,
-  subject    VARCHAR(255) NOT NULL DEFAULT '',
-  body       LONGTEXT     NOT NULL DEFAULT '',
-  sent       DATETIME     NOT NULL,
-  priority   CHAR(1)      NOT NULL DEFAULT 'L',
-  status     CHAR(1)      NOT NULL DEFAULT 'U',
-  parameters LONGTEXT     NOT NULL DEFAULT '',
+  messageid  INT UNSIGNED      NOT NULL,
+  userto     INT UNSIGNED      NOT NULL DEFAULT 0,
+  userfrom   INT UNSIGNED      NOT NULL DEFAULT 0,
+  subject    VARCHAR(255)      NOT NULL DEFAULT '',
+  body       LONGTEXT          NOT NULL DEFAULT '',
+  sent       DATETIME          NOT NULL,
+  priority   SMALLINT UNSIGNED NOT NULL DEFAULT 3,
+  status     CHAR(1)           NOT NULL DEFAULT 'U',
+  parameters LONGTEXT          NOT NULL DEFAULT '',
   PRIMARY KEY(messageid)
 );

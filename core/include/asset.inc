@@ -1025,6 +1025,11 @@ class Asset extends Resolve_Object
 			}
 		}
 
+		// we are probably going to be sending some internal messages during this
+		// process, so we'll open a new queue here
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$ms->openQueue();
+
 		$status = &$this->getStatus();
 		if (!$status->processStatusChange($new_status)) {
 			trigger_error('processStatusChange failed for asset "'.$this->name.'"', E_USER_WARNING);
@@ -1071,6 +1076,10 @@ class Asset extends Resolve_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		// close the internal message queue and send the messages that
+		// were generated during this status change
+		$ms->closeQueue();
 
 		return true;
 
@@ -1421,16 +1430,27 @@ class Asset extends Resolve_Object
 
 			// send an internal message
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms->openQueue();
 			$current_user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
 
 			foreach ($locked_ids as $locked) {
 				$locked_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($locked);
-				$body = 'User "'.$current_user->name.'" has forceably aquired the lock on '.$locked_asset->type().' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
-				$to_list = $locked_asset->getPermission(SQ_PERMISSION_ADMIN, true);
-				$to_list[] = $user->id;
-				$ms->sendMessage($to_list, 0, 'Asset Lock Forceably Aquired', $body);
+
+				// create a new message object and populate it, before adding to
+				// the message queue in the internal messaging system to sending later
+				$message = $ms->newMessage();
+				$message->subject = 'Asset Lock Forceably Aquired';
+				$message->body = 'User "'.$current_user->name.'" has forceably aquired the lock on '.$locked_asset->type().' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
+				$message->to = $locked_asset->getPermission(SQ_PERMISSION_ADMIN, true);
+				$message->to[] = $user->id;
+				$message->from = 0; // a system message
+
+				$ms->enqueueMessage($message);
 			}
+
+			// close the queue of messages we opened, which sends all the messages in the queue
+			$ms->closeQueue();
 
 			// refresh the lock info
 			$current_lock = $this->getLockInfo();

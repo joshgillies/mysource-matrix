@@ -23,6 +23,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	function Inbox_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+
 	}//end constructor
 
 
@@ -86,6 +87,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			</tr>
 			<?php
 			foreach ($messages as $data) {
+				$data['body'] = str_replace("\n", '</br>', $data['body']);
 				?>
 				<tr>
 					<td class="sq-backend-message-item">
@@ -140,6 +142,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		return true;
+
 	}//end paintMail()
 
 
@@ -166,20 +169,22 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 
 		if (!empty($messages)) {
 			foreach ($messages as $data) {
+				$message = $ms->getMessageById($data['messageid']);
+
 				// change message status (read/unread)
 				if (in_array($data['messageid'], $read) && $data['status'] != SQ_MSG_READ) {
-					if (!$ms->updateMessageStatus($data['messageid'], SQ_MSG_READ)) {
+					if (!$message->updateStatus(SQ_MSG_READ)) {
 						trigger_error('Status of message '.$data['messageid'].' was not updated', E_USER_WARNING);
 					}
 				} else if (!in_array($data['messageid'], $read) && $data['status'] == SQ_MSG_READ) {
-					if (!$ms->updateMessageStatus($data['messageid'], SQ_MSG_UNREAD)) {
+					if (!$message->updateStatus(SQ_MSG_UNREAD)) {
 						trigger_error('Status of message '.$data['messageid'].' was not updated', E_USER_WARNING);
 					}
 				}
 
 				// delete messages
 				if (in_array($data['messageid'], $delete) && $data['status'] != SQ_MSG_DELETED) {
-					if (!$ms->updateMessageStatus($data['messageid'], SQ_MSG_DELETED)) {
+					if (!$message->updateStatus(SQ_MSG_DELETED)) {
 						trigger_error('Message '.$data['messageid'].' was not deleted', E_USER_WARNING);
 					}
 				}
@@ -189,6 +194,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		$o->addOnLoad('if (top.sidenav && top.sidenav.refresh_internal_messages) top.sidenav.refresh_internal_messages();');
 
 		return true;
+
 	}//end processMail()
 
 
@@ -252,6 +258,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			</tr>
 			<?php
 			foreach ($messages as $data) {
+				$data['body'] = str_replace("\n", '</br>', $data['body']);
 				?>
 				<tr>
 					<td class="sq-backend-message-item">
@@ -319,7 +326,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($recover)) {
 			foreach ($recover as $messageid) {
 				// recover messages to inbox
-				if (!$ms->updateMessageStatus($messageid, SQ_MSG_READ)) {
+				$message = $ms->getMessageById($messageid);
+				if (!$message->updateStatus(SQ_MSG_READ)) {
 					trigger_error('Message '.$messageid.' was not recovered', E_USER_WARNING);
 				}
 			}
@@ -328,13 +336,15 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 		if (!empty($purge)) {
 			foreach ($purge as $messageid) {
 				// delete messsage FOREVER
-				if (!$ms->deleteMessage($messageid)) {
+				$message = $ms->getMessageById($messageid);
+				if (!$message->delete()) {
 					trigger_error('Message '.$messageid.' was not deleted', E_USER_WARNING);
 				}
 			}
 		}
 
 		return true;
+
 	}//end processTrash()
 
 }//end class

@@ -138,9 +138,17 @@ class Asset_Status_Under_Construction extends Asset_Status
 
 			// send an internal message
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms->openQueue();
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-			$body = 'User "'.$user->name.'" has requested '.$this->owner->type().' "'.$this->owner->name.'" to go live from '.$this->getDescription().'.';
-			$ms->sendMessage($this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Workflow Started', $body);
+
+			$message = $ms->newMessage();
+			$message->subject = 'Workflow Started';
+			$message->body = 'User "'.$user->name.'" has requested '.$this->owner->type().' "'.$this->owner->name.'" to go live from '.$this->getDescription().'.';
+			$message->to = $this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false);
+			$message->from = 0; // a system message
+			$ms->enqueueMessage($message);
+
+			$ms->closeQueue();
 
 		}//end if new status is PENDING_APPROVAL
 

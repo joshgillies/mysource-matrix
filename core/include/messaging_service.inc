@@ -4,9 +4,11 @@ define('SQ_MSG_UNREAD' , 'U');
 define('SQ_MSG_READ'   , 'R');
 define('SQ_MSG_DELETED', 'D');
 
-define('SQ_MSG_PRIORITY_LOW'    , 'L');
-define('SQ_MSG_PRIORITY_NORMAL' , 'N');
-define('SQ_MSG_PRIORITY_HIGH'   , 'H');
+define('SQ_MSG_PRIORITY_VERY_LOW'  , 1);
+define('SQ_MSG_PRIORITY_LOW'       , 2);
+define('SQ_MSG_PRIORITY_NORMAL'    , 3);
+define('SQ_MSG_PRIORITY_HIGH'      , 4);
+define('SQ_MSG_PRIORITY_VERY_HIGH' , 5);
 
 /**
 * Messaging_Service
@@ -22,107 +24,148 @@ class Messaging_Service extends Resolve_Object
 {
 
 	/**
+	* An array of message objects to send
+	* @var Array(Internal_Message)
+	*/
+	var $message_queue;
+
+	/**
+	* How many levels of queues we are deep
+	*
+	* @var string()
+	*/
+	var $_levels;
+
+
+	/**
 	* Constructor
 	*
 	*/
 	function Messaging_Service()
 	{
 		$this->Resolve_Object();
+		$this->message_queue = Array();
+		$this->_levels = 0;
+
 	}//end constructor
 
-	
+
 	/**
-	* Sends an internal message
+	* Creates and returns a new internal message
 	*
-	* @param array(int)	$to			array of users or user groups
-	* @param int		$from		userid of the sender
-	* @param string		$subject	subject of the message
-	* @param string		$body		main body of the message
-	* @param string		$priority	message priority (see constants for SQ_MSG_PRIOIRTY_*)
-	* @param string		$status		status of the message (see constants for SQ_MSG_*)
-	* @param array		$parameters	array of parameters to use for special messages
+	* @return object Interal_Message
+	* @access public
+	*/
+	function newMessage()
+	{
+		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
+		$new_message = new Internal_Message();
+		return $new_message;
+
+	}//end newMessage()
+
+
+	/**
+	* Opens a new queue or nested queue
+	* Note that this function really just updates how many queues are open
 	*
 	* @return boolean
 	* @access public
 	*/
-	function sendMessage($to=Array(), $from, $subject, $body, $priority=SQ_MSG_PRIORITY_NORMAL, $status=SQ_MSG_UNREAD, $parameters=Array())
+	function openQueue()
 	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		return $this->_levels++;
 
-		$now = time();
-		$parameters = serialize($parameters);
+	}//end openQueue()
 
-		$send_to = Array();
-		$to_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($to, Array('user', 'user_group'), false);
-		foreach ($to_types as $assetid => $types) {
-			if (in_array('user_group', $types)) {
-				$group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if ($group->id) $send_to = array_merge($send_to, $group->getChildren(Array('user'), false));
-			} else {
-				$send_to[] = $assetid;
+
+	/**
+	* Closes a queue or nested queue
+	* If the last queue is closed, the messages in the queue are sent
+	*
+	* @return boolean
+	* @access public
+	*/
+	function closeQueue()
+	{
+		$this->_levels--;
+		if ($this->_levels == 0) {
+			// this is the last queue
+			return $this->sendAll();
+		}
+		return true;
+
+	}//end closeQueue()
+
+
+	/**
+	* Adds an internal message into the queue
+	*
+	* @param object Internal_Message	$message	the message to add to the queue
+	*
+	* @return boolean
+	* @access public
+	*/
+	function enqueueMessage($message)
+	{
+		return $this->message_queue[] = $message;
+
+	}//end enqueueMessage()
+
+
+	/**
+	* Sends all messages waiting in the queue
+	*
+	* @return object Interal_Message
+	* @access public
+	*/
+	function sendAll()
+	{
+		// lets try and work out if any of the messages to be
+		// sent can actually be amalgamated based on who the message is being
+		// sent to, who it is from, and the subject line of the message
+		$send_queue = Array();
+		foreach ($this->message_queue as $msg) {
+			$to_ids = $msg->expandUsersTo();
+			foreach ($to_ids as $assetid) {
+				$send_queue[$assetid][$msg->subject][$msg->from]['bodies'][] = $msg->body;
+				// make sure we set the highest priority in the group
+				if ($msg->priority > $send_queue[$assetid][$msg->subject][$msg->from]['priority']) {
+					$send_queue[$assetid][$msg->subject][$msg->from]['priority'] = $msg->priority;
+				}
 			}
 		}
-		$send_to = array_unique($send_to);
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		foreach ($send_to as $userid) {
-			$messageid = $db->nextId('sq_sequence_internal_message');
-			if (DB::isError($messageid)) {
-				trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
-			}
-
-			$sql = 'INSERT INTO sq_internal_message
-					(messageid, userto, userfrom, subject, body, priority, status, sent, parameters)
-					VALUES
-					('.$db->quote($messageid).','.$userid.', '.$from.', '.$db->quote($subject).', 
-					 '.$db->quote($body).', '.$db->quote($priority).', '.$db->quote($status).', 
-					 '.$db->quote(ts_iso8601($now)).', '.$db->quote($parameters).')';
-
-			$result = $db->query($sql);
-			if (DB::isError($result)) {
-				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-				$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
-				return false;
+		foreach ($send_queue as $userid => $message_data) {
+			foreach ($message_data as $subject => $subject_data) {
+				foreach ($subject_data as $from => $from_data) {
+					$message = $this->newMessage();
+					$message->to = Array($userid);
+					$message->from = $from;
+					$message->subject = $subject;
+					$message->body = implode("\n\n".str_repeat('-', 50)."\n\n", $from_data['bodies']);
+					$message->send();
+				}
 			}
 		}
 
-		$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
-		return true;
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-	}//end sendMessage()
-
-
-	/**
-	* Deletes an internal message FOREVER - be careful
-	*
-	* @param int	$messageid	id of the message to delete
-	*
-	* @return boolean
-	* @access public
-	*/
-	function deleteMessage($messageid)
-	{
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = 'DELETE FROM sq_internal_message WHERE messageid='.$db->quote($messageid);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
+		// clean out the message queue
+		$this->message_queue = Array();
 
 		return true;
 
-	}//end deleteMessage()
+	}//end sendAll()
 
 
 	/**
 	* Gets all messages for the passed userid
 	*
 	* @param int			$userid			id of the user you are fetching messages for
-	* @param array(string)	$stati			can limit returned messages to those with a status 
+	* @param array(string)	$statii			can limit returned messages to those with a status 
 	*										in this array
 	* @param int			$from			timestamp that every msg returned must be this time 
 	*										or after (NULL to ignore)
@@ -135,7 +178,7 @@ class Messaging_Service extends Resolve_Object
 	* @return array
 	* @access public
 	*/
-	function getMessages($userid, $stati=Array(), $from=null, $to=null, $get_user_name=null)
+	function getMessages($userid, $statii=Array(), $from=null, $to=null, $get_user_name=null)
 	{
 		if (!$userid) return Array();
 
@@ -155,9 +198,9 @@ class Messaging_Service extends Resolve_Object
 		if (is_string($get_user_name)) $sql .= ' LEFT OUTER JOIN sq_asset a ON m.userfrom = a.assetid';
 
 		$sql .= ' WHERE m.userto = '.$db->quote($userid);
-		if (!empty($stati)) {
-			for($i = 0; $i < count($stati); $i++) $stati[$i] = $db->quote($stati[$i]);
-			$sql .= ' AND m.status IN ('.implode(', ', $stati).')';
+		if (!empty($statii)) {
+			for($i = 0; $i < count($statii); $i++) $statii[$i] = $db->quote($statii[$i]);
+			$sql .= ' AND m.status IN ('.implode(', ', $statii).')';
 		}
 		if (!is_null($from)) $sql .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
 		if (!is_null($to))   $sql .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
@@ -175,33 +218,26 @@ class Messaging_Service extends Resolve_Object
 		}
 
 		return $result;
+
 	}//end getMessages()
 
 
 	/**
-	* Update the status of a message
+	* Returns the message object for the passed id
 	*
-	* @param int	$messageid	id of the message to update
-	* @param string	$status		the new status (see constants for SQ_MSG_*)
+	* @param int	$messageid		id of the message the you want to get
 	*
-	* @return boolean
+	* @return object Internal_Message
 	* @access public
 	*/
-	function updateMessageStatus($messageid, $status)
+	function getMessageById($messageid)
 	{
-		if (!$messageid) return false;
+		$message = $this->newMessage();
+		if ($messageid) $message->load($messageid);
+		return $message;
 
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-		$sql = 'UPDATE sq_internal_message SET status='.$db->quote($status).' WHERE messageid='.$db->quote($messageid);
-
-		$result = $db->query($sql);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return false;
-		}
-		return true;
-	}//end updateMessageStatus()
+	}//end getMessageById()
 
 }//end class
+
 ?>

@@ -1,0 +1,262 @@
+<?php
+
+/**
+* Internal_Message
+*
+* Purpose
+*    An internal message to be sent around the system
+*
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Version$ - 1.0
+* @package Resolve
+*/
+class Internal_Message extends Resolve_Object
+{
+
+	/**
+	* The unique ID of the message
+	* @var int
+	*/
+	var $id = 0;
+
+	/**
+	* An array of users or user groups to send the message to
+	* @var int
+	*/
+	var $to = Array();
+
+	/**
+	* The userid of the sender
+	* Userid will be ZERO if the sender is the MySource system
+	* @var int
+	*/
+	var $from = 0;
+
+	/**
+	* When the message was sent (if it has been sent)
+	* @var string
+	*/
+	var $sent = 0;
+
+	/**
+	* The subject of the message
+	* @var string
+	*/
+	var $subject = '';
+
+	/**
+	* The main body of the message
+	* @var string
+	*/
+	var $body = '';
+
+	/**
+	* The message priority (see constants for SQ_MSG_PRIOIRTY_*)
+	* @var int
+	*/
+	var $priority = SQ_MSG_PRIORITY_NORMAL;
+
+	/**
+	* The status of the message (see constants for SQ_MSG_*)
+	* @var string
+	*/
+	var $status = SQ_MSG_UNREAD;
+
+	/**
+	* An array of parameters to use for special messages
+	* @var Array()
+	*/
+	var $parameters = Array();
+
+
+	/**
+	* Constructor
+	*
+	*/
+	function Internal_Message()
+	{
+		$this->Resolve_Object();
+
+	}//end constructor
+
+
+	/**
+	* Loads the information about this message
+	*
+	* @param int	$messageid		id of the message the you want to get
+	*
+	* @return boolean
+	* @access public
+	*/
+	function load($messageid)
+	{
+		if (!$messageid) return false;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'SELECT messageid, userto, userfrom, subject, body, sent, priority, status, parameters 
+				FROM sq_internal_message 
+				WHERE messageid = '.$db->quote($messageid);
+		
+		$result = $db->getRow($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		$this->id         = $result['messageid'];
+		$this->to         = Array($result['userto']);
+		$this->from       = $result['userfrom'];
+		$this->subject    = $result['subject'];
+		$this->body       = $result['body'];
+		$this->sent       = iso8601_ts($result['sent']);
+		$this->priority   = $result['priority'];
+		$this->status     = $result['status'];
+		$this->parameters = $result['parameters'];
+
+		return true;
+
+	}//end load()
+
+	
+	/**
+	* Sends an internal message
+	*
+	* @return boolean
+	* @access public
+	*/
+	function send()
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$now = time();
+		$parameters = serialize($this->parameters);
+
+		$send_to = $this->expandUsersTo();
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		$from_email = SQ_SYSTEM_EMAIL;
+		$from_string = '';
+		if ($this->from) {
+			$user_from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->from);
+			if (!is_null($user_from)) {
+				$from_string = $user_from->name.' <'.$user_from->attr('email').'>';
+				$from_email = $user_from->attr('email');
+			}
+		}
+		if (empty($from_string)) $from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
+
+		foreach ($send_to as $userid) {
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
+			if (is_null($user)) continue;
+
+			// log the internal message
+			$messageid = $db->nextId('sq_sequence_internal_message');
+			if (DB::isError($messageid)) {
+				trigger_error($messageid->getMessage().'<br/>'.$messageid->getUserInfo(), E_USER_ERROR);
+			}
+
+			$sql = 'INSERT INTO sq_internal_message
+					(messageid, userto, userfrom, subject, body, priority, status, sent, parameters)
+					VALUES
+					('.$db->quote($messageid).','.$userid.', '.$this->from.', '.$db->quote($this->subject).', 
+					 '.$db->quote($this->body).', '.$db->quote($this->priority).', '.$db->quote($this->status).', 
+					 '.$db->quote(ts_iso8601($now)).', '.$db->quote($parameters).')';
+
+			$result = $db->query($sql);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
+				return false;
+			}
+
+			// now send an email as well
+			include_once SQ_FUDGE_PATH.'/general/www.inc';
+			$to_email = trim($user->attr('email'));
+			if (!empty($to_email) && valid_email($to_email)) {
+				mail($to_email, $this->subject, $this->body, "From: ".$from_string, "-f$from_email");
+			}
+
+		}
+
+		$GLOBALS['SQ_SYSTEM']->db->query('COMMIT');
+		return true;
+
+	}//end send()
+
+
+	/**
+	* Returns an array of users this message will be sent to
+	* That is, it expands the groups ids and returns a unique array of userids
+	*
+	* @return Array(int)
+	* @access public
+	*/
+	function expandUsersTo()
+	{
+		$send_to = Array();
+		$to_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($this->to, Array('user', 'user_group'), false);
+		foreach ($to_types as $assetid => $types) {
+			if (in_array('user_group', $types)) {
+				$group = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if ($group->id) $send_to = array_merge($send_to, $group->getChildren(Array('user'), false));
+			} else {
+				$send_to[] = $assetid;
+			}
+		}
+		return array_unique($send_to);
+
+	}//end expandUsersTo()
+
+
+	/**
+	* Deletes an internal message FOREVER - be careful
+	*
+	* @return boolean
+	* @access public
+	*/
+	function delete()
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'DELETE FROM sq_internal_message WHERE messageid='.$db->quote($this->id);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		return true;
+
+	}//end delete()
+
+
+	/**
+	* Update the status of a message
+	*
+	* @param string	$status	the new status (see constants for SQ_MSG_*)
+	*
+	* @return boolean
+	* @access public
+	*/
+	function updateStatus($status)
+	{
+		if (!$this->id) return false;
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$sql = 'UPDATE sq_internal_message SET status='.$db->quote($status).' WHERE messageid='.$db->quote($this->id);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+		return true;
+
+	}//end updateStatus()
+
+}//end class
+
+?>

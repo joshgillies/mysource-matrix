@@ -124,10 +124,17 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 				// send an internal message
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms->openQueue();
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-				$body = 'User "'.$user->name.'" has started a safe edit of '.$this->owner->type().' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.getStatusDescription($new_status);
 
-				$ms->sendMessage($this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Asset Review Cancelled', $body);
+				$message = $ms->newMessage();
+				$message->subject = 'Asset Review Cancelled';
+				$message->body = 'User "'.$user->name.'" has started a safe edit of '.$this->owner->type().' "'.$this->owner->name.'" during a review. The review has been cancelled and the status of "'.$this->owner->name.'" is now '.getStatusDescription($new_status);
+				$message->to = $this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false);
+				$message->from = 0; // a system message
+				$ms->enqueueMessage($message);
+
+				$ms->closeQueue();
 			}
 
 		} else if ($wf->state == 'running') {
@@ -140,15 +147,27 @@ class Asset_Status_Live_Approval extends Asset_Status
 
 			// send an internal message
 			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+			$ms->openQueue();
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-			$body = 'User "'.$user->name.'" has approved the review on '.$this->owner->type().' "'.$this->owner->name.'".';
-			$ms->sendMessage($this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Asset Review Approved', $body);
+			
+			$message = $ms->newMessage();
+			$message->subject = 'Asset Review Approved';
+			$message->body = 'User "'.$user->name.'" has approved the review on '.$this->owner->type().' "'.$this->owner->name.'".';
+			$message->to = $this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false);
+			$message->from = 0; // a system message
+			$ms->enqueueMessage($message);
 
 			if ($new_status == SQ_STATUS_APPROVED) {
 				// send another internal message
-				$body = 'The review process for '.$this->owner->type().' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now live.';
-				$ms->sendMessage($this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Review Completed', $body);
+				$message = $ms->newMessage();
+				$message->subject = 'Review Completed';
+				$message->body = 'The review process for '.$this->owner->type().' "'.$this->owner->name.'" has been completed. "'.$this->owner->name.'" is now live.';
+				$message->to = $this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false);
+				$message->from = 0; // a system message
+				$ms->enqueueMessage($message);
 			}
+
+			$ms->closeQueue();
 		}
 
 		// save the workflow

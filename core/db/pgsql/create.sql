@@ -171,7 +171,7 @@ CREATE TABLE sq_internal_message (
   subject    VARCHAR(255) NOT NULL DEFAULT '',
   body       TEXT         NOT NULL DEFAULT '',
   sent       TIMESTAMP    NOT NULL,
-  priority   CHAR(1)      NOT NULL DEFAULT 'L',
+  priority   SMALLINT     NOT NULL DEFAULT 3,
   status     CHAR(1)      NOT NULL DEFAULT 'U',
   parameters TEXT         NOT NULL DEFAULT '',
   PRIMARY KEY(messageid)

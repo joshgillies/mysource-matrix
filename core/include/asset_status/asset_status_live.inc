@@ -109,9 +109,17 @@ class Asset_Status_Live extends Asset_Status
 
 				// send an internal message
 				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$ms->openQueue();
 				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-				$body = 'User "'.$user->name.'" has placed '.$this->owner->type().' "'.$this->owner->name.'" up for review. The workflow process has been started.';
-				$ms->sendMessage($this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Asset Up For Review', $body);
+				
+				$message = $ms->newMessage();
+				$message->subject = 'Asset Up For Review';
+				$message->body = 'User "'.$user->name.'" has placed '.$this->owner->type().' "'.$this->owner->name.'" up for review. The workflow process has been started.';
+				$message->to = $this->owner->getPermission(SQ_PERMISSION_ADMIN, true, false);
+				$message->from = 0; // a system message
+				$ms->enqueueMessage($message);
+
+				$ms->closeQueue();
 			break;
 
 			case SQ_STATUS_EDITING :

@@ -32,6 +32,7 @@ define('SQ_SYSTEM_VERSION',       '0.1.1');
 define('SQ_SYSTEM_SHORT_NAME',    'Resolve FX');
 define('SQ_SYSTEM_LONG_NAME',     'Squiz Resolve FX v'.SQ_SYSTEM_VERSION);
 define('SQ_SYSTEM_URL',           'http://www.squiz.net/');
+define('SQ_SYSTEM_EMAIL',         'techos@squiz.net');
 
 define('SQ_REQUIRED_PHP_VERSION', '4.3.0');
 
