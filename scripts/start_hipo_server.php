@@ -1,4 +1,15 @@
 <?php
+/**
+* Start HIPO Server
+*
+*   Example script to start the HIPO Server
+*
+* @author  Blair Robertson <brobertson@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
+*/
+
+
 
 error_reporting(E_ALL);
 

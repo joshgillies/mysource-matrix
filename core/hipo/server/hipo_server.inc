@@ -5,8 +5,10 @@ require_once dirname(__FILE__).'/hipo_server_common.inc';
 /**
 * HIPO_Server
 *    Inspired by PEAR::Net_Server
-* @version
-* @author
+*
+* @author Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
 */
 class HIPO_Server extends HIPO_Server_Common
 {

@@ -5,9 +5,10 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/server/hipo_server_common.inc';
 
 /**
 * HIPO_Client
-
-* @version
-* @author
+*
+* @author Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
 */
 class HIPO_Client extends HIPO_Server_Common
 {

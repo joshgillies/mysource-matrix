@@ -6,8 +6,9 @@ require_once 'XML/Tree.php';
 * HIPO_Server_Common
 *    Parent class that hold functionaliy that is common to the server and client classes
 *
-* @version 0.0.1
 * @author Blair Robertson <blair@squiz.net>
+* @version $Version$ - 1.0
+* @package MySource_Matrix
 */
 class HIPO_Server_Common
 {
