@@ -35,6 +35,12 @@ CREATE TABLE sq_asset_link (
   UNIQUE(majorid, minorid, link_type, value)
 );
 
+DROP TABLE sq_asset_link_tree;
+CREATE TABLE sq_asset_link_tree (
+  treeid        TEXT NOT NULL DEFAULT '',
+  linkid        INT  NOT NULL,
+  PRIMARY KEY(treeid)
+);
 
 
 DROP TABLE sq_asset_type;
@@ -114,7 +120,6 @@ CREATE TABLE sq_asset_lookup (
   designid   INT NOT NULL DEFAULT 0,
   PRIMARY KEY  (url)
 );
-
 
 DROP TABLE sq_internal_message;
 CREATE TABLE sq_internal_message (

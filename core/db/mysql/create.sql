@@ -35,6 +35,13 @@ CREATE TABLE sq_asset_link (
   UNIQUE real_pk (majorid, minorid, link_type, value)
 );
 
+DROP TABLE IF EXISTS sq_asset_link_tree;
+CREATE TABLE sq_asset_link_tree (
+  treeid        VARCHAR(255) NOT NULL DEFAULT '',
+  linkid        INT  NOT NULL,
+  PRIMARY KEY(treeid)
+);
+
 
 DROP TABLE IF EXISTS sq_asset_type;
 CREATE TABLE sq_asset_type (
@@ -115,7 +122,6 @@ CREATE TABLE sq_asset_lookup (
   designid   INT NOT NULL DEFAULT 0,
   PRIMARY KEY  (url)
 );
-
 
 DROP TABLE IF EXISTS sq_internal_message;
 CREATE TABLE sq_internal_message (
