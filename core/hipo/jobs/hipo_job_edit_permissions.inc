@@ -137,7 +137,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 						if ($set_data['previous_access'] === null) {
 							// to edit this permission, there must not currently be a permission set
 							// at all - either grant OR deny - for this user
-							$current = $asset->getPermission($perm, null, false, false, true);
+							$current = $asset->getPermission($perm, !(bool)$set_data['access'], false, false, true);
 							if (isset($current[$set_data['userid']])) {
 								$new_access     = ($set_data['access']) ? 'grant' : 'revoke';
 								$current_access = ($current[$set_data['userid']]) ? 'granted' : 'revoked';
