@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_page_lineage_edit_fns.inc,v 1.3 2003/09/26 05:26:25 brobertson Exp $
+* $Id: design_area_menu_page_lineage_edit_fns.inc,v 1.4 2003/09/29 05:44:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -40,7 +40,9 @@ class Design_Area_Menu_Page_Lineage_Edit_Fns extends Design_Area_Menu_Type_Edit_
 		// we just want to ignore any stupid sub menu's in our page contents
 		trigger_error('You are unable to set sub menu\'s on the page lineage menu type', E_USER_WARNING);
 		return false;
+
 	}// end _processSubMenu()
+
 
 	/**
 	* Outputs the PHP/HTML code that will hopefully form part of the creating the design file
@@ -54,8 +56,6 @@ class Design_Area_Menu_Page_Lineage_Edit_Fns extends Design_Area_Menu_Type_Edit_
 	*/
 	function _createDesignFileOutput($contents, &$asset, &$design)
 	{
-		$this->_initDesignFileOutput($design->id);
-
 		$class = ($asset->attr('class')) ? ' class="'.$asset->attr('class').'"' : '';
 
 		// because the page lineage array contains the site index, all we need to do to have or not have
