@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.282 2004/03/11 15:25:58 brobertson Exp $
+* $Id: asset.inc,v 1.283 2004/03/15 00:23:14 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -441,10 +441,9 @@ class Asset extends MySource_Object
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-
+		
 		$result = $db->getRow($sql.$where, null, DB_FETCHMODE_ORDERED);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
 		if (is_null($result)) return;
 
 		list($this->id,
@@ -543,7 +542,7 @@ class Asset extends MySource_Object
 					FROM '.SQ_TABLE_PREFIX.'asset_attribute atr
 					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 		}// end if
-
+		
 		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 		if (DB::isError($this->vars)) trigger_error($this->vars->getMessage().'<br/>'.$this->vars->getUserInfo(), E_USER_ERROR);
 
@@ -2333,7 +2332,7 @@ class Asset extends MySource_Object
 			$keywords['asset_url']['description']				= 'The absolute url to the asset';
 			$keywords['asset_href']['description']				= 'The relative href to the asset';
 		}
-
+		
 		return $keywords;
 
 	}//end getAssetKeywords()
@@ -2448,8 +2447,9 @@ class Asset extends MySource_Object
 	{
 		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id || !empty($GLOBALS['SQ_INSTALL']) || !empty($this->_tmp[__CLASS__.'_in_create_cascading'])) return true;
-		if ($this->status == SQ_STATUS_LIVE) return $this->liveEditAccess($lock_type);
-		return $this->checkAccess(SQ_PERMISSION_ADMIN, $lock_type, $assetids);
+		$access = $this->checkAccess(SQ_PERMISSION_ADMIN, $lock_type, $assetids);
+		if ($access && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess($lock_type);
+		return $access;
 
 	}//end adminAccess()
 
