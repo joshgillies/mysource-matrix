@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: log_manager.inc,v 1.7 2005/03/31 03:09:51 arailean Exp $
+* $Id: log_manager.inc,v 1.8 2005/04/01 03:26:52 arailean Exp $
 */
 
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Andrei Railean <arailean@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,11 +95,11 @@ class Log_Manager extends Asset
 	function _getAllowedLinks()
 	{
 		return Array(
-					 SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array(),
-					 );
+				SQ_LINK_TYPE_1	=> Array(),
+				SQ_LINK_TYPE_2	=> Array(),
+				SQ_LINK_TYPE_3	=> Array(),
+				SQ_LINK_NOTICE	=> Array(),
+			   );
 
 	}//end _getAllowedLinks()
 
@@ -149,7 +149,7 @@ class Log_Manager extends Asset
 	*                                          last_timestamp        => int  // unix time
 	*                                          min_index             => int  // the smallest index a log rotation can have
 	*                                          max_index             => int  // the largest index a log rotation can have
-	*                                          log_rotation_interval => int  // the number of seconds between rotations
+	*                                          interval => int  // the number of seconds between rotations
 	*                                          ),
 	*                        ),
 	*       )
@@ -273,10 +273,10 @@ class Log_Manager extends Asset
 	*/
 	function &getLogIterator($logname, $rotation_index=null)
 	{
-			include_once "log_iterator.inc";
-			// start up the generate report HIPO
-			$iterator = new Log_Iterator($logname, $rotation_index);
-			return $iterator;
+		include_once "log_iterator.inc";
+		// start up the generate report HIPO
+		$iterator = new Log_Iterator($logname, $rotation_index);
+		return $iterator;
 
 	}//end getLogIterator()
 
@@ -292,25 +292,13 @@ class Log_Manager extends Asset
 	*/
 	function _setLogDefaults($log)
 	{
-		$rotation_settings = array_get_index($log, 'rotation', Array());
+		$rotation = array_get_index($log, 'rotation', Array());
 
-		// default to 86400 seconds (24 hours).
-		$rotation_interval   = array_get_index($rotation_settings, 'log_rotation_interval',   86400);
-
-		$last_timestamp    = array_get_index($rotation_settings, 'last_timestamp', 0);
-		$min_rotation      = array_get_index($rotation_settings, 'min_index',      1);
-		$max_rotation      = array_get_index($rotation_settings, 'max_index',      10);
-		$last_rotation     = array_get_index($rotation_settings, 'last_index',     null);
-
-		$log = Array(
-					 'rotation' => Array(
-										 'log_rotation_interval' => $rotation_interval,
-										 'last_timestamp'        => $last_timestamp,
-										 'min_index'             => $min_rotation,
-										 'max_index'             => $max_rotation,
-										 'last_index'            => $last_rotation,
-										 ),
-					 );
+		$log['rotation']['interval']       = array_get_index($rotation, 'interval', 86400);
+		$log['rotation']['min_index']      = array_get_index($rotation, 'min_index', 1);
+		$log['rotation']['max_index']      = array_get_index($rotation, 'max_index', 10);
+		$log['rotation']['last_index']     = array_get_index($rotation, 'last_index', null);
+		$log['rotation']['last_timestamp'] = array_get_index($rotation, 'last_timestamp', 0);
 
 		return $log;
 
@@ -365,12 +353,12 @@ class Log_Manager extends Asset
 		$data = str_replace('&#13;', "\r", $data);
 
 		$decoded_line = Array(
-							  'userid' => $matches[2],
-							  'user'   => $user,
-							  'date'   => strtotime($matches[1]),
-							  'level'  => (int) $matches[5],
-							  'data'   => $data,
-							  );
+							'userid'	=> $matches[2],
+							'user'		=> $user,
+							'date'		=> strtotime($matches[1]),
+							'level'		=> (int) $matches[5],
+							'data'		=> $data,
+						);
 
 		// unserialise the data if it is marked as 'S'(erialised)
 		if ($matches[6] == 'S') {
@@ -413,9 +401,9 @@ class Log_Manager extends Asset
 				// new offset
 				$offset = ftell($handle);
 				$result = Array(
-								'line'   => trim($line),
-								'offset' => $offset,
-								);
+							'line'		=> trim($line),
+							'offset'	=> $offset,
+						  );
 			} else {
 				$result = false;
 			}
@@ -477,7 +465,7 @@ class Log_Manager extends Asset
 
 			// determine whether we need to rotate the log
 			// FIXME: Debug +86400
-			if (time()+86400 - $log_data['rotation']['last_timestamp'] > $log_data['rotation']['log_rotation_interval']) {
+			if (time()+86400 - $log_data['rotation']['last_timestamp'] > $log_data['rotation']['interval']) {
 				$log_data = $this->rotateLog($logname, $log_data);
 				if (!empty($log_data)) {
 					$logs[$logname] = $log_data;
@@ -512,15 +500,15 @@ class Log_Manager extends Asset
 	*/
 	function rotateLog($logname, $log_data)
 	{
-		$rotation_settings = array_get_index($log_data, 'rotation', Array());
-		$rotation_interval = array_get_index($rotation_settings, 'log_rotation_interval');
-		$last_timestamp    = array_get_index($rotation_settings, 'last_timestamp');
-		$min_rotation      = array_get_index($rotation_settings, 'min_index');
-		$max_rotation      = array_get_index($rotation_settings, 'max_index');
-		$last_rotation     = array_get_index($rotation_settings, 'last_index');
+		$rotation       = array_get_index($log_data, 'rotation', Array());
+		$interval       = array_get_index($rotation, 'interval');
+		$min_rotation   = array_get_index($rotation, 'min_index');
+		$max_rotation   = array_get_index($rotation, 'max_index');
+		$last_rotation  = array_get_index($rotation, 'last_index');
+		$last_timestamp = array_get_index($rotation, 'last_timestamp');
 
 		// check to see if we have the settings we need, otherwise, fail
-		if (empty($rotation_settings) || empty($rotation_interval) || empty($min_rotation) || empty($max_rotation)) {
+		if (empty($rotation) || empty($interval) || empty($min_rotation) || empty($max_rotation)) {
 			$status = false;
 		} else {
 
@@ -529,15 +517,11 @@ class Log_Manager extends Asset
 			$status = $this->_rotateLogFiles(SQ_LOG_PATH.'/'.$logname.SQ_CONF_LOG_EXTENSION, $next_rotation);
 
 			if ($status) {
-				$status = Array(
-								'rotation' => Array(
-													'log_rotation_interval' => $rotation_interval,
-													'last_timestamp'        => time(),
-													'min_index'             => $min_rotation,
-													'max_index'             => $max_rotation,
-													'last_index'            => $next_rotation,
-													),
-								);
+				$status['rotation']['interval']       = $interval;
+				$status['rotation']['min_index']      = $min_rotation;
+				$status['rotation']['max_index']      = $max_rotation;
+				$status['rotation']['last_index']     = $next_rotation;
+				$status['rotation']['last_timestamp'] = time();
 			} else {
 				$status = false;
 			}
