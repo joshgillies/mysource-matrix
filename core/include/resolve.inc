@@ -246,7 +246,15 @@ class Resolve
 				$_SESSION['user_is_root']		= false;
 				$_SESSION['user_is_sys_admin']	= false;
 				$this->user = null;
-				break;
+			break;
+
+			case 'send_security_key' :
+				require_once SQ_FUDGE_PATH.'/general/general.inc';
+				$vars = $_SESSION['SQ_SYSTEM_SECURITY_KEY'];
+				security_key_image($vars['key'], $vars['width'], $vars['height'], $vars['bg_colour'], $vars['text_colour'], $vars['border_colour'], $vars['zoom']);
+				exit();
+			break;
+
 		}//end switch
 
 		// just so it isn't being used anywhere else

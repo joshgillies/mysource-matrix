@@ -170,18 +170,20 @@ function check_box($name, $value='1', $checked=false, $on_click='', $extras='')
 }
 
 
-
 /**
 * Prints out a
 * Given a name, an array of keys and values, and a default value, prints a combo box
 *
 * @param string	$name		the form name to use for the combo box
-* @param Array	$contents	an array of whose keys are values to be returned when that option is selected and whose values are the display text for the option
+* @param Array	$contents	an array of whose keys are values to be returned when that 
+*							option is selected and whose values are the display text for the option
 * @param bool	$multiple	whether you can multiple selections can be made or not
-* @param mixed	$defaults	if there is only one default can be a string, or if there are multiple can be an array
+* @param mixed	$defaults	if there is only one default can be a string, or if there are 
+*							multiple can be an array
 * @param int	$height		the height (in lines) of the combo box
 * @param string	$extras		any input field attributes that should be placed in the <input ... > tag
-* @param int	$max		the maximum number of characters displayed for any option, anything over gets truncated with '...' appended
+* @param int	$max		the maximum number of characters displayed for any option, 
+*							anything over gets truncated with '...' appended
 */
 function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras='', $maxlength=0)
 {
@@ -215,6 +217,7 @@ function combo_box($name, $contents, $multiple, $defaults, $height=0, $extras=''
 				'</option>';
 	}
 	echo '</select>';
+
 }// end combo_box()
 
 
@@ -319,6 +322,7 @@ function date_box($name, $default_timestamp=null, $show_time=true, $extras='')
 
 }//end date_box()
 
+
 /**
 * Takes number of hours and minutes and creates a pair of combo boxes
 */
@@ -350,7 +354,9 @@ function file_upload($name, $extras='')
 {
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo '<input type="file" name="', $name, '" ', $extras, '>';
+
 }//end file_upload()
+
 
 /**
 * Returns the information for an uploaded file if the upload was successful
@@ -400,10 +406,13 @@ function get_file_upload_info($name)
 * Commits an uploaded file to its intended place
 *
 * @param string	$name			the form name from the file upload box
-* @param string	$dest			the destination for the uploaded file, if this is a directory, the file is put in that directory if it is a file, it is written to that file (taking into account $overwrite)
+* @param string	$dest			the destination for the uploaded file, if this is a directory,
+*								the file is put in that directory if it is a file, it is written
+*								to that file (taking into account $overwrite)
 * @param bool	$overwrite		whether to overwrite any existing file or not
 * @param int	$max_size		the maximum number of bytes that the uploaded file can be
-* @param bool	$restrict_exts	if true extension MUST BE in $extensions, if false must NOT be in $extensions
+* @param bool	$restrict_exts	if true extension MUST BE in $extensions,
+*								if false must NOT be in $extensions
 * @param Array	$extensions		if not empty, the only extensions that are not allowed to be uploaded
 *
 * @return FALSE on error, blank string on no file upload and the filename (basename) if a file was uploaded
@@ -504,7 +513,8 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 *
 * @param string	$name			the form name to use for the field
 * @param int	$assetid		current value for this field
-* @param array	$type_codes		Array('[type_code]' => '[flag]') where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
+* @param array	$type_codes		Array('[type_code]' => '[flag]') 
+*								where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
 */
 function asset_finder($name, $assetid=0, $type_codes=Array(), $top_obj='top', $done_fn='null')
 {
@@ -552,11 +562,81 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $top_obj='top', $d
 
 
 /**
+* Prints an interface for entering a security key genereted inside an image
+* Call process_security_key to check if the value entered was correct
+*
+* @param int	$key_len	the lenght of the random string to display in the image
+* @param int	$box_len	the width of the text box used to enter the security key shown
+* @param int	$zoom		each character will be randomly zoomed between x1 and this figure
+* @param string	$bg			the background colour of the image (eg FFFFFF)
+* @param string	$text		the colour of the text in the image (eg 000000)
+* @param string	$border		the colour of the border image (eg 000000)
+*							for no border, set to the same colour as the background
+*
+* @return void
+* @access public
+*/
+function security_key($key_len, $box_len, $zoom=1, $bg='FFFFFF', $text='000000', $border='000000')
+{
+	// generate a random security key string
+	require_once SQ_FUDGE_PATH.'/general/general.inc';
+	$password = random_password($key_len);
+
+	// work out the width and height of the image
+	$img_width  = $key_len * 10.5;
+	$img_height = 20;
+
+	// we need to store these vars in the session so we can get the
+	// system to print the security image for us
+	$security_vars = Array(	'key'           => $password,
+							'width'         => $img_width,
+							'height'        => $img_height,
+							'bg_colour'     => $bg,
+							'text_colour'   => $text,
+							'border_colour' => $border,
+							'zoom'          => $zoom
+						  );
+	$_SESSION['SQ_SYSTEM_SECURITY_KEY'] = $security_vars;
+
+	// generate the url to get the security image to print
+	$img_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=send_security_key';
+	?>
+	<table border="0">
+		<tr>
+			<td valign="top"><?php echo text_box('SQ_SYSTEM_SECURITY_KEY_VALUE', '', $box_len); ?></td>
+			<td valign="top" width="100%"><img src="<?php echo $img_url; ?>" border="0"></td>
+		</tr>
+	</table>
+	<?php
+
+}//end security_key
+
+
+/**
+* Returns true if the security key entered using the interface in security_key() is correct
+*
+* @return boolean
+* @access public
+*/
+function validate_security_key()
+{
+	if (!isset($_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'])) return false;
+	if (!isset($_SESSION['SQ_SYSTEM_SECURITY_KEY']['key'])) return false;
+	$entered_value = $_POST['SQ_SYSTEM_SECURITY_KEY_VALUE'];
+	$real_value = $_SESSION['SQ_SYSTEM_SECURITY_KEY']['key'];
+	unset($_SESSION['SQ_SYSTEM_SECURITY_KEY']);
+	return ($entered_value === $real_value);
+
+}//end validate_security_key()
+
+
+/**
 * Takes a variable and outputs as many hidden fields as possible to recreate it
 *
 * @param string	$name			the form name to use for the field
 * @param int	$assetid		current value for this field
-* @param array	$type_codes		Array('[type_code]' => '[flag]') where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
+* @param array	$type_codes		Array('[type_code]' => '[flag]')
+*								where flag = (A|D|I) -> Ancestors, Descendants or Only Itself
 */
 function var_to_hidden_field($var, $name='')
 {
