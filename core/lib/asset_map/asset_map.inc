@@ -73,6 +73,17 @@ class Asset_Map
 			}
 
 			// Reload the passed assetid in the flash
+			function refresh_internal_messages() 
+			{
+				alert('Do Refresh');
+//				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
+//				var asset_mapObj = document.asset_map;
+//				//alert("Reload Assetid : " + assetid);
+//				jsToFlashCall(asset_mapObj, 'reload_asset', {assetid: assetid});
+			}
+
+
+			// Reload the passed assetid in the flash
 			function add_messages(xml) 
 			{
 				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
