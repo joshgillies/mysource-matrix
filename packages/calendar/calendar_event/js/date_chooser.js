@@ -1,6 +1,6 @@
 function make2digits(num) {
 	if (num < 10) {
-		return "0"+num;
+		return "0"+parseInt(num);
 	} else {
 		return num;
 	}
@@ -139,7 +139,8 @@ function validateDay(elt) {
 
 function yearOK(elt) {
 	yearVal = parseInt(elt.value);
-	return (yearVal !== null)  && (yearVal > 0) && ((yearVal < 100) || ((yearVal >= 1900) && (yearVal < 3000)));
+	return (yearVal !== null)  && (yearVal > 0) && ((yearVal < 100) || ((yearVal >= 1970) && (yearVal <= 2030)));
+	
 }//end yearOK()	
 
 
@@ -164,6 +165,7 @@ function validateYear(elt) {
 function minutesOK(elt) {
 	minutesValue = parseInt(elt.value);
 	return !((minutesValue === null) || (minutesValue < 0) || (minutesValue > 59));
+	
 }//end minutesOK()
 	
 
@@ -182,6 +184,7 @@ function validateMinutes(elt) {
 function hoursOK(elt) {
 	hoursValue = parseInt(elt.value);
 	return (hoursValue >= 0) && (hoursValue <= 23);
+	
 }//end hoursOK()
 
 
@@ -258,19 +261,34 @@ function updateStartDate(name) {
 	  
 }//end updateStartDate()
 
+
 function processKeyEvent(elt) {
-  key = window.event.keyCode; 
-  if ((key==43) && (elt.value==Number(elt.value))) { 
-    elt.value=make2digits((Number(elt.value))+1); 
-    window.event.keyCode=null;
-	elt.select();
-  } 
-  if ((key==45) && (elt.value==Number(elt.value))) { 
-	  if (elt.value > 1) {
-		   elt.value=make2digits((Number(elt.value))-1); 
-	  }
-      window.event.keyCode=null;
-      elt.select();
+	key = window.event.keyCode; 
+	if ((key==43) && (elt.value==Number(elt.value))) {
+		if (elt.name.indexOf('year') != -1)				max_value = 2030;
+		else if (elt.name.indexOf('day') != -1)			max_value = 31;
+		else if (elt.name.indexOf('hours') != -1)		max_value = 23;
+		else if (elt.name.indexOf('minutes') != -1)		max_value = 59;
+		
+		
+		if (elt.value < max_value) {
+			elt.value=make2digits((Number(elt.value))+1);
+		}
+	    window.event.keyCode=null;
+		elt.select();
+	} 
+	if ((key==45) && (elt.value==Number(elt.value))) {
+		if (elt.name.indexOf('year') != -1)				min_value = 1970;
+		else if (elt.name.indexOf('day') != -1)			min_value = 1;
+		else if (elt.name.indexOf('hours') != -1)		min_value = 0;
+		else if (elt.name.indexOf('minutes') != -1)		min_value = 0;
+		
+		if (elt.value > min_value) {
+			elt.value=make2digits((Number(elt.value))-1); 
+		}
+		window.event.keyCode=null;
+		elt.select();
   }
-  return true
-}
+  return true;
+  
+}//end processKeyEvent()
