@@ -105,7 +105,7 @@ class table_editing extends wysiwyg_plugin {
 
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
-				this._popupDialog("insertTable", "<?php echo $this->get_popup_href('insert_table.html')?>", null, null, true, function(param) {
+				this._popupDialog("insertTable", "<?php echo $this->get_popup_href('insert_table.html')?>", 340, 260, true, function(param) {
 					if (!param) { // user must have pressed Cancel
 						return false;
 					}
