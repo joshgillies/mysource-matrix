@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.19 2005/03/01 06:10:06 tbarrett Exp $
+* $Id: listing_engine.inc,v 1.20 2005/03/02 17:12:16 brobertson Exp $
 *
 */
 
@@ -40,21 +40,21 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Listing_Engine extends Page
 {
-	
+
 	function Listing_Engine($assetid=0)
 	{
 		$this->_ser_attrs = true;
 		$this->Page($assetid);
-		
+
 	}//end Listing_Engine()
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -98,8 +98,8 @@ class Listing_Engine extends Page
 		return $asset->create($copy_link);
 
 	}//end _createAdditional()
-	
-	
+
+
 	/**
 	* Returns a list of lock types available for this asset type
 	*
@@ -117,8 +117,8 @@ class Listing_Engine extends Page
 		return $lock_types;
 
 	}//end lockTypes()
-	
-	
+
+
 	/**
 	* Prepares for linking by checking that the link values are valid for this link
 	*
@@ -150,8 +150,8 @@ class Listing_Engine extends Page
 		return false;
 
 	}//end prepareLink()
-	
-	
+
+
 	/**
 	* Return a human readable description of the passed link
 	*
@@ -173,8 +173,8 @@ class Listing_Engine extends Page
 		}
 
 	}//end describeLink()
-	
-	
+
+
 	/**
 	* Returns TRUE if we can delete the passed link, or a string with the error msg
 	*
@@ -194,8 +194,8 @@ class Listing_Engine extends Page
 		return parent::isDeletableLink($linkid);
 
 	}//end isDeletableLink()
-	
-	
+
+
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
@@ -212,7 +212,7 @@ class Listing_Engine extends Page
 
 	}//end _getAllowedLinks()
 
-	
+
 	/**
 	* Return a reference to a folder linked to this asset determined by the passed in value on the link
 	*
@@ -234,7 +234,7 @@ class Listing_Engine extends Page
 
 	}//end getFolder()
 
-	
+
 	/**
 	* Get a list of all formats of a certain type
 	*
@@ -251,7 +251,7 @@ class Listing_Engine extends Page
 			$folder = &$this->getFolder($type);
 			$format_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($folder->id, SQ_LINK_TYPE_2, 'bodycopy', true);
 			if (empty($format_links)) return Array();
-			
+
 			$formats = Array();
 			foreach ($format_links as $link_data) {
 				$formats[$link_data['minorid']] = $link_data['value'];
@@ -275,9 +275,9 @@ class Listing_Engine extends Page
 		// the common section will probably appear here - then the kids will
 		// override - but where will we work out where the assets come from?
 
-	}//end printBody()	
-	
-	
+	}//end printBody()
+
+
 	/**
 	* Work out the unique cache key to represent the current page
 	*
@@ -304,8 +304,8 @@ class Listing_Engine extends Page
 		return $cache_key;
 
 	}//end _getCacheKey()
-		
-		
+
+
 	/**
 	* Returns keyword replacements to be replaced in the body
 	* of the format bodycopy
@@ -318,8 +318,8 @@ class Listing_Engine extends Page
 		return Array();
 
 	}//end getKeywordReplacements()
-	
-	
+
+
 	/**
 	* Get the list of asset that should be printed
 	*
@@ -341,10 +341,10 @@ class Listing_Engine extends Page
 	function getAssetList()
 	{
 		return Array();
-	
+
 	}//end getAssetList()
 
-	
+
 	/**
 	* Sort the list of assets
 	*
@@ -357,6 +357,8 @@ class Listing_Engine extends Page
 	*/
 	function sortAssetList($asset_list, $sort_by, $type_code=Array())
 	{
+		if (empty($sort_by)) return $asset_list;
+
 		// this needs to be implemented, possibly by using similar from asset listing
 		// but it's likely that sorting will need to be rewritten to take metadata
 		// and attributes into account
@@ -366,10 +368,10 @@ class Listing_Engine extends Page
 		$assetids = array_keys($asset_list);
 		$sort_assets = Array();
 		$skipped_assets = Array();
-		
+
 		// default to a numeric sort until we are proven otherwise
 		$sort_numeric = true;
-		
+
 		if ($sort_by == '__attr__') {
 			// sorting by attributes?
 			$sort_by_attr = $this->attr('sort_by_attr');
@@ -380,35 +382,35 @@ class Listing_Engine extends Page
 					// we have to find our closest ancestor with a sort field
 					$type_anc = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
 					array_unshift($type_anc, $type_code);
-					
+
 					foreach($type_anc as $this_type_code) {
 						$attr_name = array_get_index($sort_by_attr, $this_type_code, '');
 						if (!empty($attr_name)) break;
 					}
 				}
-				
+
 				// get the assetids that may be affected
 				$rem_assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, $type_code, !$value));
-				
+
 				// do we have an attribute to sort on for this type code?
 				// if we don't, we'll have to come back to it as a skipped asset
 				if (!empty($attr_name)) {
 					if (in_array($value, Array('int', 'float'))) {	// not a number?
 						$sort_numeric = false;
 					}
-					
+
 					$attr_info = $GLOBALS['SQ_SYSTEM']->am->getAttributeValuesByName($attr_name, 'asset', $rem_assetids);
-				
+
 					foreach ($rem_assetids as $assetid) {
 						if (isset($attr_info[$assetid])) {
 							$sort_assets[$assetid] = strtolower($attr_info[$assetid]);
-							
+
 							if (($pos = array_search($assetid, $skipped_assets)) !== false) {
 								unset($skipped_assets[$pos]);
 							}
 						}
 					}
-					
+
 					$skipped_assets = array_merge($skipped_assets, array_diff($rem_assetids,array_keys($attr_info)));
 				} else {
 					// add to the skipped assets array if still in the list
@@ -416,36 +418,38 @@ class Listing_Engine extends Page
 					$skipped_assets = array_merge($skipped_assets, $rem_assetids);
 				}
 			}
-			
+
 		} else {
-			$asset_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, $type_code);
-		
-			foreach ($assetids as $assetid) {
-				$sort_assets[$assetid] = strtolower($asset_info[$assetid][$sort_by]);
+
+			$sort_assets = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo($assetids, $type_code, true, $sort_by);
+			for (reset($sort_assets); null !== ($assetid = key($sort_assets)); next($sort_assets)) {
+				$sort_assets[$assetid] = strtolower($sort_assets[$assetid]);
 			}
-			
+
 			if ($sort_by != 'assetid') {
 				$sort_numeric = false;
 			}
 		}
-		
+
 		if ($sort_numeric) {
 			uasort($sort_assets, create_function('$a,$b','return '.($this->attr('reverse_sort') ? '$b - $a' : '$a - $b').';'));
 		} else {
-			(!$this->attr('reverse_sort')) ? asort($sort_assets) : arsort($sort_assets);
+			if (!$this->attr('reverse_sort')) asort($sort_assets);
+			else arsort($sort_assets);
 		}
-		
+
+		$assets_to_list = Array();
 		$sorted_assets = array_keys($sort_assets);
 		foreach($sorted_assets as $asset) $assets_to_list[$asset] = $asset_list[$asset];
-		
+
 		// add skipped assets to the bottom of the list
 		foreach($skipped_assets as $asset) $assets_to_list[$asset] = $asset_list[$asset];
-		
+
 		return $assets_to_list;
-	
+
 	}//end sortAssetList()
-	
-	
+
+
 	/**
 	* Remove unwanted assets from the todo list
 	*
@@ -485,10 +489,10 @@ class Listing_Engine extends Page
 				unset($filtered_todo);
 			break;
 		}
-	
+
 	}//end filterAssetList()
-	
-	
+
+
 	/**
 	* Remove non-live assets from the list of assets to print if the user doesnt have write access
 	*
@@ -507,8 +511,8 @@ class Listing_Engine extends Page
 		// copied over from asset listing
 		// is this fine for what we need, or are we expanding this to include
 		// specific statuses (as in Search Folder)
-		
-		
+
+
 		// first check to see if this is a special user without restrictions
 		$user_restrictions = (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin());
 		if (!$user_restrictions) return;
@@ -540,7 +544,7 @@ class Listing_Engine extends Page
 
 	}//end filterAssetStatuses()
 
-	
+
 	/**
 	* Remove and/or update the todo list based on the types of the assets in it
 	*
@@ -566,7 +570,7 @@ class Listing_Engine extends Page
 		// changing this to a foreach because it wasn't looping through
 		// everything for some reason
 		foreach ($todo as $assetid => $type_code) {
-			
+
 			if (!isset($wanted_types[$type_code])) {
 				$new_type_code = null;
 				foreach ($wanted_types as $wt => $inherit) {
@@ -650,7 +654,7 @@ class Listing_Engine extends Page
 
 	}//end adjustAssetPositions()
 
-	
+
 	/**
 	* Gets the specified chunk based on group-by and pagination options
 	*
@@ -676,21 +680,21 @@ class Listing_Engine extends Page
 				// do it CHUNK Noris style
 				if ($num_per_page > 0) $chunks = array_chunk($children, $num_per_page, true);
 				else $chunks = Array('0' => $children);
-	
+
 				if ($result_page > count($chunks)) $result_page = count($chunks);
 				$todo = $chunks[($result_page-1)];
 
 				// previous page link
 				if ($result_page <= 1) $replacements['previous_page'] = $this->attr('prev_page_text');
 				else $replacements['previous_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => $result_page-1)).'">'.$this->attr('prev_page_text').'</a>';
-	
+
 				// next page link
 				if ($result_page >= count($chunks)) $replacements['next_page'] = $this->attr('next_page_text');
 				else $replacements['next_page'] = '<a href="'.replace_query_string_vars(Array('result_page' => $result_page+1)).'">'.$this->attr('next_page_text').'</a>';
-	
+
 				$replacements['current_page'] = (int)$result_page;
 				$replacements['total_pages'] = count($chunks);
-	
+
 				// list of pages and links to them
 				$page_list = '';
 				for ($i = 1; $i <= count($chunks); $i++) {
@@ -698,15 +702,15 @@ class Listing_Engine extends Page
 					else $page_list .= ' <a href="'.replace_query_string_vars(Array('result_page' => $i)).'">'.$i.'</a> ';
 				}
 				$replacements['page_list'] = $page_list;
-	
+
 				unset($chunks);
 			break;
-	
+
 			case 'letter' :
 				foreach ($children as $childid => $data) {
 					$todo[strtolower($data['first_letter'])][$childid] = $data['type_code'];
 				}
-	
+
 				$result_page = (isset($_REQUEST['result_page'])) ? $_REQUEST['result_page'] : '';
 				if (empty($result_page)) {
 					for ($i = 65; $i <= 90; $i++) {
@@ -716,7 +720,7 @@ class Listing_Engine extends Page
 						}
 					}
 				}
-	
+
 				// previous page link
 				$result_letter = ord(strtoupper($result_page));
 				$replacements['previous_page'] = 'Previous';
@@ -728,7 +732,7 @@ class Listing_Engine extends Page
 						}
 					}
 				}
-	
+
 				// next page link
 				$replacements['next_page'] = 'Next';
 				if ($result_letter < 90) {
@@ -739,10 +743,10 @@ class Listing_Engine extends Page
 						}
 					}
 				}
-	
+
 				$replacements['current_page'] = strtoupper($result_page);
 				$replacements['total_pages'] = 26;
-	
+
 				// list of pages and links to them
 				$page_list = '';
 				for ($i = 65; $i <= 90; $i++) {
@@ -753,12 +757,12 @@ class Listing_Engine extends Page
 					}
 				}
 				$replacements['page_list'] = $page_list;
-	
+
 				if (isset($todo[strtolower($result_page)])) $todo = $todo[strtolower($result_page)];
 				else $todo = Array();
-	
+
 			break;
-	
+
 			case 'random' :
 				// random does things differently, as there is no pagination. But this is a good place
 				// to grab the random asset
@@ -783,12 +787,12 @@ class Listing_Engine extends Page
 				}
 			break;
 		}//end switch
-		
+
 		return $todo;
-		
+
 	}//end getChunk()
-	
-	
+
+
 	/**
 	* Print the list of assets that we are listing
 	*
@@ -842,7 +846,7 @@ class Listing_Engine extends Page
 	{
 		$column_layout = $this->attr('column_layout');
 		$using_columns = (count($column_layout) > 1 || $column_layout['0'] > 1);
-		
+
 		$list_position = 1;
 
 		if ($using_columns) {
@@ -852,7 +856,7 @@ class Listing_Engine extends Page
 			$current_row = 1;
 
 			echo '<table width="100%">';
-			
+
 			for (reset($todo); null !== ($assetid = key($todo));) {
 
 				echo '<tr>';
@@ -958,7 +962,7 @@ class Listing_Engine extends Page
 							break;
 						}
 					}
-					
+
 					// if we don't have a position format already, this becomes
 					// our bodycopy - otherwise we've just scalped the keywords
 					if (empty($bodycopy)) {
@@ -971,7 +975,7 @@ class Listing_Engine extends Page
 		} else {
 			$this->_tmp['is_default'][] = $type_code;
 		}
-			
+
 		if (in_array($type_code, $this->_tmp['is_default'])) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->_tmp['type_folder_id'], SQ_LINK_TYPE_2, 'bodycopy', true, 'default_format');
 			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], 'bodycopy');
@@ -1007,23 +1011,23 @@ class Listing_Engine extends Page
 					$keywords['asset_contents'] = ob_get_contents();
 				ob_end_clean();
 			}
-			
+
 			// stuff carried over results body replacements
-			
+
 			$keywords['asset_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->name.'</a>';
-	
+
 			$keywords['asset_short_name_linked'] = '<a href="'.$asset->getUrl().'">'.$asset->short_name.'</a>';
-		
+
 			$lineage = '';
 			$linked_lineage = '';
 			$first = true;
 			$found_root = false;
 			$parent_asset_ids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($asset->id));
-	
+
 			// searching for the root asset
 			$root_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', false, 'root');
 			$root_assetid = empty($root_link) ? 0 : $root_link['minorid'];
-	
+
 			foreach ($parent_asset_ids as $parent_asset_id) {
 				if ($parent_asset_id == $root_assetid) $found_root = true;
 				if (!$found_root) continue;
@@ -1063,7 +1067,7 @@ class Listing_Engine extends Page
 		$keywords['asset_position'] = (array_get_index($_REQUEST, 'result_page', 1) - 1) * $this->attr('num_per_page') + $list_position;
 
 		$keywords['root_nodes'] = implode(',', $this->getRootNodes());
-		
+
 		$bodycopy->setKeywordReplacements($keywords);
 		$bodycopy->printBody();
 
@@ -1086,7 +1090,7 @@ class Listing_Engine extends Page
 
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
 
-		// if we're being handled here (instead of one of our extensions), 
+		// if we're being handled here (instead of one of our extensions),
 		// it must be from one of our format bodycopies, or something else altogether,
 		// so we'll try to find out which of the format types it is.
 		$folder = &$this->getFolder();
@@ -1153,8 +1157,8 @@ class Listing_Engine extends Page
 		return $keywords;
 
 	}//end getContentsKeywords()
-	
-	
+
+
 	/**
 	* Gets the list of available asset info fields that can be used
 	*
@@ -1167,10 +1171,10 @@ class Listing_Engine extends Page
 						'status','languages','charset','force_secure','created',
 						'created_userid','updated','updated_userid','published',
 						'published_userid');
-		
+
 	}
-	
-	
+
+
 	/**
 	* Gets the list of current root nodes
 	*
@@ -1183,14 +1187,14 @@ class Listing_Engine extends Page
 			$root_asset_ids = Array();
 			$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
 			foreach ($root_links as $root_link) $root_asset_ids[] = (int)$root_link['minorid'];
-		
+
 			$this->_tmp['root_asset_ids'] = $root_asset_ids;
 		}
-		
+
 		return $this->_tmp['root_asset_ids'];
-		
-		
+
+
 	}//end getRootNodes()
-	
+
 }//end class
 ?>
