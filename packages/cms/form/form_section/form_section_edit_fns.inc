@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section_edit_fns.inc,v 1.18 2004/05/20 00:32:23 lwright Exp $
+* $Id: form_section_edit_fns.inc,v 1.19 2004/06/24 05:15:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -216,8 +216,8 @@ class Form_Section_Edit_Fns extends Bridge_Edit_Fns
 								?><td align="center" width="100" class="sq-backend-table-cell"><?php
 								check_box($prefix.'_order[delete]['.$i.']');
 								?></td>
-								<td align="center" width="100" class="sq-backend-table-cell"><?php if ($i != 0) { ?><a href="#" onClick="sortOrderMoveUp(<?php echo $i ?>); return false;">Up</a><?php } ?>
-								<?php if ($i != count($questions)-1) { ?><a href="#" onClick="sortOrderMoveDown(<?php echo $i ?>); return false;">Down</a><?php } ?>
+								<td align="center" width="100" class="sq-backend-table-cell"><?php if ($i != 0) { ?><a href="#" onclick="sortOrderMoveUp(<?php echo $i ?>); return false;">Up</a><?php } ?>
+								<?php if ($i != count($questions)-1) { ?><a href="#" onclick="sortOrderMoveDown(<?php echo $i ?>); return false;">Down</a><?php } ?>
 							</td>
 							<?php
 						}
