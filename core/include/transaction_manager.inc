@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: transaction_manager.inc,v 1.11 2004/09/27 23:43:40 gsherwood Exp $
+* $Id: transaction_manager.inc,v 1.11.2.1 2005/03/31 01:51:07 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -150,12 +150,16 @@ class Transaction_Manager extends MySource_Object
 			return false;
 		}
 
+		// set the rollback flag
 		$this->_rollback[$db_name] = true;
 		$this->_levels[$db_name]--;
 		if ($this->_levels[$db_name] == 0) {
 			// this is the last rollback
 			$result = $GLOBALS['SQ_SYSTEM']->db->query('ROLLBACK');
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+
+			// clear the rollback flag if we are no longer in any transaction
+			$this->_rollback[$db_name] = false;
 		}
 		return true;
 
