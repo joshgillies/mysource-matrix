@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.7 2004/02/18 18:19:16 brobertson Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.8 2004/05/26 05:20:11 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -164,9 +164,16 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		$updated = false;
 
 		// save any changed attributes
-		if (!empty($bc_saved[$prefix][$asset->id]['attributes'])) {
+		if (!empty($bc_data[$prefix][$asset->id]['attributes']) || !empty($bc_saved[$prefix][$asset->id]['attributes'])) {
 			$attributes_updated = false;
 			$attributes = $asset->attr('attributes');
+			foreach($bc_data[$prefix][$asset->id]['attributes'] as $name => $value) {
+				if ($name == 'identifier') {
+					if ($asset->setAttrValue('name', $value)) $updated = true;
+				} else {
+					if ($this->setAttribute($attributes, $name, $value)) $attributes_updated = true;
+				}
+			}
 			foreach($bc_saved[$prefix][$asset->id]['attributes'] as $name => $value) {
 				if ($name == 'identifier') {
 					if ($asset->setAttrValue('name', $value)) $updated = true;
@@ -175,7 +182,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 			if ($attributes_updated) {
-				$asset->setAttrValue('attributes',$attributes);
+				$asset->setAttrValue('attributes', $attributes);
 				$updated = true;
 			}
 		}
