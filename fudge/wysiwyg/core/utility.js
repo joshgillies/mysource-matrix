@@ -71,7 +71,6 @@ HTMLArea.prototype._createRange = function(sel) {
 // returns a range for the current selection
 HTMLArea.prototype._createTextRange = function(sel) {
 	if (HTMLArea.is_ie) {
-		//return sel.createTextRange();
 		return this._doc.body.createTextRange();
 	} else {
 		this.focusEditor();
