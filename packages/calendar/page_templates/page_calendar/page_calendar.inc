@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.119 2004/11/25 01:58:32 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.120 2004/11/25 01:59:42 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.119 $ - 1.0
+* @version $Revision: 1.120 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -150,7 +150,6 @@ class Page_Calendar extends Page_Asset_Listing
 		);
 		$type_formats = null;
 		foreach ($sub_assets as $name => $type) {
-			bam("Creating $name = $type");
 			$asset = new $type();
 			$copy_link = Array('asset' => &$this, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
@@ -1079,7 +1078,6 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_duration = is_null($details['end_date_ts']) ? 0 : ($end_ts - $event_ts);
 			$event_height = ($event_duration / $partition_time) * $cell_height;
 			if ($event_height < 0) continue;
-			//bam("Event duration is $event_duration, partition time is $partition_time, cell height is $cell_height so we've made the event height $event_height");
 
 			// Now for a bit o good old browser sniffing.  Spoons ready.  Mmmm.
 			// IE and Opera (wrongly) build their borders inwards from the specified element height & width.
