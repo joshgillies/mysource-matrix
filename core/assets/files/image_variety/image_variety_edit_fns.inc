@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety_edit_fns.inc,v 1.5 2005/02/11 17:15:52 brobertson Exp $
+* $Id: image_variety_edit_fns.inc,v 1.6 2005/02/24 18:28:58 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -211,7 +211,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 	* @access public
 	* @return boolean
 	*/
-	function _processUploadedFile($asset, $prefix)
+	function _processUploadedFile(&$asset, $prefix)
 	{
 		if (empty($asset->_imageid)) return false;
 		if ($asset->attr('name') == '') return false;
@@ -257,7 +257,7 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 
 		}// endif
 
-		if (commit_file_upload($prefix.'_upload_file', $d_new_file, true, 0)) return false;
+		if (!commit_file_upload($prefix.'_upload_file', $d_new_file, true, 0)) return false;
 
 		$up_to_date = $fv->upToDate($d_new_file);
 
@@ -276,10 +276,8 @@ class Image_Variety_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		// if the filename has changed then we need to update the look ups
-		if ($d_old_filename != $d_new_filename) {
-			if (!$asset->setAttrValue('filename', $d_new_filename)) return false;
-			if (!$asset->updateLookups($image->usePublicPath())) return false;
-		}
+		if (!$asset->setAttrValue('filename', $d_new_filename)) return false;
+		if (!$asset->updateLookups($image->usePublicPath())) return false;
 
 		return true;
 
