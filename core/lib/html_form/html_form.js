@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.30 2004/11/11 06:28:19 tbarrett Exp $
+* $Id: html_form.js,v 1.31 2004/12/16 07:00:51 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -506,7 +506,8 @@ function createHiddenField(name, value)
 	newElt.id = name;
 	newElt.value = value;
 	return newElt;
-}
+
+}//end createHiddenField()
 
 
 /**
@@ -534,7 +535,9 @@ function createTextBox(name, value, size, maxLength, className, onFocus, onBlur)
 	newElt.onfocus = new Function('', onFocus);
 	newElt.onblur = new Function('', onBlur);
 	return newElt;
-}
+
+}//end createTextBox()
+
 
 /**
 * Create an input type="button" element to add to the DOM
@@ -555,7 +558,9 @@ function createButton(name, label, onClick)
 	newElt.value = label;
 	newElt.onclick = new Function('', onClick);
 	return newElt;
-}
+
+}//end createTextBox()
+
 
 /**
 * Add a new asset finder widget above the 'more' button specified
@@ -587,4 +592,37 @@ function addNewAssetFinder(moreButton, nameBase, safeNameBase, typeCodesString, 
 	if (showClear) {
 		parentElt.insertBefore(createButton(safeName+'_clear_btn', 'Clear', mapFrame+'.asset_finder_clear_btn_press(\''+name+'\', \''+safeName+'\');'), moreButton);
 	}
-}
+
+}//end addNewAssetFinder()
+
+
+/**
+* Make all submit buttons and normal buttons on the page look disabled
+*
+* Because some form processing relies on the submit value
+* being in the POST, we will hide all the submits and buttons,
+* inserting dummy disabled buttons and submits in their places
+*
+* @access public
+* @return void
+*/
+function disable_buttons()
+{
+	inputs = document.getElementsByTagName('input');
+	buttons = Array();
+	for (i=0; i<inputs.length; i++) {
+		if ((inputs[i].type == 'submit') || (inputs[i].type == 'button')) {
+			buttons[buttons.length] = inputs[i];
+		}
+	}
+	for (i=0; i<buttons.length; i++) {
+		newElt = document.createElement('INPUT');
+		newElt.type = buttons[i].type;
+		newElt.value = buttons[i].value;
+		newElt.disabled = 'disabled';
+		buttons[i].style.display = 'none';
+		buttons[i].parentNode.insertBefore(newElt, buttons[i]);
+	}
+
+}//end disable_buttons()
+
