@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_edit_fns.inc,v 1.12 2004/12/06 14:41:38 brobertson Exp $
+* $Id: form_question_rule_edit_fns.inc,v 1.13 2004/12/09 22:19:15 lwright Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 {
+
 
 	/**
 	* Constructor
@@ -46,78 +47,9 @@ class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 	function Form_Question_Rule_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-	}//end constructor
+		
+	}//end Form_Question_Rule_Edit_Fns()
 
-
-	/**
-	* @abstract
-	*/
-	function paintInlineBackend(&$asset, &$o, $prefix)
-	{
-		return true;
-	}//end paintInlineBackend()
-
-
-	/**
-	* processes the section in the question to change the options of this rule
-	*
-	* @param object Form				&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
-	*
-	* @access public
-	* @return boolean
-	*/
-	function processInlineBackend(&$asset, &$o, $prefix)
-	{
-		if ($this->processDelete($asset, $o, $prefix)) return true;
-
-		if (isset($_POST[$prefix.'_operator'])) {
-			$asset->setAttrValue('operator', $_POST[$prefix.'_operator']);
-		}
-		if (isset($_POST[$prefix.'_value'])) {
-			$asset->setAttrValue('value', $_POST[$prefix.'_value']);
-		}
-		if (isset($_POST[$prefix.'_comparison_question_id'])) {
-			$asset->setAttrValue('comparison_question_id', $_POST[$prefix.'_comparison_question_id']);
-		}
-
-		return $asset->saveAttributes();
-
-	}//end processInlineBackend()
-
-
-	/**
-	* deletes rules
-	*
-	* @param object Form				&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
-	*
-	* @access public
-	* @return boolean
-	*/
-	function processDelete(&$asset, &$o, $prefix)
-	{
-		$my_question = &$asset->getMyQuestion();
-		bam($my_question->id);
-		if (isset($_POST['delete_rule'])) {
-			$ruleids = $_POST['delete_rule'];
-			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($my_question->id, SQ_LINK_TYPE_3);
-			bam($links);
-			foreach ($links as $link) {
-				bam('here');
-				if (empty($link)) continue;
-				bam($link);
-				if (in_array($link['minorid'], $_POST['delete_rule'])) {
-					$asset->deleteLink($link['linkid']);
-				}
-			}
-			return true;
-		}
-
-		return false;
-	}//end processDelete()
 
 }//end class
 ?>
