@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.249.2.7 2005/02/15 12:03:40 brobertson Exp $
+* $Id: asset_manager.inc,v 1.249.2.8 2005/04/01 18:18:14 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -161,7 +161,7 @@ class Asset_Manager extends MySource_Object
 				FROM '.SQ_TABLE_PREFIX.'ast_typ_inhd
 				WHERE type_code = '.$db->quote($type_code);
 		$db_parents = $db->getCol($sql);
-		assert_valid_db_result($result);
+		assert_valid_db_result($db_parents);
 
 		$inserts = array_diff($parents, $db_parents);
 		$deletes = array_diff($db_parents, $parents);
