@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: format_text.inc,v 1.8 2004/10/13 00:50:44 dbaranovskiy Exp $
+* $Id: format_text.inc,v 1.9 2004/10/13 03:57:55 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,6 +53,7 @@ class Format_Text extends WYSIWYG_Plugin {
 		$this->_add_button('italic','Italic','Italic','false','15');
 		$this->_add_button('underline','Underline','Underline','false','16');
 		$this->_add_button('strikethrough','StrikeThrough','StrikeThrough','false','17');
+		$this->_add_button('replacetext','ReplaceText','Replace Text','true','11');
 	}
 
 
