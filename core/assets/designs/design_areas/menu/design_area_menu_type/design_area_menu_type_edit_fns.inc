@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_type_edit_fns.inc,v 1.26 2003/10/13 09:51:50 brobertson Exp $
+* $Id: design_area_menu_type_edit_fns.inc,v 1.27 2003/10/22 00:09:37 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -249,7 +249,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 					echo '
 				$'.$asset->attr('id_name').'_base_url = (empty($ASSET_LINEAGE[$'.$asset->attr('id_name').'_level])) ? \'\' : current_protocol().\'://\'.$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'url\'];
-				$'.$asset->attr('id_name').'_urls     = $am->getAssetHref(array_keys($GLOBALS[\'MENU_DATA\'][$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\']]), $'.$asset->attr('id_name').'_base_url);
+				$'.$asset->attr('id_name').'_urls     = $am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\'][$ASSET_LINEAGE[$'.$asset->attr('id_name').'_level][\'assetid\']]), $'.$asset->attr('id_name').'_base_url);
 					';
 
 				} else {
@@ -257,7 +257,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 
 					echo '
 				$'.$asset->attr('id_name').'_base_url = $'.$parent_menu->attr('id_name').'_urls[$'.$parent_menu->attr('id_name').'_row[\'assetid\']];
-				$'.$asset->attr('id_name').'_urls     = $am->getAssetHref(array_keys($GLOBALS[\'MENU_DATA\'][$'.$parent_menu->attr('id_name').'_row[\'assetid\']]), $'.$asset->attr('id_name').'_base_url);
+				$'.$asset->attr('id_name').'_urls     = $am->getAssetURL(array_keys($GLOBALS[\'MENU_DATA\'][$'.$parent_menu->attr('id_name').'_row[\'assetid\']]), $'.$asset->attr('id_name').'_base_url);
 					';
 
 				}// end if

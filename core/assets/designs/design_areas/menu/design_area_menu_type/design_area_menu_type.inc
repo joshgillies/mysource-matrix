@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_area_menu_type.inc,v 1.33 2003/10/13 07:27:46 brobertson Exp $
+* $Id: design_area_menu_type.inc,v 1.34 2003/10/22 00:09:37 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -492,7 +492,7 @@ class Design_Area_Menu_Type extends Design_Area
 		// if the show_subs is only on_current the asset for the kids level in the page lineage is used
 		echo '
 		$'.$this->attr('id_name').'_assetids = Array(); // menu_get_assets(majorids);
-		$'.$this->attr('id_name').'_urls     = $am->getAssetHref($'.$this->attr('id_name').'_assetids);
+		$'.$this->attr('id_name').'_urls     = $am->getAssetURL($'.$this->attr('id_name').'_assetids);
 
 		';
 
