@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.29 2003/12/30 05:21:40 gsherwood Exp $
+* $Id: wysiwyg.inc,v 1.30 2004/10/27 00:41:17 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -756,11 +756,12 @@ class wysiwyg {
 				// This function also handles key bindings.
 				HTMLArea.prototype._editorEvent = function(ev) {
 					var editor = this;
+<?php $this->print_plugin_event_handlers()?>
 					var keyEvent = (HTMLArea.is_ie && ev.type == "keydown") || (ev.type == "keypress");
 					if (keyEvent && ev.ctrlKey) {
+						var key = String.fromCharCode(HTMLArea.is_ie ? ev.keyCode : ev.charCode).toLowerCase();
 						var sel = null;
 						var range = null;
-						var key = String.fromCharCode(HTMLArea.is_ie ? ev.keyCode : ev.charCode).toLowerCase();
 						var cmd = null;
 						var value = null;
 						switch (key) {
@@ -1216,6 +1217,19 @@ class wysiwyg {
 		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_form_submit();
 
 	}//end print_plugin_form_submit()
+
+
+	/**
+	* Prints any JS the plugin wants executed when an event is fired by the WYSIWYG's iframe or div
+	*
+	* @return void
+	* @access public
+	*/
+	function print_plugin_event_handlers()
+	{
+		foreach ($this->_loaded_plugins as $name => $plugin) $plugin->print_plugin_event_handler();
+
+	}//end print_plugin_event_handlers()
 
 
 	/**

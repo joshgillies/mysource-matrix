@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg_plugin.inc,v 1.13 2004/01/20 23:55:49 gsherwood Exp $
+* $Id: wysiwyg_plugin.inc,v 1.14 2004/10/27 00:41:17 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -346,7 +346,23 @@ class wysiwyg_plugin {
 
 	}//end print_plugin_form_submit()
 
+	
+	/**
+	* Prints an JS the plugin wants executed when an event is fired in the wysiwyg's iframe or div
+	* This code is in a function - do not use script tags
+	* You can reference the variables 'editor' and 'ev' ( = the event fired)
+	* from within this code
+	*
+	* @return void
+	* @access public
+	*/
+	function print_plugin_event_handler()
+	{
+		return;
 
+	}//end print_plugin_event_handler()
+	
+	
 	/**
 	* Returns a path to a file in this plugin's directory
 	* This value can be passed to the _popupDialog function of the
