@@ -2,11 +2,12 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screens.xml,v 1.4 2003/10/10 06:49:25 brobertson Exp $
+* $Id: edit_interface_screens.xml,v 1.5 2003/10/21 06:24:52 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <screens>
 	<screen code_name="paths" display_name="Web Paths" icon="web" lock_type="lookups" />
+	<screen code_name="weights" display_name="Relevance Weights" icon="web" lock_type="weights" force_unlock="0" />
 </screens>

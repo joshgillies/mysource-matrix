@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_fns.inc,v 1.24 2003/10/15 06:46:21 mmcintyre Exp $
+* $Id: asset_edit_fns.inc,v 1.25 2003/10/21 06:24:52 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -173,6 +173,88 @@ class Asset_Edit_Fns extends MySource_Object
 	}// end paintURLs()
 
 
+	/**
+	* Paint the interface for setting weights
+	* 
+	* @param object Asset				&$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return void
+	* @access public
+	*/
+	function paintWeights(&$owner, &$o, $prefix)
+	{
+		$weightings = $owner->getWeightings();
+		$wa = $owner->writeAccess('weights');
+
+		foreach ($weightings as $component => $weightingData) {
+			$o->openField($weightingData['description']);
+			$default = $weightingData['default'];
+			if (!$wa) {
+				if ($weightingData['weighting'] > 0) {
+					echo $weightingData['weighting'];
+				} else {
+					echo "Not included in searching.";
+				}
+				if ($default) {
+					echo '&nbsp;<b>[default]</b>';
+				}
+			} else {
+				?><input type="checkbox" value="1" name="<?php echo $prefix; ?>weightings[<?php echo $component;?>][default]" <?php if ($default) echo 'checked';?>> default&nbsp;&nbsp;
+				<?php
+
+				if ($default) {
+					echo "&nbsp;&nbsp;Weight: ";
+					echo $weightingData['weighting'];
+					$o->addHiddenField($prefix. "weightings[$component][weighting]", $weightingData['weighting']);
+				} else {
+					combo_box($prefix. "include[$component]", Array("0" => "Do not include in searches", "1" => "Include in searches"), false, ($weightingData['weighting'] > 0)?'1':'0');
+					if ($weightingData['weighting'] > 0) {
+						echo "&nbsp;&nbsp;Weight: ";
+						text_box ($prefix. "weightings[$component][weighting]", $weightingData['weighting'], 3);
+					} else {
+						$o->addHiddenField($prefix. "weightings[$component][weighting]", $weightingData['weighting']);
+					}
+				}
+			}
+
+			$o->closeField();
+		}
+	}
+	/**
+	* Process the weights posted in paintWeights
+	*
+	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processWeights(&$owner, &$o, $prefix)
+	{
+		$weightings = $_POST[$prefix.'weightings'];
+		$included = $_POST[$prefix.'include'];
+		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
+
+		foreach ($weightings as $component => $weightingData) {
+			$weighting =& $weightings[$component]['weighting'];
+			if (isset($included[$component])) {
+				if ($included[$component]) {
+					$weighting = max("1", $weighting);
+				} else {
+					$weighting = '0';
+				}	
+			}
+			if(!isset($weightings[$component]['default']))
+				$weightings[$component]['default'] = '0';
+		}
+
+		$owner->saveComponentWeightings($weightings);
+		$im->changed($owner->id);
+		return true;
+	}
 }//end class
 
 ?>
