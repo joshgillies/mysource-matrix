@@ -17,16 +17,16 @@
 ## File: colour/colour.inc
 ## Desc: Colour manipulation functions
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/fudge/colour/colour.inc,v $
-## $Revision: 1.1.1.1 $
-## $Author: brobertson $
-## $Date: 2003/03/21 00:47:12 $
+## $Revision: 1.2 $
+## $Author: gsherwood $
+## $Date: 2003/03/24 04:23:14 $
 #######################################################################
 
 #---------------------------------------------------------------------#
 
  ###############################
 # Predefined Colours
-$_GLOBALS['COLOUR_PALETTE'] = array(
+$GLOBALS['COLOUR_PALETTE'] = array(
 	'aliceblue'=>'f0f8ff',
 	'antiquewhite'=>'faebd7',
 	'aqua'=>'00ffff',
@@ -418,8 +418,8 @@ class Colour {
 		$input = strtolower($input);
 		if (sprintf("%06x",hexdec($input)) != $input) {
 			# Must be a colour name, or a fuck-up
-			if (isset($_GLOBALS['COLOUR_PALETTE'][$input])) {
-				$input = $_GLOBALS['COLOUR_PALETTE'][$input];
+			if (isset($GLOBALS['COLOUR_PALETTE'][$input])) {
+				$input = $GLOBALS['COLOUR_PALETTE'][$input];
 			}
 		}
 		return $input;
