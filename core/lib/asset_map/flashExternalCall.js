@@ -7,6 +7,10 @@
 
 function jsToFlashCall(swObj, cmd, params)
 {
+	 if (navigator.appName.indexOf("Microsoft") == -1) {
+		alert('Moz reloaded stuffed SetVariable() is not a fn');
+		return;
+	 }
 //	alert('js to flash calling with ' + swObj + "/" + cmd + "/" + params);
 	swObj.SetVariable('_root.external_call.cmd', cmd);
 
