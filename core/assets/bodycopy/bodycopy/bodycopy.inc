@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.11 2004/08/17 02:10:17 gsherwood Exp $
+* $Id: bodycopy.inc,v 1.12 2004/08/19 05:17:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 */
 class Bodycopy extends Asset
 {
+
 
 	/**
 	* An Array of keywords and their replacements
@@ -322,16 +323,16 @@ class Bodycopy extends Asset
 	*/
 	function &getContainers()
 	{
-			// get all the containers linked to this bodycopy
-			$container_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
-			if (empty($container_links)) return Array();
+		// get all the containers linked to this bodycopy
+		$container_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy_container', false);
+		if (empty($container_links)) return Array();
 
-			$containers = Array();
-			foreach ($container_links as $container_data) {
-				$containers[] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
-			}
+		$containers = Array();
+		foreach ($container_links as $container_data) {
+			$containers[] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($container_data['minorid'], $container_data['minor_type_code']);
+		}
 
-			return $containers;
+		return $containers;
 
 	}//end getContainers()
 
