@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.134 2004/12/23 05:51:37 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.135 2004/12/29 00:33:18 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.134 $
+* @version $Revision: 1.135 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -289,6 +289,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 			// If we get a valid and available view type in the request, use it; otherwise use the initial view attribute.
 			$enabled_views = $this->attr('enabled_views');
+			$enabled_views['edit'] = 1;
 			$cal_view = array_get_index($_REQUEST,'SQ_CALENDAR_VIEW',false);
 			if (!$cal_view || empty($enabled_views[$cal_view])) {
 				$cal_view = $this->attr('initial_view');
@@ -331,13 +332,13 @@ class Page_Calendar extends Page_Asset_Listing
 			$_REQUEST['SQ_CALENDAR_DATE'] = $cal_date;
 
 
-			// If the view is 'event' we want the eventid too
+			// If the view is 'event' or 'edit' we want the eventid too
 			$event_id = false;
-			if ($cal_view == 'event') {
+			if (($cal_view == 'event') || ($cal_view == 'edit')) {
 				if (isset($_REQUEST['SQ_CALENDAR_EVENT_ID'])) {
 					$event_id = (int)$_REQUEST['SQ_CALENDAR_EVENT_ID'];
 				} else {
-					trigger_error('Event View requested but no Event ID supplied', E_USER_WARNING);
+					trigger_error(ucfirst($cal_view).' View requested but no Event ID supplied', E_USER_WARNING);
 					return false;
 				}
 			}
@@ -381,7 +382,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$res = $this->_getGeneralScript();
 		if (strpos($format, 'list') === false) $res .= '<div id="calendarTable">';
 		$func = 'get'.ucfirst($cal_view).'View';
-		$res .= ($cal_view == 'event') ? $this->$func($event_id) : $this->$func($cal_date, $format);
+		$res .= (($cal_view == 'event') || ($cal_view == 'edit')) ? $this->$func($event_id) : $this->$func($cal_date, $format);
 		if (strpos($format, 'list') === false) $res .= '</div>';
 		return $res;
 
@@ -817,18 +818,89 @@ class Page_Calendar extends Page_Asset_Listing
 	}//end getEventView()
 
 
+	/**	
+	* Get the edit form for the specified event, or process form and redirect to event view 
+	*
+	* If the form has been submitted it is processed, and if the processing was successful
+	* event view is returned
+	*
+	* @return void
+	* @access public
+	*/
+	function getEditView($event_id)
+	{
+		$event =& $GLOBALS['SQ_SYSTEM']->am->getAsset($event_id);
+		require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
+		$o = new Limbo_Outputter();
+		if (!$event->id) {
+			trigger_error('Could not load calendar event asset #'.$eventid);
+			return false;
+		}
+
+		// Process the form if appropriate
+		if (isset($_POST['asset_action'])) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			if ($event->processBackend($o, $link)) {
+				// The form has been committed and there are no probs, so go to event view
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($event_id, 'attributes');
+				return $this->getEventView($event_id);
+			} else {
+				// There was a problem, so roll back transaction and continue printing the form
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			}
+		}
+		
+		// Acquire the lock and print the interface
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($event_id, 'attributes')) {
+			trigger_error("Couldn't acquire lock", E_USER_WARNING);
+			return $this->getEventView($event_id);
+		}
+		$o->addHiddenField('SQ_CALENDAR_VIEW', 'edit');
+		$o->addHiddenField('SQ_CALENDAR_EVENT_ID', $event_id);
+		$o->addHiddenField('asset_action', 'limbo');
+		$o->addJsInclude(sq_web_path('lib').'/html_form/html_form.js');
+		$o->openRaw();
+		$ei = &$event->getEI();
+		$ei->printEditInterface($ei->findFile('screen_details'), $event, $o);
+		$o->closeRaw();
+		$o->commitButton('Update Event');
+		ob_start();
+			$o->_paintHeader();
+			$o->paint();
+			$res = ob_get_contents();
+		ob_end_clean();
+		return $res;
+
+	}//end getEditView()
+	
+	
 	/**
 	* Get the replacenent for the %calendar_title% keyword for the specified view, date and eventid
+	*
+	* @param string		$view		Which view is being printed
+	* @param string		$date		The date being shown (ISO8601)
+	* @param int		$event_id	The event 
+	*
+	* @return string	The title to be displayed
+	* @access public
 	*/
-	function getViewTitle($view, $date, $event_id)
+	function getViewTitle($view, $date, $event_id=null)
 	{
 		$title_formats = $this->attr('view_title_formats');
-		if ($view == 'event') {
-			$info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($event_id));
-			return $info[$event_id]['name'];
+		$title_formats['edit'] = 'Edit Event';
+		if (($view == 'event') || ($view == 'edit')) {
+			if (!is_null($event_id)) {
+				$info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($event_id));
+				return $info[$event_id]['name'];
+			} else {
+				trigger_error('getViewTitle called with view type "'.$view.'" but no event id', E_USER_WARNING);
+				return '';
+			}
 		} else {
 			return date($title_formats[$view], strtotime($date));
 		}
+
 	}//end getViewTitle()
 
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.37 2004/12/23 05:51:37 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.38 2004/12/29 00:33:18 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once dirname(__FILE__).'/../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -174,9 +174,6 @@ class Calendar_Event extends Asset
 		// get rid of the raw attribute values which will just make a mess
 		unset($keywords['asset_attribute_start_date']);
 		unset($keywords['asset_attribute_end_date']);
-		unset($keywords['asset_name']);
-		unset($keywords['asset_short_name']);
-		unset($keywords['asset_thumbnail']);
 		$keywords['event_name'] = $keywords['asset_attribute_name'];
 		unset($keywords['asset_attribute_name']);
 
@@ -197,7 +194,7 @@ class Calendar_Event extends Asset
 		if (empty($total_time)) $total_time = 'N/A';
 
 		$keywords['event_duration'] = Array('value'=>$total_time);
-		$keywords['edit_link'] = Array('value'=>($this->writeAccess('') ? '<a href="./_edit?limbo_assetid='.$this->id.'">Edit</a>' : ''));
+		$keywords['edit_link'] = Array('value'=>($this->writeAccess('') ? '<a href="'.replace_query_string_vars(Array('SQ_CALENDAR_VIEW'=>'edit', 'SQ_CALENDAR_EVENT_ID'=>$this->id)).'">Edit</a>' : ''));
 		$keywords['delete_link'] = Array('value'=>$this->_getDeleteLink());
 
 		if ($descriptions) {
