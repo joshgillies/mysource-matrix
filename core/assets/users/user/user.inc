@@ -10,7 +10,8 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::packages::__core__
+* @package Resolve_Packages
+* @subpackage __core__
 */
 class User extends Asset
 {
@@ -86,6 +87,19 @@ class User extends Asset
 					 SQ_LINK_NOTICE    => Array()
 					);
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Returns actual link info for all links that this asset (but not any of it's kids) deems as dependant
+	*
+	* @return Array()
+	* @access private
+	*/
+	function _getDependantLinks()
+	{
+		// we are dependant on our inbox and our workspace
+		return array_merge(parent::_getDependantLinks(), $this->getLinks(SQ_LINK_EXCLUSIVE, Array('inbox', 'workspace')));
+	}// end _getDependantLinks()
 
 
 	/**
@@ -244,13 +258,13 @@ class User extends Asset
 			case 'workspace' :
 				// get the workspace attached to us
 				$workspace_data = $this->getLink(SQ_LINK_EXCLUSIVE, 'workspace');
-				$workspace = $GLOBALS['SQ_SYSTEM']->am->getAsset($workspace_data['minorid'], $workspace_data['type_code']);
+				$workspace = &$GLOBALS['SQ_SYSTEM']->am->getAsset($workspace_data['minorid'], $workspace_data['type_code']);
 				$workspace->printBody();
 				break;
 			case 'messages'  :
 				// get the inbox attached to us
 				$inbox_data = $this->getLink(SQ_LINK_EXCLUSIVE, 'inbox');
-				$inbox = $GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_data['minorid'], $inbox_data['type_code']);
+				$inbox = &$GLOBALS['SQ_SYSTEM']->am->getAsset($inbox_data['minorid'], $inbox_data['type_code']);
 				$inbox->printBody();
 				break;
 			default :

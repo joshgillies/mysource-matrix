@@ -635,11 +635,11 @@ class Asset extends Resolve_Object
 	/**
 	* Returns information for a link that this asset is the major asset in
 	*
-	* @param int	$link_type		integer that should be a single integer of the SQ_LINK_* constants
-	* @param string	$type_code		the type of asset that is linked (eg 'Design_Area', 'Page', 'File', etc);
-	* @param bool	$strict			whether we are finding an asset that are just a $type_code or $type_code and any of it's sub-classes
-	* @param string $value			the value that is associated with this link
-	* @param string $side_of_link	Which side of the link this (the current) asset is on ('major' or 'minor')
+	* @param int			$link_type		integer that should be a single integer of the SQ_LINK_* constants
+	* @param string|array	$type_code		the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
+	* @param bool			$strict			whether we are finding an asset that are just a $type_code or $type_code and any of it's sub-classes
+	* @param string			$value			the value that is associated with this link
+	* @param string			$side_of_link	Which side of the link this (the current) asset is on ('major' or 'minor')
 	*
 	* @return Array()
 	* @access public
@@ -661,15 +661,26 @@ class Asset extends Resolve_Object
 				  AND l.link_type = '.$db->quote($link_type);
 
 		if ($type_code) {
+
+			$type_code_cond = '';
+			if (is_array($type_code)) {
+				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+			} else {
+				$type_code_cond = '= '.$db->quote($type_code);
+			}
+
 			if ($strict_type_code) {
-				$sql .= ' AND a.type_code = '.$db->quote($type_code);
+				$sql .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND (a.type_code = '.$db->quote($type_code).' OR a.type_code IN (~SQ0~))';
+				$sql .= ' AND (a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
 				$subs = Array( 'SELECT type_code
 								FROM sq_asset_type_inherited
-								WHERE inherited_type_code = '.$db->quote($type_code));
+								WHERE inherited_type_code '.$type_code_cond );
 				$sql = db_extras_subquery($db, $sql, $subs);
+				if (DB::isError($sql))
+					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
 			}
 		}
 
@@ -691,12 +702,11 @@ class Asset extends Resolve_Object
 	/**
 	* Return all links that this asset has to other assets
 	*
-	* @param int	$link_types			integer that can be the product of bitwise operations on the SQ_LINK_* constants
-	* @param string	$type_code			the type of asset that is linked (eg 'Page', 'File', etc);
-	* @param bool	$strict_type_code	whether we are finding assets that are just a $type_code or 
-	*									$type_code and any of it's sub-classes
-	* @param string $side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
-	* @param string $value				The value for all the links must equal this (if not null)
+	* @param int			$link_types			integer that can be the product of bitwise operations on the SQ_LINK_* constants
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param string			$side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
+	* @param string $		value				The value for all the links must equal this (if not null)
 	*
 	* @return Array()
 	* @access public
@@ -719,16 +729,27 @@ class Asset extends Resolve_Object
 
 		if (!is_null($value)) $sql .= '  AND l.value = '.$db->quote($value);
 
-		if ($type_code) {
+		if (!empty($type_code)) {
+			
+			$type_code_cond = '';
+			if (is_array($type_code)) {
+				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+			} else {
+				$type_code_cond = '= '.$db->quote($type_code);
+			}
+
 			if ($strict_type_code) {
-				$sql .= ' AND a.type_code = '.$db->quote($type_code);
+				$sql .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND (a.type_code = '.$db->quote($type_code).' OR a.type_code IN (~SQ0~))';
+				$sql .= ' AND (a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
 				$subs = Array( 'SELECT type_code
 								FROM sq_asset_type_inherited
-								WHERE inherited_type_code = '.$db->quote($type_code));
+								WHERE inherited_type_code '.$type_code_cond );
 				$sql = db_extras_subquery($db, $sql, $subs);
+				if (DB::isError($sql))
+					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
 			}
 		}// end if
 
@@ -746,11 +767,11 @@ class Asset extends Resolve_Object
 	* Returns the number of links that this asset has as either a major or minor party,
 	* can be restricted by either link type and/or asset type code
 	*
-	* @param string $side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
-	* @param int	$link_types			integer that can be the product of bitwise operations on the SQ_LINK_* constants
-	* @param string	$type_code			the type of asset that is linked (eg 'Page', 'File', etc);
-	* @param bool	$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
-	* @param int	$ignore_linkid		ignore the link represented by this link id when returning the count
+	* @param string			 $side_of_link		Which side of the link this (the current) asset is on ('major' or 'minor')
+	* @param int			$link_types			integer that can be the product of bitwise operations on the SQ_LINK_* constants
+	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) if an array returns link if matches any of the array values
+	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code or $type_code and any of it's sub-classes
+	* @param int			$ignore_linkid		ignore the link represented by this link id when returning the count
 	*
 	* @return int
 	* @access public
@@ -772,15 +793,25 @@ class Asset extends Resolve_Object
 			$extra_table .= ', sq_asset a';
 			$extra_where .= ' AND l.minorid = a.assetid ';
 
+			$type_code_cond = '';
+			if (is_array($type_code)) {
+				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
+			} else {
+				$type_code_cond = '= '.$db->quote($type_code);
+			}
+
 			if ($strict_type_code) {
-				$extra_where .= ' AND a.type_code = '.$db->quote($type_code);
+				$extra_where .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$extra_where .= ' AND (a.type_code = '.$db->quote($type_code).' OR a.type_code IN (~SQ0~))';
+				$extra_where .= ' AND (a.type_code '.$type_code_cond.' OR a.type_code IN (~SQ0~))';
 				$subs = Array( 'SELECT type_code
 								FROM sq_asset_type_inherited
-								WHERE inherited_type_code = '.$db->quote($type_code));
+								WHERE inherited_type_code '.$type_code_cond );
 				$extra_where = db_extras_subquery($db, $extra_where, $subs);
+				if (DB::isError($sql))
+					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
 			}// end if
 		}// end if
 		if ($ignore_linkid) {
@@ -1562,6 +1593,43 @@ class Asset extends Resolve_Object
 		return true;
 
 	}//end deleteLink()
+
+	/**
+	* Returns the linkids for all links that this asset is dependant on 
+	* Includes links that it's dependant assets deem as dependent
+	* Needed for the locking and duplicating processes
+	*
+	* @return Array(int)
+	* @access public
+	*/
+	function getDependantLinkIds()
+	{
+		$linkids = Array();
+
+		$links = $this->_getDependantLinks();
+		for($i = 0; $i < count($links); $i++) {
+			array_push($linkids, $links[$i]['linkid']);
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($links[$i]['minorid'], $links[$i]['type_code']);
+			if(is_null($asset)) continue;
+			$sub_linkids = $asset->getDependantLinkIds();
+			if (!empty($sub_linkids)) $linkids = array_merge($linkids, $sub_linkids);
+		}
+
+		return $linkids;
+
+	}// end getDependantLinkIds()
+
+
+	/**
+	* Returns actual link info for all links that this asset (but not any of it's kids) deems as dependant
+	*
+	* @return Array()
+	* @access private
+	*/
+	function _getDependantLinks()
+	{
+		return Array();
+	}// end _getDependantLinks()
 
 
 	/**

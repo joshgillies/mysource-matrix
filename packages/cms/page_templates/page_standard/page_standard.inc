@@ -78,6 +78,19 @@ class Page_Standard extends Page
 
 
 	/**
+	* Returns actual link info for all links that this asset (but not any of it's kids) deems as dependant
+	*
+	* @return Array()
+	* @access private
+	*/
+	function _getDependantLinks()
+	{
+		// we are dependant on our inbox and our workspace
+		return array_merge(parent::_getDependantLinks(), $this->getLinks(SQ_LINK_EXCLUSIVE, 'bodycopy'));
+	}// end _getDependantLinks()
+
+
+	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
 	*
@@ -88,7 +101,7 @@ class Page_Standard extends Page
 		// get the bodycopy attached to us
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
 		$bodycopy_data = $this->getLink(SQ_LINK_EXCLUSIVE, 'bodycopy');
-		$bodycopy = $GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['type_code']);
+		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['type_code']);
 		$bodycopy->printBody();
 	}// end printBody()
 
