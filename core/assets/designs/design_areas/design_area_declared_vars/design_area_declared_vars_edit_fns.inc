@@ -69,8 +69,6 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 											);
 		}// end foreach
 
-		pre_echo($declared_vars);
-
 		// now make sure we save our changes
 		return $asset->setAttrValue('declared_vars', $declared_vars);
 
