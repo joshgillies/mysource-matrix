@@ -52,15 +52,22 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	/**
 	* Prints the interface for filling in a value
 	*
-	* @param string	$prefix	prefix for the form element
+	* @param string		$prefix		prefix for the form element
+	* @param boolean	$read_only	are we just printing the value
 	*
 	* @access public
 	*/
-	function paint($prefix) 
+	function paint($prefix, $read_only=false)
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$options = Array(0 => $this->_edit_params['false_text'], 
 						 1 => $this->_edit_params['true_text']);
+
+		if ($read_only) {
+			echo $options[$this->value];
+			return;
+		}
+
 		combo_box($prefix.'_'.$this->name, $options, false, $this->value, 0, $extras='', $maxlength=0);
 	}// end paint()
 

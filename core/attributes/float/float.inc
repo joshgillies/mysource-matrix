@@ -52,14 +52,21 @@ class Asset_Attribute_Float extends Asset_Attribute
 	/**
 	* Prints the interface for filling in a value
 	*
-	* @param string	$prefix	prefix for the form element
+	* @param string		$prefix		prefix for the form element
+	* @param boolean	$read_only	are we just printing the value
 	*
 	* @access public
 	*/
-	function paint($prefix) 
+	function paint($prefix, $read_only=false)
 	{
-		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$v = number_format($this->value, $this->_params['decimal_places'], '.', '');
+
+		if ($read_only) {
+			echo $v;
+			return;
+		}
+
+		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		text_box($prefix.'_'.$this->name, $v, $this->_edit_params['width'], 0, 'onFocus="javascript: this.__sq_init_value = this.value;" onChange="javascript: if (isNaN(parseFloat(this.value))) { this.value = this.__sq_init_value; alert(\'This is an numerical field.\\nUnable to accept non-digit characters in this field.\'); } else { this.value = number_format(this.value, '.$this->_params['decimal_places'].', \'.\', \'\'); } "');
 	}// end paint()
 

@@ -34,12 +34,21 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	/**
 	* Prints the interface for filling in a value
 	*
-	* @param string	$prefix	prefix for the form element
+	* @param string		$prefix		prefix for the form element
+	* @param boolean	$read_only	are we just printing the value
 	*
 	* @access public
 	*/
-	function paint($prefix) 
+	function paint($prefix, $read_only=false)
 	{
+		if ($read_only) {
+			?>
+			<span style="background-color: <?php echo $this->value; ?>;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>&nbsp;
+			<?php
+			echo strtoupper($this->value);
+			return;
+		}
+
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		colour_box($prefix.'_'.$this->name, $this->value);
 	}// end paint()
@@ -75,8 +84,8 @@ class Asset_Attribute_Colour extends Asset_Attribute
 	{
 		$value = trim($value);
 		$new_value = preg_replace('/[^0-9a-f]/', '0', (string) $value);
-		if ($new_value != $value) return false;
-		return true;
+		if ($new_value != $value) return $new_value;
+		return $value;
 	}//end validateValue()
 
 }//end class

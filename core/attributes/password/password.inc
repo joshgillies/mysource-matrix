@@ -9,7 +9,7 @@ require_once SQ_ATTRIBUTES_PATH.'/text/text.inc';
 *
 *
 * <!-- Sample Edit Interface XML Node -->
-*    <text width="40" height="4" password="0|1" />
+*    <password width="8" />
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
@@ -34,12 +34,18 @@ class Asset_Attribute_Password extends Asset_Attribute_Text
 	/**
 	* Prints the interface for filling in a value
 	*
-	* @param string	$prefix	prefix for the form element
+	* @param string		$prefix		prefix for the form element
+	* @param boolean	$read_only	are we just printing the value
 	*
 	* @access public
 	*/
-	function paint($prefix) 
+	function paint($prefix, $read_only=false)
 	{
+		if ($read_only) {
+			echo '<i>Password not shown</i>';
+			return;
+		}
+		
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 
 		// NOTE: we deliberatly don't set the value
