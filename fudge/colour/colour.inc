@@ -422,7 +422,7 @@ class Colour
 		$input = preg_replace('/^#/', '', strtolower($input));
 		if (sprintf('%06x',hexdec($input)) != $input) {
 			// Must be a colour name, or a fuck-up
-			if ($hex = colourPalette($input) ) {
+			if ($hex = Colour::colourPalette($input) ) {
 				$input = $hex;
 			}
 		}
