@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_asset.inc,v 1.5 2004/09/16 11:01:00 brobertson Exp $
+* $Id: hipo_job_clone_asset.inc,v 1.5.2.1 2004/11/11 02:45:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -314,26 +314,6 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 
 
 	/**
-	* Returns the number of non dependant links from a given array
-	*
-	* @param Array $links the links array
-	* 
-	* @return integer the number of non-dependant links
-	* @access public
-	*/
-	function getNonDependantLinksCount($links)
-	{
-		$non_dependants = 0;
-		for(reset($links); null !== ($treeid = key($links)); next($links)) {
-			if (!$links[$treeid]['dependant']) $non_dependants++;
-		}
-
-		return $non_dependants;
-	
-	}//end getNonDependantLinksCount()
-
-
-	/**
 	* Paints some option for the user to specify what assets are to cloned
 	* All dependant asset will be automatically cloned, so no interface will be 
 	* supplied for duping dependant assets which should save some space.
@@ -354,161 +334,17 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 		$tree = $GLOBALS['SQ_SYSTEM']->am->getAllChildLinks($asset->id, SQ_SC_LINK_BACKEND_NAV);
 
 		$o->addHiddenField('clone_assetid', $asset->id);
-		$non_dependants = $this->getNonDependantLinksCount($tree);
 
-		$o->openSection('Cloning '.$asset->short_name.' ('.(count($tree) + 1).' Assets)');
-			$o->openField('Select Assets to Clone');
-
-				// if there are no NON dependant assets to clone, there is no point
-				// showing an interface for choosing which assets to clone
-				if ($non_dependants == 0) {
-					?>
-						<p><?php echo $asset->short_name; ?> has no non-dependant children and therefore only the dependant children of <?php echo $asset->short_name; ?> will be cloned.</p>
-
-						<?php
-						// we still need to add some information about the dependant assets of the initiating asset
-						for (reset($tree); null !== ($treeid = key($tree)); next($tree)) {
-							if ($tree[$treeid]['dependant']) {
-								$o->addHiddenField('clone_treeids['.$treeid.']', $tree[$treeid]['linkid']);
-							}
-						}
-				// there is one or more NON-dependant asset
-				} else {
-					?>
-						<p>NB. Dependant assets are not shown in the list of available assets to clone as they are required by their parent assets to function properly.</p>
-					<?php
-
-					?>
-					<table border="0" cellspacing="0" cellpadding="0">
-						<tr>
-							<td class="sq-backend-data" style="font-weight: bold;">
-								<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($asset->type()); ?>", "16", "16", "");</script>&nbsp;
-								<?php echo $asset->short_name ?>
-							</td>
-							<td class="sq-backend-data">
-								&nbsp;<b>[ <?php check_box('clone_treeids[0]', $asset->id, true, 'ALL_CHECKED = (ALL_CHECKED) ? false : true; check_all(this.form, "clone_treeids.*", ALL_CHECKED);'); ?> check/uncheck all ]</b>
-							</td>
-						</tr>
-					</table>
-					<?php
-
-					if (!empty($tree)) {
-
-						?>
-						<script language="javascript" type="text/javascript">
-							<!-- //
-								// initially, they are all checked
-								var ALL_CHECKED = true;
-								var CLONE_TREEIDS = ["<?php echo implode('" ,"', array_keys($tree));?>"];
-
-								function clone_treeids_check(treeid, checked) {
-									var tmp_treeid = new String(treeid);
-
-									// if we were checked make sure that all our parents are checked
-									if (checked) {
-										while (tmp_treeid.length > 0) {
-											var elem = get_form_element("clone_treeids[" + tmp_treeid + "]");
-											// this may be a dependant link , which is a hidden field
-											if (elem.type != 'checkbox') continue;
-											elem.checked = true;
-											tmp_treeid = tmp_treeid.substr(0, tmp_treeid.length - <?php echo SQ_CONF_ASSET_TREE_SIZE; ?>);
-										}
-									}
-									// Change all our children to be what we are
-									for(var i = 0; i < CLONE_TREEIDS.length; i++) {
-										if (treeid == CLONE_TREEIDS[i].substr(0, treeid.length)) {
-											var elem = get_form_element("clone_treeids[" + CLONE_TREEIDS[i] + "]");
-											// this may be a dependant link , which is a hidden field
-											if (elem.type != 'checkbox') continue;
-											elem.checked = checked;
-										}
-									}
-								}// end clone_treeids_check()
-
-							// -->
-						</script>
-						<?php
-
-						$level = 1;
-						$indents = Array();
-						$dependants = Array();
-						$branch_img = $o->filesPath('/images/tree/branch.gif');
-						$indent_start = '<td class="sq-backend-data" %';
-						$indent_end   = '%><img src="'.$o->filesPath('/images/blank.gif').'" width="20" height="20" border="0" alt="blank" /></td>';
-
-						$last_at_level = Array();
-						
-						ob_start();
-							for (reset($tree); null !== ($treeid = key($tree)); next($tree)) {
-								$prev_level = $level;
-								// we need to cast the float to an int (well, 'string' float)
-								$level = (int) $tree[$treeid]['level'];
-
-								$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
-								$last_at_level[$parent_treeid] = $treeid;
-
-								if ($level > $prev_level) {
-									array_push($indents, $parent_treeid);
-								} elseif ($level < $prev_level) {
-									for ($x = $prev_level; $x > $level; $x--) {
-										array_pop($indents);
-									}
-								}
-
-								?>
-								<table border="0" cellspacing="0" cellpadding="0">
-									<tr>
-										<?php
-
-										if (!$tree[$treeid]['dependant']) {
-											if (!empty($indents)) {
-												echo $indent_start, implode($indent_end.$indent_start, $indents), $indent_end;
-											}
-
-											?>
-												<td class="sq-backend-data" <?php echo '%', $treeid, '%'; ?>><img src="<?php echo $branch_img; ?>" width="20" height="20" border="0" alt="branch" /></td>
-												<td class="sq-backend-data">
-												<?php
-													check_box('clone_treeids['.$treeid.']', $tree[$treeid]['linkid'], true, 'clone_treeids_check("'.$treeid.'", this.checked);');
-												?>
-												</td>
-												<td class="sq-backend-data">
-													<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($tree[$treeid]['type_code']); ?>", "16", "16", "");</script>&nbsp;
-													<?php
-														echo $tree[$treeid]['short_name'];
-													?>
-												</td>
-											<?php
-										} else {
-											// set a hidden field for the dependant asset
-											$o->addHiddenField('clone_treeids['.$treeid.']', $tree[$treeid]['linkid']);
-										}
-										?>
-
-										</tr>
-									</table>
-								<?php
-
-							}// end for
-
-							$tree_html = ob_get_contents();
-						ob_end_clean();
-
-						$bg_stalks_search  = Array();
-						$bg_stalks_replace = Array();
-						$bg_code = 'background="'.$o->filesPath('/images/tree/stalk.gif').'"';
-						
-						for (reset($tree); null !== ($treeid = key($tree)); next($tree)) {
-							$bg_stalks_search[] = '%'.$treeid.'%';
-							// if this treeid was the last on it's level it doesn't have a stalk bg
-							$bg_stalks_replace[] = (in_array($treeid, $last_at_level, true)) ? '' : $bg_code;
-						}// end for
-
-						echo str_replace($bg_stalks_search, $bg_stalks_replace, $tree_html);
-
-					}// end if not empty tree
-				}//end if dependants
-
+		$o->openSection('Cloning Confirmation');
+			$o->openField('Confirm');
+				?>
+				<p>Please confirm that you are cloning "<?php echo $asset->short_name; ?>".</p><p>Press the <b>Next</b> button below to confirm or the <b>Cancel</b> button to abort.</p>
+				<?php
+				for (reset($tree); null !== ($treeid = key($tree)); next($tree)) {
+					if ($tree[$treeid]['dependant']) {
+						$o->addHiddenField('clone_treeids['.$treeid.']', $tree[$treeid]['linkid']);
+					}
+				}
 			$o->closeField();
 		$o->closeSection();
 
