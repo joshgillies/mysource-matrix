@@ -57,8 +57,6 @@ mcListItemContainerClass.prototype.onAssetManagerInitialised = function()
 
 /**
 * Called by the mcListItem's on the pressing of the plus button
-* Calls the root getAssetKids() which gets the XML data then
-* calls displayKids() below
 *
 * @param int		parent_assetid	the assetid of the asset who's kids to show
 * @param string		parent_name		the list item name of the parent that the kids are attached to

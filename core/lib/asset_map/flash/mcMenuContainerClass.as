@@ -10,15 +10,17 @@ function mcMenuContainerClass()
 								{text: "Options",
 								 value: "",
 								 kids:	[
-											{text: "Blah",
-											 value: "options/blah1",
+											{text: "Full Refresh",
+											 value: "options/full_refresh",
 											 kids: []
-											},
+											}
+											/*,
 										
 											{text: "Blah 2",
 											 value: "options/blah2",
 											 kids: []
 											}
+											*/
 										]
 								}
 							];
@@ -194,6 +196,12 @@ mcMenuContainerClass.prototype.itemPress = function(item)
 	this.hideKids();
 	trace('Item Press : ' + item.value);
 	var cmds = item.value.split("/", 2);
+
+
+	if (cmds[0] == 'options' && cmds[1] == 'full_refresh') {
+		_root.asset_manager.reloadAllAssets();
+		return;
+	}
 
 	this.broadcastMessage("onMenuItemPress", cmds[0], cmds[1]);
 

@@ -303,6 +303,24 @@ AssetManager.prototype.reloadAssetsLoaded = function(params, new_assets, old_ass
 
 
 /**
+* Forces the re-retrieval of the all asset information
+*
+* @access public
+*/
+AssetManager.prototype.reloadAllAssets = function() 
+{
+	var assetids = new Array();
+	for (var id in this.assets) {
+		if (this.assets[id] instanceof Asset) assetids.push(id);
+	}
+
+	trace("Asset Ids : " + assetids);
+	this.reloadAssets(assetids);
+
+}// end reloadAllAssets()
+
+
+/**
 * Event fired whenever a command is made from outside the flash movie
 *
 * @param string	cmd		the command to perform

@@ -37,9 +37,9 @@ function testOnClick1(component)
 
 function testOnClick2 (component)
 {
-	for(var i = 0; i < 7; i++) {
-		_root.tabs.log.msgs_container.addMessages([{type: "error", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
-	}
+//	for(var i = 0; i < 7; i++) {
+//		_root.tabs.log.msgs_container.addMessages([{type: "error", text: "12/3/2003 17:22\nTHIS IS AN ERROR"}]);
+//	}
 //	for(var i in _root.asset_manager.types) {
 //		trace(i + " :\t" + _root.asset_manager.types[i]);
 //	}
@@ -63,11 +63,11 @@ function testOnClick2 (component)
 //		}
 //	}
 
-//	for(var i in _root.list_container.list) {
-//		if (_root.list_container.list[i] instanceof MovieClip) {
-//			trace(i + " :\t" + _root.list_container.list[i].text_field.text);
-//		}
-//	}
+	for(var i in _root.tabs.tree.list_container.list) {
+		if (_root.tabs.tree.list_container.list[i] instanceof MovieClip) {
+			trace(i + " :\t" + _root.tabs.tree.list_container.list[i].text_field.text);
+		}
+	}
 
 //	trace("TABS MCs:");
 //	for(var i in _root.tabs) {
