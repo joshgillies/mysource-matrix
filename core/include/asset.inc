@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.328 2004/10/06 23:55:47 mmcintyre Exp $
+* $Id: asset.inc,v 1.329 2004/10/11 07:15:28 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -119,7 +119,7 @@ class Asset extends MySource_Object
 	* @var int
 	*/
 	var $published_userid;
-	
+
 	/**
 	* Is this asset type able to be cached automatically by the system?
 	* @var boolean
@@ -464,10 +464,10 @@ class Asset extends MySource_Object
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		
+
 		$result = $db->getRow($sql.$where, null, DB_FETCHMODE_ORDERED);
 		assert_valid_db_result($result);
-		
+
 		assert_not_null($result);
 
 		list($this->id,
@@ -574,7 +574,7 @@ class Asset extends MySource_Object
 					FROM '.SQ_TABLE_PREFIX.'asset_attribute atr
 					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 		}// end if
-		
+
 		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC);
 		assert_valid_db_result($this->vars);
 
@@ -705,7 +705,7 @@ class Asset extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
-		
+
 		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
 		$em->broadcastEvent($this, 'assetDeleted', Array());
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this, true);
@@ -1326,7 +1326,7 @@ class Asset extends MySource_Object
 		// if there any parent links
 		$num_links = $GLOBALS['SQ_SYSTEM']->am->countLinks($this->id, 'minor');
 		if ($num_links) {
-			
+
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_ALL, '', true, 'minor');
 			foreach($links as $link) {
 				$parent = &$am->getAsset($link['majorid'], $link['major_type_code']);
@@ -1461,7 +1461,7 @@ class Asset extends MySource_Object
 	{
 		if (!isset($vars['keywords'])) return;
 		$vars['keywords'] = array_merge($vars['keywords'], $this->_available_keywords);
-		
+
 	}//end onRequestKeywords()
 
 
@@ -1479,7 +1479,7 @@ class Asset extends MySource_Object
 	function canClone()
 	{
 		return true;
-	
+
 	}//end canClone()
 
 
@@ -1717,7 +1717,7 @@ class Asset extends MySource_Object
 			}
 
 			$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
-			
+
 			$em->broadcastEvent($this, 'AssetStatusUpdate',
 												  Array('old_status' => $this->status,
 														'new_status' => $new_status,
@@ -1770,7 +1770,7 @@ class Asset extends MySource_Object
 			trigger_error('Only the published and created date can be modified', E_USER_WARNING);
 			return false;
 		}
-		
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		if (is_null($userid)) $userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -1788,12 +1788,12 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$where = 'assetid = '.$db->quote($this->id);
-		
+
 		$values = Array(
 			$date_type           => $db->quote($time_iso),
 			$date_type.'_userid' => $db->quote($userid)
 		);
-	
+
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -1830,11 +1830,11 @@ class Asset extends MySource_Object
 					'lookups'		=> 64,
 					'weights'		=> 128,
 				);
-				
+
 		// a menu lock allows editing of both attributes (such as name etc)
 		// and links (such as position in menu)
 		$lock_types['menu'] = $lock_types['attributes'] | $lock_types['links'];
-		
+
 		return $lock_types;
 
 	}//end lockTypes()
@@ -1913,9 +1913,9 @@ class Asset extends MySource_Object
 	function _getAllowedLinks()
 	{
 		return Array(SQ_LINK_TYPE_1 => Array(),
-		   	     SQ_LINK_TYPE_2 => Array(),
-			     SQ_LINK_TYPE_3 => Array('design' => Array('card' => 'M', 'exclusive' => false)),
-			     SQ_LINK_NOTICE => Array('thumbnail' => Array('card' => 1, 'exclusive' => false))
+				 SQ_LINK_TYPE_2 => Array(),
+				 SQ_LINK_TYPE_3 => Array('design' => Array('card' => 'M', 'exclusive' => false)),
+				 SQ_LINK_NOTICE => Array('thumbnail' => Array('card' => 1, 'exclusive' => false))
 			);
 
 	}//end _getAllowedLinks()
@@ -2110,6 +2110,7 @@ class Asset extends MySource_Object
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 		$ms->openLog();
 
+		$changedArray = Array();
 		foreach($this->_tmp['vars_set'] as $var_name => $var_data) {
 			$attr_id = $this->vars[$var_name]['attributeid'];
 
@@ -2154,6 +2155,11 @@ class Asset extends MySource_Object
 			$sml_message = $ms->newMessage(Array(), 'Asset Attribute Updated', $message_body, 'asset.attributes');
 			$sml_message->parameters['assetid'] = $this->id;
 			$ms->logMessage($sml_message);
+
+			// add attribute to the event broadcaster array (for notification of what has changed)
+			// this allows event listener to act only on what has changed
+			$changedArray[$attribute->name]['old'] = $var_data['old_value'];
+			$changedArray[$attribute->name]['new'] = $attr_value;
 		}
 
 		// open the transaction
@@ -2186,7 +2192,7 @@ class Asset extends MySource_Object
 
 					// update existing entry
 					$where = 'owning_attributeid = '.$db->quote($save_vars[$attr_id]['owning_attrid']).'
-							    AND assetid = '.$db->quote($this->id);
+								AND assetid = '.$db->quote($this->id);
 
 					$values = Array('custom_value' => $db->quote($attr_value));
 					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_unique_value', $values, $where)) {
@@ -2277,6 +2283,10 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 		$ms->closeLog();
 		$this->informChanges();
+
+		// notify anyone interested that attributes changed
+		$em =& $GLOBALS['SQ_SYSTEM']->getEventManager();
+		$em->broadcastEvent($this, 'attributeChange', $changedArray);
 
 		return true;
 
@@ -2483,7 +2493,7 @@ class Asset extends MySource_Object
 			$keywords['asset_href']['description']                  = 'The relative href to the asset';
 			$keywords['asset_thumbnail']['description']             = 'The thumbnail attached to the asset';
 		}
-		
+
 		return $keywords;
 
 	}//end getAssetKeywords()
@@ -2503,7 +2513,7 @@ class Asset extends MySource_Object
 
 	}//end getCustomKeywordReplacements()
 
-	
+
 	/**
 	* Processes anything that was previously printed for a custom keyword
 	*
@@ -2544,7 +2554,7 @@ class Asset extends MySource_Object
 		$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
 		$publishers = $wfm->whoCanPublish($this->id);
 		if (!empty($publishers) && in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) return true;
-		
+
 		// if asset is not live we really need to check for write access
 		if ($this->status < SQ_STATUS_LIVE) {
 			// if we are in rollback view mode, bypass extra write access checks or we
@@ -2850,13 +2860,13 @@ class Asset extends MySource_Object
 		}
 
 		$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, $design_name);
-		
+
 		// if no design was found, try and get the default frontend
 		// design if we were not already trying to get it
 		if (empty($result) && $design_name != 'system_design::frontend') {
 			$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'system_design::frontend');
 		}
-		
+
 		// if no design was found, try using the asset's URL from the DB
 		if (empty($result)) {
 			$url = strip_url($this->getUrl(), true);
@@ -2889,8 +2899,8 @@ class Asset extends MySource_Object
 		echo '<!-- HEAD PRINTED BY ASSET.INC -->';
 
 	}//end printHead()
-	
-	
+
+
 	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
@@ -3253,7 +3263,7 @@ class Asset extends MySource_Object
 
 			$result = $db->query($sql.$where);
 			assert_valid_db_result($result);
-			
+
 			while(null !== ($row = $result->fetchRow())) {
 				if (!isset($this->_tmp['design_lookups'][$row['url']])) $this->_tmp['design_lookups'][$row['url']] = Array();
 				$this->_tmp['design_lookups'][$row['url']][$row['name']] = $row['designid'];
@@ -3358,7 +3368,7 @@ class Asset extends MySource_Object
 										'https'      => $https,
 										'root_urlid' => $parent_urls[$j]['root_urlid'],
 										);
-						
+
 						$done_urls[$new_url] = $values;
 
 						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
@@ -3459,7 +3469,7 @@ class Asset extends MySource_Object
 		foreach (get_word_counts($value) as $word => $count) {
 			$this->buildKeyData($keydata, $word, 'text', '__name__', $count * $weightings['__name__']['weighting']);
 		}
-		
+
 		// index our dates
 		$this->buildKeyData($keydata, ts_iso8601($this->created), 'datetime', '__created__', $weightings['__created__']['weighting']);
 		$this->buildKeyData($keydata, ts_iso8601($this->updated), 'datetime', '__updated__', $weightings['__updated__']['weighting']);
