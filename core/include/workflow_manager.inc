@@ -682,6 +682,9 @@ class Workflow_Manager extends Resolve_Object
 		$this->steps[$stepid]['logic'] = '>= 1';
 		$this->steps[$stepid]['conditions'] = Array();
 
+		// add a default condition - that the user that set this has to approve
+		$this->addCondition($stepid, $GLOBALS['SQ_SYSTEM']->currentUserid());
+
 		return $stepid;
 	}//end addStep()
 
@@ -870,6 +873,11 @@ class Workflow_Manager extends Resolve_Object
 		$publisher = (int)$publisher;
 		if (!isset($this->steps[$stepid]['conditions'][$publisher])) {
 			trigger_error("Cannot delete step condition, publisher $publisher does not exist in step $stepid", E_USER_WARNING);
+			return false;
+		}
+
+		if (count($this->steps[$stepid]['conditions']) == 1) {
+			trigger_error("Cannot delete step condition, it is the last condition left in step $stepid", E_USER_WARNING);
 			return false;
 		}
 
