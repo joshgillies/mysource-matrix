@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: csv.inc,v 1.8 2005/01/03 21:35:07 amiller Exp $
+* $Id: csv.inc,v 1.9 2005/01/03 23:18:27 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *     A class used to create and parse CSV files
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.8 $
+* @version $Revision: 1.9 $
 * @package Fudge
 * @subpackage CSV
 */
@@ -180,7 +180,7 @@ class CSV
 
 			// directory of this file
 			$this->_dir = dirname($filepath);
-			if (!file_exists($this->_dir)) mkdir($this->_dir,0775);
+			if (!file_exists($this->_dir)) mkdir($this->_dir, 0775);
 
 			// name of file without full path
 			$this->setFilename(basename($filepath));
@@ -326,8 +326,8 @@ class CSV
 		return $line = substr($line, 0, (strlen($deliminator) * -1));
 
 	}//end formatLine()
-	
-	
+
+
 	/**
 	* Count the number of lines in the CSV file
 	*
@@ -341,31 +341,32 @@ class CSV
 	function countLines($start_at=0)
 	{
 		// can only count from a file
-		if(!$this->filepath) return;
+		if (!$this->filepath) return;
 		
 		// check if the file even exists
 		if (!is_file($this->filepath)) {
-			$this->lineCount = 0;
+			$this->line_count = 0;
 			return;
 		}
 
-		if(!$fp = fopen($this->filepath,'r')) {
+		if (!$fp = fopen($this->filepath,'r')) {
 			trigger_error('Unable to open file "'.$this->filepath.'" for counting', E_USER_WARNING);
 			return;
 		}
 
 		$line_count = 0;
 
-		while(($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
+		while (($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
 			$line_count++;
 		}
 		
 		$this->line_count = $line_count - $start_at;
 
 		fclose($fp);
-	}//end count()
-	
-	
+
+	}//end countLines()
+
+
 	/**
 	* Checks to see if the supplied string exists as an entry in the file
 	*
@@ -375,14 +376,14 @@ class CSV
 	function isUnique($string)
 	{
 		// can only import from a file
-		if (!$this->filepath) return;
+		if (!$this->filepath) return true;
 		
 		// check if the file even exists
-		if (!is_file($this->filepath)) return;
+		if (!is_file($this->filepath)) return true;
 
 		if (!$fp = fopen($this->filepath,'r')) {
 			trigger_error('Unable to open file "'.$this->filepath.'" for reading', E_USER_WARNING);
-			return;
+			return true;
 		}
 		
 		while (($tmp = fgetcsv($fp, 65535, $this->deliminator)) != null) {
@@ -391,7 +392,8 @@ class CSV
 		
 		return true;
 	
-	}//end isUnique
+	}//end isUnique()
+
 
 }//end class
 
