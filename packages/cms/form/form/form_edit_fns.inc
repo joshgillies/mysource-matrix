@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.22 2004/05/06 05:38:19 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.23 2004/05/07 01:18:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -73,7 +73,7 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 			$s =& $sections[$k];
 			$href = $s->getBackendHref('contents');
 			?>
-			<a href="<?php echo $href ?>"><?php echo $s->_getName() ?></a><br />
+			<a href="<?php echo $href ?>"><?php echo $s->_getName() ?></a> : <?php print_r ($s->attr('sort_order')) ?></a> : <?php echo $k ?><br />
 			<?php
 		}		
 		
@@ -318,6 +318,61 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	* @return boolean false if no questions in this section, true otherwise
 	* @access public
 	*/
+	function paintUseBodycopy(&$asset, &$o, $prefix)
+	{
+		if (!$asset->writeAccess('links')) return false;
+
+		check_box('use_bodycopy_main', '1', $asset->attr('use_bodycopy_main'));
+		echo 'Page Contents<br/>';
+		check_box('use_bodycopy_thank_you', '1', $asset->attr('use_bodycopy_thank_you'));
+		echo 'Thank You<br/>';
+		return true;
+	
+	}//end paintUseBodycopy()
+	
+	
+	/**
+	* creates a new section if one was selected to be added
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processUseBodycopy(&$asset, &$o, $prefix)
+	{
+		// Page Contents
+		if (isset($_POST['use_bodycopy_main']) && !$asset->getBodycopy('page_contents')) {
+			$asset->createBodycopy('Page Contents');
+		}
+		$asset->setAttrValue('use_bodycopy_main', isset($_POST['use_bodycopy_main']));
+
+		// Thank You!
+		if (isset($_POST['use_bodycopy_thank_you']) && !$asset->getBodycopy('thank_you')) {
+			$asset->createBodycopy('Thank You');
+		}
+		$asset->setAttrValue('use_bodycopy_thank_you', isset($_POST['use_bodycopy_thank_you']));
+
+		$asset->saveAttributes();
+		$asset->_updated();
+
+		return true;
+
+	}//end processUseBodycopy()
+	
+	
+	/**
+	* Paint the dropdowns to add questions to this section
+	*
+	* @param object Form_Section		&$asset		the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o			the outputter class
+	* @param string						$prefix		prefix for the form elements
+	*
+	* @return boolean false if no questions in this section, true otherwise
+	* @access public
+	*/
 	function paintAddQuestions(&$asset, &$o, $prefix)
 	{
 		if (!$asset->writeAccess('links')) return false;
@@ -350,65 +405,6 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	}//end paintAddQuestions()
 
 
-	/**
-	* Paint the dropdowns to add questions to this section
-	*
-	* @param object Form_Section		&$asset		the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o			the outputter class
-	* @param string						$prefix		prefix for the form elements
-	*
-	* @return boolean false if no questions in this section, true otherwise
-	* @access public
-	*/
-	function paintUseBodycopy(&$asset, &$o, $prefix)
-	{
-		if (!$asset->writeAccess('links')) return false;
-
-		check_box('use_bodycopy_main', '1', $asset->attr('use_bodycopy_main'));
-		echo 'use main bodycopy<br/>';
-		check_box('use_bodycopy_thank_you', '1', $asset->attr('use_bodycopy_thank_you'));
-		echo 'use thank you bodycopy<br/>';
-		return true;
-	
-	}//end paintUseBodycopy()
-	
-	
-	/**
-	* creates a new section if one was selected to be added
-	*
-	* @param object Form				&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processUseBodycopy(&$asset, &$o, $prefix)
-	{
-		if (isset($_POST['use_bodycopy_main']) && !$asset->getBodycopy('page_contents')) {
-			if ($asset->createBodycopy('Page Contents')) {
-				return false;
-			}
-		}
-
-		$asset->setAttrValue('use_bodycopy_main', isset($_POST['use_bodycopy_main']));
-
-		if (isset($_POST['use_bodycopy_thank_you']) && !$asset->getBodycopy('thank_you')) {
-			if ($asset->createBodycopy('Thank You')) {
-				return false;
-			}
-		}
-
-		$asset->setAttrValue('use_bodycopy_thank_you', isset($_POST['use_bodycopy_thank_you']));
-
-		$asset->saveAttributes();
-		$asset->_updated();
-
-		return true;
-
-	}//end processUseBodycopy()
-	
-	
 	/**
 	* Process the newly added questions
 	*
