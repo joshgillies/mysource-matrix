@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.15 2004/09/07 23:02:08 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.16 2004/09/08 06:29:30 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.15 $ - 1.0
+* @version $Revision: 1.16 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -231,6 +231,12 @@ class Page_Calendar_Management extends Asset_Management
 													'added'		=> '0.1',
 													'type'		=> 'assetid',
 													'default'	=> '0'
+												);
+
+		$this->vars['enable_event_dragging'] = Array(
+													'added'		=> '0.1',
+													'type'		=> 'boolean',
+													'default'	=> 'false'
 												);
 		
 	}//end Page_Calendar_Management()

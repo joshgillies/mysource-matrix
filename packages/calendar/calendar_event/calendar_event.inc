@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event.inc,v 1.24 2004/09/03 07:09:11 tbarrett Exp $
+* $Id: calendar_event.inc,v 1.25 2004/09/08 06:29:30 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.24 $ - 1.0
+* @version $Revision: 1.25 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -558,7 +558,7 @@ class Calendar_Event extends Asset
 	/**
 	* Process the specified action on this event, and return whatever html the action wants to show
 	*
-	* This version does nothing and should be overridden by child classes
+	* This should be overridden by child classes
 	*
 	* @param string	$action_name	The action to perform, eg 'cancel'
 	*
@@ -567,8 +567,35 @@ class Calendar_Event extends Asset
 	*/	
 	function processEventAction($action_name) 
 	{
-		trigger_error($action_name.' is an unknown action for this type of event', E_USER_WARNING);	
-		return '';
+		switch ($action_name) {
+			case 'move':
+				if (!isset($_REQUEST['SQ_CALENDAR_DATE'])) {
+					trigger_error($action_name.' is an unknown action for this type of event', E_USER_WARNING);	
+					return '';
+				}
+				$duration = $this->getDuration();
+				if (!isset($_REQUEST['SQ_CALENDAR_TIME'])) $_REQUEST['SQ_CALENDAR_TIME'] = '--:--';
+				$this->setAttrValue('start_date', $_REQUEST['SQ_CALENDAR_DATE'].' '.$_REQUEST['SQ_CALENDAR_TIME'].':--');
+				$current_end_date = $this->getEndDate();
+				if ($current_end_date) {
+					$new_end_date_ts = iso8601_ts($this->attr('start_date')) + $duration;
+					$new_end_date = date('Y-m-d', $new_end_date_ts);
+					$new_end_time = $this->getEndTime() ? date('H:i:00', $new_end_date_ts) : '--:--:--';
+					$this->setAttrValue('end_date', $new_end_date.' '.$new_end_time);
+				}
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) {
+					trigger_error('Could not acquire lock on asset '.$this->name.' to move it', E_USER_WARNING);
+					return '';
+				}
+				$this->saveAttributes();
+				$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+			break;
+
+			default:
+				trigger_error($action_name.' is an unknown action for this type of event', E_USER_WARNING);	
+				return '';
+			break;
+		}
 
 	}//end processEventAction();		
 
