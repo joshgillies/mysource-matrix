@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.70 2005/02/02 23:54:34 mnyeholt Exp $
+* $Id: mysource.inc,v 1.71 2005/02/07 14:48:33 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.70 $
+* @version $Revision: 1.71 $
 * @package MySource_Matrix
 */
 class MySource
@@ -216,7 +216,6 @@ class MySource
 			// but make sure that the person is coming from the same machine as they logged in on
 			// so get a reference to them
 			$this->user = null;
-			$this->setCurrentUser($this->getPublicUser());
 
 			if (!empty($_SESSION['user_last_access'])
 				&& time() < ((int) $_SESSION['user_last_access'] + SQ_CONF_MAX_IDLE_TIME)
@@ -230,13 +229,7 @@ class MySource
 			}
 
 			if (is_null($this->user)) {
-				$_SESSION['userid']            = 0;
-				$_SESSION['user_type_code']    = '';
-				$_SESSION['user_is_root']      = false;
-				$_SESSION['user_is_sys_admin'] = false;
-			}
-			
-			if (is_a($this->user, 'public_user')) {
+				$this->user = &$this->getPublicUser();
 				$_SESSION['user_is_root']      = false;
 				$_SESSION['user_is_sys_admin'] = false;
 			}
@@ -245,7 +238,7 @@ class MySource
 			$this->_user_is_root      = $_SESSION['user_is_root'];
 			$this->_user_is_sys_admin = $_SESSION['user_is_sys_admin'];
 
-			// if we are using the 'a' querystring arg, remove any trailing exclamation marks 
+			// if we are using the 'a' querystring arg, remove any trailing exclamation marks
 			// that are used as termination characters in different kinds of content
 			if (isset($_REQUEST['a'])) $_REQUEST['a'] = rtrim($_REQUEST['a'], '$');
 
@@ -268,21 +261,17 @@ class MySource
 	function start()
 	{
 		if (SQ_IN_BACKEND || SQ_IN_LIMBO) {
-			if ($this->user) {
-				if (is_a($this->user, 'user')) {
-					require_once SQ_INCLUDE_PATH.'/backend.inc';
-					$backend = new Backend();
-					$this->backend =& $backend;
-					$backend->paint();
-				} else {
-					$this->paintLogin('Login', 'You need to be a backend user in order to access the backend');
-				}
+			if ($this->user && !is_a($this->user, 'public_user')) {
+				require_once SQ_INCLUDE_PATH.'/backend.inc';
+				$backend = new Backend();
+				$this->backend =& $backend;
+				$backend->paint();
 			} else {
 				$this->paintLogin('Login', 'You need to login before you can access the backend');
 			}
 
 		// we are on the frontend
-		} else {		
+		} else {
 			// check for ./?a=xx type urls or normal
 			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset($_REQUEST['a']);
 			else $asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
@@ -490,7 +479,7 @@ class MySource
 				// deliberalty don't have a break here so it the
 				// login fails we make sure that we're logged out
 			case 'logout' :
-				if ($this->user) {
+				if ($this->user && !is_a($this->user, 'public_user')) {
 					// log a message so we know someone has logged out
 					$ms = &$this->getMessagingService();
 					$log_body = 'User "'.$this->user->name.'" logged out';
@@ -503,9 +492,11 @@ class MySource
 				$_SESSION['userid']				= 0;
 				$_SESSION['user_type_code']		= '';
 				$_SESSION['user_is_root']		= false;
+				$this->_user_is_root			= false;
 				$_SESSION['user_is_sys_admin']	= false;
+				$this->_user_is_sys_admin		= false;
+				$this->user = &$this->getPublicUser();
 				unset($_SESSION['user_last_access']);
-				$this->user = null;
 			break;
 
 			case 'send_security_key' :
@@ -750,8 +741,7 @@ class MySource
 
 		// They can only become current user if they can login
 		if (is_null($user) || !$user->canSetAsCurrentUser()) {
-			unset($this->user); // unset ref first so we don't blow away other references to the user
-			$this->user = null;
+			$this->user = &$this->getPublicUser();
 			$this->_user_is_root      = false;
 			$this->_user_is_sys_admin = false;
 
