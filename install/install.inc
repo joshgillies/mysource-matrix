@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: install.inc,v 1.30 2004/12/14 00:28:44 arailean Exp $
+* $Id: install.inc,v 1.31 2005/03/29 06:59:59 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 * Purpose
 * Functions used to install and upgrade the system
 *
-* @version $Revision: 1.30 $
+* @version $Revision: 1.31 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -279,20 +279,6 @@ function install_core($package_list=Array())
 
 	if (count($package_list) > 0) {
 		if (!isset($package_list['core'])) {
-			// Make sure to include the system asset config, otherwise other
-			// packages that add system assets can get all messed up because
-			// the system assets haven't been defined.
-			require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
-			$sys_asset_cfg = new System_Asset_Config();
-
-			if (file_exists($sys_asset_cfg->config_file)) {
-				require $sys_asset_cfg->config_file;
-
-				$GLOBALS['SQ_SYSTEM_ASSETS'] = $system_assets;
-
-			} else {
-				$GLOBALS['SQ_SYSTEM_ASSETS'] = Array();
-			}
 			return true;
 		} else {
 			$assets = $package_list['core'];
@@ -311,19 +297,8 @@ function install_core($package_list=Array())
 	$message = $ms->newMessage(Array(), 'Install', $message_body, 'install.system');
 	$message->send();
 
-	if (!$result) exit(1);
-
-	// Firstly let's create some Assets that we require to run
-	require_once SQ_INCLUDE_PATH.'/system_asset_config.inc';
-	$sys_asset_cfg = new System_Asset_Config();
-
-	if (file_exists($sys_asset_cfg->config_file)) {
-		require $sys_asset_cfg->config_file;
-
-		$GLOBALS['SQ_SYSTEM_ASSETS'] = $system_assets;
-
-	} else {
-		$GLOBALS['SQ_SYSTEM_ASSETS'] = Array();
+	if (!$result) {
+		exit(1);
 	}
 
 	$result = $pm->installSystemAssets();
@@ -340,7 +315,8 @@ function install_core($package_list=Array())
 
 	// set the current user object to the root user so we can finish
 	// the install process without permission denied errors
-	$GLOBALS['SQ_SYSTEM']->setCurrentUser($GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user'));
+	$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
+	$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 
 	return true;
 

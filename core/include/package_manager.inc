@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.65 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: package_manager.inc,v 1.66 2005/03/29 06:59:59 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 *    packages and their assets, uses info gleened from the package.xml and asset.xml files
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 */
 class Package_Manager extends MySource_Object
@@ -742,9 +742,8 @@ class Package_Manager extends MySource_Object
 		$updated = false;
 		$assets_created = 0;
 
-		$system_assets = $GLOBALS['SQ_SYSTEM_ASSETS'];
 		foreach ($this->getSystemAssetTypes() as $type) {
-			if (!isset($system_assets[$type])) {
+			if (!$GLOBALS['SQ_SYSTEM']->am->isSystemAssetType($type)) {
 				$function = 'create'.str_replace('_','',$type);
 				$new_system_asset = &$this->$function();
 				if (!is_null($new_system_asset)) {
