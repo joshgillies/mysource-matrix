@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.9 2004/11/25 11:55:31 brobertson Exp $
+#* $Id: backup.sh,v 1.10 2005/02/14 13:59:39 brobertson Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
@@ -99,7 +99,7 @@ case "${DB_PHPTYPE}" in
 		if [ "${DB_PORT}" != "" ]; then
 			args="${args} -p ${DB_PORT}";
 		fi
-		pg_dump ${args} -d "${DB_DATABASE}"  > ${dumpfile}
+		pg_dump ${args} "${DB_DATABASE}"  > ${dumpfile}
 		if [ $? -gt 0 ]; then
 			echo "Unable to create dumpfile ${dumpfile}."
 			echo "Aborting."
