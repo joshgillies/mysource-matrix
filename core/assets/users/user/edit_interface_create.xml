@@ -2,12 +2,12 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_create.xml,v 1.5 2003/09/26 05:26:29 brobertson Exp $
+* $Id: edit_interface_create.xml,v 1.6 2003/10/14 05:24:58 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
-<contents screen="details">
+<contents screen="details" write_access="write:attributes">
 	<section name="User Details">
 		<field attribute="username" />
 		<field attribute="password" />

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: user.inc,v 1.58 2003/09/26 05:26:29 brobertson Exp $
+* $Id: user.inc,v 1.59 2003/10/14 05:24:58 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,8 @@ class User extends Asset
 	function User($assetid=0)
 	{
 		$this->Asset($assetid);
-	}
+	
+	} // end User
 
 
 	/**

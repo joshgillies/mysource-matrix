@@ -2,13 +2,13 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_details.xml,v 1.10 2003/10/10 06:49:24 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.11 2003/10/14 05:24:58 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="User Details" write_access="write:attributes">
+	<section name="User Details" read_access="write:" write_access="write:attributes">
 		<field attribute="username">
 			<display_name>Username</display_name>
 			<note>Unique system wide login name</note>

@@ -2,13 +2,13 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_static_screen_settings.xml,v 1.7 2003/09/26 05:26:29 brobertson Exp $
+* $Id: edit_interface_static_screen_settings.xml,v 1.8 2003/10/14 05:24:58 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <contents>
-	<section name="Versioning">
+	<section name="Versioning" write_access="write:attributes">
 		<field code="version_current_version">
 			<display_name>Current Version</display_name>
 			<note />
@@ -18,7 +18,7 @@
 			<note>Check the box to increment the major version number of this asset</note>
 		</field>
 	</section>
-	<section name="Designs">
+	<section name="Designs" write_access="write:attributes">
 		<field code="designs" />
 	</section>
 	<section name="Morphing">

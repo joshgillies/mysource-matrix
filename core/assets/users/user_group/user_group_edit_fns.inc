@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: user_group_edit_fns.inc,v 1.4 2003/09/26 05:26:29 brobertson Exp $
+* $Id: user_group_edit_fns.inc,v 1.5 2003/10/14 05:24:58 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,6 +30,7 @@ class User_Group_Edit_Fns extends Folder_Edit_Fns
 	function User_Group_Edit_Fns() 
 	{
 		$this->Folder_Edit_Fns();
+		$this->static_screens['details']['lock_type'] = 'attributes';
 	}
 
 }//end class

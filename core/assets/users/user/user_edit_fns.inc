@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: user_edit_fns.inc,v 1.6 2003/09/26 05:26:29 brobertson Exp $
+* $Id: user_edit_fns.inc,v 1.7 2003/10/14 05:24:58 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,6 +30,8 @@ class User_Edit_Fns extends Asset_Edit_Fns
 	function User_Edit_Fns() 
 	{
 		$this->Asset_Edit_Fns();
+
+		$this->static_screens['details']['lock_type'] = 'attributes';
 	}
 
 }//end class

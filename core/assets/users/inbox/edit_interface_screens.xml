@@ -2,12 +2,12 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screens.xml,v 1.4 2003/09/26 05:26:29 brobertson Exp $
+* $Id: edit_interface_screens.xml,v 1.5 2003/10/14 05:24:58 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
 <screens>
-	<screen code_name="mail" display_name="Inbox" icon="create" />
-	<screen code_name="trash" display_name="Trash" icon="create" />
+	<screen code_name="mail" display_name="Inbox" icon="create" lock_type="mail" />
+	<screen code_name="trash" display_name="Trash" icon="create" lock_type="mail" />
 </screens>
