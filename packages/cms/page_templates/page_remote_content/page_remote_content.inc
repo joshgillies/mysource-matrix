@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.5 2004/09/13 05:47:28 arailean Exp $
+* $Id: page_remote_content.inc,v 1.6 2004/09/13 23:12:12 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -314,7 +314,7 @@ REGEX;
 		$matches 	= Array();
 		$patterns 	= Array();
 
-		// PATTERNS that might need to be rewritten to point back to remote content
+		// PATTERNS for urls that might need to be rewritten to point back to remote content
 		// links and frames except mailto and javascript
 		$patterns[] = <<<REGEX
 /(<((?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src))\s*=\s*['\"]?)(?:\s)*((?:(?![\#]|mailto|javascript))[^'\"> ]+)(['\"\> ]?[^<]*\>)/i
