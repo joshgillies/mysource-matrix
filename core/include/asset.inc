@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.327.2.4 2004/11/11 02:17:52 gsherwood Exp $
+* $Id: asset.inc,v 1.327.2.4.2.1 2004/12/16 21:59:42 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1781,10 +1781,10 @@ class Asset extends MySource_Object
 	function setDate($date_type, $time=null, $userid=null)
 	{
 		if (!in_array($date_type, Array('published' ,'created'))) {
-			trigger_error('Only the published and created date can be modified', E_USER_WARNING);
+			trigger_error('Only the published and created dates can be manually modified', E_USER_WARNING);
 			return false;
 		}
-		
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		if (is_null($userid)) $userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -1797,6 +1797,36 @@ class Asset extends MySource_Object
 				$userid = null;
 			}
 		}
+		
+		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+
+		// construct a string to represent the current date value
+		if ($this->$date_type != null) {
+			$old_date_string = readable_datetime($this->$date_type);
+			$current_user = $date_type.'_userid';
+			if ($this->$current_user != null) {
+				$old_date_string .= ' by user #'.$this->$current_user;
+			} else {
+				$old_date_string .= ' by [unknown user]';
+			}
+		} else {
+			$old_date_string = 'never '.$date_type;
+		}
+
+		// construct a string to represent the new date value
+		if ($time != null) {
+			$new_date_string = readable_datetime($time);
+			if ($userid != null) {
+				$new_date_string .= ' by user #'.$userid;
+			} else {
+				$new_date_string .= ' by [unknown user]';
+			}
+		} else {
+			$new_date_string = 'never '.$date_type;
+		}
+
+		// if the date and user has not changed, dont process anything
+		if ($old_date_string == $new_date_string) return true;
 
 		$time_iso = ts_iso8601($time);
 
@@ -1816,6 +1846,12 @@ class Asset extends MySource_Object
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+		$message_body = 'The '.$date_type.' date of "'.$this->name.'" was successfully changed from "'.$old_date_string.'" to "'.$new_date_string.'"';
+		$message = $ms->newMessage(Array(), 'Asset Date Changed', $message_body, 'asset.dates');
+		$message->parameters['assetid'] = $this->id;
+		$message->send();
 
 		eval('$this->'.$date_type.' = $time;');
 		eval('$this->'.$date_type.'_userid = $userid;');
