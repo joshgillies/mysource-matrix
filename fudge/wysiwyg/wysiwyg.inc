@@ -501,40 +501,29 @@ class wysiwyg {
 
 					// now firstly remove any references to this pop-ups url
 					var current_location = document.location.toString();
-//alert(html);
+
 					// escape any special reg exp chars in the location
 					current_location = current_location.replace(/([.?+*^$\\\[\]\(\)\{\}|])/gi, '\\$1');
 					re = new RegExp(current_location, "gi");
 					html = html.replace(re, "");
-//alert(html);
+
 					// now replace any ampersands with '&amp;' as IE seems to some times for some reason (even in href's)
 					current_location = current_location.replace(/\&/gi, "&amp;");
 					re = new RegExp(current_location, "gi");
 					html = html.replace(re, "");
-//alert(html);
-					<?php
-						//$site_url  = str_replace('.', '\\\\.', $site->get_url());
-						//$site_href = str_replace('.', '\\\\.', $site->get_href());
-					?>
-					// replace every god-dam occurance of the full-urls
 
 					// links to assets in the backend 
 					e = 'http[s]?://<?php echo $_SERVER['HTTP_HOST'].$_SERVER["PHP_SELF"]?>?(\\?a=[0-9]+)';
-//alert(e);
+
 					re = new RegExp(e, "gi");
 					html = html.replace(re, "./$1");
-//alert(html);
+
 					// links to stuff in the backend directory
 					e = 'http[s]?://<?php echo $_SERVER['HTTP_HOST'].$_SERVER["PHP_SELF"]?>';
-//alert(e);
+
 					re = new RegExp(e, "gi");
 					html = html.replace(re, "");
 
-					// links to sites, pages or files in the frontend
-					//e = '\\.*((<?=$site_url?>)|(<?=$site_href?>))/?(\\?[spf]=[0-9]+)';
-					//re = new RegExp(e, "gi");
-					//html = html.replace(re, "./$4");
-//alert(html);
 					return html;
 				};
 
