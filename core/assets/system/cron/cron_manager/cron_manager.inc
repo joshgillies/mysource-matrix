@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.35 2004/12/15 05:28:14 gsherwood Exp $
+* $Id: cron_manager.inc,v 1.36 2005/02/03 14:55:29 gnoel Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.35 $
+* @version $Revision: 1.36 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -114,8 +114,8 @@ class Cron_Manager extends Asset
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
+		return Array(SQ_LINK_TYPE_1 => Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
+					 SQ_LINK_TYPE_2 => Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
 					 SQ_LINK_TYPE_3 => Array('cron_job' => Array('card' => 'M', 'exclusive' => true)),
 					 SQ_LINK_NOTICE => Array()
 					);
@@ -253,7 +253,7 @@ class Cron_Manager extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function addJob(&$job, &$user)
+	function addJob(&$job, &$user, $link_type=SQ_LINK_TYPE_3)
 	{
 		if (!is_a($job, 'cron_job')) {
 			trigger_error('"'.$job->type().'" is not an asset type that inherites from "cron_job"', E_USER_WARNING);
@@ -261,7 +261,7 @@ class Cron_Manager extends Asset
 		}
 
 		$job->setAttrValue('running_as', $user->id);
-		$link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_exclusive' => '1');
+		$link = Array('asset' => &$this, 'link_type' => $link_type, 'is_exclusive' => '1');
 		$sq_install = array_get_index($GLOBALS, 'SQ_INSTALL', false);
 		$GLOBALS['SQ_INSTALL'] = true;
 		$linkid = $job->create($link);
