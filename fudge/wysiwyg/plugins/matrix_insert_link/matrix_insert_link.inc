@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_link.inc,v 1.28 2004/12/10 00:33:06 dbaranovskiy Exp $
+* $Id: matrix_insert_link.inc,v 1.29 2004/12/10 00:48:44 dbaranovskiy Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once dirname(__FILE__).'/../../../../core/include/init.inc';
 *     a link in the editable document using an asset from MySoure Matrix
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.28 $
+* @version $Revision: 1.29 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -84,7 +84,12 @@ class matrix_insert_link extends wysiwyg_plugin
                 if (!current_a) return false;
 
                 var inside_html = current_a.innerHTML;
-                var text = this._doc.createTextNode(inside_html);
+                var text = this._doc.createDocumentFragment();
+                var div = this._doc.createElement("div");
+                div.innerHTML = inside_html;
+                while (div.firstChild) {
+                    text.appendChild(div.firstChild);
+                }
                 current_a.parentNode.replaceChild(text, current_a);
 
             }
