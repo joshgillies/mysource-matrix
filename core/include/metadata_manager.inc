@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.49.2.1 2004/11/04 02:39:34 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.49.2.2 2004/11/08 00:21:46 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -927,6 +927,24 @@ class Metadata_Manager extends MySource_Object
 		return $this->generateContentFile($assetid, true);
 
 	}//end regenerateMetadata()
+
+
+	/**
+	* Removes the metadata entries for the specified asset
+	*
+	* @param string	$assetid	the assetid of the asset to purge
+	*
+	* @return boolean
+	* @access public
+	*/
+	function purgeMetadata($assetid)
+	{
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$where_cond = 'assetid='.$db->quote($assetid);
+
+		return $GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_metadata', $where_cond);
+
+	}//end purgeMetadata()
 
 
 }//end class
