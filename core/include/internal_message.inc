@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.32 2004/06/07 02:16:17 gsherwood Exp $
+* $Id: internal_message.inc,v 1.33 2004/06/30 07:03:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -162,9 +162,9 @@ class Internal_Message extends MySource_Object
 		assert_not_empty(trim($this->body),    'Could not send internal message with empty body');
 
 		// lets work out what action should be conducted on this type of message
-		// ie. should it be sent to the flash, logged, mailed etc
+		// ie. should it logged, mailed etc
 		$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-		foreach (Array('show_in_flash', 'log_to_file', 'log_to_db', 'send_mail') as $main_type_code) {
+		foreach (Array('log_to_file', 'log_to_db', 'send_mail') as $main_type_code) {
 			if (!isset($ms->_tmp['message_type_logs'][$main_type_code][$this->type])) {
 				$def_name_w = 'SQ_MS_'.strtoupper($main_type_code).'_WHITE_LIST';
 				$def_name_b = 'SQ_MS_'.strtoupper($main_type_code).'_BLACK_LIST';
@@ -229,22 +229,6 @@ class Internal_Message extends MySource_Object
 
 		$param_string = '';
 		foreach ($this->parameters as $key => $value) $param_string .= "$key:$value;";
-
-
-		  ///////////////////////////
-		 // LOG MESSAGES TO FLASH //
-		///////////////////////////
-		if ($show_in_flash) {
-
-			// we require the file to use the message constants that are defined at the top
-			require_once(SQ_INCLUDE_PATH.'/backend_outputter.inc');
-
-			// add the message to the session so the backend outputter picks it up next time
-			// it prints the messages - we cant reply on the backend outputter being us
-			$log_body = preg_replace('|<SQ_MSG_LINK[^>]*?>(.*?)</SQ_MSG_LINK>|', '\\1', $this->body);
-			$_SESSION['backend_outputter_msgs'][] = Array('type' => SQ_BO_MSG_NOTICE, 'msg' => $log_body);
-
-		}//end if logging message to flash
 
 
 		  //////////////////////////////
