@@ -145,12 +145,10 @@ class Form_Question_Rule_Type_Email extends Form_Question_Rule
 		$operator = ($this->attr('operator')) ? 1 : 0;
 
 		$valid = valid_email($answer);
-		echo $operator. ' '. $valid;
+
 		if ($valid == $operator) {
-			echo 'here1';
 			return true;
 		} else {
-			echo 'here2';
 			$error = $question_name.' must '. (($operator) ? '' : 'not') .' be a valid Email Address';
 			$submission->setError($error);
 			return false;
