@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.1 2003/12/02 03:31:46 mmcintyre Exp $
+* $Id: bodycopy.inc,v 1.2 2003/12/12 02:17:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -349,11 +349,11 @@ class Bodycopy extends Asset
 		$contents = '';
 
 		ob_start();
-		foreach ($containers as $container) {
-			$edit = &$container->getEditFns();
-			$edit->paint($container);
-		}
-		$contents = ob_get_contents();
+			foreach ($containers as $container) {
+				$edit = &$container->getEditFns();
+				$edit->paint($container);
+			}
+			$contents = ob_get_contents();
 		ob_end_clean();
 
 		return $contents;
