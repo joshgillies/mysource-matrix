@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.240 2003/10/20 23:33:02 gsherwood Exp $
+* $Id: asset.inc,v 1.241 2003/10/21 06:22:32 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,19 +33,19 @@ class Asset extends MySource_Object
 	var $version = '';
 
 	/**
-	* String representation of this attribute
+	* String representation of this asset
 	* @var string
 	*/
 	var $name = '';
 
 	/**
-	* Short String representation of this attribute
+	* Short String representation of this asset
 	* @var string
 	*/
 	var $short_name = '';
 
 	/**
-	* Current status of the asset (live, under contrustion etc)
+	* Current status of the asset (live, under contruction etc)
 	* @var int
 	*/
 	var $status;
@@ -97,6 +97,12 @@ class Asset extends MySource_Object
 	* @var Array('var_name' => Array('attributeid' => $attributeid, 'value' = $value))
 	*/
 	var $vars = Array();
+
+	/** 
+	* The weightings for this asset's components
+	* @var Array($component => Array('default' => [true|false], 'weighting => $weighting))
+	*/
+	var $_weightings = null;
 
 	/**
 	* The suffix for the data path to be used for public, private, and file versioning
@@ -344,22 +350,7 @@ class Asset extends MySource_Object
 					$this->id = 0;
 					return false;
 				}
-			} else if ($new_link['dependant']) {
-				// the parent was locked before we created this asset and the new asset
-				// is dependantly linked, so make sure we have all the locks of our parent
-				$parent_lock_info = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'all');
-				foreach ($parent_lock_info as $lock_type => $lock_details) {
-					if (empty($lock_details)) continue;
-					if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, $lock_details['lock_type'], $lock_details['source_assetid'])) {
-						$ms->abortLog();
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($this);
-						$this->id = 0;
-						return false;
-					}
-				}
 			}
-
 			if (!$new_link['dependant']) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'links')) {
 					$ms->abortLog();
@@ -499,7 +490,7 @@ class Asset extends MySource_Object
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 			// PURPOSLY DONT ADD EXTRA CLAUSES FOR ASSET_ATTRIBUTE_VALUE BECAUSE WE WONT GET
 			// DEFAULT VALUES IF WE DO
-			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value, atr.weighting
+			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a
 							INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute atr ON a.type_code = atr.type_code
 							LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v
@@ -1654,6 +1645,7 @@ class Asset extends MySource_Object
 					'workflow'		=> 16,
 					'metadata'		=> 32,
 					'lookups'		=> 64,
+					'weights'		=> 128,
 				);
 
 	}//end lockTypes()
@@ -2383,22 +2375,20 @@ class Asset extends MySource_Object
 				if (empty($lock) || $lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserId()) return false;
 			}
 
-			if (!$GLOBALS['SQ_PURGING_TRASH']) {
-				// if we are in workflow no editing allowed
-				// except by those users who can currently approve the asset
-				if ($this->status & SQ_SC_STATUS_PENDING) {
-					if ($perm < SQ_PERMISSION_ADMIN) {
-						$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
-						$publishers = $wfm->whoCanPublish($this->id);
-						if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) return true;
-						if (empty($publishers)) {
-							// nobody can publish - great
-							// better let admins take a punt
-							return $this->adminAccess($lock_type);
-						}
+			// if we are in workflow no editing allowed
+			// except by those users who can currently approve the asset
+			if ($this->status & SQ_SC_STATUS_PENDING) {
+				if ($perm < SQ_PERMISSION_ADMIN) {
+					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+					$publishers = $wfm->whoCanPublish($this->id);
+					if (in_array($GLOBALS['SQ_SYSTEM']->currentUserId(), $publishers)) return true;
+					if (empty($publishers)) {
+						// nobody can publish - great
+						// better let admins take a punt
+						return $this->adminAccess($lock_type);
 					}
-					return false;
 				}
+				return false;
 			}
 
 			// if we are in a state of total approval no editing allowed
@@ -3059,8 +3049,26 @@ class Asset extends MySource_Object
 	*/
 	function &getKeyData($component = false) 
 	{
-		return array();
-	}
+		bom("{$this->id} {$this->name} getKeyData");
+		// supply metadata
+		$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+		$schemaids = $mm->getSchemas($this->id, 1); 
+
+		$keyData = $mm->getMetadataKeyData($this->id, $schemaids);
+
+		$weightings = $this->getWeightings();
+		bom($weightings);
+		// supply name
+		if (!$component || $component == 'name') {
+			$value = $this->name;
+			foreach (get_word_counts($value) as $word => $count) {
+				$this->buildKeyData($keyData, $word, 'text', "name", $count * $weightings['name']['weighting']);
+			}
+		}
+
+		bom($keyData);
+		return $keyData;
+	} // end getKeyData()
 
 	/**
 	* Informs the indexing service that this asset's contents have changed, and 
@@ -3071,13 +3079,47 @@ class Asset extends MySource_Object
 	*/
 	function informChanges()
 	{
+		bom("informChanges {$this->id}");
 		if (!SQ_CONF_INDEXING_ENABLED)
 			return;
 
 		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
 		$im->changed($this->id);
-	}
+	} // end informChanges()
 
+	/** 
+	* Saves component weightings to the database.
+	*
+	* @access public
+	* @return void
+	*/
+	function saveComponentWeightings($newWeightings)
+	{
+		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
+		$dirty = false;
+		$weightings =& $this->getWeightings();
+
+		foreach ($newWeightings as $component => $weightingData) {
+			if ($weightingData['default']) {
+				$weighting = null;
+				if (!$weightings[$component]['default'])
+					$dirty = true;
+			} else {
+				$weighting = $weightingData['weighting'];
+				$weightings[$component]['default'] = $weightingData['default'];
+
+				if (!$dirty)
+					$weightings[$component]['weighting'] = $weighting;
+			}
+			$im->setComponentWeighting($this->id, $component, $weighting);
+		}
+
+		if ($dirty) {
+			// need to reload weightings for defaults - next call to getWeightings will do this
+			unset($this->_weightings);
+			$this->_weightings = null;
+		}
+	} // end saveComponentWeightings()
 
 	/**
 	* Adds a piece of keydata to the array to be passed to the indexing service.
@@ -3106,7 +3148,42 @@ class Asset extends MySource_Object
 		));
 
 		return true;
-	}
+	} // end buildKeyData()
+
+	/** 
+	* Retrieves weightings for this asset and its components - loads on demand.
+	* 
+	* @access public
+	*/
+	function &getWeightings()
+	{
+		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		if (is_null($this->_weightings)) {
+			// load the weightings
+			$sql = 'SELECT wd.component, wd.description, (w.weighting IS NULL) as default, COALESCE(w.weighting, wd.weighting) as weighting
+					FROM 
+						'. SQ_TABLE_PREFIX .'asset_indexing_weightings_default wd 
+							LEFT OUTER JOIN '. SQ_TABLE_PREFIX. 'asset a 
+								ON wd.type_code = a.type_code
+							LEFT OUTER JOIN '.SQ_TABLE_PREFIX .'asset_indexing_weightings w 
+								ON w.component = wd.component AND 
+								a.assetid = w.assetid
+					WHERE
+						a.assetid = ' . $db->quote($this->id) ;
+			$results = $db->getAll($sql);
+
+			$this->_weightings = Array();
+			foreach ($results as $result) {
+				$this->_weightings[$result['component']] = 
+					Array(
+						'default' => ($result['default'] == 't')?1:0, 
+						'weighting' => $result['weighting'], 
+						'description' => $result['description'],
+					);
+			}
+		}
+		return $this->_weightings;
+	} // end getWeightings()
 
 }//end class
 
