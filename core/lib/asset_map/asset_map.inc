@@ -538,11 +538,25 @@ class Asset_Map
 					return;
 				}
 
-				if (($err_msg = $parent->canLinkToType($attr['type_code'], SQ_LINK_TYPE_1)) !== true) {
-					$this->_error($err_msg);
+				$use_link_type = 0;
+				$error_message = '';
+				$link_types = Array(SQ_LINK_TYPE_1, SQ_LINK_TYPE_2);
+				foreach ($link_types as $link_type) {
+					if (($error_message = $parent->canLinkToType($attr['type_code'], $link_type)) === true) {
+						// use this type
+						$use_link_type = $link_type;
+						break;
+					}
+				}
+
+				if (!$use_link_type) {
+					$this->_error($error_message);
 					return;
-				} else if (!$parent->writeAccess(Array(), false)) {
+				}
+
+				if (!$parent->writeAccess(Array(), false)) {
 					$this->_error('Cannot create link, permission denied');
+					return;
 				}
 
 				// if we get this far then it's all good
@@ -550,7 +564,7 @@ class Asset_Map
 						.'&backend_section=am'
 						.'&am_section=add_asset'
 						.'&type_code='.rawurlencode($attr['type_code'])
-						.'&link_type='.rawurlencode(SQ_LINK_TYPE_1)
+						.'&link_type='.rawurlencode($use_link_type)
 						.'&parent_assetid='.rawurlencode($attr['parent_assetid'])
 						.'&pos='.rawurlencode($attr['pos']);
 				$frame = 'main';
