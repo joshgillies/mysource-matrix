@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_select_limit.inc,v 1.5 2004/07/07 01:05:29 lwright Exp $
+* $Id: form_question_rule_type_select_limit.inc,v 1.5.4.1 2005/02/22 05:08:26 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -210,7 +210,16 @@ class Form_Question_Rule_Type_Select_Limit extends Form_Question_Rule
 	{
 		$code = '';
 
-		$q_id = $q_asset->id . ($q_asset->attr('multiple') ? '[]' : '');
+		if (is_a($q_asset, 'form_question_type_select')) {
+			// selection list or derivative - check multiple attribute
+			$q_id = $q_asset->id . ($q_asset->attr('multiple') ? '[]' : '');
+		} else if (is_a($q_asset, 'form_question_type_option_list')) {
+			// option list - always single (*sniff* :`-( )
+			$q_id = $q_asset->id;	
+		} else {
+			// tickbox list - always multiple
+			$q_id = $q_asset->id.'[]';
+		}
 
 		$code .= 'var select = document.getElementById("'.$q_id.'"); ';
 
