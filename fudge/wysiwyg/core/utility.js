@@ -84,6 +84,23 @@ HTMLArea.prototype._createTextRange = function(sel) {
 };
 
 
+// make the selection the current element and its children
+HTMLArea.prototype._selectElement = function (element) {
+	if (document.selection) {
+		var range = document.body.createTextRange();
+		range.moveToElementText(element);
+		range.select();
+	} else if (window.getSelection) {
+		var range = this._createRange();
+		range.selectNode(element);
+		var selection = this._getSelection();
+		selection.removeAllRanges();
+		selection.addRange(range);
+	}
+};
+
+
+
 // event handling
 
 HTMLArea._addEvent = function(el, evname, func) {

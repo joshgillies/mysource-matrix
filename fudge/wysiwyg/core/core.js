@@ -187,11 +187,10 @@ HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
 		var sel = this._getSelection();
 		var range = this._createRange(sel);
 		// remove the current selection
-		//sel.removeAllRanges();
 		range.deleteContents();
 		var node = range.startContainer;
 		var pos = range.startOffset;
-		range = this._createRange();
+		//range = this._createRange();
 		switch (node.nodeType) {
 			case 3: // Node.TEXT_NODE
 				// we have to split it at the caret position.
@@ -208,10 +207,11 @@ HTMLArea.prototype.insertNodeAtSelection = function(toBeInserted) {
 				}
 			break;
 			case 1: // Node.ELEMENT_NODE
-				if (node.childNodes[pos]) { node = node.childNodes[pos]; }
-				node.parentNode.insertBefore(toBeInserted, node);
-				range.setStart(node, 0);
-				range.setEnd(node, 0);
+				range.insertNode(toBeInserted);
+				//if (node.childNodes[pos]) { node = node.childNodes[pos]; }
+				//node.parentNode.insertBefore(toBeInserted, node);
+				//range.setStart(node, 0);
+				//range.setEnd(node, 0);
 			break;
 		}
 		sel.addRange(range);
@@ -299,7 +299,6 @@ HTMLArea.prototype.getSelectedHTML = function() {
 // gets called before the form is submitted
 HTMLArea.prototype._formSubmit = function(ev) {
 	// retrieve the HTML
-	alert('submit');
 	this._textArea.value = this.getHTML();
 };
 

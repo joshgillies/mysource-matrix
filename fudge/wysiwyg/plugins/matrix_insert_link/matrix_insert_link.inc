@@ -69,16 +69,13 @@ class matrix_insert_link extends wysiwyg_plugin {
 
 				var sel = this._getSelection();
 				var range = this._createRange(sel);
-//alert(sel.anchorNode.childNodes[0].tagName);
+
 				// OK, so they have a control object selected, let's try and make it a text selection
 				if (sel.type && sel.type.toLowerCase() == "control") {
 					var control_range = this._createRange(sel);
 					var text_range = this._createTextRange(sel);
-					alert(HTMLArea.getHTML(control_range.cloneContents()));
-					alert(HTMLArea.getHTML(text_range.cloneContents()));
 					if (text_range != null) {
-						text_range.moveToElementText(control_range(0));
-						text_range.select();
+						editor._selectElement(control_range(0));
 					} else {
 						alert("You need to select this object as though it was text, rather than just clicking on it.");
 						sel.empty();
@@ -107,9 +104,11 @@ class matrix_insert_link extends wysiwyg_plugin {
 					if (el.parentNode && el.parentNode.nodeName == "A") {
 						el = el.parentNode;
 					} else if (sel.anchorNode.nodeName == "A") {
-						alert("You need to select this object as though it was text, rather than just clicking on it.");
-						return;
-						//el = sel.anchorNode;
+						editor._selectElement(sel.anchorNode);
+						sel = this._getSelection();
+						range = this._createRange(sel);
+						el = range.cloneContents().childNodes[0];
+//el = sel.anchorNode;
 					}
 				}// end if
 
@@ -121,8 +120,8 @@ class matrix_insert_link extends wysiwyg_plugin {
 
 				// Is this aready a link?
 				if (el && el.nodeName == "A") {
-					//range.moveToElementText(el);
-					//range.select();
+//range.moveToElementText(el);
+//range.select();
 
 					currArgs["url"] = el.href;
 
