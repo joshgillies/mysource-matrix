@@ -87,7 +87,7 @@ table#month { border: 2px solid purple; background-color: #eeeeee; border-collap
 #month td.eventDate a.dateLink, #month td.eventDate a.dateLink:visited, #month td.eventDate a.dateLink:hover { color: white; font-weight: bold; text-decoration: none; } 
 
 /* Linked event names in cells (root-node-specific classes will also apply) */
-#month .event, #month a.event:visited, #month a.event:hover { display: block; font-size: 85%; font-weight: bold; text-decoration: none; }
+#month .event, #month a.event:visited, #month a.event:hover { font-size: 85%; font-weight: bold; text-decoration: none; }
 
 
 
