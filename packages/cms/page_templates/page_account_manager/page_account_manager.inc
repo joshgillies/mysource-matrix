@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.3 2003/12/08 03:08:19 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.4 2003/12/08 03:45:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -282,7 +282,7 @@ class Page_Account_Manager extends Page
 		}//end if ACCOUNT_MANAGER_ACTION
 
 
-		if (!is_null($current_user)) {
+		if (!is_null($current_user) && !SQ_IN_BACKEND) {
 
 			// this person is logged in - so redirect them to limbo where they can edit their details
 			$redirect_url = strip_url(current_url()).'/'.SQ_CONF_LIMBO_SUFFIX.'/?ignore_frames=1';
