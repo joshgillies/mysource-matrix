@@ -34,7 +34,7 @@ mcListItemPlusMinusClass.prototype.setState = function(state)
 			this.gotoAndStop(state);
 		break;
 		default :
-			trace("ERROR: State '" + state + "' unknown for mcListItemPlusMinus");
+//			trace("ERROR: State '" + state + "' unknown for mcListItemPlusMinus");
 	}	
 }
 

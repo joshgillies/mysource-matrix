@@ -129,13 +129,13 @@ mcListContainerClass.prototype.showActionsBar = function()
 */
 mcListContainerClass.prototype.actionsBarPressed = function(action) 
 {
-	trace("Actions Bar Pressed : " + action);
+//	trace("Actions Bar Pressed : " + action);
 
 	// are we in asset finder mode ?
 	if (this._parent.finding_asset) {
-		trace("Finding Asset");
+//		trace("Finding Asset");
 		if (action == 'use_me') {
-			trace("finish asset finder");
+//			trace("finish asset finder");
 			this._parent.finishAssetFinder(this.list.selected_item.assetid);
 		}
 	} else {
@@ -177,7 +177,7 @@ mcListContainerClass.prototype.onMenuItemPress = function(action, info)
 
 	switch(action) {
 		case "add" :
-			trace("Add " + info);
+//			trace("Add " + info);
 			if (this.move_indicator.startIndicator(this, "processAddAsset")) {
 				this.action = "add_asset";
 				this.tmp.exec_action = {type_code: info};
@@ -202,7 +202,7 @@ mcListContainerClass.prototype.onMenuItemPress = function(action, info)
 */
 mcListContainerClass.prototype.processAddAsset = function(parent_item_name, parent_assetid, relative_pos) 
 {
-	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to under parent : " + parent_assetid + " at pos " + relative_pos);
+//	trace("Add an asset of type '" + this.tmp.exec_action.type_code + "' to under parent : " + parent_assetid + " at pos " + relative_pos);
 
 	var xml = new XML();
 	var cmd_elem = xml.createElement("command");
@@ -213,7 +213,7 @@ mcListContainerClass.prototype.processAddAsset = function(parent_item_name, pare
 	cmd_elem.attributes.pos            = relative_pos;
 	xml.appendChild(cmd_elem);
 
-	trace(xml);
+//	trace(xml);
 
 	// start the loading process
 	var exec_identifier = _root.server_exec.init_exec(xml, this, "xmlGotoUrl", "url");
@@ -236,7 +236,7 @@ mcListContainerClass.prototype.xmlGotoUrl = function(xml, exec_identifier)
 	var frame = xml.firstChild.attributes.frame;
 	var link  = xml.firstChild.firstChild.nodeValue;
 
-	trace("getURL(" + link + ", " + frame + ");");
+//	trace("getURL(" + link + ", " + frame + ");");
 	getURL(link, frame);
 
 }// end xmlGotoUrl()
@@ -250,7 +250,7 @@ mcListContainerClass.prototype.xmlGotoUrl = function(xml, exec_identifier)
 */
 mcListContainerClass.prototype.startAssetFinder = function(type_codes) 
 {
-	trace("List Container : " + type_codes);
+//	trace("List Container : " + type_codes);
 	this.list.restrictActiveTypes(type_codes);
 }// end startAssetFinder()
 

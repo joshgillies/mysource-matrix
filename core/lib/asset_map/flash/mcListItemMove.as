@@ -41,7 +41,7 @@ mcListItemMoveClass.prototype.setState = function(state)
 			this.gotoAndStop(state);
 		break;
 		default :
-			trace("ERROR: State '" + state + "' unknown for mcListItemMove");
+//			trace("ERROR: State '" + state + "' unknown for mcListItemMove");
 	}	
 }
 

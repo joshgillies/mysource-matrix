@@ -193,7 +193,7 @@ mcActionsBarClass.prototype.onRelease = function()
 {
 	// if there is a button highlighted, use it
 	if (this.current_button !== null && this[this.current_button].code_name != '') {
-		trace("Action : " + this[this.current_button].code_name);
+//		trace("Action : " + this[this.current_button].code_name);
 		this._parent.actionsBarPressed(this[this.current_button].code_name);
 	}
 

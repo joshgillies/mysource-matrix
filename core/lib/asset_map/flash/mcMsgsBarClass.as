@@ -125,7 +125,7 @@ mcMsgsBarClass.prototype.onExternalCall = function(cmd, params)
 		case "add_message" :
 			if (params.msgs_xml == null || params.msgs_xml.length <= 0) return;
 			var xml  = new XML(params.msgs_xml);
-			trace(xml);
+//			trace(xml);
 			// something buggered up with the connection
 			if (xml.status != 0) {
 				_root.dialog_box.show("XML Error, unable to print messages", "XML Status '" + xml.status + "'\nPlease Try Again");

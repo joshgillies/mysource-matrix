@@ -171,14 +171,14 @@ mcTabContentAreaTreeClass.prototype.onExternalCall = function(cmd, params)
 */
 mcTabContentAreaTreeClass.prototype.startAssetFinder = function(type_codes) 
 {
-	trace("START ASSET FINDER : " + type_codes);
-	trace("UNDEFINED : " (this.asset_finder_heading == undefined));
+//	trace("START ASSET FINDER : " + type_codes);
+//	trace("UNDEFINED : " (this.asset_finder_heading == undefined));
 
 	this.finding_asset = true;
 
 	// if we haven't created the heading before do so now
 	if (this.asset_finder_heading == undefined) {
-		trace('Attach');
+//		trace('Attach');
 		this.attachMovie("mcAssetFinderHeadingID", "asset_finder_heading", 5);
 		this.asset_finder_heading._x = 0;
 		this.asset_finder_heading._y = 0 - this.asset_finder_heading._height;
@@ -188,7 +188,7 @@ mcTabContentAreaTreeClass.prototype.startAssetFinder = function(type_codes)
 	this.asset_finder_heading._visible = true;
 
 	this.menu_container._visible = false;
-	trace("SET START ASSET FINDER");
+//	trace("SET START ASSET FINDER");
 	this.list_container.startAssetFinder(type_codes);
 }// end startAssetFinder()
 
@@ -230,7 +230,7 @@ mcTabContentAreaTreeClass.prototype.cancelAssetFinder = function()
 mcTabContentAreaTreeClass.prototype.finishAssetFinder = function(assetid) 
 {
 	this.stopAssetFinder();
-	trace("Asset Finder Select's Assetid : " + assetid);
+//	trace("Asset Finder Select's Assetid : " + assetid);
 	_root.external_call.makeExternalCall('asset_finder_done', {assetid: assetid, label: _root.asset_manager.assets[assetid].name});
 
 }// end finishAssetFinder()

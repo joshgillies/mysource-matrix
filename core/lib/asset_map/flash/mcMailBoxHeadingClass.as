@@ -48,7 +48,7 @@ mcMailBoxHeadingClass.prototype.setWidth = function(w)
 */
 mcMailBoxHeadingClass.prototype.onPress = function(w)
 {
-	trace("getURL(" + _root.inbox_path + ", " + _root.url_frame + ");");
+//	trace("getURL(" + _root.inbox_path + ", " + _root.url_frame + ");");
 	getURL(_root.inbox_path, _root.url_frame);
 }// setWidth()
 

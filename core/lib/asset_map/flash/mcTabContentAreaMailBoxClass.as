@@ -19,7 +19,7 @@ function mcTabContentAreaMailBoxClass()
 	this.sub_header.back._width = this._width;
 	
 	this.sub_header.onRelease = function() {
-		trace ('noo');
+//		trace ('noo');
 		getURL(_root.inbox_path, _root.url_frame);
 	};
 

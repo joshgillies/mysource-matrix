@@ -36,6 +36,7 @@ function mcListItemClass()
 	// set the text field up
 	this.text_field.text = "";
 	this.text_field.autoSize = "left";
+	this.text_field._highquality = 2;
 
 	// selected and normal text formats
 	this.normalTextFormat = new TextFormat();
@@ -329,6 +330,8 @@ mcListItemClass.prototype.refresh = function()
 	
 	nextX = Math.max (nextX, 20);
 	this.text_field._x = nextX;
+	this.text_field._y = 0;
+	this.text_field._y = ( this._height - this.text_field._height ) / 2;
 
 //	this.kids_button._y = (this._height - this.kids_button._y) / 2;
 //	this.move_button._y = (this._height - this.move_button._y) / 2;

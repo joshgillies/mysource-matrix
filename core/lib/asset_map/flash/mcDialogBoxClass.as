@@ -121,7 +121,7 @@ mcDialogBoxClass.prototype.show = function(heading, summary, call_back_obj, call
 */
 mcDialogBoxClass.prototype.onScroll = function()
 {
-	trace (this + "::mcDialogBoxClass.onScroll()  " + this.summary_scroll.getScrollPosition());
+//	trace (this + "::mcDialogBoxClass.onScroll()  " + this.summary_scroll.getScrollPosition());
 	this.summary_text.scroll = this.summary_scroll.getScrollPosition();
 }
 

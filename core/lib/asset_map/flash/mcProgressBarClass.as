@@ -91,8 +91,8 @@ mcProgressBarClass.prototype.hide = function(id)
 */
 mcProgressBarClass.prototype.setText = function() 
 {
-	trace ("settext called");
-	trace(this.order);
+//	trace ("settext called");
+//	trace(this.order);
 
 	var first = true;
 	var order = this.order.clone();

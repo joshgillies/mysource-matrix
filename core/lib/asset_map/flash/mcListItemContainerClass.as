@@ -419,7 +419,7 @@ mcListItemContainerClass.prototype.refreshDisplay = function(start_i)
 		} else {
 			active = false;
 		}
-		trace(item + ": " + active);
+//		trace(item + ": " + active);
 		item.setActive(active);
 
 		item._visible = true;
@@ -453,7 +453,7 @@ mcListItemContainerClass.prototype.refreshDisplay = function(start_i)
 */
 mcListItemContainerClass.prototype.restrictActiveTypes = function(type_codes)
 {
-	trace("Restrict Active Types : " + type_codes);
+//	trace("Restrict Active Types : " + type_codes);
 	this._active_type_codes = type_codes;
 
 	for(var i = 0; i < this.items_order.length; i++) {
@@ -465,7 +465,7 @@ mcListItemContainerClass.prototype.restrictActiveTypes = function(type_codes)
 		} else if (this._active_type_codes.search(item.type_code) !== null) {
 			active = true;
 		}
-		trace(item.name + " : " + (this._active_type_codes.length == 0) + " || " + (this._active_type_codes.search(item.type_code) !== null));
+//		trace(item.name + " : " + (this._active_type_codes.length == 0) + " || " + (this._active_type_codes.search(item.type_code) !== null));
 		item.setActive(active);
 	}// end for
 

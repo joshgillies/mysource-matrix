@@ -162,7 +162,7 @@ mcMailBoxMessageClass.prototype.getFromColumnWidth = function() {
 */
 mcMailBoxMessageClass.prototype.onRelease = function()
 {
-	trace("MAIL Message Released : " + this.subject);
+//	trace("MAIL Message Released : " + this.subject);
 
 	var str = "From : " + this.from + "\n"
 			+ "Date : " + this.sent + "\n\n"

@@ -56,7 +56,7 @@ mcAssetFinderHeadingClass.prototype = new NestedMouseMovieClip(true, NestedMouse
 mcAssetFinderHeadingClass.prototype.setWidth = function(w)
 {
 //	set_background_box(this, w, 20, 0x000000, 50);
-	trace("Cancel Width : " + this.cancel._width);
+//	trace("Cancel Width : " + this.cancel._width);
 	this.cancel._x = w - this.cancel._width;
 	this.back._width = w;
 }// setWidth()

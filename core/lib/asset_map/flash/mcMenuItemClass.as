@@ -95,6 +95,9 @@ mcMenuItemClass.prototype.create = function(container, label, iconID, value, act
 	// icon
 	if (iconID != null) {
 		this.attachMovie(iconID, '_icon', 2);
+		if (typeof this._icon != "movieclip") {
+			this.attachMovie("mc_asset_type_default_icon", '_icon', 2);
+		}
 	} else {
 		this._icon = null;
 	}
@@ -164,6 +167,7 @@ mcMenuItemClass.prototype._initTextField = function(label)
 	this._textBox.setNewTextFormat(this._baseTextFormat);
 	this._textBox.autoSize = 'left';
 	this._textBox.text = label;
+	this._textBox._highquality = 2;
 }
 
 mcMenuItemClass.prototype._refresh = function() 

@@ -53,8 +53,8 @@ mcToolBarClass.prototype.refresh = function() {
 	for (var i = 0; i < this.icons.length; ++i) {
 		xpos += hpadding;
 		var icon = this.icons[i];
-		trace(icon + ": " + icon._width);
-		trace ("xpos: " + xpos);
+//		trace(icon + ": " + icon._width);
+//		trace ("xpos: " + xpos);
 		icon._x = xpos;
 		icon._y = (this._height + 2 * vpadding - icon._height) / 2;
 		xpos += icon._width;
