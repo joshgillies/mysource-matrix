@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: form_submission.inc,v 1.11 2003/09/28 23:00:06 mmcintyre Exp $
+* $Id: form_submission.inc,v 1.12 2003/10/13 05:24:02 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -309,6 +309,27 @@ class Form_Submission extends Asset
 		return false;
 
 	} // end isProcessed()
+
+
+	/**
+	* Save attributes set with setAttrValue to the database
+	*
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
+	* @access public
+	* @see asset::setAttrValue()
+	*/
+	function saveAttributes($dont_run_updated=false)
+	{
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'attributes')) return false;
+		$val = parent::saveAttributes($dont_run_updated);
+		$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'attributes');
+
+		return $val;
+	
+	}// end saveAttributes()
 
 } // end class
 ?>
