@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.11 2004/12/06 14:43:14 brobertson Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.12 2005/01/16 22:00:13 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.11 $
+* @version $Revision: 1.12 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
@@ -67,6 +67,11 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 															'name'			=> 'Linking',
 															'force_unlock'	=> true,
 															'lock_type'		=> 'links',
+																),
+										'settings'		=> Array(
+														'name'			=> 'Settings',
+														'force_unlock'	=> true,
+														'lock_type'		=> 'all',
 																),
 										'history'		=> Array(
 															'name'			=> 'History',
