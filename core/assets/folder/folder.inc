@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: folder.inc,v 1.32 2004/06/02 00:25:47 gsherwood Exp $
+* $Id: folder.inc,v 1.33 2004/06/02 17:30:36 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -78,9 +78,9 @@ class Folder extends Asset
 		}
 
 		// set a web path if we are linking this folder somewhere
-		// NOTE: the only time we wont want to do this is if we are creating
+		// NOTE: the main time we wont want to do this is if we are creating
 		// the root folder as it is not linked anywhere
-		if (isset($link['asset'])) {
+		if (!empty($link)) {
 			// set an initial web path
 			$initial_path = strtolower($name);
 			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
