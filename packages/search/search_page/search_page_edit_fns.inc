@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.43 2005/03/11 04:30:36 gsherwood Exp $
+* $Id: search_page_edit_fns.inc,v 1.44 2005/03/24 03:04:29 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.43 $
+* @version $Revision: 1.44 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -234,12 +234,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$fields = $asset->attr('fields');
 
 		$query_types = Array(
-			'include_all'  => 'Include all',
-			'exclude'      => 'Exclude',
-			'asset_attrib' => 'Asset attribute',
-			'asset_date'   => 'Asset date',
-			'metadata'     => 'Metadata'
-		);
+							 'include_all'  => 'Include all',
+							 'exclude'      => 'Exclude',
+							 'asset_attrib' => 'Asset attribute',
+							 'asset_date'   => 'Asset date',
+							 'metadata'     => 'Metadata',
+							 );
 
 		$i = 0;
 
@@ -352,7 +352,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 									$type_attrs[$attr_id] = $attr_name;
 								}
 								combo_box($prefix.'_fields['.$i.'][params][attrid]', $type_attrs, false, $selected_attr);
-							} elseif ($selected_attr != '') {
+							} else if ($selected_attr != '') {
 								echo $asset_type_attrs[$selected_attr];
 							}
 						}
@@ -409,11 +409,13 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					<td class="sq-backend-data">
 						<?php
 						if (!isset($field_data['params'])) $field_data['params'] = Array();
-						$date_types = Array(''          => '-- select date --',
+						$date_types = Array(
+											''          => '-- select date --',
 											'created'   => 'Created',
 											'updated'   => 'Updated',
 											'published' => 'Published',
 											);
+
 						$date_type = array_get_index($field_data['params'], 'date_type', '');
 
 						if ($write_access) {
@@ -548,7 +550,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$fields = Array();
 		if (!empty($fields_post)) {
 			foreach ($fields_post as $i => $field_data) {
-				
+
 				$field_data['name'] = str_replace(' ','_',$field_data['name']);
 
 				if (isset($deleted_fields[$i])) continue;          // remove deleted fields
@@ -563,7 +565,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					}
 					$field_data['params'] = Array('assetid' => $fieldid);
 				}
-				$fields[$field_data['name']] = $field_data;	
+				$fields[$field_data['name']] = $field_data;
 			}
 		}
 
@@ -918,9 +920,6 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	}//end processCustomiseCategory()
 
 
-
-
-
 	/**
 	* Paints the interface to customise the search forms
 	*
@@ -989,9 +988,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$format_folder = &$asset->getFormatFolder();
 
 		$forms = Array(
-			'Default Search'   => 'search_form',
-			'Search In Search' => 'sis_form'
-		);
+					   'Default Search'   => 'search_form',
+					   'Search In Search' => 'sis_form',
+					   );
 
 		$bodycopies_visible = false;
 
@@ -1167,12 +1166,12 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$options = parent::_getSortByOptions($asset);
 		$options[''] = 'Relevance';
 		return $options;
-		
+
 	}//end _getSortByOptions()
-	
-	
+
+
 	/**
-	* Return true if the thesaurus asset type is installed	
+	* Return true if the thesaurus asset type is installed
 	*
 	* @param object Asset        $asset  the asset whose interface we are painting
 	* @param string                        $prefix        the prefix for this asset
@@ -1183,10 +1182,10 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 	function thesaurusInstalled(&$asset, $prefix)
 	{
 		return $GLOBALS['SQ_SYSTEM']->am->installed('thesaurus');
-		
+
 	}//end thesaurusInstalled()
-	
-	
+
+
 }//end class
 
 ?>

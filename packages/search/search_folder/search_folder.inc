@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder.inc,v 1.13 2005/03/18 06:05:54 arailean Exp $
+* $Id: search_folder.inc,v 1.14 2005/03/24 03:04:29 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $
+* @version $Revision: 1.14 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -122,7 +122,7 @@ class Search_Folder extends Asset
 			$links = Array();
 			$settings = $this->attr('settings');
 
-			$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+			$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
 			$search_info['limit'] = 100;
 			$search_info['assetid'] = $this->id;
@@ -135,7 +135,7 @@ class Search_Folder extends Asset
 
 				// handle new search manager 'inherited types' rules
 				$type_code = array_flip($type_code);
-				foreach($type_code as $this_type_code => $value) {
+				foreach ($type_code as $this_type_code => $value) {
 					$type_code[$this_type_code] = true;
 				}
 				$search_info['search_types'] = $type_code;
@@ -165,15 +165,15 @@ class Search_Folder extends Asset
 			$sort_order = 0;
 			foreach ($asset_info as $assetid => $info) {
 				$links[] = Array(
-								'linkid'          => 0,
-								'minorid'         => $assetid,
-								'value'           => '',
-								'link_type'    	  => SQ_LINK_TYPE_1,
-								'minor_type_code' => $info['type_code'],
-								'sort_order'      => $sort_order,
-								'is_dependant'    => '0',
-								'is_exclusive'    => '0',
-							);
+								 'linkid'          => 0,
+								 'minorid'         => $assetid,
+								 'value'           => '',
+								 'link_type'       => SQ_LINK_TYPE_1,
+								 'minor_type_code' => $info['type_code'],
+								 'sort_order'      => $sort_order,
+								 'is_dependant'    => '0',
+								 'is_exclusive'    => '0',
+							     );
 
 				$sort_order++;
 			}
@@ -200,7 +200,7 @@ class Search_Folder extends Asset
 			$links = Array();
 			$settings = $this->attr('settings');
 
-			$sm = $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
+			$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 			$search_info = Array();
 			$search_info['limit'] = 100;
 			$search_info['logic'] = (isset($settings['logic'])) ? strtoupper($settings['logic']) : 'AND';
@@ -229,19 +229,19 @@ class Search_Folder extends Asset
 			$sort_order = 0;
 			foreach ($asset_info as $assetid => $info) {
 				$links[] = Array(
-								'assetid'    => $assetid,
-								'short_name' => $info['short_name'],
-								'name'       => $info['name'],
-								'accessible' => 1,
-								'type_code'  => $info['type_code'],
-								'status'     => $info['status'],
-								'linkid'     => '0',
-								'link_type'  => SQ_LINK_TYPE_1,
-								'num_kids'   => 0,
-								'sort_order' => $sort_order,
-								'url'        => '',
-								'path'       => '',
-							);
+								 'assetid'    => $assetid,
+								 'short_name' => $info['short_name'],
+								 'name'       => $info['name'],
+								 'accessible' => 1,
+								 'type_code'  => $info['type_code'],
+								 'status'     => $info['status'],
+								 'linkid'     => '0',
+								 'link_type'  => SQ_LINK_TYPE_1,
+								 'num_kids'   => 0,
+								 'sort_order' => $sort_order,
+								 'url'        => '',
+								 'path'       => '',
+							     );
 
 				$sort_order++;
 			}

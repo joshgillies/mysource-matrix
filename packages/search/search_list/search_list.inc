@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list.inc,v 1.5 2005/01/20 23:04:43 gsherwood Exp $
+* $Id: search_list.inc,v 1.6 2005/03/24 03:04:29 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_PACKAGES_PATH.'/cms/page_templates/page_asset_listing/page_asset
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -209,12 +209,13 @@ class Search_List extends Page_Asset_Listing
 	function _printAsset($word, $type_code, $list_position)
 	{
 		$format = $this->attr('default_format');
-		$keywords = Array('search_term' => '<a href="'.$this->_tmp['search_url'].$word.'">'.$word.'</a>',
-						  'number_of_occurrences' => $this->_tmp['search_terms'][$word]['num_values']
-						 );
+		$keywords = Array(
+						  'search_term'           => '<a href="'.$this->_tmp['search_url'].$word.'">'.$word.'</a>',
+						  'number_of_occurrences' => $this->_tmp['search_terms'][$word]['num_values'],
+						  );
 
 		echo replace_keywords($format, $keywords);
-		
+
 	}//end _printAsset()
 
 

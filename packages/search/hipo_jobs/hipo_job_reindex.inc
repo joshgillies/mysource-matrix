@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_reindex.inc,v 1.9 2005/02/24 05:25:08 tbarrett Exp $
+* $Id: hipo_job_reindex.inc,v 1.10 2005/03/24 03:04:29 dheppell Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 *    schemaid	-	the ID of the schema that has been updated
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -50,19 +50,19 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	* @var Array
 	*/
 	var $_steps = Array(
-					Array(
-						'name'             => 'Reindexing Assets',
-						'function_call'    => Array(
-												'process_function' => 'processReIndex',
-												),
-						'running_mode'     => 'server',
-						'auto_step'        => true,
-						'percent_done'     => 0,
-						'complete'         => false,
-						'message'          => '',
-						'allow_cancel'     => true,
-					),
-				);
+						Array(
+							  'name'          => 'Reindexing Assets',
+							  'function_call' => Array(
+													   'process_function' => 'processReIndex',
+													   ),
+							  'running_mode'  => 'server',
+							  'auto_step'     => true,
+							  'percent_done'  => 0,
+							  'complete'      => false,
+							  'message'       => '',
+							  'allow_cancel'  => true,
+							  ),
+						);
 
 
 	/**
@@ -183,6 +183,7 @@ class HIPO_Job_ReIndex extends HIPO_Job
 		return true;
 
 	}//end processReIndex()
+
 
 }//end class
 

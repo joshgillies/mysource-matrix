@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.85 2005/03/18 06:03:38 arailean Exp $
+* $Id: search_page.inc,v 1.86 2005/03/24 03:04:29 dheppell Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.85 $
+* @version $Revision: 1.86 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -49,9 +49,9 @@ class Search_Page extends Listing_Engine
 	* An array of bodycopies and their names that are attached underneath this page asset
 	* @var array
 	*/
-	var $bodycopies = Array (
-							'initial'			=> 'Initial Search Page Layout',
-							'results'			=> 'Results Page Layout',
+	var $bodycopies = Array(
+							'initial' => 'Initial Search Page Layout',
+							'results' => 'Results Page Layout',
 							);
 
 	/**
@@ -67,22 +67,22 @@ class Search_Page extends Listing_Engine
 	* @var array
 	*/
 	var $keywords = Array(
-						'initial' => Array(
-											'submit_button',
-											'results_per_page',
-											),
-						'results' => Array(
-											'result_list',
-											'result_count',
-											'current_result_page',
-											'total_result_pages',
-											'result_page_index',
-											'previous_result_page_link',
-											'next_result_page_link',
-											'initial_layout',
-											'category_list_linked',
-											),
-						);
+						  'initial' => Array(
+											 'submit_button',
+											 'results_per_page',
+											 ),
+						  'results' => Array(
+											 'result_list',
+											 'result_count',
+											 'current_result_page',
+											 'total_result_pages',
+											 'result_page_index',
+											 'previous_result_page_link',
+											 'next_result_page_link',
+											 'initial_layout',
+											 'category_list_linked',
+											 ),
+						  );
 
 
 	/**
@@ -118,12 +118,12 @@ class Search_Page extends Listing_Engine
 
 		foreach ($this->bodycopies as $value => $name) {
 			$copy_link = Array(
-				'asset'        => &$this,
-				'link_type'    => SQ_LINK_TYPE_2,
-				'is_dependant' => 1,
-				'is_exclusive' => 1,
-				'value'        => $value
-			);
+							   'asset'        => &$this,
+							   'link_type'    => SQ_LINK_TYPE_2,
+							   'is_dependant' => 1,
+							   'is_exclusive' => 1,
+							   'value'        => $value,
+							   );
 
 			$bodycopy = new Bodycopy();
 			$bodycopy->setAttrValue('name', $name);
@@ -365,18 +365,18 @@ class Search_Page extends Listing_Engine
 	function _getDateField($field_name)
 	{
 		$parameters = Array(
-			'min'			=> '0000-01-01 00:00:00',
-			'max'			=> '9999-12-31 23:59:59',
-			'allow_circa'	=> '0',
-			'print_format'	=> '',
-			'show'			=> Array('y', 'm', 'd'),
-			'null'			=> Array('y', 'm', 'd'),
-			'style'			=> Array(
-									'y' => 't',
-									'm' => 's',
-									'd' => 's',
-								),
-						);
+							'min'          => '0000-01-01 00:00:00',
+							'max'          => '9999-12-31 23:59:59',
+							'allow_circa'  => '0',
+							'print_format' => '',
+							'show'         => Array('y', 'm', 'd'),
+							'null'         => Array('y', 'm', 'd'),
+							'style'        => Array(
+													'y' => 't',
+													'm' => 's',
+													'd' => 's',
+													),
+							);
 
 		$value = '---------- --:--:--';
 		$field = new DateTime_Field($field_name, $value, $parameters, true);
@@ -943,7 +943,7 @@ class Search_Page extends Listing_Engine
 
 			case 'sort_by' :
 				$sort_by = (isset($_REQUEST['sort_by'])) ? $_REQUEST['sort_by'] : $this->attr('sort_by');
-				$sort_attr = $this->getAttribute('sort_by');
+				$sort_attr = &$this->getAttribute('sort_by');
 				ob_start();
 					combo_box('sort_by', $sort_attr->_params['options'], false, $sort_by);
 					$replacement = ob_get_contents();
@@ -1310,8 +1310,9 @@ class Search_Page extends Listing_Engine
 									$not_selected_text = array_get_index($search_styles[$attribute->id], 'empty_text');
 								} else if ($attribute->type() == 'boolean') {
 									if (isset($search_styles[$attribute->id])) {
-										$options = Array('0' => $search_styles[$attribute->id]['false_text'],
-														 '1' => $search_styles[$attribute->id]['true_text']
+										$options = Array(
+														 '0' => $search_styles[$attribute->id]['false_text'],
+														 '1' => $search_styles[$attribute->id]['true_text'],
 														 );
 									} else {
 										$options = Array('0' => 'False', '1' => 'True');
@@ -1576,7 +1577,6 @@ class Search_Page extends Listing_Engine
 			}
 		}
 
-
 		return $sm->processSearch($search_info);
 
 	}//end processSearch()
@@ -1831,9 +1831,11 @@ class Search_Page extends Listing_Engine
 			$cm->saveToCache($this, $assetid, $element_contents);
 		}
 
-		$element_replacements = Array('score'         => $score,
-										  'result_number' => $this->_tmp['start_element'] + $list_position
-										);
+		$element_replacements = Array(
+									  'score'         => $score,
+									  'result_number' => $this->_tmp['start_element'] + $list_position,
+									  );
+
 		$element_contents = replace_keywords($element_contents, $element_replacements);
 
 		echo $element_contents;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_list_management.inc,v 1.2 2004/12/06 14:44:15 brobertson Exp $
+* $Id: search_list_management.inc,v 1.3 2005/03/24 03:04:29 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -46,17 +46,17 @@ class Search_List_Management extends Asset_Management
 	{
 		$this->Asset_Management($pm);
 
-		$this->vars['default_format']	= Array(
-											'added'     => '0.1',
-											'type'      => 'wysiwyg',
-											'default'   => '%search_term% ( %number_of_occurrences% )',
-										);
+		$this->vars['default_format'] = Array(
+											  'added'   => '0.1',
+											  'type'    => 'wysiwyg',
+											  'default' => '%search_term% ( %number_of_occurrences% )',
+											  );
 
-		$this->vars['search_field']	= Array(
-											'added'     => '0.1',
-											'type'      => 'text',
-											'default'   => '',
-										);
+		$this->vars['search_field']   = Array(
+											  'added'   => '0.1',
+											  'type'    => 'text',
+											  'default' => '',
+											  );
 
 	}//end constructor
 

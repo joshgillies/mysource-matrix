@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.32 2005/03/08 05:37:01 tbarrett Exp $
+* $Id: search_page_management.inc,v 1.33 2005/03/24 03:04:29 dheppell Exp $
 *
 */
 
@@ -30,12 +30,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.32 $
+* @version $Revision: 1.33 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
 class Search_Page_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -46,119 +47,118 @@ class Search_Page_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array(
-			'search_status' => Array(
-				'added'			=> '0.3',
-				'type'			=> 'serialise',
-				'default'		=> Array(),
-				'description'	=> 'Statuses that are being searched.',
-			),
-			'submit_button_text' => Array (
-				'added'			=> '0.1',
-				'type'			=> 'text',
-				'default'		=> 'Search',
-				'description'	=> 'Text that would appear on the search page submit button',
-			),
-			'sis_button_text' => Array (
-				'added'			=> '0.5',
-				'type'			=> 'text',
-				'default'		=> 'Search',
-				'description'	=> 'Text that would appear on the search in search submit button',
-			),
-			'fields' => Array(
-				'added'			=> '0.1',
-				'type'			=> 'serialise',
-				'default'		=> Array(),
-				'description'	=> 'Search fields.',
-			),
-			'categories' => Array(
-				'added'			=> '0.4',
-				'type'			=> 'serialise',
-				'default'		=> Array(),
-				'description'	=> 'Search categories.',
-			),
-			'no_category_text' => Array(
-				'added'			=> '0.4',
-				'type'			=> 'text',
-				'default'		=> 'No Category Selected',
-				'description'	=> 'The text that appears for a "no category selected" options.',
-			),
-			'search_types' => Array(
-				'added'			=> '0.1',
-				'type'			=> 'serialise',
-				'default'		=> Array(),
-				'description'	=> 'Searchable asset types',
-			),
-			'search_styles' => Array(
-				'added'			=> '0.1',
-				'type'			=> 'serialise',
-				'default'		=> Array(),
-				'description'	=> 'Styles of the search fields',
-			),
-			'use_picker' => Array (
-				'added'			=> '0.6',
-				'type'			=> 'boolean',
-				'default'		=> false,
-				'description'	=> 'Use the JS date picker or not',
-				'parameters' => Array(
-									'allow_empty' => false
-									),
-			),
-			'logic' => Array(
-				'added'			=> '0.1',
-				'type'			=> 'selection',
-				'default'		=> 'AND',
-				'description'	=> 'Whether to include all or any fields.',
-				'parameters'	=> Array(
-					'options' => Array(
-						'AND'	=> 'Match on ALL fields',
-						'OR'	=> 'Match on at least ONE field',
-					),
-					'multiple' => false,
-					'allow_empty' => false,
-				),
-			),
-			'reverse_sort' => Array(
-				'added'			=> '0.4',
-				'type'			=> 'boolean',
-				'default'		=> false,
-				'description'	=> 'Reverses the sort order field',
-				'parameters' => Array(
-										'allow_empty' => false
-										),
-			),
-		);
-		
+							'search_status'      => Array(
+														  'added'       => '0.3',
+														  'type'        => 'serialise',
+														  'default'     => Array(),
+														  'description' => 'Statuses that are being searched.',
+														  ),
+							'submit_button_text' => Array(
+														  'added'       => '0.1',
+														  'type'        => 'text',
+														  'default'     => 'Search',
+														  'description' => 'Text that would appear on the search page submit button',
+														  ),
+							'sis_button_text'    => Array(
+														  'added'       => '0.5',
+														  'type'        => 'text',
+														  'default'     => 'Search',
+														  'description' => 'Text that would appear on the search in search submit button',
+														  ),
+							'fields'             => Array(
+														  'added'       => '0.1',
+														  'type'        => 'serialise',
+														  'default'     => Array(),
+														  'description' => 'Search fields.',
+														  ),
+							'categories'         => Array(
+														  'added'       => '0.4',
+														  'type'        => 'serialise',
+														  'default'     => Array(),
+														  'description' => 'Search categories.',
+														  ),
+							'no_category_text'   => Array(
+														  'added'       => '0.4',
+														  'type'        => 'text',
+														  'default'     => 'No Category Selected',
+														  'description' => 'The text that appears for a "no category selected" options.',
+														  ),
+							'search_types'       => Array(
+														  'added'       => '0.1',
+														  'type'        => 'serialise',
+														  'default'     => Array(),
+														  'description' => 'Searchable asset types',
+														  ),
+							'search_styles'      => Array(
+														  'added'       => '0.1',
+														  'type'        => 'serialise',
+														  'default'     => Array(),
+														  'description' => 'Styles of the search fields',
+														  ),
+							'use_picker'         => Array(
+														  'added'       => '0.6',
+														  'type'        => 'boolean',
+														  'default'     => false,
+														  'description' => 'Use the JS date picker or not',
+														  'parameters'  => Array(
+																				 'allow_empty' => false,
+																				 ),
+														  ),
+							'logic'              => Array(
+														  'added'       => '0.1',
+														  'type'        => 'selection',
+														  'default'     => 'AND',
+														  'description' => 'Whether to include all or any fields.',
+														  'parameters'  => Array(
+																				 'options'     => Array(
+																										'AND' => 'Match on ALL fields',
+																										'OR'  => 'Match on at least ONE field',
+																										),
+																				 'multiple'    => false,
+																				 'allow_empty' => false,
+																				 ),
+														  ),
+							'reverse_sort'       => Array(
+														  'added'       => '0.4',
+														  'type'        => 'boolean',
+														  'default'     => false,
+														  'description' => 'Reverses the sort order field',
+														  'parameters'  => Array(
+																				 'allow_empty' => false,
+																				 ),
+														  ),
+							);
+
 		// change default sort by to a blank, which means sort
 		// by relevance score
-		$this->vars['sort_by']		= Array(
-										'added'	=> '0.1',
-										'type'	=> 'selection',
-										'parameters' => Array(
-											'options' => Array(
-												''=> '-- No Sorting --',
-												'assetid'=> 'ID',
-												'version'=> 'Version',
-												'name'=> 'Name',
-												'short_name'=> 'Short Name',
-												'created'=> 'Created Date',
-												'updated'=> 'Last Updated Date',
-												'published'=> 'Last Published Date',
-												'__attr__'=> 'Asset Attributes...',
-											),
-											'multiple' => false,
-											'allow_empty' => true,
-										),
-										'default' => ''
-									);
-										
-		// change default number of results per page to 10
-		$this->vars['num_per_page']	= Array(
-										'added'   => '0.1',
-										'type'    => 'int',
-										'default' => 10,
-										);
+		$this->vars['sort_by'] = Array(
+									   'added'      => '0.1',
+									   'type'       => 'selection',
+									   'parameters' => Array(
+															 'options'     => Array(
+																					''           => '-- No Sorting --',
+																					'assetid'    => 'ID',
+																					'version'    => 'Version',
+																					'name'       => 'Name',
+																					'short_name' => 'Short Name',
+																					'created'    => 'Created Date',
+																					'updated'    => 'Last Updated Date',
+																					'published'  => 'Last Published Date',
+																					'__attr__'   => 'Asset Attributes...',
+																					),
+															 'multiple'    => false,
+															 'allow_empty' => true,
+															 ),
+									   'default'    => '',
+									   );
 
-		
+		// change default number of results per page to 10
+		$this->vars['num_per_page'] = Array(
+											'added'   => '0.1',
+											'type'    => 'int',
+											'default' => 10,
+											);
+
 
 	}//end constructor
 
@@ -174,7 +174,7 @@ class Search_Page_Management extends Asset_Management
 	function _upgrade($current_version)
 	{
 		if (!parent::_upgrade($current_version)) return false;
-		
+
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		if (version_compare($current_version, '0.1', '<=')) {
@@ -251,27 +251,27 @@ class Search_Page_Management extends Asset_Management
 			}
 			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.5');
 		}//end version 0.5 upgrade
-		
-		
+
+
 		if (version_compare($current_version, '0.7', '<=')) {
 			// version 0.7->0.8
 			// changed the format of the fields array
 			bam('STARTING SEARCH PAGE UPGRADE - FROM VERSION 0.7');
 			$children = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($this->getAssetType(), false);
-			foreach($children as $assetid) {
+			foreach ($children as $assetid) {
 				$asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				
+
 				// copy over the number of results per page to the corresponding
 				// listing engine variable
 				$asset->setAttrValue('num_per_page',  $asset->attr('results_per_page'));
-				
+
 				// create the type and posistion formatting folders
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('folder');
 
 				$sub_assets= Array(
-					'type_formats'     => 'folder',
-					'position_formats' => 'folder',
-				);
+								   'type_formats'     => 'folder',
+								   'position_formats' => 'folder',
+								   );
 
 				$type_formats = null;
 				foreach ($sub_assets as $name => $type) {
@@ -280,82 +280,82 @@ class Search_Page_Management extends Asset_Management
 						trigger_error(ucwords(str_replace('_', ' ', $name.' '.$type)).' has already been created. Maybe the upgrade script is being run twice?', E_USER_WARNING);
 						continue;
 					}
-					
+
 					$sub_asset = new $type();
 					$copy_link = Array('asset' => &$asset, 'value' => $name ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
-		
+
 					$sub_asset->setAttrValue('name', ucwords(str_replace('_',' ', $name)));
 					if (!$sub_asset->create($copy_link)) return false;
-		
+
 					if ($name == 'type_formats') $type_formats = $sub_asset;
-		
+
 					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($sub_asset);
 					unset($sub_asset);
 				}
-				
+
 				// NOW, convert the 'result list' formats stuff into the default
 				// type format
 				$ri_link = $GLOBALS['SQ_SYSTEM']->am->getLink($asset->id, SQ_LINK_TYPE_2, 'bodycopy', false, 'result_element');
-				
+
 				if (is_null($ri_link)) {
 					trigger_error('Result Element bodycopy no longer exists. Maybe the upgrade script is being run twice?', E_USER_WARNING);
 					continue;
 				} else {
-				
+
 					$ri_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($ri_link['minorid']);
-					
+
 					$ri_asset->setAttrValue('name', 'Default Format');
 					$ri_asset->saveAttributes();
-					
+
 					$updates = Array(
-									'majorid' => $db->quote($type_formats->id),
-									'value'   => $db->quote('default_format'),
-								);
-					
+									 'majorid' => $db->quote($type_formats->id),
+									 'value'   => $db->quote('default_format'),
+									 );
+
 					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast_lnk', $updates, 'linkid = '.$db->quote($ri_link['linkid']))) {
 						trigger_error('Could not upgrade Search Page (to 0.8) - could not update link of default result element', E_USER_WARNING);
 						return false;
 					}
-					
+
 				}
-				
+
 				// now move search types if any are set
 				$types = $asset->attr('search_types');
 				if ((count($types) > 0) && !is_bool(reset($types))) {
-				
+
 					// search_types attribute is now listing engine's
 					// types attribute
 					$types = $asset->attr('search_types');
-				
+
 					// flip the types array to get typecodes as keys, then set them
 					// to inherit types (as this was what Search Manager used to do)
 					$types = array_flip($types);
-					foreach($types as $type_code => $value) {
+					foreach ($types as $type_code => $value) {
 						$types[$type_code] = true;
 					}
-					
+
 					$asset->setAttrValue('types', $types);
-				
+
 				}
-				
-				
+
+
 				if (!$asset->saveAttributes()) {
 					trigger_errore('Search Page Upgrade [to 0.8] FAILED - Couldn\'t save attributes', E_USER_WARNING);
 					return false;
 				}
-				
+
 				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 			}
-			
+
 			bam('SEARCH PAGE UPGRADE COMPLETE - FROM VERSION 0.7');
-			
+
 		}//end version 0.7 upgrade
-		
+
 		return true;
 
 	}//end _upgrade()
 
-	
+
 	/**
 	* Return an array with information about the events that this page is listening for
 	*
@@ -365,20 +365,20 @@ class Search_Page_Management extends Asset_Management
 	function getEventList()
 	{
 		return Array(
-				Array(
-					'event_name'                 => 'requestKeywords',
-					'broadcast_type_code'        => 'content_type',
-					'broadcast_strict_type_code' => false,
-					'options' => Array(
-						'side_of_link'  => 'major',
-						'indirect'      => true,
-						'is_exclusive'  => null,
-						'is_dependant'  => 1,
-						'value'         => '',
-						'link_type'     => SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
-					),
-				),
-		);
+					 Array(
+						   'event_name'                 => 'requestKeywords',
+						   'broadcast_type_code'        => 'content_type',
+						   'broadcast_strict_type_code' => false,
+						   'options'                    => Array(
+																 'side_of_link' => 'major',
+																 'indirect'     => true,
+																 'is_exclusive' => null,
+																 'is_dependant' => 1,
+																 'value'        => '',
+																 'link_type'    => SQ_LINK_TYPE_2 | SQ_LINK_TYPE_1,
+																 ),
+						   ),
+					 );
 
 	}//end getEventList()
 

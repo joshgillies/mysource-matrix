@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.10 2005/02/14 23:41:37 lwright Exp $
+* $Id: search_folder_edit_fns.inc,v 1.11 2005/03/24 03:04:29 dheppell Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -47,27 +47,28 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	{
 		$this->Asset_Edit_Fns();
 
-		$this->static_screens = Array(	'details'		=> Array(
-															'name'			=> 'Details',
-															'force_unlock'	=> false,
-															'lock_type'		=> 'attributes',
-																),
-										'permissions'	=> Array(
-															'name'			=> 'Permissions',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'permissions',
-																),
-										'linking'		=> Array(
-															'name'			=> 'Linking',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'links',
-																),
-										'history'		=> Array(
-															'name'			=> 'History',
-															'force_unlock'	=> true,
-															'lock_type'		=> 'none',
-																),
-									);
+		$this->static_screens = Array(
+									  'details'     => Array(
+															 'name'         => 'Details',
+															 'force_unlock' => false,
+															 'lock_type'    => 'attributes',
+															 ),
+									  'permissions' => Array(
+															 'name'         => 'Permissions',
+															 'force_unlock' => true,
+															 'lock_type'    => 'permissions',
+															 ),
+									  'linking'     => Array(
+															 'name'         => 'Linking',
+															 'force_unlock' => true,
+															 'lock_type'    => 'links',
+															 ),
+									  'history'     => Array(
+															 'name'         => 'History',
+															 'force_unlock' => true,
+															 'lock_type'    => 'none',
+															 ),
+									  );
 
 	}//end constructor
 
@@ -439,9 +440,9 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	function paintCurrentAssetTypes(&$asset, &$o, $prefix)
 	{
 		$write_access = $asset->writeAccess('attributes');
-		
+
 		$settings = $asset->attr('settings');
-		$types = (isset($settings['types'])) ? $settings['types'] : Array(); 
+		$types = (isset($settings['types'])) ? $settings['types'] : Array();
 		if (empty($types)) {
 			echo 'There are no types defined';
 			return false;
@@ -496,7 +497,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		</table>
 		<?php
 		return true;
-		
+
 	}//end paintCurrentAssetTypes()
 
 
@@ -514,7 +515,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 	{
 		$settings = $asset->attr('settings');
 		$types = (isset($settings['types'])) ? $settings['types'] : Array();
-			
+
 		// we are looking to see if any types have been removed
 		$removed = array_get_index($_POST, $prefix.'_remove', Array());
 		foreach ($removed as $type) {
@@ -529,7 +530,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		$settings['types'] = $types;
-		return $asset->setAttrValue('settings', $settings);		
+		return $asset->setAttrValue('settings', $settings);
 
 	}//end processCurrentAssetTypes()
 
@@ -550,7 +551,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 
 		$settings = $asset->attr('settings');
 		$current_types = (isset($settings['types'])) ? $settings['types'] : Array();
-		
+
 		$types = $GLOBALS['SQ_SYSTEM']->am->getTypeList();
 		$types = array_diff($types, $current_types);
 		asort($types);
@@ -560,8 +561,8 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		combo_box($prefix.'_new_type', $uc_types, false, '');
 
 	}//end paintAddAssetType()
-	
-	
+
+
 	/**
 	* Process the section to add a new format for an asset
 	*
@@ -578,7 +579,7 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 		if (!$asset->writeAccess('attributes')) return false;
 
 		if (isset($_POST[$prefix.'_new_type'])) {
-		
+
 			$settings = $asset->attr('settings');
 			$types = (isset($settings['types'])) ? $settings['types'] : Array();
 
@@ -587,11 +588,11 @@ class Search_Folder_Edit_Fns extends Asset_Edit_Fns
 			if (!isset($types[$type])) {
 				$types[$type] = true;
 				$settings['types'] = $types;
-				return $asset->setAttrValue('settings', $settings);		
+				return $asset->setAttrValue('settings', $settings);
 			}
 		}
-		
-		
+
+
 		return false;
 
 	}//end processAddAssetType()
