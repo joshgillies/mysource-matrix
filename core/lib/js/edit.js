@@ -1,16 +1,16 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit.js,v 1.7 2003/09/26 05:26:34 brobertson Exp $
+* $Id: edit.js,v 1.8 2003/10/02 23:59:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
 // if the browser is IE, regiter the onkeydown event
-if(document.all) { document.onkeydown = sqProcessKeyDown; }
+if(document.all) { document.onkeydown = sq_process_key_down; }
 
 
 // Execute keyboard shortcuts for IE browsers
-function sqProcessKeyDown() {
+function sq_process_key_down() {
 
 	var key;
 	
@@ -25,7 +25,7 @@ function sqProcessKeyDown() {
 		case "s" :
 			// emulate pressing of the commit button
 			top.main.document.focus();
-			sqSubmitEditForm();
+			sq_submit_edit_form();
 		break;
 
 		case "v" :
@@ -37,29 +37,33 @@ function sqProcessKeyDown() {
 		break;
 	}//end switch
 
-}//end processKeyDown()
+}//end sq_process_key_down()
 
 
 // Submit the edit form after a bit of checking
-function sqSubmitEditForm(noProcess) {
-	frm = document.main_form;
+function sq_submit_edit_form(dont_process) {
 
 	// make sure the form is not processed
-	if (noProcess != null) frm.am_form_submitted.value = '0';
+	if (dont_process != null && dont_process) set_hidden_field('am_form_submitted', '0');
 	
-	if (!frm.sq_submit_pressed || frm.sq_submit_pressed.value == '0') {
-		if (frm.sq_submit_pressed) { frm.sq_submit_pressed.value = '1'; }
-		if (frm.sq_release_lock_on_submit) { frm.sq_release_lock.value = frm.sq_release_lock_on_submit.value; }
-		frm.onsubmit();
-		frm.submit();
+	var sq_submit_pressed = get_form_element('sq_submit_pressed');
+
+	if (sq_submit_pressed == null || sq_submit_pressed.value == '0') {
+		if (sq_submit_pressed != null) {
+			sq_submit_pressed.value = '1';
+		}
+		if (get_form_element('sq_release_lock_on_submit') != null) {
+			set_hidden_field('sq_release_lock',  get_form_element_value('sq_release_lock_on_submit'));
+		}
+		submit_form();
 	}
 
-}//end sqSubmitEditForm()
+}//end sq_submit_edit_form()
 
 
 // prints an icon using transparency in IE
 // ensures that PNGs have transparent background in IE and Mozilla
-function sqPrintIcon (path, width, height, alt) {
+function sq_print_icon(path, width, height, alt) {
 	if (document.all) {
 		// IE cant handle transparent PNGs
 		document.write ('<span style="height:'+height+'px;width:'+width+'px; filter:progid:DXImageTransform.Microsoft.AlphaImageLoader (src=\''+path+'\', sizingMethod=\'scale\')"></span>');
