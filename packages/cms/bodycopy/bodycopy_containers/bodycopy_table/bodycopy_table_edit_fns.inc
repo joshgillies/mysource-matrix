@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.1 2003/11/03 01:49:49 gsherwood Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.2 2003/11/10 03:03:42 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -705,6 +705,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		}
 
 		if ($updated) $this->generateContentFile($asset);
+		$this->_contentsUpdated($asset);
 		return $updated;
 
 	}//end processContainer()

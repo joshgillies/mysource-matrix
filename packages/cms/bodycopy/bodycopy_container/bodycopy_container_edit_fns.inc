@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_container_edit_fns.inc,v 1.1 2003/11/03 01:22:28 gsherwood Exp $
+* $Id: bodycopy_container_edit_fns.inc,v 1.2 2003/11/10 03:02:25 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -227,7 +227,7 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 				}
 
 				$e = "(/?\./\\?a={$assetid})([^0-9]+)";
-				$with = '<?php echo $sq_asset_url_list['.$assetid.']; ?>';
+				$with = '<'.'?php echo $sq_asset_url_list['.$assetid.']; ?'.'>';
 				$output = ereg_replace($e, $with.'\\2', $output);
 			}
 		}
@@ -236,6 +236,23 @@ class Bodycopy_Container_Edit_Fns extends Asset_Edit_Fns
 		return string_to_file($output, $asset->data_path.'/content_file.php');
 
 	}//end generateContentFile()
+
+
+	/**
+	* gets called when a bodycopy container's contents are updated to notify anyone who cares about this
+	*
+	* @param &Asset $asset the asset that is getting updated
+	*
+	* @access public
+	* @return boolean
+	*/
+	function _contentsUpdated(&$asset)
+	{
+		if (is_null($asset)) return false;
+		$em = &$GLOBALS['SQ_SYSTEM']->getEventManager();
+		return $em->broadcastEvent($asset, 'contentsUpdated', Array());
+	
+	}//end _contentsUpdated()
 
 
 }//end class
