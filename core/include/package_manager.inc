@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager.inc,v 1.47 2004/07/01 14:36:50 brobertson Exp $
+* $Id: package_manager.inc,v 1.48 2004/09/01 15:15:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -310,7 +310,7 @@ class Package_Manager extends MySource_Object
 				}
 
 				if ($package != $info['package']) {
-					trigger_error('The Asset Information file "'.$full_path.'/asset.xml" is in the '.$package.' Package directory, but states that it is belongs to '.$info['package'], E_USER_ERROR);
+					trigger_error('The Asset Information file "'.$full_path.'/asset.xml" is in the "'.$package.'" Package directory, but states that it is belongs to "'.$info['package'].'"', E_USER_ERROR);
 				}
 
 				$info['dir'] = $base_path;
