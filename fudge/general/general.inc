@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.19 2004/07/26 06:39:29 tbarrett Exp $
+* $Id: general.inc,v 1.20 2004/07/26 06:40:19 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -332,7 +332,6 @@ function add_ordinal_suffix($num) {
 		return $num + 'th';
 	else
 		switch ($num % 10) {
-
 			case 1:
 				return $num . 'st';
 
@@ -344,6 +343,7 @@ function add_ordinal_suffix($num) {
 
 			default:
 				return $num . 'th';
+		}
 }
 
 /**
