@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: core.js,v 1.17 2003/11/26 00:51:19 gsherwood Exp $
+* $Id: core.js,v 1.18 2004/09/22 06:05:13 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,6 @@
 //           http://www.squiz.net/
 //           mailto:greg@squiz.net
 //
-
 
 /** Helper function: replace all TEXTAREA-s in the document with HTMLArea-s. */
 HTMLArea.replaceAll = function() {
@@ -87,9 +86,8 @@ HTMLArea.prototype.generate = function () {
 	textarea.parentNode.insertBefore(htmlarea, textarea);
 
 	// retrieve the HTML on submit
-	eval ('var otherOnSubmit_' + this._uniqueID + '= (textarea.form.onsubmit) ? textarea.form.onsubmit :  (function() {"return true;"});');
+	eval ('var otherOnSubmit_' + this._uniqueID + '= (textarea.form.onsubmit != null) ? textarea.form.onsubmit :  (function() {return true;});');
 	eval ('textarea.form.onsubmit = function() { editor._formSubmit(); return otherOnSubmit_' + this._uniqueID + '(); };');
-
 	// add a handler for the "back/forward" case -- on body.unload we save
 	// the HTML content into the original textarea.
 	eval ('var otherOnUnload_' + this._uniqueID + '= (window.onunload) ? window.onunload :  new Function;');
