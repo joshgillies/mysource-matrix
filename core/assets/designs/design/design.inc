@@ -117,18 +117,19 @@ class Design extends Design_Area
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param array(string)	&$link	information used to create the initial link
+	* @param object Backend_Outputter	$o
+	* @param array(string)				&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend($link)
+	function processBackend(&$o, &$link)
 	{
 
 		switch($_POST['asset_action']) {
 			case 'create' :
 				$ei = &$this->getEI();
-				$ei->process($this, true);
+				$ei->process($this, $o, true);
 
 				$id_name = $this->getAttribute('id_name');
 				if ($id_name->processed) {
@@ -141,7 +142,7 @@ class Design extends Design_Area
 			default :
 				$this->_tmp['regenerate_design'] = false;
 				$this->_tmp['update_customisations'] = false;
-				$processed = parent::processBackend($link);
+				$processed = parent::processBackend($o, $link);
 				if ($processed) {
 
 					// regenerate the design, 

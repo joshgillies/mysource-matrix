@@ -150,12 +150,13 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* Processes the URLs posted from the paintURLs fn above
 	*
 	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processURLs(&$asset, $prefix) 
+	function processURLs(&$asset, &$o, $prefix) 
 	{
 
 		$post = $_POST[$prefix.'_urls'];
@@ -221,12 +222,13 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* Processes the setting of the Design for this site
 	*
 	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDesign(&$asset, $prefix) 
+	function processDesign(&$asset, &$o, $prefix) 
 	{
 		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false);
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
@@ -358,12 +360,13 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* Processes the setting of the index page for this site
 	*
 	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processIndexPage(&$asset, $prefix) 
+	function processIndexPage(&$asset, &$o, $prefix) 
 	{
 		$this->processPageSelection('index', $asset, $prefix);
 	}
@@ -387,12 +390,13 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* Processes the setting of the forbidden page for this site
 	*
 	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processForbiddenPage(&$asset, $prefix) 
+	function processForbiddenPage(&$asset, &$o, $prefix) 
 	{
 		$this->processPageSelection('forbidden', $asset, $prefix);
 	}
@@ -416,12 +420,13 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	* Processes the setting of the not found page for this site
 	*
 	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processNotFoundPage(&$asset, $prefix) 
+	function processNotFoundPage(&$asset, &$o, $prefix) 
 	{
 		$this->processPageSelection('not_found', $asset, $prefix);
 	}

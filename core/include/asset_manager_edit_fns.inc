@@ -85,7 +85,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 								  'sort_order'	=> $_GET['pos']);
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-					$success = $asset->processBackend($link);
+					$success = $asset->processBackend($this->backend->out, $link);
 
 					if ($success) {
 
@@ -102,7 +102,7 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 					}
 				}
 
-				$asset->paintBackend($this->backend);
+				$asset->paintBackend($this->backend->out);
 
 				break;
 
@@ -118,11 +118,12 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 
 				// if the form has been submitted then, process it
 				// and if that is successfull, then create the link to the parent asset
-				if (!empty($_POST['am_form_submitted']) && $asset->processBackend(Array())) {
+				$link = Array();
+				if (!empty($_POST['am_form_submitted']) && $asset->processBackend($this->backend->out, $link)) {
 					$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" Updated');
 				}// end if
 
-				$asset->paintBackend($this->backend);
+				$asset->paintBackend($this->backend->out);
 				break;
 
 			case 'duplicate' :
@@ -695,33 +696,6 @@ class Asset_Manager_Edit_Fns extends Resolve_Object
 	function _printAssetList()
 	{
 		$o = &$this->backend->out;
-
-		/*
-		if (!empty($_REQUEST['am_action'])) {
-
-			require_once SQ_INCLUDE_PATH.'/custom_asset_type.inc';
-
-			$o->addFormActionGetVar('am_action', 'edit');
-
-			pre_echo($_POST);
-			switch ($_REQUEST['am_action']) {
-				case 'create_custom' :
-					$custom = new Custom_Asset_Type();
-					if ($custom->create($_REQUEST['am_new_type_code'], $_REQUEST['am_type_code'])) {
-						$o->addFormActionGetVar('am_type_code', $_REQUEST['am_new_type_code']);
-						$custom->paintBackend($backend);
-						return;
-					}
-					break;
-				case 'edit' :
-					$o->addFormActionGetVar('am_type_code', $_REQUEST['am_type_code']);
-					$custom = new Custom_Asset_Type($_REQUEST['am_type_code']);
-					$custom->paintBackend($backend);
-					return;
-					break;
-			}
-		}//end if
-		*/
 
 		//$o->addCrummingLink('Asset Types', $o->getCurrentLocation());
 		$o->setHeading('Assets Types', 'create');

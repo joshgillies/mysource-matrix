@@ -68,13 +68,14 @@ class Asset_Edit_Fns extends Resolve_Object
 	/**
 	* Processes the Paths posted from the paintPaths fn above
 	*
-	* @param object Asset				$owner	the asset whose interface we are painting
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processPaths(&$asset, $prefix) 
+	function processPaths(&$asset, &$o, $prefix) 
 	{
 		$asset->saveWebPaths(array_values($_POST[$prefix.'_paths']));
 	}// end processPaths()

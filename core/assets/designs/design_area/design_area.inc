@@ -72,15 +72,16 @@ class Design_Area extends Asset
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param array(string)	&$link	information used to create the initial link
+	* @param object Backend_Outputter	$o
+	* @param array(string)				&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend($link)
+	function processBackend(&$o, &$link)
 	{
 		$this->_tmp['regenerate_design'] = false;
-		$processed = parent::processBackend($link);
+		$processed = parent::processBackend($o, $link);
 		if ($processed && $this->_tmp['regenerate_design']) {
 			$designs = &$this->getDesigns();
 			for($i = 0, $max = count($designs); $i < $max; $i++) {

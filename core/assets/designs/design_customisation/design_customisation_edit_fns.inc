@@ -39,13 +39,14 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	/**
 	* Processes the customising of design areas
 	*
-	* @param object Asset	$asset	the asset to which we belong
-	* @param string			$prefix	prefix for the form element
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processCustomisedDesignAreas(&$asset, $prefix)
+	function processCustomisedDesignAreas(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_remove_customisation'])) return false;
 
@@ -101,13 +102,14 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	/**
 	* Processes the customising of design areas
 	*
-	* @param object Asset	$asset	the asset to which we belong
-	* @param string			$prefix	prefix for the form element
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processUnCustomisedDesignAreas(&$asset, $prefix)
+	function processUnCustomisedDesignAreas(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_customise'])) return false;
 

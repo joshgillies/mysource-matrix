@@ -704,13 +704,14 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the specialisation, ie call _parseString() and set the specialised flag to true
 	*
-	* @param object Asset	$asset	the asset to which we belong
-	* @param string			$prefix	prefix for the form element
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processSpecialisation(&$asset, $prefix)
+	function processSpecialisation(&$asset, &$o, $prefix)
 	{
 		// if nothing changed then do nothing
 		if ($_POST[$prefix.'_specialisation_orig'] == $_POST[$prefix.'_specialisation']) return false;

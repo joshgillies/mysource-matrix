@@ -103,15 +103,15 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 
 	/**
 	*
-	* @param object Asset	$asset	the asset to which we belong
-	* @param string			$prefix	prefix for the form element
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processDecVars(&$asset, $prefix) 
+	function processDecVars(&$asset, &$o, $prefix) 
 	{
-		pre_echo("PROCESS DEC VARS");
 		$save = false;
 		$attrs = $asset->getDeclaredVarAttributes();
 		$declared_vars = $asset->attr('declared_vars');

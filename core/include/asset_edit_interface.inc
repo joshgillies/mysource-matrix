@@ -290,13 +290,14 @@ class Asset_Edit_Interface extends Resolve_Object
 	* Processes the results of the form posting, returns an array of the attribute names that
 	* where processed
 	*
-	* @param object Asset	$owner		the asset whose interface we are painting
-	* @param boolean		$creating	whether we are creating or editing
+	* @param object Asset				$owner		the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	* @param boolean					$creating	whether we are creating or editing
 	*
 	* @return Array()
 	* @access public
 	*/
-	function process(&$owner, $creating)
+	function process(&$owner, &$o, $creating)
 	{
 		// if there are no screens or tabs, piss off
 		if (!count($this->_screens) && empty($this->_edit_fns->tabs)) return;
@@ -319,7 +320,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			// are not creating the asset
 			if (!$creating) {
 				$process_function = 'process'.ucfirst($active_screen);
-				$this->$process_function($owner);
+				$this->$process_function($owner, $o);
 			}
 
 			// if we dont have write access, dont process the rest of the screen
@@ -343,19 +344,11 @@ class Asset_Edit_Interface extends Resolve_Object
 				return $processed;
 			}
 
-			$file = '';
-			for($i = 0; $i < count($this->_dirs); $i++) {
-				if (file_exists($this->_dirs[$i].'/edit_interface_screen_'.$active_screen.'.xml')) {
-					$file = $this->_dirs[$i].'/edit_interface_screen_'.$active_screen.'.xml';
-					break;
-				}
-			}
+			// try and find the file to print user defined
+			$file = $this->_findFile('screen_'.$active_screen);
+			if(!$file) return $processed;
 
-			if(!$file) {
-				trigger_error('edit_interface_screens.xml not found for Asset Type "'.$this->_type_code.'"', E_USER_WARNING);
-				return $processed;
-			}
-		}
+		}// end if
 
 		if ($file) {
 			$input = new XML_Tree($file);
@@ -373,8 +366,9 @@ class Asset_Edit_Interface extends Resolve_Object
 				$section = &$root->children[$i];
 				// if this ain't a section, or if we are printing the create interface and this section is not included in that, ignore it
 				if ($section->name != 'section' || ($creating && empty($create_sections[$section->attributes['name']]))) continue;
-
 				if (!($num_fields = count($section->children))) continue;
+
+				// if this is section only has function call, then process accordingly
 				if ($section->children[0]->name == 'function_call') {
 
 					$process_node = &$section->children[0]->children[1];
@@ -386,7 +380,7 @@ class Asset_Edit_Interface extends Resolve_Object
 					} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
 						trigger_error('Function not found for processing section "'.$section->attributes['name'].'"', E_USER_WARNING);
 					} else {
-						$this->_edit_fns->{$process_node->attributes['name']}($owner, $prefix);
+						$this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix);
 					}
 
 				// they must just be normal fields
@@ -420,7 +414,7 @@ class Asset_Edit_Interface extends Resolve_Object
 							} elseif (!method_exists($this->_edit_fns, $process_node->attributes['name'])) {
 								trigger_error('Function not found for processing field "'.$section->attributes['name'].'/'.$field->children[0]->content.'"', E_USER_WARNING);
 							} else {
-								$this->_edit_fns->{$process_node->attributes['name']}($owner, $prefix);
+								$this->_edit_fns->{$process_node->attributes['name']}($owner, $o, $prefix);
 							}
 
 						}// end if
@@ -527,11 +521,12 @@ class Asset_Edit_Interface extends Resolve_Object
 	/**
 	* Processes the interface for editing details
 	*
-	* @param object	Asset	$owner	the asset whose interface we are painting
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
 	*
 	* @access public
 	*/
-	function processDetails(&$owner)
+	function processDetails(&$owner, &$o)
 	{
 		$prefix = $owner->type().'_'.$owner->id;
 
@@ -730,11 +725,12 @@ class Asset_Edit_Interface extends Resolve_Object
 	/**
 	* Processes the interface for managing permissions
 	*
-	* @param object	Asset	$owner	the asset whose interface we are painting
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
 	*
 	* @access public
 	*/
-	function processPermissions(&$owner)
+	function processPermissions(&$owner, &$o)
 	{
 		// if we dont have write access, piss off
 		if ($owner->id && !$owner->writeAccess()) {
@@ -1138,12 +1134,13 @@ class Asset_Edit_Interface extends Resolve_Object
 	/**
 	* Processes the interface for managing workflow
 	*
-	* @param object	Asset	$owner	the asset whose interface we are painting
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processWorkflow(&$owner)
+	function processWorkflow(&$owner, &$o)
 	{
 		// if we dont have write access, piss off
 		if ($owner->id && !$owner->writeAccess()) {

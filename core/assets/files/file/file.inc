@@ -83,18 +83,19 @@ class File extends Asset
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param array(string)	&$link	information used to create the initial link
+	* @param object Backend_Outputter	$o
+	* @param array(string)				&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend($link)
+	function processBackend(&$o, &$link)
 	{
 		switch($_POST['asset_action']) {
 			case 'create' :
 				$this->_tmp['uploading_file'] = 1;
 				$ei = &$this->getEI();
-				$ei->process($this, true);
+				$ei->process($this, $o, true);
 
 				if (!$this->create($link, 'temp')) return false;
 				$edit = $this->getEditFns();
@@ -103,7 +104,7 @@ class File extends Asset
 				break;
 
 			default :
-				return parent::processBackend($link);
+				return parent::processBackend($o, $link);
 
 		}// end switch
 

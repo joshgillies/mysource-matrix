@@ -91,18 +91,19 @@ class Folder extends Asset
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param array(string)	&$link	information used to create the initial link
+	* @param object Backend_Outputter	$o
+	* @param array(string)				&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend($link)
+	function processBackend(&$o, &$link)
 	{
 
 		switch($_POST['asset_action']) {
 			case 'create' :
 				$ei = &$this->getEI();
-				$ei->process($this, true);
+				$ei->process($this, $o, true);
 
 				$name = $this->getAttribute('name');
 				if ($name->processed) {
@@ -113,7 +114,7 @@ class Folder extends Asset
 				break;
 
 			default :
-				return parent::processBackend($link);
+				return parent::processBackend($o, $link);
 
 		}// end switch
 

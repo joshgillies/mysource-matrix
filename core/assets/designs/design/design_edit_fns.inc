@@ -33,13 +33,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	/**
 	* Processes the URLs posted from the paintURLs fn above
 	*
-	* @param object Asset	$asset	the asset to which we belong
-	* @param string			$prefix	prefix for the form element
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processParseFile(&$asset, $prefix)
+	function processParseFile(&$asset, &$o, $prefix)
 	{
 		$parse_file = $asset->data_path.'/parse.txt';
 
@@ -346,13 +347,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 	/**
 	*
-	* @param object Asset	$asset	the asset to which we belong
-	* @param string			$prefix	prefix for the form element
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processCurrentFiles(&$asset, $prefix)
+	function processCurrentFiles(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_remove_files'])) return;
 		$asset->_tmp['regenerate_design'] = true;
@@ -383,13 +385,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 	/**
 	*
-	* @param object Asset	$asset	the asset to which we belong
-	* @param string			$prefix	prefix for the form element
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processNewFiles(&$asset, $prefix)
+	function processNewFiles(&$asset, &$o, $prefix)
 	{
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 
@@ -467,13 +470,14 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 	/**
 	*
-	* @param object Asset	$asset	the asset to which we belong
-	* @param string			$prefix	prefix for the form element
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processNewCustomisation(&$asset, $prefix)
+	function processNewCustomisation(&$asset, &$o, $prefix)
 	{
 		if (empty($_POST[$prefix.'_new_customisation']) || !($new_name = trim($_POST[$prefix.'_new_customisation_name']))) return false;
 

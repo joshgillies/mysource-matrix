@@ -343,13 +343,14 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the interface for editing this table
 	*
-	* @param object BodyCopy_Table	&$asset	the table whose interface we are painting
-	* @param string					$prefix	prefix for the form elements
+	* @param object BodyCopy_Table		&$asset	the table whose interface we are painting
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processTable(&$asset, $prefix)
+	function processTable(&$asset, &$o, $prefix)
 	{
 		global $bodycopy_action, $bodycopy_name, $bodycopy_data, $bodycopy_saved;
 		$updated = false;

@@ -490,13 +490,14 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 	* This function processes some actions (such as insert_table) but
 	* lets ndividual tables handle other actions themselves
 	*
-	* @param object Bodycopy	&$asset	the asset whose interface we are processing
-	* @param string				$prefix	prefix for the form element
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBodycopy(&$asset, $prefix)
+	function processBodycopy(&$asset, &$o, $prefix)
 	{
 		global $bodycopy_action, $bodycopy_name, $bodycopy_data, $bodycopy_saved;
 		global $_BODYCOPY;
@@ -532,7 +533,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		foreach ($tables as $table_data) {
 			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
 			$table_edit = $table->getEditFns();
-			if ($table_edit->processTable($table, $prefix)) $updated = true;
+			if ($table_edit->processTable($table, $o, $prefix)) $updated = true;
 		}
 
 		// only update if we are the bodycopy that submitted the form

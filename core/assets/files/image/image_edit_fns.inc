@@ -82,14 +82,15 @@ class Image_Edit_Fns extends File_Edit_Fns
 	/**
 	* Processes the interface for uploading a file
 	*
-	* @param object Image	&$asset	the file asset
-	* @param string			$prefix	prefix for form elements
-	* @param array(string)	$info	info about the uploaded file
+	* @param object Image				&$asset	the file asset
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for form elements
+	* @param array(string)				$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processFileUpload(&$asset, $prefix, $info=Array())
+	function processFileUpload(&$asset, &$o, $prefix, $info=Array())
 	{
 		// assetid will not be set if we are creating
 		if (!$asset->id) return false;

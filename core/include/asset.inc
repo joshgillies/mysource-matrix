@@ -2712,30 +2712,31 @@ class Asset extends Resolve_Object
 	* Prints out the backend interface for the asset
 	* it's up to the kids to override
 	*
-	* @param object Backend $backend
+	* @param object Backend_Outputter $o
 	*
 	* @access public
 	*/
-	function paintBackend(&$backend)
+	function paintBackend(&$o)
 	{
-		$backend->out->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
+		$o->addHiddenField('asset_action', (($this->id) ? 'edit' : 'create'));
 		$ei = &$this->getEI();
-		$ei->paint($this, $backend->out, empty($this->id));
+		$ei->paint($this, $o, empty($this->id));
 	}// end paintBackend()
 
 
 	/**
 	* Processes a backend submission from this asset, returns true if all OK
 	*
-	* @param array(string)	&$link	information used to create the initial link
+	* @param object Backend_Outputter	$o
+	* @param array(string)				&$link	information used to create the initial link
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processBackend($link)
+	function processBackend(&$o, &$link)
 	{
 		$ei = &$this->getEI();
-		$processed = $ei->process($this, false);
+		$processed = $ei->process($this, $o, false);
 
 		foreach($processed as $name) {
 			$attr = &$this->getAttribute($name, true);

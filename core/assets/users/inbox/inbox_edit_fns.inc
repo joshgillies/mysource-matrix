@@ -101,14 +101,15 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the inbox interface
 	*
-	* @param object File	&$asset	the file asset
-	* @param string			$prefix	prefix for form elements
-	* @param array(string)	$info	info about the uploaded file
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	* @param array(string)				$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processMail(&$asset, $prefix, $info=Array())
+	function processMail(&$asset, &$o, $prefix, $info=Array())
 	{
 		$read   = (isset($_POST[$prefix.'_mark_as_read'])) ? array_keys($_POST[$prefix.'_mark_as_read']) : Array();
 		$delete = (isset($_POST[$prefix.'_delete'])) ? array_keys($_POST[$prefix.'_delete']) : Array();
@@ -139,6 +140,8 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 		}
+
+		$o->addOnLoad('if (top.sidenav && top.sidenav.refresh_internal_messages) top.sidenav.refresh_internal_messages();');
 
 		return true;
 	}//end processMail()
@@ -201,14 +204,15 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Processes the trash interface
 	*
-	* @param object File	&$asset	the file asset
-	* @param string			$prefix	prefix for form elements
-	* @param array(string)	$info	info about the uploaded file
+	* @param object Asset				$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	* @param array(string)				$info	info about the uploaded file
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processTrash(&$asset, $prefix, $info=Array())
+	function processTrash(&$asset, &$o, $prefix, $info=Array())
 	{
 		$recover = (isset($_POST[$prefix.'_recover'])) ? array_keys($_POST[$prefix.'_recover']) : Array();
 		$purge   = (isset($_POST[$prefix.'_purge'])) ? array_keys($_POST[$prefix.'_purge']) : Array();
