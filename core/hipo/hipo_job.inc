@@ -257,15 +257,13 @@ class HIPO_Job extends Resolve_Object
 		$this->_hipo_vars['running_mode']    = $this->_current_mode;
 
 		for($i = 0; $i < count($this->_steps); $i++) {
-			if ($this->_steps[$i]['running_mode'] == 'server') {
-				if (empty($this->_steps[$i]['auto_step'])) {
-					trigger_error('You can\'t have auto_step set to false for a step that run\'s on the HIPO Server - it just does not make sense', E_USER_WARNING);
-					$this->_steps[$i]['auto_step'] = true;
+			// if we aren't using the server make sure that all the steps are changed accordingly
+			if (!SQ_HIPO_USE_SERVER) {
+				$this->_steps[$i]['running_mode'] = 'web';
 
-				}// end if	
-
-				// if we aren't using the server make sure that all the steps are changed accordingly
-				if (!SQ_HIPO_USE_SERVER) $this->_steps[$i]['running_mode'] = 'web';
+			} else if ($this->_steps[$i]['running_mode'] == 'server' && empty($this->_steps[$i]['auto_step'])) {
+				trigger_error('You can\'t have auto_step set to false for a step that run\'s on the HIPO Server - it just does not make sense', E_USER_WARNING);
+				$this->_steps[$i]['auto_step'] = true;
 
 			}// end if
 		}// end for
