@@ -58,7 +58,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	*/
 	function setContentType(&$table, $type, $rowid, $cellid)
 	{
-		$full_type = "content_type_{$type}";
+		$full_type = 'content_type_'.$type;
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($full_type);
 		$content_link = Array('asset' => &$table, 'link_type' => SQ_LINK_UNITE, 'dependant' => 1);
 		$content_type = new $full_type();
@@ -72,7 +72,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	/**
 	* Update the link between the cells contentType and the table
 	* From time to time it may be nescessary to add or remove rows or columns.
-	* We need to make sure when any change happens in the table that the 
+	* We need to make sure when any change happens in the table that the
 	* name remains relevant to where the cell is in the table.
 	*
 	* @param object BodyCopy_Table	&$table	the table object
@@ -158,7 +158,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		}
 		echo ">\n";
 		$link = $table->getLinkById($this->attributes['linkid']);
-		if (empty($link)) {
+		if (!empty($link)) {
 			$content_type = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code']);
 		} else {
 			$content_type = null;
@@ -216,7 +216,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 		}
 
 		// print out the edit buttons
-		?> 
+		?>
 		<td <?php echo ($colspaning > 0) ? 'colspan="'.$colspaning.'"' : '';?> id="<?php echo $prefix.'_cell_'.$tableid.'_'.$rowid.'_'.$cellid?>" align="right">
 			<?php
 			print_bodycopy_icon("Javascript: bodycopy_edit_table_cell_properties('$prefix', $tableid, $rowid, $cellid);", 'Edit Cell '.($cellid + 1).'\'s Properties', (($attribute_list) ? 'Current Properties :<br>'.$attribute_list : ''), 'edit_cell_properties');
@@ -244,7 +244,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	function processCell(&$table, $prefix, $tableid, $rowid, $cellid)
 	{
 		global $bodycopy_action, $bodycopy_name, $bodycopy_data, $bodycopy_saved;
-		
+
 		$updated = false;
 
 		// update the contentType
@@ -271,7 +271,7 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 
 
 	function _updateCellType(&$table, $new_type='') {
-	
+
 		// dont change anything if the new type id blank
 		$new_type = trim($new_type);
 		if (empty($new_type)) return false;
@@ -307,7 +307,8 @@ class BodyCopy_Table_Cell extends Resolve_Object {
 	*/
 	function print_backend_js_data($cellid)
 	{
-		?> 
+		?>
+
 									case <?php echo $cellid?> :
 										retVal["attributes"] = '<?php echo var_serialise($this->attributes, true)?>';
 									break;
