@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: db_install.inc,v 1.1.2.1 2004/03/03 18:46:58 brobertson Exp $
+* $Id: db_install.inc,v 1.1.2.2 2004/03/08 17:41:41 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,8 +104,10 @@ function db_install($xml_file, $quiet=false)
 		// TODO: At some point in the future we could make it so that this script goes into an update and alter
 		//       mode if the table exists (it's a nice dream anyway :)
 		if (!$table_exists) {
-			$cached_table_columns[$table_name] = Array('columns' => Array(), 'primary_key' => Array());
+			$cached_table_columns[$table_name] = Array('rollback' => false, 'columns' => Array(), 'primary_key' => Array());
 		}
+		$cached_table_columns[$table_name]['rollback'] = $require_rollback;
+
 		// buffer the columns so we can use them in the rollback table
 		// as well, if needed
 		ob_start();
@@ -245,6 +247,7 @@ function db_install($xml_file, $quiet=false)
 				echo 'CREATE TABLE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' (';
 				echo SQ_TABLE_PREFIX.'effective_from '.$rollback_column_type.' NOT NULL,';
 				echo SQ_TABLE_PREFIX.'effective_to   '.$rollback_column_type.',';
+				echo SQ_TABLE_PREFIX.'deletion       CHAR(1),';
 				echo $table_columns_string;
 
 				echo $rollback_primary_key;
