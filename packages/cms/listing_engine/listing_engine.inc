@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine.inc,v 1.17 2005/02/18 04:08:03 lwright Exp $
+* $Id: listing_engine.inc,v 1.18 2005/03/01 05:44:34 tbarrett Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -542,7 +542,11 @@ class Listing_Engine extends Page
 
 	
 	/**
-	* Remove assets of unwanted types from the list of assets to print
+	* Remove and/or update the todo list based on the types of the assets in it
+	*
+	* If an entry in the list is a child of a wanted asset type, its type code is change
+	* to the wanted parent type.  If an entry is not a wanted type or a child thereof,
+	* it is removed.  Otherwise it's left alone.
 	*
 	* @param array	&$todo	an array of assets to list in the same format as the return
 	*						value of getAssetList()
@@ -576,7 +580,7 @@ class Listing_Engine extends Page
 					// this type is not required in the results
 					unset($todo[$assetid]);
 				} else {
-					$type_code = $new_type_code;
+					$todo[$assetid] = $new_type_code;
 				}
 			}
 
