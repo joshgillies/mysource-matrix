@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.255 2003/11/10 02:56:52 mmcintyre Exp $
+* $Id: asset.inc,v 1.256 2003/11/12 23:04:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2098,7 +2098,7 @@ class Asset extends MySource_Object
 			return false;
 		}
 
-		// dickhead check
+		// if the value being set is the same as the current value - dont do anything
 		if ($this->vars[$name]['value'] == $value) return true;
 
 		if ($this->vars[$name]['type'] == 'serialise') $value = unserialize($value);
