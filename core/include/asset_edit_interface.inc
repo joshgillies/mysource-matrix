@@ -1057,6 +1057,22 @@ class Asset_Edit_Interface extends MySource_Object
 						}
 					break;
 
+					case 'force_secure' :
+						if ($field->children[0]->name != 'display_name') $display_name = 'Force Secure';
+						else $display_name = $field->children[0]->content;
+						$o->openField($display_name);
+						$current_langs = $owner->getLanguages();
+						// have to have admin access to set the force secure
+						if ($owner->adminAccess()) {
+							check_box($prefix.'_force_secure', '1', ($owner->force_secure == '1'));
+						} else {
+						?>
+							<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo ($owner->force_secure) ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
+						<?php
+						}
+					break;
+
+
 					case 'intl_languages' :
 						if ($field->children[0]->name != 'display_name') $display_name = 'Languages';
 						else $display_name = $field->children[0]->content;
@@ -1328,6 +1344,9 @@ class Asset_Edit_Interface extends MySource_Object
 	{
 		$prefix = $owner->getPrefix();
 
+		// this is an array of assetids that are going to need their lookups updated
+		$assets_affected_lookups = Array();
+
 		//// VERSIONING ////
 		if ($owner->adminAccess()) {
 			if (isset($_POST[$prefix.'_version_update_version'])) {
@@ -1336,6 +1355,16 @@ class Asset_Edit_Interface extends MySource_Object
 				}
 			}
 		}
+
+
+		//// FORCE SECURE ////
+		if ($owner->adminAccess()) {
+			if ($owner->setForceSecure(!empty($_POST[$prefix.'_force_secure']))) {
+				$assets_affected_lookups[] = $owner->id;
+			}// end if
+		}// end if
+
+
 
 
 		//// LANGUAGES ////
@@ -1374,7 +1403,7 @@ class Asset_Edit_Interface extends MySource_Object
 				// check that the security key was entered correctly
 				if (validate_security_key()) {
 					// errors for morphing will get reported in the morph function
-					if ($owner->morph($_POST[$prefix.'_morph_new_type'])) return true;
+					$owner->morph($_POST[$prefix.'_morph_new_type']);
 				} else {
 					trigger_error('The security key entered was incorrect. Asset type remains unchanged.', E_USER_WARNING);
 				}
@@ -1384,11 +1413,12 @@ class Asset_Edit_Interface extends MySource_Object
 
 		///// FRONTEND AND LOGIN DESIGN CHANGES ////
 
-		if (isset($_POST[$prefix.'_designs']) && $owner->writeAccess()) {
+		if (!empty($_POST[$prefix.'_designs']) && $owner->writeAccess()) {
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+			$designs_ok = true;
+			$designs_changed = false;
 
-			$designs_affected = Array();
 			foreach ($_POST[$prefix.'_designs'] as $design_name => $design_data) {
 
 				$new_designid = $design_data['designid'];
@@ -1416,46 +1446,55 @@ class Asset_Edit_Interface extends MySource_Object
 				if ($old_designid) {
 					if (!$owner->deleteLink($old_design_link['linkid'])) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
+						$designs_ok = false;
+						break;
 					}
-					$designs_affected[] = $old_designid;
+					$assets_affected_lookups[] = $old_designid;
 				}
 
 				if ($new_designid) {
 					$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
 					if (is_null($design)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
+						$designs_ok = false;
+						break;
 					}
 					if (!$owner->createLink($design, SQ_LINK_TYPE_3, $design_name)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						return false;
+						$designs_ok = false;
+						break;
 					}
-					$designs_affected[] = $new_designid;
 				}
+
+				$designs_changed = true;
 
 			}// end foreach
 
-			//// START HIPO PROCESSING ////
-			if (!empty($designs_affected)) {
-				require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc';
-				$init_hipo = new HIPO_Job_Update_Lookups();
+			if ($designs_ok) {
+				if ($designs_changed) $assets_affected_lookups[] = $owner->id;
+				$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			}
 
-				$init_hipo->setRunningVars(Array('assetids' => $designs_affected));
-				$init_hipo->setOption('on_complete_url', $_SERVER['REQUEST_URI']);
-
-				$code_name = $init_hipo->initialise();
-				if ($code_name) {
-					$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-					if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
-				}
-			}// end if
-
-			////  END HIPO PROCESSING  ////
-
-			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		}// end if
+
+		//// START HIPO PROCESSING ////
+		if (!empty($assets_affected_lookups)) {
+			require_once SQ_SYSTEM_ROOT.'/core/hipo/jobs/hipo_job_update_lookups.inc';
+			$init_hipo = new HIPO_Job_Update_Lookups();
+
+			$init_hipo->setRunningVars(Array('assetids' => array_unique($assets_affected_lookups)));
+			$init_hipo->setOption('on_complete_url', $_SERVER['REQUEST_URI']);
+
+			$code_name = $init_hipo->initialise();
+			if ($code_name) {
+				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
+				if ($url = $hh->getProcessURL($code_name)) $o->setRedirect($url);
+			}
+		}// end if
+
+		////  END HIPO PROCESSING  ////
+
 
 		return true;
 
@@ -2795,68 +2834,70 @@ class Asset_Edit_Interface extends MySource_Object
 
 		$o->closeSection();
 
-		$o->openSection('Future Linking\'s/Lineage\'s');
-
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_lineage');
 		$fl_jobs = &Cron_Job_Future_Lineage::getActiveJobs($owner);
-		if (!empty($fl_jobs)) {
-			$o->openField('', 'new_line');
-			?>
-			<table class="sq-backend-table">
-				<tr>
-					<td class="sq-backend-table-header">
-						Action
-					</td>
-					<td class="sq-backend-table-header">
-						When
-					</td>
-			<?php if ($write_access) { ?>
-					<td class="sq-backend-table-header" style="text-align: center;">
-						Delete ?
-					</td>
-			<?php } // end if ?>
-				</tr>
-			<?php
 
-			for($i = 0; $i < count($fl_jobs); $i++) {
-			?>
-				<tr>
-					<td class="sq-backend-table-cell">
-						<?php echo nl2br($fl_jobs[$i]->readableDescription()); ?>
-					</td>
-					<td class="sq-backend-table-cell">
-						<?php echo $fl_jobs[$i]->readableWhen(); ?>
-					</td>
-			<?php if ($write_access) { ?>
-					<td class="sq-backend-table-cell" style="text-align: center;">
-					<?php
-						if ($fl_jobs[$i]->canDelete()) {
-							check_box($prefix.'_remove_fl[]', $fl_jobs[$i]->id);
-						} else {
-							echo '&nbsp;';
-						}// end if
-					?>
-					</td>
-			<?php } // end if ?>
-				</tr>
-			<?php
-			}// end foreach
+		if (!empty($fl_jobs) || $write_access) {
+			$o->openSection('Future Linking\'s/Lineage\'s');
+			if (!empty($fl_jobs)) {
+				$o->openField('', 'new_line');
+				?>
+				<table class="sq-backend-table">
+					<tr>
+						<td class="sq-backend-table-header">
+							Action
+						</td>
+						<td class="sq-backend-table-header">
+							When
+						</td>
+				<?php if ($write_access) { ?>
+						<td class="sq-backend-table-header" style="text-align: center;">
+							Delete ?
+						</td>
+				<?php } // end if ?>
+					</tr>
+				<?php
 
-			?>
-			</table>
-			<br/>
-			<?php
+				for($i = 0; $i < count($fl_jobs); $i++) {
+				?>
+					<tr>
+						<td class="sq-backend-table-cell">
+							<?php echo nl2br($fl_jobs[$i]->readableDescription()); ?>
+						</td>
+						<td class="sq-backend-table-cell">
+							<?php echo $fl_jobs[$i]->readableWhen(); ?>
+						</td>
+				<?php if ($write_access) { ?>
+						<td class="sq-backend-table-cell" style="text-align: center;">
+						<?php
+							if ($fl_jobs[$i]->canDelete()) {
+								check_box($prefix.'_remove_fl[]', $fl_jobs[$i]->id);
+							} else {
+								echo '&nbsp;';
+							}// end if
+						?>
+						</td>
+				<?php } // end if ?>
+					</tr>
+				<?php
+				}// end foreach
 
+				?>
+				</table>
+				<br/>
+				<?php
+
+			}// end if
+
+			if ($write_access) {
+				$fl = new Cron_Job_Future_Lineage();
+				$fl->setAssetInLink($owner, 'minor');
+				$edit_fns = $fl->getEditFns();
+				$edit_fns->paintInLineBackend($fl, $o, $prefix.'_new_fl');
+			}// end if
+
+			$o->closeSection();
 		}// end if
-
-		if ($write_access) {
-			$fl = new Cron_Job_Future_Lineage();
-			$fl->setAssetInLink($owner, 'minor');
-			$edit_fns = $fl->getEditFns();
-			$edit_fns->paintInLineBackend($fl, $o, $prefix.'_new_fl');
-		}// end if
-
-		$o->closeSection();
 
 		return $owner->writeAccess(Array(), true, false);
 

@@ -18,36 +18,46 @@ class Asset_Edit_Fns extends MySource_Object
 	* An array of tab code names and their display names
 	* @var Array()
 	*/
-	var $static_screens = Array('details'         => Array('name' => 'Details',
-													   'force_unlock' => true
-													  ),
-								'permissions'     => Array('name' => 'Permissions',
-													   'force_unlock' => true
-													  ),
-								'workflow'        => Array('name' => 'Workflow',
-													   'force_unlock' => false
-													  ),
-								'metadataSchemas' => Array('name' => 'Metadata Schemas',
-													   'force_unlock' => true
-													  ),
-								'metadata'        => Array('name' => 'Metadata',
-													   'force_unlock' => true
-													  ),
-								'dependants'      => Array('name' => 'Dependants',
-													   'force_unlock' => true
-													  ),
-								'linking'         => Array('name' => 'Linking',
-													   'force_unlock' => true
-													  ),
-								'settings'        => Array('name' => 'Settings',
-													   'force_unlock' => false
-													  ),
-								'history'         => Array('name' => 'History',
-													   'force_unlock' => true
-													  ),
-								'logs'            => Array('name' => 'Logs',
-													   'force_unlock' => true
-													  ),
+	var $static_screens = Array('details'			=> Array(
+														'name' => 'Details',
+														'force_unlock' => true
+													),
+								'permissions'		=> Array(
+														'name' => 'Permissions',
+														'force_unlock' => true
+													),
+								'workflow'			=> Array(
+														'name' => 'Workflow',
+														'force_unlock' => false
+													),
+								'metadataSchemas'	=> Array(
+														'name' => 'Metadata Schemas',
+														'force_unlock' => true
+													),
+								'metadata'			=> Array(
+														'name' => 'Metadata',
+														'force_unlock' => true
+													),
+								'dependants'		=> Array(
+														'name' => 'Dependants',
+														'force_unlock' => true
+													),
+								'linking'			=> Array(
+														'name' => 'Linking',
+														'force_unlock' => true
+													),
+								'settings'			=> Array(
+														'name' => 'Settings',
+														'force_unlock' => false
+													),
+								'history'			=> Array(
+														'name' => 'History',
+														'force_unlock' => true
+													),
+								'logs'				=> Array(
+														'name' => 'Logs',
+														'force_unlock' => true
+													),
 								);
 
 
@@ -120,9 +130,19 @@ class Asset_Edit_Fns extends MySource_Object
 	*/
 	function paintURLs(&$asset, &$o, $prefix)
 	{
-		$urls = $asset->getLookups('url');
-		foreach($urls as $url) {
-			echo $url, '<br/>';
+		$urls = $asset->getLookups();
+		if (empty($urls)) {
+			echo 'There are no URLs associated with this Asset';
+		} else {
+			foreach($urls as $data) {
+				if ($data['http'])  echo 'http://'.$data['url'], '<br/>';
+				if ($data['https']) echo 'https://'.$data['url'], '<br/>';
+			}
+		}
+
+		if ($asset->force_secure) {
+			echo '<br>';
+			$o->note('Force Secure (see Settings screen) is set on this asset, so if you think that there should other URLs registered you may need to check that the site(s) that this asset is has allowed the https protocol');
 		}
 
 	}// end paintURLs()
