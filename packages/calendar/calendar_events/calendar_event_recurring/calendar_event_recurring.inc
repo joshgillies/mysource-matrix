@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.17 2004/08/05 00:01:23 lwright Exp $
+* $Id: calendar_event_recurring.inc,v 1.18 2004/08/05 05:37:33 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.17 $ - 1.0
+* @version $Revision: 1.18 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -57,8 +57,9 @@ class Calendar_Event_Recurring extends Calendar_Event
 	/**
 	* Returns the number of seconds since the start of the day
 	*
-	* @param int	$timestamp
+	* @param int	$timestamp	the date to test
 	*
+	* @return int	number of seconds since midnight
 	* @access private
 	*/
 	function _secondsToday($timestamp)
@@ -529,7 +530,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 			$keywords['event_frequency']['description'] = 'The frequency with which this event recurs';
 		}
 		return $keywords;
-	}
+	}//end getAssetKeywords()
 
 
 }//end class
