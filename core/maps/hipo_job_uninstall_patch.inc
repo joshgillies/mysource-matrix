@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_uninstall_patch.inc,v 1.3 2004/06/25 04:04:10 gsherwood Exp $
+* $Id: hipo_job_uninstall_patch.inc,v 1.4 2004/06/25 07:02:50 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -60,6 +60,19 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 												),
 						'running_mode'	=> 'web',
 						'auto_step'		=> false,
+						'skip_step'		=> false,
+						'percent_done'	=> 0,
+						'complete'		=> false,
+						'message'		=> '',
+					),
+					Array(
+						'name'			=> 'Checking Asset Types',
+						'function_call'		=> Array(
+												'paint_function'   => 'paintPleaseWait',
+												'process_function' => 'processCheckAssetTypes',
+												),
+						'running_mode'	=> 'server',
+						'auto_step'		=> true,
 						'skip_step'		=> false,
 						'percent_done'	=> 0,
 						'complete'		=> false,
@@ -378,6 +391,46 @@ class HIPO_Job_Uninstall_Patch extends HIPO_Job
 		return true;
 	
 	}//end processConfirmation()
+
+
+	/**
+	* Checks that any asset types being deleted can be deleted
+	*
+	* @param array	&$step_data		the step data for this job
+	* @param string	$prefix			prefix to be used with this job
+	*
+	* @access public
+	* @return boolean
+	*/
+	function processCheckAssetTypes(&$step_data, $prefix)
+	{
+		$patch_info = $this->_getPatchDetails($this->_running_vars['patchid']);
+
+		if (isset($patch_info['requirements']['assets'])) {
+			foreach ($patch_info['requirements']['assets'] as $type_code => $versions) {
+				if (empty($versions['old_version'])) {
+					// we are going to be deleting this asset type that was installed
+					// so make sure we can actually delete it
+					$assetid_count = count($GLOBALS['SQ_SYSTEM']->am->getTypeAssetids($type_code, false));
+					if ($assetid_count > 0) {
+						trigger_error('This patch cannot be removed because it will delete asset type "'.$type_code.'", which is currently in use ('.$assetid_count.' "'.$type_code.'" asset(s) exist in the system)', E_USER_ERROR);
+						return false;
+					} else {
+						$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($type_code);
+						if (substr(SQ_SYSTEM_ROOT.'/'.$type_info['dir'], 0, strlen(SQ_CORE_PACKAGE_PATH)) == SQ_CORE_PACKAGE_PATH) {
+							trigger_error('This patch cannot be removed because it will delete asset type "'.$type_code.'", which is a core asset type', E_USER_ERROR);
+							return false;
+						}
+					}
+				}
+			}
+		}
+
+		$step_data['percent_done'] = 100;
+		$step_data['complete']     = true;
+		return true;
+	
+	}//end processCheckAssetTypes()
 
 
 	/**
