@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.56 2004/05/13 05:03:09 lwright Exp $
+* $Id: html_form.inc,v 1.57 2004/06/03 04:15:04 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,6 +53,29 @@ function submit_button($name, $value, $on_click='', $extras='')
 	echo '<input type="submit" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
 
 }//end submit_button()
+
+
+/**
+* Prints a reset button, used to clear forms
+*
+* @param string	$name		the form name to use for the reset button
+* @param string	$value		the text that should be displayed for the reset button
+* @param string	$on_click	any JS that should be executed when the reset button is pressed
+* @param string	$extras		any input field attributes that should be placed in the <input ... > tag
+*
+* @return void
+* @access public
+*/
+function reset_button($name, $value, $on_click='', $extras='')
+{
+	// Make sure that they don't use 'reset' as the form field, because it clashes
+	// with the reset() fn that the form has
+	if ($name == 'reset') trigger_error('Rename your Reset button, so as not use "reset"', E_USER_ERROR);
+	if ($on_click) $extras .= ' onClick="javascript: '.htmlspecialchars($on_click).' "';
+	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
+	echo '<input type="reset" name="', htmlspecialchars($name), '" id="', htmlspecialchars($name), '" value="', htmlspecialchars($value), '" ', $extras, ' />';
+
+}//end reset_button()
 
 
 /**
