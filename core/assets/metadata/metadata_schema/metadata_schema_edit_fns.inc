@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.24 2004/04/19 01:44:50 gsherwood Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.25 2004/05/04 06:29:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -298,6 +298,7 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function requiredFieldsComplete(&$asset, $values)
 	{
+		if (empty($values)) return true;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
