@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.156 2004/08/18 00:42:35 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.157 2004/08/18 23:18:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -395,7 +395,7 @@ class Asset_Map
 			$secondary_protocol = 'http';
 		}
 		
-		$sql  = 'SELECT DISTINCT(a.assetid), a.short_name, a.type_code, a.status,
+		$sql  = 'SELECT a.assetid, a.short_name, a.type_code, a.status,
 					l.linkid, l.link_type, l.sort_order, lt.num_immediate_kids, u.url, ap.path,
 					CASE u.'.$primary_protocol.'
 						WHEN '.$db->quote('1').' THEN '.$db->quote($primary_protocol).'
@@ -421,17 +421,13 @@ class Asset_Map
 			$p_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($p_where, 'p', 'ON');
 			$sql .= ' LEFT JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p '.$p_where;
 		}
-		
+
 		$sql .= ','.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree lt';
 		$where = '	a.assetid = l.minorid AND
 				l.linkid = lt.linkid AND ';
-					
-		// if we are going to include the parent, 
-		// then we want either its children or the parent itself
-		$where .= ($include_parent) 
-			? '(l.majorid = '.$db->quote($assetid).' OR l.minorid = '.$db->quote($assetid).')'
-			: 'l.majorid = '.$db->quote($assetid);
-					
+
+		$where .= 'l.majorid = '.$db->quote($assetid);
+
 		$where .= ' AND
 					l.link_type <= '.$db->quote(SQ_LINK_TYPE_2);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
@@ -440,14 +436,17 @@ class Asset_Map
 
 		$sql .= ' '.$where;
 
-		$sql .= ' GROUP BY a.assetid, a.short_name, a.type_code, a.status,
-					   l.linkid, l.link_type, l.sort_order,
-					   lt.num_immediate_kids, u.url, protocol, ap.path
-				  ORDER BY sort_order DESC';
+		$sql .= ' ORDER BY sort_order';
 
-		$result = $db->getAll($sql);
-		if (DB::isError($result)) {
-			return $this->_error('Could not load child assets for assetid '.$assetid.' '.$result->getMessage());
+		$db_result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
+		if (DB::isError($db_result)) {
+			return $this->_error('Could not load child assets for assetid '.$assetid.' '.$db_result->getMessage());
+		}
+		
+		$result = Array();
+		foreach ($db_result as $db_assetid => $db_data) {
+			$result[$db_assetid] = $db_data[0];
+			$result[$db_assetid]['assetid'] = $db_assetid;
 		}
 
 		// gather links for shadowed assets - only if asset descends from a bridge
@@ -466,8 +465,10 @@ class Asset_Map
 			// it may be able to handle this itself, lets check
 			if (method_exists($bridge, 'getAssetMapLinks')) {
 				$result = array_merge($result, $bridge->getAssetMapLinks());
+				
 			} else {
 				$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($assetid, SQ_LINK_TYPE_1 | SQ_LINK_TYPE_2);
+				
 				foreach ($links as $link_data) {
 					// if the colon isn't there, this isn't a shadow asset; move on
 					if (strpos($link_data['minorid'], ':') === false) continue;
@@ -593,7 +594,7 @@ class Asset_Map
 			}// end $name switch
 
 		}// end children for
-
+		
 		$this->_send($output);
 
 	}//end _getMenuItems()
