@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: tool_search_replace.inc,v 1.3 2005/03/23 00:55:45 ndvries Exp $
+* $Id: tool_search_replace.inc,v 1.4 2005/03/23 00:59:57 ndvries Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_SYSTEM_ROOT.'/core/assets/system/tool/tool.inc';
 *
 * @author Nathan de Vries <ndvries@squiz.net>
 * @author David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -196,7 +196,7 @@ class Tool_Search_Replace extends Tool
 
 		//no matches were found, trigger error and paint getInterface
 		if (!$search_results) {
-			trigger_error('No Matches for '.$_REQUEST[$type_code.'_search_string'].' could be found', E_USER_NOTICE);
+			trigger_error('No Matches for "'.$_REQUEST[$type_code.'_search_string'].'" could be found', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
@@ -205,7 +205,7 @@ class Tool_Search_Replace extends Tool
 
 		//after formatting the results, there were no real replaceable matches
 		if (empty($formatted_results)) {
-			trigger_error('No Matches for '.$_REQUEST[$type_code.'_search_string'].' could be found', E_USER_NOTICE);
+			trigger_error('No Matches for "'.$_REQUEST[$type_code.'_search_string'].'" could be found', E_USER_NOTICE);
 			Tool_Search_Replace::paintTool($o, $type_code);
 			return;
 		}
