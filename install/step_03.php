@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.57 2005/02/23 05:49:19 gsherwood Exp $
+* $Id: step_03.php,v 1.58 2005/03/21 06:25:03 gsherwood Exp $
 *
 */
 
@@ -43,7 +43,7 @@
 * would update all the asset types for core and cms only
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 * @subpackage install
 */
@@ -88,9 +88,8 @@ if ((php_sapi_name() == 'cli')) {
 }
 
 
-// dont set SQ_INSTALL flag before this include because we want
-// a complete load now that the database has been created
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+
 // get the list of functions used during install
 require_once $SYSTEM_ROOT.'/install/install.inc';
 
@@ -100,7 +99,7 @@ if (version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
 }
 
 // let everyone know we are installing
-$GLOBALS['SQ_INSTALL'] = true;
+$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 // call all the steps
 if (!regenerate_configs()) {
@@ -150,7 +149,7 @@ generate_global_preferences();
 install_event_listeners();
 cache_asset_types();
 
-unset($GLOBALS['SQ_INSTALL']);
+$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 
 /**

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_poll.inc,v 1.3 2004/12/24 02:48:02 rhoward Exp $
+* $Id: page_poll.inc,v 1.4 2005/03/21 06:25:31 gsherwood Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Robert Howard <rhoward@squiz.net>
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -286,15 +286,9 @@ class Page_Poll extends Page
 			$question->setAttrValue('options', $options);
 
 			// override write-protection
-			$sq_install 			= array_get_index($GLOBALS, 'SQ_INSTALL', false);
-			$GLOBALS['SQ_INSTALL'] 	= true;
-
+			$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 			$question->saveAttributes();
-
-			// unset the override
-			if (!$sq_install) {
-				unset($GLOBALS['SQ_INSTALL']);
-			}
+			$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 			if ($this->attr('Vote_Behaviour') == 'sessions') {
 				$_SESSION[$this->getPrefix().'_VOTED'] = true;

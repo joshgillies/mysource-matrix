@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_02.php,v 1.53 2004/12/06 14:38:13 brobertson Exp $
+* $Id: step_02.php,v 1.54 2005/03/21 06:25:03 gsherwood Exp $
 *
 */
 
@@ -28,12 +28,13 @@
 * Purpose
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.53 $
+* @version $Revision: 1.54 $
 * @package MySource_Matrix
 * @subpackage install
 */
 ini_set('memory_limit', -1);
 error_reporting(E_ALL);
+
 $SYSTEM_ROOT = '';
 // from cmd line
 if ((php_sapi_name() == 'cli')) {
@@ -53,14 +54,13 @@ if (empty($SYSTEM_ROOT) || !is_dir($SYSTEM_ROOT)) {
 	trigger_error($err_msg, E_USER_ERROR);
 }
 
-// Let the asset manager know we are installing
-$GLOBALS['SQ_INSTALL'] = true;
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
+$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 require_once 'XML/Tree.php';
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
-// Re-generate the Config to make sure that we get any new defines that may have been issued
+// re-generate the config to make sure that we get any new defines that may have been issued
 require_once SQ_INCLUDE_PATH.'/system_config.inc';
 $cfg = new System_Config();
 $cfg->save(Array(), false);
@@ -84,5 +84,6 @@ if (!File_Versioning::initRepository($db)) {
 
 // its all good
 $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 ?>

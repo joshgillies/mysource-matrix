@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_submission.inc,v 1.19 2004/12/13 03:52:03 lwright Exp $
+* $Id: form_submission.inc,v 1.20 2005/03/21 06:25:31 gsherwood Exp $
 *
 */
 
@@ -32,12 +32,13 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Revision: 1.20 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Form_Submission extends Asset
 {
+
 
 	/**
 	* Constructor
@@ -51,17 +52,6 @@ class Form_Submission extends Asset
 		return $this->Asset($assetid);
 
 	}//end constructor
-
-
-	function create(&$link)
-	{
-		if (!($linkid = parent::create($link))) {
-			return 0;
-		}
-
-		return $linkid;
-
-	}//end create()
 
 
 	/**
@@ -230,13 +220,6 @@ class Form_Submission extends Asset
 
 		if (empty($a['summary'])) $a['summary'] = Array();
 
-		/*if (!isset($a['summary'][$section_id])) {
-			$a['summary'][$section_id] = Array(
-				'section_name'	=> $section_name,
-				'questions'		=> Array(),
-			);
-		}*/
-
 		$a['summary'][$question_id]['answer']  = $value;
 		$a['summary'][$question_id]['name']    = $name;
 
@@ -250,7 +233,7 @@ class Form_Submission extends Asset
 
 
 	/**
-	* returns an Array with summary information
+	* Return an array with summary information
 	*
 	* @access public
 	* @return Array()
@@ -321,13 +304,15 @@ class Form_Submission extends Asset
 	*/
 	function saveAttributes($dont_run_updated=false)
 	{
-		$GLOBALS['SQ_INSTALL'] = true;
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 		$val = parent::saveAttributes($dont_run_updated);
-		$GLOBALS['SQ_INSTALL'] = false;
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 		return $val;
 
 	}//end saveAttributes()
 
+
 }//end class
+
 ?>

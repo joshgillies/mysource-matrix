@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.47 2005/01/25 00:27:28 lwright Exp $
+* $Id: page_asset_builder.inc,v 1.48 2005/03/21 06:25:31 gsherwood Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -390,9 +390,9 @@ class Page_Asset_Builder extends Page
 
 					$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-					// set the install flag because we are creating an asset without being
+					// set the install run level because we are creating an asset without being
 					// logged in - so any write access checks will fail
-					$GLOBALS['SQ_INSTALL'] = true;
+					$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 					if (!$new_asset->processBackend($o, $link)) {
 
@@ -438,7 +438,7 @@ class Page_Asset_Builder extends Page
 
 					}//end if processBackend
 
-					$GLOBALS['SQ_INSTALL'] = false;
+					$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 				break;
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.89 2005/03/18 04:37:11 lwright Exp $
+* $Id: form.inc,v 1.90 2005/03/21 06:25:31 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.89 $
+* @version $Revision: 1.90 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -1483,12 +1483,14 @@ class Form extends Asset
 		$submission = new Form_Submission();
 		$copy_link  = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_3, 'is_dependant' => 1, 'is_exclusive' => 1);
 
-		$GLOBALS['SQ_INSTALL'] = true;
-		if (!$submission->create($copy_link)) {
+		$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
+		$success = $submission->create($copy_link);
+		$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
+
+		if (!$success) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
-		$GLOBALS['SQ_INSTALL'] = false;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return $submission;

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.24 2005/02/22 06:45:18 ndvries Exp $
+* $Id: page_account_manager.inc,v 1.25 2005/03/21 06:25:31 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -307,9 +307,9 @@ class Page_Account_Manager extends Page_Asset_Builder
 							}
 						}
 
-						// set the install flag because we are creating an asset without being
+						// set the install run level because we are creating an asset without being
 						// logged in - so any write access checks will fail
-						$GLOBALS['SQ_INSTALL'] = true;
+						$GLOBALS['SQ_SYSTEM']->setRunLevel(SQ_RUN_LEVEL_FORCED);
 
 							$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -340,7 +340,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 							// all done
 							$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
-						$GLOBALS['SQ_INSTALL'] = false;
+						$GLOBALS['SQ_SYSTEM']->restoreRunLevel();
 
 						$this->_current_state = 'create_login';
 						$_POST['SQ_LOGIN_USERNAME'] = $user->attr('username');
