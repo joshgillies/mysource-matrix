@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.5 2004/05/19 23:19:47 lwright Exp $
+* $Id: email_format.inc,v 1.6 2004/06/17 04:03:47 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -105,14 +105,14 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 					<td valign="top">
 						<?php
 						foreach ($current_value['to'] as $email) {
-							echo $email.'<br />';
+							echo htmlspecialchars($email).'<br />';
 						}
 						?>
 					</td>
 				</tr>
 				<tr>
 					<td align="right" valign="top"><b>From</b></td>
-					<td valign="top"><?php echo $current_value['from']; ?></td>
+					<td valign="top"><?php echo htmlspecialchars($current_value['from']); ?></td>
 				</tr>
 				<tr>
 					<td align="right" valign="top"><b>Subject</b></td>
@@ -163,7 +163,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		$current_to_string = '';
 		$current_to = '';
 		foreach ($current_value['to'] as $email) {
-			$current_to_string .= '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\''.$email.'\', \''.$prefix.'\', \'to\'); return false;">del</a> ] '.$email.'<br>';
+			$current_to_string .= '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\''.$email.'\', \''.$prefix.'\', \'to\'); return false;">del</a> ] '.htmlspecialchars($email).'<br>';
 			$current_to .= $email.' ';
 		}
 
@@ -177,8 +177,8 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				
 				if (box.value == "") return;
 
-				div.innerHTML += '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\'' + box.value + '\', \'' + editor_name + '\', \'' + type + '\'); return false;">del</a> ] ' + box.value + '<br>';
-				value.value += box.value + " ";
+				div.innerHTML += '[ <a href="#" onclick="Javascript: emailFormatDeleteAddress(\'' + box.value + '\', \'' + editor_name + '\', \'' + type + '\'); return false;">del</a> ] ' + box.value.replace('<', '&lt;').replace('>', '&gt;') + '<br>';
+				value.value += box.value + ";";
 				
 				box.value = "";
 				
@@ -195,7 +195,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				arrIndex = 0;
 				email_array = new Array();
 				while(-1 != (i = current_emails.toLowerCase().indexOf("<br>", lastIndex))) {
-					email_array[arrIndex] = current_emails.substring(lastIndex, i);
+					email_array[arrIndex] = current_emails.substring(lastIndex, i).replace('&lt;', '<').replace('&gt;', '>');
 					arrIndex++;
 					lastIndex = i+4;
 				}
@@ -205,12 +205,12 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 				for (var i = 0; i < email_array.length; i++) {
 					var email = email_array[i];
-					re = new RegExp("\\\[.*\\\] (.*)", "gi");
+					re = new RegExp("\\\[.*\\\] (.*)", "g");
 					email_addr = email.replace(re, "\$1");
 
 					if (email_addr != address && email_addr != "") {
 						new_div_content += email + "<br>";
-						new_value_content += email_addr + " ";
+						new_value_content += email_addr + ";";
 					}
 				}
 				
@@ -344,7 +344,7 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 
 		$to = Array();
 		if (isset($_POST[$prefix.'_to'])) {
-			$to = explode(' ', trim($_POST[$prefix.'_to']));
+			$to = explode(';', trim($_POST[$prefix.'_to']));
 			// make sure the emails are valid
 			foreach ($to as $email) {
 				$email = trim($email);
@@ -427,14 +427,20 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 		// new line is \n
 		$crlf = "\n";
 		$mime = new Mail_mime($crlf);
-		$mail =& Mail::factory('mail', "-f$from");
+
+		$from_addr = preg_replace('|.*\<(.*)\>|', '\\1', $from);
+
+		$mail =& Mail::factory('mail', "-f$from_addr");
 
 		$hdrs = Array('From' => $from, 'Subject' => $subject);
 
 		foreach ($current_value['to'] as $to_email) {
 
 			$to_email = trim($to_email);
-			if (empty($to_email) || !valid_email($to_email)) continue;
+
+			$to_addr = preg_replace('|.*\<(.*)\>|', '\\1', $to_email);
+
+			if (empty($to_email) || !valid_email($to_addr)) continue;
 
 			$mime->setTXTBody(strip_tags($text_body));
 			$mime->setHTMLBody($html_body);
