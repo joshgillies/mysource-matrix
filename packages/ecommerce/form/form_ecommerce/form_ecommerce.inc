@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.9 2004/12/02 05:25:48 arailean Exp $
+* $Id: form_ecommerce.inc,v 1.9.2.1 2005/01/20 04:05:55 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.9.2.1 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -441,7 +441,7 @@ class Form_Ecommerce extends Form_Email
 	{
 		$total = 0;
 
-		$questions  = $this->getAllQuestionAssets();
+		$questions  =& $this->getAllQuestionAssets();
 		$ecom_items = Array();
 
 		foreach ($questions as $id => $question) {

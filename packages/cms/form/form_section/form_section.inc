@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_section.inc,v 1.30.2.2 2005/01/19 22:34:34 lwright Exp $
+* $Id: form_section.inc,v 1.30.2.3 2005/01/20 04:05:54 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.30.2.2 $
+* @version $Revision: 1.30.2.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -358,6 +358,30 @@ class Form_Section extends Bridge
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($sort_order[$orderid]);
 
 	}//end getQuestionByOrder()
+
+
+	/**
+	* get the question assets attached to this section
+	*
+	* @access public
+	* @return array
+	*/
+	function &getQuestionAssets()
+	{
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$result = Array();
+
+		$questions = $this->attr('questions');
+		if (!empty($questions)) {
+			foreach ($questions as $q_id => $question) {
+				$id           = $this->id.':q'.$q_id;
+				$result[$id]  = $am->getAsset($id);
+			}
+		}
+
+		return $result;
+
+	}//end getQuestionAssets()
 
 
 	/**
