@@ -30,6 +30,11 @@ class Resolve
 	var $am;
 
 	/**
+	* @var object Transaction_Manager
+	*/
+	var $tm;
+
+	/**
 	* Object of logged in user
 	*
 	* @var object User
@@ -78,8 +83,6 @@ class Resolve
 		$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'] = array();
 		$GLOBALS['SQ_EVENT_LISTENERS'] = array();
 
-#		error_log("PATH : ".$_SERVER['REQUEST_URI'].", SESSION : ".array_contents($_SESSION).", COOKIE : ".array_contents($_COOKIE));
-
 		// If there is a userid in the session then someone is logged in,
 		// but make sure that the person is coming from the same machine as they logged in on
 		// so get a reference to them
@@ -107,18 +110,18 @@ class Resolve
 		// we are on the frontend
 		} else {
 
-			speed_check('one');
+//			speed_check('one');
 			$asset = &$this->am->getAssetFromURL(current_protocol());
 			if (is_null($asset)) exit(1);
 #			pre_echo("Active Asset : ".$asset->name);
-			speed_check('two');
+//			speed_check('two');
 			$asset->printFrontend();
 
 #			$asset = &$this->am->getAsset(4);
 #			pre_echo("Active Asset : ".$asset->name);
 #			$done = $asset->deleteWebPath('users');
 #			pre_echo('Success : '.$done);
-			speed_check('total');
+//			speed_check('total');
 			echo "\n\n\n";
 
 		}//end if
@@ -216,7 +219,36 @@ class Resolve
 
 
 	/**
-	* returns a boolean if the passed user is the logged in user
+	* Begins, Commits, or Rolls back a transaction
+	* Call as many times as you like
+	* Ensures the transaction manager has been created
+	*
+	* @param string	$type	the type of transaction to do (begin, commit, roolback)
+	*
+	* @return void
+	* @access public
+	*/
+	function doTransaction($type) {
+		if (get_class($this->tm) != 'transaction_manager') {
+			require_once SQ_INCLUDE_PATH.'/transaction_manager.inc';
+			$this->tm = new Transaction_Manager();
+		}
+		switch (strtolower($type)) {
+			case 'begin'    :
+				$this->tm->begin();
+				break;
+			case 'commit'   :
+				$this->tm->commit();
+				break;
+			case 'rollback' :
+				$this->tm->rollback();
+				break;
+		}
+	}//end doTransaction()
+
+
+	/**
+	* Returns a boolean if the passed user is the logged in user
 	*
 	* @access public
 	*/
