@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.2 2004/09/28 03:48:27 gsherwood Exp $
+* $Id: rollback_management.php,v 1.3 2004/11/29 02:10:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -173,8 +173,8 @@ function close_rollback_entries($table_name, $date)
 {
 	global $db, $QUIET;
 	
-	$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' SET '.SQ_TABLE_PREFIX.'effective_to = '.$db->quote($date).
-		' WHERE '.SQ_TABLE_PREFIX.'effective_to IS NULL';
+	$sql = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' SET '.SQ_TABLE_PREFIX.'eff_to = '.$db->quote($date).
+		' WHERE '.SQ_TABLE_PREFIX.'eff_to IS NULL';
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
 	$affected_rows = $db->affectedRows();
@@ -200,7 +200,7 @@ function open_rollback_entries($table_name, $date)
 
 	$columns = $SQ_TABLE_COLUMNS[$table_name]['columns'];
 	$sql = 'INSERT INTO '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' ('.implode(', ', $columns).
-		', '.SQ_TABLE_PREFIX.'effective_from, '.SQ_TABLE_PREFIX.'effective_to)
+		', '.SQ_TABLE_PREFIX.'eff_from, '.SQ_TABLE_PREFIX.'eff_to)
 		SELECT '.implode(',', $columns).','.$db->quote($date).', NULL FROM '.SQ_TABLE_PREFIX.$table_name;
 
 	$result = $db->query($sql);
@@ -214,7 +214,7 @@ function open_rollback_entries($table_name, $date)
 
 
 /**
-* Aligns all the minimum effective_from entries in the specified rollback table so
+* Aligns all the minimum eff_from entries in the specified rollback table so
 * they all start at a specified date
 *
 * @param string $table_name 	the tablename to update
@@ -234,14 +234,14 @@ function align_rollback_entries($table_name, $date)
 		$primary_keys = $SQ_TABLE_COLUMNS[$table_name]['primary_key'];
 	}
 
-	$update_concat = '('.implode(' || ', $primary_keys).' || '.SQ_TABLE_PREFIX.'effective_from)';
-	$select_concat = '('.implode(' || ', $primary_keys).' || MIN('.SQ_TABLE_PREFIX.'effective_from))';
+	$update_concat = '('.implode(' || ', $primary_keys).' || '.SQ_TABLE_PREFIX.'eff_from)';
+	$select_concat = '('.implode(' || ', $primary_keys).' || MIN('.SQ_TABLE_PREFIX.'eff_from))';
 
-	$update = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' SET '.SQ_TABLE_PREFIX.'effective_from = '.$db->quote($date).'
+	$update = 'UPDATE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' SET '.SQ_TABLE_PREFIX.'eff_from = '.$db->quote($date).'
 		   WHERE '.$update_concat.' IN ';
 
 	$select = 'SELECT '.$select_concat.' FROM '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.'
-		   WHERE '.SQ_TABLE_PREFIX.'effective_from < '.$db->quote($date).' GROUP BY '.implode(',', $primary_keys);
+		   WHERE '.SQ_TABLE_PREFIX.'eff_from < '.$db->quote($date).' GROUP BY '.implode(',', $primary_keys);
 
 	$affected_rows = 0;
 	$result = $db->query($update.'('.$select.')');
@@ -268,7 +268,7 @@ function delete_rollback_entries($table_name, $date)
 	global $db, $QUIET;
 
 	$sql = 'DELETE FROM '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' WHERE '
-		.SQ_TABLE_PREFIX.'effective_to <= '.$db->quote($date);
+		.SQ_TABLE_PREFIX.'eff_to <= '.$db->quote($date);
 	$result = $db->query($sql);
 	assert_valid_db_result($result);
 	$affected_rows = $db->affectedRows();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_move_update.php,v 1.5 2004/11/16 21:49:09 lwright Exp $
+* $Id: system_move_update.php,v 1.6 2004/11/29 02:10:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 

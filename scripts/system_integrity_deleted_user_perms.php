@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_deleted_user_perms.php,v 1.3 2004/09/15 04:04:47 gsherwood Exp $
+* $Id: system_integrity_deleted_user_perms.php,v 1.4 2004/11/29 02:10:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -71,7 +71,7 @@ foreach ($assets as $assetid => $type_code) {
 	
 	// what is in the permissions table?
 	$db =& $GLOBALS['SQ_SYSTEM']->db;
-	$sql = 'SELECT userid, permission FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission WHERE assetid='.$db->quote($asset->id);
+	$sql = 'SELECT userid, permission FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_perm WHERE assetid='.$db->quote($asset->id);
 	$perms_info = $db->getAll($sql);
 	assert_valid_db_result($perms_info);
 
@@ -97,7 +97,7 @@ foreach ($assets as $assetid => $type_code) {
 
 	if (!empty($deletes)) {
 		$where = 'userid IN ('.implode(', ', $deletes).')';
-		$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission', $where);
+		$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_perm', $where);
 		printUpdateStatus('OK');
 	} else {
 		printUpdateStatus('--');
