@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_edit_fns.inc,v 1.36 2004/04/08 02:19:53 gsherwood Exp $
+* $Id: design_area_edit_fns.inc,v 1.37 2004/04/08 10:19:47 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -781,7 +781,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			}// end switch
 		}// end foreach
 
-		pre_echo($text);
+		#pre_echo($text);
 
 		return $text;
 
@@ -844,11 +844,11 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		// if nothing changed then do nothing
 		if ($_POST[$prefix.'_specialisation_orig'] == $_POST[$prefix.'_specialisation']) return false;
 
-		pre_echo($_POST[$prefix.'_specialisation']);
+		#pre_echo($_POST[$prefix.'_specialisation']);
 		$contents = $this->_parseString($_POST[$prefix.'_specialisation']);
-		pre_echo($contents);
+		#pre_echo($contents);
 		if (!is_null($contents) && $this->_processContents($asset, $contents)) {
-			pre_echo("PROCESS OK");
+			#pre_echo("PROCESS OK");
 			return $asset->setAttrValue('specialised', 1);
 		}
 
