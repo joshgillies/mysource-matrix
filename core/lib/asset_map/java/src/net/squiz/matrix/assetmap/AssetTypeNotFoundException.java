@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetTypeNotFoundException.java,v 1.2 2004/06/29 01:24:14 mmcintyre Exp $
+* $Id: AssetTypeNotFoundException.java,v 1.3 2004/06/30 05:20:54 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 

@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetFinderListener.java,v 1.2 2004/06/29 01:22:47 mmcintyre Exp $
+* $Id: AssetFinderListener.java,v 1.3 2004/06/30 05:20:54 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 

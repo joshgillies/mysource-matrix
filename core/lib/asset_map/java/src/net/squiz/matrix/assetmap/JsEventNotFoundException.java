@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: JsEventNotFoundException.java,v 1.2 2004/06/29 03:39:30 mmcintyre Exp $
+* $Id: JsEventNotFoundException.java,v 1.3 2004/06/30 05:20:54 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 

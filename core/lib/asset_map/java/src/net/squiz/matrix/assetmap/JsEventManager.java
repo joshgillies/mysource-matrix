@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: JsEventManager.java,v 1.2 2004/06/29 01:25:17 mmcintyre Exp $
+* $Id: JsEventManager.java,v 1.3 2004/06/30 05:20:54 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -219,7 +219,11 @@ public class JsEventManager {
 						+ command + ": " + iare.getMessage());
 			} catch (InvocationTargetException ite) {
 				System.err.println("Invocation Target Exception when calling method "
-						+ command + ": " + ite.getTargetException().getMessage());
+						+ command + ": " + ite.getMessage());
+				System.err.println("Reflection stack trace:");
+				ite.getTargetException().printStackTrace();
+				System.err.println("Target Exception stack trace:");
+				ite.printStackTrace();
 			}//end try/catch
 
 		}//end for
