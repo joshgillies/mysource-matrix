@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.3 2004/11/01 04:52:44 gsherwood Exp $
+* $Id: report_edit_fns.inc,v 1.4 2004/12/02 05:45:41 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -68,7 +68,12 @@ class Report_Edit_Fns extends Bridge_Edit_Fns
 		if (!is_file($report_path)) {
 			echo 'This report has not yet been generated<br />';
 		} else {
-			echo '<b>This report has been generated</b><br />';
+			echo '<p>';
+			echo '    <b>This report has been generated</b><br />';
+			echo '    Date: '.$asset->attr('generated_date');
+			echo '    <br />';
+			echo '    User: '.$asset->attr('generated_user');
+			echo '</p>';
 		}
 
 		if ($asset->writeAccess('attributes')) {
@@ -98,6 +103,14 @@ class Report_Edit_Fns extends Bridge_Edit_Fns
 		$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 		$vars = Array('assetid' => $asset->id);
 		$hh->queueHipo('hipo_job_generate_report', $vars);
+
+		if (!$asset->writeAccess('links')) return false;
+
+		$user = $GLOBALS['SQ_SYSTEM']->user;
+		$asset->setAttrValue('generated_date', date("F j, Y, g:i a"));
+		$asset->setAttrValue('generated_user', $user->name.' (#'.$user->name.')');
+
+		return true;
 
 	}//end processRegenerate()
 
