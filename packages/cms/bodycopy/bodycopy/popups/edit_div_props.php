@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_div_props.php,v 1.1 2003/11/03 01:22:28 gsherwood Exp $
+* $Id: edit_div_props.php,v 1.2 2003/11/10 04:34:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,6 +31,8 @@ include(dirname(__FILE__)."/header.php");
 		var f = document.main_form;
 
 		f.identifier.value = (data['identifier'] == null) ? "" : data['identifier'];
+		f.css_class.value  = (data['css_class'] == null)  ? "" : data['css_class'];
+
 		f.divid.value = owner.bodycopy_current_edit["data"]["divid"];
 		f.bodycopy_name.value = owner.bodycopy_current_edit["bodycopy_name"];
 
@@ -39,6 +41,7 @@ include(dirname(__FILE__)."/header.php");
 	function popup_save(f) {
 		var data = new Object();
 		data["identifier"] = owner.form_element_value(f.identifier);
+		data["css_class"]  = owner.form_element_value(f.css_class);
 		owner.bodycopy_save_div_properties(data);
 	}
 
@@ -65,6 +68,15 @@ include(dirname(__FILE__)."/header.php");
 				<tr>
 					<td class="label">Name:</td>
 					<td><input type="text" name="identifier" value="" size="15"></td>
+				</tr>
+			</table>
+		</fieldset>
+		<fieldset>
+			<legend><b>Style Information</b></legend>
+			<table style="width:100%">
+				<tr>
+					<td class="label">Class:</td>
+					<td><input type="text" name="css_class" value="" size="15"></td>
 				</tr>
 			</table>
 		</fieldset>

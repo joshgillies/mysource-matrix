@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.3 2003/11/10 03:03:25 mmcintyre Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.4 2003/11/10 04:34:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -160,6 +160,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 		for (reset($div_attributes); $name = key($div_attributes); next($div_attributes)) {
 			$val = $div_attributes[$name];
 			if ($val == '') continue;
+			if ($name == 'css_class') $name = 'class';
 			$attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $val).'"';
 		}
 
