@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.77 2004/12/03 15:29:22 brobertson Exp $
+* $Id: design_edit_fns.inc,v 1.77.2.1 2005/03/31 17:01:34 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -591,7 +591,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// because we need other assets to be able to modify the lineage, for
 		// instance 404 pages.
 		$pre_str = '<?php
-		header("Content-type: text/html");
 		global $ASSET_LINEAGE;
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
 		if (!isset($ASSET_LINEAGE) || empty($ASSET_LINEAGE)) $ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
