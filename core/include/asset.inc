@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.379 2005/03/24 03:25:50 tbarrett Exp $
+* $Id: asset.inc,v 1.380 2005/03/24 04:44:31 gsherwood Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.379 $
+* @version $Revision: 1.380 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -308,7 +308,12 @@ class Asset extends MySource_Object
 			// so that they can actually do anything
 			// NOW normally this would require admin access but this is a very special case
 			$this->_tmp[__CLASS__.'_in_create_cascading'] = true;
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) return $this->_abortCreate();
+
+			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
+				if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
+					return $this->_abortCreate();
+				}
+			}
 
 			// only set the permission if there is a userid to set it for - otherwise we are going
 			// to be setting public write access
@@ -344,10 +349,10 @@ class Asset extends MySource_Object
 
 		if (!empty($link)) {
 			// create the initial link
-			if (!isset($link['value']))         $link['value']         = '';
-			if (!isset($link['sort_order']))    $link['sort_order']    = -1;
-			if (!isset($link['is_dependant']))  $link['is_dependant']  = 0;
-			if (!isset($link['is_exclusive']))  $link['is_exclusive']  = 0;
+			if (!isset($link['value']))        $link['value']        = '';
+			if (!isset($link['sort_order']))   $link['sort_order']   = -1;
+			if (!isset($link['is_dependant'])) $link['is_dependant'] = 0;
+			if (!isset($link['is_exclusive'])) $link['is_exclusive'] = 0;
 
 			if ($GLOBALS['SQ_SYSTEM']->runLevelEnables(SQ_SECURITY_LOCKING)) {
 				$lock_info = @$GLOBALS['SQ_SYSTEM']->am->getLockInfo($link['asset']->id, 'links');
