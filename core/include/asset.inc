@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.293 2004/05/14 06:27:17 gsherwood Exp $
+* $Id: asset.inc,v 1.294 2004/05/26 06:08:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1235,7 +1235,8 @@ class Asset extends MySource_Object
 				WHERE (inherited_type_code = '.$db->quote($this->type()).'  AND type_code = '.$db->quote($new_type_code).')
 				   OR (inherited_type_code = '.$db->quote($new_type_code).' AND type_code = '.$db->quote($this->type()).')';
 		if ($db->getOne($sql) == 0) {
-			trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'", "'.$new_type_code.'" is not in the "'.$this->type().'" asset type heirarchy.', E_USER_WARNING);
+			trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'", "'.$new_type_code.'" is not in the "'.$this->type().'" asset type hierarchy.', E_USER_WARNING);
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
