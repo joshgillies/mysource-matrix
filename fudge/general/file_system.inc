@@ -56,6 +56,7 @@ function is_image($filename)
 * @param string $filename	the filename whose contents to return 
 *
 * @return string
+* @access public
 */
 function file_to_string($filename) 
 {
@@ -78,7 +79,8 @@ function file_to_string($filename)
 * @param string	$string		the string to write
 * @param string	$filename	the filename to write to
 *
-* @return string
+* @return boolean
+* @access public
 */
 function string_to_file($string, $filename) 
 {
@@ -178,7 +180,7 @@ function list_files($dir='', $fullpath=false)
 *
 * @param string	$path	the path to create
 *
-* @return bool
+* @return boolean
 * @access public
 */
 function create_directory($path)
@@ -207,7 +209,7 @@ function create_directory($path)
 *
 * @param string	$path	the path to delete
 *
-* @return bool
+* @return boolean
 * @access public
 */
 function delete_directory($path) 
@@ -238,7 +240,7 @@ function delete_directory($path)
 *
 * @param string	$path	the directory whose contents to delete
 *
-* @return bool
+* @return boolean
 * @access public
 */
 function clear_directory($path) 
@@ -275,7 +277,7 @@ function clear_directory($path)
 * @param string	$path		the directory to copy
 * @param string	$new_path	the parh name to copy to
 *
-* @return bool
+* @return boolean
 * @access public
 */
 function copy_directory($path, $new_path) 
