@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.14 2004/07/23 04:29:07 gsherwood Exp $
+* $Id: datetime.inc,v 1.15 2004/07/26 15:53:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -348,6 +348,37 @@ function int_to_roman($num = 0)
 	return($roman);
 
 }//end int_to_roman()
+
+
+/**
+* Takes a month in a certain year and returns an array of dates in that month that are a certain days of the week
+* NOTE: dates returned are zero-padded
+*
+* @param integer $weekday number for the weekday (Sunday = 0, Monday = 1 ... Saturday = 6)
+* @param integer $month   the month to use
+* @param integer $year    the year that the month is in
+*
+* @access public
+* @return Array()
+*/
+function weekday_dates_in_month($weekday, $month, $year) 
+{
+	$day = mktime(0, 0, 0, (int) $month, 1, (int) $year);
+	$first_weekday = (int) date('w', $day);
+
+	if ((int) $weekday < $first_weekday) $day_add = 7 - $first_weekday + (int) $weekday;
+	else $day_add = (int) $weekday - $first_weekday;
+	$day = strtotime('+'.$day_add.' days', $day);
+
+	$days = Array();
+	do {
+		$days[] = date('d', $day);
+		$day = strtotime('+1 week', $day);
+	} while((int) date('n', $day) == $month);
+
+	return $days;
+
+}//end weekday_dates_in_month()
 
 
 
