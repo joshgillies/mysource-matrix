@@ -191,7 +191,7 @@ class Asset_Attribute extends Resolve_Object
 	function setEditParams(&$node)
 	{
 		if (strtolower($node->name) != strtolower($this->type())) {
-			trigger_error('XML Tree Node type "'.$node->name.'" not compatible with attribute type "'.$this->type().'<br/>Full Node Contents :<br/><pre>'.$node->get().'</pre>', E_USER_WARNING);
+			trigger_error('XML Tree Node type "'.$node->name.'" not compatible with attribute type "'.$this->type().'<br/>Full Node Contents :<br/><pre>'.htmlspecialchars($node->get()).'</pre>', E_USER_WARNING);
 			return false;
 		}
 		return true;
