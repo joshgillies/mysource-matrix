@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_numeric.inc,v 1.1 2004/04/28 01:58:40 lwright Exp $
+* $Id: form_question_type_numeric.inc,v 1.2 2004/04/28 02:32:32 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -44,26 +44,24 @@ class Form_Question_Type_Numeric extends Form_Question_Type_Text
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
+	* @param array	$data		the section's entry for this question (contains all question data)
 	*
 	*/
 	function Form_Question_Type_Numeric($assetid=0, $data=Array()) 
 	{
 		$this->Form_Question_Type_Text($assetid, $data);
 
-	} // end Form_Question_Type_Email_Address()
+	} // end Form_Question_Type_Numeric()
 
 
 	/**
 	* process this question
-	*
-	* @param &object $submission the current submission object
 	*
 	* @access public
 	* @return boolean
 	*/
 	function processForm()
 	{
-		
 		$form =& $this->getMySection();
 
 		if (isset($_POST[$this->id])) {
