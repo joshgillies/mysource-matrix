@@ -1202,6 +1202,7 @@ class Asset extends Resolve_Object
 	function morph($new_type_code)
 	{
 		$new_type_code = strtolower($new_type_code);
+		$old_type_code = $this->type();
 
 		// dickhead check
 		if ($this->type() == $new_type_code) return true;
@@ -1237,7 +1238,7 @@ class Asset extends Resolve_Object
 
 			$links = $this->getLinks(SQ_LINK_ALL);
 			foreach($links as $link) {
-				if ($tmp->canLinkToType($link['type_code'], $link['link_type']) !== true) {
+				if ($tmp->canLinkToType($link['type_code'], $link['link_type'], 0, $link['exclusive']) !== true) {
 					require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 					trigger_error('Unable to cast "'.$this->name.'" to "'.$new_type_code.'",<br>"'.$link['type_code'].'" assets are not allowed to be "'.link_type_name($link['link_type']).'" linked to "'.$new_type_code.'" assets.', E_USER_WARNING);
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1345,6 +1346,13 @@ class Asset extends Resolve_Object
 		if ($all_ok) {
 			$this = $tmp;
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetTypeUpdate',
+												  Array( 'assetid'  => $this->id,
+														 'old_type' => $old_type_code,
+														 'new_type' => $new_type_code
+														));
+
 			return true;
 
 		// bugger some thing went wrong
