@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_link_exists.inc,v 1.3 2005/03/01 00:25:31 arailean Exp $
+* $Id: trigger_condition_link_exists.inc,v 1.4 2005/04/01 04:30:28 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -71,7 +71,8 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 
 		$assetid      = $state['assetid']; // event broadcaster
 
-		$link_type    = array_get_index($settings, 'link_type', SQ_SC_LINK_ALL);
+		$link_type    = array_get_index($settings, 'link_type');
+		if (empty($link_type)) $link_type = SQ_SC_LINK_ALL;
 		$is_parent    = array_get_index($settings, 'is_major', false);
 		$link_side    = $is_parent?'major':'minor';
 		$value        = array_get_index($settings, 'value');
@@ -101,10 +102,9 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 		switch ($selector_type) {
 			case 'asset_type':
 				$selected_type = array_get_index($settings, 'asset_type');
-				if (!isset($selected_type)) {
+				if (empty($selected_type)) {
 					return false;
 				}
-
 				$links = $am->getLinks($assetid, $link_type, $selected_type, true, $link_side, $value, $dependant, $exclusive);
 
 			break;
@@ -126,7 +126,6 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 
 			default:
 				return false;
-;
 		}
 
 		// we rely on the fact that the links that we got already satisfy the criteria
@@ -210,14 +209,11 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 				radio_button($prefix.'[selector_type]', 'asset_type', $selector_type == 'asset_type', null, $form_element_extras);
 				echo "of type";
 
-				// asset type selector
-				// get a list of all asset types in the system, sort in alphabetical order
-				$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes(true);
-				foreach ($asset_types as $type => $info) {
-					$asset_types[$type] = $info['name'];
+				if ($write_access) {
+					asset_type_chooser($prefix.'[asset_type]', false, $asset_type);
+				} else {
+					echo $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($asset_type, 'name');
 				}
-				asort($asset_types);
-				combo_box($prefix.'[asset_type]', $asset_types, false, $asset_type, null, $form_element_extras);
 				?>
 			</li>
 			<li>
@@ -234,7 +230,6 @@ class Trigger_Condition_Link_Exists extends Trigger_Condition
 						text_box($prefix.'[assetid]', '', '', '', false, $form_element_extras);
 					}
 				}
-
 				?>
 			</li>
 		</ul>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_type.inc,v 1.4 2005/03/22 04:42:20 gsherwood Exp $
+* $Id: trigger_condition_asset_type.inc,v 1.5 2005/04/01 04:30:28 tbarrett Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author   Andrei Railean <arailean@squiz.net>
 * @author   Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -70,7 +70,6 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 		if (empty($settings['asset_type'])) {
 			return false;
 		}
-
 		// check the condition
 		if (array_get_index($settings, 'descendants', false)) {
 			$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($settings['asset_type'], true);
@@ -106,22 +105,13 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 
 		// asset type selector
 		// get a list of all asset types in the system, sort in alphabetical order
-		$asset_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypes();
-		foreach ($asset_types as $type => $info) {
-			$asset_types[$type] = $info['name'];
-		}
-
-		asort($asset_types);
-		reset($asset_types);
 
 		$is_descendant = array_get_index($settings, 'descendants', false);
 
 		ob_start();
 		echo 'Asset is of type ';
 		if ($write_access) {
-			combo_box($prefix.'[asset_type]', $asset_types, false, $selected_type);
-			check_box($prefix.'[descendants]', '1', $is_descendant);
-			echo ' include descendant types';
+			asset_type_chooser($prefix, false, Array('type_code' => $selected_type, 'inherit' => $is_descendant), null, false, true);
 		} else {
 			echo '<b>';
 			echo $asset_types[$selected_type];
@@ -155,14 +145,13 @@ class Trigger_Condition_Asset_Type extends Trigger_Condition
 			return false;
 		}
 
-		$asset_type = array_get_index($request_data, 'asset_type', false);
+		$asset_type = array_get_index($request_data, 'type_code', false);
 		if (!$asset_type) {
 			return false;
 		}
 
 		// descendants is set to either '1' or not at all
-		$descendants = array_get_index($request_data, 'descendants', false);
-		$descendants = ($descendants == '1' ? '1' : '0');
+		$descendants = array_get_index($request_data, 'inherit', false);
 
 		$settings['asset_type'] = $asset_type;
 		$settings['descendants'] = $descendants;
