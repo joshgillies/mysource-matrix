@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.10 2004/01/14 15:23:36 brobertson Exp $
+* $Id: config.inc,v 1.11 2004/01/15 14:33:09 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,6 +49,12 @@ class Config extends MySource_Object
 	*/
 	var $config_file = '';
 
+	/**
+	* The screen name of the config
+	* @var string
+	*/
+	var $name = '';
+
 
 	/**
 	* Constructor
@@ -57,6 +63,7 @@ class Config extends MySource_Object
 	function Config()
 	{
 		$this->MySource_Object();
+		$this->name = ucwords(str_replace('_', ' ', get_class($this)));
 
 	}//end constructor
 
@@ -73,6 +80,11 @@ class Config extends MySource_Object
 	*/
 	function save($vars, $backup_existing=false)
 	{
+		if (!$this->writeAccess()) {
+			trigger_error('Unable to save "'.$this->name.'", permission denied', E_USER_WARNING);
+			return false;
+		}
+
 		// attempt to load the config file to make sure we get any current settings
 		if (file_exists($this->config_file)) {
 			require_once $this->config_file;
@@ -161,6 +173,190 @@ class Config extends MySource_Object
 		return true;
 
 	}//end _paintConfigVar()
+
+
+	/**
+	* Attempt to acquire the lock for this config
+	*
+	* @return true on success or the error message on failure
+	* @access public
+	* @see MySource::acquireLock()
+	*/
+	function acquireLock()
+	{
+		if (!$this->canAcquireLock()) return 'You are not allowed to acquire the lock on '.$this->name;
+		return $GLOBALS['SQ_SYSTEM']->acquireLock(get_class($this));
+	}// end acquireLock()
+
+
+	/**
+	* Whether the current user can acquire the lock
+	*
+	* @return boolean
+	* @access public
+	* @see MySource::acquireLock()
+	*/
+	function canAcquireLock()
+	{
+		return true;
+	}// end canAcquireLock()
+
+
+	/**
+	* Attempt to release the lock for this config
+	*
+	* @return true on success or the error message on failure
+	* @access public
+	* @see MySource::releaseLock()
+	*/
+	function releaseLock()
+	{
+		return $GLOBALS['SQ_SYSTEM']->releaseLock(get_class($this));
+	}// end releaseLock()
+
+
+	/**
+	* Returns an array of information about any lock we have
+	*
+	* @return Array()
+	* @access public
+	* @see MySource::getLockInfo()
+	*/
+	function getLockInfo()
+	{
+		return $GLOBALS['SQ_SYSTEM']->getLockInfo(get_class($this));
+	}// end getLockInfo()
+
+
+	/**
+	* Does the current user have writeAccess() to this config ? 
+	*
+	* @return boolean
+	* @access public
+	*/
+	function writeAccess()
+	{
+		$lock_info = $this->getLockInfo();
+		if (!empty($lock_info) && $lock_info['userid'] == $GLOBALS['SQ_SYSTEM']->currentUserId()) return true;
+		if (!empty($GLOBALS['SQ_INSTALL'])) return true;
+		return false;
+	}// end writeAccess()
+
+
+	/**
+	* Paints the interface for our config options.
+	*
+	* If you (as a sub-class) put your config vars so that when they are submitted appear in 
+	* $_POST[get_class($this)] then you probably won't need to override processBackend()
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	*
+	* @return void
+	* @access public
+	* @see processBackend()
+	*/
+	function paintBackend(&$o)
+	{
+		require_once $this->config_file;
+
+		$lock = $this->getLockInfo();
+		$have_lock = (!empty($lock) && $GLOBALS['SQ_SYSTEM']->currentUserId() == $lock['userid']);
+
+		$o->openSection('Locking / Editing');
+		$o->openField('&nbsp;');
+		?>
+		<table border="0" cellspacing="3" cellpadding="1">
+			<tr>
+				<td valign="top" width="30">
+					<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo sq_web_path('lib'); ?>/web/images/icons/<?php echo ((empty($lock)) ? 'un' : ''); ?>locked.png", "16", "16", "");</script>
+				</td>
+				<td valign="top">
+					<?php
+					if (!empty($lock)) {
+						// this asset is currently locked
+						// so display message to the user
+						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+						$now = time();
+
+						require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+						$expires_in = easy_time_total(($lock['expires'] - $now), true);
+						if (!$expires_in) $expires_in = '1 second';
+						$expires_in = 'The lock is due to expire in '.$expires_in;
+
+						?>
+						<p class="sq-backend-locked-by-<?php echo ($GLOBALS['SQ_SYSTEM']->currentUser($user)) ? 'user' : 'someone-else'; ?>">
+							<?php echo $this->name; ?> is currently locked for editing by user "<?php echo $user->name; ?>".<br/>
+							<?php echo $expires_in; ?>
+						</p>
+						<?php
+
+					} else {
+						?>
+						<p class="sq-backend-unlocked">
+							<?php echo $this->name; ?> is currently Unlocked.
+						</p>
+						<?php
+					}
+					?>
+				</td>
+				<td valign="top">
+					<?php
+					if (!empty($lock)) {
+						if ($have_lock) {
+							submit_button('sq_lock_release_manual', 'Release Lock', 'set_hidden_field("process_form", "0");');
+						}
+					} elseif ($this->canAcquireLock()) {
+						submit_button('sq_lock_acquire', 'Lock', 'set_hidden_field("process_form", "0");');
+					}
+					?>
+				</td>
+			</tr>
+		</table>
+		<?php
+
+		$o->closeSection();
+
+	}// end paintBackend()
+
+
+	/**
+	* Saves the config settings that were submitted
+	*
+	* @param object Backend_Outputter	&$o			reference to the backend outputter
+	*
+	* @return boolean
+	* @access public
+	* @see paintBackend()
+	*/
+	function processBackend(&$o)
+	{
+		$saved = false;
+		if (!empty($_POST['process_form'])) {
+
+			if (!empty($_POST[get_class($this)])) {
+				$saved = $this->save($_POST[get_class($this)]);
+			}
+		}
+
+		if (!empty($_POST['sq_lock_release']) || !empty($_POST['sq_lock_release_manual'])) {
+			$this->releaseLock();
+		}
+
+		// if there is no lock currently and we want it
+		if (!empty($_POST['sq_lock_acquire'])) {
+			$this->acquireLock();
+		}
+
+		// if the save was successful, we need to redirect because the constants
+		// that are already defined cannot be redefined in this script execution
+		if ($saved) {
+			$o->setRedirect($o->getCurrentLocation());
+		}
+
+		return $saved;
+
+	}//end processBackend()
+
 
 
 }//end class
