@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.116 2004/11/22 05:40:35 lwright Exp $
+* $Id: page_calendar.inc,v 1.117 2004/11/22 23:48:46 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.116 $ - 1.0
+* @version $Revision: 1.117 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -978,7 +978,7 @@ class Page_Calendar extends Page_Asset_Listing
 					$event_class = $root_nodes[$event['root_node']]['class_name'];
 					$onclick_code = $show_event_links ? ' onclick="clickChild(this);"' : '';
 					$cursor_code = $show_event_links ? ' cursor: pointer; cursor: hand' : '';
-					$current_mouse_up_down_code = (($event['type_code'] != 'calendar_event_recurring') && (!isset($event['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')"';
+					$current_mouse_up_down_code = (($event['type_code'] != 'calendar_event_recurring') && (!isset($event['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\');"';
 					$current_mouse_over_out_code = '';
 					if (isset($event['description']) && !empty($event['description'])) {
 						echo '<div id="event_'.$assetid.'_description" class="popup">'.$event['description'].'</div>';
@@ -1111,7 +1111,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
 			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
 			$inner_width = $event_width - 4;
-			$current_mouse_up_down_code = (($details['type_code'] != 'calendar_event_recurring') && (!isset($details['trimmed'])) && (!isset($details['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')"';
+			$current_mouse_up_down_code = (($details['type_code'] != 'calendar_event_recurring') && (!isset($details['trimmed'])) && (!isset($details['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\')"';
 			$current_mouse_over_out_code = '';
 			if (isset($details['description']) && !empty($details['description'])) {				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
 				$current_mouse_over_out_code = 'onmouseover="startTrailingPopup(\'event_'.$assetid.'_description\')"  onmouseout="stopTrailingPopup()"';
