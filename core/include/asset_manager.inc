@@ -600,13 +600,30 @@ if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.asset
 
 				// if the form has been submitted then, process it
 				// and if that is successfull, then create the link to the parent asset
-				$old_name = $asset->name;
 				if (!empty($_POST['am_form_submitted']) && $asset->processBackend(Array())) {
 					$o->addMessage(SQ_BO_MSG_NOTICE, '"'.$asset->name.'" Updated');
 				}// end if
 
 				$asset->paintBackend($backend);
 				break;
+
+			case 'duplicate' :
+
+				$o->addFormActionGetVar('assetid', $_GET['assetid']);
+
+				$asset = &$this->getAsset($_GET['assetid']);
+				if (is_null($asset)) {
+					trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);
+					break;
+				}
+
+				$o->setHeading('Duplicate : '.$asset->name);
+				$o->openSection('Options');
+				$o->openField('');
+				pre_echo($_GET);
+				pre_echo($_POST);
+				break;
+
 
 			default   :
 				$this->_printAssetList($o);
