@@ -91,34 +91,35 @@ function random_password($length)
 */
 function file_to_string ($filename) 
 {
-    if (!$f = fopen($filename, 'r')) {
-        trigger_error('Unable to open file for reading: '.$filename, E_USER_WARNING);
-        return false;
-    }
+	if (!$f = fopen($filename, 'r')) {
+		trigger_error('Unable to open file for reading: '.$filename, E_USER_WARNING);
+		return false;
+	}
 	$s = '';
 	do {
 		$s .= fread($f, 4096);
 	} while (!feof($f));
-    fclose($f);
-    return $s;
+	fclose($f);
+	return $s;
 }
 
 /*
 * Writes a string to a file.. overwrites current file
 *
-* @param string $file    the filename whose contents to return 
+* @param string	$string	the string to write
+* @param string	$file	the filename to write to
 *
 * @return string
 */
-function string_to_file ($string, $filename) 
+function string_to_file($string, $filename) 
 {
-    if (!$f = fopen($filename,'w')) {
-        trigger_error('Unable to open file for writing: '.$filename, E_USER_WARNING);
-        return false;
-    }
-    $s = fputs($f, $string);
-    fclose($f);
-    return true;
+	if (!$f = fopen($filename,'w')) {
+		trigger_error('Unable to open file for writing: '.$filename, E_USER_WARNING);
+		return false;
+	}
+	$s = fputs($f, $string);
+	fclose($f);
+	return true;
 }
 
 

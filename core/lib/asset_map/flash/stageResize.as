@@ -25,7 +25,7 @@ StageResize.prototype.onResize = function() {
 
 	_root.list_container.refreshList();
 
-}
+}// end onResize()
 
 /**
 * Event fired when the Msg Bar is opened

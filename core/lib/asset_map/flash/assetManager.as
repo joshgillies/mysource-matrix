@@ -30,8 +30,6 @@ function AssetManager()
 	cmd_elem.attributes.action = "get asset types";
 	xml.appendChild(cmd_elem);
 
-//	trace(xml);
-
 	// start the loading process
 	var exec_indentifier = _root.server_exec.init_exec(xml, this, "loadTypesFromXML", "asset_types");
 	_root.server_exec.exec(exec_indentifier, "Loading Assets Types");
@@ -46,17 +44,14 @@ function AssetManager()
 */
 AssetManager.prototype.loadTypesFromXML = function(xml, exec_indentifier) 
 {
-
-//	trace(xml);
-
 	for (var i = 0; i < xml.firstChild.childNodes.length; i++) {
 		// get a reference to the child node
 		var type_node = xml.firstChild.childNodes[i];
 		if (type_node.nodeName.toLowerCase() == "type") {
 
-			var editing_options = new Array();
+			var edit_screens = new Array();
 			for (var j = 0; j < type_node.childNodes.length; j++) {
-				editing_options.push({action: type_node.childNodes[j].attributes.action, name: type_node.childNodes[j].firstChild.nodeValue});
+				edit_screens.push({code_name: type_node.childNodes[j].attributes.code_name, name: type_node.childNodes[j].firstChild.nodeValue});
 			}
 
 
@@ -66,7 +61,7 @@ AssetManager.prototype.loadTypesFromXML = function(xml, exec_indentifier)
 																		type_node.attributes.instantiable,
 																		type_node.attributes.system_only,
 																		type_node.attributes.parent_type,
-																		editing_options);
+																		edit_screens);
 
 		}//end if
 	}//end for
@@ -163,8 +158,6 @@ AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_
 
 			cmd_elem.appendChild(asset_elem);
 		}// end for
-
-		trace(xml);
 
 		// start the loading process
 		var exec_indentifier = _root.server_exec.init_exec(xml, this, "loadAssetsFromXML", "assets");

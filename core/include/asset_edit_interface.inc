@@ -66,17 +66,6 @@ class Asset_Edit_Interface extends Resolve_Object
 		// add the default for Asset
 		$this->_dirs[] = SQ_INCLUDE_PATH.'/asset_edit';
 
-		$this->_loadScreens();
-	}
-
-	/**
-	* Looks for an 'edit_interface_screens.xml' file in the base dir and loads it's information
-	*
-	* @access  private
-	*/
-	function _loadScreens()
-	{
-
 		if(!($file = $this->_findFile('screens'))) return;
 
 		$input = new XML_Tree($file);
@@ -95,9 +84,20 @@ class Asset_Edit_Interface extends Resolve_Object
 												'icon' => $root->children[$i]->attributes['icon']
 											);
 			if (!empty($root->children[$i]->attributes['default'])) $this->_default_screen = $code_name;
-		}
+		}// end for
 
-	}// end _loadScreens();
+	}// end constructor;
+
+
+	/**
+	* Returns the screens array
+	*
+	* @access public
+	*/
+	function getScreens()
+	{
+		return $this->_screens;
+	}
 
 
 	/**

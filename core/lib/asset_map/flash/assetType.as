@@ -1,17 +1,17 @@
 
 // Create the Class
-function AssetType(type_code, name, version, instantiable, system_only, parent_type, editing_options) 
+function AssetType(type_code, name, version, instantiable, system_only, parent_type, edit_screens) 
 {
 
-	this.type_code       = type_code;
-	this.name            = name;
-	this.version         = version;
-	this.instantiable    = instantiable;
-	this.system_only     = system_only;
-	this.parent_type     = parent_type;
-	this.editing_options = editing_options;
+	this.type_code		= type_code;
+	this.name			= name;
+	this.version		= version;
+	this.instantiable	= instantiable;
+	this.system_only	= system_only;
+	this.parent_type	= parent_type;
+	this.edit_screens	= edit_screens;
 
-	this.sub_types       = new Array();
+	this.sub_types		= new Array();
 
 }
 
@@ -19,10 +19,10 @@ AssetType.prototype.toString = function()
 {
 
 	var edit_opts = "{";
-	for(var i = 0; i < this.editing_options.length; i++) {
-		var a = this.editing_options[i].action;
-		var n = this.editing_options[i].name;
-		edit_opts += "(" + a + ": " + n + ")";
+	for(var i = 0; i < this.edit_screens.length; i++) {
+		var c = this.edit_screens[i].code_name;
+		var n = this.edit_screens[i].name;
+		edit_opts += "(" + c + ": " + n + ")";
 	}
 	edit_opts += "}";
 

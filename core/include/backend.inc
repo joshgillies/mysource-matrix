@@ -259,6 +259,22 @@ class Backend extends Resolve_Object
 				?>
 					<br/>
 					<input type="button" value="click me" onCLick="javascript: var assetid = prompt('Enter the assetid', ''); if (assetid != null) {top.sidenav.reload_asset(assetid);}">
+					<script language="javascript">
+						function msg_test() {
+
+							var msg = prompt('Enter the message', ''); 
+							if (msg == null) return;
+
+							var xml = '<messages>';
+							xml += '<message type="error">'   + msg + '</message>';
+							xml += '<message type="warning">' + msg + '</message>';
+							xml += '<message type="notice">'  + msg + '</message>';
+							xml += '</messages>';
+
+							top.sidenav.add_messages(xml);
+						}
+					</script>
+					<input type="button" value="SEND MSG" onCLick="javascript: msg_test();">
 				<?php
 				$this->out->closeRaw();
 

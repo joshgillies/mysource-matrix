@@ -38,8 +38,7 @@ class Asset_Map
 					  '&action_bar_path='.rawurlencode($backend->getBackendUrl().'&backend_section=am&am_section=edit_asset&assetid=%assetid%&asset_ei_screen=%action%').
 					  '&action_bar_frame='.rawurlencode('main');
 
-		?> 
-
+		?>
 		<script language="JavaScript" type="text/javascript">
 		<!--
 			var flash_InternetExplorer = navigator.appName.indexOf("Microsoft") != -1;
@@ -74,20 +73,28 @@ class Asset_Map
 				flashExternalCall(asset_mapObj, 'reload_asset', {assetid: assetid});
 			}
 
+			// Reload the passed assetid in the flash
+			function add_messages(xml) 
+			{
+				//var asset_mapObj = flash_InternetExplorer ? asset_map : document.asset_map;
+				var asset_mapObj = document.asset_map;
+				alert("Add Message : " + xml);
+				flashExternalCall(asset_mapObj, 'add_message', {msgs_xml: xml});
+			}
+
 		//-->
 		</SCRIPT>
 		<object id="asset_map" width="100%" height="100%" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0">
-			 <param name="movie"   value="<?php echo SQ_WWW_LIB_DIR; ?>/asset_map/asset_map.swf">
+			 <param name="movie"   value="<?php echo SQ_WWW_LIB_DIR; ?>/asset_map/flash/asset_map.swf">
 			 <param name="quality" value="high">
 			 <param name="scale"   value="noscale">
 			 <param name="salign"  value="lt">
 			 <param name="bgcolor" value="#ffffff">
 			 <param name="FlashVars" value="<?php echo $flash_vars; ?>">
-			 <embed src="<?php echo SQ_WWW_LIB_DIR; ?>/asset_map/asset_map.swf" FlashVars="<?php echo $flash_vars; ?>" id="asset_map" name="asset_map" quality="high" scale="noscale" salign="lt" bgcolor="#ffffff" width="100%" height="100%" swliveconnect="true" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed>
+			 <embed src="<?php echo SQ_WWW_LIB_DIR; ?>/asset_map/flash/asset_map.swf" FlashVars="<?php echo $flash_vars; ?>" id="asset_map" name="asset_map" quality="high" scale="noscale" salign="lt" bgcolor="#ffffff" width="100%" height="100%" swliveconnect="true" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed>
 		</object>
 		<?php
 	}//end paint()
-
 
 	/*
 	* Sends an XML Tree down the line
@@ -409,32 +416,20 @@ class Asset_Map
 	*/
 	function _getAssetTypes(&$input) 
 	{
+		header("Content-Type: text/xml");
+		echo '<asset_types>';
+	
+		$dir = SQ_DATA_PATH.'/asset_map';
+		if ($d = @opendir($dir)) {
+			while (($file = readdir($d)) !== false) {
+				if (substr($file, -4) == '.xml') {
+					@readfile($dir.'/'.$file);
+				}
+			}// end while
+			closedir($d);
+		}// end if
 
-		$output = new XML_Tree();
-		$root = &$output->addRoot('asset_types', '');
-
-		$type_codes = $GLOBALS['SQ_RESOLVE']->am->getTypeList();
-
-		for($i = 0; $i < count($type_codes); $i++) {
-			$info = $GLOBALS['SQ_RESOLVE']->am->getInfo($type_codes[$i]);
-			$attrs = Array(	'type_code'		=> $type_codes[$i],
-							'name'			=> $info['name'],
-							'version'		=> $info['version'],
-							'instantiable'	=> $info['instantiable'],
-							'system_only'	=> $info['system_only'],
-							'parent_type'	=> $info['parent_type']
-						);
-					
-			$type_node = &$root->addChild('type', '', $attrs);
-
-			$editing_options = $GLOBALS['SQ_RESOLVE']->am->getInfo($type_codes[$i], 'editing_options');
-			foreach($editing_options as $action => $name) {
-				$type_node->addChild('editing_option', $name, Array('action' => $action));
-			}
-
-		}// end children for
-
-		$this->_send($output);
+		echo '</asset_types>';
 
 	}// end _getAssetTypes()
 

@@ -16,7 +16,6 @@ function ExternalCall()
 	this.watch("add_param", externalCallWatch);
 	this.watch("exec",      externalCallWatch);
 
-
 	// Set ourselves up as a broadcaster
     ASBroadcaster.initialize(this);
 
@@ -48,7 +47,7 @@ function externalCallWatch(property, old_val, new_val)
 	switch(property) {
 		case "add_param" :
 			if (this.cmd != "") {
-				var tmp = new_val.split("=");
+				var tmp = new_val.split("=", 2);
 				var name  = unescape(tmp[0]);
 				var value = unescape(tmp[1]);
 				this.params[name] = value;				

@@ -3,6 +3,26 @@
 Stage.scaleMode = "noScale";
 Stage.align = "TL";
 
+/**************************************************
+ * Additions to the ScrollPane class definition   *
+ **************************************************/
+
+/**
+* Returns the width of the pane minus any vertical scroll bar
+*/ 
+FScrollPaneClass.prototype.getInnerPaneWidth = function()
+{
+	return this.hWidth;
+}
+
+/**
+* Returns the height of the pane minus any horizontal scroll bar
+*/ 
+FScrollPaneClass.prototype.getInnerPaneHeight = function()
+{
+	return this.vHeight;
+}
+
 
 #include "test.as"
 #include "functions.as"
@@ -32,6 +52,8 @@ Stage.align = "TL";
 
 // the height of the messages bar at the bottom of the screen
 _root.MSG_BAR_HEIGHT = 130;
+// the width of a scroll page
+_root.SCROLL_PANE_SCROLL_WIDTH = 16;
 
 // this indent needs to set to the offset of the text box in a list item
 // from the LHS of a list items background

@@ -2,6 +2,7 @@
 
 require_once SQ_LIB_PATH.'/xml_array/xml_array.inc';
 require_once SQ_INCLUDE_PATH.'/asset_management.inc';
+require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 
 /**
 * Package_Manager
@@ -215,6 +216,14 @@ class Package_Manager extends Resolve_Object
 
 		}//end for
 
+		// create the xml summarys of screens info for the asset map
+		if (!$this->_createAssetMapScreensXML()) {
+			trigger_error('Unable to create the Asset Map Screens XML', E_USER_WARNING);
+			// Abort Transaction
+			$db->query('ROLLBACK');
+			return false;
+		}
+
 		// Commit the transaction if we got this far
 		$db->query('COMMIT');
 		return true;
@@ -336,6 +345,46 @@ class Package_Manager extends Resolve_Object
 		return $install_order;
 
 	}//end _getInstallOrder()
+
+	/*
+	* Generates a segment of an XML document for the Asset_Map.inc to use to send to the 
+	* flash
+	*
+	* @access private
+	*/
+	function _createAssetMapScreensXML()
+	{
+
+		$output = new XML_Tree();
+		$root = &$output->addRoot('tmp', '');
+
+		$str  = '';
+
+		for(reset($this->assets); null !== ($type_code = key($this->assets)); next($this->assets)) {
+			$attrs = Array(	'type_code'		=> $type_code,
+							'name'			=> $this->assets[$type_code]['name'],
+							'version'		=> $this->assets[$type_code]['version'],
+							'instantiable'	=> $this->assets[$type_code]['instantiable'],
+							'system_only'	=> $this->assets[$type_code]['system_only'],
+							'parent_type'	=> $this->assets[$type_code]['parent_type']
+						);
+
+			$type_node = &$root->addChild('type', '', $attrs);
+
+			$ei = new Asset_Edit_Interface($type_code);
+			$screens = $ei->getScreens();
+			for(reset($screens); null !== ($code_name = key($screens)); next($screens)) {
+				$type_node->addChild('screen', $screens[$code_name]['name'], Array('code_name' => $code_name));
+			}
+
+			$str .= $type_node->get();
+
+		}// end for
+		include_once(SQ_LIB_PATH.'/general/general.inc');
+		return string_to_file($str, SQ_DATA_PATH.'/asset_map/'.$this->package.'.xml');
+
+	}//end _createAssetMapScreensXML()
+
 
 	/*
 	* checks the requirements of the passed asset.xml file
