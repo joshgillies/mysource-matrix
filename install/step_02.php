@@ -113,7 +113,25 @@ if (is_null($root_folder)) {
 	$trash_folder->releaseLock();
 	$root_folder->releaseLock();
 
-
+	// now we need to reserve some assetids for system assets in the future
+	// so work out how many assets we currently have in the system
+	$db = &$GLOBALS['SQ_SYSTEM']->db;
+	
+	$sql = 'SELECT MAX(assetid) FROM sq_asset';
+	$num_assets = $db->getOne($sql);
+	if (DB::isError($num_assets)) {
+		trigger_error('Could not reverve assetids for system assets, failed getting current number of assets in the system', E_USER_ERROR);
+	} else {
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		for ($i = $num_assets; $i < SQ_NUM_RESERVED_ASSETIDS; $i++) {
+			$assetid = $db->nextId('sq_sequence_asset');
+			if (DB::isError($assetid)) {
+				trigger_error('Could not reverve assetids for system assets, failed getting id "'.$i.'" in sequence', E_USER_ERROR);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			}
+		}
+	}
+	
 	// From here on in, the user needs to be logged in to create assets and links
 	$GLOBALS['SQ_INSTALL'] = false;
 

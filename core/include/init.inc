@@ -68,23 +68,14 @@ if (SQ_IN_BACKEND && substr($_SERVER['PHP_SELF'], -1) != '/') {
 // main use is so that the error_reporter doesn't barf in HTML to something expecting XML
 $GLOBALS['SQ_OUTPUT_TYPE'] = 'html';
 
-
 // we are not installing anything
 $GLOBALS['SQ_INSTALL'] = false;
 
 // we are not purging the trash
 $GLOBALS['SQ_PURGING_TRASH'] = false;
 
-
-// Load general functions, including the error handler
-require_once SQ_INCLUDE_PATH.'/general.inc';
-ini_set('display_errors', 1); // we'll manage whether to display the errors or not in the error_handler
-set_error_handler('sq_error_handler');
-
-// Now that we've got error reporting lets generate a few errors!
-if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
-	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.phpversion().'.', E_USER_ERROR);
-}
+// the number of assetids reserved for system assets
+define('SQ_NUM_RESERVED_ASSETIDS', 128);
 
 
 /*
@@ -125,6 +116,18 @@ define('SQ_STATUS_NOT_LIVE',      3); // short hand for SQ_STATUS_UNDER_CONSTRUC
 define('SQ_STATUS_CAN_APPROVE',   9); // short hand for SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_EDITING
 define('SQ_STATUS_SAFE_EDITING', 24); // short hand for SQ_STATUS_EDITING | SQ_STATUS_EDITING_APPROVAL
 define('SQ_STATUS_PENDING',      18); // short hand for SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_EDITING_APPROVAL
+
+
+// Load general functions, including the error handler
+require_once SQ_INCLUDE_PATH.'/general.inc';
+ini_set('display_errors', 1); // we'll manage whether to display the errors or not in the error_handler
+set_error_handler('sq_error_handler');
+
+// Now that we've got error reporting lets generate a few errors!
+if(version_compare(PHP_VERSION, SQ_REQUIRED_PHP_VERSION, '<')) {
+	trigger_error('<i>'.SQ_SYSTEM_LONG_NAME.'</i> requires PHP Version '.SQ_REQUIRED_PHP_VERSION.'.<br/> You may need to upgrade.<br/> Your current version is '.phpversion().'.', E_USER_ERROR);
+}
+
 
 // Create the system object
 require_once SQ_INCLUDE_PATH.'/resolve.inc';

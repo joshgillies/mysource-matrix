@@ -521,8 +521,10 @@ class Asset_Manager extends Resolve_Object
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
 	* @param int			$assetid			the id of the asset to get its children for
-	* @param string|array	$type_code			the type of asset that is linked (eg 'Page', 'File', etc) 
-	*											if an array returns link if matches any of the array values
+	* @param string|array	$type_code			the type of asset that is linked 
+	*											(eg 'Page', 'File', etc) 
+	*											if an array returns link if matches any 
+	*											of the array values
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code 
 	*											or $type_code and any of it's sub-classes
 	*
@@ -750,6 +752,26 @@ class Asset_Manager extends Resolve_Object
 
 	}//end getSystemAsset()
 
+
+	function canPurgeAsset(&$asset)
+	{
+		if ($asset->id <= SQ_NUM_RESERVED_ASSETIDS) {
+			// this asset is a direct system asset
+			// so we can not purge this asset
+			return false;
+		}
+
+		// if we get to here, it is not one of the
+		// system assets, but it may be dependantly linked to one
+		// so lets check for that
+		$parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor', '', 1);
+		for($i = 0; $i < count($parents); $i++) if ($parents[$i]['majorid'] <= SQ_NUM_RESERVED_ASSETIDS) return false;
+		
+		return true;
+
+	}//end canPurgeAsset()
+
+
 	/**
 	* Returns list of all assetids of a certain type
 	*
@@ -800,10 +822,12 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @param string		$protocol		the protocol to match -> null means it is ignored
 	* @param string		$url			the urls to check for -> null defaults it to current url
-	* @param boolean	$exact_match	when true only returns an asset if there is an exact match on the url,
-	*									if false searches back along the URL path for the asset that matches
-	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because you can't
-	*									use the '@' operator when returning by reference
+	* @param boolean	$exact_match	when true only returns an asset if there is an exact 
+	*									match on the url,
+	*									if false searches back along the URL path for the 
+	*									asset that matches
+	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because 
+	*									you can't use the '@' operator when returning by reference
 	*
 	* @return object Asset | null
 	* @access public
@@ -870,7 +894,7 @@ class Asset_Manager extends Resolve_Object
 	* i.e. returns the info for the site closest to this url
 	* If no url is passed the current (aka PHP_SELF) one is used
 	*
-	* @param string		$url		the urls to check for (excluding protocol) -> null defaults it to current url
+	* @param string	$url	the urls to check for (excluding protocol) -> null defaults it to current url
 	*
 	* @return Array
 	* @access public
@@ -903,9 +927,9 @@ class Asset_Manager extends Resolve_Object
 	* Returns an array of assetid's in the order that they propogate out from the site url
 	* If no url is passed the current (aka PHP_SELF) one is used
 	*
-	* @param string		$protocol	the protocol to match -> null means it is ignored
-	* @param string		$url		the urls to check for -> null defaults it to current url
-	* @param string		$name_type	the type of name to return for each asset
+	* @param string	$protocol	the protocol to match -> null means it is ignored
+	* @param string	$url		the urls to check for -> null defaults it to current url
+	* @param string	$name_type	the type of name to return for each asset
 	*
 	* @return Array
 	* @access public
