@@ -475,7 +475,7 @@ class Design extends Design_Area
 
 		// Now we just include the design file to get it to print
 		speed_check();
-		require_once($file_path);
+		require_once $file_path;
 		speed_check();
 
 	}//end paint()
