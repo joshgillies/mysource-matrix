@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.14 2004/08/20 00:29:43 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.15 2004/08/20 02:26:21 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.14 $ - 1.0
+* @version $Revision: 1.15 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -45,17 +45,17 @@ class Page_Calendar extends Page_Asset_Listing
 		'year'	=> Array(
 			''						=>'(none)',
 			'list_without_headings'	=>'List without Headings', 
-			'list_with_headings'	=>'List with Headings', 
+			'list_with_headings'	=>'List with Month Headings', 
 			'calendar_format'		=>'Calendar Format'),
 		'month' => Array(
 			''						=>'(none)',
 			'list_without_headings'	=>'List without Headings',
-			'list_with_headings'=>'List with Headings',
+			'list_with_headings'=>'List with Day Headings',
 			'calendar_format'=>'Calendar Format'),
 		'week' => Array(	
 			''						=>'(none)',
 			'list_without_headings'=>'List without Headings',
-			'list_with_headings'=>'List with Headings',
+			'list_with_headings'=>'List with Day Headings',
 			'calendar_format'=>'Calendar Format'),
 		'day' => Array(
 			''						=>'(none)',
