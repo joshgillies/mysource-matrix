@@ -219,7 +219,7 @@ mcListItemClass.prototype.select = function()
 	this.selected = true;
 	this.text_field.setTextFormat(this.selectedTextFormat);
 
-	this.base_colour = adjust_brightness (_root.LIST_ITEM_BG_COLOURS[this.state].colour, 0.5);
+	this.base_colour = adjust_brightness (_root.LIST_ITEM_BG_COLOURS[this.state].colour, 0.8);
 	this._drawBg();
 }
 

@@ -83,7 +83,7 @@ mcActionsBarClass.prototype.show = function(actions, labels, x, y)
 
 	var scroll_pane = this._parent._parent.scroll_pane;
 	var scroll_position = scroll_pane.getScrollPosition();
-	trace(scroll_position.x + ", " + scroll_position.y);
+
 	x = Math.min (scroll_position.x + scroll_pane.getInnerPaneWidth() - width - 5, x);
 	y = Math.min (scroll_position.y + scroll_pane.getInnerPaneHeight() - height - 5, y);
 
@@ -162,7 +162,6 @@ mcActionsBarClass.prototype.onDragOver = function()
 */
 mcActionsBarClass.prototype.checkSelections = function() 
 {
-	trace (this + "::mcActionsBarClass.checkSelections()");
 	if (this.mouse_over_us) {
 		var mc_name = this._NM_findMc(this._xmouse, this._ymouse);
 		if (mc_name === null) {

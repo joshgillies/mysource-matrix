@@ -63,6 +63,8 @@ mcMoveIndicatorClass.prototype.stopIndicator = function()
 	this.active   = false;
 	this._visible = false;
 
+	this.clear();
+
 	this.onMouseMove	= null;
 	this.refresh		= null;
 
