@@ -1,0 +1,62 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2004/09/10 04:23:40 arailean Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+
+<contents>
+
+	<section name="Details">
+
+		<field>
+			<display_name>Id Name</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintIdName" />
+			</function_call>
+		</field>
+
+	</section>
+	<section name="Calendar Options">
+
+		<field write_access="write:attributes"  attribute="target_assetid">
+			<display_name>Calendar Page</display_name>
+			<note />
+			<assetid type_codes="page_calendar:D" />
+		</field>
+
+		<field attribute="element_id" write_access="write:attributes">
+			<display_name>Element ID</display_name>
+			<note>This is used by HTML, CSS and JS. Make sure it is unique on the page.</note>
+			<text width="30" height="1" />
+		</field>
+
+		<field write_access="write:attributes" attribute="style_assetid">
+			<display_name>Custom CSS File</display_name>
+			<note>Can be left blank. If nothing is supplied, a default stylesheet will be used</note>
+			<assetid type_codes="file:D" />
+		</field>
+
+
+	</section>
+
+</contents>
