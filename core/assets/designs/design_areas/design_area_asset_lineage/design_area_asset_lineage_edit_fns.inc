@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_asset_lineage_edit_fns.inc,v 1.6 2003/12/15 19:07:27 brobertson Exp $
+* $Id: design_area_asset_lineage_edit_fns.inc,v 1.7 2003/12/16 18:22:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -46,16 +46,16 @@ class Design_Area_Asset_Lineage_Edit_Fns extends Design_Area_Edit_Fns
 	*
 	* @return Array
 	* @access public
-	* @see createParseString()
+	* @see Design_Area_Edit_Fns::createParseString()
 	*/
-	function _getSetableVars(&$asset)
+	function getSetableVars(&$asset)
 	{
-		$vars = parent::_getSetableVars($asset);
+		$vars = parent::getSetableVars($asset);
 		unset($vars['asset_contents']);
 		unset($vars['divider_contents']);
 		return $vars;
 
-	}// end _getSetableVars()
+	}// end getSetableVars()
 
 
 	/**

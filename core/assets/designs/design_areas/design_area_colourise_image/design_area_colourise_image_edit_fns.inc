@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_colourise_image_edit_fns.inc,v 1.12 2003/12/12 17:03:12 brobertson Exp $
+* $Id: design_area_colourise_image_edit_fns.inc,v 1.13 2003/12/16 18:22:17 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -141,9 +141,9 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 	* @access public
 	* @see Design_Area_Edit_Fns::createParseString()
 	*/
-	function _getSetableVars(&$asset)
+	function getSetableVars(&$asset)
 	{
-		$vars = parent::_getSetableVars($asset);
+		$vars = parent::getSetableVars($asset);
 		// remove the colours array attribute
 		unset($vars['colours']);
 
@@ -156,7 +156,7 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 			if (strstr($name, '_colour')) $vars[$name] = $data;
 		}
 		return $vars;
-	}// end _getSetableVars()
+	}// end getSetableVars()
 
 }//end class
 ?>
