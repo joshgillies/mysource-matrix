@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.67 2004/12/06 14:44:15 brobertson Exp $
+* $Id: search_page.inc,v 1.68 2004/12/06 23:10:37 lwright Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 * @see Page
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.67 $
+* @version $Revision: 1.68 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1150,7 +1150,7 @@ class Search_Page extends Page
 		foreach ($keywords as $keyword) {
 			$replacement =& $replaces[$keyword];
 			$replacement = "%$keyword%";
-
+	
 			switch ($keyword) {
 				case 'result_list':
 					$replacement = '';
@@ -1240,6 +1240,16 @@ class Search_Page extends Page
 					} else if (ereg('(.+)_query_terms$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
 						$replacement = $this->getSearchedFieldReplacement($matches[1]);
+
+					} else if (ereg('(.+)_query_suggestions$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
+					
+						$field_name = $matches[1];
+						if (isset($this->_tmp['search_suggestions'][$field_name])) {
+							$queries_temp = str_replace('queries_'.$field_name.'_query='.urlencode($this->getSearchedFieldReplacement($field_name)), 'queries_'.$field_name.'_query='.urlencode($this->_tmp['search_suggestions'][$field_name]), $queries);
+							$replacement = '<a href="'.$this->getURL().'?mode='.$mode.'&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries_temp.'">'.$this->_tmp['search_suggestions'][$field_name].'</a>';
+						} else {
+							$replacement = '';
+						}
 
 					} else if (ereg('(.+)_query$', $keyword, $matches) && array_key_exists($matches[1], $fields)) {
 
@@ -1470,7 +1480,7 @@ class Search_Page extends Page
 		$sm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
 
 		$fields = $this->attr('fields');
-
+					
 		// search category
 		$category = (isset($_REQUEST['search_category'])) ? $_REQUEST['search_category'] : '';
 		$categories = $this->attr('categories');
@@ -1529,6 +1539,32 @@ class Search_Page extends Page
 
 		}//end foreach fields
 
+		// spell-check suggestions		
+		foreach(Array('include_all', 'exclude', 'metadata', 'asset_attrib') as $type) {
+			if (!isset($search_info[$type])) continue;
+			foreach($search_info[$type] as $field_name => $field_content) {
+				// suggestion 'string' - this will be imploded later with spaces
+				$suggestion_string = Array();
+				$needs_suggestions = false;
+				
+				// loop over each word
+				foreach($field_content['words'] as $word) {
+					$suggestions = $sm->spellCheckWord($word);
+					if (!empty($suggestions)) {
+						$needs_suggestions = true;
+						$suggestion_string[] = $suggestions[0];
+					} else {
+						$suggestion_string[] = $word;
+					}
+				}
+				
+				if ($needs_suggestions) {
+					$this->_tmp['search_suggestions'][$field_name] = implode(' ', $suggestion_string);
+				}
+				
+			}
+		}
+			
 		return $sm->processSearch($search_info);
 
 	}//end processSearch()

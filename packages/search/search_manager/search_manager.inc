@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.31 2004/12/01 04:17:48 arailean Exp $
+* $Id: search_manager.inc,v 1.32 2004/12/06 23:10:37 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 require_once SQ_INCLUDE_PATH.'/asset.inc';
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -1024,6 +1024,75 @@ class Search_Manager extends Asset
 	}//end processBasicSearch()
 
 
+	/**
+	* Spell-checks a word and returns a list of suggestions if available
+	*
+	* This function checks for the existence of the pSpell extension. If it does
+	* not exist (eg. Windows server), or an error otherwise occurs in the loading
+	* of the pSpell instance, we will proceed as if no suggestions are available.
+	*
+	* @return Array(string)	the list of suggestions, one considered most relevant
+	*						by pSpell in index zero, and so on
+	* @access public
+	*/
+	function spellCheckWord($word, $language='en')
+	{
+		if (!$this->spellCheckAvailable()) {
+			// spell check not available, bugger
+			return Array();
+		}
+	
+		$pspell_config = pspell_config_create($language);
+		pspell_config_mode($pspell_config, PSPELL_FAST);
+		$pspell_instance = pspell_new_config($pspell_config);
+		
+		if (!$pspell_instance) {
+			return Array();
+		}
+
+		$check_spelling = true;
+		
+		// ignore numbers
+		if ($check_spelling) {
+			$converted_word = (int)$word;
+			if ((string)$converted_word == $word) $check_spelling = false;
+		}
+
+		// ignore words in all uppercase
+		if ($check_spelling) {
+			$converted_word = strtoupper($word);
+			if ($converted_word == $word) $check_spelling = false;
+		}
+
+		// if we aren't checking spelling OR word is correct, return no suggestions
+		if (!$check_spelling || pspell_check($pspell_instance, $word)) {
+			return Array();
+		} else {
+			// word incorrect, if any suggestions then return them
+			$suggestions = pspell_suggest($pspell_instance, $word);
+			return $suggestions;
+		}
+	
+	}//end spellCheckWord()
+	
+	
+	/**
+	* Returns true if the spell checker is available
+	*
+	* Written as a wrapper function so that if the spell-checker changes for some
+	* reason, then this can be updated. It currently just checks whether the
+	* pSpell extension is available.
+	*
+	* @return boolean 
+	* @access public
+	*/
+	function spellCheckAvailable()
+	{
+		return extension_loaded('pspell');
+			
+	}//end spellCheckAvailable()
+	
+	
 	/**
 	* Generates a base query for searching
 	*
