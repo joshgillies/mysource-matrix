@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question.inc,v 1.30 2004/07/07 01:00:36 lwright Exp $
+* $Id: form_question.inc,v 1.31 2004/08/27 01:55:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.30 $ - 1.0
+* @version $Revision: 1.31 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -261,6 +261,18 @@ class Form_Question extends Asset
 		
 	}//end _updated()
 
+
+	/**
+	* Returns TRUE if this type of asset can be cloned
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canClone()
+	{
+		return false;
+	
+	}//end canClone()
 
 
 	/**
