@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.25.2.1 2004/10/12 03:38:02 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.25.2.2 2004/10/22 05:55:42 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -353,7 +353,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		}//end if
 		?>
 
-		<p>Locking for this asset is controlled by its parent form<?php if (is_a($section_asset, 'form_section')) { echo ' section'; } ?>. Click to access this asset: <?php $href = $section_asset->getBackendHref('contents'); ?><a href="<?php echo $href?>"><?php echo $section_asset->_getName() ?></a></p><?php
+		<p>Locking for this asset is controlled by its parent form<?php if (is_a($section_asset, 'form_section')) { echo ' section'; } ?>. Click to access this asset: <?php $href = $section_asset->getBackendHref(is_a($section_asset, 'form_section') ? 'details' : 'contents'); ?><a href="<?php echo $href?>"><?php echo $section_asset->_getName() ?></a></p><?php
 		return true;
 
 	}//end paintLockMessage()
