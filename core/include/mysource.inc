@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.31 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: mysource.inc,v 1.32 2004/01/16 00:48:01 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -484,6 +484,15 @@ class MySource
 			case 'set_design_name' :
 				$_SESSION['SQ_DESIGN_NAME'] = (isset($_GET['SQ_DESIGN_NAME'])) ? $_GET['SQ_DESIGN_NAME'] : '';
 				unset($_GET['SQ_DESIGN_NAME']);
+			break;
+
+			case 'asset_map_request':
+				require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+				$asset_map = new Asset_Map();
+				// the asset map is expecting the backend object
+				$asset_map->process($this->backend);
+				// dont forget to exit!
+				exit();
 			break;
 
 		}//end switch
