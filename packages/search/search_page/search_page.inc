@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_page.inc,v 1.8 2003/11/14 03:10:10 gsherwood Exp $
+* $Id: search_page.inc,v 1.9 2003/11/18 12:23:59 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@
 * @see Page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.8 $ - 1.0
+* @version $Revision: 1.9 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -508,7 +508,7 @@ class Search_Page extends Page
 						if (!$first)
 							$replacement .= " / ";
 						$first = false;
-						$ancestorAsset = $am->getAsset($parentAssetId);
+						$ancestorAsset =& $am->getAsset($parentAssetId);
 						$replacement .= $ancestorAsset->name;
 					}
 			
@@ -523,7 +523,7 @@ class Search_Page extends Page
 						if (!$first)
 							$replacement .= " / ";
 						$first = false;
-						$ancestorAsset = $am->getAsset($parentAssetId);
+						$ancestorAsset =& $am->getAsset($parentAssetId);
 						$replacement .= "<a href=\"". $ancestorAsset->getUrl(). "\">". $ancestorAsset->name. "</a>";
 					}
 			
