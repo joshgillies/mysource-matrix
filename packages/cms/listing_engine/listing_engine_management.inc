@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_management.inc,v 1.4 2005/02/15 00:10:13 lwright Exp $
+* $Id: listing_engine_management.inc,v 1.5 2005/02/15 00:13:32 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -186,11 +186,12 @@ class Listing_Engine_Management extends Asset_Management
 	{
 		$search_page_fields = Array('lineage_seperator');
 		
-		bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version);
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 		
 		
 		if (version_compare($current_version,'0.1','==')) {
+			bam('UPGRADING LISTING ENGINE - FROM VERSION '.$current_version);
+		
 			$attributes = Array();
 		
 			foreach($this->vars as $attr_name => $attr_info) {
@@ -211,9 +212,10 @@ class Listing_Engine_Management extends Asset_Management
 				return false;
 			}
 			$this->_restoreAttributes($attributes);
+			
+			bam('LISTING ENGINE UPGRADE COMPLETE - FROM VERSION '.$current_version);
 		}
 	
-		bam('LISTING ENGINE UPGRADE COMPLETE - FROM VERSION '.$current_version);
 		return true;
 		
 	}//end _upgrade()
