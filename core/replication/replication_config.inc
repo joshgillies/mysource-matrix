@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_config.inc,v 1.1.2.1 2004/01/21 18:43:56 brobertson Exp $
+* $Id: replication_config.inc,v 1.1.2.2 2004/01/21 18:57:27 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -52,11 +52,12 @@ class Replication_Config extends Config
 		'SQ_REPLICATION_SLAVE_LIST'	=> Array('editable' => 1, 'default' => ''),
 
 		// Following only applicable to slaves
-		'SQ_REPLICATION_MASTER_SERVER_SYSTEMID'	=> Array('editable' => 1, 'default' => ''),
-		'SQ_REPLICATION_MASTER_DOMAIN'			=> Array('editable' => 1, 'default' => ''),
-		'SQ_REPLICATION_MASTER_PORT'			=> Array('editable' => 1, 'default' =>  0),
-		'SQ_REPLICATION_MASTER_AUTH'			=> Array('editable' => 1, 'default' => 'basic'),
-		'SQ_REPLICATION_MASTER_TRANSPORT'		=> Array('editable' => 1, 'default' => 'plain_text'),
+		'SQ_REPLICATION_MASTER_REPLICATION_SYSTEMID'	=> Array('editable' => 1, 'default' => ''),
+		'SQ_REPLICATION_MASTER_SERVER_SYSTEMID'			=> Array('editable' => 1, 'default' => ''),
+		'SQ_REPLICATION_MASTER_SERVER_DOMAIN'			=> Array('editable' => 1, 'default' => ''),
+		'SQ_REPLICATION_MASTER_SERVER_PORT'				=> Array('editable' => 1, 'default' =>  0),
+		'SQ_REPLICATION_MASTER_AUTH'					=> Array('editable' => 1, 'default' => 'basic'),
+		'SQ_REPLICATION_MASTER_TRANSPORT'				=> Array('editable' => 1, 'default' => 'plain_text'),
 	
 
 	);
@@ -102,8 +103,8 @@ class Replication_Config extends Config
 		// Now just make sure they aren't trying to set anything that they shouldn't
 		if ($is_master) {
 			unset($this->config_vars['SQ_REPLICATION_MASTER_SERVER_SYSTEMID']);
-			unset($this->config_vars['SQ_REPLICATION_MASTER_DOMAIN']);
-			unset($this->config_vars['SQ_REPLICATION_MASTER_PORT']);
+			unset($this->config_vars['SQ_REPLICATION_MASTER_SERVER_DOMAIN']);
+			unset($this->config_vars['SQ_REPLICATION_MASTER_SERVER_PORT']);
 			unset($this->config_vars['SQ_REPLICATION_MASTER_AUTH']);
 			unset($this->config_vars['SQ_REPLICATION_MASTER_TRANSPORT']);
 
@@ -206,6 +207,10 @@ class Replication_Config extends Config
 
 			$o->openSection('Master System Connection Settings');
 
+				$o->openField('Replication System ID');
+				echo $this->_getVal('SQ_REPLICATION_MASTER_REPLICATION_SYSTEMID').'<br>';
+				$o->note('This is the Replication System Id of the System that the Master to this Slave System');
+
 				$o->openField('Squiz Server System ID');
 				if($write_access) {
 					text_box($class.'[SQ_REPLICATION_MASTER_SERVER_SYSTEMID]', $this->_getVal('SQ_REPLICATION_MASTER_SERVER_SYSTEMID'), 30);
@@ -216,16 +221,16 @@ class Replication_Config extends Config
 
 				$o->openField('Domain');
 				if($write_access) {
-					text_box($class.'[SQ_REPLICATION_MASTER_DOMAIN]', $this->_getVal('SQ_REPLICATION_MASTER_DOMAIN'), 30);
+					text_box($class.'[SQ_REPLICATION_MASTER_SERVER_DOMAIN]', $this->_getVal('SQ_REPLICATION_MASTER_SERVER_DOMAIN'), 30);
 				} else {
-					echo $this->_getVal('SQ_REPLICATION_MASTER_DOMAIN');
+					echo $this->_getVal('SQ_REPLICATION_MASTER_SERVER_DOMAIN');
 				}
 
 				$o->openField('Port');
 				if($write_access) {
-					text_box($class.'[SQ_REPLICATION_MASTER_PORT]', $this->_getVal('SQ_REPLICATION_MASTER_PORT'), 10);
+					text_box($class.'[SQ_REPLICATION_MASTER_SERVER_PORT]', $this->_getVal('SQ_REPLICATION_MASTER_SERVER_PORT'), 10);
 				} else {
-					echo $this->_getVal('SQ_REPLICATION_MASTER_PORT');
+					echo $this->_getVal('SQ_REPLICATION_MASTER_SERVER_PORT');
 				}
 
 				require_once SQ_SYSTEM_ROOT.'/core/replication/replicator.inc';
