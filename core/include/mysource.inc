@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.65 2005/01/13 22:19:56 gsherwood Exp $
+* $Id: mysource.inc,v 1.66 2005/01/15 16:43:42 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix
 */
 class MySource
@@ -238,6 +238,10 @@ class MySource
 			$this->_user_is_root      = $_SESSION['user_is_root'];
 			$this->_user_is_sys_admin = $_SESSION['user_is_sys_admin'];
 
+			// if we are using the 'a' querystring arg, remove any trailing exclamation marks 
+			// that are used as termination characters in different kinds of content
+			if (isset($_REQUEST['a'])) $_REQUEST['a'] = rtrim($_REQUEST['a'], '!');
+
 		} else {
 			define('SQ_ROLLBACK_VIEW',        '0');
 			define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_PREFIX);
@@ -273,7 +277,7 @@ class MySource
 		// we are on the frontend
 		} else {
 			// check for ./?a=xx type urls or normal
-			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset((int) $_REQUEST['a']);
+			if (isset($_REQUEST['a'])) $asset = &$this->am->getAsset($_REQUEST['a']);
 			else $asset = &$this->am->getAssetFromURL(current_protocol(), null, true, true);
 			if (is_null($asset)) {
 
