@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_standard.inc,v 1.34 2004/05/13 02:55:29 gsherwood Exp $
+* $Id: page_standard.inc,v 1.35 2004/06/07 04:02:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -339,6 +339,7 @@ class Page_Standard extends Page
 	function getCustomKeywordReplacements($keywords)
 	{
 		if (!is_array($keywords) || empty($keywords)) return Array();
+		$print_commit_button = false;
 
 		$replacements = Array();
 		foreach ($keywords as $keyword) {
@@ -348,8 +349,10 @@ class Page_Standard extends Page
 					if (is_null($bodycopy)) continue;
 					$edit = &$bodycopy->getEditFns();
 					ob_start();
-					$edit->paintBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix());
-					$replacements[$keyword] = ob_get_contents();
+						if ($edit->paintBodycopy($bodycopy, $GLOBALS['SQ_SYSTEM']->backend->out, $bodycopy->getPrefix())) {
+							$print_commit_button = true;
+						}
+						$replacements[$keyword] = ob_get_contents();
 					ob_end_clean();
 				break;
 
@@ -359,7 +362,7 @@ class Page_Standard extends Page
 			}//end switch
 		}//end foreach
 
-		return $replacements;
+		return Array('replacements' => $replacements, 'print_commit_button' => $print_commit_button);
 
 	}//end getCustomKeywordReplacements()
 

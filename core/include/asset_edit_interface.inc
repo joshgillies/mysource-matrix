@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.212 2004/05/27 23:41:59 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.213 2004/06/07 04:02:04 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -927,14 +927,16 @@ class Asset_Edit_Interface extends MySource_Object
 			$custom_replacements = $owner->getCustomKeywordReplacements($keywords['custom']);
 			
 			if (!empty($custom_replacements)) {
+				assert_isset_array_index($custom_replacements, 'replacements');
+				assert_isset_array_index($custom_replacements, 'print_commit_button');
 				$replacements = Array();
 				
 				// rebuild the keyword so the bodycopy can properly replace it
-				foreach ($custom_replacements as $keyword => $replacement) {
+				foreach ($custom_replacements['replacements'] as $keyword => $replacement) {
 					$replacements['__custom-'.$keyword] = $replacement;
 				}
 				$this->_tmp['layout_keyword_replacements'] = array_merge($this->_tmp['layout_keyword_replacements'], $replacements);
-				$print_commit_button = true;
+				$print_commit_button = $custom_replacements['print_commit_button'];
 
 			}//end if
 
