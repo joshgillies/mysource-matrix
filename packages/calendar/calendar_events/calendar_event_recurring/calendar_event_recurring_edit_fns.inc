@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring_edit_fns.inc,v 1.4 2004/07/30 02:14:39 lwright Exp $
+* $Id: calendar_event_recurring_edit_fns.inc,v 1.5 2004/07/30 05:33:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../../calendar_event/calendar_event_edit_fns.i
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -164,6 +164,10 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 					. sprintf("%02d", $_REQUEST[$prefix . '_stop_day']) . ' --:--:--');
 		}
 		$interval = '';
+		
+		// do this so it doesn't give undefined index errors in the switch if nothing is set
+		if(empty($_REQUEST[$prefix . '_frequency_type'])) $_REQUEST[$prefix . '_frequency_type'] = '';
+		
 		switch ($_REQUEST[$prefix . '_frequency_type']) {
 			case 'DED':
 			case 'DWD':
@@ -212,6 +216,10 @@ class Calendar_Event_Recurring_Edit_Fns extends Calendar_Event_Edit_Fns
 				}	
 			break;
 
+			case '':
+				trigger_error('You did not select a  frequency type', E_USER_WARNING);
+				return false;
+				
 			default:
 				trigger_error('You entered an invalid frequency type', E_USER_WARNING);
 				return false;
