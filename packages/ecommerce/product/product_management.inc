@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: product_management.inc,v 1.2 2005/01/20 13:22:22 brobertson Exp $
+* $Id: product_management.inc,v 1.3 2005/01/20 23:54:16 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once  SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -53,22 +53,21 @@ class Product_Management extends Asset_Management
 		//images for products will be linked assets so dont include her
 		//Also quantity is not an issue at the moment
 		$this->vars = array(
+
 			'name' => array(
-									'added'			=> '0.1',
-									'type'			=> 'text',
-									'default'		=> '',
-									'description'   => 'The name of the Product that this asset represents'
+							'added'			=> '0.1',
+							'type'			=> 'text',
+							'default'		=> '',
+							'description'   => 'The name of the Product that this asset represents'
 							),
-			
+
 			'price' => array(
 							 'added'		=> '0.1',
 							 'type'			=> 'float',
 							 'default'		=> 0.0,
 							 'description'  => 'Sale value of this Product'
 							 ),
-			//keep note on the usefulness of this
-			//'id' => array(),
-			
+
 			/*				
 			'quantity' => array(
 								'added'			=> '0.1',
@@ -77,6 +76,7 @@ class Product_Management extends Asset_Management
 								'description'	=> 'Quantity of the item on hand'
 								),
 			*/
+
 			'description' => array(
 								   'added'			=> '0.1',
 								   'type'			=> 'text',
@@ -96,7 +96,6 @@ class Product_Management extends Asset_Management
 							   'default'	=> '',
 							   'description'=> 'Detailed specifications of the Product'
 							   ),
-			
 			'display_format' => array(
 									  'added'		=> '0.1',
 									  'type'		=> 'wysiwyg',

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.2 2005/01/20 13:22:22 brobertson Exp $
+* $Id: edit_interface_screen_details.xml,v 1.3 2005/01/20 23:54:16 lwright Exp $
 *
 */
 -->
@@ -32,7 +32,7 @@
 			<note />
 			<text width="30" />
 		</field>
-		<field write_access="write:attribute" attribute="price">
+		<field write_access="write:attributes" attribute="price">
 			<display_name>Product Price</display_name>
 			<note />
 			<float width="10"/>
@@ -58,9 +58,10 @@
 	<section name="Product Display">
 		<field write_access="write:attributes" attribute="display_format">
 			<display_name>Display Layout</display_name>
-			<note>
-			&lt;p&gt;Several keyword replacements are available representing each of the 
-			   different attributes of this asset. These include:
+			<note />
+			<wysiwyg style="div" width="100%" height="300" />
+		</field>
+		<note>&lt;p&gt;Several keyword replacements are available representing each of the different attributes of this asset. These include:
 			&lt;/p&gt;
 			&lt;ul&gt;
 				&lt;li&gt;%name%&lt;/li&gt;
@@ -68,9 +69,10 @@
 				&lt;li&gt;%description%&lt;/li&gt;
 				&lt;li&gt;%short_description%&lt;/li&gt;
 				&lt;li&gt;%details%&lt;/li&gt;
+				&lt;li&gt;%quantity_field%&lt;/li&gt;
+				&lt;li&gt;%commit_button%&lt;/li&gt;
 			&lt;/ul&gt;
-			</note>
-			<wysiwyg style="div" width="100%" height="300" />
-		</field>
+			
+			&lt;p&gt;Linked images can be displayed using the keyword %image_&lt;i&gt;assetid&lt;/i&gt;%, where &lt;i&gt;assetid&lt;/i&gt; is the assetid of the image.&lt;/p&gt;</note>
 	</section>
 </contents>

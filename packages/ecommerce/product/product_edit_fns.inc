@@ -18,12 +18,12 @@
  * | licence.                                                           |
  * +--------------------------------------------------------------------+
  *
- * $Id: product_edit_fns.inc,v 1.1 2005/01/12 23:57:01 lwright Exp $
+ * $Id: product_edit_fns.inc,v 1.2 2005/01/20 23:54:16 lwright Exp $
  * $Name: not supported by cvs2svn $
  */
 
 
-require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 
 /**
 * Product_Edit_Fns
@@ -33,11 +33,11 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 *
 *
 * @author  David Heppell <dheppell@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
-class Product_Edit_Fns extends Asset_Edit_Fns
+class Product_Edit_Fns extends Page_Edit_Fns
 {
 
 	/**
@@ -46,7 +46,7 @@ class Product_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function Product_Edit_Fns()
 	{
-		$this->Asset_Edit_Fns();
+		$this->Page_Edit_Fns();
 		
 	}//end constructor
 	
