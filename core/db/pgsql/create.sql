@@ -122,7 +122,7 @@ CREATE TABLE sq_asset_lookup (
 );
 
 
-DROP TABLE IF EXISTS sq_asset_permission;
+DROP TABLE sq_asset_permission;
 CREATE TABLE sq_asset_permission (
   assetid    INT NOT NULL,
   userid     INT NOT NULL DEFAULT 0,
