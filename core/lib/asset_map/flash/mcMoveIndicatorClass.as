@@ -16,6 +16,10 @@ function mcMoveIndicatorClass()
 	this.parent_assetid		= 0;
 	this.relative_pos		= -1;
 
+	this.line_colour		= 0xff0000;
+	
+	this.arrow.stop();
+
 }// end constructor
 
 // Make it inherit from MovieClip
@@ -35,8 +39,10 @@ mcMoveIndicatorClass.prototype.startIndicator = function(on_end_obj, on_end_fn)
 	this.parent_assetid		= 0;
 	this.relative_pos		= -1;
 
-	this.onMouseMove = this.checkPositions;
+	this.drawLine();
 
+	this.onMouseMove		= this.checkPositions;
+	this.refresh			= this.drawLine;
 	return true;
 
 }// end startIndicator()
@@ -58,13 +64,14 @@ mcMoveIndicatorClass.prototype.stopIndicator = function()
 	this.active   = false;
 	this._visible = false;
 
-	this.onMouseMove = null;
+	this.onMouseMove	= null;
+	this.refresh		= null;
+
 }// end endIndicator()
 
 
 mcMoveIndicatorClass.prototype.checkPositions = function() 
 {
-	trace (this + "::mcMoveIndicatorClass.onMouseMove()");
 	if (this.active) {
 
 		var list = this._parent.list;
@@ -100,7 +107,7 @@ mcMoveIndicatorClass.prototype.checkPositions = function()
 			this.relative_pos = _root.asset_manager.assets[this.parent_assetid].links.length;
 
 			// Now finally set the indicator pos
-			this.gotoAndStop("normal");
+			this.arrow.gotoAndStop("normal");
 			this._x  = indent * _root.LIST_ITEM_INDENT_SPACE;
 			this._y  = end_pos + (_root.LIST_ITEM_END_BRANCH_GAP * gaps_from_end);
 
@@ -108,7 +115,7 @@ mcMoveIndicatorClass.prototype.checkPositions = function()
 			var item_name = list.items_order[pos.pos].name;
 
 			if (pos.in_gap) {
-				this.gotoAndStop("normal");
+				this.arrow.gotoAndStop("normal");
 				this._x  = list[item_name]._x;
 				this._y  = list[item_name]._y + _root.LIST_ITEM_POS_INCREMENT;
 
@@ -121,7 +128,7 @@ mcMoveIndicatorClass.prototype.checkPositions = function()
 				var percentile = ((ym - list[item_name]._y) / _root.LIST_ITEM_POS_INCREMENT);
 
 				if (percentile < 0.45) {
-					this.gotoAndStop("normal");
+					this.arrow.gotoAndStop("normal");
 					this._x    = list[item_name]._x;
 					this._y    = list[item_name]._y;
 
@@ -130,7 +137,7 @@ mcMoveIndicatorClass.prototype.checkPositions = function()
 					this.relative_pos     = _root.asset_manager.assets[this.parent_assetid].linkPos(list[item_name].linkid);
 
 				} else {
-					this.gotoAndStop("new_child");
+					this.arrow.gotoAndStop("new_child");
 					this._x    = list[item_name]._x + _root.LIST_ITEM_INDENT_SPACE;
 					this._y    = list[item_name]._y + _root.LIST_ITEM_POS_INCREMENT;
 					this.parent_item_name = item_name;
@@ -171,5 +178,14 @@ mcMoveIndicatorClass.prototype.onReleaseOutside = function()
 	return true;
 }// end onReleaseOutside();
 
+
+mcMoveIndicatorClass.prototype.drawLine = function()
+{
+	this.clear();
+	this.lineStyle(1, this.line_colour, 100);
+	this.moveTo(0, 0);
+	this.lineTo(this._parent._width - this._x, 0);
+
+}
 
 Object.registerClass("mcMoveIndicatorID", mcMoveIndicatorClass);

@@ -48,6 +48,9 @@ mcListContainerClass.prototype.refresh = function()
 	// now ourselves
 	this.refreshDisplay();
 
+	// now move indicator
+	this.move_indicator.refresh();
+
 }// end refresh()
 
 
