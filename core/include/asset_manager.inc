@@ -2716,7 +2716,7 @@ class Asset_Manager extends Resolve_Object
 
 		$asset = &$this->getAsset($assetid);
 		if (is_null($asset)) return false;
-		if (!$asset->adminAccess()) {
+		if (!$asset->adminAccess(Array(), true, false)) {
 			trigger_error('Cannot grant permission for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
