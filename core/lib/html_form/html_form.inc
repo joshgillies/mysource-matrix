@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.59 2004/06/24 05:14:02 lwright Exp $
+* $Id: html_form.inc,v 1.60 2004/06/30 06:37:28 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -166,6 +166,7 @@ function password_box($name, $value='', $size='', $max='', $extras='')
 	if (!stristr($extras, 'class=')) $extras .= ' class="sq-form-field"';
 	echo	'<input type="password" ',
 			'name="', htmlspecialchars($name), '" ',
+			'id="',htmlspecialchars($name), '" ',
 			'value="', htmlspecialchars($value), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
