@@ -168,7 +168,7 @@ public class ServerSubmitter implements ActionListener
 
 
 	/**
-	* Hide the progress indicator, redirect the browser to the supplied URL
+	* Hide the progress indicator
 	*/
 	synchronized void finish(String tempFileName) 
 	{
@@ -240,10 +240,10 @@ class ServerSubmitterThread extends Thread
 		String fileFieldName = ms.getParameter("FILE_FIELD_NAME");
 		if (fileFieldName == null) fileFieldName = "file_0";
 		StringBuffer fileHeader = new StringBuffer();
-        fileHeader.append("--" + boundary + "\r\n");
-        fileHeader.append("Content-Disposition: form-data; name=\""+fileFieldName+"\"; fileName=\""+fileName+"\"\r\n");
-        fileHeader.append("Content-Type: application/octet-stream");
-        fileHeader.append("\r\n\r\n");
+		fileHeader.append("--" + boundary + "\r\n");
+		fileHeader.append("Content-Disposition: form-data; name=\""+fileFieldName+"\"; fileName=\""+fileName+"\"\r\n");
+		fileHeader.append("Content-Type: application/octet-stream");
+		fileHeader.append("\r\n\r\n");
 
 		// get the other POST components and the tail
 		StringBuffer tail = new StringBuffer();
@@ -278,7 +278,7 @@ class ServerSubmitterThread extends Thread
 		try {
 
 			sock = new Socket(submitURL.getHost(), (-1 == submitURL.getPort())?80:submitURL.getPort());
-		    dataout = new DataOutputStream(new BufferedOutputStream(sock.getOutputStream()));
+			dataout = new DataOutputStream(new BufferedOutputStream(sock.getOutputStream()));
 			datain  = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
 			// send the header
@@ -425,7 +425,6 @@ class ServerSubmitterThread extends Thread
 
 	}//end getBoundary()
 
-
 }//end class
 
 
@@ -438,16 +437,18 @@ class ServerSubmitProgressDialog extends JFrame
 	/**
 	* Constructor - create and show the dialog
 	* 
-	* @param	max		The maximum value for the progressbar
+	* @param    max     The maximum value for the progressbar
 	*/
 	ServerSubmitProgressDialog(int max) 
 	{
-    	super();
+		super();
 		progressBar = new JProgressBar(0, max);
 		progressBar.setStringPainted(true);
 		progressBar.setValue(0);
-        getContentPane().add(progressBar);
+		getContentPane().add(progressBar);
 		setSize(400, 80);
+		Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+		setLocation((screen.width / 2) - 200, (screen.height / 2) - 40;
 		validate();
 		setVisible(true);
 		toFront();
