@@ -148,17 +148,15 @@ class Asset_Management extends Resolve_Object
 		// get how deep we are in the heirarchy
 		$level = count($this->_pm->getParentList($type_code));
 		$info = $this->_pm->getInfo($type_code);
-		$editing_options = $this->_getEditingOptions();
-		if (is_null($editing_options)) return false;
 
 		$sql = 'INSERT INTO sq_asset_type
-				(type_code, version, name, description, instantiable, system_only, parent_type, level, dir, customisation, editing_options)
+				(type_code, version, name, description, instantiable, system_only, parent_type, level, dir, customisation)
 				VALUES
 				('.$this->_db->quote($type_code).', '.$this->_db->quote($info['version']).',
 				'.$this->_db->quote($info['name']).', '.$this->_db->quote($info['description']).',
 				'.$this->_db->quote($info['instantiable']).', '.$this->_db->quote($info['system_only']).',
 				'.$this->_db->quote($info['parent_type']).', '.$this->_db->quote($level).',
-				'.$this->_db->quote($info['dir']).', 0, '.$this->_db->quote(serialize($editing_options)).')';
+				'.$this->_db->quote($info['dir']).', 0)';
 #		pre_echo($sql);
 		$result = $this->_db->query($sql);
 		if (DB::isError($result)) {
@@ -195,8 +193,6 @@ class Asset_Management extends Resolve_Object
 		// get how deep we are in the heirarchy
 		$level = count($this->_pm->getParentList($this->getAssetType()));
 		$info = $this->_pm->getInfo($this->getAssetType());
-		$editing_options = $this->_getEditingOptions();
-		if (is_null($editing_options)) return false;
 
 		$sql = 'UPDATE sq_asset_type
 				SET version         = '.$this->_db->quote($info['version']).',
@@ -206,8 +202,7 @@ class Asset_Management extends Resolve_Object
 					system_only     = '.$this->_db->quote($info['system_only']).',
 					parent_type     = '.$this->_db->quote($info['parent_type']).',
 					level           = '.$this->_db->quote($level).',
-					dir             = '.$this->_db->quote($info['dir']).',
-					editing_options = '.$this->_db->quote(serialize($editing_options)).'
+					dir             = '.$this->_db->quote($info['dir']).'
 				WHERE type_code = '.$this->_db->quote($this->getAssetType());
 
 #		pre_echo($sql);
@@ -241,49 +236,6 @@ class Asset_Management extends Resolve_Object
 		return true;
 
 	}//end upgrade()
-
-
-	/**
-	* Returns an array of editing options for this asset type
-	*
-	* @return Array
-	* @access private
-	*/
-	function _getEditingOptions()
-	{
-
-		$parents = $this->_pm->getParentList($this->getAssetType());
-		// add this type to the front
-		array_unshift($parents, $this->getAssetType());
-
-		// remove "asset"
-		array_pop($parents);
-
-		$editing_options = Array();
-
-		while(null !== ($type_code = array_pop($parents))) {
-			$info = @$this->_pm->getInfo($type_code, 'editing_options');
-			// if it ain't in this package, it's has to be installed, get the info from the asset manager
-			if (is_null($info)) {
-				$tmp = $info['editing_options'];
-				$info = @$GLOBALS['SQ_SYSTEM']->am->getInfo($type_code, 'editing_options');
-				if (is_null($info)) return null;
-			}
-			for (reset($info); null !== ($k = key($info)); next($info)) {
-				$v = $editing_options[$k];
-				$editing_options[$k] = $v;
-			}
-		}
-
-		for (reset($editing_options); null !== ($k = key($editing_options)); next($editing_options)) {
-			$v = $editing_options[$k];
-			if (empty($v)) unset($editing_options[$k]);
-		}
-
-		return $editing_options;
-
-	}//end _getEditingOptions()
-
 
 	/**
 	* Returns all the variable names that are available for this asset type
@@ -640,14 +592,6 @@ class Asset_Management extends Resolve_Object
 
 			$xml_array->close();
 
-			$editing_options = Array();
-			if (isset($info['editing_options']['option']) && is_array($info['editing_options']['option'])) {
-				for($i = 0; $i < count($info['editing_options']['option']); $i++) {
-					$opt = &$info['editing_options']['option'][$i];
-					$editing_options[$opt['@action']] = (empty($opt['value'])) ? '' : $opt['value'];
-				}// end for
-			}// endif
-
 			$GLOBALS['SQ_ASSET_MANAGEMENT_ASSET_INFO'][$file] = Array(
 																	'type_code'       => strtolower($info['type_code']['value']),
 																	'package'         => $info['package']['value'],
@@ -656,8 +600,7 @@ class Asset_Management extends Resolve_Object
 																	'description'     => $info['description']['value'],
 																	'instantiable'    => ($info['instantiable']['value'] == 'yes') ? 1 : 0,
 																	'system_only'     => ($info['system_only']['value']  == 'yes') ? 1 : 0,
-																	'parent_type'     => $info['parent_type']['value'],
-																	'editing_options' => $editing_options
+																	'parent_type'     => $info['parent_type']['value']
 																);
 
 		}//end if
@@ -677,7 +620,7 @@ class Asset_Management extends Resolve_Object
 	*/
 	function getAssetArrayPaths()
 	{
-		return Array('asset_info/requirements/requirement', 'asset_info/editing_options/option');
+		return Array('asset_info/requirements/requirement');
 	}
 
 }//end class

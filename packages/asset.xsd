@@ -64,20 +64,6 @@
 		</xsd:simpleContent>
 	</xsd:complexType>
 
-	<xsd:complexType name="dtype_editing_option">
-		<xsd:simpleContent>
-			<xsd:restriction base="xsd:string">
-				<xsd:attribute name="action" type="xsd:string" use="required"/>
-			</xsd:restriction>
-		</xsd:simpleContent>
-	</xsd:complexType>
-
-	<xsd:complexType name="dtype_editing_options">
-		<xsd:sequence>
-			<xsd:element name="option" type="dtype_editing_option" maxOccurs="unbounded"/>
-		</xsd:sequence>
-	</xsd:complexType>
-
 	<xsd:complexType name="dtype_asset_info">
 		<xsd:sequence>
 			<xsd:element name="package"         type="dtype_package"/>
@@ -89,7 +75,6 @@
 			<xsd:element name="system_only"     type="dtype_yes_no"/>
 			<xsd:element name="parent_type"     type="dtype_type_code"/>
 			<xsd:element name="requirements"    type="dtype_requirements"/>
-			<xsd:element name="editing_options" type="dtype_editing_options"/>
 		</xsd:sequence>
 	</xsd:complexType>
 

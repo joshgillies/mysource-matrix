@@ -170,7 +170,7 @@ class Asset_Manager extends Resolve_Object
 			$result = $db->getOne($sql);
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
-			$this->_asset_types[$type_code][$field] = ($field == 'editing_options') ? unserialize($result) : $result;
+			$this->_asset_types[$type_code][$field] = $result;
 
 		}// end if
 
