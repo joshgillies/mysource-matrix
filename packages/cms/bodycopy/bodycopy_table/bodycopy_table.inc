@@ -213,13 +213,13 @@ class Bodycopy_Table extends Asset
 	*/
 	function printBody()
 	{
-		if (!file_exists($this->data_path.'/content_file.inc')) {
+		if (!file_exists($this->data_path.'/content_file.php')) {
 			// generate the contents file
 			$edit = $this->getEditFns();
 			$edit->generateContentFile($this);
 		}
 
-		if (!file_exists($this->data_path.'/content_file.inc')) {
+		if (!file_exists($this->data_path.'/content_file.php')) {
 			trigger_error('Contents file failed to generate for bodycopy table '.$this->name, E_USER_WARNING);
 		} else {
 			// create an array of urls that the content file is
@@ -233,7 +233,7 @@ class Bodycopy_Table extends Asset
 				$sq_asset_url_list[$link['minorid']] = $href;
 			}
 
-			include($this->data_path.'/content_file.inc');
+			include($this->data_path.'/content_file.php');
 		}
 	}// end printBody()
 

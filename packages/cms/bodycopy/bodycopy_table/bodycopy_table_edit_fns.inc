@@ -608,7 +608,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 		}
 
 		create_directory($asset->data_path);
-		if (string_to_file($output, $asset->data_path.'/content_file.inc')) return true;
+		if (string_to_file($output, $asset->data_path.'/content_file.php')) return true;
 		return false;
 	}//end generateContentFile()
 
