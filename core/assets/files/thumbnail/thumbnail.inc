@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: thumbnail.inc,v 1.13 2003/11/26 00:50:57 gsherwood Exp $
+* $Id: thumbnail.inc,v 1.14 2004/07/23 07:17:44 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -61,24 +61,8 @@ class Thumbnail extends Image
 	function Thumbnail($assetid=0)
 	{
 		$this->Image($assetid);
+	
 	}//end constructor
-
-
-	/**
-	* Returns an array of all the permitted link type, the type asset and the cardinality
-	*
-	* @see Asset::_getAllowedLinks()
-	* @access private
-	*/
-	function _getAllowedLinks()
-	{
-		return Array(SQ_LINK_TYPE_1 => Array(),
-					 SQ_LINK_TYPE_2 => Array(),
-					 SQ_LINK_TYPE_3 => Array(),
-					 SQ_LINK_NOTICE => Array()
-					);
-
-	}//end _getAllowedLinks()
 
 
 	/**
