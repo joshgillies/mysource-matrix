@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.40 2005/02/21 14:37:01 gnoel Exp $
+* $Id: form_email_edit_fns.inc,v 1.41 2005/02/22 16:57:23 mkeehan Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -310,6 +310,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$o->openField('Format');
 
 		$options = Array('' => '------- Please Select -------',
+						 'psv' => 'Pipe Seperated Values',
 						 'csv' => 'Comma Separated Values (CSV)',
 						 'csv_nhr' => 'Comma Separated Values (CSV) - No Header Row',
 						 'xml' => 'XML Format');
@@ -355,6 +356,9 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		if (!$_POST[$prefix.'_export_switch']) return true;
 		$export_type = isset($_POST[$prefix.'_export_format']) ? $_POST[$prefix.'_export_format'] : '';
 		switch ($export_type) {
+			case 'psv':
+				$this->processExportCSV($asset, $o, $prefix, true, '|');
+			break;
 			case 'csv':
 				$this->processExportCSV($asset, $o, $prefix);
 			break;
@@ -387,11 +391,12 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processExportCSV(&$asset, &$o, $prefix, $header_row=true)
+	function processExportCSV(&$asset, &$o, $prefix, $header_row=true, $delimiter=',')
 	{
 		require_once SQ_FUDGE_PATH.'/csv/csv.inc';
 		$csv = new CSV();
 		$csv->setFilename('submission_log.csv');
+		$csv->setDeliminator($delimiter);
 
 		// get the from and to values
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : '---------- --:--:--';
