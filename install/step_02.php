@@ -75,7 +75,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 			$type = null;
 			$default = null;
 
-			$cached_table_columns[$table_name][] = $column_name;
+			$cached_table_columns[$table_name]['columns'][] = $column_name;
 
 			for($k = 0; $k < count($table_column->children); $k++) {
 				$column_var = &$table_column->children[$k];
@@ -117,6 +117,7 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 		$primary_key = '';
 		$rollback_primary_key = '';
 		$other_keys = Array();
+		$other_rollback_keys = Array();
 
 		$table_keys = &$table->children[1]->children;
 		for($j = 0; $j < count($table_keys); $j++) {
@@ -127,16 +128,22 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 			for($k = 0; $k < count($table_key->children); $k++) {
 				$col_name = $table_key->children[$k]->attributes['name'];
 				$key_columns[] = $col_name;
+				
+				// cache the primary key columns for this table
+				if ($table_key->name == 'primary_key') {
+					$cached_table_columns[$table_name]['primary_key'][] = $col_name;
+				}
 			}
 
 			switch (strtolower($table_key->name)) {
 				case 'primary_key' :
 					// a primary key for the table
 					$primary_key = 'PRIMARY KEY('.implode(',',$key_columns).')';
-					$rollback_primary_key = 'PRIMARY KEY(effective_from, '.implode(', ',$key_columns).')';
+					$rollback_primary_key = 'PRIMARY KEY('.SQ_TABLE_PREFIX.'effective_from, '.implode(', ',$key_columns).')';
 					break;
 				case 'unique_key' :
 					$other_keys[] = 'UNIQUE('.implode(', ',$key_columns).')';
+					$other_rollback_keys[] = 'UNIQUE('.SQ_TABLE_PREFIX.'effective_from, '.implode(', ',$key_columns).')';
 					break;
 				default :
 					continue;
@@ -181,14 +188,14 @@ if (!is_file(SQ_DATA_PATH.'/private/db/table_columns.inc')) {
 
 			ob_start();
 			echo 'CREATE TABLE '.SQ_TABLE_ROLLBACK_PREFIX.$table_name.' (';
-			echo "effective_from $rollback_column_type NOT NULL,";
-			echo "effective_to   $rollback_column_type,";
+			echo SQ_TABLE_PREFIX."effective_from $rollback_column_type NOT NULL,";
+			echo SQ_TABLE_PREFIX."effective_to   $rollback_column_type,";
 			echo $table_columns_string;
 
 			echo $rollback_primary_key;
-			if (!empty($other_keys)) {
+			if (!empty($other_rollback_keys)) {
 				echo ',';
-				echo implode(',', $other_keys);
+				echo implode(',', $other_rollback_keys);
 			}
 			echo ');';
 			$table_sql = ob_get_contents();
@@ -262,7 +269,17 @@ if (empty($cached_table_columns)) {
 		$table_name = $table->attributes['name'];
 		$table_cols = &$table->children[0]->children;
 		for($j = 0; $j < count($table->children[0]->children); $j++) {
-			$cached_table_columns[$table_name][] = $table_cols[$j]->attributes['name'];
+			$cached_table_columns[$table_name]['columns'][] = $table_cols[$j]->attributes['name'];
+		}
+		$table_keys = &$table->children[1]->children;
+		for($j = 0; $j < count($table_keys); $j++) {
+			$table_key = &$table_keys[$j];
+			if ($table_key->name == 'primary_key') {
+				for($k = 0; $k < count($table_key->children); $k++) {
+					$col_name = $table_key->children[$k]->attributes['name'];
+					$cached_table_columns[$table_name]['primary_key'][] = $col_name;
+				}
+			}
 		}
 	}
 }
@@ -273,11 +290,18 @@ ob_start();
 
 echo "<?php\n";
 echo '$tables = Array('."\n";
-foreach ($cached_table_columns as $table_name => $columns) {
+foreach ($cached_table_columns as $table_name => $table_data) {
 	echo "\t'$table_name' => Array(\n";
-	foreach ($columns as $column_name) {
-		echo "\t\t'$column_name',\n";
-	}
+		echo "\t\t'columns' => Array(\n";
+		foreach ($table_data['columns'] as $column_name) {
+			echo "\t\t\t'$column_name',\n";
+		}
+		echo "\t\t),\n";
+		echo "\t\t'primary_key' => Array(\n";
+		foreach ($table_data['primary_key'] as $column_name) {
+			echo "\t\t\t'$column_name',\n";
+		}
+		echo "\t\t),\n";
 	echo "\t),\n";
 }
 echo ");\n";
