@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.250 2003/10/30 23:47:12 dwong Exp $
+* $Id: asset.inc,v 1.251 2003/10/30 23:49:02 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1055,16 +1055,16 @@ class Asset extends MySource_Object
 			}
 
 			$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetUpdate',
-												  Array( 'assetid'				=> $this->id,
-														 'old_name'				=> $this->name,
-														 'new_name'				=> $name,
-														 'old_short_name'		=> $this->short_name,
-														 'new_short_name'		=> $short_name,
-														 'old_updated'			=> $this->updated,
-														 'new_updated'			=> $updated,
-														 'old_updated_userid'	=> $this->updated_userid,
-														 'new_updated_userid'	=> $updated_userid
-													));
+												  Array( 'assetid'          => $this->id,
+														 'old_name'         => $this->name,
+														 'new_name'         => $name,
+														 'old_short_name'   => $this->short_name,
+														 'new_short_name'   => $short_name,
+														 'old_updated' => $this->updated,
+														 'new_updated' => $updated,
+														 'old_updated_userid'  => $this->updated_userid,
+														 'new_updated_userid'  => $updated_userid
+														));
 
 			// increment the micro version number
 			if (!$this->incrementVersion()) {
@@ -3180,16 +3180,18 @@ class Asset extends MySource_Object
 	* @return void
 	* @access protected
 	*/
-	function buildKeyData(&$keydata, $value, $type = 'text', $component = false, $position = 0)
+	function buildKeyData(&$keydata, $value, $type = 'text', $component = false, $score = 1)
 	{
 		if (!is_array($keydata))
+			return false;
+		if ($score <= 0)
 			return false;
 
 		array_push($keydata, array (
 			'value'		=> $value,
 			'type'		=> $type,
 			'component' => $component,
-			'position'	=> $position,
+			'score'		=> $score,
 		));
 
 		return true;
