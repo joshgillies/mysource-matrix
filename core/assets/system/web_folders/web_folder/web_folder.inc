@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: web_folder.inc,v 1.1 2005/02/07 05:02:48 gsherwood Exp $
+* $Id: web_folder.inc,v 1.2 2005/03/31 03:41:43 ndvries Exp $
 *
 */
 
@@ -29,7 +29,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/site/site.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -77,8 +77,8 @@ class Web_Folder extends Site
 		return $linkid;
 
 	}//end create()
-	
-	
+
+
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
@@ -167,6 +167,7 @@ class Web_Folder extends Site
 
 		return Array(SQ_LINK_TYPE_1 => Array('folder' => Array('card' => 'M', 'exclusive' => false)),
 					 SQ_LINK_TYPE_2 => Array('folder' => Array('card' => 'M', 'exclusive' => false)),
+					 SQ_LINK_NOTICE => Array('design' => Array('card' => 'M', 'exclusive' => false)),
 					);
 
 	}//end _getAllowedLinks()
