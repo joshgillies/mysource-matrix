@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.243 2004/11/10 21:38:22 tbarrett Exp $
+* $Id: asset_manager.inc,v 1.244 2004/11/17 04:29:13 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -82,7 +82,25 @@ class Asset_Manager extends MySource_Object
 	function _loadAssetTypes()
 	{
 		$this->_asset_types = Array();
+		if (file_exists(SQ_DATA_PATH.'/private/db/asset_types.inc')) {
+			include(SQ_DATA_PATH.'/private/db/asset_types.inc');
+			$this->_asset_types = $asset_types;
+		} else {
+			$this->_asset_types = $this->getAssetTypes();
+		}
 
+	}//end _loadAssetTypes()
+
+
+	/**
+	* Returns the asset types and their information.
+	*
+	* @return Array(type_code => Array(info))
+	* @access public
+	*/
+	function getAssetTypes()
+	{
+		$asset_types = Array();
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation
 				FROM '.SQ_TABLE_PREFIX.'asset_type';
@@ -90,12 +108,13 @@ class Asset_Manager extends MySource_Object
 		assert_valid_db_result($result);
 
 		while (null !== ($row = $result->fetchRow())) {
-			$this->_asset_types[$row['type_code']] = $row;
-		}//end while
-
+			$asset_types[$row['type_code']] = $row;
+		}
 		$result->free();
 
-	}//end _loadAssetTypes()
+		return $asset_types;
+
+	}//end getAssetTypes()
 
 
 	/**
