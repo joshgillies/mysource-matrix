@@ -10,7 +10,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::__core__
+* @package Resolve::packages::__core__
 */
 class Root_Folder_Edit_Fns extends Folder_Edit_Fns
 {

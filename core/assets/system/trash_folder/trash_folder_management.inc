@@ -9,7 +9,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
-* @package Resolve::__core__
+* @package Resolve::packages::__core__
 */
 class Trash_Folder_Management extends Asset_Management
 {

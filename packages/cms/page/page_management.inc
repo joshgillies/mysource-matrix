@@ -9,6 +9,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Blair Robertson <blair@squiz.net>
 * @version $Version$ - 1.0
+* @package Resolve::packages::cms
 */
 class Page_Management extends Asset_Management
 {
