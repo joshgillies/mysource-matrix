@@ -618,7 +618,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		$new_table = new Bodycopy_Table();
 		$new_table->setAttrValue('name', 'New Table');
 		$new_table->setAttrValue('attributes', $attributes);
-		if (!$new_table->create($copy_link, $num_rows, $num_cols)) return false;
+		return (bool) $new_table->create($copy_link, $num_rows, $num_cols);
 
 	}//end insertTable()
 
@@ -641,8 +641,7 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		foreach ($tables as $table_data) {
 			if ($table_data['minorid'] == $tableid) {
 				// found the table to delete
-				if (!$asset->deleteLink($table_data['linkid'])) return false;
-				return true;
+				return $asset->deleteLink($table_data['linkid']);
 			}
 		}
 
