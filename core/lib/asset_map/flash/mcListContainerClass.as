@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListContainerClass.as,v 1.42 2003/10/30 23:20:49 dwong Exp $
+* $Id: mcListContainerClass.as,v 1.43 2003/10/30 23:24:13 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -252,22 +252,20 @@ mcListContainerClass.prototype.processAddAsset = function(parent_item_name, pare
 */
 mcListContainerClass.prototype.xmlGotoUrl = function(xml, exec_identifier)
 {
-	for (var i = 0; i < xml.childNodes.length; ++i) {
-		nextChildResponse = xml.childNodes[i];
-
-		switch (nextChildResponse.firstChild.nodeName) {
+	for (var i = 0; i < xml.firstChild.childNodes.length; ++i) {
+		nextChildResponse = xml.firstChild.childNodes[i];
+		switch (nextChildResponse.nodeName) {
 			case 'url':
 
-				var frame = nextChildResponse.firstChild.attributes.frame;
-				var link  = nextChildResponse.firstChild.firstChild.nodeValue;
-
+				var frame = nextChildResponse.attributes.frame;
+				var link  = nextChildResponse.firstChild.nodeValue;
 				getURL(link, frame);
 
 			break;
 
 
 			default:
-				_root.dialog_box.show("Connection Failure to Server", "Unexpected Response XML Node '" + nextChildResponse.firstChild.nodeName + "', expecting 'url'.\nPlease Try Again");
+				_root.dialog_box.show("Connection Failure to Server", "Unexpected Response XML Node '" + nextChildResponse.nodeName + "', expecting 'url'.\nPlease Try Again");
 			
 			break;
 		}
