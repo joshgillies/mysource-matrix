@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.44 2004/12/23 01:40:03 amiller Exp $
+* $Id: page_asset_builder.inc,v 1.45 2004/12/23 22:19:45 tbarrett Exp $
 *
 */
 
@@ -37,7 +37,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 * @author  Tom Barrett <tbarrett@squiz.net>
 * @author  Avi Miller <avi.miller@squiz.net>
 * @author  Marcus Nyeholt <mnyeholt@squiz.net>
-* @version $Revision: 1.44 $
+* @version $Revision: 1.45 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -269,6 +269,8 @@ class Page_Asset_Builder extends Page
 			$parameter_map = &$this->getAttribute('parameter_map');
 			if (($additional_locs = $parameter_map->getParameterValue('additional_locations')) != null) {
 				hidden_field('ASSET_BUILDER_ADDITIONAL_LOCATIONS', $additional_locs);
+			} elseif (isset($_POST['ASSET_BUILDER_ADDITIONAL_LOCATIONS'])) {
+				hidden_field('ASSET_BUILDER_ADDITIONAL_LOCATIONS', $_POST['ASSET_BUILDER_ADDITIONAL_LOCATIONS']);
 			}
 			$this->_printContents();
 			?>
@@ -1038,7 +1040,6 @@ class Page_Asset_Builder extends Page
 
 	}//end getSelectableLocationKeywords()
 
-
+	
 }//end class
-
 ?>
