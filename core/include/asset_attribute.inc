@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_attribute.inc,v 1.25 2004/02/19 02:25:25 diarandine Exp $
+* $Id: asset_attribute.inc,v 1.26 2004/06/14 14:38:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -285,7 +285,7 @@ class Asset_Attribute extends MySource_Object
 	function setEditParams(&$node)
 	{
 		if (strtolower($node->name) != strtolower($this->type())) {
-			trigger_error('XML Tree Node type "'.$node->name.'" not compatible with attribute type "'.$this->type().'<br/>Full Node Contents :<br/><pre>'.htmlspecialchars($node->get()).'</pre>', E_USER_WARNING);
+			trigger_error('XML Tree Node type "'.$node->name.'" not compatible with attribute type "'.$this->type().'"<br/>Full Node Contents :<br/><pre>'.htmlspecialchars($node->get()).'</pre>', E_USER_WARNING);
 			return false;
 		}
 		return true;
