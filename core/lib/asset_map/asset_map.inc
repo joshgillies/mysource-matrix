@@ -161,26 +161,26 @@ class Asset_Map
 			return;
 		}
 		// we only want EXCLUSIVE or UNITE links
-		$links = $parent->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE);
+		$links = $parent->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', 'S');
 		if (!count($links)) {
-			$this->_error('Asset "'.$parent->name().'" has no children');
+			$this->_error('Asset "'.$parent->name.'" has no children');
 			return;
 		} 
 
 		$output = new XML_Tree();
 		$root = &$output->addRoot('assets', '');
-		for(reset($links); NULL !== ($type_code = key($links)); next($links)) {
-			for($i = 0; $i < count($links[$type_code]); $i++) {
-				$child = &$GLOBALS['SQ_RESOLVE']->am->getAsset($links[$type_code][$i]['minorid']);
-				if (!is_null($child)) {
-					$attrs = Array('assetid' => $child->id, 
-									'type_code' => get_class($child), 											
-									'has_kids'  => (int) ($child->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE) > 0)
-									);
-					$child = &$root->addChild('child', '[CS] '.$child->name(), $attrs);
-				}
+		for($i = 0; $i < count($links); $i++) {
+			$child = &$GLOBALS['SQ_RESOLVE']->am->getAsset($links[$i]['minorid']);
+			if (!is_null($child)) {
+				$attrs = Array('assetid' => $child->id, 
+								'type_code' => get_class($child), 											
+								'has_kids'  => (int) ($child->countLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE) > 0)
+								);
+				$child = &$root->addChild('child', '[CS] '.$child->name, $attrs);
 			}
 		}
+
+		error_log("XML : \n".$output->get());
 
 		$this->_send($output);
 
@@ -267,7 +267,7 @@ class Asset_Map
 		switch($input->root->attributes['cmd']) {
 			case 'add' :
 				$attr = $input->root->attributes;
-				if (empty($attr['parent_assetid']) || empty($attr['pos']) || empty($attr['type_code'])) {
+				if (empty($attr['parent_assetid']) || !isset($attr['pos']) || empty($attr['type_code'])) {
 					$this->_error('Parent Asset Id, Relative Position and Asset Type need to be passed');
 					return;
 				}
@@ -279,7 +279,6 @@ class Asset_Map
 				}
 
 				if (($err_msg = $parent->canLinkToType($attr['type_code'], SQ_LINK_UNITE)) !== true) {
-					error_log("LINK ERR : $err_msg");
 					$this->_error($err_msg);
 					return;
 				}
