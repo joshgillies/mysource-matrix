@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: config.inc,v 1.9 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: config.inc,v 1.10 2004/01/14 15:23:36 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -123,6 +123,9 @@ class Config extends MySource_Object
 
 		if (SQ_PHP_CLI) echo "----------------------------------\n".($str)."----------------------------------\n";
 		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		// make sure the directory exists
+		if (!create_directory(dirname($this->config_file))) return false;
+		// and save the file
 		if (!string_to_file($str, $this->config_file)) return false;
 
 		if ($changed_vars) {
