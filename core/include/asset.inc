@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.353 2005/01/26 09:29:19 brobertson Exp $
+* $Id: asset.inc,v 1.354 2005/02/01 10:55:39 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.353 $
+* @version $Revision: 1.354 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -1801,7 +1801,7 @@ class Asset extends MySource_Object
 				$userid = null;
 			}
 		}
-		
+
 		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 
 		// construct a string to represent the current date value
@@ -1838,12 +1838,12 @@ class Asset extends MySource_Object
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$where = 'assetid = '.$db->quote($this->id);
-		
+
 		$values = Array(
 			$date_type           => $db->quote($time_iso),
 			$date_type.'_userid' => $db->quote($userid)
 		);
-	
+
 		if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('ast', $values, $where)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
@@ -1997,7 +1997,7 @@ class Asset extends MySource_Object
 	*
 	* @return int
 	* @access public
-	* @see Asset_Manager::createLink()
+	* @see Asset_Manager::createAssetLink()
 	*/
 	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
 	{
@@ -2114,7 +2114,7 @@ class Asset extends MySource_Object
 	* @return mixed TRUE or error msg string
 	* @access public
 	*/
-	function couldDeleteLink($linkid) 
+	function couldDeleteLink($linkid)
 	{
 		if (!$this->id) {
 			return 'Asset Not Created';
@@ -2137,7 +2137,7 @@ class Asset extends MySource_Object
 	*
 	* @return boolean
 	* @access public
-	* @see Asset_Manager::deleteLink()
+	* @see Asset_Manager::deleteAssetLink()
 	*/
 	function deleteLink($linkid)
 	{
@@ -2168,9 +2168,6 @@ class Asset extends MySource_Object
 		return $this->_updated();
 
 	}//end linksUpdated()
-
-	
-
 
 
 //--        ATTRIBUTES        --//
@@ -2794,7 +2791,7 @@ class Asset extends MySource_Object
 	* @access public
 	*/
 	function effectiveUnrestricted()
-	{	
+	{
 		// This is not readAccess() because if this is false we don't refer to the writeAccess() setting
 		$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 		return ($this->status >= SQ_STATUS_LIVE && $this->_checkPermissionAccess(SQ_PERMISSION_READ, Array($public_userid)));
@@ -2868,21 +2865,21 @@ class Asset extends MySource_Object
 	function _checkPermissionAccess($perm, $assetids=Array())
 	{
 		if (empty($assetids)) {
-			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {		
+			if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 				// if we are the root user, we can do anything
 				if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
-					
+
 				// if we are a system administrator, we can do anything
 				// unless an asset overwrites this function
 				if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
-	
+
 				// use the current user and their groups
 				$assetids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->currentUserId(), Array('user', 'user_group'), false));
 				$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 			} else {
 				$assetids[] = $GLOBALS['SQ_SYSTEM']->currentUserId();
 			}
-		}	
+		}
 
 		if (!$GLOBALS['SQ_PURGING_TRASH']) {
 			// if we are in workflow no editing allowed
@@ -2901,7 +2898,7 @@ class Asset extends MySource_Object
 				}
 			}
 		}
-		
+
 		$grants  = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, true);
 		$revokes = $GLOBALS['SQ_SYSTEM']->am->getPermission($this->id, $perm, false, false);
 
@@ -3000,7 +2997,7 @@ class Asset extends MySource_Object
 	*/
 	function printHead()
 	{
-		
+
 	}//end printHead()
 
 
@@ -3699,6 +3696,6 @@ class Asset extends MySource_Object
 
 	}//end getWeightings()
 
-}//end class 
+}//end class
 
 ?>
