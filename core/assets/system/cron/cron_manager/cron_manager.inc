@@ -130,6 +130,7 @@ class Cron_Manager extends Asset
 	{
 		trigger_error('Unable to morph '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 		return false;
+
 	}//end morph()
 
 
@@ -138,14 +139,14 @@ class Cron_Manager extends Asset
 	*
 	* @param int		$source		the id of the asset that started this locking process
 	* @param boolean	$force		attempt to forcibly acquire (if allowed)
-	* @param int		$expires	when the lock expires (timestamp)
+	* @param int|NULL	$expires	when the lock expires (timestamp or NULL)
 	* @param boolean	$wait		whether this function should keep trying to acquire
 	*								(forces it to wait 1 sec, then try again)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function acquireLock($source=0, $force=false, $expires=null, $wait=false)
+	function acquireLock($source=0, $force=false, $expires=0, $wait=false)
 	{
 		if (parent::acquireLock($source, $force, $expires)) return true;
 		while($wait) {
@@ -156,6 +157,7 @@ class Cron_Manager extends Asset
 		return false;
 
 	}// end acquireLock()
+
 
 	/**
 	* Moves a link from one place in this assets links order to another position
@@ -173,6 +175,7 @@ class Cron_Manager extends Asset
 	{
 		trigger_error('You cannot move assets\'s around in '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 		return false;
+
 	}//end moveLinkPos()
 
 
