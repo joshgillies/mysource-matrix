@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetManager.java,v 1.3 2004/06/30 01:39:34 mmcintyre Exp $
+* $Id: AssetManager.java,v 1.4 2004/06/30 02:03:00 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -512,7 +512,10 @@ public class AssetManager implements ReloadAssetListener {
 		}
 		Enumeration children = parent.children();
 		while (children.hasMoreElements()) {
-			AssetTreeNode node = (AssetTreeNode) children.nextElement();
+			Object obj = children.nextElement();
+			if (!(obj instanceof AssetTreeNode))
+				continue;
+			AssetTreeNode node = (AssetTreeNode) obj;
 			propagateURL(node, url);
 		}
 	}
