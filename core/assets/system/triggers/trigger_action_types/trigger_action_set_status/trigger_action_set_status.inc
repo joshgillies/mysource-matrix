@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_set_status.inc,v 1.2 2005/02/23 23:30:55 arailean Exp $
+* $Id: trigger_action_set_status.inc,v 1.3 2005/02/24 22:44:44 arailean Exp $
 *
 */
 
@@ -30,9 +30,9 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 * A trigger action that sets the status of an asset
 *
 *
-* @author	Andrei Railean <arailean@squiz.net>
-* @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @author   Andrei Railean <arailean@squiz.net>
+* @author   Robert Howard <rhoward@squiz.net>
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -42,8 +42,8 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	/**
 	* Execute this action
 	*
-	* @param array(string=>mixed)	$settings	the stored settings for this action
-	* @param array(string=>mixed)	&$state	the state that describes the asset the action is executing on
+	* @param array(string=>mixed)   $settings   the stored settings for this action
+	* @param array(string=>mixed)   &$state the state that describes the asset the action is executing on
 	*
 	* @return boolean
 	* @access public
@@ -52,7 +52,7 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	{
 		/* settings used by this action:
 		$settings = Array(
-			'status'		=> int		// the status value to set the asset to
+			'status'        => int      // the status value to set the asset to
 		);
 		*/
 
@@ -90,8 +90,8 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
-	* @param Array 		$settings  settings that this condition saves in processInterface()
-	* @param string 	$prefix    unique prefix
+	* @param Array      $settings  settings that this condition saves in processInterface()
+	* @param string     $prefix    unique prefix
 	*
 	* @access public
 	* @return boolean
@@ -124,8 +124,8 @@ class Trigger_Action_Set_Status extends Trigger_Action
 	* Function that handles the conversion of interface to settings
 	* together with settings it is expected to populate the hash object
 	*
-	* @param Array			$settings		a container for any data the action might want to save
-	* @param string			$request_data	array of data corresponding to this action as specified by the $prefix in getInterface.
+	* @param Array          $settings       a container for any data the action might want to save
+	* @param string         $request_data   array of data corresponding to this action as specified by the $prefix in getInterface.
 	*
 	* @access public
 	* @return boolean
