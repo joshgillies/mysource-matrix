@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.49 2004/08/18 23:39:46 lwright Exp $
+* $Id: form.inc,v 1.50 2004/08/23 01:16:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,14 +53,12 @@ class Form extends Bridge
 	* @var Array (of string) 
 	*/
 	var $submission_errors = Array();
-	
-	
+
 	/**
 	* the active section object
 	* @var object 
 	*/
 	var $active_section = null;
-
 
 	/**
 	* available bodycopy keywords
@@ -75,7 +73,7 @@ class Form extends Bridge
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Form($assetid=0) 
+	function Form($assetid=0)
 	{
 		$this->_ser_attrs = true;
 		$this->Bridge($assetid);
@@ -137,7 +135,7 @@ class Form extends Bridge
 	*											(eg 'Page', 'File', etc)
 	*											if an array returns link if matches any
 	*											of the array values
-	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
+	* @param boolean		$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	* @param string			$side_of_link		Which side of the link this (the current) asset
 	*											is on ('major' or 'minor')
@@ -146,7 +144,6 @@ class Form extends Bridge
 	*
 	* @return array
 	* @access public
-	* @see Asset_Manager::getLinks()
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $sort_by=null)
 	{
@@ -238,7 +235,8 @@ class Form extends Bridge
 		return $links;
 
 	}//end getAssetMapLinks()
-		
+
+
 	/**
 	* Get all asset ids that are below the passed assetid in the various trees in which it exists
 	*
@@ -648,9 +646,7 @@ class Form extends Bridge
 
 
 	/**
-	* prints the standard form i.e not a wizard
-	*
-	* @param &object $submission the submission object
+	* Prints the standard form i.e not a wizard
 	* 
 	* @access public
 	* @return boolean
@@ -678,14 +674,14 @@ class Form extends Bridge
 		if (!isset($_POST[$prefix.'_submit']) || $is_error) {
 
 			ob_start();
-			$this->includeContentFile('Standard');
-			$cf_output = ob_get_contents();
+				$this->includeContentFile('Standard');
+				$cf_output = ob_get_contents();
 			ob_end_clean();
 
 			if ($is_error) {
 				ob_start();
-				$this->printErrors();
-				$err_output = ob_get_contents();
+					$this->printErrors();
+					$err_output = ob_get_contents();
 				ob_end_clean();
 			} else {
 				$err_output = '';
@@ -698,24 +694,24 @@ class Form extends Bridge
 			$button_name = ($this->attr('submit_button')) ? $this->attr('submit_button') : 'Submit'; 
 		
 			ob_start();
-			submit_button($this->getPrefix().'_submit', $button_name);
-			$submit_button = ob_get_contents();
+				submit_button($this->getPrefix().'_submit', $button_name);
+				$submit_button = ob_get_contents();
 			ob_end_clean();
 
 			$reset_button_name = ($this->attr('reset_button')) ? $this->attr('reset_button') : 'Clear Form'; 
 
 			ob_start();
-			reset_button($this->getPrefix().'_reset', $reset_button_name);
-			$reset_button = ob_get_contents();
+				reset_button($this->getPrefix().'_reset', $reset_button_name);
+				$reset_button = ob_get_contents();
 			ob_end_clean();
 	
 			// check to see if the bodycopy attached to this form has any content
 			if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
 
 				ob_start();
-				$bodycopy->setKeywordReplacements(Array('form_contents' => &$cf_output, 'form_errors' => &$err_output, 'submit_button' => &$submit_button, 'reset_button' => &$reset_button));
-				$bodycopy->printBody();
-				$output = ob_get_contents(); 
+					$bodycopy->setKeywordReplacements(Array('form_contents' => &$cf_output, 'form_errors' => &$err_output, 'submit_button' => &$submit_button, 'reset_button' => &$reset_button));
+					$bodycopy->printBody();
+					$output = ob_get_contents(); 
 				ob_end_clean();
 
 				echo $output;
@@ -746,7 +742,7 @@ class Form extends Bridge
 		}
 		return true;
 
-	}//end printSummary()
+	}//end printStandard()
 
 
 	/**
