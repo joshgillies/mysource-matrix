@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.13 2003/10/10 06:49:24 brobertson Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.14 2003/10/21 00:14:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,6 +83,31 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 
 
 	/**
+	* Resets the vars that the HIPO steps use
+	*
+	* @param Array	$vars
+	*
+	* @return void
+	* @access public
+	*/
+	function setRunningVars($vars)
+	{
+		if (isset($vars['lock_type']) && isset($vars['lock_type'])) {
+			// OK, the main reason that we are getting the lock types here is so that we don't end up 
+			// with lock types in a child being locked that the parent doesn't have, because if they do then
+			// we end up with a source lockid that is not actually creatable
+			// EG. 'mail' lock is available in 'Inbox', but not 'User' and when you locked the user you would end
+			//     up with a lock 'asset.5.mail' and a source lock 'asset.4.mail' which is not available
+			// -- If this doesn't make sense ask me -- BCR
+			$vars['lock_types'] = $GLOBALS['SQ_SYSTEM']->am->getLockTypes($vars['assetid'], $vars['lock_type']);
+		}
+
+		return parent::setRunningVars($vars);
+
+	}//end setRunningVars()
+
+
+	/**
 	* Set up vars and database information that the HIPO will need to run
 	*
 	* The Acquire Lock HIPO also checks that there is an assetid to start this action on
@@ -108,15 +133,6 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 			return '';
 		}
 
-
-		// OK, the main reason that we are getting the lock types here is so that we don't end up 
-		// with lock types in a child being locked that the parent doesn't have, because if they do then
-		// we end up with a source lockid that is not actually creatable
-		// EG. 'mail' lock is available in 'Inbox', but not 'User' and when you locked the user you would end
-		//     up with a lock 'asset.5.mail' and a source lock 'asset.4.mail' which is not available
-		// -- If this doesn't make sense ask me -- BCR
-		$this->_running_vars['lock_types'] = $GLOBALS['SQ_SYSTEM']->am->getLockTypes($asset->id, $this->_running_vars['lock_type']);
-
 		// we were passed an invalid lock type, bugger off
 		if (empty($this->_running_vars['lock_types'])) {
 			trigger_error('Cannot initialise Acquire Locks HIPO, lock type "'.$this->_running_vars['lock_type'].'" invalid', E_USER_WARNING);
@@ -125,7 +141,6 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 
 		// we don't need this anymore, we use the array 'lock_types'
 		unset($this->_running_vars['lock_type']);
-
 
 		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 		// we will be acquiring locks on
