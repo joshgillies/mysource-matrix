@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemClass.as,v 1.29 2003/10/27 23:24:49 dwong Exp $
+* $Id: mcListItemClass.as,v 1.30 2003/10/28 04:21:47 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -264,15 +264,17 @@ mcListItemClass.prototype.getMouseButton = function()
 */
 mcListItemClass.prototype.onAssetChange = function(asset) 
 {
-	this.setInfo(asset);
+	var link;
 
 	for (var i = 0; i < asset.links.length; i++) {
 		var linkid = asset.links[i];
 		if (linkid == this.linkid) {
-			var link = _root.asset_manager.asset_links[linkid];
-			this.setLink(link);
+			link = _root.asset_manager.asset_links[linkid];
 		}
 	}
+
+	this.setInfo(asset, link, this.parent_item_name);
+
 }
 
 
@@ -297,6 +299,7 @@ mcListItemClass.prototype.select = function()
 	this.selected = true;
 
 	this.text_field.setTextFormat(this.selectedTextFormat);
+
 	this.base_colour = adjust_brightness (_root.LIST_ITEM_BG_COLOURS[this.state].colour, 0.8);
 	this._drawBg();
 }
@@ -430,7 +433,6 @@ mcListItemClass.prototype._drawBg = function(alpha)
 	var top = 2;
 	var right = Math.max (_root.tabs.tree.scroll_pane._width - this._x - 25, list_container.getRightEdge() - this._x + 5);
 	var bottom = _root.LIST_ITEM_POS_INCREMENT - 2;
-
 	this.clear();
 
 	this.beginFill(this.base_colour, this.bg_alpha);

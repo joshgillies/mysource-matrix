@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcListItemContainerClass.as,v 1.24 2003/10/27 22:39:55 dwong Exp $
+* $Id: mcListItemContainerClass.as,v 1.25 2003/10/28 04:21:47 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -96,13 +96,16 @@ mcListItemContainerClass.prototype.onStatusToggle = function()
 */
 mcListItemContainerClass.prototype.showKids = function(parent_assetid, parent_name, dont_refresh)
 {
-
 	if (dont_refresh != true) dont_refresh = false;
 
-	// we don't know anything about this or it's got no kids, bugger off
+	// we don't know anything about this or it's got no kids
 	if (_root.asset_manager.assets[parent_assetid] == undefined || !_root.asset_manager.assets[parent_assetid].links.length) return;
 
-	var params = {parent_assetid: parent_assetid, parent_name: parent_name, dont_refresh: dont_refresh};
+	var params = {
+		parent_assetid: parent_assetid, 
+		parent_name: parent_name, 
+		dont_refresh: dont_refresh
+	};
 	_root.asset_manager.loadAssets(_root.asset_manager.assets[parent_assetid].getLinkAssetids(), this, "showKidsLoaded", params);
 
 }// end showKids()
@@ -522,7 +525,6 @@ mcListItemContainerClass.prototype.restrictActiveTypes = function(type_codes)
 		} else if (this._active_type_codes.search(item.type_code) !== null) {
 			active = true;
 		}
-//		trace(item.name + " : " + (this._active_type_codes.length == 0) + " || " + (this._active_type_codes.search(item.type_code) !== null));
 		item.setActive(active);
 	}// end for
 

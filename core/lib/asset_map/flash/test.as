@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: test.as,v 1.26 2003/10/16 02:18:07 dwong Exp $
+* $Id: test.as,v 1.27 2003/10/28 04:21:47 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,8 +14,6 @@ function sendToBom(msg) {
 	var url = "http://beta.squiz.net/dominic_www/xml_to_bom.php";
 	var out = new XML("<message>" + msg + "</message>");
 	var back = new XML();
-	trace(out);
-	trace(url);
 	out.sendAndLoad(url, back);
 }
 

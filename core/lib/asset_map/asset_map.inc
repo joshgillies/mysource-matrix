@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.95 2003/10/27 23:24:48 dwong Exp $
+* $Id: asset_map.inc,v 1.96 2003/10/28 04:21:44 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -284,7 +284,6 @@ class Asset_Map
 
 		$input = new XML_Tree('php://input');
 		$root  = &$input->getTreeFromFile();
-
 		if (PEAR::isError($root)) {
 			$this->_error($root->getMessage()."\n".$root->getUserInfo());
 			return;
@@ -296,7 +295,7 @@ class Asset_Map
 		}
 
 		switch($root->attributes['action']) {
-			case 'initalise' :
+			case 'initialise' :
 				$this->_doInitialise($input);
 				break;
 
@@ -367,6 +366,7 @@ class Asset_Map
 		$assets_xml = $root->get();
 
 		header("Content-Type: text/xml");
+		ob_start();
 		echo "<initialisation>\n";
 		echo "<asset_types>\n";
 		$dir = SQ_DATA_PATH.'/private/asset_map';
@@ -384,6 +384,9 @@ class Asset_Map
 		echo $assets_xml;
 
 		echo "</initialisation>\n";
+		$out = ob_get_contents();
+		ob_end_clean();
+		echo $out;
 
 	}// end _doInitialise()
 
@@ -402,7 +405,8 @@ class Asset_Map
 		$output = new XML_Tree();
 		$root = &$output->addRoot('assets', '');
 		for($i = 0; $i < count($input->root->children); $i++) {
-			if (empty($input->root->children[$i]->attributes['assetid'])) continue;
+			$asset_node =& $input->root->children[$i];
+			if (empty($asset_node->attributes['assetid'])) continue;
 //			if (empty($input->root->children[$i]->attributes['assetid'])) {
 //				if (empty($input->root->children[$i]->attributes['current_user'])) {
 //					continue;
@@ -411,14 +415,15 @@ class Asset_Map
 //				}
 //			}
 
-			$assetid = $input->root->children[$i]->attributes['assetid'];
+			$assetid = $asset_node->attributes['assetid'];
 
 			$kids = Array();
 			if ($load_new_links) {
 				$current_kids = Array();
-				for($j = 0; $j < count($input->root->children[$i]->children); $j++) {
-					if (empty($input->root->children[$i]->children[$j]->attributes['assetid'])) continue;
-					$current_kids[] = $input->root->children[$i]->children[$j]->attributes['assetid'];
+				for($j = 0; $j < count($asset_node->children); $j++) {
+					$child_node =& $asset_node->children[$j];
+					if (empty($child_node->attributes['assetid'])) continue;
+					$current_kids[] = $child_node->attributes['assetid'];
 				}
 
 				if (!$this->_addAssetToXML($root, $assetid, true, $current_kids)) {
@@ -454,10 +459,8 @@ class Asset_Map
 	{
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
 
-		if (is_null($asset)) {
-			$this->_error('Asset #'.$assetid.' not found');
-			return false;
-		}
+		if (is_null($asset))
+			return true;
 
 		$attrs = Array(
 			'assetid'		=> $asset->id,
@@ -475,7 +478,13 @@ class Asset_Map
 			$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_BACKEND_NAV, '', null);
 			if (count($links)) {
 				for($j = 0; $j < count($links); $j++) {
-					$kid_node = &$asset_node->addChild('child', '', Array('linkid' => $links[$j]['linkid'], 'minorid' => $links[$j]['minorid'], 'link_type' => $links[$j]['link_type']));
+					$kid_node = &$asset_node->addChild('child', '', 
+						Array(
+							'linkid'		=> $links[$j]['linkid'], 
+							'minorid'		=> $links[$j]['minorid'], 
+							'link_type'		=> $links[$j]['link_type']
+						)
+					);
 				}
 
 				if ($load_new_links) {

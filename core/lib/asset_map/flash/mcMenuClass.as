@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcMenuClass.as,v 1.3 2003/09/26 05:26:32 brobertson Exp $
+* $Id: mcMenuClass.as,v 1.4 2003/10/28 04:21:47 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -81,43 +81,10 @@ mcMenuClass.prototype._resetContainerPosition = function() {
 	if (this._container.isRoot()) {
 		// child container is below
 		this._childContainer._x = 0;
-		//trace ("head._getHeight = " + this._head.getHeight());
 		this._childContainer._y = this._head.getHeight();
 	} else {
-/*
-// child container is to the right - but not if it goes over the edge!
-		var right = new Object();
-		right.x = this._head._x + this._head.getWidth() + this._childContainer._width - overlapAmount;
-		right.y = 0;
-		trace ("this: " + this);
-		trace ("head width: " + this._head.getWidth());
-		trace ("child container width : " + this._childContainer._width);
-
-		trace ("local right : " + right.x);
-		localToGlobal(right);
-		trace (getBounds (_root).xMax);
-		
-		trace ("right global / stage width : " + right.x + "/" + Stage.width);
-
-		if (right.x > Stage.width) {
-			trace ("too large  - going down instead!");
-			// down and slightly indented
-			right.x = Stage.width;
-			globalToLocal(right);
-
-			this._childContainer._x = Math.min (overlapAmount, right.x - this._childContainer._width);
-			this._childContainer._y = this._head.getHeight();
-		} else {
-			// to the right
-			trace ("OK");
-			this._childContainer._x = this._head.getWidth() - overlapAmount;
-			this._childContainer._y = 0;
-
-		}
-*/
-			this._childContainer._x = overlapAmount;
-			this._childContainer._y = this._head.getHeight();
-		
+		this._childContainer._x = overlapAmount;
+		this._childContainer._y = this._head.getHeight();
 	}
 }
 

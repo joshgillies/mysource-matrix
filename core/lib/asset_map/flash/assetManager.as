@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: assetManager.as,v 1.20 2003/10/27 05:27:24 dwong Exp $
+* $Id: assetManager.as,v 1.21 2003/10/28 04:21:45 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,12 +47,12 @@ AssetManager.prototype.init = function()
 {
 	var xml = new XML();
 	var cmd_elem = xml.createElement("command");
-	cmd_elem.attributes.action = "initalise";
+	cmd_elem.attributes.action = "initialise";
 	xml.appendChild(cmd_elem);
 
 	// start the loading process
-	var exec_indentifier = _root.server_exec.init_exec(xml, this, "initFromXML", "initialisation");
-	_root.server_exec.exec(exec_indentifier, "Initialising Asset Manager");
+	var exec_identifier = _root.server_exec.init_exec(xml, this, "initFromXML", "initialisation");
+	_root.server_exec.exec(exec_identifier, "Initialising Asset Manager");
 
 }
 
@@ -63,7 +63,7 @@ AssetManager.prototype.init = function()
 * @param object XML xml   the xml object that contain the information that we need
 *
 */
-AssetManager.prototype.initFromXML = function(xml, exec_indentifier) 
+AssetManager.prototype.initFromXML = function(xml, exec_identifier) 
 {
 	if (xml.firstChild.childNodes[0].nodeName.toLowerCase() != "asset_types")	return;
 	if (xml.firstChild.childNodes[1].nodeName.toLowerCase() != "current_user")	return;
@@ -222,7 +222,7 @@ AssetManager.prototype.getTopTypes = function()
 */
 AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_fn, call_back_params, force_reload, load_new_links) 
 {
-
+//	trace(this + "::AssetManager.loadAssets([" + assetids + "], " + call_back_obj + ", " + call_back_fn + ", "  + call_back_params + ", " + force_reload + ", " + load_new_links + ")");
 	if (force_reload !== true)  force_reload  = false;
 	if (load_new_links !== true) load_new_links = false;
 
@@ -265,10 +265,10 @@ AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_
 		}// end for
 
 		// start the loading process
-		var exec_indentifier = _root.server_exec.init_exec(xml, this, "loadAssetsFromXML", "assets");
+		var exec_identifier = _root.server_exec.init_exec(xml, this, "loadAssetsFromXML", "assets");
 		if (this.tmp.load_assets == undefined) this.tmp.load_assets = new Object();
-		this.tmp.load_assets[exec_indentifier] = {force_reload: force_reload, obj: call_back_obj, fn: call_back_fn, params: call_back_params};
-		_root.server_exec.exec(exec_indentifier, "Loading Assets");
+		this.tmp.load_assets[exec_identifier] = {force_reload: force_reload, obj: call_back_obj, fn: call_back_fn, params: call_back_params};
+		_root.server_exec.exec(exec_identifier, "Loading Assets");
 
 	// else nothing to do, so just execute the call back fn
 	} else {
@@ -285,17 +285,22 @@ AssetManager.prototype.loadAssets = function(assetids, call_back_obj, call_back_
 * @param object XML xml   the xml object that contain the information that we need
 *
 */
-AssetManager.prototype.loadAssetsFromXML = function(xml, exec_indentifier) 
+AssetManager.prototype.loadAssetsFromXML = function(xml, exec_identifier) 
 {
-	var changes = this._createAssetsFromXML(xml.firstChild);
+	var changes	= this._createAssetsFromXML(xml.firstChild);
 
-	if (this.tmp.load_assets[exec_indentifier].force_reload) {
-		this.tmp.load_assets[exec_indentifier].obj[this.tmp.load_assets[exec_indentifier].fn](this.tmp.load_assets[exec_indentifier].params, changes.new_assets, changes.old_assets);
+	var tmp_data	= this.tmp.load_assets[exec_identifier];
+	var obj			= tmp_data.obj;
+	var fn			= tmp_data.fn;
+	var params		= tmp_data.params;
+
+	if (tmp_data.force_reload) {
+		obj[fn](params, changes.new_assets, changes.old_assets);
 	} else {
-		this.tmp.load_assets[exec_indentifier].obj[this.tmp.load_assets[exec_indentifier].fn](this.tmp.load_assets[exec_indentifier].params);
+		obj[fn](params);
 	}
 
-	delete this.tmp.load_assets[exec_indentifier];
+	delete this.tmp.load_assets[exec_identifier];
 
 }// end loadAssetsFromXML()
 

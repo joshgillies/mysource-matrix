@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcMailBoxClass.as,v 1.6 2003/09/26 05:26:32 brobertson Exp $
+* $Id: mcMailBoxClass.as,v 1.7 2003/10/28 04:21:47 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -92,8 +92,8 @@ mcMailBoxClass.prototype.refreshMail = function()
 	xml.appendChild(cmd_elem);
 
 	// start the loading process
-	var exec_indentifier = _root.server_exec.init_exec(xml, this, "loadMailFromXML", "mail");
-	_root.server_exec.exec(exec_indentifier, "Loading Mail");
+	var exec_identifier = _root.server_exec.init_exec(xml, this, "loadMailFromXML", "mail");
+	_root.server_exec.exec(exec_identifier, "Loading Mail");
 
 }
 
@@ -104,7 +104,7 @@ mcMailBoxClass.prototype.refreshMail = function()
 * @param object XML xml   the xml object that contain the information that we need
 *
 */
-mcMailBoxClass.prototype.loadMailFromXML = function(xml, exec_indentifier)
+mcMailBoxClass.prototype.loadMailFromXML = function(xml, exec_identifier)
 {
 	var mc_name = null;
 	while ((mc_name = this.msgs.pop()) !== undefined) {
