@@ -149,6 +149,24 @@ class Internal_Message extends Resolve_Object
 		if (empty($from_string)) $from_string = '"'.SQ_SYSTEM_SHORT_NAME.' System" <'.$from_email.'>';
 
 		foreach ($send_to as $userid) {
+			if (!$userid) {
+				// if the userid is empty, we are sending a message to the system
+				// so we send to the default email and tech email
+				$default = SQ_CONF_DEFAULT_EMAIL;
+				$tech = SQ_CONF_TECH_EMAIL;
+				$to_email = '';
+
+				if (!empty($default)) $to_email .= $default;
+				if (!empty($tech)) {
+					if (!empty($to_email)) $to_email .= ',';
+					$to_email .= $tech;
+				}
+
+				if (!empty($to_email)) mail($to_email, $this->subject, $this->body, "From: ".$from_string, "-f$from_email");
+
+				continue;
+			}
+
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($userid);
 			if (is_null($user)) continue;
 
@@ -253,6 +271,11 @@ class Internal_Message extends Resolve_Object
 	function expandUsersTo()
 	{
 		$send_to = Array();
+		if (in_array('0', $this->to)) {
+			// this message is being sent to the system
+			// so we need to keep the ZERO id in the array
+			$send_to[] = 0;
+		}
 		$to_types = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($this->to, Array('user', 'user_group'), false);
 		foreach ($to_types as $assetid => $types) {
 			if (in_array('user_group', $types)) {
