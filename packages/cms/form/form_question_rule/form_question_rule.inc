@@ -3,7 +3,7 @@
 require_once SQ_INCLUDE_PATH.'/asset.inc';
 
 /**
-* Question_Rule
+* Form_Question_Rule
 *
 * Purpose
 *
@@ -13,7 +13,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 * @package Resolve_Packages
 * @subpackage cms
 */
-class Question_Rule extends Asset
+class Form_Question_Rule extends Asset
 {
 
 	/**
@@ -22,7 +22,7 @@ class Question_Rule extends Asset
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Question_Rule($assetid=0) 
+	function Form_Question_Rule($assetid=0) 
 	{
 		$this->Asset($assetid);
 	}

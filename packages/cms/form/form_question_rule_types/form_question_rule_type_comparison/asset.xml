@@ -3,13 +3,13 @@
 
 <asset_info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../../asset.xsd">
 	<package>cms</package>
-	<type_code>question_rule_type_comparison</type_code>
+	<type_code>form_question_rule_type_comparison</type_code>
 	<version>0.1</version>
 	<name>Question Rule - Value Comparison</name>
 	<description>Value Comparison</description>
 	<instantiable>yes</instantiable>
 	<allowed_access>system</allowed_access>
-	<parent_type>question_rule</parent_type>
+	<parent_type>form_question_rule</parent_type>
 	<requirements>
 		<requirement type="asset">
 			<code>form</code>

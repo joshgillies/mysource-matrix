@@ -3,7 +3,7 @@
 require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
-* Question_Rule_Edit_Fns
+* Form_Question_Rule_Edit_Fns
 *
 * Purpose
 *
@@ -13,14 +13,14 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @package Resolve_Packages
 * @subpackage cms
 */
-class Question_Rule_Edit_Fns extends Asset_Edit_Fns
+class Form_Question_Rule_Edit_Fns extends Asset_Edit_Fns
 {
 
 	/**
 	* Constructor
 	*
 	*/
-	function Question_Rule_Edit_Fns()
+	function Form_Question_Rule_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
 	}
