@@ -18,7 +18,7 @@
 #* | licence.                                                           |
 #* +--------------------------------------------------------------------+
 #*
-#* $Id: backup.sh,v 1.3 2003/11/26 00:50:54 gsherwood Exp $
+#* $Id: backup.sh,v 1.4 2004/05/18 03:21:50 mmcintyre Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
@@ -161,7 +161,7 @@ fi
 # Hence the --exclude....
 #
 
-tar -C `dirname ${SYSTEM_ROOT}` -c -f ${backupdir}/${backupfilename} `basename ${SYSTEM_ROOT}` --exclude=${backupfilename}
+tar -C `dirname ${SYSTEM_ROOT}` -c -f ${backupdir}/${backupfilename} `basename ${SYSTEM_ROOT}` --exclude=${backupfilename} --exclude=${backupdir}/cache
 
 if [ $? -gt 0 ]; then
 	echo "Unable to create tarball ${backupdir}/${backupfilename}."
