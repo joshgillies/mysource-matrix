@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_schema_edit_fns.inc,v 1.31 2004/12/21 16:54:24 brobertson Exp $
+* $Id: metadata_schema_edit_fns.inc,v 1.32 2005/02/16 20:44:44 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.31 $
+* @version $Revision: 1.32 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -295,7 +295,6 @@ class Metadata_Schema_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function requiredFieldsComplete(&$asset, $values)
 	{
-		if (empty($values)) return true;
 		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', false, 'major', null, true);
 		foreach ($current_links as $link) {
 			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
