@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.23 2003/11/26 00:51:16 gsherwood Exp $
+* $Id: step_03.php,v 1.24 2003/12/02 03:41:18 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -176,6 +176,14 @@ if (is_null($root_folder)) {
 	if (!$search_manager->create($search_manager_link)) trigger_error('Search Manager NOT CREATED', E_USER_ERROR);
 	pre_echo('Search Manager Asset Id : '.$search_manager->id);
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($search_manager->id, 'all');
+
+	// Create the layout manager
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('layout_manager');
+	$layout_manager = new Layout_Manager();
+	$layout_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+	if (!$layout_manager->create($layout_manager_link)) trigger_error('Layout Manager NOT CREATED', E_USER_ERROR);
+	pre_echo('Layout Manager Asset Id : '.$layout_manager->id);
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($layout_manager->id, 'all');
 
 	// Create the designs folder
 	$GLOBALS['SQ_SYSTEM']->am->includeAsset('designs_folder');
