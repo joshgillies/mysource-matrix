@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_edit_fns.inc,v 1.41 2005/02/15 02:41:12 lwright Exp $
+* $Id: search_page_edit_fns.inc,v 1.42 2005/03/03 18:01:05 mkeehan Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine_edit_fns.inc';
 *     Edit functions for search page
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.41 $
+* @version $Revision: 1.42 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -548,6 +548,9 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 		$fields = Array();
 		if (!empty($fields_post)) {
 			foreach ($fields_post as $i => $field_data) {
+				
+				$field_data['name'] = str_replace(' ','_',$field_data['name']);
+
 				if (isset($deleted_fields[$i])) continue;          // remove deleted fields
 				if ($field_data['name'] == '') continue;           // remove fields with no name
 				if (isset($fields[$field_data['name']])) continue; // ensure no duplicate names
@@ -560,8 +563,7 @@ class Search_Page_Edit_Fns extends Listing_Engine_Edit_Fns
 					}
 					$field_data['params'] = Array('assetid' => $fieldid);
 				}
-
-				$fields[$field_data['name']] = $field_data;
+				$fields[$field_data['name']] = $field_data;	
 			}
 		}
 
