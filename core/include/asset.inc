@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset.inc,v 1.225 2003/09/26 05:26:31 brobertson Exp $
+* $Id: asset.inc,v 1.226 2003/09/26 06:56:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2284,6 +2284,18 @@ class Asset extends MySource_Object
 		return (!empty($common));
 
 	}//end _checkPermissionAccess()
+
+
+	/**
+	* Called when the any permission is updated for this asset
+
+	* @return boolean	whether everything is OK
+	* @access public
+	*/
+	function permissionsUpdated()
+	{
+		return true;
+	}// end permissionsUpdated()
 
 
 //--        PAINTING        --//

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.117 2003/09/26 05:47:02 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.118 2003/09/26 06:56:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2848,6 +2848,11 @@ class Asset_Manager extends MySource_Object
 			return false;
 		}
 
+		if (!$asset->permissionsUpdated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// clear the permission cache
@@ -2919,6 +2924,12 @@ class Asset_Manager extends MySource_Object
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+
+		if (!$asset->permissionsUpdated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		// clear the permission cache
