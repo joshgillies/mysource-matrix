@@ -34,7 +34,7 @@ CREATE TABLE sq_asset_link (
   last_updated  TIMESTAMP    NOT NULL,
   last_userid   INT          NOT NULL,
   PRIMARY KEY(linkid),
-  UNIQUE(majorid, minorid, link_type, value)
+  UNIQUE(minorid, majorid, link_type, value)
 );
 
 DROP TABLE sq_asset_link_tree;
@@ -43,6 +43,9 @@ CREATE TABLE sq_asset_link_tree (
   linkid        INT  NOT NULL,
   PRIMARY KEY(treeid)
 );
+DROP INDEX sq_asset_link_tree_linkid;
+CREATE INDEX sq_asset_link_tree_linkid ON sq_asset_link_tree (linkid);
+
 
 
 DROP TABLE sq_asset_type;
