@@ -38,24 +38,26 @@ class Content_Type_WYSIWYG_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paintBackend(&$asset, $prefix)
 	{
-		$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
-		$wysiwyg->set_body_type('div');
-		$wysiwyg->set_init_onload('yes');
-		$wysiwyg->set_contents($asset->attr('html'));
-		//$wysiwyg->set_stylesheet('http://www.nswrl.com.au/__data/site/design/1/images/styles.css');
-		$wysiwyg->set_width('100%');
-		$wysiwyg->add_plugin('format_text');
-		$wysiwyg->add_plugin('justify_text');
-		$wysiwyg->add_plugin('indenting');
-		$wysiwyg->add_plugin('listing');
-		$wysiwyg->add_plugin('general');
-		$wysiwyg->add_plugin('history');
-		$wysiwyg->add_plugin('select_color');
-		$wysiwyg->add_plugin('matrix_insert_link');
-		$wysiwyg->add_plugin('matrix_insert_image');
-		$wysiwyg->add_plugin('view_source');
-		$wysiwyg->add_plugin('popup_editor');
-		$wysiwyg->paint();
+		if ($asset->writeAccess()) {
+			$wysiwyg = new wysiwyg($prefix, sq_web_path('fudge').'/wysiwyg/');
+			$wysiwyg->set_body_type('div');
+			$wysiwyg->set_init_onload('yes');
+			$wysiwyg->set_contents($asset->attr('html'));
+			//$wysiwyg->set_stylesheet('http://www.nswrl.com.au/__data/site/design/1/images/styles.css');
+			$wysiwyg->set_width('100%');
+			$wysiwyg->add_plugin('format_text');
+			$wysiwyg->add_plugin('justify_text');
+			$wysiwyg->add_plugin('indenting');
+			$wysiwyg->add_plugin('listing');
+			$wysiwyg->add_plugin('general');
+			$wysiwyg->add_plugin('history');
+			$wysiwyg->add_plugin('select_color');
+			$wysiwyg->add_plugin('matrix_insert_link');
+			$wysiwyg->add_plugin('matrix_insert_image');
+			$wysiwyg->add_plugin('view_source');
+			$wysiwyg->add_plugin('popup_editor');
+			$wysiwyg->paint();
+		}
 		return true;
 	}
 

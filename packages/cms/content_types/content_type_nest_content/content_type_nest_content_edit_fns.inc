@@ -37,22 +37,24 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 	*/
 	function paintBackend(&$asset, $prefix)
 	{	
-		$nested_assetid = $asset->attr('nested_assetid');
-		$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', true);
-		if ($nested_asset->id) {
-			?> 
-				<p style="font-size: 7pt">
-				Currently nesting the contents of <i><?php echo $nested_asset->attr('name')?></i><br/>
-				<?php asset_finder($prefix.'_nested_assetid', '', Array('page' => 'D')); ?><br/>
-				<hr><b style="font-size: 7pt">The nested content is printed below</b><br/>
-				</p>
-			<?php
-		} else {
-			?> 
-				<p style="font-size: 7pt">No page has been selected<br/>
-				<?php asset_finder($prefix.'_nested_assetid', '', Array('page' => 'D')); ?>
-				</p>
-			<?php
+		if ($asset->writeAccess()) {
+			$nested_assetid = $asset->attr('nested_assetid');
+			$nested_asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($nested_assetid, '', true);
+			if ($nested_asset->id) {
+				?> 
+					<p style="font-size: 7pt">
+					Currently nesting the contents of <i><?php echo $nested_asset->attr('name')?></i><br/>
+					<?php asset_finder($prefix.'_nested_assetid', '', Array('page' => 'D')); ?><br/>
+					<hr><b style="font-size: 7pt">The nested content is printed below</b><br/>
+					</p>
+				<?php
+			} else {
+				?> 
+					<p style="font-size: 7pt">No page has been selected<br/>
+					<?php asset_finder($prefix.'_nested_assetid', '', Array('page' => 'D')); ?>
+					</p>
+				<?php
+			}
 		}
 
 		$this->paint($asset);
