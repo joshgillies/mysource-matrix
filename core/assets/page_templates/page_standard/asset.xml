@@ -21,7 +21,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xml,v 1.4 2004/06/29 15:31:15 brobertson Exp $
+* $Id: asset.xml,v 1.5 2004/06/29 15:49:49 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -40,7 +40,7 @@
 			<code>page</code>
 			<version>0.2</version>
 		</requirement>
-		<requirement type="bodycopy">
+		<requirement type="asset">
 			<code>bodycopy</code>
 			<version>0.1</version>
 		</requirement>
