@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.3 2004/01/22 02:51:44 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.4 2004/01/22 10:33:11 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -335,7 +335,7 @@ class Page_Asset_Builder extends Page
 								if ($new_asset->status != $create_status) {
 									$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 									$vars = Array('assetid' => $new_asset->id, 'new_status' => $create_status);
-									$status_errors = $hh->freestlyeHipo('hipo_job_edit_status', $vars);
+									$status_errors = $hh->freestyleHipo('hipo_job_edit_status', $vars);
 									$this->_errors = array_merge($this->_errors, $status_errors);
 								}
 								$this->_tmp['created_asset'] = $new_asset;

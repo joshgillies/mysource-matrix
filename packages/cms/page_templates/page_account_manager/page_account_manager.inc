@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.6 2004/01/15 05:16:34 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.7 2004/01/22 10:33:11 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -137,7 +137,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			// try and acquire a lock on the current user so they can edit their details
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$vars = Array('assetid' => $current_user->id, 'lock_type' => 'attributes', 'forceably_acquire' => false);
-			$lock_errors = $hh->freestlyeHipo('hipo_job_acquire_lock', $vars);
+			$lock_errors = $hh->freestyleHipo('hipo_job_acquire_lock', $vars);
 
 
 			  /////////////////////////
