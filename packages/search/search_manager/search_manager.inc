@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.10 2004/06/22 00:22:56 gsherwood Exp $
+* $Id: search_manager.inc,v 1.11 2004/06/23 23:34:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.10 $ - 0.1
+* @version $Revision: 1.11 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -145,7 +145,6 @@ class Search_Manager extends Asset
 
 		$component = isset($vars['component']) ? $vars['component'] : null;
 		$am =& $GLOBALS['SQ_SYSTEM']->am;
-		$am->acquireLock($this->id, 'attributes');
 
 		// get dependent parents - but put broadcaster first
 		$changed_assetids = Array($broadcaster->id) + $am->getDependantParents($broadcaster->id);
@@ -158,8 +157,6 @@ class Search_Manager extends Asset
 			$this->addKeyData($assetid, $new_key_data);
 			$am->forgetAsset($assetid);
 		}
-
-		$am->releaseLock($this->id, 'attributes');
 
 		return true;
 
