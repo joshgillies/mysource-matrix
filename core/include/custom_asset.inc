@@ -76,11 +76,11 @@ class Custom_Asset_Type extends Resolve_Object
 		$name = ucwords(str_replace('_', ' ', $type_code));
 
 		$sql = 'INSERT INTO sq_asset_type
-				(type_code, version, name, description, instantiable, parent_type, level, dir, customisation)
+				(type_code, version, name, description, instantiable, system_only, parent_type, level, dir, customisation)
 				VALUES
 				('.$this->_db->quote($type_code).', '.$this->_db->quote('0.1').', 
 				'.$this->_db->quote($name).', '.$this->_db->quote('').',
-				 1, '.$this->_db->quote($parent_type).',
+				 1, 1, '.$this->_db->quote($parent_type).',
 				'.$this->_db->quote($level).', '.$this->_db->quote($this->_inc_path).', 1)';
 		pre_echo($sql);
 		$result = $this->_db->query($sql);
