@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.16 2004/05/06 05:03:03 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.17 2004/05/06 05:04:13 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -203,7 +203,6 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 
 		// modify what's left
 		for (reset($rules); null !== ($k = key($rules)); next($rules)) {
-			print($k);
 			$rule = &$rules[$k];
 			$type = 'form_question_rule_type_'.$rule['name'];
 			$rule_prefix = $prefix.'_r'.$k;
