@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image.inc,v 1.24 2005/01/19 12:40:33 brobertson Exp $
+* $Id: image.inc,v 1.25 2005/01/20 13:03:53 brobertson Exp $
 *
 */
 
@@ -218,6 +218,20 @@ class Image extends File
 		$keywords['image_height']	= Array('value' => $this->attr('height'));
 		$keywords['image_tag']		= Array('value' => $this->printImageTag('', '', true));
 
+		$varieties = $this->attr('varieties');
+		if (!empty($varieties)) {
+			foreach($varieties['lookups'] as $varietyid) {
+				$variety = &$this->getAsset($varietyid);
+				if (is_null($variety)) continue;
+
+				$keywords['image_v_'.$variety->name] = Array('value' => $variety->printImageTag($this->attr('alt'), $this->attr('title'), true));
+
+			}
+		}
+
+
+
+
 		if ($descriptions) {
 			$keywords['image_width']['description']		= 'Width of the image in pixels';
 			$keywords['image_height']['description']	= 'Height of the image in pixels';
@@ -243,8 +257,8 @@ class Image extends File
 			case 'image_info' :
 				include_once SQ_FUDGE_PATH.'/var_serialise/var_serialise.inc';
 				$ouput = Array();
-				$output['alt'] = $this->attr('alt');
-				$output['width'] = $this->attr('width');
+				$output['alt']    = $this->attr('alt');
+				$output['width']  = $this->attr('width');
 				$output['height'] = $this->attr('height');
 				echo var_serialise($output);
 				exit();

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: image_variety.inc,v 1.7 2005/01/19 21:56:17 gsherwood Exp $
+* $Id: image_variety.inc,v 1.8 2005/01/20 13:03:54 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <brobertson@squiz.co.uk>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -603,6 +603,31 @@ class Image_Variety extends Asset
 		}
 
 	}//end printFrontend()
+
+
+	/**
+	* Prints the tag for an image
+	*
+	* The output includes the width and height of the image, and the image
+	* name for the alt tag
+	*
+	* @param string 	$alt	the alt tag content. If empty the alt var is used
+	* @param string 	$title	the alt tag content. If empty the and $alt is set, then that is used, otherwise the title var is used
+	* @param boolean 	$return	if TRUE the tag will be returned
+	*
+	* @return string | void
+	* @access public
+	*/
+	function printImageTag($alt, $title, $return=false)
+	{
+		$filename = $this->data_path.'/'.$this->attr('filename');
+		$size = getimagesize($filename);
+
+		$tag = '<img src="'.$this->getURL().'" '.$size[3].' alt="'.$alt.'" title="'.$title.'" />';
+		if ($return) return $tag;
+		echo $tag;
+
+	}//end printImageTag()
 
 
 //--        PERMISSIONS/ACCESS (DEFERS TO IMAGE)        --//
