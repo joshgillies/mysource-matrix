@@ -554,7 +554,9 @@ class Bodycopy_Edit_Fns extends Asset_Edit_Fns
 		foreach ($tables as $table_data) {
 			$table = &$am->getAsset($table_data['minorid'], $table_data['type_code']);
 			$table_edit = $table->getEditFns();
-			if ($table_edit->processTable($table, $o, $prefix)) $updated = true;
+			if ($table_edit->processTable($table, $o, $prefix)) {
+				if ($table->saveAttributes()) $updated = true;
+			}
 		}
 
 		// only update if we are the bodycopy that submitted the form
