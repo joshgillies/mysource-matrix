@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: limbo_outputter.inc,v 1.10 2004/09/02 04:42:05 gsherwood Exp $
+* $Id: limbo_outputter.inc,v 1.11 2004/11/24 04:29:08 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -202,7 +202,7 @@ class Limbo_Outputter extends Backend_Outputter
 	* @return boolean
 	* @access private
 	*/
-	function _nbOpenField($name, $format='', $note='')
+	function _nbOpenField($name, $format='', $note='', $hidden=false)
 	{
 		if ($this->_is_open_field) $this->closeField();
 		$this->_is_open_field = true;
@@ -214,13 +214,13 @@ class Limbo_Outputter extends Backend_Outputter
 		switch ($format) {
 			case 'new_line' :
 				?>
-					<tr>
+					<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
 						<td nowrap valign="top" class="sq-limbo-field" colspan="3">
 							<a name="field_<?php echo $this->_field_count; ?>"></a>
 							<?php echo $name;?>
 						</td>
 					</tr>
-					<tr>
+					<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
 						<td valign="top" class="sq-backend-data" colspan="3">
 							<table cellpadding="0" cellspacing="0" border="0">
 								<tr>
@@ -242,7 +242,7 @@ class Limbo_Outputter extends Backend_Outputter
 	
 			default :
 			?>
-				<tr>
+				<tr <?php if ($hidden) echo 'style="display: none"'; ?>>
 					<td nowrap valign="top" class="sq-limbo-field">
 						<a name="field_<?php echo $this->_field_count; ?>"></a>
 						<?php echo $name;?>
@@ -369,13 +369,13 @@ class Limbo_Outputter extends Backend_Outputter
 						switch ($field['format']) {
 							case 'new_line' :
 								?>
-									<tr>
+									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
 										<td nowrap valign="top" class="sq-limbo-field" colspan="3">
 											<a name="field_<?php echo $field['field_count']; ?>"></a>
 											<?php echo $field['name'];?>
 										</td>
 									</tr>
-									<tr>
+									<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
 										<td valign="top" class="sq-backend-data" colspan="3">
 											<table cellpadding="0" cellspacing="0" border="0">
 												<tr>
@@ -395,7 +395,7 @@ class Limbo_Outputter extends Backend_Outputter
 
 							case 'commit' :
 								?>
-								<tr>
+								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
 									<td width="100%" valign="top" class="sq-backend-data" style="text-align: right; border" colspan="3">
 									<?php
 										echo $field['contents'];
@@ -412,7 +412,7 @@ class Limbo_Outputter extends Backend_Outputter
 
 							default :
 							?>
-								<tr>
+								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
 									<td nowrap valign="top" class="sq-limbo-field">
 										<a name="field_<?php echo $field['field_count']; ?>"></a>
 										<?php echo $field['name'];?>
@@ -425,7 +425,7 @@ class Limbo_Outputter extends Backend_Outputter
 									?>
 									</td>
 								</tr>
-								<tr>
+								<tr <?php if ($field['hidden']) echo 'style="display: none"'; ?>>
 									<td colspan="3"><img src="<?php echo $this->filesPath('images/blank.gif');?>" width="1" height="10" /></td>
 								</tr>
 							<?php
