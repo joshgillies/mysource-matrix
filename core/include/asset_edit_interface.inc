@@ -2044,19 +2044,21 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// first we need to process any messages that may have been submitted
 		if (isset($_POST[$prefix.'_workflow_new_log_message'])) {
-			$message_body = $_POST[$prefix.'_workflow_new_log_message'];
-			$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-			$message = $ms->newMessage(Array(), 'Workflow User Log', $message_body, 'asset.workflow.userlog');
-			$message->parameters['assetid'] = $owner->id;
-			$message->parameters['version'] = substr($owner->version, 0, strrpos($owner->version, '.'));
-			$message->send();
+			$message_body = trim($_POST[$prefix.'_workflow_new_log_message']);
+			if (!empty($message_body)) {
+				$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+				$message = $ms->newMessage(Array(), 'Workflow User Log', $message_body, 'asset.workflow.userlog');
+				$message->parameters['assetid'] = $owner->id;
+				$message->parameters['version'] = substr($owner->version, 0, strrpos($owner->version, '.'));
+				$message->send();
 
-			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
-			$log_body = 'Workflow log message by "'.$user->name.'" added successfully to asset "'.$owner->name.'"';
-			$log = $ms->newMessage(Array(), 'User Log Message Added', $log_body, 'backend');
-			$log->parameters['assetid'] = $owner->id;
-			$log->send();
-			$updated = true;
+				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
+				$log_body = 'Workflow log message by "'.$user->name.'" added successfully to asset "'.$owner->name.'"';
+				$log = $ms->newMessage(Array(), 'User Log Message Added', $log_body, 'backend');
+				$log->parameters['assetid'] = $owner->id;
+				$log->send();
+				$updated = true;
+			}
 		}
 
 		// from here on in, if we dont have admin access - piss off
