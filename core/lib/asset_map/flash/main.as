@@ -1,28 +1,15 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: main.as,v 1.46 2003/10/13 04:22:36 dwong Exp $
+* $Id: main.as,v 1.47 2003/10/13 04:27:04 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
-var minVersion = [6,0,40,0];
+var minVersion = "6,0,40,0";
 // Check versions
 
 var versionStrings = this.$version.split(" ");
-trace(versionStrings);
-var versionNums = versionStrings[1].split(",");
-var isVersionCurrent = true;
-for(var i = 0; i < minVersion.length; ++i) {
-	if (versionNums[i] == undefined) {
-		isVersionCurrent = false;
-		break;
-	} else if (parseInt(versionNums[i]) < minVersion[i]) {
-		isVersionCurrent = false;
-		break;
-	}
-}
-
-if (!isVersionCurrent) {
+if (minVersion > versionStrings[1]) {
 	_root.createTextField('error', 1, 0, 0, 50, 50);
 	var textFormat = new TextFormat();
 	textFormat.bold = true;
