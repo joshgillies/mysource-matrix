@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_nest_content_edit_fns.inc,v 1.20 2004/06/30 00:00:28 lwright Exp $
+* $Id: content_type_nest_content_edit_fns.inc,v 1.21 2004/06/30 00:11:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -147,7 +147,7 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 
 		$form_tags = Array('form', 'input' , 'select', 'option', 'textarea');
 		foreach($form_tags as $tag) {
-			if (stristr($asset_contents, '<'.$tag) !== FALSE) {
+			if (stristr($asset_contents, '<'.$tag) !== false) {
 			?>
 				<span class="sq-backend-warning">
 					<b>NOTE:</b> this nested asset contains form elements, therefore you cannot view its 
@@ -158,6 +158,8 @@ class Content_Type_Nest_Content_Edit_Fns extends Content_Type_Edit_Fns
 				return true;
 			}#end if
 		}#end for
+
+		echo $asset_contents;
 
 		unset($GLOBALS['SQ_NEST_CONTENT_PAINTED'][$nested_asset->id]);
 
