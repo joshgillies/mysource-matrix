@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: package_manager_core.inc,v 1.10 2004/10/25 23:36:07 mnyeholt Exp $
+* $Id: package_manager_core.inc,v 1.11 2004/11/04 00:27:51 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -97,7 +97,10 @@ class Package_Manager_Core extends Package_Manager
 	*/
 	function updatePackageDetails($update_assets=Array())
 	{
-		if (!$this->checkPackageDetails($update_assets)) {
+		// If there were failures in core packages, return false as dependency
+		// resolution won't work (if a core package relies on another package,
+		// what is the world coming to?)
+		if (is_array($this->checkPackageDetails($update_assets))) {
 			return false;
 		}
 
