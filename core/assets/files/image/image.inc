@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: image.inc,v 1.11 2003/09/26 05:26:26 brobertson Exp $
+* $Id: image.inc,v 1.12 2003/09/30 04:04:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,7 +77,7 @@ class Image extends File
 	function _getExistingFile()
 	{
 		$existing = parent::_getExistingFile();
-		if (!empty($path)) {
+		if (!empty($existing['path'])) {
 			$size = getimagesize($existing['path']);
 			$existing['width']  = $size[0];
 			$existing['height'] = $size[1];
