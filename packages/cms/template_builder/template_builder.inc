@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: template_builder.inc,v 1.2 2004/11/02 05:03:37 lwright Exp $
+* $Id: template_builder.inc,v 1.3 2004/11/02 23:16:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -191,7 +191,7 @@ class Template_Builder extends Page
 									);
 				break;
 				
-				// everything specified - multiple selection field
+				// everything specified - multiple selection field (again, returns 8 fields)
 				case 8:
 					$fields[] = Array(	'name'   => $bc_fields[1],
 										'type'	 => $bc_fields[6],
@@ -247,10 +247,10 @@ class Template_Builder extends Page
 	function printBody()
 	{
 		if (!isset($_POST['SQ_TEMPLATE_COMMIT'])) {
-			print $this->paintDefaultForm();
+			echo $this->paintDefaultForm();
 		} else {
-			bam($this->attr('create_locations'));
 			$reps = $this->setReplacements();
+			echo $reps;
 			foreach($this->attr('create_locations') as $assetid => $link_type) {
 				$under_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 				$this->createBodycopy(date('d M Y H:i:s'), '', $reps, $under_asset);
