@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.14 2004/05/20 03:53:59 gsherwood Exp $
+* $Id: page_account_manager.inc,v 1.15 2004/09/03 18:04:57 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -97,18 +97,43 @@ class Page_Account_Manager extends Page_Asset_Builder
 	{
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
+		// if we are using email validation - ensure that the username and email attributes are required fields
+		if ($this->attr('use_email_validation')) {
+
+			$required_fields = $this->attr('required_fields');
+			list($create_type) = array_keys($this->attr('create_type'));
+			$save = false;
+			if (!isset($required_fields[$create_type])) $required_fields[$create_type] = Array();
+			if (!isset($required_fields[$create_type]['username'])) {
+				$required_fields[$create_type]['username'] = 'Username is required to send the validation email';
+				$save = true;
+			}
+			if (!isset($required_fields[$create_type]['email'])) {
+				$required_fields[$create_type]['email'] = 'Email is required to send the validation email';
+				$save = true;
+			}
+
+			if ($save) {
+				if (!$this->setAttrValue('required_fields', $required_fields)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+					return false;
+				}// end if
+			}// en dif
+
+		}// end if
+
 		if (!parent::saveAttributes($dont_run_updated)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
 
-		// if we are using emailm validation - ensure that the validation assets are created
+		// if we are using email validation - ensure that the validation assets are created
 		if ($this->attr('use_email_validation')) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', true, 'pending_accounts');
 			if (empty($link)) {
 				$group_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'sort_order' => 0, 'dependant' => 1, 'exclusive' => 1, 'value' => 'pending_accounts');
 				$GLOBALS['SQ_SYSTEM']->am->includeAsset('user_group');
-				
+
 				$group = new User_Group();
 				$group->setAttrValue('name', 'Pending Accounts');
 				if (!$group->create($group_link)) {
@@ -158,7 +183,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 	* @access public
 	*/
 	function printLimbo()
-	{	
+	{
 		$GLOBALS['SQ_SYSTEM']->backend->out->addFormActionGetVar('ignore_frames', '1', true);
 
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
@@ -180,7 +205,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 					$this->_replacements['edit_details_lock_error'] = $this->attr('edit_details_lock_error');
 					$current_user->printBody();
 				} else {
-					
+
 
 					// ensure that the user has access to edit their details
 					// ie. they have permission to access the default screen for a user
@@ -193,7 +218,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 					$check_screen_restrictions = (!($GLOBALS['SQ_SYSTEM']->userRoot() || $GLOBALS['SQ_SYSTEM']->userSystemAdmin()));
 					if ($check_screen_restrictions) if (isset($allowed_screens['0']['0'])) $check_screen_restrictions = false;
-				
+
 					if ($check_screen_restrictions && !isset($allowed_screens[$default_screen])) {
 						$this->_replacements['edit_details_invite'] = '<p>You do not have access to edit your details.</p>';
 						$current_user->printBody();
@@ -232,12 +257,14 @@ class Page_Account_Manager extends Page_Asset_Builder
 	* This function builds on the Asset Builder one by auto filling the username field of
 	* the login form that may be printed once the user account has been created.
 	*
-	* @return void
+	* @return boolean	indicating success
 	* @access private
 	* @see Page_Asset_Builder::_processGlobalActions()
 	*/
 	function _processGlobalActions()
 	{
+		list($create_type) = array_keys($this->attr('create_type'));
+
 		// validate a pending user account
 		if (isset($_GET['action'])) {
 			switch (strtolower($_GET['action'])) {
@@ -255,13 +282,27 @@ class Page_Account_Manager extends Page_Asset_Builder
 								// populate an array of attribute values for the user so we can work
 								// out the create locations for the user account
 								$user_attributes = Array();
-								$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($this->attr('create_type'));
+								$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
 								foreach ($attrs as $attr => $type) $user_attributes[$attr] = $user->attr($attr);
-								
-								$create_locations = parent::_getCreateLocations($user_attributes);
-								$optional_locations = explode('-', $locs);
-								$optional_locations = array_intersect($optional_locations, $this->attr('create_location_optional'));
-								$create_locations = array_unique(array_merge($create_locations, $optional_locations));
+
+								$create_locations = parent::_getCreateLocations($create_type, $user_attributes);
+								 #################################################################################################
+								# I took a guess at getting this working from the old code (which was never going to work)
+								# but I don't know WTF the person was trying to do with optional locations so I am ignoring them 
+								# for the moment- BCR
+								 ##################################################################################################
+								#$create_location_optional = $this->attr('create_location_optional');
+								#$optional_locations = explode('-', $locs);
+								#foreach($create_location_optional as $data) {
+								#	foreach($data['locations'] as $id => $name) {
+								#		// I think this is what is supposed to be happening.
+								#		// I don't know for sure because the bit below that creates the amlocs GET var doesn't work
+								#		// - BCR
+								#		if (in_array($id, $optional_locations) && !isset($create_locations[$id])) {
+								#			$create_locations[$id] = $data['link_type'];
+								#		}
+								#	}
+								#}
 
 								// set the install flag because we are creating an asset without being
 								// logged in - so any write access checks will fail
@@ -270,12 +311,12 @@ class Page_Account_Manager extends Page_Asset_Builder
 									$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 									// link the user asset into the locations it is supposed to go
-									foreach (array_values($create_locations) as $link_parentid) {
+									foreach ($create_locations as $link_parentid => $link_type) {
 										$link_parentid = (int) $link_parentid;
-	
+
 										$link_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link_parentid, '', true);
 										if (is_null($link_parent)) continue;
-										if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $user, $this->attr('create_link_type'))) {
+										if (!$GLOBALS['SQ_SYSTEM']->am->createAssetLink($link_parent, $user, $link_type)) {
 											$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 											return false;
 										}
@@ -286,18 +327,18 @@ class Page_Account_Manager extends Page_Asset_Builder
 										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 										return false;
 									}
-	
+
 									// set the status of the asset
 									if (!parent::_setCreateStatus($user)) {
 										$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 										return false;
 									}
-	
+
 									// all done
 									$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 								$GLOBALS['SQ_INSTALL'] = false;
-								
+
 								$this->_current_state = 'create_login';
 								$_POST['SQ_LOGIN_USERNAME'] = $user->attr('username');
 								$this->_loadLoginReplacements();
@@ -312,51 +353,31 @@ class Page_Account_Manager extends Page_Asset_Builder
 
 
 		// additional checks if we are using email validation
-		if ($this->attr('use_email_validation')) {
+		if ($this->attr('use_email_validation') && isset($_POST['ASSET_BUILDER_ACTION']) && strtolower($_POST['ASSET_BUILDER_ACTION']) == 'create') {
 
-			if (isset($_POST['ASSET_BUILDER_ACTION']) && strtolower($_POST['ASSET_BUILDER_ACTION']) == 'create') {
+			// create the unique ID we will use to identify this new user if it gets created
+			$this->_tmp['am_created_asset_key'] = '';
 
-				// create the unique ID we will use to identify this new user if it gets created
-				$this->_tmp['am_created_asset_key'] = '';
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
+			$new_asset = new $create_type();
 
-				$create_type = $this->attr('create_type');
-				$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-				$new_asset = new $create_type();
-				$prefix = $new_asset->getPrefix();
+			$real_username = &$new_asset->getAttribute('username', true);
+			if (is_null($real_username)) continue;
+			// take a copy of the username so we don't muck anything up for the processBackend() (if we get that far;)
+			$username = $real_username;
 
-				if (isset($_POST[$prefix.'_username'])) {
-					// a username has been supplied
-					$username = trim($_POST[$prefix.'_username']);
-					if (!empty($username)) $this->_tmp['am_created_asset_key'] = md5(microtime().$username);
-					else trigger_error('Please enter a username', E_USER_NOTICE);
-				} else {
-					trigger_error('Please enter a username', E_USER_NOTICE);
-				}
-
-				// we need an email to send to for email validation
-				// so make sure there is one that we can use
-				if (isset($_POST[$prefix.'_email'])) {
-					$email = $_POST[$prefix.'_email'];
-					$attribute = &$new_asset->getAttribute('email', true);
-					if (empty($email)) {
-						trigger_error('Please enter an email address', E_USER_NOTICE);
-					} else if (!$attribute->validateValue($email)) {
-						trigger_error('The email address supplied is not valid', E_USER_NOTICE);
-					}
-				} else {
-					trigger_error('Please enter an email address', E_USER_NOTICE);
-				}
-
-				// dont bother doing any more processing if we have errors because we are
-				// not going to be able to validate this user using email
-				if (!empty($this->_errors)) return false;
+			$username->process($new_asset->getPrefix().'_'.$username->id);
+			if ($username->processed) {
+				if (!empty($username->value)) $this->_tmp['am_created_asset_key'] = md5(microtime().$username->value);
 			}
+
+			unset($real_attribute);
+			unset($attribute);
 
 		}//end if using email validation
 
-
-		parent::_processGlobalActions();
-
+		$success = parent::_processGlobalActions();
+		if (!$success) return false;
 
 		if (isset($_POST['ASSET_BUILDER_ACTION'])) {
 			switch (strtolower($_POST['ASSET_BUILDER_ACTION'])) {
@@ -365,15 +386,14 @@ class Page_Account_Manager extends Page_Asset_Builder
 						if ($this->attr('use_email_validation')) {
 							// we are validating this user using email, so send them one
 							$replacements = Array();
-							$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($this->attr('create_type'));
+							$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($create_type);
 							foreach ($attrs as $attr => $type) {
 								if ($attr == 'password') continue;
 								$replacements[$attr] = $this->_tmp['created_asset']->attr($attr);
 							}
-							
+
 							$validation_url = current_url().'?action=validate&amid='.$this->_tmp['am_created_asset_key'].'&amlocs=';
-							
-							$create_type = $this->attr('create_type');
+
 							$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
 							$new_asset = new $create_type();
 							$prefix = $new_asset->getPrefix();
@@ -384,8 +404,8 @@ class Page_Account_Manager extends Page_Asset_Builder
 							// out later once they activate their account
 							// we need strict checking of the groups we do put on the URL so they cant add themselves to
 							// and group they feel like
-							$create_locations = array_intersect(parent::_getCreateLocations(), $this->attr('create_location_optional'));
-							
+							$create_locations = array_intersect(parent::_getCreateLocations($create_type), $this->attr('create_location_optional'));
+
 							if (!empty($create_locations)) {
 								foreach ($create_locations as $location) $validation_url .= $location.'-';
 								$validation_url = trim($body, '-');
@@ -397,7 +417,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 							$new_value = unserialize($email_attr->value);
 							$new_value['to'][] = $replacements['email'];
 							$email_attr->value = serialize($new_value);
-							
+
 							// let the email format attribute send the email for us
 							$email_attr->sendMail($replacements);
 						}
@@ -415,49 +435,48 @@ class Page_Account_Manager extends Page_Asset_Builder
 			}
 		}
 
+		return true;
+
 	}//end _processGlobalActions()
 
 
 	/**
 	* Work out the create locations for a new asset
 	*
-	* @param array	$attributes	an array of attributes to use for rule comparison
-	*							leave empty to use the submitted form vars
+	* @param string	$create_type	the type of asset we are getting create locations for
+	* @param array	$attributes		an array of attributes to use for rule comparison
+	*								leave empty to use the submitted form vars
 	*
-	* @return array
+	* @return array					parentid => link_type
 	* @access private
 	*/
-	function _getCreateLocations($attributes=Array())
+	function _getCreateLocations($create_type, $attributes=Array())
 	{
 		if ($this->attr('use_email_validation')) {
 			$link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'user_group', true, 'pending_accounts');
 			if (empty($link)) return Array();
-			else return Array($link['minorid']);
+			else return Array($link['minorid'] => SQ_LINK_TYPE_1);
 		} else {
-			return parent::_getCreateLocations($attributes);
+			return parent::_getCreateLocations($create_type, $attributes);
 		}
 
 	}//end _getCreateLocations()
 
 
 	/**
-	* Construct the link array for creating the asset
+	* Takes the default link that was created and allows for adjustments if necessary
 	*
-	* The returned link array does not contain the 'asset' index where the parent
-	* asset normally goes because this is generated on the fly
+	* @param Array $link	the current link array
 	*
-	* @return array
+	* @return void
 	* @access private
 	*/
-	function _getCreateLink()
+	function _modifyCreateLink(&$link)
 	{
-		$link = parent::_getCreateLink();
-		$link['link_type'] = SQ_LINK_TYPE_1;
+		parent::_modifyCreateLink($link);
 		if ($this->attr('use_email_validation')) $link['value'] = $this->_tmp['am_created_asset_key'];
 
-		return $link;
-
-	}//end _getCreateLink()
+	}//end _modifyCreateLink()
 
 
 	/**
@@ -551,7 +570,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 			$keywords[$keyword] = Array('name' => $name, 'default' => $default, 'type' => $type);
 		}
 		$vars['keywords'] = array_merge($vars['keywords'], $keywords);
-		
+
 	}//end onRequestKeywords()
 
 
