@@ -638,9 +638,8 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		}
 
 		// link up all the files from this design to the customisation
-		$parent_design =& $asset->getParentDesign();
 		$file_link_ids = Array();
-		$file_links = $parent_design->getLinks(SQ_LINK_TYPE_2, 'file', false);
+		$file_links = $asset->getLinks(SQ_LINK_TYPE_2 | SQ_LINK_TYPE_3, 'file', false);
 		foreach ($file_links as $link) {
 			$minor = &$am->getAsset($link['minorid']);
 			if (!$dupe->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
