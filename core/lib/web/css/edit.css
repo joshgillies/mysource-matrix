@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit.css,v 1.24 2003/11/04 00:59:25 gsherwood Exp $
+* $Id: edit.css,v 1.25 2003/11/07 01:46:20 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -14,7 +14,7 @@ body {
 body, p, td, ul, li, input, select, textarea {
 	color:				#000000;
 	font-family:		Arial, Verdana Helvetica, sans-serif;
-	font-size:			13px;
+	font-size:			12px;
 }
 
 a {
@@ -88,6 +88,13 @@ td.sq-backend-nav-history {
 	color:				#FF0000;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			13px;
+}
+
+.sq-backend-notice {
+	color:				#000000;
+	font-family:		Arial, Verdana, Helvetica, sans-serif;
+	font-size:			11px;
+	letter-spacing:		1px;
 }
 
 
