@@ -131,3 +131,31 @@ Array.prototype.unique = function() {
 	return new_arr;
 
 }// end Array.unique()
+
+
+
+/**
+* Finds and replaces text in the string
+*
+* @param string search_str
+* @param string replace_str
+*
+* @return string
+*/
+String.prototype.replace = function(search_str, replace_str) {
+	if (search_str == replace_str) return this.toString();
+
+	// take a copy
+	var new_str = this.toString();
+
+	var pos = new_str.indexOf(search_str);
+	while (pos >= 0) {
+		var start_string = new_str.substr(0, pos);
+		var end_string   = new_str.substr(pos + search_str.length);
+		new_str = start_string + replace_str + end_string;
+		pos = new_str.indexOf(search_str, pos + replace_str.length);
+
+	}
+	return new_str;
+
+}// end String.replace()

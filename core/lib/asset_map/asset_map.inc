@@ -32,8 +32,10 @@ class Asset_Map
 	*/
 	function paint(&$backend)
 	{
-		$backend_url = $backend->getBackendUrl('asset_map_request');
 		$backend->out->addJsInclude(SQ_WWW_LIB_DIR.'/asset_map/flashExternalCall.js');
+
+		$flash_vars = 'server_exec_path='.rawurlencode($backend->getBackendUrl('asset_map_request')).
+					  '&action_bar_path='.rawurlencode($backend->getBackendUrl().'&assetid=%assetid%&action=%action%');
 
 		?> 
 
@@ -79,8 +81,8 @@ class Asset_Map
 			 <param name="scale"   value="noscale">
 			 <param name="salign"  value="lt">
 			 <param name="bgcolor" value="#ffffff">
-			 <param name="FlashVars" value="server_exec_path=<?=rawurlencode($backend_url)?>">
-			 <embed src="<?=SQ_WWW_LIB_DIR?>/asset_map/asset_map.swf" FlashVars="server_exec_path=<?=rawurlencode($backend_url)?>" id="asset_map" name="asset_map" quality="high" scale="noscale" salign="lt" bgcolor="#ffffff" width="100%" height="100%" swliveconnect="true" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed>
+			 <param name="FlashVars" value="<?=$flash_vars?>">
+			 <embed src="<?=SQ_WWW_LIB_DIR?>/asset_map/asset_map.swf" FlashVars="<?=$flash_vars?>" id="asset_map" name="asset_map" quality="high" scale="noscale" salign="lt" bgcolor="#ffffff" width="100%" height="100%" swliveconnect="true" type="application/x-shockwave-flash" pluginspage="http://www.macromedia.com/go/getflashplayer"></embed>
 		</object>
 		<?
 	}//end paint()
@@ -95,6 +97,7 @@ class Asset_Map
 	*/
 	function _send($output) 
 	{
+		error_log("XML OUT : \n".$output->get());
 		header("Content-Type: text/xml");
 		$output->dump();
 	}
@@ -126,7 +129,8 @@ class Asset_Map
 		// set the output type to XML, so any errors raised by the objects will be sent along in XML
 		$GLOBALS['SQ_OUTPUT_TYPE'] = 'xml';
 
-		error_log("BCR :\n".array_contents(file('php://input')));
+		include_once SQ_LIB_PATH.'/general/general.inc';
+		error_log("XML IN :\n".file_to_string('php://input'));
 
 		$input = new XML_Tree('php://input');
 		$root  = &$input->getTreeFromFile();
@@ -186,7 +190,7 @@ class Asset_Map
 	function _getAssets(&$input) 
 	{
 
-		$load_new_kids = !empty($input->root->attributes['load_new_kids']);
+		$load_new_links = !empty($input->root->attributes['load_new_links']);
 
 		$output = new XML_Tree();
 		$root = &$output->addRoot('assets', '');
@@ -196,7 +200,7 @@ class Asset_Map
 			$assetid = $input->root->children[$i]->attributes['assetid'];
 
 			$kids = Array();
-			if ($load_new_kids) {
+			if ($load_new_links) {
 				$current_kids = Array();
 				for($j = 0; $j < count($input->root->children[$i]->children); $j++) {
 					if (empty($input->root->children[$i]->children[$j]->attributes['assetid'])) continue;
@@ -216,9 +220,6 @@ class Asset_Map
 
 		}// end children for
 
-
-#		error_log("XML : \n".$output->get());
-
 		$this->_send($output);
 
 	}// end _getAssets()
@@ -228,12 +229,12 @@ class Asset_Map
 	*
 	* @param object XML_Tree_Node	$root			the root node to add the asset to
 	* @param int					$assetid		the assetid of the asset to add
-	* @param boolean				$load_new_kids	whether or not to load the children of this asset not in the $current_kids array
+	* @param boolean				$load_new_links	whether or not to load the children of this asset not in the $current_kids array
 	* @param Array(int)				$current_kids	the children that the flash currently has
 	*
 	* @access private
 	*/
-	function _addAssetToXML(&$root, $assetid, $load_new_kids=false, $current_kids=Array()) 
+	function _addAssetToXML(&$root, $assetid, $load_new_links=false, $current_kids=Array()) 
 	{
 
 		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($assetid, '', true);
@@ -254,7 +255,7 @@ class Asset_Map
 				$kid_node = &$asset_node->addChild('child', '', Array('linkid' => $links[$j]['linkid'], 'minorid' => $links[$j]['minorid'], 'link_type' => $links[$j]['link_type']));
 			}
 
-			if ($load_new_kids) {
+			if ($load_new_links) {
 				$kids = Array();
 				for($j = 0; $j < count($links); $j++) $kids[] = $links[$j]['minorid'];
 				$new_kids = array_values(array_diff($kids, $current_kids)); // array_values to get indexed array
@@ -349,39 +350,10 @@ class Asset_Map
 	{
 
 		$link  = '';
-		$framt = '';
+		$frame = '';
 
 		switch($input->root->attributes['cmd']) {
 			case 'add' :
-				$attr = $input->root->attributes;
-				if (empty($attr['parent_assetid']) || !isset($attr['pos']) || empty($attr['type_code'])) {
-					$this->_error('Parent Asset Id, Relative Position and Asset Type need to be passed');
-					return;
-				}
-
-				$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($attr['parent_assetid'], '', true);
-				if (is_null($parent)) {
-					$this->_error('Parent Asset #'.$attr['parent_assetid'].' not found');
-					return;
-				}
-
-				if (($err_msg = $parent->canLinkToType($attr['type_code'], SQ_LINK_UNITE)) !== true) {
-					$this->_error($err_msg);
-					return;
-				}
-
-				// if we get this far then it's all good
-				$link  = $backend->getBackendUrl()
-						.'&backend_section=am'
-						.'&am_section=add_asset'
-						.'&type_code='.rawurlencode($attr['type_code'])
-						.'&link_type='.rawurlencode(SQ_LINK_UNITE)
-						.'&parent_assetid='.rawurlencode($attr['parent_assetid'])
-						.'&pos='.rawurlencode($attr['pos']);
-				$frame = 'main';
-				break;
-
-			case 'move_asset' :
 				$attr = $input->root->attributes;
 				if (empty($attr['parent_assetid']) || !isset($attr['pos']) || empty($attr['type_code'])) {
 					$this->_error('Parent Asset Id, Relative Position and Asset Type need to be passed');
@@ -422,7 +394,6 @@ class Asset_Map
 
 		$output = new XML_Tree();
 		$root = &$output->addRoot('url', $link, Array('frame' => $frame));
-#		error_log('XML : '.$output->get());
 
 		$this->_send($output);
 
@@ -455,11 +426,16 @@ class Asset_Map
 					
 			$type_node = &$root->addChild('type', '', $attrs);
 
+			$editing_options = $GLOBALS['SQ_RESOLVE']->am->getInfo($type_codes[$i], 'editing_options');
+			foreach($editing_options as $action => $name) {
+				$type_node->addChild('editing_option', $name, Array('action' => $action));
+			}
+
 		}// end children for
 
 		$this->_send($output);
 
-	}// end _getMenuItems()
+	}// end _getAssetTypes()
 
 
 	/*

@@ -53,7 +53,11 @@ mcOptionsBoxClass.prototype = new MovieClip();
 */
 mcOptionsBoxClass.prototype.init = function(heading, summary, call_back_obj, call_back_fn, call_back_params) 
 {
-	if (this._visible) return false;
+	// check if something else is modal
+	if (_root.system_events.inModal(this) || this._visible) return false;
+	// attempt to get the modal status
+	if (!_root.system_events.startModal(this)) return false;
+
 	this._clear();
 
 	this.heading_text.text = heading;
@@ -97,6 +101,7 @@ mcOptionsBoxClass.prototype._clear = function()
 */
 mcOptionsBoxClass.prototype.show = function() 
 {
+	
 	this.heading_text.text_color = this.fg_colour;
 	this.summary_text.text_color = this.fg_colour;
 
@@ -143,10 +148,6 @@ mcOptionsBoxClass.prototype.show = function()
 	this.lineTo(0, 0);
 	this.endFill();
 
-
-	trace(Stage.width + "x" + Stage.height);
-	trace(this._width + "x" + this._height);
-
 	// centre this box in the stage
 	this._x = (Stage.width  - this.full_width)  / 2;
 	this._y = (Stage.height - ypos) / 2;
@@ -156,16 +157,26 @@ mcOptionsBoxClass.prototype.show = function()
 
 
 /**
+* hides the options box
+*
+* @access public
+*/
+mcOptionsBoxClass.prototype.hide = function() 
+{
+	_root.system_events.stopModal(this);
+	this._visible = false;
+}
+
+
+/**
 * called by the OK button to signify a press
 *
 * @access public
 */
 mcOptionsBoxClass.prototype.okPressed = function() 
 {
-	trace("OK PRESSED -> " + this.options_group.getValue());
-	trace(this.call_back_obj);
+	this.hide();
 	this.call_back_obj[this.call_back_fn](this.options_group.getValue(), this.call_back_params);
-	this._visible = false;
 }
 
 /**
@@ -175,8 +186,8 @@ mcOptionsBoxClass.prototype.okPressed = function()
 */
 mcOptionsBoxClass.prototype.cancelPressed = function() 
 {
+	this.hide();
 	this.call_back_obj[this.call_back_fn](null, this.call_back_params);
-	this._visible = false;
 }
 
 

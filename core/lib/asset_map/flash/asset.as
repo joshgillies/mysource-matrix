@@ -32,7 +32,6 @@ Asset.prototype.setInfo = function(assetid, type_code, name, links)
 	if (type_code != undefined && type_code != null) this.type_code = type_code;
 	if (name      != undefined && name      != null) this.name      = name;
 	if (links     != undefined && links     != null) this.links     = links;
-	trace("ON ASSET CHANGE : " + this.name + " - " + this._listeners);
 	this.broadcastMessage("onAssetChange", this);
 }
 
@@ -55,7 +54,6 @@ Asset.prototype.getLinkAssetids = function()
 	for(var i = 0; i < this.links.length; i++) {
 		assetids[i] = _root.asset_manager.asset_links[this.links[i]].minorid;
 	}
-	trace("Asset Link IDS : " + assetids);
 	return assetids;
 }
 

@@ -31,6 +31,9 @@ function mcMenuContainerClass()
 
 	// Set ourselves up as a listener on the asset types, so we know when they have been loaded
 	_root.asset_manager.addListener(this);
+	// Set ourselves up as a listener on the system events
+	// so we know when a screen press occurs that isn't ours, allowing us to close the menu
+	_root.system_events.addListener(this);
 
 	// Set ourselves up as a broadcaster, so others can be notified of menu items being pressed
     ASBroadcaster.initialize(this);
@@ -154,14 +157,6 @@ mcMenuContainerClass.prototype.show = function()
 
 }// show();
 
-
-mcMenuContainerClass.prototype.hide = function()
-{
-	for (var i = 0; i < this.top_level.length; i++) {
-		this[this.top_level[i]].show();
-	}// end for
-}// hide();
-
 mcMenuContainerClass.prototype.hideKids = function()
 {
 	if (this.open_items[0] != undefined) {
@@ -190,5 +185,21 @@ mcMenuContainerClass.prototype.itemPress = function(item)
 	this.broadcastMessage("onMenuItemPress", cmds[0], cmds[1]);
 
 }// end itemPress()
+
+
+/**
+* Event fired when the Asset Types object has finished recieving all the asset types from the server
+* We can then run create()
+*
+*/
+mcMenuContainerClass.prototype.onScreenPress = function(mc)
+{
+	// if the thing that was pressed wasn't on of the menu items
+	// hide the menu
+	if (!(mc instanceof mcMenuItemClass)) this.hideKids();
+}
+
+
+
 
 Object.registerClass("mcMenuContainerID", mcMenuContainerClass);

@@ -54,12 +54,19 @@ AssetManager.prototype.loadTypesFromXML = function(xml, exec_indentifier)
 		var type_node = xml.firstChild.childNodes[i];
 		if (type_node.nodeName.toLowerCase() == "type") {
 
+			var editing_options = new Array();
+			for (var j = 0; j < type_node.childNodes.length; j++) {
+				editing_options.push({action: type_node.childNodes[j].attributes.action, name: type_node.childNodes[j].firstChild.nodeValue});
+			}
+
+
 			this.types[type_node.attributes.type_code] = new AssetType(type_node.attributes.type_code,
 																		type_node.attributes.name,
 																		type_node.attributes.version,
 																		type_node.attributes.instantiable,
 																		type_node.attributes.system_only,
-																		type_node.attributes.parent_type);
+																		type_node.attributes.parent_type,
+																		editing_options);
 
 		}//end if
 	}//end for

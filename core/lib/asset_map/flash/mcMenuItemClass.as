@@ -62,6 +62,11 @@ mcMenuItemClass.prototype.hideKids = function()
 
 mcMenuItemClass.prototype.onRelease = function() 
 {
+	_root.system_events.screenPress(this);
+
+	// check if something else is modal
+	if (_root.system_events.inModal(this)) return false;
+
 	// if there is a dialog box up do nothing
 	if (_root.pop_up) return;
 

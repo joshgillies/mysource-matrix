@@ -4,10 +4,11 @@ Stage.scaleMode = "noScale";
 Stage.align = "TL";
 
 
-#include "functions.as"
 #include "test.as"
-#include "stageResize.as"
+#include "functions.as"
 #include "general.as"
+#include "stageResize.as"
+#include "systemStatus.as"
 #include "externalCall.as"
 #include "serverExec.as"
 #include "assetType.as"
@@ -19,6 +20,7 @@ Stage.align = "TL";
 #include "mcListContainerClass.as"
 #include "mcPlusMinus.as"
 #include "mcListItemClass.as"
+#include "mcActionsBarButtonClass.as"
 #include "mcActionsBarClass.as"
 #include "mcOptionsBoxClass.as"
 #include "mcDialogBoxClass.as"
@@ -27,6 +29,9 @@ Stage.align = "TL";
   ///////////////////////////////////////////////////
  // CONSTANTS                                     //
 ///////////////////////////////////////////////////
+
+// the height of the actions bar at the bottom of the screen
+_root.ACTIONS_BAR_HEIGHT = 130;
 
 // this indent needs to set to the offset of the text box in a list item
 // from the LHS of a list items background
@@ -43,9 +48,20 @@ _root.LIST_ITEM_BG_COLOURS = {
   ///////////////////////////////////////////////////
  // ALL INITIALISATION STUFF                      //
 ///////////////////////////////////////////////////
-if (server_exec_path == undefined) {
-	server_exec_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=asset_map_request";
+
+/* for testing from the Flash IDE */
+if (_root.server_exec_path == undefined) {
+	_root.server_exec_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=asset_map_request";
 }
+if (_root.action_bar_path == undefined) {
+	_root.action_bar_path = "http://beta.squiz.net/blair_resolve/_edit/?SQ_BACKEND_PAGE=main&assetid=%assetid%&action=%action%";
+}
+
+
+
+
+_root.system_events = new SystemEvents();
+
 
 // Add the dialog box
 _root.attachMovie("mcDialogBoxID", "dialog_box", 21);
@@ -57,7 +73,7 @@ _root.progress_bar.hide();
 
 
 
-_root.server_exec = new ServerExec(server_exec_path);
+_root.server_exec = new ServerExec(_root.server_exec_path);
 
 _root.asset_manager = new AssetManager();
 

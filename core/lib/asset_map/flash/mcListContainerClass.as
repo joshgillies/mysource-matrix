@@ -160,7 +160,7 @@ mcListContainerClass.prototype._recurseDisplayKids = function(parent_assetid, pa
 	var i = parent_i + 1;
 
 	// Now add the kids into the items order array in the correct spot
-	trace('Kids of ' + parent_assetid + ' : ' + _root.asset_manager.assets[parent_assetid].links);
+//	trace('Kids of ' + parent_assetid + ' : ' + _root.asset_manager.assets[parent_assetid].links);
 	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].links.length; j++) {
 		var name = parent_name + "_" + _root.asset_manager.assets[parent_assetid].links[j];
 		if (this[name] == undefined) continue;
@@ -609,6 +609,8 @@ mcListContainerClass.prototype.posToAssetInfo = function(pos, where)
 
 mcListContainerClass.prototype.onPress = function() 
 {
+	// check if something else is modal
+	if (_root.system_events.inModal(this)) return false;
 
 	if (this.move_indicator_on) return;
 
@@ -633,6 +635,9 @@ mcListContainerClass.prototype.onPress = function()
 
 mcListContainerClass.prototype.onRelease = function() 
 {
+	// check if something else is modal
+	if (_root.system_events.inModal(this)) return false;
+	_root.system_events.screenPress(this);
 
 	if (this.move_indicator_on) {
 		this.endMoveIndicator();
@@ -834,14 +839,15 @@ mcListContainerClass.prototype.xmlMoveItem = function(xml, exec_identifier)
 mcListContainerClass.prototype.startMoveIndicator = function(on_end_fn) 
 {
 	if (this.move_indicator_on) return false;
+	// attempt to get the modal status
+	if (!_root.system_events.startModal(this)) return false;
+
 	this.move_indicator_on = true;
+
 
 	this.tmp.move_indicator = {on_end_fn: on_end_fn, pos: -1, where: ""};
 	// move to top of layers
 	this.move_indicator.swapDepths(this.num_items + 1);
-
-	// Hide the Menu so they can't do anything from there while using the move indicator
-	_root.menu_container.hide();
 
 	return true;
 
@@ -850,6 +856,7 @@ mcListContainerClass.prototype.startMoveIndicator = function(on_end_fn)
 mcListContainerClass.prototype.endMoveIndicator = function() 
 {
 	if (!this.move_indicator_on) return;
+	_root.system_events.stopModal(this);
 
 	// call back to the end fn for whoever called us
 	this[this.tmp.move_indicator.on_end_fn](this.tmp.move_indicator.pos, this.tmp.move_indicator.where);

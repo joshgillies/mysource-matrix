@@ -46,7 +46,11 @@ mcDialogBoxClass.prototype = new MovieClip();
 */
 mcDialogBoxClass.prototype.show = function(heading, summary, call_back_obj, call_back_fn, call_back_params) 
 {
-	if (this._visible) return false;
+	// check if something else is modal
+	if (_root.system_events.inModal(this) || this._visible) return false;
+	// attempt to get the modal status
+	if (!_root.system_events.startModal(this)) return false;
+
 
 	this.heading_text.text = heading;
 	this.summary_text.text = summary;
@@ -58,8 +62,6 @@ mcDialogBoxClass.prototype.show = function(heading, summary, call_back_obj, call
 	this.heading_text.text_color = this.fg_colour;
 	this.summary_text.text_color = this.fg_colour;
 
-
-	this.clear();
 	var ypos = this.heading_text._y + this.heading_text._height + 5;
 
 	this.summary_text._y = ypos;
@@ -81,10 +83,6 @@ mcDialogBoxClass.prototype.show = function(heading, summary, call_back_obj, call
 	this.lineTo(0, 0);
 	this.endFill();
 
-
-	trace(Stage.width + "x" + Stage.height);
-	trace(this._width + "x" + this._height);
-
 	// centre this box in the stage
 	this._x = (Stage.width  - this.full_width)  / 2;
 	this._y = (Stage.height - ypos) / 2;
@@ -100,6 +98,7 @@ mcDialogBoxClass.prototype.show = function(heading, summary, call_back_obj, call
 */
 mcDialogBoxClass.prototype.hide = function() 
 {
+	_root.system_events.stopModal(this);
 	this._visible = false;
 }
 

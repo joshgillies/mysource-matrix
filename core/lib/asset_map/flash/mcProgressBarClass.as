@@ -51,12 +51,15 @@ mcProgressBarClass.prototype = new MovieClip();
 */
 mcProgressBarClass.prototype.show = function(desc) 
 {
+	// check if something else is modal
+	if (_root.system_events.inModal(this)) return false;
+	// attempt to get the modal status
+	if (!_root.system_events.startModal(this)) return false;
+
+
 	var id = this.counter++;
 	this.descs[id] = desc;
 	this.order.push(id);
-
-	trace("SHOW PB : " + id + " : " + desc);
-
 
 	if (!this.intervalid) {
 		if (this.order.length > 1) {
@@ -84,12 +87,8 @@ mcProgressBarClass.prototype.show = function(desc)
 */
 mcProgressBarClass.prototype.hide = function(id) 
 {
-	trace("HIDE PB : " + id);
-	trace("HIDE PB : order before -> " + this.order);
-
 	delete this.descs[id];
 	this.order.remove_element(id);
-	trace("HIDE PB : order after  -> " + this.order);
 
 	if (this.order.length > 0) {
 		if (this.descs.length < 2) {
@@ -98,24 +97,11 @@ mcProgressBarClass.prototype.hide = function(id)
 			this.setText();
 		}
 	} else {
+		_root.system_events.stopModal(this);
 		this._visible = false;
 		this.stop();
 	}
 }
-
-/**
-* Fired when the close button is pressed
-*
-* @access public
-*/
-mcProgressBarClass.prototype.closePressed = function() 
-{
-	if (this.call_back_obj && this.call_back_fn) {
-		this.call_back_obj[this.call_back_fn](null, this.call_back_params);
-	}
-	this.hide();
-}
-
 
 /**
 * Set's the text
@@ -126,12 +112,8 @@ mcProgressBarClass.prototype.setText = function()
 {
 	this.interval_pos++;
 	if (this.interval_pos >= this.order.length) this.interval_pos = 0;
-
-	trace("SET TEXT pos  : " + this.interval_pos);
-	trace("SET TEXT id   : " + this.order[this.interval_pos]);
-	trace("SET TEXT desc : " + this.descs[this.order[this.interval_pos]]);
-
 	this.progress_text.text = this.descs[this.order[this.interval_pos]];
+
 }
 
 Object.registerClass("mcProgressBarID", mcProgressBarClass);
