@@ -14,11 +14,6 @@
 require_once dirname(dirname(__FILE__)).'/core/include/init.inc';
 require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
-// running from the command line ? give us text errors
-if (isset($_SERVER['argv'])) {
-	$GLOBALS['SQ_OUTPUT_TYPE'] = 'text';
-}
-
 $db = &$GLOBALS['SQ_SYSTEM']->db;
 
 $sql = 'TRUNCATE sq_asset_link_tree';
