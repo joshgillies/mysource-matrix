@@ -18,13 +18,20 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.12 2005/02/11 03:11:38 dbaranovskiy Exp $
+* $Id: edit_interface_screen_new_message.xml,v 1.1 2005/02/11 03:11:38 dbaranovskiy Exp $
 *
 */
 -->
 
-<screens>
-	<screen code_name="new_message" display_name="New Message" icon="create" lock_type="mail" force_unlock="0" />
-	<screen code_name="sent" display_name="Sent" icon="create" lock_type="mail" force_unlock="0" />
-	<screen code_name="trash" display_name="Trash" icon="create" lock_type="mail" force_unlock="0" />
-</screens>
+<contents>
+	<section name="New Message" write_access="write:mail">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintNewMessage"   />
+				<process_function name="processNewMessage" />
+			</function_call>
+		</field>
+	</section>
+</contents>
