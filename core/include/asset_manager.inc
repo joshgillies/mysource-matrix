@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.130 2003/10/08 00:54:10 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.131 2003/10/09 23:24:53 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -980,7 +980,7 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				for(reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -1171,7 +1171,7 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				for(reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -1234,7 +1234,7 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				for(reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
@@ -1331,7 +1331,7 @@ class Asset_Manager extends MySource_Object
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
-				for($i = 0; $i < count($type_code); $i++) $type_code[$i] = $db->quote($type_code[$i]);
+				for(reset($type_code); null !== ($i = key($type_code)); next($type_code)) $type_code[$i] = $db->quote($type_code[$i]);
 				$type_code_cond = 'IN ('.implode(', ', $type_code).')';
 			} else {
 				$type_code_cond = '= '.$db->quote($type_code);
