@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.224 2004/07/12 09:51:33 brobertson Exp $
+* $Id: asset_manager.inc,v 1.225 2004/08/03 05:58:38 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2122,7 +2122,7 @@ class Asset_Manager extends MySource_Object
 	* @access public
 	* @return array
 	*/
-	function  getAssetTree($majorids, $levels=null, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV)
+	function getAssetTree($majorids, $levels=null, $exclude_list=Array(), $link_type=SQ_SC_LINK_FRONTEND_NAV)
 	{
 		$tree_data = Array();
 		if (!is_array($majorids)) $majorids = Array($majorids);
