@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: content_type_wysiwyg.inc,v 1.6 2005/01/20 13:07:31 brobertson Exp $
-*
+* $Id: content_type_wysiwyg.inc,v 1.7 2005/02/25 03:42:50 tbarrett Exp $
+* $Name: not supported by cvs2svn $
 */
 
 
@@ -29,10 +29,10 @@ require_once SQ_CORE_PACKAGE_PATH.'/content_type/content_type.inc';
 * Content_Type_WYSIWYG
 *
 * Purpose
-*
+*	Stores html content to be edited using the WYSIWYG editor
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,6 +50,32 @@ class Content_Type_WYSIWYG extends Content_Type
 		$this->Content_Type($assetid);
 
 	}//end constructor
+
+
+	/**
+	* Morph the asset to either one of its parent types or one of its children types
+	*
+	* In this case we are probably morphing to raw-html and want to remove mozilla's <br> tag
+	* if the content is otherwise blank
+	*
+	* @param string	$new_type_code	the new type_code to attempt to cast this asset to
+	*
+	* @return bool
+	* @access public
+	*/
+	function morph($new_type_code)
+	{
+		if (!parent::morph($new_type_code)) {
+			return false;
+		}
+		if (str_replace(Array("\r","\n"), Array('',''), $this->attr('html')) == '<br>') {
+			// work around mozilla wysiwyg bug
+			$this->setAttrValue('html', '');
+			$this->saveAttributes();
+		}
+		return true;
+
+	}//end morph()
 
 
 }//end class
