@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.25 2004/03/03 18:37:59 brobertson Exp $
+* $Id: messaging_service.inc,v 1.26 2004/07/08 00:50:37 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -143,6 +143,21 @@ class Messaging_Service extends MySource_Object
 	}//end enqueueMessage()
 
 
+	/**
+	* Returns the messages in the current queue or nested queue
+	*
+	* Only the contents of the most inside nested queue are available from this function
+	*
+	* @return array of object Internal_Message
+	* @access public
+	*/
+	function queueContents()
+	{
+		return $this->_levels['queues'][count($this->_levels['queues']) - 1];
+
+	}//end queueContents()
+
+
 //--        LOGS        --//
 
 
@@ -212,9 +227,9 @@ class Messaging_Service extends MySource_Object
 
 
 	/**
-	* Adds an internal message into the queue
+	* Adds an internal message into the log
 	*
-	* @param object Internal_Message	$message	the message to add to the queue
+	* @param object Internal_Message	$message	the message to add to the log
 	*
 	* @return void
 	* @access public
@@ -223,9 +238,24 @@ class Messaging_Service extends MySource_Object
 	{
 		array_push($this->_levels['logs'][count($this->_levels['logs']) - 1], $message);
 
-	}//end enqueueMessage()
+	}//end logMessage()
 
 
+	/**
+	* Returns the messages in the current log or nested log
+	*
+	* Only the contents of the most inside nested log are available from this function
+	*
+	* @return array of object Internal_Message
+	* @access public
+	*/
+	function logContents()
+	{
+		return $this->_levels['logs'][count($this->_levels['logs']) - 1];
+
+	}//end queueContents()
+	
+	
 //--        MESSAGES        --//
 
 
@@ -247,6 +277,7 @@ class Messaging_Service extends MySource_Object
 	function newMessage($to=Array(), $subject='', $body='', $type='')
 	{
 		require_once SQ_INCLUDE_PATH.'/internal_message.inc';
+
 		$new_message = new Internal_Message();
 		$new_message->sent    = ts_iso8601(time());
 		$new_message->from    = $GLOBALS['SQ_SYSTEM']->currentUserId();
@@ -299,6 +330,7 @@ class Messaging_Service extends MySource_Object
 						$message->from = $from;
 						$message->subject = $subject;
 						$message->body = implode("\n\n".str_repeat('-', 50)."\n\n", $from_data['bodies']);
+						$message->type = $type;
 						$message->send();
 					}
 				}
@@ -457,6 +489,7 @@ class Messaging_Service extends MySource_Object
 		return ($a['sent'] > $b['sent']) ? -1 : 1;
 
 	}//end sortMessages()
+
 
 }//end class
 
