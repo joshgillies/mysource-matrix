@@ -94,6 +94,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		ob_end_clean();
 	}
 
+	$type = ($GLOBALS['SQ_OUTPUT_TYPE'] == 'html' && SQ_PHP_CLI) ? 'text' : $GLOBALS['SQ_OUTPUT_TYPE'];
+
 	// if we are in XML output type then, send our error as XML
 	switch($GLOBALS['SQ_OUTPUT_TYPE']) {
 		case 'xml' :
@@ -115,17 +117,24 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 			$len = max($len, 7 + strlen($err_line));
 			foreach($lines as $line) $len = max($len, strlen($line));
 			$len += 2;
-			echo	'+', str_repeat('-', $len), "+\n",
-					'| ', $err_name, str_repeat(' ', $len - 2 - strlen($err_name)), " |\n",
-					'|', str_repeat('-', $len), "|\n",
-					'| File : ', $err_file, str_repeat(' ', $len - 9 - strlen($err_file)), " |\n",
-					'| Line : ', $err_line, str_repeat(' ', $len - 9 - strlen($err_line)), " |\n",
-					'|', str_repeat('-', $len), "|\n";
+			$str =	'+'.str_repeat('-', $len)."+\n".
+					'| '.$err_name.str_repeat(' ', $len - 2 - strlen($err_name))." |\n".
+					'|'.str_repeat('-', $len)."|\n".
+					'| File : '.$err_file.str_repeat(' ', $len - 9 - strlen($err_file))." |\n".
+					'| Line : '.$err_line.str_repeat(' ', $len - 9 - strlen($err_line))." |\n".
+					'|'.str_repeat('-', $len)."|\n";
 			foreach($lines as $line) {
-				echo '| ', $line, str_repeat(' ', $len - 2 - strlen($line)), " |\n";
+				$str .=  '| '.$line.str_repeat(' ', $len - 2 - strlen($line))." |\n";
 			}
 
-			echo	'+', str_repeat('-', $len), "+\n";
+			$str .= '+'.str_repeat('-', $len)."+\n";
+
+			// if we are from the command line send this to std err
+			if (SQ_PHP_CLI) {
+				fwrite(STDERR, $str);
+			} else {
+				echo $str;
+			}
 
 			break;
 
