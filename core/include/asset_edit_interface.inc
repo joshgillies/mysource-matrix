@@ -1502,10 +1502,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		if (!isset($_POST[$prefix.'_permissions'])) return false;
 
 		// are we cascading these permission changes to our children?
-		$cascade_changes = false;
-		if (isset($_POST[$prefix.'_permissions']['cascade_changes']) && $_POST[$prefix.'_permissions']['cascade_changes']) {
-			$cascade_changes = true;
-		}
+		$cascade_changes = !empty($_POST[$prefix.'_permissions']['cascade_changes']);
 
 		$perms = Array('Administrator' => SQ_PERMISSION_ADMIN, 'Write' => SQ_PERMISSION_WRITE, 'Read' => SQ_PERMISSION_READ);
 		foreach ($perms as $title => $perm) {
