@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config.inc,v 1.41 2004/12/06 01:55:37 lwright Exp $
+* $Id: system_config.inc,v 1.42 2004/12/06 03:16:50 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -489,14 +489,14 @@ class System_Config extends Config
 
 			$o->openField('Commit Button Text', '', 'This setting renames the button used to commit edited information into the MySource Matrix system - default is \'Commit\'');
 			if($write_access) {
-				text_box($class.'[SQ_CONF_COMMIT_BUTTON_TEXT]', SQ_CONF_COMMIT_BUTTON_TEXT, 30);
+				text_box($class.'[SQ_CONF_COMMIT_BUTTON_TEXT]', !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT, 30);
 			} else {
-				echo SQ_CONF_COMMIT_BUTTON_TEXT;
+				echo !defined('SQ_CONF_COMMIT_BUTTON_TEXT') ? 'Commit' : SQ_CONF_COMMIT_BUTTON_TEXT;
 			}
 
 		$o->closeSection();
 		
-		if ($write_access) $o->commitButton(SQ_CONF_COMMIT_BUTTON_TEXT, true);
+		if ($write_access) $o->commitButton('', true);
 
 	}//end paintBackend()
 

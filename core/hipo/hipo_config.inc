@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.20 2004/12/06 01:55:55 lwright Exp $
+* $Id: hipo_config.inc,v 1.21 2004/12/06 03:13:39 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -210,7 +210,7 @@ class HIPO_Config extends Config
 
 		$o->closeSection();
 
-		if ($write_access) $o->commitButton(SQ_CONF_COMMIT_BUTTON_TEXT, true);
+		if ($write_access) $o->commitButton('', true);
 
 	}//end paintBackend()
 

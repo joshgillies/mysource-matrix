@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.7 2004/12/06 01:56:13 lwright Exp $
+* $Id: maps.inc,v 1.8 2004/12/06 03:13:47 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -311,7 +311,7 @@ class Maps extends MySource_Object
 		$o->closeSection();
 
 
-		$o->commitButton(SQ_CONF_COMMIT_BUTTON_TEXT, true);
+		$o->commitButton('', true);
 
 	}//end paintPatches()
 

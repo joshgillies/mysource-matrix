@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.232 2004/12/06 01:55:36 lwright Exp $
+* $Id: asset_edit_interface.inc,v 1.233 2004/12/06 03:16:24 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.232 $
+* @version $Revision: 1.233 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -819,7 +819,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// we have printed an editable interface on a static screen - show the commit button
 		if ($print_commit_button) {
-			$o->commitButton(SQ_CONF_COMMIT_BUTTON_TEXT, $force_unlock_on_commit);
+			$o->commitButton('', $force_unlock_on_commit);
 		}
 
 	}//end paint()
@@ -992,7 +992,7 @@ class Asset_Edit_Interface extends MySource_Object
 		// we have printed an editable interface on a static screen - show the commit button
 		if (in_array('commit_button', $keywords['layout']) && $print_commit_button) {
 			ob_start();
-				$o->commitButton(SQ_CONF_COMMIT_BUTTON_TEXT, false);
+				$o->commitButton('', false);
 				$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
 			ob_end_clean();
 		}
