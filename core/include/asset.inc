@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.298 2004/06/04 06:29:53 gsherwood Exp $
+* $Id: asset.inc,v 1.299 2004/06/07 04:03:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2363,7 +2363,7 @@ class Asset extends MySource_Object
 
 	
 	/**
-	* processes anything that was previously printed for a custom keyword
+	* Processes anything that was previously printed for a custom keyword
 	*
 	* An example of this might be a keyword replacement for a bodycopy. When submitted, we need to process
 	* The bodycopy here
