@@ -105,12 +105,19 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		// assetid will not be set if we are creating
 		if (!$asset->id) return true;
 
-		$name = $info['name'];
+		$valid_names = $asset->_makeValidWebPaths(Array($info['name']));
+		$name = array_shift($valid_names);
 
 		// make sure the new web path is not already is use
-		if (!@$asset->saveWebPaths(Array($name))) {
-			trigger_error('Failed updating web path, file not uploaded. Path already exists?', E_USER_WARNING);
-			return false;
+		$parents = $asset->getLinks(SQ_LINK_SIGNIFICANT, '', null, 'minor');
+		for($i = 0; $i < count($parents); $i++) {
+			$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);
+			if (is_null($parent)) continue;
+			$bad_paths = $parent->_webPathsInUse(Array($name));
+			if (!empty($bad_paths)) {
+				trigger_error('Failed updating web path, file not uploaded. Path already exists?', E_USER_WARNING);
+				return false;
+			}
 		}
 
 		// create the destination directory, if necessary
@@ -120,7 +127,6 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		if (is_file($asset->data_path.'/'.$asset->attr('name'))) {
 			if (!unlink($asset->data_path.'/'.$asset->attr('name'))) {
 				trigger_error('Failed deleting existing file', E_USER_WARNING);
-				$asset->saveWebPaths(Array($asset->attr('name')));
 				return false;
 			}
 		}
@@ -128,7 +134,11 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		// copy over the new uploaded file
 		if (!move_uploaded_file($info['tmp_name'], $asset->data_path.'/'.$name)) {
 			trigger_error('Failed copying uploaded file to destination directory', E_USER_WARNING);
-			$asset->saveWebPaths(Array($asset->attr('name')));
+			return false;
+		}
+		
+		if (!$asset->saveWebPaths(Array($name))) {
+			trigger_error('Failed saving web paths', E_USER_WARNING);
 			return false;
 		}
 
@@ -136,7 +146,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		$asset->_tmp['uploading_file'] = true;
 		$asset->setAttrValue('name', $name);
 		unset($asset->_tmp['uploading_file']);
-		
+
 		return true;
 	}//end processFileUpload()
 

@@ -309,7 +309,6 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-
 		// welcome to sequences, they are cool, see the PEAR::DB docs for more info
 		$assetid = $db->nextId('sq_sequence_asset');
 		if (DB::isError($assetid)) trigger_error($assetid->getMessage().'<br/>'.$assetid->getUserInfo(), E_USER_ERROR);
@@ -2951,6 +2950,7 @@ class Asset extends Resolve_Object
 
 			$count = $db->getOne($sql);
 			if (DB::isError($count)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				trigger_error($count->getMessage().'<br/>'.$count->getUserInfo(), E_USER_WARNING);
 				$attribute->setValue($old_value);
 				return false;
@@ -4023,8 +4023,6 @@ class Asset extends Resolve_Object
 		$sibling_paths = Array();
 
 		if (count($siblingids)) {
-			$db_quote_paths = Array();
-			foreach($paths as $v) $db_quote_paths[] = $db->quote($v);
 			$sql = 'SELECT path
 					FROM sq_asset_path
 					WHERE assetid IN ('.implode(',', $siblingids).')';
