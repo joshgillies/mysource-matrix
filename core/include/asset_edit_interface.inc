@@ -207,52 +207,84 @@ class Asset_Edit_Interface extends MySource_Object
 			$o->openField('&nbsp;');
 
 			$lock = $GLOBALS['SQ_SYSTEM']->am->getLockInfo($owner->id);
-			if (!empty($lock)) {
-				// this asset is currently locked
-				// so display message to the user
-				$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
-				$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_asset']);
 
-				if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
-				else $now = time();
-
-				if (is_null($lock['expires'])) {
-					$expires_in = 'The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.';
-				} else {
-					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
-					$expires_in = easy_time_total(($lock['expires'] - $now), true);
-					if (!$expires_in) $expires_in = '1 second';
-					$expires_in = 'The lock is due to expire in '.$expires_in;
-				}
-
-				echo '<p class="sq-backend-data">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". '.$expires_in.'</p>';
-
-				if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
-
-					submit_button('sq_manual_release_lock', 'Release Lock');
-				} else {
-					// does the current user has a high
-					// enough level of access to forceably acquire the lock
-					if ($owner->canForceablyAcquireLock()) {
-						echo '<p class="sq-backend-data">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</p>';
-
-						// they aren't going to do this without a fight though
-						// they'll have to go thorough our popup window first
-						$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=forceably_acquire_lock&assetid='.$owner->id;
-
-						hidden_field('sq_acquire_by_force', '0');
-						hidden_field('sq_acquire_lock',     '0');
-						normal_button('sq_forceably_acquire_lock', 'Acquire Lock', 'window.open(\''.$popup_url.'\', \'sq_forceably_acquire_lock_popup\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300\');');
-
+			?>
+			<table border="0" cellspacing="3" cellpadding="1">
+				<tr>
+					<td valign="top">
+					<?php
+					if (!empty($lock)) {
+						?><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/locked.png" width="16" height="16"><?php
+					} else {
+						?><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/unlocked.png" width="16" height="16"><?php
 					}
-				}
-			} else if ($full_write_access || $acquire_lock_access) {
-				$write_access = false;
-				hidden_field('sq_acquire_by_force', '0');
-				submit_button('sq_acquire_lock', 'Acquire Lock');
-			} else {
-				echo 'You do not have access to edit "'.$owner->name.'".';
-			}
+					?>
+					</td>
+					<td valign="top">
+						<?php
+						if (!empty($lock)) {
+							// this asset is currently locked
+							// so display message to the user
+							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['userid']);
+							$editing = &$GLOBALS['SQ_SYSTEM']->am->getAsset($lock['source_asset']);
+
+							if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+							else $now = time();
+
+							if (is_null($lock['expires'])) {
+								$expires_in = 'The lock is being held indefinitely and will not expire. The lock must be released manually or be forceably acquired by a System Administrator.';
+							} else {
+								require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+								$expires_in = easy_time_total(($lock['expires'] - $now), true);
+								if (!$expires_in) $expires_in = '1 second';
+								$expires_in = 'The lock is due to expire in '.$expires_in;
+							}
+
+							echo '<p class="sq-backend-locked">"'.$owner->name.'" is currently locked for editing by user "'.$user->name.'" at "'.$editing->name.'". '.$expires_in.'.</p>';
+
+							if (!$GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+								// does the current user has a high
+								// enough level of access to forceably acquire the lock
+								if ($owner->canForceablyAcquireLock()) {
+									echo '<p class="sq-backend-locked">You can forceably acquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably acquired.</p>';
+								}
+							}
+						} else if ($full_write_access || $acquire_lock_access) {
+							$write_access = false;
+							echo '<p class="sq-backend-unlocked">This asset is currently Unlocked.</p>';
+						} else {
+							echo 'You do not have access to edit "'.$owner->name.'".';
+						}
+						?>
+					</td>
+					<td valign="top">
+						<?php
+						if (!empty($lock)) {
+							if ($GLOBALS['SQ_SYSTEM']->currentUser($user)) {
+								submit_button('sq_manual_release_lock', 'Release Lock');
+							} else {
+								// does the current user has a high
+								// enough level of access to forceably acquire the lock
+								if ($owner->canForceablyAcquireLock()) {
+									// they aren't going to do this without a fight though
+									// they'll have to go thorough our popup window first
+									$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=forceably_acquire_lock&assetid='.$owner->id;
+
+									hidden_field('sq_acquire_by_force', '0');
+									hidden_field('sq_acquire_lock',     '0');
+									normal_button('sq_forceably_acquire_lock', 'Acquire Lock', 'window.open(\''.$popup_url.'\', \'sq_forceably_acquire_lock_popup\', \'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=500,height=300\');');
+
+								}
+							}
+						} else if ($full_write_access || $acquire_lock_access) {
+							hidden_field('sq_acquire_by_force', '0');
+							submit_button('sq_acquire_lock', 'Lock');
+						}
+						?>
+					</td>
+				</tr>
+			</table>
+			<?php
 
 			$o->closeSection();
 
@@ -2385,26 +2417,27 @@ class Asset_Edit_Interface extends MySource_Object
 		}
 
 		?>
-		<table cellpadding="0" cellspacing="0" border="0">
+		<table cellpadding="0" cellspacing="0" border="0" bgcolor="#E6E0EA" width="100%">
 			<tr>
 				<td class="sq-backend-data">
 					<table cellpadding="0" cellspacing="0" border="0">
 						<tr>
 							<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="20" border="0" alt="" /></td>
-							<td class="sq-backend-data">
+							<td class="sq-backend-data" nowrap>
 								<a href="<?php echo $owner->getBackendHref('dependants'); ?>"><b><?php echo $owner->name; ?></b></a>
 							</td>
 						</tr>
 					</table>
 				</td>
 				<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data" valign="top">
+				<td class="sq-backend-data" valign="top" nowrap>
 					<?php echo $lock_message; ?>
 				</td>
 				<td background="<?php echo $o->filesPath('/images/tree/stalk.gif'); ?>"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data" colspan="3">
+				<td class="sq-backend-data" colspan="3" nowrap>
 					<?php echo $owner->getStatusDescription(); ?>
 				</td>
+				<td width="100%">&nbsp;</td>
 			</tr>
 			<?php $this->_recursePaintDependants($owner, $owner, $o); ?>
 		</table>
@@ -2496,22 +2529,22 @@ class Asset_Edit_Interface extends MySource_Object
 							}
 							?>
 							<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
-							<td class="sq-backend-data">
+							<td class="sq-backend-data" nowrap>
 								&nbsp;<a href="<?php echo $dep_asset->getBackendHref('dependants'); ?>"><b><?php echo $dep_asset->name; ?></b></a>
 							</td>
 						</tr>
 					</table>
 				</td>
 				<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data">
+				<td class="sq-backend-data" nowrap>
 					<?php echo $lock_message; ?>
 				</td>
 				<td background="<?php echo $o->filesPath('/images/tree/stalk.gif'); ?>"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data" valign="top">
+				<td class="sq-backend-data" valign="top" nowrap>
 					<?php echo $dep_asset->getStatusDescription(); ?>
 				</td>
 				<td><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="5" height="1" border="0" alt="" /></td>
-				<td class="sq-backend-data">
+				<td class="sq-backend-data" nowrap>
 					<?php echo $status_message; ?>
 				</td>
 			</tr>

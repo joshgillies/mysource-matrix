@@ -660,48 +660,36 @@ class Backend_Outputter
 			</script>
 		</head>
 		<body bgcolor="#ffffff" onLoad="javascript: page_on_load();" marginwidth="0" marginheight="0" topmargin="0" leftmargin="0">
+
+		<?php
+		// make sure the main frame is padded in on the left
+		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
+		?>
+		<table border="0" cellspacing="0" cellpadding="0">
+			<tr>
+				<td><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.png" width="10" height="1"></td>
+				<td valign="top" width="100%">
+		<?php
+		}
+		?>
+
 		<form action="<?php echo $this->_action.$this->_anchor;?>" name="main_form" method="post" enctype="multipart/form-data" onSubmit="javascript: return form_on_submit();">
 	<?php
 		foreach($this->_hidden_fields as $name => $value) {
 			hidden_field($name, $value);
 		}//end foreach
-//	>
-//
-//		<table width="100%" height="100%" border="0" cellpadding="0" cellspacing="0">
-//			<tr>
-//				<td valign="top" align="center">
-//					<table border="0" cellpadding="1" cellspacing="0" width="95%">
-//	<
-//		if ($this->_show_crumming && $this->_crumming) {
-//			$this->_paintRow(implode(' &gt; ', $this->_crumming), 'crumming', 'left');
-//		}
-//
-//		foreach($this->_messages as $type => $msgs) {
-//			$this->_paintMessages($type, $msgs);
-//		}//end foreach
-//
-//		if ($this->_heading) {
-//			$this->_paintRow($this->_heading, 'page-heading');
-//		}
-//
+
 		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
 			?>
 			<table width="100%" cellpadding="3" cellspacing="0" border="0">
 				<tr>
-					<td class="sq-backend-heading">
-					<?php if ($this->_heading_icon) { ?>
-						<img src="<?php echo $this->filesPath('/images/icons/'.$this->_heading_icon.'.gif');?>" width="20" height="20" border="0" align="left" alt="<?php echo $this->_heading;?>" />
-					<?php } ?>
-						<?php echo $this->_heading;?>
-					</td>
+					<td class="sq-backend-heading" valign="middle"><img src="<?php echo sq_web_path('lib'); ?>/web/images/dash.png" width="10" height="5"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.png" width="5" height="1"><?php echo $this->_heading;?></td>
 					<td class="sq-backend-heading" style="text-align: right;">
 					<div id="sq_screen_menu">
 					<?php
 						if (empty($this->_screens) && empty($this->_static_screens)) {
 							echo '&nbsp;';
 						} else {
-
-
 							if (!empty($this->_screens)) {
 								$this->_screens = array_reverse($this->_screens);
 								$this->_screens['#'] = '------';
@@ -869,12 +857,19 @@ class Backend_Outputter
 	*/
 	function _paintFooter()
 	{
-
-	?>
+		// make sure the main frame is padded in on the left
+		if ($this->_heading || count($this->_screens) || count($this->_static_screens)) {
+			?>
+					</td>
+				</tr>
+			</table>
+			<?php
+		}
+		?>
 		</form>
 		</body>
 		</html>
-	<?php
+		<?php
 
 	}//end _paintFooter()
 

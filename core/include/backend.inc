@@ -88,10 +88,6 @@ class Backend extends MySource_Object
 					$this->_printMain();
 					break;
 
-				case 'footer':
-					$this->_printFooter();
-					break;
-
 				default:
 					trigger_error('Backend Page "'.$_GET['SQ_BACKEND_PAGE'].'" unknown', E_USER_ERROR);
 
@@ -125,13 +121,12 @@ class Backend extends MySource_Object
 			<title><?php echo SQ_SYSTEM_LONG_NAME; ?> Backend</title>
 				<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 			</head>
-			<frameset cols="250,*" frameborder="3">
-				<frameset rows="27,*,22" frameborder="0">
-					<frame src="<?php echo $_SERVER['PHP_SELF']; ?>?SQ_BACKEND_PAGE=header" name="header"  scrolling="no" marginwidth="0" marginheight="0">
+			<frameset rows="28,*" frameborder="3">
+				<frame src="<?php echo $_SERVER['PHP_SELF']; ?>?SQ_BACKEND_PAGE=header" name="header" scrolling="no" marginwidth="0" marginheight="0">
+				<frameset cols="250,*" frameborder="3">
 					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=sidenav" name="sidenav" scrolling="no" marginwidth="0" marginheight="0">
-					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=footer"  name="footer"  scrolling="no" marginwidth="0" marginheight="0">
+					<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=main<?php echo $main_extras; ?>" name="main" marginwidth="0" marginheight="0" scrolling="yes">
 				</frameset>
-				<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=main<?php echo $main_extras; ?>" name="main" marginwidth="0" marginheight="0" scrolling="yes">
 			</frameset>
 		</html>
 		<?php
@@ -149,59 +144,16 @@ class Backend extends MySource_Object
 	{
 		$this->out->addHiddenField('query_string');
 		$this->out->openRaw();
-
-		$url = $this->getBackendUrl('main').'&backend_section=';
-
-		if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
-		else $now = time();
-
-		?>
-		<table width="100%" cellpadding="0" border="0" cellspacing="0">
-			<tr>
-				<td nowrap class="sq-backend-header-cell"><a target="main" href="<?php echo $url;?>"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="2" height="2" border="0" /><img src="<?php echo sq_web_path('lib'); ?>/web/images/icons/swish.gif" width="20" height="20" border="0" /><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="3" height="2" border="0" /></a></td>
-				<td nowrap class="sq-backend-header-item"><a target="main" href="<?php echo $url;?>" class="sq-backend-header-item"><?php echo SQ_SYSTEM_SHORT_NAME; ?></a></td>
-				<td class="sq-backend-header-cell" align="right">
-					<div><a target="_top" href="<?php echo $_SERVER['PHP_SELF'];?>?SQ_ACTION=logout" class="sq-backend-smallprint" style="font-size:10px; color:#ffffff; font-weight: bold;"><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?></a></div>
-					<div class="sq-backend-fineprint"  style="color:#ffffff"><?php echo date('d M Y', $now); ?></div>
-				</td>
-				<td class="sq-backend-header-cell"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="2" border="0"></td>
-			</tr>
-			<tr>
-				<td style="background-color: #259EC5" colspan="4"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1"></td>
-			</tr>
-			<tr>
-				<td style="background-color: #212E61" colspan="4"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1"></td>
-			</tr>
-			<tr>
-				<td style="background-color: #ffffff" colspan="4"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1"></td>
-			</tr>
-		</table>
-		<?php
-
-		$this->out->closeRaw();
-
-	}//end _printHeader()
-
-
-	/**
-	* Print out the bottom page
-	*
-	* @access private
-	*/
-	function _printFooter()
-	{
-
-		$this->out->openRaw();
 		?>
 		<script language="JavaScript" type="text/javascript">
 			var REFRESH_UPDATE = <?php echo (int) SQ_CONF_REFRESH_INTERVAL ?>; // number of seconds before refreshing frame
 
-			function reloadFooter() {
+			function reloadHeader() {
 				var current_assetid = '';
 				if (top.main.document && top.main.document.main_form && top.main.document.main_form.backend_assetid) {
 					current_assetid = top.main.document.main_form.backend_assetid.value;
 				}
-				REFRESH_LOCATION = '<?php echo $this->getBackendUrl('footer');?>&current_assetid=' + current_assetid;
+				REFRESH_LOCATION = '<?php echo $this->getBackendUrl('header');?>&current_assetid=' + current_assetid;
 				document.location = REFRESH_LOCATION;
 			}
 		</script>
@@ -363,19 +315,31 @@ class Backend extends MySource_Object
 			</script>
 			<?php
 		}// end if empty msgs
-		
+
+		$url = $this->getBackendUrl('main').'&backend_section=';
+
+		if (SQ_ROLLBACK_VIEW) $now = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+		else $now = time();
+
 		?>
-		<table width="100%" cellpadding="2" cellspacing="0" border="0">
-			<tr><td style="background-color: #212E61;"><img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="1" height="1" /></td></tr>	
-			<tr><td style="background-color: #7A92AD;"><b><a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-smallprint" target="_blank"><?php echo SQ_SYSTEM_LONG_NAME;?></a></b></td></tr>
+		<style>
+			body { background: #4A3852; }
+		</style>
+		<table cellpadding="2" border="0" cellspacing="2">
+			<tr>
+				<td nowrap class="sq-backend-header-item" valign="middle" height="99%">
+				<img src="<?php echo sq_web_path('lib'); ?>/web/images/blank.gif" width="5" height="1">
+				Logged in as: <b><?php echo $GLOBALS['SQ_SYSTEM']->user->name; ?> - <?php echo date('d M Y g:i a', $now); ?></b>
+				</td>
+			</tr>
 		</table>
 		<?php
 
-		$this->out->addOnLoad('setTimeout("reloadFooter()", REFRESH_UPDATE * 1000);');
+		$this->out->addOnLoad('setTimeout("reloadHeader()", REFRESH_UPDATE * 1000);');
 
 		$this->out->closeRaw();
 
-	}//end _printFooter()
+	}//end _printHeader()
 
 
 	/**
@@ -387,9 +351,28 @@ class Backend extends MySource_Object
 	{
 		$this->out->openRaw();
 
-		require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
-		$asset_map = new Asset_Map();
-		$asset_map->paint($this);
+		?>
+		<table border="0" cellspacing="0" cellpadding="0" width="100%" height="100%">
+			<tr height="100%">
+				<td>
+				<?php
+				require_once SQ_LIB_PATH.'/asset_map/asset_map.inc';
+				$asset_map = new Asset_Map();
+				$asset_map->paint($this);
+				?>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table border="0" cellpadding="2" cellspacing="0">
+						<tr>
+							<td><a href="<?php echo SQ_SYSTEM_URL;?>" class="sq-backend-fineprint" target="_blank" style="text-decoration:none;"><?php echo SQ_SYSTEM_LONG_NAME;?></a></td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+		<?php
 
 		$this->out->closeRaw();
 

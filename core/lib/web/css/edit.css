@@ -1,58 +1,57 @@
-
 body {
 	background-color: #ffffff;
 }
 body, p, td, ul, li, input, select, textarea {
 	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-family:  Arial, Verdana Helvetica, sans-serif;
 	font-size: 13px;
 }
 
 .sq-backend-smallprint {
 	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-family:  Arial, Verdana, Helvetica, sans-serif;
 	font-size: 11px;
 	font-weight: normal;
 }
 
 .sq-backend-fineprint {
 	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-family:  Arial, Verdana, Helvetica, sans-serif;
 	font-size: 10px;
 }
 
 .sq-backend-tabs {
 	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-family:  Arial, Verdana, Helvetica, sans-serif;
 	font-size: 9px;
 	font-weight: bold;
 }
 
 .sq-backend-mainheading {
 	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-family:  Arial, Verdana, Helvetica, sans-serif;
 	font-weight: bold;
 	font-size: 21px;
 }
 
 .sq-backend-heading {
-	color: #666666;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
-	font-weight: bold;
-	font-size: 12px;
+	color: #000000;
+	font-family:  Arial, Verdana, Helvetica, sans-serif;
+	font-weight: bolder;
+	font-size: 11px;
 }
 
 .sq-backend-subheading {
 	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-family:  Arial, Verdana, Helvetica, sans-serif;
 	font-weight: bold;
 	font-size: 12px;
 }
 
 .sq-backend-sectionheading {
-	background-color: #b1bdcd;
+	background-color: #CFC2D4;
 	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-family:  Arial, Verdana, Helvetica, sans-serif;
 	font-weight: bold;
 	font-size: 11px;
 }
@@ -64,8 +63,8 @@ a, a.sq-backend {
 
 .sq-backend-field {
 	color: #000000;
-	background-color: #e0e0e0;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	background-color: #ffffff;
+	font-family:  Arial, Verdana, Helvetica, sans-serif;
 	font-size: 11px;
 	font-weight: bold;
 	vertical-align: top;
@@ -77,24 +76,23 @@ td.sq-backend-field {
 
 .sq-backend-data, td.sq-backend-data, .sq-form-field {
 	color: #000000;
-	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-family: Arial, Verdana, Helvetica, sans-serif;
 	font-size: 11px;
 }
 
 td.sq-backend-data {
 	vertical-align: top;
-	background-color: #f0f0f0;
 }
 
 .sq-backend-warning {
 	color: #000000;
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-family:  Arial, Verdana, Helvetica, sans-serif;
 	font-size: 13px;
 	color: red;
 }
 
 .sq-backend-page-lineage, a.sq-backend-page-lineage {
-	font-family:  Verdana, Arial, Helvetica, sans-serif;
+	font-family:  Arial, Verdana, Helvetica, sans-serif;
 	font-size: 12px;
 	font-weight: bold;
 	color: #ffffff;
@@ -106,29 +104,35 @@ a.sq-backend-page-lineage:hover {
 
 
 .sq-backend-asset {
-	color: #b1bdcd;
+	color: #CFC2D4;
 }
 .sq-backend-custom-asset {
 	color: #000000;
 }
 
 
-.sq-backend-header-cell, .sq-backend-header-item {
-	background-color: #212E61;
+.sq-backend-locked, .sq-backend-unlocked {
+	color: #C80108;
+	font-size: 10px;
 }
 
+.sq-backend-unlocked {
+	color: #0066CB;
+}
+
+
 .sq-backend-header-item {
-	color: #ffffff;
-	font-family:     Verdana, Arial, Helvetica, sans-serif;
+	background-color: #4A3852;
+	color: #D6C8D7;
+	font-family:     Arial, Verdana, Helvetica, sans-serif;
 	font-size:       11px;
-	font-weight:     bold;
-	text-decoration: none; 
+	text-decoration: none;
 }
 
 
 .sq-backend-message-header {
 	color: #000000;
-	font-family:     Verdana, Arial, Helvetica, sans-serif;
+	font-family:     Arial, Verdana, Helvetica, sans-serif;
 	font-size:       11px;
 	font-weight:     bold;
 	text-decoration: none; 
@@ -137,7 +141,7 @@ a.sq-backend-page-lineage:hover {
 .sq-backend-message-item {
 	color: #000000;
 	background-color: #ffffff;
-	font-family:     Verdana, Arial, Helvetica, sans-serif;
+	font-family:     Arial, Verdana, Helvetica, sans-serif;
 	font-size:       10px;
 	text-decoration: none; 
 }
