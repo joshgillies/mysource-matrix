@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_edit_fns.inc,v 1.19 2004/06/16 04:53:16 lwright Exp $
+* $Id: form_question_edit_fns.inc,v 1.20 2004/06/22 00:00:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -285,7 +285,7 @@ class Form_Question_Edit_Fns extends Asset_Edit_Fns
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
 		$operators = array_keys(eval('return '.$type_code.'::getOperators();'));
 
-		$rules[] = Array('name' => $rule_code,
+		$rules[] = Array('rule_code' => $rule_code,
 						 'operator' => $operators[0],
 						 'value' => '',
 						 'comparison_question_id' => 0);
