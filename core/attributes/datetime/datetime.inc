@@ -101,12 +101,13 @@ class Asset_Attribute_DateTime extends Asset_Attribute
 	*/
 	function paint($prefix, $read_only=false)
 	{
+		$field = new datetime_field($prefix.'_'.$this->name, $this->value, $this->_edit_params);
+
 		if ($read_only) {
-			echo date($this->_edit_params['print_format'], strtotime($this->value));
+			echo $field->format($this->_edit_params['print_format']);
 			return;
 		}
 
-		$field = new datetime_field($prefix.'_'.$this->name, $this->value, $this->_edit_params);
 		$field->printField();
 		
 	}// end paint()
