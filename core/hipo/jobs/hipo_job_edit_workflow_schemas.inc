@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_workflow_schemas.inc,v 1.21 2005/02/24 10:15:27 brobertson Exp $
+* $Id: hipo_job_edit_workflow_schemas.inc,v 1.22 2005/03/02 21:17:47 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit workflow schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -364,8 +364,9 @@ class HIPO_Job_Edit_Workflow_Schemas extends HIPO_Job
 	*/
 	function releaseLocks(&$step_data, $prefix)
 	{
-		if (!isset($this->_running_vars['re_lock_assets']))
-			 $this->_running_vars['re_lock_assets'] = $this->_running_vars['assets'];
+		if (!isset($this->_running_vars['re_lock_assets'])) {
+			$this->_running_vars['re_lock_assets'] = $this->_running_vars['assets'];
+		}
 
 		$assetid = key($this->_running_vars['re_lock_assets']);
 		unset($this->_running_vars['re_lock_assets'][$assetid]);
