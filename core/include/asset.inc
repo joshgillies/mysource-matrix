@@ -56,6 +56,12 @@ class Asset extends MySource_Object
 	var $charset = '';
 	
 	/**
+	* Whether this asset should only have secure URL lookups
+	* @var boolean
+	*/
+	var $force_secure = 0;
+	
+	/**
 	* Timestamp of when this asset was created
 	* @var int
 	*/
@@ -330,7 +336,8 @@ class Asset extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// OK, the first thing to do is check we actually exist :)
-		$sql = 'SELECT assetid, version, name, short_name, status, languages, charset, type_code, created, created_userid, updated, updated_userid
+		$sql = 'SELECT assetid, type_code, version, name, short_name, status, languages, charset, force_secure,
+					created, created_userid, updated, updated_userid
 				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
 		$where = 'assetid = '.$db->quote($assetid);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -341,13 +348,14 @@ class Asset extends MySource_Object
 		if (is_null($result)) return;
 
 		list($this->id,
+			 $type_code,
 			 $this->version,
 			 $this->name,
 			 $this->short_name,
 			 $this->status,
 			 $this->languages,
 			 $this->charset,
-			 $type_code,
+			 $this->force_secure,
 			 $this->created,
 			 $this->created_userid,
 			 $this->updated,
@@ -359,7 +367,7 @@ class Asset extends MySource_Object
 		// make sure the asset we are loading is of the same type as our class
 		if ($type_code != $this->type()) {
 			trigger_error('Asset #'.$assetid.' is not a '.$this->type(), E_USER_WARNING);
-			$this->id = null;
+			$this->id             = 0;
 			$this->created        = null;
 			$this->created_userid = null;
 			$this->updated        = null;
@@ -958,6 +966,7 @@ class Asset extends MySource_Object
 							'short_name'     => $db->quote($short_name),
 							'languages'      => $db->quote($this->languages),
 							'charset'        => $db->quote($this->charset),
+							'force_secure'   => $db->quote($this->force_secure),
 							'updated'        => $db->quote(ts_iso8601($updated)),
 							'updated_userid' => $db->quote($updated_userid)
 							);
@@ -1172,6 +1181,41 @@ class Asset extends MySource_Object
 		return true;
 
 	}//end setCharset()
+
+
+	/**
+	* Set the status of the Force Secure Flag
+	*
+	* @param boolean	$force_secure	whether to force the use of SSL on URLs
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setForceSecure($force_secure)
+	{
+		if (!$this->adminAccess()) {
+			trigger_error('Unable to set the Force Secure flag, Permission Denied', E_USER_WARNING);
+			return false;
+		}
+
+		$force_secure = ($force_secure) ? '1' : '0';
+		if($force_secure == $this->force_secure) return false;
+		$old_force_secure = $this->force_secure;
+		$this->force_secure = $force_secure;
+		if (!$this->_updated()) {
+			trigger_error('Failed setting Force Secure flag for "'.$this->name.'" (#'.$this->id.')', E_USER_WARNING);
+			$this->force_secure = $old_force_secure;
+			return false;
+		}
+		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetForceSecureUpdate',
+											   Array( 'assetid'     => $this->id,
+													  'old_force_secure' => $old_force_secure,
+													  'old_force_secure' => $this->force_secure,
+													)
+											);
+		return true;
+
+	}//end setForceSecure()
 
 
 	/**
@@ -2246,6 +2290,7 @@ class Asset extends MySource_Object
 	*/
 	function printFrontend()
 	{
+
 		if (!$this->readAccess()) {
 			$GLOBALS['SQ_SYSTEM']->paintLogin('Login', 'You do not have permission to access <i>'.$this->name.'</i>');
 			return;
@@ -2600,7 +2645,7 @@ class Asset extends MySource_Object
 	* Returns a list of lookup information associated with this asset
 	*
 	* @param string	$field	if only one field is required pass it's name through
-	*						(url, root_urlid)
+	*						(url, http, https, root_urlid)
 	*
 	* @return Array()
 	* @access public
@@ -2610,7 +2655,7 @@ class Asset extends MySource_Object
 		if (!isset($this->_tmp['lookups'])) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT url, root_urlid
+			$sql = 'SELECT url, http, https, root_urlid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup ';
 			$where = 'assetid = '.$db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
@@ -2752,8 +2797,15 @@ class Asset extends MySource_Object
 						if (in_array($new_url, $done_urls)) continue;
 						$done_urls[] = $new_url;
 
+						$http  = ($this->force_secure) ? '0' : $parent_urls[$j]['http'];
+						$https = $parent_urls[$j]['https'];
+						// if we have no protocol then we can just ignore this URL
+						if (!$http && !$https) continue;
+
 						$values = Array('url'        => $new_url,
 										'assetid'    => $this->id,
+										'http'       => $http,
+										'https'      => $https,
 										'root_urlid' => $parent_urls[$j]['root_urlid'],
 										);
 						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_lookup', $values)) {
