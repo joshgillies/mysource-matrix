@@ -456,11 +456,8 @@
 			<primary_key>
 				<column name="assetid" />
 				<column name="owning_attributeid" />
-			</primary_key>
-			<unique_key>
-				<column name="owning_attributeid" />
 				<column name="custom_value" />
-			</unique_key>
+			</primary_key>
 		</keys>
 		<indexes />
 	</table>
