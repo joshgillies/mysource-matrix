@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.27 2004/07/15 07:00:39 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.28 2004/07/15 07:02:48 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -935,7 +935,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		foreach ($delete_ruleids as $ruleid) {
 			unset($all_se[$ruleid]);
 			if (!empty($_REQUEST[$prefix.'_se_active_ruleid'])) {
-				var_export(array($ruleid, $_REQUEST[$prefix.'_se_active_ruleid']));
 				if ($ruleid == $_REQUEST[$prefix.'_se_active_ruleid']) {
 					unset($_REQUEST[$prefix.'_se_active_ruleid']);
 				}
