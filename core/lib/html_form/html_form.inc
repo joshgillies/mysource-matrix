@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.51 2004/01/20 03:44:15 mmcintyre Exp $
+* $Id: html_form.inc,v 1.52 2004/03/12 04:38:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -116,7 +116,7 @@ function text_box($name, $value, $size='', $max='', $hide_value=false, $extras='
 			'value="', htmlspecialchars($value), '" ',
 			(($size)   ? 'size="'.$size.'" '     : ''),
 			(($max)    ? 'maxlength="'.$max.'" ' : ''),
-			(($hide_value) ? 'onFocus="if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }" onBlur="if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }" ' : ''),
+			(($hide_value) ? 'onfocus="Javascript: if (this.value == \''.htmlspecialchars($value).'\') { this.value = \'\'; }" onblur="Javascript: if (this.value == \'\') { this.value=\''.htmlspecialchars($value).'\'; }" ' : ''),
 			$extras,
 			' />';
 
