@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.333 2004/11/18 00:57:42 lwright Exp $
+* $Id: asset.inc,v 1.334 2004/11/18 01:00:28 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -161,7 +161,7 @@ class Asset extends MySource_Object
 	var $data_path = '';
 
 	/**
-	* The current unrestricted data path for this asset
+	* The current unrestrcited data path for this asset
 	* This always points to the unrestricted directory
 	* Only use this path for storage if the web server should serve the file
 	*
@@ -2885,7 +2885,7 @@ class Asset extends MySource_Object
 				$result = $GLOBALS['SQ_SYSTEM']->am->getDesignFromURL($url, 'system_design::frontend');
 			}
 		}
-	
+
 		if ($result) {
 			// we have found the design to use
 			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['designid'], $result['type_code']);
@@ -2993,8 +2993,7 @@ class Asset extends MySource_Object
 		switch($_POST['asset_action']) {
 			case 'create' :
 				if ($ei->process($this, $o, true)) {
-					$res =  (bool) $this->create($link);
-					return $res;
+					return (bool) $this->create($link);
 				} else {
 					return false;
 				}
