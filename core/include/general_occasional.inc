@@ -87,6 +87,9 @@ function getStatusDescription($status)
 		case SQ_STATUS_LIVE :
 			$description = 'Live';
 			break;
+		case SQ_STATUS_LIVE_APPROVAL :
+			$description = 'Up For Review';
+			break;
 		case SQ_STATUS_EDITING :
 			$description = 'Safe Editing';
 			break;

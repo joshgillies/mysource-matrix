@@ -962,7 +962,17 @@ class Asset extends Resolve_Object
 				case 'new' :
 				case 'idle' :
 					if ($this->writeAccess(Array(), false)) {
-						if ($this->status != SQ_STATUS_LIVE) {
+						if ($this->status == SQ_STATUS_LIVE) {
+							$statii[SQ_STATUS_LIVE_APPROVAL] = 'Place Up For Review';
+							$statii[SQ_STATUS_EDITING] = 'Safe Edit';
+							if ($this->adminAccess(Array(), false)) {
+								$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
+							}
+						} else if ($this->status == SQ_STATUS_LIVE) {
+							$statii[SQ_STATUS_LIVE] = 'Cancel Review';
+							$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
+							$statii[SQ_STATUS_EDITING] = 'Safe Edit';
+						} else {
 							if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
 								// no direct workflows are set and
 								// no inherited workflows are set
@@ -984,9 +994,6 @@ class Asset extends Resolve_Object
 							if ($this->status == SQ_STATUS_EDITING && $this->writeAccess(Array(), false)) {
 								$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Cancel Safe Edit';
 							}
-						} else {
-							$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
-							$statii[SQ_STATUS_EDITING] = 'Safe Edit';
 						}
 					}
 					break;
@@ -1005,12 +1012,22 @@ class Asset extends Resolve_Object
 						// to keep the workflow going
 						$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
 						if ($status == 'complete') {
-							$statii[SQ_STATUS_LIVE] = 'Approve';
+							if ($this->status == SQ_STATUS_LIVE_APPROVAL) {
+								$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+							} else {
+								$statii[SQ_STATUS_LIVE] = 'Approve';
+							}
 						} else {
-							$statii[SQ_STATUS_LIVE] = 'Approve Changes';
+							if ($this->status == SQ_STATUS_LIVE_APPROVAL) {
+								$statii[SQ_STATUS_LIVE] = 'Approve Review';
+							} else {
+								$statii[SQ_STATUS_LIVE] = 'Approve Changes';
+							}
 						}
 						if ($this->status == SQ_STATUS_EDITING_APPROVAL) {
 							$statii[SQ_STATUS_EDITING] = 'Reject Changes';
+						} else if ($this->status == SQ_STATUS_LIVE_APPROVAL) {
+							$statii[SQ_STATUS_EDITING] = 'Safe Edit';
 						} else {
 							$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Reject Changes';
 						}
@@ -1099,8 +1116,16 @@ class Asset extends Resolve_Object
 			if (in_array($current_userid, $publishers)) {
 				// we are currently in workflow and someone has decide
 				// to reject the changes and cancel the workflow
-				if ($this->status == SQ_STATUS_EDITING_APPROVAL) $this->status = SQ_STATUS_EDITING;
-				else $this->status = SQ_STATUS_UNDER_CONSTRUCTION;
+				if ($this->status == SQ_STATUS_EDITING_APPROVAL) {
+					// dont need to start a safe edit because we are already in
+					// one, so we can just change our status here
+					$this->status = SQ_STATUS_EDITING;
+				} else if ($this->status == SQ_STATUS_LIVE_APPROVAL) {
+					// dont change our status so we start safe editing
+					$this->status = SQ_STATUS_LIVE_APPROVAL;
+				} else {
+					$this->status = SQ_STATUS_UNDER_CONSTRUCTION;
+				}
 
 				if (!$wfm->cancel()) {
 					trigger_error('Workflow cancel failed', E_USER_WARNING);
@@ -1109,11 +1134,19 @@ class Asset extends Resolve_Object
 					// send an internal message
 					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-					$body = 'User "'.$user->name.'" has rejected the changes made to '.$this->type().' "'.$this->name.'". The status of "'.$this->name.'" has reverted to '.$this->getStatusDescription();
-					$ms->sendMessage($this->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Asset Changes Rejected', $body);
+					
+					if ($old_status == SQ_STATUS_LIVE_APPROVAL) {
+						$body = 'User "'.$user->name.'" has started a safe edit of '.$this->type().' "'.$this->name.'" during a review. The review has been cancelled and the status of "'.$this->name.'" is now '.$this->getStatusDescription();
+						$subject = 'Asset Review Cancelled';
+					} else {
+						$body = 'User "'.$user->name.'" has rejected the changes made to '.$this->type().' "'.$this->name.'". The status of "'.$this->name.'" has reverted to '.$this->getStatusDescription();
+						$subject = 'Asset Changes Rejected';
+					}
+					
+					$ms->sendMessage($this->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, $subject, $body);
 				}
 			}
-		}
+		}//end if rejecting changes
 
 		switch ($new_status) {
 			case SQ_STATUS_LIVE :
@@ -1127,15 +1160,13 @@ class Asset extends Resolve_Object
 					include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 					$wfm = new Workflow_Manager($this);
 
-					if ($wfm->state != 'running') {
+					if ($wfm->state != 'running' && $this->adminAccess(Array(), false)) {
 						if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
 							// no direct workflow, no inherited, and no running
 							// so anyone with admin access can make this live
-							if ($this->adminAccess(Array(), false)) {
-								$this->clearSystemVersion();
-								$this->status = SQ_STATUS_LIVE;
-								break;
-							}
+							$this->clearSystemVersion();
+							$this->status = SQ_STATUS_LIVE;
+							break;
 						} else if ($this->status & SQ_STATUS_PENDING) {
 
 							if (empty($wfm->current_workflows['complete'])) {
@@ -1146,8 +1177,13 @@ class Asset extends Resolve_Object
 							} else {
 								// the workflow is completed but has somehow not
 								// automatically finished, so we will save it now
-								if ($this->status == SQ_STATUS_EDITING_APPROVAL) $this->status = SQ_STATUS_EDITING_APPROVED;
-								else $this->status = SQ_STATUS_APPROVED;
+								if ($this->status == SQ_STATUS_EDITING_APPROVAL) {
+									$this->status = SQ_STATUS_EDITING_APPROVED;
+								} else if ($this->status == SQ_STATUS_LIVE_APPROVAL) {
+									$this->status = SQ_STATUS_LIVE;
+								} else {
+									$this->status = SQ_STATUS_APPROVED;
+								}
 
 								// send an internal message
 								$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
@@ -1183,8 +1219,13 @@ class Asset extends Resolve_Object
 						if ($wfm->state == 'complete') {
 							// all workflows are done so we
 							// can go ahead and make this approved
-							if ($this->status == SQ_STATUS_EDITING_APPROVAL) $this->status = SQ_STATUS_EDITING_APPROVED;
-							else $this->status = SQ_STATUS_APPROVED;
+							if ($this->status == SQ_STATUS_EDITING_APPROVAL) {
+								$this->status = SQ_STATUS_EDITING_APPROVED;
+							} else if ($this->status == SQ_STATUS_LIVE_APPROVAL) {
+								$this->status = SQ_STATUS_LIVE;
+							} else {
+								$this->status = SQ_STATUS_APPROVED;
+							}
 
 							// send an internal message
 							$body = 'The workflow process for '.$this->type().' "'.$this->name.'" has been completed. "'.$this->name.'" is now approved and can be made live by an administrator.';
@@ -1242,12 +1283,39 @@ class Asset extends Resolve_Object
 				}
 				break;
 
+			case SQ_STATUS_LIVE_APPROVAL :
+				// need to be live to place an asset up for review
+				if ($this->status == SQ_STATUS_LIVE) {
+					// up for review basically means that we need to start
+					// the workflow process and get this asset re-approved
+					include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+					$wfm = new Workflow_Manager($this);
+
+					if (!$wfm->start()) {
+						trigger_error('Workflow failed to start for "'.$this->name.'"', E_USER_WARNING);
+						$this->status = $old_status;
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+
+					$wfm->save();
+
+					// send an internal message
+					$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+					$body = 'User "'.$user->name.'" has placed '.$this->type().' "'.$this->name.'" up for review. The workflow process has been started.';
+					$ms->sendMessage($this->getPermission(SQ_PERMISSION_ADMIN, true, false), 0, 'Asset Up For Review', $body);
+
+					$this->status = SQ_STATUS_LIVE_APPROVAL;
+				}
+				break;
+			
 			case SQ_STATUS_PENDING_APPROVAL :
 				break;
 
 			case SQ_STATUS_EDITING :
 				if (!$this->writeAccess(Array(), false)) return false;
-				if ($this->status == SQ_STATUS_LIVE) {
+				if ($this->status == SQ_STATUS_LIVE || $this->status == SQ_STATUS_LIVE_APPROVAL) {
 					// we are safe editing
 					if ($this->saveSystemVersion()) {
 						$this->status = SQ_STATUS_EDITING;
