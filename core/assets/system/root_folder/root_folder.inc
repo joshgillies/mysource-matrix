@@ -146,6 +146,26 @@ class Root_Folder extends Folder
 
 
 	/**
+	* Returns true if at least one of the passed assetids has the passed permission
+	* Does not check current status of lock
+	* Only root or a system admin have write/admin access to the root folder
+	*
+	* @param int	$perm		the permission to check access for
+	* @param array	$assetids	An array of user_group and/or user ids to check for permission
+	*							If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function _checkPermissionAccess($perm, $assetids=Array())
+	{
+		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+		if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
+		return false;
+	}//end checkAccess()
+
+
+	/**
 	* Set the value for the passed variable to the passed value
 	*
 	* @param string		$name				the name of the attribute
