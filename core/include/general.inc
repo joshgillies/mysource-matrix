@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: general.inc,v 1.38 2003/10/01 09:45:25 brobertson Exp $
+* $Id: general.inc,v 1.39 2003/10/14 02:06:33 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -191,18 +191,17 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 										<td style="<?php echo $error_title; ?>" align="right">Message:</td>
 										<td style="<?php echo $error_data; ?>" colspan="3"><?php echo $err_msg; ?></td>
 									</tr>
-				<?php 
+				<?php
 				// if there is a backtrace string create a simple bit of JS to allow it to be popped up into a new window
-				if ($bt_str) { 
-				?> 
+				if ($bt_str) {
+				?>
 									<tr>
 										<td style="<?php echo $error_title; ?>" align="right">Backtrace:</td>
 										<td style="<?php echo $error_data; ?>" colspan="3">
 											<script language="JavaScript" type="text/javascript">
-												<!-- 
-
+												<!--
 													function print_backtrace_<?php echo $num_errors; ?>() {
-														alert_win = window.open('', 'backtrace_window_<?php echo $num_errors; ?>');
+														var alert_win = window.open('', 'backtrace_window_<?php echo $num_errors; ?>', 'resizable=yes,scrollbars=yes,width=800,height=500');
 														alert_win.document.open();
 														alert_win.document.writeln("<html><body><pre>");
 														alert_win.document.writeln("<?php echo str_replace("\n", '\\n', addslashes(htmlspecialchars($bt_str))); ?>");
@@ -215,9 +214,9 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 											<a href="javascript: print_backtrace_<?php echo $num_errors; ?>();" style="color: #ffffff;">Show</a>
 										</td>
 									</tr>
-				<?php 
-				} // end if 
-				?> 
+				<?php
+				} // end if
+				?>
 								</table>
 							</td>
 						</tr>
@@ -255,7 +254,7 @@ function sq_web_path($path='base')
 	if (isset($paths[$path])) return $paths[$path];
 
 	switch($path) {
-		case 'base' : 
+		case 'base' :
 			// preg bit is a check for the people who are using symlinked versions
 			$paths[$path] = (SQ_IN_BACKEND) ? '..' : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.');
 			break;
@@ -265,7 +264,7 @@ function sq_web_path($path='base')
 			$paths[$path] = (SQ_IN_BACKEND) ? '.'  : ((preg_match('/index.php$/', current_url())) ? './index.php' : '.').'/'.SQ_CONF_BACKEND_SUFFIX;
 			break;
 
-		case 'root_url'  : 
+		case 'root_url'  :
 			$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 			$current_url = strip_url(current_url(false, true));
 			// if we are in the backend strip the suffix
@@ -288,15 +287,15 @@ function sq_web_path($path='base')
 			$paths[$path] = current_protocol().'://'.preg_replace('/\/index.php$/', '', $tmp);
 			break;
 
-		case 'lib'  : 
+		case 'lib'  :
 			$paths[$path] = sq_web_path('root_url').'/__lib';
 			break;
 
-		case 'data'  : 
+		case 'data'  :
 			$paths[$path] = sq_web_path('root_url').'/__data';
 			break;
 
-		case 'fudge'  : 
+		case 'fudge'  :
 			$paths[$path] = sq_web_path('root_url').'/__fudge';
 			break;
 
@@ -311,7 +310,7 @@ function sq_web_path($path='base')
 * Returns the current URL for this page, including the protocol
 *
 * @param bool	$inc_protocol			include the protocol in the return var
-* @param bool	$strip_backend_suffix	if currently in the backend this causes the backend 
+* @param bool	$strip_backend_suffix	if currently in the backend this causes the backend
 *										suffix to be removed
 *
 * @return string
