@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.244 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.245 2005/03/02 04:35:37 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ define('SQ_EI_WRITE', 2);
 * Asset_Edit_Interface
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.244 $
+* @version $Revision: 1.245 $
 * @package MySource_Matrix
 */
 class Asset_Edit_Interface extends MySource_Object
@@ -147,7 +147,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 	/**
-	* Paint's out the interface for the currently selected frame
+	* Paints the interface for the currently selected frame
 	*
 	* @param object	Asset				$owner		the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o			the outputter class
@@ -1860,8 +1860,12 @@ class Asset_Edit_Interface extends MySource_Object
 
 						if (!empty($field->attributes['attribute'])) {
 							$create_sections[$section->attributes['name']][] = $field->attributes['attribute'];
-						} else if ($field->children[1]->name == 'function_call') {
-							$fn_node = &$field->children[1]->children[(($painting) ? 0 : 1)];
+						} else {
+							$fn_call_node =& reset($field->children);
+							while ($fn_call_node->name != 'function_call') {
+								$fn_call_node =& next($field->children);
+							}
+							$fn_node = &$fn_call_node->children[(($painting) ? 0 : 1)];
 							$create_sections[$section->attributes['name']][] = $fn_node->attributes['name'];
 						}//end if
 						break;
@@ -1871,7 +1875,6 @@ class Asset_Edit_Interface extends MySource_Object
 			}//end for
 
 		}//end for
-
 		return Array($create_sections, $root->attributes['screen']);
 
 	}//end _getCreateSections()
