@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.18 2004/12/06 14:38:07 brobertson Exp $
+* $Id: bodycopy_container.inc,v 1.19 2004/12/09 02:56:14 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.18 $
+* @version $Revision: 1.19 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -310,7 +310,7 @@ class Bodycopy_Container extends Asset
 		if (SQ_ROLLBACK_VIEW) {
 			$edit = $this->getEditFns();
 			ob_start();
-				$edit->paint($this, true);
+				$edit->paint($this, false, true);
 				$output = ob_get_contents();
 			ob_end_clean();
 

@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy.inc,v 1.17 2004/12/06 14:38:07 brobertson Exp $
+* $Id: bodycopy.inc,v 1.18 2004/12/09 02:56:14 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.17 $
+* @version $Revision: 1.18 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -399,7 +399,7 @@ class Bodycopy extends Asset
 		ob_start();
 			foreach ($containers as $container) {
 				$edit = &$container->getEditFns();
-				$edit->paint($container);
+				$edit->paint($container, false, true);
 			}
 			$contents = ob_get_contents();
 		ob_end_clean();

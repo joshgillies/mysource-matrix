@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_table_edit_fns.inc,v 1.15 2004/12/06 14:38:08 brobertson Exp $
+* $Id: bodycopy_table_edit_fns.inc,v 1.16 2004/12/09 02:56:14 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.15 $
+* @version $Revision: 1.16 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -247,12 +247,13 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	* Paints this table as HTML
 	*
 	* @param object Bodycopy_Table	&$asset		the table whose interface we are painting
-	* @param booelan				$generating	are we generating the content file
+	* @param boolean				$editing	are we printing an editing interface
+	* @param boolean				$generating	are we generating the content file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $generating=false)
+	function paint(&$asset, $editing=false, $generating=false)
 	{
 		$table_rows = $asset->attr('rows');
 		$table_attributes = $asset->attr('attributes');
@@ -284,7 +285,7 @@ class Bodycopy_Table_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			echo "\t<tr{$attribute_list}>\n";
 			// now print the cell contents
 			for ($x = 0; $x < count($table_rows[$i]['cells']); $x++) {
-				$table_rows[$i]['cells'][$x]->paint($asset, '', $generating);
+				$table_rows[$i]['cells'][$x]->paint($asset, '', $editing, $generating);
 			}
 			echo "\t</tr>\n";
 		}

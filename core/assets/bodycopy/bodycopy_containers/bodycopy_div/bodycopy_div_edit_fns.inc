@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_div_edit_fns.inc,v 1.20 2004/12/06 14:38:07 brobertson Exp $
+* $Id: bodycopy_div_edit_fns.inc,v 1.21 2004/12/09 02:56:14 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bodycopy/bodycopy_container/bodycopy_contain
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.20 $
+* @version $Revision: 1.21 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -170,12 +170,13 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 	* Paints this div as HTML
 	*
 	* @param object Bodycopy_Div	&$asset		the div whose interface we are painting
+	* @param boolean				$editing	are we printing an editing interface
 	* @param booelan				$generating	are we generating the content file
 	*
 	* @return void
 	* @access public
 	*/
-	function paint(&$asset, $generating=false)
+	function paint(&$asset, $editing=false, $generating=false)
 	{
 		$div_attributes = $asset->attr('attributes');
 		if (!isset($div_attributes['layout_type'])) $div_attributes['layout_type'] = 'div';
@@ -219,7 +220,7 @@ class Bodycopy_Div_Edit_Fns extends Bodycopy_Container_Edit_Fns
 			} else {
 				$content_edit = &$content_type->getEditFns();
 				$content_prefix = $asset->getPrefix().'_'.get_class($content_type).'_'.$link['linkid'];
-				$content_edit->paint($content_type, $content_prefix, $generating);
+				$content_edit->paint($content_type, $content_prefix, $editing, $generating);
 			}
 		}
 
