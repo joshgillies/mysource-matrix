@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit.css,v 1.18 2003/10/10 06:49:25 brobertson Exp $
+* $Id: edit.css,v 1.19 2003/10/14 01:50:36 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -194,7 +194,7 @@ td.sq-backend-table-cell-alt {
 
 .sq-backend-new-message-cell, .sq-backend-new-message-heading, .sq-backend-new-message-body {
 	color:				#342939;
-	background-color:	#ECECEC;
+	background-color:	#FFFFFF;
 	font-family:		Arial, Verdana, Helvetica, sans-serif;
 	font-size:			10px;
 	vertical-align:		top;
