@@ -86,6 +86,10 @@ mcTabContentAreaTreeClass.prototype.setSize = function(w, h)
 	this.scroll_pane.setSize(w, h - this.menu_container._height);
 	this.list_container.refresh();
 
+	if (this.asset_finder_heading != undefined) {
+		this.asset_finder_heading.setWidth(w);
+	}
+
 }// setSize()
 
 /**
@@ -175,18 +179,17 @@ mcTabContentAreaTreeClass.prototype.startAssetFinder = function(type_codes)
 	// if we haven't created the heading before do so now
 	if (this.asset_finder_heading == undefined) {
 		trace('Attach');
-		this.attachMovie("mcAssetFinderHeadingID", "asset_finder_heading", 4);
+		this.attachMovie("mcAssetFinderHeadingID", "asset_finder_heading", 5);
 		this.asset_finder_heading._x = 0;
-		this.asset_finder_heading._y = 0;
+		this.asset_finder_heading._y = 0 - this.asset_finder_heading._height;
 	}
 
-	this.asset_finder_heading.setWidth(this.menu_container._width);
-
+	this.asset_finder_heading.setWidth(this.sub_header._width);
 	this.asset_finder_heading._visible = true;
-	this.menu_container._visible = false
+
+	this.menu_container._visible = false;
 	trace("SET START ASSET FINDER");
 	this.list_container.startAssetFinder(type_codes);
-
 }// end startAssetFinder()
 
 /**

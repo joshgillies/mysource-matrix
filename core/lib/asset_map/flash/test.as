@@ -6,18 +6,14 @@ _root.test_pressed_count = 0;
 
 function testOnClick1(component)
 { 
-	trace ("_root._height: " + _root._height);
+	var tree = _root.tabs.tree;
+	tree.startAssetFinder([]);
 }
 
 function testOnClick2 (component)
 {
-	_root.tmp_text = _root.tmp_text.substr(0, _root.tmp_text.length - 1);
-	_root.tabs.mail.msgs_container.msg_5.subject_field.text = _root.tmp_text + "...";
-	_root.tabs.mail.msgs_container.msg_5.subject_field.setTextFormat(_root.tabs.mail.msgs_container.msg_5.text_format);
-
-	trace("Width      : " + _root.tabs.mail.msgs_container.msg_5.subject_field._width);
-	trace("Text Width : " + _root.tabs.mail.msgs_container.msg_5.subject_field.textWidth);
-	trace("");
+	var tree = _root.tabs.tree;
+	tree.stopAssetFinder();
 }
 
 
