@@ -147,8 +147,10 @@ function increment_filename($name,$spacer='') {
 /**
 * Function to return an array of files in a directory.
 *
-* @param string	dir			The directory you want to list files for. If you pass in a filename, it will take the directory of that file name and restrict the returned files to the type of file you passed in.
-* @param bool	fullpath	whether to return the full path to the file or just the filenames themselves
+* @param string	$dir		The directory you want to list files for. 
+*							If you pass in a filename, it will take the directory of that 
+*							file name and restrict the returned files to the type of file you passed in.
+* @param bool	$fullpath	whether to return the full path to the file or just the filenames themselves
 *
 * @returns array
 * @access public
@@ -159,7 +161,7 @@ function list_files($dir='', $fullpath=false)
 	if (is_dir($dir)) {
 		$restrict = false;
 	} else {
-		$restrict = basename(str_replace('*','',$dir));	// if we pass in *.inc, check for .inc
+		$restrict = basename(str_replace('*','',$dir)); // if we pass in *.inc, check for .inc
 		$dir = dirname($dir);
 	}
 
@@ -182,6 +184,7 @@ function list_files($dir='', $fullpath=false)
 	}
 	return $files;
 }// end list_files()
+
 
 /**
 * Creates a directory, including any parent directories needed to get to that directory
