@@ -19,7 +19,7 @@
 // |          Michele Manzato <michele.manzato@verona.miz.it>             |
 // +----------------------------------------------------------------------+
 //
-// $Id: Tree.php,v 1.2 2003/08/30 03:37:57 brobertson Exp $
+// $Id: Tree.php,v 1.3 2003/08/30 03:46:36 brobertson Exp $
 //
 
 require_once 'XML/Parser.php';
@@ -279,7 +279,7 @@ class XML_Tree extends XML_Parser
     {
         // root elem
         if (!isset($this->i)) {
-            $this->obj1 =& $this->add_root($elem, null, $attribs);
+            $this->obj1 =& $this->addRoot($elem, null, $attribs);
             $this->i = 2;
         } else {
             // mixed contents
@@ -307,13 +307,13 @@ class XML_Tree extends XML_Parser
     function endHandler($xp, $elem)
     {
         $this->i--;
-        if ($this->i > 1) {
+        if ($this->i > 0) {
             $obj_id = 'obj' . $this->i;
             // recover the node created in StartHandler
             $node   =& $this->$obj_id;
             // mixed contents
             if (count($node->children) > 0) {
-                if (trim($this->cdata)) {
+                if (trim($this->cdata) != '') {
                     $node->children[] = &new XML_Tree_Node(null, $this->cdata);
                 }
             } else {
