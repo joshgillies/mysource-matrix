@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.191 2003/12/03 04:54:33 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.192 2003/12/04 05:13:00 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -430,24 +430,31 @@ class Asset_Edit_Interface extends MySource_Object
 
 		}// end if
 
+		// We need to check if we are going to paint the layout here, so no static screens get printed
+		$paint_layout = false;
+		if (SQ_IN_LIMBO && !$creating) {
+			$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
+			if ($lm->hasLayout($owner->type(), $active_screen)) $paint_layout = true;
+		}
+
 		// check the active screen for special system defined static screens
 		$file = null;
 		if (isset($this->_edit_fns->static_screens[$active_screen])) {
-
 			$active_screen_name = $this->_edit_fns->static_screens[$active_screen]['name'];
 
-			// if we are not creating, paint the system defined bit of this tab
-			if (!$creating) {
-				$paint_function = 'paint'.$active_screen;
-				$this->includeStaticScreen($active_screen);
-				if ($paint_function($owner, $o, $this)) $print_commit_button = true;
+			// only paint the static screens if no layouts are getting painted
+			if (!$paint_layout) {
+				// if we are not creating, paint the system defined bit of this tab
+				if (!$creating) {
+					$paint_function = 'paint'.$active_screen;
+					$this->includeStaticScreen($active_screen);
+					if ($paint_function($owner, $o, $this)) $print_commit_button = true;
+				}
+
+				$force_unlock_on_commit = $this->_edit_fns->static_screens[$active_screen]['force_unlock'];
 			}
-
-			$force_unlock_on_commit = $this->_edit_fns->static_screens[$active_screen]['force_unlock'];
-
 			// try and find the file to print user defined section of the tab
 			$file = @$this->_findFile('screen_'.$active_screen);
-
 		} else {
 
 			// must be a normal screen
@@ -543,8 +550,8 @@ class Asset_Edit_Interface extends MySource_Object
 		  ////////////////
 		 /// LAYOUTS  ///
 		////////////////
-		if (SQ_IN_LIMBO && !$creating) {
-			$lm = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('layout_manager');
+		// paint the layout now, if needed
+		if ($paint_layout) {
 			if (null !== ($layout = &$lm->getLayout($owner->type(), $active_screen))) {
 				return $this->paintLayout($owner, $o, $layout);
 			}
@@ -826,13 +833,14 @@ class Asset_Edit_Interface extends MySource_Object
 	function paintLayout(&$owner, &$o, &$layout)
 	{
 		$keywords = $layout->getLayoutKeywords();
+		$print_commit_button = false;
 
 		// find what screens we need to process
 		if (!isset($keywords['screens'])) $keywords['screens'] = Array();
 		if (!isset($keywords['entire_screens'])) $keywords['entire_screens'] = Array();
+
 		$screens = array_merge(array_keys($keywords['screens']), array_keys($keywords['entire_screens']));
 		$screens = array_unique($screens);
-
 
 		$this->_tmp['layout_keyword_replacements'] = Array();
 
@@ -843,27 +851,50 @@ class Asset_Edit_Interface extends MySource_Object
 		// generate some keywords for each screen
 		foreach ($screens as $screen) {
 
-			if(!($file = $this->_findFile('screen_'.$screen))) return false;
-			$input = new XML_Tree($file);
-			$root  = &$input->getTreeFromFile();
-			if (PEAR::isError($root)) {
-				trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
-				return;
-			}
+			// check to see if we want the entire screen
 			$entire_screen = false;
 			if (in_array($screen, array_keys($keywords['entire_screens']))) $entire_screen = true;
-			$this->_getLayoutKeywordReplacements($root, $o, $owner, $keywords, $screen, $entire_screen);
+
+			// if we have a static screen on our hands, then we want to 
+			// call the function to paint it
+			if (isset($this->_edit_fns->static_screens[$screen])) {
+				$static_keywords = (isset($keywords['screens'][$screen])) ? $keywords['screens'][$screen] : null;
+				if (!is_null($static_keywords) || $entire_screen) {
+					if (is_null($static_keywords)) $static_keywords = Array();
+					if ($this->_getStaticScreenKeywordReplacements($owner, $o, $screen, $static_keywords, $entire_screen)) {
+						$print_commit_button = true;
+					}
+				}
+			}//end if
+
+			// its not a static screen, so get the xml file and parse it for
+			// the keywords that we want, if the xml file exists
+			$file = @$this->_findFile('screen_'.$screen);
+
+			if ($file) {
+				$input = new XML_Tree($file);
+				$root  = &$input->getTreeFromFile();
+				
+				if (PEAR::isError($root)) {
+					trigger_error('Unable to Read File : '.$file."\n".$root->getMessage()."\n".$root->getUserInfo(), E_USER_WARNING);
+					continue;
+				}//end if
+				
+				// get the layout replacements for this NON-static screen
+				if ($this->_getLayoutKeywordReplacements($root, $o, $owner, $keywords, $screen, $entire_screen)) {
+					$print_commit_button = true;
+				}
+			}//end if
 
 		}//end foreach
-		
-
 
 		// if there are some custom keywords, get some replacements from the owner
 		if (isset($keywords['custom']) && !empty($keywords['custom'])) {
-
 			$custom_replacements = $owner->getCustomKeywordReplacements($keywords['custom']);
+			
 			if (!empty($custom_replacements)) {
 				$replacements = Array();
+				
 				// rebuild the keyword so the bodycopy can properly replace it
 				foreach ($custom_replacements as $keyword => $replacement) {
 					$replacements['__custom-'.$keyword] = $replacement;
@@ -874,10 +905,18 @@ class Asset_Edit_Interface extends MySource_Object
 
 		}//end if
 
+		// we have printed an editable interface on a static screen - show the commit button
+		if ($print_commit_button) {
+			ob_start();
+			$o->commitButton('Commit', false);
+			$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
+			ob_end_clean();
+		}
 
 		// turn buffering back on so the output is not malformed
 		$o->setBuffering(true);
 
+		// tell the layout what the keyword replacements are
 		$layout->setKeywordReplacements($this->_tmp['layout_keyword_replacements']);
 
 		// we need to open a raw section so that the form gets printed before the contents of the layout
@@ -891,13 +930,42 @@ class Asset_Edit_Interface extends MySource_Object
 
 
 	/**
+	* Gets a keyword replacement for static screens.
+	*
+	* @param &object Asset				$owner				the owner of this asset
+	* @param &object Backend_Outputter	$o					the backend outputter object
+	* @param string						$screen				the static screen to get a replacement for
+	* @param Array()|null				$static_keywords	the wantedkeyowrd of this static screen
+	* @param boolean					$get_screen			if TRUE the entire screen will be captured into a replacement
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _getStaticScreenKeywordReplacements(&$owner, &$o, $screen, $static_keywords, $get_screen=false)
+	{
+		$paint_function = 'paint'.$screen;
+		$this->includeStaticScreen($screen);
+		$print_commit_button = false;
+
+		ob_start();
+		if ($paint_function($owner, $o, $this, $static_keywords)) $print_commit_button = true;
+		if ($get_screen) $this->_tmp['layout_keyword_replacements'][$screen.'-'] = ob_get_contents();
+		ob_end_clean();
+
+		return $print_commit_button;
+
+	}//end getStaticScreenKeywordReplacements()
+
+
+	/**
 	* Gets the keyword replacements to be used in the layout
 	*
-	* @param &object XML_Tree	$root				the root of the xml screen
-	* @param &object Asset		$owner				the owner of this asset
-	* @param Array				$layout_keywords	an array of keywords to get replacements for
-	* @param string				$screen				the name of the current screen
-	* @param boolean			$get_screen			if TRUE the entire screen will be captured into a replacement
+	* @param &object XML_Tree			$root				the root of the xml screen
+	* @param &object Backend_Outputter	$o					the backend outputter object
+	* @param &object Asset				$owner				the owner of this asset
+	* @param Array						$layout_keywords	an array of keywords to get replacements for
+	* @param string						$screen				the name of the current screen
+	* @param boolean					$get_screen			if TRUE the entire screen will be captured into a replacement
 	*
 	* @return boolean
 	* @access private
@@ -909,7 +977,6 @@ class Asset_Edit_Interface extends MySource_Object
 
 		// start buffering anything and trash the content at the end
 		ob_start();
-		if ($get_screen) ob_start();
 
 		for ($i = 0; $i < count($root->children); $i++) {
 
@@ -1058,22 +1125,17 @@ class Asset_Edit_Interface extends MySource_Object
 		}//end for
 
 		if ($get_screen) {
-			$this->_tmp['layout_keyword_replacements'][$screen.'-'] = ob_get_contents();
-			ob_end_flush();
+			// we might have some part of a static screen in here, so append to the end of the keyword
+			if (!isset($this->_tmp['layout_keyword_replacements'][$screen.'-'])) {
+				$this->_tmp['layout_keyword_replacements'][$screen.'-'] = '';
+			}
+			$this->_tmp['layout_keyword_replacements'][$screen.'-'] .= ob_get_contents();
 		}
 
-		// we have printed an editable interface on a static screen - show the commit button
-		if ($print_commit_button && !isset($this->_tmp['layout_keyword_replacements']['commit_button'])) {
-			ob_start();
-			$o->commitButton('Commit', false);
-			$this->_tmp['layout_keyword_replacements']['commit_button'] = ob_get_contents();
-			ob_end_clean();
-		}
-
-		// trash any sloppy seconds
+		// trash
 		ob_end_clean();
 
-		return true;
+		return $print_commit_button;
 
 	}//end getLayoutKeywordReplacements()
 
