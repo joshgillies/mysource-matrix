@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.47 2005/01/17 21:59:21 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.48 2005/01/19 05:49:47 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.47 $
+* @version $Revision: 1.48 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -811,7 +811,7 @@ class Page_Asset_Listing extends Page
 		$this->_tmp['type_folder_id'] = $type_folder->id;
 
 		$column_layout = $this->attr('column_layout');
-		$using_columns = (count($column_layout) > 0 || $column_layout['0'] > 1);
+		$using_columns = (count($column_layout) > 1 || $column_layout['0'] > 1);
 		
 		if ($using_columns) {
 			$num_rows = max(array_keys($column_layout)) + 1;
