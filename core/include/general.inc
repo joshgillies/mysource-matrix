@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.73 2005/03/28 23:11:25 gsherwood Exp $
+* $Id: general.inc,v 1.74 2005/03/29 01:49:43 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.73 $
+* @version $Revision: 1.74 $
 * @package MySource_Matrix
 */
 
@@ -65,15 +65,15 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		$num_errors++;
 
 		// Strip out the file path begining
-		$err_file = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_file);
-		$err_msg  = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), $err_msg);
+		$err_file = hide_system_root($err_file);
+		$err_msg  = hide_system_root($err_msg);
 
 		// if this is a serious error, do a backtrace
 		$bt_str = '';
 		if (($err_no & ~E_USER_NOTICE) && (SQ_CONF_DEBUG & 2)) {
 			require_once SQ_FUDGE_PATH.'/dev/dev.inc';
 			$bt = debug_backtrace();
-			$bt_str = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', SQ_CONF_ROOT_IDENTIFIER), array_contents($bt, 3));
+			$bt_str = hide_system_root(array_contents($bt, 3));
 			unset($bt);
 		}
 
@@ -755,7 +755,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 /**
 * Log an Error message
 *
-* NOTE: Logs are always unencoded, i.e. special chars are preserved
+* NOTE: Error Logs are always unencoded, i.e. special chars are preserved
 *
 * @param string	$message	Message to log
 * @param int	$level		log level, eg. E_USER_ERROR
@@ -766,23 +766,40 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 * @access public
 * @return boolean
 */
-function log_error($message, $level=E_USER_NOTICE, $file='', $line='', $log_name=SQ_CONF_LOG_FILE_SYSTEM)
+function log_error($message, $level=E_USER_NOTICE, $file='', $line='', $log_name=SQ_CONF_LOG_FILE_ERROR)
 {
 	if (!is_string($message)){
 		trigger_error('Ivalid message format for error log', E_USER_WARNING);
 		return false;
 	}
 
-	if (is_null($file)) {
+	if (!is_null($file)) {
 		$message = "($file:$line) - $message";
 	}
 
 	// strip out all references to the string identifying the root
-	$message = str_replace(SQ_CONF_ROOT_IDENTIFIER, '', $message);
+	$message = str_replace('[SYSTEM_ROOT]', '', $message);
 
 	return log_write($message, $log_name, $level, false);
 
 }//end log_error()
+
+
+/**
+* Replaces full path to system root with the string [SYSTEM_ROOT]
+*
+* @param string	$message	message containing system path
+*
+* @access public
+* @return string
+*/
+function hide_system_root($message='')
+{
+	$message = str_replace(Array("\r", SQ_SYSTEM_ROOT), Array('', '[SYSTEM_ROOT]'), $message);
+
+	return $message;
+
+}//end hide_system_root()
 
 
 ?>
