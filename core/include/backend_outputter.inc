@@ -557,30 +557,30 @@ class Backend_Outputter
 					$field = &$this->_contents[$i]['fields'][$j];
 					switch ($field['format']) {
 						case 'new_line' :
-						?>
-							<tr>
-								<td nowrap valign="top" class="sq-backend-field" colspan="2">
-									<a name="field_<?=$i.'_'.$j;?>"></a>
-									<?=$field['name']?>
-								</td>
-							</tr>
-							<tr>
-								<td valign="top" class="sq-backend-data" colspan="2">
-									<table cellpadding="5" cellspacing="0" border="0">
-										<tr>
-											<td width="5"><img src="<?=$this->filesPath('images/blank.gif')?>" width="5" height="1"/></td>
-											<td width="100%">
-											<?
-												echo $field['contents'];
-												if ($field['note']) $this->note($field['note']);
-											?>
-											</td>
-										</tr>
-									</table>
-								</td>
-							</tr>
-						<?
-						break;
+							?>
+								<tr>
+									<td nowrap valign="top" class="sq-backend-field" colspan="2">
+										<a name="field_<?=$i.'_'.$j;?>"></a>
+										<?=$field['name']?>
+									</td>
+								</tr>
+								<tr>
+									<td valign="top" class="sq-backend-data" colspan="2">
+										<table cellpadding="5" cellspacing="0" border="0">
+											<tr>
+												<td width="5"><img src="<?=$this->filesPath('images/blank.gif')?>" width="5" height="1"/></td>
+												<td width="100%">
+												<?
+													echo $field['contents'];
+													if ($field['note']) $this->note($field['note']);
+												?>
+												</td>
+											</tr>
+										</table>
+									</td>
+								</tr>
+							<?
+							break;
 
 						default :
 						?>

@@ -378,7 +378,7 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 					if ($installed_version) { 
 						$ok = version_compare($installed_version, $req['version']['value'], '>=');
 					}
-				break;
+					break;
 
 				case 'asset' :
 					if ($GLOBALS['SQ_RESOLVE']->am->installed($req['code']['value'])) { 
@@ -388,18 +388,18 @@ trigger_error('ROLLBACK', E_USER_WARNING);
 					if (!$ok && isset($this->assets[$req['code']['value']])) {
 						$ok = version_compare($this->assets[$req['code']['value']]['version'], $req['version']['value'], '>=');
 					}
-				break;
+					break;
 
 				case 'system' :
 					switch($req['code']['value']) {
 						case 'Resolve' :
 							$ok = version_compare(SQ_RESOLVE_VERSION, $req['version']['value'], '>=');
-						break;
+							break;
 						case 'PHP' :
 							$ok = version_compare(PHP_VERSION, $req['version']['value'], '>=');
-						break;
+							break;
 					}
-				break;
+					break;
 
 			}#end switch
 

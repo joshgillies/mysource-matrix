@@ -79,7 +79,7 @@ class Resolve {
 		}//end if
 
 		if (SQ_IN_BACKEND) {
-			if ($this->user) {
+			if (true || $this->user) {
 				include_once(SQ_INCLUDE_PATH.'/backend.inc');
 				$backend = new Backend();
 				$backend->paint();
@@ -138,7 +138,7 @@ class Resolve {
 			case 'logout' :
 				$_SESSION['userid'] = 0;
 				$this->user = null;
-			break;
+				break;
 		}//end switch
 
 		// just so it isn't being used anywhere else

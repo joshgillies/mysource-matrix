@@ -51,6 +51,12 @@ define('SQ_WWW_BASE_DIR', ((SQ_IN_BACKEND) ? '..' : '.'));
 define('SQ_WWW_EDIT_DIR', ((SQ_IN_BACKEND) ? '.'  : './'.SQ_CONF_BACKEND_SUFFIX));
 define('SQ_WWW_LIB_DIR',  SQ_WWW_BASE_DIR.'/__lib');
 
+
+// the current output type for the system, can be changed during run-time (eg to XML)
+// main use is so that the error_reporter doesn't barf in HTML to something expecting XML
+$GLOBALS['SQ_OUTPUT_TYPE'] = 'html';
+
+
 // Load general functions, including the error handler
 require_once SQ_INCLUDE_PATH.'/general.inc';
 ini_set('display_errors', 1); // we'll manage whether to display the errors or not in the error_handler

@@ -370,7 +370,7 @@ class Asset_Manager extends Resolve_Object
 					}//end if
 				}// end if
 
-			break;
+				break;
 
 			case 'am' :
 			default   :
@@ -408,13 +408,13 @@ class Asset_Manager extends Resolve_Object
 						$custom->printBackend($backend);
 						return;
 					}
-				break;
+					break;
 				case 'edit' :
 					$o->addFormActionGetVar('am_type_code', $_REQUEST['am_type_code']);
 					$custom = new Custom_Asset_Type($_REQUEST['am_type_code']);
 					$custom->printBackend($backend);
 					return;
-				break;
+					break;
 			}
 		}//end if
 

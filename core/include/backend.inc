@@ -66,19 +66,19 @@ class Backend extends Resolve_Object
 			switch($_GET['SQ_BACKEND_PAGE']) {
 				case 'header':
 					$this->_printHeader();
-				break;
+					break;
 
 				case 'sidenav':
 					$this->_printSideNav();
-				break;
+					break;
 
 				case 'main':
 					$this->_printMain();
-				break;
+					break;
 
 				case 'footer':
 					$this->_printFooter();
-				break;
+					break;
 
 				default:
 					trigger_error('Backend Page "'.$_GET['SQ_BACKEND_PAGE'].'" unknown', E_USER_ERROR);

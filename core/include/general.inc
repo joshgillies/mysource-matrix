@@ -1,4 +1,10 @@
 <?php
+/*
+****************************************************************
+* General Functions that are likely to be used often enough to
+* warrant them being for every script run 
+****************************************************************
+*/
 
 /**
 * Function that gets set as the error_handler
@@ -22,33 +28,6 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 	// Strip out the file path begining
 	$err_file = str_replace(SQ_SYSTEM_ROOT, '[SYSTEM_ROOT]', $err_file);
 	$err_msg  = str_replace(SQ_SYSTEM_ROOT, '[SYSTEM_ROOT]', $err_msg);
-/*
-	if (!$IN_BACKEND) {
-		global $HTTP_HOST, $PHP_SELF, $REPORTING_ERROR;
-
-		if ($REPORTING_ERROR) return;
-		$REPORTING_ERROR = true;
-
-		$url = $HTTP_HOST.str_replace('index.php', '', $PHP_SELF);
-		$date = date('F j, Y, g:i a');
-		$msg = "MYSOURCE ERROR:\nDATE-TIME: $date\nURL: $url\nFILE: $file     LINE: $line\n$message\nEND ERROR";
-		echo "\n\n<!-- $msg -->\n\n";
-
-		$to_email = trim(strtolower(getenv('MySource_ReportErrorEmail')));
-		if ($to_email == '') {
-			// the environment variable is not set
-			// so we will use the mysource web master email
-			global $INCLUDE_PATH;
-			include_once("$INCLUDE_PATH/config.inc");
-			$conf = &get_config('MySource');
-			$to_email = $conf->webmaster_email;
-		}
-
-		if (trim($to_email) != '') mail($to_email, 'MySource Error', $msg, "From: errors@$HTTP_HOST");
-		$REPORTING_ERROR = false;
-		return;
-	}
-*/
 
 	$err_name = '';
 	$bg_colour = '';
@@ -56,27 +35,27 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		case E_USER_ERROR:
 			$err_name = 'Resolve Error';
 			$bg_colour = '#993333';
-		break;
+			break;
 		case E_USER_WARNING:
 			$err_name = 'Resolve Warning';
 			$bg_colour = '#993333';
-		break;
+			break;
 		case E_USER_NOTICE:
 			$err_name = 'Resolve Notice';
 			$bg_colour = '#993333';
-		break;
+			break;
 		case E_ERROR:
 			$err_name = 'PHP Error';
 			$bg_colour = '#0066CC';
-		break;
+			break;
 		case E_WARNING:
 			$err_name = 'PHP Warning';
 			$bg_colour = '#0066CC';
-		break;
+			break;
 		case E_NOTICE:
 			$err_name = 'PHP Notice';
 			$bg_colour = '#0066CC';
-		break;
+			break;
 		default:
 			$err_name = 'Unknown Error Type - '.$err_no;
 			$bg_colour = '#0066CC';
@@ -91,11 +70,6 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		error_log($log_msg, 3, SQ_SYSTEM_ROOT.'/cache/error.log');
 	}
 
-	// if we are in the frontend and we're not supposed to see the errors return;
-	if (!SQ_IN_BACKEND && SQ_CONF_ERRORS_HIDE_FRONTEND) {
-		return;
-	}
-
 
 	// OK, because we want our errors to actually be displayed, kill any output buffering
 	$buffers = Array();
@@ -104,36 +78,55 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 		ob_end_clean();
 	}
 
-	$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
-	$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
+
+	// if we are in XML output type then, send our error as XML
+	if ($GLOBALS['SQ_OUTPUT_TYPE'] == 'xml') {
+	
+		include_once 'XML/Tree.php';
+		$output = new XML_Tree();
+		$root = &$output->addRoot('error', $err_msg);
+		header("Content-Type: text/xml");
+		$output->dump();
+
+	} else {
+
+		// if we are in the frontend and we're not supposed to see the errors return;
+		if (!SQ_IN_BACKEND && SQ_CONF_ERRORS_HIDE_FRONTEND) {
+			return;
+		}
+
+		$error_title = 'background-color: '.$bg_colour.'; font-size: 14px; font-weight: bold; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
+		$error_data  = 'background-color: '.$bg_colour.'; font-size: 12px; color: #ffffff; font-family: verdana, arial, sans-serif; vertical-align: top;';
 
 
-	?>
-		</script></table></table></table></table><br>
-		<table bgcolor="#c0c0c0" cellspacing="0" border="1" bordercolor="#ff0000">
-			<tr>
-				<td style="<?=$error_title?>">
-					<?=$err_name?> 
-				</td>
-			</tr>
-			<tr>
-				<td>
-					<table bgcolor="#dddddd" cellpadding="2" cellspacing="0" border="0">
-						<tr>
-							<td style="<?=$error_title?>" align="right">File:</td>
-							<td style="<?=$error_data?>"><?=$err_file?></td>
-							<td style="<?=$error_title?>" align="right">Line:</td>
-							<td style="<?=$error_data?>"><?=$err_line?></td>
-						</tr>
-						<tr>
-							<td style="<?=$error_title?>" align="right">Message:</td>
-							<td style="<?=$error_data?>" colspan="3"><?=$err_msg?></td>
-						</tr>
-					</table>
-				</td>
-			</tr>
-		</table><br>
-	<?
+		?>
+			</script></table></table></table></table><br>
+			<table bgcolor="#c0c0c0" cellspacing="0" border="1" bordercolor="#ff0000">
+				<tr>
+					<td style="<?=$error_title?>">
+						<?=$err_name?> 
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<table bgcolor="#dddddd" cellpadding="2" cellspacing="0" border="0">
+							<tr>
+								<td style="<?=$error_title?>" align="right">File:</td>
+								<td style="<?=$error_data?>"><?=$err_file?></td>
+								<td style="<?=$error_title?>" align="right">Line:</td>
+								<td style="<?=$error_data?>"><?=$err_line?></td>
+							</tr>
+							<tr>
+								<td style="<?=$error_title?>" align="right">Message:</td>
+								<td style="<?=$error_data?>" colspan="3"><?=$err_msg?></td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table><br>
+		<?
+
+	}// end if
 
 	if ($err_no == E_USER_ERROR) {
 		exit(1);
@@ -149,10 +142,8 @@ function sq_error_handler($err_no, $err_msg, $err_file, $err_line)
 
 
 function superuser($blah='') { 
-	return true; 
+	return false; 
 }
-
-
 
 /*
 * Takes an integer and returns an array of numbers representing the active

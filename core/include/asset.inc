@@ -484,7 +484,7 @@ class Asset extends Resolve_Object
 
 			if ($majorid) {
 				$major = &$GLOBALS['SQ_RESOLVE']->am->getAsset($majorid);
-				trigger_error('Asset "'.$minor->name.'" (Asset #'.$minor->id.') cannot be linked to "'.$this->name.'" (Asset #'.$this->id.') it is already exclusively linked to Asset #'.$majorid.' ("'.$major->name.'")', E_USER_WARNING);
+				trigger_error('Asset "'.$minor->name.'" (Asset #'.$minor->id.') cannot be linked to "'.$this->name.'" (Asset #'.$this->id.') it is exclusively linked to Asset #'.$majorid.' ("'.$major->name.'")', E_USER_WARNING);
 				return false;
 			}
 			
@@ -511,8 +511,19 @@ class Asset extends Resolve_Object
 				('.$db->quote($this->id).', '.$db->quote($minor->id).', '.$db->quote($link_type).', '
 				.$db->quote($value).', '.$db->quote($sort_order).', '.$db->quote(ts_iso8601(time())).', '.$db->quote($GLOBALS['SQ_RESOLVE']->currentUserId()).')';
 
-		pre_echo($sql);
+//		pre_echo($sql);
 
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		// move the sort_order for all the other assets up one
+		$sql = 'UPDATE sq_asset_link
+				SET sort_order = sort_order + 1
+				WHERE majorid = '.$db->quote($this->id).'
+				  AND sort_order > '.$db->quote($sort_order);
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
@@ -558,7 +569,8 @@ class Asset extends Resolve_Object
 		}
 
 		if (empty($allowed_links[$link_type][$type])) {
-			return 'Assets of Type "'.$type.'" cannot be "'.$link_type.'" linked to a "'.get_class($this).'"';
+			include_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			return 'Assets of Type "'.$type_code.'" cannot be "'.link_type_name($link_type).'" linked to a "'.get_class($this).'"';
 		}
 
 
@@ -599,6 +611,106 @@ class Asset extends Resolve_Object
 
 	}//end _getAllowedLinks()
 
+
+	/*
+	* Moves a link from one place in this assets links order to another position
+	*
+	* @param object Asset $minor  the minor asset that we are linking to
+	* @param string $link_type    the type of link this is
+	* @param string $value        the value that is to be associated with this link
+	* @param string $sort_order   the position in the links list that this link should take, if less than zero places at end of list
+	*
+	* @return boolean
+	* @access public
+	*/
+	function moveLinkPos(&$minor, $link_type, $value='', $sort_order=-1) 
+	{
+
+		if (!is_a($minor, 'Asset')) {
+			trigger_error('Minor is not an asset, unable to create link', E_USER_WARNING);
+			return false;
+		}
+
+		// First, we should try and find the link
+		$current_links = $this->getLinks($link_type, get_class($minor));
+		$num_curr_links = count($current_links);
+		$i = 0;
+		for(; $i < $num_curr_links; $i++) {
+			if ($current_links[$i]['minorid'] == $minor->id && $current_links[$i]['value'] == $value) {
+				break;
+			}
+		}//end for
+
+		$old_sort_order = $current_links[$i]['sort_order'];
+
+		// dickhead check
+		if ($old_link['sort_order'] == $sort_order) {
+			return true;
+		}
+
+		$db = &$GLOBALS['SQ_RESOLVE']->getDb();
+
+		// open the transaction
+		$db->query('BEGIN');
+
+
+		$sql = 'SELECT COUNT(*) as count, MAX(sort_order) as max
+				FROM sq_asset_link
+				WHERE majorid = '.$db->quote($this->id);
+		$row = $db->getRow($sql);
+		if (DB::isError($row)) {
+			trigger_error($row->getMessage().'<br>'.$row->getUserInfo(), E_USER_WARNING);
+			$db->query('ROLLBACK');
+			return false;
+		}
+		$max = ($row['count'] > 0) ? (int) $row['max'] + 1 : 0;
+
+		if ($sort_order > $max || $sort_order < 0) $sort_order = $max;
+
+		$sql = '';
+
+		// move 'em up, higher
+		if ($old_sort_order < $sort_order) {
+			$sql = 'UPDATE sq_asset_link
+					SET sort_order = sort_order + 1
+					WHERE majorid = '.$db->quote($this->id).'
+					  AND sort_order >= '.$db->quote($sort_order).'
+					  AND sort_order < '.$db->quote($old_sort_order);
+
+		} else {
+			$sql = 'UPDATE sq_asset_link
+					SET sort_order = sort_order - 1
+					WHERE majorid = '.$db->quote($this->id).'
+					  AND sort_order >= '.$db->quote($old_sort_order).'
+					  AND sort_order < '.$db->quote($sort_order);
+		}
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		$sql = 'UPDATE sq_asset_link
+				SET sort_order = '.$db->quote($sort_order).'
+				WHERE majorid   = '.$db->quote($this->id).'
+				  AND minorid   = '.$db->quote($minor->id).'
+				  AND link_type = '.$db->quote($link_type).'
+				  AND value     = '.$db->quote($value);
+
+//		pre_echo($sql);
+
+		$result = $db->query($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br>'.$result->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		$this->_linkChanged($link_type, get_class($minor));
+
+		return true;
+
+	}//end moveLinkPos()
 
 	/*
 	* Set the value for the passed variable to the passed value
