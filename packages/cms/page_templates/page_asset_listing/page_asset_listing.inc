@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.26 2004/07/06 04:59:52 amiller Exp $
+* $Id: page_asset_listing.inc,v 1.27 2004/08/09 10:19:37 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -463,7 +463,7 @@ class Page_Asset_Listing extends Page
 
 		// check to see that we have at least one child left to print,
 		// otherwise, just return the page bodycopy
-		if (count($children) == 0) {
+		if (empty($children)) {
 			$format_bodycopy->printBody();
 			return;
 		}
