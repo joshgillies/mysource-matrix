@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.371 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: asset.inc,v 1.372 2005/03/02 16:25:18 brobertson Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.371 $
+* @version $Revision: 1.372 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -3562,6 +3562,8 @@ class Asset extends MySource_Object
 														 );
 				}// end if
 			}// end foreach
+			unset($link);
+			unset($our_design_links);
 
 			$parents = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_SC_LINK_WEB_PATHS, '', null, 'minor');
 
@@ -3606,10 +3608,7 @@ class Asset extends MySource_Object
 
 						// all designs go to all urls (at the moment anyway), so merge them all in
 						foreach ($our_designs as $name => $data) {
-							$lookup_values[$name] = Array(
-														  'value' => $link['minorid'],
-														  'inhd'  => '0',
-														  );
+							$lookup_values[$name] = $data;
 						}
 
 						// get any of our parent's lookup values that we haven't overridden
