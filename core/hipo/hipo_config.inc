@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_config.inc,v 1.8 2003/11/26 00:51:08 gsherwood Exp $
+* $Id: hipo_config.inc,v 1.9 2003/12/17 14:11:03 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,9 +54,24 @@ class HIPO_Config extends Config
 	{
 		$this->Config();
 		$this->config_file = SQ_DATA_PATH.'/private/conf/hipo.inc';
-		$hipo_job_path = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
+		$this->_loadJobConfigVars();
+
+	}// end constructor
+
+	/**
+	* Attempts to load the extra config vars that the jobs have into our config_vars array
+	* Doesn't do anything if the config_file doesn't exist
+	*
+	* @return void
+	* @access private
+	*/
+	function _loadJobConfigVars()
+	{
+		// if our config file doesn't exist then we can't load the job's because they require it
+		if (!file_exists($this->config_file)) return;
 
 		// ask each of the jobs for their config vars
+		$hipo_job_path = SQ_SYSTEM_ROOT.'/core/hipo/jobs';
 		if (is_dir($hipo_job_path)) {
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$d = dir($hipo_job_path);
@@ -75,11 +90,44 @@ class HIPO_Config extends Config
 						$this->config_vars = array_merge($this->config_vars, $vars);
 					}
 				}
-			}
-			
+			}// end while
+
 			$d->close();
-		}
-	}
+
+		}// end if
+
+	}// end _loadJobConfigVars();
+
+
+	/**
+	* Rewrites the conf file with current variables
+	*
+	* @param Array		$vars				the array with any new values (that are allowed to be edited) Array('[config_var_name]' => [scalar value])
+	* @param boolean	$backup_existing	whether we should backup the existing config file first
+	*
+	* @return boolean	indicates whether the file was written
+	* @access public
+	*/
+	function save($vars, $backup_existing=false)
+	{
+		// if the config file exists, just do a normal save
+		if (file_exists($this->config_file)) {
+			return parent::save($vars, $backup_existing);
+
+		// else this is the first time that we have saved a config, things need to be done a little differently
+		} else {
+
+			// first we save as normal, but we won't have the jobs config vars in there
+			// (no need to backup either because the file doesn't exist)
+			if (!parent::save($vars, false)) return false;
+			// then we load all jobs configs (which can happen now that there is a 
+			// config file that they can require) and save again to put them in the file
+			$this->_loadJobConfigVars();
+			return parent::save($vars, false);
+
+		}// end if
+
+	}// end save()
 
 }//end class
 
