@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.28 2004/08/19 05:47:02 gsherwood Exp $
+* $Id: page_asset_listing.inc,v 1.29 2004/08/23 00:22:28 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -732,6 +732,7 @@ class Page_Asset_Listing extends Page
 		$default_format  = '';
 		$customised      = $this->attr('customised');
 		$keywords        = Array();
+		$mm		 = NULL;
 
 		foreach ($todo as $assetid => $type_code) {
 
