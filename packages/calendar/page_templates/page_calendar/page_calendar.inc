@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.36 2004/08/31 06:33:03 lwright Exp $
+* $Id: page_calendar.inc,v 1.37 2004/08/31 06:57:30 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.36 $ - 1.0
+* @version $Revision: 1.37 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -541,7 +541,8 @@ class Page_Calendar extends Page_Asset_Listing
 					// hack for now until we mod asset listing
 					foreach ($events[$current_day] as $id => $details) $events[$id] = $details['type_code'];
 					$this->printAssetList($events);
-				}			}
+				}
+			}
 		} else {
 			$show_event_links = (bool)$enabled_views['event'];
 			$events = $this->getMonthEventsByDay($year, $month);
@@ -931,7 +932,7 @@ class Page_Calendar extends Page_Asset_Listing
 				?>
 				<td id="<?php echo $id.'_all_day'; ?>">
 				<?php
-					foreach($col_events['all_day'] as $event) {
+					foreach($col_events['all_day'] as $assetid => $event) {
 						// get class to use for div
 						$event_class = $root_nodes[$event['root_node']]['class_name'];
 						echo '<div class="'.$event_class.' event">';
@@ -1064,6 +1065,10 @@ class Page_Calendar extends Page_Asset_Listing
 	*/
 	function getYearEventsByMonth($year)
 	{
+		$all_events = $this->getYearEvents($year);    
+        $start_ts = strtotime("$year-01-01 00:00:00");    
+        $next_year = $year + 1;    
+        $end_ts = strtotime("$next_year-01-01 00:00:00") - 1;    
 		$res = Array();
 
 		foreach (range(1, 12) as $month_num) {
@@ -1105,7 +1110,7 @@ class Page_Calendar extends Page_Asset_Listing
 	function getYearEventsByMonthAndDay($year)
 	{
 		$res = Array();
-
+		$all_events = $this->getYearEventsByMonth($year);    
 		foreach (range(1, 12) as $month_num) {
 			$res[$month_num] = Array();
 			foreach (range(1, days_in_month($month_num, $year)) as $day_num) $res[$month_num][$day_num] = Array();
@@ -1886,14 +1891,14 @@ class Page_Calendar extends Page_Asset_Listing
 				
 				$sql_freqs[] = '(frequency = '.$db->quote('DED').' AND (floor('.$this->_dayDiffFragment($db->quote($iso_ds-1), 'start_date_ds').'/period) < floor('. $this->_dayDiffFragment($db->quote($last_day), 'start_date_ds').'/period)))';
 				  
-				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' and period = 1';
+				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' and period = 1)';
 				  
 				$sql_freqs[] = '(frequency = '.$db->quote('WEW').' AND (floor('.$this->_dayDiffFragment($db->quote($iso_ds-1), 'start_date_ds').'/(period*7)) < floor('. $this->_dayDiffFragment($db->quote($last_day), 'start_date_ds').'/(period*7))))';
 				  
 				// all monthly views can be lumped together on this one
 				// but we need to do something like the 'every day' type thing to work out
 				// whether an occurrence will happen this year
-				$sql_freqs[] = '(frequency like '.$db->quote('M%').' AND (floor(('.$this->_dayDiffFragment($year * 12).' - start_date_ms) / period) < floor(('.$this->_dayDiffFragment(($year + 1) * 12).' - start_date_ms) / period)';
+				$sql_freqs[] = '(frequency like '.$db->quote('M%').' AND (floor(('.$this->_dayDiffFragment($year * 12, 'start_date_ms').') / period) < floor(('.$this->_dayDiffFragment(($year + 1) * 12, 'start_date_ms').') / period)))';
 			break;
 			
 		}//endswitch;
@@ -2085,16 +2090,7 @@ class Page_Calendar extends Page_Asset_Listing
 		return $sql;
 		
 	}//end _treeCaseQuery()
-	
-	
-	/**
-	* 
-	*/
-	function _getEventFirstOccurrenceAfter($start_ts, $freq_type, $interval, $after=null, $stop_date='2030-12-31')
-	{
-	}//end _getEventFirstOccurrenceAfter()
 
-		
 
 }//end class
 
