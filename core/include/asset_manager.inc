@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.175 2004/02/10 00:31:46 diarandine Exp $
+* $Id: asset_manager.inc,v 1.176 2004/02/12 01:33:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -569,33 +569,28 @@ class Asset_Manager extends MySource_Object
 	/**
 	* Retrieves the attributes (with null values) for the asset type
 	*
-	* @param string $type_code		the type of asset
-	* @param string $details		if the details (asset name and type) should be returned too
-	* @return array		an array of Asset_Attribute's
+	* @param string			$type_code		the type of asset
+	* @param array(string)	$details		an array of columns from the DB table you want returned
 	*
-	* @return array(int)
+	* @return array
 	* @access public
 	*/
-	function getAssetTypeAttributes($type_code, $details=false)
+	function getAssetTypeAttributes($type_code, $details=Array('name', 'type'))
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		require_once SQ_INCLUDE_PATH."/asset_attribute.inc";
+		require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 
-		if ($details == false) { // no details, only attribute IDs
-		
-			$sql = "SELECT attributeid FROM ". SQ_TABLE_PREFIX . "asset_attribute
-					WHERE type_code = '".addslashes($type_code)."'";
-			$attributeids = $db->getCol($sql);
-			return $attributeids;
-		
-		} else { // giving back an associative array of 'name'=>'type' value pairs
+		$sql = 'SELECT '.implode(', ', $details).' FROM '.SQ_TABLE_PREFIX.'asset_attribute
+				WHERE type_code = '.$db->quote($type_code);
 
-			$sql = "SELECT name, type FROM ". SQ_TABLE_PREFIX . "asset_attribute
-					WHERE type_code = '".addslashes($type_code)."'";
-			$attributeids = $db->getAssoc($sql);
-			return $attributeids;
-
+		if (count($details) > 1) $result = $db->getAssoc($sql);
+		else $result = $db->getCol($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
 		}
+
+		return $result;
 
 	}//end getAssetTypeAttributes()
 
