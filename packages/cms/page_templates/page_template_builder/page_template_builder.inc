@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_template_builder.inc,v 1.7 2004/12/06 17:31:50 brobertson Exp $
+* $Id: page_template_builder.inc,v 1.8 2005/01/13 22:30:58 gsherwood Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -177,7 +177,6 @@ class Page_Template_Builder extends Page
 				}
 				*/
 				if (!in_array($assetid, $valid_parents)) {
-					$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($assetid);
 					$matches = array_intersect($GLOBALS['SQ_SYSTEM']->am->getParents($assetid), $valid_parents);
 					if (empty($matches)) unset($res[$assetid]);
 				}
