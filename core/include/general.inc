@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.74 2005/03/29 01:49:43 arailean Exp $
+* $Id: general.inc,v 1.75 2005/03/31 01:57:06 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.74 $
+* @version $Revision: 1.75 $
 * @package MySource_Matrix
 */
 
@@ -718,7 +718,7 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 	}
 
 	if ($encode) {
-		$data = str_replace("\n", '&#10;', $data);
+		$data = str_replace(Array("\n", "\r"), Array('&#10;', '&#13;'), $data);
 	} else {
 		// NOTE: if data is serialised, but requested to be logged raw, we simply mark it as raw
 		// it will not be unserializable
