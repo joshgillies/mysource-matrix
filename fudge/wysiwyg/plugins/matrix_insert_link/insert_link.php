@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_link.php,v 1.19 2004/04/07 23:25:37 lwright Exp $
+* $Id: insert_link.php,v 1.20 2004/04/21 06:32:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -100,9 +100,6 @@ if (!isset($_GET['new_window'])) {
 				var re = new RegExp(e, '');
 				var results = re.exec('<?php echo $_GET['url']?>');
 				setUrl(results[1], results[3]);
-
-				var changeButton = document.getElementById('sq_asset_finder_assetid_change_btn');
-				changeButton.click();
 			};
 
 			function onOK() {

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: insert_image.php,v 1.16 2004/01/16 11:17:22 brobertson Exp $
+* $Id: insert_image.php,v 1.17 2004/04/21 06:32:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -53,8 +53,6 @@ if (!isset($_GET['f_imageid'])) $_GET['f_imageid'] = 0;
 
 			function Init() {
 				__dlg_init("matrixInsertImage");
-				var changeButton = document.getElementById('sq_asset_finder_f_imageid_change_btn');
-				changeButton.click();
 			};
 
 			function onOK() {

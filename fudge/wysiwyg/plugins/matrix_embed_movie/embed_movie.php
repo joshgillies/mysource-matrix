@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: embed_movie.php,v 1.12 2004/01/16 11:17:22 brobertson Exp $
+* $Id: embed_movie.php,v 1.13 2004/04/21 06:32:21 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -50,8 +50,6 @@ if (!isset($_GET['f_fileid'])) $_GET['f_fileid'] = 0;
 
 			function Init() {
 				__dlg_init("matrixEmbedMovie");
-				var changeButton = document.getElementById('sq_asset_finder_f_fileid_change_btn');
-				changeButton.click();
 			};
 
 			function onOK() {
