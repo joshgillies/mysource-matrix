@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_incomplete_metadata.inc,v 1.4 2005/02/16 06:02:14 dbaranovskiy Exp $
+* $Id: report_incomplete_metadata.inc,v 1.5 2005/02/16 22:48:30 dbaranovskiy Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -78,6 +78,11 @@ class Report_Incomplete_Metadata extends Report
 			$input = new XML_Tree($report_path);
 			$root  = &$input->getTreeFromFile();
 			if (PEAR::isError($root)) {
+				return Array();
+			}
+
+			if (!isset($root->children[0]->attributes['type_code'])) {
+				// old xml format, needs regenerating before it can act as a bridge
 				return Array();
 			}
 
@@ -154,6 +159,11 @@ class Report_Incomplete_Metadata extends Report
 			$input = new XML_Tree($report_path);
 			$root  = &$input->getTreeFromFile();
 			if (PEAR::isError($root)) {
+				return Array();
+			}
+
+			if (!isset($root->children[0]->attributes['type_code'])) {
+				// old xml format, needs regenerating before it can act as a bridge
 				return Array();
 			}
 

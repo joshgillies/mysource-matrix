@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_broken_links.inc,v 1.3 2005/02/16 06:05:31 dbaranovskiy Exp $
+* $Id: report_broken_links.inc,v 1.4 2005/02/16 22:49:29 dbaranovskiy Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/report/report.inc';
 *
 *
 * @author  Greg Sherwoood <greg@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -98,6 +98,11 @@ class Report_Broken_Links extends Report
 				return Array();
 			}
 
+			if (!isset($root->children[0]->attributes['type_code'])) {
+				// old xml format, needs regenerating before it can act as a bridge
+				return Array();
+			}
+
 			$links = Array();
 			$sort_order = 0;
 			foreach ($root->children as $asset_element) {
@@ -149,6 +154,11 @@ class Report_Broken_Links extends Report
 			$input = new XML_Tree($report_path);
 			$root  = &$input->getTreeFromFile();
 			if (PEAR::isError($root)) {
+				return Array();
+			}
+
+			if (!isset($root->children[0]->attributes['type_code'])) {
+				// old xml format, needs regenerating before it can act as a bridge
 				return Array();
 			}
 
