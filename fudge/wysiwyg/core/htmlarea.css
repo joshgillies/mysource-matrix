@@ -5,6 +5,7 @@
 	padding: 0px; 
 	border: 1px solid;
 	border-color: ButtonHighlight ButtonShadow ButtonShadow ButtonHighlight;
+	text-align: left;
 }
 .htmlarea .toolbar img { border: none; }
 
