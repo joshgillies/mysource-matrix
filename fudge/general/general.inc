@@ -158,7 +158,7 @@ function increment_name($name='', $spacer='')
 *						for no border, set to the same colour as the background
 * @param int	$zoom	each character will be randomly zoomed between x1 and this figure
 *
-* @return string
+* @return void
 */
 function security_key_image($word, $w, $h, $bg='FFFFFF', $text='000000', $border='000000', $zoom=1)
 {
