@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.376 2005/03/15 01:23:59 amiller Exp $
+* $Id: asset.inc,v 1.377 2005/03/16 04:57:20 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.376 $
+* @version $Revision: 1.377 $
 * @package MySource_Matrix
 */
 class Asset extends MySource_Object
@@ -2711,6 +2711,34 @@ class Asset extends MySource_Object
 		return true;
 
 	}//end processCustomKeywords()
+
+
+	/**
+	* Returns the editable content of this asset
+	*
+	* @return String
+	* @access public
+	*/
+	function getContent()
+	{
+		return '';
+
+	}//end getContent()
+
+
+	/**
+	* Sets the editable content of this asset
+	*
+	* @param String
+	*
+	* @return boolean
+	* @access public
+	*/
+	function setContent()
+	{
+		return false;
+
+	}//end setContent()
 
 
 //--        PERMISSIONS/ACCESS        --//
