@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.148 2003/10/21 07:57:32 brobertson Exp $
+* $Id: asset_manager.inc,v 1.149 2003/10/21 23:47:28 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2357,7 +2357,8 @@ class Asset_Manager extends MySource_Object
 			$sql = 'SELECT majorid
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link ';
 			$where = 'minorid       = '.$db->quote($minor->id).'
-					  AND exclusive = '.$db->quote('1');
+						AND (link_type & '.SQ_SC_LINK_SIGNIFICANT.') > 0';
+			if (!$exclusive) $where .= ' AND exclusive = '.$db->quote('1');
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql .= $where;
 
