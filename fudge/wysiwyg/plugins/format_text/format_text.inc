@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: format_text.inc,v 1.6 2003/11/26 00:51:19 gsherwood Exp $
+* $Id: format_text.inc,v 1.7 2003/12/12 03:33:10 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 * @package Fudge
 * @subpackage wysiwyg
 */
-class format_text extends wysiwyg_plugin {
+class Format_Text extends WYSIWYG_Plugin {
 
 
 	/**
@@ -58,7 +58,8 @@ class format_text extends wysiwyg_plugin {
 
 
 	/**
-	* Prints shortcuts for the buttons.
+	* Prints shortcuts for the buttons
+	*
 	* All of these except strikethrough are supported nativly in IE
 	*
 	* @returns void
@@ -79,8 +80,52 @@ class format_text extends wysiwyg_plugin {
 			cmd = "strikethrough";
 		break;
 		<?php
-	}
 
-}
+	}//end print_plugin_shortcuts()
+
+
+	/**
+	* Highlight the selected text or change the font colour
+	*
+	* @returns void
+	* @access  public
+	*/
+	function print_plugin_exec_command()
+	{
+		?>
+		case "bold":
+			if (!this._doc.queryCommandState("bold")) {
+				this.surroundHTML("<b>", "</b>");
+			} else {
+				this._doc.execCommand(cmdID, UI, param);
+			}
+		break;
+		case "italic":
+			if (!this._doc.queryCommandState("italic")) {
+				this.surroundHTML("<i>", "</i>");
+			} else {
+				this._doc.execCommand(cmdID, UI, param);
+			}
+		break;
+		case "underline":
+			if (!this._doc.queryCommandState("underline")) {
+				this.surroundHTML("<u>", "</u>");
+			} else {
+				this._doc.execCommand(cmdID, UI, param);
+			}
+		break;
+		case "strikethrough":
+			if (!this._doc.queryCommandState("strikethrough")) {
+				this.surroundHTML("<strike>", "</strike>");
+			} else {
+				this._doc.execCommand(cmdID, UI, param);
+			}
+		break;
+		<?php
+
+	}//end print_plugin_exec_command()
+
+
+}//end class
 
 ?>
