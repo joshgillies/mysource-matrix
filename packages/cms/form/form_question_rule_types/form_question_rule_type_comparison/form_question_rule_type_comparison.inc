@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_rule_type_comparison.inc,v 1.17 2004/07/07 01:05:29 lwright Exp $
+* $Id: form_question_rule_type_comparison.inc,v 1.18 2004/09/23 02:00:25 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,7 +70,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
 	* instantiated manually in code, this function MUST called statically. (Hence also why we have
 	* manually pass question assets all the time - don't think static variables would work here)
-	* 
+	*
 	* @param object form_question	&$q_asset		reference to the question asset
 	* @param string					$operator		the operator being used to compare
 	* @param mixed					&$comparison	either a value or a form_question asset (based on
@@ -89,12 +89,17 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 
 		// comparison sent is a question asset!!
 		if (is_a($comparison, 'form_question')) {
-			$valid = eval('return \''.$answer.'\''.$operator.'\''.$comparison->getValue().'\';');
+			$comp_value = $comparison->getValue();
 		} else {	// sent just a value
-			$valid = eval('return \''.$answer.'\''.$operator.'\''.$comparison.'\';');
+			$comp_value = $comparison;
 		}
 
-		if ($valid) {
+		$answer     = addslashes($answer);
+		$comp_value = addslashes($comp_value);
+
+		$expression = "return '$answer' $operator '$comp_value';";
+
+		if (eval($expression)) {
 			return true;
 		} else {
 			// tailor the error response depending
@@ -116,7 +121,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 			$q_asset->submission_errors[] = $error;
 			return false;
 		}
-		
+
 	}//end processForm()
 
 
@@ -127,7 +132,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	*
 	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
 	* instantiated manually in code, this function MUST called statically.
-	* 
+	*
 	* @param mixed	$answer			the answer being passed to us
 	* @param string	$operator		the operator being used to compare
 	* @param mixed	&$comparison	either a value or a form_question asset (based on
@@ -149,7 +154,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 		}
 
 		return $valid;
-		
+
 	}//end valueTest()
 
 
@@ -161,7 +166,7 @@ class Form_Question_Rule_Type_Comparison extends Form_Question_Rule
 	*
 	* Because the Form Question Rule classes will not be instantiable by Matrix NOR will be
 	* instantiated manually in code, this function MUST called statically.
-	* 
+	*
 	* @param object form_question	&$q_asset		reference to the question asset
 	* @param string					$operator		the operator being used to compare
 	* @param mixed					&$comparison	either a value or a form_question asset (based on
