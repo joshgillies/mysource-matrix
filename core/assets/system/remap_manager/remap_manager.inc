@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.13 2004/11/18 05:00:42 gsherwood Exp $
+* $Id: remap_manager.inc,v 1.14 2004/11/25 11:35:24 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,11 +31,10 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.13 $ - 0.1
+* @version $Revision: 1.14 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-
 class Remap_Manager extends Asset
 {
 
