@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition.inc,v 1.4 2005/02/22 22:03:02 lwright Exp $
+* $Id: condition.inc,v 1.5 2005/04/06 21:34:17 gnoel Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.4 $
+* @version $Revision: 1.5 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,7 +50,13 @@ class Condition extends Asset
 
 	}//end constructor
 
-
+	
+	/**
+	 * Returns the list of possible result value with their description.
+	 * 
+	 * @return Array(value => description)
+	 * @access public
+	 */
 	function getOperators()
 	{
 		return Array(
@@ -62,17 +68,59 @@ class Condition extends Asset
 	
 	
 	/**
-	* Evaluate this condition - needs to be overriden by the conditions themselves
+	* Static function to evaluates a particular condition.
+	*  
+	* Like evaluate() but takes the whole restriction into account.
+	* 
+	* This helps making the condition restrictions totally transparant for the
+	* client class (i.e. they don't need to understand or manipulate its
+	* content).
+	* 
+	* @param User	$asset			a user asset (or child of User class)
+	* @param Array	$restriction 	a restriction array as returned by
+	* 
+	* 									processEditInterface()
+	* 									Array(
+	* 											'match' => 1|0,
+	* 											'condition_data'=> Array()
+	* 									)
+	* @param string	$condition_type_code	condition type code to evaluate,
+	* 								class name of an extended condition
 	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate()
+	function evaluateRestriction(&$asset, &$restriction, $condition_type_code)
+	{
+		$condition_data = empty($restriction['condition_data']) ? Array() : $restriction['condition_data'];
+		$evaluation_instruction = '$ret = ' . $condition_type_code . '::evaluate($asset, $condition_data);';
+		
+		$GLOBALS['SQ_SYSTEM']->am->includeAsset($condition_type_code);
+		eval($evaluation_instruction);
+
+		if (isset($restriction) && (isset($restriction['match'])) && !$restriction['match']) $ret = !$ret;
+		
+		return $ret;
+
+	}//end evaluateRestriction()
+	
+
+	/**
+	* Evaluate this condition - needs to be overriden by the conditions themselves
+	*
+	* @param User Asset $asset			a user asset
+	* @param Array		$condition_data	a the condition configuration Array
+	* 									content is specific to the condition.
+	*
+	* @return boolean
+	* @access public
+	*/
+	function evaluate(&$asset, $condition_data)
 	{
 		return false;
 
 	}//end evaluate()
-	
+
 
 }//end class
 
