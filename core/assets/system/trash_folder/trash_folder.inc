@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trash_folder.inc,v 1.49 2004/01/20 02:42:51 mmcintyre Exp $
+* $Id: trash_folder.inc,v 1.50 2004/03/02 04:21:20 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -106,23 +106,16 @@ class Trash_Folder extends Folder
 
 
 	/**
-	* Creates a duplicate of this asset
-	* It DOES NOT duplicate the links that this asset has either to it or from it
-	* Returns a reference to the new object or if an error occured FALSE
+	* returns FALSE always because we don't want to be able to clone a trash folder
 	*
-	* @param bool	$dupe_directory	whether or not to duplicate thia assets data directory
-	*
-	* @return mixed object Asset or NULL
+	* @return boolean
 	* @access public
-	* @see Asset::duplicate()
 	*/
-	function &duplicate($dupe_directory=true)
+	function canClone()
 	{
-		trigger_error('Unable to duplicate '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').', you are only allowed one', E_USER_WARNING);
-		$null = NULL; // 'cause we need to return by reference :)
-		return $null;
-
-	}//end duplicate()
+		return false;
+	
+	}//end canClone()
 
 
 	/**

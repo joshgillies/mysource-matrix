@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: root_folder.inc,v 1.39 2003/11/26 00:51:01 gsherwood Exp $
+* $Id: root_folder.inc,v 1.40 2004/03/02 04:21:19 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -164,6 +164,19 @@ class Root_Folder extends Folder
 		return false;
 
 	}//end canDelete()
+
+
+	/**
+	* returns FALSE always because we don't want to be able to clone a root folder
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canClone()
+	{
+		return false;
+	
+	}//end canClone()
 
 
 	/**

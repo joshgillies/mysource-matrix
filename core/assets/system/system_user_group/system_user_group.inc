@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_user_group.inc,v 1.22 2003/11/26 00:51:03 gsherwood Exp $
+* $Id: system_user_group.inc,v 1.23 2004/03/02 04:21:20 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -85,22 +85,16 @@ class System_User_Group extends User_Group
 
 
 	/**
-	* Creates a duplicate of this asset. It DOES NOT duplicate the links that this asset has either to it or from it
-	* Returns a reference to the new object or if an error occured FALSE
+	* returns FALSE always because we don't want to be able to clone a system user group
 	*
-	* @param bool	$dupe_directory	whether or not to duplicate thia assets data directory
-	*
-	* @return mixed object Asset or NULL
+	* @return boolean
 	* @access public
-	* @see Asset::duplicate()
 	*/
-	function &duplicate($dupe_directory=true)
+	function canClone()
 	{
-		trigger_error('Unable to duplicate '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').', you are only allowed one', E_USER_WARNING);
-		$null = NULL; // 'cause we need to return by reference :)
-		return $null;
-
-	}//end duplicate()
+		return false;
+	
+	}//end canClone()
 
 
 	/**

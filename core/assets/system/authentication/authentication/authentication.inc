@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication.inc,v 1.1 2004/02/06 03:09:53 gsherwood Exp $
+* $Id: authentication.inc,v 1.2 2004/03/02 04:20:19 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,6 +83,19 @@ class Authentication extends Asset
 		return false;
 
 	}//end canDelete()
+
+
+	/**
+	* returns FALSE always because we don't want to be able to clone a authentication
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canClone()
+	{
+		return false;
+	
+	}//end canClone()
 
 
 	/**

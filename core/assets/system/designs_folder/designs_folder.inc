@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: designs_folder.inc,v 1.18 2004/02/16 01:09:24 gsherwood Exp $
+* $Id: designs_folder.inc,v 1.19 2004/03/02 04:21:19 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,24 +86,16 @@ class Designs_Folder extends Folder
 
 
 	/**
-	* Creates a duplicate of this asset
+	* returns FALSE always because we don't want to be able to clone a design folder
 	*
-	* It DOES NOT duplicate the links that this asset has either to it or from it
-	* Returns a reference to the new object or if an error occured FALSE
-	*
-	* @param bool	$dupe_directory	whether or not to duplicate thia assets data directory
-	*
-	* @return mixed object Asset or NULL
+	* @return boolean
 	* @access public
-	* @see Asset::duplicate()
 	*/
-	function &duplicate($dupe_directory=true)
+	function canClone()
 	{
-		trigger_error('Unable to duplicate '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').', you are only allowed one', E_USER_WARNING);
-		$null = NULL; // 'cause we need to return by reference :)
-		return $null;
-
-	}//end duplicate()
+		return false;
+	
+	}//end canClone()
 
 
 	/**

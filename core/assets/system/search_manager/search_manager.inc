@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.10 2004/02/23 05:51:18 diarandine Exp $
+* $Id: search_manager.inc,v 1.11 2004/03/02 04:21:20 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.10 $ - 0.1
+* @version $Revision: 1.11 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -110,6 +110,19 @@ class Search_Manager extends Asset
 		return false;
 
 	}//end canDelete()
+
+
+	/**
+	* returns FALSE always because we don't want to be able to clone a search manager
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canClone()
+	{
+		return false;
+	
+	}//end canClone()
 
 
 	/**

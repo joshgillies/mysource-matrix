@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: layout_manager_edit_fns.inc,v 1.3 2004/02/18 18:19:16 brobertson Exp $
+* $Id: layout_manager_edit_fns.inc,v 1.4 2004/03/02 04:21:19 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit_interface.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $ - 1.0
+* @version $Revision: 1.4 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -189,7 +189,7 @@ class Layout_Manager_Edit_Fns extends Asset_Edit_Fns
 				$as =& new $type_code();
 				$ef = &$as->getEditFns();
 
-				$screens = Array(''); // first option is blank
+				$screens = Array('', 'create'); // first option is blank
 				foreach (array_keys($ef->static_screens) as $screen) $screens[] = $screen;
 				foreach (array_keys($ei->getScreens()) as $screen) $screens[] = $screen;
 

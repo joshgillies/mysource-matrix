@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: remap_manager.inc,v 1.3 2004/02/18 18:19:16 brobertson Exp $
+* $Id: remap_manager.inc,v 1.4 2004/03/02 04:21:19 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -31,7 +31,7 @@
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.3 $ - 0.1
+* @version $Revision: 1.4 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -112,6 +112,19 @@ class Remap_Manager extends Asset
 	}//end canDelete()
 
 
+	/**
+	* returns FALSE always because we don't want to be able to clone a remap manager
+	*
+	* @return boolean
+	* @access public
+	*/
+	function canClone()
+	{
+		return false;
+	
+	}//end canClone()
+
+	
 	/**
 	* Add a URL remap to the system
 	*
