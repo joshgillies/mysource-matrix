@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_css.inc,v 1.3 2004/08/30 03:50:31 amiller Exp $
+* $Id: design_css.inc,v 1.4 2004/09/03 21:56:06 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -103,6 +103,73 @@ class Design_Css extends Design
 					);
 
 	}//end _getAllowedLinks()
+
+
+	/**
+	* Creates a link between this asset and the passed asset, of a certain type
+	* and returns the linkid of the created link
+	*
+	* @param object Asset	$minor		the minor asset that we are linking to
+	* @param string			$link_type	the type of link this is
+	* @param string			$value		the value that is to be associated with this link
+	* @param string			$sort_order	the position in the links list that this link should take,
+	*									if null or less than zero places at end of list
+	* @param string			$dependant	'0' / '1' on whether the this asset is dependant on the
+	*									asset that will be linked by this new link
+	* @param string			$exclusive	'0' / '1' on whether the this asset is linked exclusivly
+	*									to the asset that will be linked by this new link
+	*
+	* @return int
+	* @access public
+	*/
+	function createLink(&$minor, $link_type, $value='', $sort_order=null, $dependant='0', $exclusive='0')
+	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+		
+		$linkid = parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
+		if (!$linkid) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		// special processing if we are creating a TYPE_2 linked file (inherited by customisations)
+		if (is_a($minor, 'file')) {
+
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+
+			$customisation_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'design_css_customisation', true, 'major', 'customisation');
+			foreach($customisation_links as $link) {
+				$customisation = &$am->getAsset($link['minorid'], $link['minor_type_code']);
+				if (is_null($customisation)) continue;
+
+				$file_link_ids = Array();
+				$file_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($customisation->id, SQ_LINK_TYPE_2, 'file', false);
+				foreach ($file_links as $link) $file_link_ids[] = $link['minorid'];
+				$file_link_info = $am->getAssetInfo(array_unique($file_link_ids));
+
+				// is there already a direct file with the same name
+				$insert_link = true;
+				foreach ($file_link_info as $info) if ($info['name'] == $minor->name) $insert_link = false;
+
+				if ($insert_link) {
+					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
+						trigger_error('Failed creating file link to customisation', E_USER_WARNING);
+						$am->forgetAsset($customisation);
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
+				}
+
+				$am->forgetAsset($customisation);
+
+			}//end foreach customisation
+
+		}//end if is_a file
+		
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+		return $linkid;
+
+	}//end createLink()
 
 
 	/**
