@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.19 2004/06/21 12:57:28 brobertson Exp $
+* $Id: form_email.inc,v 1.20 2004/06/22 06:12:05 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -436,18 +436,21 @@ class Form_Email extends Form
 
 			// substitute generic keywords with email format-specific keywords
 			$current_value = @unserialize($email_format->value);
-			$current_value['to'] = $recipients;
+		
+			if (!empty($current_value)) {
+				$current_value['to'] = $recipients;
 
-			$current_value['html_format'] = str_replace(
-				Array('%form_info%', '%form_summary%'), 
-				Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
-			$current_value['text_format'] = str_replace(
-				Array('%form_info%', '%form_summary%'), 
-				Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+				$current_value['html_format'] = str_replace(
+					Array('%form_info%', '%form_summary%'), 
+					Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
+				$current_value['text_format'] = str_replace(
+					Array('%form_info%', '%form_summary%'), 
+					Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
-			$email_format->value = serialize($current_value);
+				$email_format->value = serialize($current_value);
 
-			$email_format->sendMail($reps);
+				$email_format->sendMail($reps);
+			}
 
 		}
 
@@ -460,18 +463,22 @@ class Form_Email extends Form
 
 			// substitute generic keywords with email format-specific keywords
 			$current_value = @unserialize($email_format->value);
-			$current_value['to'] = $receipts;
 
-			$current_value['html_format'] = str_replace(
-				Array('%form_info%', '%form_summary%'), 
-				Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
-			$current_value['text_format'] = str_replace(
-				Array('%form_info%', '%form_summary%'), 
-				Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+			if (!empty($current_value)) {
+				$current_value['to'] = $receipts;
 
-			$email_format->value = serialize($current_value);
+				$current_value['html_format'] = str_replace(
+					Array('%form_info%', '%form_summary%'), 
+					Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
+				$current_value['text_format'] = str_replace(
+					Array('%form_info%', '%form_summary%'), 
+					Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
-			$email_format->sendMail($reps);
+				$email_format->value = serialize($current_value);
+
+				$email_format->sendMail($reps);
+			
+			}
 
 		}
 
@@ -484,18 +491,22 @@ class Form_Email extends Form
 
 			// substitute generic keywords with email format-specific keywords
 			$current_value = @unserialize($email_format->value);
-			$current_value['to'] = $stafs;
 
-			$current_value['html_format'] = str_replace(
-				Array('%form_info%', '%form_summary%'), 
-				Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
-			$current_value['text_format'] = str_replace(
-				Array('%form_info%', '%form_summary%'), 
-				Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
+			if (!empty($current_value)) {
+				$current_value['to'] = $stafs;
 
-			$email_format->value = serialize($current_value);
+				$current_value['html_format'] = str_replace(
+					Array('%form_info%', '%form_summary%'), 
+					Array('%form_info_html%', '%form_summary_html%'), $current_value['html_format']);
+				$current_value['text_format'] = str_replace(
+					Array('%form_info%', '%form_summary%'), 
+					Array('%form_info_text%', '%form_summary_text%'), $current_value['text_format']);
 
-			$email_format->sendMail($reps);
+				$email_format->value = serialize($current_value);
+
+				$email_format->sendMail($reps);
+
+			}
 
 		}
 
