@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file_versioning.inc,v 1.2 2004/11/17 13:01:54 brobertson Exp $
+* $Id: file_versioning.inc,v 1.3 2004/11/18 00:54:51 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -771,7 +771,6 @@ class File_Versioning
 	*/
 	function upToDate($real_file)
 	{
-		bam($real_file);
 		$info = $this->_getFileInfoFromRealFile($real_file);
 		if (!is_array($info)) {
 			if ($info == FUDGE_FV_ERROR) {
