@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.1 2004/09/01 01:42:28 arailean Exp $
+* $Id: page_remote_content.inc,v 1.2 2004/09/01 03:38:16 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -70,7 +70,7 @@ class Page_Remote_Content extends Page
 		// if we did not receive a reply
 		if (!$result) {
 			// requested file is binary
-			if ($this->_tmp['binary']) {
+			if (array_get_index($this->_tmp,'binary',false)) {
 				$type	= $this->_tmp['type'];
 				$url	= $this->_tmp['url'];
 
@@ -136,7 +136,7 @@ class Page_Remote_Content extends Page
 		// parameters for HTTP_Request. See Package for description.
 		$request_parameters = Array(
 									'timeout'			=> $this->attr('timeout'),
-									'allowRedirects'	=> true,
+									'allowRedirects'	=> $this->attr('allow_redirect'),
 									'maxRedirects'		=> 10,
 									);
 
@@ -308,7 +308,7 @@ RE;
 
 		// here we handle all the urls that need to be re-written to point back to our site
 		$pattern = <<<RE
-/(<(?:(?:a(?:rea)?.*?href)|(?:i?frame.*?src)|(?:(form).*action))\s*=\s*['\"]?)((?:(?![\#]|mailto|javascript))[^'\"> ]+)(['\"\> ]?[^<]*\>)/i
+/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src)|(?:(form)[^>]*action))\s*=\s*['\"]?)((?:(?![\#]|mailto|javascript))[^'\"> ]+)(['\"\> ]?[^<]*\>)/i
 RE;
 
 		preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
