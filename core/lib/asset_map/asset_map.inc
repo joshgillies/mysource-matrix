@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.118 2004/02/27 05:38:27 mmcintyre Exp $
+* $Id: asset_map.inc,v 1.119 2004/03/02 04:14:03 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -741,8 +741,13 @@ class Asset_Map
 
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 		if (is_null($asset)) {
-			$this->_error('Unable to Clone Asset, asset to be duplicated (Asset #"'.$link['minorid'].'") not found');
+			$this->_error('Unable to Clone Asset, asset to be cloned (Asset #"'.$link['minorid'].'") not found');
 			return;
+		}
+	
+		// check to see if the root asset chosen can be cloned
+		if (!$asset->canClone()) {
+			$this->_error('Unable to Clone Asset '.$asset->name.', Assets of type '.(ucwords(str_replace('_', ' ', $asset->type()))).' cannot be cloned');
 		}
 
 		$new_parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($input->root->attributes['to_parent_assetid']);
