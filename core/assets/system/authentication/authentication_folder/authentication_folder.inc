@@ -18,41 +18,44 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder.inc,v 1.6 2004/02/06 03:09:53 gsherwood Exp $
+* $Id: authentication_folder.inc,v 1.1 2004/02/06 03:09:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
+
 
 require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 
 /**
-* System_Management_Folder
+* Authentication_Folder
 *
 * Purpose
 *
 *
-* @author  Blair Robertson <blair@squiz.net>
+* @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class System_Management_Folder extends Folder
+class Authentication_Folder extends Folder
 {
+
 	/**
 	* Constructor
 	*
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function System_Management_Folder($assetid=0)
+	function Authentication_Folder($assetid=0)
 	{
 		$this->Folder($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
 	* Create this asset
 	*
-	* @param array()	&$link	information used to create the initial link
+	* @param array	&$link	information used to create the initial link
 	*
 	* @see Asset::create()
 	* @return mixed int or false
@@ -97,6 +100,7 @@ class System_Management_Folder extends Folder
 		trigger_error('Unable to duplicate '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').', you are only allowed one', E_USER_WARNING);
 		$null = NULL; // 'cause we need to return by reference :)
 		return $null;
+
 	}//end duplicate()
 
 
@@ -114,6 +118,7 @@ class System_Management_Folder extends Folder
 	{
 		trigger_error('Unable to morph '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 		return false;
+
 	}//end morph()
 
 
@@ -160,7 +165,6 @@ class System_Management_Folder extends Folder
 		if (empty($GLOBALS['SQ_INSTALL'])) {
 			trigger_error('You cannot create a new link to the '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name'), E_USER_WARNING);
 			return 0;
-		
 		} else {
 			return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 		}
@@ -197,24 +201,15 @@ class System_Management_Folder extends Folder
 	}//end canDelete()
 
 
-	/*
+	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
-		return Array(SQ_LINK_TYPE_1 => Array(
-											'system_user_group'     => Array('card' => '1', 'exclusive' => true),
-											'designs_folder'        => Array('card' => '1', 'exclusive' => true),
-											'authentication_folder' => Array('card' => '1', 'exclusive' => true),
-											'search_manager'        => Array('card' => '1', 'exclusive' => true),
-											'layout_manager'        => Array('card' => '1', 'exclusive' => true),
-											'remap_manager'         => Array('card' => '1', 'exclusive' => true),
-											'cron_manager'          => Array('card' => '1', 'exclusive' => true),
-										),
-					);
+		return Array(SQ_LINK_TYPE_1 => Array('authentication' => Array('card' => 'M', 'exclusive' => true)));
 
 	}//end _getAllowedLinks()
 
@@ -225,7 +220,7 @@ class System_Management_Folder extends Folder
 	* @param string	$lock_type	the type of write access required - if blank returns a plain check against
 	*							permissions set for this asset, otherwise returns effective access based on locking 
 	*							and status
-	* @param Array	$assetids	An array of user_group and/or user ids to check for write access
+	* @param array	$assetids	An array of user_group and/or user ids to check for write access
 	*							If the array is empty, the current user will be checked
 	*
 	* @return boolean
@@ -246,8 +241,29 @@ class System_Management_Folder extends Folder
 			}
 		}
 		return false;
+
 	}//end writeAccess()
 
 
+	/**
+	* Get an array of all installed authentication system IDs
+	*
+	* These are only the authentication systems that are actually installed into the
+	* authentication systems folder
+	*
+	* @return array(int)
+	* @access public
+	*/
+	function getAuthSystems()
+	{
+		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_1, 'authentication', false);
+		$installed_auth_types = Array();
+		foreach ($links as $link_data) $installed_auth_types[] = $link_data['minorid'];
+		return $installed_auth_types;
+
+	}//end getAuthSystems()
+
+
 }//end class
+
 ?>

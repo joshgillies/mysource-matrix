@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.34 2003/12/18 04:34:35 gsherwood Exp $
+* $Id: tables.xml,v 1.35 2004/02/06 03:09:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -127,9 +127,9 @@
 				<description />
 			</column>
 			<column name="created_userid" allow_null="0">
-				<type>INT</type>
+				<type>VARCHAR(255)</type>
 				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
+					<mysql>VARCHAR(140)</mysql>
 				</type_variations>
 				<default />
 				<description />
@@ -143,9 +143,9 @@
 				<description />
 			</column>
 			<column name="updated_userid" allow_null="0">
-				<type>INT</type>
+				<type>VARCHAR(255)</type>
 				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
+					<mysql>VARCHAR(140)</mysql>
 				</type_variations>
 				<default />
 				<description />
@@ -234,9 +234,9 @@
 				<description />
 			</column>
 			<column name="updated_userid" allow_null="0">
-				<type>INT</type>
+				<type>VARCHAR(255)</type>
 				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
+					<mysql>VARCHAR(140)</mysql>
 				</type_variations>
 				<default />
 				<description />
@@ -796,17 +796,17 @@
 	<table name="asset_permission" require_rollback="1">
 		<columns>
 			<column name="assetid" allow_null="0">
-				<type>INT</type>
+				<type>VARCHAR(255)</type>
 				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
+					<mysql>VARCHAR(140)</mysql>
 				</type_variations>
 				<default />
 				<description />
 			</column>
 			<column name="userid" allow_null="0">
-				<type>INT</type>
+				<type>VARCHAR(255)</type>
 				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
+					<mysql>VARCHAR(140)</mysql>
 				</type_variations>
 				<default>0</default>
 				<description />
@@ -838,16 +838,18 @@
 	<table name="asset_editing_access" require_rollback="1">
 		<columns>
 			<column name="userid" allow_null="0">
-				<type>INT</type>
+				<type>VARCHAR(255)</type>
 				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
+					<mysql>VARCHAR(140)</mysql>
 				</type_variations>
 				<default>0</default>
 				<description />
 			</column>
 			<column name="type_code" allow_null="1">
 				<type>VARCHAR(255)</type>
-				<type_variations />
+				<type_variations>
+					<mysql>VARCHAR(140)</mysql>
+				</type_variations>
 				<default />
 				<description>The type code of the asset type which we are restricting access to. Set to NULL to allow access to all asset types.</description>
 			</column>
@@ -999,17 +1001,17 @@
 				<description />
 			</column>
 			<column name="userto" allow_null="0">
-				<type>INT</type>
+				<type>VARCHAR(255)</type>
 				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
+					<mysql>VARCHAR(140)</mysql>
 				</type_variations>
 				<default>0</default>
 				<description />
 			</column>
 			<column name="userfrom" allow_null="0">
-				<type>INT</type>
+				<type>VARCHAR(255)</type>
 				<type_variations>
-					<mysql>INT UNSIGNED</mysql>
+					<mysql>VARCHAR(140)</mysql>
 				</type_variations>
 				<default>0</default>
 				<description />

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.30 2004/01/15 14:53:08 brobertson Exp $
+* $Id: step_03.php,v 1.31 2004/02/06 03:09:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -135,6 +135,8 @@ if (is_null($root_folder)) {
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($system_management_folder->id,	'all');
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($system_user_group->id,			'all');
 
+	$authentication_folder = &create_authentication_folder();
+	$GLOBALS['SQ_SYSTEM']->am->acquireLock($authentication_folder->id, 'all');
 
 	$cron_manager = &create_cron_manager();
 	$search_manager = &create_search_manager();
@@ -220,6 +222,36 @@ while (false !== ($entry = $d->read())) {
 	}
 }
 $d->close();
+
+
+
+
+//--        INSTALL AUTHENTICATION TYPES        --//
+
+// get all the authentication types that are currently installed
+$auth_types = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants('authentication');
+
+// get installed authentication systems
+$auth_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($auth_folder->id, SQ_LINK_TYPE_1, 'authentication', false);
+$installed_auth_types = Array();
+foreach ($links as $link_data) $installed_auth_types[] = $link_data['minor_type_code'];
+
+// install all systems that are not currently installed
+$folder_link = Array('asset' => &$auth_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+$GLOBALS['SQ_INSTALL'] = true;
+foreach ($auth_types as $type_code) {
+	if (in_array($type_code, $installed_auth_types)) continue;
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+	$auth = new $type_code();
+
+	if (!$auth->create($folder_link)) {
+		trigger_error('AUTHENTICATION TYPE "'.strtoupper($type_code).'" NOT CREATED', E_USER_WARNING);
+	} else {
+		pre_echo('AUTHENTICATION TYPE "'.strtoupper($type_code).'" CREATED: '.$auth->id);
+	}
+}
+$GLOBALS['SQ_INSTALL'] = false;
 
 
 
@@ -494,6 +526,28 @@ function &create_designs_folder()
 	return $designs_folder;
 
 }//end create_designs_folder()
+
+
+/**
+* Create the authentication folder system asset
+*
+* @return object Authentication_Folder
+* @access public
+*/
+function &create_authentication_folder()
+{
+	$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
+	
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('authentication_folder');
+	$authentication_folder = new Authentication_Folder();
+	$authentication_folder_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+	if (!$authentication_folder->create($authentication_folder_link)) trigger_error('Authentication Folder NOT CREATED', E_USER_ERROR);
+	pre_echo('Authentication Folder Asset Id : '.$authentication_folder->id);
+	
+	$GLOBALS['SQ_SYSTEM_ASSETS']['authentication_folder'] = $authentication_folder->id;
+	return $authentication_folder;
+
+}//end create_authentication_folder()
 
 
 /**

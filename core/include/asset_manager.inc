@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.172 2004/02/01 23:56:37 mmcintyre Exp $
+* $Id: asset_manager.inc,v 1.173 2004/02/06 03:09:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -571,6 +571,7 @@ class Asset_Manager extends MySource_Object
 	* @param string $type_code		the type of asset
 	* @return array		an array of Asset_Attribute's
 	*
+	* @return array(int)
 	* @access public
 	*/
 	function getAssetTypeAttributes($type_code)
@@ -617,23 +618,37 @@ class Asset_Manager extends MySource_Object
 			$this->_assets[$assetid]['object'] = null;
 			$this->_assets[$assetid]['count']  = 0;
 
-			if (empty($type_code)) {
-				$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($assetid);
-				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-				$type_code = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where);
-				if (DB::isError($type_code) || empty($type_code)) {
-					if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
-					return $this->_assets[$assetid]['object'];
-				}
-			}//end if
 
-			if (!isset($this->_asset_types[$type_code])) {
-				if (!$mute_errors) trigger_error('Asset Type "'.$type_code.'" is not installed on this system', E_USER_WARNING);
+			// check if we are getting links for a shadow asset, and palm the request off to the
+			// handler of the shadow asset if we are
+			$id_parts = explode(':', $assetid);
+			if (isset($id_parts[1])) {
+
+				$real_assetid = $id_parts[0];
+				$asset = &$this->getAsset($real_assetid, '', $mute_errors);
+				$this->_assets[$assetid]['object'] = &$asset->getAsset($id_parts[1]);
+
 			} else {
-				$this->includeAsset($type_code);
-				$this->_assets[$assetid]['object'] = new $type_code($assetid);
-				// make sure of the asset is correct
-				if (empty($this->_assets[$assetid]['object']->id)) $this->_assets[$assetid]['object'] = null;
+
+				if (empty($type_code)) {
+					$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($assetid);
+					$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+					$type_code = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where);
+					if (DB::isError($type_code) || empty($type_code)) {
+						if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
+						return $this->_assets[$assetid]['object'];
+					}
+				}//end if
+
+				if (!isset($this->_asset_types[$type_code])) {
+					if (!$mute_errors) trigger_error('Asset Type "'.$type_code.'" is not installed on this system', E_USER_WARNING);
+				} else {
+					$this->includeAsset($type_code);
+					$this->_assets[$assetid]['object'] = new $type_code($assetid);
+					// make sure of the asset is correct
+					if (empty($this->_assets[$assetid]['object']->id)) $this->_assets[$assetid]['object'] = null;
+
+				}//end if
 
 			}//end if
 
@@ -1349,21 +1364,49 @@ class Asset_Manager extends MySource_Object
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return Array()
+	* @return array
 	* @access public
 	*/
 	function getLinks($assetid, $link_types, $type_code='', $strict_type_code=true, $side_of_link='major', $value=null, $dependant=null, $exclusive=null, $sort_by=null)
 	{
-		if ($side_of_link != 'major' && $side_of_link != 'minor')
+		if ($side_of_link != 'major' && $side_of_link != 'minor') {
 			trigger_error('Unknown Side of Link "'.$side_of_link.'"', E_USER_ERROR);
+		}
 
 		if (!$assetid) return Array();
 
+
+		// check if we are getting links for a shadow asset, and palm the request off to the
+		// handler of the shadow asset if we are
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			$real_assetid = $id_parts[0];
+			$asset = &$this->getAsset($real_assetid);
+			$links = $asset->getLinks($id_parts[1], $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
+			$this->forgetAsset($asset);
+			return $links;
+		}
+
+
+		// we are not getting links for a shadow asset, so if we are getting child links of
+		// an asset that handles shadow assets, palm the request off to it
+		if ($side_of_link == 'major') {
+			$asset = &$this->getAsset($assetid);
+			if ($asset->type() == 'ldap_bridge') {
+				$links = $asset->getLinks($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $sort_by);
+				$this->forgetAsset($asset);
+				return $links;
+			}
+			$this->forgetAsset($asset);
+			unset($asset);
+		}
+
+
+		// we couldnt palm the request off, so we better do it ourselves
 		$query = $this->generateGetLinksQuery($assetid, $link_types, $type_code, $strict_type_code, $side_of_link, $value, $dependant, $exclusive, $sort_by);
 		if (empty($query)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
 		$result = $db->getAll(implode(' ', $query));
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
@@ -1389,7 +1432,7 @@ class Asset_Manager extends MySource_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$assetids = Array();
 		$asset_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_SC_LINK_ALL, '', true, 'minor');
-		
+
 		foreach ($asset_links as $link) $assetids[$link['majorid']] = Array();
 
 		if (empty($assetids)) {
@@ -1468,10 +1511,23 @@ class Asset_Manager extends MySource_Object
 	* @param bool			$strict_type_code	whether we are finding assets that are just a $type_code
 	*											or $type_code and any of it's sub-classes
 	*
+	* @return array(int)
 	* @access public
 	*/
 	function getParents($assetid, $type_code='', $strict_type_code=true)
 	{
+		// check if we are getting parents for a shadow asset, and palm the request off to the
+		// handler of the shadow asset if we are
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			$real_assetid = $id_parts[0];
+			$asset = &$this->getAsset($real_assetid);
+			$parents = $asset->getParents($id_parts[1], $type_code, $strict_type_code);
+			$this->forgetAsset($asset);
+			return $parents;
+		}
+
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT DISTINCT pl.minorid
@@ -1542,12 +1598,36 @@ class Asset_Manager extends MySource_Object
 	* @param string			$sort_by			a field in the asset table you would like the results
 	*											sorted by (eg. name, short_name etc)
 	*
-	* @return Array(int => string)	returns an array of assetids and their type code
+	* @return array(int => string)	returns an array of assetids and their type code
 	* @access public
 	* @see generateGetChildrenQuery()
 	*/
 	function getChildren($assetid, $type_code='', $strict_type_code=true, $sort_by=null)
 	{
+		// check if we are getting children for a shadow asset, and palm the request off to the
+		// handler of the shadow asset if we are
+		$id_parts = explode(':', $assetid);
+		if (isset($id_parts[1])) {
+			$real_assetid = $id_parts[0];
+			$asset = &$this->getAsset($real_assetid);
+			$children = $asset->getChildren($id_parts[1], $type_code, $strict_type_code, $sort_by);
+			$this->forgetAsset($asset);
+			return $children;
+		}
+
+
+		// we are not getting children for a shadow asset, so if we are getting children of
+		// an asset that handles shadow assets, palm the request off to it
+		$asset = &$this->getAsset($assetid);
+		if ($asset->type() == 'ldap_bridge') {
+			$children = $asset->getChildren($assetid, $type_code, $strict_type_code, $sort_by);
+			$this->forgetAsset($asset);
+			return $children;
+		}
+		$this->forgetAsset($asset);
+		unset($asset);
+
+
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$query = $this->generateGetChildrenQuery($assetid, $type_code, $strict_type_code, $sort_by);
@@ -1594,6 +1674,7 @@ class Asset_Manager extends MySource_Object
 
 			$dependant_links = $this->getLinks($asset->id, SQ_SC_LINK_SIGNIFICANT, $type_code, $strict_type_code, 'major', null, 1);
 			for (reset($dependant_links); NULL !== ($k = key($dependant_links)); next($dependant_links)) {
+				if (!$dependant_links[$k]['dependant']) continue;
 				$children[$dependant_links[$k]['minorid']] = $dependant_links[$k]['minor_type_code'];
 				$children = $children + $this->getDependantChildren($dependant_links[$k]['minorid'],$type_code, $strict_type_code);
 			}
@@ -1722,6 +1803,7 @@ class Asset_Manager extends MySource_Object
 				} else {
 					$userids = $GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false);
 					array_push($userids, 0, (int) $GLOBALS['SQ_SYSTEM']->user->id);
+					for(reset($userids); null !== ($i = key($userids)); next($userids)) $userids[$i] = $db->quote($userids[$i]);
 					$USERIDS_COND = 'AND p.userid  IN ('.implode(',', $userids).')';
 				}
 			} else {
@@ -3054,7 +3136,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function getPermission($assetid, $permission, $access=null, $and_greater=true, $expand_groups=false, $all_info=false)
 	{
-		$assetid    = (int) $assetid;
 		$permission = (int) $permission;
 		// can't be and_greater with workflow
 		if ($permission == SQ_PERMISSION_WORKFLOW) $and_greater = false;
@@ -3141,8 +3222,6 @@ class Asset_Manager extends MySource_Object
 	*/
 	function setPermission($assetid, $userid, $permission, $access)
 	{
-		$assetid    = (int)  $assetid;
-		$userid     = (int)  $userid;
 		$permission = (int)  $permission;
 		$access     = (bool) $access;
 
@@ -3411,91 +3490,91 @@ class Asset_Manager extends MySource_Object
 
 	}//end getRootURL()
 
-		/**
-		* Returns an array of assetid's + info in the order that they propogate out from the site url
-		*
-		* If no url is passed the current (aka PHP_SELF) one is used
-		*
-		* @param string    $protocol    the protocol to match -> null means it is ignored
-		* @param string    $url        the urls to check for -> null defaults it to current url
-		*
-		* @return array
-		* @access public
-		*/
-		function getLineageFromURL($protocol=null, $url=null)
-		{
-			if (is_null($url)) $url = current_url(false, true);
-			// remove any trailing slashes and double slashes
-			$url = strip_url($url);
+	/**
+	* Returns an array of assetid's + info in the order that they propogate out from the site url
+	*
+	* If no url is passed the current (aka PHP_SELF) one is used
+	*
+	* @param string    $protocol    the protocol to match -> null means it is ignored
+	* @param string    $url        the urls to check for -> null defaults it to current url
+	*
+	* @return array
+	* @access public
+	*/
+	function getLineageFromURL($protocol=null, $url=null)
+	{
+		if (is_null($url)) $url = current_url(false, true);
+		// remove any trailing slashes and double slashes
+		$url = strip_url($url);
 
-			if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
+		if (!is_null($protocol) && $protocol != 'https') $protocol = 'http';
 
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			// get the root(site) url for this url
-			$root_url = $this->getRootURL($url);
-			if (empty($root_url)) {
-				$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
-				trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'", no root url was found', E_USER_WARNING);
-				return Array();
-			}
+		// get the root(site) url for this url
+		$root_url = $this->getRootURL($url);
+		if (empty($root_url)) {
+			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
+			trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'", no root url was found', E_USER_WARNING);
+			return Array();
+		}
 
-			//// See Mantis #0000128 for a reason on why the trailing slash is added to the URL and before the '%' ////
-			$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/%').')' : '(l.url || '.$db->quote('/%').')';
-			$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
-					AND '.$db->quote($url.'/').' LIKE '.$concat;
+		//// See Mantis #0000128 for a reason on why the trailing slash is added to the URL and before the '%' ////
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/%').')' : '(l.url || '.$db->quote('/%').')';
+		$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
+				AND '.$db->quote($url.'/').' LIKE '.$concat;
 
-			if (!is_null($protocol)) {
-				$where .= ' AND l.'.$protocol.' = '.$db->quote('1');
-				$protocol_select = $db->quote($protocol).' as protocol';
-			} else {
-				$curr_proto = current_protocol();
-				$protocol_select = 'CASE WHEN l.'.$curr_proto.' = '.$db->quote('1').' THEN '.$db->quote($curr_proto).' ELSE '.$db->quote(($curr_proto == 'http') ? 'https' : 'http').' END as protocol';
-			}
+		if (!is_null($protocol)) {
+			$where .= ' AND l.'.$protocol.' = '.$db->quote('1');
+			$protocol_select = $db->quote($protocol).' as protocol';
+		} else {
+			$curr_proto = current_protocol();
+			$protocol_select = 'CASE WHEN l.'.$curr_proto.' = '.$db->quote('1').' THEN '.$db->quote($curr_proto).' ELSE '.$db->quote(($curr_proto == 'http') ? 'https' : 'http').' END as protocol';
+		}
 
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
-			$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, '.$protocol_select.'
-					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.assetid = a.assetid
-					'.$where.'
-					ORDER BY l.url ASC';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$sql = 'SELECT l.url, l.assetid, a.name, a.short_name, a.type_code, '.$protocol_select.'
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.assetid = a.assetid
+				'.$where.'
+				ORDER BY l.url ASC';
 
-			$result = $db->getAll($sql);
-			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+		$result = $db->getAll($sql);
+		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
-			// No urls found or we only found some of the parents, but not the passed url
-			if (empty($result) || $result[count($result) - 1]['url'] != $url) {
-				$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
-				trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'"', E_USER_WARNING);
-				return Array();
+		// No urls found or we only found some of the parents, but not the passed url
+		if (empty($result) || $result[count($result) - 1]['url'] != $url) {
+			$fancy_url = (($protocol) ? $protocol.'://' : '').$url;
+			trigger_error('Unable to find an lineage for the URL "'.$fancy_url.'"', E_USER_WARNING);
+			return Array();
 
-			} else {
+		} else {
 
-				// if there is only one entry then this is the site root, so for completeness
-				// we will manually add in the index page to the index
-				if (count($result) == 1) {
-					$site = &$this->getAsset($result[0]['assetid'], $result[0]['type_code']);
-					if (is_null($site)) {
-						return Array();
-					}
-					$index_page = $site->getSpecialPage('index');
-					if (!is_null($index_page)) {
-						$paths = $index_page->getWebPaths();
-						$result[] = Array (
-											'url'        => $result[0]['url'].((empty($paths)) ? '' : '/'.$paths[0]),
-											'assetid'    => $index_page->id,
-											'name'       => $index_page->name,
-											'short_name' => $index_page->short_name,
-											'type_code'  => $index_page->type(),
-											'protocol'   => current_protocol(),
-											);
-					}// end if
+			// if there is only one entry then this is the site root, so for completeness
+			// we will manually add in the index page to the index
+			if (count($result) == 1) {
+				$site = &$this->getAsset($result[0]['assetid'], $result[0]['type_code']);
+				if (is_null($site)) {
+					return Array();
+				}
+				$index_page = $site->getSpecialPage('index');
+				if (!is_null($index_page)) {
+					$paths = $index_page->getWebPaths();
+					$result[] = Array (
+										'url'        => $result[0]['url'].((empty($paths)) ? '' : '/'.$paths[0]),
+										'assetid'    => $index_page->id,
+										'name'       => $index_page->name,
+										'short_name' => $index_page->short_name,
+										'type_code'  => $index_page->type(),
+										'protocol'   => current_protocol(),
+										);
 				}// end if
-
-				return $result;
 			}// end if
 
-	}//end getLineageFromURL() 
+			return $result;
+		}// end if
+
+	}//end getLineageFromURL()
 
 
 	/**

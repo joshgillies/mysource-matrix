@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.34 2004/01/16 05:43:36 gsherwood Exp $
+* $Id: mysource.inc,v 1.35 2004/02/06 03:09:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -372,8 +372,24 @@ class MySource
 
 				if (isset($_POST['SQ_LOGIN_KEY']) && isset($_POST['SQ_LOGIN_USERNAME']) && 
 					isset($_POST['SQ_LOGIN_PASSWORD']) && $this->loginKey() == $_POST['SQ_LOGIN_KEY']) {
-					$this->am->includeAsset('user');
-					$user = &User::find($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD']);
+
+					// get a list of all the installed authentication systems
+					$auth_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('authentication_folder');
+					if (is_null($auth_folder)) {
+						trigger_error('Unable to locate authentication system', E_USER_ERROR);
+						return;
+					}
+					$auth_systems = $auth_folder->getAuthSystems();
+
+					// try each auth system in order to see if we can load a user asset
+					$user = null;
+					foreach ($auth_systems as $systemid) {
+						$system = &$GLOBALS['SQ_SYSTEM']->am->getAsset($systemid);
+						if (is_null($system)) continue;
+						$user = &$system->authenticateUser($_POST['SQ_LOGIN_USERNAME'], $_POST['SQ_LOGIN_PASSWORD']);
+						if (!is_null($user)) break;
+					}
+
 					if (!is_null($user)) {
 						if ($this->setCurrentUser($user)) {
 							$_SESSION['userid']         = $user->id;
@@ -395,40 +411,7 @@ class MySource
 							$_SESSION['user_is_root']      = $this->_user_is_root;
 							$_SESSION['user_is_sys_admin'] = $this->_user_is_sys_admin;
 							$_SESSION['user_last_access']  = time();
-							unset($_SESSION['user_login_attempts']);
 							return;
-						}
-					} else {
-
-						$username = $_POST['SQ_LOGIN_USERNAME'];
-						if (!isset($_SESSION['user_login_attempts'])) $_SESSION['user_login_attempts'] = Array();
-						if (empty($_SESSION['user_login_attempts'][$username])) $_SESSION['user_login_attempts'][$username] = 1;
-						else $_SESSION['user_login_attempts'][$username]++;
-
-						if ($_SESSION['user_login_attempts'][$username] >= SQ_CONF_MAX_LOGIN_ATTEMPTS) {
-							$user = &User::find($username);
-							if (!is_null($user) && $user->canLogin()) {
-								if ($this->setCurrentUser($this->am->getSystemAsset('root_user'))) {
-									$success = false;
-									if ($user->processStatusChange(SQ_STATUS_UNDER_CONSTRUCTION)) {
-										$this->addMessage('User "'.$username.'" locked');
-										$success = true;
-									}
-									$this->restoreCurrentUser();
-
-									// log a message so we know someone has had their account locked
-									// we need to do this here because before we restore the current user
-									// we are actually logged in as ROOT
-									if ($success) {
-										$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-										$log_body = 'User "'.$username.'" has had their account locked after '.(int)SQ_CONF_MAX_LOGIN_ATTEMPTS.' unsuccessful login attempts';
-										$log = $ms->newMessage(Array(), 'User Account Locked', $log_body, 'system.security.login');
-										$log->parameters['remote_addr'] = $_SERVER['REMOTE_ADDR'];
-										$log->parameters['sessionid'] = session_id();
-										$log->send();
-									}
-								}
-							}
 						}
 					}
 
@@ -702,7 +685,7 @@ class MySource
 
 		return true;
 
-	}//end setCurrentUser()
+	}//end restoreCurrentUser()
 
 
 	/**
@@ -726,7 +709,7 @@ class MySource
 	*/
 	function currentUserId()
 	{
-		return ($this->user) ? (int) $this->user->id : 0;
+		return ($this->user) ? $this->user->id : 0;
 
 	}//end currentUserId()
 

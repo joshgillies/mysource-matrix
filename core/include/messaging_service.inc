@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.23 2003/11/26 00:51:10 gsherwood Exp $
+* $Id: messaging_service.inc,v 1.24 2004/02/06 03:09:54 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -385,6 +385,18 @@ class Messaging_Service extends MySource_Object
 
 		for($i = 0, $total = count($result); $i < $total; $i++) {
 			$result[$i]['sent'] = iso8601_ts($result[$i]['sent']);
+
+			// if we are showing the from name, check that any messages from shadow
+			// assets are actually displaying the correct name
+			if (is_string($get_user_name)) {
+				$id_parts = explode(':', $result[$i]['userfrom']);
+				if (isset($id_parts[1])) {
+					$bridgeid = $id_parts[0];
+					$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
+					$shadow = &$bridge->getAsset($id_parts[1]);
+					if (!is_null($shadow)) $result[$i]['from_name'] = $shadow->$get_user_name;
+				}
+			}
 		}
 
 		return $result;
