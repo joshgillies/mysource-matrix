@@ -26,8 +26,9 @@ class Site extends Folder
 		$this->Folder($assetid);
 	}
 
+
 	/**
-	* returns the urls for this site
+	* Returns the urls for this site
 	*
 	* @see Asset::updateLookups()
 	*/
@@ -36,6 +37,7 @@ class Site extends Folder
 		// because we never have paths, we can only return the urls
 		return Array();
 	}// end getWebPaths()
+
 
 	/**
 	* Attempts to add a url to this site, site's don't have paths, only URLs
@@ -51,6 +53,7 @@ class Site extends Folder
 		return false;
 	}// end addWebPath()
 
+
 	/**
 	* Attempts to delete a path to this asset
 	*
@@ -65,8 +68,9 @@ class Site extends Folder
 		return false;
 	}// end deleteWebPath()
 
+
 	/**
-	* returns a list of urls that point to this asset
+	* Returns a list of urls that point to this asset
 	*
 	* @param boolean	$all_info	whether to return all the URL information (ie ports & protocols) or not
 	*
@@ -94,6 +98,7 @@ class Site extends Folder
 		return $this->_tmp['urls_info'];
 
 	}// end getSiteURLs()
+
 
 	/**
 	* Attempts to add a url to this site, site's don't have paths, only URLs
@@ -206,6 +211,7 @@ class Site extends Folder
 
 	}// end saveWebURLs()
 	
+
 	/**
 	* Fn that does the real processing of updateLookups(), separated to allow for the DB transaction stuff
 	* Will be called by parent assets recursively on their kids so not 'really' private
@@ -265,19 +271,22 @@ class Site extends Folder
 
 	}// end _updateLookups()
 
+
 	/**
 	* Called by the design to print the body of this asset
 	* it's up to the kids to override
 	*
 	* @access public
 	*/
-	function printBody() 
+	function printBody()
 	{
-		echo "SITE CONTENTS HERE";
+		$link = $this->getSpecialPageLink('index');
+		$index_page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['type_code'], true);
+		$index_page->printBody();
 	}// end printBody()
 
 
-	/*
+	/**
 	* Returns the link to the special page (index, not_found, forbidden) passed in
 	*
 	* @param string	$page	the page that the user wants
