@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime.inc,v 1.10 2003/11/26 00:51:18 gsherwood Exp $
+* $Id: datetime.inc,v 1.11 2004/07/15 00:56:53 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -41,6 +41,7 @@
 * @param string	$then	the timestamp for some time in the future
 *
 * @return string
+* @access public
 */
 function easy_datetime($then='')
 {
@@ -62,6 +63,7 @@ function easy_datetime($then='')
 * @param boolean	$full_format	print full hours, minutes, seconds text
 *
 * @return string
+* @access public
 */
 function easy_time_total($secs=0, $full_format=false)
 {
@@ -236,7 +238,8 @@ function easy_time_total($secs=0, $full_format=false)
 function readable_datetime($then=null)
 {
 	return (is_null($then)) ? date('d M Y g:ia') : date('d M Y g:ia', $then);
-}
+
+}//end readable_datetime()
 
 
 /**
@@ -252,30 +255,29 @@ function is_leap_year($year=null)
 	if (is_null($year)) $year = (int) date('Y');
 	if ($year % 4 != 0) return false;
 
-	// only 1 out of evey four hundred year milestones is a leap year
+	// only 1 out of every four hundred year milestones is a leap year
 	if ($year % 100 == 0) {
 		return (($year / 100) % 4 == 0);
 	}
 
 	return true;
 
-}// end is_leap_year()
+}//end is_leap_year()
 
 
 /**
-* Returns whether the passed year is a leap year or not
+* Returns the number of days in a given month in a given year
 *
 * @param int	$month	the month to return the number of days in 
 * @param int	$year	the year that the month is in
 *
-* @return boolean
+* @return int the number of days in the month - but throws a fatal error if month is outside 1-12
 * @access public
 */
 function days_in_month($month=null, $year=null)
 {
 	if (is_null($month)) $month = (int) date('n');
 	if (is_null($year))  $year  = (int) date('Y');
-
 
 	switch($month) {
 		case  2 : // Feb
@@ -297,9 +299,9 @@ function days_in_month($month=null, $year=null)
 			return 30;
 		default : 
 			trigger_error('UNKNOWN MONTH : '.$month, E_USER_ERROR);
-	}// end switch
+	}//end switch
 
-}// end days_in_month()
+}//end days_in_month()
 
 
 /**
@@ -344,7 +346,7 @@ function int_to_roman($num = 0)
 	}
 	return($roman);
 
-} // end int_to_roman()
+}//end int_to_roman()
 
 
 
