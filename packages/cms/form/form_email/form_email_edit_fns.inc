@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.12 2004/05/17 05:12:34 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.13 2004/05/17 05:53:09 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -100,7 +100,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$to_ts   = mktime(23,59,59,$to_value[1],$to_value[2],$to_value[0]);
 
 		$log_path = $asset->data_path.'/submission_logs';
-		$logs = Array();
 		?>
 		<table class="sq-backend-table">
 		<tr>
@@ -117,7 +116,7 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 				Expand ?
 			</td>
 		</tr>
-		<?php }
+		<?php
 
 		// search in the sub-logs directory for files that fit in the date range
 		if ($handle = opendir($log_path)) {
@@ -130,8 +129,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 				if (($file_ts >= $from_ts) && ($file_ts <= $to_ts)) {
 					// time is good; load me up
-					$logs[$sub_id] = new XML_Tree($log_file);
-					$root  = &$logs[$sub_id]->getTreeFromFile();
+					$tree = new XML_Tree($log_file);
+					$root = &$tree->getTreeFromFile();
 					if (PEAR::isError($root)) {
 						pre_echo($root->getMessage()."\n".$root->getUserInfo());
 						return;
@@ -243,12 +242,6 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		?>
 		</table>
 		<?php
-
-		if (!$print_log) {
-			echo 'Search completed - there are '.$num_subs.' submissions in this time period';
-		}
-
-		//ksort($logs);				// sort the thing by submission ID
 
 	}//end paintSubmissions()
 
