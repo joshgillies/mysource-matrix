@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_insert_anchor.inc,v 1.4 2004/09/09 03:34:17 amiller Exp $
+* $Id: matrix_insert_anchor.inc,v 1.5 2004/11/25 02:58:02 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -140,13 +140,13 @@ class matrix_insert_anchor extends wysiwyg_plugin {
 
 					// convert all para tags to lowercase
 					var para_html = inside_html.replace(/(<\/?)P/gi, "$1p");
-					
+
 					// OK so we have some paragraph tags caught up in the mix, let's see what we can do with them
 					// because we don't want our href's going around paragraph tags
 					if (para_html.indexOf("<p") > -1) {
 
 						// if the position of the first tag is the same as the last then we have only one paragraph
-						// we don't want more than one paragraph because these can start or end from half-way through 
+						// we don't want more than one paragraph because these can start or end from half-way through
 						// a para, which would fuck up the formatting when we go to re-insert the text with the href
 						if (para_html.indexOf("<p") != para_html.lastIndexOf("<p")) {
 							alert("Please select only one paragraph to link at a time otherwise bad things happen.");
@@ -164,15 +164,25 @@ class matrix_insert_anchor extends wysiwyg_plugin {
 				var strPage = "<?php echo $this->get_popup_href('insert_anchor.php')?>?&name=" + escape(currArgs["name"]) + "&editor_name=" + escape("<?php echo $this->wysiwyg->name; ?>") + "&in_popup=" + escape(in_popup);
 
 				this._popupDialog("matrixInsertAnchor", strPage, 400, 180, true, function(param) {
-					if (!param) { 
+					if (!param) {
 						// user must have pressed Cancel
 						return false;
 					}
-					
+
 					if (param["name"] != "") {
-		
-						var html = '<a name="' + param["name"] + '"';
-						html += '>' + inside_html + '</a>';
+
+						var para = new RegExp("^[\n\t\s]*<P[^>]*>(.*)<\/P>", "gim")
+						var insideP = inside_html.replace(para, "$1");
+
+						if (insideP != inside_html) {
+							var html = '<p><a name="' + param["name"] + '"';
+							html += '>' + insideP + '</a></p>';
+						} else {
+							var html = '<a name="' + param["name"] + '"';
+							html += '>' + inside_html + '</a>';
+						}
+						alert(html);
+
 						html = editor.make_absolute_urls(html);
 
 						// replace with new URL
