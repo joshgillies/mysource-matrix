@@ -188,10 +188,12 @@ class Resolve
 	/**
 	* Is the passed/current user the root user?
 	*
+	* @param object	&$user	the user object you want to test for root access
+	*
 	* @return boolean
 	* @access public
 	*/
-	function userRoot($user=false)
+	function userRoot($user=null)
 	{
 		if (empty($user)) $user =& $this->user;
 		if (!$user->id) return false;
@@ -203,10 +205,12 @@ class Resolve
 	/**
 	* Is the passed/current user a system administrator?
 	*
+	* @param object	&$user	the user object you want to test for sysadmin access
+	*
 	* @return boolean
 	* @access public
 	*/
-	function userSystemAdmin($user=false)
+	function userSystemAdmin($user=null)
 	{
 		if (empty($user)) $user =& $this->user;
 		if (!$user->id) return false;
