@@ -267,7 +267,7 @@ class Design_Area_Menu_Type extends Design_Area
 					$settings = $this->attr('settings');
 					echo '<', '?php switch($'.$this->attr('id_name').'_current_setting){ ';
 					foreach($settings[$setting_name] as $case => $value) {
-						echo 'case \''.addslashes($case).'\' : ?>'.$value.'<?php break; ';
+						echo 'case \''.addslashes($case).'\' : ?','>', $value, '<','?php break; ';
 					}
 					echo '}// end switch ?', '>';
 
@@ -288,15 +288,15 @@ class Design_Area_Menu_Type extends Design_Area
 
 			switch($var) {
 				case 'page_link' :
-					echo '<?', 'php echo $'.$this->attr('id_name').'_kid->getHref($'.$this->attr('id_name').'_base_url); ?', '>';
+					echo '<', '?php echo $'.$this->attr('id_name').'_kid->getHref($'.$this->attr('id_name').'_base_url); ?', '>';
 					break;
 
 				case 'page_short_name' :
-					echo '<?', 'php echo ', $value_prefix, '$'.$this->attr('id_name').'_kid->short_name', $value_suffix, '; ?', '>';
+					echo '<', '?php echo ', $value_prefix, '$'.$this->attr('id_name').'_kid->short_name', $value_suffix, '; ?', '>';
 					break;
 
 				case 'page_name' :
-					echo '<?', 'php echo ', $value_prefix, '$'.$this->attr('id_name').'_kid->name', $value_suffix, '; ?', '>';
+					echo '<', '?php echo ', $value_prefix, '$'.$this->attr('id_name').'_kid->name', $value_suffix, '; ?', '>';
 					break;
 
 				default :
