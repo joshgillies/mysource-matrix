@@ -5,9 +5,9 @@
 *
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 * $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/html_form/html_form.js,v $
-* $Revision: 1.12 $
-* $Author: gsherwood $
-* $Date: 2003/06/10 01:29:58 $
+* $Revision: 1.13 $
+* $Author: brobertson $
+* $Date: 2003/06/16 07:39:05 $
 * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 */
 
@@ -194,7 +194,7 @@ function form_element_value(element)
 function get_combo_text(element) 
 {
 	// just to make sure
-	if (element.type != "select-one" && element.type != "select-multiple") return;
+	if (element.type != "select-one" && element.type != "select-multiple") return '';
 
 	return element.options[element.selectedIndex].text;
 
@@ -430,13 +430,14 @@ function check_date(date_name, show_time)
 * Activated by the pressing of the "Change..." button to start the asset finder mode in the flash menu
 *
 * @param string	$name			the name of the hidden field
+* @param string	$safe_name		the name prefix for all the other form elements associated with the 
 * @param string	$type_codes_xml	xml containing type codes that we want to find
 *
 * @access public
 */
 var ASSET_FINDER_FIELD_NAME = null;
 var ASSET_FINDER_FIELD_SAFE_NAME = null;
-function asset_finder_btn_press(name, safe_name, type_codes_xml) 
+function asset_finder_change_btn_press(name, safe_name, type_codes_xml) 
 {
 	var f = document.main_form;
 
@@ -454,17 +455,17 @@ function asset_finder_btn_press(name, safe_name, type_codes_xml)
 		ASSET_FINDER_FIELD_NAME = name;
 		ASSET_FINDER_FIELD_SAFE_NAME = safe_name;
 		top.sidenav.asset_finder_start(asset_finder_done, type_codes_xml);
-		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_btn', 'Cancel');
+		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Cancel');
 
 	// else we must be cancelling the asset finder
 	} else {
 		top.sidenav.asset_finder_cancel();
-		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_btn', 'Change...');
+		set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change...');
 		ASSET_FINDER_FIELD_NAME = null;
 		ASSET_FINDER_FIELD_SAFE_NAME = null;
 	}
 
-}// end asset_finder_btn_press()
+}// end asset_finder_change_btn_press()
 
 /**
 * Call-back fns that stops the asset finder 
@@ -477,16 +478,48 @@ function asset_finder_btn_press(name, safe_name, type_codes_xml)
 function asset_finder_done(assetid, label) 
 {
 	if (ASSET_FINDER_FIELD_NAME == null) return;
-	// if we get a zero they cancelled, do nothing
-	if (assetid != 0) {
+	alert('Done : ' + assetid);
+	// if we get a -1 they cancelled, do nothing
+	if (assetid != -1) {
 		set_hidden_field(ASSET_FINDER_FIELD_NAME, assetid);
-		set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_label', label + ' (Asset #' + assetid + ')');
+		set_text_field(ASSET_FINDER_FIELD_SAFE_NAME + '_label', (assetid == 0) ? '' : label + ' (Asset #' + assetid + ')');
 	}
-	set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_btn', 'Change...');
+	set_button_value(ASSET_FINDER_FIELD_SAFE_NAME + '_change_btn', 'Change...');
 	ASSET_FINDER_FIELD_NAME = null;
 	ASSET_FINDER_FIELD_SAFE_NAME = null;
 
 }// end asset_finder_done()
+
+/**
+* Activated by the pressing of the "Clear" button
+*
+* @param string	$name			the name of the hidden field
+* @param string	$safe_name		the name prefix for all the other form elements associated with the 
+*
+* @access public
+*/
+function asset_finder_clear_btn_press(name, safe_name) 
+{
+	set_hidden_field(name, 0);
+	set_text_field(safe_name + '_label', '');
+
+}// end asset_finder_clear_btn_press()
+
+/**
+* Activated by the pressing of the "Reset" button
+*
+* @param string	$name			the name of the hidden field
+* @param string	$safe_name		the name prefix for all the other form elements associated with the 
+*
+* @access public
+*/
+function asset_finder_reset_btn_press(name, safe_name, assetid, label) 
+{
+	set_hidden_field(name, assetid);
+	set_text_field(safe_name + '_label', label);
+
+}// end asset_finder_reset_btn_press()
+
 
 /**
 * Activated by on an unload event to cancel the asset finder if we are currently looking

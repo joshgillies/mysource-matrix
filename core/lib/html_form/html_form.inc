@@ -543,7 +543,9 @@ function asset_finder($name, $assetid=0, $type_codes=Array())
 
 	hidden_field($name, $assetid);
 	text_box($safe_name.'_label', $label, 30, 0, 'style="border-style: none; border-width: 0px;" onFocus="javascript: this.tmp = this.value;" onBlur="javascript: this.value = this.tmp;"');
-	normal_button($safe_name.'_btn', 'Change...', 'asset_finder_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.str_replace("\n", "\\n", addslashes($xml_type_codes->get())).'\');');
+	normal_button($safe_name.'_change_btn', 'Change...', 'asset_finder_change_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.str_replace("\n", "\\n", addslashes($xml_type_codes->get())).'\');');
+	normal_button($safe_name.'_clear_btn', 'Clear', 'asset_finder_clear_btn_press(\''.$name.'\', \''.$safe_name.'\');');
+	normal_button($safe_name.'_reset_btn', 'Reset', 'asset_finder_reset_btn_press(\''.$name.'\', \''.$safe_name.'\', \''.$assetid.'\', \''.addslashes($label).'\');');
 
 }//end asset_finder()
 
