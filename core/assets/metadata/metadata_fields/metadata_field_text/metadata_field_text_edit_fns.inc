@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_text_edit_fns.inc,v 1.1 2004/02/03 03:27:42 diarandine Exp $
+* $Id: metadata_field_text_edit_fns.inc,v 1.2 2004/08/02 03:24:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,7 +45,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 	*/
 	function Metadata_Field_Text_Edit_Fns()
 	{
-		Metadata_Field_Edit_Fns::Metadata_Field_Edit_Fns(); // calling super
+		Metadata_Field_Edit_Fns::Metadata_Field_Edit_Fns();
 
 	}//end constructor
 
@@ -76,7 +76,7 @@ class Metadata_Field_Text_Edit_Fns extends Metadata_Field_Edit_Fns
 
 			if ($asset->attr('editable')) {
 				if ($write_access) {
-					if ($asset->attr('multi_line')) text_area($prefix.'_value', $default, 30, 4);
+					if ($asset->attr('multi_line')) text_area($prefix.'_value', $default, 45, 7);
 					else text_box($prefix.'_value', $default, 30);
 				} else {
 					echo $default;
