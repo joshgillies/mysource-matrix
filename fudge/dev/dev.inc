@@ -118,7 +118,7 @@ function speed_check($str="")
 	if($SPEED_CHECK_LAST_HIT) {
 		$elapsed = $BAM - $SPEED_CHECK_LAST_HIT;
 		$SPEED_CHECK_TOTAL += $elapsed;
-		echo("<br><table cellpadding=0 cellspacing=0 border=0 bgcolor=#ffff88><tr><td><p style=\"color:red;font-weight:bold;font-family:sans-serif;font-size:13px;\">".sprintf("%.5f&nbsp;/&nbsp;%.5f",$elapsed,$SPEED_CHECK_TOTAL).(($file)?"&nbsp;&nbsp;$file&nbsp;:&nbsp;$line":"&nbsp;&nbsp;$line")."</td></tr></table><br>");
+		echo("<br><table cellpadding=0 cellspacing=0 border=0 bgcolor=#ffff88><tr><td><p style=\"color:red;font-weight:bold;font-family:sans-serif;font-size:13px;\">".sprintf("%.5f&nbsp;/&nbsp;%.5f",$elapsed,$SPEED_CHECK_TOTAL)."&nbsp;&nbsp;$str</td></tr></table><br>");
 	}
 	list($msec, $sec) = explode(" ",microtime()); 
 	$SPEED_CHECK_LAST_HIT = ((double) $sec) + ((double) $msec); #initialize
