@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.160 2003/12/19 04:01:39 gsherwood Exp $
+* $Id: asset_manager.inc,v 1.161 2003/12/21 22:49:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -347,7 +347,7 @@ class Asset_Manager extends MySource_Object
 		}
 
 		return $default_weightings;
-	} // end getTypeDefaultWeightings()
+	}//end getTypeDefaultWeightings()
 
 
 	/**
@@ -388,7 +388,7 @@ class Asset_Manager extends MySource_Object
 
 		return $hier;
 
-	}// end getAssetTypeHierarchy()
+	}//end getAssetTypeHierarchy()
 
 	function _recurseGetAssetTypeHierarchy($offspring, $base_type_code)
 	{
@@ -562,7 +562,8 @@ class Asset_Manager extends MySource_Object
 		require_once($file);
 		return class_exists('Asset_Attribute_'.$attr_type);
 
-	}// end _validateAttributeType()
+	}//end _validateAttributeType()
+
 
 	/**
 	* Retrieves the attributes (with null values) for the asset type
@@ -583,7 +584,9 @@ class Asset_Manager extends MySource_Object
 		$attributeids = $db->getCol($sql);
 
 		return $attributeids;
-	}
+
+	}//end getAssetTypeAttributes()
+
 
 //--        ASSETS        --//
 
@@ -1132,7 +1135,7 @@ class Asset_Manager extends MySource_Object
 			return $lock_types;
 		}// end if
 
-	}// end getLockTypes()
+	}//end getLockTypes()
 
 
 //--        LINKING        --//
@@ -1555,7 +1558,7 @@ class Asset_Manager extends MySource_Object
 
 		return $parents;
 
-	}// end getParents()
+	}//end getParents()
 
 
 	/**
@@ -1642,7 +1645,7 @@ class Asset_Manager extends MySource_Object
 
 		return $children;
 
-	}// end getChildren()
+	}//end getChildren()
 
 
 	/**
@@ -1679,7 +1682,8 @@ class Asset_Manager extends MySource_Object
 		unset($asset);
 		return $children;
 
-	}// end getDependantChildren()
+	}//end getDependantChildren()
+
 
 	/**
 	* Get all dependant parents of an asset in the various trees in which it exists
@@ -1716,7 +1720,7 @@ class Asset_Manager extends MySource_Object
 		unset($asset);
 		return $parents;
 
-	}// end getDependantParents()
+	}//end getDependantParents()
 
 
 	/**
@@ -1750,7 +1754,7 @@ class Asset_Manager extends MySource_Object
 		$this->_getAssetTree($majorids, $tree_data, $levels, $exclude_list, $link_type);
 		return $tree_data;
 
-	}// end getAssetTree()
+	}//end getAssetTree()
 
 
 	/**
@@ -1869,7 +1873,7 @@ class Asset_Manager extends MySource_Object
 		}
 		return true;
 
-	}// end _getAssetTree
+	}//end _getAssetTree()
 
 
 	/**
