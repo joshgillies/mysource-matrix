@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: maps.inc,v 1.1 2004/05/28 01:24:35 gsherwood Exp $
+* $Id: maps.inc,v 1.2 2004/05/28 03:54:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -454,7 +454,7 @@ class Maps extends MySource_Object
 										}
 										?>
 										<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type); ?>", "16", "16", "");</script>
-										&nbsp;<a title="<?php echo ucwords(str_replace('_', ' ', $type)); ?> - <?php echo $userid; ?>"><?php echo $name; ?></a>
+										&nbsp;<acronym title="<?php echo ucwords(str_replace('_', ' ', $type)); ?> - <?php echo $userid; ?>"><?php echo $name; ?></acronym>
 									</td>
 									<?php
 									$printed_header = true;
@@ -476,7 +476,7 @@ class Maps extends MySource_Object
 									}
 									?>
 									<script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $GLOBALS['SQ_SYSTEM']->am->getAssetIconURL($type); ?>", "16", "16", "");</script>
-									&nbsp;<a title="<?php echo ucwords(str_replace('_', ' ', $type)); ?> - <?php echo $assetid; ?>"><?php echo $name; ?></a>
+									&nbsp;<acronym title="<?php echo ucwords(str_replace('_', ' ', $type)); ?> - <?php echo $assetid; ?>"><?php echo $name; ?></acronym>
 								</td>
 								<td class="sq-backend-table-cell">
 									<?php
