@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.63 2003/10/14 01:51:08 gsherwood Exp $
+* $Id: backend.inc,v 1.64 2003/10/14 02:14:05 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -403,7 +403,7 @@ class Backend extends MySource_Object
 									);
 
 					foreach($options as $option) {
-						?><a href="<?php echo $option['url'];?>" target="<?php echo $option['target'];?>"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script></a>&nbsp;&nbsp;<?php
+						?><a href="<?php echo $option['url'];?>" style="cursor: pointer;" target="<?php echo $option['target'];?>"><script language="JavaScript" type="text/javascript">sq_print_icon("<?php echo $this->out->filesPath('/images/icons/header/'.$option['icon']); ?>", "20", "20", "<?php echo htmlspecialchars($option['title']);?>");</script></a>&nbsp;&nbsp;<?php
 					}
 
 				?>
