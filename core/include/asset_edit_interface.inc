@@ -1651,10 +1651,10 @@ class Asset_Edit_Interface extends Resolve_Object
 						$step_logic = $step_data['logic'];
 						$step_logic_num = '';
 					} else {
-						if ($step_data['logic'] != '') {
+						if ($step_data['logic'] != 'all') {
 							list($step_logic, $step_logic_num) = explode(' ', $step_data['logic']);
 						} else {
-							$step_logic = '';
+							$step_logic = 'all';
 							$step_logic_num = '';
 						}
 					}
@@ -1687,10 +1687,10 @@ class Asset_Edit_Interface extends Resolve_Object
 							$cond_logic = $cond_data['require'];
 							$cond_logic_num = '';
 						} else {
-							if ($step_data['logic'] != '') {
+							if ($step_data['logic'] != 'all') {
 								list($step_logic, $step_logic_num) = explode(' ', $step_data['logic']);
 							} else {
-								$step_logic = '';
+								$step_logic = 'all';
 								$step_logic_num = '';
 							}
 						}
