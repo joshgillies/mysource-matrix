@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: internal_message.inc,v 1.33 2004/06/30 07:03:17 gsherwood Exp $
+* $Id: internal_message.inc,v 1.34 2004/07/08 00:49:29 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -446,6 +446,7 @@ class Internal_Message extends MySource_Object
 		} elseif (is_string($user) && $user != '') {
 			$header = $user.','.$term.$term;
 		}
+		if ($type == 'html') $body = str_replace("\n\n".str_repeat('-', 50)."\n\n",'<hr />',$body);
 		$line = ($type == 'text') ? str_repeat('-', 20).$term : '<hr />';
 
 		$footer = $term.$term.$line
