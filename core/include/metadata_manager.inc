@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.68 2005/03/02 01:09:04 gsherwood Exp $
+* $Id: metadata_manager.inc,v 1.69 2005/03/09 00:55:20 ndvries Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.68 $
+* @version $Revision: 1.69 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -405,8 +405,8 @@ class Metadata_Manager extends MySource_Object
 			trigger_error('Failed getting default metadata, schema #'.$schemaid.' does not exist', E_USER_WARNING);
 			return Array();
 		}
-
-		$fields = $this->getMetadataFields($schema->id);
+		
+		$fields = $this->getMetadataFields(Array($schema->id));
 		$default_values = Array();
 		foreach ($fields as $fieldid => $type_code) {
 			$field = &$am->getAsset($fieldid, $type_code);
