@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mysource.inc,v 1.19 2003/11/11 04:31:05 mmcintyre Exp $
+* $Id: mysource.inc,v 1.20 2003/11/17 00:06:27 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -207,10 +207,6 @@ class MySource
 	*/
 	function start()
 	{
-		// initiailise event listeners
-		$GLOBALS['SQ_EVENT_LISTENER_OBJECTS'] = Array();
-		$GLOBALS['SQ_EVENT_LISTENERS']        = Array();
-
 		if (SQ_IN_BACKEND) {
 			if ($this->user) {
 				if (is_a($this->user, 'backend_user')) {
