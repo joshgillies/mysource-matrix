@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: user.inc,v 1.80 2005/03/01 05:46:04 gsherwood Exp $
+* $Id: user.inc,v 1.81 2005/03/01 15:42:11 brobertson Exp $
 *
 */
 
@@ -36,7 +36,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.80 $
+* @version $Revision: 1.81 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -95,6 +95,32 @@ class User extends Asset
 	{
 		if (!parent::_createAdditional($link)) return false;
 
+		// set an initial web path
+		$initial_path = strtolower($this->attr('username'));
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		$valid_paths = make_valid_web_paths(Array($initial_path));
+		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($link['asset'], $valid_paths, $this->id, true);
+		if (!$this->saveWebPaths($good_paths)) {
+			trigger_error('Could not set an initial web path for "'.$this->name.'"', E_USER_WARNING);
+			return false;
+		}
+
+		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
+			trigger_error('Could not create user - "permissions" lock not acquired on user asset "'.$this->name.'"', E_USER_WARNING);
+			return false;
+		}
+
+		// give the user admin access to him/herself
+		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $this->id, SQ_PERMISSION_ADMIN, true)) {
+			trigger_error('Could not create user - permission could not be set on user asset "'.$this->name.'"', E_USER_WARNING);
+			return false;
+		}
+
+		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
+			trigger_error('Could not create user - "permissions" lock could not be released on user asset "'.$this->name.'"', E_USER_WARNING);
+			return false;
+		}
+
 		$user_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 
 		// create an inbox
@@ -107,52 +133,6 @@ class User extends Asset
 		$workspace = new Workspace();
 		$workspace->setAttrValue('name', 'Workspace');
 		if (!$workspace->create($user_link)) return false;
-
-		if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($this->id, 'permissions')) {
-			trigger_error('Could not create user - "permissions" lock not acquired on user asset "'.$this->name.'"', E_USER_WARNING);
-			return false;
-		}
-
-		// give the user admin access to him/herself
-		if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($this->id, $this->id, SQ_PERMISSION_READ, 1)) {
-			trigger_error('Could not create user - permission could not be set on user asset "'.$this->name.'"', E_USER_WARNING);
-			return false;
-		}
-
-		if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($this->id, 'permissions')) {
-			trigger_error('Could not create user - "permissions" lock could not be released on user asset "'.$this->name.'"', E_USER_WARNING);
-			return false;
-		}
-
-		// now get the sublinks (inbox and workspace)
-		$links = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'asset', false, 'major', '', 1);
-		foreach ($links as $link) {
-			if (!$GLOBALS['SQ_SYSTEM']->am->acquireLock($link['minorid'], 'permissions')) {
-				trigger_error('Could not create user - "permissions" lock not acquired on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
-				return false;
-			}
-
-			if (!$GLOBALS['SQ_SYSTEM']->am->setPermission($link['minorid'], $this->id, SQ_PERMISSION_READ, 1)) {
-				trigger_error('Could not create user - permission could not be set on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
-				return false;
-			}
-
-			// try to unlock the asset
-			if (!$GLOBALS['SQ_SYSTEM']->am->releaseLock($link['minorid'], 'permissions')) {
-				trigger_error('Could not create user - "permissions" lock not released on '.ucwords($link['minor_type_code']).' asset of "'.$this->name.'"', E_USER_WARNING);
-				return false;
-			}
-		}
-
-		// set an initial web path
-		$initial_path = strtolower($this->attr('username'));
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		$valid_paths = make_valid_web_paths(Array($initial_path));
-		$good_paths = $GLOBALS['SQ_SYSTEM']->am->webPathsInUse($user_link['asset'], $valid_paths, $this->id, true);
-		if (!$this->saveWebPaths($good_paths)) {
-			trigger_error('Could not set an initial web path for "'.$this->name.'"', E_USER_WARNING);
-			return false;
-		}
 
 		return true;
 
