@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.67 2004/09/13 00:10:59 lwright Exp $
+* $Id: page_calendar.inc,v 1.68 2004/09/13 00:12:14 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.67 $ - 1.0
+* @version $Revision: 1.68 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -880,7 +880,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$event_class = (isset($root_nodes[$details['root_node']]['class_name'])) ? $root_nodes[$details['root_node']] ['class_name'] : '';
 			$onclick_code = $show_event_link ? ' onclick="clickChild(this); "' : '';
 			$cursor_code = $show_event_link ? 'cursor: pointer; cursor: hand;' : '';
-	
+
 			$current_mouse_over_out_code = '';
 			if (isset($details['description']) && !empty($details['description'])) {
 				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
@@ -928,7 +928,7 @@ class Page_Calendar extends Page_Asset_Listing
 			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
 			$this_event_width = $event_width / $this->_maxOverlappingEvents($events, gmdate('H:i', $event_ts*60), gmdate('H:i', $end_ts*60), $partition_time);
 			$current_mousedown_code = ($details['type_code'] != 'calendar_event_recurring') ? $mousedown_code : '';
-	
+
 			$current_mouse_over_out_code = '';
 			if (isset($details['description']) && !empty($details['description'])) {
 				$res .= '<div id="event_'.$assetid.'_description" class="popup">'.$details['description'].'</div>';
@@ -994,17 +994,17 @@ class Page_Calendar extends Page_Asset_Listing
 			// if we have several columns, print the column headers
 			?>
 			<tr>
-				<th>Time</td>
+				<th>Time</th>
 			<?php
 			foreach ($column_names as $date => $name) {
 				?>
-				<th onclick="<?php echo (!empty($column_links)) ? 'clickChild(this); ' : ''; ?>" class="columnLabel" style="width: <?php echo $width; ?>ex;  <?php echo (!empty($column_links)) ? 'cursor: pointer; cursor: hand' : ''; ?>"><div style="width: <?php echo $width*0.99; ?>ex">
+				<th onclick="<?php echo (!empty($column_links)) ? 'clickChild(this); ' : ''; ?>" class="columnLabel" nowrap="nowrap" style="width: <?php echo $width; ?>ex;  <?php echo (!empty($column_links)) ? 'cursor: pointer; cursor: hand' : ''; ?>">
 					<?php
 						if (!empty($column_links)) echo '<a  href="'.$column_links[$date].'">';
-						echo $name;
+						echo str_replace(' ', '&nbsp;', $name);
 						if (!empty($column_links)) echo '</a>';
 					?>
-				</div></th>
+				</th>
 				<?php
 			}
 			?>
@@ -1030,7 +1030,7 @@ class Page_Calendar extends Page_Asset_Listing
 					$cursor_code = $show_event_links ? ' cursor: pointer; cursor: hand' : '';
 					$current_mousedown_code = ($event['type_code'] != 'calendar_event_recurring') ? $mousedown_code : '';
 
-					echo '<div id="'.$assetid.'" '.$current_mousedown_code.' style="margin: 0px 0px 1px 0px; text-align: center; width: '.$div_width.'ex; padding: 0px; '.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
+					echo '<div id="'.$assetid.'" '.$current_mousedown_code.' style="margin: 0px 0px 1px 0px; text-align: center; padding: 0px; '.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
 					echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'&amp;SQ_CALENDAR_DATE='.$event_link_date.'">' : '<span class="event '.$event_class.'">';
 					echo $event['name'];
 					echo $show_event_links ? '</a>' : '</span>';
@@ -1206,7 +1206,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 		function followMouse(e)
 		{
-			if (!(document.getElementById || document.all)) return false;    
+			if (!(document.getElementById || document.all)) return false;
 			var xcoord=offsetfrommouse[0];
 			var ycoord=offsetfrommouse[1];
 			if (typeof e != "undefined")
@@ -1501,7 +1501,7 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		if (!$first_time) $first_time = $this->attr('day_starts_at');
 		if (!$time_partition) $time_partition = $this->attr('day_partition_time');
-		
+
 		if (!$last_time) $last_time = $this->attr('day_ends_at');
 		$partition_keys = Array();
 		list($hour, $mins) = explode(':', $last_time);
@@ -1587,7 +1587,6 @@ class Page_Calendar extends Page_Asset_Listing
 
 		return $res;
 
-
 	}//end getDayEvents()
 
 
@@ -1601,7 +1600,7 @@ class Page_Calendar extends Page_Asset_Listing
 		if (!$first_time) $first_time = $this->attr('day_starts_at');
 		if (!$time_partition) $time_partition = $this->attr('day_partition_time');
 		if (!$last_time) $last_time = $this->attr('day_ends_at');
-		
+
 		$partition_keys = Array();
 		list($hour, $mins) = explode(':', $last_time);
 		$end_ts = $mins + (60 * $hour);
@@ -1617,11 +1616,11 @@ class Page_Calendar extends Page_Asset_Listing
 		$partitions['all_day'] = Array();
 
 		$res = $partitions;
-		
+
 		$plain_events = $this->getDayEvents($date);
 		$events =& $this->_expandEventList($plain_events, $date, $date);
-		
-				
+
+
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 			if (($event_date == $date)) {
@@ -1668,14 +1667,14 @@ class Page_Calendar extends Page_Asset_Listing
 		$partitions = array_flip($partition_keys);
 		foreach($partitions as $key => $val) $partitions[$key] = Array();
 		$partitions['all_day'] = Array();
-	
+
 		$plain_events = $this->getDayEvents($date);
 		$events =& $this->_expandEventList($plain_events, $date, $date);
 
 		$res = Array();
 
-		foreach ($root_nodes as $node_id) $res[$node_id] = $partitions;		
-		
+		foreach ($root_nodes as $node_id) $res[$node_id] = $partitions;
+
 		foreach ($events as $id => $details) {
 			$event_date = sprintf('%04d-%02d-%02d', $details['start_date_year'], $details['start_date_mon'], $details['start_date_mday']);
 			if (($event_date == $date)) {
@@ -1920,7 +1919,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 				// combine all the month rules together and add a period clause
 				$sql_freqs[] = '(('.implode(' OR ', $sql_freqs_m).') AND (MOD('.$db->quote($ms).' - start_date_ms,period) = 0) OR mod('.$this->_dayDiffFragment($db->quote($iso_ds), 'start_date_ds').', period) BETWEEN 0 and coalesce(end_date_ds - start_date_ds,0))';
-			
+
 
 			break;
 
