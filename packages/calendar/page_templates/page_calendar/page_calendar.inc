@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.17 2004/08/20 04:31:15 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.18 2004/08/20 05:21:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.17 $ - 1.0
+* @version $Revision: 1.18 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -307,6 +307,8 @@ class Page_Calendar extends Page_Asset_Listing
 	{
 		ob_start();
 		list($year, $month, $day) = explode('-', $date);
+		$column_width = $this->attr('month_column_width');
+		$row_height = $this->attr('month_row_height');
 		$week_start_day = $this->attr('week_starts_on');
 		$root_nodes = $this->attr('root_nodes');
 		$root_node_keys = array_keys($root_nodes);
@@ -320,19 +322,19 @@ class Page_Calendar extends Page_Asset_Listing
 
 		$this->_printClickChildScript();
 		?>
-		<table id="month" border="0" cellspacing="0" cellpadding="0">
+		<table id="month" border="0" cellspacing="0" cellpadding="0" style="width: <?php echo $column_width*$week_length; ?>ex">
 			<tr>
 		<?php
 			// print the day headings
 			for ($i=0; $i < $week_length; $i++) {
 				$day_name = $this->day_names_full[($week_start_day + $i) % 7];
 		?>
-				<th class="dayLabel <?php echo (($day_name == 'Saturday') || ($day_name == 'Sunday')) ? 'dayLabelWeekend' : ''; ?>"><?php echo $day_name; ?></th>
+				<th style="width: <?php echo $column_width; ?>ex" class="dayLabel <?php echo (($day_name == 'Saturday') || ($day_name == 'Sunday')) ? 'dayLabelWeekend' : ''; ?>"><?php echo $day_name; ?></th>
 		<?php
 			}
 		?>
 			</tr>
-			<tr>
+			<tr style="height: <?php echo $row_height; ?>ex">
 		<?php
 
 		// print blank days if necessrary
@@ -365,7 +367,7 @@ class Page_Calendar extends Page_Asset_Listing
 		// print the full weeks
 		$num_full_weeks = floor(($month_length - $current_day) / 7);
 		for ($w = 0; $w < $num_full_weeks; $w++) {
-			echo '<tr>';
+			echo '<tr style="height: '.$row_height.'ex">';
 			for ($i=0; $i < $week_length; $i++) {
 				$contents = $this->_getRandomMonthEvent();
 				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
@@ -385,7 +387,7 @@ class Page_Calendar extends Page_Asset_Listing
 		// print the final week, if necessary
 		if ($current_day < $month_length) {
 			$i = 0;
-			echo '<tr>';
+			echo '<tr style="height: '.$row_height.'ex">';
 			while ($current_day <= $month_length) {
 				$contents = $this->_getRandomMonthEvent();
 				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
@@ -568,17 +570,17 @@ class Page_Calendar extends Page_Asset_Listing
 		$this->_printClickChildScript();
 		$width = $this->attr('table_column_width');
 		?>
-		<table id="<?php echo $id; ?>" border="0" cellspacing="0" cellpadding="0" summary="events in this <?php echo $id ?>">
+		<table id="<?php echo $id; ?>" border="0" cellspacing="0" cellpadding="0" summary="events in this <?php echo $id ?>" style="width: <?php echo ($width * count($columns))+6; ?>ex">
 		<?php
 		if (count($columns) > 1) {
 			// if we have several columns, print the column headers
 			?>
 			<tr>
-				<th>Time</td>
+				<th style="width: 6ex">Time</td>
 			<?php
 			foreach ($columns as $id => $name) {
 				?>
-				<th onclick="<?php echo (!empty($column_links)) ? 'clickChild(this); ' : ''; ?>" class="columnLabel" style="width: <?php echo $width; ?>ex">
+				<th onclick="<?php echo (!empty($column_links)) ? 'clickChild(this); ' : ''; ?>" class="columnLabel" style="width: <?php echo $width; ?>ex;  <?php echo (!empty($column_links)) ? 'cursor: pointer; cursor: hand' : ''; ?>">
 					<?php 
 						if (!empty($column_links)) echo '<a  href="'.$column_links[$id].'">';
 						echo $name;
@@ -597,12 +599,12 @@ class Page_Calendar extends Page_Asset_Listing
 		list($end_hour, $end_mins) = explode(':', $this->attr('day_ends_at'));
 		while (($current_hour < $end_hour) || ($current_mins < $end_mins)) {
 			?>
-			<tr style="height: <?php echo $partition_height; ?>ex; <?php echo (!empty($column_links)) ? 'cursor: pointer; cursor: hand' : ''; ?>">
-				<th class="timeLabel"><?php echo $current_hour.':'.sprintf('%02d', $current_mins); ?></th>
+			<tr style="height: <?php echo $partition_height; ?>ex;">
+				<th class="timeLabel"><?php echo (($current_hour > 12) ? ($current_hour % 12) : (int)$current_hour).':'.sprintf('%02d', $current_mins); ?></th>
 			<?php
 			foreach ($columns as $id => $name) {
 				?>
-				<td>
+				<td style="width: <?php echo $width; ?>ex">
 				<?php
 					/* Randomised generation of events */
 					$event_start_time = rand(0, 3);

@@ -46,7 +46,7 @@ table#year { border: 2px solid purple; background-color: #eeeeee; border-collaps
 
 /* Cells with events */
 #year td.eventDate { background-color: red; }
-#year td.eventDate a, #year td.eventDate a:visited, #year td.eventDate a:hover { font-color: white; font-weight: bold; text-decoration: none; } 
+#year td.eventDate a, #year td.eventDate a:visited, #year td.eventDate a:hover { color: white; font-weight: bold; text-decoration: none; } 
 
 
 
@@ -66,7 +66,7 @@ table#month { border: 2px solid purple; background-color: #eeeeee; border-collap
 #month th.dayLabelWeekend { background-color: #8888aa; }
 
 /* All data cells, including completely empty ones */
-#month td { padding-left: 2px; text-align: left; vertical-align: top; height: 7ex; width: 10ex; border: 1px solid black; }
+#month td { padding-left: 2px; text-align: left; vertical-align: top; border: 1px solid black; }
 
 /* Cells with dates */
 #month td.date { background-color: white; }
@@ -96,8 +96,7 @@ table#week { border: 2px solid purple; background-color: #eeeeee; border-collaps
 #week td, #week th.timeLabel { vertical-align: top; }
 
 /* header cells */
-#week th { background-color: #dddddd }
-#week th.timeLabel { width: 6ex; }
+#week th { background-color: #dddddd; text-align: center }
 #week th.columnLabel { vertical-align: middle; font-weight: bold; color: red }
 #week th.columnLabel a, #week th.columnLabel a:visited, #week th.columnLabel a:hover { text-decoration: none; font-weight: bold; color: red }
 
@@ -121,7 +120,6 @@ table#day { border: 2px solid purple; background-color: #eeeeee; border-collapse
 
 /* header cells */
 #day th { background-color: #dddddd }
-#day th.timeLabel { width: 6ex; }
 #day th.columnLabel { vertical-align: middle; cursor: pointer; cursor: hand }
 #day th.columnLabel a, #day th.columnLabel a:visited, #day th.columnLabel a:hover { text-decoration: none; font-weight: bold }
 

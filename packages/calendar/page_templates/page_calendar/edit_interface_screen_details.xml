@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.6 2004/08/20 04:31:15 tbarrett Exp $
+* $Id: edit_interface_screen_details.xml,v 1.7 2004/08/20 05:21:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -100,6 +100,16 @@
 				<paint_function name="paintMonthTitleFormat" />
 				<process_function name="processMonthTitleFormat" />
 			</function_call>
+		</field>
+		<field attribute="month_column_width">
+			<display_name>Width of columns (ex)</display_name>
+			<note></note>
+			<float width="6" />
+		</field>
+		<field attribute="month_row_height">
+			<display_name>Height of rows (ex)</display_name>
+			<note></note>
+			<float width="6" />
 		</field>
 	</section>
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.7 2004/08/20 04:31:15 tbarrett Exp $
+* $Id: page_calendar_management.inc,v 1.8 2004/08/20 05:21:25 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.7 $ - 1.0
+* @version $Revision: 1.8 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -182,6 +182,22 @@ class Page_Calendar_Management extends Asset_Management
 																	)
 												  );
 
+		$this->vars['month_column_width']	= Array(
+													'added'			=> '0.1',
+													'type'			=> 'float',
+													'default'		=> '10.0',
+													'description'   => 'The width of the columns in the month calendar table, in \'ex\'es',
+													'parameters'	=> Array('decimal_places' => 2)
+											);
+												   
+		$this->vars['month_row_height']		= Array(
+													'added'			=> '0.1',
+													'type'			=> 'float',
+													'default'		=> '7.0',
+													'description'   => 'The height of the rows in the month calendar table, in \'ex\'es',
+													'parameters'	=> Array('decimal_places' => 2)
+											);
+											
 		
 	}//end Page_Calendar_Management()
 
