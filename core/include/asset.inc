@@ -4007,7 +4007,7 @@ class Asset extends Resolve_Object
 			$assetids[] = $GLOBALS['SQ_SYSTEM']->user->id;
 		}
 
-		$perms = $this->getPermission($perm);
+		$perms = $this->getPermission($perm, true);
 		if (in_array('0', $perms)) return true;
 		$common = array_intersect($assetids, $perms);
 		return (!empty($common));
