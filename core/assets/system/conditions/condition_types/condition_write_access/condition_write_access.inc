@@ -1,0 +1,80 @@
+<?php
+/**
+* +--------------------------------------------------------------------+
+* | Squiz.net Open Source Licence                                      |
+* +--------------------------------------------------------------------+
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +--------------------------------------------------------------------+
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +--------------------------------------------------------------------+
+*
+* $Id: condition_write_access.inc,v 1.1 2004/11/10 02:41:55 amiller Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
+
+/**
+* Write Access Condition
+*
+* This conditional checks to see if the currently logged in user has write access to the current asset
+*
+*
+* @author  Avi Miller <avi.miller@squiz.net>
+* @version $Revision: 1.1 $ - 0.1
+* @package MySource_Matrix_Packages
+* @subpackage __core__
+*/
+
+class Condition_Write_Access extends Condition
+{
+
+	/**
+	* Constructor
+	*
+	* @param int	$assetid	the asset id to be loaded
+	*
+	*/
+	function Condition_Write_Access($assetid=0)
+	{
+		$this->Condition($assetid);
+
+	}//end constructor
+	
+	
+	/**
+	* Evaluate this condition
+	*	
+	* @param object Asset	&$asset	the asset to evaluate against
+	*
+	* @return boolean
+	* @access public
+	*/
+	function Evaluate(&$asset)
+	{
+		// first, check if someone's logged in
+		$userid = $GLOBALS['SQ_SYSTEM']->currentUserId();
+		if (!$userid) return false;
+
+		// next, check to see if the currently logged in user
+		// has write access
+		if (!$asset->writeAccess('', $userid)) return false;
+		
+		return true;
+		
+	}//end Evaluate()
+
+	
+}//end class
+
+?>
