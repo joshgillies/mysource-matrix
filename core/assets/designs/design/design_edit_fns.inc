@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_edit_fns.inc,v 1.83 2005/03/03 03:03:56 tbarrett Exp $
+* $Id: design_edit_fns.inc,v 1.84 2005/03/31 16:59:00 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area_edit_fns.inc
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.83 $
+* @version $Revision: 1.84 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -591,7 +591,6 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		// because we need other assets to be able to modify the lineage, for
 		// instance 404 pages.
 		$pre_str = '<?php
-		header("Content-type: text/html");
 		global $ASSET_LINEAGE;
 		$am = &$GLOBALS[\'SQ_SYSTEM\']->am;
 		if (!isset($ASSET_LINEAGE) || empty($ASSET_LINEAGE)) $ASSET_LINEAGE = @$am->getLineageFromURL(null, null);
