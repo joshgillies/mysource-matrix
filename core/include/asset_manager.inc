@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.144 2003/10/17 05:55:44 brobertson Exp $
+* $Id: asset_manager.inc,v 1.145 2003/10/20 01:10:00 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -818,19 +818,10 @@ class Asset_Manager extends MySource_Object
 
 					// create a new message object and populate it, before adding to
 					// the message queue in the internal messaging system to sending later
-					$message = $ms->newMessage();
-					$message->subject = 'Asset Lock Forceably Acquired';
-					$message->body = 'User "'.$GLOBALS['SQ_SYSTEM']->user->name.'" has forceably acquired the lock on '.$this->getTypeInfo($locked_asset->type(), 'name').' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
-					$message->to[] = $user->id;
-					$message->from = 0; // a system message
-
-					// we also need to log this message for anyone else who needs to get it
-					$log = $ms->newMessage();
-					$log->subject = $message->subject;
-					$log->body    = $message->body;
-					$log->type    = 'asset.locking';
-
-					$ms->enqueueMessage($message);
+					$log_body = 'User "'.$GLOBALS['SQ_SYSTEM']->user->name.'" has forceably acquired the lock on '.$this->getTypeInfo($locked_asset->type(), 'name').' "'.$locked_asset->name.'", formally held by user "'.$user->name.'".';
+					$log = $ms->newMessage(Array(), 'Asset Lock Forceably Acquired', $log_body, 'asset.locking.forced');
+					$log->parameters['assetid'] = $locked_asset->id;
+					$log->parameters['former_userid'] = $user->id;
 					$ms->logMessage($log);
 
 					$this->forgetAsset($locked_asset);

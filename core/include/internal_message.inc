@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: internal_message.inc,v 1.22 2003/10/17 04:56:38 gsherwood Exp $
+* $Id: internal_message.inc,v 1.23 2003/10/20 01:10:01 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -469,41 +469,48 @@ class Internal_Message extends MySource_Object
 							case 'linking' :
 								if (!isset($this->parameters['majorid'])) {
 									trigger_error('Failed sending internal message, no majorid specified (type: '.$this->type.')', E_USER_WARNING);
-								}
-								if (!isset($this->parameters['minorid'])) {
+								} else if (!isset($this->parameters['minorid'])) {
 									trigger_error('Failed sending internal message, no minorid specified (type: '.$this->type.')', E_USER_WARNING);
-								}
-
-								$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['majorid']);
-								if (is_null($major)) {
-									trigger_error('Failed sending internal message, invalid majorid ['.$this->parameters['majorid'].'] specified (type: '.$this->type.')', E_USER_WARNING);
-								}
-								$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['minorid']);
-								if (is_null($minor)) {
-									trigger_error('Failed sending internal message, invalid minorid ['.$this->parameters['minorid'].'] specified (type: '.$this->type.')', E_USER_WARNING);
+								} else {
+									$major = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['majorid']);
+									if (is_null($major)) {
+										trigger_error('Failed sending internal message, invalid majorid ['.$this->parameters['majorid'].'] specified (type: '.$this->type.')', E_USER_WARNING);
+									}
+									$minor = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['minorid']);
+									if (is_null($minor)) {
+										trigger_error('Failed sending internal message, invalid minorid ['.$this->parameters['minorid'].'] specified (type: '.$this->type.')', E_USER_WARNING);
+									}
 								}
 							break(2);
-						}
+
+							case 'locking' :
+								if (isset($type[2]) && $type[2] == 'forced') {
+									$this->to += Array($this->parameters['former_userid']);
+								}
+							break;
+						}//end switch
 					}
+
 					if (!isset($this->parameters['assetid'])) {
 						// cant send an asset message if we dont know which asset is affected
 						trigger_error('Failed sending internal message, no assetid specified (type: '.$this->type.')', E_USER_WARNING);
-					}
-					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['assetid']);
-					if (is_null($asset)) {
-						// cant send an asset message if we dont know which asset is affected
-						trigger_error('Failed sending internal message, invalid assetid ['.$this->parameters['assetid'].'] specified (type: '.$this->type.')', E_USER_WARNING);
-					}
+					} else {
+						$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->parameters['assetid']);
+						if (is_null($asset)) {
+							// cant send an asset message if we dont know which asset is affected
+							trigger_error('Failed sending internal message, invalid assetid ['.$this->parameters['assetid'].'] specified (type: '.$this->type.')', E_USER_WARNING);
+						}
 
-					$this->to = $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, SQ_PERMISSION_ADMIN, true, false);
-					$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+						$this->to += $GLOBALS['SQ_SYSTEM']->am->getPermission($asset->id, SQ_PERMISSION_ADMIN, true, false);
+						$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
+					}
 					break;
 
 				case 'config' :
 				case 'hipo'   :
 					// send config changes to the DEFAULT and TECH emails and to the Root User
 					$root_user = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('root_user');
-					$this->to = Array(0, $root_user->id);
+					$this->to += Array(0, $root_user->id);
 					break;
 
 			}//end switch
@@ -525,6 +532,7 @@ class Internal_Message extends MySource_Object
 				$send_to[] = $assetid;
 			}
 		}
+		trigger_error(print_r($send_to, true), E_USER_WARNING);
 		return array_unique($send_to);
 
 	}//end expandUsersTo()
