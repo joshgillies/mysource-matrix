@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager.inc,v 1.40 2005/02/28 02:42:39 tbarrett Exp $
+* $Id: cron_manager.inc,v 1.41 2005/03/01 10:39:13 brobertson Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -263,10 +263,10 @@ class Cron_Manager extends Asset
 
 		$job->setAttrValue('running_as', $user->id);
 		$link = Array('asset' => &$this, 'link_type' => $link_type, 'is_exclusive' => '1');
-		$sq_install = array_get_index($GLOBALS, 'SQ_INSTALL', false);
+		$sq_install = $GLOBALS['SQ_INSTALL'];
 		$GLOBALS['SQ_INSTALL'] = true;
 		$linkid = $job->create($link);
-		if (!$sq_install) unset($GLOBALS['SQ_INSTALL']);
+		$GLOBALS['SQ_INSTALL'] = $sq_install;
 		return ($linkid > 0);
 
 	}//end addJob()
@@ -290,10 +290,10 @@ class Cron_Manager extends Asset
 		$link = $GLOBALS['SQ_SYSTEM']->am->getLinkByAsset($this->id, $job->id);
 		if (empty($link)) return false;
 
-		$sq_install = array_get_index($GLOBALS, 'SQ_INSTALL', false);
+		$sq_install = $GLOBALS['SQ_INSTALL'];
 		$GLOBALS['SQ_INSTALL'] = true;
 		$success = $this->deleteLink($link['linkid']);
-		if (!$sq_install) unset($GLOBALS['SQ_INSTALL']);
+		$GLOBALS['SQ_INSTALL'] = $sq_install;
 		return $success;
 
 	}//end removeJob()
