@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user_edit_fns.inc,v 1.1 2004/02/06 03:12:38 gsherwood Exp $
+* $Id: ldap_user_edit_fns.inc,v 1.2 2004/03/19 05:09:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,9 +77,18 @@ class Ldap_User_Edit_Fns extends Backend_User_Edit_Fns
 	{
 		$info = $asset->getUserData();
 		if (empty($info)) return;
+		
+		if (!$asset->_ldapid) return Array();
+		$ldap_bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($asset->_ldapid, 'ldap_bridge');
+		if (is_null($ldap_bridge)) return Array();
+
+		$show = $ldap_bridge->attr('user_attributes');
+		$show = $show['show'];
 
 		for ($i = 0; $i < $info['count']; $i++) {
-			$field_name = $info[$i];
+			if (!isset($show[$info[$i]])) continue;
+			$field_name = $show[$info[$i]];
+
 			if ($info[$info[$i]]['count'] > 1) $field_name .= ' ('.$info[$info[$i]]['count'].' values)';
 			$o->openField($field_name);
 			unset($info[$info[$i]]['count']);

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_management.inc,v 1.2 2004/03/19 01:21:15 gsherwood Exp $
+* $Id: ldap_bridge_management.inc,v 1.3 2004/03/19 05:09:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -90,6 +90,11 @@ class LDAP_Bridge_Management extends Asset_Management
 															),
 											),
 							'attributes' => Array(
+											'added'     => '0.1',
+											'type'      => 'serialise',
+											'default'   => Array()
+											),
+							'user_attributes' => Array(
 											'added'     => '0.1',
 											'type'      => 'serialise',
 											'default'   => Array()

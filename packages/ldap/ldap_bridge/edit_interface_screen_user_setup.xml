@@ -18,12 +18,20 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.2 2004/03/19 05:09:44 gsherwood Exp $
+* $Id: edit_interface_screen_user_setup.xml,v 1.1 2004/03/19 05:09:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
-<screens>
-	<screen code_name="attributes" display_name="Attribute Setup" icon="edit" lock_type="attributes" />
-	<screen code_name="user_setup" display_name="LDAP User Setup" icon="edit" lock_type="attributes" />
-</screens>
+<contents>
+	<section name="Attributes" write_access="write:attributes">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintUserSetup"   />
+				<process_function name="processUserSetup" />
+			</function_call>
+		</field>
+	</section>
+</contents>
