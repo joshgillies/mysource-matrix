@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.165 2005/01/13 22:23:59 gsherwood Exp $
-* $Name: not supported by cvs2svn $
+* $Id: asset_map.inc,v 1.166 2005/01/17 18:08:37 brobertson Exp $
+*
 */
 
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.165 $
+* @version $Revision: 1.166 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -452,7 +452,6 @@ class Asset_Map
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'lt');
 
 		$sql .= ' '.$where;
-
 		$sql .= ' ORDER BY sort_order';
 
 		$db_result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
@@ -471,7 +470,9 @@ class Asset_Map
 		$is_a_bridge = false;
 		if (isset($asset_info[$assetid]['type_code'])) {
 			$type_code = $asset_info[$assetid]['type_code'];
-			$is_a_bridge = in_array('bridge', $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code));
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset($type_code);
+			$is_a_bridge = implements_interface($type_code, 'bridge');
+
 		} else if (strpos($assetid, ':') !== false) {
 			// this is a shadow asset itself, so it will work the same way as a bridge
 			$is_a_bridge = true;
