@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager.inc,v 1.138 2003/10/14 06:01:52 brobertson Exp $
+* $Id: asset_manager.inc,v 1.139 2003/10/15 02:31:46 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -3297,9 +3297,10 @@ class Asset_Manager extends MySource_Object
 			return Array();
 		}
 
-		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('%').')' : '(l.url || '.$db->quote('%').')';
+		//// See Mantis #0000128 for a reason on why the trailing slash is added to the URL and before the '%' ////
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/%').')' : '(l.url || '.$db->quote('/%').')';
 		$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
-				 AND '.$db->quote($url).' LIKE '.$concat;
+				 AND '.$db->quote($url.'/').' LIKE '.$concat;
 
 		if (!is_null($protocol)) {
 			$where .= ' AND l.'.$protocol.' = '.$db->quote('1');
