@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: asset.xsl,v 1.7 2004/05/18 16:22:54 brobertson Exp $
+* $Id: asset.xsl,v 1.8 2005/01/12 23:42:56 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -95,7 +95,7 @@
 						Instantiable :
 					</td>
 					<td class="data">
-						<xsl:value-of select="asset_info/version" />
+						<xsl:value-of select="asset_info/instantiable" />
 					</td>
 				</tr>
 				<tr>
