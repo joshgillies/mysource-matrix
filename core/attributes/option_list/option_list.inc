@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: option_list.inc,v 1.1 2004/05/19 05:55:14 lwright Exp $
+* $Id: option_list.inc,v 1.2 2004/05/19 05:59:08 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -96,11 +96,10 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				
 				box.value = "";
 				
-			}//end emailFormatAddAddress()
+			}//end optionListAddOption()
 
 
 			function optionListRemoveOption(address, type) {
-				alert("<?php echo $prefix; ?>_" + type);
 				var value = document.getElementById("<?php echo $prefix; ?>_" + type);
 				var div = document.getElementById("<?php echo $prefix; ?>_current_" + type);
 				
@@ -114,7 +113,6 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 					arrIndex++;
 					lastIndex = i+4;
 				}
-				alert(email_array);
 
 				var new_div_content = '';
 				var new_value_content = '';
@@ -123,7 +121,6 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 					var email = email_array[i];
 					re = new RegExp("\\\[.*\\\] (.*)", "gi");
 					email_addr = email.replace(re, "\$1");
-					alert(email_addr);
 
 					if (email_addr != address && email_addr != "") {
 						new_div_content += email + "<br>";
@@ -134,7 +131,7 @@ class Asset_Attribute_Option_List extends Asset_Attribute
 				div.innerHTML = new_div_content;
 				value.value = new_value_content;
 
-			}//end emailFormatDeleteAddress()
+			}//end optionListRemoveOption()
 		</script>
 			<?php text_box($prefix.'_new_options', '', 50); ?>
 			[ <a href="#" onclick="Javascript: optionListAddOption('options'); return false;">add</a> ]<br/>
