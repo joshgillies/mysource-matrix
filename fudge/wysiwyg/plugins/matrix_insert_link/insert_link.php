@@ -13,12 +13,12 @@ $url_protocol_options = Array(
 							);
 
 $new_window_bool_options = Array(
-								'toolbar'    => 'Tool Bar',
-								'menubar'    => 'Menu Bars',
-								'location'   => 'Location Bar',
-								'status'     => 'Status Bar',
-								'scrollbars' => 'Scroll Bars',
-								'resizable'  => 'Resizable'
+								'toolbar'    => 'Show Tool Bar',
+								'menubar'    => 'Show Menu Bars',
+								'location'   => 'Show Location Bar',
+								'status'     => 'Show Status Bar',
+								'scrollbars' => 'Show Scroll Bars',
+								'resizable'  => 'Allow Resizing'
 								);
 
 if (!isset($_GET['assetid']))     $_GET['assetid'] = 0;
@@ -219,7 +219,7 @@ if (!isset($_GET['new_window'])) {
 										<?php echo $name?>
 									</td>
 							<?php
-								if ($count % 3 == 0) {
+								if ($count % 2 == 0) {
 									echo '</tr><tr>';
 								}
 							}
