@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_standard.inc,v 1.25 2003/11/03 23:42:28 gsherwood Exp $
+* $Id: page_standard.inc,v 1.26 2003/11/12 01:17:49 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -77,9 +77,8 @@ class Page_Standard extends Page
 
 	/**
 	* Creates a link between this asset and the passed asset, of a certain type
-	* and returns the linkid of the created link
 	*
-	* @return int
+	* @return int linkid of the created link
 	* @access public
 	* @see Asset::creatLink();
 	*/
@@ -92,7 +91,7 @@ class Page_Standard extends Page
 
 		return parent::createLink($minor, $link_type, $value, $sort_order, $dependant, $exclusive);
 
-	}// end createLink()
+	}//end createLink()
 
 
 	/**
@@ -135,11 +134,13 @@ class Page_Standard extends Page
 	*
 	* @param object Backend_Outputter $o
 	*
+	* @return void
 	* @access public
 	*/
 	function paintBackend(&$o)
 	{
 		if (isset($_GET['sq_from_frontend'])) {
+
 			// get the bodycopy attached to us
 			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLinks($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, 'major', '', '1', '1');
 			$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_link[0]['minorid'], 'bodycopy');
@@ -150,14 +151,22 @@ class Page_Standard extends Page
 			$o->addFormActionGetVar('assetid', $bodycopy->id);
 			
 			// fudge the navigation history a little
-			$_SESSION['sq_nav_history'][(count($_SESSION['sq_nav_history']) - 1)] = Array('assetid' => $this->id, 'screen' => 'details');
+			if (!isset($_SESSION['sq_nav_history'])) {
+				$_SESSION['sq_nav_history'] = Array();
+				$nav_pos = 0;
+			} else {
+				$nav_pos = count($_SESSION['sq_nav_history']) - 1;
+			}
+			$_SESSION['sq_nav_history'][$nav_pos] = Array('assetid' => $this->id, 'screen' => 'details');
 
 			$bodycopy->paintBackend($o);
+
 		} else {
+
 			parent::paintBackend($o);
 		}
 
-	}// end paintBackend()
+	}//end paintBackend()
 
 
 	/**
@@ -176,23 +185,27 @@ class Page_Standard extends Page
 		$bodycopy = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bodycopy_data['minorid'], $bodycopy_data['minor_type_code']);
 		$bodycopy->printBody();
 
-	}// end printBody()
+	}//end printBody()
 
 
-	/** 
-	* Retrieves a list of key data from this asset (used by the indexing service).
+	/**
+	* Retrieves a list of key data from this asset (used by the indexing service)
+	*
 	* Subclasses override this to give the content they want to make searchable.
-	* 
-	* @access public
-	* @param mixed $component If it is not false, then it is assumed to be the name of a component of this asset (defined and controlled by subclasses).
+	*
+	* @param mixed	$component	If it is not false, then it is assumed to be the name of a component
+	*							of this asset (defined and controlled by subclasses).
 	* @return array An array of all the keydata for this asset. Keydata is of the form
-	*				array (
-	*					array (
-	*						'value' => ...,
-	*						'type' => ..., (text, date, number, etc.)
-	*						'component' => ..., (whatever you want, just as long as this asset knows how to deal with it if it needs to)
-	*					), ...
-	*				)
+	* <PRE>
+	* Array (
+	* 	Array (
+	* 		'value' => ...,
+	* 		'type' => ..., (text, date, number, etc.)
+	* 		'component' => ..., (whatever you want, just as long as this asset knows how to deal with it if it needs to)
+	* 	), ...
+	* )
+	* </PRE>
+	* @access public
 	*/
 	function &getKeyData($component = false)
 	{
@@ -221,7 +234,10 @@ class Page_Standard extends Page
 			}
 		}
 		return $keyData;
-	} // end getKeyData()
+
+	}// end getKeyData()
+
 
 }//end class
+
 ?>
