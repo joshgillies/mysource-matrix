@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: boolean.inc,v 1.22 2004/09/08 03:57:53 gsherwood Exp $
+* $Id: boolean.inc,v 1.23 2004/09/09 00:06:47 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -55,10 +55,10 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	function Asset_Attribute_Boolean($attributeid=0, $value=null)
 	{
 		$this->Asset_Attribute($attributeid, $value);
-		
+
 		// set default parameters
 		if (!isset($this->_params['allow_empty'])) $this->_params['allow_empty'] = true;
-		
+
 		// set default edit parameters
 		$this->_edit_params['true_text']  = 'True';
 		$this->_edit_params['false_text'] = 'False';
@@ -71,7 +71,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	* Takes an XML_Tree_Node from an edit interface XML file and creates the params array from it
 	*
 	* @param object XML_Tree_Node	$node
-	* 
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -100,7 +100,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 		?>
 		<table class="sq-backend-table">
 			<tr>
-				<td class="sq-backend-section-heading" style="width: 100px;">True Text</td>	
+				<td class="sq-backend-section-heading" style="width: 100px;">True Text</td>
 				<td class="sq-backend-table-cell">
 					<?php
 					if ($write_access) text_box($prefix.'_true', $this->_edit_params['true_text']);
@@ -183,7 +183,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	{
 		require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 		$options = Array();
-		
+
 		if ($this->_params['allow_empty']) {
 			if (empty($this->_edit_params['empty_text'])) $this->_edit_params['empty_text'] = '-- Leave Empty --';
 			$options[''] = $this->_edit_params['empty_text'];
@@ -232,7 +232,7 @@ class Asset_Attribute_Boolean extends Asset_Attribute
 	*/
 	function validateValue(&$value)
 	{
-		if ($this->_params['allow_empty'] && $value == '') return true;
+		if (array_get_index($this->_params,'allow_empty',false) && $value == '') return true;
 
 		$new_value = (int) $value;
 		if ((string) $new_value != (string) $value) {
