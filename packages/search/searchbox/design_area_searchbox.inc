@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_searchbox.inc,v 1.10 2003/11/26 00:51:32 gsherwood Exp $
+* $Id: design_area_searchbox.inc,v 1.11 2003/12/12 01:29:37 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 *
 */
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.10 $ - 1.0
+* @version $Revision: 1.11 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -89,7 +89,7 @@ class Design_Area_Searchbox extends Design_Area
 		switch($var) {
 			case 'form_start':
 				echo '<'.'?php $asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$asset->id.', "'.$asset->type().'"); ?'.'>'."\n";
-				echo '<form method="GET" action="<'.'?php echo $asset->getURL(); ?'.'>"><input type=hidden name="mode" value="results">';
+				echo '<form method="get" action="<'.'?php echo $asset->getURL(); ?'.'>"><input type="hidden" name="mode" value="results" />';
 			break;
 			
 			case 'form_end':
@@ -107,7 +107,7 @@ class Design_Area_Searchbox extends Design_Area
 				if (isset($args['class'])) {
 					echo ' class="'. $args['class'] . '"';
 				}
-				echo '>';
+				echo ' />';
 			break;
 
 			case 'submit':
@@ -116,7 +116,7 @@ class Design_Area_Searchbox extends Design_Area
 					if (isset($args['class'])) {
 						echo ' class="'. $args['class'] . '"';
 					}
-					echo '>';
+					echo ' />';
 				} else {
 					$submit_image_assetid = $this->attr('submit_image_assetid');
 					if ($submit_image_assetid > 0) {
@@ -126,7 +126,7 @@ class Design_Area_Searchbox extends Design_Area
 						if (isset($args['class'])) {
 							echo ' class="'. $args['class'] .'"';
 						}
-						echo ' src="<'.'?php echo $submit_image_asset->getURL(); ?'.'>">';
+						echo ' src="<'.'?php echo $submit_image_asset->getURL(); ?'.'>" />';
 					} else {
 						// no image defined
 					}
