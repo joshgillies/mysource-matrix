@@ -82,7 +82,7 @@ class Bodycopy_Table extends Asset
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$old_status = $this->status;
-		if (!parent::processStatusChange($new_status, $real_status=0)) {
+		if (!parent::processStatusChange($new_status, $real_status)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
