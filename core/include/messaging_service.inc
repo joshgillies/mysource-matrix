@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: messaging_service.inc,v 1.28 2004/09/15 04:23:22 gsherwood Exp $
+* $Id: messaging_service.inc,v 1.28.2.1 2004/11/16 23:05:44 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -416,7 +416,7 @@ class Messaging_Service extends MySource_Object
 			return false;
 		}
 
-		for($i = 0, $total = count($result); $i < $total; $i++) {
+		for ($i = 0, $total = count($result); $i < $total; $i++) {
 			$result[$i]['sent'] = iso8601_ts($result[$i]['sent']);
 
 			// if we are showing the from name, check that any messages from shadow
@@ -427,7 +427,10 @@ class Messaging_Service extends MySource_Object
 					$bridgeid = $id_parts[0];
 					$bridge = &$GLOBALS['SQ_SYSTEM']->am->getAsset($bridgeid);
 					$shadow = &$bridge->getAsset($id_parts[1]);
-					if (!is_null($shadow)) $result[$i]['from_name'] = $shadow->$get_user_name;
+					if (!is_null($shadow)) {
+						$result[$i]['from_name'] = $shadow->$get_user_name;
+						$result[$i]['type_code'] = $shadow->type();
+					}
 				}
 			}
 		}
