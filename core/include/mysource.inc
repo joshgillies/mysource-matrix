@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.62 2004/12/16 04:52:29 lwright Exp $
+* $Id: mysource.inc,v 1.63 2004/12/16 04:58:18 lwright Exp $
 *
 */
 
@@ -26,7 +26,6 @@
 require_once 'DB.php';
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
-require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 
 /**
 * MySource
@@ -35,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.62 $
+* @version $Revision: 1.63 $
 * @package MySource_Matrix
 */
 class MySource
@@ -112,11 +111,6 @@ class MySource
 	var $em;
 
 	/**
-	* @var object Locale_Manager
-	*/
-	var $lm;
-	
-	/**
 	* Object of logged in user
 	*
 	* @var object User
@@ -176,9 +170,6 @@ class MySource
 
 		// initialise the asset manager as we are going to need it pretty much everywhere
 		$this->am = new Asset_Manager();
-		
-		// Same with the locale manager; translations will be all around us
-		$this->lm = new Locale_Manager();
 
 		// running from the command line ? don't use cookies for session
 		if (!SQ_PHP_CLI) {
@@ -942,23 +933,6 @@ class MySource
 		return $this->em;
 
 	}//end getEventManager()
-
-
-	/**
-	* Get the Locale Manager
-	*
-	* @access public
-	* @return object Locale_Manager
-	*/
-	function &getLocaleManager()
-	{
-		if (!isset($this->lm) || get_class($this->lm) != 'locale_manager') {
-			require_once SQ_INCLUDE_PATH.'/locale_manager.inc';
-			$this->lm = new Locale_Manager();
-		}
-		return $this->lm;
-
-	}//end getLocaleManager()
 
 
 //--        DATABASE        --//
