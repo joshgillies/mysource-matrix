@@ -1,22 +1,33 @@
 <?php
 
 /**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: indexing_manager.inc,v 1.2 2003/10/08 02:18:35 dwong Exp $
+* $Name: not supported by cvs2svn $
+*/
+
+/**
 * Indexing_Manager
 *
-* Purpose
-*    Handles requests for indexing keydata from searchable assets, and handles search requests.
+* Handles requests for indexing keydata from searchable assets, and handles search requests.
 
 *
 * @author  Dominic Wong<dwong@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.2 $ - 1.0
 * @package MySource_Matrix
 */
 class Indexing_Manager extends MySource_Object 
 {
+	/** 
+	 * Constructor
+	 * 
+	*/
+
 	function Indexing_Manager() 
 	{
 		parent::MySource_Object();
-	}
+	} // end constructor
 
 	/** 
 	  * Function called from when an asset processes changes to signify
@@ -42,7 +53,7 @@ class Indexing_Manager extends MySource_Object
 		$newKeyData =& $asset->getKeyData($component);
 
 		$this->addKeyData($assetid, $newKeyData);
-	}
+	} // end changed()
 
 	/**
 	* Flushes the keydata for an asset.
@@ -62,7 +73,7 @@ class Indexing_Manager extends MySource_Object
 		$db =& $GLOBALS['SQ_SYSTEM']->db;
 
 		$db->query($sql);
-	}
+	} // end flushKeyData()
 
 	/** 
 	  * Adds keydata for an asset.
@@ -106,7 +117,7 @@ class Indexing_Manager extends MySource_Object
 		);
 
 		$db->executeMultiple($st, $paramData);
-	}
+	} // end addKeyData()
 
 	/**
 	  * Adds a single piece of data for an asset.
@@ -139,52 +150,8 @@ class Indexing_Manager extends MySource_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$results = $db->query($sql);
-	}
+	} // end addKeyDatum()
 
-	function paintBackend(&$o)
-	{
-		// Lets get the asset types
-		$am = &$GLOBALS['SQ_SYSTEM']->am;
-
-		$typeHierarchy = $am->getAssetTypeHierarchy();
-
-		// Now that we have the asset types, let's display the tree
-
-		$o->openSection("Asset Weights");
-		$fieldPrefix = $o->openField("Asset Types", '');
-
-		echo "<ul>";
-		foreach ($typeHierarchy as $typeCode => $assetType) {
-			echo "<li><h2>". (ucfirst(str_replace("_", " ", $typeCode)))."</h2>";
-			
-			$typeInfo = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo($typeCode);
-			echo "<p><b>TypeInfo</b><ul>";
-			foreach ($typeInfo as $key => $value) {
-				echo "<li><b>" . ucfirst(str_replace("_", " ", $key)) . "</b> : " . $value."</li>";
-			}
-			echo "</ul></p>";
-
-			$attributeids = $am->getAssetTypeAttributes($typeCode);
-			echo "<p><b>Attributes</b><ul>";
-			foreach ($attributeids as $attributeid) {
-				$attribute = Asset_Attribute::loadAttribute($attributeid);
-				$o->addHiddenField($fieldPrefix. "_weights[". $typeCode. "][". $attributeid. "]", $attribute->weighting);
-				echo "<li>".$attribute->name." Weighting: ";
-				echo text_box($fieldPrefix. "_new_weights[". $typeCode. "][". $attributeid. "]", $attribute->weighting, 1). "</li>";
-			}
-			echo "</ul></p>";
-			echo "</li>";
-		}
-		echo "</ul>";
-
-		$o->closeSection();
-
-		$o->commitButton();
-	}
-
-	function processBackend(&$o)
-	{
-	}
-}
+} // end class
 
 ?>
