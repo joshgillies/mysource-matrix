@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_datetime.inc,v 1.14 2004/10/06 04:44:01 lwright Exp $
+* $Id: form_question_type_datetime.inc,v 1.15 2004/10/06 04:44:35 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -80,7 +80,6 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function getAnswer($content_file=true, $value='', $suffix='', $default = false)
 	{
-		//die;
 		$extras = $this->attr('extra');
 		$name   = $this->id;
 
@@ -97,9 +96,9 @@ class Form_Question_Type_Datetime extends Form_Question
 			$parameters['null'] = Array();
 			$parameters['style'] = Array();
 			$parameters['min'] = $this->attr('minimum');
-			if ($parameters['min'] == '---------- --:--:--') $parameters['min'] = '1970-01-01 00:00:00';
+			if ($parameters['min'] == '---------- --:--:--') $parameters['min'] = '1900-01-01 00:00:00';
 			$parameters['max'] = $this->attr('maximum');
-			if ($parameters['max'] == '---------- --:--:--') $parameters['max'] = '2030-12-31 23:59:59';
+			if ($parameters['max'] == '---------- --:--:--') $parameters['max'] = '2099-12-31 23:59:59';
 
 			$show_params = $this->attr('show');
 			$text_params = $this->attr('text');
@@ -225,7 +224,6 @@ class Form_Question_Type_Datetime extends Form_Question
 	*/
 	function getSummary($answer)
 	{
-		//die;
 		$allow_circa = false;
 		
 		$show_params = $this->attr('show');
