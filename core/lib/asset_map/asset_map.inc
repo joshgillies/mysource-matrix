@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_map.inc,v 1.102 2003/10/31 00:00:48 dwong Exp $
+* $Id: asset_map.inc,v 1.103 2003/11/05 04:51:43 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -231,6 +231,21 @@ class Asset_Map
 			}
 			registerFlashToJsCall('asset_map_popup', asset_map_popup);
 
+			// Open up a help window
+			function open_help(params)
+			{
+				var newWindow = window.open();
+				newWindow.document.write("Help goes here.");
+			}
+			registerFlashToJsCall('open_help', open_help);
+
+			// Open up a help window
+			function open_legend(params)
+			{
+				var newWindow = window.open();
+				newWindow.document.write("Legend goes here.");
+			}
+			registerFlashToJsCall('open_legend', open_legend);
 		//-->
 		</script>
 

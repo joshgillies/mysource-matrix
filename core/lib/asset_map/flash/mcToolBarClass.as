@@ -1,7 +1,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: mcToolBarClass.as,v 1.9 2003/10/16 06:10:26 dwong Exp $
+* $Id: mcToolBarClass.as,v 1.10 2003/11/05 04:51:45 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -17,7 +17,7 @@ function mcToolBarClass() {
 	this.icons.push(this.key_icon);
 	this.key_icon.helpText = "Key";
 	this.key_icon.onRelease = function() { 
-//		_root.dialog_box.show('Key', 'implement me!');
+		_root.external_call.makeExternalCall("open_legend", null);
 	}
 
 	this.attachMovie('mcRefreshIconID', 'refresh_icon', nextDepth++);
@@ -39,7 +39,7 @@ function mcToolBarClass() {
 	this.icons.push(this.help_icon);
 	this.help_icon.helpText = "Help";
 	this.help_icon.onRelease = function() { 
-//		_root.dialog_box.show('Help', 'implement me!');
+		_root.external_call.makeExternalCall("open_help", null);
 	}
 
 	for (var i = 0; i < this.icons.length; ++i) {
