@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_integrity_rollback_entries.php,v 1.1 2004/07/07 06:26:28 mmcintyre Exp $
+* $Id: system_integrity_rollback_entries.php,v 1.2 2004/07/07 06:38:18 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -108,6 +108,12 @@ foreach ($tables as $table) {
 	// the current row that we are parsing
 	$has_entry = false;
 
+	// delete any rows that are before or equal to the specified date
+	$sql = 'DELETE FROM '.$rollback_table.' WHERE '
+		.SQ_TABLE_PREFIX.'effective_to <= '.$db->quote($date);
+	$delete_result = $db->query($sql);
+	assert_valid_db_result($delete_result);
+
 	while ($has_limit_rows) {
 
 		$sql = 'SELECT '.implode(',', $primary_keys).' FROM '.$table;
@@ -144,8 +150,7 @@ foreach ($tables as $table) {
 				assert_valid_db_result($has_rollback_entries);
 
 				if (!$has_rollback_entries) {
-					echo "There were no entries\n";
-					
+
 					$columns = $SQ_TABLE_COLUMNS[$non_prefix_table]['columns'];
 					$insert = 'INSERT INTO '.$rollback_table.' ('.implode(', ', $columns).
 						', '.SQ_TABLE_PREFIX.'effective_from, '.SQ_TABLE_PREFIX.'effective_to)';
@@ -158,15 +163,7 @@ foreach ($tables as $table) {
 					continue;
 				}
 
-			} else {
-				echo "There were rows to be deleted \n";
-				
-				$sql = 'DELETE FROM '.$rollback_table.' WHERE '
-					.SQ_TABLE_PREFIX.'effective_to <= '.$db->quote($date);
-				$delete_result = $db->query($sql);
-				assert_valid_db_result($delete_result);
-
-			}//end if !invalid entries
+			}
 		}//end while row
 	}//end while not complete
 
