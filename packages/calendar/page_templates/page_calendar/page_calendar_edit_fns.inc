@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.15 2004/09/14 06:30:13 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.16 2004/09/20 07:50:18 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.15 $ - 1.0
+* @version $Revision: 1.16 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -465,7 +465,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	{
 		$write_access = $asset->writeAccess('attributes');
 		$days_to_show = $asset->attr('week_view_show_days');
-		foreach ($asset->day_names_full as $day_number => $day_name) {
+		foreach ($asset->day_names as $day_number => $day_name) {
 			echo '<br />';
 			if ($write_access) {
 				check_box($prefix.'_show_days['.$day_number.']', 1, $days_to_show[$day_number]);
