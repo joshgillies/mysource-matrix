@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: file.inc,v 1.81 2005/01/19 12:36:06 brobertson Exp $
+* $Id: file.inc,v 1.82 2005/01/19 12:43:16 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.81 $
+* @version $Revision: 1.82 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -749,7 +749,6 @@ class File extends Asset
 			$old_filename = $this->attr('name');
 			$old_ext = get_file_type($old_filename);
 			$new_ext = get_file_type($value);
-pre_echo("$old_ext : $new_ext");
 			if (trim($old_ext) != '' && $old_ext != $new_ext) {
 				trigger_error('You can not change the extension of the file. Upload a new file to change the extension.', E_USER_WARNING);
 				$value = $old_filename;
