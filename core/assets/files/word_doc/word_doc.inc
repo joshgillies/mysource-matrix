@@ -18,12 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.3 2004/09/08 08:32:01 brobertson Exp $
+* $Id: word_doc.inc,v 1.4 2004/09/09 07:48:36 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
+require_once SQ_DATA_PATH.'/private/conf/tools.inc';
+
 
 /**
 * Image
