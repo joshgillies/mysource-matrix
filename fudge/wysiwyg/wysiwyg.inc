@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: wysiwyg.inc,v 1.39 2005/04/06 01:45:02 tbarrett Exp $
+* $Id: wysiwyg.inc,v 1.40 2005/04/06 01:46:26 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@
 *     to do this.
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.39 $
+* @version $Revision: 1.40 $
 * @package Fudge
 * @subpackage wysiwyg
 */
@@ -202,7 +202,7 @@ class wysiwyg
 		global $WYSIWYG_INIT;
 		if (!$WYSIWYG_INIT) {
 			?>
-			<script type="text/javascript" language="Javascript">
+			<script type="text/javascript">
 				//
 				// htmlArea v3.0 - Copyright (c) 2002 interactivetools.com, inc.
 				// This copyright notice MUST stay intact for use (see license.txt).
@@ -243,7 +243,7 @@ class wysiwyg
 				};
 			</script>
 
-			<script type="text/javascript" language="Javascript">
+			<script type="text/javascript">
 				// Creates the toolbar and appends it to the _htmlarea
 				HTMLArea.prototype._createToolbar = function () {
 					var editor = this; // to access this in nested functions
@@ -644,7 +644,7 @@ class wysiwyg
 
 <?php $this->print_plugin_generic_functions()?>
 
-			<script type="text/javascript" language="Javascript">
+			<script type="text/javascript">
 				// txt is the name of the button, as in config.toolbar
 				HTMLArea.prototype._buttonClicked = function(txt) {
 					var editor = this; // needed in nested functions
@@ -895,10 +895,10 @@ class wysiwyg
 
 			</script>
 
-			<script type="text/javascript" language="Javascript" src="<?php echo $this->web_path?>core/core.js"></script>
-			<script type="text/javascript" language="Javascript" src="<?php echo $this->web_path?>core/utility.js"></script>
-			<script type="text/javascript" language="Javascript" src="<?php echo $this->web_path?>core/htmlarea-lang-en.js"></script>
-			<script type="text/javascript" language="Javascript" src="<?php echo $this->web_path?>core/dialog.js"></script>
+			<script type="text/javascript" src="<?php echo $this->web_path?>core/core.js"></script>
+			<script type="text/javascript" src="<?php echo $this->web_path?>core/utility.js"></script>
+			<script type="text/javascript" src="<?php echo $this->web_path?>core/htmlarea-lang-en.js"></script>
+			<script type="text/javascript" src="<?php echo $this->web_path?>core/dialog.js"></script>
 
 			<style type="text/css">
 				@import url("<?php echo $this->web_path?>core/htmlarea.css");
@@ -914,7 +914,7 @@ class wysiwyg
 
 			<textarea id="<?php echo $this->name?>" name="<?php echo $this->name?>" <?php echo $this->textarea_extras?>><?php echo rawurlencode($this->contents)?></textarea>
 
-			<script type="text/javascript" language="Javascript">
+			<script type="text/javascript">
 				editor_<?php echo $this->name?> = new HTMLArea("<?php echo $this->name?>");
 				editor_<?php echo $this->name?>._createToolbar();
 				editor_<?php echo $this->name?>._createStatusBar();
@@ -970,7 +970,7 @@ class wysiwyg
 	function print_config()
 	{
 			?>
-			<script type="text/javascript" language="Javascript">
+			<script type="text/javascript">
 				HTMLArea.Config_<?php echo $this->name?> = function () {
 					this.version = "3.0";
 
