@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.28 2003/12/30 05:25:38 gsherwood Exp $
+* $Id: step_03.php,v 1.29 2004/01/14 19:26:30 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,6 +69,11 @@ $GLOBALS['SQ_INSTALL'] = true;
 require_once SQ_INCLUDE_PATH.'/system_config.inc';
 $cfg = new System_Config();
 $cfg->save(Array(), false);
+
+// Re-generate the Server Config to make sure that we get any new defines that may have been issued
+require_once SQ_SYSTEM_ROOT.'/core/server/squiz_server_config.inc';
+$hipo_cfg = new Squiz_Server_Config();
+$hipo_cfg->save(Array(), false);
 
 // Re-generate the HIPO Config to make sure that we get any new defines that may have been issued
 require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
