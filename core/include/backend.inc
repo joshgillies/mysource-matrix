@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: backend.inc,v 1.71 2003/11/11 03:56:09 gsherwood Exp $
+* $Id: backend.inc,v 1.72 2003/11/16 23:16:14 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,7 +56,7 @@ class Backend extends MySource_Object
 
 
 	/**
-	* Paint the backend interface, dependig on which frame is being displayed
+	* Paint the backend interface, depending on which frame is being displayed
 	*
 	* @access public
 	*/
@@ -575,7 +575,9 @@ class Backend extends MySource_Object
 
 		// add an onLoad event that checks if the current window is in the frameset
 		// and redirects the user to the frameset version if they are not
-		$this->out->addOnLoad('if (!top.header) { sq_redirect("'.strip_url(current_url()).'/?sq_redirect_url='.urlencode(str_replace('SQ_ACTION=login', '', $_SERVER['REQUEST_URI'])).'"); } ');
+		if (!isset($_GET['ignore_frames']) || !$_GET['ignore_frames']) {
+			$this->out->addOnLoad('if (!top.header) { sq_redirect("'.strip_url(current_url()).'/?sq_redirect_url='.urlencode(str_replace('SQ_ACTION=login', '', $_SERVER['REQUEST_URI'])).'"); } ');
+		}
 
 		switch($_GET['backend_section']) {
 			case 'config' :

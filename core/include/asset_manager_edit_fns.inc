@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_manager_edit_fns.inc,v 1.60 2003/10/17 01:32:08 brobertson Exp $
+* $Id: asset_manager_edit_fns.inc,v 1.61 2003/11/16 23:16:14 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -662,7 +662,6 @@ class Asset_Manager_Edit_Fns extends MySource_Object
 		$pb->setStatusMsg($status_msg);
 		$pb->setPercent(count($vars['lock']['acquired_assets']) / count($vars['assets']));
 
-speed_check('FINISHED');
 
 		$this->am->updateLock($vars['assetid']);
 
@@ -1086,27 +1085,53 @@ speed_check('FINISHED');
 
 		} else if (isset($_GET['link_assetid'])) {
 
-			// they have confirmed their intention to move this asset
-			$permission_vars = Array();
-			foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
-				$set_perms = $this->am->getPermission($_GET['link_parentid'], $perm, null, false, false, true);
-				foreach ($set_perms as $userid => $access) {
-					$permission_vars[$perm][] = Array('access'          => $access,
-													  'userid'          => $userid,
-													  'previous_access' => null,
-													  );
-				}
-			}
-
 			//// START HIPO PROCESSING ////
 			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
-			$vars = Array('assetid' => $_GET['link_assetid'], 'permission_changes' => $permission_vars);
 			$complete_url = $_SERVER['REQUEST_URI'].'&link_completed=1';
-			$hh->queueHipo('hipo_job_edit_permissions', $vars, $complete_url);
+			
+			if (isset($_REQUEST['cascade'])) {
+				$vars = Array('assetid' => $_GET['link_assetid']);
+				if (in_array('cascade_pe', $_REQUEST['cascade'])) {
+					$permission_vars = Array();
+					foreach (Array(SQ_PERMISSION_READ, SQ_PERMISSION_WRITE, SQ_PERMISSION_ADMIN) as $perm) {
+						$set_perms = $this->am->getPermission($_GET['link_parentid'], $perm, null, false, false, true);
+						foreach ($set_perms as $userid => $access) {
+						$permission_vars[$perm][] = Array('access'          => $access,
+														  'userid'          => $userid,
+														  'previous_access' => null,
+														  );
+						}
+					}
+					$vars['permission_changes'] = $permission_vars;
+				}
+				if (in_array('cascade_wf', $_REQUEST['cascade'])) {
+					$wfm = &$GLOBALS['SQ_SYSTEM']->getWorkflowManager();
+					$schemas = $wfm->getSchemas($_GET['link_parentid']);
+					foreach ($schemas as $schemaid => $access) {
+						$workflow_schema_vars[] = Array('access'          => $access,
+									   'schemaid'        => $schemaid,
+									   'previous_access' => null,
+									   );
+					}
+					$vars['workflow_schema_changes'] = $workflow_schema_vars;
+				}
+				if (in_array('cascade_ms', $_REQUEST['cascade'])) {
+					$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
+					$schemas = $mm->getSchemas($_GET['link_parentid']);
+					foreach ($schemas as $schemaid => $access) {
+						$meta_data_schema_vars[] = Array('access'          => $access,
+											   'schemaid'        => $schemaid,
+											   'previous_access' => null,
+											   );
+					}
+					$vars['metadata_schema_changes'] = $meta_data_schema_vars;
+					
+				}
+				$hh->queueHipo('hipo_job_create_link', $vars, $complete_url);
+			}
 			////  END HIPO PROCESSING  ////
 
 			// check for any queued HIPOs
-			$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 			$url = $hh->runQueuedJobs();
 			if (!empty($url)) $o->setRedirect($url);
 
@@ -1136,10 +1161,24 @@ speed_check('FINISHED');
 					<b>Note:</b> Any assets that become children of "<?php echo $asset->name; ?>" during the cascade process will not have the permission changes applied to them - only the <i>current</i> children.
 					<?php
 					$ei = &$parent->getEI();
-					$ei->paintPermissions($parent, $o, false);
+					$pe = $ei->paintInlinePermissions($parent, $o);
+					$wf = $ei->paintInlineWorkflow($parent, $o);
+					$ms = $ei->paintInlineMetadataSchemas($parent, $o);
+
+
 				$o->closeField();
 			$o->closeSection();
-
+			
+			if ((int)$pe + (int)$wf + (int)$ms > 1) {
+				$o->openSection('Cascade');
+					$o->openField('', 'cascade');
+						echo ($pe) ? 'Permissions'.check_box('cascade[]', 'cascade_pe').'<br />' : '';
+						echo ($wf) ? 'Work Flow'.check_box('cascade[]', 'cascade_wf').'<br />' : '';
+						echo ($ms) ? 'Metadata Schemas'.check_box('cascade[]', 'cascade_ms').'<br />' : '';
+					$o->closeField();
+				$o->closeSection();
+			}
+			
 			$o->openField('', 'commit');
 			normal_button('cancel', 'Skip', 'this.form.link_completed.value = \'1\'; this.form.submit()');
 			echo '&nbsp;';
@@ -1178,7 +1217,8 @@ speed_check('FINISHED');
 		
 		$o->addFormActionGetVar('assetid', $_GET['assetid']);
 		$o->addFormActionGetVar('sq_lock_type', $_GET['sq_lock_type']);
-		$o->addFormActionGetVar('forceably_acquire_confirm', 1);
+		$o->addFormActionGetVar('forceably_acquire_confirm', '1');
+		$o->addFormActionGetVar('ignore_frames', '1');
 		$asset = &$this->am->getAsset($_GET['assetid']);
 		if (is_null($asset)) {
 			trigger_error('Asset #'.$_GET['assetid'].' not found', E_USER_WARNING);

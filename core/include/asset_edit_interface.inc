@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: asset_edit_interface.inc,v 1.179 2003/11/07 01:43:51 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.180 2003/11/16 23:16:14 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -324,7 +324,7 @@ class Asset_Edit_Interface extends MySource_Object
 
 						// they aren't going to do this without a fight though
 						// they'll have to go through our popup window first
-						$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
+						$popup_url = '?SQ_BACKEND_PAGE=main&backend_section=am&ignore_frames=1&am_section=forceably_acquire_lock&assetid='.$owner->id.'&sq_lock_type='.$screen_lock_type;
 
 						hidden_field('sq_lock_acquire_by_force', '0');
 						hidden_field('sq_lock_acquire', '0');
