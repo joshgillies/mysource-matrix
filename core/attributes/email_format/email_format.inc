@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: email_format.inc,v 1.12 2004/12/06 14:38:11 brobertson Exp $
+* $Id: email_format.inc,v 1.13 2004/12/20 00:48:22 lwright Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_ATTRIBUTES_PATH.'/wysiwyg/wysiwyg.inc';
 *    <email_format />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -208,26 +208,32 @@ class Asset_Attribute_Email_Format extends Asset_Attribute_WYSIWYG
 				divX = div.firstChild;
 
 				while(divX != null) {
-					email_addr = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
-
-					// this is the one we want
-					if (divX.id == (editor_name + "_" + index)) {
-						divX.style.display = 'none';
-					} else {
-						email_array[arrIndex] = email_addr.replace('&lt;', '<').replace('&gt;', '>');
+					if (divX.style.display != 'none') {
+						email_addr = divX.firstChild.nextSibling.nextSibling.nextSibling.innerHTML;
+	
+						// this is the one we want
+						if (divX.id == (editor_name + "_" + index)) {
+							divX.style.display = 'none';
+						} else {
+							email_array[arrIndex] = email_addr.replace('&lt;', '<').replace('&gt;', '>');
+						}
+						arrIndex++;
 					}
-					arrIndex++;
+					
 					divX = divX.nextSibling;
 				}
-
+				
 				var new_value_content = '';
 
 				for (var i = 0; i < email_array.length; i++) {
 					var email = email_array[i];
-					re = new RegExp("\\\[.*\\\] (.*)", "g");
-					email_addr = email.replace(re, "\$1");
+					if (typeof email != 'undefined') {
+						re = new RegExp("\\\[.*\\\] (.*)", "g");
+						email_addr = email.replace(re, "\$1");
+						
+						new_value_content += email_addr + ";";
+					}
 
-					new_value_content += email_addr + ";";
 				}
 
 				value.value = new_value_content;
