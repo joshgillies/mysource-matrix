@@ -342,8 +342,8 @@ class Design_Area_Menu_Recursive_Edit_Fns extends Design_Area_Menu_Type_Edit_Fns
 
 		//------------------------------------//
 
-		require_once '/home/brobertson/resolve/fudge/general/file_system.inc';
-		require_once '/home/brobertson/resolve/fudge/colour/colour.inc';
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+		require_once SQ_FUDGE_PATH.'/colour/colour.inc';
 
 		if (!create_directory($image_path)) return false;
 
