@@ -162,6 +162,23 @@ class wysiwyg {
 					var editor = this; // to access this in nested functions
 
 					var toolbar = document.createElement("div");
+					var innerToolbar = document.createElement("div");
+
+					var table = document.createElement("table");
+					table.border = "0px";
+					table.cellSpacing = "1px";
+					table.cellPadding = "1px";
+
+					toolbar.appendChild(table);
+					// TBODY is required for IE, otherwise you don't see anything in the TABLE.
+					var tb_body = document.createElement("tbody");
+					table.appendChild(tb_body);
+					tb_row = document.createElement("tr");
+					tb_body.appendChild(tb_row);
+					tb_cell = document.createElement("td");
+					tb_row.appendChild(tb_cell);
+					tb_cell.appendChild(innerToolbar);
+
 					this._toolbar = toolbar;
 					toolbar.className = "toolbar";
 					toolbar.unselectable = "1";
@@ -242,12 +259,12 @@ class wysiwyg {
 							case "separator":
 								el = document.createElement("span");
 								el.className = "separator";
-								el.style.top = (HTMLArea.is_gecko ? -9 : 0);
+								el.style.top = (HTMLArea.is_gecko ? -4 : 0);
 							break;
 							case "space":
 								el = document.createElement("span");
 								el.className = "space";
-								el.style.top = (HTMLArea.is_gecko ? -9 : 0);
+								el.style.top = (HTMLArea.is_gecko ? -4 : 0);
 							break;
 							case "linebreak":
 								el = document.createElement("div");
@@ -307,7 +324,7 @@ class wysiwyg {
 							});
 
 							var buttonID = editor._uniqueID + "_" + btn[0];
-							el.innerHTML += "<img src=\"" + editor.imgURL("blank.gif") + "\" width=18 height=20 border=0>";
+							el.innerHTML = "<img src=\"" + editor.imgURL("blank.gif") + "\" width=20 height=20 border=0>";
 
 							// output an image tag with the src of the toolbar image
 							// the image is loaded once and then the server is not hit again
@@ -318,9 +335,9 @@ class wysiwyg {
 							var btnTop = Math.floor(btn[3] / 5);
 							var btnLeft = ((btn[3] - (btnTop * 5)) * 18);
 
-							// using a single image, position each of the div tags for the buttons
+							// using a single image, position each of the span tags for the buttons
 							el.style.position = "relative";
-							el.style.top = (HTMLArea.is_gecko ? -9 : 2);
+							el.style.top = (HTMLArea.is_gecko ? -4 : 2);
 					
 							img.style.position = "absolute";
 							img.style.left = -1 * (btnLeft); // use the index to get the offset
@@ -333,7 +350,7 @@ class wysiwyg {
 							el = createSelect();
 						}
 						if (el) {
-							toolbar.appendChild(el);
+							innerToolbar.appendChild(el);
 						} else {
 							alert("FIXME: Unknown toolbar item: " + txt);
 						}
@@ -346,7 +363,6 @@ class wysiwyg {
 							createButton(group[j]);
 						}
 					}
-
 				};
 
 				// updates enabled/disable/active state of the toolbar elements
@@ -551,6 +567,7 @@ class wysiwyg {
 			<script type="text/javascript" language="Javascript">
 				editor_<?php echo $this->name?> = new HTMLArea("<?php echo $this->name?>");
 				editor_<?php echo $this->name?>._createToolbar();
+				editor_<?php echo $this->name?>.updateToolbar(false);
 		<?php
 		if ($this->init_onload == 'yes') {
 		?>
