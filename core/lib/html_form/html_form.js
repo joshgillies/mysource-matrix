@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.js,v 1.28 2004/09/14 00:24:15 gsherwood Exp $
+* $Id: html_form.js,v 1.29 2004/09/23 03:32:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ function submit_form(f)
 {
 	if (f == null) { f = document.main_form; }
 	// make sure we clean any stuff up before we submit
-	if (f.onsubmit()) {
+	if (!f.onsubmit || f.onsubmit()) {
 		f.submit();
 	}
 
