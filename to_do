@@ -2,7 +2,7 @@
 |                            SHORT TERM ( < 3 weeks )                                    |
 +----------------------------------------------------------------------------------------+
 
-  - Write Users_Group
+  - Users_Group Asset
   - Attribute Types
     - In Asset have diff update case for diff types of attr
   
@@ -10,14 +10,30 @@
   - Flash Asset Tree
   - Customising Asset's
   - Enable removing of attributes from asset types in Asset_Management
-  - Write Permissions_Group Asset
+  - Permissions_Group Asset
     - Same form as windows directory permissions ? 
       (ie permissions for as many groups and individuals as you want)
     - Permissions for links  (Read/Write/Delete ?)
     - Permissions for assets (Read/Write/Delete ?)
 
+  - CMS Package
+    - Page
+    - Site
+    - File
+    - Page Template
+
 +----------------------------------------------------------------------------------------+
-|                            LONG  TERM ( > 3 weeks )                                    |
+|                            MEDIUM TERM ( 3-7 weeks )                                   |
++----------------------------------------------------------------------------------------+
+
+  - Design Areas (or their replacement)
+    Taking into account last comment on 
+    http://www.php.net/manual/en/language.references.return.php
+    and points in http://phplens.com/lens/php-book/optimizing-debugging-php.php 
+  - RollBack...
+
++----------------------------------------------------------------------------------------+
+|                            LONG  TERM ( > 7 weeks )                                    |
 +----------------------------------------------------------------------------------------+
 
   - Workflow Asset
