@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.46 2004/11/04 01:18:06 mnyeholt Exp $
+* $Id: step_03.php,v 1.47 2004/11/17 04:26:19 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,7 +42,7 @@ if ((php_sapi_name() == 'cli')) {
 	if (isset($_SERVER['argv'][1])) $SYSTEM_ROOT = $_SERVER['argv'][1];
 	$err_msg = "You need to supply the path to the System Root as the first argument\n";
 
-} else { 
+} else {
 	if (isset($_GET['SYSTEM_ROOT'])) $SYSTEM_ROOT = $_GET['SYSTEM_ROOT'];
 	$err_msg = '
 	<div style="background-color: red; color: white; font-weight: bold;">
@@ -101,6 +101,8 @@ install_event_listeners();
 
 // need to run the install packages twice
 install_packages($package_list);
+
+cache_asset_types();
 
 unset($GLOBALS['SQ_INSTALL']);
 
