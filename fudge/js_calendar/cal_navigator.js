@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cal_navigator.js,v 1.6 2004/09/13 02:29:26 dbaranovskiy Exp $
+* $Id: cal_navigator.js,v 1.7 2004/09/13 03:39:02 dbaranovskiy Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -101,8 +101,10 @@ function c_show(e)
 	var div = document.getElementById(this.divname);
 	div.style.visibility = "hidden";
 	div.style.position = "absolute";
-	div.style.left = e.clientX + "px";
-	div.style.top  = e.clientY + "px";
+	
+	div.style.left = document.body.scrollLeft + e.clientX + "px";
+	div.style.top  = document.body.scrollTop + e.clientY + "px";
+	
 	div.innerHTML = this.output();
 	if (document.getElementById('ie_'+this.divname+'_iframe') == null && document.body.insertAdjacentHTML) {
 		var shadow = '<span id="ie_'+this.divname+'_shadow" style="background:#000000;position:absolute;top:0px;left:0px;filter:progid:DXImageTransform.Microsoft.blur(pixelradius=6, enabled=\'true\', makeshadow=\'true\', ShadowOpacity=0.7)"></span>';
