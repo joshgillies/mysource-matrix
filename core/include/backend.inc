@@ -118,7 +118,8 @@ class Backend extends Resolve_Object
 				$main_extras = '&assetid='.$url_asset->id.'&sq_from_frontend=1';
 			}
 		}
-	?>
+
+		?>
 		<html>
 			<head>
 			<title><?php echo SQ_SYSTEM_LONG_NAME; ?> Backend</title>
@@ -133,7 +134,8 @@ class Backend extends Resolve_Object
 				<frame src="<?php echo $_SERVER['PHP_SELF'];?>?SQ_BACKEND_PAGE=main<?php echo $main_extras; ?>" name="main" marginwidth="0" marginheight="0" scrolling="yes">
 			</frameset>
 		</html>
-	<?php
+		<?php
+
 	}//end _printFrames()
 
 
@@ -207,9 +209,10 @@ class Backend extends Resolve_Object
 			// check for updates to the asset tree
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			$sql = 'SELECT assetid 
-					FROM sq_asset
-					WHERE last_updated > '.$db->quote(ts_iso8601($_SESSION['last_refresh']));
+			$where = 'last_updated > '.$db->quote(ts_iso8601($_SESSION['last_refresh']));
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
+
 			$updated_assetids = $db->getCol($sql);
 			if (!DB::isError($updated_assetids) && !empty($updated_assetids)) {
 				require_once 'XML/Tree.php';
@@ -400,12 +403,18 @@ class Backend extends Resolve_Object
 	*/
 	function _printMain()
 	{
-
 		if (!isset($_GET['backend_section'])) $_GET['backend_section'] = '';
 		if (!isset($_GET['assetid']))         $_GET['assetid'] = '';
 
 		$this->out->addFormActionGetVar('backend_section', $_GET['backend_section']);
 		$this->out->addHiddenField('backend_assetid', $_GET['assetid']);
+
+		// if we are in rollback view, print a warning message
+		if (SQ_ROLLBACK_VIEW) {
+			$this->out->openRaw();
+			$GLOBALS['SQ_SYSTEM']->printRollbackWarning();
+			$this->out->closeRaw();
+		}
 
 		switch($_GET['backend_section']) {
 			case 'config' :

@@ -15,9 +15,9 @@
 ## immediately.
 ##
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/web/css/edit.css,v $
-## $Revision: 1.7 $
-## $Author: brobertson $
-## $Date: 2003/07/15 23:27:08 $
+## $Revision: 1.8 $
+## $Author: gsherwood $
+## $Date: 2003/07/31 03:40:15 $
 #######################################################################
 */
 
@@ -83,11 +83,6 @@ a, a.sq-backend {
 	color: black;
 	text-decoration: underline;
 }
-/*
-a:hover, a.sq-backend:hover {
-	text-decoration: underline;
-}
-*/
 
 .sq-backend-field {
 	color: #000000;

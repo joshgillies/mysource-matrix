@@ -52,7 +52,7 @@ class Asset_Manager extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation
-				FROM sq_asset_type';
+				FROM '.SQ_TABLE_PREFIX.'asset_type';
 		$result = $db->query($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
@@ -78,7 +78,7 @@ class Asset_Manager extends Resolve_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT type_code, version, name, instantiable, allowed_access, parent_type, dir, customisation
-				FROM sq_asset_type
+				FROM '.SQ_TABLE_PREFIX.'asset_type
 				WHERE type_code = '.$db->quote($type_code);
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -105,7 +105,7 @@ class Asset_Manager extends Resolve_Object
 		$parents[] = 'asset';
 
 		$sql = 'SELECT inherited_type_code
-				FROM sq_asset_type_inherited
+				FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 				WHERE type_code = '.$db->quote($type_code);
 		$db_parents = $db->getCol($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -114,14 +114,14 @@ class Asset_Manager extends Resolve_Object
 		$deletes = array_diff($db_parents, $parents);
 
 		foreach($inserts as $inherited_type_code) {
-			$sql = 'INSERT INTO sq_asset_type_inherited (inherited_type_code, type_code)
+			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'asset_type_inherited (inherited_type_code, type_code)
 					VALUES ('.$db->quote($inherited_type_code).', '.$db->quote($type_code).')';
 			$result = $db->query($sql);
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 		}
 
 		foreach($deletes as $inherited_type_code) {
-			$sql = 'DELETE FROM sq_asset_type_inherited
+			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 					WHERE inherited_type_code = '.$db->quote($inherited_type_code).'
 					  AND type_code = '.$db->quote($type_code);
 			$result = $db->query($sql);
@@ -181,7 +181,7 @@ class Asset_Manager extends Resolve_Object
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT '.$field.'
-					FROM sq_asset_type
+					FROM '.SQ_TABLE_PREFIX.'asset_type
 					WHERE type_code = '.$db->quote($type_code);
 			$result = $db->getOne($sql);
 			if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -214,7 +214,7 @@ class Asset_Manager extends Resolve_Object
 		if (!empty($ignore_allowed_access)) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 			$sql = 'SELECT type_code
-					FROM sq_asset_type
+					FROM '.SQ_TABLE_PREFIX.'asset_type
 					WHERE allowed_access = '.$db->quote($allowed_access);
 			$type_codes = $db->getCol($sql);
 			if (DB::isError($type_codes)) trigger_error($type_codes->getMessage().'<br/>'.$type_codes->getUserInfo(), E_USER_ERROR);
@@ -265,12 +265,10 @@ class Asset_Manager extends Resolve_Object
 		if (empty($assetids)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT a.assetid, at.inherited_type_code 
-				FROM sq_asset a INNER JOIN sq_asset_type_inherited at ON a.type_code = at.type_code 
-				WHERE ';
+		$where = '';
 
 		for($i = 0; $i < count($assetids); $i++) $assetids[$i] = $db->quote($assetids[$i]);
-		$sql .= 'a.assetid IN ('.implode(', ', $assetids).')';
+		$where .= 'a.assetid IN ('.implode(', ', $assetids).')';
 
 		if (!empty($type_code)) {
 
@@ -283,20 +281,23 @@ class Asset_Manager extends Resolve_Object
 			}
 
 			if ($strict_type_code) {
-				$sql .= ' AND a.type_code '.$type_code_cond;
+				$where .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND a.type_code IN (~SQ0~)';
+				$where .= ' AND a.type_code IN (~SQ0~)';
 				$subs = Array( 'SELECT type_code
-								FROM sq_asset_type_inherited
+								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
-				$sql = db_extras_subquery($db, $sql, $subs);
-				if (DB::isError($sql))
-					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
+				$where = db_extras_subquery($db, $where, $subs);
+				if (DB::isError($where))
+					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
 			}
 		}// end if
 
-		$sql .= ' ORDER BY a.assetid';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$sql = 'SELECT a.assetid, at.inherited_type_code 
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a INNER JOIN '.SQ_TABLE_PREFIX.'asset_type_inherited at ON a.type_code = at.type_code 
+				'.$where.' ORDER BY a.assetid';
 
 		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 		if (DB::isError($result)) {
@@ -324,10 +325,10 @@ class Asset_Manager extends Resolve_Object
 		if (empty($assetids)) return Array();
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT * FROM sq_asset a WHERE ';
+		$where = '';
 
 		for($i = 0; $i < count($assetids); $i++) $assetids[$i] = $db->quote($assetids[$i]);
-		$sql .= 'a.assetid IN ('.implode(', ', $assetids).')';
+		$where .= 'a.assetid IN ('.implode(', ', $assetids).')';
 
 		if (!empty($type_code)) {
 
@@ -340,20 +341,21 @@ class Asset_Manager extends Resolve_Object
 			}
 
 			if ($strict_type_code) {
-				$sql .= ' AND a.type_code '.$type_code_cond;
+				$where .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND a.type_code IN (~SQ0~)';
+				$where .= ' AND a.type_code IN (~SQ0~)';
 				$subs = Array( 'SELECT type_code
-								FROM sq_asset_type_inherited
+								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
-				$sql = db_extras_subquery($db, $sql, $subs);
-				if (DB::isError($sql))
-					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
+				$where = db_extras_subquery($db, $where, $subs);
+				if (DB::isError($where))
+					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
 			}
 		}// end if
 
-		$sql .= ' ORDER BY a.assetid';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a '.$where.' ORDER BY a.assetid';
 
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
@@ -426,7 +428,7 @@ class Asset_Manager extends Resolve_Object
 		}
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getCol('SELECT inherited_type_code
-								FROM sq_asset_type_inherited
+								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE type_code = '.$db->quote($type_code).'
 								  AND inherited_type_code <> '.$db->quote($type_code).'
 								'.(($include_asset) ? '' : ' AND inherited_type_code <> '.$db->quote('asset'))
@@ -455,7 +457,7 @@ class Asset_Manager extends Resolve_Object
 		}
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$result = $db->getCol('SELECT type_code
-								FROM sq_asset_type_inherited
+								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code = '.$db->quote($type_code).'
 								  AND type_code <> '.$db->quote($type_code)
 								);
@@ -484,11 +486,8 @@ class Asset_Manager extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
-		$sql = 'SELECT DISTINCT pl.minorid
-				FROM sq_asset_link cl INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
-					 sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid ';
-		if (!empty($type_code)) $sql .= 'INNER JOIN sq_asset pa ON pl.minorid = pa.assetid ';
-		$sql .= 'WHERE cl.minorid = '.$db->quote($assetid).'
+
+		$where = 'cl.minorid = '.$db->quote($assetid).'
 				  AND ct.treeid LIKE '.$concat.'
 				  AND pt.treeid < ct.treeid';
 
@@ -503,16 +502,30 @@ class Asset_Manager extends Resolve_Object
 			}
 
 			if ($strict_type_code) {
-				$sql .= ' AND pa.type_code '.$type_code_cond;
+				$where .= ' AND pa.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND pa.type_code IN (~SQ0~)';
+				$where .= ' AND pa.type_code IN (~SQ0~)';
 				$sub = 'SELECT type_code
-						FROM sq_asset_type_inherited
+						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 						WHERE inherited_type_code '.$type_code_cond;
-				$sql = db_extras_subquery($db, $sql, Array($sub));
+				$where = db_extras_subquery($db, $where, Array($sub));
 			}
 		}// end if
+
+		$sql = 'SELECT DISTINCT pl.minorid
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ON cl.linkid = ct.linkid,
+					 '.SQ_TABLE_RUNNING_PREFIX.'asset_link pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt ON pl.linkid = pt.linkid ';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+		if (!empty($type_code)) {
+			$sql .= 'INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset pa ON pl.minorid = pa.assetid ';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pa');
+		}
+
+		$sql .= $where;
 
 		$parents = $db->getCol($sql);
 		if (DB::isError($parents)) {
@@ -545,15 +558,17 @@ class Asset_Manager extends Resolve_Object
 		// if we are the root folder then we just need to select from the asset table
 		if ($assetid == 1) {
 			$sql = 'SELECT a.assetid
-					FROM sq_asset a
-					'.((!empty($type_code)) ? 'WHERE ' : '');
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'a');
 
 		// OK, normal asset, let's find a reference to them in the tree and go from there
 		} else {
+			$where = 'l.minorid = '.$db->quote($assetid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$sql = 'SELECT t.treeid
-					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
-					WHERE l.minorid = '.$db->quote($assetid).'
-					LIMIT 1';
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					'.$where.' LIMIT 1';
 
 			$treeid = $db->getOne($sql);
 			if (DB::isError($treeid)) {
@@ -561,13 +576,18 @@ class Asset_Manager extends Resolve_Object
 			}
 
 			$sql = 'SELECT DISTINCT l.minorid
-					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
 					';
-			if (!empty($type_code)) $sql .= ' INNER JOIN sq_asset a ON l.minorid = a.assetid';
-			$sql .= '
-					WHERE t.treeid LIKE '.$db->quote($treeid.'%').'
-					  AND t.treeid > '.$db->quote($treeid).'
-					'.((!empty($type_code)) ? '  AND ' : '');
+			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
+					  AND t.treeid > '.$db->quote($treeid);
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			if (!empty($type_code)) {
+				$sql .= ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid';
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+				$where .= ' AND ';
+			}
 
 		}// end if assetid == 1
 
@@ -582,16 +602,18 @@ class Asset_Manager extends Resolve_Object
 			}
 
 			if ($strict_type_code) {
-				$sql .= 'a.type_code '.$type_code_cond;
+				$where .= 'a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= 'a.type_code IN (~SQ0~)';
+				$where .= 'a.type_code IN (~SQ0~)';
 				$sub = 'SELECT type_code
-						FROM sq_asset_type_inherited
+						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 						WHERE inherited_type_code '.$type_code_cond;
-				$sql = db_extras_subquery($db, $sql, Array($sub));
+				$where = db_extras_subquery($db, $where, Array($sub));
 			}
 		}// end if
+
+		$sql .= ' '.$where;
 
 		$children = $db->getCol($sql);
 		if (DB::isError($children)) {
@@ -625,17 +647,22 @@ class Asset_Manager extends Resolve_Object
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT COUNT(*)
-				FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid=l.linkid
-				WHERE l.minorid = '.$db->quote($assetid).' 
+		$where = 'l.minorid = '.$db->quote($assetid).' 
 				  AND t.treeid '.(($exclusively) ? 'NOT ' : '').'LIKE (~SQ0~)';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$sql = 'SELECT COUNT(*)
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid=l.linkid
+				'.$where;
 
 		// we need to work out the treeid of the trash
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')' : '(t.treeid || '.$db->quote('%').')';
+		$sub_where = 'l.minorid = '.$db->quote($trash->id);
+		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
+		$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 		$subs = Array( 'SELECT '.$concat.'
-						FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
-						WHERE l.minorid = '.$db->quote($trash->id).'
-						LIMIT 1');
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+						'.$sub_where.' LIMIT 1');
 
 		$sql = db_extras_subquery($db, $sql, $subs);
 		if (DB::isError($sql)) {
@@ -672,7 +699,9 @@ class Asset_Manager extends Resolve_Object
 		if (!isset($this->_assets[$assetid]) || !is_object($this->_assets[$assetid])) {
 
 			if (empty($type_code)) {
-				$type_code = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT type_code FROM sq_asset WHERE assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($assetid));
+				$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($assetid);
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+				$type_code = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT type_code FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where);
 				if (empty($type_code)) {
 					if (!$mute_errors) trigger_error('Asset #'.$assetid.' does not exist', E_USER_WARNING);
 					$this->_assets[$assetid] = null; // do this because of return by reference
@@ -803,20 +832,20 @@ class Asset_Manager extends Resolve_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT assetid'.(($include_type) ? ', type_code' : '').'
-				FROM sq_asset
-				WHERE ';
-
 		if ($strict) {
-			$sql .= 'type_code = '.$db->quote($type_code);
+			$where = 'type_code = '.$db->quote($type_code);
 		} else {
 			require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-			$sql .= 'type_code IN (~SQ0~)';
+			$where = 'type_code IN (~SQ0~)';
 			$subs = Array( 'SELECT type_code
-							FROM sq_asset_type_inherited
+							FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 							WHERE inherited_type_code = '.$db->quote($type_code));
-			$sql = db_extras_subquery($db, $sql, $subs);
+			$where = db_extras_subquery($db, $where, $subs);
 		}
+
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		$sql = 'SELECT assetid'.(($include_type) ? ', type_code' : '').'
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
 
 		$result = ($include_type) ? $db->getAssoc($sql) : $db->getCol($sql);
 		if (DB::isError($result)) {
@@ -870,17 +899,20 @@ class Asset_Manager extends Resolve_Object
 			$url_condition .= ') ';
 		}// end if
 
+		$where = 'l.url '.$url_condition;
+
 		$extra_table = '';
 		$extra_where = '';
 		if (!is_null($protocol)) {
-			$extra_table = ' INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid';
+			$extra_table = ' INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_url u ON l.root_urlid = u.urlid';
 			$extra_where = ' AND u.'.$protocol.' = '.$db->quote(1);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'u');
 		}
 
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$sql = 'SELECT l.url, l.assetid
-				FROM sq_asset_lookup l '.$extra_table.'
-				WHERE l.url '.$url_condition.'
-				'.$extra_where.'
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l '.$extra_table.'
+				'.$where.$extra_where.'
 				ORDER BY CHARACTER_LENGTH(l.url) DESC
 				LIMIT 1';
 
@@ -922,9 +954,11 @@ class Asset_Manager extends Resolve_Object
 
 		// so much for SQL standards...
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(url, '.$db->quote('%').')' : '(url || '.$db->quote('%').')';
+		$where = $db->quote($url).' LIKE '.$concat;
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		$sql = 'SELECT urlid, assetid, url, http, https
-				FROM sq_asset_url
-				WHERE '.$db->quote($url).' LIKE '.$concat.'
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url
+				'.$where. '
 				ORDER BY url DESC
 				LIMIT 1';
 		$result = $db->getRow($sql);
@@ -964,21 +998,23 @@ class Asset_Manager extends Resolve_Object
 			return Array();
 		}
 
+		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('%').')' : '(l.url || '.$db->quote('%').')';
+		$where = 'l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
+				  AND '.$db->quote($url).' LIKE '.$concat;
+
 		$extra_table = '';
-		$extra_where = '';
 		if (!is_null($protocol)) {
-			$extra_table = ', sq_asset_url u';
-			$extra_where = ' AND l.root_urlid = u.urlid AND u.'.$protocol.' = '.$db->quote(1);
+			$extra_table = ', '.SQ_TABLE_RUNNING_PREFIX.'asset_url u';
+			$where .= ' AND l.root_urlid = u.urlid AND u.'.$protocol.' = '.$db->quote(1);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'u');
 		}
 
-		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('%').')' : '(l.url || '.$db->quote('%').')';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$sql = 'SELECT l.url, l.assetid, a.'.$name_type.', a.type_code
-				FROM sq_asset_lookup l INNER JOIN sq_asset a ON l.assetid = a.assetid
-				'.$extra_table.'
-				WHERE l.root_urlid = '.$db->quote((int) $root_url['urlid']).'
-				  AND '.$db->quote($url).' LIKE '.$concat.'
-				'.$extra_where.'
-				ORDER BY l.url ASC';
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.assetid = a.assetid
+				'.$extra_table.' '.$where.' ORDER BY l.url ASC';
+
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
@@ -1079,7 +1115,11 @@ class Asset_Manager extends Resolve_Object
 
 		$url_bits = explode('/', preg_replace('/\\/+$/', '', $base_url));
 
+		$where = 'l.assetid '.$assetid_cond;
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'u');
 		$sql = 'SELECT l.assetid, l.url, u.http, (';
+		
 		$str = '';
 		// so much for SQL standards...
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(l.url, '.$db->quote('/').')' : 'l.url || '.$db->quote('/');
@@ -1091,9 +1131,9 @@ class Asset_Manager extends Resolve_Object
 
 		$sql .= '
 		) as weighting
-		FROM sq_asset_lookup l INNER JOIN sq_asset_url u ON l.root_urlid = u.urlid
-		WHERE l.assetid '.$assetid_cond.'
-		ORDER BY weighting DESC, l.url';
+		FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_url u ON l.root_urlid = u.urlid
+		'.$where.' ORDER BY weighting DESC, l.url';
+
 		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);

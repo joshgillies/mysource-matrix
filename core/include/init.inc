@@ -35,10 +35,12 @@ define('SQ_SYSTEM_VERSION',        '0.1.1');
 define('SQ_SYSTEM_SHORT_NAME',     'Resolve FX');
 define('SQ_SYSTEM_LONG_NAME',      'Squiz Resolve FX v'.SQ_SYSTEM_VERSION);
 define('SQ_SYSTEM_URL',            'http://www.squiz.net/');
+
+define('SQ_REQUIRED_PHP_VERSION', '4.3.0');
+
 define('SQ_TABLE_PREFIX',          'sq_');
 define('SQ_TABLE_ROLLBACK_PREFIX', 'sq_rollback_');
 
-define('SQ_REQUIRED_PHP_VERSION', '4.3.0');
 
 /*
 * Let's get our bearings as to where everything is from here.

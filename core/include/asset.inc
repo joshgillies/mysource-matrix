@@ -794,11 +794,12 @@ class Asset extends Resolve_Object
 	function load($assetid)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-
+		
 		// OK, the first thing to do is check we actually exist :)
+		$where = 'assetid = '.$db->quote($assetid);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		$sql = 'SELECT assetid, version, name, short_name, status, languages, charset, type_code, last_updated, last_userid
-				FROM sq_asset
-				WHERE assetid = '.$db->quote($assetid);
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
 		$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);
 		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
 
@@ -872,15 +873,17 @@ class Asset extends Resolve_Object
 		$sql = '';
 		// if we have an id then we need to load with current vars
 		if ($this->id) {
+			$where = 'a.assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'v');
 			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
-					FROM (sq_asset a INNER JOIN sq_asset_attribute atr ON a.type_code = atr.type_code)
-					  LEFT OUTER JOIN sq_asset_attribute_value v ON atr.attributeid = v.attributeid AND a.assetid = v.assetid
-					WHERE a.assetid   = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
+					FROM ('.SQ_TABLE_RUNNING_PREFIX.'asset a INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute atr ON a.type_code = atr.type_code)
+					  LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v ON atr.attributeid = v.attributeid AND a.assetid = v.assetid '.$where;
 		// else just load all defaults
 		} else {
 			$sql = 'SELECT atr.name, atr.attributeid, atr.type, atr.default_value AS value
-					FROM sq_asset_attribute atr
-					WHERE atr.type_code   = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
+					FROM '.SQ_TABLE_PREFIX.'asset_attribute atr
+					WHERE atr.type_code = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->type());
 		}// end if
 
 		$this->vars = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
@@ -1298,7 +1301,7 @@ class Asset extends Resolve_Object
 
 		// is this new type one of our decendents or ancestors?
 		$sql = 'SELECT COUNT(*)
-				FROM sq_asset_type_inherited
+				FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 				WHERE (inherited_type_code = '.$db->quote($this->type()).'  AND type_code = '.$db->quote($new_type_code).')
 				   OR (inherited_type_code = '.$db->quote($new_type_code).' AND type_code = '.$db->quote($this->type()).')';
 		if ($db->getOne($sql) == 0) {
@@ -1507,9 +1510,9 @@ class Asset extends Resolve_Object
 		if($force && $this->canForceablyAcquireLock()) {
 			// special case where the current user is actually
 			// removing the current lock and taking it for themselves
-			$sql = 'SELECT assetid FROM sq_asset_lock
-					WHERE source_asset = '.$db->quote($current_lock['source_asset']);
-
+			$where = 'source_asset = '.$db->quote($current_lock['source_asset']);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$sql = 'SELECT assetid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lock '.$where;
 			$locked_ids = $db->getCol($sql);
 			if (DB::isError($locked_ids)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -1677,9 +1680,10 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// just get the lock for this asset
+		$where = 'assetid = '.$db->quote($this->id);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		$sql = 'SELECT assetid, source_asset, userid, expires
-				FROM sq_asset_lock
-				WHERE assetid = '.$db->quote($this->id);
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lock '.$where;
 
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) {
@@ -1698,11 +1702,11 @@ class Asset extends Resolve_Object
 		if ($full_chain && !empty($result)) {
 			$result['chained_assets'] = Array();
 			$source_assetid = $result['source_asset'];
-			// just get the permissions set for this asset
-			$sql = 'SELECT assetid, source_asset, userid, expires
-					FROM sq_asset_lock
-					WHERE source_asset = '.$db->quote($source_assetid).'
+			$where = 'source_asset = '.$db->quote($source_assetid).'
 					  AND assetid <> '.$db->quote($this->id);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$sql = 'SELECT assetid, source_asset, userid, expires
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lock '.$where;
 
 			$to_do = $db->getAll($sql);
 			if (DB::isError($to_do)) {
@@ -1777,14 +1781,14 @@ class Asset extends Resolve_Object
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						a.type_code, l.sort_order, l.dependant, l.exclusive
-				FROM sq_asset_link l, sq_asset a
-				WHERE l.'.$side_of_link.'id = '.$db->quote($this->id).'
+		$where = 'l.'.$side_of_link.'id = '.$db->quote($this->id).'
 				  AND l.'.$other_side.'id  = a.assetid
 				  AND l.link_type = '.$db->quote($link_type);
+		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
+						a.type_code, l.sort_order, l.dependant, l.exclusive
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset a ';
 
-		if (!is_null($exclusive)) $sql .= '  AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+		if (!is_null($exclusive)) $where .= ' AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
 
 		if ($type_code) {
 
@@ -1797,22 +1801,25 @@ class Asset extends Resolve_Object
 			}
 
 			if ($strict_type_code) {
-				$sql .= ' AND a.type_code '.$type_code_cond;
+				$where .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND a.type_code IN (~SQ0~)';
+				$where .= ' AND a.type_code IN (~SQ0~)';
 				$subs = Array( 'SELECT type_code
-								FROM sq_asset_type_inherited
+								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
-				$sql = db_extras_subquery($db, $sql, $subs);
-				if (DB::isError($sql))
-					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
+				$where = db_extras_subquery($db, $where, $subs);
+				if (DB::isError($where))
+					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
 			}
 		}
 
-		if (!is_null($value)) $sql .= '  AND l.value = '.$db->quote($value);
+		if (!is_null($value)) $where .= '  AND l.value = '.$db->quote($value);
 
-		$sql .= ' ORDER BY l.sort_order';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+		$sql .= $where.' ORDER BY l.sort_order';
 
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) {
@@ -1846,13 +1853,15 @@ class Asset extends Resolve_Object
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+		$where = 'l.linkid = '.$db->quote($linkid).'
+				  AND l.'.$other_side.'id = a.assetid';
+		if (!$ignore_this) $where .= ' AND l.'.$side_of_link.'id = '.$db->quote($this->id);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
 		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
 						a.type_code, l.sort_order, l.dependant, l.exclusive
-				FROM sq_asset_link l, sq_asset a
-				WHERE l.linkid = '.$db->quote($linkid).'
-				  AND l.'.$other_side.'id = a.assetid';
-
-		if (!$ignore_this) $sql .= ' AND l.'.$side_of_link.'id = '.$db->quote($this->id);
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset a '.$where;
 
 		$result = $db->getRow($sql);
 		if (DB::isError($result))
@@ -1895,16 +1904,13 @@ class Asset extends Resolve_Object
 		$other_side = ($side_of_link == 'major') ? 'minor' : 'major';
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
-						a.type_code, l.sort_order, l.dependant, l.exclusive
-				FROM sq_asset_link l, sq_asset a
-				WHERE l.'.$other_side.'id = a.assetid
+
+		$where = 'l.'.$other_side.'id = a.assetid
 				  AND l.'.$side_of_link.'id = '.$db->quote($this->id).'
 				  AND (l.link_type & '.$db->quote($link_types).') > 0 ';
-
-		if (!is_null($value))		$sql .= '  AND l.value     = '.$db->quote($value);
-		if (!is_null($dependant))	$sql .= '  AND l.dependant = '.$db->quote(($dependant) ? '1' : '0');
-		if (!is_null($exclusive))	$sql .= '  AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
+		if (!is_null($value))		$where .= ' AND l.value     = '.$db->quote($value);
+		if (!is_null($dependant))	$where .= ' AND l.dependant = '.$db->quote(($dependant) ? '1' : '0');
+		if (!is_null($exclusive))	$where .= ' AND l.exclusive = '.$db->quote(($exclusive) ? '1' : '0');
 
 		if (!empty($type_code)) {
 
@@ -1917,20 +1923,26 @@ class Asset extends Resolve_Object
 			}
 
 			if ($strict_type_code) {
-				$sql .= ' AND a.type_code '.$type_code_cond;
+				$where .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$sql .= ' AND a.type_code IN (~SQ0~)';
+				$where .= ' AND a.type_code IN (~SQ0~)';
 				$subs = Array( 'SELECT type_code
-								FROM sq_asset_type_inherited
+								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
-				$sql = db_extras_subquery($db, $sql, $subs);
-				if (DB::isError($sql))
-					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
+				$where = db_extras_subquery($db, $where, $subs);
+				if (DB::isError($where))
+					trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_ERROR);
 			}
 		}// end if
 
-		$sql .= ' ORDER BY l.sort_order, a.type_code';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
+						a.type_code, l.sort_order, l.dependant, l.exclusive
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l, '.SQ_TABLE_RUNNING_PREFIX.'asset a '.
+				$where.' ORDER BY l.sort_order, a.type_code';
 
 		$result = $db->getAll($sql);
 		if (DB::isError($result))
@@ -1992,14 +2004,16 @@ class Asset extends Resolve_Object
 		if (!$this->id) return 0;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
 		$extra_table = '';
-		$extra_where = '';
+		$where = 'l.'.$side_of_link.'id = '.$db->quote($this->id);
 		if ($link_types) {
-			$extra_where .= ' AND (link_type & '.$db->quote($link_types).') > 0';
+			$where .= ' AND (link_type & '.$db->quote($link_types).') > 0';
 		}
 		if ($type_code) {
-			$extra_table .= ', sq_asset a';
-			$extra_where .= ' AND l.minorid = a.assetid ';
+			$extra_table .= ', '.SQ_TABLE_RUNNING_PREFIX.'asset a';
+			$where .= ' AND l.minorid = a.assetid ';
+			$where  = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 
 			$type_code_cond = '';
 			if (is_array($type_code)) {
@@ -2010,25 +2024,26 @@ class Asset extends Resolve_Object
 			}
 
 			if ($strict_type_code) {
-				$extra_where .= ' AND a.type_code '.$type_code_cond;
+				$where .= ' AND a.type_code '.$type_code_cond;
 			} else {
 				require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-				$extra_where .= ' AND a.type_code IN (~SQ0~)';
+				$where .= ' AND a.type_code IN (~SQ0~)';
 				$subs = Array( 'SELECT type_code
-								FROM sq_asset_type_inherited
+								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 								WHERE inherited_type_code '.$type_code_cond );
-				$extra_where = db_extras_subquery($db, $extra_where, $subs);
+				$where = db_extras_subquery($db, $where, $subs);
 				if (DB::isError($sql))
 					trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_ERROR);
 			}// end if
 		}// end if
 		if ($ignore_linkid) {
-			$extra_where .= ' AND l.linkid <> '.$db->quote($ignore_linkid);
+			$where .= ' AND l.linkid <> '.$db->quote($ignore_linkid);
 		}
 
+		
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$sql = 'SELECT COUNT(*)
-				FROM sq_asset_link l'.$extra_table.'
-				WHERE l.'.$side_of_link.'id = '.$db->quote($this->id).$extra_where;
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l'.$extra_table.' '.$where;
 		$result = $db->getOne($sql);
 
 		if (DB::isError($result))
@@ -2085,10 +2100,10 @@ class Asset extends Resolve_Object
 		// and that we aren't moving under ourselves
 		if ($link_type & SQ_SC_LINK_SIGNIFICANT) {
 			//// Check for exclusive ////
-			$sql = 'SELECT majorid
-					FROM sq_asset_link
-					WHERE minorid   = '.$db->quote($minor->id).'
+			$where = 'minorid       = '.$db->quote($minor->id).'
 					  AND exclusive = '.$db->quote('1');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$sql = 'SELECT majorid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link '.$where;
 
 			$majorid = $db->getOne($sql);
 			if (DB::isError($majorid)) {
@@ -2107,21 +2122,28 @@ class Asset extends Resolve_Object
 
 			// so much for SQL standards...
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : '(pt.treeid || '.$db->quote('%').')';
-			$sql = 'SELECT COUNT(DISTINCT ct.linkid)
-					FROM sq_asset_link_tree pt,
-						sq_asset_link_tree ct INNER JOIN sq_asset_link cl ON ct.linkid = cl.linkid
-					WHERE ct.treeid LIKE '.$concat.'
+			$where = 'ct.treeid LIKE '.$concat.'
 					  AND ct.treeid >= pt.treeid
 					  AND pt.linkid IN (~SQ0~)
 					  AND cl.minorid = '.$db->quote($this->id);
-			$subs = Array('SELECT linkid
-							FROM sq_asset_link
-							WHERE minorid = '.$db->quote($minor->id));
-			$sql = db_extras_subquery($db, $sql, $subs);
-			if (DB::isError($sql)) {
-				trigger_error($sql->getMessage().'<br/>'.$sql->getUserInfo(), E_USER_WARNING);
+			
+			$sub_where = 'minorid = '.$db->quote($minor->id);
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where);
+			$subs = Array('SELECT linkid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link '.$sub_where);
+
+			$where = db_extras_subquery($db, $where, $subs);
+			if (DB::isError($where)) {
+				trigger_error($where->getMessage().'<br/>'.$where->getUserInfo(), E_USER_WARNING);
 				return 'Database Error';
 			}
+
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
+
+			$sql = 'SELECT COUNT(DISTINCT ct.linkid)
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt,
+						'.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl ON ct.linkid = cl.linkid '.$where;
 			$moving_under = $db->getOne($sql);
 			if (DB::isError($moving_under)) {
 				trigger_error($moving_under->getMessage().'<br/>'.$moving_under->getUserInfo(), E_USER_WARNING);
@@ -2261,9 +2283,10 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// make sure the sort order is in a valid range
+		$where = 'majorid = '.$db->quote($this->id);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		$sql = 'SELECT COUNT(*) as count, MAX(sort_order) as max
-				FROM sq_asset_link
-				WHERE majorid = '.$db->quote($this->id);
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link '.$where;
 		$row = $db->getRow($sql);
 		if (DB::isError($row)) {
 			trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_WARNING);
@@ -2288,10 +2311,13 @@ class Asset extends Resolve_Object
 			//// UPDATE THE TREE TABLE ////
 
 			// Get one of the treeids that we have
+			$where = 'l.minorid = '.$db->quote($this->id);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$sql = 'SELECT t.treeid
-					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
-					WHERE l.minorid = '.$db->quote($this->id).'
-					LIMIT 1';
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
+					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					'.$where.' LIMIT 1';
 			$existing_treeid = $db->getOne($sql);
 			if (DB::isError($existing_treeid)) {
 				trigger_error($existing_treeid->getMessage().'<br/>'.$existing_treeid->getUserInfo(), E_USER_WARNING);
@@ -2309,10 +2335,13 @@ class Asset extends Resolve_Object
 
 			// OK, what we are going to get a treeid and then do a "INSERT INTO ... SELECT FROM"
 			// into the tree table of all the links that are under the minor asset
+			$where = 'l.minorid = '.$db->quote($minor->id);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$sql = 'SELECT t.treeid, t.num_immediate_kids
-					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
-					WHERE l.minorid = '.$db->quote($minor->id).'
-					LIMIT 1';
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
+					INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					'.$where.' LIMIT 1';
 			$minor_tree = $db->getRow($sql);
 			if (DB::isError($minor_tree)) {
 				trigger_error($minor_tree->getMessage().'<br/>'.$minor_tree->getUserInfo(), E_USER_WARNING);
@@ -2330,13 +2359,13 @@ class Asset extends Resolve_Object
 
 			// when links are deleted their entries in the tree table are set to have a linkid of zero
 			// (see deleteLink()) so we can attempt to find unused treeid's that are forming gaps
-			$sql = 'SELECT ct.treeid
-					FROM sq_asset_link_tree ct
-					WHERE ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
+			$where = 'ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
 					  AND ct.treeid > '.$db->quote($existing_treeid).'
 					  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE).'
-					  AND ct.linkid = 0
-					LIMIT 1';
+					  AND ct.linkid = 0';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+			$sql = 'SELECT ct.treeid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct '.$where.' LIMIT 1';
 			$free_childid = $db->getOne($sql);
 			if (DB::isError($free_childid)) {
 				trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
@@ -2346,11 +2375,11 @@ class Asset extends Resolve_Object
 
 			// No free children ? generate one from the max value
 			if ((string) $free_childid == '') {
-				$sql = 'SELECT MAX(ct.treeid)
-						FROM sq_asset_link_tree ct
-						WHERE ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
+				$where = 'ct.treeid LIKE '.$db->quote($existing_treeid.'%').'
 						  AND ct.treeid > '.$db->quote($existing_treeid).'
 						  AND CHARACTER_LENGTH(ct.treeid) = '.(strlen($existing_treeid) + SQ_CONF_ASSET_TREE_SIZE);
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+				$sql = 'SELECT MAX(ct.treeid) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct '.$where;
 				$free_childid = $db->getOne($sql);
 				if (DB::isError($free_childid)) {
 					trigger_error($free_childid->getMessage().'<br/>'.$free_childid->getUserInfo(), E_USER_WARNING);
@@ -2399,9 +2428,11 @@ class Asset extends Resolve_Object
 					$concat = ($db->phptype == 'mysql')
 								? 'CONCAT(t.treeid, '.$db->quote($free_childid).')'
 								: 't.treeid || '.$db->quote($free_childid);
+					$sub_where = 'l.minorid = '.$db->quote($this->id);
+					$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
+					$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 					$subs = Array(' SELECT '.$concat.'
-									FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
-									WHERE l.minorid = '.$db->quote($this->id));
+									FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid '.$sub_where);
 					$where_cond = db_extras_subquery($db, $where_cond, $subs);
 					if (DB::isError($where_cond)) {
 						trigger_error($where_cond->getMessage().'<br/>'.$where_cond->getUserInfo(), E_USER_WARNING);
@@ -2438,7 +2469,9 @@ class Asset extends Resolve_Object
 							: '(t.treeid || '.$db->quote($free_childid).')';
 
 				$where = 'l.minorid = '.$db->quote($this->id);
-				$select_from = 'sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid';
+				// note that we dont prep this query for rollback because its getting run
+				// by the rollback query functions already
+				$select_from = SQ_TABLE_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_PREFIX.'asset_link l ON t.linkid = l.linkid';
 				$values = Array('treeid'             => $concat,
 								'linkid'             => $db->quote($linkid),
 								'num_immediate_kids' => $db->quote($minor_tree['num_immediate_kids'])
@@ -2451,9 +2484,10 @@ class Asset extends Resolve_Object
 
 			// Update the parents to tell them that they are have one kid more
 			$where_cond = 'treeid IN (~SQ0~)';
-			$subs = Array('SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
-							FROM sq_asset_link_tree t
-							WHERE t.linkid = '.$db->quote($linkid));
+			$sub_where = 't.linkid = '.$db->quote($linkid);
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
+			$subs = Array(' SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
+							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t '.$sub_where);
 
 			$where_cond = db_extras_subquery($db, $where_cond, $subs);
 			if (DB::isError($where_cond)) {
@@ -2479,8 +2513,10 @@ class Asset extends Resolve_Object
 				$where = 'pl.minorid = '.$db->quote($this->id).'
 						  AND ct.treeid LIKE '.$db->quote($minor_tree['treeid'].'%').'
 						  AND ct.treeid > '.$db->quote($minor_tree['treeid']);
-				$select_from = 'sq_asset_link_tree pt INNER JOIN sq_asset_link pl ON pt.linkid = pl.linkid,
-								sq_asset_link_tree ct';
+				// note that we dont prep this query for rollback because its getting run
+				// by the rollback query functions already
+				$select_from = SQ_TABLE_PREFIX.'asset_link_tree pt INNER JOIN '.SQ_TABLE_PREFIX.'asset_link pl ON pt.linkid = pl.linkid,
+								'.SQ_TABLE_PREFIX.'asset_link_tree ct';
 				$values = Array('treeid'             => $concat,
 								'linkid'             => 'ct.linkid',
 								'num_immediate_kids' => 'ct.num_immediate_kids'
@@ -2503,7 +2539,9 @@ class Asset extends Resolve_Object
 
 				$where = 'pl.minorid = '.$db->quote($this->id).'
 						  AND ctp.start_treeid LIKE '.$db->quote($minor_tree['treeid'].'%');
-				$select_from = 'sq_asset_link_tree pt INNER JOIN sq_asset_link pl ON pt.linkid = pl.linkid, sq_asset_permission_lookup ctp';
+				// note that we dont prep this query for rollback because its getting run
+				// by the rollback query functions already
+				$select_from = ''.SQ_TABLE_PREFIX.'asset_link_tree pt INNER JOIN '.SQ_TABLE_PREFIX.'asset_link pl ON pt.linkid = pl.linkid, '.SQ_TABLE_PREFIX.'asset_permission_lookup ctp';
 				$values = Array('permissionid' => 'ctp.permissionid',
 								'start_treeid' => $concat_start_treeid,
 								'stop_treeid'  => $concat_stop_treeid,
@@ -2680,10 +2718,13 @@ class Asset extends Resolve_Object
 			//// UPDATE PERMISSIONS LOOKUP TABLE ////
 			$where_cond_string = 'start_treeid in (~SQ0~)';
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')' : 't.treeid || '.$db->quote('%');
+			$sub_where = 't.linkid = '.$db->quote($linkid).' AND pl.start_treeid LIKE '.$concat;
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'pl');
 			$subs = Array('SELECT pl.start_treeid
-							FROM sq_asset_link_tree t, sq_asset_permission_lookup pl
-							WHERE t.linkid = '.$db->quote($linkid).'
-							  AND pl.start_treeid LIKE '.$concat);
+							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t,
+							'.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl
+							'.$sub_where);
 			$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
 			if (DB::isError($where_cond)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -2702,9 +2743,10 @@ class Asset extends Resolve_Object
 
 			// Update the parents to tell them that they are going to be one kid less
 			$where_cond_string = 'treeid in (~SQ0~)';
-			$subs = Array('SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
-							FROM sq_asset_link_tree t
-							WHERE t.linkid = '.$db->quote($linkid));
+			$sub_where = 't.linkid = '.$db->quote($linkid);
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
+			$subs = Array(' SELECT SUBSTRING(t.treeid FROM 1 FOR (CHARACTER_LENGTH(t.treeid) - '.SQ_CONF_ASSET_TREE_SIZE.'))
+							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t '.$sub_where);
 
 			$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
 			if (DB::isError($where_cond)) {
@@ -2724,11 +2766,14 @@ class Asset extends Resolve_Object
 			// when we insert into the gap's we create below
 			$where_cond_string = 'treeid in (~SQ0~)';
 			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
+			$sub_where = 'pt.linkid = '.$db->quote($linkid).'
+						  AND ct.treeid LIKE '.$concat.'
+						  AND ct.treeid > pt.treeid';
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'pt');
+			$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'ct');
 			$subs = Array('SELECT ct.treeid
-							FROM sq_asset_link_tree pt, sq_asset_link_tree ct
-							WHERE pt.linkid = '.$db->quote($linkid).'
-							  AND ct.treeid LIKE '.$concat.'
-							  AND ct.treeid > pt.treeid');
+							FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt, '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct
+							'.$sub_where);
 
 			$where_cond = db_extras_subquery($db, $where_cond_string, $subs);
 			if (DB::isError($where_cond)) {
@@ -3002,9 +3047,10 @@ class Asset extends Resolve_Object
 		if ($value_changed) $set_clauses['value'] = $db->quote($value);
 
 		if ($sort_order_changed) {
+			$where = 'majorid = '.$db->quote($this->id);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT COUNT(*) AS count, MAX(sort_order) AS max
-					FROM sq_asset_link
-					WHERE majorid = '.$db->quote($this->id);
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link '.$where;
 			$row = $db->getRow($sql);
 			if (DB::isError($row)) {
 				trigger_error($row->getMessage().'<br/>'.$row->getUserInfo(), E_USER_WARNING);
@@ -3115,9 +3161,10 @@ class Asset extends Resolve_Object
 			$attributeid = $this->vars[$name]['attributeid'];
 
 			// find any previous entry
-			$sql = 'SELECT COUNT(*) FROM sq_asset_attribute_value
-					WHERE assetid = '.$db->quote($this->id).'
+			$where = 'assetid = '.$db->quote($this->id).'
 					  AND attributeid = '.$db->quote($attributeid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$sql = 'SELECT COUNT(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value '.$where;
 
 			$count = $db->getOne($sql);
 			if (DB::isError($count)) {
@@ -3274,19 +3321,23 @@ class Asset extends Resolve_Object
 
 			// NOTE: we can't really join the userid to the asset table to get the type code
 			//       because that would cause public access (ie userid 0) to not be found
-			$sql = 'SELECT DISTINCT p1.assetid, p1.userid, p1.access
-					FROM sq_asset_permission_lookup pl1
-							INNER JOIN sq_asset_permission p1 ON pl1.permissionid = p1.permissionid,
-						sq_asset_link l2
-							INNER JOIN sq_asset_link_tree t2 ON l2.linkid = t2.linkid
-					WHERE l2.minorid = '.$db->quote($this->id).'
+			$where = 'l2.minorid = '.$db->quote($this->id).'
 					  AND t2.treeid       LIKE '.$concat_1.'
 					  AND pl1.stop_treeid LIKE '.$concat_2.'
 					  AND pl1.start_treeid <= t2.treeid
 					  AND (t2.treeid < pl1.stop_treeid OR (pl1.stop_treeid = t2.treeid AND pl1.inc_stop = '.$db->quote('1').'))
 					  AND p1.permission '.(($and_greater) ? '>= ' : '= ').$db->quote($permission);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl1');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p1');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l2');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't2');
+			$sql = 'SELECT DISTINCT p1.assetid, p1.userid, p1.access
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl1
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p1 ON pl1.permissionid = p1.permissionid,
+						'.SQ_TABLE_RUNNING_PREFIX.'asset_link l2
+							INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid
+					'.$where;
 
-#			pre_echo($sql);
 			$result = $db->getAll($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
@@ -3425,11 +3476,11 @@ class Asset extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT permissionid
-				FROM sq_asset_permission
-				WHERE userid     = '.$db->quote($userid).'
+		$where = 'userid     = '.$db->quote($userid).'
 				  AND permission = '.$db->quote($permission).'
 				  AND assetid    = '.$db->quote($this->id);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		$sql = 'SELECT permissionid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission '.$where;
 
 		$permissionid = $db->getOne($sql);
 		if (DB::isError($permissionid)) {
@@ -3497,19 +3548,27 @@ class Asset extends Resolve_Object
 		$concat_2 = ($db->phptype == 'mysql') ? 'CONCAT(t2.treeid, '.$db->quote('%').')'        : 't2.treeid || '.$db->quote('%');
 		// Find all the permissions that affect us, not just the ones that we have directly set,
 		// as these will probably need updating
-		$sql = 'SELECT DISTINCT a1.assetid, a1.type_code, p1.permissionid, p1.userid, p1.permission
-				FROM sq_asset a1
-						INNER JOIN sq_asset_link l1 ON a1.assetid = l1.minorid
-						INNER JOIN sq_asset_link_tree t1 ON l1.linkid = t1.linkid
-						INNER JOIN sq_asset_permission_lookup pl1 ON t1.treeid = pl1.start_treeid
-						INNER JOIN sq_asset_permission p1 ON pl1.permissionid = p1.permissionid,
-					sq_asset_link l2
-						INNER JOIN sq_asset_link_tree t2 ON l2.linkid = t2.linkid
-				WHERE l2.minorid = '.$db->quote($this->id).'
+		$where = 'l2.minorid = '.$db->quote($this->id).'
 				  AND t2.treeid       LIKE '.$concat_1.'
 				  AND pl1.stop_treeid LIKE '.$concat_2.'
 				  AND pl1.start_treeid <= t2.treeid
 				  AND (t2.treeid < pl1.stop_treeid OR (pl1.stop_treeid = t2.treeid AND pl1.inc_stop = '.$db->quote('1').'))';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a1');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l1');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't1');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl1');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p1');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't2');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l2');
+		$sql = 'SELECT DISTINCT a1.assetid, a1.type_code, p1.permissionid, p1.userid, p1.permission
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a1
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l1 ON a1.assetid = l1.minorid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t1 ON l1.linkid = t1.linkid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl1 ON t1.treeid = pl1.start_treeid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p1 ON pl1.permissionid = p1.permissionid,
+					'.SQ_TABLE_RUNNING_PREFIX.'asset_link l2
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t2 ON l2.linkid = t2.linkid
+				'.$where;
 
 		$lookups = $db->getAll($sql);
 		if (DB::isError($lookups)) {
@@ -3565,16 +3624,22 @@ class Asset extends Resolve_Object
 		// middle of another currently set permission
 		$concat_1 = ($db->phptype == 'mysql') ? 'CONCAT(pl.start_treeid, '.$db->quote('%').')' : 'pl.start_treeid || '.$db->quote('%');
 		$concat_2 = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')'        : 't.treeid || '.$db->quote('%');
-		$sql = 'SELECT t.treeid as our_treeid, pl.start_treeid, pl.permissionid, pl.stop_treeid
-				FROM sq_asset_permission_lookup pl INNER JOIN sq_asset_permission p ON pl.permissionid = p.permissionid,
-					sq_asset_link l INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid
-				WHERE l.minorid = '.$db->quote($this->id).'
+		
+		$where = 'l.minorid = '.$db->quote($this->id).'
 				  AND t.treeid       LIKE '.$concat_1.'
 				  AND pl.stop_treeid LIKE '.$concat_2.'
 				  AND pl.start_treeid <= t.treeid
 				  AND (t.treeid < pl.stop_treeid OR (pl.stop_treeid = t.treeid AND pl.inc_stop = '.$db->quote('1').'))
 				  AND p.permission = '.$db->quote($permission).'
 				  AND p.userid  = '.$db->quote($userid);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+		$sql = 'SELECT t.treeid as our_treeid, pl.start_treeid, pl.permissionid, pl.stop_treeid
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p ON pl.permissionid = p.permissionid,
+					'.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t ON l.linkid = t.linkid
+				'.$where;
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -3599,14 +3664,18 @@ class Asset extends Resolve_Object
 
 		// Get the leaf nodes below us, ignoring any that we have already got from existing permissions
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
-		$sql = 'SELECT pt.treeid as our_treeid, ct.treeid as leaf_treeid
-				FROM sq_asset_link_tree ct,
-				  sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid
-				WHERE pl.minorid = '.$db->quote($this->id).'
+
+		$where = 'pl.minorid = '.$db->quote($this->id).'
 				  AND ct.treeid LIKE '.$concat.'
 				  AND ct.num_immediate_kids = 0
-				  AND ct.linkid != 0
-				';
+				  AND ct.linkid != 0';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+		$sql = 'SELECT pt.treeid as our_treeid, ct.treeid as leaf_treeid
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct,
+				  '.SQ_TABLE_RUNNING_PREFIX.'asset_link pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt ON pl.linkid = pt.linkid
+				'.$where;
 		if ($in_str) $sql .= '  AND pt.treeid NOT IN ('.$in_str.')';
 
 		$leaf_treeids = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
@@ -3618,14 +3687,20 @@ class Asset extends Resolve_Object
 
 		// Do any permissions start below us ? Ignore any that we have already got from existing permissions
 		$concat = ($db->phptype == 'mysql') ? 'CONCAT(t.treeid, '.$db->quote('%').')' : 't.treeid || '.$db->quote('%');
-		$sql = 'SELECT DISTINCT t.treeid as our_treeid, pl.start_treeid
-				FROM sq_asset_permission_lookup pl INNER JOIN sq_asset_permission p ON pl.permissionid = p.permissionid,
-					sq_asset_link l INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid
-				WHERE l.minorid = '.$db->quote($this->id).'
+
+		$where = 'l.minorid = '.$db->quote($this->id).'
 				  AND pl.start_treeid LIKE '.$concat.'
 				  AND p.permission = '.$db->quote($permission).'
 				  AND p.userid  = '.$db->quote($userid);
-		if ($in_str) $sql .= '  AND t.treeid NOT IN ('.$in_str.')';
+		if ($in_str) $where .= ' AND t.treeid NOT IN ('.$in_str.')';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+		$sql = 'SELECT DISTINCT t.treeid as our_treeid, pl.start_treeid
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p ON pl.permissionid = p.permissionid,
+					'.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t ON l.linkid = t.linkid
+				'.$where;
 
 		$perms_below = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_DEFAULT, true);
 		if (DB::isError($perms_below)) {
@@ -3728,12 +3803,16 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$sql = 'SELECT DISTINCT t.treeid as our_treeid
-				FROM sq_asset_permission_lookup p,
-					sq_asset_link l INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid
-				WHERE l.minorid = '.$db->quote($this->id).'
+		$where = 'l.minorid = '.$db->quote($this->id).'
 				  AND p.start_treeid = t.treeid
 				  AND p.permissionid = '.$db->quote($permissionid);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+		$sql = 'SELECT DISTINCT t.treeid as our_treeid
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup p,
+					'.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t ON l.linkid = t.linkid
+				'.$where;
 
 		$existing_perms = $db->getCol($sql);
 		if (DB::isError($existing_perms)) {
@@ -3743,13 +3822,18 @@ class Asset extends Resolve_Object
 		}
 
 		if ($reset_inherited) {
-			$sql = 'SELECT t.treeid as our_treeid, pl.start_treeid, pl.permissionid
-					FROM sq_asset_permission_lookup pl INNER JOIN sq_asset_permission p ON pl.permissionid = p.permissionid,
-						sq_asset_link l INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid
-					WHERE l.minorid = '.$db->quote($this->id).'
+			$where = 'l.minorid = '.$db->quote($this->id).'
 					  AND pl.stop_treeid = t.treeid
 					  AND p.permission = '.$db->quote($permission).'
 					  AND p.userid  = '.$db->quote($userid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$sql = 'SELECT t.treeid as our_treeid, pl.start_treeid, pl.permissionid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p ON pl.permissionid = p.permissionid,
+						'.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t ON l.linkid = t.linkid
+					'.$where;
 
 			$inherited_perms = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC);
 			if (DB::isError($inherited_perms)) {
@@ -3759,7 +3843,6 @@ class Asset extends Resolve_Object
 			}
 		}
 
-
 		if (!empty($existing_perms)) {
 
 			foreach($existing_perms as $our_treeid) {
@@ -3768,7 +3851,7 @@ class Asset extends Resolve_Object
 					// Now delete our inherited entry entries
 					$where_cond = ' stop_treeid  = '.$db->quote($our_treeid).'
 									AND permissionid = '.$db->quote($inherited_perms[$our_treeid]['permissionid']);
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission_lookup', $cols, $where_cond)) {
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_permission_lookup', $where_cond)) {
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
@@ -3822,6 +3905,9 @@ class Asset extends Resolve_Object
 		// we really need to check for write access
 		if ($this->status < SQ_STATUS_LIVE ||
 			!$this->_checkPermissionAccess(SQ_PERMISSION_READ, Array('0'))) {
+			// if we are in rollback vie wmode, bypass extra write access checks or we
+			// we always be returning false here (writeAccess returns false)
+			if (SQ_ROLLBACK_VIEW) return $this->_checkPermissionAccess(SQ_PERMISSION_WRITE, $assetids);
 			return $this->writeAccess($assetids, false);
 		}
 
@@ -3843,6 +3929,7 @@ class Asset extends Resolve_Object
 	*/
 	function writeAccess($assetids=Array(), $effective=true, $editing=true)
 	{
+		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id) return true;
 		if ($effective && $editing && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
 		return $this->checkAccess(SQ_PERMISSION_WRITE, $assetids, $effective);
@@ -3862,6 +3949,7 @@ class Asset extends Resolve_Object
 	*/
 	function adminAccess($assetids=Array(), $effective=true, $editing=true)
 	{
+		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id) return true;
 		if ($effective && $editing && $this->status == SQ_STATUS_LIVE) return $this->liveEditAccess();
 		return $this->checkAccess(SQ_PERMISSION_ADMIN, $assetids, $effective);
@@ -3882,6 +3970,7 @@ class Asset extends Resolve_Object
 	*/
 	function liveEditAccess($effective=true)
 	{
+		if (SQ_ROLLBACK_VIEW) return false;
 		if (!$this->id) return true;
 		if ($this->status != SQ_STATUS_LIVE) return true;
 
@@ -4020,11 +4109,15 @@ class Asset extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$url = strip_url(current_url(false));
-		$sql = 'SELECT l.designid, a.type_code
-				FROM sq_asset_lookup l, sq_asset a
-				WHERE l.designid = a.assetid
+
+		$where = 'l.designid = a.assetid
 				  AND l.url        = '.$db->quote($url).'
 				  AND l.assetid    = '.$db->quote($this->id);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$sql = 'SELECT l.designid, a.type_code
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup l, '.SQ_TABLE_RUNNING_PREFIX.'asset a '.$where;
+
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) {
 			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -4173,9 +4266,10 @@ class Asset extends Resolve_Object
 	{
 		if (!isset($this->_tmp['paths'])) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
+			$where = 'assetid = '.$db->quote($this->id);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT path
-					FROM sq_asset_path
-					WHERE assetid = '.$db->quote($this->id).'
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_path '.$where.'
 					ORDER BY sort_order';
 
 			$result = $db->getCol($sql);
@@ -4302,9 +4396,9 @@ class Asset extends Resolve_Object
 		$sibling_paths = Array();
 
 		if (count($siblingids)) {
-			$sql = 'SELECT path
-					FROM sq_asset_path
-					WHERE assetid IN ('.implode(',', $siblingids).')';
+			$where = 'assetid IN ('.implode(',', $siblingids).')';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$sql = 'SELECT path FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_path '.$where;
 
 			$sibling_paths = $db->getCol($sql);
 			if (DB::isError($sibling_paths)) {
@@ -4349,9 +4443,12 @@ class Asset extends Resolve_Object
 	{
 		if (!isset($this->_tmp['lookups'])) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$where = 'assetid = '.$db->quote($this->id);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 			$sql = 'SELECT url, root_urlid, designid
-					FROM sq_asset_lookup
-					WHERE assetid = '.$db->quote($this->id);
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_lookup '.$where;
+
 			$result = $db->getAll($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);

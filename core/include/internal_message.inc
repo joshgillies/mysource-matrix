@@ -93,9 +93,10 @@ class Internal_Message extends Resolve_Object
 		if (!$messageid) return false;
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		$where = 'messageid = '.$db->quote($messageid);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 		$sql = 'SELECT messageid, userto, userfrom, subject, body, sent, priority, status, parameters 
-				FROM sq_internal_message 
-				WHERE messageid = '.$db->quote($messageid);
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message '.$where;
 		
 		$result = $db->getRow($sql);
 		if (DB::isError($result)) {

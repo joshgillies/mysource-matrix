@@ -107,27 +107,44 @@ class Resolve
 			session_name('SQ_SYSTEM_SESSION');
 			session_save_path(SQ_SYSTEM_ROOT.'/cache');
 			session_start();
+			
+			// process rollback view mode global actions here so setting the rollback vars below
+			if (!empty($_GET['SQ_ACTION']) && strpos($_GET['SQ_ACTION'], 'rollback_view') === 0) {
+					$this->_processGlobalActions();
+			}
+
+			// check if we are in rollback view mode
+			if (isset($_SESSION['sq_rollback_view']) && !empty($_SESSION['sq_rollback_view'])) {
+				// we are viewing the system at some time in the past
+				define('SQ_ROLLBACK_VIEW',        '1');
+				define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_ROLLBACK_PREFIX);
+			} else {
+				define('SQ_ROLLBACK_VIEW',        '0');
+				define('SQ_TABLE_RUNNING_PREFIX', SQ_TABLE_PREFIX);
+			}
 
 			// If there is a userid in the session then someone is logged in,
 			// but make sure that the person is coming from the same machine as they logged in on
 			// so get a reference to them
+			$this->user = null;
 			if(!empty($_SESSION['userid']) && $_SESSION['remote_addr'] == $_SERVER['REMOTE_ADDR']) {
-				$this->user = &$this->am->getAsset($_SESSION['userid']);
-			} else {
-				$_SESSION['userid']				= 0;
-				$_SESSION['user_is_root']		= false;
-				$_SESSION['user_is_sys_admin']	= false;
-				$this->user = null;
-			}//end if
+				// we mute errors trying to get the user because we will handle this gracefully later
+				$this->user = &$this->am->getAsset($_SESSION['userid'], '', true);
+			}
+			
+			if (is_null($this->user)) {
+				$_SESSION['userid']            = 0;
+				$_SESSION['user_is_root']      = false;
+				$_SESSION['user_is_sys_admin'] = false;
+			}
 
 			$this->user_is_root      = $_SESSION['user_is_root'];
 			$this->user_is_sys_admin = $_SESSION['user_is_sys_admin'];
 
 		}// end if
 
-		if (!empty($_GET['SQ_ACTION'])) {
-			$this->_processGlobalActions();
-		}//end if
+		// process any global actions we have
+		if (!empty($_GET['SQ_ACTION'])) $this->_processGlobalActions();
 
 	}// end init()
 
@@ -275,6 +292,38 @@ class Resolve
 				exit();
 			break;
 
+			case 'rollback_view_start' :
+				if (isset($_GET['assetid']) && isset($_GET['version'])) {
+					// work out when the version of the asset was created
+					$assetid = $_GET['assetid'];
+					$version = $_GET['version'];
+
+					// note that we dont prep this query for rollback select
+					// because we are selecting directly from the rollback table
+					$sql = 'SELECT '.SQ_TABLE_PREFIX.'effective_from AS efrom
+							FROM '.SQ_TABLE_ROLLBACK_PREFIX.'asset
+							WHERE assetid = '.$this->db->quote($assetid).'
+							  AND version = '.$this->db->quote($version);
+
+					$then = $this->db->getOne($sql);
+					if (DB::isError($then)) {
+						trigger_error($then->getMessage().'<br/>'.$then->getUserInfo(), E_USER_WARNING);
+						return Array();
+					}
+
+					$_SESSION['sq_rollback_view'] = Array('rollback_time' => $then);
+				} else {
+					$_SESSION['sq_rollback_view'] = Array();
+				}
+
+				unset($_GET['assetid']);
+				unset($_GET['version']);
+			break;
+
+			case 'rollback_view_stop' :
+				if (isset($_SESSION['sq_rollback_view'])) unset($_SESSION['sq_rollback_view']);
+			break;
+
 		}//end switch
 
 		// just so it isn't being used anywhere else
@@ -320,7 +369,6 @@ class Resolve
 	*/
 	function restoreCurrentUser()
 	{
-
 		if (empty($this->_tmp['current_user_cache'])) {
 			$user = null;
 		} else {
@@ -527,6 +575,102 @@ class Resolve
 
 
 	/**
+	* Prints a warning box to let the user know that they are viewing the system in rollback mode
+	* Also includes the system time they are viewing and how long ago that was
+	*
+	* @return void
+	* @access public
+	*/
+	function printRollbackWarning()
+	{
+		require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+		$then = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+		$time_string = readable_datetime($then).' ('.easy_time_total(time() - $then, true).' ago)';
+		$warning_message = 'The system is as it appeared on '.$time_string.'.<br/>While viewing in rollback mode you cannot make any changes to the system.';
+		$exit_url = $_SERVER['PHP_SELF'].'?SQ_ACTION=rollback_view_stop';
+		
+		?>
+		<div align="center">
+		<style>
+		.sq-rollback-warning {
+			color: #FF0000;
+			font-family:  Verdana, Arial, Helvetica, sans-serif;
+			font-weight: bold;
+			text-decoration: none;
+			font-size: 11px;
+		}
+		</style>
+		<br/>
+		<table border="0" cellspacing="3" cellpadding="2" width="95%" bgcolor="#FF0000">
+			<tr>
+				<td bgcolor="#FFE5E8">
+					<table border="0" cellspacing="2" cellpadding="2" width="100%">
+						<tr>
+							<td class="sq-rollback-warning" align="right">Exit Rollback View <a href="#" onClick="Javascript: window.top.location='<?php echo $exit_url; ?>'; return false" target="top" class="sq-rollback-warning">[X]</a></u>
+							</td>
+						</tr>
+						<tr>
+							<td class="sq-rollback-warning" align="center"><u>You are currently viewing the system in rollback mode</u>
+							</td>
+						</tr>
+						<tr>
+							<td class="sq-rollback-warning"><?php echo $warning_message; ?>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+		<br/>
+		</div>
+		<?php
+
+	}//end printRollbackWarning()
+
+
+	/**
+	* Given a WHERE clause, this function will append extra where conditions to the clause
+	* that allow selection of rollback entries based on the current rollback view mode settings
+	*
+	* @param string	$where			a current where clause without WHERE on the front
+	*								NOTE: if the string begins with WHERE, it will be stripped
+	* @param string	$table_alias	the table alias to add entries for
+	*								eg. SELECT * FROM asset a --> $table_alias is 'a'
+	*								so rollback queries for table 'a' get added, otherwise
+	*								the entries will not be prefixed with an alias
+	*
+	* @return string (prefixed with WHERE)
+	* @access public
+	*/
+	function constructRollbackWhereClause($where='', $table_alias=null)
+	{
+		// trim off a current "WHERE" keyword if it exists
+		$where = trim($where);
+		if (strtoupper(substr($where, 0, 6)) == 'WHERE ') $where = substr($where, 5);
+
+
+		if (!SQ_ROLLBACK_VIEW) {
+			// we are not in rollback view so we dont need anything special in the where clause
+			if (!empty($where)) return "WHERE $where";
+			else return '';
+		}
+
+		if (!is_null($table_alias)) $table_alias .= '.';
+		else $table_alias = '';
+
+		$then = $_SESSION['sq_rollback_view']['rollback_time'];
+
+		if (!empty($where)) $where .= ' AND ';
+		$where .= $table_alias.SQ_TABLE_PREFIX.'effective_from <= '.$this->db->quote($then).' 
+				  AND ('.$table_alias.SQ_TABLE_PREFIX.'effective_to IS NULL 
+					   OR '.$table_alias.SQ_TABLE_PREFIX.'effective_to > '.$this->db->quote($then).')';
+
+		return "WHERE $where";
+
+	}//end constructRollbackWhereClause()
+
+
+	/**
 	* Given a table name and a where clause, this function will copy the rows from the table
 	* to the rollback table. It will handle the time of the rollback across script execution
 	* as well as any conflicts in the times
@@ -541,6 +685,9 @@ class Resolve
 	*/
 	function addRollbackEntry($table_name, $where_cond)
 	{
+		// if we are in rollback view, pretend e did our job but really just slack off
+		if (SQ_ROLLBACK_VIEW) return true;
+
 		if (!SQ_CONF_ROLLBACK_ENABLED) {
 			// rollback is not enabled on the system, so return true
 			// here to let the system know everything is going to plan
@@ -635,6 +782,9 @@ class Resolve
 	*/
 	function rollbackUpdate($table_name, $update_values, $where_cond)
 	{
+		// if we are in rollback view, pretend e did our job but really just slack off
+		if (SQ_ROLLBACK_VIEW) return true;
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// construct the update query
@@ -678,6 +828,9 @@ class Resolve
 	*/
 	function rollbackInsert($table_name, $insert_values)
 	{
+		// if we are in rollback view, pretend e did our job but really just slack off
+		if (SQ_ROLLBACK_VIEW) return true;
+
 		// we work out the primary key fields for the table we are inserting into
 		// so we can generate a WHERE clause based on the primary key fields and send
 		// that to the function that handles rollback so that it know which rows need
@@ -747,6 +900,9 @@ class Resolve
 	*/
 	function rollbackInsertSelect($table_name, $select_from, $insert_values, $where_cond)
 	{
+		// if we are in rollback view, pretend e did our job but really just slack off
+		if (SQ_ROLLBACK_VIEW) return true;
+
 		// we work out the primary key fields for the table we are inserting into
 		// so we can generate a WHERE clause based on the primary key fields and send
 		// that to the function that handles rollback so that it know which rows need
@@ -836,6 +992,9 @@ class Resolve
 	*/
 	function rollbackDelete($table_name, $where_cond)
 	{
+		// if we are in rollback view, pretend e did our job but really just slack off
+		if (SQ_ROLLBACK_VIEW) return true;
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		// add the rollback entries for the rows we are going to delete

@@ -1119,10 +1119,13 @@ speed_check('FINISHED');
 		if (!isset($_tmp['child_links'][$assetid])) {
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+			$where = 'l.minorid = '.$db->quote($assetid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$sql = 'SELECT t.treeid
-					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
-					WHERE l.minorid = '.$db->quote($assetid).'
-					LIMIT 1;';
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+					'.$where.' LIMIT 1';
 
 			$treeid = $db->getOne($sql);
 			if (DB::isError($treeid)) {
@@ -1131,14 +1134,18 @@ speed_check('FINISHED');
 
 			$current_level = strlen($treeid) / SQ_CONF_ASSET_TREE_SIZE;
 
+			$where = 't.treeid LIKE '.$db->quote($treeid.'%').'
+					  AND t.treeid > '.$db->quote($treeid);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 			$sql = 'SELECT SUBSTRING(t.treeid FROM '.$db->quote(strlen($treeid) + 1).') as treeid,
 							(CHARACTER_LENGTH(t.treeid) / '.SQ_CONF_ASSET_TREE_SIZE.') '.(($current_level) ? ' - '.$current_level : '').' as level,
 							l.linkid, a.assetid, a.short_name, a.type_code, l.link_type, l.sort_order, l.value, l.dependant
-					FROM sq_asset_link_tree t
-						  INNER JOIN sq_asset_link l ON t.linkid = l.linkid
-						  INNER JOIN sq_asset a ON l.minorid = a.assetid
-					WHERE t.treeid LIKE '.$db->quote($treeid.'%').'
-					  AND t.treeid > '.$db->quote($treeid).'
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
+						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+						  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid
+					'.$where.'
 					ORDER BY t.treeid';
 
 			$child_links = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC); // need all this because of DB API

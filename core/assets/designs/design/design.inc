@@ -192,6 +192,8 @@ class Design extends Design_Area
 				-->
 				<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
 				<link rel="stylesheet" type="text/css"  href="<?php echo sq_web_path(\'lib\'); ?>/web/css/general.css"></script>
+
+				<?php if (SQ_ROLLBACK_VIEW) $GLOBALS[\'SQ_SYSTEM\']->printRollbackWarning(); ?>
 				';
 
 				break;

@@ -378,7 +378,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 		$statii = Array();
-		if (!$write_access && !$print_commit_button && $active_screen == 'details') $statii = $owner->getAvailableStatii();
+		if (!$creating && !$write_access && !$print_commit_button && $active_screen == 'details') $statii = $owner->getAvailableStatii();
 
 		// if the user has write access, has the ability to alter the status of the asset,
 		// or we have printed an editable interface on a static screen - show the commit button
@@ -673,11 +673,13 @@ class Asset_Edit_Interface extends Resolve_Object
 							</table>
 							<?php
 
-							$o->openField('New Future Statuses', 'new_line');
-							$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
-							$fs = new Cron_Job_Future_Status();
-							$edit_fns = $fs->getEditFns();
-							$edit_fns->paintOneLineBackend($fs, $o, $prefix.'_new_fs');
+							if ($owner->writeAccess()) {
+								$o->openField('New Future Statuses', 'new_line');
+								$GLOBALS['SQ_SYSTEM']->am->includeAsset('cron_job_future_status');
+								$fs = new Cron_Job_Future_Status();
+								$edit_fns = $fs->getEditFns();
+								$edit_fns->paintOneLineBackend($fs, $o, $prefix.'_new_fs');
+							}
 							break;
 						default :
 							continue;
@@ -899,7 +901,7 @@ class Asset_Edit_Interface extends Resolve_Object
 									$user_type_cond = 'IN ('.implode(', ', $user_types).')';
 
 									$sql = 'SELECT type_code
-											FROM sq_asset_type
+											FROM '.SQ_TABLE_PREFIX.'asset_type
 											WHERE allowed_access '.$user_type_cond.'
 											  AND type_code '.$type_code_cond;
 
@@ -1024,7 +1026,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			}
 		}
 
-		return false;
+		return true;
 
 	}//end processSettings()
 
@@ -1046,16 +1048,23 @@ class Asset_Edit_Interface extends Resolve_Object
 	function _getOverriddenInheritedPermissions(&$owner, $perm, $access=null)
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
 		// Now get the permissions that we would be inheriting if we hadn't set a specific entry ourselves
-		$sql = 'SELECT DISTINCT p.assetid, p.userid, p.access
-				FROM sq_asset_permission_lookup pl INNER JOIN sq_asset_permission p ON pl.permissionid = p.permissionid,
-					sq_asset_link l INNER JOIN sq_asset_link_tree t ON l.linkid = t.linkid
-				WHERE l.minorid = '.$db->quote($owner->id).'
+		$where = 'l.minorid = '.$db->quote($owner->id).'
 				  AND pl.stop_treeid = t.treeid
 				  AND pl.inc_stop = '.$db->quote('0').'
 				  AND p.permission = '.$db->quote($perm);
-		if      ($access === false) $sql .= ' AND p.access = '.$db->quote('0');
-		else if ($access === true)  $sql .= ' AND p.access = '.$db->quote('1');
+		if      ($access === false) $where .= ' AND p.access = '.$db->quote('0');
+		else if ($access === true)  $where .= ' AND p.access = '.$db->quote('1');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'p');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+
+		$sql = 'SELECT DISTINCT p.assetid, p.userid, p.access
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission_lookup pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_permission p ON pl.permissionid = p.permissionid,
+					'.SQ_TABLE_RUNNING_PREFIX.'asset_link l INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t ON l.linkid = t.linkid
+				'.$where;
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -2016,20 +2025,31 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		foreach ($asset_links as $link) $assetids[$link['majorid']] = Array();
 
-		$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
-		$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
-				FROM sq_asset_link cl INNER JOIN sq_asset_link_tree ct ON cl.linkid = ct.linkid,
-					 sq_asset_link pl INNER JOIN sq_asset_link_tree pt ON pl.linkid = pt.linkid
-					 INNER JOIN sq_asset a ON a.assetid = pl.minorid
-				WHERE cl.minorid IN ('.implode(', ', array_keys($assetids)).')
-				  AND ct.treeid LIKE '.$concat.'
-				  AND pt.treeid <= ct.treeid
-				ORDER BY cl.linkid, ct.treeid, pt.treeid';
+		if (empty($assetids)) {
+			$result = Array();
+		} else {
+			$concat = ($db->phptype == 'mysql') ? 'CONCAT(pt.treeid, '.$db->quote('%').')' : 'pt.treeid || '.$db->quote('%');
 
-		$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
-		if (DB::isError($result)) {
-			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
-			return Array();
+			$where = 'cl.minorid IN ('.implode(', ', array_keys($assetids)).')
+					  AND ct.treeid LIKE '.$concat.'
+					  AND pt.treeid <= ct.treeid';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'cl');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'ct');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pl');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'pt');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+
+			$sql = 'SELECT ct.treeid as our_treeid, cl.minorid, pt.treeid as parent_treeid, a.name, a.assetid
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link cl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree ct ON cl.linkid = ct.linkid,
+						 '.SQ_TABLE_RUNNING_PREFIX.'asset_link pl INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree pt ON pl.linkid = pt.linkid
+						 INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON a.assetid = pl.minorid
+					'.$where.' ORDER BY cl.linkid, ct.treeid, pt.treeid';
+
+			$result = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC, true);
+			if (DB::isError($result)) {
+				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				return Array();
+			}
 		}
 
 		foreach ($asset_links as $link_data) $link_info[$link_data['majorid']] = $link_data;
@@ -2104,7 +2124,6 @@ class Asset_Edit_Interface extends Resolve_Object
 
 	/**
 	* Processes the interface for viewing links to/from this asset
-	* Note that this function doesnt do anything
 	*
 	* @param object	Asset				$owner	the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o			the outputter class
@@ -2142,7 +2161,137 @@ class Asset_Edit_Interface extends Resolve_Object
 		}
 
 		return $done_something;
+
 	}//end processLinking()
+
+
+	/**
+	* Paints the interface for viewing the history of this asset
+	* This includes going into rollback view mode
+	*
+	* @param object	Asset				$owner		the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintHistory(&$owner, &$o)
+	{
+		// prefix for all the form vars
+		$prefix = $this->getPrefix($owner);
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		// note that we dont prep this query for rollback select
+		// because we are selecting directly from the rollback table
+		$sql = 'SELECT '.SQ_TABLE_PREFIX.'effective_from AS efrom, '.SQ_TABLE_PREFIX.'effective_to AS eto, version
+				FROM '.SQ_TABLE_ROLLBACK_PREFIX.'asset
+				WHERE assetid = '.$db->quote($owner->id).'
+				ORDER BY '.SQ_TABLE_PREFIX.'effective_from DESC';
+
+		$result = $db->getAll($sql);
+		if (DB::isError($result)) {
+			trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+			return Array();
+		}
+
+		$o->openSection('Version History');
+		$o->openField('');
+		
+		if (SQ_ROLLBACK_VIEW) {
+			?><p class="sq-form-field"><b><i>The highlighted row in the version history is the current version of "<?php echo $owner->name; ?>" being viewed in rollback mode</i></b></p>
+			<?php
+		}
+
+		hidden_field($prefix.'_rollback_version', '0');
+
+		?>
+		<table border="0" cellspacing="1" cellpadding="2" bgcolor="#000000" width="100%">
+			<tr>
+				<td bgcolor="#DDDDDD" class="sq-form-field"><b>Version Duration</b></td>
+				<td bgcolor="#DDDDDD" class="sq-form-field"><b>Time Since Version</b></td>
+				<td bgcolor="#DDDDDD" class="sq-form-field" align="center"><b>Version</b></td>
+				<td bgcolor="#DDDDDD" class="sq-form-field" align="center"><b>View</b></td>
+			</tr>
+		<?php
+		
+		foreach ($result as $data) {
+			$from = $data['efrom'];
+			$to   = $data['eto'];
+
+			$bgcolour = '#F0F0F0';
+			$show_view_btn = true;
+			if (SQ_ROLLBACK_VIEW) {
+				$rollback_from = strtotime($_SESSION['sq_rollback_view']['rollback_time']);
+				if ($rollback_from >= strtotime($from) && (empty($to) || strtotime($to) > $rollback_from)) {
+					$bgcolour = '#FFE5E8';
+					$show_view_btn = false;
+				}
+			}
+
+			if (empty($to)) {
+				$to = 'present';
+				$ago = 'Most Recent';
+			} else {
+				require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+				$ago = easy_time_total(time() - strtotime($to), true);
+				list($fd, $ft) = explode(' ', $from);
+				list($td, $tt) = explode(' ', $to);
+				if ($fd == $td) $to = $tt;
+			}
+
+			?>
+			<tr>
+				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-form-field"><?php echo $from; ?> - <?php echo $to; ?></td>
+				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-form-field"><?php echo $ago; ?></td>
+				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-form-field" align="center"><?php echo $data['version']; ?></td>
+				<td bgcolor="<?php echo $bgcolour; ?>" class="sq-form-field" align="center">
+				<?php 
+					if ($show_view_btn) {
+						echo submit_button($prefix.'_rollback_mode', ' View ', 'this.form.'.$prefix.'_rollback_version.value = \''.$data['version'].'\'');
+					} else {
+						echo '&nbsp;';
+					}
+				?>
+				</td>
+			</tr>
+			<?php
+		}
+
+		?>
+		</table>
+		<?php
+
+		$o->closeField();
+		$o->closeSection();
+
+	}//end paintHistory()
+
+
+	/**
+	* Processes the interface for viewing the history of the asset
+	* This includes going into rollback view mode
+	*
+	* @param object	Asset				$owner	the asset whose interface we are painting
+	* @param object	Backend_Outputter	$o			the outputter class
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processHistory(&$owner, &$o)
+	{
+		// prefix for all the form vars
+		$prefix = $this->getPrefix($owner);
+
+		if (isset($_POST[$prefix.'_rollback_mode']) && isset($_POST[$prefix.'_rollback_version'])) {
+			$version = $_POST[$prefix.'_rollback_version'];
+			$url = $_SERVER['PHP_SELF'].'?SQ_ACTION=rollback_view_start&assetid='.$owner->id.'&version='.$version;
+			$o->setRedirect($url, 'top');
+		}
+
+		return true;
+
+	}//end processHistory()
 
 
 	/**

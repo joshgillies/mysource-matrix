@@ -30,6 +30,7 @@ class Backend_Outputter
 
 	// an link to redirect to when we print, any messages will be carried over to the next page
 	var $_redirect = '';
+	var $_redirect_target = '';
 
 	// an array of fns to be called when the page loads
 	var $_on_load_calls = Array();
@@ -120,9 +121,10 @@ class Backend_Outputter
 	/**
 	* Set the redirect for the page
 	*/
-	function setRedirect($link)
+	function setRedirect($link, $target='self')
 	{
 		$this->_redirect = trim($link);
+		$this->_redirect_target = trim($target);
 	}//end setRedirect()
 
 
@@ -536,7 +538,7 @@ class Backend_Outputter
 		if ($this->_redirect) {
 			// save the messages so the come through on the next page
 			$_SESSION['backend_outputter_msgs'] = $this->_messages;
-			$this->addOnLoad('self.location = "'.$this->_redirect.'";');
+			$this->addOnLoad($this->_redirect_target.'.location = "'.$this->_redirect.'";');
 		}
 
 		$this->_paintHeader();

@@ -134,11 +134,15 @@ class User extends Asset
 			
 			if ($name == 'username') {
 				$db = &$GLOBALS['SQ_SYSTEM']->db;
-				$sql = 'SELECT COUNT(*)
-						FROM sq_asset_attribute_value v
-						  INNER JOIN sq_asset_attribute a ON v.attributeid = a.attributeid
-						WHERE a.name = '.$db->quote('username').'
+
+				$where = 'a.name = '.$db->quote('username').'
 						  AND custom_value='.$db->quote($value);
+				$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'v');
+				$sql = 'SELECT COUNT(*)
+						FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v
+						  INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute a ON v.attributeid = a.attributeid
+						'.$where;
+
 				$result = $db->getOne($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -204,16 +208,19 @@ class User extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT a.assetid, a.type_code
-				FROM sq_asset a, sq_asset_attribute at, sq_asset_attribute_value av
-				WHERE a.type_code IN (~SQ0~) 
+		$where = 'a.type_code IN (~SQ0~) 
 				  AND at.name         = '.$db->quote('username').'
 				  AND at.attributeid  = av.attributeid
 				  AND av.assetid      = a.assetid
 				  AND av.custom_value = '.$db->quote($username);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
+		$sql = 'SELECT a.assetid, a.type_code
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a, '.SQ_TABLE_PREFIX.'asset_attribute at, '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av
+				'.$where;
 
 		$subs = Array( 'SELECT type_code 
-						FROM sq_asset_type_inherited 
+						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited 
 						WHERE inherited_type_code = '.$db->quote($type_code)
 						);
 

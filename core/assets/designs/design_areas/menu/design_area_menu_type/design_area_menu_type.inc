@@ -323,7 +323,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* Performs any outputting needed to by all design areas of this menu type
 	* NOTE: assumes PHP tags are open
 	*
-	* @param object Design	$design			the design for which we are currently printing
+	* @param object Design	$design	the design for which we are currently printing
 	*
 	* @access public
 	*/
@@ -366,25 +366,23 @@ class Design_Area_Menu_Type extends Design_Area
 					}
 				}// endif
 
-				$sql = \'SELECT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, p.path
-						FROM sq_asset a
-							INNER JOIN sq_asset_path p on a.assetid = p.assetid
-							INNER JOIN sq_asset_link l on a.assetid = l.minorid
-						WHERE p.sort_order = 0
+				$where = \'p.sort_order = 0
 						  AND l.majorid IN (\'.implode(\',\', $majorids).\')
 						  AND l.minorid IN (~SQ0~)
 						  \'.$STATUS_COND.\'
-						  AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0
-						ORDER BY l.majorid, l.sort_order\';
+						  AND (l.link_type & \'.$db->quote(SQ_SC_LINK_FRONTEND_NAV).\') > 0\';
+				$where = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'p\');
+				$where = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($where, \'l\');
+				$sql = \'SELECT a.assetid, l.majorid, a.type_code, a.status, a.name, a.short_name, p.path
+						FROM sq_asset a
+							INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_path p on a.assetid = p.assetid
+							INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_link l on a.assetid = l.minorid
+						\'.$where.\' ORDER BY l.majorid, l.sort_order\';
 
 				$concat_1 = ($db->phptype == \'mysql\') ? \'CONCAT(pl1.start_treeid, \'.$db->quote(\'%\').\')\' : \'pl1.start_treeid || \'.$db->quote(\'%\');
 				$concat_2 = ($db->phptype == \'mysql\') ? \'CONCAT(t2.treeid, \'.$db->quote(\'%\').\')\'        : \'t2.treeid || \'.$db->quote(\'%\');
-				$subs = Array(\'SELECT DISTINCT l2.minorid
-								FROM sq_asset_permission_lookup pl1
-										INNER JOIN sq_asset_permission p1 ON pl1.permissionid = p1.permissionid,
-									sq_asset_link l2
-										INNER JOIN sq_asset_link_tree t2 ON l2.linkid = t2.linkid
-								WHERE l2.majorid IN (\'.implode(\',\', $majorids).\')
+				
+				$sub_where = \'l2.majorid IN (\'.implode(\',\', $majorids).\')
 								  \'.$USERIDS_COND.\'
 								  AND p1.permission >= \'.$db->quote(SQ_PERMISSION_READ).\'
 								  AND p1.access = \'.$db->quote(\'1\').\'
@@ -395,13 +393,23 @@ class Design_Area_Menu_Type extends Design_Area
 										t2.treeid < pl1.stop_treeid 
 												OR 
 										(pl1.stop_treeid = t2.treeid AND pl1.inc_stop = \'.$db->quote(\'1\').\')
-									)\'
+									)\';
+				$sub_where = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($sub_where, \'pl1\');
+				$sub_where = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($sub_where, \'p1\');
+				$sub_where = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($sub_where, \'l2\');
+				$sub_where = $GLOBALS[\'SQ_SYSTEM\']->constructRollbackWhereClause($sub_where, \'t2\');
+				$subs = Array(\'SELECT DISTINCT l2.minorid
+								FROM \'.SQ_TABLE_RUNNING_PREFIX.\'asset_permission_lookup pl1
+										INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_permission p1 ON pl1.permissionid = p1.permissionid,
+									\'.SQ_TABLE_RUNNING_PREFIX.\'asset_link l2
+										INNER JOIN \'.SQ_TABLE_RUNNING_PREFIX.\'asset_link_tree t2 ON l2.linkid = t2.linkid
+								\'.$sub_where
 								);
 				$sql = db_extras_subquery($db, $sql, $subs);
 				if (DB::isError($sql)) {
 					trigger_error($sql->getMessage().\'<br/>\'.$sql->getUserInfo(), E_USER_ERROR);
 				}
-#pre_echo($sql);
+
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
 					trigger_error($result->getMessage().\'<br/>\'.$result->getUserInfo(), E_USER_ERROR);

@@ -140,10 +140,13 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 
 		// work out the treeid of the trash asset for use later
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		$where = 'l.minorid = '.$db->quote($trash->id);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
 		$sql = 'SELECT t.treeid
-				FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid
-				WHERE l.minorid = '.$db->quote($trash->id).'
-				LIMIT 1';
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid
+				'.$where.' LIMIT 1';
 
 		$treeid = $db->getOne($sql);
 		if (DB::isError($treeid)) {
@@ -212,11 +215,14 @@ class Trash_Folder_Edit_Fns extends Folder_Edit_Fns
 			// we are going to try and find out if this asset has any links
 			// outside the trash folder so we dont delete it if it is being used
 			// somewhere else outside the trash
-			$sql = 'SELECT l.linkid 
-					FROM sq_asset_link_tree t INNER JOIN sq_asset_link l ON t.linkid = l.linkid 
-					WHERE l.minorid='.$db->quote($link_info['assetid']).' 
+			$where = 'l.minorid='.$db->quote($link_info['assetid']).' 
 					  AND t.treeid NOT LIKE '.$db->quote($vars['trash_treeid'].'%').' 
-					  AND (l.link_type & '.$db->quote(SQ_SC_LINK_SIGNIFICANT).') > 0 ';
+					  AND (l.link_type & '.$db->quote(SQ_SC_LINK_SIGNIFICANT).') > 0';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 't');
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'l');
+			$sql = 'SELECT l.linkid 
+					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid 
+					'.$where;
 
 			$outside_links = $db->getCol($sql);
 			if (DB::isError($outside_links)) {

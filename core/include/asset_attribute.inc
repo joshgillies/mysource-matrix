@@ -72,7 +72,7 @@ class Asset_Attribute extends Resolve_Object
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT attributeid, name, type, parameters_value, default_value
-					FROM sq_asset_attribute
+					FROM '.SQ_TABLE_PREFIX.'asset_attribute
 					WHERE attributeid = '.$db->quote($attributeid);
 
 			$result = $db->getRow($sql, null, DB_FETCHMODE_ORDERED);

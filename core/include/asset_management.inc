@@ -150,7 +150,7 @@ class Asset_Management extends Resolve_Object
 		$level = count($this->_pm->getTypeAncestors($type_code));
 		$info = $this->_pm->getTypeInfo($type_code);
 
-		$sql = 'INSERT INTO sq_asset_type
+		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'asset_type
 				(type_code, version, name, description, instantiable, allowed_access, parent_type, level, dir, customisation)
 				VALUES
 				('.$this->_db->quote($type_code).', '.$this->_db->quote($info['version']).',
@@ -193,7 +193,7 @@ class Asset_Management extends Resolve_Object
 		$level = count($this->_pm->getTypeAncestors($this->getAssetType()));
 		$info = $this->_pm->getTypeInfo($this->getAssetType());
 
-		$sql = 'UPDATE sq_asset_type
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_type
 				SET version         = '.$this->_db->quote($info['version']).',
 					name            = '.$this->_db->quote($info['name']).',
 					description     = '.$this->_db->quote($info['description']).',
@@ -215,7 +215,7 @@ class Asset_Management extends Resolve_Object
 
 		// now update the attributes
 		$sql = 'SELECT name
-				FROM sq_asset_attribute
+				FROM '.SQ_TABLE_PREFIX.'asset_attribute
 				WHERE type_code = '.$this->_db->quote($this->getAssetType());
 		$current_vars = $this->_db->getCol($sql);
 
@@ -246,7 +246,7 @@ class Asset_Management extends Resolve_Object
 	function _getAllVars()
 	{
 		$sql = 'SELECT DISTINCT atr.name
-				FROM sq_asset_type_inherited i, sq_asset_attribute atr
+				FROM '.SQ_TABLE_PREFIX.'asset_type_inherited i, '.SQ_TABLE_PREFIX.'asset_attribute atr
 				WHERE i.type_code = '.$this->_db->quote($this->getAssetType()).'
 				  AND i.inherited_type_code <> '.$this->_db->quote($this->getAssetType()).'
 				  AND i.inherited_type_code = atr.type_code';
@@ -288,7 +288,7 @@ class Asset_Management extends Resolve_Object
 
 		// See if any other our parents have an attribute with this name
 		$sql = 'SELECT COUNT(*) as count, MIN(at.level) as min, MAX(at.level) as max
-				FROM sq_asset_type_inherited i, sq_asset_attribute atr, sq_asset_type at
+				FROM '.SQ_TABLE_PREFIX.'asset_type_inherited i, '.SQ_TABLE_PREFIX.'asset_attribute atr, '.SQ_TABLE_PREFIX.'asset_type at
 				WHERE i.type_code = '.$this->_db->quote($type_code).'
 				  AND i.inherited_type_code <> '.$this->_db->quote($type_code).'
 				  AND i.inherited_type_code = atr.type_code
@@ -306,7 +306,7 @@ class Asset_Management extends Resolve_Object
 
 			// Check Children to see if any of them have an attribute with this name
 			$sql = 'SELECT a.type_code
-					FROM sq_asset_type_inherited i, sq_asset_attribute a
+					FROM '.SQ_TABLE_PREFIX.'asset_type_inherited i, '.SQ_TABLE_PREFIX.'asset_attribute a
 					WHERE i.inherited_type_code = '.$this->_db->quote($type_code).'
 					  AND i.type_code <> '.$this->_db->quote($type_code).'
 					  AND i.type_code = a.type_code
@@ -350,7 +350,7 @@ class Asset_Management extends Resolve_Object
 			// Find the parents with an attribute of this name
 			$sql = 'SELECT	atr.type_code, atr.owning_type_code, atr.type, atr.parameters_value,
 							atr.parameters_type_code, atr.default_type_code, atr.default_value, atr.description
-					FROM sq_asset_type_inherited i, sq_asset_attribute atr, sq_asset_type at
+					FROM '.SQ_TABLE_PREFIX.'asset_type_inherited i, '.SQ_TABLE_PREFIX.'asset_attribute atr, '.SQ_TABLE_PREFIX.'asset_type at
 					WHERE i.type_code = '.$this->_db->quote($type_code).'
 					  AND i.inherited_type_code <> '.$this->_db->quote($type_code).'
 					  AND i.inherited_type_code = atr.type_code
@@ -423,7 +423,7 @@ class Asset_Management extends Resolve_Object
 		}
 
 		// OK, all seems fine, let's add the bloody thing
-		$sql = 'INSERT INTO sq_asset_attribute
+		$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'asset_attribute
 				(attributeid, type_code, owning_type_code, name, type, parameters_type_code, default_type_code, default_value, parameters_value, description)
 				VALUES
 				('.$this->_db->quote($attributeid).',
@@ -469,7 +469,7 @@ class Asset_Management extends Resolve_Object
 		} else {
 			// Find the parents with an attribute of this name
 			$sql = 'SELECT attributeid, type_code, owning_type_code, name, type, parameters_value, parameters_type_code, default_type_code, default_value
-					FROM sq_asset_attribute
+					FROM '.SQ_TABLE_PREFIX.'asset_attribute
 					WHERE type_code = '.$this->_db->quote($type_code).'
 					  AND name = '.$this->_db->quote($name);
 
@@ -492,7 +492,7 @@ class Asset_Management extends Resolve_Object
 				$parent = array_shift($parents);
 
 				$sql = 'SELECT parameters_type_code, parameters_value, default_type_code, default_value
-						FROM sq_asset_attribute
+						FROM '.SQ_TABLE_PREFIX.'asset_attribute
 						WHERE type_code = '.$this->_db->quote($parent).'
 						  AND name = '.$this->_db->quote($name);
 
@@ -585,7 +585,7 @@ class Asset_Management extends Resolve_Object
 		$description = empty($this->vars[$name]['description']) ? '' : $this->vars[$name]['description'];
 
 		// update all the attributes that we own
-		$sql = 'UPDATE sq_asset_attribute
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_attribute
 				SET type        = '.$this->_db->quote($this->vars[$name]['type']).',
 					description = '.$this->_db->quote($description).'
 				WHERE owning_type_code = '.$this->_db->quote($type_code).'
@@ -603,7 +603,7 @@ class Asset_Management extends Resolve_Object
 		}
 
 		// update all the attributes that are still using our default
-		$sql = 'UPDATE sq_asset_attribute
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_attribute
 				SET default_value = '.$this->_db->quote($this->vars[$name]['default']).'
 				WHERE default_type_code = '.$this->_db->quote($type_code).'
 				  AND name = '.$this->_db->quote($name);
@@ -616,7 +616,7 @@ class Asset_Management extends Resolve_Object
 
 		if (!empty($this->vars[$name]['parameters'])) {
 			// update all the attributes that are still using our parameters
-			$sql = 'UPDATE sq_asset_attribute
+			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_attribute
 					SET parameters_value = '.$this->_db->quote(serialize($this->vars[$name]['parameters'])).'
 					WHERE parameters_type_code = '.$this->_db->quote($type_code).'
 					  AND name = '.$this->_db->quote($name);
@@ -649,14 +649,14 @@ class Asset_Management extends Resolve_Object
 		// is so that if this is the first time that we are setting the default value
 		// then all the asset types below us that were inheriting the default value from the
 		// the same asset type as we used to be will be converted to using our default value
-		$sql = 'UPDATE sq_asset_attribute
+		$sql = 'UPDATE '.SQ_TABLE_PREFIX.'asset_attribute
 				SET '.$field.'_type_code = '.$this->_db->quote($new_type_code).',
 					'.$field.'_value     = '.$this->_db->quote($new_value).'
 				WHERE attributeid = '.$this->_db->quote($attributeid).'
 				   OR attributeid IN (~SQ0~)';
 
 		$subs = Array( 'SELECT atr.attributeid
-						FROM sq_asset_type_inherited i, sq_asset_attribute atr
+						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited i, '.SQ_TABLE_PREFIX.'asset_attribute atr
 						WHERE i.inherited_type_code = '.$this->_db->quote($new_type_code).'
 						  AND i.type_code <> '.$this->_db->quote($new_type_code).'
 						  AND i.type_code = atr.type_code

@@ -19,13 +19,14 @@ class Folder extends Asset
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Folder($assetid=0) 
+	function Folder($assetid=0)
 	{
 		$this->Asset($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
@@ -62,6 +63,7 @@ class Folder extends Asset
 	function _getName($short_name=false)
 	{
 		return $this->attr('name');
+
 	}//end _getName();
 
 

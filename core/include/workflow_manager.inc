@@ -103,8 +103,9 @@ class Workflow_Manager extends Resolve_Object
 		// get the direct workflow if it has been set
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT workflow FROM sq_asset_workflow
-				WHERE assetid = '.$db->quote($this->_asset->id);
+		$where = 'assetid = '.$db->quote($this->_asset->id);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		$sql = 'SELECT workflow FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_workflow '.$where;
 
 		$direct = $db->getOne($sql);
 		if (DB::isError($direct)) {
@@ -148,8 +149,9 @@ class Workflow_Manager extends Resolve_Object
 		// if this workflow has started and what its status is
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT * FROM sq_asset_running_workflow
-				WHERE workflowid LIKE '.$db->quote($this->_asset->id.'~%');
+		$where = 'workflowid LIKE '.$db->quote($this->_asset->id.'~%');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		$sql = 'SELECT * FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_running_workflow '.$where;
 
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {
@@ -526,8 +528,9 @@ class Workflow_Manager extends Resolve_Object
 	{
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT workflowid FROM sq_asset_running_workflow
-				WHERE workflowid LIKE '.$db->quote('%~'.$this->_asset->id);
+		$where = 'workflowid LIKE '.$db->quote('%~'.$this->_asset->id);
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		$sql = 'SELECT workflowid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_running_workflow '.$where;
 
 		$result = $db->getCol($sql);
 		if (DB::isError($result)) {

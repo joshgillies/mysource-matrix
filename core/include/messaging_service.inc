@@ -190,6 +190,8 @@ class Messaging_Service extends Resolve_Object
 
 		if (!is_null($get_user_name) && $get_user_name != 'name') $get_user_name = 'short_name';
 
+		$where = 'm.userto = '.$db->quote($userid);
+
 		$sql = 'SELECT m.messageid, m.userto, m.userfrom, m.subject, m.body, m.sent, m.priority, m.status, m.parameters';
 		if (is_string($get_user_name)) {
 			$sql .= ', 
@@ -198,18 +200,21 @@ class Messaging_Service extends Resolve_Object
 						ELSE a.'.$get_user_name.'
 					END as from_name';
 		}
-		$sql .= ' FROM sq_internal_message m';
-		if (is_string($get_user_name)) $sql .= ' LEFT OUTER JOIN sq_asset a ON m.userfrom = a.assetid';
+		$sql .= ' FROM '.SQ_TABLE_RUNNING_PREFIX.'internal_message m';
+		if (is_string($get_user_name)) {
+			$sql .= ' LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON m.userfrom = a.assetid';
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		}
 
-		$sql .= ' WHERE m.userto = '.$db->quote($userid);
 		if (!empty($statii)) {
 			for($i = 0; $i < count($statii); $i++) $statii[$i] = $db->quote($statii[$i]);
-			$sql .= ' AND m.status IN ('.implode(', ', $statii).')';
+			$where .= ' AND m.status IN ('.implode(', ', $statii).')';
 		}
-		if (!is_null($from)) $sql .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
-		if (!is_null($to))   $sql .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
+		if (!is_null($from)) $where .= ' AND m.sent >= '.$db->quote(ts_iso8601($from));
+		if (!is_null($to))   $where .= ' AND m.sent <= '.$db->quote(ts_iso8601($to));
 
-		$sql .= ' ORDER BY m.sent DESC';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'm');
+		$sql .= ' '.$where.' ORDER BY m.sent DESC';
 		
 		$result = $db->getAll($sql);
 		if (DB::isError($result)) {

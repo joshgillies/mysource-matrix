@@ -355,7 +355,8 @@ class File extends Asset
 
 		$root_urls = explode("\n", SQ_CONF_SYSTEM_ROOT_URLS);
 
-		$sql = 'SELECT urlid, url FROM sq_asset_url';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('');
+		$sql = 'SELECT urlid, url FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url '.$where;
 		$base_urls = $db->getAssoc($sql, false, Array(), DB_FETCHMODE_ASSOC);
 		if (DB::isError($base_urls)) {
 			trigger_error($base_urls->getMessage().'<br/>'.$base_urls->getUserInfo(), E_USER_ERROR);

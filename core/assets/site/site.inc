@@ -85,9 +85,9 @@ class Site extends Folder
 	function getSiteURLs()
 	{
 		if (!isset($this->_tmp['urls_info'])) {
-			$sql = 'SELECT urlid, url, http, https
-					FROM sq_asset_url
-					WHERE assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
+			$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
+			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+			$sql = 'SELECT urlid, url, http, https FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_url '.$where;
 
 			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql, true, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
 			if (DB::isError($result)) {

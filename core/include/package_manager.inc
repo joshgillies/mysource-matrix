@@ -169,17 +169,17 @@ class Package_Manager extends Resolve_Object
 		// open the transaction
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$exists = $db->getOne('SELECT code_name FROM sq_package WHERE code_name = '.$db->quote($this->package));
+		$exists = $db->getOne('SELECT code_name FROM '.SQ_TABLE_PREFIX.'package WHERE code_name = '.$db->quote($this->package));
 		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
 
 		if ($exists) {
-			$sql = 'UPDATE sq_package
+			$sql = 'UPDATE '.SQ_TABLE_PREFIX.'package
 					SET version     = '.$db->quote($this->info['version']).',
 						name        = '.$db->quote($this->info['name']).',
 						description = '.$db->quote($this->info['description']).'
 					WHERE code_name = '.$db->quote($this->package);
 		} else {
-			$sql = 'INSERT INTO sq_package
+			$sql = 'INSERT INTO '.SQ_TABLE_PREFIX.'package
 					(code_name, version, name, description)
 					VALUES
 					('.$db->quote($this->package).', '.$db->quote($this->info['version']).',
@@ -446,7 +446,7 @@ class Package_Manager extends Resolve_Object
 			$ok = false;
 			switch($req['@type']) {
 				case 'package' :
-					$installed_version = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT version FROM sq_package WHERE code_name = '.$GLOBALS['SQ_SYSTEM']->db->quote($req['code']['value']));
+					$installed_version = $GLOBALS['SQ_SYSTEM']->db->getOne('SELECT version FROM '.SQ_TABLE_PREFIX.'package WHERE code_name = '.$GLOBALS['SQ_SYSTEM']->db->quote($req['code']['value']));
 					if (DB::isError($installed_version)) trigger_error($installed_version->getMessage().'<br/>'.$installed_version->getUserInfo(), E_USER_ERROR);
 
 					if ($installed_version) {

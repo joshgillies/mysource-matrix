@@ -35,7 +35,10 @@ class Asset_Edit_Fns extends Resolve_Object
 													  ),
 								'settings'    => Array('name' => 'Settings',
 													   'force_unlock' => false
-													  )
+													  ),
+								'history'     => Array('name' => 'History',
+													   'force_unlock' => true
+													  ),
 								);
 
 
@@ -43,12 +46,13 @@ class Asset_Edit_Fns extends Resolve_Object
 	* Constructor
 	*
 	*/
-	function Asset_Edit_Fns() 
+	function Asset_Edit_Fns()
 	{
 		$this->Resolve_Object();
-	}
 
-			
+	}//end constructor
+
+
 	/**
 	* Paint the interface for the asset paths
 	*
@@ -59,7 +63,7 @@ class Asset_Edit_Fns extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function paintPaths(&$asset, &$o, $prefix) 
+	function paintPaths(&$asset, &$o, $prefix)
 	{
 
 		$wa = $asset->writeAccess();
@@ -73,8 +77,9 @@ class Asset_Edit_Fns extends Resolve_Object
 		}
 
 		if ($wa) text_box($prefix.'_paths[]', '', 25);
-		
+
 	}// end paintPaths()
+
 
 	/**
 	* Processes the Paths posted from the paintPaths fn above
@@ -86,10 +91,11 @@ class Asset_Edit_Fns extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function processPaths(&$asset, &$o, $prefix) 
+	function processPaths(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_paths'])) return false;
 		return $asset->saveWebPaths(array_values($_POST[$prefix.'_paths']));
+
 	}// end processPaths()
 
 
@@ -103,15 +109,16 @@ class Asset_Edit_Fns extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function paintURLs(&$asset, &$o, $prefix) 
+	function paintURLs(&$asset, &$o, $prefix)
 	{
 		$urls = $asset->getLookups('url');
 		foreach($urls as $url) {
 			echo $url, '<br/>';
 		}
-		
+
 	}// end paintURLs()
 
 
 }//end class
+
 ?>

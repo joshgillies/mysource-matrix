@@ -43,7 +43,9 @@ class Designs_Folder extends Folder
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT count(*) FROM sq_asset WHERE type_code = '.$db->quote($this->type());
+		$where = 'type_code = '.$db->quote($this->type());
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		$sql = 'SELECT count(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
 		$exists = $db->getOne($sql);
 		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
 

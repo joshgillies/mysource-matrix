@@ -43,7 +43,9 @@ class Cron_Manager extends Asset
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT COUNT(*) FROM sq_asset WHERE type_code = '.$db->quote($this->type());
+		$where = 'type_code = '.$db->quote($this->type());
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+		$sql = 'SELECT count(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
 		$exists = $db->getOne($sql);
 		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
 
@@ -501,12 +503,7 @@ break;
 
 		$one_off = preg_replace('/%[ABCD]%/', 'OO=', $build_up['one_off']['all']);
 
-		$sql = 'SELECT l.linkid, a.assetid, a.type_code, av.custom_value as when
-				FROM sq_asset_link l
-						INNER JOIN sq_asset a ON l.minorid = a.assetid
-						INNER JOIN sq_asset_attribute_value av ON a.assetid = av.assetid
-						INNER JOIN sq_asset_attribute at ON av.attributeid = at.attributeid
-				WHERE l.majorid = '.$db->quote($this->id).'
+		$where = 'l.majorid = '.$db->quote($this->id).'
 				  AND a.type_code IN (~SQ0~)
 				  AND at.name         = '.$db->quote('when').'
 				  AND ('.$hourly.'
@@ -516,9 +513,17 @@ break;
 					   OR '.$yearly.'
 					   OR '.$one_off.'
 					   )';
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
+		$sql = 'SELECT l.linkid, a.assetid, a.type_code, av.custom_value as when
+				FROM sq_asset_link l
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.minorid = a.assetid
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av ON a.assetid = av.assetid
+						INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute at ON av.attributeid = at.attributeid
+				'.$where;
 
 		$subs = Array( 'SELECT type_code
-						FROM sq_asset_type_inherited
+						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
 						WHERE inherited_type_code = '.$db->quote('cron_job')
 						);
 
