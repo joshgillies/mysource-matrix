@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.326 2004/09/14 01:39:19 gsherwood Exp $
+* $Id: asset.inc,v 1.327 2004/09/14 04:31:10 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1757,14 +1757,14 @@ class Asset extends MySource_Object
 	* The user field for the specified date is set to the userid specified. If
 	* none is specified, then the current user is used
 	*
+	* @param string 	$date_type	the date to update, which must be one of 'published' or 'created'
 	* @param int		$time		the time to set the date to. If NULL then use current time
 	* @param int		$userid 	the userid that modified the specified date
-	* @param string 	$date_type	the date to update, which must be one of 'published' or 'created'
 	*
 	* @access public
 	* @return boolean indicating success
 	*/
-	function setDate($time=null, $userid=null, $date_type)
+	function setDate($date_type, $time=null, $userid=null)
 	{
 		if (!in_array($date_type, Array('published' ,'created'))) {
 			trigger_error('Only the published and created date can be modified', E_USER_WARNING);
