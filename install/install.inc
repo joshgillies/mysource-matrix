@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 * 
-* $Id: install.inc,v 1.14 2004/09/08 04:02:52 gsherwood Exp $
+* $Id: install.inc,v 1.15 2004/09/08 07:20:44 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -45,6 +45,11 @@ function regenerate_configs()
 	// Re-generate the System Config to make sure that we get any new defines that may have been issued
 	require_once SQ_INCLUDE_PATH.'/system_config.inc';
 	$cfg = new System_Config();
+	if (!$cfg->save(Array(), false)) return false;
+	
+	// Re-generate the External Tools Config to make sure that we get any new defines that may have been issued
+	require_once SQ_INCLUDE_PATH.'/external_tools_config.inc';
+	$cfg = new External_Tools_Config();
 	if (!$cfg->save(Array(), false)) return false;
 	
 	// Re-generate the Server Config to make sure that we get any new defines that may have been issued

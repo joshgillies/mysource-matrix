@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: init.inc,v 1.69 2004/08/05 03:44:21 gsherwood Exp $
+* $Id: init.inc,v 1.70 2004/09/08 07:20:19 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -79,6 +79,9 @@ require_once SQ_INCLUDE_PATH.'/version.inc';
 
 // include the main system config file
 require_once SQ_DATA_PATH.'/private/conf/main.inc';
+
+// includ the external tools config file
+require_once SQ_DATA_PATH.'/private/conf/tools.inc';
 
 // To be able to use symlinks without matrix tripping over the index.php, strip
 // it out of the PHP_SELF variable (pretend we're someone we're not). When

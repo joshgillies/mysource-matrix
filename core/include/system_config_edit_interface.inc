@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_config_edit_interface.inc,v 1.3 2004/03/31 02:35:23 gsherwood Exp $
+* $Id: system_config_edit_interface.inc,v 1.4 2004/09/08 07:20:19 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -95,6 +95,7 @@ class System_Config_Edit_Interface extends MySource_Object
 									'system_config'			=> 'System Configuration',
 									'squiz_server_config'	=> 'Squiz Server Configuration',
 									'hipo_config'			=> 'HIPO Configuration',
+									'external_tools_config' => 'External Tools Configuration',
 									'user_prefs'			=> 'Global Preferences',
 								);
 
@@ -110,6 +111,7 @@ class System_Config_Edit_Interface extends MySource_Object
 			case 'system_config' :
 			case 'squiz_server_config' :
 			case 'hipo_config' :
+			case 'external_tools_config' :
 
 				$config = null;
 
@@ -126,6 +128,11 @@ class System_Config_Edit_Interface extends MySource_Object
 						require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_config.inc';
 						$config = new HIPO_Config();
 						break;
+					case 'external_tools_config' :
+						require_once SQ_INCLUDE_PATH.'/external_tools_config.inc';
+						$config = new External_Tools_Config();
+						break;
+						
 				}// end switch
 				if (!empty($_POST['config_posted'])) {
 					$config->processBackend($o);

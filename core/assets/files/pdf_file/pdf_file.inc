@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: pdf_file.inc,v 1.1 2004/07/09 01:53:42 lwright Exp $
+* $Id: pdf_file.inc,v 1.2 2004/09/08 07:20:34 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -110,13 +110,13 @@ class PDF_File extends File
 		$file = $file_info['path'];
 
 		$indexer_path = dirname(__FILE__).'/files';
-
+		
 		$file = ereg_replace("\"","\\\"",$file);
 		$tmp_file = $this->data_path . '/pdf_'.time();
 
 		copy($file,$tmp_file);
 		// Run a program that converts a PDF to HTML, set environment variable of bin_path
-		$cmd = 'DIR='.$this->data_path.' PDFTOHTMLBIN_DIR='.$indexer_path.' '.$indexer_path.'/pdftohtml '.$tmp_file;
+		$cmd = 'DIR='.$this->data_path.' PDFTOHTMLBIN_DIR='.dirname(SQ_TOOL_PDFTOHTML_PATH).' '.SQ_TOOL_PDFTOHTML_PATH.' '.$tmp_file;
 
 		$output =`$cmd`;
 		unlink($tmp_file);

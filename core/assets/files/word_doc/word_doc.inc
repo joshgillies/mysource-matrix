@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: word_doc.inc,v 1.1 2004/07/09 01:54:28 lwright Exp $
+* $Id: word_doc.inc,v 1.2 2004/09/08 07:20:34 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -110,13 +110,14 @@ class Word_Doc extends File
 		$file = $file_info['path'];
 
 		$indexer_path = dirname(__FILE__).'/files';
-	
+			
 		$file = ereg_replace("\"","\\\"",$file);
 		$tmp_file = $this->data_path . '/doc_'.time();
 		copy($file,$tmp_file);
 
 		// Run a program that converts Word doc to text, set environment variable of bin_path
-		$cmd = 'HOME='.$indexer_path.' '.$indexer_path.'/antiword '.$tmp_file;
+		$cmd = 'HOME='.$indexer_path.' '.SQ_TOOL_ANTIWORD_PATH.' '.$tmp_file;
+		
 		$output =`$cmd`;
 		unlink($tmp_file);
 	
