@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.134 2004/04/21 15:58:19 brobertson Exp $
+* $Id: asset_map.inc,v 1.135 2004/04/21 23:20:24 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -154,9 +154,22 @@ class Asset_Map
 				$classname = 'ComplexAssetMap';
 				$jarname = 'complexassetmap';
 			break;
+
+			$classname = 'AssetMap';
+			$jarname = 'assetmap';
 		}
 		
-		// TODO: <embed> tags for moz and netscape
+		$includes = Array($jarname.'.jar', 'crimson.jar', 'dom.jar', 'sax.jar', 'jaxp-api.jar');
+		$full_includes = Array();
+		
+		foreach ($includes as $include) {
+			$full_includes[] = sq_web_path('lib').'/asset_map/java/'.$include;
+		}
+		
+		$includes_str = implode(',', $full_includes);
+		
+		$width = 250;
+		$height = 600;
 
 		// we want to use current_url()
 		require_once SQ_INCLUDE_PATH."/general.inc";
@@ -168,17 +181,23 @@ class Asset_Map
 		<object id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" classid="CLSID:8AD9C840-044E-11d1-B3E9-00805F499D93">
 			<param name="code" value="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" />
 			<param name="level" value="5" />
-			<param name="archive" value="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" />
+			<param name="archive" value="<?php echo $includes_str ?>" />
 			<param name="BASE_URL" value="<?php echo clean_url(current_url(true, true)); ?>" />
 			<param name="BACKEND_SUFFIX" value="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" />
 			
 			<comment>
-				<embed id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" type="application/x-java-applet;version=1.4" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo sq_web_path('lib'); ?>/asset_map/java/<?php echo $jarname; ?>.jar, <?php echo sq_web_path('lib'); ?>/asset_map/java/crimson.jar" BASE_URL="<?php echo clean_url(current_url(true, true)); ?>"
+				<embed id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" type="application/x-java-applet;version=1.3" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo $includes_str ?>" BASE_URL="<?php echo clean_url(current_url(true, true)); ?>"
 				 BACKEND_SUFFIX="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" MAYSCRIPT>
 					<noembed>
 						Java is not installed on your system
 					</noembed>
 				</embed>
+				<appet id="sq_asset_map" width="<?php echo $width; ?>" height="<?php echo $height; ?>" type="application/x-java-applet;version=1.3" code="net/squiz/matrix/<?php echo $jarname; ?>/<?php echo $classname; ?>.class" archive="<?php echo $includes_str ?>" BASE_URL="<?php echo clean_url(current_url(true, true)); ?>"
+				 BACKEND_SUFFIX="<?php echo SQ_CONF_BACKEND_SUFFIX; ?>" MAYSCRIPT>
+					<noembed>
+						Java is not installed on your system
+					</noembed>
+				</applet>
 			</comment>
 		</object>
 		<?php
@@ -299,6 +318,10 @@ class Asset_Map
 		$output = new XML_Tree();
 
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
+		
+		$current_user = $GLOBALS['SQ_SYSTEM']->am->getAsset(5);
+		
+		
 		$user_attrs = Array(
 			'assetid'   => $current_user->id,
 			'type_code' => $current_user->type(),
@@ -351,8 +374,7 @@ class Asset_Map
 		echo $out;
 
 	}//end _doInitialise()
-
-
+	
 
 	function _getChildAssets(&$root, $assetid)
 	{
@@ -515,6 +537,8 @@ class Asset_Map
 		
 
 		$this->_send($output);
+		
+		error_log($output->get());
 
 	}//end _getAssets()
 
@@ -607,24 +631,25 @@ class Asset_Map
 			case 'add' :
 			
 				$attr = $input->root->attributes;
-				if (empty($attr['parent_assetid']) || !isset($attr['pos']) || empty($attr['type_code'])) {
+				$parent_assetid = rawurldecode($attr['parent_assetid']);
+				if (empty($parent_assetid) || !isset($attr['pos']) || empty($attr['type_code'])) {
 					$this->_error('Parent Asset Id, Relative Position and Asset Type need to be passed');
 					return;
 				}
 
-				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($attr['parent_assetid'], '', true);
+				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parent_assetid, '', true);
 				if (is_null($parent)) {
-					$this->_error('Parent Asset #'.$attr['parent_assetid'].' not found');
+					$this->_error('Parent Asset #'.$parent_assetid.' not found');
 					return;
 				}
 
-				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($attr['parent_assetid'], true)) {
+				if ($GLOBALS['SQ_SYSTEM']->am->assetInTrash($parent_assetid, true)) {
 					$this->_error('Unable to Add Asset, new parent (Asset #"'.$attr['parent_assetid'].'") is in the trash');
 					return;
 				}
 
 				$trash_folder = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('trash_folder');
-				if ($trash_folder->id == $attr['parent_assetid']) {
+				if ($trash_folder->id == $parent_assetid) {
 					$this->_error('Unable to Add Asset, unable add an asset to the trash');
 					return;
 				}
@@ -657,7 +682,7 @@ class Asset_Map
 						.'&am_section=add_asset'
 						.'&type_code='.rawurlencode($attr['type_code'])
 						.'&link_type='.rawurlencode($use_link_type)
-						.'&parent_assetid='.rawurlencode($attr['parent_assetid'])
+						.'&parent_assetid='.$parent_assetid
 						.'&pos='.rawurlencode($attr['pos']);
 				$frame = 'sq_main';
 				
