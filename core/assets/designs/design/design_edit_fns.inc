@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: design_edit_fns.inc,v 1.51 2003/10/21 23:42:14 gsherwood Exp $
+* $Id: design_edit_fns.inc,v 1.52 2003/10/22 06:09:30 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	{
 		if ($asset->writeAccess('parsing')) {
 			file_upload($prefix.'_parse_file');
+			return true;
 		}
+		return false;
 
 	}// end paintParseFile()
 
@@ -135,8 +137,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 				check_box($prefix.'_reparse');
 				echo ' Yes, manually reparse the existing file';
 			}
+			return true;
 		}
-		return true;
+		return false;
 
 	}// end paintReparseFile()
 
@@ -186,9 +189,11 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$str = file_to_string($parse_file);
 			text_area($prefix.'_new_parse_file', str_replace("\t", "    ", $str), 120, 30);
+			return true;
 		} else {
 			echo 'You do not have access to edit the parse file for "'.$asset->name.'"';
 		}
+		return false;
 
 	}// end paintEditParseFile()
 
