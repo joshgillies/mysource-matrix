@@ -40,7 +40,8 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 	function process(&$html)
 	{
 		$tidy = Array();
-		$command = "/bin/echo ".escapeshellarg($html)." | /home/gsherwood/mysource_matrix/tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml";
+		$path_to_tidy = '/home/gsherwood/mysource_matrix/tidy';
+		$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
 		exec($command, $tidy);
 		$html = implode("\n", $tidy);
 
