@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.297 2004/05/27 23:41:59 gsherwood Exp $
+* $Id: asset.inc,v 1.298 2004/06/04 06:29:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -445,7 +445,7 @@ class Asset extends MySource_Object
 		$result = $db->getRow($sql.$where, null, DB_FETCHMODE_ORDERED);
 		assert_valid_db_result($result);
 		
-		assert_not_null($result, '', false, true);
+		assert_not_null($result);
 
 		list($this->id,
 			 $type_code,
