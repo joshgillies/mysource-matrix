@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_asset.inc,v 1.1 2004/02/27 05:32:34 mmcintyre Exp $
+* $Id: hipo_job_clone_asset.inc,v 1.2 2004/03/02 04:24:03 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -270,9 +270,6 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 	/**
 	* Set up vars and database information that the HIPO will need to run
 	*
-	* The Update Lookups HIPO also checks that there is an assetid to start this action on
-	* (the top most parent). It also saves a list of assets to perform this action on in the running vars.
-	*
 	* @param string	$source_code_name	the code name of another job that wants to use this job
 	*
 	* @return string	returns the code_name for the new job
@@ -312,7 +309,7 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 
 
 	/**
-	* Release the locks we acquired while setting the permissions
+	* Release the locks that were acquired while cloning assets
 	*
 	* @param array()	&$step_data	a reference to the array of information about the current step
 	* @param string		$prefix		prefix for form vars
@@ -570,7 +567,9 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 			
 				if ($parent_treeid == '' || isset($clone_treeids[$parent_treeid])) {
 					
-					if (!isset($tree[$treeid])) continue;
+					if (!isset($tree[$treeid])) {
+						continue;
+					}
 
 					$clone_treeids[$treeid] = $_POST['clone_treeids'][$treeid];
 					$dependant_treeid = $tree[$treeid]['dependant_treeid'];
@@ -618,6 +617,9 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 
 		// create a unique list of assets to acquire locks for
 		$this->_running_vars['assets'] = Array();
+
+		// add the original clone to the assets list
+		$this->_running_vars['assets'][] = Array('assetid' => $this->_running_vars['assetid'], 'type_code' => $this->_running_vars['type_code']);
 		
 		foreach ($map as $assetid => $type_code) {
 			$this->_running_vars['assets'][] = Array('assetid' => $assetid, 'type_code' => $type_code);
@@ -649,8 +651,11 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 	*/ 
 	function processCloneAssets(&$step_data, $prefix)
 	{
-		$treeid = $this->_running_vars['effective_clone_treeids'][$this->_running_vars['clone']['pos']]['treeid'];
-		$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
+		$treeid = '';
+		if (isset($this->_running_vars['effective_clone_treeids'][$this->_running_vars['clone']['pos']]['treeid'])) {
+			$treeid = $this->_running_vars['effective_clone_treeids'][$this->_running_vars['clone']['pos']]['treeid'];
+			$parent_treeid = substr($treeid, 0, -SQ_CONF_ASSET_TREE_SIZE);
+		}		
 
 		// if there is a blank treeid then we must be duplicating the initialising asset
 		$link    = Array('asset' => null, 'link_type' => 0, 'sort_order' => -1, 'value' => '');
@@ -728,7 +733,14 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 			}// end if
 
 			$step_data['message'] = 'Cloning '.$orig->name;
-			$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($orig, $link, $this->_running_vars['clone']['asset_map'], Array('all'), true);
+			$components = Array(
+				'attributes',
+				'metadata_schemas',
+				'metadata',
+				'workflow',
+				'permissions',
+			);
+			$clone = &$GLOBALS['SQ_SYSTEM']->am->cloneAsset($orig, $link, $this->_running_vars['clone']['asset_map'], $components, true);
 		
 			if (is_null($clone)) {
 				trigger_error('Clone failed for Asset Id #'.$assetid, E_USER_WARNING);
@@ -753,7 +765,11 @@ class HIPO_Job_Clone_Asset extends HIPO_Job
 		}// end if
 
 		if ($old_linkid) $this->_running_vars['clone']['link_map'][] = $old_linkid;
-		$step_data['percent_done'] = ($this->_running_vars['clone']['pos'] + 1) / count($this->_running_vars['effective_clone_treeids']) * 100;
+
+		
+		if (count($this->_running_vars['effective_clone_treeids']) != 0) {
+			$step_data['percent_done'] = ($this->_running_vars['clone']['pos'] + 1) / count($this->_running_vars['effective_clone_treeids']) * 100;
+		}
 		
 		if (count($this->_running_vars['effective_clone_treeids']) > $this->_running_vars['clone']['pos'] + 1) {
 			$this->_running_vars['clone']['pos']++;
