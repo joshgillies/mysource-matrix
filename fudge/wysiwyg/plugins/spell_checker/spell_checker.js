@@ -1,4 +1,10 @@
-// htmlArea v3.0 - Copyright (c) 2002 interactivetools.com, inc.
+/**
+* Copyright (c) 2002 - interactivetools.com, inc.
+* Portions Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: spell_checker.js,v 1.3 2003/10/10 00:51:45 gsherwood Exp $
+* $Name: not supported by cvs2svn $
+*/
 
 
 var is_ie = window.opener.HTMLArea.is_ie;
@@ -53,6 +59,7 @@ function replaceWord(el) {
 	el.innerHTML = replacement;
 };
 
+
 /**
 * capsture the replace button on a click
 */
@@ -73,6 +80,7 @@ function replaceClicked() {
 	wrongWords[index].onclick();
 	return false;
 };
+
 
 /**
 * capture the replace all button on a click

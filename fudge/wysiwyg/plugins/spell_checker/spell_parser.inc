@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: spell_parser.inc,v 1.2 2003/10/09 05:54:04 gsherwood Exp $
+* $Id: spell_parser.inc,v 1.3 2003/10/10 00:51:45 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,10 +67,10 @@ Class Spell_Parser {
 	* @access public
 	* @return string
 	*/
-	function spellCallback($match = Array())
+	function spellCallback($match)
 	{
 		$check_spelling = true;
-		$word = $match[0];
+		$word = $match[1];
 
 		// ignore numbers
 		if ($check_spelling) {
@@ -85,7 +85,7 @@ Class Spell_Parser {
 		}
 
 		if (!$check_spelling || pspell_check($GLOBALS['spellerid'], $word)) {
-			return utf8_encode(htmlspecialchars($word));
+			return utf8_encode(htmlspecialchars($match[1]).$match[2]);
 		} else {
 			$retv = '<span class="HA-spellcheck-error">'.$word.'</span>';
 			$suggestions = pspell_suggest($GLOBALS['spellerid'], $word);
@@ -99,7 +99,7 @@ Class Spell_Parser {
 				}
 			}
 
-			$retv .= '</span>';
+			$retv .= '</span>'.$match[2];
 			return $retv;
 		}
 
@@ -117,7 +117,7 @@ Class Spell_Parser {
 	*/
 	function dataHandler(&$parser, $data)
 	{
-		echo preg_replace_callback('/\w+/',Array($this, 'spellCallback'), $data);
+		echo preg_replace_callback('|(\w+)([^;\w])|',Array($this, 'spellCallback'), $data);
 		return true;
 
 	}// end dataHandler()

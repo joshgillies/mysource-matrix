@@ -1,4 +1,10 @@
 <?php
+/**
+* Copyright (c) 2003 - Squiz Pty Ltd
+*
+* $Id: spell_checker.php,v 1.3 2003/10/10 00:51:45 gsherwood Exp $
+* $Name: not supported by cvs2svn $
+*/
 
 header("Content-type: text/html; charset: utf-8");
 
@@ -63,10 +69,11 @@ header("Content-type: text/html; charset: utf-8");
 			}
 		}
 
-		if ($_REQUEST['init'] == 1) {
-			// don't put spaces between these as js is going to tokenize them up
-			echo "<div id='HA-spellcheck-dictionaries'>en,en_GB,en_US,en_CA,sv_SE,de_DE,pt_PT</div>";
-		}
+		# leave out the dicrtionary support for the moment
+		#if ($_REQUEST['init'] == 1) {
+		#	// don't put spaces between these as js is going to tokenize them up
+		#	echo "<div id='HA-spellcheck-dictionaries'>en,en_GB,en_US,en_CA,sv_SE,de_DE,pt_PT</div>";
+		#}
 
 		if (get_magic_quotes_gpc()) {
 			foreach ($_REQUEST as $k => $v) {
@@ -87,14 +94,6 @@ header("Content-type: text/html; charset: utf-8");
 		$parser->set_data_handler('dataHandler');
 
 		$string_to_parse = stripslashes(utf8_decode($_POST['content']));
-
-		// replace HTML entities (&nbp; etc) with their equivalents (' ' etc)
-		$trans_tbl = get_html_translation_table(HTML_SPECIALCHARS);
-		$trans_tbl = array_flip($trans_tbl);
-		// special case for &nbsp; because the charter returned is not recognised and ends up
-		// being displayed as a question mark (?)
-		$trans_tbl['&nbsp;'] = ' ';
-		$string_to_parse = strtr($string_to_parse, $trans_tbl);
 
 		$parser->parse($string_to_parse);
 		
