@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_management_folder.inc,v 1.12 2005/01/28 04:18:22 gsherwood Exp $
+* $Id: system_management_folder.inc,v 1.13 2005/03/02 21:15:17 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -82,7 +82,7 @@ class System_Management_Folder extends Folder
 
 
 	/**
-	* returns FALSE always because we don;t want to be able to clone the system management folder
+	* returns FALSE always because we don't want to be able to clone the system management folder
 	*
 	* @return boolean
 	* @access public
