@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.89 2004/09/27 01:54:57 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.90 2004/09/27 02:07:13 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.89 $ - 1.0
+* @version $Revision: 1.90 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -599,7 +599,7 @@ class Page_Calendar extends Page_Asset_Listing
 				}
 			?>
 				</tr>
-				<tr style="height: <?php echo $row_height; ?>ex">
+				<tr>
 			<?php
 
 			// print blank days if necessrary
@@ -617,7 +617,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes, $column_width*0.99);
 				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 				$occupied_class = ($contents) ? 'eventDate' : '';
-				echo '<td class="date '.$occupied_class.' '.$weekend_class.'">';
+				echo '<td class="date '.$occupied_class.' '.$weekend_class.'" style="height: <?php echo $row_height; ?>ex">';
 				if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">';
 				echo $current_day;
 				if ($contents && $drill_down_view) echo '</a><br />';
@@ -922,7 +922,7 @@ class Page_Calendar extends Page_Asset_Listing
 		list($current_hour, $current_mins) = explode(':', $this->attr('day_starts_at'));
 		list($end_hour, $end_mins) = explode(':', $this->attr('day_ends_at'));
 		?>
-			<tr style="height: <?php echo $partition_height; ?>ex;">
+			<tr>
 			<th class="timeLabel">*</th>
 			<?php
 			// print the "all day" events
@@ -955,7 +955,7 @@ class Page_Calendar extends Page_Asset_Listing
 		<?php
 		while (($current_hour*60 + $current_mins) < ($end_hour*60 + $end_mins)) {
 			?>
-			<tr style="height: <?php echo $partition_height; ?>ex;">
+			<tr>
 				<th class="timeLabel"><?php echo sprintf('%d:%02d', (($current_hour % 12 == 0) ? 12 : ($current_hour % 12)), $current_mins); ?></th>
 			<?php
 			foreach ($column_names as $id => $name) {
@@ -963,7 +963,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$time_key = sprintf('%02d:%02d', $current_hour, $current_mins);
 				if ($show_event_links && is_iso8601($id)) $_REQUEST['SQ_CALENDAR_DATE'] = $id;
 				?>
-				<td <?php echo $mouseup_code; ?> id="<?php echo $id.'_'.$time_key ?>" <?php echo empty($col_events[$time_key]) ? 'onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : ''; ?> style="<?php echo $width; ?>ex">
+				<td <?php echo $mouseup_code; ?> id="<?php echo $id.'_'.$time_key ?>" <?php echo empty($col_events[$time_key]) ? 'onclick="addEvent(\''.$_REQUEST['SQ_CALENDAR_DATE'].'\', \''.$time_key.'\');"' : ''; ?> style="<?php echo $width; ?>ex; height: <?php echo $partition_height; ?>ex;">
 				<?php
 					echo $this->_getTimedTableCellContents($col_events[$time_key], $show_event_links, $root_nodes, ($current_mins + ($current_hour * 60)), $partition_time, $partition_height, $div_width, $mousedown_code);
 				?>
