@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_clone_assets.inc,v 1.6 2005/02/24 10:15:27 brobertson Exp $
+* $Id: hipo_job_clone_assets.inc,v 1.7 2005/03/23 00:22:34 ndvries Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * @author  Nathan de Vries <ndvries@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.6 $
+* @version $Revision: 1.7 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -310,7 +310,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 
 		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = 'Releasing Locks on '.$asset_info[$assetid]['name'].' and it\'s dependant assets';
+		$step_data['message'] = 'Releasing Locks on '.$asset_info[$assetid]['name'].' and its dependant assets';
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 
@@ -503,7 +503,7 @@ class HIPO_Job_Clone_Assets extends HIPO_Job
 		$map = $this->_running_vars['remap'][$assetid];
 		unset($this->_running_vars['remap'][$assetid]);
 
-		$step_data['message'] = 'Remapping "'.$asset->name.'" and it\'s dependant assets.';
+		$step_data['message'] = 'Remapping "'.$asset->name.'" and its dependant assets.';
 
 		if (!$asset->remapAssetids($map)) {
 			trigger_error('Remap failed for asset, Asset Id #'.$asset->id, E_USER_WARNING);

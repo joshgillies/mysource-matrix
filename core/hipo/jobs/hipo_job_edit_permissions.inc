@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.40 2005/03/02 21:17:47 brobertson Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.41 2005/03/23 00:22:34 ndvries Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.40 $
+* @version $Revision: 1.41 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -398,7 +398,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = 'Releasing Lock on '.$asset_info[$assetid]['name'].' and it\'s dependant assets';
+		$step_data['message'] = 'Releasing Lock on '.$asset_info[$assetid]['name'].' and its dependant assets';
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 

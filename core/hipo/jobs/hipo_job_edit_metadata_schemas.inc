@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_metadata_schemas.inc,v 1.26 2005/03/02 21:17:47 brobertson Exp $
+* $Id: hipo_job_edit_metadata_schemas.inc,v 1.27 2005/03/23 00:22:34 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to edit metadata schemas
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.26 $
+* @version $Revision: 1.27 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -392,7 +392,7 @@ class HIPO_Job_Edit_Metadata_Schemas extends HIPO_Job
 
 		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = 'Releasing Lock on '.$asset_info[$assetid]['name'].' and it\'s dependant assets';
+		$step_data['message'] = 'Releasing Lock on '.$asset_info[$assetid]['name'].' and its dependant assets';
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 

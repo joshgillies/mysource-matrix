@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_tool_search_replace.inc,v 1.3 2005/03/20 22:34:51 dheppell Exp $
+* $Id: hipo_job_tool_search_replace.inc,v 1.4 2005/03/23 00:22:35 ndvries Exp $
 *
 */
 
@@ -28,7 +28,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * Highly Intensive Processing Object (HIPO) to perform search and replace on asset attributes and metadata
 *
 * @author  Nathan de Vries <ndvries@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -305,7 +305,7 @@ class HIPO_Job_Tool_Search_Replace extends HIPO_Job
 
 		$asset_info = &$GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($assetid));
 
-		$step_data['message'] = 'Releasing Locks on '.$asset_info[$assetid]['name'].' and it\'s dependant assets';
+		$step_data['message'] = 'Releasing Locks on '.$asset_info[$assetid]['name'].' and its dependant assets';
 
 		$GLOBALS['SQ_SYSTEM']->am->releaseLock($assetid, 'all');
 
