@@ -734,9 +734,11 @@ class Asset_Manager extends Resolve_Object
 
 
 	/**
-	* Returns a reference to a system asset (ie Root Folder, Root User or Trash Folder)
+	* Returns a reference to a system asset
 	*
-	* @param string	$name	the name of the system asset ('root_folder', 'root_user', 'trash_folder')
+	* @param string	$name	the name of the system asset 
+	*						'root_folder', 'trash_folder', 'system_user_group',
+	*						'root_user', 'designs_folder', 'login_design', 'cron_manager'
 	*
 	* @access public
 	*/
