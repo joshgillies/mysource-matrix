@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email.inc,v 1.18 2004/06/15 23:24:41 lwright Exp $
+* $Id: form_email.inc,v 1.19 2004/06/21 12:57:28 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -86,7 +86,7 @@ class Form_Email extends Form
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @see Asset::_getName()
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{

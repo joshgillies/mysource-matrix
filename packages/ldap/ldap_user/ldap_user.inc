@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_user.inc,v 1.2 2004/03/19 05:09:44 gsherwood Exp $
+* $Id: ldap_user.inc,v 1.3 2004/06/21 13:01:12 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -114,7 +114,7 @@ class Ldap_User extends Backend_User
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @return string
-	* @access public
+	* @access private
 	* @see Asset::_getName()
 	*/
 	function _getName($short_name=false)

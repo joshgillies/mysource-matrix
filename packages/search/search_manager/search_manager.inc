@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_manager.inc,v 1.8 2004/06/15 01:04:18 gsherwood Exp $
+* $Id: search_manager.inc,v 1.9 2004/06/21 13:01:48 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.8 $ - 0.1
+* @version $Revision: 1.9 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,7 +90,7 @@ class Search_Manager extends Asset
 	* @param bool	$short_name	whether or not we are after the shortname or the full name
 	*
 	* @see Asset::_getName()
-	* @access public
+	* @access private
 	*/
 	function _getName($short_name=false)
 	{
