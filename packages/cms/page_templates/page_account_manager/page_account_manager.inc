@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_account_manager.inc,v 1.15 2004/09/03 18:04:57 brobertson Exp $
+* $Id: page_account_manager.inc,v 1.16 2004/09/06 16:47:37 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -160,7 +160,7 @@ class Page_Account_Manager extends Page_Asset_Builder
 		parent::printBody();
 
 		$current_user = &$GLOBALS['SQ_SYSTEM']->user;
-		if (!is_null($current_user) && !SQ_IN_BACKEND) {
+		if (!is_null($current_user) && !SQ_IN_LIMBO) {
 			// this person is logged in - so redirect them to limbo where they can edit their details
 			$redirect_url = strip_url(current_url()).'/'.SQ_CONF_LIMBO_SUFFIX.'/?ignore_frames=1';
 			?>
