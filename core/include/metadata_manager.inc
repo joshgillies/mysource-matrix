@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.57 2004/12/21 18:18:21 brobertson Exp $
+* $Id: metadata_manager.inc,v 1.58 2004/12/23 14:37:14 brobertson Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_FUDGE_PATH.'/general/text.inc';
 *    Manages the editing of metadata in the system
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.57 $
+* @version $Revision: 1.58 $
 * @package MySource_Matrix
 */
 class Metadata_Manager extends MySource_Object
@@ -440,7 +440,7 @@ class Metadata_Manager extends MySource_Object
 	* @param array(string)	$field_names	an array of field names
 	*
 	* @access public
-	* @return array(field => value)
+	* @return array()		Array(field_name => value)
 	*/
 	function getMetadataFieldValues($assetid, $field_names=Array())
 	{
@@ -493,7 +493,7 @@ class Metadata_Manager extends MySource_Object
 					continue;
 				}
 
-				$field_values[$field->id] = $field->getMetadataValue($asset, (isset($values[$field->id]) ? $values[$field->id]['value'] : null));
+				$field_values[$field->name] = $field->getMetadataValue($asset, (isset($values[$field->id]) ? $values[$field->id]['value'] : null));
 
 			}// end for
 
@@ -958,7 +958,6 @@ class Metadata_Manager extends MySource_Object
 
 			if (!$generating) {
 				eval(ob_get_contents());
-				$s = ob_get_contents();
 				ob_end_clean();
 			}
 		}
