@@ -18,13 +18,14 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_email_edit_fns.inc,v 1.28 2004/07/15 07:02:48 lwright Exp $
+* $Id: form_email_edit_fns.inc,v 1.29 2004/08/04 23:42:19 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once dirname(__FILE__).'/../form/form_edit_fns.inc';
 require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
+require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 
 /**
 * Form_Email_Edit_Fns
@@ -102,8 +103,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 
 		$o->openField('Submissions');
 
-		$from_value = explode('-',substr($from_value,0,10));
-		$to_value = explode('-',substr($to_value,0,10));
+		$from_value = explode('-',iso8601_date_component($from_value));
+		$to_value = explode('-',iso8601_date_component($to_value));
 
 		// convert the ISO times to time stamps but manually because we can't be sure
 		// about the h:m:s section of the above times
@@ -398,8 +399,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : '---------- --:--:--';
 		$to_value = isset($_POST[$prefix.'_export_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_tovalue']['m'],$_POST[$prefix.'_export_tovalue']['d'],$_POST[$prefix.'_export_tovalue']['y'])) : '---------- --:--:--';
 
-		$from_value = explode('-',substr($from_value,0,10));
-		$to_value = explode('-',substr($to_value,0,10));
+		$from_value = explode('-',iso8601_date_component($from_value));
+		$to_value = explode('-',iso8601_date_component($to_value));
 
 		// convert the ISO times to time stamps but manually because we can't be sure
 		// about the h:m:s section of the above times
@@ -505,8 +506,8 @@ class Form_Email_Edit_Fns extends Form_Edit_Fns
 		$from_value = isset($_POST[$prefix.'_export_fromvalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_fromvalue']['m'],$_POST[$prefix.'_export_fromvalue']['d'],$_POST[$prefix.'_export_fromvalue']['y'])) : '---------- --:--:--';
 		$to_value = isset($_POST[$prefix.'_export_tovalue']) ? ts_iso8601(mktime(0,0,0,$_POST[$prefix.'_export_tovalue']['m'],$_POST[$prefix.'_export_tovalue']['d'],$_POST[$prefix.'_export_tovalue']['y'])) : '---------- --:--:--';
 
-		$from_value = explode('-',substr($from_value,0,10));
-		$to_value = explode('-',substr($to_value,0,10));
+		$from_value = explode('-',iso8601_date_component($from_value));
+		$to_value = explode('-',iso8601_date_component($to_value));
 
 		// convert the ISO times to time stamps but manually because we can't be sure
 		// about the h:m:s section of the above times

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.46 2004/07/08 02:43:33 lwright Exp $
+* $Id: form.inc,v 1.47 2004/08/04 23:42:19 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1168,11 +1168,12 @@ class Form extends Bridge
 	*/
 	function logSubmission($log_id = null)
 	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		if (!$this->attr('log')) return false;
 
 		$contents = $this->getXML();
 
-		$submission_date = substr(ts_iso8601(time()),0,10);
+		$submission_date = iso8601_date_component(ts_iso8601(time()));
 
 		$log_path = $this->data_path.'/submission_logs';		// log path
 

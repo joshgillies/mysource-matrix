@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.15 2004/08/04 04:23:49 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.16 2004/08/04 23:42:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.15 $ - 1.0
+* @version $Revision: 1.16 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -236,16 +236,18 @@ class Calendar_Event_Recurring extends Calendar_Event
 	* @access public
 	*/
 	function hasOccurrenceOnDate($date=null) {
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		
 		if (is_null($date)) $date = date('Y-m-d'); 
 		
 		$seconds_per_day = 60 * 60 * 24;
 		$start_date = $this->getStartDate();
 		$start_ts = strtotime($start_date);
-		$query_ts = strtotime(substr($date,0,10));	
+
+		$query_ts = strtotime(iso8601_date_component($date));	
 		$stop_ts = iso8601_ts($this->attr('stop_date'));
 		if (($stop_ts != -1) && ($query_ts > ($stop_ts + $seconds_per_day))) return false;
 		if ($query_ts < $start_ts) return false;
-
 		
 		$freq_type = substr($this->attr('frequency'), 0, 3);
 		if ($interval = substr($this->attr('frequency'), 3)) $freq_type .= 'x';
