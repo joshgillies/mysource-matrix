@@ -18,11 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cache_manager.inc,v 1.3 2004/11/18 05:00:41 gsherwood Exp $
+* $Id: cache_manager.inc,v 1.4 2004/11/25 10:41:58 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
-
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once 'Cache.php';
 
 /**
@@ -31,11 +31,10 @@ require_once 'Cache.php';
 * Manages the configuration for Caching of assets
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
-* @version $Revision: 1.3 $ - 0.1
+* @version $Revision: 1.4 $ - 0.1
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-
 class Cache_Manager extends Asset
 {
 
