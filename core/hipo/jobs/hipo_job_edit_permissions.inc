@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.32 2004/12/03 15:33:23 brobertson Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.32.2.1 2005/04/04 04:31:03 ndvries Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -122,7 +122,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function paintConfig(&$o, $class)
 	{
 		$write_access = $this->writeAccess();
-		
+
 		// metadata regeneration threshhold HIPO config entry
 		$o->openField('Permissions Threshold');
 
@@ -175,7 +175,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	* Returns the current Threshold.
 	*
 	* Returns a value that represents the total percentage that this hipo would run in freestyle mode in its current state.
-	* 
+	*
 	* @return float
 	* @access public
 	*/
@@ -184,13 +184,13 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 		if (SQ_HIPO_PERMISSIONS_THRESHOLD == 0) return 0;
 		if (!isset($this->_running_vars['todo_assetids'])) return 0;
 		return ((count($this->_running_vars['todo_assetids']) / (SQ_HIPO_PERMISSIONS_THRESHOLD / count($this->_running_vars['permission_changes']))) * 100);
-	
+
 	}//end getThreshold()
 
 
 	/**
 	* Performs the duties of this hipo, without showing any output on the frontend.
-	* 
+	*
 	* @return boolean
 	* @access public
 	*/
@@ -232,7 +232,15 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 
 		// we have a valid asset, so get all the assets below this one in the tree(s) so we know what assets
 		// we will be affecting out list of permission changes on
-		$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+
+		$child_assets = Array();
+
+		if (isset($this->_running_vars['dependants_only'])) {
+			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getDependantChildren($asset->id);
+		} else {
+			$child_assets = $GLOBALS['SQ_SYSTEM']->am->getChildren($asset->id);
+		}
+
 		$child_assets[$asset->id] = $asset->type();
 		$this->_running_vars['todo_assetids'] = $child_assets;
 		$this->_running_vars['done_assetids'] = Array();
@@ -270,7 +278,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 							// use getAssetInfo() because deleting permissions
 							// held by deleted users (eg.LDAP) will cause an assertion
 							$user_info = $GLOBALS['SQ_SYSTEM']->am->getAssetInfo(Array($set_data['userid']), 'user', false);
-	
+
 							// check that the passed userid is a user or user_group
 							if (empty($user_info)) {
 								$user_name = 'Unknown User';
