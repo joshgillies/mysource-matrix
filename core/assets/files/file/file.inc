@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: file.inc,v 1.53 2003/10/15 09:19:43 brobertson Exp $
+* $Id: file.inc,v 1.54 2003/10/21 04:09:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -359,9 +359,6 @@ class File extends Asset
 			return parent::updateLookups();
 		}
 
-		$existing = $this->_getExistingFile();
-		$web_path = $this->getWebDataPath().'/'.$existing['filename'];
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -394,6 +391,15 @@ class File extends Asset
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
+
+		$existing = $this->_getExistingFile();
+		if (!isset($existing['filename'])) {
+			// there is no filename, so commit the removal of the current web paths and return
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return true;
+		}
+
+		$web_path = $this->getWebDataPath().'/'.$existing['filename'];
 
 		// Basically what we are going to do here is find all our parents that are sites
 		// and take the system root urls that are closest to these site urls and tack on __data/... bit
