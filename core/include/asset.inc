@@ -967,32 +967,38 @@ class Asset extends Resolve_Object
 							$statii[SQ_STATUS_EDITING] = 'Safe Edit';
 							if ($this->adminAccess(Array(), false)) {
 								$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
+								$statii[SQ_STATUS_ARCHIVED] = 'Archive';
 							}
-						} else if ($this->status == SQ_STATUS_LIVE) {
-							$statii[SQ_STATUS_LIVE] = 'Cancel Review';
-							$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
-							$statii[SQ_STATUS_EDITING] = 'Safe Edit';
 						} else {
-							if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
-								// no direct workflows are set and
-								// no inherited workflows are set
-								// so anyone with admin access can publish
-								if ($this->adminAccess(Array(), false)) {
-									$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-								}
-							} else {
-								// so we have workflows, but none of them are running
-								// so lets see what will happen if this user approves
-								// to determine if they can live edit
-								$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
-								if ($status == 'complete') {
-									$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
-								} else {
-									$statii[SQ_STATUS_LIVE] = 'Make Live';
-								}
+							if ($this->status == SQ_STATUS_UNDER_CONSTRUCTION) {
+								if ($this->adminAccess(Array(), false)) $statii[SQ_STATUS_ARCHIVED] = 'Archive';
 							}
-							if ($this->status == SQ_STATUS_EDITING && $this->writeAccess(Array(), false)) {
-								$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Cancel Safe Edit';
+
+							if ($this->status == SQ_STATUS_ARCHIVED) {
+								// if an asset is archived it can only be made under construction
+								if ($this->adminAccess(Array(), false)) $statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Place Under Construction';
+							} else {
+								if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
+									// no direct workflows are set and
+									// no inherited workflows are set
+									// so anyone with admin access can publish
+									if ($this->adminAccess(Array(), false)) {
+										$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+									}
+								} else {
+									// so we have workflows, but none of them are running
+									// so lets see what will happen if this user approves
+									// to determine if they can live edit
+									$status = $wfm->testPublish($GLOBALS['SQ_SYSTEM']->currentUserId());
+									if ($status == 'complete') {
+										$statii[SQ_STATUS_LIVE] = 'Approve and Make Live';
+									} else {
+										$statii[SQ_STATUS_LIVE] = 'Make Live';
+									}
+								}
+								if ($this->status == SQ_STATUS_EDITING && $this->writeAccess(Array(), false)) {
+									$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Cancel Safe Edit';
+								}
 							}
 						}
 					}
@@ -1328,6 +1334,15 @@ class Asset extends Resolve_Object
 				}
 				break;
 
+			case SQ_STATUS_ARCHIVED :
+				// to archive an asset you need to have admin access
+				// and this asset must be under construction or live
+				if (!$this->adminAccess(Array(), false)) return false;
+				if ($this->status == SQ_STATUS_UNDER_CONSTRUCTION || $this->status == SQ_STATUS_LIVE) {
+					$this->status = SQ_STATUS_ARCHIVED;
+				}
+				break;
+
 			case SQ_STATUS_UNDER_CONSTRUCTION :
 				if (($this->status & SQ_STATUS_ALL_APPROVED) && $this->adminAccess(Array(), false)) {
 					// rejecting changes to an approved asset
@@ -1349,8 +1364,10 @@ class Asset extends Resolve_Object
 
 					$publishers = $wfm->whoCanPublish();
 
-					if ($this->status == SQ_STATUS_LIVE && $this->adminAccess(Array(), false)) {
-						// if we are currently live, we can set to
+					if (($this->status == SQ_STATUS_LIVE || $this->status == SQ_STATUS_ARCHIVED) && 
+						 $this->adminAccess(Array(), false)) {
+
+						// if we are currently live or archived, we can set to
 						// under construction without problems
 						$this->status = SQ_STATUS_UNDER_CONSTRUCTION;
 						$this->clearSystemVersion();
@@ -4248,6 +4265,9 @@ class Asset extends Resolve_Object
 
 			// if we are in a state of total approval, no editing allowed
 			if ($this->status & SQ_STATUS_ALL_APPROVED) return false;
+
+			// if the asset is archived, no editing allowed
+			if ($this->status & SQ_STATUS_ARCHIVED) return false;
 
 			// effective access is only valid for the current user
 			if (!empty($assetids)) return false;

@@ -106,6 +106,9 @@ function getStatusDescription($status)
 		case SQ_STATUS_UNDER_CONSTRUCTION :
 			$description = 'Under Construction';
 			break;
+		case SQ_STATUS_ARCHIVED :
+			$description = 'Archived';
+			break;
 	}
 
 	return $description;
