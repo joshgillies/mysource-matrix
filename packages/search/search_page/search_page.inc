@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page.inc,v 1.50 2004/08/20 03:41:35 gsherwood Exp $
+* $Id: search_page.inc,v 1.51 2004/08/25 02:16:05 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc'; // for the meda
 * @author  Dominic Wong <dwong@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
 * @author  Dmitri Iarandine <diarandine@squiz.net>
-* @version $Revision: 1.50 $ - 1.0
+* @version $Revision: 1.51 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -689,7 +689,7 @@ class Search_Page extends Page
 						$replacement = 'Previous';
 						break;
 					}
-					$replacement .= '<a href="'.$this->getURL().'?mode=results&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries.'">Previous</a>';
+					$replacement = '<a href="'.$this->getURL().'?mode=results&current_result_page='.($current_result_page - 1).'&results_per_page='.$results_per_page.$queries.'">Previous</a>';
 				break;
 
 				case 'next_result_page_link':
@@ -697,7 +697,7 @@ class Search_Page extends Page
 						$replacement = 'Next';
 						break;
 					}
-					$replacement .= '<a href="'.$this->getURL().'?mode=results&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries.'">Next</a>';
+					$replacement = '<a href="'.$this->getURL().'?mode=results&current_result_page='.($current_result_page + 1).'&results_per_page='.$results_per_page.$queries.'">Next</a>';
 				break;
 
 				case 'initial_layout':
