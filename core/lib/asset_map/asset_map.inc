@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.112.2.4 2004/03/09 13:13:46 brobertson Exp $
+* $Id: asset_map.inc,v 1.112.2.5 2004/03/10 16:06:51 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -56,6 +56,7 @@ class Asset_Map
 		return sprintf('%04d', (9999 - (int) $id)).$assetid; 
 	}
 	function replaceSystemid($id) { 
+		if ($id == "1") return "0'1";
 		$systemid = (9999 - (int) substr($id, 0, 4));
 		return $systemid."'".substr($id, 4); 
 	}
@@ -571,7 +572,10 @@ error_log($asset_node->attributes['assetid'].' --> '.$assetid."\n", 3, SQ_DATA_P
 					return;
 				}
 
+$x = $attr['parent_assetid'];
 $attr['parent_assetid'] = $this->replaceSystemid($attr['parent_assetid']);
+error_log($x.' --> '.$attr['parent_assetid']."\n", 3, SQ_DATA_PATH.'/assetmap.log');
+
 
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($attr['parent_assetid'], '', true);
 				if (is_null($parent)) {
