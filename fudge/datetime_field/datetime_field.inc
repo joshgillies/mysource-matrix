@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: datetime_field.inc,v 1.20 2004/09/14 00:12:53 gsherwood Exp $
+* $Id: datetime_field.inc,v 1.21 2004/09/21 07:05:36 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -464,7 +464,7 @@ class DateTime_Field {
 					// Okay lets try to parse this thing.
 					$v = Array('y'=>-1,'m'=>-1,'d'=>-1,'h'=>-1,'i'=>-1,'s'=>-1);
 					// Dates
-					if (preg_match("/([0-9]{1,2})[\-\/]([0-9]{1,2})[\-\/]([0-9]{2,4})([^0-9].*|)$/",$value,$matches)) {
+					if (preg_match("/([0-9]{1,2})[\-\/]([0-9]{1,2})[\-\/]([0-9]{2,4})([^0-9].*|)$/",$value,$matches) && ($matches[0] == $value)) {
 						// Probably "dd/mm/yyyy" or "mm/dd/yyyy"
 						if ($this->getParam('standard') == 'us') {
 							$v['d'] = $matches[2]; $v['m'] = $matches[1];
@@ -472,6 +472,12 @@ class DateTime_Field {
 							$v['d'] = $matches[1]; $v['m'] = $matches[2];
 						}
 						$v['y'] = $matches[3];
+						if (strlen($v['y']) <= 2) $v['y'] += (($v['y']<20)?2000:1900);
+					} else if (preg_match("/([0-9]{2,4})[\-\/]([0-9]{1,2})[\-\/]([0-9]{1,2})([^0-9].*|)$/",$value,$matches) && ($matches[0] == $value)) {
+						// Probably a ISO 8601 / ISO 9075 [SQL92/99] date ("yyyy-mm-dd")
+						$v['d'] = $matches[3];
+						$v['m'] = $matches[2];
+						$v['y'] = $matches[1];
 						if (strlen($v['y']) <= 2) $v['y'] += (($v['y']<20)?2000:1900);
 					} else if (preg_match("/([0-9]{1,2})[\-\/]([0-9]{1,2})([^0-9].*|)$/",$value,$matches)) {
 						// Probably dd/mm
@@ -544,6 +550,19 @@ class DateTime_Field {
 
 		$value_str = $this->unitsArraytoStr($value);
 		if ($value_str != '---------- --:--:--') {
+			// compare the 
+			$value_substr = Array(
+								'y' =>  0, 'm' =>  5, 'd' =>  8,
+								'h' => 11, 'i' => 14, 's' => 17);
+								
+			foreach(array_keys($value_substr) as $value_part) {
+				$substr_length = ($value_part == 'y') ? 4 : 2;
+				if($value[$value_part] == -1) {
+					$min = substr_replace($min, str_repeat('-', $substr_length), $value_substr[$value_part], $substr_length);
+					$max = substr_replace($max, str_repeat('-', $substr_length), $value_substr[$value_part], $substr_length);
+				}
+			}
+			
 			if (strcmp($value_str, $min) < 0) {
 				$value = $this->strToUnitsArray($min);
 			} else if (strcmp($value_str, $max) > 0) {
