@@ -317,6 +317,8 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processPageSelection($page_type, &$asset, $prefix) 
 	{
+		if (!isset($_POST[$prefix.'_'.$page_type])) return false;
+
 		$link = $asset->getSpecialPageLink($page_type);
 		// if there has been no change, then there is nothing to do
 		if (!empty($link) && $link['minorid'] == $_POST[$prefix.'_'.$page_type]) {
