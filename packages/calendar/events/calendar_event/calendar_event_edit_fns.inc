@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_edit_fns.inc,v 1.4 2004/07/26 04:01:01 lwright Exp $
+* $Id: calendar_event_edit_fns.inc,v 1.5 2004/07/26 04:37:03 tbarrett Exp $
 * $prefix:  $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -145,6 +145,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 				}
 			}
 			function enableTimeField(name) {
+				alert("name is " + name);
 				document.getElementById(name+'Hours').disabled=0;
 				document.getElementById(name+'Minutes').disabled=0;
 				document.getElementById(name+'IsPm').disabled=0;
@@ -285,8 +286,6 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 	/**
 	* Process the start/end date/time entry form fields for a single event
 	*
-	* Process the start/end date/time entry form fields for a single event, validating all values.
-	*
 	* @param object Calendar_Event		&$asset			the event to process the form for
 	* @param object Backend_Outputter	&$o				the outputter class (not used here)
 	* @param string						$prefix			the prefix to use for form field names
@@ -371,7 +370,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 
 	
 	/**
-	* Print form fields for choosing a date.
+	* Print form fields for choosing a date
 	*
 	* @param string	$prefix			the prefix to use on field names
 	* @param string $onchange_code	extra javascript code to put in the fields' onchange attributes
@@ -404,7 +403,7 @@ class Calendar_Event_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
-	* Print form fields for choosing a date, including a checkbox to enable or disable the time fields.
+	* Print form fields for choosing a date, including a checkbox to enable or disable the time fields
 	*
 	* @param string	$prefix			the prefix to use on field names
 	* @param string $onchange_code	extra javascript code to put in the fields' onchange attributes
