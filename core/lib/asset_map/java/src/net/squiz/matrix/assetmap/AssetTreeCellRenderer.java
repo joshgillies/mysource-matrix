@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: AssetTreeCellRenderer.java,v 1.1 2004/06/29 01:23:36 mmcintyre Exp $
+* $Id: AssetTreeCellRenderer.java,v 1.2 2004/06/30 04:12:33 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -83,12 +83,17 @@ public class AssetTreeCellRenderer extends JLabel implements TreeCellRenderer
 			setToolTipText(asset.getType().getName()  + " [" + asset.getId() + "]");
 			
 			if (!(asset.isAccessible())) {
-				setIcon(MatrixToolkit.getCompoundIconForTypeCode(
-						asset.getType().getTypeCode(), MatrixToolkit.NOT_ACCESSIBLE_ICON));
+				CompoundIcon icon = (CompoundIcon) MatrixToolkit.getCompoundIconForTypeCode(
+						asset.getType().getTypeCode(), MatrixToolkit.NOT_ACCESSIBLE_ICON);
+				setIcon(icon);
+				setDisabledIcon(icon.getDisabledIcon());
 			} else if (asset.isType2Link()) {
-				setIcon(MatrixToolkit.getCompoundIconForTypeCode(
-						asset.getType().getTypeCode(), MatrixToolkit.TYPE_2_ICON));
+				CompoundIcon icon = (CompoundIcon) MatrixToolkit.getCompoundIconForTypeCode(
+						asset.getType().getTypeCode(), MatrixToolkit.TYPE_2_ICON);
+				setIcon(icon);
+				setDisabledIcon(icon.getDisabledIcon());
 			} else {
+				setDisabledIcon(null);
 				setIcon(asset.getType().getIcon());
 			}
 			

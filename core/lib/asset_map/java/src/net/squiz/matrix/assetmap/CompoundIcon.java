@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: CompoundIcon.java,v 1.1 2004/06/29 01:24:31 mmcintyre Exp $
+* $Id: CompoundIcon.java,v 1.2 2004/06/30 04:12:33 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -103,6 +103,16 @@ public class CompoundIcon implements Icon, SwingConstants {
 		return false;
 	}
   
+	/**
+	 * Returns an icon that can be used in disabled JLabels
+	 * 
+	 * @return the disabled icon
+	 */
+	public Icon getDisabledIcon() {
+		Image grayImage = GrayFilter.createDisabledImage(((ImageIcon) mainIcon).getImage());
+        return new ImageIcon(grayImage);
+	}
+	
 	/**
 	 * Returns the icon with of the compond icon, wchich is the sam with 
 	 * as the main icon
