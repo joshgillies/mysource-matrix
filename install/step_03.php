@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: step_03.php,v 1.26 2003/12/16 12:21:49 brobertson Exp $
+* $Id: step_03.php,v 1.27 2003/12/18 04:34:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -130,21 +130,14 @@ if (is_null($root_folder)) {
 	// the install process without permission denied errors
 	$GLOBALS['SQ_SYSTEM']->setCurrentUser($root_user);
 
-	$GLOBALS['SQ_SYSTEM']->am->acquireLock($root_folder->id,				'all');
-	$GLOBALS['SQ_SYSTEM']->am->acquireLock($trash_folder->id,				'all');
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($system_management_folder->id,	'all');
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($system_user_group->id,			'all');
-	$GLOBALS['SQ_SYSTEM']->am->acquireLock($root_user->id,					'all');
 
 
 	$cron_manager = &create_cron_manager();
-	$GLOBALS['SQ_SYSTEM']->am->acquireLock($cron_manager->id, 'all');
-
 	$search_manager = &create_search_manager();
-	$GLOBALS['SQ_SYSTEM']->am->acquireLock($search_manager->id, 'all');
-
 	$layout_manager = &create_layout_manager();
-	$GLOBALS['SQ_SYSTEM']->am->acquireLock($layout_manager->id, 'all');
+	$remap_manager = &create_remap_manager();
 
 	$designs_folder = &create_designs_folder();
 	$GLOBALS['SQ_SYSTEM']->am->acquireLock($designs_folder->id, 'all');
@@ -157,13 +150,8 @@ if (is_null($root_folder)) {
 
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($login_design->id,		'all');
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($designs_folder->id,		'all');
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($search_manager->id,		'all');
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($layout_manager->id,		'all');
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($cron_manager->id,		'all');
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_user->id,			'all');
 	$GLOBALS['SQ_SYSTEM']->am->releaseLock($system_user_group->id,	'all');
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($trash_folder->id,		'all');
-	$GLOBALS['SQ_SYSTEM']->am->releaseLock($root_folder->id,		'all');
+
 
 	$sql = 'SELECT MAX(assetid) FROM sq_asset';
 	$num_assets = $db->getOne($sql);
@@ -445,6 +433,28 @@ function &create_layout_manager()
 	return $layout_manager;
 
 }//end create_layout_manager()
+
+
+/**
+* Create the remap manager system asset
+*
+* @return object Remap_Manager
+* @access public
+*/
+function &create_remap_manager()
+{
+	$system_management_folder = &$GLOBALS['SQ_SYSTEM']->am->getAsset($GLOBALS['SQ_SYSTEM_ASSETS']['system_management_folder']);
+	
+	$GLOBALS['SQ_SYSTEM']->am->includeAsset('remap_manager');
+	$remap_manager = new Remap_Manager();
+	$remap_manager_link = Array('asset' => &$system_management_folder, 'link_type' => SQ_LINK_TYPE_1, 'exclusive' => 1);
+	if (!$remap_manager->create($remap_manager_link)) trigger_error('Remap Manager NOT CREATED', E_USER_ERROR);
+	pre_echo('Remap Manager Asset Id : '.$remap_manager->id);
+	
+	$GLOBALS['SQ_SYSTEM_ASSETS']['remap_manager'] = $remap_manager->id;
+	return $remap_manager;
+
+}//end create_remap_manager()
 
 
 /**

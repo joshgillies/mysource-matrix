@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.6 2003/12/02 05:44:21 gsherwood Exp $
+* $Id: system_asset_config.inc,v 1.7 2003/12/18 04:34:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -54,6 +54,7 @@ class System_Asset_Config extends Config
 									'login_design',
 									'search_manager',
 									'layout_manager',
+									'remap_manager',
 								);
 
 
