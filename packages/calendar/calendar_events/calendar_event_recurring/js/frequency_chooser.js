@@ -67,6 +67,11 @@ function updateValues(prefix) {
 	setSpanContents(prefix + '_week_day_3', weekDays[d.getDay()]);
 	setSpanContents(prefix + '_week_day_4', weekDays[d.getDay()]);
 
+	if ((d.getDay() == 0) || (d.getDay() == 6))
+		document.getElementById(prefix + '_frequency_type_DWD').disabled = 1;
+	else
+		document.getElementById(prefix + '_frequency_type_DWD').disabled = 0;
+
 	setSpanContents(prefix + '_month_date_ord', ordinalSuffix(d.getDate()));
 	if (d.getDate() > 28)
 		document.getElementById(prefix + '_month_date_warning').style.display = 'inline';
