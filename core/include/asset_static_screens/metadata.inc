@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata.inc,v 1.5 2004/07/05 03:43:13 lwright Exp $
+* $Id: metadata.inc,v 1.6 2004/08/09 09:30:01 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -49,7 +49,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 
 	$prefix = $owner->getPrefix();
 	$print_commit_button = false;
-	
+
 	$mm = &$GLOBALS['SQ_SYSTEM']->getMetadataManager();
 	$schemas = $mm->getSchemas($owner->id, true);
 
@@ -61,7 +61,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 	}
 
 	for($i = 0; $i < count($root->children); $i++) {
-		
+
 		$section = &$root->children[$i];
 
 		// only do this if we are not painting a layout
@@ -90,7 +90,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 
 					$o->openField('');
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_current'])) ob_start();
-						
+
 						if (empty($schemas)) {
 							echo 'There are no metadata schemas applied to this asset.';
 						} else if (file_exists($owner->data_path.'/metadata.php')) {
@@ -100,7 +100,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 							ob_end_clean();
 							echo nl2br(htmlspecialchars(trim($metadata)));
 						}
-						
+
 						// if there is a keyword replacement for this, add it to the replacements
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_current'])) {
 							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['metadata_current']] = ob_get_contents();
@@ -116,18 +116,24 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 
 					$o->openField('&nbsp;');
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_instructions'])) ob_start();
-						
+
 						?>
 						You can use keyword replacements in place of values for metadata fields on this page.<br/>
 						For a complete list of available keyword replacements <a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keywords.html', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520'); return false;">click here</a>
-						<?php $sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager');
-							if (!empty($sm)) { ?>
+						<?php
+						$sm =& $GLOBALS['SQ_SYSTEM']->am->getSystemAsset('search_manager', true);
+						if (!empty($sm)) {
+						?>
+							<br/><br/>
+							If indexing is enabled in the Search Manager, you can generate a list of keywords from the index using
+							<a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keyword_extraction.php?assetid=<?php echo $owner->id ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320'); return false;">keyword extraction</a>.
+						<?php
+						}
+						?>
 						<br/><br/>
-						If indexing is enabled in the Search Manager, you can generate a list of keywords from the index using
-		<a href="#" onClick="Javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/metadata_field/popups/keyword_extraction.php?assetid=<?php echo $owner->id ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=320'); return false;">keyword extraction</a>.<?php } ?><br/><br/>
 						<span style="color:#FF0000"> * </span>denotes a required field
 						<?php
-						
+
 						// if there is a keyword replacement for this, add it to the replacements
 						if (!is_null($keywords) && isset($keywords['fields']['metadata_instructions'])) {
 							$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['metadata_instructions']] = ob_get_contents();
@@ -140,7 +146,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 					$o->closeSection();
 
 				break;
-				
+
 				///// METADATA EDITING INTERFACE ////
 
 				case 'metadata_values' :
@@ -148,9 +154,9 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 					if (empty($schemas)) {
 						$o->openField('&nbsp;');
 							if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) ob_start();
-							
+
 							echo 'You must apply one or more schemas before entering metadata values.';
-							
+
 							// if there is a keyword replacement for this, add it to the replacements
 							if (!is_null($keywords) && isset($keywords['fields']['metadata_values'])) {
 								$ei->_tmp['layout_keyword_replacements'][$keywords['fields']['metadata_values']] = ob_get_contents();
@@ -179,7 +185,7 @@ function paintMetadata(&$owner, &$o, &$ei, $keywords=null)
 					}
 
 				break;
-				
+
 			}//end switch
 
 			if ($field->children[1]->name == 'note' && $field->children[1]->content) {
