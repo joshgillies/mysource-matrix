@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.76 2005/01/13 22:30:06 gsherwood Exp $
+* $Id: form.inc,v 1.77 2005/01/17 18:21:13 brobertson Exp $
 *
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 require_once SQ_FUDGE_PATH.'/general/general.inc';
@@ -35,11 +34,12 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.76 $
+* @version $Revision: 1.77 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Form extends Bridge
+register_implementation('form', 'bridge');
+class Form extends Asset
 {
 
 
@@ -71,7 +71,7 @@ class Form extends Bridge
 	function Form($assetid=0)
 	{
 		$this->_ser_attrs = true;
-		$this->Bridge($assetid);
+		$this->Asset($assetid);
 
 	}//end constructor
 
@@ -79,7 +79,7 @@ class Form extends Bridge
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
-	* @param int		$assetid		the asset id to be loaded
+	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
@@ -285,7 +285,6 @@ class Form extends Bridge
 		// now questions
 
 		$entries = $this->getQuestions();
-
 		foreach ($entries as $questionid => $data) {
 			if ($strict_type_code) {
 				if ($data['question_type_code'] == $type_code) {
@@ -340,6 +339,22 @@ class Form extends Bridge
 		return $this->_tmp['getParents'][$assetid];
 
 	}//end getParents()
+
+
+	/**
+	* Returns an array of assetid's + info in the order that they propogate out from THIS BRIDGE'S url
+	*
+	* @param string	$assetid	the id of the last asset in the lineage
+	* @param string	$protocol	the protocol to match -> null means it is ignored
+	* @param string	$url		the urls to check for -> null defaults it to current url
+	*
+	* @return array
+	* @access public
+	*/
+	function getLineageFromURL($assetid, $protocol, $url)
+	{
+		return Array();
+	}//end getLineageFromURL()
 
 
 	/**
@@ -408,7 +423,7 @@ class Form extends Bridge
 	* @access public
 	* @return Array(link)
 	*/
-	function &getQuestions($force=false)
+	function getQuestions($force=false)
 	{
 		return $this->attr('questions');
 
@@ -474,7 +489,7 @@ class Form extends Bridge
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		if ($this->attr('next_questionid') > 0) {
 			$new_key = $this->attr('next_questionid');
 		} else if (empty($questions)) {
@@ -528,7 +543,7 @@ class Form extends Bridge
 		if ($question->_questionid == 0) return false;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 
 		unset($questions[$question->_questionid]);
 
@@ -566,7 +581,7 @@ class Form extends Bridge
 	*/
 	function getQuestionCount()
 	{
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		return count($questions);
 
 	}//end getQuestionCount()
@@ -580,7 +595,7 @@ class Form extends Bridge
 	*/
 	function getQuestionByID($questionid)
 	{
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		return (isset($questions[$questionid])) ? $questions[$questionid] : Array();
 
 	}//end getQuestionByID()
@@ -864,7 +879,7 @@ class Form extends Bridge
 
 		// check to see if the bodycopy attached to this form has any content
 		if ($this->attr('use_bodycopy_main') && $bodycopy && !$bodycopy->isEmpty()) {
-			$questions = &$this->getQuestions();
+			$questions = $this->getQuestions();
 			$sections = &$this->getSections();
 
 			foreach ($questions as $q_id => $question) {
@@ -1095,7 +1110,7 @@ class Form extends Bridge
 	{
 		$this->active_submission->flushErrors();
 
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		foreach (array_keys($questions) as $key) {
 			$question = &$GLOBALS['SQ_SYSTEM']->am->getAsset($this->id.':q'.$key);
 			$question->active_submission =& $this->active_submission;
@@ -1144,7 +1159,7 @@ class Form extends Bridge
 
 			if ($this->attr('show_results')) {
 
-				$questions = &$this->getQuestions();
+				$questions = $this->getQuestions();
 				$sections = &$this->getSections();
 				$replacements = Array();
 
@@ -1360,7 +1375,7 @@ class Form extends Bridge
 	{
 		if (!$this->attr('use_client_side')) return '';
 
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		$sections = &$this->getSections();
 		$code = '';						// blank sheet of code to start with
 
@@ -1490,7 +1505,7 @@ class Form extends Bridge
 		}
 		if (empty($bodycopies)) return;
 
-		$questions = &$this->getQuestions();
+		$questions = $this->getQuestions();
 		$sections = &$this->getSections();
 
 		foreach ($bodycopies as $bodycopy) {
