@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.25 2004/09/01 07:17:25 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.26 2004/09/01 23:41:14 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.25 $ - 1.0
+* @version $Revision: 1.26 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -563,8 +563,9 @@ class Calendar_Event_Recurring extends Calendar_Event
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
 		$keywords['event_frequency'] = Array('value'=> $this->getFriendlyFrequency());
-		$keywords['cancel_link'] = Array('value'=>$this->_getCancelLink());
-		$keywords['modify_link'] = Array('value'=>$this->_getModifyLink());
+		$write_access = $this->writeAccess('');
+		$keywords['cancel_link'] = Array('value'=>($write_access ? $this->_getCancelLink() : ''));
+		$keywords['modify_link'] = Array('value'=>($write_access ? $this->_getModifyLink() : ''));
 		if ($descriptions) {
 			$keywords['event_frequency']['description'] = 'The frequency with which this event recurs';
 			$keywords['cancel_link']['description'] = 'A link to cancel this instance of the event';
@@ -712,9 +713,15 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*
 	* @param string		$date	the date of the occurrence to cancel (YYYY-MM-DD)
 	* @param string		$reason	text to put in the description field of the cancellation event
+	*
+	* @return object|boolean	The Cancellation asset, or false on failure
 	*/
 	function addCancellation($date, $reason)
 	{
+		if (!$this->writeAccess('')) {
+			trigger_error('You don\'t have sufficient access to create a cancellation for this event', SQ_USER_WARNING);
+			return false;
+		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_cancellation');
 		$cancellation_event = new Calendar_Event_Cancellation();
 		$cancellation_event->setAttrValue('start_date', $date.' --:--:--');
@@ -734,6 +741,10 @@ class Calendar_Event_Recurring extends Calendar_Event
 	*/
 	function addModification($date, $description)
 	{
+		if (!$this->writeAccess('')) {
+			trigger_error('You don\'t have sufficient access to create a modification for this event', SQ_USER_WARNING);
+			return false;
+		}
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('calendar_event_modification');
 		$modification_event = new Calendar_Event_Modification();
 		$modification_event->setAttrValue('start_date', $date.' --:--:--');
@@ -743,6 +754,7 @@ class Calendar_Event_Recurring extends Calendar_Event
 		return $modification_event;
 
 	}// end addModification()
+
 
 	/*
 	* Cache the calendar data's stuff
