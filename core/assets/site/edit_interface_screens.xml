@@ -1,4 +1,3 @@
 <screens>
-	<screen code_name="details" display_name="Edit Details" icon="create" default="1" />
-	<screen code_name="paths"   display_name="Web Paths"    icon="web" />
+	<screen code_name="paths" display_name="Web Paths" icon="web" />
 </screens>
