@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_tidy.inc,v 1.17 2004/05/21 06:52:56 lwright Exp $
+* $Id: html_tidy.inc,v 1.18 2004/06/24 00:20:08 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -117,21 +117,23 @@ class HTML_Tidy extends Wysiwyg_Plugin {
 
 		// tidy the HTML produced using the HTMLTidy program
 		$path_to_tidy = '/usr/local/bin/tidy';
-
-		if (is_executable($path_to_tidy)) {
-			$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
-
-			// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
-			// so HTMLTidy doesnt strip them out
-			if (!empty($this->_new_inline_tags)) $command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
-			
-			$tidy = Array();
-			exec($command, $tidy);
-			if (empty($tidy)) return;
-			$html = implode("\n", $tidy);
-			unset($tidy);
+		
+		// is_executable doesn't exist on windows pre 5.0.0
+		if (function_exists('is_executable')) {
+			if (is_executable($path_to_tidy)) {
+				$command = "/bin/echo ".escapeshellarg($html)." | $path_to_tidy -iq --show-body-only y --show-errors 0 --show-warnings 0 --wrap 0 -asxml --word-2000 1 --force-output 1";
+	
+				// add any inline tags that other plugins may use (possibly for encapsulating plugin specific data)
+				// so HTMLTidy doesnt strip them out
+				if (!empty($this->_new_inline_tags)) $command .= ' --new-inline-tags "'.implode('","',$this->_new_inline_tags).'"';
+				
+				$tidy = Array();
+				exec($command, $tidy);
+				if (empty($tidy)) return;
+				$html = implode("\n", $tidy);
+				unset($tidy);
+			}
 		}
-
 
 		  ////////////////////
 		 //  MS WORD CRAP  //
