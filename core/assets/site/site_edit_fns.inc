@@ -190,17 +190,18 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	function paintDesign(&$asset, &$o, $prefix) 
 	{
 
-		$design_link = $asset->getLink(SQ_LINK_USES, 'design');
+		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false);
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
-		$designs = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design');
+		$designs = $GLOBALS['SQ_SYSTEM']->am->getTypeAssetids('design', false, true);
 		$contents = Array();
-		foreach($designs as $id) {
-			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id, 'design', true);
+		foreach($designs as $id => $type_code) {
+			$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($id, $type_code, true);
 			if (is_null($design)) continue;
-			$contents[$design->id] = $design->name;
+			$contents[$design->id] = $design->name.' :: '.$design->id;
 		}
 
+		asort($contents);
 		combo_box($prefix.'_designid', $contents, false, $designid);
 
 	}// end paintDesign
@@ -216,7 +217,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 	*/
 	function processDesign(&$asset, $prefix) 
 	{
-		$design_link = $asset->getLink(SQ_LINK_USES, 'design');
+		$design_link = $asset->getLink(SQ_LINK_USES, 'design', false);
 		$designid = (is_null($design_link)) ? 0 : $design_link['minorid'];
 
 		$new_designid = $_POST[$prefix.'_designid'];
@@ -229,7 +230,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 			if (!$asset->deleteLink($design_link['linkid'])) return false;
 		}
 
-		$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid, 'design');
+		$design = &$GLOBALS['SQ_SYSTEM']->am->getAsset($new_designid);
 		if (is_null($design)) return false;
 
 		if ($asset->createLink($design, SQ_LINK_USES)) {
