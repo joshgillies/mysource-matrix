@@ -762,53 +762,58 @@ class Asset_Edit_Interface extends Resolve_Object
 							$o->openField($display_name);
 							
 							if ($owner->adminAccess()) {
-								$db = &$GLOBALS['SQ_SYSTEM']->db;
-								$am =& $GLOBALS['SQ_SYSTEM']->am;
-								$user = &$am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
-
-								$types = array_merge($am->getTypeAncestors($owner->type()), $am->getTypeDescendants($owner->type()));
-								for($i = 0; $i < count($types); $i++) $types[$i] = $db->quote($types[$i]);
-								$type_code_cond = 'IN ('.implode(', ', $types).')';
-
-								$user_types = $am->getTypeAncestors($user->type());
-								$user_types[] = $user->type();
-								for($i = 0; $i < count($user_types); $i++) $user_types[$i] = $db->quote($user_types[$i]);
-								$user_type_cond = 'IN ('.implode(', ', $user_types).')';
-								
-								$sql = 'SELECT type_code
-										FROM sq_asset_type
-										WHERE allowed_access '.$user_type_cond.'
-										  AND type_code '.$type_code_cond;
-
-								$result = $db->getCol($sql);
-								if (DB::isError($result)) {
-									trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-									return Array();
-								}
-
-								if (empty($result)) {
-									echo '<i>No types are available to morph this asset into</i>';
+								if ($owner->status != SQ_STATUS_UNDER_CONSTRUCTION) {
+									// cant morph an asset if it is not under construction
+									echo '<i>An asset can only be morphed while Under Construction</i>';
 								} else {
-									$morph_types = Array('' => '');
-									foreach ($result as $type_code) {
-										$code_name = str_replace('_', ' ', $type_code);
-										$code_name = ucwords($code_name);
-										$morph_types[$type_code] = $code_name;
+									$db = &$GLOBALS['SQ_SYSTEM']->db;
+									$am =& $GLOBALS['SQ_SYSTEM']->am;
+									$user = &$am->getAsset($GLOBALS['SQ_SYSTEM']->currentUserid());
+
+									$types = array_merge($am->getTypeAncestors($owner->type()), $am->getTypeDescendants($owner->type()));
+									for($i = 0; $i < count($types); $i++) $types[$i] = $db->quote($types[$i]);
+									$type_code_cond = 'IN ('.implode(', ', $types).')';
+
+									$user_types = $am->getTypeAncestors($user->type());
+									$user_types[] = $user->type();
+									for($i = 0; $i < count($user_types); $i++) $user_types[$i] = $db->quote($user_types[$i]);
+									$user_type_cond = 'IN ('.implode(', ', $user_types).')';
+									
+									$sql = 'SELECT type_code
+											FROM sq_asset_type
+											WHERE allowed_access '.$user_type_cond.'
+											  AND type_code '.$type_code_cond;
+
+									$result = $db->getCol($sql);
+									if (DB::isError($result)) {
+										trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
+										return Array();
 									}
-									combo_box($prefix.'_morph_new_type', $morph_types, false, '');
-									?>
-									<table border="0">
-										<tr>
-											<td class="sq-backend-data">To change the type of this asset, enter the 15 character string you see below into the box supplied, then press the Commit button</td>
-										</tr>
-										<tr>
-											<td valign="top"><?php security_key(15, 20, 2); ?></td>
-										</tr>
-										<tr>
-											<td class="sq-backend-data"><i>Can't read the security key? <a href="#" onClick="Javascript: document.location = '<?php echo $GLOBALS['HTTP_SERVER_VARS']['REQUEST_URI']?>'; return false;">Click here to get a new key</a>.</i></td>
-										</tr>
-									</table>
-									<?php
+
+									if (empty($result)) {
+										echo '<i>No types are available to morph this asset into</i>';
+									} else {
+										$morph_types = Array('' => '');
+										foreach ($result as $type_code) {
+											$code_name = str_replace('_', ' ', $type_code);
+											$code_name = ucwords($code_name);
+											$morph_types[$type_code] = $code_name;
+										}
+										combo_box($prefix.'_morph_new_type', $morph_types, false, '');
+										?>
+										<table border="0">
+											<tr>
+												<td class="sq-backend-data">To change the type of this asset, enter the 15 character string you see below into the box supplied, then press the Commit button</td>
+											</tr>
+											<tr>
+												<td valign="top"><?php security_key(15, 20, 2); ?></td>
+											</tr>
+											<tr>
+												<td class="sq-backend-data"><i>Can't read the security key? <a href="#" onClick="Javascript: document.location = '<?php echo $GLOBALS['HTTP_SERVER_VARS']['REQUEST_URI']?>'; return false;">Click here to get a new key</a>.</i></td>
+											</tr>
+										</table>
+										<?php
+									}
 								}
 							} else {
 								echo '<i>You do not have access to morph this asset</i>';
@@ -878,7 +883,7 @@ class Asset_Edit_Interface extends Resolve_Object
 
 
 		//// MORPHING ////
-		if ($owner->adminAccess()) {
+		if ($owner->adminAccess() && $owner->status == SQ_STATUS_UNDER_CONSTRUCTION) {
 			if (isset($_POST[$prefix.'_morph_new_type']) && !empty($_POST[$prefix.'_morph_new_type'])) {
 				// check that the security key was entered correctly
 				if (validate_security_key()) {
