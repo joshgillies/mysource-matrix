@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_recipient.xml,v 1.8 2004/05/19 23:42:29 lwright Exp $
+* $Id: edit_interface_screen_recipient.xml,v 1.9 2004/05/20 00:52:49 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -47,7 +47,7 @@
 		</field>
 		<field attribute="receipt_emails_format">
 			<display_name>Receipt Emails</display_name>
-			<note>Note that the validation email will always be sent to the address entered in the e-mail field specified above. You can use the 'To' address to specify additional email address that the notification should be additionally sent to. You may use the following keywords in any of the above fields:&lt;br /&gt;
+			<note>Note that the receipt will always be sent to the address entered in the e-mail field specified above. You can use the 'To' address to specify additional email addresses that the receipt should also be sent to. You may use the following keywords in any of the above fields:&lt;br /&gt;
 			&lt;ul&gt;
 			&lt;li&gt;%form_info% - a list of form information including the asset id, name and URL of the form, and the name and asset id of the site&lt;/li&gt;
 			&lt;li&gt;%form_summary% - a list of responses received from this submission&lt;/li&gt;
