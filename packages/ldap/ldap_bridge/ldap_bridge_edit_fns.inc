@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.12 2005/01/16 22:00:13 gsherwood Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.13 2005/01/17 18:48:18 brobertson Exp $
 *
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
+require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 
 /**
 * LDAP_Bridge_Edit_Fns
@@ -32,11 +31,11 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
-class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
+class LDAP_Bridge_Edit_Fns extends Asset_Edit_Fns
 {
 
 
@@ -46,7 +45,7 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 	*/
 	function LDAP_Bridge_Edit_Fns()
 	{
-		$this->Bridge_Edit_Fns();
+		$this->Asset_Edit_Fns();
 
 		$this->static_screens = Array(	'details'		=> Array(
 															'name'			=> 'Details',

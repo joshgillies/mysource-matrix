@@ -18,12 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.23 2005/01/15 16:44:37 brobertson Exp $
+* $Id: ldap_bridge.inc,v 1.24 2005/01/17 18:48:18 brobertson Exp $
 *
 */
 
-
-require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge.inc';
+require_once SQ_INCLUDE_PATH.'/asset.inc';
 require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 
 /**
@@ -33,11 +32,12 @@ require_once SQ_FUDGE_PATH.'/ldap/ldap.inc';
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage ldap
 */
-class LDAP_Bridge extends Bridge
+register_implementation('ldap_bridge', 'bridge');
+class LDAP_Bridge extends Asset
 {
 
 	/**
@@ -72,7 +72,7 @@ class LDAP_Bridge extends Bridge
 	function LDAP_Bridge($assetid=0)
 	{
 		$this->_ser_attrs = true;
-		$this->Bridge($assetid);
+		$this->Asset($assetid);
 
 	}//end constructor
 
@@ -106,7 +106,7 @@ class LDAP_Bridge extends Bridge
 	/**
 	* Returns a reference to the asset represented by the passed assetid
 	*
-	* @param int		$assetid		the asset id to be loaded
+	* @param int		$shadowid		the shadow part asset id to be loaded (i.e part after the ':')
 	* @param string		$type_code		if this exists then this object is used to
 	*									load the asset, if not then the DB is queried
 	*									to find out the asset type
