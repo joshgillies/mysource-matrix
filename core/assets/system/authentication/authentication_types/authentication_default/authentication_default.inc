@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: authentication_default.inc,v 1.1 2004/02/06 03:09:53 gsherwood Exp $
+* $Id: authentication_default.inc,v 1.2 2004/09/29 01:51:41 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -68,44 +68,38 @@ class Authentication_Default extends Authentication
 	*/
 	function &authenticateUser($username, $password)
 	{
-		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$where = 'a.type_code IN (~SQ0~)
+		$sql   = 'SELECT a.assetid, a.type_code
+				  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a, '.SQ_TABLE_PREFIX.'asset_attribute at, '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av ';
+		$where = 'a.type_code IN (
+								SELECT type_code
+								FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
+								WHERE inherited_type_code = '.$db->quote('user').'
+								)
 				  AND at.name         = '.$db->quote('username').'
 				  AND at.attributeid  = av.attributeid
 				  AND av.assetid      = a.assetid
 				  AND av.custom_value = '.$db->quote($username);
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'a');
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'av');
-		$sql = 'SELECT a.assetid, a.type_code
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a, '.SQ_TABLE_PREFIX.'asset_attribute at, '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value av
-				'.$where;
 
-		$subs = Array( 'SELECT type_code
-						FROM '.SQ_TABLE_PREFIX.'asset_type_inherited
-						WHERE inherited_type_code = '.$db->quote('user')
-						);
+		$result = $db->getRow($sql.$where);
+		assert_valid_db_result($result);
 
-		$sql = db_extras_subquery($db, $sql, $subs);
-
-		$result = $db->getRow($sql);
-		if (DB::isError($result)) trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
-
-		if (!$result['assetid']) return $null = null;
-
-		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
-		
-		if (is_null($user)) {
-			// no user was found with that username
-		} else if (!$user->comparePassword($password)) {
-			// a user was found, but the wrong password was supplied
-			$this->_registerInvalidLogin($user);
-		} else {
-			// user found with username and password supplied
-			unset($_SESSION['user_login_attempts']);
-			return $user;
+		if ($result['assetid']) {
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($result['assetid']);
+			
+			if (is_null($user)) {
+				// no user was found with that username
+			} else if (!$user->comparePassword($password)) {
+				// a user was found, but the wrong password was supplied
+				$this->_registerInvalidLogin($user);
+			} else {
+				// user found with username and password supplied
+				unset($_SESSION['user_login_attempts']);
+				return $user;
+			}
 		}
 
 		// need this because of return by reference
