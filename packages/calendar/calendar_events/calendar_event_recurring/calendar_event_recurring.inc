@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_recurring.inc,v 1.12 2004/08/02 07:07:21 tbarrett Exp $
+* $Id: calendar_event_recurring.inc,v 1.13 2004/08/03 00:59:00 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once SQ_FUDGE_PATH.'/datetime_field/datetime_field.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @euthor  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.12 $ - 1.0
+* @version $Revision: 1.13 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -330,19 +330,32 @@ class Calendar_Event_Recurring extends Calendar_Event
 			break;
 
 			case 'MRW':
-				// occurs if date and start_date are the same day of the week 
-				// AND they are in the same week from the end of the month
-				return (date('D', $start_ts) == date('D', $end_ts)) 
-					&& (((int)(days_in_month(substr($start_date, 5, 2), substr($start_date, 0, 4)) - substr($start_date, 8, 2)) / 7) == ((int)(days_in_month(substr($date, 5, 2), substr($date, 0, 4)) - substr($date, 8, 2)) / 7));
+				// occurs if date and start_date are the same day of the week...
+				if (date('D', $start_ts) != date('D', $query_ts)) return false;
+				
+				// ...AND they are in the same week from the end of the month
+				$start_back_week = (int)((days_in_month(date('m', $start_ts), date('Y', $start_ts)) - date('d', $start_ts)) / 7);
+				
+				$query_back_week = (int)((days_in_month(date('m', $query_ts), date('Y', $query_ts)) - date('d', $query_ts)) / 7);
+				
+				return $start_back_week == $query_back_week;
+				
 			break;
 
 			case 'MRWx':
-				// occurs if date and start_date are the same day of the week 
-				// AND they are in the same week from the end of the month
-				// AND the number of months in between start_date and date is a multiple of $interval
-				return (date('D', $start_ts) == date('D', $end_ts)) 
-					&& (((int)(days_in_month(substr($start_date, 5, 2), substr($start_date, 0, 4)) - substr($start_date, 8, 2)) / 7) == ((int)(days_in_month(substr($date, 5, 2), substr($date, 0, 4)) - substr($date, 8, 2)) / 7)) 
-					&& ((((((int)substr($date, 0, 4) - (int)substr($start_date, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start_date, 5, 2)) % $interval) == 0);
+				// occurs if date and start_date are the same day of the week...
+				if (date('D', $start_ts) != date('D', $query_ts)) return false;
+				
+				// ...AND the number of months in between start_date and date is a multiple of $interval...
+				if ((((((int)substr($date, 0, 4) - (int)substr($start_date, 0, 4)) * 12 ) + substr($date, 5, 2) - substr($start_date, 5, 2)) % $interval) != 0) return false;
+				
+				// ...AND they are in the same week from the end of the month
+				$start_back_week = (int)((days_in_month(date('m', $start_ts), date('Y', $start_ts)) - date('d', $start_ts)) / 7);
+				
+				$query_back_week = (int)((days_in_month(date('m', $query_ts), date('Y', $query_ts)) - date('d', $query_ts)) / 7);
+				
+				return $start_back_week == $query_back_week;
+				
 			break;
 		}
 
