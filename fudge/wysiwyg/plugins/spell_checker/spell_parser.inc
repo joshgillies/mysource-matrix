@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: spell_parser.inc,v 1.5 2003/10/24 01:42:01 gsherwood Exp $
+* $Id: spell_parser.inc,v 1.6 2003/11/03 23:13:55 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -145,8 +145,10 @@ Class Spell_Parser {
 	*/
 	function setLanguage($dict='en')
 	{
-		$GLOBALS['spellerid'] = pspell_new($GLOBALS['dict']);
-		return pspell_config_mode($GLOBALS['spellerid'], PSPELL_NORMAL);
+		$pspell_config = pspell_config_create($GLOBALS['dict']);
+		pspell_config_mode($pspell_config, PSPELL_FAST);
+		$GLOBALS['spellerid'] = pspell_new_config($pspell_config);
+		return true;
 
 	}// end setLanguage
 
