@@ -314,6 +314,7 @@ class Design extends Design_Area
 	*/
 	function &getParentDesign()
 	{
+		// a design is its own customisation
 		return $this;
 
 	}//end getParentDesign()
