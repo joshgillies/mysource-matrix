@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.5 2004/02/27 03:30:42 gsherwood Exp $
+* $Id: page_asset_listing_management.inc,v 1.6 2004/06/18 02:02:06 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -157,7 +157,7 @@ class Page_Asset_Listing_Management extends Asset_Management
 
 		return true;
 
-	}//end upgrade()
+	}//end _upgrade()
 
 
 	/**
