@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge_edit_fns.inc,v 1.6 2004/04/02 04:32:46 gsherwood Exp $
+* $Id: ldap_bridge_edit_fns.inc,v 1.7 2004/08/20 06:22:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -165,7 +165,8 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 		$write_access = $asset->writeAccess('attributes');
 
 		$current = $asset->attr('user_attributes');
-		
+		$sort_by = (isset($current['sort_by'])) ? $current['sort_by'] : '';
+
 		// connect through the bridge and find out what type of information
 		// we get back for the users
 		$user = &$asset->getAsset($asset->attr('bind_dn'));
@@ -173,6 +174,16 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 			trigger_error('Failed getting user attributes from LDAP directory', E_USER_WARNING);
 			return;
 		}
+
+		?>
+		<table class="sq-backend-table">
+			<tr>
+				<td class="sq-backend-table-header">LDAP Attribute Name</td>
+				<td class="sq-backend-table-header">Common Name</td>
+				<td class="sq-backend-table-header">Display ?</td>
+				<td class="sq-backend-table-header">Use for Sorting ?</td>
+			</tr>
+		<?php
 
 		$info = $user->getUserData();
 		for ($i = 0; $i < $info['count']; $i++) {
@@ -184,22 +195,42 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 				$show = false;
 				$display_name = (isset($current['hide'][$field_name])) ? $current['hide'][$field_name] : $field_name;
 			}
-			$o->openField($field_name);
-				if ($write_access) {
-					text_box($prefix.'_user_attribute_fields['.$field_name.'][name]', $display_name);
-					echo ' ';
-					check_box($prefix.'_user_attribute_fields['.$field_name.'][show]', 1, $show);
-					echo ' display this attribute';
-				} else {
-					if ($show) {
-						echo 'Being displayed as <i>'.$display_name.'</i>';
+			
+			?>
+			<tr>
+				<td class="sq-backend-table-cell"><b><?php echo $field_name; ?></b></td>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) {
+						text_box($prefix.'_user_attribute_fields['.$field_name.'][name]', $display_name);
 					} else {
-						echo 'Not displayed';
+						echo $display_name;
 					}
-				}
-			$o->closeField();
-		}
+					?>
+				</td>
+				<td class="sq-backend-table-cell">
+					<?php
+					if ($write_access) {
+						check_box($prefix.'_user_attribute_fields['.$field_name.'][show]', 1, $show);
+					} else {
+						echo ($show) ? 'Yes' : '';
+					}
+					?>
+				</td>
+				<td class="sq-backend-table-cell">
+				<?php
+					if ($write_access) {
+						radio_button($prefix.'_sort_by', $field_name, ($field_name == $sort_by));
+					} else {
+						echo ($sort_by == $field_name) ? 'Yes' : '';
+					}
+					?>
+				</td>
+			</tr>
+			<?php
+		}//end for
 		
+		?></table><?php
 
 		return $write_access;
 
@@ -224,6 +255,7 @@ class LDAP_Bridge_Edit_Fns extends Bridge_Edit_Fns
 			$show_hide = (isset($field_data['show']) && $field_data['show']) ? 'show' : 'hide';
 			$user_attributes[$show_hide][$field_name] = $field_data['name'];
 		}
+		$user_attributes['sort_by'] = (isset($_POST[$prefix.'_sort_by'])) ? $_POST[$prefix.'_sort_by'] : '';
 		return $asset->setAttrValue('user_attributes', $user_attributes);
 
 	}//end processUserSetup()

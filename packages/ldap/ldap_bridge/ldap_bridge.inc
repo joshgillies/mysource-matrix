@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: ldap_bridge.inc,v 1.14 2004/08/19 00:15:23 amiller Exp $
+* $Id: ldap_bridge.inc,v 1.15 2004/08/20 06:22:19 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -47,11 +47,11 @@ class LDAP_Bridge extends Bridge
 	* @var array(string => string)
 	*/
 	var $_group_types = Array('organizationalunit' => 'ou',
-				  'group'              => 'cn',
-				  'domain'             => 'dc',
-				  'container'          => 'cn',
-				  'organization'       => 'o'
-				);
+							  'group'              => 'cn',
+							  'domain'             => 'dc',
+							  'container'          => 'cn',
+							  'organization'       => 'o'
+							);
 	
 	/**
 	* An array of objectclass values that represent users in LDAP
@@ -109,7 +109,7 @@ class LDAP_Bridge extends Bridge
 		if (empty($shadowid)) return $asset;
 		
 		$ldap = $this->connectToLdap();
-			$result = $ldap->search($shadowid,'(objectClass=*)', false, false);
+			$result = $ldap->search($shadowid,'(objectClass=*)', null, false, false);
 			if (!$result) return $asset;
 
 			$data = $ldap->getEntries($result);
@@ -162,6 +162,9 @@ class LDAP_Bridge extends Bridge
 	{
 		if (!isset($this->_tmp['getLinks'][$assetid][$side_of_link])) {
 
+			// the attribute mappings to the LDAP schemas
+			$attrs = $this->attr('attributes');
+
 			$ldap = $this->connectToLdap();
 
 			if ($assetid == $this->id) $base_dn = $this->attr('root_dn');
@@ -169,32 +172,31 @@ class LDAP_Bridge extends Bridge
 			
 			$filter = '';
 			foreach ($this->_group_types as $key => $value) {
-				if (empty($filter)) $filter = '(objectClass=' . $key . ')';
-				else $filter = '(|' . $filter . '(objectClass=' . $key . '))';
+				if (empty($filter)) $filter = '(objectClass='.$key.')';
+				else $filter = '(|'.$filter.'(objectClass='.$key.'))';
 			}
 			foreach ($this->_user_types as $key => $value) {
-				if (empty($filter)) $filter = '(objectClass=' . $key . ')';
-				else $filter = '(|' . $filter . '(objectClass=' . $key . '))';
+				if (empty($filter)) $filter = '(objectClass='.$key.')';
+				else $filter = '(|'.$filter.'(objectClass='.$key.'))';
 			}
-			
-			$result = $ldap->search($base_dn,$filter, false);
+
+			$user_attrs = $this->attr('user_attributes');
+			$sort_by = (isset($user_attrs['sort_by'])) ? $user_attrs['sort_by'] : '';
+
+			$result = $ldap->search($base_dn, $filter, $sort_by, false);
 			if (!$result) {
 				$ldap->disconnect();
 				return Array();
 			}
-			
+
 			$entries = $ldap->getEntries($result);
 			if (!$entries['count']) {
 				$ldap->disconnect();
 				return Array();
 			}
-			
 			unset($entries['count']);
 
 			$links = Array();
-
-			// the attribute mappings to the LDAP schemas
-			$attrs = $this->attr('attributes');
 
 			$i = 0;
 			foreach ($entries as $data) {
@@ -243,7 +245,7 @@ class LDAP_Bridge extends Bridge
 
 			$this->_tmp['getLinks'][$assetid][$side_of_link] = $links;
 		}
-		
+
 		return $this->_tmp['getLinks'][$assetid][$side_of_link];
 
 	}//end getLinks()
