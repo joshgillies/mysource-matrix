@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_edit_fns.inc,v 1.5 2004/08/19 23:07:36 tbarrett Exp $
+* $Id: page_calendar_edit_fns.inc,v 1.6 2004/08/19 23:37:16 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,8 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @author  Tom Barrett <tbarrett@squiz.net>
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -50,6 +51,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 
 	}//end Page_Calendar_Edit_Fns()
 
+	
 	/**
 	* Paint the interface for setting the root nodes from which this calendar page draws events
 	*
@@ -105,7 +107,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			?>
 			<tr>
 				<td class="sq-backend-table-cell"><?php asset_finder($prefix.'_root_nodes['.$l.']', 0); ?></td>
-				<td class="sq-backend-table-cell"><?php text_box($prefix.'_node_classes['.$l.']', $details['class_name']); ?></td>
+				<td class="sq-backend-table-cell"><?php text_box($prefix.'_node_classes['.$l.']', ''); ?></td>
 			</tr>
 			<?php
 		}
@@ -113,6 +115,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		return true;
 		
 	}//end paintRootNodes()
+	
 	
 	/**
 	* Process the interface for setting the root nodes from which this calendar page draws events
@@ -137,6 +140,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		} else {
 			return false;
 		}
+		
 	}//end processRootNodes()
 
 
@@ -167,6 +171,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			}
 		}
 		return true;
+		
 	}//end paintViewsChooser()
 	
 
@@ -244,6 +249,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 			}
 			$asset->setAttrValue('initial_view', key($enabled_views));
 		}
+		
 	}//end processInitialView()
 
 
@@ -330,6 +336,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		} else {
 			return false;
 		}
+		
 	}//end processDayStart()
 
 
@@ -348,7 +355,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		if ($asset->writeAccess('attributes'))	$this->_paint5MinTimeField($prefix.'_day_end_time', 5, 0, true);
 		else echo $asset->attr('day_ends_at');
 
-	}//end paintDayEnd
+	}//end paintDayEnd()
 
 
 	/**
@@ -369,6 +376,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		} else {
 			return false;
 		}
+		
 	}//end processDayEnd()
 
 
@@ -395,7 +403,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 				<img src="<?php echo sq_web_path('lib'); ?>/web/images/<?php echo $days_to_show[$day_number] ? 'tick' : 'cross'; ?>.gif" width="15" height="15" />
 				<?php
 			}
-			echo "$day_name";
+			echo $day_name;
 		}
 		return true;
 
@@ -423,6 +431,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		} else {
 			return false;
 		}
+		
 	}//end processWeekDays()
 
 
@@ -446,7 +455,7 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 		the design that applies to this page, <i>after</i> the "head" design area tag.</p>
 		<?php
 
-	}
+	}//end paintLookAndFeel()
 	
 	
 	/**
@@ -462,7 +471,8 @@ class Page_Calendar_Edit_Fns extends Page_Asset_Listing_Edit_Fns
 	function processLookAndFeel(&$asset, &$o, $prefix)
 	{
 		return true;
-	}
+		
+	}//end processLookAndFeel()
 	
 }//end class
 
