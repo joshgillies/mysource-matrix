@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_standard.inc,v 1.23 2003/10/15 02:52:24 dwong Exp $
+* $Id: page_standard.inc,v 1.24 2003/10/21 06:25:43 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -174,21 +174,30 @@ class Page_Standard extends Page
 
 	}// end printBody()
 
-
+	/** 
+	* Retrieves a list of key data from this asset (used by the indexing service).
+	* Subclasses override this to give the content they want to make searchable.
+	* 
+	* @access public
+	* @param mixed $component If it is not false, then it is assumed to be the name of a component of this asset (defined and controlled by subclasses).
+	* @return array An array of all the keydata for this asset. Keydata is of the form
+	*				array (
+	*					array (
+	*						'value' => ...,
+	*						'type' => ..., (text, date, number, etc.)
+	*						'component' => ..., (whatever you want, just as long as this asset knows how to deal with it if it needs to)
+	*					), ...
+	*				)
+	*/
 	function &getKeyData($component = false)
 	{
 		$keyData = parent::getKeyData($component);
 
-		if (!$component || $component == 'details') {
-			$name_attribute			=& $this->getAttribute('name');
-			$short_name_attribute	=& $this->getAttribute('short_name');
-			$this->buildKeyData($keyData, $name_attribute->value, 'text', "attribute:". $name_attribute->id, 1 * $name_attribute->weighting);
-			$this->buildKeyData($keyData, $short_name_attribute->value, 'text', "attribute:". $short_name_attribute->id, 1 * $short_name_attribute->weighting);
-		}
+		$weightings = $this->getWeightings();
 
-		if (!$component || $component == 'content') {
+		if (!$component || $component == 'contents') {
 			// get the bodycopy 
-			
+
 			$bodycopy_link = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_2, 'bodycopy', true, null, 'major', '1');
 			if (empty($bodycopy_link)) return;
 
@@ -201,14 +210,13 @@ class Page_Standard extends Page
 			
 			// preprocess
 			$contents = strtolower(strip_tags(html_entity_decode($contents)));
-
 			$word_counts = get_word_counts($contents);
 			foreach ($word_counts as $word => $count) {
-				$this->buildKeyData($keyData, $word, 'text', 'content', $count);
+				$this->buildKeyData($keyData, $word, 'text', 'contents', $count * $weightings['contents']['weighting']);
 			}
 		}
 		return $keyData;
-	}
+	} // end getKeyData()
 
 }//end class
 ?>

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_manager_edit_fns.inc,v 1.5 2003/10/17 01:34:43 brobertson Exp $
+* $Id: search_manager_edit_fns.inc,v 1.6 2003/10/21 06:30:43 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -16,7 +16,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.5 $ - 1.0
+* @version $Revision: 1.6 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -34,129 +34,104 @@ class Search_Manager_Edit_Fns extends Asset_Edit_Fns
 	}//end constructor
 
 
-	/**
-	* Paints the interface for assigning weights to asset types' attributes.
-	* 
-	* @param object Search_Manager		&$asset	the search manager asset
-	* @param object Backend_Outputter	&$o		the backend outputter
-	*
-	* @return void
-	* @access public
-	*/
-	function paintAssetWeights(&$owner, &$o)
+
+	function paintWeights(&$asset, &$o, $prefix)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-
-		$o->setHeading('Asset Attribute Relevance Weighting');
-
 		$typeHierarchy = $am->getAssetTypeHierarchy();
 
-		$this->paintAssetTypeSection($typeHierarchy, $o);
+		$this->paintAssetTypeSection($asset, $o, $prefix, $typeHierarchy);
+	}
 
-		$o->commitButton();
-	} // paintBackendAssetWeights()
-
-	
-	/** 
-	* Paints a section for an asset type and its attributes and their weights.
-	* (recursive)
-	*
-	* @param Array						$typeHierarchy	The asset type hierarchy. 
-	* @param object Backend_Outputter	&$o				The backend outputter.
-	* 
-	* @access public
-	* @return void
-	*/
-	function paintAssetTypeSection($typeHierarchy, &$o) {
-
+	function paintAssetTypeSection(&$asset, &$o, $prefix, $typeHierarchy)
+	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
-
-		require_once(SQ_INCLUDE_PATH."/asset_attribute.inc");
+		$wa = $asset->writeAccess('attributes');
 
 		foreach ($typeHierarchy as $typeCode => $assetType) {
-			$attributeids = $am->getAssetTypeAttributes($typeCode);
-
-			if(empty($attributeids)) {
-				continue;
+			$weightings = $am->getTypeDefaultWeightings($typeCode);
+			// filter out the dead ones
+			foreach ($weightings as $component => $data) {
+				if ($data['weighting'] < 0)
+					unset($weightings[$component]);
 			}
-				
-			$o->openSection($assetType['name']);
-	
-			foreach ($attributeids as $attributeid) {
-				$attribute = Asset_Attribute::loadAttribute($attributeid);
+			if (!empty($weightings)) {
+				$o->openSection($assetType['name']);
+				foreach ($weightings as $component => $data) {
+					$o->openField($data['description']);
 
-				$fieldPrefix = $o->openField(ucfirst(str_replace("_", " ", $attribute->name)));
+					if (!$wa) {
+						echo $data['weighting'];
+					} else {
 
-				$o->addHiddenField("weights[". $typeCode. "][". $attributeid. "]", $attribute->weighting);
-				echo text_box("new_weights[". $typeCode. "][". $attributeid. "]", $attribute->weighting, 1);
-
-				$o->closeField();
-
+						if ($data['weighting'] == 0) {
+							$disabled = '1';
+						} else {
+							$disabled = '0';
+						}
+						combo_box($prefix. "disable[$typeCode][$component]", Array(
+							'1' => 'Do not include in searches',
+							'0' => 'Include in searches'
+						), false, $disabled);
+						
+						if (!$disabled) {
+							echo "&nbsp;Weight: ";
+							text_box ($prefix. "weights[$typeCode][$component]", $data['weighting'], 3);
+						} else {
+							$o->addHiddenField($prefix. "weights[$typeCode][$component]", 1);
+						}
+					}
+					$o->closeField();
+				}
+				$o->closeSection();
 			}
-			$o->closeSection();
 
 			if (!empty($assetType['subs'])) {
-				$this->paintAssetTypeSection($assetType['subs'], $o);
+				$this->paintAssetTypeSection($asset, $o, $prefix, $assetType['subs']);
 			}
-		}
+		}		
+	} // end paintAssetTypeSection()
 
-	} // end paintAssetTypeSection
-
-	/**
-	* Paints the interface for assigning weights to asset types' attributes.
+	/** 
+	* Processes the request for setting of default weights.
 	* 
-	* @param object Search_Manager		&$asset	the search manager asset
-	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param object Search_Manager		&$asset the search manager asset
+	* @param object	Backend_Outputter	&$o		the backend outputter object
+	* @param string						$prefix the prefix for field
 	*
-	* @return void
 	* @access public
+	* @returns boolean
 	*/
-	function processAssetWeights(&$owner, $o)
+	function processWeights (&$asset, &$o, $prefix)
 	{
-		// go through the list and apply the weights to the table
-		$db = &$GLOBALS['SQ_SYSTEM']->db;
-		require_once(SQ_INCLUDE_PATH."/asset_attribute.inc");
+		$weights = $_POST[$prefix. 'weights'];
+		$disabled = $_POST[$prefix. 'disable'];
+		$im =& $GLOBALS['SQ_SYSTEM']->getIndexingManager();
 
-		$oldWeights = $_REQUEST['weights'];
-		$newWeights = $_REQUEST['new_weights'];
-
-		$changedAttributeIds = array();
-
-		foreach ($newWeights as $typeCode => $attributeWeights) {
-			foreach ($attributeWeights as $attributeid => $weighting) {
-				if ($weighting != $oldWeights[$typeCode][$attributeid]) {
-					$changedAttributeIds[$attributeid] = $weighting;
-				}
+		foreach ($weights as $typeCode => $weightData) {
+			foreach ($weightData as $component => $weighting) {
+				if ($disabled[$typeCode][$component] || $weighting < 0)
+					$weighting = 0;
+				$im->setComponentDefaultWeighting ($typeCode, $component, $weighting);
 			}
 		}
-
-		foreach ($changedAttributeIds as $attributeid => $weight) {
-			$attribute = Asset_Attribute::loadAttribute($attributeid);
-			$sql = "UPDATE ". SQ_TABLE_PREFIX. "asset_attribute 
-					SET weighting = '". addslashes($weight) ."' 
-					WHERE attributeid = '". addslashes($attributeid) ."'";
-
-			$db->query($sql);
-
-			$o->addMessage(SQ_BO_MSG_NOTICE, "Weighting changed for attribute ". $attribute->name. " ($attributeid)");
-		}
-	} // end processBackendAssetWeights()
+		return true;
+	} // end processWeights();
 
 	/** 
 	* Paints the interface for queuing a HIPO to reindex the system. 
 	* 
 	*
 	* @param object Search_Manager		&$asset the search manager asset
-	* @param object	Backend_Outputter	&$o
+	* @param object	Backend_Outputter	&$o		the backend outputter object
+	* @param string						$prefix the prefix for field
 	*
 	* @access public
-	* @returns boolean
+	* @returns void
 	*/
 	function paintReindexing(&$asset, &$o, $prefix)
 	{
-		if (!$asset->writeAccess('attributes')) {
-			
-		} else {
+		if ($asset->writeAccess('attributes')) {
 			asset_finder($prefix."_reindexing_root_assetid", '');
 		}
 	}

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_management.inc,v 1.8 2003/09/26 05:26:42 brobertson Exp $
+* $Id: page_management.inc,v 1.9 2003/10/21 06:25:43 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -41,6 +41,13 @@ class Page_Management extends Asset_Management
 												'update_fn' => ''
 												)
 							);
+
+		$this->components['name']['default_weighting'] = '1';
+		$this->components['short_name'] = Array (
+			'description'		=> 'Short name',
+			'default_weighting'	=> '1',
+		);
+
 	}//end constructor
 
 }//end class

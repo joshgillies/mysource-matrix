@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page_site_map_management.inc,v 1.2 2003/10/07 05:28:44 mmcintyre Exp $
+* $Id: page_site_map_management.inc,v 1.3 2003/10/21 06:25:43 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -19,7 +19,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
-class Page_Site_Map_Management extends Asset_Management
+class Page_Site_Map_Management extends Page_Management
 {
 
 	/**
@@ -28,7 +28,7 @@ class Page_Site_Map_Management extends Asset_Management
 	*/
 	function Page_Site_Map_Management(&$pm)
 	{
-		$this->Asset_Management($pm);
+		$this->Page_Management($pm);
 
 		
 		$this->vars = Array(

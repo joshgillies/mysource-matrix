@@ -2,19 +2,15 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: edit_interface_screen_weights.xml,v 1.4 2003/10/14 05:24:58 mmcintyre Exp $
+* $Id: edit_interface_screen_weights.xml,v 1.5 2003/10/21 06:30:43 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 <contents>
-	<section name="Asset Types" write_access="write:attributes">
-		<field>
-			<display_name>Weighting</display_name>
-			<note />
-			<function_call>
-				<paint_function name="paintAssetWeights" />
-				<process_function name="processAssetWeights"/>
-			</function_call>
-		</field>
+	<section name="Default Weights" write_access="write:attributes">
+		<function_call>
+			<paint_function name="paintWeights" />
+			<process_function name="processWeights" />
+		</function_call>
 	</section>
 </contents>

@@ -3,7 +3,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: search_page_management.inc,v 1.1.1.1 2003/10/08 01:20:58 dwong Exp $
+* $Id: search_page_management.inc,v 1.2 2003/10/21 06:26:02 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -18,8 +18,8 @@
 * @subpackage search
 */
 
-require_once SQ_INCLUDE_PATH.'/asset_management.inc';
-class Search_Page_Management extends Asset_Management
+require_once SQ_PACKAGES_PATH.'/cms/page/page_management.inc';
+class Search_Page_Management extends Page_Management
 {
 
 	/**
@@ -28,7 +28,7 @@ class Search_Page_Management extends Asset_Management
 	*/
 	function Search_Page_Management(&$pm)
 	{
-		$this->Asset_Management($pm);
+		$this->Page_Management($pm);
 
 		$this->vars = array(
 			'root_assetid' => Array(

@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: page.inc,v 1.26 2003/09/26 05:26:42 brobertson Exp $
+* $Id: page.inc,v 1.27 2003/10/21 06:25:43 dwong Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -128,6 +128,38 @@ class Page extends Asset
 
 	}//end _getName();
 
+
+	/** 
+	* Retrieves a list of key data from this asset (used by the indexing service).
+	* Subclasses override this to give the content they want to make searchable.
+	* 
+	* @access public
+	* @param mixed $component If it is not false, then it is assumed to be the name of a component of this asset (defined and controlled by subclasses).
+	* @return array An array of all the keydata for this asset. Keydata is of the form
+	*				array (
+	*					array (
+	*						'value' => ...,
+	*						'type' => ..., (text, date, number, etc.)
+	*						'component' => ..., (whatever you want, just as long as this asset knows how to deal with it if it needs to)
+	*					), ...
+	*				)
+	*/
+	function &getKeyData($component = false)
+	{
+		$keyData = parent::getKeyData($component);
+
+		$weightings = $this->getWeightings();
+
+		if (!$component || $component == 'short_name') {
+			$short_name_attribute	=& $this->getAttribute('short_name');
+			$value = $short_name_attribute->value;
+			foreach (get_word_counts($value) as $word => $count) {
+				$this->buildKeyData($keyData, $word, 'text', "short_name", $count * $weightings['short_name']['weighting']);
+			}
+		}
+
+		return $keyData;
+	} // end getKeyData()
 
 }#end class
 ?>
