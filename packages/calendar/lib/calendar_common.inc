@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_common.inc,v 1.12.2.3 2004/12/12 22:37:53 tbarrett Exp $
+* $Id: calendar_common.inc,v 1.12.2.4 2004/12/29 22:31:57 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *
 * @author Tom Barrett <tbarrett@squiz.net>
 * @author Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.12.2.3 $
+* @version $Revision: 1.12.2.4 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -54,7 +54,7 @@ function build_single_event_query_base(&$trees)
 	$type_codes = array_merge($type_codes, quoted_descendants('calendar_event_cancellation'));
 	$type_codes = array_merge($type_codes, quoted_descendants('calendar_event_modification'));
 	
-	$sql = 'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, p.granted as access, cd.* FROM '.build_join_statements().' WHERE a.type_code IN ( '.implode(',', $type_codes).')';
+	$sql = 'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).') as root_node, p.granted as access, cd.* FROM '.build_join_statements().' WHERE a.type_code IN ( '.implode(',', $type_codes).') AND (a.status >= '.$db->quote(SQ_STATUS_LIVE).')';
 
 	if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
@@ -116,7 +116,7 @@ function build_recurring_event_query_base(&$trees, $view, $iso, $length=null)
 	$type_codes = quoted_descendants('calendar_event_recurring');
 
 	$sql =
-	'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).") as root_node, p.granted as access, cd.* \nFROM ". build_join_statements()." \nWHERE (a.type_code IN (".implode(',', $type_codes).")) \n";
+	'SELECT a.assetid, a.type_code, a.name, t.treeid, ('.build_case_statement('t.treeid',$trees).") as root_node, p.granted as access, cd.* \nFROM ". build_join_statements()." \nWHERE (a.type_code IN (".implode(',', $type_codes).')) AND (a.status >= '.$db->quote(SQ_STATUS_LIVE).")\n";
 
 	if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 		if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
