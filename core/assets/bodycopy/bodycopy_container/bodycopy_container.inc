@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.8 2004/06/18 13:56:12 brobertson Exp $
+* $Id: bodycopy_container.inc,v 1.9 2004/07/19 00:40:18 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -67,6 +67,34 @@ class Bodycopy_Container extends Asset
 		return $lock_types;
 
 	}//end lockTypes()
+	
+	
+	/**
+	* Prints out the backend interface for the asset. Used for displaying
+	* the div properties screen if needed.
+	*
+	* @param object Backend_Outputter	&$o
+	*
+	* @access public
+	*/
+	function paintBackend(&$o)
+	{
+		
+		if (!isset($_REQUEST['asset_ei_screen'])) return parent::paintBackend($o);
+		
+		switch($_REQUEST['asset_ei_screen']) {
+			case 'show_popup' :
+				// Find out where the popups are located. (under bodycopy) 
+				$type_info = $GLOBALS['SQ_SYSTEM']->am->getTypeInfo('bodycopy');
+				$bodycopy_dir = SQ_SYSTEM_ROOT.'/'.$type_info['dir'];
+				require_once $bodycopy_dir.'/popups/'.trim($_REQUEST['popup_file']);
+				exit();
+			default :
+				return parent::paintBackend($o);
+
+		}// end switch
+
+	}//end paintBackend()	
 
 
 	/**
