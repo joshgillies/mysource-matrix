@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: general.inc,v 1.75 2005/03/31 01:57:06 arailean Exp $
+* $Id: general.inc,v 1.76 2005/03/31 03:07:06 arailean Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.75 $
+* @version $Revision: 1.76 $
 * @package MySource_Matrix
 */
 
@@ -703,8 +703,8 @@ function log_write($data, $logname=SQ_CONF_LOG_FILE_SYSTEM, $level=E_USER_NOTICE
 		$username = $current_user->name;
 	}
 
-	$chars_to_escape = Array('[',']',':');
-	$replacements = Array('&#91;','&#93;','&#58;');
+	$chars_to_escape = Array('[',']',':',"\n","\r");
+	$replacements = Array('&#91;','&#93;','&#58;','&#10;','&#13;');
 
 	$username   = str_replace($chars_to_escape, $replacements, $username);
 	$level_name = strtolower(get_error_name($level));
