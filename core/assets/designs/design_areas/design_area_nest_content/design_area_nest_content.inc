@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_area_nest_content.inc,v 1.12 2003/12/15 19:10:00 brobertson Exp $
+* $Id: design_area_nest_content.inc,v 1.13 2004/08/27 00:17:39 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,11 +39,12 @@ require_once SQ_CORE_PACKAGE_PATH.'/designs/design_area/design_area.inc';
 class Design_Area_Nest_Content extends Design_Area
 {
 
+
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
+	* @param string		$name		the name of the attribute
+	* @param string		$value		the new value of the attribute
 	*
 	* @return boolean
 	* @access public
@@ -52,17 +53,14 @@ class Design_Area_Nest_Content extends Design_Area
 	{
 		// if they are trying to set the type_codes, split the string
 		if ($name == 'type_codes') {
-			if (!is_array($value)) {
-				$value = preg_split('/[ ,]+/', (string) $value);
-			}
+			if (!is_array($value)) $value = preg_split('/[ ,]+/', (string) $value);
 			foreach($value as $type_code) {
 				if (!$GLOBALS['SQ_SYSTEM']->am->installed($type_code)) {
 					trigger_error('Asset Type "'.$type_code.'" is not installed in this system, unable to set "type_codes"', E_USER_WARNING);
 					return false;
 				}
-			}// end foreach
-
-		}// end if
+			}
+		}
 
 		return parent::setAttrValue($name, $value);
 
@@ -71,14 +69,14 @@ class Design_Area_Nest_Content extends Design_Area
 
 	/**
 	* Returns an array of all the permitted links type, the type asset and the cardinality
-	* In the form
 	*
-	*    Array('[link_type]' => Array('[type_code]' => '[cardinality]));
+	* In the form:
+	*   Array('[link_type]' => Array('[type_code]' => '[cardinality]));
 	* Where:
 	*   link_type   = SQ_LINK_UNITE|SQ_LINK_USES|SQ_LINK_NOTICE
 	*   cardinality = 1|M
 	*
-	* @return Array()
+	* @return array
 	* @access private
 	*/
 	function _getAllowedLinks()
@@ -95,13 +93,14 @@ class Design_Area_Nest_Content extends Design_Area
 
 	/**
 	* Returns the particular info for the nested assets
+	*
 	* Returns NULL if no link found
 	*
 	* @param boolean	$field	field in the link that is required (any valid field from getLink())
 	*
 	* @return mixed NULL if no asset found or the field value
-	* @see Asset::getLink()
 	* @access private
+	* @see Asset::getLink()
 	*/
 	function _getNestAssetInfo($field)
 	{
@@ -109,13 +108,12 @@ class Design_Area_Nest_Content extends Design_Area
 			$this->_tmp['nest_assetid'] = $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, 'nest_content_asset');
 		}
 		return (empty($this->_tmp['nest_assetid'])) ? null : $this->_tmp['nest_assetid'][$field];
+
 	}//end _getNestAssetInfo()
 
 
 	/**
-	* Called whenever any type of link is changed, allows caching of objects, links and other stuff
-	* to occur but not cause integrity issues during script execution
-	* returns true it it's successfull
+	* Called whenever any type of link is changed
 	*
 	* @return boolean
 	* @access private
@@ -125,6 +123,7 @@ class Design_Area_Nest_Content extends Design_Area
 		if (!parent::_linksUpdated()) return false;
 		unset($this->_tmp['nest_assetid']);
 		return true;
+
 	}//end _linksUpdated()
 
 
@@ -146,13 +145,17 @@ class Design_Area_Nest_Content extends Design_Area
 		echo '<', '?php
 		$nest_content_'.$this->attr('id_name').'_asset = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset('.$assetid.');
 		if (!is_null($nest_content_'.$this->attr('id_name').'_asset)) {
-			$nest_content_'.$this->attr('id_name').'_asset->printBody();
-		}// end if
+			if ($nest_content_'.$this->attr('id_name').'_asset->readAccess()) {
+				$nest_content_'.$this->attr('id_name').'_asset->printBody();
+			}
+		}
 		?', '>';
 
 		return true;
 
 	}//end printArea()
 
+
 }//end class
+
 ?>
