@@ -78,6 +78,21 @@ class Root_Folder extends Folder
 
 
 	/**
+	* Returns true if at least one of the passed assetids has read access to this asset
+	*
+	* @param array $assetids An array of user_group and/or user ids to check for read access
+	*						 If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function readAccess($assetids=Array())
+	{
+		return true;
+	}//end readAccess()
+
+
+	/**
 	* Set the value for the passed variable to the passed value
 	*
 	* @access public

@@ -54,6 +54,40 @@ class Workspace extends Folder
 
 
 	/**
+	* Returns true if at least one of the passed assetids has the passed permission
+	*
+	* @param array $assetids An array of user_group and/or user ids to check for permission
+	*						 If the array is empty, the current user will be checked
+	*
+	* @return boolean
+	* @access public
+	*/
+	function checkAccess($perm, $assetids=Array())
+	{
+		// root can do anything
+		if ($GLOBALS['SQ_SYSTEM']->userRoot()) return true;
+
+		$user = &$this->_getUser();
+		if ($GLOBALS['SQ_SYSTEM']->userRoot($user)) {
+			// we have to be root to view root's workspace
+			return false;
+		} else if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin($user)) {
+			// this is the workspace of a sysadmin so they need to
+			// be root or the sysadmin themselves
+			if (!$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return false;
+			if ($user->id == $GLOBALS['SQ_SYSTEM']->user->id) return true;
+			return false;
+		} else {
+			// any other user's workspace
+			if ($GLOBALS['SQ_SYSTEM']->userSystemAdmin()) return true;
+			if ($user->id == $GLOBALS['SQ_SYSTEM']->user->id) return true;
+		}
+
+		return false;
+	}//end checkAccess()
+
+
+	/**
 	* Called by the design to print the body of this asset
 	*
 	* @access public
