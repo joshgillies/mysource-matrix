@@ -2,7 +2,7 @@
 #/**
 #* Copyright (c) 2003 - Squiz Pty Ltd
 #*
-#* $Id: clean.sh,v 1.9 2003/10/16 05:20:09 brobertson Exp $
+#* $Id: clean.sh,v 1.10 2003/11/12 11:23:55 brobertson Exp $
 #* $Name: not supported by cvs2svn $
 #*/
 
@@ -20,6 +20,7 @@ rm -rf "${SYSTEM_ROOT}/cache" \
 		"${SYSTEM_ROOT}/data/private/logs" \
 		"${SYSTEM_ROOT}/data/private/assets" \
 		"${SYSTEM_ROOT}/data/private/db" \
+		"${SYSTEM_ROOT}/data/private/events" \
 		"${SYSTEM_ROOT}/data/private/asset_map"
 
 cvs up -dP cache data/public data/private
