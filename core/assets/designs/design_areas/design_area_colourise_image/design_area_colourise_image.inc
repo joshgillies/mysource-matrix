@@ -31,9 +31,11 @@ class Design_Area_Colourise_Image extends Design_Area
 		// $this->colours and then save that array
 		if ($name == 'black_colour' || $name == 'white_colour' 
 			|| stristr($name, 'from_colour') || stristr($name, 'to_colour')) {
-			$this->vars['colours']['value'][$name] = $value;
+			$new_value = $this->vars['colours']['value'];
+			if(!is_array($new_value)) $new_value = Array();
+			$new_value[$name] = $value;
 			$name = 'colours';
-			$value = $this->vars['colours']['value'];
+			$value = $new_value;
 		}
 
 		return parent::setAttrValue($name, $value);

@@ -21,10 +21,12 @@ class Design_Area_Body_Edit_Fns extends Design_Area_Edit_Fns
 	* @param object Asset	$asset		the asset to which we belong
 	* @param array			$contents	the contents array we generated with _parseString()
 	*
+	* @return boolean
 	* @access private
 	*/
 	function _processContents(&$asset, &$contents) 
 	{
+		return true;
 	}// end _processContents()
 
 }//end class

@@ -14,12 +14,6 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 */
 class Design_Area extends Asset
 {
-	/**
-	* Whether the vars in this design area are static - ie they are going to change when viewing difference pages
-	* @var boolean
-	*/
-	var $static_vars = true;
-
 	/*
 	* Constructor
 	*

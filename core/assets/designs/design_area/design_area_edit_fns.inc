@@ -24,7 +24,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @access public
 	*/
-	function paintIdName(&$asset, &$o, $prefix) 
+	function paintIdName(&$asset, &$o, $prefix)
 	{
 		echo $asset->attr('id_name');
 	}// end paintIdName()
@@ -37,8 +37,12 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return Array
 	* @access private
 	*/
-	function _parseString($file_contents) 
+	function _parseString($file_contents)
 	{
+
+		// lets just make sure that they are all UNIX new lines
+		$file_contents = str_replace(Array("\r\n", "\r"), "\n", $file_contents);
+
 		 /////////////////////////////////////////////////////////////////////
 		// Before we send this contents off to be parsed lets do some cleanup
 		// and adjustment of it so that it works.
@@ -121,7 +125,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @returns Array()
 	* @access private
 	*/
-	function _parseStringContents(&$file_contents, &$cur_pos, &$nest_level) 
+	function _parseStringContents(&$file_contents, &$cur_pos, &$nest_level)
 	{
 		$start_pos = $cur_pos;
 		$parsed = Array();
@@ -153,7 +157,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				$tag = $this->_parseOpenTag($file_contents, $cur_pos);
 
 				// if this tag doesn't terminate the we need to allow for its contents
-				if (!$tag['self_terminating']) {	
+				if (!$tag['self_terminating']) {
 					$this_nest_level = $nest_level;
 					// because we are going to the next level increment
 					$nest_level++;
@@ -165,7 +169,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					// then the recursive call found e terminate tag, so remove it
 					if ($this_nest_level == $nest_level) {
 						$this->_parseTerminateTag($file_contents, $cur_pos);
-					
+
 					// else we're missing a terminate tag, so die screaming
 					} else {
 
@@ -218,7 +222,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return string
 	* @access private
 	*/
-	function _tagToParse(&$file_contents, &$cur_pos) 
+	function _tagToParse(&$file_contents, &$cur_pos)
 	{
 		// get the next terminate and open tag locations
 		$next_open_pos      = strpos($file_contents, '<'.SQ_SYSTEM_SHORT_NAME,  $cur_pos);
@@ -258,7 +262,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return Array
 	* @access private
 	*/
-	function _parseOpenTag(&$file_contents, &$cur_pos) 
+	function _parseOpenTag(&$file_contents, &$cur_pos)
 	{
 		$cur_pos += strlen('<'.SQ_SYSTEM_SHORT_NAME);
 
@@ -269,8 +273,10 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$current_name  = '';      // attribute name
 		$current_value = '';      // attribute value
 
-		$tag = Array('_type' => 'TAG', 'attributes' => Array());
+		// used to reverse any HTML encoding that has taking place
+		$trans = array_flip(get_html_translation_table(HTML_ENTITIES));
 
+		$tag = Array('_type' => 'TAG', 'attributes' => Array());
 
 		// if the next character is an underscore then we have a special operation tag
 		if ($file_contents{$cur_pos} == '_') {
@@ -323,21 +329,21 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					$is_quote = ($file_contents{$cur_pos} == '\'' || $file_contents{$cur_pos} == '"');
 					if (!$current_value && !$in_quote && $is_quote) {
 						$in_quote = $file_contents{$cur_pos};
-					
+
 					// if we're not in a quote, then this value doesn't have quotes around it
 					// so just keep going until we hit some whitespace
 					} else if (!$in_quote && !$this->_isWhitespace($file_contents{$cur_pos})) {
 						$current_value .= $file_contents{$cur_pos};
-					
+
 					// if we are in a quote and this char is not that quote, append
 					} else if ($in_quote && $file_contents{$cur_pos} != $in_quote) {
 						$current_value .= $file_contents{$cur_pos};
-					
+
 					// else we are either not in a quote and have hit some white space
 					// or we are in a quote and have found a another quote of the same char
 					// SO, we have finished this value, assign to tag and start over
 					} else {
-						$tag['attributes'][strtolower($current_name)] = $current_value;
+ 						$tag['attributes'][strtolower($current_name)] = strtr($current_value, $trans);
 						$currently_getting = '';
 						$current_name = '';
 						$current_value = '';
@@ -371,7 +377,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @access private
 	*/
-	function _parseTerminateTag(&$file_contents, &$cur_pos) 
+	function _parseTerminateTag(&$file_contents, &$cur_pos)
 	{
 
 
@@ -391,7 +397,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function _isWhitespace($str) 
+	function _isWhitespace($str)
 	{
 		return preg_match('/^[[:space:]]*$/', $str);
 	}
@@ -404,7 +410,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*
 	* @access private
 	*/
-	function _parserCleanupContents(&$contents) 
+	function _parserCleanupContents(&$contents)
 	{
 		for($i = 0; $i < count($contents); $i++) {
 			if ($contents[$i]['_type'] == 'HTML' && $this->_isWhitespace($contents[$i]['contents'])) {
@@ -423,12 +429,17 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @param object Asset	$asset		the asset to which we belong
 	* @param array			$contents	the contents array we generated with _parseString()
 	*
+	* @return boolean
 	* @access private
 	*/
-	function _processContents(&$asset, $contents) 
+	function _processContents(&$asset, $contents)
 	{
-		$this->_setVariables($asset, $contents);
-		$asset->setAttrValue('contents', $contents);
+		if ($this->_setVariables($asset, $contents)) {
+			return $asset->setAttrValue('contents', $contents);
+		} else {
+			return false;
+		}
+
 	}// end _processContents()
 
 
@@ -437,7 +448,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* and sets both the attributes and sets operation tags into values
 	* the set tags are then removed from the array
 	*
-	* Also anything with 'image' contained in it will have the file root removed 
+	* Also anything with 'image' contained in it will have the file root removed
 	* from its value
 	*
 	* @param object Asset	$asset		the asset to which we belong
@@ -464,9 +475,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 				// just set this so we remember what is happening when it comes to painting
 				$var_references[$element['attributes']['name']] = Array(
-																				'id_name' => $element['attributes']['id_name'],
-																				'var'     => $element['attributes']['var']
-																				);
+																		'id_name' => $element['attributes']['id_name'],
+																		'var'     => $element['attributes']['var']
+																		);
 
 			// we must be a normal value, so set it
 			} else {
@@ -475,7 +486,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					$element['attributes']['value'] = $this->_removeFileRoot($element['attributes']['value']);
 				}
 
-				$asset->setAttrValue($element['attributes']['name'], $element['attributes']['value']);
+				if (!$asset->setAttrValue($element['attributes']['name'], $element['attributes']['value'])) return false;
 
 			}// endif
 
@@ -483,7 +494,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 		}//end foreach
 
-		$asset->setAttrValue('var_references', $var_references);
+		if (!$asset->setAttrValue('var_references', $var_references)) return false;
 
 		// Now remove the elems
 		// reverse the order so we don't throw the numbers out of whack by removing one from the start
@@ -492,7 +503,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 			array_splice($contents, $i, 1);
 		}
 
-
+		return true;
 
 	}//end _setVariables()
 
@@ -518,7 +529,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access private
 	*/
-	function _createDesignFileOutput(&$asset, &$design) 
+	function _createDesignFileOutput(&$asset, &$design)
 	{
 		// firstly let's check to see if all the design areas have unique names
 		foreach($asset->vars['contents']['value'] as $index => $element) {
@@ -566,12 +577,71 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		}// end foreach
 
 		return true;
-		
+
 	}// end _createDesignFileOutput()
 
+	/**
+	* Creates a string that would be able to be parsed to recreate this design area in its current form
+	*
+	* @param object Asset	$asset	the asset whose interface we are painting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function createParseString(&$asset)
+	{
+		$text = '';
+		$vars = $this->_getSetableVars($asset);
+		foreach($vars as $name => $data) {
+			$text .= '<'.SQ_SYSTEM_SHORT_NAME.'_SET name="'.$name.'"';
+
+			// if this is this a var reference ?
+			if (!empty($asset->vars['var_references']['value'][$name])) {
+				$text .= ' id_name="'.htmlentities($asset->vars['var_references']['value'][$name]['id_name']).'" var="'.htmlentities($asset->vars['var_references']['value'][$name]['var']).'"';
+			} else {
+				$text .= ' value="'.htmlentities($data['value']).'"';
+			}
+			$text .= " />\n";
+		}
+
+		foreach($asset->vars['contents']['value'] as $data) {
+			switch($data['_type']) {
+				case 'HTML' : 
+					$text .= $data['contents'];
+					break;
+				case 'TAG' : 
+					$text .= '<'.SQ_SYSTEM_SHORT_NAME.'_'.strtoupper($data['operation']);
+					foreach($data['attributes'] as $k => $v) $text .= ' '.$k.'="'.htmlentities($v).'"';
+					$text .= ' />';
+					break;
+			}// end switch
+		}// end foreach
+
+		return $text;
+	}// end createParseString()
 
 	/**
+	* Returns an array of vars that are setable 
 	*
+	* @param object Asset	$asset	the asset whose interface we are painting
+	*
+	* @return Array
+	* @access public
+	*/
+	function _getSetableVars(&$asset)
+	{
+		$vars = $asset->vars;
+		unset($vars['id_name']);
+		unset($vars['contents']);
+		unset($vars['var_references']);
+		unset($vars['specialised']);
+		return $vars;
+
+	}// end _getSetableVars()
+
+	/**
+	* Paint the interface for the specialising this design area
+	* 
 	* @param object Asset				$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element
@@ -579,12 +649,15 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function paintSpecialisation(&$asset, &$o, $prefix) 
+	function paintSpecialisation(&$asset, &$o, $prefix)
 	{
-		text_area($prefix.'_specialisation', '', 80, 20);
+		$text = $this->createParseString($asset);
+		hidden_field($prefix.'_specialisation_orig', $text);
+		text_area($prefix.'_specialisation', $text, 75, 20, 0, 'wrap="off" style="font-family: courier new, courier, monospace; font-size: 9pt;"');
 	}// end paintSpecialisation()
 
 	/**
+	* Process the specialisation, ie call _parseString() and set the specialised flag to true
 	*
 	* @param object Asset	$asset	the asset to which we belong
 	* @param string			$prefix	prefix for the form element
@@ -592,9 +665,21 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	* @return boolean
 	* @access public
 	*/
-	function processSpecialisation(&$asset, $prefix) 
+	function processSpecialisation(&$asset, $prefix)
 	{
-		pre_echo("SPECIALISATION : \n".$_POST[$prefix.'_specialisation']);
+		// if nothing changed then do nothing
+		if ($_POST[$prefix.'_specialisation_orig'] == $_POST[$prefix.'_specialisation']) return false;
+
+		pre_echo($_POST[$prefix.'_specialisation']);
+		$contents = $this->_parseString($_POST[$prefix.'_specialisation']);
+		pre_echo($contents);
+		if (!is_null($contents) && $this->_processContents($asset, $contents)) {
+			pre_echo("PROCESS OK");
+			$asset->_tmp['regenerate_design'] = true;
+			return $asset->setAttrValue('specialised', 1);
+		}
+
+		return false;
 
 	}// end processSpecialisation()
 

@@ -21,6 +21,7 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 	* @param object Asset	$asset		the asset to which we belong
 	* @param array			$contents	the contents array we generated with _parseString()
 	*
+	* @return boolean
 	* @access private
 	*/
 	function _processContents(&$asset, $contents) 
@@ -55,12 +56,32 @@ class Design_Area_Declared_Vars_Edit_Fns extends Design_Area_Edit_Fns
 		}// end foreach
 
 		// now make sure we save our changes
-		$asset->setAttrValue('declared_vars', $declared_vars);
+		return $asset->setAttrValue('declared_vars', $declared_vars);
 
 		// NOTE: we deliberately don't set the 'contents' as is done in other design areas
 	
 	}// end _processContents()
 
+	/**
+	* Creates a string that would be able to be parsed to recreate this design area in its current form
+	*
+	* @param object Asset	$asset	the asset whose interface we are painting
+	*
+	* @return boolean
+	* @access public
+	*/
+	function createParseString(&$asset)
+	{
+		$text = '';
+		foreach($asset->vars['declared_vars']['value'] as $name => $data) {
+			$text .= '<'.SQ_SYSTEM_SHORT_NAME.'_DECLARE name="'.htmlentities($name).'"';
+			foreach($data as $k => $v) $text .= ' '.$k.'="'.htmlentities($v).'"';
+			$text .= " />\n";
+		}// end foreach
+
+		return $text;
+	}// end createParseString()
+	
 	/**
 	*
 	* @param object Asset				$asset	the asset whose interface we are painting

@@ -49,12 +49,10 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 			$str = file_to_string($parse_file);
-			$contents = $this->_parseString($str, true);
+			$contents = $this->_parseString($str);
 
-			if (!is_null($contents)) {
-				if ($this->_processContents($asset, $contents)) {
-					$asset->_tmp['regenerate_design'] = true;
-				}
+			if (!is_null($contents) && $this->_processContents($asset, $contents)) {
+				$asset->_tmp['regenerate_design'] = true;
 			}
 		}
 		return true;

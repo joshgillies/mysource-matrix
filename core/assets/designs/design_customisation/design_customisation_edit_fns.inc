@@ -31,7 +31,7 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 		if (empty($customised_areas)) {
 			?> No Design Areas are customised yet. <?php
 		} else {
-			$this->_paintDesignAreaList($customised_areas, 'Remove Customisation ?', $prefix.'_remove_customisation', true);
+			$this->_paintDesignAreaList($customised_areas, 'Remove Customisation ?', $prefix.'_remove_customisation', true, true);
 		}
 
 	}// end paintCustomisedDesignAreas()
@@ -200,15 +200,16 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 	*
 	* @access private
 	*/
-	function _paintDesignAreaList($links, $check_box_col, $check_box_name, $link_name=false)
+	function _paintDesignAreaList($links, $check_box_col, $check_box_name, $link_name=false, $show_specialised=false)
 	{
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		?>
-		<table cellspacing="2" cellpadding="2" border="0" width="80%">
+		<table cellspacing="2" cellpadding="2" border="0" width="100%">
 			<tr>
-				<td class="sq-backend-data" width="33%"><b>Type</b></td>
-				<td class="sq-backend-data" width="33%"><b>Design Area</b></td>
-				<td class="sq-backend-data" width="34%" style="text-align: center;"><b><?php echo $check_box_col; ?></b></td>
+				<td class="sq-backend-data" width="25%"><b>Type</b></td>
+				<td class="sq-backend-data" width="25%"><b>Design Area</b></td>
+				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo $check_box_col; ?></b></td>
+				<td class="sq-backend-data" width="25%" style="text-align: center;"><b><?php echo ($show_specialised) ? 'Specialised ?' : '&nbsp;'; ?></b></td>
 			</tr>
 		<?php
 		uasort($links, Array(get_class($this), 'linkCompare'));
@@ -238,6 +239,13 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 				</td>
 				<td class="sq-backend-data" style="text-align: center;">
 					<input type="checkbox" name="<?php echo $check_box_name; ?>[]" value="<?php echo $da->attr('id_name');; ?>">
+				</td>
+				<td class="sq-backend-data" style="text-align: center;">
+				<?php if ($show_specialised && $da->attr('specialised')) { ?> 
+					<img src="<?php echo SQ_WWW_LIB_DIR; ?>/web/images/tick.gif" width="15" height="15" />
+				<?php } else { ?> 
+					&nbsp;
+				<?php }// end if ?> 
 				</td>
 			</tr>
 		<?php
