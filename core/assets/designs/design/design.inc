@@ -61,14 +61,17 @@ class Design extends Design_Area
 	/**
 	* Called whenever any type of link is changed, allows caching of objects, links and other stuff 
 	* to occur but not cause integrity issues during script execution
+	* returns true it it's successfull
 	*
+	* @return boolean
 	* @access private
 	*/
 	function _linksUpdated()
 	{
-		parent::_linksUpdated();
+		if (!parent::_linksUpdated()) return false;
 		if (!isset($this->_tmp['design_areas'])) return;
 		foreach(array_keys($this->_tmp['design_areas']) as $id_name) unset($this->_tmp['design_areas'][$id_name]);
+		return true;
 	}//end _linksUpdated()
 
 	/**

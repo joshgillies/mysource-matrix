@@ -27,17 +27,20 @@ class Design_Customisation extends Design
 	}
 
 	/**
-	* Called whenever any type of link is changed, allows caching of objects, links and other stuff 
+	* Called whenever any type of link is changed, allows caching of objects, links and other stuff
 	* to occur but not cause integrity issues during script execution
+	* returns true it it's successfull
 	*
+	* @return boolean
 	* @access private
 	*/
 	function _linksUpdated()
 	{
-		parent::_linksUpdated();
+		if (!parent::_linksUpdated()) return false;
 		unset($this->_tmp['parent_design']);
 		unset($this->_tmp['customised_areas']);
 		unset($this->_tmp['uncustomised_areas']);
+		return true;
 	}//end _linksUpdated()
 
 	/*
