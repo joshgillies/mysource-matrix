@@ -1,0 +1,54 @@
+<!--
+/**
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Squiz.net Open Source Licence                                      |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | Copyright (c), 2003 Squiz Pty Ltd (ABN 77 084 670 600).            |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+* | This source file may be used subject to, and only in accordance    |
+* | with, the Squiz Open Source Licence Agreement found at             |
+* | http://www.squiz.net/licence.                                      |
+* | Make sure you have read and accept the terms of that licence,      |
+* | including its limitations of liability and disclaimers, before     |
+* | using this software in any way. Your use of this software is       |
+* | deemed to constitute agreement to be bound by that licence. If you |
+* | modify, adapt or enhance this software, you agree to assign your   |
+* | intellectual property rights in the modification, adaptation and   |
+* | enhancement to Squiz Pty Ltd for use and distribution under that   |
+* | licence.                                                           |
+* +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
+*
+* $Id: edit_interface_screen_details.xml,v 1.1 2004/07/28 01:27:23 lwright Exp $
+* $Name: not supported by cvs2svn $
+*/
+-->
+<contents>
+	<section name="Details" write_access="write:attributes">
+		<field attribute="name">
+			<display_name>Name</display_name>
+			<note />
+			<text width="30" height="1" />
+		</field>
+		<field attribute="description">
+			<display_name>Description</display_name>
+			<note />
+			<text width="40" height="3" />
+		</field>
+		<field>
+			<display_name>First Instance</display_name>
+			<note />
+			<function_call>
+				<paint_function   name="paintRecurringStartEndChooser"  />
+				<process_function name="processRecurringStartEndChooser" />
+			</function_call>
+		</field>
+		<field>
+			<display_name>Recurs</display_name>
+			<note />
+			<function_call>
+				<paint_function	name="paintFrequencyField" />
+				<process_function name="processFrequencyField" />
+			</function_call>
+		</field>
+	</section>
+</contents>
