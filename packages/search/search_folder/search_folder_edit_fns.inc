@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_folder_edit_fns.inc,v 1.2 2004/06/15 01:04:43 gsherwood Exp $
+* $Id: search_folder_edit_fns.inc,v 1.3 2004/07/06 07:18:48 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/bridge/bridge_edit_fns.inc';
 * @author  Greg Sherwood <greg@squiz.net>
 * @version $Version$ - 1.0
 * @package MySource_Matrix_Packages
-* @subpackage ldap
+* @subpackage search
 */
 class Search_Folder_Edit_Fns extends Bridge_Edit_Fns
 {
