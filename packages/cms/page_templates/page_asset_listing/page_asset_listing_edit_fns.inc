@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_edit_fns.inc,v 1.21 2005/02/16 09:03:29 brobertson Exp $
+* $Id: page_asset_listing_edit_fns.inc,v 1.22 2005/03/23 03:56:35 tbarrett Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.21 $
+* @version $Revision: 1.22 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -73,7 +73,7 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 		foreach ($root_links as $root_link) {
 			$root_asset_ids[$root_link['minorid']] = $root_link['minor_type_code'];
 		}
-		
+
 		if ($asset->writeAccess('links')) {
 			multiple_asset_finder($prefix.'_root_nodes', array_keys($root_asset_ids));
 		} else {
@@ -85,7 +85,7 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 					<td class="sq-backend-table-header">Name</td>
 					<td class="sq-backend-table-header">Type</td>
 				</tr>
-			<?php 
+			<?php
 			foreach ($infos as $assetid => $info) {
 			?>
 
@@ -118,11 +118,11 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 	function processRootNode(&$asset, &$o, $prefix)
 	{
 		if (!isset($_POST[$prefix.'_root_nodes'])) return false;
-		$new_root_nodes = $_POST[$prefix.'_root_nodes'];				
+		$new_root_nodes = $_POST[$prefix.'_root_nodes'];
 		foreach ($new_root_nodes as $new_root_node) {
 			$new_root_node_ids[] = $new_root_node['assetid'];
 		}
-		
+
 		// get existing root links
 		$root_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_NOTICE, '', false, 'major', 'root');
 
@@ -137,11 +137,11 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 				}
 			}
 		}
-		
+
 		// now, create the new node links
 		foreach ($new_root_nodes as $index => $node) {
 			// first test to see if the node already exists -- if so, ignore it
-			foreach($root_links as $root_link) {
+			foreach ($root_links as $root_link) {
 				if ($root_link['minorid'] == $node['assetid']) continue 2;
 			}
 			// otherwise, create the appropriate notice link
@@ -154,7 +154,7 @@ class Page_Asset_Listing_Edit_Fns extends Listing_Engine_Edit_Fns
 				}
 			}
 		}
-		
+
 		if ($ok) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return true;

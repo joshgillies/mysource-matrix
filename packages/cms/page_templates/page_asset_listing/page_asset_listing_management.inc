@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing_management.inc,v 1.24 2005/02/14 23:50:25 lwright Exp $
+* $Id: page_asset_listing_management.inc,v 1.25 2005/03/23 03:56:35 tbarrett Exp $
 *
 */
 
@@ -31,12 +31,13 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.24 $
+* @version $Revision: 1.25 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
 class Page_Asset_Listing_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
@@ -57,7 +58,7 @@ class Page_Asset_Listing_Management extends Asset_Management
 										'type'    => 'text',
 										'default' => 'Next'
 										);
-										
+
 		$this->vars['parameter_map'] = Array(
 										'added'	=> '0.4',
 										'type'  => 'parameter_map',

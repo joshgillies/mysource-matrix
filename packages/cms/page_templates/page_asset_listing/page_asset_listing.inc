@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_listing.inc,v 1.65 2005/03/16 17:37:10 brobertson Exp $
+* $Id: page_asset_listing.inc,v 1.66 2005/03/23 03:56:35 tbarrett Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_PACKAGES_PATH.'/cms/listing_engine/listing_engine.inc';
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.65 $
+* @version $Revision: 1.66 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -58,7 +58,7 @@ class Page_Asset_Listing extends Listing_Engine
 	/**
 	* Perform any additional processing required during the creation of this asset
 	*
-	* Creates the page contents bodycopy 
+	* Creates the page contents bodycopy
 	*
 	* @param array	&$link	information used to create the initial link
 	*
@@ -71,7 +71,7 @@ class Page_Asset_Listing extends Listing_Engine
 
 		// add a bodycopy to this page when creating
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy');
-		
+
 		$asset = new Bodycopy();
 		$copy_link = Array('asset' => &$this, 'value' => 'page_contents' ,'link_type' => SQ_LINK_TYPE_2, 'is_dependant' => 1, 'is_exclusive' => 1);
 		$asset->setAttrValue('name', 'Page Contents');
@@ -113,8 +113,8 @@ class Page_Asset_Listing extends Listing_Engine
 		return $page_links;
 
 	}//end _getAllowedLinks()
-	
-	
+
+
 	/**
 	* Called by the design to print the body of this asset
 	*
@@ -153,7 +153,7 @@ class Page_Asset_Listing extends Listing_Engine
 			$children = $this->getAssetList();
 			$num_kids = count($children);
 			$this->filterAssetList($children);
-			
+
 			// if there are no children available, just print the page bodycopy
 			if (empty($children)) {
 				$replacements = $this->getKeywordReplacements();
@@ -166,7 +166,7 @@ class Page_Asset_Listing extends Listing_Engine
 			$num_per_page = $this->attr('num_per_page');
 			$result_page = (isset($_REQUEST['result_page'])) ? (int)$_REQUEST['result_page'] : 1;
 			if ($result_page <= 0) $result_page = 1;
-				
+
 			// get our page chunk here
 			$todo =& $this->getChunk($children, $replacements, $result_page, $num_per_page);
 			$num_assets_showing = count($todo);
@@ -187,8 +187,8 @@ class Page_Asset_Listing extends Listing_Engine
 			$replacements['first_asset_position'] = $num_per_page * ($result_page - 1) + 1;
 			$replacements['last_asset_position'] = min($num_kids, $num_per_page * $result_page);
 			$replacements['root_nodes'] = implode(',', $this->getRootNodes());
-		
-		
+
+
 			$other_replacements = $this->getKeywordReplacements();
 			$replacements = array_merge($replacements, $other_replacements);
 
@@ -210,8 +210,8 @@ class Page_Asset_Listing extends Listing_Engine
 		$GLOBALS['SQ_SYSTEM']->am->forgetAsset($bodycopy);
 
 	}//end printBody()
-	
-	
+
+
 	/**
 	* Get the list of asset that should be printed
 	*
@@ -246,7 +246,7 @@ class Page_Asset_Listing extends Listing_Engine
 		// This may come from the parameter map, but the dynamic value must be a child of the static value
 		// if there are no root assets, we will use ourselves and print our children
 		$root_asset_ids = $this->getRootNodes();
-		
+
 		// this is what we are going to sort the reults by (passed directly to the getLinks
 		// and getChildren functions)
 		// must be a column in the asset table (null = no sorting)
@@ -257,7 +257,7 @@ class Page_Asset_Listing extends Listing_Engine
 		// if we are showing an A-Z listing but the user has not selected a proper sort field,
 		// we will use the 'name' attribute of the asset to work out the listing
 		if (($group_by == 'letter') && ($sort_by != 'name') && ($sort_by != 'short_name')) $sort_by = 'name';
-		
+
 		// if the sort by is set to use an attribute, sort by name at this
 		// stage
 		$assets_to_list = Array();
@@ -322,7 +322,7 @@ class Page_Asset_Listing extends Listing_Engine
 				case 'letter' :
 					foreach ($root_asset_ids as $root_asset_id) {
 						if ($this->attr('direction') == 'down') {
-							$root_asset = $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
+							$root_asset =& $GLOBALS['SQ_SYSTEM']->am->getAsset($root_asset_id);
 							$query = $GLOBALS['SQ_SYSTEM']->am->generateGetChildrenQuery($root_asset, array_keys($wanted_types), false, $sort_by, SQ_PERMISSION_READ);
 							$GLOBALS['SQ_SYSTEM']->am->forgetAsset($root_asset);
 						} else {
@@ -356,7 +356,7 @@ class Page_Asset_Listing extends Listing_Engine
 
 	}//end getAssetList()
 
-	
+
 	/**
 	* Add valid keywords for this asset to an array of keywords when asked
 	*
@@ -371,7 +371,7 @@ class Page_Asset_Listing extends Listing_Engine
 	{
 		if (!isset($vars['keywords'])) return;
 		if (!is_a($broadcaster, 'content_type')) return;
-		
+
 		$parents = $GLOBALS['SQ_SYSTEM']->am->getParents($broadcaster->id, 'bodycopy', true);
 
 		// the broadcaster could be our page contents bodycopy, in which case
@@ -383,15 +383,15 @@ class Page_Asset_Listing extends Listing_Engine
 				return;
 			}
 		}
-		
+
 		// if it's not the page contents bodycopy, it's something that we've
 		// inherited from the listing engine, so pass it on
 		parent::onRequestKeywords($broadcaster, $vars);
-		
-	} //end onRequestKeywords()
+
+	}//end onRequestKeywords()
 
 
-/**
+	/**
 	* Return the available keywords in the Page Contents Bodycopy for this asset
 	*
 	* The return value is in the form:
@@ -407,7 +407,7 @@ class Page_Asset_Listing extends Listing_Engine
 	function getContentsKeywords()
 	{
 		$keywords = parent::getContentsKeywords();
-		
+
 		$keywords += Array(
 							'asset_listing' => 'Asset Listing',
 							'previous_page' => 'Previous Page Link',
@@ -425,8 +425,8 @@ class Page_Asset_Listing extends Listing_Engine
 		return $keywords;
 
 	}//end getContentsKeywords()
-	
-	
+
+
 	/**
 	* Gets the list of current root nodes
 	*
@@ -437,16 +437,16 @@ class Page_Asset_Listing extends Listing_Engine
 	{
 		if (!isset($this->_tmp['root_asset_ids'])) {
 			$root_asset_ids = parent::getRootNodes();
-			
+
 			$parameter_map = &$this->getAttribute('parameter_map');
 			$dynamic_root_str = $parameter_map->getParameterValue('root_node');
-			
+
 			// check if we have a dynamic parameter -- if so, let's do some security checks
 			if (!is_null($dynamic_root_str)) {
 				$dynamic_root_nodes = Array();
-				foreach(explode(',', $dynamic_root_str) as $dynamic_root) {
+				foreach (explode(',', $dynamic_root_str) as $dynamic_root) {
 					$dynamic_parents = $GLOBALS['SQ_SYSTEM']->am->getParents($dynamic_root);
-					
+
 					// first, check to see if the dynamic parameter specified is already one of the root nodes
 					// if so, just use that single root node
 					if (in_array($dynamic_root, $root_asset_ids)) {
@@ -462,20 +462,20 @@ class Page_Asset_Listing extends Listing_Engine
 						}
 					}
 				}
-				
+
 				if (!empty($dynamic_root_nodes)) {
 					$root_asset_ids = $dynamic_root_nodes;
 				}
 			}
-			
+
 			$this->_tmp['root_asset_ids'] = $root_asset_ids;
 		}
-		
+
 		return $this->_tmp['root_asset_ids'];
-		
+
 	}//end getRootNodes()
-	
-	
+
+
 	/**
 	* Work out the unique cache key to represent the current page
 	*
@@ -495,8 +495,8 @@ class Page_Asset_Listing extends Listing_Engine
 		return $cache_key;
 
 	}//end _getCacheKey()
-	
-	
+
+
 }//end class
 
 ?>
