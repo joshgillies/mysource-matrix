@@ -22,7 +22,9 @@ class Page_Standard_Management extends Asset_Management
 	function Page_Standard_Management(&$pm)
 	{
 		$this->Asset_Management($pm);
+
 	}//end constructor
 
 }//end class
+
 ?>

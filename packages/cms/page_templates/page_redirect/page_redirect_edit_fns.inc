@@ -26,7 +26,6 @@ class Page_Redirect_Edit_Fns extends Page_Edit_Fns
 
 	}//end constructor
 
-
 }//end class
 
 ?>

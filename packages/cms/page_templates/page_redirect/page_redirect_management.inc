@@ -24,10 +24,10 @@ class Page_Redirect_Management extends Asset_Management
 		$this->Asset_Management($pm);
 
 		$this->vars = Array('redirect_url' => Array(
-											'added'     => '0.0.1',
-											'type'      => 'text',  'default'   => '',
-											'update_fn' => ''
-											),
+													'added'     => '0.0.1',
+													'type'      => 'text',  'default'   => '',
+													'update_fn' => ''
+													),
 							);
 
 	}//end constructor

@@ -23,7 +23,9 @@ class Page_Standard_Edit_Fns extends Page_Edit_Fns
 	function Page_Standard_Edit_Fns()
 	{
 		$this->Page_Edit_Fns();
-	}
+
+	}//end constructor
 
 }//end class
+
 ?>
