@@ -18,18 +18,12 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: lang_screen_log.xml,v 1.1 2005/03/30 00:41:11 lwright Exp $
+* $Id: lang_screen_log.xml,v 1.2 2005/03/31 06:56:17 lwright Exp $
 *
 */
 -->
 
 <contents>
-	<section name="Enable / Disable Logging">
-		<field attribute="log">
-			<display_name>Log Submissions</display_name>
-			<note></note>
-		</field>
-	</section>
 	<section name="Export">
 		<field>
 			<display_name>Date Range</display_name>
