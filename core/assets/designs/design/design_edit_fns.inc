@@ -59,13 +59,51 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function processParseFile(&$asset, &$o, $prefix)
 	{
-		$parse_file = $asset->data_path.'/parse.txt';
-		$changes = false;
+		$parse_file  = $asset->data_path.'/parse.txt';
+		$changes     = false;
+		$new_version = false;
+
+		$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+		// delete existing parse file if it exists
+		if (is_file($parse_file)) {
+			$new_version = true;
+			if (!unlink($parse_file)) {
+				trigger_error('Failed deleting existing parse file', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		// copy over the uploaded file
 		if (commit_file_upload($prefix.'_parse_file', $parse_file, true)) {
 			// tell the asset to update the customisation at the end of the interface processing
 			$asset->_tmp['update_customisations'] = true;
 			$changes = $this->parseAndProcessFile($asset);
+
+			// if we are overwriting our current parse file, we need to add a new version to the repository
+			if ($new_version) {
+				$file_status = $fv->upToDate($parse_file);
+				if (FUDGE_FV_MODIFIED & $file_status) {
+					if (!$fv->commit($parse_file, '', false)) {
+						trigger_error('Failed committing file version', E_USER_WARNING);
+						return false;
+					}
+				}
+			} else {
+				// attempt to add the parse file to the repository
+				if (!$fv->add($asset->data_path_suffix, $parse_file, '', false)) {
+					trigger_error('Failed adding parse file version', E_USER_WARNING);
+					return false;
+				}
+			}
+		}//end if file uploaded
+
+		// make sure we have the latest version of our file
+		if (!$fv->checkOut($asset->data_path_suffix.'/parse.txt', $asset->data_path)) {
+			trigger_error('Failed checking out latest version of parse file', E_USER_WARNING);
+			return false;
 		}
+
 		return $changes;
 
 	}// end processParseFile()
