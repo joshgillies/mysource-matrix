@@ -297,6 +297,43 @@ class Metadata_Field_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
+	* Check if all required fields have been completed in the values supplied
+	*
+	* @param object Metadata_Field	&$asset		the asset whose metadata we are checking
+	* @param array					$values		the current metadata values
+	*
+	* @return boolean
+	* @access public
+	*/
+	function requiredFieldsComplete(&$asset, $values)
+	{
+		// if this is not a required field then of course it doesnt break the rule
+		if (!$asset->attr('required')) return true;
+
+		// check for the main value being complete
+		if (isset($values['value'])) $default = $values['value'];
+		else $default = $asset->attr('default');
+		$default = trim($default);
+		if (!empty($default)) return true;
+
+		// now check value components to see if they are complete
+		$current_vc = $asset->attr('value_components');
+		if (!empty($current_vc)) {
+			foreach ($current_vc as $vc_name => $vc_value) {
+				if (isset($values['value_components'][$vc_name])) {
+					$vc_value = $values['value_components'][$vc_name];
+				}
+				$vc_value = trim($vc_value);
+				if (!empty($vc_value)) return true;
+			}
+		}
+
+		return false;
+
+	}//end requiredFieldsComplete()
+
+
+	/**
 	* Output the complete metadata tag for this field
 	*
 	* @param object Metadata_Field	&$asset		the asset whose interface we are painting

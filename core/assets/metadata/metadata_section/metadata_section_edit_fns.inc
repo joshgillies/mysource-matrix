@@ -198,11 +198,36 @@ class Metadata_Section_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
+	* Check if all required fields have been completed in the values supplied
+	*
+	* @param object Metadata_Section	&$asset		the asset whose metadata we are checking
+	* @param array						$values		the current metadata values
+	*
+	* @return boolean
+	* @access public
+	*/
+	function requiredFieldsComplete(&$asset, $values)
+	{
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_field', true, 'major', null, true);
+		foreach ($current_links as $link) {
+			$field = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (is_null($field)) continue;
+			$edit_fns = $field->getEditFns();
+			if (!isset($values['fields'][$field->name])) $values['fields'][$field->name] = Array();
+			if (!$edit_fns->requiredFieldsComplete($field, $values['fields'][$field->name])) return false;
+		}
+
+		return true;
+
+	}//end requiredFieldsComplete()
+
+
+	/**
 	* Output the complete metadata tags for this section
 	*
-	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
-	* @param array					$values		the current metadata values
-	* @param array					&$keywords	an array we can put keywords in that need replacing
+	* @param object Metadata_Section	&$asset		the asset whose interface we are painting
+	* @param array						$values		the current metadata values
+	* @param array						&$keywords	an array we can put keywords in that need replacing
 	*
 	* @return boolean
 	* @access public

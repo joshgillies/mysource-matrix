@@ -93,7 +93,7 @@ class Metadata_Manager extends Resolve_Object
 			return false;
 		}
 
-		if (!$asset->adminAccess()) {
+		if (!$asset->adminAccess(Array(), true, false)) {
 			trigger_error('Cannot set metadata schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
@@ -155,7 +155,7 @@ class Metadata_Manager extends Resolve_Object
 			return false;
 		}
 
-		if (!$asset->adminAccess()) {
+		if (!$asset->adminAccess(Array(), true, false)) {
 			trigger_error('Cannot delete metadata schema for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
@@ -255,7 +255,7 @@ class Metadata_Manager extends Resolve_Object
 			return false;
 		}
 
-		if (!$asset->adminAccess()) {
+		if (!$asset->adminAccess(Array(), true, false)) {
 			trigger_error('Cannot set metadata for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
@@ -296,6 +296,55 @@ class Metadata_Manager extends Resolve_Object
 
 
 	/**
+	* Check if all required fields have been completed for an asset
+	*
+	* @param int	$assetid	the ID of the asset to check
+	*
+	* @access public
+	* @return boolean
+	*/
+	function requiredFieldsComplete($assetid)
+	{
+		$assetid = (int) $assetid;
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+		if (is_null($asset)) return true;
+
+		$schemas = $this->getSchemas($asset->id, true);
+		if (empty($schemas)) return true;
+
+		foreach ($schemas as $schemaid) {
+			$schema = &$GLOBALS['SQ_SYSTEM']->am->getAsset($schemaid);
+			if (is_null($schema)) continue;
+			if (!is_a($schema, 'metadata_schema')) continue;
+			$edit_fns = $schema->getEditFns();
+			$values = $this->getSchemaMetadata($asset->id, $schema->id);
+			if (!$edit_fns->requiredFieldsComplete($schema, $values)) return false;
+		}
+
+		return true;
+
+	}//end requiredFieldsComplete()
+
+
+	/**
+	* Check if all required fields have been completed for an asset
+	*
+	* @param int	$assetid	the ID of the asset to check
+	*
+	* @access public
+	* @return boolean
+	*/
+	function allowsMetadata($assetid)
+	{
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset((int) $assetid);
+		if (is_null($asset)) return false;
+		$edit_fns = $asset->getEditFns();
+		return isset($edit_fns->static_screens['metadata']);
+
+	}//end allowsMetadata()
+
+
+	/**
 	* Generate a PHP file that can be included to print all metadata fields for an asset
 	*
 	* The generated file contains PHP code to do any keyword replacing based on
@@ -313,11 +362,6 @@ class Metadata_Manager extends Resolve_Object
 		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) {
 			trigger_error('Failed caching metadata, Asset #'.$assetid.' does not exist', E_USER_WARNING);
-			return false;
-		}
-
-		if (!$asset->adminAccess()) {
-			trigger_error('Cannot cache metadata for "'.$asset->name.'", permission denied', E_USER_WARNING);
 			return false;
 		}
 

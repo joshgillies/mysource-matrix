@@ -209,9 +209,33 @@ class Metadata_Schema_Edit_Fns extends Asset_Edit_Fns
 
 
 	/**
+	* Check if all required fields have been completed in the values supplied
+	*
+	* @param object Metadata_Schema	&$asset		the asset whose metadata we are checking
+	* @param array					$values		the current metadata values
+	*
+	* @return boolean
+	* @access public
+	*/
+	function requiredFieldsComplete(&$asset, $values)
+	{
+		$current_links = $GLOBALS['SQ_SYSTEM']->am->getLinks($asset->id, SQ_LINK_TYPE_2, 'metadata_section', true, 'major', null, true);
+		foreach ($current_links as $link) {
+			$section = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
+			if (is_null($section)) continue;
+			$edit_fns = $section->getEditFns();
+			if (!$edit_fns->requiredFieldsComplete($section, $values['sections'][$section->name])) return false;
+		}
+
+		return true;
+
+	}//end requiredFieldsComplete()
+
+
+	/**
 	* Output the complete metadata tags for this schema
 	*
-	* @param object Metadata_Field	&$asset		the asset whose interface we are painting
+	* @param object Metadata_Schema	&$asset		the asset whose interface we are painting
 	* @param array					$values		the current metadata values
 	* @param array					&$keywords	an array we can put keywords in that need replacing
 	*
