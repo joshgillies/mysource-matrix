@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: html_form.inc,v 1.65 2004/11/11 06:28:19 tbarrett Exp $
+* $Id: html_form.inc,v 1.66 2004/11/12 06:07:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -609,28 +609,29 @@ function commit_file_upload($name, $dest, $overwrite=false, $max_size=0, $restri
 
 }//end commit_file_upload()
 
+
 /**
 * Get a string version of the given array of type codes, for passing to the asset map
 *
 * @param array	$type_codes		The type codes to encode
 *
-* @access private
+* @access public
 * @return string
 */
-function _get_type_codes_string($type_codes)
+function get_type_codes_string($type_codes)
 {
 	$all_type_codes = Array();
 	foreach ($type_codes as $type_code => $flag) {
 		$all_type_codes[] = $type_code;
 		switch ($flag) {
 			case 'A' : 
-				$ancestors = $am->getTypeAncestors($type_code);
+				$ancestors = $GLOBALS['SQ_SYSTEM']->am->getTypeAncestors($type_code);
 				foreach($ancestors as $ancestor) {
 					$all_type_codes[] = $ancestor;
 				}
 			break;
 			case 'D' : 
-				$descendants = $am->getTypeDescendants($type_code);
+				$descendants = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code);
 				foreach($descendants as $descendant) {
 					$all_type_codes[] = $descendant;
 				}
@@ -645,7 +646,7 @@ function _get_type_codes_string($type_codes)
 	}
 	return $type_codes;
 
-}//end _get_type_codes_string()
+}//end get_type_codes_string()
 
 
 /**
@@ -676,11 +677,9 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	}
 	if ($new_window) $map_frame = 'window.opener.'.$map_frame;
 
-	$am = &$GLOBALS['SQ_SYSTEM']->am;
-
 	$label = '';
 	if ($assetid) {
-		$asset = &$am->getAsset($assetid);
+		$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
 		if (is_null($asset)) $assetid = 0;
 		else $label = $asset->short_name.' (Id : #'.$asset->id.')';
 	}
@@ -688,7 +687,7 @@ function asset_finder($name, $assetid=0, $type_codes=Array(), $map_frame='sq_sid
 	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
 
 
-	$type_codes = _get_type_codes_string($type_codes);
+	$type_codes = get_type_codes_string($type_codes);
 
 	hidden_field($name.'[assetid]', $assetid);
 	hidden_field($name.'[url]', '');
@@ -750,7 +749,7 @@ function multiple_asset_finder($name, $assetids=Array(), $type_codes=Array(), $m
 	}
 
 	$safe_name = 'sq_asset_finder_'.preg_replace('/[^A-Za-z0-9]/', '_', $name);
-	$type_codes_string = _get_type_codes_string($type_codes);
+	$type_codes_string = get_type_codes_string($type_codes);
 	echo '<input type="button" value="More..." onclick="addNewAssetFinder(this, \''.$name.'\', \''.$safe_name.'\', \''.addslashes($type_codes_string).'\', \''.htmlentities($map_frame_exp).'\', '.$done_fn.', '.(in_array('clear', $buttons) ? 'true' : 'false').')" />';
 	echo '<br />';
 	echo '</div>';
