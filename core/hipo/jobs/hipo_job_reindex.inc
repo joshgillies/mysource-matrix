@@ -82,8 +82,6 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	*/
 	function initialise($source_code_name=null)
 	{
-		bom("hipo_job_reindex(". $this->_getCodeName() .")::initialise(". $source_code_name .")");
-
 		// to start regenerating metadata, we need to have a root assetid - default to root folder if none is supplied
 		if (is_null($this->_running_vars['root_assetid']) || $this->_running_vars['root_assetid'] <= 0) {
 			$this->_running_vars['root_assetid'] = 1;	// the root folder
@@ -92,8 +90,6 @@ class HIPO_Job_ReIndex extends HIPO_Job
 		$this->_running_vars['todo_assetids'] = $GLOBALS['SQ_SYSTEM']->am->getChildren($this->_running_vars['root_assetid']);
 		$this->_running_vars['done_assetids'] = Array();
 		
-		bom($this->_running_vars);
-
 		return parent::initialise($source_code_name);
 
 	}//end initialise()
@@ -110,8 +106,6 @@ class HIPO_Job_ReIndex extends HIPO_Job
 	*/
 	function processReIndex(&$step_data, $prefix)
 	{
-		bom('processReIndex entered');
-		bom($step_data);
 		if (!empty($this->_running_vars['todo_assetids'])) {
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			$im = &$GLOBALS['SQ_SYSTEM']->getIndexingManager();
