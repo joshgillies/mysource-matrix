@@ -830,20 +830,20 @@ class Backend_Outputter
 
 	function onCreateLink($event_data=Array()) {
 		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
-			$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+			$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
 			$this->_refreshing_assets[] = $event_data['assetid'];
 		}
 	}
 	function onDeleteLink($event_data=Array()) {
 		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
-			$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+			$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
 			$this->_refreshing_assets[] = $event_data['assetid'];
 		}
 	}
 	function onAssetUpdate($event_data=Array()) {
 		if (!in_array($event_data['assetid'], $this->_refreshing_assets)) {
 			if ($event_data['old_short_name'] != $event_data['new_short_name']) {
-				$this->addOnLoad('top.sidenav.reload_asset("'.$event_data['assetid'].'");');
+				$this->addOnLoad('if (top.sidenav && top.sidenav.reload_asset) top.sidenav.reload_asset("'.$event_data['assetid'].'");');
 				$this->_refreshing_assets[] = $event_data['assetid'];
 			}
 		}
