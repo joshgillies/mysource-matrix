@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: bodycopy_container.inc,v 1.12 2004/10/25 06:49:54 lwright Exp $
+* $Id: bodycopy_container.inc,v 1.13 2004/11/09 02:03:17 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -313,10 +313,15 @@ class Bodycopy_Container extends Asset
 				$output = ob_get_contents();
 			ob_end_clean();
 
+			// replace ./?a=xxx style links within the content
 			foreach ($sq_asset_url_list as $assetid => $href) {
 				$e = "(/?\./\\?a=$assetid)([^0-9]+)";
 				$output = ereg_replace($e, $href.'\\2', $output);
 			}
+			
+			// replace keywords in the content
+			$output = replace_keywords($output, $keyword_replacements);
+
 			echo $output;
 			return;
 		}
