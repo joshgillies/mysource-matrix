@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_field_date_edit_fns.inc,v 1.11 2004/09/08 04:20:13 gsherwood Exp $
+* $Id: metadata_field_date_edit_fns.inc,v 1.11.2.1 2004/11/04 02:39:34 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -266,9 +266,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		$default = $asset->attr('default');
 
 		$select_options = Array(
-							''					=> '-- keywords --',
-							'%asset_updated%'	=> 'Last updated date',
-							'%asset_created%'	=> 'Creation date'
+							''                  => '-- keywords --',
+							'%asset_created%'   => 'Creation date',
+							'%asset_updated%'   => 'Last updated date',
+							'%asset_published%' => 'Last published date',
+							
 		);
 
 		echo "Selected keyword replacement will be used instead of any entered default date values<br />";
@@ -379,9 +381,11 @@ class Metadata_Field_Date_Edit_Fns extends Metadata_Field_Edit_Fns
 		if ($asset->attr('required')) $field_name .= ' <span style="color: #FF0000">*</span>';
 
 		$select_options = Array(
-							''					=> '-- keywords --',
-							'%asset_updated%'	=> 'Last updated date',
-							'%asset_created%'	=> 'Creation date'
+							''                  => '-- keywords --',
+							'%asset_created%'   => 'Creation date',
+							'%asset_updated%'   => 'Last updated date',
+							'%asset_published%' => 'Last published date',
+							
 		);
 
 		$o->openField($field_name);
