@@ -79,6 +79,13 @@ class Asset extends Resolve_Object
 	*/
 	var $_ser_attrs = false;
 
+	/**
+	* A var for holding temporary data for this asset
+	*
+	* @var bool
+	*/
+	var $_tmp = Array();
+
 
 	/**
 	* Constructor
@@ -98,6 +105,149 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Perform some actions before the object is serialised
+	*
+	* @return void
+	* @access private
+	*/
+	function __sleep()
+	{
+		$object_vars = get_object_vars($this);
+		if (!is_array($object_vars)) $object_vars = Array();
+		unset($object_vars['_tmp']);
+		return array_keys($object_vars);
+	}//end __sleep()
+
+
+	/**
+	* Perform some actions after the object is unserialised
+	*
+	* @return void
+	* @access private
+	*/
+	function __wakeup()
+	{
+		$this->_tmp = Array();
+	}//end __wakeup()
+
+
+	/**
+	* Saves a copy of this asset at this point in time
+	* This copy gets used when the asset is live and the user does not have write access
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveSystemVersion()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// make sure our data directory exists
+		if (!create_directory($this->data_path)) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create data directory', E_USER_WARNING);
+			return false;
+		}
+
+		// make sure our system directory exists
+		if (!create_directory($this->data_path.'/.sq_system')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create system directory', E_USER_WARNING);
+			return false;
+		}
+
+		// make sure there is nothing in the system directory
+		if (!clear_directory($this->data_path.'/.sq_system')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not clear system directory', E_USER_WARNING);
+			return false;
+		}
+
+		// save the object for later
+		if (!string_to_file(serialize($this), $this->data_path.'/.sq_system/.object_data')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not write object data file', E_USER_WARNING);
+			return false;
+		}
+
+		// move all the other files in our data directory
+		// into the new system directory for later use
+		$files_to_copy = list_files($this->data_path);
+		foreach ($files_to_copy as $filename) {
+			if (!copy_file($this->data_path.'/'.$filename, $this->data_path.'/.sq_system/'.$filename)) {
+				trigger_error('Failed saving asset "'.$this->name.'" to cache, could not copy file "'.$filename.'"', E_USER_WARNING);
+				return false;
+			}
+		}
+
+		return true;
+	}//end saveSystemVersion()
+
+
+	/**
+	* Clears the directory for saving the system version
+	*
+	* @return boolean
+	* @access public
+	*/
+	function clearSystemVersion()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// make sure our data directory exists
+		if (!create_directory($this->data_path)) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create data directory', E_USER_WARNING);
+			return false;
+		}
+
+		// make sure our system directory exists
+		if (!create_directory($this->data_path.'/.sq_system')) {
+			trigger_error('Failed saving asset "'.$this->name.'" to cache, could not create system directory', E_USER_WARNING);
+			return false;
+		}
+
+		if (!clear_directory($this->data_path.'/.sq_system')) {
+			trigger_error('Failed clearing system version of asset "'.$this->name.'"', E_USER_WARNING);
+			return false;
+		}
+
+		return true;
+	}//end clearSystemVersion()
+
+
+	/**
+	* Loads the asset from the cached version
+	* The cached version is saved when the asset status becomes SQ_STATUS_LIVE
+	*
+	* @return boolean
+	* @access public
+	*/
+	function loadSystemVersion()
+	{
+		require_once SQ_FUDGE_PATH.'/general/file_system.inc';
+
+		// make sure our data directory exists
+		if (!file_exists($this->data_path.'/.sq_system/.object_data')) {
+			trigger_error('Failed loading asset "'.$this->id.'" from cache, object data file "'.$this->data_path.'/.sq_system/.object_data'.'" not found', E_USER_WARNING);
+			return false;
+		}
+
+		$real_status = $this->status;
+		$this = unserialize(file_to_string($this->data_path.'/.sq_system/.object_data'));
+		$this->status = $real_status;
+		return true;
+	}//end loadSystemVersion()
+
+
+	/**
+	* Should the current user be shown the cached version or not
+	*
+	* @return boolean
+	* @access public
+	*/
+	function useSystemVersion()
+	{
+		return (($this->status & SQ_STATUS_SAFE_EDITING) && !$this->writeAccess(Array(), false));
+	}//end useSystemVersion()
+
+
+	/**
 	* The type that this asset is
 	*
 	* @return string
@@ -112,7 +262,7 @@ class Asset extends Resolve_Object
 	/**
 	* Create this asset
 	* The return value will be:
-	*    FALSE if the asset wa snot created
+	*    FALSE if the asset was not created
 	*    the ID of the newly created link if the asset and intital link were created
 	*    TRUE if the asset was created but $link was empty
 	*
@@ -299,11 +449,9 @@ class Asset extends Resolve_Object
 	*/
 	function load($assetid)
 	{
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// OK, the first thing to do is check we actually exist :)
-
 		$sql = 'SELECT assetid, name, short_name, status, type_code, last_updated, last_userid
 				FROM sq_asset
 				WHERE assetid = '.$db->quote($assetid);
@@ -327,7 +475,17 @@ class Asset extends Resolve_Object
 			return;
 		}
 
-		$this->_loadVars();
+		if ($this->useSystemVersion()) {
+			// let's setup the data path
+			$this->data_path = SQ_DATA_PATH.'/'.(($this->_restricted) ? '' : 'un').'restricted/'.$this->type().'/'.$this->id;
+			if (!$this->loadSystemVersion()) {
+				trigger_error('Asset #'.$assetid.' failed loading from cache', E_USER_WARNING);
+				return;
+			}
+			$this->data_path .= '/.sq_system';
+		} else {
+			$this->_loadVars();
+		}
 
 	}//end load()
 
@@ -339,7 +497,7 @@ class Asset extends Resolve_Object
 	*/
 	function _loadVars()
 	{
-		// firstly let's setup the data path
+		// let's setup the data path
 		$this->data_path = SQ_DATA_PATH.'/'.(($this->_restricted) ? '' : 'un').'restricted/'.$this->type().'/'.$this->id;
 
 		// Right, now we need to get any values that this asset has customised
@@ -505,7 +663,11 @@ class Asset extends Resolve_Object
 					} else {
 						$statii[SQ_STATUS_LIVE] = 'Approve Changes';
 					}
-					$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Reject Changes';
+					if ($this->status == SQ_STATUS_EDITING_APPROVAL) {
+						$statii[SQ_STATUS_EDITING] = 'Reject Changes';
+					} else {
+						$statii[SQ_STATUS_UNDER_CONSTRUCTION] = 'Reject Changes';
+					}
 				}
 				break;
 		}
@@ -534,46 +696,79 @@ class Asset extends Resolve_Object
 	/**
 	* Processes the changes required when a new status is set
 	*
-	* @param int	$new_status	the new status to set for this asset
+	* @param int	$new_status		the new status to set for this asset
+	* @param int	$real_status	the new status is not always the status that gets
+	*								set because of workflow and other things, so this
+	*								status represents the actual status that will be set
+	*								if know (will only be know if this function was called
+	*								from a dependant parent)
 	*
 	* @return boolean
 	* @access public
 	*/
-	function processStatusChange($new_status)
+	function processStatusChange($new_status, $real_status=0)
 	{
+		if (!$real_status) $real_status = $new_status;
+
 		// dont change if we already have this status
-		if ($this->status == $new_status) return false;
+		// but pretend that we did so no rollback occurs
+		if ($this->status == $new_status) return true;
+
+		// if we are dependant minor assets, we can only change
+		// our status to a status higher than or equal to all
+		// the statii of our parents
+		$dependant_parents = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'minor', null, 1);
+		if (!empty($dependant_parents)) {
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			foreach ($dependant_parents as $link) {
+				$asset = &$am->getAsset($link['majorid']);
+				if ($asset->status > $real_status) {
+					// we dont want to rollback, but we dont
+					// want to change our status for real,
+					// and we dont want to change our childrens statii
+					return true;
+				}
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$old_status = $this->status;
 		$current_userid = $GLOBALS['SQ_SYSTEM']->currentUserid();
-		$pending_statii = Array(SQ_STATUS_PENDING_APPROVAL, SQ_STATUS_EDITING_APPROVAL);
 
 		switch ($new_status) {
 			case SQ_STATUS_LIVE :
 				include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
 				$wfm = new Workflow_Manager($this);
 
-				if ($wfm->state != 'running' && empty($wfm->steps) && empty($wfm->inherited_workflows)) {
-					// no direct workflow, no inherited, and no running
-					// so anyone with admin access can make this live
-					if ($this->adminAccess(Array(), false)) {
-						$this->status = SQ_STATUS_LIVE;
-						break;
+				if ($wfm->state != 'running') {
+					if (empty($wfm->steps) && empty($wfm->inherited_workflows)) {
+						// no direct workflow, no inherited, and no running
+						// so anyone with admin access can make this live
+						if ($this->adminAccess(Array(), false)) {
+							$this->clearSystemVersion();
+							$this->status = SQ_STATUS_LIVE;
+							break;
+						}
+					} else if ($this->status & SQ_STATUS_PENDING) {
+						// the asset is pending approval, there is a
+						// workflow to follow, but it has not been started
+						// so... something has gone horribly wrong
+						$wfm->start();
 					}
 				}
 
 				// if the workflow is running, check to make sure
 				// our current status reflects this
 				if ($wfm->state == 'running') {
-					if (!in_array($this->status, $pending_statii)) $this->status = SQ_STATUS_PENDING_APPROVAL;
-				}
+					if (!($this->status & SQ_STATUS_PENDING)) $this->status = SQ_STATUS_PENDING_APPROVAL;
 
-				if (in_array($this->status, $pending_statii)) {
 					// we are doing a workflow and someone has just
 					// approved the asset, so record this
 					if (!$wfm->recordPublish($current_userid)) {
 						trigger_error('Approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
 						$this->status = $old_status;
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
 
@@ -586,6 +781,7 @@ class Asset extends Resolve_Object
 					if ($wfm->state == 'complete') {
 						// all workflows are done so we
 						// can go ahead and make this live
+						$this->clearSystemVersion();
 						$this->status = SQ_STATUS_LIVE;
 
 						// send an internal message
@@ -596,47 +792,45 @@ class Asset extends Resolve_Object
 				} else {
 					if (!$this->writeAccess(Array(), false)) return false;
 
-					if ($this->status == SQ_STATUS_UNDER_CONSTRUCTION) {
+					if ($this->status & SQ_STATUS_CAN_APPROVE) {
 						// we are going to make this asset live
 						// by starting the workflow process
 						$status = $wfm->testPublish($current_userid);
 						if ($status == 'complete') {
+							$this->clearSystemVersion();
 							$this->status = SQ_STATUS_LIVE;
 						} else {
 							if (!$wfm->start()) {
 								trigger_error('Workflow failed to start for "'.$this->name.'"', E_USER_WARNING);
 								$this->status = $old_status;
+								$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 								return false;
 							}
 
-							$this->status = SQ_STATUS_PENDING_APPROVAL;
+							$wfm->save();
+							$wfm = new Workflow_Manager($this);
+
+							// if the user who wants this asset to go live can also
+							// approve it as part of workflow, let their action to make this
+							// asset live signal their intention to approve it as well
+							$publishers = $wfm->whoCanPublish();
+							if (in_array($current_userid, $publishers)) {
+								if (!$wfm->recordPublish($current_userid)) {
+									trigger_error('Approval by user '.$current_userid.' not set in processStatusChange', E_USER_WARNING);
+									// dont die here because they can try again later
+								}
+							}
+
+							if ($this->status == SQ_STATUS_EDITING) {
+								$this->status = SQ_STATUS_EDITING_APPROVAL;
+							} else {
+								$this->status = SQ_STATUS_PENDING_APPROVAL;
+							}
 
 							// send an internal message
 							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
 							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-							$body = 'User "'.$user->name.'" has requested '.$this->type().' "'.$this->name.'" to go live from Under Construction.';
-							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Workflow Started', $body);
-						}
-
-					} else if ($this->status == SQ_STATUS_EDITING) {
-						// asset is currently safe editing
-						// so we need to start the workflow process
-						$status = $wfm->testPublish($current_userid);
-						if ($status == 'complete') {
-							$this->status = SQ_STATUS_LIVE;
-						} else {
-							if (!$wfm->start()) {
-								trigger_error('Workflow failed to start for "'.$this->name.'"', E_USER_WARNING);
-								$this->status = $old_status;
-								return false;
-							}
-
-							$this->status = SQ_STATUS_EDITING_APPROVAL;
-
-							// send an internal message
-							$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
-							$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
-							$body = 'User "'.$user->name.'" has requested '.$this->type().' "'.$this->name.'" to go live from Safe Editing.';
+							$body = 'User "'.$user->name.'" has requested '.$this->type().' "'.$this->name.'" to go live from '.$this->getStatusDescription($old_status).'.';
 							$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Workflow Started', $body);
 						}
 					}
@@ -645,15 +839,47 @@ class Asset extends Resolve_Object
 				$wfm->save();
 				break;
 
+			case SQ_STATUS_PENDING_APPROVAL :
+				break;
+
+			case SQ_STATUS_EDITING :
+			case SQ_STATUS_UNDER_CONSTRUCTION :
+				include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
+				$wfm = new Workflow_Manager($this);
+
+				$publishers = $wfm->whoCanPublish();
+
+				if (($this->status & SQ_STATUS_PENDING) && in_array($current_userid, $publishers)) {
+					// we are currently in workflow and someone has decide
+					// to reject the changes and cancel the workflow
+					if ($this->status == SQ_STATUS_EDITING_APPROVAL) $this->status = SQ_STATUS_EDITING;
+					else $this->status = SQ_STATUS_UNDER_CONSTRUCTION;
+
+					if (!$wfm->cancel()) {
+						trigger_error('Workflow cancel failed', E_USER_WARNING);
+						$this->status = $old_status;
+					} else {
+						// send an internal message
+						$ms = &$GLOBALS['SQ_SYSTEM']->getMessagingService();
+						$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_userid);
+						$body = 'User "'.$user->name.'" has rejected the changes made to '.$this->type().' "'.$this->name.'". The status of "'.$this->name.'" has reverted to '.$this->getStatusDescription();
+						$ms->sendMessage(array_keys($this->getPermission(SQ_PERMISSION_ADMIN, false, true)), 0, 'Asset Changes Rejected', $body);
+					}
+				}
+
 			case SQ_STATUS_EDITING :
 				if (!$this->writeAccess(Array(), false)) return false;
 				if ($this->status == SQ_STATUS_LIVE) {
 					// we are safe editing
-					$this->status = SQ_STATUS_EDITING;
+					if ($this->saveSystemVersion()) {
+						$this->status = SQ_STATUS_EDITING;
+					} else {
+						trigger_error('Status change failed, could not save to cache', E_USER_WARNING);
+						$this->status = $old_status;
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						return false;
+					}
 				}
-				break;
-
-			case SQ_STATUS_PENDING_APPROVAL :
 				break;
 
 			case SQ_STATUS_UNDER_CONSTRUCTION :
@@ -666,10 +892,11 @@ class Asset extends Resolve_Object
 					// if we are currently live, we can set to
 					// under construction without problems
 					$this->status = SQ_STATUS_UNDER_CONSTRUCTION;
-				} else if (in_array($this->status, $pending_statii) && in_array($current_userid, $publishers)) {
+					$this->clearSystemVersion();
+
+				} else if (($this->status & SQ_STATUS_PENDING) && in_array($current_userid, $publishers)) {
 					// we are currently in workflow and someone has decide
 					// to reject the changes and cancel the workflow
-					
 					if ($this->status == SQ_STATUS_EDITING_APPROVAL) $this->status = SQ_STATUS_EDITING;
 					else $this->status = SQ_STATUS_UNDER_CONSTRUCTION;
 
@@ -688,6 +915,7 @@ class Asset extends Resolve_Object
 
 			default :
 				trigger_error("Can not process status change, status '$new_status' not recognised", E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 		}
 
@@ -700,6 +928,7 @@ class Asset extends Resolve_Object
 			$result = $db->query($sql);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 
@@ -710,6 +939,20 @@ class Asset extends Resolve_Object
 
 			$this->_updated();
 		}
+
+		// try and process the change on our dependants
+		$dependant_links = $this->getLinks(SQ_LINK_SIGNIFICANT, '', true, 'major', null, 1);
+		if (!empty($dependant_links)) {
+			$am = &$GLOBALS['SQ_SYSTEM']->am;
+			foreach ($dependant_links as $link) {
+				$asset = &$am->getAsset($link['minorid']);
+				if (!$asset->processStatusChange($new_status, $this->status)) {
+					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				}
+			}
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -2757,15 +3000,17 @@ class Asset extends Resolve_Object
 		if (in_array($assetid, array_keys($current))) return false;
 
 		// if we dont have an assetid, we are granting public access
-		if (!empty($assetid)) {
-			// check that the passed assetid is a user or user_group
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
-			if (!$asset->id) {
-				trigger_error('Cannot grant permission for an asset that does not exist', E_USER_WARNING);
-				return false;
-			} else if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
-				trigger_error('Cannot grant permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
-				return false;
+		if ($permission != SQ_PERMISSION_WORKFLOW) {
+			if (!empty($assetid)) {
+				// check that the passed assetid is a user or user_group
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
+				if (!$asset->id) {
+					trigger_error('Cannot grant permission for an asset that does not exist', E_USER_WARNING);
+					return false;
+				} else if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
+					trigger_error('Cannot grant permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
+					return false;
+				}
 			}
 		}
 
@@ -2815,12 +3060,14 @@ class Asset extends Resolve_Object
 		if (!in_array($assetid, array_keys($current))) return false;
 		
 		// if we dont have an assetid, we are revoking public access
-		if (!empty($assetid)) {
-			// check that the passed assetid is a user or user_group
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-			if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
-				trigger_error('Cannot revoke permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
-				return false;
+		if ($permission != SQ_PERMISSION_WORKFLOW) {
+			if (!empty($assetid)) {
+				// check that the passed assetid is a user or user_group
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+				if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
+					trigger_error('Cannot revoke permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
+					return false;
+				}
 			}
 		}
 
@@ -2872,16 +3119,18 @@ class Asset extends Resolve_Object
 		if (in_array($assetid, array_keys($current))) return false;
 
 		// if we dont have an assetid, we are revoking public access
-		if (!empty($assetid)) {
-			// check that the passed assetid is a user or user_group
-			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
-			if ($permission != SQ_PERMISSION_WORKFLOW) {
-				if (!$asset->id) {
-					trigger_error('Cannot revoke inherited permission for an asset that does not exist', E_USER_WARNING);
-					return false;
-				} else if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
-					trigger_error('Cannot revoke inherited permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
-					return false;
+		if ($permission != SQ_PERMISSION_WORKFLOW) {
+			if (!empty($assetid)) {
+				// check that the passed assetid is a user or user_group
+				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid, '', true);
+				if ($permission != SQ_PERMISSION_WORKFLOW) {
+					if (!$asset->id) {
+						trigger_error('Cannot revoke inherited permission for an asset that does not exist', E_USER_WARNING);
+						return false;
+					} else if (!is_a($asset, 'user') && !is_a($asset, 'user_group')) {
+						trigger_error('Cannot revoke inherited permission for asset type "'.$asset->type().'", not a user or user group', E_USER_WARNING);
+						return false;
+					}
 				}
 			}
 		}

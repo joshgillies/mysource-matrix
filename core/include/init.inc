@@ -112,13 +112,18 @@ define('SQ_PERMISSION_WORKFLOW', 4); // workflow
 
 /*
 * STATUS TYPES - statii an asset can currently have
+* It is very important that the statii stay in the order they are defined
+* as they are compared to eachother when changing the status of an asset
 */
 define('SQ_STATUS_UNDER_CONSTRUCTION', 1); // asset is under construction
-define('SQ_STATUS_EDITING',            2); // asset is currently safe editing
-define('SQ_STATUS_PENDING_APPROVAL',   3); // asset is currently in workflow
-define('SQ_STATUS_EDITING_APPROVAL',   4); // asset is currently in workflow from safe edit
-define('SQ_STATUS_LIVE',               5); // asset is live
+define('SQ_STATUS_PENDING_APPROVAL',   2); // asset is currently in workflow
+define('SQ_STATUS_LIVE',               4); // asset is live
+define('SQ_STATUS_EDITING',            8); // asset is currently safe editing
+define('SQ_STATUS_EDITING_APPROVAL',   16); // asset is currently in workflow from safe edit
 
+define('SQ_STATUS_CAN_APPROVE',   9); // short hand for SQ_STATUS_UNDER_CONSTRUCTION | SQ_STATUS_EDITING
+define('SQ_STATUS_SAFE_EDITING', 24); // short hand for SQ_STATUS_EDITING | SQ_STATUS_EDITING_APPROVAL
+define('SQ_STATUS_PENDING',      18); // short hand for SQ_STATUS_PENDING_APPROVAL | SQ_STATUS_EDITING_APPROVAL
 
 // Create the system object
 require_once SQ_INCLUDE_PATH.'/resolve.inc';

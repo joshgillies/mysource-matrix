@@ -875,7 +875,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		$prefix = $this->getPrefix($owner).'_workflow';
 
 		include_once SQ_INCLUDE_PATH.'/workflow_manager.inc';
-		$wfm = new Workflow_Manager($owner, true, false, true);
+		$wfm = new Workflow_Manager($owner, true, true, true);
 
 		$inheriting_workflows = array_keys($GLOBALS['SQ_SYSTEM']->am->getAssetTypeInfo($wfm->getRunningInheriting()));
 		if (!empty($inheriting_workflows)) {
@@ -1012,8 +1012,11 @@ class Asset_Edit_Interface extends Resolve_Object
 		$users    = $owner->getPermission(SQ_PERMISSION_WORKFLOW, false);
 		$inherits = $owner->getInheritedPermission(SQ_PERMISSION_WORKFLOW, array_keys($users));
 		$revokes  = $owner->getRevokedPermission(SQ_PERMISSION_WORKFLOW);
-		$revokes = array_keys($revokes);
+		$revokes  = array_keys($revokes);
 
+		// this is the full list of workflows
+		$workflows = array_keys($users) + array_keys($inherits);
+		
 		$o->openField('Inherited');
 		ob_start();
 		?>
@@ -1028,28 +1031,27 @@ class Asset_Edit_Interface extends Resolve_Object
 			</tr>
 		<?php
 
-		$workflows = $inherits + $users;
-		if (isset($workflows[0])) {
-			foreach ($workflows[0] as $assetid) {
-				if (!empty($revokes) && in_array($assetid, $revokes)) continue;
-				
-				$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-				if (!$asset->id) continue;
+		foreach ($workflows as $assetid) {
+			if ($assetid == $owner->id) continue;
+			if (!empty($revokes) && in_array($assetid, $revokes)) continue;
+			
+			$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
+			if (!$asset->id) continue;
 
-				?>
-				<tr>
-					<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
-					echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
-					?></td><?php
-				if ($admin_access) {
-					?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
-					check_box($prefix."_revoke[$assetid]")
-					?></td><?php
-				}
-				?></tr><?php
-				$inherited = true;
+			?>
+			<tr>
+				<td bgcolor="#F0F0F0" class="sq-form-field"><?php 
+				echo 'Workflow inherited from '.$asset->name.' ['.$asset->type()." : $assetid]";
+				?></td><?php
+			if ($admin_access) {
+				?><td bgcolor="#F0F0F0" align="center" width="100" class="sq-form-field"><?php
+				check_box($prefix."_revoke[$assetid]")
+				?></td><?php
 			}
+			?></tr><?php
+			$inherited = true;
 		}
+		
 
 		if (!$inherited) {
 			ob_end_clean();
@@ -1332,7 +1334,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			<tr>
 				<td class="sq-backend-data"><img src="<?php echo $o->filesPath('/images/blank.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
 				<td class="sq-backend-data">
-					<?php echo $owner->name.' '.$lock_message; ?>
+					<?php echo '<b>'.$owner->name.'</b> ('.$owner->getStatusDescription().') :: '.$lock_message; ?>
 				</td>
 			</tr>
 			<tr>
@@ -1387,7 +1389,7 @@ class Asset_Edit_Interface extends Resolve_Object
 			<tr>
 				<td class="sq-backend-data" <?php echo $bg; ?>><img src="<?php echo $o->filesPath('/images/tree/branch.gif');?>" width="20" height="20" border="0" alt="branch" /></td>
 				<td class="sq-backend-data">
-					<a href="<?php echo $dep_asset->getBackendHref('locking'); ?>"><?php echo $dep_asset->name; ?></a>&nbsp;<?php echo $lock_message; ?>
+					<a href="<?php echo $dep_asset->getBackendHref('locking'); ?>"><b><?php echo $dep_asset->name; ?></b></a>&nbsp;<?php echo '('.$dep_asset->getStatusDescription().') :: '.$lock_message; ?>
 				</td>
 			</tr>
 			<?php
