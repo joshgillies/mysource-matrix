@@ -18,10 +18,11 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport.inc,v 1.1.2.14 2004/02/27 16:38:35 brobertson Exp $
+* $Id: replication_system_transport.inc,v 1.1.2.15 2004/03/08 17:50:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
+require_once SQ_SYSTEM_ROOT.'/core/replication/replication_object.inc';
 
 /**
 * Replication_System_Transport
@@ -34,7 +35,7 @@
 * @version $Version$ - 1.0
 * @package MySource_Matrix
 */
-class Replication_System_Transport extends MySource_Object
+class Replication_System_Transport extends Replication_Object
 {
 
 	/**
@@ -76,7 +77,7 @@ class Replication_System_Transport extends MySource_Object
 	*/
 	function Replication_System_Transport($data_path)
 	{
-		$this->MySource_Object();
+		$this->Replication_Object();
 		$this->_data_path = $data_path;
 	}//end constructor
 
@@ -333,7 +334,7 @@ class Replication_System_Transport extends MySource_Object
 	/**
 	* Writes a file to the socket
 	*
-	* @param string		$source			Source filename, path from the SYSTEM ROOT
+	* @param string		$source			Source filename, must be within the DATA PATH
 	*
 	* @return boolean	indicating whether the contents were written successfully
 	* @access public

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: replication_system_transport_plain_text.inc,v 1.1.2.7 2004/02/27 18:04:43 brobertson Exp $
+* $Id: replication_system_transport_plain_text.inc,v 1.1.2.8 2004/03/08 17:50:39 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -104,7 +104,7 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 	/**
 	* Writes a file to the socket
 	*
-	* @param string		$source			Source filename, path from the SYSTEM ROOT
+	* @param string		$source			Source filename, must be within the DATA PATH
 	*
 	* @return boolean	indicating whether the contents were written successfully
 	* @access public
@@ -116,9 +116,14 @@ class Replication_System_Transport_Plain_Text extends Replication_System_Transpo
 			return false;
 		}
 
-		$source_file = SQ_SYSTEM_ROOT.'/'.$source;
+		$source_file = realpath($source);
+		if (substr($source_file, 0, strlen(SQ_DATA_PATH)) != SQ_DATA_PATH) {
+			trigger_error('Unable to write file to socket : Source file "'.$source_file.'" in not under System Root', E_USER_WARNING);
+			return false;
+		}
+
 		if (!is_file($source_file) || !is_readable($source_file)) {
-			trigger_error('Unable to write file to socket : Source file doesn\'t exist or is not readable', E_USER_WARNING);
+			trigger_error('Unable to write file to socket : Source file "'.$source_file.'" doesn\'t exist or is not readable', E_USER_WARNING);
 			return false;
 		}
 
