@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.1 2004/04/01 04:02:36 gsherwood Exp $
+* $Id: edit_interface_screen_details.xml,v 1.2 2004/12/31 03:44:07 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -41,6 +41,11 @@
 				<paint_function   name="paintLevel" />
 				<process_function name="processLevel" />
 			</function_call>
+		</field>
+		<field attribute="self_link">
+			<display_name>Self Link</display_name>
+			<note>Whether or not to add self-referential links</note>
+			<boolean true_text="Yes" false_text="No" />
 		</field>
 	</section>
 </contents>
