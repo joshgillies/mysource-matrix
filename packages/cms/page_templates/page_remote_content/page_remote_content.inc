@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.2 2004/09/01 03:38:16 arailean Exp $
+* $Id: page_remote_content.inc,v 1.3 2004/09/06 02:09:00 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -57,7 +57,7 @@ class Page_Remote_Content extends Page
 
 
 	/**
-	* Print the processed page. 
+	* Print the processed page.
 	*
 	* @access public
 	* @return void
@@ -66,7 +66,6 @@ class Page_Remote_Content extends Page
 	{
 		// all we do is print, as the name suggests
 		$result = $this->_process();
-
 		// if we did not receive a reply
 		if (!$result) {
 			// requested file is binary
@@ -117,7 +116,7 @@ class Page_Remote_Content extends Page
 
 		$Fetch_URL	= &new Net_URL($fetch_url);
 
-		// let's see if we're getting any variables in the get string 
+		// let's see if we're getting any variables in the get string
 		// so we can pass them back to the  original page ..
 		unset($_GET['sq_remote_page_action']);
 		unset($_GET['sq_remote_page_url']);
@@ -139,6 +138,13 @@ class Page_Remote_Content extends Page
 									'allowRedirects'	=> $this->attr('allow_redirect'),
 									'maxRedirects'		=> 10,
 									);
+
+		// set HTTP authentication
+		$user = $this->attr('username');
+		if (!empty($user)){
+			$request_parameters['user'] = $user;
+			$request_parameters['pass'] = $this->attr('password');
+		}
 
 		$HTTP_Request = &new HTTP_Request($Fetch_URL->getURL(), $request_parameters);
 
@@ -176,8 +182,9 @@ class Page_Remote_Content extends Page
 			return false;
 		}
 
+
 		// ignore binary data
-		// we need to make sure we are not trying to display anything 
+		// we need to make sure we are not trying to display anything
 		// of type other than text
 		$type = $HTTP_Request->getResponseHeader('content-type');
 		if (strpos($type,'text')===false) {
@@ -229,7 +236,7 @@ class Page_Remote_Content extends Page
 	/**
 	* Convert all the URLs of the target
 	*
-	* There are 3 different scenarios for urls. Images and CSS are changed 
+	* There are 3 different scenarios for urls. Images and CSS are changed
 	* to point to the remote server. Forms and links point back to our server.
 	*
 	* @param string	$content			the input
@@ -254,24 +261,24 @@ class Page_Remote_Content extends Page
 		// all of these urls ignore the absolute URLs that have http or https in them
 
 		// images, ebedded objects, scripts and linked CSS or JavaScript
-		$patterns[] = <<<RE
-/(<(?:img|embed|script|param|link)\s+.*?(?:value|src|href)\s*=\s*[\\'\"]*)((?:(?!https?))[^'\" \>]+)(['\"\> ]?[^\<]*\>)/i
-RE;
+		$patterns[] = <<<REGEX
+/(<(?:img|embed|script|param|link)\s+.*?(?:value|src|href)\s*=\s*[\\'\"]*)(?:\s)*((?:(?!https?))[^'\" \>]+)(['\"\> ]?[^\<]*\>)/i
+REGEX;
 
 		// linked CSS
-		$patterns[] = <<<RE
-/(<(?:input)\s+.*?(?:src)\s*=\s*[\\'\"]+)((?:(?!https?))[^'\" \>]+)(['\"\> ]?[^\<]*\>)/i
-RE;
+		$patterns[] = <<<REGEX
+/(<(?:input)\s+.*?(?:src)\s*=\s*[\\'\"]+)(?:\s)*((?:(?!https?))[^'\" \>]+)(['\"\> ]?[^\<]*\>)/i
+REGEX;
 
 		// CSS url definitions to images and scripts
-		$patterns[] = <<<RE
+		$patterns[] = <<<REGEX
 /(url\s*\(['\"]?\s*)((?:(?!https?))[^'\" ]+)(['\"]?\s*\))/i
-RE;
+REGEX;
 
 		// table background images
-		$patterns[] = <<<RE
-/(background\s*=\s*['\"]?)((?:(?!https?))[^'\" ]+)(['\"\> ]?[^<]*\>)/i
-RE;
+		$patterns[] = <<<REGEX
+/(background\s*=\s*['\"]?)(?:\s)*((?:(?!https?))[^'\" ]+)(['\"\> ]?[^<]*\>)/i
+REGEX;
 
 		// find whatever matches the above patterns
 		foreach ($patterns as $pattern) {
@@ -297,7 +304,7 @@ RE;
 			}
 
 			$replacement = $prefix.$full_url.$postfix;
-			
+
 			$subjects[]		= $subject;
 			$replacements[] = $replacement;
 
@@ -307,9 +314,9 @@ RE;
 		$matches = Array();
 
 		// here we handle all the urls that need to be re-written to point back to our site
-		$pattern = <<<RE
-/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src)|(?:(form)[^>]*action))\s*=\s*['\"]?)((?:(?![\#]|mailto|javascript))[^'\"> ]+)(['\"\> ]?[^<]*\>)/i
-RE;
+		$pattern = <<<REGEX
+/(<(?:(?:a(?:rea)?[^>]*?href)|(?:i?frame[^>]*?src)|(?:(form)[^>]*action))\s*=\s*['\"]?)(?:\s)*((?:(?![\#]|mailto|javascript))[^'\"> ]+)(['\"\> ]?[^<]*\>)/i
+REGEX;
 
 		preg_match_all($pattern, $content, $matches, PREG_SET_ORDER);
 		foreach ($matches as $data) {
@@ -331,14 +338,18 @@ RE;
 			if ($identifier == 'form') {
 				$postfix .= '<input type="hidden" name="sq_remote_page_action" value="fetch_url" /><input type="hidden" name="sq_remote_page_url" value="'.htmlspecialchars($full_url).'" />';
 			}
-	
+
 			// if urls need to point back to us, prepare a new url
 			if ($this->attr('load_links')) {
+				$parsed_full_url = parse_url($full_url);
+				if ($this->attr('only_local_links') && ($parsed_full_url['host'] != $parsed_fetch_url['host'])) {
+					continue;
+				}
 				$full_url = $replacement_url.rawurlencode($full_url);
 			}
 
 			$replacement = $prefix.$full_url.$postfix;
-			
+
 			$subjects[]		= $subject;
 			$replacements[] = $replacement;
 
@@ -348,7 +359,7 @@ RE;
 		$content = str_replace($subjects,$replacements,$content);
 
 		return $content;
-		
+
 	}//end _transformContent()
 
 
@@ -371,7 +382,7 @@ RE;
 		$parsed_url = parse_url($url);
 
 		// ignore absolute urls
-		if (isset($parsed_url['scheme'])) {
+		if (isset($parsed_url['scheme']) && !empty($parsed_url['host'])) {
 			return true;
 		}
 
