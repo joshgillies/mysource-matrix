@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_asset_counter_edit_fns.inc,v 1.5 2005/03/03 00:42:03 gsherwood Exp $
+* $Id: report_asset_counter_edit_fns.inc,v 1.6 2005/03/10 00:49:25 arailean Exp $
 *
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -45,7 +45,6 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 	var $report_name = 'report.xml';
 	var $temp_report = 'report.tmp';
 
-	// Constructor is not necessary
 
 	/**
 	* Generate this report until complete
@@ -207,7 +206,8 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 				$sort_by_attr = &$asset->getAttribute('sort_by');
 				$sort_by = $sort_by_attr->value;
 
-				$row_format =<<<HEREDOC
+				$row_format =
+				'
 					<tr>
 						<td class="sq-backend-table-cell">
 							<script language="JavaScript" type="text/javascript">sq_print_icon("%s", "16", "16", "");</script>
@@ -222,8 +222,7 @@ class Report_Asset_Counter_Edit_Fns extends Report_Edit_Fns
 							%s
 						</td>
 					</tr>
-
-HEREDOC;
+				';
 
 				$rows_string = '';
 				$rows = Array();
@@ -261,8 +260,9 @@ HEREDOC;
 
 				$sort_by_name = $sort_by_attr->_params['options'][$sort_by];
 
-				$table_format =<<<HEREDOC
-					<h3>Sorted by: <span style="color: red">$sort_by_name</span></h3>
+				$table_format =
+				'
+					<h3>Sorted by: <span style="color: red">'.$sort_by_name.'</span></h3>
 					<table class="sq-backend-table">
 						<tr>
 							<td class="sq-backend-table-header" style="width: 10ex">Icon</td>
@@ -272,8 +272,7 @@ HEREDOC;
 						</tr>
 						%s
 					</table>
-
-HEREDOC;
+				';
 
 				foreach ($target_array as $typecode => $data) {
 					$rows_string .= $rows[$typecode];
