@@ -43,10 +43,10 @@ class Root_User extends System_User
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
+		$sql   = 'SELECT COUNT(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset ';
 		$where = 'type_code = '.$db->quote($this->type());
 		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-		$sql = 'SELECT COUNT(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset '.$where;
-		$exists = $db->getOne($sql);
+		$exists = $db->getOne($sql.$where);
 		if (DB::isError($exists)) trigger_error($exists->getMessage().'<br/>'.$exists->getUserInfo(), E_USER_ERROR);
 
 		if ($exists) {
@@ -54,7 +54,7 @@ class Root_User extends System_User
 			return false;
 		}
 		
-		$this->setAttrValue('username',   'root');
+		$this->setAttrValue('username', 'root');
 
 		$ret_val = parent::create($link);
 		unset($this->_tmp[__CLASS__.'_in_create']);
