@@ -18,8 +18,8 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: table_editing.inc,v 1.19 2005/02/09 05:42:17 gsherwood Exp $
-*
+* $Id: table_editing.inc,v 1.20 2005/03/09 22:47:41 dbaranovskiy Exp $
+* $Name: not supported by cvs2svn $
 */
 
 
@@ -34,12 +34,11 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     and manipulate tables
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.19 $
+* @version $Version$ - 1.0
 * @package Fudge
 * @subpackage wysiwyg
 */
-class Table_Editing extends WYSIWYG_Plugin
-{
+class Table_Editing extends WYSIWYG_Plugin {
 
 	/**
 	* Constructor
@@ -190,17 +189,17 @@ class Table_Editing extends WYSIWYG_Plugin
 				// retrieve existing values
 				var table = this.getClosest("table");
 				if (HTMLArea.is_ie) {
-					// workaround against stupid IE behaviour. We will use native MS functions
+					//workaround against stupid IE behaviour. We will use native MS functions
 					var tablekeeper = table.outerHTML;
 				} else {
 					var div = document.createElement("DIV");
 					div.appendChild(table.cloneNode(true));
 					var tablekeeper = div.innerHTML;
 				}
+
 				strPage = "<?php echo $this->get_popup_href('edit_table.php')?>";
 				var width = 820;
 				var height = 570;
-
 				this._popupDialog("editTableProperties", strPage, width, height, true, function(params) {
 					if (!params) {
 						// user must have pressed Cancel
