@@ -10,7 +10,9 @@
 |                                     HIGH PRIORITY                                      |
 +----------------------------------------------------------------------------------------+
 
-  - INSTALL process - check for default values for attributes that are arrays
+  - INSTALL process 
+    - check for default values for attributes that are arrays
+    - check for any array attributes and make sure that asset->_arr_atrs is true
 
   - Flash Asset Tree
     - Get flash to check for need to refresh - ie when someone else updates a page
