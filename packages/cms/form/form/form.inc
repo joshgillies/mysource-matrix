@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form.inc,v 1.70.2.4 2005/01/17 22:44:56 lwright Exp $
+* $Id: form.inc,v 1.70.2.5 2005/01/19 04:25:18 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -35,7 +35,7 @@ require_once SQ_FUDGE_PATH.'/general/general.inc';
 *
 *
 * @author  Marc Mcintyre <mmcintyre@squiz.net>
-* @version $Revision: 1.70.2.4 $
+* @version $Revision: 1.70.2.5 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -255,7 +255,7 @@ class Form extends Bridge
 	{
 		if (!is_numeric($assetid)) return Array();
 
-		if (!is_Array($type_code)) {
+		if (!is_array($type_code)) {
 			if (empty($type_code)) $type_code = Array();
 			else $type_code = Array($type_code);
 		}
@@ -282,19 +282,25 @@ class Form extends Bridge
 			}
 		}
 
-		// now questions
-
+		// now questions		
 		$entries = $this->getQuestions();
-
-		foreach ($entries as $questionid => $data) {
-			if ($strict_type_code) {
-				if ($data['question_type_code'] == $type_code) {
-					$children[$this->id.':q'.$questionid] = $data['question_type_code'];
-				}
-			} else {
-				$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($type_code) + Array($type_code);
-				if (in_Array($data['question_type_code'], $type_desc)) {
-					$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+		if ($type_code == Array()) {
+			foreach ($entries as $questionid => $data) {
+				$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+			}
+		} else {
+			foreach ($type_code as $this_type_code) {
+				foreach ($entries as $questionid => $data) {
+					if ($strict_type_code) {
+						if ($data['question_type_code'] == $this_type_code) {
+							$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+						}
+					} else {
+						$type_desc = $GLOBALS['SQ_SYSTEM']->am->getTypeDescendants($this_type_code) + Array($this_type_code);
+						if (in_array($data['question_type_code'], $type_desc)) {
+							$children[$this->id.':q'.$questionid] = $data['question_type_code'];
+						}
+					}
 				}
 			}
 		}
