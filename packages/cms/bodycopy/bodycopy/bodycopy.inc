@@ -25,7 +25,8 @@ class Bodycopy extends Asset
 	function Bodycopy($assetid=0)
 	{
 		$this->Asset($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
@@ -70,6 +71,7 @@ class Bodycopy extends Asset
 		}
 
 		return true;
+
 	}//end saveSystemVersion()
 
 
@@ -100,7 +102,7 @@ class Bodycopy extends Asset
 			return false;
 		}
 
-		// create an table
+		// create a table
 		$GLOBALS['SQ_SYSTEM']->am->includeAsset('bodycopy_table');
 		$bodycopy_table =& new Bodycopy_Table();
 		$copy_link = Array('asset' => &$this, 'link_type' => SQ_LINK_TYPE_2, 'value' => '', 'sort_order' => 1, 'dependant' => 1);
