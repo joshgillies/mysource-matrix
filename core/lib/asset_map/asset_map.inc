@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.109 2003/11/26 00:51:12 gsherwood Exp $
+* $Id: asset_map.inc,v 1.110 2003/12/17 04:52:03 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -235,7 +235,7 @@ class Asset_Map
 			{
 				if (ASSET_FINDER_CALL_BACK === null) return;
 				//alert("ASSET FINDER DONE : " + params.assetid + );
-				ASSET_FINDER_CALL_BACK(params.assetid, params.label);
+				ASSET_FINDER_CALL_BACK(params.assetid, params.label, params.url);
 				ASSET_FINDER_CALL_BACK = null;
 			}
 
