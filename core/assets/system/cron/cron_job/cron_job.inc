@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job.inc,v 1.23 2005/02/22 05:58:35 tbarrett Exp $
+* $Id: cron_job.inc,v 1.24 2005/03/17 23:02:15 amiller Exp $
 *
 */
 
@@ -39,7 +39,7 @@ define('SQ_CRON_JOB_RETRY',			16);// cron job requests to be retried (only valid
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.23 $
+* @version $Revision: 1.24 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -176,25 +176,80 @@ class Cron_Job extends Asset
 		if ($name == 'when') {
 
 			$value = (string) $value;
-			if ($this->attr('type') != 'one_off' && substr($value, 0, 3) == 'OO=') {
+			if ($this->attr('type') != 'one_off' && substr($value, 0, 2) == 'OO') {
 				trigger_error('Only one_off type cron jobs can have their "when" attributes set to a "OO=" prefixed value', E_USER_NOTICE);
 				return false;
-			}
-			if ($this->attr('type') == 'one_off' && substr($value, 0, 3) != 'OO=') {
+			}//end if
+			if ($this->attr('type') == 'one_off' && substr($value, 0, 2) != 'OO') {
 				trigger_error('one_off type cron jobs MUST have their "when" attributes set to a "OO=" prefixed value', E_USER_NOTICE);
 				return false;
-			}
+			}// end if
 
 
 			// if this is a one off job
 			// then we need to make sure that it is happening on or before the
 			// next time that the cron job is getting run
 			if ($this->attr('type') == 'one_off') {
+			
+				$when_str = $value;
 
 				$cron_mgr = &$GLOBALS['SQ_SYSTEM']->am->getSystemAsset('cron_manager');
 				if (is_null($cron_mgr)) return false;
-
-				$when = Cron_Job::getWhenArr($value);
+				
+				// is there a duration set? if so, recalculate the when time
+				if (strpos($when_str, '!')) {
+					// user chose a duration instead of a fixed date, so lets work out what that is
+					$now = time();
+					$duration = substr($value, strpos($value, '!') + 2);
+					$period = substr($value, strpos($value, '!') + 1, 1);
+					
+					switch($period) {
+						case 'd':
+							$then = $now + $duration*86400;
+						break;
+						case 'w':
+							$then = $now + $duration*604800;
+						break;
+						case 'm':
+							$then = strtotime('+'.$duration.' months');
+						break;
+						case 'y':
+							$then = strtotime('+'.$duration.' years');
+						break;
+					}//end switch
+					
+					$when_str = 'OO=';
+					
+					foreach (Array('year' => 'Y', 'month' => 'm', 'day' => 'd', 'hour' => 'H', 'minute' => 'i') as $field => $format_string) {
+						$fields[$field] = date($format_string, $then);
+						switch ($field) {
+							case 'year' :
+								$when_str .= $fields[$field].'-';
+							break;
+							case 'month' :
+								$when_str .= $fields[$field].'-';
+							break;
+							case 'day' :
+								$when_str .= $fields[$field].' ';
+							break;
+							case 'hour' :
+								$when_str .= $fields[$field].':';
+							break;
+							case 'minute' :
+								$minutes = date($format_string, $then);
+								$interval = $cron_mgr->attr('refresh_time') / 60;
+								while ($minutes % $interval != 0) $minutes++;
+								if ($minutes >= 60) $minutes = $minutes - $interval;
+								$fields[$field] = $minutes;
+								$when_str .= $fields[$field];
+							break;
+						}// end switch
+					
+					}//end foreach
+				
+				}//end if
+				
+				$when = Cron_Job::getWhenArr($when_str);
 
 				$when_ts = mktime($when['hour'], $when['minute'], 0, $when['month'], $when['day'], $when['year']);
 
@@ -202,8 +257,11 @@ class Cron_Job extends Asset
 					require_once SQ_FUDGE_PATH.'/general/datetime.inc';
 					trigger_error('You cannot set a One Off '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($this->type(), 'name').' to be run before the next job run is scheduled (which is at '.easy_datetime($cron_mgr->timeOfNextRun()).')', E_USER_WARNING);
 					return false;
-				}
-			}
+				}//end if
+				
+				$value = $when_str;
+				
+			}//end if
 
 		}//end if
 
@@ -363,40 +421,56 @@ class Cron_Job extends Asset
 	*/
 	function getWhenArr($when_str)
 	{
-		$when_arr = Array('type' => '', 'year' => '', 'month' => '', 'day' => '', 'hour' => '', 'minute' => '');
+		$when_arr = Array('type' => '', 'year' => '', 'month' => '', 'day' => '', 'hour' => '', 'minute' => '', 'duration' => '', 'period' => '');
+		
 		if ($when_str) {
-			$when_arr['type'] = substr($when_str, 0, 2);
-			$offset = 3;
-			switch ($when_arr['type']) {
-				case 'OO' :
-					$when_arr['year'] = substr($when_str, $offset, 4);
-					$offset += 5;
-					// deliberately fall through
-				case 'YR' :
-					$when_arr['month'] = substr($when_str, $offset, 2);
-					$offset += 3;
-					// deliberately fall through
-				case 'MT' :
-				case 'WK' :
-					// because the weekly type uses only one char, we do this
-					if ($when_arr['type'] == 'WK') {
-						$when_arr['day'] = substr($when_str, $offset, 1);
-						$offset += 2;
-					// else the monthly, yearly and one off use 2 chars
-					} else {
-						$when_arr['day'] = substr($when_str, $offset, 2);
+			if (strpos($when_str, '!')) {
+				$when_arr['type'] = substr($when_str, 0, 2);
+				$when_arr['duration'] = substr($when_str, strpos($when_str, '!') + 2);
+				$when_arr['period'] = substr($when_str, strpos($when_str, '!') + 1, 1);
+			} else {
+				$when_arr['type'] = substr($when_str, 0, 2);
+				$offset = 3;
+				switch ($when_arr['type']) {
+					case 'OO' :
+						$when_arr['year'] = substr($when_str, $offset, 4);
+						$offset += 5;
+						// deliberately fall through
+					case 'YR' :
+						$when_arr['month'] = substr($when_str, $offset, 2);
 						$offset += 3;
-					}
-					// deliberately fall through
-				case 'DL' :
-					$when_arr['hour'] = substr($when_str, $offset, 2);
-					$offset += 3;
-					// deliberately fall through
-				case 'HR' :
-					$when_arr['minute'] = substr($when_str, $offset, 2);
-					break;
-
-			}//end switch
+						// deliberately fall through
+					case 'MT' :
+					case 'WK' :
+						// because the weekly type uses only one char, we do this
+						if ($when_arr['type'] == 'WK') {
+							$when_arr['day'] = substr($when_str, $offset, 1);
+							$offset += 2;
+						// else the monthly, yearly and one off use 2 chars
+						} else {
+							$when_arr['day'] = substr($when_str, $offset, 2);
+							$offset += 3;
+						}
+						// deliberately fall through
+					case 'DL' :
+						$when_arr['hour'] = substr($when_str, $offset, 2);
+						$offset += 3;
+						// deliberately fall through
+					case 'HR' :
+						$when_arr['minute'] = substr($when_str, $offset, 2);
+						$offset += 3;
+						// deliberately fall through
+					case 'PE' :
+						$when_arr['period'] = substr($when_str, $offset, 1);
+						$offset += 1;
+						// deliberately fall through
+					case 'DU' :
+						$when_arr['duration'] = substr($when_str, $offset);
+						break;
+	
+				}//end switch
+				
+			}//end if 
 
 		}//end if
 

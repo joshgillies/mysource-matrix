@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_options.xml,v 1.8 2005/01/20 13:07:37 brobertson Exp $
+* $Id: edit_interface_screen_options.xml,v 1.9 2005/03/17 23:02:15 amiller Exp $
 *
 */
 -->
@@ -36,7 +36,7 @@
 		<field attribute="refresh_time">
 			<display_name>Refresh Time</display_name>
 			<note>%description%</note>
-			<int width="10" />
+			<duration biggest_units="hours" smallest_units="minutes" />
 		</field>
 		<field attribute="warn_after_num_run_checks">
 			<display_name>Warn After&lt;br&gt;Blocked Runs</display_name>

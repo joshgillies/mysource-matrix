@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_status_edit_fns.inc,v 1.10 2005/01/20 13:07:37 brobertson Exp $
+* $Id: cron_job_future_status_edit_fns.inc,v 1.11 2005/03/17 23:02:15 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.10 $
+* @version $Revision: 1.11 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -56,22 +56,23 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	*
 	* @param object Asset				&$asset	the owning asset
 	* @param object Backend_Outputter	&$o		the backend outputter
+	* @param string						$when    prepared when string
 	* @param string						$prefix	prefix for form elements
 	*
 	* @return boolean
 	* @access public
 	*/
-	function paintInLineBackend(&$asset, &$o, $prefix)
+	function paintInLineBackend(&$asset, &$o, $prefix, $when='', $form_extra_elements='')
 	{
 		echo 'Set Status to ';
 		$descs = $asset->_getAllStatiiDescs();
 		if ($asset->writeAccess('attributes')) {
-			combo_box($prefix.'_status', $descs, false, $asset->attr('status'));
+			combo_box($prefix.'_status', $descs, false, $asset->attr('status'), null, $form_extra_elements);
 		} else {
 			echo $descs[$asset->attr('status')];
 		}
 		echo ' at ';
-		$this->_paintWhenBox($asset, $o, $prefix);
+		$this->_paintWhenBox($asset, $o, $prefix, $when, $form_extra_elements);
 		return true;
 
 	}//end paintInLineBackend()
@@ -90,7 +91,7 @@ class Cron_Job_Future_Status_Edit_Fns extends Cron_Job_Edit_Fns
 	function processInLineBackend(&$asset, &$o, $prefix)
 	{
 		if (!empty($_POST[$prefix.'_status']) && $asset->setAttrValue('status', $_POST[$prefix.'_status'])) {
-			return $this->_processWhenBox($asset, $o, $prefix);
+			return $asset->setAttrValue('when', $this->_processWhenBox($asset, $o, $prefix));
 		}
 		return false;
 

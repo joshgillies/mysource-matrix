@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_manager_management.inc,v 1.12 2005/01/20 13:07:37 brobertson Exp $
+* $Id: cron_manager_management.inc,v 1.13 2005/03/17 23:02:15 amiller Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -55,7 +55,7 @@ class Cron_Manager_Management extends Asset_Management
 							),
 							'refresh_time' => Array(
 								'added'			=> '0.0.1',
-								'type'			=> 'int',
+								'type'			=> 'duration',
 								'default'		=> 900,
 								'description'	=> 'The number of seconds between cron runs, whenever you change this update the "epoch" to the first time that this change will be felt',
 							),

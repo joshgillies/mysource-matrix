@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: cron_job_future_lineage_edit_fns.inc,v 1.12 2005/03/03 00:42:03 gsherwood Exp $
+* $Id: cron_job_future_lineage_edit_fns.inc,v 1.13 2005/03/17 23:02:15 amiller Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/cron/cron_job/cron_job_edit_fns.inc';
 *
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.12 $
+* @version $Revision: 1.13 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -147,7 +147,7 @@ class Cron_Job_Future_Lineage_Edit_Fns extends Cron_Job_Edit_Fns
 			}
 		}
 
-		if (!$asset->saveAttributes() || !$this->_processWhenBox($asset, $o, $prefix)) {
+		if (!$asset->saveAttributes() || !$asset->setAttrValue('when', $this->_processWhenBox($asset, $o, $prefix))) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
