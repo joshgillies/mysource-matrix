@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: rollback_management.php,v 1.5 2004/12/13 00:29:38 gsherwood Exp $
+* $Id: rollback_management.php,v 1.6 2004/12/23 13:30:14 brobertson Exp $
 *
 */
 
@@ -28,7 +28,7 @@
 *
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <gsherwood@squiz.net>
-* @version $Revision: 1.5 $
+* @version $Revision: 1.6 $
 * @package MySource_Matrix
 */
 error_reporting(E_ALL);
@@ -124,8 +124,7 @@ if (empty($SYSTEM_ROOT)) usage();
 
 require_once $SYSTEM_ROOT.'/core/include/init.inc';
 require_once 'XML/Tree.php';
-require_once SQ_DATA_PATH.'/private/db/table_columns.inc';
-require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
+require SQ_DATA_PATH.'/private/db/table_columns.inc';
 
 // get the tables from table_columns into a var
 // that will not clash with other vars

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.63 2004/12/16 04:58:18 lwright Exp $
+* $Id: mysource.inc,v 1.64 2004/12/23 13:29:47 brobertson Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.63 $
+* @version $Revision: 1.64 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1185,7 +1185,7 @@ class MySource
 
 		// work out the columns in this table and cache them
 		if (empty($this->_tmp['sq_tables'])) {
-			require_once SQ_DATA_PATH.'/private/db/table_columns.inc';
+			require SQ_DATA_PATH.'/private/db/table_columns.inc';
 			$this->_tmp['sq_tables'] = $tables;
 		}
 		$table_cols = $this->_tmp['sq_tables'][$table_name]['columns'];
@@ -1335,7 +1335,7 @@ class MySource
 		// that to the function that handles rollback so that it know which rows need
 		// rollback entries created for them
 		if (empty($this->_tmp['sq_tables'])) {
-			require_once SQ_DATA_PATH.'/private/db/table_columns.inc';
+			require SQ_DATA_PATH.'/private/db/table_columns.inc';
 			$this->_tmp['sq_tables'] = $tables;
 		}
 		$primary_cols = $this->_tmp['sq_tables'][$table_name]['primary_key'];
@@ -1403,7 +1403,7 @@ class MySource
 		// that to the function that handles rollback so that it know which rows need
 		// rollback entries created for them
 		if (empty($this->_tmp['sq_tables'])) {
-			require_once SQ_DATA_PATH.'/private/db/table_columns.inc';
+			require SQ_DATA_PATH.'/private/db/table_columns.inc';
 			$this->_tmp['sq_tables'] = $tables;
 		}
 		$primary_cols = $this->_tmp['sq_tables'][$table_name]['primary_key'];
