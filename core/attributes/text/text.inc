@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: text.inc,v 1.23 2004/05/21 01:56:01 lwright Exp $
+* $Id: text.inc,v 1.24 2004/06/08 02:38:26 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,9 +158,10 @@ class Asset_Attribute_Text extends Asset_Attribute
 	* @param string		$prefix		prefix for the form element
 	* @param boolean	$read_only	are we just printing the value
 	*
+	* @return void
 	* @access public
 	*/
-	function paint($prefix, $read_only=false) // '$add' is missing. TO-DO: check why? (maybe on purpose)
+	function paint($prefix, $read_only=false)
 	{
 		if ($read_only) {
 			echo nl2br($this->value);
@@ -183,6 +184,7 @@ class Asset_Attribute_Text extends Asset_Attribute
 	*
 	* @param string	prefix	prefix for the form element
 	*
+	* @return void
 	* @access public
 	*/
 	function process($prefix)
