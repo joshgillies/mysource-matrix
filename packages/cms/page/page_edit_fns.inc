@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_edit_fns.inc,v 1.7 2003/11/26 00:51:30 gsherwood Exp $
+* $Id: page_edit_fns.inc,v 1.8 2004/02/03 01:07:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 class Page_Edit_Fns extends Asset_Edit_Fns
 {
 
+
 	/**
 	* Constructor
 	*
@@ -46,7 +47,10 @@ class Page_Edit_Fns extends Asset_Edit_Fns
 	function Page_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
-	}
+
+	}//end constructor
+
 
 }//end class
+
 ?>

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page.inc,v 1.29 2003/11/26 00:51:30 gsherwood Exp $
+* $Id: page.inc,v 1.30 2004/02/03 01:07:32 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -39,6 +39,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 class Page extends Asset
 {
 
+
 	/**
 	* Constructor
 	*
@@ -48,7 +49,8 @@ class Page extends Asset
 	function Page($assetid=0)
 	{
 		$this->Asset($assetid);
-	}
+
+	}//end constructor
 
 
 	/**
@@ -100,8 +102,8 @@ class Page extends Asset
 	/**
 	* Returns an array of all the permitted link type, the type asset and the cardinality
 	*
-	* @see Asset::_getAllowLinks()
 	* @access private
+	* @see Asset::_getAllowLinks()
 	*/
 	function _getAllowedLinks()
 	{
@@ -121,12 +123,15 @@ class Page extends Asset
 
 	/**
 	* Called by the design to print the body of this asset
-	* it's up to the kids to override
 	*
+	* It's up to the kids to override
+	*
+	* @return void
 	* @access public
 	*/
 	function printBody()
 	{
+
 	}// end printBody()
 
 
@@ -142,13 +147,13 @@ class Page extends Asset
 	{
 		return (($short_name) ? $this->attr('short_name') : $this->attr('name'));
 
-	}//end _getName();
+	}//end _getName()
 
 
-	/** 
+	/**
 	* Retrieves a list of key data from this asset (used by the indexing service).
 	* Subclasses override this to give the content they want to make searchable.
-	* 
+	*
 	* @access public
 	* @param mixed $component If it is not false, then it is assumed to be the name of a component of this asset (defined and controlled by subclasses).
 	* @return array An array of all the keydata for this asset. Keydata is of the form
@@ -175,7 +180,10 @@ class Page extends Asset
 		}
 
 		return $keyData;
-	} // end getKeyData()
 
-}#end class
+	}//end getKeyData()
+
+
+}//end class
+
 ?>
