@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_manager.inc,v 1.249.2.2 2004/12/16 04:56:17 lwright Exp $
+* $Id: asset_manager.inc,v 1.249.2.3 2004/12/20 00:28:06 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -2756,14 +2756,14 @@ class Asset_Manager extends MySource_Object
 				// remove the current zeroed entries in the tree table,
 				// as we will be inserting over the top of them
 				$sub_sql   = 'SELECT t.treeid || '.$db->quote($free_childid).'
-							  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link_tree t
-							  	INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_link l ON t.linkid = l.linkid ';
+							  FROM '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk_tree t
+							  	INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'ast_lnk l ON t.linkid = l.linkid ';
 				$sub_where = 'l.minorid = '.$db->quote($major->id);
 				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 't');
 				$sub_where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($sub_where, 'l');
 				$sub_sql .= $sub_where;
 
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('asset_link_tree', 'treeid IN ('.$sub_sql.')')) {
+				if (!$GLOBALS['SQ_SYSTEM']->rollbackDelete('ast_lnk_tree', 'treeid IN ('.$sub_sql.')')) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return 0;
 				}
