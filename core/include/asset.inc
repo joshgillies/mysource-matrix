@@ -2276,6 +2276,20 @@ class Asset extends Resolve_Object
 
 
 	/**
+	* Returns TRUE if we can delete the passed link, or a string with the error msg
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return TRUE|string
+	* @access public
+	*/
+	function canDeleteLink($linkid)
+	{
+		return true;
+	}//end canDeleteLink()
+
+
+	/**
 	* Removes a link where this asset is the major player
 	*
 	* @param int	$linkid	the link id of the link to remove
@@ -2286,7 +2300,7 @@ class Asset extends Resolve_Object
 	function deleteLink($linkid)
 	{
 
-		// First, we should try and find the link
+		// first, we should try and find the link
 		$link = $this->getLinkById($linkid);
 		if (empty($link)) {
 			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
@@ -2297,6 +2311,12 @@ class Asset extends Resolve_Object
 		if (!$this->writeAccess(Array(), false)) {
 			trigger_error('Cannot delete link, permission denied', E_USER_WARNING);
 			return false;
+		}
+
+		// check if we are allowed to delete this link
+		if (($err_msg = $this->canDeleteLink($linkid)) !== true) {
+			trigger_error($err_msg, E_USER_WARNING);
+			return 0;
 		}
 
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
