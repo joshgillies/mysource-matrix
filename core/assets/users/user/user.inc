@@ -49,6 +49,13 @@ class User extends Asset
 			$this->setAttrValue('first_name', $first_name);
 			$this->setAttrValue('last_name',  $last_name);
 			$this->setAttrValue('email',      $email);
+
+			// create an inbox
+			$GLOBALS['SQ_SYSTEM']->am->includeAsset('inbox');
+			$inbox = new Inbox();
+			$inbox->create();
+			$this->createLink($inbox, SQ_LINK_EXCLUSIVE);
+
 			return true;
 
 		}//end if
@@ -56,6 +63,22 @@ class User extends Asset
 		return false;
 
 	}//end create()
+
+
+	/**
+	* Returns an array of all the permitted link type, the type asset and the cardinality
+	*
+	* @see Asset::_getAllowLinks()
+	* @access private
+	*/
+	function _getAllowedLinks()
+	{
+		return Array(SQ_LINK_EXCLUSIVE => Array('inbox' => '1', 'workspace' => '1'),
+					 SQ_LINK_UNITE     => Array(),
+					 SQ_LINK_USES      => Array(),
+					 SQ_LINK_NOTICE    => Array()
+					);
+	}//end _getAllowedLinks()
 
 
 	/**
