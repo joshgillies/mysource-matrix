@@ -1,0 +1,12 @@
+<contents>
+	<section name="Asset Types">
+		<field>
+			<display_name>Weighting</display_name>
+			<note />
+			<function_call>
+				<paint_function name="paintBackendAssetWeights" />
+				<process_function/>
+			</function_call>
+		</field>
+	</section>
+</contents>
