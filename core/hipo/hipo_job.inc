@@ -313,7 +313,7 @@ class HIPO_Job extends Resolve_Object
 	function load($code_name)
 	{
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db  = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT job_type, userid, source_code_name, hipo_vars, options, steps, running_vars
 				FROM '.SQ_TABLE_PREFIX.'hipo_job
 				WHERE code_name = '.$db->quote($code_name);
@@ -401,7 +401,7 @@ class HIPO_Job extends Resolve_Object
 		}// end if
 
 		$GLOBALS['SQ_SYSTEM']->changeDatabaseConnection('db2');
-		$db =& $GLOBALS['SQ_SYSTEM']->db;
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		// now we just do what we are told
 		if ($delete) {
 			$sql = 'DELETE FROM '.SQ_TABLE_PREFIX.'hipo_job
