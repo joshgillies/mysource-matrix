@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_acquire_lock.inc,v 1.28 2004/02/11 18:47:49 brobertson Exp $
+* $Id: hipo_job_acquire_lock.inc,v 1.29 2004/02/16 00:38:09 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -186,7 +186,8 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	{
 		if (SQ_HIPO_ACQUIRE_LOCK_THRESHOLD == 0) return 0;
 		if (!isset($this->_running_vars['todo_assetids'])) return 0;
-		return ((count($this->_running_vars['todo_assetids']) / SQ_HIPO_ACQUIRE_LOCK_THRESHOLD) * 100);
+		// note that we add 1 to the cound to take the root assetid into account
+		return (((count($this->_running_vars['todo_assetids']) + 1) / SQ_HIPO_ACQUIRE_LOCK_THRESHOLD) * 100);
 	
 	}//end getThreshold()
 
@@ -199,7 +200,7 @@ class HIPO_Job_Acquire_Lock extends HIPO_Job
 	*/
 	function freestyle()
 	{
-		while (!empty($this->_running_vars['todo_assetids'])) {
+		while (!empty($this->_running_vars['todo_assetids']) || !$this->_running_vars['done_root']) {
 			if (!$this->processLocking($this->_steps[0], get_class($this))) return false;
 		}
 		return true;
