@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: js_calendar.inc,v 1.1 2004/09/14 00:23:16 gsherwood Exp $
+* $Id: js_calendar.inc,v 1.2 2004/09/14 02:04:43 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -42,13 +42,16 @@ class JS_Calendar
 	* @var array
 	*/
 	var $settings = Array(
+							'cssURL'      => null,
 							'imageURL'    => null,
 							'fadeit'      => true,
 							'scrollit'    => false,
 							'onDayClick'  => null,
 							'onWeekClick' => null,
 							'onYearClick' => null,
-							
+							'height'      => 200,
+							'width'       => 200,
+
 						 );
 
 
@@ -57,10 +60,10 @@ class JS_Calendar
 	*/
 	function JS_Calendar()
 	{
-		
+
 	}//end constructor
-	
-	
+
+
 	/**
 	* Change a setting for the calendar
 	*
@@ -73,8 +76,8 @@ class JS_Calendar
 	{
 		$this->settings[$name] = $value;
 
-	}//end changeSetting
-	
+	}//end changeSetting()
+
 
 	/**
 	* Initiaise the JS calendar if it has not already been
@@ -89,13 +92,14 @@ class JS_Calendar
 	function init()
 	{
 		if (!$this->isInit()) {
+			$css = array_get_index($this->settings,'cssURL',sq_web_path('fudge').'/js_calendar/js_calendar.css');
 			?>
 			<!-- Start init of JS Calendar -->
 			<style type="text/css">
-				@import url("<?php echo sq_web_path('fudge'); ?>/js_calendar/js_calendar.css");
+				@import url("<?php echo $css; ?>");
 			</style>
 			<script src="<?php echo sq_web_path('fudge'); ?>/js_calendar/js_calendar.js" language="Javascript" type="text/javascript"></script>
-			<span id="sq_js_calendar_span"></span>
+			<!--span id="sq_js_calendar_span"></span-->
 			<!-- End init of JS Calendar -->
 			<?php
 			$GLOBALS['SQ_JS_CALENDAR_INIT'] = true;
@@ -115,8 +119,8 @@ class JS_Calendar
 		return (isset($GLOBALS['SQ_JS_CALENDAR_INIT']) && $GLOBALS['SQ_JS_CALENDAR_INIT'] === true);
 
 	}//end isInit()
-	
-	
+
+
 	/**
 	* Prints the JS calendar
 	*
@@ -141,20 +145,20 @@ class JS_Calendar
 			$container_name = 'sq_js_calendar_span';
 			if (!$popup) {
 				$container_name = $prefix.'_js_calendar_span';
-				?><span id="<?php echo $container_name; ?>"></span><?php
 			}
 		}
 		?>
+		<span id="<?php echo $container_name; ?>"></span>
 		<script language="Javascript" type="text/javascript">
-			<?php echo $prefix; ?>_cal = new Calendar("<?php echo $prefix; ?>_cal", "<?php echo $container_name; ?>", 200, 200);
+			<?php echo $prefix; ?>_cal = new Calendar("<?php echo $prefix; ?>_cal", "<?php echo $container_name; ?>");
 			<?php echo $prefix; ?>_cal.prefix = "<?php echo $prefix; ?>";
 			<?php
 			foreach ($this->settings as $name => $value) {
-				if (is_null($value)) continue;
+				if (is_null($value) || $name == 'cssURL') continue;
 
 				if (is_bool($value)) {
 					$value = ($value) ? 'true' : 'false';
-				} else if (!in_array($name, Array('onDayClick', 'onMonthClick', 'onYearClick'))) {
+				} else if (!in_array($name, Array('onDayClick', 'onMonthClick', 'onYearClick', 'onWeekClick'))) {
 					$value = '"'.$value.'"';
 				}
 
