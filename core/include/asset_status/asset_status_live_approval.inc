@@ -60,7 +60,7 @@ class Asset_Status_Live_Approval extends Asset_Status
 		$statii = Array();
 
 		// cant do anything without write access
-		if (!$this->owner->writeAccess(Array(), false)) return $statii;
+		if (!$this->owner->readAccess()) return $statii;
 
 		if ($this->owner->adminAccess(Array(), false)) {
 			$statii[SQ_STATUS_EDITING] = 'Safe Edit';

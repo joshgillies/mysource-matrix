@@ -60,7 +60,7 @@ class Asset_Status_Pending_Approval extends Asset_Status
 		$statii = Array();
 
 		// cant do anything without write access
-		if (!$this->owner->writeAccess(Array(), false)) return $statii;
+		if (!$this->owner->readAccess()) return $statii;
 
 		$wf = &$this->getWorkflow();
 

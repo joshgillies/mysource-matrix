@@ -78,7 +78,7 @@ class Asset_Status extends Resolve_Object
 	function processStatusChange($new_status)
 	{
 		// we need write access to do any changes
-		if (!$this->owner->writeAccess(Array(), false)) return false;
+		if (!$this->owner->readAccess()) return false;
 
 		// make sure we can actually set this status
 		$valid_statii = $this->getAvailableStatii();
