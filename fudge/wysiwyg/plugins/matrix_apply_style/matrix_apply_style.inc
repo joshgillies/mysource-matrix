@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: matrix_apply_style.inc,v 1.7 2005/01/17 18:52:59 brobertson Exp $
+* $Id: matrix_apply_style.inc,v 1.8 2005/04/04 07:09:35 ndvries Exp $
 *
 */
 
@@ -34,7 +34,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 *     A WYSIWYG plugin to apply a style from the effective design
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix
 * @subpackage wysiwyg
 */
@@ -74,9 +74,8 @@ class Matrix_Apply_Style extends WYSIWYG_Plugin
 				if (file_exists($stylesheet_src)) {
 					require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 					$stylesheet = preg_replace('%[\r\n]+%',' ',file_to_string($stylesheet_src));
-
 					$matches = Array();
-					preg_match_all("%\s*([^\{]+)\{[^\}]+\}%", $stylesheet, $matches);
+					preg_match_all("%\s([\.#][^\{]+)\{[^\}]+\}%", $stylesheet, $matches);
 					$class_strings = $matches[1];
 
 					// $class_strings is now a list of all the class and their variations
