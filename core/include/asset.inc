@@ -191,25 +191,14 @@ class Asset extends Resolve_Object
 		$this->last_updated = $now;
 		$this->last_userid  = $userid;
 
-		if (!empty($this->_tmp['vars_set'])) {
-			$save_vars = Array();
-			foreach($this->_tmp['vars_set'] as $var_name) {
-				$save_vars[$var_name] = $this->vars[$var_name]['value'];
-			}
+		// set the attribute values that have been stored temporarily
+		if (!$this->saveAttributes(true)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			$this->id = 0;
+			return false;
 		}
 
 		$this->_loadVars();
-
-		if (!empty($this->_tmp['vars_set'])) {
-			foreach($save_vars as $var_name => $var_value) {
-				if (!$this->setAttrValue($var_name, $var_value, true)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$this->id = 0;
-					return false;
-				}
-			}
-			unset($this->_tmp['vars_set']);
-		}// end if
 
 		if (!$this->_updated()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
@@ -396,7 +385,7 @@ class Asset extends Resolve_Object
 			$sql = 'SELECT atr.name, atr.attributeid, atr.type, COALESCE(v.custom_value, atr.default_value) AS value
 					FROM '.SQ_TABLE_RUNNING_PREFIX.'asset a
 							INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute atr ON a.type_code = atr.type_code
-							LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v 
+							LEFT OUTER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value v
 								ON (atr.attributeid = v.attributeid AND a.assetid = v.assetid
 									'.$GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause('', 'v', 'AND').')
 					'.$where;
@@ -1880,7 +1869,7 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'SELECT  l.linkid, l.'.$other_side.'id, l.value, l.link_type,
 						a.type_code, l.sort_order, l.dependant, l.exclusive
-				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l 
+				FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_link l
 						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset a ON l.'.$other_side.'id  = a.assetid
 				';
 		$where = 'l.'.$side_of_link.'id = '.$db->quote($this->id).'
@@ -3210,17 +3199,193 @@ class Asset extends Resolve_Object
 
 
 	/**
-	* Set the value of an attribute
+	* Save attributes set with setAttrValue to the database
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
 	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
 	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
+	* @see setAttrValue()
 	*/
-	function setAttrValue($name, $value, $dont_run_updated=false)
+	function saveAttributes($dont_run_updated=false)
+	{
+		if (!$this->id) return true;
+		if (empty($this->_tmp['vars_set'])) return true;
+
+		$save_vars = Array();
+		$attr_ids  = Array();
+
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		foreach($this->_tmp['vars_set'] as $var_name => $var_data) {
+			$attr_id = $this->vars[$var_name]['attributeid'];
+
+			// if this is a unique attribute then let's make sure that this isn't already set
+			$owning_attributeid = 0;
+			$attribute = &$this->getAttribute($var_name);
+			if ($attribute->uniq) {
+
+				$sql = 'SELECT oa.attributeid
+						FROM '.SQ_TABLE_PREFIX.'asset_attribute a
+						  INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute oa ON (a.owning_type_code = oa.type_code AND a.name = oa.name)
+						WHERE a.name      = '.$db->quote($var_name).'
+						  AND a.type_code = '.$db->quote($this->type());
+
+				$owning_attributeid = $db->getOne($sql);
+				if (DB::isError($owning_attributeid)) {
+					trigger_error($owning_attributeid->getMessage().'<br/>'.$owning_attributeid->getUserInfo(), E_USER_ERROR);
+				}
+
+			}// end if
+
+			$attr_value = $this->vars[$var_name]['value'];
+			if ($this->vars[$var_name]['type'] == 'serialise') $attr_value = serialize($attr_value);
+			$save_vars[$attr_id]['value'] = $attr_value;
+			$save_vars[$attr_id]['name']  = $var_name;
+			$save_vars[$attr_id]['owning_attrid']  = $owning_attributeid;
+			$attr_ids[] = $attr_id;
+		}
+
+		// open the transaction
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		// find any previous entries
+		$atrr_id_cond = 'IN ('.implode(', ', $attr_ids).')';
+		$sql   = 'SELECT attributeid FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value ';
+		$where = 'assetid = '.$db->quote($this->id).'
+					AND attributeid '.$atrr_id_cond;
+		$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
+
+		$existing = $db->getCol($sql.$where);
+		if (DB::isError($existing)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			trigger_error($existing->getMessage().'<br/>'.$existing->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+		$new = array_diff($attr_ids, $existing);
+
+
+		// update existing custom attribute values
+		if (!empty($existing)) {
+
+			$atrr_id_cond = 'IN ('.implode(', ', $existing).')';
+			$value_cases = '';
+			foreach ($existing as $attr_id) {
+
+				$attr_value = $save_vars[$attr_id]['value'];
+
+				// if this is a unique attribute then let's make sure we register that in the unique value table
+				$attribute = &$this->getAttribute($save_vars[$attr_id]['name']);
+				if ($attribute->uniq) {
+
+					// update existing entry
+					$where = 'owning_attributeid = '.$db->quote($save_vars[$attr_id]['owning_attrid']).'
+							    AND assetid = '.$db->quote($this->id);
+
+					$values = Array('custom_value' => $db->quote($attr_value));
+					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_unique_value', $values, $where)) {
+						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+						$attribute->setValue($this->_tmp['vars_set'][$save_vars[$attr_id]['name']]['old_value']);
+						return false;
+					}
+
+				}// end if
+
+				$value_cases .= 'WHEN attributeid = '.$db->quote($attr_id).'
+								 THEN '.$db->quote($attr_value);
+
+			}//end foreach
+
+			$value_cases = 'CASE '.$value_cases.' END';
+
+			$where = 'assetid = '.$db->quote($this->id).' AND attributeid '.$attr_id_cond;
+			$values = Array('custom_value' => $value_cases);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_value', $values, $where)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+		}//end updating existing custom attribute values
+
+
+		// insert new custom attribute values
+		if (!empty($new)) {
+
+			$attr_id_cond = 'IN ('.implode(', ', $new).')';
+
+			$value_cases = '';
+			foreach ($new as $attr_id) {
+
+				$attr_value = $save_vars[$attr_id]['value'];
+
+				// if this is a unique attribute then let's make sure we register that in the unique value table
+				$attribute = &$this->getAttribute($save_vars[$attr_id]['name']);
+				if ($attribute->uniq) {
+
+					// now insert new unique entry
+					$values = Array(  'owning_attributeid' => $save_vars[$attr_id]['owning_attrid'],
+									  'custom_value'       => $attr_value,
+									  'assetid'            => $this->id,
+									);
+						if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_attribute_unique_value', $values)) {
+							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+							$attribute->setValue($this->_tmp['vars_set'][$save_vars[$attr_id]['name']]['old_value']);
+							return false;
+						}
+
+				}// end if
+
+				$value_cases .= ' WHEN attributeid = '.$db->quote($attr_id).'
+								  THEN '.$db->quote($attr_value);
+			}//end foreach
+
+			$value_cases = 'CASE '.$value_cases.' END';
+
+			$where = 'attributeid '.$attr_id_cond;
+			$select_from = SQ_TABLE_PREFIX.'asset_attribute';
+			$values = Array('assetid'      => $this->id,
+							'attributeid'  => 'attributeid',
+							'custom_value' => $value_cases
+							);
+			if (!$GLOBALS['SQ_SYSTEM']->rollbackInsertSelect('asset_attribute_value', $select_from, $values, $where)) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			}
+
+		}//end new custom attribute values
+
+
+		// tell, the asset it has updated
+		if (!$dont_run_updated && !$this->_updated()) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		unset($this->_tmp['vars_set']);
+
+		// If we get this far, then it's all OK
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end saveAttributes()
+
+
+	/**
+	* Queue the setting of the value of an attribute
+	*
+	* This function sets the value of the attribute locally, but does not database updating.
+	* The change is queued awaiting the call of saveAttributes()
+	*
+	* @param string		$name	the name of the attribute
+	* @param string		$value	the new value of the attribute
+	*
+	* @return boolean
+	* @access public
+	* @see saveAttributes()
+	*/
+	function setAttrValue($name, $value)
 	{
 		if (empty($this->vars[$name])) {
 			trigger_error('Attribute "'.$name.'" not found for Asset of type "'.$this->type().'"', E_USER_WARNING);
@@ -3230,37 +3395,29 @@ class Asset extends Resolve_Object
 		$attribute = &$this->getAttribute($name);
 		if (!$attribute->setValue($value)) {
 			trigger_error('"'.$value.'" is not a valid value for attribute "'.$name.'"', E_USER_WARNING);
+			$attribute->setValue($this->vars[$name]['value']);
 			return false;
-		}
-
-		$save_value = $value;
-		$old_value  = $this->vars[$name]['value'];
-
-		// if this is a seriliaze attribute, unserilize it
-		// now so that $save_value is the serialized version
-		// and $value becomes the unserialize version for
-		// later use by the asset
-		if ($this->vars[$name]['type'] == 'serialise') {
-			$value = unserialize($value);
 		}
 
 		// dickhead check
 		if ($this->vars[$name]['value'] == $value) return true;
+
+		if ($this->vars[$name]['type'] == 'serialise') $value = unserialize($value);
 
 		// if this is a uniq attribute then let's make sure that this isn't already set
 		if ($attribute->uniq) {
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 			$sql = 'SELECT COUNT(*)
-					FROM sq_asset_attribute_unique_value uv
-					  INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute oa ON uv.owning_attributeid = oa.attributeid
-					  INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
-					';
+					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_unique_value uv
+						INNER JOIN '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute oa ON uv.owning_attributeid = oa.attributeid
+						INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute a ON (oa.type_code = a.owning_type_code AND oa.name = a.name)
+					  ';
 			$where = ' uv.custom_value = '.$db->quote($value).'
-					  AND a.name = '.$db->quote($name).'
-					  AND a.type_code = '.$db->quote($this->type());
+						AND a.name = '.$db->quote($name).'
+						AND a.type_code = '.$db->quote($this->type());
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where, 'uv');
-pre_echo($sql.$where);
+
 			$result = $db->getOne($sql.$where);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_ERROR);
@@ -3268,130 +3425,16 @@ pre_echo($sql.$where);
 
 			if ((int) $result > 0) {
 				trigger_error('Unable to set "'.$name.'" it is a unique attribute and another asset already uses "'.$value.'"', E_USER_WARNING);
+				$attribute->setValue($this->vars[$name]['value']);
 				return false;
 			}
 
 		}// end if
 
-
-		// if we have an id then we need to update the database
-		if ($this->id) {
-
-			$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-			// if this is a uniq attribute then let's make sure that this isn't already set
-			if ($attribute->uniq) {
-				$db = &$GLOBALS['SQ_SYSTEM']->db;
-
-				$sql = 'SELECT oa.attributeid
-						FROM '.SQ_TABLE_PREFIX.'asset_attribute a 
-							INNER JOIN '.SQ_TABLE_PREFIX.'asset_attribute oa ON (a.owning_type_code = oa.type_code AND a.name = oa.name)
-						WHERE a.name      = '.$db->quote($name).'
-						  AND a.type_code = '.$db->quote($this->type());
-	pre_echo("SQL : ".$sql);
-				$owning_attributeid = $db->getOne($sql);
-				if (DB::isError($owning_attributeid)) {
-					trigger_error($owning_attributeid->getMessage().'<br/>'.$owning_attributeid->getUserInfo(), E_USER_ERROR);
-				}
-
-			}// end if
-
-			// open the transaction
-			$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
-
-			$attributeid = $this->vars[$name]['attributeid'];
-
-			// find any previous entry
-			$where = 'assetid = '.$db->quote($this->id).'
-					  AND attributeid = '.$db->quote($attributeid);
-			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-			$sql = 'SELECT COUNT(*) FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_attribute_value '.$where;
-
-			$count = $db->getOne($sql);
-			if (DB::isError($count)) {
-				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-				trigger_error($count->getMessage().'<br/>'.$count->getUserInfo(), E_USER_WARNING);
-				$attribute->setValue($old_value);
-				return false;
-			}
-
-			if ($count) {
-
-				// if this is a uniq attribute then let's make sure that this isn't already set
-				if ($attribute->uniq) {
-
-					// update existing entry
-					$where = ' owning_attributeid = '.$db->quote($owning_attributeid).'
-								AND assetid = '.$db->quote($this->id);
-
-					$values = Array('custom_value' => $db->quote($save_value));
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_unique_value', $values, $where)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$attribute->setValue($old_value);
-						return false;
-					}
-
-				}// end if
-
-				// update existing entry
-				$where = '  assetid = '.$db->quote($this->id).'
-							AND attributeid = '.$db->quote($attributeid);
-				$values = Array('custom_value' => $db->quote($save_value));
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackUpdate('asset_attribute_value', $values, $where)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$attribute->setValue($old_value);
-					return false;
-				}
-
-			} else {
-				// if this is a uniq attribute then let's make sure that this isn't already set
-				if ($attribute->uniq) {
-
-					// now insert uniq new entry
-					$values = Array('owning_attributeid' => $owning_attributeid,
-									'custom_value'       => $save_value,
-									'assetid'            => $this->id,
-									);
-					if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_attribute_unique_value', $values)) {
-						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-						$attribute->setValue($old_value);
-						return false;
-					}
-
-				}// end if
-
-
-				// now insert new entry
-				$values = Array('assetid'      => $this->id,
-								'attributeid'  => $attributeid,
-								'custom_value' => $save_value);
-				if (!$GLOBALS['SQ_SYSTEM']->rollbackInsert('asset_attribute_value', $values)) {
-					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-					$attribute->setValue($old_value);
-					return false;
-				}
-
-			}// end if
-
-		}// end if this->id
+		if (!isset($this->_tmp['vars_set'])) $this->_tmp['vars_set'] = Array();
+		$this->_tmp['vars_set'][$name]['old_value'] = $this->vars[$name]['value'];
 
 		$this->vars[$name]['value'] = $value;
-
-		// tell, the asset it has updated
-		if (!$dont_run_updated && !$this->_updated()) {
-			$this->vars[$name]['value'] = $old_value;
-			$attribute->setValue($old_value);
-			if ($this->id) $GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			return false;
-		}
-
-		if (!$this->id) {
-			if (!isset($this->_tmp['vars_set'])) $this->_tmp['vars_set'] = Array();
-			$this->_tmp['vars_set'][] = $name;
-		}
-
-		// If we get this far, then it's all OK
-		if ($this->id) $GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 
 		return true;
 
@@ -3491,7 +3534,7 @@ pre_echo($sql.$where);
 
 			$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-			
+
 			$sql = '  SELECT DISTINCT assetid, userid, access
 					  FROM '.SQ_TABLE_RUNNING_PREFIX.'asset_permission ';
 			$where = 'assetid = '.$db->quote($this->id).'
@@ -3518,10 +3561,10 @@ pre_echo($sql.$where);
 			// return all info
 			if ($all_info) {
 				$ret_val[$data['userid']] = $data['access'];
-			
+
 			// else we just want user ids
 			} else {
-				
+
 				// if we are expanding user groups and we aren't public access
 				if ($expand_groups && $data['userid']) {
 					$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userid']);
@@ -3558,6 +3601,11 @@ pre_echo($sql.$where);
 	*/
 	function setPermission($userid, $permission, $access)
 	{
+		if (!$this->adminAccess()) {
+			trigger_error('Cannot grant permission for "'.$this->name.'", permission denied', E_USER_WARNING);
+			return false;
+		}
+
 		$userid     = (int)  $userid;
 		$permission = (int)  $permission;
 		$access     = (bool) $access;
@@ -3587,7 +3635,7 @@ pre_echo($sql.$where);
 		// check if the reverse access of this permission is set
 		$current = $this->getPermission($permission, !$access, false);
 		if (in_array($userid, array_values($current))) {
-			include_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+			require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 			$perm_name = permission_type_name($permission);
 
 			$new_access     = ($access) ? 'grant'   : 'revoke';
@@ -4332,7 +4380,7 @@ pre_echo($sql.$where);
 
 			$done_urls    = Array();
 			$done_parents = Array();
-			
+
 			for($i = 0; $i < count($parents); $i++) {
 				if (in_array($parents[$i]['majorid'], $done_parents)) continue;
 				$parent = &$GLOBALS['SQ_SYSTEM']->am->getAsset($parents[$i]['majorid'], $parents[$i]['type_code']);

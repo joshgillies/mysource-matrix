@@ -73,7 +73,9 @@ class Design_Area_Login_Form_Edit_Fns extends Design_Area_Edit_Fns
 			}
 		}// end foreach
 	
-		return $asset->setAttrValue('contents', $contents);
+		$asset->setAttrValue('contents', $contents);
+
+		return $asset->saveAttributes();
 
 	}// end _processContents()
 

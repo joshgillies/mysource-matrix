@@ -19,28 +19,36 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	var $tab_name = '';
 
 
+	/**
+	* Contructor
+	*
+	*/
 	function Design_Area_Edit_Fns()
 	{
 		$this->tag_name = preg_replace('/[[:space:]]/', '', SQ_SYSTEM_SHORT_NAME);
-	}
+
+	}//end constructor
 
 
 	/**
-	* Echo's the Design Areas id name
+	* Echo the Design Area's ID name
 	*
 	* @param object Asset				$asset	the asset whose interface we are painting
 	* @param object	Backend_Outputter	$o		the outputter class
 	* @param string						$prefix	prefix for the form element
 	*
+	* @return void
 	* @access public
 	*/
 	function paintIdName(&$asset, &$o, $prefix)
 	{
 		echo $asset->attr('id_name');
+
 	}// end paintIdName()
 
+
 	/**
-	* Parses the string into an array recursively cut up into html and tag pieces
+	* Parse the string into an array recursively cut up into html and tag pieces
 	*
 	* @param string	$file_contents		the contents to parse
 	*
@@ -122,6 +130,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		return $contents;
 
 	}//end _parseString()
+
 
 	/**
 	* Take the raw contents passed in and create individual elements for each
@@ -223,9 +232,11 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 	}//end _parseStringContents()
 
+
 	/**
-	* Figure out which type of tag (open or terminate) come next in the text
-	* returns the type and sets the current pos to the start of the tag
+	* Figure out which type of tag (open or terminate) comes next in the text
+	*
+	* Returns the type and sets the current position to the start of the tag
 	*
 	* @param string	$file_contents	the raw contents to parse file
 	* @param int	$cur_pos		the current position in $file_contents that we are
@@ -263,14 +274,16 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 	}//end _tagToParse()
 
+
 	/**
-	* parse all the info from the start of the open tag until its end
-	* assigning any attributes that it may have contained
+	* Parse all the info from the start of the open tag until its end
+	*
+	* Also assigns any attributes that the tag may have contained
 	*
 	* @param string	$file_contents	the raw contents to parse file
 	* @param int	$cur_pos		the current position in $file_contents that we are
 	*
-	* @return Array
+	* @return array
 	* @access private
 	*/
 	function _parseOpenTag(&$file_contents, &$cur_pos)
@@ -380,8 +393,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 	}//end _parseOpenTag()
 
+
 	/**
-	* keep counting the characters, until we hit a close bracket
+	* Keep counting the characters until we hit a close bracket
 	*
 	* @param string	$file_contents	the raw contents to parse file
 	* @param int	$cur_pos		the current position in $file_contents that we are
@@ -398,8 +412,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 	}//end _parseTerminateTag()
 
+
 	/**
-	* returns true if the whole string is whitespace of somekind
+	* Return true if the whole string is whitespace of somekind
 	*
 	* @param string	$str
 	*
@@ -409,7 +424,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function _isWhitespace($str)
 	{
 		return preg_match('/^[[:space:]]*$/', $str);
-	}
+
+	}//end _isWhitespace()
+
 
 	/**
 	* Recurses through the contents array and removes any HTML tags contain only whitespace
@@ -432,8 +449,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 	}// end _parserCleanupContents()
 
+
 	/**
-	* Loops through the contents array and creates the necessary objects
+	* Loop through the contents array and create the necessary objects
 	*
 	* @param object Asset	$asset		the asset to which we belong
 	* @param array			$contents	the contents array we generated with _parseString()
@@ -529,21 +547,26 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 	}//end _setVariables()
 
+
 	/**
-	* used to remove any image roots from the front of the string
-	* replace any './[folder/filename]' with '[folder/filename]'
+	* Remove any image roots from the front of the string
+	*
+	* Replace any './[folder/filename]' with '[folder/filename]'
 	*
 	* @param string	$str	the string to remove any image root from
 	*
 	* @return string
 	* @access private
 	*/
-	function _removeFileRoot($str) {
+	function _removeFileRoot($str)
+	{
 		return preg_replace('/^(\\.\\/)?files\/(.*)/i', '\\2', $str);
-	}
+
+	}//end _removeFileRoot()
+
 
 	/**
-	* Outputs the PHP/HTML code that will hopefully form part of the creating the design file
+	* Output the PHP/HTML code that will hopefully form part of the creating the design file
 	*
 	* @param Array			$contents	the parse contents to use in the output
 	* @param object Asset	$asset		the asset to which we belong
@@ -555,7 +578,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	function _createDesignFileOutput($contents, &$asset, &$design)
 	{
 		return $this->_outputContents($contents, $asset, $design);
+
 	}// end _createDesignFileOutput()
+
 
 	/**
 	* Outputs the PHP/HTML code that will hopefully form part of the creating the design file
@@ -648,8 +673,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 	}// end _outputElement()
 
+
 	/**
-	* Creates a string that would be able to be parsed to recreate this design area in its current form
+	* Create a string that is able to be parsed to recreate this design area in its current form
 	*
 	* @param object Asset	$asset	the asset whose interface we are painting
 	*
@@ -686,7 +712,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		}// end foreach
 
 		return $text;
+
 	}// end createParseString()
+
 
 	/**
 	* Returns an array of vars that are setable, used to create the parseString
@@ -708,6 +736,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 
 	}// end _getSetableVars()
 
+
 	/**
 	* Paint the interface for the specialising this design area
 	* 
@@ -723,7 +752,9 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 		$text = $this->createParseString($asset);
 		hidden_field($prefix.'_specialisation_orig', $text);
 		text_area($prefix.'_specialisation', $text, 75, 20, 0, 'wrap="off" style="font-family: courier new, courier, monospace; font-size: 9pt;"');
+
 	}// end paintSpecialisation()
+
 
 	/**
 	* Process the specialisation, ie call _parseString() and set the specialised flag to true
@@ -753,4 +784,5 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	}// end processSpecialisation()
 
 }//end class
+
 ?>

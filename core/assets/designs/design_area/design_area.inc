@@ -26,7 +26,9 @@ class Design_Area extends Asset
 	{
 		$this->_ser_attrs = true; // we have serialise type vars
 		$this->Asset($assetid);
+
 	}//end constructor
+
 
 	/**
 	* Create this asset
@@ -50,6 +52,7 @@ class Design_Area extends Asset
 
 	}//end create()
 
+
 	/**
 	* Returns name of the asset
 	*
@@ -61,6 +64,7 @@ class Design_Area extends Asset
 	function _getName($short_name=false)
 	{
 		return $this->attr('id_name');
+
 	}//end _getName();
 
 
@@ -107,6 +111,7 @@ class Design_Area extends Asset
 			$designs[] = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code'], true);
 		}
 		return $designs;
+
 	}//end getDesigns()
 
 
@@ -162,7 +167,9 @@ class Design_Area extends Asset
 		} else {
 			return parent::attr($name);
 		}
+
 	}//end attr();
+
 
 	/**
 	* Outputs either the straight HTML or PHP code that is needed for this design area to be represented
@@ -176,6 +183,7 @@ class Design_Area extends Asset
 	{
 		$edit_fns = $this->getEditFns();
 		return $edit_fns->_createDesignFileOutput($this->attr('contents'), $this, $design);
+
 	}//end printArea()
 
 
@@ -190,6 +198,7 @@ class Design_Area extends Asset
 	function printVar($var, $args)
 	{
 		echo $this->_escapeVar($this->attr($var), $args);
+
 	}//end printVar()
 
 
@@ -208,7 +217,10 @@ class Design_Area extends Asset
 		} else {
 			return 'addslashes('.$value.')';
 		}
+
 	}//end printVar()
 
+
 }//end class
+
 ?>

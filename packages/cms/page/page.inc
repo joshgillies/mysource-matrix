@@ -46,16 +46,12 @@ class Page extends Asset
 			return false;
 		}
 
+		// short and long names are the same to begin with
+		$this->setAttrValue('short_name', $name);
+
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$linkid = parent::create($link);
 		if (!$linkid) {
-			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-			$this->id = 0;
-			return false;
-		}
-
-		// short and long names are the same to begin with
-		if (!$this->setAttrValue('short_name', $name)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
 			return false;

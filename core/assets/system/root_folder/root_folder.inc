@@ -192,20 +192,18 @@ class Root_Folder extends Folder
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run 
-	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value, $dont_run_updated=false)
+	function setAttrValue($name, $value)
 	{
 		if ($name == 'name' && empty($this->_tmp[__CLASS__.'_in_create'])) {
 			trigger_error('You are not able to alter the name for the root folder', E_USER_WARNING);
 			return false;
 		}
 
-		return parent::setAttrValue($name, $value, $dont_run_updated);
+		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
 

@@ -575,7 +575,12 @@ class Asset_Edit_Interface extends Resolve_Object
 
 		}// end if $file
 
-		return $ret_val;
+		if ($ret_val) {
+			// some attributes have been updated, so save the asset
+			return $owner->saveAttributes();
+		} else {
+			return false;
+		}
 
 	}// end process();
 

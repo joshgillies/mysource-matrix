@@ -146,8 +146,9 @@ class Bodycopy_Table extends Asset
 			}
 		}
 
-		// short and long names are the same to begin with
-		if (!$this->setAttrValue('rows',$rows)) {
+		// set row information
+		$this->setAttrValue('rows',$rows);
+		if (!$this->saveAttributes()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			$this->id = 0;
 			return false;

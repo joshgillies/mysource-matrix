@@ -248,6 +248,8 @@ class File extends Asset
 			return false;
 		}
 
+		$this->setAttrValue('name', $name);
+
 		return parent::create($link);
 
 	}//end create()
@@ -422,18 +424,22 @@ class File extends Asset
 				if (!$ei->process($this, $o, true)) return false;
 
 				$prefix = $this->getPrefix();
-
 				$this->setAttrValue('name', 'temp');
+
 				$linkid = $this->create($link);
 
 				if ($linkid) {
+					$this->acquireLock();
 					$edit = $this->getEditFns();
-					unset($this->_tmp['uploading_file']);
-					return $edit->processFileUpload($this, $o, $prefix);
-				} else {
-					return false;
+					$this->_tmp['uploading_file'] = 1;
+					$ret_val = $edit->processFileUpload($this, $o, $prefix);
+					$this->saveAttributes();
+					$this->releaseLock();
+					return $ret_val;
 				}
-				break;
+
+				return false;
+			break;
 
 			default :
 				return parent::processBackend($o, $link);
@@ -444,28 +450,104 @@ class File extends Asset
 
 
 	/**
+	* Set the value of an attribute
+	*
+	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
+	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
+	*
+	* @return boolean
+	* @access public
+	*/
+	function saveAttributes($dont_run_updated=false)
+	{
+		if (!$this->id) return true;
+
+		if (isset($this->_tmp['vars_set']['name'])) {
+
+			$uploading_file = (!empty($this->_tmp['uploading_file'])) ? true : false;
+
+			if (!$uploading_file) {
+
+				$old_filename = $this->_tmp['vars_set']['name']['old_value'];
+				$new_filename = $this->attr('name');
+
+				if (is_file($this->data_path.'/'.$old_filename)) $data_path = $this->data_path;
+				else $data_path = $this->data_path_public;
+
+				// try and set the new filename - return false if it fails
+				if (!parent::saveAttributes($dont_run_updated)) return false;
+
+				// the name has changed so we need to save the web paths
+				if (!$this->saveWebPaths(Array($new_filename))) {
+					trigger_error('Failed updating web path. Path already exists?', E_USER_WARNING);
+					parent::setAttrValue('name', $old_filename);
+					return false;
+				}
+
+				//// FILE VERSIONING ////
+
+				$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
+
+				// copy the file instead of a direct rename because removing the
+				// file from the repository will also remove it from the file system
+				if (!copy($data_path.'/'.$old_filename, $data_path.'/'.$new_filename)) {
+					trigger_error('Failed renaming file, try again.', E_USER_WARNING);
+					parent::setAttrValue('name', $old_filename);
+					return false;
+				}
+
+				// we are renaming the file, so we need to remove the old name from
+				// the repository and add the new one in
+				if (!$fv->remove($data_path.'/'.$old_filename, '', false)) {
+					trigger_error('Failed removing file from repository', E_USER_WARNING);
+					parent::setAttrValue('name', $old_filename);
+					return false;
+				}
+
+				// attempt to add a new version of the file to the repository
+				if (!$fv->add($this->data_path_suffix, $this->data_path.'/'.$new_filename, '', false)) {
+					trigger_error('Failed adding file version', E_USER_WARNING);
+					parent::setAttrValue('name', $old_filename);
+					return false;
+				}
+
+				// make sure we have the latest version of our file
+				if (!$fv->checkOut($this->data_path_suffix.'/'.$new_filename, $this->data_path)) {
+					trigger_error('Failed checking out latest version of file', E_USER_WARNING);
+					parent::setAttrValue('name', $old_filename);
+					return false;
+				}
+
+				return true;
+
+			}//end if not uploading a file
+
+		}//end if we are changing the filename
+
+		return parent::saveAttributes($dont_run_updated);
+
+	}//end saveAttributes()
+
+
+	/**
 	* Set the value for the passed variable to the passed value
 	* If the user changes the name of this file, we also need
 	* to update the file system
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run 
-	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value, $dont_run_updated=false)
+	function setAttrValue($name, $value)
 	{
-		if (is_file($this->data_path.'/'.$this->attr('name'))) {
-			$data_path = $this->data_path;
-		} else {
-			$data_path = $this->data_path_public;
-		}
-	
 		$uploading_file = (!empty($this->_tmp['uploading_file'])) ? true : false;
+
 		if ($name == 'name' && !$uploading_file) {
+			if (is_file($this->data_path.'/'.$this->attr('name'))) $data_path = $this->data_path;
+			else $data_path = $this->data_path_public;
+
 			$old_filename = $this->attr('name');
 			$old_ext = strtolower(substr(strrchr($old_filename,'.'), 1));
 			$new_ext = strtolower(substr(strrchr($value,'.'), 1));
@@ -481,49 +563,7 @@ class File extends Asset
 			}
 		}
 
-		if (parent::setAttrValue($name, $value, $dont_run_updated) && $name == 'name' && !$uploading_file) {
-			if (!$this->saveWebPaths(Array($value))) {
-				trigger_error('Failed updating web path. Path already exists?', E_USER_WARNING);
-				parent::setAttrValue($name, $old_filename, $dont_run_updated);
-				return false;
-			}
-
-			//// FILE VERSIONING ////
-
-			$fv = &$GLOBALS['SQ_SYSTEM']->getFileVersioning();
-
-			// copy the file instead of a direct rename because removing the
-			// file from the repository will also remove it from the file system
-			if (!copy($data_path.'/'.$old_filename, $data_path.'/'.$value)) {
-				trigger_error('Failed renaming file, try again.', E_USER_WARNING);
-				parent::setAttrValue($name, $old_filename, $dont_run_updated);
-				return false;
-			}
-
-			// we are renaming the file, so we need to remove the old name from
-			// the repository and add the new one in
-			if (!$fv->remove($data_path.'/'.$old_filename, '', false)) {
-				trigger_error('Failed removing file from repository', E_USER_WARNING);
-				parent::setAttrValue($name, $old_filename, $dont_run_updated);
-				return false;
-			}
-
-			// attempt to add a new version of the file to the repository
-			if (!$fv->add($this->data_path_suffix, $this->data_path.'/'.$value, '', false)) {
-				trigger_error('Failed adding file version', E_USER_WARNING);
-				parent::setAttrValue($name, $old_filename, $dont_run_updated);
-				return false;
-			}
-
-			// make sure we have the latest version of our file
-			if (!$fv->checkOut($this->data_path_suffix.'/'.$value, $this->data_path)) {
-				trigger_error('Failed checking out latest version of file', E_USER_WARNING);
-				parent::setAttrValue($name, $old_filename, $dont_run_updated);
-				return false;
-			}
-		}
-
-		return true;
+		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
 

@@ -36,14 +36,13 @@ class Design_Area_Menu_Type extends Design_Area
 	/**
 	* Set the value for the passed variable to the passed value
 	*
-	* @param string		$name				the name of the attribute
-	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run (THIS IS ONLY EVER CALLED FROM Asset::create())
+	* @param string		$name	the name of the attribute
+	* @param string		$value	the new value of the attribute
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value, $dont_run_updated=false)
+	function setAttrValue($name, $value)
 	{
 		// if they are trying to set a page position dependent setting
 		if (substr($name, 0, 9) == 'settings.') {
@@ -87,7 +86,7 @@ class Design_Area_Menu_Type extends Design_Area
 		}// end if
 
 
-		return parent::setAttrValue($name, $value, $dont_run_updated);
+		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
 
@@ -100,7 +99,7 @@ class Design_Area_Menu_Type extends Design_Area
 	* @return mixed
 	* @access public
 	*/
-	function attr($name) 
+	function attr($name)
 	{
 		// if they are trying to set a page position dependent setting
 		if (substr($name, 0, 9) == 'settings.') {
@@ -117,7 +116,7 @@ class Design_Area_Menu_Type extends Design_Area
 		// if we hit this, just send it upwards
 		return parent::attr($name);
 
-	}//end attr();	
+	}//end attr()
 
 
 	/**
@@ -142,7 +141,7 @@ class Design_Area_Menu_Type extends Design_Area
 
 		return $var_refs;
 
-	}//end getVarReferences();
+	}//end getVarReferences()
 
 
 	/**
@@ -181,25 +180,26 @@ class Design_Area_Menu_Type extends Design_Area
 			$sub_menu->setVarReferenceValues($var_ref_values);
 		}// end if
 
-	}//end setVarReferenceValues();
+	}//end setVarReferenceValues()
 
 
-	/*
+	/**
 	* Returns the link to the sub menu for this menu (if any)
 	*
 	* @return Array()
 	* @access public
 	*/
-	function getSubMenuLink() 
+	function getSubMenuLink()
 	{
 		if (!isset($this->_tmp['sub_menu_link'])) {
 			$this->_tmp['sub_menu_link'] = $this->getLink(SQ_LINK_TYPE_3, 'design_area_menu_type', false, 'sub_menu');
 		}
 		return $this->_tmp['sub_menu_link'];
+
 	}//end getSubMenuLink()
 
 
-	/*
+	/**
 	* Returns the sub menu for this menu (if any)
 	*
 	* @return mixed Design_Area_Menu_Type or null
@@ -218,7 +218,7 @@ class Design_Area_Menu_Type extends Design_Area
 	}//end getSubMenu()
 
 
-	/*
+	/**
 	* Returns the parent menu for this menu (assuming it is a sub menu)
 	*
 	* @return mixed Design_Area_Menu_Type or null
@@ -253,10 +253,11 @@ class Design_Area_Menu_Type extends Design_Area
 		unset($this->_tmp['sub_menu_link']);
 		unset($this->_tmp['parent_menu_link']);
 		return true;
+
 	}//end _linksUpdated()
 
 
-	/*
+	/**
 	* Returns whether the passed setting exists or not
 	*
 	* @return boolean
@@ -266,6 +267,7 @@ class Design_Area_Menu_Type extends Design_Area
 	{
 		$settings = $this->attr('settings'); // do like this to take into account var refs
 		return !empty($settings[$name]);
+
 	}//end settingExists()
 
 
@@ -587,4 +589,5 @@ class Design_Area_Menu_Type extends Design_Area
 
 
 }//end class
+
 ?>

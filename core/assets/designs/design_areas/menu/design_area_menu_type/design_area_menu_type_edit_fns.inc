@@ -27,7 +27,7 @@ class Design_Area_Menu_Type_Edit_Fns extends Design_Area_Edit_Fns
 	*/
 	function _processContents(&$asset, &$contents)
 	{
-		if (!$asset->setAttrValue('settings', Array())) return false;
+		$asset->setAttrValue('settings', Array());
 		if (!$this->_setVariables($asset, $contents)) return false;
 		$settings = $asset->attr('settings');
 		// Now just make sure that current, hierarchy and normal entries all exist for the settings

@@ -15,6 +15,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 */
 class File_Edit_Fns extends Asset_Edit_Fns
 {
+
 	/**
 	* All available protocols
 	* @var Array(string)
@@ -29,6 +30,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	function File_Edit_Fns()
 	{
 		$this->Asset_Edit_Fns();
+
 	}//end constructor
 
 
@@ -106,14 +108,14 @@ class File_Edit_Fns extends Asset_Edit_Fns
 	{
 		if (!$asset->writeAccess()) return false;
 
+		// assetid will not be set if we are creating
+		if (!$asset->id) return true;
+
 		if (empty($info)) {
 			$info = get_file_upload_info($prefix);
 			// return on failed or no upload
 			if ($info === false || empty($info)) return false;
 		}
-
-		// assetid will not be set if we are creating
-		if (!$asset->id) return true;
 
 		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 		$valid_names = make_valid_web_paths(Array($info['name']));
@@ -208,7 +210,6 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		// set the name of the file to the newly uploaded one
 		$asset->_tmp['uploading_file'] = true;
 		$asset->setAttrValue('name', $name);
-		unset($asset->_tmp['uploading_file']);
 
 		return true;
 

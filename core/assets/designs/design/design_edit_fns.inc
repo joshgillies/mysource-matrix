@@ -345,7 +345,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			$id_names[$element['attributes']['id_name']] = $element['attributes']['design_area'];
 
-		}// end foreach
+		}// end forenach
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -398,7 +398,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 					return false;
 				}
 				$GLOBALS['SQ_SYSTEM']->am->registerAsset($da);
-			}// end if
+			}
 
 			$design_areas[$id_name] = &$da;
 
@@ -414,6 +414,9 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 
 			$edit_fns = $design_areas[$element['attributes']['id_name']]->getEditFns();
 			if (!$edit_fns->_processContents($design_areas[$element['attributes']['id_name']], $element['contents'])) {
+				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+				return false;
+			} else if (!$design_areas[$element['attributes']['id_name']]->saveAttributes()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
@@ -478,6 +481,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 		foreach($design_area_links as $link) {
 			$da = &$asset->getDesignArea($link['value']);
 			if (is_null($da)) continue;
+
 			$da_var_refs = $da->getVarReferences();
 			for(reset($da_var_refs); null !== ($id_name = key($da_var_refs)); next($da_var_refs)) {
 				$var_da = &$asset->getDesignArea($id_name);

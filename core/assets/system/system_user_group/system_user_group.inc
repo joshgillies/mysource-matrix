@@ -105,13 +105,11 @@ class System_User_Group extends User_Group
 	*
 	* @param string		$name				the name of the attribute
 	* @param string		$value				the new value of the attribute
-	* @param boolean	$dont_run_updated	if true this->_updated() won't be run
-	*										(THIS IS ONLY EVER CALLED FROM Asset::create())
 	*
 	* @return boolean
 	* @access public
 	*/
-	function setAttrValue($name, $value, $dont_run_updated=false)
+	function setAttrValue($name, $value)
 	{
 
 		if ($name == 'name' && empty($this->_tmp[__CLASS__.'_in_create'])) {
@@ -119,7 +117,7 @@ class System_User_Group extends User_Group
 			return false;
 		}
 
-		return parent::setAttrValue($name, $value, $dont_run_updated);
+		return parent::setAttrValue($name, $value);
 
 	}//end setAttrValue()
 
