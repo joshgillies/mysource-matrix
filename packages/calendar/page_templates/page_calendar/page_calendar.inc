@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.135 2004/12/29 00:33:18 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.136 2004/12/29 05:13:05 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.135 $
+* @version $Revision: 1.136 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -968,7 +968,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$click_to_add_ab = $this->attr('asset_builder_page');
 
 		$mousedown_code = $dragging_enabled ? 'onmousedown="'.($popups_enabled ? 'stopTrailingPopup(); ' : '').'startDragging(this)"' : '';
-		$mouseup_code = $dragging_enabled ? 'onmouseup="if (stopDragging()!=\'no_move\') { formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)}"' : '';
+		$mouseup_code = $dragging_enabled ? 'onmouseup="stopDragging(); formSubmitted=true; setTimeout(\'formSubmitted=false\', 100)}"' : '';
 		?>
 		<style>
 			table#day tr td.sq-time-cell, table#week tr td.sq-time-cell {
@@ -1133,6 +1133,10 @@ class Page_Calendar extends Page_Asset_Listing
 		$time_label = sprintf('%02d:%02d', (int)($cell_ts / 60), $cell_ts % 60);
 
 		foreach ($events as $assetid => $details) {
+
+			$real_assetid = current(explode(':', $assetid));
+			$event_href = $show_event_links ? $this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$real_assetid : '';
+
 			reset($layout_map);
 			$dont_overdo_it = 0;
 			while (($dont_overdo_it < 20) && (key($layout_map) != $time_label)) {
@@ -1147,7 +1151,6 @@ class Page_Calendar extends Page_Asset_Listing
 			}
 
 			$event_left_margin = $event_width * $horizontal_index + 0.05;
-			$real_assetid = current(explode(':', $assetid));
 			// get top position of div
 			$event_ts = $details['start_date_minutes'] + (60 * $details['start_date_hours']);
 			$end_ts = $details['end_date_minutes'] + (60 * $details['end_date_hours']);
@@ -1178,7 +1181,7 @@ class Page_Calendar extends Page_Asset_Listing
 			// other layout things
 			$zero_length_code = $event_height ? '' : 'border-style: dashed; border-bottom: 0px; border-left: 0px; border-right: 0px; padding-top: 0px; background-color: transparent;';
 			$cursor_code = $show_event_links ? 'cursor: pointer; cursor: hand;' : '';
-			$onclick_code = $show_event_links ? 'onclick="clickChild(this);"' : '';
+			$onclick_code = $show_event_links ? 'onclick="sq_cal_redirect(\''.$event_href.'\')"' : '';
 			$inner_width = $event_width - 4;
 			$current_mouse_up_down_code = (($details['type_code'] != 'calendar_event_recurring') && (!isset($details['trimmed'])) && (!isset($details['expanded']))) ? $mousedown_code.' '.$mouseup_code : 'onmousedown="statusBarMsg(\'Recurring, multi-day and trimmed events cannot be dragged\')" onmouseup="statusBarMsg(\'\')"';
 			$current_mouse_over_out_code = '';
@@ -1190,10 +1193,15 @@ class Page_Calendar extends Page_Asset_Listing
 			$res .= '<div id="'.$assetid.'" '.$current_mouse_up_down_code.' '.$current_mouse_over_out_code.' class="'.$event_class.' event" style="float: left; position: absolute; width: '.($event_width-1).'px; margin-left: '.$event_left_margin.'px; margin-top: '.$event_top_margin.'px; height: '.$event_height.'px; border-width: 1px; '.$cursor_code.' '.$zero_length_code.'" '.$onclick_code.'>';
 
 			$res .= '<div class="eventText" style="z-index: 30; position: absolute; width: '.$inner_width.'px; border: none;  background-color: transparent">';
+	
+			$label = $details['name'];
+			if ($show_event_links && empty($current_mouse_up_down_code)) {
+				$label = '<a class="event '.$event_class.'" href="'.$event_href.'">'.$label.'</a>';
+			} else {
+				$label = '<span class="event '.$event_class.'">'.$label.'</span>';
+			}
+			$res .= $label;
 
-			$res .= $show_event_links ? '<a '.$current_mouse_up_down_code.' style="z-index: 1" class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$real_assetid.'">' : '<span class="event '.$event_class.'">';
-			$res .= $details['name'];
-			$res .= $show_event_links ? '</a>' : '</span>';
 			$res .= '</div></div>';
 			$event_left_margin += $event_width + 0.05;
 
@@ -1218,7 +1226,7 @@ class Page_Calendar extends Page_Asset_Listing
 		$res = '';
 		foreach ($events as $assetid => $details) {
 			$event_class = (isset($root_nodes[$details['root_node']]['class_name'])) ? $root_nodes[$details['root_node']] ['class_name'] : '';
-			$onclick_code = $show_event_link ? ' onclick="clickChild(this); "' : '';
+			$onclick_code = ''; //$show_event_link ? ' onclick="clickChild(this); "' : '';
 			$cursor_code = $show_event_link ? 'cursor: pointer; cursor: hand;' : '';
 
 			$current_mouse_over_out_code = '';
@@ -1262,6 +1270,13 @@ class Page_Calendar extends Page_Asset_Listing
 				 if (linkChildren.length > 0) {
 					 document.location = linkChildren.item(0).href;
 				 }
+			}
+			function sq_cal_redirect(url) {
+				if (!moved) {
+					document.location.href = url;
+				} else {
+					log("moved, not redirecting to "+url);
+				}
 			}
 			function statusBarMsg(m) {
 				window.status = m;
@@ -1367,6 +1382,7 @@ class Page_Calendar extends Page_Asset_Listing
 
 					function onDragFinish(movingElt, newCell)
 					{
+						log('Drag finishing');
 						var source_comps = originalParent.id.split('_');
 						var target_comps = newCell.id.split('_');
 						if ((target_comps.length > 2) && (source_comps[2] != target_comps[2])) {
