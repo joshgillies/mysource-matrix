@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: MySource.java,v 1.1 2004/01/13 00:52:25 mmcintyre Exp $
+* $Id: MySource.java,v 1.2 2004/01/16 00:36:37 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,12 +99,8 @@ public class MySource {
 
 			URL base = am.getBaseURL();
 			String basePath = base.getProtocol() + "://" + base.getHost() + MySource.getPath(base.getPath());
-			String execPath = basePath + "/_admin/?SQ_BACKEND_PAGE=asset_map_request";
+			String execPath = basePath + MySource.getSpecialPath(base.getPath()) + "/?SQ_BACKEND_PAGE=asset_map_request";
 			
-			basePath = "http://beta.squiz.net/marc_matrix";
-			execPath = "http://beta.squiz.net/marc_matrix/_admin/?SQ_BACKEND_PAGE=asset_map_request";
-
-
 			MySource.instance = new MySource(basePath, execPath);
 		}
 		return MySource.instance;
@@ -112,8 +108,7 @@ public class MySource {
 	}//end getInstance()
 
 
-	public static String getPath(String path) {
-
+	public static String[] getSpecialPaths() {
 		int length = 5;
 		String [] specialPaths = new String[length];
 		specialPaths[0] = "/_admin";
@@ -121,17 +116,35 @@ public class MySource {
 		specialPaths[2] = "/__lib";
 		specialPaths[3] = "/__fudge";
 		specialPaths[4] = "/__data";
-	
-		String realPath = null;
 
+		return specialPaths;
+	}
+
+	public String getSpecialPath(String path) {
+		String[] specialPaths = MySource.getSpecialPaths();
+		for (int i = 0; i < length; i++) {
+			if (path.indexOf(specialPaths[i]) != -1) {
+				return specialPaths[i];
+			}
+		}
+		return "";
+	}
+
+	public static int getPathOffset(String path) {
+		String[] specialPaths = MySource.getSpecialPaths();
 		for (int i = 0; i < length; i++) {
 			int pos = path.indexOf(specialPaths[i]);
 			// if we have something here...
 			if (pos != -1) {
-				realPath = path.substring(0, pos);
+				return pos;
 			}
 		}
+		return -1;
+	}
 
+	public static String getPath(String path) {
+
+		String realPath = path.substring(0, getPathOffset(path));
 		return realPath;
 	}
 
