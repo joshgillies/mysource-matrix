@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar_management.inc,v 1.27 2004/10/29 05:51:40 lwright Exp $
+* $Id: page_calendar_management.inc,v 1.28 2004/11/02 22:28:46 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -29,7 +29,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 *
 *
 * @author  Luke Wright <lwright@squiz.net>
-* @version $Revision: 1.27 $ - 1.0
+* @version $Revision: 1.28 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -205,7 +205,7 @@ class Page_Calendar_Management extends Asset_Management
 		$this->vars['month_links_to_week'] = Array(
 													'added'		=> '0.1',
 													'type'		=> 'boolean',
-													'default'	=> 'false'
+													'default'	=> 'true',
 												);
 		
 		$this->vars['up_link_text'] = Array(

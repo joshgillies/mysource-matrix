@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.108 2004/10/29 05:51:40 lwright Exp $
+* $Id: page_calendar.inc,v 1.109 2004/11/02 22:28:46 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.108 $ - 1.0
+* @version $Revision: 1.109 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -604,10 +604,12 @@ class Page_Calendar extends Page_Asset_Listing
 			$this->_printClickChildScript();
 			if ($this->attr('enable_description_popups')) $this->_printPopupsScript();
 			?>
-			<table id="month" border="0" cellspacing="0" cellpadding="0">
+			<table id="month" border="0" cellspacing="0" cellpadding="0" style="width: <?php echo (7.35 * $column_width); ?>px">
 				<tr>
-				<th class="dayLabel">&nbsp;</th>
+				<?php if ($this->attr('month_links_to_week')) { ?>
+					<th class="dayLabel">&nbsp;</th>
 			<?php
+				}
 				// print the day headings
 				for ($i=0; $i < $week_length; $i++) {
 					$day_name = $this->day_names[($week_start_day + $i) % 7];
@@ -620,9 +622,11 @@ class Page_Calendar extends Page_Asset_Listing
 			?>
 				</tr>
 				<tr>
+			<?php if ($this->attr('month_links_to_week')) { ?>
 			<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a class="dateLink" href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($_REQUEST['SQ_CALENDAR_DATE']) ?>">&raquo;</a></td>
 			<?php
-
+			}
+			
 			// print blank days if necessrary
 			$i = 0;
 			$blank_days = (date('w', strtotime("$year-".sprintf('%02d', $month).'-01')) + 7 - $week_start_day) % 7;
@@ -653,9 +657,10 @@ class Page_Calendar extends Page_Asset_Listing
 			// print the full weeks
 			$num_full_weeks = floor(($month_length - $current_day) / 7);
 			for ($w = 0; $w < $num_full_weeks; $w++) {
-				?><tr>
-				<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($_REQUEST['SQ_CALENDAR_DATE']) ?>">&raquo;</a></td>
-				<?php
+				?><tr><?php 
+				if ($this->attr('month_links_to_week')) {
+					?><th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.add_days_to_iso($_REQUEST['SQ_CALENDAR_DATE']) ?>">&raquo;</a></td><?php
+				}
 				for ($i=0; $i < $week_length; $i++) {
 					$_REQUEST['SQ_CALENDAR_DATE'] = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
 					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes, $column_width*0.99);
@@ -678,8 +683,10 @@ class Page_Calendar extends Page_Asset_Listing
 				echo '<tr>';
 				?>
 				<tr>
-				<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'] ?>">&raquo;</a></td>
+				<?php if ($this->attr('month_links_to_week')) { ?>
+					<th class="weekLink" onClick="location.href = this.childNodes[0].href;"><a  class="dateLink"  href="<?php echo $this->getHref().'?SQ_CALENDAR_VIEW=week&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'] ?>">&raquo;</a></td>
 				<?php
+				}
 				while ($current_day <= $month_length) {
 					$_REQUEST['SQ_CALENDAR_DATE'] = sprintf('%04d-%02d-%02d', $year, $month, $current_day);
 					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes, $column_width*0.99);
