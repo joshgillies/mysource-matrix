@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: metadata_manager.inc,v 1.54 2004/11/22 22:17:55 arailean Exp $
+* $Id: metadata_manager.inc,v 1.54.2.1 2005/02/25 02:31:17 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -450,7 +450,7 @@ class Metadata_Manager extends MySource_Object
 				return $field_values;
 			}
 
-			$values = $this->getSchemaMetadata($asset->id, $schema->id);
+			$values = $this->getSchemaMetadata($asset->id, $schema->id, true);
 			// if they didnt supply specific fields, they want the lot
 			if (empty($fields)) {
 				if (isset($values['sections'])) {
