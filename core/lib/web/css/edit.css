@@ -17,7 +17,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: edit.css,v 1.37 2004/07/23 04:29:58 gsherwood Exp $
+* $Id: edit.css,v 1.38 2004/08/05 03:42:59 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@ body {
 body, p, td, ul, li, input, select, textarea {
 	color:			#000000;
 	font-family:		Arial, Verdana Helvetica, sans-serif;
-	font-size:		12px;
+	font-size:		11px;
 }
 
 a {
