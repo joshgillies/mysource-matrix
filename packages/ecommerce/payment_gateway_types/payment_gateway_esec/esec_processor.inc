@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor.inc,v 1.2 2004/10/14 01:04:06 arailean Exp $
+* $Id: esec_processor.inc,v 1.3 2004/10/20 23:00:37 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -34,7 +34,7 @@ require_once 'HTTP/Request.php';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -157,7 +157,7 @@ class Esec_Processor
 	* @param	$value	new value of the parameter
 	*
 	* @access private
-	* @return
+	* @return void
 	*/
 	function set($name, $value) {
 		$this->parameters[$name] = $value;
@@ -459,7 +459,7 @@ class Esec_Processor
 	* This function has to be called after all the other attributes have been set.
 	*
 	* @access public
-	* @return
+	* @return void
 	*/
 	function setTest()
 	{
