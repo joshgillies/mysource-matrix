@@ -756,7 +756,7 @@ class Asset_Manager extends Resolve_Object
 					';
 			$where = 'l.source_asset = '.$db->quote($current_lock['source_asset']);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
-pre_echo($sql);
+
 			$locked_ids = $db->getAll($sql.$where);
 			if (DB::isError($locked_ids)) {
 				$GLOBALS['SQ_SYSTEM']->restoreDatabaseConnection();
