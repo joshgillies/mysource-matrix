@@ -17,9 +17,9 @@
 ## File: web/edit/edit.js
 ## Desc: Common Javascript functions for backend forms.
 ## $Source: /home/csmith/conversion/cvs/mysource_matrix/core/mysource_matrix/core/lib/js/edit.js,v $
-## $Revision: 1.2 $
+## $Revision: 1.3 $
 ## $Author: gsherwood $
-## $Date: 2003/08/19 00:37:58 $
+## $Date: 2003/08/20 05:29:59 $
 #######################################################################
 */
 
@@ -65,6 +65,7 @@ function sqSubmitEditForm() {
 	if (frm.sq_submit_pressed.value == '0') {
 		frm.sq_submit_pressed.value = '1';
 		frm.sq_release_lock.value = frm.sq_release_lock_on_submit.value;
+		frm.onsubmit();
 		frm.submit();
 	}
 
