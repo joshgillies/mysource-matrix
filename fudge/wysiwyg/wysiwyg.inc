@@ -194,7 +194,7 @@ class wysiwyg {
 					tb_cell.appendChild(innerToolbar);
 
 					this._toolbar = toolbar;
-					toolbar.className = "toolbar";
+					toolbar.className = "htmlarea-toolbar";
 					toolbar.unselectable = "1";
 					var tb_objects = new Object();
 					this._toolbarObjects = tb_objects;
@@ -209,18 +209,18 @@ class wysiwyg {
 								switch (id) {
 									case "enabled":
 									if (newval) {
-										HTMLArea._removeClass(el, "buttonDisabled");
+										HTMLArea._removeClass(el, "htmlarea-buttonDisabled");
 										el.disabled = false;
 									} else {
-										HTMLArea._addClass(el, "buttonDisabled");
+										HTMLArea._addClass(el, "htmlarea-buttonDisabled");
 										el.disabled = true;
 									}
 									break;
 									case "active":
 									if (newval) {
-										HTMLArea._addClass(el, "buttonPressed");
+										HTMLArea._addClass(el, "htmlarea-buttonPressed");
 									} else {
-										HTMLArea._removeClass(el, "buttonPressed");
+										HTMLArea._removeClass(el, "htmlarea-buttonPressed");
 									}
 									break;
 								}
@@ -272,17 +272,17 @@ class wysiwyg {
 						switch (txt) {
 							case "separator":
 								el = document.createElement("span");
-								el.className = "separator";
+								el.className = "htmlarea-separator";
 								el.style.top = (HTMLArea.is_gecko ? -4 : 0);
 							break;
 							case "space":
 								el = document.createElement("span");
-								el.className = "space";
+								el.className = "htmlarea-space";
 								el.style.top = (HTMLArea.is_gecko ? -4 : 0);
 							break;
 							case "linebreak":
 								el = document.createElement("div");
-								el.className = "space";
+								el.className = "htmlarea-space";
 							break;
 <?php $this->print_plugin_button_type()?>
 							default:
@@ -292,7 +292,7 @@ class wysiwyg {
 						if (!el && btn) {
 							el = document.createElement("span");
 							el.title = btn[1];
-							el.className = "button";
+							el.className = "htmlarea-button";
 
 							// let's just pretend we have a button object, and
 							// assign all the needed information to it.
@@ -310,28 +310,28 @@ class wysiwyg {
 							// handlers to emulate nice flat toolbar buttons
 							HTMLArea._addEvent(el, "mouseover", function () {
 								if (obj.enabled) {
-									HTMLArea._addClass(el, "buttonHover");
+									HTMLArea._addClass(el, "htmlarea-buttonHover");
 								}
 							});
 							HTMLArea._addEvent(el, "mouseout", function () {
 								if (obj.enabled) with (HTMLArea) {
-									_removeClass(el, "buttonHover");
-									_removeClass(el, "buttonActive");
-									(obj.active) && _addClass(el, "buttonPressed");
+									_removeClass(el, "htmlarea-buttonHover");
+									_removeClass(el, "htmlarea-buttonActive");
+									(obj.active) && _addClass(el, "htmlarea-buttonPressed");
 								}
 							});
 							HTMLArea._addEvent(el, "mousedown", function (ev) {
 								if (obj.enabled) with (HTMLArea) {
-									_addClass(el, "buttonActive");
-									_removeClass(el, "buttonPressed");
+									_addClass(el, "htmlarea-buttonActive");
+									_removeClass(el, "htmlarea-buttonPressed");
 									_stopEvent(is_ie ? window.event : ev);
 								}
 							});
 							// when clicked, do the following:
 							HTMLArea._addEvent(el, "click", function (ev) {
 								if (obj.enabled) with (HTMLArea) {
-									_removeClass(el, "buttonActive");
-									_removeClass(el, "buttonHover");
+									_removeClass(el, "htmlarea-buttonActive");
+									_removeClass(el, "htmlarea-buttonHover");
 									editor._buttonClicked(txt);
 									_stopEvent(is_ie ? window.event : ev);
 								}

@@ -40,7 +40,6 @@ HTMLArea.prototype.generate = function () {
 	eval ('textarea.form.onsubmit = function() { editor._textArea.value = editor.getHTML(); otherOnSubmit_' + this._uniqueID + '(); };');
 	
 	// creates & appends the toolbar
-	//this._createToolbar();
 	this._htmlArea.appendChild(this._toolbar);
 
 	if (HTMLArea.is_gecko || editor.config.bodyType.toLowerCase() == 'iframe') {
