@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset.inc,v 1.314 2004/08/09 08:52:54 brobertson Exp $
+* $Id: asset.inc,v 1.315 2004/08/19 00:20:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -1788,8 +1788,8 @@ class Asset extends MySource_Object
 	{
 		$lock_types =  Array(
 					'settings'		=>  1,
-					'attributes'		=>  2,
-					'permissions'		=>  4,
+					'attributes'	=>  2,
+					'permissions'	=>  4,
 					'links'			=>  8,
 					'workflow'		=> 16,
 					'metadata'		=> 32,
@@ -2902,7 +2902,7 @@ class Asset extends MySource_Object
 	*/
 	function getPrefix()
 	{
-		return $this->type().'_'.$this->id;
+		return str_replace(' ', '_', $this->type().'_'.$this->id);
 
 	}//end getPrefix()
 
