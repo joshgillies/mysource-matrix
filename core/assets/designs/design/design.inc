@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.67 2004/07/15 05:40:53 gsherwood Exp $
+* $Id: design.inc,v 1.68 2004/08/02 00:02:30 amiller Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -598,9 +598,18 @@ class Design extends Design_Area
 				echo '<', '?php echo ', $this->_escapeVar('($GLOBALS[\'SQ_SYSTEM\']->currentUserId()) ? $GLOBALS[\'SQ_SYSTEM\']->user->'.$attr.' : '.var_export($default, true), $args), '; ?', '>';
 			break;
 
-
 			case 'file_path' :
 				echo '<','?php echo $FILE_URLS['.var_export((string) $args['filename'], true).'];?', '>';
+			break;
+			
+			case 'asset_thumbnail' :
+					echo '<', '?php ';
+					echo '$link = $GLOBALS[\'SQ_SYSTEM\']->am->getLink('.$this->_escapeVar('$ASSET->id', $args).', SQ_LINK_NOTICE, \'thumbnail\', true, \'thumbnail\');'."\n";
+					echo 'if (!empty($link)) {'."\n";
+					echo '$thumbnail = &$GLOBALS[\'SQ_SYSTEM\']->am->getAsset($link[\'minorid\']);'."\n";
+					echo 'echo $thumbnail->printImageTag('.$this->_escapeVar('$ASSET->id', $args).', true);'."\n";
+					echo '}'."\n";
+					echo '?', '>';
 			break;
 
 			default :
