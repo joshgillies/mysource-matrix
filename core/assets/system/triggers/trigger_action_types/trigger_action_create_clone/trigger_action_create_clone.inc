@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.2 2005/02/23 05:12:06 gsherwood Exp $
+* $Id: trigger_action_create_clone.inc,v 1.3 2005/02/24 01:20:59 gsherwood Exp $
 *
 */
 
@@ -33,37 +33,38 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
 class Trigger_Action_Create_Clone extends Trigger_Action
 {
 
+
 	/**
 	* Execute this action
 	*
-	* @param array(string=>mixed)	$settings	the stored settings for this action
-	* @param array(string=>mixed)	&$state	the state that describes the asset the action is executing on
+	* The settings used by this action are in the form:
+	* <PRE>
+	* Array(
+	* 		'assetid'      => int,    // the assetid to link to
+	* 		'link_type'    => int,    // the type of link, eg. type_1, type_2, type_3 or notice
+	* 		'value'        => string, // optional, the value associated with a link
+	* 		'is_dependant' => int,    // optional, whether the link is dependant
+	* 		'is_exclusive' => int     // optional, whether the link is exclusive
+	* 		);
+	* </PRE>
+	*
+	* @param array(string => mixed)	$settings	the stored settings for this action
+	* @param array(string => mixed)	&$state		the state that describes the asset the action is executing on
 	*
 	* @return boolean
 	* @access public
 	*/
 	function execute($settings, &$state)
 	{
-		/* settings used by this action:
-		$settings = Array(
-			'assetid'		=> int,		// the assetid to link to
-			'link_type'		=> int,		// the type of link, eg. type_1, type_2, type_3 or notice
-			'value'			=> string,	// optional, the value associated with a link
-			'is_dependant'	=> int,		// optional, whether the link is dependant
-			'is_exclusive'	=> int		// optional, whether the link is exclusive
-		);
-		*/
-
-		// check settings, state
+		// if no settings, fail
 		if (empty($settings['assetid']) || empty($settings['link_type'])) {
-			// if no settings, fail
 			return false;
 		}
 
@@ -72,10 +73,9 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		}
 
 		// check the optional settings, assign defaults
-		$is_dependant		= array_get_index($settings, 'is_dependant', 0);
-		$is_exclusive		= array_get_index($settings, 'is_exclusive', 0);
+		$is_dependant = array_get_index($settings, 'is_dependant', 0);
+		$is_exclusive = array_get_index($settings, 'is_exclusive', 0);
 
-		// state
 		if (empty($state['asset'])) {
 			// grab the asset if assetid is given, but not the asset.
 			if (empty($state['assetid'])) {
@@ -90,36 +90,22 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		$major = &$am->getAsset($settings['assetid']);
 		$minor = &$state['asset'];
 
-
-		// clone the asset
+		// the new link
+		$link = Array(
+					  'asset'        => &$major,
+					  'link_type'    => $settings['link_type'],
+					  'value'        => $settings['value'],
+					  'sort_order'   => null,
+					  'is_dependant' => $is_dependant,
+					  'is_exclusive' => $is_exclusive
+					  );
 
 		// old -> new asset id mapping
 		$clone_map = Array();
 
-		// the asset components we want
-		$components = Array(
-			'all'
-		);
-
-		// the new link
-		$link = Array(
-			'asset'			=> &$major,
-			'link_type'		=> $settings['link_type'],
-			'value'			=> $settings['value'],
-			'sort_order'	=> null,
-			'is_dependant'	=> $is_dependant,
-			'is_exclusive'	=> $is_exclusive
-		);
-
-		$clone = $am->cloneAsset(
-			$minor,
-			$link,
-			$clone_map,
-			$components
-		);
-
+		$clone = $am->cloneAsset($minor, $link, $clone_map, Array('all'));
 		if (is_null($clone)) {
-			error_log('null clone');
+			trigger_error('clone failed', E_USER_WARNING);
 			return false;
 		}
 
@@ -129,16 +115,6 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		$clone->saveWebPaths($good_paths);
 		$clone->remapAssetids($clone_map);
 
-		error_log('########### CLONE #############'.print_r($clone, true));
-		error_log('######################################################################');
-		error_log('########### ORIGINAL #############'.print_r($minor, true));
-
-		error_log('clone created');
-
-		// take the link and insert the relevant entries into the lookup tables, if required
-//		$major->updateLookups();
-//		$clone->updateLookups();
-
 		return true;
 
 	}//end execute()
@@ -147,26 +123,20 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	/**
 	* Get the HTML editing interface for this action. Returns the string instead of printing it
 	*
-	* @param Array(string=>mixed)	$settings  settings that this condition saves in processInterface()
-	* @param string 				$prefix    unique prefix
+	* @param array(string = >mixed)	$settings	settings that this condition saves in processInterface()
+	* @param string					$prefix		unique prefix
 	*
 	* @access public
 	* @return boolean
 	*/
 	function getInterface($settings, $prefix)
 	{
-		// Create a clone of the asset, and link it as child of: [     asset] using a [Type 1] link.
-		// <b>Optional items for Advanced users:</b>
-		// Use this value as the link value: [Value]
-		// Link the child [Non-dependantly] and [Non-exclusively] to the parent.
-
-
 		// check settings, set defaults if necessary
-		$selected_assetid 	= array_get_index($settings, 'assetid', 0);
-		$selected_link_type	= array_get_index($settings, 'link_type', SQ_LINK_TYPE_1);
-		$value				= array_get_index($settings, 'value', '');
-		$is_dependant		= array_get_index($settings, 'is_dependant', 0);
-		$is_exclusive		= array_get_index($settings, 'is_exclusive', 0);
+		$selected_assetid   = array_get_index($settings, 'assetid', 0);
+		$selected_link_type = array_get_index($settings, 'link_type', SQ_LINK_TYPE_1);
+		$value              = array_get_index($settings, 'value', '');
+		$is_dependant       = array_get_index($settings, 'is_dependant', 0);
+		$is_exclusive       = array_get_index($settings, 'is_exclusive', 0);
 
 		// check if the selected asset is valid
 		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_assetid)) {
@@ -176,55 +146,34 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		$link_type_list	= get_link_type_names();
 		unset($link_type_list[SQ_LINK_NOTICE]);
 
-
-		// capture anything printed
 		ob_start();
+			echo 'Create a clone of the asset, and link it as child of:';
+			asset_finder($prefix.'[assetid]', $selected_assetid);
+			echo ' using a ';
+			combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type);
+			echo 'link.<br /><br />';
 
-		?>
-		Create a clone of the asset, and link it as child of:
-		<?php
-		asset_finder($prefix.'[assetid]', $selected_assetid);
-		?>
-		using a
-		<?php
-		combo_box($prefix.'[link_type]', $link_type_list, false, $selected_link_type);
-		?>
-		link.<br /><br />
-
-		<b>Optional items for Advanced users:</b><br />
-		Use this value as the link value: <?php text_box($prefix.'[value]', $value); ?> and
-
-		link the child
-		<?php
-		$is_dependant_list = Array(
-			0	=> 'Non-dependantly',
-			1	=> 'Dependantly'
-		);
-		combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant);
-		?>
-		and
-		<?php
-		$is_exclusive_list = Array(
-			0	=> 'Non-exclusively',
-			1	=> 'Exclusively'
-		);
-		combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive);
-		?>
-		to the parent.
-		<?php
-
-
+			?>
+			<b>Optional items for Advanced users:</b><br />
+			Use this value as the link value: <?php text_box($prefix.'[value]', $value); ?> and link the child
+			<?php
+			$is_dependant_list = Array(0 => 'Non-dependantly', 1 => 'Dependantly');
+			combo_box($prefix.'[is_dependant]', $is_dependant_list, false, $is_dependant);
+			echo ' and ';
+			$is_exclusive_list = Array(0 => 'Non-exclusively', 1 => 'Exclusively');
+			combo_box($prefix.'[is_exclusive]', $is_exclusive_list, false, $is_exclusive);
+			echo 'to the parent.';
 		return ob_get_clean();
 
 	}//end getInterface()
 
 
 	/**
-	* Function that handles the conversion of interface to settings
-	* together with settings it is expected to populate the hash object
+	* Handle the conversion of interface to settings together with settings it is expected to populate the hash object
 	*
-	* @param Array(string=>mixed)	$settings		a container for any data the action might want to save
-	* @param string					$request_data	array of data corresponding to this action as specified by the $prefix in getInterface.
+	* @param array(string = >mixed)	$settings		a container for any data the action might want to save
+	* @param string					$request_data	array of data corresponding to this action as specified
+	*												by the $prefix in getInterface.
 	*
 	* @access public
 	* @return boolean
@@ -242,13 +191,13 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 			return false;
 		}
 
-		$settings['assetid'] 		= $request_data['assetid']['assetid'];
-		$settings['link_type']		= $request_data['link_type'];
+		$settings['assetid']   = $request_data['assetid']['assetid'];
+		$settings['link_type'] = $request_data['link_type'];
 
 		// optional fields
-		$settings['value']			= array_get_index($request_data, 'value', '');
-		$settings['is_dependant']	= array_get_index($request_data, 'is_dependant', 0);
-		$settings['is_exclusive']	= array_get_index($request_data, 'is_exclusive', 0);
+		$settings['value']        = array_get_index($request_data, 'value', '');
+		$settings['is_dependant'] = array_get_index($request_data, 'is_dependant', 0);
+		$settings['is_exclusive'] = array_get_index($request_data, 'is_exclusive', 0);
 
 		return true;
 
@@ -265,10 +214,8 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 	{
 		// get 'all' locks on the firing asset
 		$locks = Array(
-			$state['assetid']	=> Array(
-				'all'
-			)
-		);
+					   $state['assetid'] => Array('all')
+					   );
 
 		$dependant_children = &$GLOBALS['SQ_SYSTEM']->am->getDependantChildren($state['assetid']);
 		foreach ($dependant_children as $assetid => $asset_type) {
