@@ -42,7 +42,6 @@ function mcListContainerClass()
 	// a temp object that can hold any run-time data
 	this.tmp = new Object();
 
-
 	// Attach the container on to the "scroller"
 	_root.scroller.setScrollContent(this);
 
@@ -163,6 +162,7 @@ mcListContainerClass.prototype._recurseDisplayKids = function(parent_assetid, pa
 	var i = parent_i + 1;
 
 	// Now add the kids into the items order array in the correct spot
+	trace('Kids of ' + parent_assetid + ' : ' + _root.asset_manager.assets[parent_assetid].kids);
 	for(var j = 0; j < _root.asset_manager.assets[parent_assetid].kids.length; j++) {
 		var name = parent_name + "_" + _root.asset_manager.assets[parent_assetid].kids[j];
 		if (this[name] == undefined) continue;
@@ -217,13 +217,11 @@ mcListContainerClass.prototype._createItem = function(parent_name, parent_asseti
 */
 mcListContainerClass.prototype._deleteItem = function(item_name) 
 {
-	if (this[item_name] != undefined) {
+	if (this[item_name] == undefined) return;
 
-		array_remove_element(this.asset_list_items[this[item_name].assetid], item_name);
-		this._removeItem(item_name);
-		this[item_name].removeMovieClip();
-
-	}// end if
+	array_remove_element(this.asset_list_items[this[item_name].assetid], item_name);
+	this._removeItem(item_name);
+	this[item_name].removeMovieClip();
 
 }// end _deleteItem()
 
@@ -243,19 +241,20 @@ mcListContainerClass.prototype._insertItem = function(pos, name, end_branch)
 /**
 * Removes an item from the items_order array
 *
-* @param string		name		The name of the list item
+* @param string		item_name		The name of the list item
 *
 */
-mcListContainerClass.prototype._removeItem = function(name) 
+mcListContainerClass.prototype._removeItem = function(item_name) 
 {
+	if (this[item_name] == undefined) return;
 
 	// if the one we are removing is the currently selected item, un select it
-	if (this.selected(this[name])) {
+	if (this.selected(this[item_name])) {
 		this.unselectItem();
 	}
 
 	for(var x = 0; x < this.items_order.length; x++) {
-		if (this.items_order[x].name == name) {
+		if (this.items_order[x].name == item_name) {
 			this.items_order.splice(x, 1);
 			break;
 		}
@@ -326,10 +325,9 @@ mcListContainerClass.prototype._recurseHideKids = function(parent_assetid, paren
 mcListContainerClass.prototype.onAssetReload = function(assetid, new_asset, old_asset) 
 {
 
+	trace("RELOAD ASSET ID : " + assetid);
 	var deletes = array_diff(old_asset.kids, new_asset.kids);
 	var inserts = array_diff(new_asset.kids, old_asset.kids);
-//	trace("Deletes  : " + deletes);
-//	trace("Inserts  : " + inserts);
 
 	// if it's the root folder
 	if (assetid == 1) {
@@ -356,6 +354,12 @@ mcListContainerClass.prototype.onAssetReload = function(assetid, new_asset, old_
 
 	this.refreshList();
 
+
+	if (this.tmp.move_asset.new_select_pos != undefined) {
+		this.select(this[this.items_order[this.tmp.move_asset.new_select_pos].name]);
+		delete this.tmp.move_asset.new_select_pos;
+	}
+
 }// end onAssetReload()
 
 
@@ -378,14 +382,12 @@ mcListContainerClass.prototype._reloadAssetListItem = function(assetid, item_nam
 	// delete any child items that aren't needed any more
 	for(var j = 0; j < deletes.length; j++) {
 		var kid_name = item_name + "_" + deletes[j];
-		if (this[kid_name] == undefined) continue;
-
 		this._deleteItem(kid_name);
-
 	}// end for
 
 	// the reset of this is only relevant if the item is expanded
 	if (expanded) {
+		trace("EXPANDED -> " + all_kids);
 
 		// insert any child items that have just been added
 		for(var j = 0; j < inserts.length; j++) {
@@ -730,8 +732,31 @@ mcListContainerClass.prototype.itemEndMove = function(pos, where)
 
 //	trace("End Item Move");
 
+	var do_move = false;
+
 	// if we actually moved
-	if (pos != this.selected_item.pos && pos != this.selected_item.pos + 1) {
+	if (pos != this.selected_item.pos) {
+		// if the pos is the item after the selected 
+		// then only move if the indicator is after that item
+		if (pos == this.selected_item.pos + 1) {
+			do_move = (where == "after" || where == "child");
+		} else {
+			do_move = true;
+		}
+	}// end if
+
+	if (do_move) {
+
+
+		// if we are staying under the same parent AND 
+		// if we are moving the asset down the list AND
+		// if the indicator was before the position
+		// then we need to decrement the pos - see me for a demo of why (BCR)
+		if (params.selected_info.parent_assetid == params.moved_info.parent_assetid 
+				&& this.selected_item.pos < pos
+				&& where == "before") {
+			pos -= 1;
+		}
 
 		trace("Move to Pos : " + pos + ", where : " + where);
 
@@ -739,8 +764,8 @@ mcListContainerClass.prototype.itemEndMove = function(pos, where)
 
 		params.selected_info = this.posToAssetInfo(this.selected_item.pos, "before");
 		params.moved_info    = this.posToAssetInfo(pos, where);
-
-		var params
+		params.pos           = pos;
+		params.where         = where;
 
 		// if the parent has changed during the move then we need to ask what we want done
 		if (params.selected_info.parent_assetid != params.moved_info.parent_assetid) {
@@ -798,6 +823,16 @@ mcListContainerClass.prototype.itemMoveConfirm = function(move_type, params)
 
 mcListContainerClass.prototype.xmlMoveItem = function(xml, exec_identifier)
 {
+
+	// OK let's save the pos of that we were dragged to so that we can select the correct
+	// list item later after the parents have been reloaded
+	this.tmp.move_asset.new_select_pos = this.tmp.move_asset[exec_identifier].pos;
+	var where = this.tmp.move_asset[exec_identifier].where;
+	// if the position of the indicator was after the position then add on to the pos
+	if (where == "after" || where == "child") {
+		this.tmp.move_asset.new_select_pos += 1;
+	}
+
 	// get the asset manager to reload the assets
 	_root.asset_manager.reloadAssets([this.tmp.move_asset[exec_identifier].selected_info.parent_assetid, this.tmp.move_asset[exec_identifier].moved_info.parent_assetid]);
 

@@ -194,14 +194,16 @@ function array_diff(arr1, arr2)
 */
 function array_unique(arr) {
 
+	var old_arr = array_copy(arr);
 	var new_arr = new Array();
-	arr.sort();
+
+	old_arr.sort();
 	var tmp = '';
 
-	for(var i = 0; i < arr.length; i++) {
-		if (arr[i] != tmp) {
-			new_arr.push(arr[i]);
-			tmp = arr[i];
+	for(var i = 0; i < old_arr.length; i++) {
+		if (old_arr[i] != tmp) {
+			new_arr.push(old_arr[i]);
+			tmp = old_arr[i];
 		}// end if
 	}// end for
 

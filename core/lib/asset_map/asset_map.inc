@@ -251,7 +251,7 @@ class Asset_Map
 		$links = $asset->getLinks(SQ_LINK_EXCLUSIVE | SQ_LINK_UNITE, '', 'S');
 		if (count($links)) {
 			for($j = 0; $j < count($links); $j++) {
-				$kid_node = &$asset_node->addChild('child', '', Array('assetid' => $links[$j]['minorid']));
+				$kid_node = &$asset_node->addChild('child', '', Array('assetid' => $links[$j]['minorid'], 'link_type' => $links[$j]['link_type'], 'value' => $links[$j]['value']));
 			}
 
 			if ($load_new_kids) {
@@ -472,27 +472,28 @@ class Asset_Map
 	function _moveAsset(&$input) 
 	{
 
+		$old_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['from_parent_assetid']);
+		if (is_null($old_parent)) {
+			$this->_error('Unable to Move Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
+			return;
+		}
+
+		$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['assetid']);
+		if (is_null($asset)) {
+			$this->_error('Unable to Move Asset, asset to be moved (Asset #"'.$input->root->attributes['assetid'].'") not found');
+			return;
+		}
+
+
 		// if the from and to parentids are the same we are realy just altering the sort order for a parent
 		if ($input->root->attributes['from_parent_assetid'] == $input->root->attributes['to_parent_assetid']) {
 
-			$parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['from_parent_assetid']);
-			if (is_null($old_parent)) {
-				$this->_error('Unable to Move Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
-				return;
-			}
-
 			// Let's just move the link
-			if (!$parent->moveLinkPos($asset, SQ_LINK_UNITE, '', $input->root->attributes['pos'])) {
+			if (!$old_parent->moveLinkPos($asset, SQ_LINK_UNITE, '', $input->root->attributes['to_parent_pos'])) {
 				return;
 			}
 
 		} else {
-
-			$old_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['from_parent_assetid']);
-			if (is_null($old_parent)) {
-				$this->_error('Unable to Move Asset, existing parent (Asset #"'.$input->root->attributes['from_parent_assetid'].'") not found');
-				return;
-			}
 
 			$new_parent = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['to_parent_assetid']);
 			if (is_null($new_parent)) {
@@ -500,17 +501,10 @@ class Asset_Map
 				return;
 			}
 
-			$asset = &$GLOBALS['SQ_RESOLVE']->am->getAsset($input->root->attributes['assetid']);
-			if (is_null($asset)) {
-				$this->_error('Unable to Move Asset, asset to be moved (Asset #"'.$input->root->attributes['assetid'].'") not found');
-				return;
-			}
-
 			// First let's try and create the new link, if there are any issues then it will cryout for us
-			if (!$new_parent->createLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['pos'])) {
+			if (!$new_parent->createLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['to_parent_pos'])) {
 				return;
 			}
-
 
 			// Now let's try and delete the old link
 	//		if (!$new_parent->deleteLink($asset, SQ_LINK_UNITE, '', $input->root->attributes['pos'])) {
