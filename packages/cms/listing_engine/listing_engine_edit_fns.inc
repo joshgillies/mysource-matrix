@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: listing_engine_edit_fns.inc,v 1.1 2005/02/11 00:48:39 lwright Exp $
+* $Id: listing_engine_edit_fns.inc,v 1.2 2005/02/15 03:10:03 lwright Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/page/page_edit_fns.inc';
 * @author  David Heppell <dheppell@squiz.net>
 * @author  Marc McIntyre <mmcintyre@squiz.net>
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -959,7 +959,7 @@ class Listing_Engine_Edit_Fns extends Page_Edit_Fns
 			
 			$types = $asset->attr('types');
 			if (empty($types)) {
-				echo 'There are no types defined';
+				?>There are no types defined. No sorting can be applied.<?php
 				return false;
 			}
 	
