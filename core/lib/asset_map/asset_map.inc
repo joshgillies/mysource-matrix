@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.167 2005/01/25 00:27:27 lwright Exp $
+* $Id: asset_map.inc,v 1.168 2005/02/01 11:20:27 brobertson Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once 'XML/Tree.php';
 *    Co-ordinate communications between the java and the PHP
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.167 $
+* @version $Revision: 1.168 $
 * @package MySource_Matrix
 * @subpackage lib
 */
@@ -391,7 +391,7 @@ class Asset_Map
 		if ($GLOBALS['SQ_SYSTEM']->currentUserId()) {
 			if (!$GLOBALS['SQ_SYSTEM']->userRoot() && !$GLOBALS['SQ_SYSTEM']->userSystemAdmin()) {
 				$userids = array_keys($GLOBALS['SQ_SYSTEM']->am->getParents($GLOBALS['SQ_SYSTEM']->user->id, 'user_group', false));
-				$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetidByName('public_user');
+				$public_userid = $GLOBALS['SQ_SYSTEM']->am->getSystemAssetid('public_user');
 				array_push($userids, $public_userid, $GLOBALS['SQ_SYSTEM']->user->id);
 				for (reset($userids); NULL !== ($k = key($userids)); next($userids)) {
 					$userids[$k] = $db->quote($userids[$k]);
