@@ -32,7 +32,7 @@ class Workflow_Manager extends Resolve_Object
 	*
 	* @var array
 	*/
-	var $_state = '';
+	var $state = '';
 
 	/**
 	* An array of workflow objects for all workflows we inherit
@@ -87,13 +87,22 @@ class Workflow_Manager extends Resolve_Object
 	function load($and_inherited)
 	{
 		// get the direct workflow if it has been set
-		$direct = $this->_asset->getPermission(SQ_PERMISSION_WORKFLOW, false, false);
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		if (empty($direct) || !isset($direct[0][$this->_asset->id])) {
-			$this->_state = 'new';
+		$sql = 'SELECT workflow FROM sq_asset_workflow
+					WHERE assetid = '.$db->quote($this->_asset->id);
+
+		$direct = $db->getOne($sql);
+		if (DB::isError($direct)) {
+			trigger_error($direct->getMessage().'<br/>'.$direct->getUserInfo(), E_USER_WARNING);
+			return false;
+		}
+
+		if (empty($direct)) {
+			$this->state = 'new';
 		} else {
-			$this->_state = 'idle';
-			$this->_steps = unserialize($direct[0][$this->_asset->id]);
+			$this->state = 'idle';
+			$this->_steps = unserialize($direct);
 		}
 
 		if ($and_inherited) {
@@ -102,9 +111,9 @@ class Workflow_Manager extends Resolve_Object
 			$inherits = $this->_asset->getInheritedPermission(SQ_PERMISSION_WORKFLOW, array_keys($users));
 			$inherited = $inherits + $users;
 			if (isset($inherited[0])) {
-				foreach ($inherited[0] as $assetid => $workflow) {
+				foreach ($inherited[0] as $assetid) {
 					$asset = &$GLOBALS['SQ_SYSTEM']->am->getAsset($assetid);
-					$this->_inherited_workflows[$assetid] =& new Workflow_Manager($asset, false);
+					$this->_inherited_workflows[$assetid] =& new Workflow_Manager($asset, true, false, false);
 				}
 			}
 		}
@@ -119,7 +128,7 @@ class Workflow_Manager extends Resolve_Object
 		// if this workflow has started and what its status is
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		$sql = 'SELECT * FROM sq_asset_workflow
+		$sql = 'SELECT * FROM sq_asset_running_workflow
 					WHERE workflowid LIKE '.$db->quote($this->_asset->id.'~%');
 
 		$result = $db->getAll($sql);
@@ -133,7 +142,7 @@ class Workflow_Manager extends Resolve_Object
 		}
 
 		// we have a current workflow in progress
-		$this->_state = 'current';
+		$this->state = 'running';
 
 		// run through and work out what steps we are up to
 		foreach ($result as $workflow) {
@@ -362,15 +371,18 @@ class Workflow_Manager extends Resolve_Object
 		$workflows_todo = Array();
 		if (!empty($this->_inherited_workflows)) {
 			foreach ($this->_inherited_workflows as $assetid => $workflow) {
+				if (empty($workflow->_steps)) continue;
 				$workflows_todo[$assetid] = $workflow->_steps;
 			}
 		}
 		$workflows_todo[$this->_asset->id] = $this->_steps;
-		
+
+		if (empty($workflows_todo)) return false;
+
 		foreach ($workflows_todo as $assetid => $steps) {
 			$workflowid = "{$this->_asset->id}~{$assetid}";
 			$workflow = serialize($steps);
-			$sql = 'INSERT INTO sq_asset_workflow
+			$sql = 'INSERT INTO sq_asset_running_workflow
 					(workflowid, complete, workflow)
 					VALUES 
 					('.$db->quote($workflowid).', 0, '.$db->quote($workflow).')';
@@ -387,21 +399,43 @@ class Workflow_Manager extends Resolve_Object
 	function save()
 	{
 		$steps = serialize($this->_steps);
-		switch ($this->_state) {
+		$db = &$GLOBALS['SQ_SYSTEM']->db;
+
+		switch ($this->state) {
 			case 'new'      :
 				// a brand new direct workflow to save
-				return $this->_asset->grantPermission('0', SQ_PERMISSION_WORKFLOW, $steps);
+				$sql = 'INSERT INTO sq_asset_workflow
+						(assetid, workflow)
+						VALUES ('.$db->quote($this->_asset->id).', '.$db->quote($steps).')';
+
+				$result = $db->query($sql);
+				if (DB::isError($result)) {
+					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					return false;
+				}
+
+				return true;
 				break;
 			case 'idle'       :
 				// updating an existing direct workflow
-				return $this->_asset->editPermission('0', SQ_PERMISSION_WORKFLOW, '0', $steps);
+				$sql = 'UPDATE sq_asset_workflow
+						SET workflow = '.$db->quote($steps).'
+						WHERE assetid = '.$db->quote($this->_asset->id);
+
+				$result = $db->query($sql);
+				if (DB::isError($result)) {
+					trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
+					return false;
+				}
+
+				return true;
 				break;
-			case 'current' :
+			case 'running' :
 				// updating existing running workflows
 				$db = &$GLOBALS['SQ_SYSTEM']->db;
 				foreach ($this->_current_workflows['running'] as $workflowid => $workflow) {
 					$steps = serialize($workflow['steps']);
-					$sql = 'UPDATE sq_asset_workflow
+					$sql = 'UPDATE sq_asset_running_workflow
 							SET complete = 0, workflow = '.$db->quote($steps).'
 							WHERE workflowid = '.$db->quote($workflowid);
 

@@ -9,6 +9,8 @@ TRUNCATE sq_asset_permission;
 TRUNCATE sq_asset_type;
 TRUNCATE sq_asset_type_inherited;
 TRUNCATE sq_asset_url;
+TRUNCATE sq_asset_workflow;
+TRUNCATE sq_asset_running_workflow;
 TRUNCATE sq_internal_message;
 TRUNCATE sq_package;
 DROP SEQUENCE sq_sequence_asset_attribute_seq;

@@ -136,9 +136,16 @@ CREATE TABLE sq_asset_permission (
 
 DROP TABLE sq_asset_workflow;
 CREATE TABLE sq_asset_workflow (
-  workflowid VARCHAR(100)      NOT NULL,
-  complete   SMALLINT          NOT NULL DEFAULT 0,
-  workflow   TEXT              NOT NULL DEFAULT '',
+  assetid   INT  NOT NULL,
+  workflow  TEXT NOT NULL DEFAULT '',
+  PRIMARY KEY(assetid)
+);
+
+DROP TABLE sq_asset_running_workflow;
+CREATE TABLE sq_asset_running_workflow (
+  workflowid VARCHAR(100) NOT NULL,
+  complete   SMALLINT     NOT NULL DEFAULT 0,
+  workflow   TEXT         NOT NULL DEFAULT '',
   PRIMARY KEY(workflowid)
 );
 
