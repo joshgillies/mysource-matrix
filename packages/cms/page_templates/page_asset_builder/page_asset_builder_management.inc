@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_management.inc,v 1.3 2004/02/16 00:34:08 gsherwood Exp $
+* $Id: page_asset_builder_management.inc,v 1.4 2004/02/17 05:02:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,6 +75,11 @@ class Page_Asset_Builder_Management extends Asset_Management
 																					'check'		=> 'Checkboxes',
 																			),
 																		),
+														);
+		$this->vars['required_fields']			= Array(
+														'added'     => '0.1',
+														'type'      => 'serialise',
+														'default'   => Array(),
 														);
 		$this->vars['create_type']				= Array(
 														'added'     => '0.1',

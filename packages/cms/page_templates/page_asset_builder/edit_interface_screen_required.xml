@@ -18,13 +18,20 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screens.xml,v 1.3 2004/02/17 05:02:02 gsherwood Exp $
+* $Id: edit_interface_screen_required.xml,v 1.1 2004/02/17 05:02:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
 
-<screens>
-	<screen code_name="locations" display_name="Create Locations" icon="edit" lock_type="attributes" force_unlock="0" />
-	<screen code_name="required" display_name="Required Fields" icon="edit" lock_type="attributes" force_unlock="0" />
-	<screen code_name="messages" display_name="Messages" icon="edit" lock_type="attributes" />
-</screens>
+<contents>
+	<section name="Required Fields" write_access="write:attributes">
+		<field>
+			<display_name />
+			<note />
+			<function_call>
+				<paint_function   name="paintRequiredFields"   />
+				<process_function name="processRequiredFields" />
+			</function_call>
+		</field>
+	</section>
+</contents>

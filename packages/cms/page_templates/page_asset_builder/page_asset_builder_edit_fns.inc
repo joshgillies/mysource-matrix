@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder_edit_fns.inc,v 1.4 2004/02/16 22:22:37 gsherwood Exp $
+* $Id: page_asset_builder_edit_fns.inc,v 1.5 2004/02/17 05:02:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -367,52 +367,6 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 
 
 	/**
-	* Paint the interface for choosing the status of newly created assets
-	*
-	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form elements
-	*
-	* @return boolean
-	* @access public
-	*/
-	function paintCreateStatus(&$asset, &$o, $prefix)
-	{
-		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
-		if (!$asset->writeAccess('attributes')) {
-			echo get_status_description($asset->attr('create_status'));
-		} else {
-			$status_options = get_constant_values('SQ_STATUS_');
-			$options = Array();
-			foreach($status_options as $status_name => $bit_value) {
-				$options[$bit_value] = get_status_description($bit_value);
-			}
-			combo_box($prefix.'_create_status', $options, false, $asset->attr('create_status'));
-		}
-
-	}//end paintCreateStatus()
-
-
-	/**
-	* Processes the interface for choosing the status of newly created assets
-	*
-	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
-	* @param object	Backend_Outputter	&$o		the outputter class
-	* @param string						$prefix	prefix for the form element
-	*
-	* @return boolean
-	* @access public
-	*/
-	function processCreateStatus(&$asset, &$o, $prefix)
-	{
-		if (!isset($_POST[$prefix.'_create_status'])) return false;
-		$create_status = (int)$_POST[$prefix.'_create_status'];
-		return $asset->setAttrValue('create_status', $create_status);
-
-	}//end processCreateStatus()
-
-
-	/**
 	* Paint the interface for setting up create location rules
 	*
 	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
@@ -581,6 +535,161 @@ class Page_Asset_Builder_Edit_Fns extends Page_Edit_Fns
 		return $asset->setAttrValue('create_location_rules', $rules);
 
 	}//end processCreateLocationRules()
+
+
+	/**
+	* Paint the interface for choosing the status of newly created assets
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintCreateStatus(&$asset, &$o, $prefix)
+	{
+		require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
+		if (!$asset->writeAccess('attributes')) {
+			echo get_status_description($asset->attr('create_status'));
+		} else {
+			$status_options = get_constant_values('SQ_STATUS_');
+			$options = Array();
+			foreach($status_options as $status_name => $bit_value) {
+				$options[$bit_value] = get_status_description($bit_value);
+			}
+			combo_box($prefix.'_create_status', $options, false, $asset->attr('create_status'));
+		}
+
+	}//end paintCreateStatus()
+
+
+	/**
+	* Processes the interface for choosing the status of newly created assets
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processCreateStatus(&$asset, &$o, $prefix)
+	{
+		if (!isset($_POST[$prefix.'_create_status'])) return false;
+		$create_status = (int)$_POST[$prefix.'_create_status'];
+		return $asset->setAttrValue('create_status', $create_status);
+
+	}//end processCreateStatus()
+
+
+	/**
+	* Paint the interface for choosing the status of newly created assets
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintRequiredFields(&$asset, &$o, $prefix)
+	{
+		$write_access = $asset->writeAccess('attributes');
+		$attrs = $GLOBALS['SQ_SYSTEM']->am->getAssetTypeAttributes($asset->attr('create_type'), Array('name'));
+		foreach ($attrs as $name) $attributes[$name] = ucwords(str_replace('_', ' ', $name));
+		$current = $asset->attr('required_fields');
+		
+		if (empty($current)) {
+			echo 'No attributes are currently set to be required';
+		} else {
+			?>
+			<table class="sq-backend-table">
+				<tr>
+					<td class="sq-backend-table-header">Name</td>
+					<td class="sq-backend-table-header">Error Text</td>
+					<?php
+					if ($write_access) {
+						?><td class="sq-backend-table-header">Delete</td><?php
+					}
+					?>
+				</tr>
+				<?php
+				foreach ($current as $attr => $error_text) {
+					?>
+					<tr>
+						<td class="sq-backend-table-cell"><?php echo $attributes[$attr]; ?></td>
+						<td class="sq-backend-table-cell">
+							<?php
+							if ($write_access) {
+								text_box($prefix.'_required_field['.$attr.']', $error_text, 50);
+							} else {
+								echo $error_text;
+							}
+							?>
+						</td>
+						<?php
+						if ($write_access) {
+							?>
+							<td class="sq-backend-table-cell">
+								<?php check_box($prefix.'_delete_required['.$attr.']'); ?>
+							</td>
+							<?php
+						}
+						?>
+					</tr>
+					<?php
+				}
+				?>
+			</table>
+			<?php
+		}
+
+		if ($write_access) {
+			$attributes = array_reverse($attributes, true);
+			$attributes[''] = '-- select attribute --';
+			$attributes = array_reverse($attributes, true);
+
+			echo '<br/><b>New required field ? </b>';
+			combo_box($prefix.'_new_required', $attributes, false, '');
+		}
+
+		return $write_access;
+
+	}//end paintRequiredFields()
+
+
+	/**
+	* Processes the interface for choosing the status of newly created assets
+	*
+	* @param object Page_Asset_Builder	&$asset	the asset to which we belong
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processRequiredFields(&$asset, &$o, $prefix)
+	{
+		$current = $asset->attr('required_fields');
+		$required_fields = Array();
+
+		// construct new required fields array removing deleted fields and updating error text
+		foreach ($current as $attr => $error_text) {
+			if (!isset($_POST[$prefix.'_delete_required'][$attr]) || !$_POST[$prefix.'_delete_required'][$attr]) {
+				$required_fields[$attr] = (isset($_POST[$prefix.'_required_field'][$attr])) ? trim($_POST[$prefix.'_required_field'][$attr]) : $current[$attr];
+			}
+		}
+
+		// add new required field
+		if (isset($_POST[$prefix.'_new_required']) && !empty($_POST[$prefix.'_new_required'])) {
+			$new_required = $_POST[$prefix.'_new_required'];
+			if (!in_array($new_required, $required_fields)) $required_fields[$new_required] = '';
+		}
+
+		return $asset->setAttrValue('required_fields', $required_fields);
+
+	}//end processRequiredFields()
 
 
 	/**

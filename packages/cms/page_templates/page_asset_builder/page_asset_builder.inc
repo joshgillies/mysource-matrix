@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_asset_builder.inc,v 1.8 2004/02/16 01:05:24 gsherwood Exp $
+* $Id: page_asset_builder.inc,v 1.9 2004/02/17 05:02:02 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -269,16 +269,58 @@ class Page_Asset_Builder extends Page
 		// process some global asset builder actions
 		if (isset($_POST['ASSET_BUILDER_ACTION'])) {
 
+			$success = false;
+			set_error_handler(Array(&$this, '_errorHandler'));
+
 			switch (strtolower($_POST['ASSET_BUILDER_ACTION'])) {
 
 				case 'login' :
 					// they have tried logging in - but failed
-					$this->_replacements['login_error'] = $this->attr('login_error');
+					// the error will get picked up down below though, so we dont have to do anything
+					// uhhh... lazy days.... wish all coding was this easy
 				break;
 
 				case 'create' :
 
-					// work out where the user wanted the asset created
+					// create our dummy asset so we can access all its you beaut functions
+					// to make life easier for ourselves
+					$create_type = $this->attr('create_type');
+					$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
+					$new_asset = new $create_type();
+
+					$prefix = $new_asset->getPrefix();
+
+
+					  ///////////////////////
+					 //  REQUIRED FIELDS  //
+					///////////////////////
+
+					$required_error = false;
+					$required_fields = $this->attr('required_fields');
+					foreach ($required_fields as $attr => $error_text) {
+						$attribute = &$new_asset->getAttribute($attr, true);
+						if (is_null($attribute)) continue;
+
+						$attr_value = isset($_POST[$prefix.'_'.$attr]) ? $_POST[$prefix.'_'.$attr] : '';
+						if (empty($attr_value)) {
+							if (empty($error_text)) $error_text = 'Please enter a value for '.$attribute->name;
+							trigger_error($error_text, E_USER_NOTICE);
+							$required_error = true;
+						} else if (!$attribute->validateValue($attr_value)) {
+							if (empty($error_text)) $error_text = 'The value of '.$attribute->name.' is not valid';
+							trigger_error($error_text, E_USER_NOTICE);
+							$required_error = true;
+						}
+
+					}//end foreach
+
+					if ($required_error) break;
+
+
+					  ////////////////////////
+					 //  CREATE LOCATIONS  //
+					////////////////////////
+
 					$create_locations = $this->attr('create_location');
 					if (isset($_POST['asset_create_location'])) {
 						$create_locations = array_merge($create_locations, $_POST['asset_create_location']);
@@ -286,7 +328,6 @@ class Page_Asset_Builder extends Page
 
 					// now check what rules dictate where the asset should be created
 					$location_rules = $this->attr('create_location_rules');
-					$prefix = $this->attr('create_type').'_0_';
 					foreach ($location_rules as $rule_text => $locationids) {
 						if (empty($rule_text)) continue;
 						$bits = explode(' && ', $rule_text);
@@ -296,7 +337,7 @@ class Page_Asset_Builder extends Page
 							list($attr, $value) = explode('==', $bit);
 							$attr  = trim($attr, '$');
 							$value = trim($value, " '");
-							$attr_value = isset($_POST[$prefix.$attr]) ? $_POST[$prefix.$attr] : '';
+							$attr_value = isset($_POST[$prefix.'_'.$attr]) ? $_POST[$prefix.'_'.$attr] : '';
 							if (trim(strtolower($attr_value)) != trim(strtolower($value))) {
 								$valid_rule = false;
 								break;
@@ -313,15 +354,18 @@ class Page_Asset_Builder extends Page
 
 					}//end foreach
 
-
 					// if we dont have any create locations, there is no point in continuing with this charade
 					// whoever set this up may think they want to build asset on the frontend, but they dont really
 					// know what they want - let them get back to us with something we can use
 					if (empty($create_locations)) {
-						trigger_error('No asset create location specified', E_USER_WARNING);
+						trigger_error('Unable to determine where to create this '.$GLOBALS['SQ_SYSTEM']->am->getTypeInfo($new_asset->type(), 'name'), E_USER_WARNING);
 						break;
 					}
 
+
+					  ////////////////////////
+					 //  CREATE THE ASSET  //
+					////////////////////////
 
 					// we'll just use a limbo outputter to do the outputting for us
 					require_once SQ_INCLUDE_PATH.'/limbo_outputter.inc';
@@ -339,10 +383,6 @@ class Page_Asset_Builder extends Page
 						break;
 					}
 
-					$create_type = $this->attr('create_type');
-					$GLOBALS['SQ_SYSTEM']->am->includeAsset($create_type);
-					$new_asset = new $create_type();
-
 					// start the transaction to create the asset
 					$link = Array('asset'		=> &$parent,
 								  'link_type'	=> $this->attr('create_link_type'),
@@ -355,11 +395,10 @@ class Page_Asset_Builder extends Page
 					// logged in - so any write access checks will fail
 					$GLOBALS['SQ_INSTALL'] = true;
 
-						set_error_handler(Array(&$this, '_errorHandler'));
+						
 						if (!$new_asset->processBackend($o, $link)) {
 
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
-							restore_error_handler();
 
 						} else {
 
@@ -383,7 +422,7 @@ class Page_Asset_Builder extends Page
 							if (empty($this->_errors)) {
 								$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 								$this->_current_state = 'created';
-								restore_error_handler();
+								$success = true;
 
 								$create_status = $this->attr('create_status');
 
@@ -398,16 +437,24 @@ class Page_Asset_Builder extends Page
 
 						}//end if processBackend
 
-						// create a friendly error message
-						$errors = '';
-						foreach ($this->_errors as $text) $errors .= '<li>'.$text.'</li>';
-						if (!empty($errors)) $this->_replacements['create_error'] = $this->attr('create_error').'<ul>'.$errors.'</ul>';
-
 					$GLOBALS['SQ_INSTALL'] = false;
 
 				break;
 
 			}//end switch
+
+			restore_error_handler();
+
+			// create a friendly error message
+			if (!$success) {
+				$this->_replacements[strtolower($_POST['ASSET_BUILDER_ACTION']).'_error'] = $this->attr(strtolower($_POST['ASSET_BUILDER_ACTION']).'_error');
+			
+				if (!empty($this->_errors)) {
+					$errors = '';
+					foreach ($this->_errors as $text) $errors .= '<li>'.$text.'</li>';
+					$this->_replacements[strtolower($_POST['ASSET_BUILDER_ACTION']).'_error'] .= '<ul>'.$errors.'</ul>';
+				}
+			}
 
 		}//end if ASSET_BUILDER_ACTION
 
