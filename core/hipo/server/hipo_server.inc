@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_server.inc,v 1.12 2003/11/26 00:51:09 gsherwood Exp $
+* $Id: hipo_server.inc,v 1.13 2004/01/08 15:03:40 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -75,7 +75,7 @@ class HIPO_Server extends HIPO_Server_Common
 	* the signals that we need to capture
 	* @var Array()
 	*/
-	var $_signals = Array(SIGTERM, SIGINT, SIGCHLD, SIGUSR1, SIGUSR2);
+	var $_signals = Array(SIGTERM, SIGINT, SIGCHLD, SIGHUP, SIGUSR1, SIGUSR2);
 
 	/**
 	* Array of childids to pids, used to send additional info to the processes while they are running
@@ -312,6 +312,10 @@ class HIPO_Server extends HIPO_Server_Common
 				$this->shutDown();
 				exit();
 				break;
+			case SIGHUP:
+				error_log('Caught SIGHUP...Re-Reading in Config Files');
+				$this->_loadConf();
+				break;
 			case SIGUSR1:
 				error_log('Caught SIGUSR1...Re-Reading in Config Files');
 				$this->_loadConf();
@@ -356,8 +360,8 @@ class HIPO_Server extends HIPO_Server_Common
 		socket_set_option($client_fd, SOL_SOCKET, SO_REUSEADDR, 1);
 
 		$data = $this->_readFromSocket($client_fd);
-		echo "DATA : ".gettype($data)."\n";
-		echo "DATA : ".print_r($data, true)."\n";
+#		echo "DATA : ".gettype($data)."\n";
+#		echo "DATA : ".print_r($data, true)."\n";
 		if (!is_null($data) && isset($data['systemid']) && !empty($data['data'])) {
 			if (isset($this->_systems[$data['systemid']])) {
 				if (!empty($data['data']['hipo_job']) && is_array($data['data']['hipo_job'])) {
@@ -409,8 +413,8 @@ class HIPO_Server extends HIPO_Server_Common
 				$hh = &$GLOBALS['SQ_SYSTEM']->getHipoHerder();
 				$process = $hh->prepareProcessServer($client_data, $output, $taskid);
 
-echo "OUTPUT : \n";
-print_r($output);
+#echo "OUTPUT : \n";
+#print_r($output);
 
 				// right now send back the output from the pre-processing, then close the connection
 				// and we will start doing the work
@@ -420,9 +424,9 @@ print_r($output);
 				if ($process) {
 					#echo "DO PROCESS....\n";
 					#sleep(10);
-					echo "START PROCESS....\n";
+#					echo "START PROCESS....\n";
 					$hh->processServer();
-					echo "FINISH PROCESS....\n";
+#					echo "FINISH PROCESS....\n";
 				}
 				// because we are forked, just exit out of here
 				exit();
@@ -450,8 +454,8 @@ print_r($output);
 					}
 				}
 
-echo "OUTPUT : \n";
-print_r($output);
+#echo "OUTPUT : \n";
+#print_r($output);
 
 				// right now send back the output from the pre-processing, then close the connection
 				// and we will start doing the work
