@@ -75,7 +75,7 @@ define('SQ_WWW_LIB_DIR',  SQ_WWW_BASE_DIR.'/__lib');
 # Link Types - used with bitwise operators
 define('SQ_LINK_EXCLUSIVE', 1);
 define('SQ_LINK_UNITE',     2);
-define('SQ_LINK_HREF',      4);
+define('SQ_LINK_NOTICE',    4);
 define('SQ_LINK_ANY',       7); # what all the others add up to
 
 //pre_echo(get_defined_constants());
