@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.63 2004/02/16 01:05:22 gsherwood Exp $
+* $Id: design.inc,v 1.64 2004/03/23 23:45:22 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -501,10 +501,10 @@ class Design extends Design_Area
 			case 'html_header' :
 				echo '
 				<!--   <?php echo SQ_CONF_SYSTEM_NAME."\n"; ?>
-					  Content © Copyright <?php echo SQ_CONF_SYSTEM_OWNER."\n"; ?>
+					  Content (c) Copyright <?php echo SQ_CONF_SYSTEM_OWNER."\n"; ?>
 					Running <?php echo SQ_SYSTEM_LONG_NAME; ?> - <?php echo SQ_SYSTEM_URL."\n"; ?>
 				   Developed by Squiz  - http://www.squiz.net
-				  © Copyright <?php echo date(\'Y\') ?>. All rights reserved.
+				  (c) Copyright <?php echo date(\'Y\') ?>. All rights reserved.
 				  Page generated: <?php echo date(\'d F Y\')."\n"; ?>
 				-->
 				<script language="javascript" type="text/javascript"  src="<?php echo sq_web_path(\'lib\'); ?>/js/general.js"></script>
