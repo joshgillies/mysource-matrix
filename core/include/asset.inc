@@ -2915,7 +2915,7 @@ class Asset extends Resolve_Object
 		}
 
 		// if this is a frontend nav link, then we need to inform the asset to update it's lookups
-		if ($link_type & SQ_LINK_FRONTEND_NAV) {
+		if ($link['link_type'] & SQ_LINK_FRONTEND_NAV) {
 			if (!$minor->updateLookups()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return 0;
@@ -2923,7 +2923,7 @@ class Asset extends Resolve_Object
 		}
 
 		// if this is a significant link, it's time to refresh the permissions lookup
-		if ($link_type & SQ_LINK_SIGNIFICANT) {
+		if ($link['link_type'] & SQ_LINK_SIGNIFICANT) {
 			//// UPDATE OUR PERMISSIONS LOOKUP'S ////
 			if (!$this->_refreshPermissionLookups()) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
