@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: tables.xml,v 1.34.2.3 2004/03/03 18:52:35 brobertson Exp $
+* $Id: tables.xml,v 1.34.2.4 2004/03/04 16:39:19 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -588,6 +588,12 @@
 	<table name="asset_url" require_rollback="1">
 		<columns>
 			<column name="urlid" allow_null="0">
+				<type>VARCHAR(15)</type>
+				<type_variations />
+				<default />
+				<description />
+			</column>
+			<column name="systemid" allow_null="0">
 				<type>SMALLINT</type>
 				<type_variations>
 					<mysql>SMALLINT UNSIGNED</mysql>
@@ -620,6 +626,18 @@
 				<type_variations />
 				<default>'0'</default>
 				<description />
+			</column>
+			<column name="system_scope" allow_null="0">
+				<type>CHAR(1)</type>
+				<type_variations />
+				<default>'G'</default>
+				<description>
+					Either 'G' or 'L', for Global or Local respectivly. 
+					Only comes into effect if Server Replication is being used.
+					Global means that this url is to be used by all systems as one of the default URLs.
+					Local means that this system will only use this URL (and any other Local URLs under the same systemid) when creating links to this site from within this system install.
+					If a there are Local URLs for a site, then the Global URLs will not be added to the url lookup on this system.
+				</description>
 			</column>
 		</columns>
 		<keys>
@@ -696,10 +714,8 @@
 				<description />
 			</column>
 			<column name="root_urlid" allow_null="0">
-				<type>SMALLINT</type>
-				<type_variations>
-					<mysql>SMALLINT UNSIGNED</mysql>
-				</type_variations>
+				<type>VARCHAR(15)</type>
+				<type_variations />
 				<default />
 				<description />
 			</column>
