@@ -31,7 +31,7 @@
 			There is no local_md5 attribute because there is no local directory yet.
 		-->
 		<file md5="">
-			core/include/new_backend.inc
+			core/include
 		</file>
 		<!--
 			This is a file being added.
