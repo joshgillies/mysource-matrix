@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_remote_content.inc,v 1.9 2004/10/25 04:23:32 arailean Exp $
+* $Id: page_remote_content.inc,v 1.10 2004/11/03 05:06:53 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once 'HTTP/Client/CookieManager.php';
 *
 *
 * @author  Andrei Railean <arailean@squiz.net>
-* @version $Revision: 1.9 $
+* @version $Revision: 1.10 $
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -319,7 +319,7 @@ REGEX;
 
 // forms. note this captures even those actions that are empty
 		$patterns[] = <<<REGEX
-/(<(?:(form)[^>]*action)\s*=\s*['\"]?)(?:\s)*([^'\"> ]*)(['\"\> ]?[^<]*\>)/i
+/(<(?:(form)[^>]*?action)\s*=\s*['\"]?)(?:\s)*([^'\"> ]*)(['\"\> ]?[^<]*\>)/i
 REGEX;
 
 		// this pattern is a special case. we don't generally look at JavaScript
