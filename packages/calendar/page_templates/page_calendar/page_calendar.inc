@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.51 2004/09/06 23:14:16 lwright Exp $
+* $Id: page_calendar.inc,v 1.52 2004/09/07 00:53:55 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -36,7 +36,7 @@ require_once  dirname(__FILE__).'/../../calendar_events/calendar_event_recurring
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.51 $ - 1.0
+* @version $Revision: 1.52 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage cms
 */
@@ -616,9 +616,7 @@ class Page_Calendar extends Page_Asset_Listing
 				$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes, $column_width*0.99);
 				$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 				$occupied_class = ($contents) ? 'eventDate' : '';
-				$onclick = ($contents && $drill_down_view) ? 'clickChild(this)' : '';
-				$style = ($contents && $drill_down_view) ? '' : '';
-				echo '<td class="date '.$occupied_class.' '.$weekend_class.'" style="'.$style.'">';
+				echo '<td class="date '.$occupied_class.' '.$weekend_class.'">';
 				if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">';
 				echo $current_day;
 				if ($contents && $drill_down_view) echo '</a><br />';
@@ -639,9 +637,7 @@ class Page_Calendar extends Page_Asset_Listing
 					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes, $column_width*0.99);
 					$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 					$occupied_class = ($contents) ? 'eventDate' : '';
-					$onclick = ($contents && $drill_down_view) ? 'clickChild(this)' : '';
-					$style = ($contents && $drill_down_view) ? '' : '';
-					echo '<td class="date '.$occupied_class.' '.$weekend_class.'" style="'.$style.'">';
+					echo '<td class="date '.$occupied_class.' '.$weekend_class.'">';
 					if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">';
 					echo $current_day;
 					if ($contents && $drill_down_view) echo '</a><br />';
@@ -661,9 +657,7 @@ class Page_Calendar extends Page_Asset_Listing
 					$contents = $this->_getMonthCellContents($events[$current_day], $show_event_links, $root_nodes, $column_width*0.99);
 					$weekend_class = in_array(date('D', strtotime("$year-$month-$current_day")), Array('Sat', 'Sun')) ? 'weekend' : '';
 					$occupied_class = ($contents) ? 'eventDate' : '';
-					$onclick = ($contents && $drill_down_view) ? 'clickChild(this)' : '';
-					$style = ($contents && $drill_down_view) ? '' : '';
-					echo '<td class="date '.$occupied_class.' '.$weekend_class.'" style="'.$style.'">';
+					echo '<td class="date '.$occupied_class.' '.$weekend_class.'">';
 					if ($contents && $drill_down_view) echo '<a class="dateLink"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW='.$drill_down_view.'&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'">';
 					echo $current_day;
 					if ($contents && $drill_down_view) echo '</a><br />';
@@ -862,9 +856,9 @@ class Page_Calendar extends Page_Asset_Listing
 		$res = '';
 		foreach ($events as $assetid => $details) {
 			$event_class = (isset($root_nodes[$details['root_node']]['class_name'])) ? $root_nodes[$details['root_node']] ['class_name'] : '';
-			$onclick_code = $show_event_link ? ' onclick="clickChild(this); return false;"' : '';
+			$onclick_code = $show_event_link ? ' onclick="clickChild(this); "' : '';
 			$cursor_code = $show_event_link ? 'cursor: pointer; cursor: hand;' : '';
-			$res .= '<div style="width: '.$width.'ex"><div style="width: auto; margin-bottom: 1px; '.$cursor_code.'" class="event '.$event_class.'"'.$onclick_code.'>';
+			$res .= '<div style="width: '.$width.'ex; '.$cursor_code.'"'.$onclick_code.'><div style="width: auto; margin-bottom: 1px;" class="event '.$event_class.'">';
 			if ($show_event_link) $res .= '<a href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_DATE='.$_REQUEST['SQ_CALENDAR_DATE'].'&amp;SQ_CALENDAR_EVENT_ID='.$assetid.'" class="event '. $event_class.'">';
 			$res .= $details['name'];
 			if ($show_event_link) $res .= '</a>';
@@ -967,6 +961,7 @@ class Page_Calendar extends Page_Asset_Listing
 			<tr style="height: <?php echo $partition_height; ?>ex;">
 			<th class="timeLabel">*</th>
 			<?php
+			// print the "all day" events
 			foreach ($events as $id => $col_events) {
 				$event_link_date = is_iso8601($id) ? $id : $_REQUEST['SQ_CALENDAR_DATE'];
 				?>
@@ -974,16 +969,16 @@ class Page_Calendar extends Page_Asset_Listing
 				<?php
 					if (empty($col_events['all_day'])) echo '&nbsp;';
 					foreach($col_events['all_day'] as $assetid => $event) {
-						// get class to use for div
 						$event_class = $root_nodes[$event['root_node']]['class_name'];
-						echo '<div style="text-align: center; width: '.$width.'ex; margin-left: auto; margin-right: auto; margin-bottom: 1px; padding-left: 1px" class="'.$event_class.' event">';
+						$onclick_code = $show_event_links ? ' onclick="clickChild(this);"' : '';
+						$cursor_code = $show_event_links ? ' cursor: pointer; cursor: hand' : '';
+						echo '<div style="text-align: center; width: '.$width.'ex; margin-left: auto; margin-right: auto; margin-bottom: 1px; padding-left: 1px;'.$cursor_code.'" class="'.$event_class.' event"'.$onclick_code.'>';
 						echo $show_event_links ? '<a class="event '.$event_class.'"  href="'.$this->getHref().'?SQ_CALENDAR_VIEW=event&amp;SQ_CALENDAR_EVENT_ID='.strtok($assetid,':').'&amp;SQ_CALENDAR_DATE='.$event_link_date.'">' : '<span class="event '.$event_class.'">';
 						echo $event['name'];
 						echo $show_event_links ? '</a>' : '</span>';
 						echo '</div>';	
 					}
 				?>
-				
 				</td>
 				<?php
 			}
