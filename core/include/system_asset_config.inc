@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: system_asset_config.inc,v 1.4 2003/11/26 00:51:11 gsherwood Exp $
+* $Id: system_asset_config.inc,v 1.5 2003/12/02 03:39:59 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -94,6 +94,7 @@ class System_Asset_Config extends Config
 									'cron_manager',
 									'login_design',
 									'search_manager',
+									'layout_manager',
 								);
 				$system_assets = Array();
 				// GET THE ASSETIDS FOR ALL THE $system_assets types
