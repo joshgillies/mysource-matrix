@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_modification.inc,v 1.9 2004/08/02 07:04:22 lwright Exp $
+* $Id: calendar_event_modification.inc,v 1.10 2004/08/02 23:44:33 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -32,7 +32,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * of a recurring event have changed for a particular instance of that event.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.9 $ - 1.0
+* @version $Revision: 1.10 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -70,14 +70,26 @@ class Calendar_Event_Modification extends Calendar_Event
 	*/
 	function create(&$link) 
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$parent = &$link['asset'];
 		if ($parent->type() != 'calendar_event_recurring') {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('Recurring Event Cancellations can only be created underneath recurring events', E_USER_ERROR);
 			return false;
 		}
-		if (!$this->synchronizeWithParent($parent)) return false;
-		return parent::create($link);
-	}
+		if (!$this->synchronizeWithParent($parent)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		if ($res = parent::create($link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return $res;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+	}//end create()
 
 
 	/**
@@ -155,7 +167,6 @@ class Calendar_Event_Modification extends Calendar_Event
 			}
 		}
 		return parent::saveAttributes($dont_run_updated);
-
 
 	}//end saveAttributes()
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: calendar_event_cancellation.inc,v 1.4 2004/08/02 07:04:22 lwright Exp $
+* $Id: calendar_event_cancellation.inc,v 1.5 2004/08/02 23:44:33 tbarrett Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -33,7 +33,7 @@ require_once  dirname(__FILE__).'/../calendar_event_recurring/calendar_event_rec
 * which replaces the cancelled instance may be linked to it.
 *
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.4 $ - 1.0
+* @version $Revision: 1.5 $ - 1.0
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -71,14 +71,25 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	*/
 	function create(&$link) 
 	{
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 		$parent = &$link['asset'];
 		if ($parent->type() != 'calendar_event_recurring') {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			trigger_error('Recurring Event Cancellations can only be created underneath recurring events', E_USER_ERROR);
 			return false;
 		}
-		if (!$this->synchronizeWithParent($parent)) return false;
-		return parent::create($link);
-	}
+		if (!$this->synchronizeWithParent($parent)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+		if ($res = $parent::create($link)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+			return $res;
+		} else {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return $res;
+		}
+	}//end create()
 
 
 	/**
@@ -118,6 +129,7 @@ class Calendar_Event_Cancellation extends Calendar_Event
 	* @param Object calendar_event_recurring	&$parent	The recurring event that we belong to
 	* 
 	* @return boolean	Whether or not the synchronisation was successful
+	* @access public
 	* @see Calendar_Event_Cancellation::create(), Calendar_Event_Cancellation::saveAttributes()
 	*/	
 	function synchronizeWithParent(&$parent) 
