@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation.inc,v 1.24 2003/12/12 16:55:42 brobertson Exp $
+* $Id: design_customisation.inc,v 1.25 2004/06/23 23:25:44 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -87,10 +87,9 @@ class Design_Customisation extends Design
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
-
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
-		if (!parent::deleteLink($linkid)) {
+		if (!$this->deleteExistingLink($linkid)) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 			return false;
 		}
@@ -130,6 +129,42 @@ class Design_Customisation extends Design
 
 	}//end deleteLink()
 
+
+	/**
+	* Does the actual removing of the link for the customisation
+	*
+	* The default deleteLink() replaces the (Type-2) links of any customised design files with a Type-3
+	* to the uncustomised version. This screws things around when creating the customised versions in
+	* the first place.
+	*
+	* @param int	$linkid	the link id of the link to remove
+	*
+	* @return boolean
+	* @access public
+	*/
+	function deleteExistingLink($linkid) {
+		// first, we should try and find the link
+		$delete_link = $GLOBALS['SQ_SYSTEM']->am->getLinkById($linkid, $this->id);
+		if (empty($delete_link)) {
+			trigger_error('Existing Link #'.$linkid.' not found, unable to delete link', E_USER_WARNING);
+			return false;
+		}
+
+		$am = &$GLOBALS['SQ_SYSTEM']->am;
+		$minor = &$am->getAsset($delete_link['minorid'], $delete_link['minor_type_code']);
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
+
+		if (!parent::deleteLink($linkid)) {
+			$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
+			return false;
+		}
+
+		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
+
+		return true;
+
+	}//end deleteExistingLink()
 
 	/**
 	* Called whenever any type of link is changed, allows caching of objects, links and other stuff

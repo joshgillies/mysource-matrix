@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design_customisation_edit_fns.inc,v 1.24 2004/04/19 01:09:11 gsherwood Exp $
+* $Id: design_customisation_edit_fns.inc,v 1.25 2004/06/23 23:25:44 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -210,7 +210,8 @@ class Design_Customisation_Edit_Fns extends Design_Edit_Fns
 			// if the name is the same, delete the link
 			if ($existing_info['name'] == $info['name']) {
 				$linkid = $existing_ids[$existing_info['assetid']];
-				$asset->deleteLink($linkid);
+				$asset->deleteExistingLink($linkid);
+				$asset->updateLookups();
 			}
 		}
 
