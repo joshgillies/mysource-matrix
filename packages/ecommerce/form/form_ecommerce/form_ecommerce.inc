@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_ecommerce.inc,v 1.9.2.1 2005/01/20 04:05:55 lwright Exp $
+* $Id: form_ecommerce.inc,v 1.9.2.2 2005/02/23 00:44:48 mnyeholt Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -37,7 +37,7 @@ require_once SQ_FUDGE_PATH.'/general/file_system.inc';
 *
 * @author	Andrei Railean		<arailean@squiz.net>
 * @author	Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.9.2.1 $
+* @version $Revision: 1.9.2.2 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -463,7 +463,7 @@ class Form_Ecommerce extends Form_Email
 					// if it is not a question with options, we get the submission directly
 					// we assume that it is a numeric question
 					$ecom_item['name']  = $question_title;
-					$ecom_item['price'] = $this->active_submission[$id];
+					$ecom_item['price'] = $this->active_submission->getAnswer($id);
 
 					$ecom_items[] = $ecom_item;
 					$total += $ecom_item['price'];
