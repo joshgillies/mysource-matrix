@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_details.xml,v 1.9 2004/02/27 01:13:53 diarandine Exp $
+* $Id: edit_interface_screen_details.xml,v 1.10 2004/03/03 00:38:58 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -60,16 +60,6 @@
 			<display_name>Submit button text</display_name>
 			<note>This text will appear on the submit button of this search page</note>
 			<text />
-		</field>
-	</section>
-	<section name="Search Field Styles">
-		<field read_access="" write_access="write:attributes">
-			<display_name>Styles</display_name>
-			<note></note>
-			<function_call>
-				<paint_function name="paintStyles" />
-				<process_function name="processStyles" />
-			</function_call>
 		</field>
 	</section>
 </contents>

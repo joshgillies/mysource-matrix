@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_fields.xml,v 1.6 2004/02/10 00:33:16 diarandine Exp $
+* $Id: edit_interface_screen_fields.xml,v 1.7 2004/03/03 00:38:58 diarandine Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -40,6 +40,16 @@
 			<function_call>
 				<paint_function name="paintFields" />
 				<process_function name="processFields" />
+			</function_call>
+		</field>
+	</section>
+	<section name="Field Styles">
+		<field read_access="" write_access="write:attributes">
+			<display_name>Styles</display_name>
+			<note></note>
+			<function_call>
+				<paint_function name="paintStyles" />
+				<process_function name="processStyles" />
 			</function_call>
 		</field>
 	</section>
