@@ -412,7 +412,7 @@ class Design_Area_Menu_Type extends Design_Area
 							$row[\'short_name\'] = \'(( \'.$row[\'short_name\'].\' ))\';
 						}
 
-						$GLOBALS[\'SQ_SYSTEM\']->am->unregisterAsset($menu_asset);
+						$GLOBALS[\'SQ_SYSTEM\']->am->forgetAsset($menu_asset);
 						unset($menu_asset);
 						if (!$read_access) continue;
 					}

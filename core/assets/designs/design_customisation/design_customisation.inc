@@ -90,16 +90,16 @@ class Design_Customisation extends Design
 					$new_minor = &$am->getAsset($info['assetid']);
 					if (!$this->createLink($new_minor, SQ_LINK_TYPE_3, '', null, '1')) {
 						trigger_error('Failed creating file link to customisation', E_USER_WARNING);
-						$am->unRegisterAsset($design);
-						$am->unRegisterAsset($new_minor);
+						$am->forgetAsset($design);
+						$am->forgetAsset($new_minor);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
-					$am->unRegisterAsset($new_minor);
+					$am->forgetAsset($new_minor);
 				}
 			}// end foreach $file_links
 
-			$am->unRegisterAsset($design);
+			$am->forgetAsset($design);
 		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');

@@ -710,7 +710,7 @@ class Asset_Manager extends Resolve_Object
 				$children = array_merge($children, $this->getDependantChildren($dependant_links[$k]['minorid'], $type_code, $strict_type_code));
 			}
 
-			$this->unregisterAsset($assetid);
+			$this->forgetAsset($assetid);
 		}
 
 		unset($asset);
@@ -829,7 +829,7 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function registerAsset(&$obj)
+	function rememberAsset(&$obj)
 	{
 		// wrong class or no id, fuck off
 		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) return;
@@ -837,7 +837,7 @@ class Asset_Manager extends Resolve_Object
 		if (isset($this->_assets[$obj->id])) unset($this->_assets[$obj->id]);
 		$this->_assets[$obj->id] = &$obj;
 
-	}//end registerAsset();
+	}//end rememberAsset();
 
 
 	/**
@@ -847,13 +847,13 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @access public
 	*/
-	function unRegisterAsset(&$obj)
+	function forgetAsset(&$obj)
 	{
 		// wrong class or no id, fuck off
 		if (!is_object($obj) || !is_a($obj, 'asset') || !$obj->id) return;
 		if (isset($this->_assets[$obj->id])) unset($this->_assets[$obj->id]);
 
-	}//end unRegisterAsset();
+	}//end forgetAsset();
 
 
 	/**

@@ -143,7 +143,7 @@ class Login_Design extends Design
 				trigger_error('Login design failed setting public read permission for file "'.$file->name.'"', E_USER_WARNING);
 			}
 			$file->releaseLock();
-			$GLOBALS['SQ_SYSTEM']->am->unregisterAsset($file);
+			$GLOBALS['SQ_SYSTEM']->am->forgetAsset($file);
 		}
 
 		$edit_fns = $this->getEditFns();

@@ -523,7 +523,7 @@ class Cron_Manager extends Asset
 
 						}// end if
 
-						$am->unregisterAsset($cron_job);
+						$am->forgetAsset($cron_job);
 
 					}// end foreach
 

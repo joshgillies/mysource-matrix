@@ -124,7 +124,7 @@ class HIPO_Job_Update_Lookups extends HIPO_Job
 			if (!is_null($asset)) {
 				if (!$asset->updateLookups()) return false;
 				$step_data['message'] = 'Updating Lookups for "'.$asset->name.'"';
-				$GLOBALS['SQ_SYSTEM']->am->unregisterAsset($asset);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
 				$step_data['message'] = 'Skipping asset '.$assetid;

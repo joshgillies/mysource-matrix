@@ -186,13 +186,13 @@ class Design extends Design_Area
 				if ($insert_link) {
 					if (!$customisation->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
 						trigger_error('Failed creating file link to customisation', E_USER_WARNING);
-						$am->unRegisterAsset($customisation);
+						$am->forgetAsset($customisation);
 						$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 						return false;
 					}
 				}
 
-				$am->unRegisterAsset($customisation);
+				$am->forgetAsset($customisation);
 
 			}//end foreach customisation
 
@@ -242,14 +242,14 @@ class Design extends Design_Area
 						// found the link to delete
 						if (!$customisation->deleteLink($link['linkid'])) {
 							trigger_error('Failed deleting file link from customisation', E_USER_WARNING);
-							$am->unRegisterAsset($customisation);
+							$am->forgetAsset($customisation);
 							$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 							return false;
 						}
 					}
 				}// end foreach $file_links
 
-				$am->unRegisterAsset($customisation);
+				$am->forgetAsset($customisation);
 
 			}//end foreach customisation
 		}

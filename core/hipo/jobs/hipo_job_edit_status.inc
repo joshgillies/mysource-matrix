@@ -158,7 +158,7 @@ class HIPO_Job_Edit_Status extends HIPO_Job
 				$new_status = $this->_running_vars['new_status'];
 				$asset->processStatusChange($new_status);
 				$step_data['message'] = 'Editing status of "'.$asset->name.'"';
-				$GLOBALS['SQ_SYSTEM']->am->unregisterAsset($asset);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
 				$step_data['message'] = 'Skipping asset '.$assetid;

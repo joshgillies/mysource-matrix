@@ -397,7 +397,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
-				$GLOBALS['SQ_SYSTEM']->am->registerAsset($da);
+				$GLOBALS['SQ_SYSTEM']->am->rememberAsset($da);
 			}
 
 			$design_areas[$id_name] = &$da;
@@ -765,7 +765,7 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			return false;
 		}
 
-		$GLOBALS['SQ_SYSTEM']->am->registerAsset($da);
+		$GLOBALS['SQ_SYSTEM']->am->rememberAsset($da);
 
 		// Acquire a lock on the new object
 		if (!$dupe->acquireLock()) {
@@ -819,12 +819,12 @@ class Design_Edit_Fns extends Design_Area_Edit_Fns
 			$minor = &$am->getAsset($link['minorid']);
 			if (!$dupe->createLink($minor, SQ_LINK_TYPE_3, '', null, 1)) {
 				trigger_error('Failed creating file link to customisation', E_USER_WARNING);
-				$am->unRegisterAsset($minor);
+				$am->forgetAsset($minor);
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}
 		}
-		$am->unRegisterAsset($minor);
+		$am->forgetAsset($minor);
 
 		// release the lock on the new object
 		if (!$dupe->releaseLock()) {

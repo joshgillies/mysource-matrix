@@ -1630,7 +1630,7 @@ class Asset extends Resolve_Object
 				$message->from = 0; // a system message
 
 				$ms->enqueueMessage($message);
-				$GLOBALS['SQ_SYSTEM']->am->unregisterAsset($locked_asset);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($locked_asset);
 			}
 
 			// close the queue of messages we opened, which sends all the messages in the queue

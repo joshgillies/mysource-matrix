@@ -180,7 +180,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 				}
 
 				$step_data['message'] = 'Editing Permissions for "'.$asset->name.'"';
-				$GLOBALS['SQ_SYSTEM']->am->unregisterAsset($asset);
+				$GLOBALS['SQ_SYSTEM']->am->forgetAsset($asset);
 				unset($asset);
 			} else {
 				$step_data['message'] = 'Skipping asset '.$assetid;
