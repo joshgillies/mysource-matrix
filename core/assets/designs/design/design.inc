@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: design.inc,v 1.66 2004/06/30 00:34:24 gsherwood Exp $
+* $Id: design.inc,v 1.67 2004/07/15 05:40:53 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -514,29 +514,39 @@ class Design extends Design_Area
 				if (SQ_ROLLBACK_VIEW) $GLOBALS[\'SQ_SYSTEM\']->printRollbackWarning();
 				?>
 				';
-
-				break;
+			break;
 
 			case 'html_footer' :
-				break;
+			break;
 
 			case 'site_name' :
 				echo '<', '?php echo $ASSET_LINEAGE[0][\'short_name\']; ?', '>';
-				break;
+			break;
 
 			case 'assetid' :
 				echo '<', '?php echo ', $this->_escapeVar('$ASSET->id', $args), '; ?', '>';
-				break;
+			break;
 
 			case 'asset_name' :
 				echo '<', '?php echo ', $this->_escapeVar('$ASSET->name', $args), '; ?', '>';
-				break;
+			break;
 
 			case 'asset_short_name' :
 				echo '<', '?php echo ', $this->_escapeVar('$ASSET->short_name', $args), '; ?', '>';
-				break;
+			break;
 
 			case 'asset_link' :
+				$link_fn = 'getHref';
+				if (!empty($args['full_url'])) {
+					switch($args['full_url']) {
+						case 'yes'  :
+						case 'true' :
+						case '1'    : 
+							$link_fn = 'getUrl';
+						break;
+					}
+				}
+				
 				$aqs = false;
 				if (!empty($args['append_query_string'])) {
 					switch($args['append_query_string']) {
@@ -544,9 +554,8 @@ class Design extends Design_Area
 						case 'true' :
 						case '1'    : 
 							$aqs = true;
-							break;
-
-					}// end switch
+						break;
+					}
 				}
 
 				$sqs = false;
@@ -556,9 +565,8 @@ class Design extends Design_Area
 						case 'true' :
 						case '1'    : 
 							$sqs = true;
-							break;
-
-					}// end switch
+						break;
+					}
 				}
 				$additional = '';
 				if ($aqs) $additional .= 'echo ((!empty($_SERVER[\'QUERY_STRING\'])) ? \'?\'.$_SERVER[\'QUERY_STRING\'] : \'\');'."\n";
@@ -567,12 +575,10 @@ class Design extends Design_Area
 					else $additional .= 'echo ((!empty($_SERVER[\'QUERY_STRING\'])) ? \'&\' : \'?\');';
 					$additional .= "\n";
 				}
-				echo '<', '?php echo ', $this->_escapeVar('$ASSET->getHref()', $args), ";\n", $additional, ' ?', '>';
-				break;
-
+				echo '<', '?php echo ', $this->_escapeVar('$ASSET->'.$link_fn.'()', $args), ";\n", $additional, ' ?', '>';
+			break;
 
 			case 'current_user' :
-				
 				if (empty($args['attr'])) $args['attr'] = 'name';
 				switch($args['attr']) {
 					case 'username'   : 
@@ -590,12 +596,12 @@ class Design extends Design_Area
 				$default = (empty($args['default'])) ? '' : $args['default'];
 
 				echo '<', '?php echo ', $this->_escapeVar('($GLOBALS[\'SQ_SYSTEM\']->currentUserId()) ? $GLOBALS[\'SQ_SYSTEM\']->user->'.$attr.' : '.var_export($default, true), $args), '; ?', '>';
-				break;
+			break;
 
 
 			case 'file_path' :
 				echo '<','?php echo $FILE_URLS['.var_export((string) $args['filename'], true).'];?', '>';
-				break;
+			break;
 
 			default :
 				parent::printVar($var, $args);
