@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/system_user/system_user_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/system/system_user/system_user_edit_fns.inc';
 
 /**
 * Root_User_Edit_Fns

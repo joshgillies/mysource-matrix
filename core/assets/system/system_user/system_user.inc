@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/backend_user/backend_user.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/users/backend_user/backend_user.inc';
 
 
 /**

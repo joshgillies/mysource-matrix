@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/image/image.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/files/image/image.inc';
 
 /**
 * Thumbnail

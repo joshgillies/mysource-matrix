@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/user_group/user_group.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 
 /**
 * System_User_Group

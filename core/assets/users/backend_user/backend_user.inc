@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/user/user.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/users/user/user.inc';
 
 
 /**

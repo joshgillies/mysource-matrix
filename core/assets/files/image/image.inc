@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/file/file.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/files/file/file.inc';
 
 /**
 * Image

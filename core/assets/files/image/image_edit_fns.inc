@@ -1,6 +1,6 @@
 <?php
 
-require_once SQ_CORE_PACKAGE_PATH.'/file/file_edit_fns.inc';
+require_once SQ_CORE_PACKAGE_PATH.'/files/file/file_edit_fns.inc';
 
 /**
 * Image_Edit_Fns
