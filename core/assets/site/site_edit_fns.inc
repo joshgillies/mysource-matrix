@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site_edit_fns.inc,v 1.42 2004/03/12 05:17:05 mmcintyre Exp $
+* $Id: site_edit_fns.inc,v 1.43 2004/05/21 02:00:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -310,7 +310,7 @@ class Site_Edit_Fns extends Folder_Edit_Fns
 		if (!empty($_POST[$prefix.'_'.$page_type]['assetid'])) {
 			$page = &$GLOBALS['SQ_SYSTEM']->am->getAsset($_POST[$prefix.'_'.$page_type]['assetid']);
 
-			if (!$asset->createLink($page, SQ_LINK_TYPE_3, $page_type)) {
+			if (!$asset->createLink($page, SQ_LINK_NOTICE, $page_type)) {
 				$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 				return false;
 			}// end if

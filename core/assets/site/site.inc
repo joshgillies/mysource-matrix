@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: site.inc,v 1.55 2004/03/29 06:28:32 mmcintyre Exp $
+* $Id: site.inc,v 1.56 2004/05/21 02:00:23 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -158,7 +158,7 @@ class Site extends Folder
 			$where = 'assetid = '.$GLOBALS['SQ_SYSTEM']->db->quote($this->id);
 			$where = $GLOBALS['SQ_SYSTEM']->constructRollbackWhereClause($where);
 
-			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql.$where, true, array(), DB_FETCHMODE_ASSOC); // need all this because of DB API
+			$result = $GLOBALS['SQ_SYSTEM']->db->getAssoc($sql.$where, true, Array(), DB_FETCHMODE_ASSOC);
 			if (DB::isError($result)) {
 				trigger_error($result->getMessage().'<br/>'.$result->getUserInfo(), E_USER_WARNING);
 				$this->_tmp['urls_info'] = Array();
@@ -436,7 +436,9 @@ class Site extends Folder
 			case 'index' :
 				return 'The index page for the site';
 			break;
-
+			case 'not_found' :
+				return 'The not found page for the site';
+			break;
 			default :
 				return parent::describeLink($linkid);
 			break;
@@ -571,7 +573,7 @@ class Site extends Folder
 			case 'index' :
 			case 'not_found' :
 			case 'forbidden' :
-				return $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_TYPE_3, '', true, $page);
+				return $GLOBALS['SQ_SYSTEM']->am->getLink($this->id, SQ_LINK_NOTICE, '', true, $page);
 				break;
 
 			default :
