@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.91 2005/03/24 00:33:35 arailean Exp $
+* $Id: mysource.inc,v 1.92 2005/03/24 05:16:48 arailean Exp $
 *
 */
 
@@ -26,7 +26,6 @@
 require_once 'DB.php';
 require_once SQ_INCLUDE_PATH.'/mysource_object.inc';
 require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
-require_once SQ_CORE_PACKAGE_PATH.'/system/log_manager/log_manager.inc';
 
 /**
 * MySource
@@ -35,7 +34,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/log_manager/log_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.91 $
+* @version $Revision: 1.92 $
 * @package MySource_Matrix
 */
 class MySource
@@ -1936,53 +1935,6 @@ class MySource
 		return (empty($this->_msgs)) ? Array() : $this->_msgs;
 
 	}//end messages()
-
-
-	/**
-	* Log a System message
-	*
-	* @param string					$message	Message to log
-	* @param int					$level		The log level, eg. E_USER_ERROR.
-	*
-	* @access public
-	* @return boolean
-	*/
-	function logSystemMessage($message, $level=E_USER_NOTICE)
-	{
-		return Log_Manager::log(SQ_CONF_LOG_FILE_SYSTEM, $message, $level);
-
-	}//end logSystemMessage()
-
-
-	/**
-	* Log an Error message
-	*
-	* @param string	$message	Message to log
-	* @param int	$level		log level, eg. E_USER_ERROR
-	* @param string	$file		file that caused the error (from trigger_error)
-	* @param string	$line		line where the error occured (from trigger_error)
-	* @param string	$log_name	logfile to write to (instead of default)
-	*
-	* @access public
-	* @return boolean
-	*/
-	function logErrorMessage($message, $level=E_USER_NOTICE, $file='', $line='', $log_name=SQ_CONF_LOG_FILE_ERROR)
-	{
-		if (!is_string($message)){
-			trigger_error('Ivalid message format for error log', E_USER_WARNING);
-			return false;
-		}
-
-		if (is_null($file)) {
-			$message = "($file:$line) - $message";
-		}
-
-		// strip out all references to the string identifying the root
-		$message = str_replace(SQ_CONF_ROOT_IDENTIFIER, '', $message);
-
-		return Log_Manager::log($log_name, $message, $level, false);
-
-	}//end logErrorMessage()
 
 
 //--        DATE/TIME        --//
