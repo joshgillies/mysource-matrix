@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: report_edit_fns.inc,v 1.1 2004/07/06 03:31:17 gsherwood Exp $
+* $Id: report_edit_fns.inc,v 1.1.2.1 2004/11/01 04:52:35 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -66,7 +66,7 @@ class Report_Edit_Fns extends Bridge_Edit_Fns
 	{
 		$report_path = $asset->data_path.'/report.xml';
 		if (!is_file($report_path)) {
-			echo 'This report has not yet been genereted<br />';
+			echo 'This report has not yet been generated<br />';
 		} else {
 			echo '<b>This report has been generated</b><br />';
 		}
