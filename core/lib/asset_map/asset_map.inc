@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_map.inc,v 1.149 2004/06/21 00:23:15 lwright Exp $
+* $Id: asset_map.inc,v 1.150 2004/06/21 13:36:38 brobertson Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -208,6 +208,7 @@ class Asset_Map
 	*/
 	function _send($output)
 	{
+		#error_log($output->get(), 3, SQ_DATA_PATH.'/asset_map.log');
 		header("Content-Type: text/xml");
 		$output->dump();
 
@@ -360,9 +361,8 @@ class Asset_Map
 		echo $assets_xml;
 
 		echo "</initialisation>\n";
-		$out = ob_get_contents();
-		ob_end_clean();
-		echo $out;
+		#error_log(ob_get_contents(), 3, SQ_DATA_PATH.'/asset_map.log');
+		ob_end_flush();
 
 	}//end _doInitialise()
 	
