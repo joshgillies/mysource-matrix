@@ -18,13 +18,13 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: payment_gateway_esec.inc,v 1.7 2004/10/18 22:46:23 arailean Exp $
+* $Id: payment_gateway_esec.inc,v 1.8 2004/10/22 06:51:11 dofford Exp $
 * $Name: not supported by cvs2svn $
 */
 
 
 require_once dirname(__FILE__).'/../../payment_gateway/payment_gateway.inc';
-require_once dirname(__FILE__).'/esec_processor.inc';
+require_once dirname(__FILE__).'/esec_processor_integration_interface.inc';
 
 /**
 * Payment_Gateway_Esec
@@ -34,7 +34,7 @@ require_once dirname(__FILE__).'/esec_processor.inc';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.7 $
+* @version $Revision: 1.8 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
@@ -82,7 +82,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 	{
 		$amount = array_get_index($_SESSION,'SQ_ECOM_AMOUNT', 0);
 
-		$Esec = new Esec_Processor();
+		$Esec = new Esec_Processor_Integration_Interface();
 		$card_types = $Esec->getCardTypes();
 
 		// format the amount
@@ -118,7 +118,7 @@ class Payment_Gateway_Esec extends Payment_Gateway
 
 			$test_card_numbers = $Esec->getTestCardNumbers();
 			$card_number = '<select name="'.$card.'[number]">';
-			foreach ($test_card_numbers as $number) {
+			foreach ($test_card_numbers as $number => $label) {
 				$selected = ($card_info['number'] == $number)?' selected="selected"':'';
 				$card_number .= '<option value="'.$number.'"'.$selected.'>'.$number.'</option>';
 			}
@@ -191,7 +191,7 @@ FORMBODY;
 		$amount      = $_SESSION['SQ_ECOM_AMOUNT'];
 		$card_info   = $_SESSION['SQ_ECOM_CARDINFO'];
 
-		$Esec = new Esec_Processor();
+		$Esec = new Esec_Processor_Integration_Interface();
 
 		$Esec->setAmount($amount);
 		$Esec->setReference($ref_no);
@@ -214,7 +214,7 @@ FORMBODY;
 
 		if (!$success) {
 			$this->_tmp['is_error']         = true;
-			$this->_tmp['error_message']    = $response['MESSAGE'];
+			$this->_tmp['error_message']    = $response['MESSAGE_CODE'].' '.$response['MESSAGE'];
 		} else {
 			$status = $Esec->explainStatus();
 			if ($this->attr('test_mode')){

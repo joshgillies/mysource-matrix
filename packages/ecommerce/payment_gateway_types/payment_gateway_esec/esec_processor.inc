@@ -18,11 +18,17 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: esec_processor.inc,v 1.3 2004/10/20 23:00:37 arailean Exp $
+* $Id: esec_processor.inc,v 1.4 2004/10/22 06:51:11 dofford Exp $
 * $Name: not supported by cvs2svn $
 */
 
-require_once 'HTTP/Request.php';
+/**
+* Note:
+*
+* The Esec Processor is used in matrix and mysource. Please maintain these files in both repositories
+* Matrix:	packages/ecommerce/payment_gateway_types/payment_gateway_esec
+* Mysource: xtras/sites/extensions/ecommerce_store/xtras/payment_gateway/esec
+*/
 
 /**
 * Esec_Processor
@@ -34,18 +40,27 @@ require_once 'HTTP/Request.php';
 *
 * @author  Andrei Railean		<arailean@squiz.net>
 * @author  Dmitry Baranovskiy	<dbaranovskiy@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage ecommerce
 */
 class Esec_Processor
 {
 
-	var $_url = "https://sec.aba.net.au/cgi-bin/service/authint";
-
 	var $parameters;
 
 	var $response;
+
+	// returned response details
+	var $eps_v3plus_responses = array(
+		'ref-id',			//= referenceID
+		'auth-id',			//= authorisationID
+		'message',			//= message
+		'signature',		//= signature
+		'eft-response',		//= eftResponse
+		'txn-id',			//= bank transaction ID
+		'settlement-date'	//= bank settlement date
+	);
 
 	var $card_types = array (
 		"visa"      => "visa",
@@ -57,9 +72,9 @@ class Esec_Processor
 	);
 
 	var $test_card_numbers = array (
-		"testsuccess" => "testsuccess",
-		"testfailure" => "testfailure",
-		"testtimeout" => "testtimeout",
+		"testsuccess" => "Test Success",
+		"testfailure" => "Test Failure",
+		"testtimeout" => "Test Timeout"
 	);
 
 	var $_status_codes = Array (
@@ -136,15 +151,16 @@ class Esec_Processor
 		'96' => 'system malfunction',
 		'97' => 'reconciliation totals have been reset',
 		'98' => 'MAC error',
-		'99' => 'reserved, will not be returned',
+		'99' => 'reserved, will not be returned'
 	);
 
-	function Esec_Processor() {
+	function Esec_Processor() 
+	{
 		$this->parameters = Array();
 		$this->response = Array();
 
 		$this->set('EPS_CCV',       '');
-		$this->set('EPS_VERSION',    3);
+		$this->set('EPS_VERSION',   3);
 		$this->set('EPS_TEST',      'false');
 		$this->set('EPS_3DSECURE',  'false');
 
@@ -161,9 +177,23 @@ class Esec_Processor
 	*/
 	function set($name, $value) {
 		$this->parameters[$name] = $value;
-
 	}//end set()
 
+	/**
+	* sets parameter value by name as an array
+	*
+	* @param	$name	name of the parameter
+	* @param	$value	new value of the parameter
+	*
+	* @access private
+	* @return void
+	*/
+	function set_array($name, $value) {
+		if (!is_array($this->parameters[$name])) {
+			$this->parameters[$name] = array();
+		}
+		$this->parameters[$name][] = $value;
+	}//end set()
 
 	/**
 	* returns parameter value by name
@@ -253,7 +283,6 @@ class Esec_Processor
 
 	}//end setCardType()
 
-
 	/**
 	* sets URL for gateway
 	*
@@ -268,53 +297,14 @@ class Esec_Processor
 
 	}//end setURL()
 
-
 	/**
-	* try to make bank transaction using setted parameters
+	* Process the given Transaction
 	*
 	* @access public
 	* @return boolean
 	*/
 	function process()
 	{
-		$HTTP_Request = new HTTP_Request($this->_url);
-		$HTTP_Request->setMethod(HTTP_REQUEST_METHOD_POST);
-		foreach ($this->parameters as $name => $value) {
-			$HTTP_Request->addPostData($name, $value);
-		}
-
-		$result = $HTTP_Request->sendRequest();
-
-		$is_errror = preg_match("/^[45].*?/", $HTTP_Request->getResponseCode());
-
-		// exit on error, checking for object because if it is true, than it is
-		// a PEAR error object
-		if (!$result || is_object($result) || $is_errror) {
-			return false;
-		}
-
-		// everything is good. get the page body.
-		$response_body	= $HTTP_Request->getResponseBody();
-
-		// parsing contents
-		/*
-			ref-id = referenceID
-			auth-id = authorisationID
-			message = message
-			signature = signature
-			eft-response = eftResponse
-			txn-id = bank transaction ID
-			settlement-date = bank settlement date
-		*/
-		$lines = explode("\n", $response_body);
-		foreach ($lines as $line) {
-			list($name, $value) = explode("=", $line);
-			$this->response[$name] = $value;
-		}
-
-		// return success status
-		$success = preg_match("/^200.*?/", $this->response['message']);
-		return $success;
 
 	}//end process()
 
@@ -331,7 +321,8 @@ class Esec_Processor
 	{
 		$response['REFERENCE']      = $this->response['ref-id'];
 		$response['AUTHORISATION']  = $this->response['auth-id'];
-		$response['MESSAGE']        = $this->response['message'];
+		$response['MESSAGE_CODE']   = substr($this->response['message'], 0, 3);
+		$response['MESSAGE']        = substr($this->response['message'], 4);
 		$response['STATUS']         = $this->response['eft-response'];
 		$response['TRANSACTION']    = $this->response['txn-id'];
 		$response['DATE']           = $this->response['settlement-date'];
@@ -436,7 +427,6 @@ class Esec_Processor
 
 	}//end setCardExpiryYear()
 
-
 	/**
 	* sets card name
 	*
@@ -451,6 +441,37 @@ class Esec_Processor
 
 	}//end setCardName()
 
+	/**
+	* sets card type
+	*
+	* @param	string $email	the email address
+	*
+	* @access public
+	* @return void
+	*/
+	function setInfoEmail($email) {
+		$this->set('EPS_INFOEMAIL', 'mailto: '.$email);
+
+	}
+
+	/**
+	* sets the redirect URL
+	*
+	* @param	string $value	the value to set
+	* @param	bool $email		flag to specify it is an email address
+	*
+	* @access public
+	* @return void
+	*/
+	function setRedirectURL($value, $email=false)
+	{
+		if ($email && is_array($this->get('EPS_RESULTURL'))) {
+			// mailto is only valid if we already have an email address
+			$value = 'mailto:'.$value;
+		}
+		$this->set_array('EPS_RESULTURL', $value);
+
+	}//end setCardName()
 
 	/**
 	* sets paramenters required for test transaction using test values
