@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_edit_fns.inc,v 1.39 2004/08/20 05:17:31 lwright Exp $
+* $Id: form_edit_fns.inc,v 1.40 2004/09/21 00:40:47 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -758,5 +758,87 @@ class Form_Edit_Fns extends Bridge_Edit_Fns
 	}//end generateGenericSection()
 
 
+	/**
+	* Paint a note explaining the restrictions of simple formatting
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintSimpleFormatting(&$asset, &$o, $prefix)
+	{
+		?>
+		<p>These options apply only if you use the 'Form Contents' (<b>%form_contents%</b>) keyword in your Page Contents bodycopy, or you do not have a Page Contents bodycopy set.</p>
+
+		<?php
+		return true;
+
+	}//end paintSimpleFormatting()
+
+
+	/**
+	* Process the note explaining the restrictions of simple formatting
+	*
+	* We have nothing to process here, so return false always.
+	*
+	* @param object Metadata_Field		$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean (false always)
+	* @access public
+	*/
+	function processSimpleFormatting(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processSimpleFormatting()
+	
+	
+	/**
+	* Paint a note giving instructions for complex formatting
+	*
+	* @param object Form				&$asset	the asset whose interface we are painting
+	* @param object	Backend_Outputter	&$o		the outputter class
+	* @param string						$prefix	prefix for the form elements
+	*
+	* @return boolean
+	* @access public
+	*/
+	function paintComplexFormatting(&$asset, &$o, $prefix)
+	{
+		?>
+		<p>If you use complex formatting, you can position question fields and responses individually, rather than in a single block.<br/>
+		Click here for a <a href="#" onClick="javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/form/popups/page_contents_keywords.php?assetid=<?php echo $asset->id ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520')">list of keywords for the Page Contents bodycopy</a><br/>
+		Click here for a <a href="#" onClick="javascript: var win = window.open('<?php echo sq_web_path('data')?>/asset_types/form/popups/thank_you_keywords.php?assetid=<?php echo $asset->id ?>', 'keywords', 'toolbar=0,menubar=0,location=0,status=0,scrollbars=1,resizable=1,width=580,height=520')">list of keywords for the Thank You bodycopy</a><br/></p>
+
+		<?php
+		return true;
+
+	}//end paintComplexFormatting()
+
+	
+	/**
+	* Process the note giving instructions for complex formatting
+	*
+	* Nothing to process, so return false always.
+	*
+	* @param object Metadata_Field		$asset	the asset to which we belong
+	* @param object	Backend_Outputter	$o		the outputter class
+	* @param string						$prefix	prefix for the form element
+	*
+	* @return boolean (false always)
+	* @access public
+	*/
+	function processComplexFormatting(&$asset, &$o, $prefix)
+	{
+		return false;
+
+	}//end processComplexFormatting()
+	
+	
 }//end class
 ?>

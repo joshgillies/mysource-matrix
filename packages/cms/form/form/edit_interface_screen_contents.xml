@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - +
 *
-* $Id: edit_interface_screen_contents.xml,v 1.15 2004/06/21 06:50:54 lwright Exp $
+* $Id: edit_interface_screen_contents.xml,v 1.16 2004/09/21 00:40:47 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 -->
@@ -93,6 +93,14 @@
 		</field>
 	</section>
 	<section name="Simple Formatting">
+		<field>
+			<display_name>Note</display_name>
+			<note />
+			<function_call>
+				<paint_function	name="paintSimpleFormatting" />
+				<process_function name="processSimpleFormatting" />
+			</function_call>
+		</field>
 		<field attribute="form_width">
 			<display_name>Form Width</display_name>
 			<note>The whole form will be this width when printed on the frontend. This can be a number of pixels or a percentage</note>
@@ -107,6 +115,16 @@
 			<display_name>Answer Width</display_name>
 			<note>The width of the column for the question answer fields. This can be a number of pixels or a percentage of the form width</note>
 			<html_width />
+		</field>
+	</section>
+	<section name="Complex Formatting">
+		<field>
+			<display_name>Keywords</display_name>
+			<note />
+			<function_call>
+				<paint_function	name="paintComplexFormatting" />
+				<process_function name="processComplexFormatting" />
+			</function_call>
 		</field>
 	</section>
 </contents>
