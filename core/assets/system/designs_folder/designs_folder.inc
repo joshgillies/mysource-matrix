@@ -15,16 +15,6 @@ require_once SQ_CORE_PACKAGE_PATH.'/folder/folder.inc';
 */
 class Designs_Folder extends Folder
 {
-
-	/**
-	* Indicates whether we are currently in create() or not
-	*
-	* @see setAttrValue()
-	* @var boolean
-	*/
-	var $_in_create = false;
-
-
 	/**
 	* Constructor
 	*
@@ -49,7 +39,7 @@ class Designs_Folder extends Folder
 	function create(&$link)
 	{
 
-		$this->_in_create = true;
+		$this->_tmp[__CLASS__.'_in_create'] = true;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -65,7 +55,7 @@ class Designs_Folder extends Folder
 		$this->setAttrValue('name', 'System Designs');
 
 		$ret_val = parent::create($link);
-		$this->_in_create = false;
+		unset($this->_tmp[__CLASS__.'_in_create']);
 		return $ret_val;
 
 	}//end create()
@@ -120,7 +110,7 @@ class Designs_Folder extends Folder
 	*/
 	function setAttrValue($name, $value, $dont_run_updated=false)
 	{
-		if ($name == 'name' && !$this->_in_create) {
+		if ($name == 'name' && empty($this->_tmp[__CLASS__.'_in_create'])) {
 			trigger_error('You are not able to alter the name for the designs folder', E_USER_WARNING);
 			return false;
 		}

@@ -15,16 +15,6 @@ require_once SQ_CORE_PACKAGE_PATH.'/users/user_group/user_group.inc';
 */
 class System_User_Group extends User_Group
 {
-
-	/**
-	* Indicates whether we are currently in create() or not
-	*
-	* @see setAttrValue()
-	* @var boolean
-	*/
-	var $_in_create = false;
-
-
 	/**
 	* Constructor
 	*
@@ -48,7 +38,7 @@ class System_User_Group extends User_Group
 	*/
 	function create(&$link)
 	{
-		$this->_in_create = true;
+		$this->_tmp[__CLASS__.'_in_create'] = true;
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
@@ -63,7 +53,7 @@ class System_User_Group extends User_Group
 		
 		$this->setAttrValue('name', 'System Administrators'); 
 		$ret_val = parent::create($link);
-		$this->_in_create = false;
+		$this->_tmp[__CLASS__.'_in_create'] = false;
 		return $ret_val;
 
 	}//end create()
@@ -116,7 +106,7 @@ class System_User_Group extends User_Group
 	function setAttrValue($name, $value, $dont_run_updated=false)
 	{
 
-		if ($name == 'name' && !$this->_in_create) {
+		if ($name == 'name' && empty($this->_tmp[__CLASS__.'_in_create'])) {
 			trigger_error('You are not able to alter the name for the System Administrators User Group', E_USER_WARNING);
 			return false;
 		}

@@ -38,9 +38,6 @@ class Login_Design extends Design
 	*/
 	function create(&$link)
 	{
-
-		$this->_in_create = true;
-
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		$sql = 'SELECT count(*) FROM sq_asset WHERE type_code = '.$db->quote($this->type());
@@ -57,7 +54,6 @@ class Login_Design extends Design
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$linkid = parent::create($link);
-		$this->_in_create = false;
 		if ($linkid && $this->restoreLoginDesign()) {
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
 			return $linkid;
