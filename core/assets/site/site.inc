@@ -19,10 +19,10 @@ class Site extends Folder
 	/**
 	* Constructor
 	*
-	* @param int    $assetid      the asset id to be loaded
+	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Site($assetid=0) 
+	function Site($assetid=0)
 	{
 		$this->Folder($assetid);
 	}
@@ -33,7 +33,7 @@ class Site extends Folder
 	*
 	* @see Asset::updateLookups()
 	*/
-	function getWebPaths($url=false) 
+	function getWebPaths($url=false)
 	{
 		// because we never have paths, we can only return the urls
 		return Array();
@@ -49,7 +49,7 @@ class Site extends Folder
 	* @access public
 	* @see Asset::updateLookups()
 	*/
-	function addWebPath($url) 
+	function addWebPath($url)
 	{
 		return false;
 	}// end addWebPath()
@@ -64,7 +64,7 @@ class Site extends Folder
 	* @access public
 	* @see Asset::updateLookups()
 	*/
-	function deleteWebPath($url) 
+	function deleteWebPath($url)
 	{
 		return false;
 	}// end deleteWebPath()
@@ -78,7 +78,7 @@ class Site extends Folder
 	* @return Array()
 	* @access public
 	*/
-	function getSiteURLs() 
+	function getSiteURLs()
 	{
 		if (!isset($this->_tmp['urls_info'])) {
 			$sql = 'SELECT urlid, url, http, https
@@ -109,7 +109,7 @@ class Site extends Folder
 	* @return boolean
 	* @access public
 	*/
-	function saveWebURLs($save_urls) 
+	function saveWebURLs($save_urls)
 	{
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -174,9 +174,9 @@ class Site extends Folder
 				$sql = 'INSERT INTO sq_asset_url
 						(urlid, assetid, url, http, https)
 						VALUES
-						('.$db->quote($curr_urlid).', '.$db->quote($this->id).', 
-						'.$db->quote($save_urls[$save_urlid]['url']).', 
-						'.$db->quote($save_urls[$save_urlid]['http']).', 
+						('.$db->quote($curr_urlid).', '.$db->quote($this->id).',
+						'.$db->quote($save_urls[$save_urlid]['url']).',
+						'.$db->quote($save_urls[$save_urlid]['http']).',
 						'.$db->quote($save_urls[$save_urlid]['https']).')';
 				$result = $db->query($sql);
 				if (DB::isError($result)) {
@@ -231,7 +231,7 @@ class Site extends Folder
 	* @access private
 	* @see Asset::_updateLookups(), Asset::updateLookups(), Asset::saveWebPaths()
 	*/
-	function _updateLookups() 
+	function _updateLookups()
 	{
 		require_once SQ_FUDGE_PATH.'/db_extras/db_extras.inc';
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
@@ -261,9 +261,9 @@ class Site extends Folder
 			$sql = 'INSERT INTO sq_asset_lookup
 					(url, assetid, root_urlid, designid, login_designid)
 					VALUES
-					('.$db->quote($urls[$urlid]['url']).', 
-					'.$db->quote($this->id).', 
-					'.$db->quote($urlid).', 
+					('.$db->quote($urls[$urlid]['url']).',
+					'.$db->quote($this->id).',
+					'.$db->quote($urlid).',
 					'.$db->quote($designid).',
 					'.$db->quote($login_designid).')';
 			$result = $db->query($sql);
@@ -304,7 +304,7 @@ class Site extends Folder
 				if (!$this->_updateLookups()) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
-				} 
+				}
 			}
 
 			$GLOBALS['SQ_SYSTEM']->doTransaction('COMMIT');
@@ -344,9 +344,9 @@ class Site extends Folder
 	function getSpecialPageLink($page)
 	{
 		switch($page) {
-			case 'index' : 
-			case 'not_found' : 
-			case 'forbidden' : 
+			case 'index' :
+			case 'not_found' :
+			case 'forbidden' :
 				return $this->getLink(SQ_LINK_TYPE_3, '', true, $page);
 				break;
 
