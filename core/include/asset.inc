@@ -1554,7 +1554,7 @@ class Asset extends Resolve_Object
 
 		}// end if
 
-	}//end cast()
+	}//end morph()
 
 
 	/**
@@ -1594,13 +1594,14 @@ class Asset extends Resolve_Object
 	/**
 	* Aquires a lock on this asset and its dependant assets
 	*
-	* @param int	$source		the id of the asset that started this locking process
-	* @param string	$expires	when the lock expires
+	* @param int		$source		the id of the asset that started this locking process
+	* @param boolean	$force		attempt to forcibly aquire (if allowed)
+	* @param string		$expires	when the lock expires
 	*
 	* @return boolean
 	* @access public
 	*/
-	function aquireLock($source=0, $expires='')
+	function aquireLock($source=0, $force=false, $expires=null)
 	{
 		$current_lock = $this->getLockInfo();
 
@@ -1613,7 +1614,7 @@ class Asset extends Resolve_Object
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
-		if($this->canForceablyAquireLock()) {
+		if($force && $this->canForceablyAquireLock()) {
 			// special case where the current user is actually
 			// removing the current lock and taking it for themselves
 			$sql = 'SELECT assetid FROM sq_asset_lock
@@ -1643,18 +1644,24 @@ class Asset extends Resolve_Object
 
 			// refresh the lock info
 			$current_lock = $this->getLockInfo();
-		}
+
+		}// end if
 
 		// is this asset already locked
 		if (!empty($current_lock)) {
 			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
-			trigger_error('Can not aquire lock on "'.$this->name.'", lock already held by "'.$user->name.'"', E_USER_WARNING);
+
+			require_once SQ_FUDGE_PATH.'/general/datetime.inc';
+			$expires_in = easy_time_total(($current_lock['expires'] - time()), true);
+			if (!$expires_in) $expires_in = '1 second';
+
+			trigger_error('Cannot aquire lock on "'.$this->name.'", lock already held by "'.$user->name.'"', E_USER_WARNING);
 			return false;
 		}
 
 		// if we have no source, we are the asset aquiring the locks
-		if (!$source) $source = $this->id;
-		if (empty($expires)) $expires = ts_iso8601((time() + (SQ_CONF_LOCK_LENGTH * 60)));
+		if (empty($source)) $source = $this->id;
+		$expires = (is_null($expires)) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -1664,7 +1671,7 @@ class Asset extends Resolve_Object
 			$am = &$GLOBALS['SQ_SYSTEM']->am;
 			foreach ($dependant_links as $link) {
 				$asset = &$am->getAsset($link['minorid']);
-				if (!$asset->aquireLock($source, $expires)) {
+				if (!$asset->aquireLock($source, $force, $expires)) {
 					$GLOBALS['SQ_SYSTEM']->doTransaction('ROLLBACK');
 					return false;
 				}
@@ -1677,7 +1684,7 @@ class Asset extends Resolve_Object
 				VALUES
 				('.$db->quote($this->id).', '.$db->quote($source).',
 				 '.$db->quote($GLOBALS['SQ_SYSTEM']->currentUserid()).',
-				 '.$db->quote($expires).')';
+				 '.$db->quote(ts_iso8601($expires)).')';
 
 		$result = $db->query($sql);
 		if (DB::isError($result)) {
@@ -1702,6 +1709,13 @@ class Asset extends Resolve_Object
 	{
 		$current_lock = $this->getLockInfo(false);
 		if (empty($current_lock)) return true;
+
+		// is this asset already locked by someone else and we can't forceably aquire it, piss off
+		if ((int) $current_lock['userid'] != $GLOBALS['SQ_SYSTEM']->currentUserid() && !$this->canForceablyAquireLock()) {
+			$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($current_lock['userid']);
+			trigger_error('You cannot release a lock that you do not own, the lock on "'.$this->name.'" is held by "'.$user->name.'"', E_USER_WARNING);
+			return false;
+		}
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
@@ -1730,18 +1744,18 @@ class Asset extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function updateLock($expires='')
+	function updateLock($expires=null)
 	{
 		$current_lock = $this->getLockInfo();
 		if (empty($current_lock)) return true;
 
-		if (empty($expires)) $expires = ts_iso8601((time() + (SQ_CONF_LOCK_LENGTH * 60)));
+		$expires = (is_null($expires)) ? (time() + SQ_CONF_LOCK_LENGTH) : (int) $expires;
 
 		$GLOBALS['SQ_SYSTEM']->doTransaction('BEGIN');
 
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 		$sql = 'UPDATE sq_asset_lock
-				SET expires = '.$db->quote($expires).'
+				SET expires = '.$db->quote(ts_iso8601($expires)).'
 				WHERE source_asset = '.$db->quote($current_lock['source_asset']);
 
 		$result = $db->query($sql);
@@ -1770,7 +1784,8 @@ class Asset extends Resolve_Object
 		$db = &$GLOBALS['SQ_SYSTEM']->db;
 
 		// just get the permissions set for this asset
-		$sql = 'SELECT * FROM sq_asset_lock
+		$sql = 'SELECT assetid, source_asset, userid, expires
+				FROM sq_asset_lock
 				WHERE assetid = '.$db->quote($this->id);
 
 		$result = $db->getRow($sql);
@@ -1779,13 +1794,11 @@ class Asset extends Resolve_Object
 			return Array();
 		}
 
-		if ($check_expires) {
-			if (!empty($result)) {
-				$result['expires'] = iso8601_ts($result['expires']);
-				if ($result['expires'] < time()) {
-					// this lock has expired
-					if ($this->cleanupLocks()) return Array();
-				}
+		if (!empty($result)) {
+			$result['expires'] = iso8601_ts($result['expires']);
+			if ($check_expires && !empty($result) && $result['expires'] < time()) {
+				// this lock has expired
+				if ($this->cleanupLocks()) return Array();
 			}
 		}
 

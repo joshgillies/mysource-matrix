@@ -227,7 +227,8 @@ class Asset_Edit_Interface extends Resolve_Object
 						if ($owner->liveEditAccess()) {
 							echo '<p class="sq-form-field">You can forceably aquire this lock, which will remove the lock from "'.$user->name.'" and give the lock to yourself. Any changes currently being made by "'.$user->name.'" will be lost if this lock is forceably aquired.</p>';
 
-							submit_button('aquire_lock', 'Aquire Lock');
+							hidden_field('sq_aquire_by_force', '1');
+							submit_button('sq_aquire_lock', 'Aquire Lock');
 						} else {
 							echo '<p class="sq-form-field">You cannot forceably aquire this lock at this time due as you do not have access to live edit "'.$owner->name.'".</p>';
 						}
@@ -235,6 +236,7 @@ class Asset_Edit_Interface extends Resolve_Object
 				}
 			} else if ($full_write_access) {
 				$write_access = false;
+				hidden_field('sq_aquire_by_force', '0');
 				submit_button('sq_aquire_lock', 'Aquire Lock');
 			} else {
 				echo 'You do not have access to edit "'.$owner->name.'".';
