@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: mysource.inc,v 1.77 2005/02/25 04:45:51 gsherwood Exp $
+* $Id: mysource.inc,v 1.78 2005/03/01 00:32:28 arailean Exp $
 *
 */
 
@@ -34,7 +34,7 @@ require_once SQ_INCLUDE_PATH.'/asset_manager.inc';
 *    This is the object from which everything else is run
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Revision: 1.77 $
+* @version $Revision: 1.78 $
 * @package MySource_Matrix
 */
 class MySource
@@ -188,14 +188,14 @@ class MySource
 			$domain = strip_url(sq_web_path('root_url'), true);
 			$pos = strpos($domain, '/');
 			$path = '/';
-			
+
 			if ($pos !== false) {
 				$path = substr($domain, $pos);
 				$domain = substr($domain, 0, $pos);
 			}
-			
+
 			session_set_cookie_params(0, $path, $domain);
-			
+
 			session_name('SQ_SYSTEM_SESSION');
 			session_save_path(SQ_SYSTEM_ROOT.'/cache');
 
@@ -995,8 +995,9 @@ class MySource
 	*/
 	function &getTriggerManager()
 	{
-		if (!isset($this->trigger_manager) || get_class($this->trigger_manager) != 'trigger_manager') {
-			$this->trigger_manager = &$this->am->getSystemAsset('trigger_manager');
+		$am = &$this->am;
+		if (!isset($this->trigger_manager) || ($am->installed('trigger_manager') && get_class($this->trigger_manager) != 'trigger_manager')) {
+			$this->trigger_manager = &$am->getSystemAsset('trigger_manager');
 		}
 
 		return $this->trigger_manager;
@@ -1406,15 +1407,15 @@ class MySource
 	* Constructs and executes an insert query and then adds rollback entries for the rows
 	* that were just inserted
 	*
-	* @param string	$table_name		the base name of the table (without prefixes)
+	* @param string  $table_name	the base name of the table (without prefixes)
 	*								eg. asset, workflow etc
-	* @param array	$insert_values	an array in form column => value
-	*								NOTE: new values should NOT be quoted outside (ie. $db->quote())
+	* @param array   $insert_values	an array in form column => value
 	*
+	* @param boolean $is_escaped	an optional flag which shows if the values are already escaped
 	* @return boolean
 	* @access public
 	*/
-	function rollbackInsert($table_name, $insert_values)
+	function rollbackInsert($table_name, $insert_values, $is_escaped=false)
 	{
 		// if we are in rollback view, pretend we did our job but really just slack off
 		if (SQ_ROLLBACK_VIEW) return true;
@@ -1437,10 +1438,15 @@ class MySource
 		// generate the WHERE clause based on primary key fields
 		foreach ($insert_values as $column => $value) {
 			$col_string .= $column.', ';
-			$val_string .= $this->db->quote($value).', ';
+			if (!$is_escaped) {
+				$value = $this->db->quoteSmart($value);
+			}
+			$val_string .= $value.', ';
 			if (in_array($column, $primary_cols)) {
-				if (!empty($where_cond)) $where_cond .= ' AND ';
-				$where_cond .= $column.' = '.$this->db->quote($value);
+				if (!empty($where_cond)){
+					$where_cond .= ' AND ';
+				}
+				$where_cond .= $column.' = '.$value;
 			}
 		}
 		$col_string = trim($col_string, ', ');
