@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: hipo_backend_outputter.inc,v 1.1 2003/10/28 23:21:54 mmcintyre Exp $
+* $Id: hipo_backend_outputter.inc,v 1.2 2003/10/30 22:30:29 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -59,7 +59,7 @@ class Hipo_Backend_Outputter extends Backend_Outputter
 			<title><?php echo $this->_heading; ?></title>
 			<?php
 
-			$this->_paintCssInclude($this->filesPath('css/edit.css'));
+			$this->_paintCssInclude($this->filesPath('css/hipo.css'));
 			foreach($this->_css_includes as $file) $this->_paintCssInclude($file);
 
 			$this->_paintJsInclude(sq_web_path('lib').'/html_form/html_form.js');
