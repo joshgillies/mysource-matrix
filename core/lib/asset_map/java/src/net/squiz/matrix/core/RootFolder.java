@@ -11,7 +11,7 @@ public class RootFolder extends Asset {
 	public RootFolder(Element assetElement) {
 		super(assetElement.getAttribute("assetid"));
 		String linkid = processAssetXML(assetElement, true);
-		rootNode = new MatrixTreeNode(this, linkid, null, null);
+		rootNode = new MatrixTreeNode(this, linkid, getLinkType(assetElement), null, null);
 		nodes.add(rootNode);
 	}
 	
