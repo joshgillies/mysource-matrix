@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: www.inc,v 1.10 2004/09/01 01:38:40 arailean Exp $
+* $Id: www.inc,v 1.10.2.1 2004/12/03 03:14:14 arailean Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -30,7 +30,7 @@
 *     Any Functions for dealing with the web, it's paths etc
 *
 * @author  Blair Robertson <blair@squiz.net>
-* @version $Version$ - 1.0
+* @version $Revision: 1.10.2.1 $
 * @package Fudge
 * @subpackage General
 */
@@ -67,9 +67,9 @@ function relative_href($from,$to)
 	}
 
 	// Start from the second directory and find the place where the urls start to vary
-	$split_point = 3; 
-	while(!empty($from_bits[$split_point]) 
-			&& !empty($to_bits[$split_point]) 
+	$split_point = 3;
+	while(!empty($from_bits[$split_point])
+			&& !empty($to_bits[$split_point])
 			&& $from_bits[$split_point] == $to_bits[$split_point]) {
 		$split_point++;
 	}
@@ -84,7 +84,7 @@ function relative_href($from,$to)
 	if (substr($to, -1) == '/')	$href = preg_replace('/\\/+$/', '/', $href);
 	else						$href = preg_replace('/\\/$/', '', $href);
 
-	// No remove any bit where we go back a directory then forward again to the 
+	// No remove any bit where we go back a directory then forward again to the
 	// same last common directory
 	return str_replace('../'.$from_bits[$split_point - 1].'/', '', $href);
 
@@ -102,7 +102,7 @@ function relative_href($from,$to)
 function valid_email($e)
 {
 	return preg_match("|^[_\.0-9a-zA-Z-]+@([0-9a-zA-Z]([0-9A-Za-z-]*)+\.)+[a-zA-Z]{2,4}$|",$e);
-	
+
 }//end valid_email()
 
 
@@ -158,5 +158,25 @@ function recursive_make_raw_post_data($name, $data)
 
 }//end recursive_make_raw_post_data()
 
+
+/**
+* Undo the effect of htmlspecialchars
+*
+* @param string $string	string containing html special characters
+*
+* @access public
+* @return string
+*/
+function undo_htmlspecialchars($string)
+{
+	$string = str_replace('&amp;','&',$string);
+	$string = str_replace('&#039;',"'",$string);
+	$string = str_replace('&quot;','"',$string);
+	$string = str_replace('&lt;','<',$string);
+	$string = str_replace('&gt;','>',$string);
+
+	return $string;
+
+}//end undo_htmlspecialchars()
 
 ?>
