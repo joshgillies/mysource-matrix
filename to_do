@@ -13,11 +13,9 @@
   - Flash Asset Tree
 
   - Attribute Types
-    - In Asset have diff update case for diff types of attr
+    - In Asset have a diff update case for diff types of attr
 
   - Unique Usernames (or attr values in general) across system
-
-  - URLs (System) Folder / Site Asset
 
   - Designs
     - Global Stylesheets / Inheriting Designs ?
