@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: hipo_job_edit_permissions.inc,v 1.37 2005/02/22 06:37:34 ndvries Exp $
+* $Id: hipo_job_edit_permissions.inc,v 1.38 2005/02/22 23:01:17 mmcintyre Exp $
 *
 */
 
@@ -44,7 +44,7 @@ require_once SQ_SYSTEM_ROOT.'/core/hipo/hipo_job.inc';
 * </pre>
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 * @subpackage HIPO
 */
@@ -358,13 +358,13 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	function getLockAssetDetails(&$job_type, &$running_vars, &$options)
 	{
 		$job_type = 'hipo_job_acquire_locks';
-
 		$options['auto_complete'] = true;
-
+		
 		$running_vars = Array(
-							'assetids' => array_keys($this->_running_vars['assets']),
-							'lock_type' => Array('permissions'),
+							'assetids'          => array_keys($this->_running_vars['assets']),
+							'lock_type'         => Array('permissions'),
 							'forceably_acquire' => false,
+							'dependants_only'   => false,
 						);
 	}//end getLockAssetDetails()
 
