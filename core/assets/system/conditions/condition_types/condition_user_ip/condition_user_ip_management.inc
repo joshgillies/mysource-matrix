@@ -18,79 +18,35 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_write_access.inc,v 1.6 2005/02/22 22:03:02 lwright Exp $
+* $Id: condition_user_ip_management.inc,v 1.1 2005/02/22 22:03:02 lwright Exp $
 *
 */
 
-require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
+require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 
 /**
-* Condition_Write_Access
+* Condition_User_IP_Management
 *
-* Purpose
-*     This conditional checks to see if the currently logged in user has write
-*     access to the current asset
+* @see Asset_Management
 *
-*
-* @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @author  Greg Sherwood <greg@squiz.net>
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Condition_Write_Access extends Condition
+class Condition_User_IP_Management extends Asset_Management
 {
+
 
 	/**
 	* Constructor
 	*
-	* @param int	$assetid	the asset id to be loaded
-	*
 	*/
-	function Condition_Write_Access($assetid=0)
+	function Condition_User_IP_Management(&$pm)
 	{
-		$this->Condition($assetid);
+		$this->Asset_Management($pm);
 
 	}//end constructor
-
-
-	/**
-	* Get list of match options
-	*
-	* @return Array
-	* @access public
-	*/
-	function getOptions()
-	{
-		$options = Array(
-					   '1' => 'Has Write Access',
-					   '0' => 'Does Not Have Write Access',
-					   );
-		
-		return $options;
-		
-	}//end getOptions()
-
-
-	/**
-	* Evaluate this condition
-	*
-	* @param object Asset	&$asset	the asset to evaluate against
-	*
-	* @return boolean
-	* @access public
-	*/
-	function evaluate(&$asset)
-	{
-		// first, check if someone's logged in
-		if ($GLOBALS['SQ_SYSTEM']->userPublic()) return false;
-
-		// next, check to see if the currently logged in user
-		// has write access
-		if (!$asset->writeAccess('')) return false;
-
-		return true;
-
-	}//end evaluate()
 
 
 }//end class

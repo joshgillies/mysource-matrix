@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_simple_edit_mode.inc,v 1.3 2004/12/06 14:38:10 brobertson Exp $
+* $Id: condition_simple_edit_mode.inc,v 1.4 2005/02/22 22:03:02 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,6 +52,24 @@ class Condition_Simple_Edit_Mode extends Condition
 	}//end constructor
 
 
+	/**
+	* Get list of match options
+	*
+	* @return Array
+	* @access public
+	*/
+	function getOptions()
+	{
+		$options = Array(
+					   '1' => 'In Simple Edit Mode',
+					   '0' => 'Not In Simple Edit Mode',
+					   );
+		
+		return $options;
+		
+	}//end getOptions()
+
+	
 	/**
 	* Evaluate this condition
 	*

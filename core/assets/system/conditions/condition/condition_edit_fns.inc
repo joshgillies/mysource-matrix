@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_edit_fns.inc,v 1.3 2004/12/06 14:38:10 brobertson Exp $
+* $Id: condition_edit_fns.inc,v 1.4 2005/02/22 22:03:02 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/asset_edit/asset_edit_fns.inc';
 * @see Asset_Edit_Fns
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -50,7 +50,33 @@ class Condition_Edit_Fns extends Asset_Edit_Fns
 		$this->Asset_Edit_Fns();
 
 	}//end constructor
+	
+	
+	/**
+	* Paint the backend editing interface for this condition
+	*
+	* @return void
+	* @access public
+	*/
+	function paintEditInterface(&$condition_data, &$o, $prefix)
+	{
+		
+	}//end paintEditInterface()
 
+	
+	/**
+	* Process the backend editing interface for this condition
+	*
+	* @return Array
+	* @access public
+	*/
+	function processEditInterface(&$condition_data, &$o, $prefix)
+	{
+		return Array();
+		
+	}//end processEditInterface()
+
+	
 }//end class
 
 ?>

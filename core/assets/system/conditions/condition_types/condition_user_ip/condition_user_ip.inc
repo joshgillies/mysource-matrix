@@ -18,27 +18,29 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_write_access.inc,v 1.6 2005/02/22 22:03:02 lwright Exp $
+* $Id: condition_user_ip.inc,v 1.1 2005/02/22 22:03:02 lwright Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 
 /**
-* Condition_Write_Access
+* Condition_User_IP
 *
 * Purpose
-*     This conditional checks to see if the currently logged in user has write
-*     access to the current asset
+*     This condition compares the IP address of the current visitor against a
+*     specified comparison address
 *
 *
-* @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.6 $
+* @author  Luke Wright <lwright@squiz.net>
+* @author  David Heppell <dheppell@squiz.net>
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Condition_Write_Access extends Condition
+class Condition_User_IP extends Condition
 {
+
 
 	/**
 	* Constructor
@@ -46,13 +48,13 @@ class Condition_Write_Access extends Condition
 	* @param int	$assetid	the asset id to be loaded
 	*
 	*/
-	function Condition_Write_Access($assetid=0)
+	function Condition_User_IP($assetid=0)
 	{
 		$this->Condition($assetid);
 
 	}//end constructor
-
-
+	
+	
 	/**
 	* Get list of match options
 	*
@@ -62,8 +64,8 @@ class Condition_Write_Access extends Condition
 	function getOptions()
 	{
 		$options = Array(
-					   '1' => 'Has Write Access',
-					   '0' => 'Does Not Have Write Access',
+					   '1' => 'Matches',
+					   '0' => 'Does Not Match',
 					   );
 		
 		return $options;
@@ -74,21 +76,19 @@ class Condition_Write_Access extends Condition
 	/**
 	* Evaluate this condition
 	*
-	* @param object Asset	&$asset	the asset to evaluate against
-	*
 	* @return boolean
 	* @access public
 	*/
-	function evaluate(&$asset)
+	function evaluate($asset, $condition_data)
 	{
-		// first, check if someone's logged in
-		if ($GLOBALS['SQ_SYSTEM']->userPublic()) return false;
-
-		// next, check to see if the currently logged in user
-		// has write access
-		if (!$asset->writeAccess('')) return false;
-
-		return true;
+		if (!isset($condition_data['user_ip'])) return false;
+		
+		// replace '*' with 'match between 1 and 3 digits'
+		//$condition_data['user_ip'] = '/'.preg_replace(array('/\*/', '/\./'), array('\d{1,3}', '\\\.'), $condition_data['user_ip']).'/';
+		$condition_data['user_ip'] = preg_replace(array('/\*/', '/\./'), array('\d{1,3}', '\\\.'), $condition_data['user_ip']);
+		$matches = preg_match('|'.$condition_data['user_ip'].'|i', $_SERVER['REMOTE_ADDR']);
+		
+		return ($matches > 0);
 
 	}//end evaluate()
 

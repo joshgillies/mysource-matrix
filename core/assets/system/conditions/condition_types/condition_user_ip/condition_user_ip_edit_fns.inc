@@ -19,36 +19,38 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_admin_access_edit_fns.inc,v 1.4 2005/02/22 22:03:02 lwright Exp $
+* $Id: condition_user_ip_edit_fns.inc,v 1.1 2005/02/22 22:03:02 lwright Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_fns.inc';
 
 /**
-* Condition_Write_Access_Edit_Fns
+* Condition_User_IP_Edit_Fns
 *
-* Edit functions for the admin access conditional
+* Edit functions for the user IP condition
 *
 * @see Asset_Edit_Fns
 *
-* @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.4 $
+* @author  Luke Wright <lwright@squiz.net>
+* @author  David Heppell <dheppell@squiz.net>
+* @version $Revision: 1.1 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
-class Condition_Admin_Access_Edit_Fns extends Condition_Edit_Fns
+class Condition_User_IP_Edit_Fns extends Condition_Edit_Fns
 {
+
 
 	/**
 	* Constructor
 	*
 	* @see Asset_Edit_Fns::Asset_Edit_Fns
 	*/
-	function Condition_Admin_Access_Edit_Fns()
+	function Condition_User_IP_Edit_Fns()
 	{
 		$this->Condition_Edit_Fns();
-		
+
 	}//end constructor
 	
 	
@@ -64,13 +66,18 @@ class Condition_Admin_Access_Edit_Fns extends Condition_Edit_Fns
 		
 		if (!$write_access) {
 			$o->openField('Condition Details');
-			echo 'User '.strtolower($options[$restriction['match']]);
+			echo 'User IP '.strtolower($options[$restriction['match']]).' pattern "'.$restriction['condition_data']['user_ip'].'"';
 			$o->closeField();
 		} else {
 			$o->openField('Match Condition');
 			combo_box($prefix.'[match]', $options, false, $restriction['match']);
 			$o->closeField();
+		
+			$o->openField('Compare to IP');
+			text_box($prefix.'[compare]', $restriction['condition_data']['user_ip'], 30);
+			$o->closeField();
 		}
+		$o->sectionNote('Insert an IP address in the Compare box. You can use an asterisk ("*") in place of a number to match all possible numbers within that octet.');
 		return true;
 		
 	}//end paintEditInterface()
@@ -88,14 +95,17 @@ class Condition_Admin_Access_Edit_Fns extends Condition_Edit_Fns
 		// as found in the post data, array required consists of
 		// 'match' and 'condition_data'
 		$results = Array(
-			'match' => $_POST[$prefix]['match'],
+			'condition_data' => Array(
+				'user_ip' => $_POST[$prefix]['compare'],
+			),
+				'match' => $_POST[$prefix]['match'],
 		);
 		
 		return $results;
 		
 	}//end processEditInterface()
-	
-	
+
+
 }//end class
 
 ?>

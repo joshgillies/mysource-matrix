@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition.inc,v 1.3 2004/12/06 14:38:09 brobertson Exp $
+* $Id: condition.inc,v 1.4 2005/02/22 22:03:02 lwright Exp $
 *
 */
 
@@ -31,7 +31,7 @@ require_once SQ_INCLUDE_PATH.'/asset.inc';
 *
 *
 * @author  Avi Miller <avi.miller@squiz.net>
-* @version $Revision: 1.3 $
+* @version $Revision: 1.4 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -51,8 +51,18 @@ class Condition extends Asset
 	}//end constructor
 
 
+	function getOperators()
+	{
+		return Array(
+						'1' => 'Matches',
+						'0' => 'Does Not Match',
+					);
+		
+	}//end getOperators()
+	
+	
 	/**
-	* Evaluate this condition - needs to be over-riden by the conditions themselves.
+	* Evaluate this condition - needs to be overriden by the conditions themselves
 	*
 	* @return boolean
 	* @access public
@@ -62,6 +72,7 @@ class Condition extends Asset
 		return false;
 
 	}//end evaluate()
+	
 
 }//end class
 

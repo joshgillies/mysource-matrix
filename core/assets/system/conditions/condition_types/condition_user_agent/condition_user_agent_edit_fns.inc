@@ -19,7 +19,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_agent_edit_fns.inc,v 1.1 2005/01/11 03:45:23 gsherwood Exp $
+* $Id: condition_user_agent_edit_fns.inc,v 1.2 2005/02/22 22:03:02 lwright Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition_edit_f
 * @see Asset_Edit_Fns
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,6 +52,58 @@ class Condition_User_Agent_Edit_Fns extends Condition_Edit_Fns
 
 	}//end constructor
 
+	
+	/**
+	* Paint the backend editing interface for this condition
+	*
+	* @return void
+	* @access public
+	*/
+	function paintEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
+	{
+		$options = $asset->getOptions();
+		
+		if (!$write_access) {
+			$o->openField('Condition Details');
+			echo 'User agent '.strtolower($options[$restriction['match']]).' pattern "'.array_get_index($restriction['condition_data'], 'user_agent', '').'"';
+			$o->closeField();
+		} else {
+			$o->openField('Match Condition');
+			combo_box($prefix.'[match]', $options, false, $restriction['match']);
+			$o->closeField();
+		
+			$o->openField('Compare to User Agent');
+			text_box($prefix.'[compare]', array_get_index($restriction['condition_data'], 'user_agent', ''), 30);
+			$o->closeField();
+		}
+		$o->sectionNote('This condition matches using a regular expression. You can enter a simple string (eg. "MSIE") to match that in any part of the user agent. Or, you can use a more advanced pattern.');
+		return true;
+		
+	}//end paintEditInterface()
+
+	
+	/**
+	* Process the backend editing interface for this condition
+	*
+	* @return Array 
+	* @access public
+	*/
+	function processEditInterface(&$asset, &$o, $prefix, &$restriction, $write_access)
+	{
+		// construct and return data required by this condition
+		// as found in the post data, array required consists of
+		// 'match' and 'condition_data'
+		$results = Array(
+			'condition_data' => Array(
+				'user_agent' => $_POST[$prefix]['compare'],
+			),
+				'match' => $_POST[$prefix]['match'],
+		);
+		
+		return $results;
+		
+	}//end processEditInterface()
+	
 
 }//end class
 

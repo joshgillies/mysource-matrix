@@ -18,20 +18,22 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: condition_user_agent.inc,v 1.1 2005/01/11 03:45:23 gsherwood Exp $
+* $Id: condition_user_agent.inc,v 1.2 2005/02/22 22:03:02 lwright Exp $
 *
 */
 
 require_once SQ_CORE_PACKAGE_PATH.'/system/conditions/condition/condition.inc';
 
 /**
-* User Agent Condition
+* Condition_User_Agent
 *
-* This conditional compares the user agent string
+* Purpose
+*     This condition compares the user agent string against a specified
+*     regular expression
 *
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -52,6 +54,23 @@ class Condition_User_Agent extends Condition
 	}//end constructor
 
 
+	/**
+	* Get list of match options
+	*
+	* @return Array
+	* @access public
+	*/
+	function getOptions()
+	{
+		$options = Array(
+					   '1' => 'Matches',
+					   '0' => 'Does Not Match',
+					   );
+		
+		return $options;
+	}
+	
+	
 	/**
 	* Evaluate this condition
 	*
