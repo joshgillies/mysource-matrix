@@ -65,13 +65,14 @@ class Design_Area_Colourise_Image extends Design_Area
 	*
 	* @param object Design	$design the design for which we are currently printing
 	*
+	* @return boolean
 	* @access public
 	*/
 	function printArea(&$design) 
 	{
 		$edit_fns = $this->getEditFns();
 		$image = $edit_fns->createImage($this, $design);
-		if (!$image) return;
+		if (!$image) return false;
 
 		$image = $this->type().'/'.$this->id.'/'.$image;
 
@@ -81,9 +82,10 @@ class Design_Area_Colourise_Image extends Design_Area
 
 		// else print out a full tag
 		} else {
-			echo '<img src="<', '?php echo $DATA_PATH; ?>/', $image, '" ', $this->attr('extra'), '>';
-
+			echo '<img src="<', '?php echo $DATA_PATH; ?', '>/', $image, '" ', $this->attr('extra'), '>';
 		}
+
+		return true;
 
 	}//end printArea()
 

@@ -37,10 +37,12 @@ class Design_Area_Declared_Vars extends Design_Area
 	*
 	* @param object Design	$design the design for which we are currently printing
 	*
+	* @return boolean
 	* @access public
 	*/
 	function printArea(&$design) 
 	{
+		return true;
 	}//end printArea()
 
 	/*

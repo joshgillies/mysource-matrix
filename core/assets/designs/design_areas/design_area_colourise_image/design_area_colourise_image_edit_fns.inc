@@ -93,12 +93,13 @@ class Design_Area_Colourise_Image_Edit_Fns extends Design_Area_Edit_Fns
 
 
 	/**
-	* Returns an array of vars that are setable 
+	* Returns an array of vars that are setable, used to create the parseString
 	*
 	* @param object Asset	$asset	the asset whose interface we are painting
 	*
 	* @return Array
 	* @access public
+	* @see Design_Area_Edit_Fns::createParseString()
 	*/
 	function _getSetableVars(&$asset)
 	{

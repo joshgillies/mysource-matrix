@@ -74,7 +74,7 @@ class Design_Area extends Asset
 	* @return boolean
 	* @access public
 	*/
-	function processBackend() 
+	function processBackend()
 	{
 		$this->_tmp['regenerate_design'] = false;
 		$processed = parent::processBackend();
@@ -90,14 +90,13 @@ class Design_Area extends Asset
 
 	}// end processBackend()
 
-
 	/**
 	* Returns all the designs that this design area is used in
 	*
 	* @return Design_Area | null
 	* @access public
 	*/
-	function &getDesigns() 
+	function &getDesigns()
 	{
 		$links = $this->getLinks(SQ_LINK_USES, 'design', false, 'minor');
 		$designs = Array();
@@ -127,11 +126,11 @@ class Design_Area extends Asset
 	* @return mixed
 	* @access public
 	*/
-	function attr($name) 
+	function attr($name)
 	{
 		if (isset($this->_tmp['var_reference_values'][$name])) {
 			return $this->_tmp['var_reference_values'][$name];
-		} else { 
+		} else {
 			return parent::attr($name);
 		}
 	}//end attr();
@@ -141,12 +140,13 @@ class Design_Area extends Asset
 	*
 	* @param object Design	$design the design for which we are currently printing
 	*
+	* @return boolean
 	* @access public
 	*/
-	function printArea(&$design) 
+	function printArea(&$design)
 	{
 		$edit_fns = $this->getEditFns();
-		$edit_fns->_createDesignFileOutput($this->attr('contents'), $this, $design);
+		return $edit_fns->_createDesignFileOutput($this->attr('contents'), $this, $design);
 	}//end printArea()
 
 	/**

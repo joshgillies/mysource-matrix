@@ -173,14 +173,14 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					// else we're missing a terminate tag, so die screaming
 					} else {
 
-						$die_str  = 'There is a missing </'.SQ_SYSTEM_SHORT_NAME.'> tag for this tag :';
-						$die_str .= "\n<".SQ_SYSTEM_SHORT_NAME;
+						$die_str  = 'There is a missing &lt;/'.SQ_SYSTEM_SHORT_NAME.'&gt; tag for this tag :';
+						$die_str .= "<br/>&lt;".SQ_SYSTEM_SHORT_NAME;
 
 						$die_str .= (empty($tag['operation'])) ? '' : '_'.$tag['operation'];
 
 						foreach($tag['attributes'] as $name => $value) $die_str .= ' '.$name.'="'.$value.'"';
 
-						$die_str .= ">\n";
+						$die_str .= "&gt;\n";
 
 						trigger_error($die_str, E_USER_WARNING);
 						return null;
@@ -532,30 +532,47 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	*/
 	function _createDesignFileOutput($contents, &$asset, &$design)
 	{
-		// firstly let's check to see if all the design areas have unique names
+		return $this->_outputContents($contents, $asset, $design);
+	}// end _createDesignFileOutput()
+
+	/**
+	* Outputs the PHP/HTML code that will hopefully form part of the creating the design file
+	*
+	* @param Array			$contents	the parse contents to use in the output
+	* @param object Asset	$asset		the asset to which we belong
+	* @param object Design	$design		the design object that is painting us
+	*
+	* @return boolean
+	* @access private
+	*/
+	function _outputContents($contents, &$asset, &$design)
+	{
+		// right, just loop over the contents and output each of the elements
 		foreach($contents as $index => $element) {
 
 			if ($element['_type'] == 'HTML') {
 				echo $element['contents'];
 			} else {
-				$this->_outputElement($element, $asset, $design);
+				if (!$this->_outputElement($element, $asset, $design)) return false;
 			}// end if
 
 		}// end foreach
 
 		return true;
 
-	}// end _createDesignFileOutput()
+	}// end _outputContents()
+
 
 	/**
-	* Used by _createDesignFileOutput() to deal with a print tag
+	* Used by _outputContents() to deal with a print tag
 	*
 	* @param array			$element	the print element tag
 	* @param object Asset	$asset		the asset to which we belong
 	* @param object Design	$design		the design object that is painting us
 	*
+	* @return boolean
 	* @access private
-	* @see _createDesignFileOutput()
+	* @see _outputContents()
 	*/
 	function _outputElement($element, &$asset, &$design)
 	{
@@ -564,7 +581,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 				// if there isn't a id_name we are using the current asset
 				if (empty($element['attributes']['id_name']) && empty($element['attributes']['var'])) {
 					trigger_error('Print tag found without id_name or var attributes, ignoring print operation', E_USER_WARNING);
-					return;
+					return false;
 				}
 
 				// if there isn't a id_name we are using the current asset
@@ -580,7 +597,7 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					$id_obj = &$design->getDesignArea($element['attributes']['id_name']);
 					if (is_null($id_obj)) {
 						trigger_error('Design Area "'.$element['attributes']['id_name'].'" not found, ignoring print operation', E_USER_WARNING);
-						return;
+						return false;
 					}
 				}
 
@@ -597,10 +614,12 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 					$id_obj->printVar($element['attributes']['var'], $args);
 				}// endif
 
-			break;
+				return true;
 
 			default :
 				trigger_error('Tag Operation "'.$element['operation'].'" unknown', E_USER_WARNING);
+				return false;
+
 		}// end switch
 
 	}// end _outputElement()
@@ -646,12 +665,13 @@ class Design_Area_Edit_Fns extends Asset_Edit_Fns
 	}// end createParseString()
 
 	/**
-	* Returns an array of vars that are setable 
+	* Returns an array of vars that are setable, used to create the parseString
 	*
 	* @param object Asset	$asset	the asset whose interface we are painting
 	*
 	* @return Array
 	* @access public
+	* @see createParseString()
 	*/
 	function _getSetableVars(&$asset)
 	{

@@ -19,11 +19,13 @@ class Design_Area_Body extends Design_Area
 	*
 	* @param object Design	$design the design for which we are currently printing
 	*
+	* @return boolean
 	* @access public
 	*/
 	function printArea(&$design) 
 	{
 		echo '<', '?php $ASSET->printBody(); ?', '>';
+		return true;
 	}//end printArea()
 
 }//end class
