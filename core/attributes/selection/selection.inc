@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: selection.inc,v 1.37 2005/02/18 04:01:56 tbarrett Exp $
+* $Id: selection.inc,v 1.38 2005/03/02 03:28:23 gsherwood Exp $
 *
 */
 
@@ -40,7 +40,7 @@ require_once SQ_INCLUDE_PATH.'/asset_attribute.inc';
 *   <selection style="boxes" columns="1" extras="" />
 *
 * @author  Greg Sherwood <greg@squiz.net>
-* @version $Revision: 1.37 $
+* @version $Revision: 1.38 $
 * @package MySource_Matrix
 * @subpackage attributes
 */
@@ -195,6 +195,7 @@ class Asset_Attribute_Selection extends Asset_Attribute
 		$values['height']     = $this->_edit_params['height'];
 		$values['columns']    = $this->_edit_params['columns'];
 		$values['empty_text'] = $this->_edit_params['empty_text'];
+		$values['extras']     = $this->_edit_params['extras'];
 
 		return $values;
 
