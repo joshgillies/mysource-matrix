@@ -2,7 +2,7 @@
 /**
 * Copyright (c) 2003 - Squiz Pty Ltd
 *
-* $Id: popup_editor.inc,v 1.7 2003/10/16 01:06:39 gsherwood Exp $
+* $Id: popup_editor.inc,v 1.8 2003/11/07 01:36:33 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -24,6 +24,7 @@ include_once($ROOT_PATH.'wysiwyg_plugin.inc');
 */
 class popup_editor extends wysiwyg_plugin {
 
+
 	/**
 	* Constructor
 	* Add popup editor button to the plugin
@@ -33,10 +34,12 @@ class popup_editor extends wysiwyg_plugin {
 	* @returns object Popup_Editor
 	* @access  public
 	*/
-	function popup_editor(&$wysiwyg) {
+	function popup_editor(&$wysiwyg)
+	{
 		wysiwyg_plugin::wysiwyg_plugin($wysiwyg);
 		$this->_add_button('popupeditor','popupeditor','Enlarge Editor','true','5');
-	}
+
+	}//end constructor
 
 
 	/**
@@ -45,13 +48,15 @@ class popup_editor extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function print_plugin_button_click() {
+	function print_plugin_button_click()
+	{
 		?>
 		case "popupeditor":
 			eval("this._popupEditor" + this._uniqueID + "();");
 		break;
 		<?php
-	}
+
+	}//end print_plugin_button_click()
 
 
 	/**
@@ -65,13 +70,13 @@ class popup_editor extends wysiwyg_plugin {
 	* @returns void
 	* @access  public
 	*/
-	function paint() {
-
+	function paint()
+	{
 		$query_string  = '?editor_name='.$this->wysiwyg->name;
 		$query_string .= '&editor_web_path='.rawurlencode('../../');
 		$query_string .= '&editor_php_self='.rawurlencode($_SERVER['PHP_SELF']);
 		$query_string .= '&editor_plugins=';
-		foreach ($this->wysiwyg->plugins as $name => $obj) {
+		foreach ($this->wysiwyg->_loaded_plugins as $name => $obj) {
 			if ($name == get_class($this)) continue;
 			$query_string .= $name.'|';
 		}
@@ -90,7 +95,8 @@ class popup_editor extends wysiwyg_plugin {
 			}
 		</script>
 		<?php
-	}
-}
+	}//end paint()
+
+}//end class
 
 ?>
