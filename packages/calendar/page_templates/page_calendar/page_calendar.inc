@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: page_calendar.inc,v 1.148 2005/03/15 00:54:57 tbarrett Exp $
+* $Id: page_calendar.inc,v 1.149 2005/03/22 03:37:32 tbarrett Exp $
 *
 */
 
@@ -38,7 +38,7 @@ require_once dirname(__FILE__).'/../../lib/calendar_common.inc';
 *
 * @author  Luke Wright <lwright@squiz.net>
 * @author  Tom Barrett <tbarrett@squiz.net>
-* @version $Revision: 1.148 $
+* @version $Revision: 1.149 $
 * @package MySource_Matrix_Packages
 * @subpackage calendar
 */
@@ -2052,8 +2052,8 @@ class Page_Calendar extends Page_Asset_Listing
 		$today_date_stamp = floor(strtotime($date.' 12:00:00 GMT')/86400);
 		$date_sql = '(('.$today_date_stamp.' = cd.start_date_ds) OR ('.$today_date_stamp.' BETWEEN cd.start_date_ds AND cd.end_date_ds))';
 		$sql = build_single_event_query_base($trees).' AND '.$date_sql.' AND '.$tree_sql;
-		$single_result = $db->getAssoc($sql);
 		$sql .= $this->_getPersonalisedSQL();
+		$single_result = $db->getAssoc($sql);
 		assert_valid_db_result($single_result);
 
 		// GET RECURRING EVENTS:
