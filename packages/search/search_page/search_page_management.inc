@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: search_page_management.inc,v 1.33 2005/03/24 03:04:29 dheppell Exp $
+* $Id: search_page_management.inc,v 1.34 2005/03/24 05:07:03 dheppell Exp $
 *
 */
 
@@ -30,7 +30,7 @@ require_once SQ_INCLUDE_PATH.'/asset_management.inc';
 * @see Asset_Management
 *
 * @author  Dominic Wong <dwong@squiz.net>
-* @version $Revision: 1.33 $
+* @version $Revision: 1.34 $
 * @package MySource_Matrix_Packages
 * @subpackage search
 */
@@ -340,7 +340,7 @@ class Search_Page_Management extends Asset_Management
 
 
 				if (!$asset->saveAttributes()) {
-					trigger_errore('Search Page Upgrade [to 0.8] FAILED - Couldn\'t save attributes', E_USER_WARNING);
+					trigger_error('Search Page Upgrade [to 0.8] FAILED - Couldn\'t save attributes', E_USER_WARNING);
 					return false;
 				}
 
