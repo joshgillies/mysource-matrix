@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_action_create_clone.inc,v 1.1 2005/02/17 06:34:05 rhoward Exp $
+* $Id: trigger_action_create_clone.inc,v 1.2 2005/02/23 05:12:06 gsherwood Exp $
 *
 */
 
@@ -33,7 +33,7 @@ require_once SQ_INCLUDE_PATH.'/general_occasional.inc';
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -67,7 +67,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 			return false;
 		}
 
-		if (!$GLOBALS['SQ_SYSTEM']->am->isAsset($settings['assetid'])) {
+		if (!$GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid'])) {
 			return false;
 		}
 
@@ -169,7 +169,7 @@ class Trigger_Action_Create_Clone extends Trigger_Action
 		$is_exclusive		= array_get_index($settings, 'is_exclusive', 0);
 
 		// check if the selected asset is valid
-		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->isAsset($selected_assetid)) {
+		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_assetid)) {
 			$selected_assetid = 0;
 		}
 

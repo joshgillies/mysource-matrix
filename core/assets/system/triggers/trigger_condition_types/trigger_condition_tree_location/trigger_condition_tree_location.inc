@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_tree_location.inc,v 1.2 2005/02/21 06:06:34 arailean Exp $
+* $Id: trigger_condition_tree_location.inc,v 1.3 2005/02/23 05:12:06 gsherwood Exp $
 *
 */
 
@@ -32,7 +32,7 @@ require_once SQ_LIB_PATH.'/html_form/html_form.inc';
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.2 $
+* @version $Revision: 1.3 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -73,7 +73,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 			if (empty($settings['assetid'])) {
 				return false;
 			} else {
-				if ($GLOBALS['SQ_SYSTEM']->am->isAsset($settings['assetid'])) {
+				if ($GLOBALS['SQ_SYSTEM']->am->assetExists($settings['assetid'])) {
 					$settings['treeid'] = $GLOBALS['SQ_SYSTEM']->am->getRawTreeIdByAsset($settings['assetid'], true);
 				} else {
 					return false;
@@ -146,7 +146,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 		$selected_assetid = array_get_index($settings, 'assetid', 0);
 
 		// check if the selected asset is valid
-		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->isAsset($selected_assetid)) {
+		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_assetid)) {
 			$selected_assetid = 0;
 		}
 
@@ -197,7 +197,7 @@ class Trigger_Condition_Tree_Location extends Trigger_Condition
 
 		$am = &$GLOBALS['SQ_SYSTEM']->am;
 
-		if (!$am->isAsset($request_data['assetid']['assetid'])) {
+		if (!$am->assetExists($request_data['assetid']['assetid'])) {
 			return false;
 		};
 

@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: trigger_condition_asset_id.inc,v 1.1 2005/02/17 06:34:26 rhoward Exp $
+* $Id: trigger_condition_asset_id.inc,v 1.2 2005/02/23 05:12:06 gsherwood Exp $
 *
 */
 
@@ -31,7 +31,7 @@
 *
 * @author	Andrei Railean <arailean@squiz.net>
 * @author	Robert Howard <rhoward@squiz.net>
-* @version $Revision: 1.1 $
+* @version $Revision: 1.2 $
 * @package MySource_Matrix_Packages
 * @subpackage __core__
 */
@@ -90,7 +90,7 @@ class Trigger_Condition_Asset_ID extends Trigger_Condition
 		$selected_assetid = array_get_index($settings, 'assetid', 0);
 
 		// check if the selected asset is valid
-		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->isAsset($selected_assetid)) {
+		if ($selected_assetid && !$GLOBALS['SQ_SYSTEM']->am->assetExists($selected_assetid)) {
 			$selected_assetid = 0;
 		}
 
