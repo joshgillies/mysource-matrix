@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: asset_edit_interface.inc,v 1.196 2004/01/15 04:10:39 gsherwood Exp $
+* $Id: asset_edit_interface.inc,v 1.197 2004/01/23 00:51:31 mmcintyre Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -270,15 +270,16 @@ class Asset_Edit_Interface extends MySource_Object
 
 			}// end foreach lock types
 
-
 			if (SQ_IN_LIMBO && $do_the_limbo_lock) {
 
 				  /////////////////////
 				 //  LIMBO LOCKING  //
 				/////////////////////
-				if (!$have_all_locks) {
-					$this->acquireLimboLocks($owner, $o, $active_screen, $screen_lock_type);
-				}
+
+				// even if we have all the locks for this screen, limbo might require more locks
+				// so acquire any more locks that might be needed
+				$this->acquireLimboLocks($owner, $o, $active_screen, $screen_lock_type);
+
 
 			} else {
 
@@ -756,7 +757,7 @@ class Asset_Edit_Interface extends MySource_Object
 			$o->commitButton('Commit', $force_unlock_on_commit);
 		}
 
-	}// end paint()
+	}//end paint()
 
 
 	/**
@@ -814,6 +815,7 @@ class Asset_Edit_Interface extends MySource_Object
 		$vars = Array('assetid' => $owner->id, 'lock_type' => $locks, 'forceably_acquire' => false);
 		$hh->queueHipo('hipo_job_acquire_lock', $vars);
 		$url = $hh->runQueuedJobs();
+		bam('url :'.$url);
 		if (!empty($url)) $o->setRedirect(strip_url(current_url()).'/?sq_redirect_url='.urlencode($url));
 
 	}//end acquireLimboLocks()
@@ -1076,6 +1078,8 @@ class Asset_Edit_Interface extends MySource_Object
 						$o->closeField();
 
 					} else if ($field->children[2]->name == 'function_call') {
+						
+						if (!isset($field->attributes['keyword'])) continue;
 
 						// find out what we need to get in this loop
 						if (isset($layout_keywords['screens'][$screen]['fields'][$field->attributes['keyword']])) {
