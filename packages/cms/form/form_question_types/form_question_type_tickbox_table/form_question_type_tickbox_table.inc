@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: form_question_type_tickbox_table.inc,v 1.1 2004/10/13 01:10:28 arailean Exp $
+* $Id: form_question_type_tickbox_table.inc,v 1.2 2004/10/13 22:28:38 lwright Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -69,7 +69,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 		$this->_tmp['submission'] = $value;
 		return $this->_getOutput('active');
 
-	}
+	}//end getAnswer()
 
 
 	/**
@@ -287,7 +287,8 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 		}
 
 		return $to_output;
-	}//end getXMLstring
+		
+	}//end getXMLstring()
 
 
 	/**
@@ -299,14 +300,14 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 	function getSafePrefix() {
 		return $prefix = str_replace(':','_',$this->getPrefix());
 
-	}//end getSafePrefix
+	}//end getSafePrefix()
 
 
 	/**
 	* Specifies if this question is of type Selection
 	*
 	* @access public
-	* @return
+	* @return boolean
 	*/
 	function isSelection()
 	{
@@ -338,7 +339,8 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 		}
 
 		return $result;
-	}
+		
+	}//end isSelected()
 
 
 	/**
@@ -372,14 +374,14 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 
 		return $name;
 
-	}
+	}//end getOptionName()
 
 
 	/**
 	* Get Option Array
 	*
 	* @access public
-	* @return Array
+	* @return Array()
 	*/
 	function getOptions() {
 		$options = Array();
@@ -399,6 +401,7 @@ class Form_Question_Type_Tickbox_Table extends Form_Question
 		return $options;
 
 	}//end getOptions()
+
 
 }//end class
 ?>
