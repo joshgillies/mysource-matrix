@@ -58,7 +58,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			<?php
 			foreach ($messages as $data) {
 				// work out who the sender was
-				$from = $GLOBALS['SQ_SYSTEM']->am->getAsset($data['userfrom']);
+				$from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userfrom']);
 				?>
 				<tr>
 					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $from->_getName(false)?></td>
@@ -161,7 +161,7 @@ class Inbox_Edit_Fns extends Asset_Edit_Fns
 			<?php
 			foreach ($messages as $data) {
 				// work out who the sender was
-				$from = $GLOBALS['SQ_SYSTEM']->am->getAsset($data['userfrom']);
+				$from = &$GLOBALS['SQ_SYSTEM']->am->getAsset($data['userfrom']);
 				?>
 				<tr>
 					<td class="sq-backend-message-item" bgcolor="#FFFFFF"><?php echo $from->_getName(false)?></td>

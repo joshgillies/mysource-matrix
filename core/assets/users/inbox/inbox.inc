@@ -36,7 +36,7 @@ class Inbox extends Asset
 	function &_getUser()
 	{
 		$link = $this->getLink(SQ_LINK_EXCLUSIVE, 'user', false, '', 'minor');
-		$user = $GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
+		$user = &$GLOBALS['SQ_SYSTEM']->am->getAsset($link['majorid'], $link['type_code']);
 		return $user;
 	}
 

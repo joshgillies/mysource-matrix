@@ -122,7 +122,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 			$val = $table_attributes[$name];
 			if ($val == '') continue;
 			if ($name == 'background') {
-				$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($val);
+				$file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($val);
 				if ($file->id) $bgimage = $file->getURL();
 				continue;
 			}
@@ -177,7 +177,7 @@ class Bodycopy_Table_Edit_Fns extends Asset_Edit_Fns
 				$val = $table_attributes[$name];
 				if ($val == '') continue;
 				if ($name == 'background') {
-					$file = $GLOBALS['SQ_SYSTEM']->am->getAsset($val);
+					$file = &$GLOBALS['SQ_SYSTEM']->am->getAsset($val);
 					if ($file->id) $popup_attribute_list .= ' '.$name.'="'.str_replace('"', '&quot;', $file->attr('name')).'"';
 					$bgimage = $file->getURL();
 					continue;

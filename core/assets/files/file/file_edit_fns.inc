@@ -159,7 +159,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 		// get the current thumbnail if there is one
 		$thumb_link = $asset->getLink(SQ_LINK_USES, 'thumbnail', true, 'thumbnail');
 		if (!empty($thumb_link)) {
-			$thumb = $GLOBALS['SQ_SYSTEM']->am->getAsset($thumb_link['minorid'], '', true);
+			$thumb = &$GLOBALS['SQ_SYSTEM']->am->getAsset($thumb_link['minorid'], '', true);
 			$existing = $thumb->_getExistingFile();
 			if (!empty($existing)) {
 				?> 
@@ -210,7 +210,7 @@ class File_Edit_Fns extends Asset_Edit_Fns
 
 		if (!$thumbid) return true;
 
-		$thumb = $am->getAsset($thumbid, '', true);
+		$thumb = &$am->getAsset($thumbid, '', true);
 		if (!$thumb->id || get_class($thumb) != 'thumbnail') {
 			return false;
 		}
