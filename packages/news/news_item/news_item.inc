@@ -18,7 +18,7 @@
 * | licence.                                                           |
 * +--------------------------------------------------------------------+
 *
-* $Id: news_item.inc,v 1.4 2004/06/24 06:11:34 amiller Exp $
+* $Id: news_item.inc,v 1.5 2004/06/24 07:09:18 gsherwood Exp $
 * $Name: not supported by cvs2svn $
 */
 
@@ -99,7 +99,7 @@ class News_Item extends Page
 
 		return $GLOBALS['SQ_SYSTEM']->am->getAsset($link['minorid'], $link['minor_type_code']);
 
-	}// end getLinkAsset()
+	}//end getLinkAsset()
 
 
 	/**
@@ -145,8 +145,7 @@ class News_Item extends Page
 
 		return true;
 
-	}// end setLinkAsset()
-
+	}//end setLinkAsset()
 
 
 	/**
@@ -174,8 +173,7 @@ class News_Item extends Page
 	*/
 	function printBody()
 	{
-	
-	// if there is no url, see if we have an asset selected
+		// if there is no url, see if we have an asset selected
 		if (($url = $this->attr('link_url')) == '') {
 			$link_asset = &$this->getLinkAsset();
 			if (!is_null($link_asset)) {
@@ -183,11 +181,11 @@ class News_Item extends Page
 					$url = current_url().'?a='.$link_asset->id;
 				}
 			}
-		}// end if		
-		
+		}
+
 		if (!$url == '') $url .= trim($this->attr('url_suffix'));
 		if (!$url == '') echo '<a href='.$url.'>';
-		
+
 		?>
 		<h1><?php echo $this->attr('name'); ?></h1>
 		<?php 
@@ -198,7 +196,7 @@ class News_Item extends Page
 		<p><?php echo $this->attr('body'); ?></p>		
 		<?php
 
-	}// end printBody()
+	}//end printBody()
 
 
 	/**
@@ -223,30 +221,31 @@ class News_Item extends Page
 	{
 		$keywords = parent::getAssetKeywords($descriptions);
 		
-		$link_asset = &$this->getLinkAsset();
-		$url = '';
-		if (is_null($link_asset)) {
-			if(!$this->attr('link_url') == '') {
-				$url = 'http://'.$this->attr('link_url').'?'.$this->attr('url_suffix');
-				}
-		} else {
-			$url = $link_asset->getURL();
-			if ($url == '') {
-				$url = current_url().'?a='.$link_asset->id;
-				}
-		}
-		if ($url == '') {
-			// No URL or Asset, so just display the Asset name
-			$keywords['asset_name_linked_to_link_url'] = Array('value' => $this->attr('name'));
-		} else {
-			$url .= trim($this->attr('url_suffix'));
- 		 	$keywords['asset_name_linked_to_link_url'] = Array('value' => '<a href="'.$url.'">'.$this->attr('name').'</a>');
-		}
+		$keywords['asset_name_linked_to_link_url'] = Array();
 
 		if ($descriptions) {
+			$keywords['asset_name_linked_to_link_url']['value'] = 'New Item Linked';
 			$keywords['asset_name_linked_to_link_url']['description'] = 'Name of the News Item linked to the URL/Asset.';
+		} else {
+			$link_asset = &$this->getLinkAsset();
+			$url = '';
+			if (is_null($link_asset)) {
+				$link_url = $this->attr('link_url');
+				if (empty($link_url)) {
+					$url = 'http://'.$this->attr('link_url').'?'.$this->attr('url_suffix');
+				}
+			} else {
+				$url = $link_asset->getURL();
+				if (empty($url)) $url = current_url().'?a='.$link_asset->id;
+			}
+			if (empty($url)) {
+				// no URL or Asset, so just display the Asset name
+				$keywords['asset_name_linked_to_link_url']['value'] = $this->attr('name');
+			} else {
+				$url .= trim($this->attr('url_suffix'));
+				$keywords['asset_name_linked_to_link_url']['value'] = '<a href="'.$url.'">'.$this->attr('name').'</a>';
+			}
 		}
-		
 		return $keywords;
 
 	}//end getAssetKeywords()
