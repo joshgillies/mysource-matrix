@@ -204,6 +204,7 @@ class Workflow_Manager extends Resolve_Object
 			$completed_conds = 0;
 
 			for (reset($step_data['conditions']); null !== ($pub = key($step_data['conditions'])); next($step_data['conditions'])) {
+				$continue = false;
 				$cond_data =& $step_data['conditions'][$pub];
 				
 				// safety code
@@ -407,7 +408,7 @@ class Workflow_Manager extends Resolve_Object
 					}
 
 					if (in_array($publisher, $can_publish)) {
-						if (!isset($cond_data['published_by']))  $cond_data['published_by'] = Array();
+						if (!isset($cond_data['published_by'])) $cond_data['published_by'] = Array();
 						// if the publisher has not already published
 						if (!in_array($publisher, $cond_data['published_by'])) {
 							$cond_data['published_by'][] = $publisher;
@@ -424,7 +425,6 @@ class Workflow_Manager extends Resolve_Object
 					unset($this->current_workflows['running'][$workflowid]);
 					if (empty($this->current_workflows['running'])) {
 						// we finished all our workflows.. YAY!!
-						// now we can publish this asset
 						$this->state = 'complete';
 						return true;
 					}
