@@ -121,7 +121,8 @@ class Asset_Management extends Resolve_Object
 		create_directory($to_dir_path);
 		
 		# for each file, copy it over
-		foreach ($file_list as $file) {
+		for (reset($file_list); null !== ($k = key($file_list)); next($file_list)) {
+			$file = $file_list[$k];
 			$from = $from_dir_path.'/'.$file;
 			$to = $to_dir_path.'/'.$file;
 
@@ -170,9 +171,10 @@ class Asset_Management extends Resolve_Object
 
 		// now add the attributes
 		$all_vars = $this->_getAllVars();
-		foreach($all_vars as $name) {
+		for (reset($all_vars); null !== ($k = key($all_vars)); next($all_vars)) {
+			$name = $all_vars[$k];
 			if (!$this->_addAttribute($name)) return false;
-		}//end for
+		}
 
 		return true;
 
@@ -225,7 +227,8 @@ class Asset_Management extends Resolve_Object
 		$current_vars = $this->_db->getCol($sql);
 
 		$all_vars = $this->_getAllVars();
-		foreach($all_vars as $name) {
+		for (reset($all_vars); null !== ($k = key($all_vars)); next($all_vars)) {
+			$name = $all_vars[$k];
 
 			// if we already have this attribute installed, then let's update it
 			if (in_array($name, $current_vars)) {
@@ -233,7 +236,6 @@ class Asset_Management extends Resolve_Object
 			} else {
 				if (!$this->_addAttribute($name)) return false;
 			}
-
 		}//end for
 
 		return true;
@@ -267,10 +269,14 @@ class Asset_Management extends Resolve_Object
 				$info = @$GLOBALS['SQ_SYSTEM']->am->getInfo($type_code, 'editing_options');
 				if (is_null($info)) return null;
 			}
-			foreach($info as $k => $v) $editing_options[$k] = $v;
+			for (reset($info); null !== ($k = key($info)); next($info)) {
+				$v = $editing_options[$k];
+				$editing_options[$k] = $v;
+			}
 		}
 
-		foreach($editing_options as $k => $v) {
+		for (reset($editing_options); null !== ($k = key($editing_options)); next($editing_options)) {
+			$v = $editing_options[$k];
 			if (empty($v)) unset($editing_options[$k]);
 		}
 
