@@ -1446,17 +1446,16 @@ class Asset extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function set_languages($languages)
+	function setLanguages($languages)
 	{
-		require_once SQ_FUDGE_PATH.'/general/general.inc';
-		$set_languages = gpc_stripslashes(implode(',',$languages));
-		$set_languages = trim($set_languages, ', ');
+		$set_languages = implode(',', $languages);
 		if($set_languages == $this->languages) return false;
 
 		$old_languages = $this->languages;
 		$this->languages = $set_languages;
 		if (!$this->_updated()) {
 			trigger_error('Failed setting languages for "'.$this->name.'"', E_USER_WARNING);
+			$this->languages = $old_languages;
 			return false;
 		}
 
@@ -1467,7 +1466,7 @@ class Asset extends Resolve_Object
 													));
 		return true;
 
-	}//end set_languages()
+	}//end setLanguages()
 
 
 	/**
@@ -1478,13 +1477,14 @@ class Asset extends Resolve_Object
 	* @return boolean
 	* @access public
 	*/
-	function set_charset($charset)
+	function setCharset($charset)
 	{
 		if($charset == $this->charset) return false;
 		$old_charset = $this->charset;
 		$this->charset = $charset;
 		if (!$this->_updated()) {
 			trigger_error('Failed setting character set for "'.$this->name.'"', E_USER_WARNING);
+			$this->charset = $old_charset;
 			return false;
 		}
 		$GLOBALS['SQ_SYSTEM']->broadcastEvent('AssetCharsetUpdate',
@@ -1494,7 +1494,7 @@ class Asset extends Resolve_Object
 													));
 		return true;
 
-	}//end set_charset()
+	}//end setCharset()
 
 
 	/**

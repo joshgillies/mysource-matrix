@@ -2,6 +2,7 @@
 
 require_once 'XML/Tree.php';
 require_once SQ_LIB_PATH.'/html_form/html_form.inc';
+require_once SQ_FUDGE_PATH.'/general/general.inc';
 
 /**
 * Asset_Edit_Interface
@@ -781,7 +782,7 @@ class Asset_Edit_Interface extends Resolve_Object
 		// add a new language
 		if (isset($_POST[$prefix.'_add_intl_language']) && !empty($_POST[$prefix.'_add_intl_language'])) {
 			$new_language = $_POST[$prefix.'_add_intl_language'];
-			if (!in_array($new_language, $current_langs)) $set_languages[] = $new_language;
+			if (!in_array($new_language, $current_langs)) $set_languages[] = gpc_stripslashes($new_language);
 		}
 
 		// check for delete languages
@@ -789,13 +790,13 @@ class Asset_Edit_Interface extends Resolve_Object
 			if (!isset($_POST[$prefix.'_rem_intl_language'][$lang_code])) $set_languages[] = $lang_code;
 		}
 
-		$owner->set_languages($set_languages);
+		$owner->setLanguages($set_languages);
 
 
 		//// CHARACTER SET ////
 		if (isset($_POST[$prefix.'_intl_character_set'])) {
 			$new_charset = $_POST[$prefix.'_intl_character_set'];
-			$owner->set_charset($new_charset);
+			$owner->setCharset($new_charset);
 		}
 
 		return false;
