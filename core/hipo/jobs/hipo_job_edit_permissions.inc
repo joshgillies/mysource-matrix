@@ -26,6 +26,7 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	var $_steps = Array(1 => Array( 'name'             => 'Updating Permissions',
 									'paint_function'   => 'paintPermissions',
 									'process_function' => 'processPermissions',
+									'running_mode'     => 'web',
 									'auto_step'        => true,
 									'percent_done'     => 0,
 									'complete'         => false,
@@ -36,10 +37,13 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	/**
 	* Constructor
 	*
+	* @param string	$codename		a unique codename the HIPO
+	* @param string	$display_mode	the mode this HIPO is being displayed in
+	*								(web = browser, server = HIPO server)
 	*/
-	function HIPO_Job_Edit_Permissions()
+	function HIPO_Job_Edit_Permissions($codename='', $display_mode='web')
 	{
-		$this->HIPO_Job();
+		$this->HIPO_Job($codename, $display_mode);
 
 	}//end constructor
 
@@ -107,14 +111,32 @@ class HIPO_Job_Edit_Permissions extends HIPO_Job
 	}//end initialise()
 
 
+	/**
+	* Paint a progress bar showing where we are up to
+	*
+	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param string		$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
 	function paintPermissions(&$step_data, $prefix)
 	{
-		// just show a progress bar of where we are up to
 		$this->paintProgressBar($step_data['percent_done'], '#412F49', $step_data['message']);
+		if ($this->_hipo_vars['running_mode'] == 'server') sleep(2);
 
 	}//end paintPermissions()
 
 
+	/**
+	* Edit permissions for a single asset in the to-do list
+	*
+	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param string		$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
 	function processPermissions(&$step_data, $prefix)
 	{
 		if (!empty($this->_running_vars['todo_assetids'])) {

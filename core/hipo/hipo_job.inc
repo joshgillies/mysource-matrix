@@ -19,17 +19,18 @@ class HIPO_Job
 
 	/**
 	* Array that stores some variables that the HIPO steps use
-	* @var Array()
+	* @var array()
 	*/
 	var $_hipo_vars = Array('current_step' => 1,
 							'percent_done' => 0,
+							'running_mode' => 'web',
 							'message'      => '',
 							'errors'       => Array(),
 							);
 
 	/**
 	* Some global options that affect how the HIPO does things
-	* @var Array
+	* @var array()
 	*/
 	var $_options = Array('on_complete_url' => '',
 						  'auto_complete'   => true,
@@ -37,19 +38,25 @@ class HIPO_Job
 
 	/**
 	* Array that stores any running variables that any of the processing functions use
-	* @var Array()
+	* @var array()
 	*/
 	var $_running_vars = Array();
 
 	/**
 	* Flag that represents if the HIPO has completed all its steps
-	* @var Array
+	* @var boolean
 	*/
 	var $_complete = false;
 
 	/**
+	* Flag that represents what mode the HIPO is being displayed in
+	* @var string
+	*/
+	var $_display_mode = 'web';
+
+	/**
 	* Array of steps to perform in this HIPO
-	* @var Array
+	* @var array()
 	*/
 	var $_steps = Array();
 
@@ -57,9 +64,14 @@ class HIPO_Job
 	/**
 	* Constructor
 	*
+	* @param string	$codename		a unique codename the HIPO
+	* @param string	$display_mode	the mode this HIPO is being displayed in
+	*								(web = browser, server = HIPO server)
 	*/
-	function HIPO_Job()
+	function HIPO_Job($codename='', $display_mode='web')
 	{
+		$this->_display_mode = $display_mode;
+		if (!empty($codename)) $this->load($codename);
 
 	}//end constructor
 
@@ -207,6 +219,8 @@ class HIPO_Job
 
 	/**
 	* Load the HIPO vars from the database
+	*
+	* @param string	$codename	a unique codename the HIPO
 	*
 	* @return boolean
 	* @access public
@@ -423,10 +437,13 @@ class HIPO_Job
 	/**
 	* Process the current step of a HIPO
 	*
-	* This function calls the process function for the step currently being run, sets the _completed 
-	* flag of the HIPO to indicate the current running state, and saves the information to the database
+	* <P>This function decides, based on the current running_mode, which process function to call. It will also
+	* switch to server mode if required based on the step data. This function also handles cancel (abort) requests
+	* from the user.</P>
+	* <P>This function sets the _completed flag of the HIPO to indicate if the HIPO is completed and saves 
+	* all HIPO var information to the database.</P>
 	*
-	* @return void
+	* @return boolean
 	* @access public
 	*/
 	function process()
@@ -441,31 +458,100 @@ class HIPO_Job
 		}
 
 		$step =& $this->_hipo_vars['current_step'];
-		$fn = $this->_steps[$step]['process_function'];
-		$prefix = $this->getCodeName().'step'.$step;
-		
-		set_error_handler(Array(&$this, '_errorHandler'));
-		if (!$this->$fn($this->_steps[$step], $prefix)) {
+
+		if ($this->_steps[$step]['running_mode'] != $this->_hipo_vars['running_mode']) {
+			
+			if ($this->_steps[$step]['running_mode'] == 'server') {
+				// we have reached a step that requires server processing, but we are not yet
+				// running in server mode (ie. we are not running on the HIPO server) - so lets
+				// put a call through the HIPO phone to the server
+				trigger_error('CONNECT TO HIPO SERVER HERE AND WAIT FOR ACK', E_USER_NOTICE);
+			}
+
+			$this->_hipo_vars['running_mode'] = $this->_steps[$step]['running_mode'];
+
+		} else {
+
+			// if we are is a display mode different from the running mode, we should not be
+			// doing any processing or saving - so just return true here
+			if ($this->_display_mode != $this->_hipo_vars['running_mode']) return true;
+
+			// call the correct process function based on the running mode
+			$fn = 'process'.ucfirst($this->_hipo_vars['running_mode']);
+			$prefix = $this->getCodeName().'step'.$step;
+			set_error_handler(Array(&$this, '_errorHandler'));
+			if (!$this->$fn($this->_steps[$step], $prefix)) {
+				$this->abort();
+				restore_error_handler();
+				return false;
+			}
 			restore_error_handler();
-			$hipo->abort();
-			return false;
-		}
-		restore_error_handler();
 
-		$prev_step_per = (($step - 1) * 100) / count($this->_steps);
-		$this_step_per = (1 / count($this->_steps)) * $this->_steps[$step]['percent_done'];
-		$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
+			$prev_step_per = (($step - 1) * 100) / count($this->_steps);
+			$this_step_per = (1 / count($this->_steps)) * $this->_steps[$step]['percent_done'];
+			$this->_hipo_vars['percent_done'] = round($prev_step_per + $this_step_per, 2);
 
-		if ($this->_steps[$step]['complete']) $this->_hipo_vars['current_step']++;
+			if ($this->_steps[$step]['complete']) $this->_hipo_vars['current_step']++;
 
-		if ($this->_hipo_vars['current_step'] > count($this->_steps)) $this->_complete = true;
-		else $this->_complete = false;
-		
+			if ($this->_hipo_vars['current_step'] > count($this->_steps)) $this->_complete = true;
+			else $this->_complete = false;
+
+		}//end if
+
 		return $this->_save();
 
 	}//end process()
 
 
+	/**
+	* Process the current step of a HIPO in the web interface
+	*
+	* This function calls the process function for the step currently being run - and that's it.
+	*
+	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param string		$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processWeb(&$step_data, $prefix)
+	{
+		$fn = $step_data['process_function'];
+		return $this->$fn($step_data, $prefix);
+
+	}//end process()
+
+
+	/**
+	* Process the current step of a HIPO in a server environment
+	*
+	* This function should only be called by a HIPO running on the HIPO server, so we assume
+	* no timeouts here and continually call the process function of the current step until
+	* it is completed.
+	*
+	* @param array()	&$step_data	a reference to the array of information about the current step
+	* @param string		$prefix		prefix for form vars
+	*
+	* @return boolean
+	* @access public
+	*/
+	function processServer(&$step_data, $prefix)
+	{
+		$fn = $step_data['process_function'];
+		while (!$step_data['complete']){
+			if (!$this->$fn($step_data, $prefix)) return false;
+		}
+		return true;
+
+	}//end processServer()
+
+
+	/**
+	* Paint a report of errors that were triggered during HIPO execution
+	*
+	* @return void
+	* @access private
+	*/
 	function _paintErrorReport()
 	{
 		require SQ_FUDGE_PATH.'/general/datetime.inc';
@@ -507,7 +593,8 @@ class HIPO_Job
 		</table>
 		</div>
 		<?php
-	}
+
+	}//end _paintErrorReport()
 
 
 	/**
