@@ -615,7 +615,8 @@ class Asset_Manager extends Resolve_Object
 	*
 	* @param int		$assetid		the asset id to be loaded
 	* @param string		$type_code		if this exists then this object is used to
-	*									load the asset, if not then the DB is queried to find out the asset type
+	*									load the asset, if not then the DB is queried 
+	*									to find out the asset type
 	* @param boolean	$mute_errors	stops the outputting of errors in this fn, needed because
 	*									you can't use the '@' operator when returning by reference
 	*
@@ -623,7 +624,6 @@ class Asset_Manager extends Resolve_Object
 	*/
 	function &getAsset($assetid, $type_code='', $mute_errors=false)
 	{
-
 		if (!isset($this->_assets[$assetid]) || !is_object($this->_assets[$assetid])) {
 
 			if (empty($type_code)) {
